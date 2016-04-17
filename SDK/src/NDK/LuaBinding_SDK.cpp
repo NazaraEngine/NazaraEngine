@@ -7,41 +7,6 @@
 
 namespace Ndk
 {
-	namespace
-	{
-		int AddNilComponent(Nz::LuaInstance& lua, EntityHandle&)
-		{
-			lua.PushNil();
-			return 1;
-		}
-
-		template<typename T>
-		int AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle)
-		{
-			static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
-
-			T& component = handle->AddComponent<T>();
-			lua.Push(component.CreateHandle());
-			return 1;
-		}
-
-		int PushNilComponent(Nz::LuaInstance& lua, BaseComponent&)
-		{
-			lua.PushNil();
-			return 1;
-		}
-
-		template<typename T>
-		int PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component)
-		{
-			static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
-
-			T& rightComponent = static_cast<T&>(component);
-			lua.Push(rightComponent.CreateHandle());
-			return 1;
-		}
-	}
-
 	void LuaBinding::BindSDK()
 	{
 		/*********************************** Ndk::Application **********************************/
@@ -110,7 +75,7 @@ namespace Ndk
 			}
 
 			ComponentBinding& binding = m_componentBinding[componentIndex];
-			if (!binding.valid)
+			if (binding.name.IsEmpty())
 			{
 				lua.Error("This component is not available to the LuaAPI");
 				return 0;
@@ -137,7 +102,7 @@ namespace Ndk
 			}
 
 			ComponentBinding& binding = m_componentBinding[componentIndex];
-			if (!binding.valid)
+			if (binding.name.IsEmpty())
 			{
 				lua.Error("This component is not available to the LuaAPI");
 				return 0;
@@ -195,27 +160,14 @@ namespace Ndk
 
 
 		// Components functions
-		m_componentBinding.resize(BaseComponent::GetMaxComponentIndex() + 1);
+		m_componentBinding.resize(BaseComponent::GetMaxComponentIndex());
 
-		EnableComponentBinding<NodeComponent>();
-		EnableComponentBinding<VelocityComponent>();
+		BindComponent<NodeComponent>("Node");
+		BindComponent<VelocityComponent>("Velocity");
 
 		#ifndef NDK_SERVER
-		EnableComponentBinding<GraphicsComponent>();
+		BindComponent<GraphicsComponent>("Graphics");
 		#endif
-	}
-
-	template<typename T>
-	void LuaBinding::EnableComponentBinding()
-	{
-		ComponentBinding binding;
-		binding.adder = &AddComponentOfType<T>;
-		binding.getter = &PushComponentOfType<T>;
-		binding.valid = true;
-
-		NazaraAssert(T::componentIndex < m_componentBinding.size(), "Component index is over component binding size");
-
-		m_componentBinding[T::componentIndex] = std::move(binding);
 	}
 
 	void LuaBinding::RegisterSDK(Nz::LuaInstance& instance)
@@ -235,18 +187,16 @@ namespace Ndk
 		// Enums
 
 		// ComponentType (fake enumeration to expose component indexes)
-		instance.PushTable();
+		instance.PushTable(0, m_componentBinding.size());
 		{
-			#ifndef NDK_SERVER
-			instance.PushInteger(GraphicsComponent::componentIndex);
-			instance.SetField("Graphics");
-			#endif
+			for (const ComponentBinding& entry : m_componentBinding)
+			{
+				if (entry.name.IsEmpty())
+					continue;
 
-			instance.PushInteger(NodeComponent::componentIndex);
-			instance.SetField("Node");
-
-			instance.PushInteger(VelocityComponent::componentIndex);
-			instance.SetField("Velocity");
+				instance.PushInteger(entry.index);
+				instance.SetField(entry.name);
+			}
 		}
 		instance.SetGlobal("ComponentType");
 	}

@@ -27,11 +27,13 @@
 
 namespace Ndk
 {
-	class LuaBinding
+	class NDK_API LuaBinding
 	{
 		public:
 			LuaBinding();
 			~LuaBinding() = default;
+
+			template<typename T> void BindComponent(const Nz::String& name);
 
 			void RegisterClasses(Nz::LuaInstance& instance);
 
@@ -41,8 +43,6 @@ namespace Ndk
 			void BindNetwork();
 			void BindSDK();
 			void BindUtility();
-
-			template<typename T> void EnableComponentBinding();
 
 			void RegisterCore(Nz::LuaInstance& instance);
 			void RegisterMath(Nz::LuaInstance& instance);
@@ -93,8 +93,9 @@ namespace Ndk
 			struct ComponentBinding
 			{
 				AddComponentFunc adder;
+				ComponentIndex index;
 				GetComponentFunc getter;
-				bool valid = false;
+				Nz::String name;
 			};
 
 			std::vector<ComponentBinding> m_componentBinding;
@@ -115,6 +116,14 @@ namespace Ndk
 			Nz::LuaClass<GraphicsComponentHandle> graphicsComponent;
 			#endif
 	};
+
+	template<typename T>
+	int AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle);
+
+	template<typename T>
+	int PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component);
 }
+
+#include <NDK/LuaBinding.inl>
 
 #endif // NDK_LUABINDING_HPP
