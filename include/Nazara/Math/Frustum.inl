@@ -6,6 +6,7 @@
 // http://www.crownandcutlass.com/features/technicaldetails/frustum.html
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
@@ -15,12 +16,40 @@
 
 namespace Nz
 {
+
+	/*!
+    * \ingroup math
+	* \class Nz::Frustum
+	* \brief Math class that represents a frustum in the three dimensional vector space
+	*
+	* Frustums are used to determine what is inside the camera's field of view. They help speed up the rendering process
+	*/
+
+	/*!
+	* \brief Constructs a Frustum object from another type of Frustum
+	*
+	* \param frustum Frustum of type U to convert to type T
+	*/
+
 	template<typename T>
 	template<typename U>
 	Frustum<T>::Frustum(const Frustum<U>& frustum)
 	{
 		Set(frustum);
 	}
+
+	/*!
+	* \brief Builds the frustum object
+	* \return A reference to this frustum which is the build up camera's field of view
+	*
+	* \param angle Unit depends on NAZARA_MATH_ANGLE_RADIAN
+	* \param ratio Rendering ratio (typically 16/9 or 4/3)
+	* \param zNear Distance where 'vision' begins
+	* \param zFar Distance where 'vision' ends
+	* \param eye Position of the camera
+	* \param target Position of the target of the camera
+	* \param up Direction of up vector according to the orientation of camera
+	*/
 
 	template<typename T>
 	Frustum<T>& Frustum<T>::Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
@@ -45,18 +74,18 @@ namespace Nz
 		Vector3<T> nc = eye + f * zNear;
 		Vector3<T> fc = eye + f * zFar;
 
-		// Calcul du frustum
-		m_corners[BoxCorner_FarLeftBottom] = fc - u*farH - s*farW;
-		m_corners[BoxCorner_FarLeftTop] = fc + u*farH - s*farW;
-		m_corners[BoxCorner_FarRightTop] = fc + u*farH + s*farW;
-		m_corners[BoxCorner_FarRightBottom] = fc - u*farH + s*farW;
+		// Computing the frustum
+		m_corners[BoxCorner_FarLeftBottom] = fc - u * farH - s * farW;
+		m_corners[BoxCorner_FarLeftTop] = fc + u * farH - s * farW;
+		m_corners[BoxCorner_FarRightTop] = fc + u * farH + s * farW;
+		m_corners[BoxCorner_FarRightBottom] = fc - u * farH + s * farW;
 
-		m_corners[BoxCorner_NearLeftBottom] = nc - u*nearH - s*nearW;
-		m_corners[BoxCorner_NearLeftTop] = nc + u*nearH - s*nearW;
-		m_corners[BoxCorner_NearRightTop] = nc + u*nearH + s*nearW;
-		m_corners[BoxCorner_NearRightBottom] = nc - u*nearH + s*nearW;
+		m_corners[BoxCorner_NearLeftBottom] = nc - u * nearH - s * nearW;
+		m_corners[BoxCorner_NearLeftTop] = nc + u * nearH - s * nearW;
+		m_corners[BoxCorner_NearRightTop] = nc + u * nearH + s * nearW;
+		m_corners[BoxCorner_NearRightBottom] = nc - u * nearH + s * nearW;
 
-		// Construction des plans du frustum
+		// Construction of frustum's planes
 		m_planes[FrustumPlane_Bottom].Set(m_corners[BoxCorner_NearLeftBottom], m_corners[BoxCorner_NearRightBottom], m_corners[BoxCorner_FarRightBottom]);
 		m_planes[FrustumPlane_Far].Set(m_corners[BoxCorner_FarRightTop], m_corners[BoxCorner_FarLeftTop], m_corners[BoxCorner_FarLeftBottom]);
 		m_planes[FrustumPlane_Left].Set(m_corners[BoxCorner_NearLeftTop], m_corners[BoxCorner_NearLeftBottom], m_corners[BoxCorner_FarLeftBottom]);
@@ -66,6 +95,18 @@ namespace Nz
 
 		return *this;
 	}
+
+	/*!
+	* \brief Checks whether or not a bounding volume is contained in the frustum
+	* \return true if the bounding volume is entirely in the frustum
+	*
+	* \param volume Volume to check
+	*
+	* \remark If volume is infinite, true is returned
+	* \remark If volume is null, false is returned
+	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and false is returned
+	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and false is returned. This should not never happen for a user of the library
+	*/
 
 	template<typename T>
 	bool Frustum<T>::Contains(const BoundingVolume<T>& volume) const
@@ -102,11 +143,18 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Checks whether or not a box is contained in the frustum
+	* \return true if the box is entirely in the frustum
+	*
+	* \param box Box to check
+	*/
+
 	template<typename T>
 	bool Frustum<T>::Contains(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
-		for(unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
 			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
 				return false;
@@ -115,16 +163,30 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether or not an oriented box is contained in the frustum
+	* \return true if the oriented box is entirely in the frustum
+	*
+	* \param orientedbox Oriented box to check
+	*/
+
 	template<typename T>
 	bool Frustum<T>::Contains(const OrientedBox<T>& orientedbox) const
 	{
 		return Contains(&orientedbox[0], 8);
 	}
 
+	/*!
+	* \brief Checks whether or not a sphere is contained in the frustum
+	* \return true if the sphere is entirely in the frustum
+	*
+	* \param sphere Sphere to check
+	*/
+
 	template<typename T>
 	bool Frustum<T>::Contains(const Sphere<T>& sphere) const
 	{
-		for(unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
 			if (m_planes[i].Distance(sphere.GetPosition()) < -sphere.radius)
 				return false;
@@ -133,10 +195,17 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether or not a Vector3 is contained in the frustum
+	* \return true if the Vector3 is in the frustum
+	*
+	* \param point Vector3 which represents a point in the space
+	*/
+
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>& point) const
 	{
-		for(unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
 			if (m_planes[i].Distance(point) < F(0.0))
 				return false;
@@ -144,6 +213,14 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Checks whether or not a set of Vector3 is contained in the frustum
+	* \return true if the set of Vector3 is in the frustum
+	*
+	* \param points Pointer to Vector3 which represents a set of points in the space
+	* \param pointCount Number of points to check
+	*/
 
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>* points, unsigned int pointCount) const
@@ -164,6 +241,15 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Constructs the frustum from a Matrix4
+	* \return A reference to this frustum which is the build up of projective matrix
+	*
+	* \param clipMatrix Matrix which represents the transformation of the frustum
+	*
+	* \remark A NazaraWarning is produced if clipMatrix is not inversible and corners are unchanged
+	*/
+
 	template<typename T>
 	Frustum<T>& Frustum<T>::Extract(const Matrix4<T>& clipMatrix)
 	{
@@ -178,7 +264,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[12];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -193,7 +279,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[12];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -208,7 +294,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[13];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -223,7 +309,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[13];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -238,7 +324,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[14];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -253,7 +339,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[14];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0]*plane[0] + plane[1]*plane[1] + plane[2]*plane[2]);
+		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -261,8 +347,8 @@ namespace Nz
 
 		m_planes[FrustumPlane_Near].Set(plane);
 
-		// Une fois les plans extraits, il faut extraire les points du frustum
-		// Je me base sur cette page: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
+		// Once planes have been extracted, we must extract points of the frustum
+		// Based on: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
 
 		Matrix4<T> invClipMatrix;
 		if (clipMatrix.GetInverse(&invClipMatrix))
@@ -331,11 +417,30 @@ namespace Nz
 		return *this;
 	}
 
+	/*!
+	* \brief Constructs the frustum from the view matrix and the projection matrix
+	* \return A reference to this frustum which is the build up of projective matrix
+	*
+	* \param view Matrix which represents the view
+	* \param projection Matrix which represents the projection (the perspective)
+	*
+	* \remark A NazaraWarning is produced if the product of these matrices is not inversible and corners are unchanged
+	*/
+
 	template<typename T>
 	Frustum<T>& Frustum<T>::Extract(const Matrix4<T>& view, const Matrix4<T>& projection)
 	{
 		return Extract(Matrix4<T>::Concatenate(view, projection));
 	}
+
+	/*!
+	* \brief Gets the Vector3 for the corner
+	* \return The position of the corner of the frustum according to enum BoxCorner
+	*
+	* \param corner Enumeration of type BoxCorner
+	*
+	* \remark If enumeration is not defined in BoxCorner and NAZARA_DEBUG defined, a NazaraError is thrown and a Vector3 uninitialised is returned
+	*/
 
 	template<typename T>
 	const Vector3<T>& Frustum<T>::GetCorner(BoxCorner corner) const
@@ -353,6 +458,15 @@ namespace Nz
 		return m_corners[corner];
 	}
 
+	/*!
+	* \brief Gets the Plane for the face
+	* \return The face of the frustum according to enum FrustumPlane
+	*
+	* \param plane Enumeration of type FrustumPlane
+	*
+	* \remark If enumeration is not defined in FrustumPlane and NAZARA_DEBUG defined, a NazaraError is thrown and a Plane uninitialised is returned
+	*/
+
 	template<typename T>
 	const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
@@ -368,6 +482,18 @@ namespace Nz
 
 		return m_planes[plane];
 	}
+
+	/*!
+	* \brief Checks whether or not a bounding volume intersects with the frustum
+	* \return IntersectionSide How the bounding volume is intersecting with the frustum
+	*
+	* \param volume Volume to check
+	*
+	* \remark If volume is infinite, IntersectionSide_Intersecting is returned
+	* \remark If volume is null, IntersectionSide_Outside is returned
+	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and false is returned
+	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and false is returned. This should not never happen for a user of the library
+	*/
 
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const BoundingVolume<T>& volume) const
@@ -394,7 +520,7 @@ namespace Nz
 			}
 
 			case Extend_Infinite:
-				return IntersectionSide_Intersecting; // On ne peut pas contenir l'infini
+				return IntersectionSide_Intersecting; // We can not contain infinity
 
 			case Extend_Null:
 				return IntersectionSide_Outside;
@@ -404,13 +530,20 @@ namespace Nz
 		return IntersectionSide_Outside;
 	}
 
+	/*!
+	* \brief Checks whether or not a box intersects with the frustum
+	* \return IntersectionSide How the box is intersecting with the frustum
+	*
+	* \param box Box to check
+	*/
+
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 		IntersectionSide side = IntersectionSide_Inside;
 
-		for(unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
 			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
 				return IntersectionSide_Outside;
@@ -421,11 +554,25 @@ namespace Nz
 		return side;
 	}
 
+	/*!
+	* \brief Checks whether or not an oriented box intersects with the frustum
+	* \return IntersectionSide How the oriented box is intersecting with the frustum
+	*
+	* \param oriented box OrientedBox to check
+	*/
+
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const OrientedBox<T>& orientedbox) const
 	{
 		return Intersect(&orientedbox[0], 8);
 	}
+
+	/*!
+	* \brief Checks whether or not a sphere intersects with the frustum
+	* \return IntersectionSide How the sphere is intersecting with the frustum
+	*
+	* \param sphere Sphere to check
+	*/
 
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const Sphere<T>& sphere) const
@@ -433,7 +580,7 @@ namespace Nz
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-points-and-spheres/
 		IntersectionSide side = IntersectionSide_Inside;
 
-		for(unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
 			T distance = m_planes[i].Distance(sphere.GetPosition());
 			if (distance < -sphere.radius)
@@ -444,6 +591,14 @@ namespace Nz
 
 		return side;
 	}
+
+	/*!
+	* \brief Checks whether or not a set of Vector3 intersects with the frustum
+	* \return IntersectionSide How the set of Vector3 is intersecting with the frustum
+	*
+	* \param points Pointer to Vector3 which represents a set of points in the space
+	* \param pointCount Number of points to check
+	*/
 
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, unsigned int pointCount) const
@@ -468,6 +623,13 @@ namespace Nz
 		return (c == 6) ? IntersectionSide_Inside : IntersectionSide_Intersecting;
 	}
 
+	/*!
+	* \brief Sets the components of the frustum from another frustum
+	* \return A reference to this frustum
+	*
+	* \param frustum The other frustum
+	*/
+
 	template<typename T>
 	Frustum<T>& Frustum<T>::Set(const Frustum& frustum)
 	{
@@ -475,6 +637,13 @@ namespace Nz
 
 		return *this;
 	}
+
+	/*!
+	* \brief Sets the components of the frustum from another type of Frustum
+	* \return A reference to this frustum
+	*
+	* \param frustum Frustum of type U to convert its components
+	*/
 
 	template<typename T>
 	template<typename U>
@@ -489,19 +658,82 @@ namespace Nz
 		return *this;
 	}
 
+	/*!
+	* \brief Gives a string representation
+	* \return A string representation of the object: "Frustum(Plane ...)"
+	*/
+
 	template<typename T>
 	String Frustum<T>::ToString() const
 	{
 		StringStream ss;
 
 		return ss << "Frustum(Bottom: " << m_planes[FrustumPlane_Bottom].ToString() << "\n"
-				  << "        Far: " << m_planes[FrustumPlane_Far].ToString() << "\n"
-				  << "        Left: " << m_planes[FrustumPlane_Left].ToString() << "\n"
-				  << "        Near: " << m_planes[FrustumPlane_Near].ToString() << "\n"
-				  << "        Right: " << m_planes[FrustumPlane_Right].ToString() << "\n"
-				  << "        Top: " << m_planes[FrustumPlane_Top].ToString() << ")\n";
+		       << "        Far: " << m_planes[FrustumPlane_Far].ToString() << "\n"
+		       << "        Left: " << m_planes[FrustumPlane_Left].ToString() << "\n"
+		       << "        Near: " << m_planes[FrustumPlane_Near].ToString() << "\n"
+		       << "        Right: " << m_planes[FrustumPlane_Right].ToString() << "\n"
+		       << "        Top: " << m_planes[FrustumPlane_Top].ToString() << ")\n";
+	}
+
+	/*!
+	* \brief Serializes a Frustum
+	* \return true if successfully serialized
+	*
+	* \param context Serialization context
+	* \param matrix Input frustum
+	*/
+	template<typename T>
+	bool Serialize(SerializationContext& context, const Frustum<T>& frustum)
+	{
+		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		{
+			if (!Serialize(context, frustum.m_corners[i]))
+				return false;
+		}
+
+		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		{
+			if (!Serialize(context, frustum.m_planes[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	/*!
+	* \brief Unserializes a Frustum
+	* \return true if successfully unserialized
+	*
+	* \param context Serialization context
+	* \param matrix Output frustum
+	*/
+	template<typename T>
+	bool Unserialize(SerializationContext& context, Frustum<T>* frustum)
+	{
+		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		{
+			if (!Unserialize(context, &frustum->m_corners[i]))
+				return false;
+		}
+
+		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		{
+			if (!Unserialize(context, &frustum->m_planes[i]))
+				return false;
+		}
+
+		return true;
 	}
 }
+
+/*!
+* \brief Output operator
+* \return The stream
+*
+* \param out The stream
+* \param frustum The frustum to output
+*/
 
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)

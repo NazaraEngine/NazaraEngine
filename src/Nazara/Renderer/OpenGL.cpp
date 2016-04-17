@@ -2099,7 +2099,6 @@ namespace Nz
 	};
 
 	static_assert(VertexComponent_Max + 1 == 16, "Attribute index array is incomplete");
-}
 
 PFNGLACTIVETEXTUREPROC            glActiveTexture            = nullptr;
 PFNGLATTACHSHADERPROC             glAttachShader             = nullptr;
@@ -2283,3 +2282,5 @@ GLX::PFNGLXSWAPINTERVALEXTPROC         glXSwapIntervalEXT      = nullptr;
 GLX::PFNGLXSWAPINTERVALMESAPROC        NzglXSwapIntervalMESA   = nullptr;
 GLX::PFNGLXSWAPINTERVALSGIPROC         glXSwapIntervalSGI      = nullptr;
 #endif
+
+}

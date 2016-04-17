@@ -42,17 +42,17 @@ namespace Nz
 	}
 
 	/*!
+	* \ingroup core
 	* \class Nz::Clock
 	* \brief Utility class that measure the elapsed time
 	*/
 
-	/*! 
+	/*!
 	* \brief Constructs a Clock object
 	*
 	* \param startingValue The starting time value, in microseconds
 	* \param paused The clock pause state
 	*/
-
 	Clock::Clock(UInt64 startingValue, bool paused) :
 	m_elapsedTime(startingValue),
 	m_refTime(GetElapsedMicroseconds()),
@@ -66,7 +66,6 @@ namespace Nz
 	*
 	* \see GetMicroseconds, GetMilliseconds
 	*/
-
 	float Clock::GetSeconds() const
 	{
 		return GetMicroseconds()/1000000.f;
@@ -78,7 +77,6 @@ namespace Nz
 	*
 	* \see GetMilliseconds, GetSeconds
 	*/
-
 	UInt64 Clock::GetMicroseconds() const
 	{
 		NazaraLock(m_mutex);
@@ -96,7 +94,6 @@ namespace Nz
 	*
 	* \see GetMicroseconds, GetSeconds
 	*/
-
 	UInt64 Clock::GetMilliseconds() const
 	{
 		return GetMicroseconds()/1000;
@@ -108,7 +105,6 @@ namespace Nz
 	*
 	* \see Pause, Unpause
 	*/
-
 	bool Clock::IsPaused() const
 	{
 		NazaraLock(m_mutex);
@@ -124,7 +120,6 @@ namespace Nz
 	*
 	* \see IsPaused, Unpause
 	*/
-
 	void Clock::Pause()
 	{
 		NazaraLock(m_mutex);
@@ -140,7 +135,6 @@ namespace Nz
 	* \brief Restart the clock
 	* Restarts the clock, putting it's time counter back to zero (as if the clock got constructed).
 	*/
-
 	void Clock::Restart()
 	{
 		NazaraLock(m_mutex);
@@ -158,7 +152,6 @@ namespace Nz
 	*
 	* \see IsPaused, Unpause
 	*/
-
 	void Clock::Unpause()
 	{
 		NazaraLock(m_mutex);

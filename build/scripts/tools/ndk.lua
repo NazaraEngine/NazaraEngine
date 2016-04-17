@@ -8,7 +8,8 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../SDK/include"
+	"../SDK/include",
+	"../SDK/src"
 }
 
 TOOL.Files = {

@@ -33,7 +33,7 @@ namespace Nz
 			void AddController(ParticleControllerRef controller);
 			void AddEmitter(ParticleEmitter* emitter);
 			void AddGenerator(ParticleGeneratorRef generator);
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const override;
 
 			void ApplyControllers(ParticleMapper& mapper, unsigned int particleCount, float elapsedTime);
 

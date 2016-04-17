@@ -12,6 +12,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #else
 #error Missing implementation: Network
 #endif

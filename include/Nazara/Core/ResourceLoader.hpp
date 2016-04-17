@@ -9,6 +9,7 @@
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/String.hpp>
 #include <list>
 #include <tuple>
@@ -21,6 +22,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	class ResourceLoader
 	{
+		static_assert(std::is_base_of<ResourceParameters, Parameters>::value, "ResourceParameters must be a base of Parameters");
+
 		friend Type;
 
 		public:

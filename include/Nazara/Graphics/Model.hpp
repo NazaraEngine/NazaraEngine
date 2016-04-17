@@ -10,13 +10,14 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API ModelParameters
+	struct NAZARA_GRAPHICS_API ModelParameters : ResourceParameters
 	{
 		ModelParameters();
 

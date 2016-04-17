@@ -8,6 +8,7 @@
 #define NAZARA_TCPCLIENT_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
@@ -15,13 +16,15 @@
 
 namespace Nz
 {
+	class NetPacket;
+
 	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream
 	{
 		friend class TcpServer;
 
 		public:
 			inline TcpClient();
-			inline TcpClient(TcpClient&& tcpClient);
+			TcpClient(TcpClient&& tcpClient) = default;
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);
@@ -43,12 +46,16 @@ namespace Nz
 			inline bool IsKeepAliveEnabled() const;
 
 			bool Receive(void* buffer, std::size_t size, std::size_t* received);
+			bool ReceivePacket(NetPacket* packet);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendPacket(const NetPacket& packet);
 
 			bool SetCursorPos(UInt64 offset) override;
 
 			bool WaitForConnected(UInt64 msTimeout = 3000);
+
+			inline TcpClient& operator=(TcpClient&& tcpClient) = default;
 
 		private:
 			void FlushStream() override;
@@ -60,7 +67,16 @@ namespace Nz
 			void Reset(SocketHandle handle, const IpAddress& peerAddress);
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
+			struct PendingPacket
+			{
+				std::size_t received = 0;
+				ByteArray data;
+				UInt16 netcode;
+				bool headerReceived = false;
+			};
+
 			IpAddress m_peerAddress;
+			PendingPacket m_pendingPacket;
 			UInt64 m_keepAliveInterval;
 			UInt64 m_keepAliveTime;
 			bool m_isLowDelayEnabled;

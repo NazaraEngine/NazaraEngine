@@ -1,5 +1,8 @@
 # Nazara build
 examples/bin/*.exe
+examples/bin/*.pdb
+tests/*.exe
+tests/*.pdb
 lib/*
 
 # Feature page
@@ -21,6 +24,7 @@ build/**/*.workspace
 build/**/*.project
 
 # Visual Studio
+build/**/*.pdb
 build/**/*.filters
 build/**/*.vcxproj
 build/**/*.tlog
@@ -28,17 +32,17 @@ build/**/*.sln
 build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
-lib/*.exp
+build/**/*.VC.opendb
 
 # Compiled Object files
 build/**/*.slo
 build/**/*.lo
 build/**/*.o
 build/**/*.obj
+build/**/*.obj.enc
 
 # Compiled Dynamic libraries
 build/**/*.so
-lib/*.lib
 
 # Compiled Static libraries
 build/**/*.lai
@@ -73,7 +77,6 @@ $RECYCLE.BIN/
 *.ilk
 *.meta
 *.pch
-*.pdb
 *.pgc
 *.pgd
 *.rsp

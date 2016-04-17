@@ -15,6 +15,7 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 			THEN("They are the same")
 			{
 				REQUIRE(firstUnit == secondUnit);
+				REQUIRE(firstUnit <= secondUnit);
 			}
 		}
 
@@ -22,11 +23,13 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 		{
 			Nz::Vector2f tmp(-1.f, 1.f);
 
-			THEN("These results are expected")
+			THEN("These are perpendicular")
 			{
 				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
 				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
-				REQUIRE(firstUnit.AngleBetween(tmp) == Approx(90.f));
+				REQUIRE(firstUnit.AngleBetween(tmp) == Approx(Nz::FromDegrees(90.f)));
+				Nz::Vector2f negativeUnitX = -Nz::Vector2f::UnitX();
+				REQUIRE(negativeUnitX.AngleBetween(negativeUnitX + Nz::Vector2f(0, 0.0000001f)) == Approx(Nz::FromDegrees(360.f)));
 			}
 		}
 
@@ -45,5 +48,49 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 				REQUIRE(firstUnit.GetLength() == Approx(std::sqrt(2.f)));
 			}
 		}
+
+		WHEN("We nomalize the vectors")
+		{
+			float ratio = 0.f;
+			THEN("For normal cases should be normal")
+			{
+				Nz::Vector2f normalized = firstUnit.GetNormal(&ratio);
+				REQUIRE(normalized == (Nz::Vector2f::Unit() / std::sqrt(2.f)));
+				REQUIRE(ratio == Approx(std::sqrt(2.f)));
+			}
+
+			THEN("For null vector")
+			{
+				Nz::Vector2f zero = Nz::Vector2f::Zero();
+				REQUIRE(zero.GetNormal(&ratio) == Nz::Vector2f::Zero());
+				REQUIRE(ratio == Approx(0.f));
+			}
+		}
+
+		WHEN("We try to maximize and minimize")
+		{
+			Nz::Vector2f maximize(2.f, 1.f);
+			Nz::Vector2f minimize(1.f, 2.f);
+
+			THEN("The minimised and maximised should be (1, 1) and (2, 2)")
+			{
+				Nz::Vector2f maximized = maximize;
+				Nz::Vector2f minimized = minimize;
+				REQUIRE(minimized.Minimize(maximized) == Nz::Vector2f::Unit());
+				REQUIRE(maximize.Maximize(minimize) == (2.f * Nz::Vector2f::Unit()));
+			}
+
+		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Vector2f zero = Nz::Vector2f::Zero();
+				Nz::Vector2f unit = Nz::Vector2f::Unit();
+				REQUIRE(Nz::Vector2f::Lerp(zero, unit, 0.5f) == (Nz::Vector2f::Unit() * 0.5f));
+			}
+		}
+
 	}
 }

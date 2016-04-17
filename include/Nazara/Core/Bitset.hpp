@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <limits>
 #include <memory>
 #include <type_traits>
 
@@ -31,9 +32,9 @@ namespace Nz
 			Bitset(const Bitset& bitset) = default;
 			explicit Bitset(const String& bits);
 			Bitset(Bitset&& bitset) noexcept = default;
-			~Bitset() = default;
+			~Bitset() noexcept = default;
 
-			void Clear();
+			void Clear() noexcept;
 			unsigned int Count() const;
 			void Flip();
 
@@ -89,9 +90,9 @@ namespace Nz
 			Bitset& operator|=(const Bitset& bitset);
 			Bitset& operator^=(const Bitset& bitset);
 
-			static Block fullBitMask;
-			static unsigned int bitsPerBlock;
-			static unsigned int npos;
+			static constexpr Block fullBitMask = std::numeric_limits<Block>::max();
+			static constexpr unsigned int bitsPerBlock = std::numeric_limits<Block>::digits;
+			static constexpr unsigned int npos = std::numeric_limits<unsigned int>::max();
 
 		private:
 			unsigned int FindFirstFrom(unsigned int blockIndex) const;

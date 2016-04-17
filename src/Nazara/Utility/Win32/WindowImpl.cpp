@@ -193,7 +193,7 @@ namespace Nz
 
 	bool WindowImpl::Create(WindowHandle handle)
 	{
-		m_handle = reinterpret_cast<HWND>(handle);
+		m_handle = static_cast<HWND>(handle);
 
 		if (!m_handle || !IsWindow(m_handle))
 		{
@@ -342,7 +342,7 @@ namespace Nz
 		#endif
 
 		if (cursor != WindowCursor_None)
-			m_cursor = reinterpret_cast<HCURSOR>(LoadImage(nullptr, windowsCursors[cursor], IMAGE_CURSOR, 0, 0, LR_SHARED));
+			m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, windowsCursors[cursor], IMAGE_CURSOR, 0, 0, LR_SHARED));
 		else
 			m_cursor = nullptr;
 
@@ -1125,7 +1125,7 @@ namespace Nz
 		WindowImpl* me;
 		if (message == WM_CREATE)
 		{
-			me = reinterpret_cast<WindowImpl*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
+			me = static_cast<WindowImpl*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 			SetWindowLongPtr(window, GWL_USERDATA, reinterpret_cast<LONG_PTR>(me));
 		}
 		else

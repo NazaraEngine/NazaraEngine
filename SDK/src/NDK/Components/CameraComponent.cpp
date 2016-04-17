@@ -119,9 +119,14 @@ namespace Ndk
 		switch (m_projectionType)
 		{
 			case Nz::ProjectionType_Orthogonal:
-				EnsureViewportUpdate();
+				if (m_size.x <= 0.f || m_size.y <= 0.f)
+				{
+					EnsureViewportUpdate();
 
-				m_projectionMatrix.MakeOrtho(0.f, static_cast<float>(m_viewport.width), 0.f, static_cast<float>(m_viewport.height), m_zNear, m_zFar);
+					m_projectionMatrix.MakeOrtho(0.f, static_cast<float>(m_viewport.width), 0.f, static_cast<float>(m_viewport.height), m_zNear, m_zFar);
+				}
+				else
+					m_projectionMatrix.MakeOrtho(0.f, m_size.x, 0.f, m_size.y, m_zNear, m_zFar);
 				break;
 
 			case Nz::ProjectionType_Perspective:

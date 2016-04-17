@@ -25,10 +25,26 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup core
+	* \class Nz::DynLib
+	* \brief Core class that represents a dynamic library loader
+	*/
+
+	/*!
+	* \brief Constructs a DynLib object by default
+	*/
+
 	DynLib::DynLib() :
 	m_impl(nullptr)
 	{
 	}
+
+	/*!
+	* \brief Constructs a DynLib object by move semantic
+	*
+	* \param lib DynLib to move into this
+	*/
 
 	DynLib::DynLib(DynLib&& lib) :
 	m_lastError(std::move(lib.m_lastError)),
@@ -37,10 +53,21 @@ namespace Nz
 		lib.m_impl = nullptr;
 	}
 
+	/*!
+	* \brief Destructs the object and calls Unload
+	*
+	* \see Unload
+	*/
+
 	DynLib::~DynLib()
 	{
 		Unload();
 	}
+
+	/*!
+	* \brief Gets the last error
+	* \return Last error
+	*/
 
 	String DynLib::GetLastError() const
 	{
@@ -49,12 +76,19 @@ namespace Nz
 		return m_lastError;
 	}
 
+	/*!
+	* \brief Gets the symbol for the name
+	* \return Function which is the symbol of the function name
+	*
+	* \remark Produces a NazaraError if library is not loaded with NAZARA_CORE_SAFE defined
+	*/
+
 	DynLibFunc DynLib::GetSymbol(const String& symbol) const
 	{
 		NazaraLock(m_mutex)
 
 		#if NAZARA_CORE_SAFE
-		if (!m_impl)
+		if (!IsLoaded())
 		{
 			NazaraError("Library not opened");
 			return nullptr;
@@ -64,10 +98,24 @@ namespace Nz
 		return m_impl->GetSymbol(symbol, &m_lastError);
 	}
 
+	/*!
+	* \brief Checks whether the library is loaded
+	* \return true if loaded
+	*/
+
 	bool DynLib::IsLoaded() const
 	{
 		return m_impl != nullptr;
 	}
+
+	/*!
+	* \brief Loads the library with that path
+	* \return true if loading is successful
+	*
+	* \param libraryPath Path of the library
+	*
+	* \remark Produces a NazaraError if library is could not be loaded
+	*/
 
 	bool DynLib::Load(const String& libraryPath)
 	{
@@ -87,17 +135,28 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Unloads the library
+	*/
+
 	void DynLib::Unload()
 	{
 		NazaraLock(m_mutex)
 
-		if (m_impl)
+		if (IsLoaded())
 		{
 			m_impl->Unload();
 			delete m_impl;
 			m_impl = nullptr;
 		}
 	}
+
+	/*!
+	* \brief Moves the other lib into this
+	* \return A reference to this
+	*
+	* \param lib DynLib to move in this
+	*/
 
 	DynLib& DynLib::operator=(DynLib&& lib)
 	{

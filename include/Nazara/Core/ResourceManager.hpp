@@ -8,6 +8,7 @@
 #define NAZARA_RESOURCEMANAGER_HPP
 
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/String.hpp>
 #include <unordered_map>
 

@@ -16,6 +16,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Box
 	{
@@ -40,8 +42,8 @@ namespace Nz
 			Box& ExtendTo(const Vector3<T>& point);
 
 			Sphere<T> GetBoundingSphere() const;
-			Vector3<T> GetCorner(BoxCorner corner) const;
 			Vector3<T> GetCenter() const;
+			Vector3<T> GetCorner(BoxCorner corner) const;
 			Vector3<T> GetLengths() const;
 			Vector3<T> GetMaximum() const;
 			Vector3<T> GetMinimum() const;
@@ -96,6 +98,9 @@ namespace Nz
 	typedef Box<unsigned int> Boxui;
 	typedef Box<Int32> Boxi32;
 	typedef Box<UInt32> Boxui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Box<T>& box);
+	template<typename T> bool Unserialize(SerializationContext& context, Box<T>* box);
 }
 
 template<typename T>

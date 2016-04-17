@@ -13,6 +13,12 @@ namespace Ndk
 			AddDefaultSystems();
 	}
 
+	inline World::World(World&& world) noexcept :
+	HandledObject(std::move(world))
+	{
+		operator=(std::move(world));
+	}
+
 	inline BaseSystem& World::AddSystem(std::unique_ptr<BaseSystem>&& system)
 	{
 		NazaraAssert(system, "System must be valid");
@@ -25,7 +31,7 @@ namespace Ndk
 
 		// Affectation et retour du système
 		m_systems[index] = std::move(system);
-		m_systems[index]->SetWorld(*this);
+		m_systems[index]->SetWorld(this);
 
 		Invalidate(); // On force une mise à jour de toutes les entités
 
@@ -151,5 +157,23 @@ namespace Ndk
 	inline void World::Invalidate(EntityId id)
 	{
 		m_dirtyEntities.UnboundedSet(id, true);
+	}
+
+	inline World& World::operator=(World&& world) noexcept
+	{
+		m_aliveEntities  = std::move(world.m_aliveEntities);
+		m_dirtyEntities  = std::move(world.m_dirtyEntities);
+		m_freeIdList     = std::move(world.m_freeIdList);
+		m_killedEntities = std::move(world.m_killedEntities);
+
+		m_entities = std::move(world.m_entities);
+		for (EntityBlock& block : m_entities)
+			block.entity.SetWorld(this);
+
+		m_systems = std::move(world.m_systems);
+		for (const auto& systemPtr : m_systems)
+			systemPtr->SetWorld(this);
+
+		return *this;
 	}
 }

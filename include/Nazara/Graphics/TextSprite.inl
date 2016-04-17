@@ -14,6 +14,12 @@ namespace Nz
 		SetDefaultMaterial();
 	}
 
+	inline TextSprite::TextSprite(const AbstractTextDrawer& drawer) :
+	TextSprite()
+	{
+		Update(drawer);
+	}
+
 	inline TextSprite::TextSprite(const TextSprite& sprite) :
 	InstancedRenderable(sprite),
 	m_renderInfos(sprite.m_renderInfos),
