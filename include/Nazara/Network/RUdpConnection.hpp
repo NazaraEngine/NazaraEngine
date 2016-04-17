@@ -56,6 +56,8 @@ namespace Nz
 			inline void SetProtocolId(UInt32 protocolId);
 			inline void SetTimeBeforeAck(UInt32 ms);
 
+			inline void SimulateNetwork(double packetLoss);
+
 			void Update();
 
 			RUdpConnection& operator=(const RUdpConnection&) = delete;
@@ -137,9 +139,10 @@ namespace Nz
 				UInt64 stateData1;
 			};
 
-			std::unordered_map<IpAddress, std::size_t> m_peerByIP;
+			std::bernoulli_distribution m_packetLossProbability;
 			std::queue<RUdpMessage> m_receivedMessages;
 			std::size_t m_peerIterator;
+			std::unordered_map<IpAddress, std::size_t> m_peerByIP;
 			std::vector<PeerData> m_peers;
 			Bitset<UInt64> m_activeClients;
 			Clock m_clock;
@@ -151,6 +154,7 @@ namespace Nz
 			UInt32 m_timeBeforePing;
 			UInt32 m_timeBeforeTimeOut;
 			UInt64 m_currentTime;
+			bool m_isSimulationEnabled;
 			bool m_shouldAcceptConnections;
 
 			static std::mt19937_64 s_randomGenerator;
