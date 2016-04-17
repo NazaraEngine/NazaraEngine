@@ -1012,10 +1012,15 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Shorthand for the vector (0, -1, 0)
-	* \return A vector with components (0, -1, 0)
+	* \brief Measure the distance between two points
+	* Shorthand for vec1.Distance(vec2)
 	*
-	* \see MakeDown
+	* param vec1 the first point
+	* param vec2 the second point
+	*
+	* \return The distance between the two vectors
+	*
+	* \see SquaredDistance
 	*/
 	template<typename T>
 	T Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
@@ -1023,12 +1028,29 @@ namespace Nz
 		return vec1.Distance(vec2);
 	}
 
+	/*!
+	* \brief Measure the distance between two points as a float
+	* Shorthand for vec1.Distancef(vec2)
+	*
+	* param vec1 the first point
+	* param vec2 the second point
+	*
+	* \return The distance between the two vectors as a float
+	*
+	* \see SquaredDistancef
+	*/
 	template<typename T>
 	float Vector3<T>::Distancef(const Vector3& vec1, const Vector3& vec2)
 	{
 		return vec1.Distancef(vec2);
 	}
 
+	/*!
+	* \brief Shorthand for the vector (0, -1, 0)
+	* \return A vector with components (0, -1, 0)
+	*
+	* \see MakeDown
+	*/
 	template<typename T>
 	Vector3<T> Vector3<T>::Down()
 	{
@@ -1123,10 +1145,13 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Shorthand for the vector (1, 1, 1)
-	* \return A vector with components (1, 1, 1)
+	* \brief Calculates the squared distance between two vectors
+	* \return The metric distance between two vectors with the squared euclidean norm
 	*
-	* \see MakeUnit
+	* \param vec1 The first point to measure the distance with
+	* \param vec2 The second point to measure the distance with
+	*
+	* \see Distance
 	*/
 	template<typename T>
 	T Vector3<T>::SquaredDistance(const Vector3& vec1, const Vector3& vec2)
@@ -1134,6 +1159,12 @@ namespace Nz
 		return vec1.SquaredDistance(vec2);
 	}
 
+	/*!
+	* \brief Shorthand for the vector (1, 1, 1)
+	* \return A vector with components (1, 1, 1)
+	*
+	* \see MakeUnit
+	*/
 	template<typename T>
 	Vector3<T> Vector3<T>::Unit()
 	{
@@ -1312,6 +1343,8 @@ Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 		throw std::domain_error(error);
 	}
 	#endif
+
+	return Nz::Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 }
 
 #undef F

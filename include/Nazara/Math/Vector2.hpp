@@ -102,11 +102,6 @@ namespace Nz
 			T x, y;
 	};
 
-    template<typename T> std::ostream& operator<<(std::ostream& out, const Vector2<T>& vec);
-
-    template<typename T> Vector2<T> operator*(T scale, const Vector2<T>& vec);
-    template<typename T> Vector2<T> operator/(T scale, const Vector2<T>& vec);
-
 	typedef Vector2<double> Vector2d;
 	typedef Vector2<float> Vector2f;
 	typedef Vector2<int> Vector2i;
@@ -117,6 +112,11 @@ namespace Nz
 	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
 }
+
+template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec);
+
+template<typename T> Nz::Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec);
+template<typename T> Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec);
 
 #include <Nazara/Math/Vector2.inl>
 
