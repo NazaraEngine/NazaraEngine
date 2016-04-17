@@ -46,8 +46,8 @@ namespace Nz
 			inline UInt16 GetBoundPort() const;
 			inline SocketError GetLastError() const;
 
-			inline bool Listen(NetProtocol protocol, UInt16 port = 64266, unsigned int queueSize = 10);
-			bool Listen(const IpAddress& address, unsigned int queueSize = 10);
+			inline bool Listen(NetProtocol protocol, UInt16 port = 64266);
+			bool Listen(const IpAddress& address);
 
 			bool PollMessage(RUdpMessage* message);
 
