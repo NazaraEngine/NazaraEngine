@@ -121,6 +121,19 @@ namespace Nz
 		NazaraError("PacketReliability not handled (0x" + String::Number(reliability, 16) + ')');
 		return false;
 	}
+
+	inline void RUdpConnection::SimulateNetwork(double packetLoss)
+	{
+		NazaraAssert(packetLoss >= 0.0 && packetLoss <= 1.0, "Packet loss must be in range [0..1]");
+
+		if (packetLoss > 0.0)
+		{
+			m_isSimulationEnabled = true;
+			m_packetLossProbability = std::bernoulli_distribution(packetLoss);
+		}
+		else
+			m_isSimulationEnabled = false;
+	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>
