@@ -33,7 +33,7 @@ namespace Nz
 		return m_lastError;
 	}
 
-	inline bool RUdpConnection::Listen(NetProtocol protocol, UInt16 port, unsigned int queueSize)
+	inline bool RUdpConnection::Listen(NetProtocol protocol, UInt16 port)
 	{
 		NazaraAssert(protocol != NetProtocol_Any, "Any protocol not supported for Listen"); //< TODO
 		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol"); 
@@ -56,7 +56,7 @@ namespace Nz
 		}
 
 		any.SetPort(port);
-		return Listen(any, queueSize);
+		return Listen(any);
 	}
 
 	inline void RUdpConnection::SetProtocolId(UInt32 protocolId)
