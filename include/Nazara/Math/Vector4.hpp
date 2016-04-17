@@ -100,11 +100,6 @@ namespace Nz
 			T x, y, z, w;
 	};
 
-    template<typename T> std::ostream& operator<<(std::ostream& out, const Vector4<T>& vec);
-
-    template<typename T> Vector4<T> operator*(T scale, const Vector4<T>& vec);
-    template<typename T> Vector4<T> operator/(T scale, const Vector4<T>& vec);
-
 	typedef Vector4<double> Vector4d;
 	typedef Vector4<float> Vector4f;
 	typedef Vector4<int> Vector4i;
@@ -115,6 +110,11 @@ namespace Nz
 	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector);
 }
+
+template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec);
+
+template<typename T> Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec);
+template<typename T> Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec);
 
 #include <Nazara/Math/Vector4.inl>
 

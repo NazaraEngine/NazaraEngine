@@ -1116,6 +1116,8 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 		throw std::domain_error(error);
 	}
 	#endif
+
+	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
 
 #undef F
