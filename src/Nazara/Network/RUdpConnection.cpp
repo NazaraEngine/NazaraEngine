@@ -18,6 +18,7 @@ namespace Nz
 	m_timeBeforePing(500'000), //< 0.5s
 	m_timeBeforeTimeOut(10'000'000), //< 10s
 	m_currentTime(0),
+	m_isSimulationEnabled(false),
 	m_shouldAcceptConnections(true)
 	{
 	}
@@ -34,7 +35,7 @@ namespace Nz
 		NetPacket connectionRequestPacket(NetCode_RequestConnection);
 		connectionRequestPacket << client.stateData1;
 
-		EnqueuePacket(client, PacketPriority_Immediate, PacketReliability_Unreliable, connectionRequestPacket);
+		EnqueuePacket(client, PacketPriority_Immediate, PacketReliability_Reliable, connectionRequestPacket);
 		return true;
 	}
 
@@ -348,6 +349,12 @@ namespace Nz
 
 			if (peer.receivedQueue.find(sequenceId) != peer.receivedQueue.end())
 				return; //< Ignore
+
+			if (m_isSimulationEnabled && m_packetLossProbability(s_randomGenerator))
+			{
+				NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(sequenceId) + " from " + peerIp.ToString() + " for simulation purpose");
+				return;
+			}
 
 			///< Receiving a packet from an acknowledged client means the connection works in both ways
 			if (peer.state == PeerState_Aknowledged && packet.GetNetCode() != NetCode_RequestConnection)
