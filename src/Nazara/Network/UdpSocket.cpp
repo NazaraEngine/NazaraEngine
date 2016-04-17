@@ -3,13 +3,17 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/UdpSocket.hpp>
-#include <Nazara/Network/Debug.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <Nazara/Network/Posix/SocketImpl.hpp>
 #else
 #error Missing implementation: Socket
 #endif
+
+#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
@@ -37,7 +41,7 @@ namespace Nz
 		}
 	}
 
-	unsigned int UdpSocket::QueryMaxDatagramSize()
+	std::size_t UdpSocket::QueryMaxDatagramSize()
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
 
@@ -58,6 +62,41 @@ namespace Nz
 		return true;
 	}
 
+	bool UdpSocket::ReceivePacket(NetPacket* packet, IpAddress* from)
+	{
+		// I'm not sure what's the best between having a 65k bytes buffer ready for any datagram size
+		// or querying the next datagram size every time, for now I'll leave it as is
+		packet->Reset(NetCode_Invalid, std::numeric_limits<UInt16>::max());
+		packet->Resize(std::numeric_limits<UInt16>::max());
+
+		std::size_t received;
+		if (!Receive(packet->GetData(), static_cast<std::size_t>(packet->GetSize()), from, &received))
+			return false;
+
+		if (received == 0)
+			return false; //< No datagram received
+
+		Nz::UInt16 netCode;
+		Nz::UInt16 packetSize;
+		if (!NetPacket::DecodeHeader(packet->GetConstData(), &packetSize, &netCode))
+		{
+			m_lastError = SocketError_Packet;
+			NazaraWarning("Invalid header data");
+			return false;
+		}
+
+		if (packetSize != received)
+		{
+			m_lastError = SocketError_Packet;
+			NazaraWarning("Invalid packet size (packet size is " + String::Number(packetSize) + " bytes, received " + Nz::String::Number(received) + " bytes)");
+			return false;
+		}
+
+		packet->Resize(received);
+		packet->SetNetCode(netCode);
+		return true;
+	}
+
 	bool UdpSocket::Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent)
 	{
 		NazaraAssert(to.IsValid(), "Invalid ip address");
@@ -72,6 +111,20 @@ namespace Nz
 			*sent = byteSent;
 
 		return true;
+	}
+
+	bool UdpSocket::SendPacket(const IpAddress& to, const NetPacket& packet)
+	{
+		std::size_t size = 0;
+		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
+		if (!ptr)
+		{
+			m_lastError = SocketError_Packet;
+			NazaraError("Failed to prepare packet");
+			return false;
+		}
+
+		return Send(to, ptr, size, nullptr);
 	}
 
 	void UdpSocket::OnClose()

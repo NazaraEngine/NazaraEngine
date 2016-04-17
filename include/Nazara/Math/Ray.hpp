@@ -18,15 +18,17 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Ray
 	{
 		public:
 			Ray() = default;
 			Ray(T X, T Y, T Z, T directionX, T directionY, T directionZ);
+			Ray(const Vector3<T>& origin, const Vector3<T>& direction);
 			Ray(const T origin[3], const T direction[3]);
 			Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo);
-			Ray(const Vector3<T>& origin, const Vector3<T>& direction);
 			template<typename U> explicit Ray(const Ray<U>& ray);
 			template<typename U> explicit Ray(const Vector3<U>& origin, const Vector3<U>& direction);
 			Ray(const Ray<T>& ray) = default;
@@ -42,16 +44,17 @@ namespace Nz
 			bool Intersect(const OrientedBox<T>& orientedBox, T* closestHit = nullptr, T* furthestHit = nullptr) const;
 			bool Intersect(const Plane<T>& plane, T* hit = nullptr) const;
 			bool Intersect(const Sphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			bool Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit = nullptr) const;
 
 			Ray& MakeAxisX();
 			Ray& MakeAxisY();
 			Ray& MakeAxisZ();
 
 			Ray& Set(T X, T Y, T Z, T directionX, T directionY, T directionZ);
+			Ray& Set(const Vector3<T>& origin, const Vector3<T>& direction);
 			Ray& Set(const T origin[3], const T direction[3]);
 			Ray& Set(const Plane<T>& planeOne, const Plane<T>& planeTwo);
 			Ray& Set(const Ray& ray);
-			Ray& Set(const Vector3<T>& origin, const Vector3<T>& direction);
 			template<typename U> Ray& Set(const Ray<U>& ray);
 			template<typename U> Ray& Set(const Vector3<U>& origin, const Vector3<U>& direction);
 
@@ -72,6 +75,9 @@ namespace Nz
 
 	typedef Ray<double> Rayd;
 	typedef Ray<float> Rayf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray);
+	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);

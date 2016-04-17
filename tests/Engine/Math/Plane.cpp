@@ -49,6 +49,18 @@ SCENARIO("Plane", "[MATH][PLANE]")
 				REQUIRE(Nz::Planef(-Nz::Vector3f::UnitY(), -1000.f).Distance(Nz::Vector3f::UnitY() * 1500.f) == Approx(-500.f));
 			}
 		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Planef planeXY = Nz::Planef::XY();
+				Nz::Planef planeXZ = Nz::Planef::XZ();
+				Nz::Vector3f result = Nz::Vector3f(0.f, 1.f, 1.f) * 0.5f;
+				result.Normalize();
+				REQUIRE(Nz::Planef::Lerp(planeXY, planeXZ, 0.5f) == Nz::Planef(result, 0.f));
+			}
+		}
 	}
 
 	GIVEN("The plane XZ, distance 1 with 3 points (0, 1, 0), (1, 1, 1), (-1, 1, 0)")

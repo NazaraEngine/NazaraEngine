@@ -11,22 +11,51 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup core
+	* \class Nz::Stream
+	* \brief Core class that represents a stream
+	*/
+
+	/*!
+	* \brief Destructs the object
+	*/
+
 	Stream::~Stream() = default;
+
+	/*!
+	* \brief Gets the directory of the stream
+	* \return Empty string (meant to be virtual)
+	*/
 
 	String Stream::GetDirectory() const
 	{
 		return String();
 	}
 
+	/*!
+	* \brief Gets the path of the stream
+	* \return Empty string (meant to be virtual)
+	*/
+
 	String Stream::GetPath() const
 	{
 		return String();
 	}
 
+	/*!
+	* \brief Reads characters in the stream
+	* \return Line containing characters
+	*
+	* \param lineSize Number of characters to read, if lineSize is 0, read as much as possible
+	*
+	* \remark Produces a NazaraWarning if cursor position could not be reset
+	*/
+
 	String Stream::ReadLine(unsigned int lineSize)
 	{
 		String line;
-		if (lineSize == 0) // Taille maximale indéterminée
+		if (lineSize == 0) // Maximal size undefined
 		{
 			const unsigned int bufferSize = 64;
 
@@ -63,7 +92,7 @@ namespace Nz
 			line.Set(lineSize, '\0');
 			std::size_t readSize = Read(&line[0], lineSize);
 			std::size_t pos = line.Find('\n');
-			if (pos <= readSize) // Faux uniquement si le caractère n'est pas présent (npos étant le plus grand entier)
+			if (pos <= readSize) // False only if the character is not available (npos being the biggest integer)
 			{
 				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos - 1] == '\r')
 					line.Resize(pos);
@@ -80,11 +109,25 @@ namespace Nz
 		return line;
 	}
 
+	/*!
+	* \brief Writes a ByteArray into the stream
+	* \return true if successful
+	*
+	* \param byteArray Bytes to write
+	*/
+
 	bool Stream::Write(const ByteArray& byteArray)
 	{
 		ByteArray::size_type size = byteArray.GetSize();
 		return Write(byteArray.GetConstBuffer(), size) == size;
 	}
+
+	/*!
+	* \brief Writes a String into the stream
+	* \return true if successful
+	*
+	* \param string String to write
+	*/
 
 	bool Stream::Write(const String& string)
 	{

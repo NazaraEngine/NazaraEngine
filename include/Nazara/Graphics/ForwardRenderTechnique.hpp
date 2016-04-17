@@ -24,6 +24,7 @@ namespace Nz
 			ForwardRenderTechnique();
 			~ForwardRenderTechnique() = default;
 
+			void Clear(const SceneData& sceneData) const override;
 			bool Draw(const SceneData& sceneData) const override;
 
 			unsigned int GetMaxLightPassPerObject() const;

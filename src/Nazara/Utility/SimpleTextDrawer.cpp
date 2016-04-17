@@ -11,7 +11,9 @@ namespace Nz
 	SimpleTextDrawer::SimpleTextDrawer() :
 	m_color(Color::White),
 	m_style(TextStyle_Regular),
-	m_glyphUpdated(false)
+	m_colorUpdated(true),
+	m_glyphUpdated(true),
+	m_characterSize(24)
 	{
 		SetFont(Font::GetDefault());
 	}
@@ -20,6 +22,7 @@ namespace Nz
 	m_color(drawer.m_color),
 	m_text(drawer.m_text),
 	m_style(drawer.m_style),
+	m_colorUpdated(false),
 	m_glyphUpdated(false),
 	m_characterSize(drawer.m_characterSize)
 	{
@@ -31,8 +34,20 @@ namespace Nz
 		operator=(std::move(drawer));
 	}
 
-
 	SimpleTextDrawer::~SimpleTextDrawer() = default;
+
+	void SimpleTextDrawer::AppendText(const String& str)
+	{
+		m_text.Append(str);
+		if (m_glyphUpdated)
+			GenerateGlyphs(str);
+	}
+
+	void SimpleTextDrawer::Clear()
+	{
+		m_text.Clear(true);
+		ClearGlyphs();
+	}
 
 	const Rectui& SimpleTextDrawer::GetBounds() const
 	{
@@ -59,13 +74,7 @@ namespace Nz
 
 	Font* SimpleTextDrawer::GetFont(unsigned int index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (index > 0)
-		{
-			NazaraError("Font index out of range (" + String::Number(index) + " >= 1)");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(index == 0, "Font index out of range");
 
 		return m_font;
 	}
@@ -79,6 +88,8 @@ namespace Nz
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
+		else if (!m_colorUpdated)
+			UpdateGlyphColor();
 
 		return m_glyphs[index];
 	}
@@ -112,7 +123,7 @@ namespace Nz
 	{
 		m_color = color;
 
-		m_glyphUpdated = false;
+		m_colorUpdated = false;
 	}
 
 	void SimpleTextDrawer::SetFont(Font* font)
@@ -151,6 +162,7 @@ namespace Nz
 		m_style = drawer.m_style;
 		m_text = drawer.m_text;
 
+		m_colorUpdated = false;
 		m_glyphUpdated = false;
 		SetFont(drawer.m_font);
 
@@ -162,6 +174,7 @@ namespace Nz
 		DisconnectFontSlots();
 
 		m_bounds = std::move(drawer.m_bounds);
+		m_colorUpdated = std::move(drawer.m_colorUpdated);
 		m_characterSize = std::move(drawer.m_characterSize);
 		m_color = std::move(drawer.m_color);
 		m_glyphs = std::move(drawer.m_glyphs);
@@ -199,6 +212,17 @@ namespace Nz
 		return drawer;
 	}
 
+	void SimpleTextDrawer::ClearGlyphs() const
+	{
+		m_bounds.MakeZero();
+		m_colorUpdated = true;
+		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_glyphs.clear();
+		m_glyphUpdated = true;
+		m_previousCharacter = 0;
+		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
+	}
+
 	void SimpleTextDrawer::ConnectFontSlots()
 	{
 		m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &SimpleTextDrawer::OnFontInvalidated);
@@ -215,6 +239,109 @@ namespace Nz
 		m_glyphCacheClearedSlot.Disconnect();
 	}
 
+	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
+	{
+		if (text.IsEmpty())
+			return;
+
+		///TODO: Allow iteration on Unicode characters without allocating any buffer
+		std::u32string characters = text.GetUtf32String();
+		if (characters.empty())
+		{
+			NazaraError("Invalid character set");
+			return;
+		}
+
+		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
+
+		m_glyphs.reserve(m_glyphs.size() + characters.size());
+		for (char32_t character : characters)
+		{
+			if (m_previousCharacter != 0)
+				m_drawPos.x += m_font->GetKerning(m_characterSize, m_previousCharacter, character);
+
+			m_previousCharacter = character;
+
+			bool whitespace = true;
+			switch (character)
+			{
+				case ' ':
+					m_drawPos.x += sizeInfo.spaceAdvance;
+					break;
+
+				case '\n':
+					m_drawPos.x = 0;
+					m_drawPos.y += sizeInfo.lineHeight;
+					break;
+
+				case '\t':
+					m_drawPos.x += sizeInfo.spaceAdvance * 4;
+					break;
+
+				default:
+					whitespace = false;
+					break;
+			}
+
+			if (whitespace)
+				continue; // White spaces are blanks and invisible, move the draw position and skip the rest
+
+			const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
+			if (!fontGlyph.valid)
+				continue; // Glyph failed to load, just skip it (can't do much)
+
+			Glyph glyph;
+			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+			glyph.atlasRect = fontGlyph.atlasRect;
+			glyph.color = m_color;
+			glyph.flipped = fontGlyph.flipped;
+
+			int advance = fontGlyph.advance;
+
+			Rectf bounds(fontGlyph.aabb);
+			bounds.x += m_drawPos.x;
+			bounds.y += m_drawPos.y;
+
+			if (fontGlyph.requireFauxBold)
+			{
+				// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
+				Vector2f center = bounds.GetCenter();
+
+				// Enlarge by 10%
+				bounds.width *= 1.1f;
+				bounds.height *= 1.1f;
+
+				// Replace it at the correct height
+				Vector2f offset(bounds.GetCenter() - center);
+				bounds.y -= offset.y;
+
+				// Adjust advance (+10%)
+				advance += advance / 10;
+			}
+
+			// We "lean" the glyph to simulate italics style
+			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+			float italicTop = italic * bounds.y;
+			float italicBottom = italic * bounds.GetMaximum().y;
+
+			glyph.corners[0].Set(bounds.x - italicTop, bounds.y);
+			glyph.corners[1].Set(bounds.x + bounds.width - italicTop, bounds.y);
+			glyph.corners[2].Set(bounds.x - italicBottom, bounds.y + bounds.height);
+			glyph.corners[3].Set(bounds.x + bounds.width - italicBottom, bounds.y + bounds.height);
+
+			if (!m_workingBounds.IsValid())
+				m_workingBounds.Set(glyph.corners[0]);
+
+			for (unsigned int i = 0; i < 4; ++i)
+				m_workingBounds.ExtendTo(glyph.corners[i]);
+
+			m_drawPos.x += advance;
+			m_glyphs.push_back(glyph);
+		}
+
+		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+	}
+
 	void SimpleTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)
 	{
 		NazaraUnused(font);
@@ -228,7 +355,7 @@ namespace Nz
 		#endif
 
 		// Update atlas layer pointer
-		// Note: This can happend while updating
+		// Note: This can happen while updating
 		for (Glyph& glyph : m_glyphs)
 		{
 			if (glyph.atlas == oldLayer)
@@ -267,128 +394,19 @@ namespace Nz
 		SetFont(nullptr);
 	}
 
+	void SimpleTextDrawer::UpdateGlyphColor() const
+	{
+		for (Glyph& glyph : m_glyphs)
+			glyph.color = m_color;
+
+		m_colorUpdated = true;
+	}
+
 	void SimpleTextDrawer::UpdateGlyphs() const
 	{
-		m_bounds.MakeZero();
-		m_glyphs.clear();
-		m_glyphUpdated = true;
+		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
 
-		#if NAZARA_UTILITY_SAFE
-		if (!m_font || !m_font->IsValid())
-		{
-			NazaraError("Invalid font");
-			return;
-		}
-		#endif
-
-		if (m_text.IsEmpty())
-			return;
-
-		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
-		std::u32string characters = m_text.GetUtf32String();
-		if (characters.empty())
-		{
-			NazaraError("Invalid character set");
-			return;
-		}
-
-		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
-
-		// "Curseur" de dessin
-		Vector2ui drawPos(0, m_characterSize);
-
-		// On calcule les bornes en flottants pour accélérer les calculs (il est coûteux de changer de type trop souvent)
-		bool firstGlyph = true;
-		Rectf textBounds = Rectf::Zero();
-		UInt32 previousCharacter = 0;
-
-		m_glyphs.reserve(characters.size());
-		for (char32_t character : characters)
-		{
-			if (previousCharacter != 0)
-				drawPos.x += m_font->GetKerning(m_characterSize, previousCharacter, character);
-
-			previousCharacter = character;
-
-			bool whitespace = true;
-			switch (character)
-			{
-				case ' ':
-					drawPos.x += sizeInfo.spaceAdvance;
-					break;
-
-				case '\n':
-					drawPos.x = 0;
-					drawPos.y += sizeInfo.lineHeight;
-					break;
-
-				case '\t':
-					drawPos.x += sizeInfo.spaceAdvance*4;
-					break;
-
-				default:
-					whitespace = false;
-					break;
-			}
-
-			if (whitespace)
-				continue; // Inutile d'avoir un glyphe pour un espace blanc
-
-			const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
-			if (!fontGlyph.valid)
-				continue; // Le glyphe n'a pas été correctement chargé, que pouvons-nous faire d'autre que le passer
-
-			Glyph glyph;
-			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
-			glyph.atlasRect = fontGlyph.atlasRect;
-			glyph.color = m_color;
-			glyph.flipped = fontGlyph.flipped;
-
-			int advance = fontGlyph.advance;
-
-			Rectf bounds(fontGlyph.aabb);
-			bounds.x += drawPos.x;
-			bounds.y += drawPos.y;
-
-			if (fontGlyph.requireFauxBold)
-			{
-				// On va agrandir le glyphe pour simuler le gras (idée moisie, mais idée quand même)
-				Vector2f center = bounds.GetCenter();
-
-				bounds.width *= 1.1f;
-				bounds.height *= 1.1f;
-
-				// On le replace à la bonne hauteur
-				Vector2f offset(bounds.GetCenter() - center);
-				bounds.y -= offset.y;
-
-				// On ajuste l'espacement
-				advance += advance/10;
-			}
-
-			// On "penche" le glyphe pour obtenir un semblant d'italique
-			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-			float italicTop = italic * bounds.y;
-			float italicBottom = italic * bounds.GetMaximum().y;
-
-			glyph.corners[0].Set(bounds.x - italicTop, bounds.y);
-			glyph.corners[1].Set(bounds.x + bounds.width - italicTop, bounds.y);
-			glyph.corners[2].Set(bounds.x - italicBottom, bounds.y + bounds.height);
-			glyph.corners[3].Set(bounds.x + bounds.width - italicBottom, bounds.y + bounds.height);
-
-			if (firstGlyph)
-			{
-				textBounds.Set(glyph.corners[0]);
-				firstGlyph = false;
-			}
-
-			for (unsigned int i = 0; i < 4; ++i)
-				textBounds.ExtendTo(glyph.corners[i]);
-
-			drawPos.x += advance;
-			m_glyphs.push_back(glyph);
-		}
-
-		m_bounds.Set(Rectf(std::floor(textBounds.x), std::floor(textBounds.y), std::ceil(textBounds.width), std::ceil(textBounds.height)));
+		ClearGlyphs();
+		GenerateGlyphs(m_text);
 	}
 }

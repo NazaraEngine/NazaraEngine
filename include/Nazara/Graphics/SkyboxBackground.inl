@@ -7,6 +7,16 @@
 
 namespace Nz
 {
+	inline const Vector3f& Nz::SkyboxBackground::GetMovementOffset() const
+	{
+		return m_movementOffset;
+	}
+
+	inline float SkyboxBackground::GetMovementScale() const
+	{
+		return m_movementScale;
+	}
+
 	inline const TextureRef& SkyboxBackground::GetTexture() const
 	{
 		return m_texture;
@@ -20,6 +30,20 @@ namespace Nz
 	inline const TextureSampler& SkyboxBackground::GetTextureSampler() const
 	{
 		return m_sampler;
+	}
+
+	inline void SkyboxBackground::SetMovementOffset(const Vector3f& offset)
+	{
+		NazaraAssert(std::isfinite(offset.x) && std::isfinite(offset.y) && std::isfinite(offset.z), "Offset must be a finite vector");
+
+		m_movementOffset = offset;
+	}
+
+	inline void SkyboxBackground::SetMovementScale(float scale)
+	{
+		NazaraAssert(std::isfinite(scale), "Scale must be a finite value");
+
+		m_movementScale = scale;
 	}
 
 	inline void SkyboxBackground::SetTexture(TextureRef cubemapTexture)

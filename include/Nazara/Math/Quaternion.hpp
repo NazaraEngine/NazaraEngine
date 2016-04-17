@@ -11,6 +11,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class EulerAngles;
 	template<typename T> class Vector3;
 
@@ -19,9 +21,9 @@ namespace Nz
 		public:
 			Quaternion() = default;
 			Quaternion(T W, T X, T Y, T Z);
-			Quaternion(const T quat[4]);
-			Quaternion(T angle, const Vector3<T>& axis);
 			Quaternion(const EulerAngles<T>& angles);
+			Quaternion(T angle, const Vector3<T>& axis);
+			Quaternion(const T quat[4]);
 			//Quaternion(const Matrix3<T>& mat);
 			template<typename U> explicit Quaternion(const Quaternion<U>& quat);
 			Quaternion(const Quaternion& quat) = default;
@@ -47,9 +49,9 @@ namespace Nz
 			Quaternion& Normalize(T* length = nullptr);
 
 			Quaternion& Set(T W, T X, T Y, T Z);
-			Quaternion& Set(const T quat[4]);
-			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
 			Quaternion& Set(const EulerAngles<T>& angles);
+			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
+			Quaternion& Set(const T quat[4]);
 			//Quaternion& Set(const Matrix3<T>& mat);
 			Quaternion& Set(const Quaternion& quat);
 			template<typename U> Quaternion& Set(const Quaternion<U>& quat);
@@ -60,7 +62,7 @@ namespace Nz
 			//Matrix3<T> ToRotationMatrix() const;
 			String ToString() const;
 
-			Quaternion& operator=(const Quaternion& quat);
+			Quaternion& operator=(const Quaternion& quat) = default;
 
 			Quaternion operator+(const Quaternion& quat) const;
 			Quaternion operator*(const Quaternion& quat) const;
@@ -88,6 +90,9 @@ namespace Nz
 
 	typedef Quaternion<double> Quaterniond;
 	typedef Quaternion<float> Quaternionf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat);
+	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat);

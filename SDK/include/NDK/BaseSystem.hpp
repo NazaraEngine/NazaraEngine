@@ -8,7 +8,7 @@
 #define NDK_BASESYSTEM_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 #include <vector>
 
 namespace Ndk
@@ -71,7 +71,7 @@ namespace Ndk
 
 			inline void RemoveEntity(Entity* entity);
 
-			inline void SetWorld(World& world);
+			inline void SetWorld(World* world) noexcept;
 
 			inline void ValidateEntity(Entity* entity, bool justAdded);
 

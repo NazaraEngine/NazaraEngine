@@ -23,7 +23,15 @@ namespace Nz
 	template<typename O, typename F, typename Tuple> auto Apply(O& object, F&& fn, Tuple&& t);
 	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
 	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
+	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
+	template<typename T> std::size_t CountOf(const T& c);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
+
+	template<typename T>
+	struct PointedType
+	{
+		using type = void; //< FIXME: I can't make SFINAE work
+	};
 
 	template<typename T>
 	struct TypeTag {};
@@ -33,10 +41,10 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value);
 
-	inline bool Unserialize(UnserializationContext& context, bool* value);
+	inline bool Unserialize(SerializationContext& context, bool* value);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value);
 }
 
 #include <Nazara/Core/Algorithm.inl>

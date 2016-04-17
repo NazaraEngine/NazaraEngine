@@ -1066,6 +1066,100 @@ namespace Nz
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
+	bool Image::LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params)
+	{
+		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
+
+		Image image;
+		if (!image.LoadFromFile(filePath, params))
+		{
+			NazaraError("Failed to load image");
+			return false;
+		}
+
+		if (!image.Convert(GetFormat()))
+		{
+			NazaraError("Failed to convert image to texture format");
+			return false;
+		}
+
+		unsigned int faceSize = GetWidth();
+		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		{
+			NazaraError("Image size must match texture face size");
+			return false;
+		}
+
+		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		return true;
+	}
+
+	bool Image::LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params)
+	{
+		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
+
+		Image image;
+		if (!image.LoadFromMemory(data, size, params))
+		{
+			NazaraError("Failed to load image");
+			return false;
+		}
+
+		if (!image.Convert(GetFormat()))
+		{
+			NazaraError("Failed to convert image to texture format");
+			return false;
+		}
+
+		unsigned int faceSize = GetWidth();
+		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		{
+			NazaraError("Image size must match texture face size");
+			return false;
+		}
+
+		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		return true;
+	}
+
+	bool Image::LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params)
+	{
+		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
+
+		Image image;
+		if (!image.LoadFromStream(stream, params))
+		{
+			NazaraError("Failed to load image");
+			return false;
+		}
+
+		if (!image.Convert(GetFormat()))
+		{
+			NazaraError("Failed to convert image to texture format");
+			return false;
+	}
+
+		unsigned int faceSize = GetWidth();
+		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		{
+			NazaraError("Image size must match texture face size");
+			return false;
+		}
+
+		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		return true;
+	}
+
+	bool Image::SaveToFile(const String& filePath, const ImageParams& params)
+	{
+		return ImageSaver::SaveToFile(*this, filePath, params);
+	}
+
+	bool Image::SaveToStream(Stream& stream, const String& format, const ImageParams& params)
+	{
+		return ImageSaver::SaveToStream(*this, stream, format, params);
+	}
+
 	void Image::SetLevelCount(UInt8 levelCount)
 	{
 		#if NAZARA_UTILITY_SAFE
@@ -1168,11 +1262,11 @@ namespace Nz
 		EnsureOwnership();
 
 		Copy(m_sharedImage->levels[level].get(), pixels, PixelFormat::GetBytesPerPixel(m_sharedImage->format),
-			 GetLevelSize(m_sharedImage->width, level),
-			 GetLevelSize(m_sharedImage->height, level),
-			 GetLevelSize(m_sharedImage->depth, level),
-			 0, 0,
-			 srcWidth, srcHeight);
+		     GetLevelSize(m_sharedImage->width, level),
+		     GetLevelSize(m_sharedImage->height, level),
+		     GetLevelSize(m_sharedImage->depth, level),
+		     0, 0,
+		     srcWidth, srcHeight);
 
 		return true;
 	}
@@ -1377,4 +1471,5 @@ namespace Nz
 	ImageLoader::LoaderList Image::s_loaders;
 	ImageManager::ManagerMap Image::s_managerMap;
 	ImageManager::ManagerParams Image::s_managerParameters;
+	ImageSaver::SaverList Image::s_savers;
 }

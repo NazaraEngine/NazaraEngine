@@ -825,6 +825,30 @@ namespace Nz
 		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
+	bool Texture::SaveToFile(const String& filePath, const ImageParams& params)
+	{
+		Image image;
+		if (!Download(&image))
+		{
+			NazaraError("Failed to download texture");
+			return false;
+		}
+
+		return image.SaveToFile(filePath, params);
+	}
+
+	bool Texture::SaveToStream(Stream& stream, const String& format, const ImageParams& params)
+	{
+		Image image;
+		if (!Download(&image))
+		{
+			NazaraError("Failed to download texture");
+			return false;
+		}
+
+		return image.SaveToStream(stream, format, params);
+	}
+
 	bool Texture::SetMipmapRange(UInt8 minLevel, UInt8 maxLevel)
 	{
 		#if NAZARA_RENDERER_SAFE

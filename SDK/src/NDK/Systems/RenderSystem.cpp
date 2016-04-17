@@ -16,6 +16,7 @@ namespace Ndk
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true)
 	{
+		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateRate(0.f);
 	}
@@ -95,7 +96,7 @@ namespace Ndk
 
 			//UpdateDirectionalShadowMaps(camComponent);
 
-			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique.GetRenderQueue();
+			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
 			renderQueue->Clear();
 
 			//TODO: Culling
@@ -123,7 +124,8 @@ namespace Ndk
 			sceneData.background = m_background;
 			sceneData.viewer = &camComponent;
 
-			m_renderTechnique.Draw(sceneData);
+			m_renderTechnique->Clear(sceneData);
+			m_renderTechnique->Draw(sceneData);
 		}
 	}
 

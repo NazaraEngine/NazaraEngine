@@ -33,24 +33,27 @@ namespace Ndk
 			inline void EnsureViewMatrixUpdate() const;
 			inline void EnsureViewportUpdate() const;
 
-			inline float GetAspectRatio() const;
-			inline Nz::Vector3f GetEyePosition() const;
-			inline Nz::Vector3f GetForward() const;
+			inline float GetAspectRatio() const override;
+			inline Nz::Vector3f GetEyePosition() const override;
+			inline Nz::Vector3f GetForward() const override;
 			inline float GetFOV() const;
-			inline const Nz::Frustumf& GetFrustum() const;
+			inline const Nz::Frustumf& GetFrustum() const override;
 			inline unsigned int GetLayer() const;
-			inline const Nz::Matrix4f& GetProjectionMatrix() const;
+			inline const Nz::Matrix4f& GetProjectionMatrix() const override;
 			inline Nz::ProjectionType GetProjectionType() const;
-			inline const Nz::RenderTarget* GetTarget() const;
+			inline const Nz::Vector2f& GetSize() const;
+			inline const Nz::RenderTarget* GetTarget() const override;
 			inline const Nz::Rectf& GetTargetRegion() const;
-			inline const Nz::Matrix4f& GetViewMatrix() const;
-			inline const Nz::Recti& GetViewport() const;
-			inline float GetZFar() const;
-			inline float GetZNear() const;
+			inline const Nz::Matrix4f& GetViewMatrix() const override;
+			inline const Nz::Recti& GetViewport() const override;
+			inline float GetZFar() const override;
+			inline float GetZNear() const override;
 
 			inline void SetFOV(float fov);
 			inline void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
+			inline void SetSize(const Nz::Vector2f& size);
+			inline void SetSize(float width, float height);
 			inline void SetTarget(const Nz::RenderTarget* renderTarget);
 			inline void SetTargetRegion(const Nz::Rectf& region);
 			inline void SetViewport(const Nz::Recti& viewport);
@@ -89,6 +92,7 @@ namespace Ndk
 			Nz::Rectf m_targetRegion;
 			mutable Nz::Recti m_viewport;
 			const Nz::RenderTarget* m_target;
+			Nz::Vector2f m_size;
 			mutable bool m_frustumUpdated;
 			mutable bool m_projectionMatrixUpdated;
 			mutable bool m_viewMatrixUpdated;

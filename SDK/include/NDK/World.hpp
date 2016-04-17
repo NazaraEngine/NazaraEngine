@@ -8,8 +8,8 @@
 #define NDK_WORLD_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <NDK/Entity.hpp>
-#include <NDK/EntityHandle.hpp>
 #include <NDK/System.hpp>
 #include <algorithm>
 #include <memory>
@@ -18,7 +18,11 @@
 
 namespace Ndk
 {
-	class NDK_API World
+	class World;
+
+	using WorldHandle = Nz::ObjectHandle<World>;
+
+	class NDK_API World : public Nz::HandledObject<World>
 	{
 		friend Entity;
 
@@ -27,8 +31,8 @@ namespace Ndk
 
 			inline World(bool addDefaultSystems = true);
 			World(const World&) = delete;
-			World(World&&) = delete; ///TODO
-			~World();
+			inline World(World&& world) noexcept;
+			~World() noexcept;
 
 			void AddDefaultSystems();
 
@@ -38,7 +42,7 @@ namespace Ndk
 			const EntityHandle& CreateEntity();
 			inline EntityList CreateEntities(unsigned int count);
 
-			void Clear();
+			void Clear() noexcept;
 
 			const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities();
@@ -62,7 +66,7 @@ namespace Ndk
 			inline void Update(float elapsedTime);
 
 			World& operator=(const World&) = delete;
-			World& operator=(World&&) = delete; ///TODO
+			inline World& operator=(World&& world) noexcept;
 
 		private:
 			inline void Invalidate();

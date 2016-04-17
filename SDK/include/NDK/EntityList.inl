@@ -41,6 +41,7 @@ namespace Ndk
 
 			std::swap(*it, m_entities.back());
 			m_entities.pop_back(); // On le sort du vector
+			m_entityBits.UnboundedSet(entity->GetId(), false);
 		}
 	}
 

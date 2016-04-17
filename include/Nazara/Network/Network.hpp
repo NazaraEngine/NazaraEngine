@@ -27,7 +27,7 @@ namespace Nz
 
 		private:
 			static unsigned int s_moduleReferenceCounter;
-	};	
+    };
 }
 
 #endif // NAZARA_MODULENAME_HPP

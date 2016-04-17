@@ -23,14 +23,14 @@ namespace Nz
 		ALCcontext* s_context = nullptr;
 		unsigned int s_version;
 
-		unsigned int ParseDevices(const char* deviceString, std::vector<String>& devices)
+		std::size_t ParseDevices(const char* deviceString, std::vector<String>& devices)
 		{
 			if (!deviceString)
 				return 0;
 
-			unsigned int startSize = devices.size();
+			std::size_t startSize = devices.size();
 
-			unsigned int length;
+			std::size_t length;
 			while ((length = std::strlen(deviceString)) > 0)
 			{
 				devices.push_back(String(deviceString, length));
@@ -222,7 +222,7 @@ namespace Nz
 		return s_library.IsLoaded();
 	}
 
-	unsigned int OpenAL::QueryInputDevices(std::vector<String>& devices)
+	std::size_t OpenAL::QueryInputDevices(std::vector<String>& devices)
 	{
 		const char* deviceString = reinterpret_cast<const char*>(alcGetString(nullptr, ALC_CAPTURE_DEVICE_SPECIFIER));
 		if (!deviceString)
@@ -231,7 +231,7 @@ namespace Nz
 		return ParseDevices(deviceString, devices);
 	}
 
-	unsigned int OpenAL::QueryOutputDevices(std::vector<String>& devices)
+	std::size_t OpenAL::QueryOutputDevices(std::vector<String>& devices)
 	{
 		const char* deviceString = reinterpret_cast<const char*>(alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER));
 		if (!deviceString)
@@ -372,7 +372,6 @@ namespace Nz
 
 		return entry;
 	}
-}
 
 // al
 OpenALDetail::LPALBUFFER3F             alBuffer3f             = nullptr;
@@ -470,3 +469,5 @@ OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurrent = nullptr;
 OpenALDetail::LPALCOPENDEVICE         alcOpenDevice         = nullptr;
 OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext     = nullptr;
 OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext     = nullptr;
+
+}

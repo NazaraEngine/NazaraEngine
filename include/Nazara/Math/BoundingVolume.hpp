@@ -14,6 +14,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class BoundingVolume
 	{
@@ -27,6 +29,8 @@ namespace Nz
 			template<typename U> explicit BoundingVolume(const BoundingVolume<U>& volume);
 			BoundingVolume(const BoundingVolume& volume) = default;
 			~BoundingVolume() = default;
+
+			BoundingVolume& ExtendTo(const BoundingVolume& volume);
 
 			bool IsFinite() const;
 			bool IsInfinite() const;
@@ -66,6 +70,9 @@ namespace Nz
 
 	typedef BoundingVolume<double> BoundingVolumed;
 	typedef BoundingVolume<float> BoundingVolumef;
+
+	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume);
+	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume);
 }
 
 template<typename T>

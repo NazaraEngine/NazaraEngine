@@ -8,6 +8,7 @@
 #define NAZARA_RESOURCEREF_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>
 
@@ -42,6 +43,9 @@ namespace Nz
 		private:
 			T* m_object;
 	};
+
+    template<typename T> struct PointedType<ObjectRef<T>> {typedef T type;};
+    template<typename T> struct PointedType<ObjectRef<T> const> {typedef T type;};
 }
 
 #include <Nazara/Core/ObjectRef.inl>

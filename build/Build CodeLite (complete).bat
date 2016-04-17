@@ -1,1 +1,1 @@
-premake4 --with-extlibs --with-examples codelite
+premake5 --with-extlibs --with-examples codelite

@@ -78,5 +78,18 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 				CHECK(frustum.Contains(&tmp, 1));
 			}
 		}
+
+		WHEN("We test for edge cases")
+		{
+			THEN("Implementation defined these")
+			{
+				Nz::BoundingVolumef nullVolume = Nz::BoundingVolumef::Null();
+				CHECK(!frustum.Contains(nullVolume));
+				Nz::BoundingVolumef infiniteVolume = Nz::BoundingVolumef::Infinite();
+				CHECK(frustum.Contains(infiniteVolume));
+				REQUIRE(frustum.Intersect(nullVolume) == Nz::IntersectionSide_Outside);
+				REQUIRE(frustum.Intersect(infiniteVolume) == Nz::IntersectionSide_Intersecting);
+			}
+		}
 	}
 }

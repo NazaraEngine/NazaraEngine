@@ -1,2 +1,2 @@
-premake4 parseunicode
+premake5 parseunicode
 pause

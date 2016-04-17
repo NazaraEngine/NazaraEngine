@@ -26,7 +26,8 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 			{
 				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
 				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
-				REQUIRE(firstUnit.AngleBetween(tmp) == Approx(90.f));
+				REQUIRE(firstUnit.AngleBetween(tmp) == Approx(Nz::FromDegrees(90.f)));
+				REQUIRE(firstUnit.AngleBetween(-firstUnit) == Approx(Nz::FromDegrees(180.f)));
 			}
 		}
 
@@ -50,6 +51,49 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 
 				REQUIRE(firstUnit.GetSquaredLength() == Approx(3.f));
 				REQUIRE(firstUnit.GetLength() == Approx(std::sqrt(3.f)));
+			}
+		}
+
+		WHEN("We nomalize the vectors")
+		{
+			float ratio = 0.f;
+			THEN("For normal cases should be normal")
+			{
+				Nz::Vector3f normalized = firstUnit.GetNormal(&ratio);
+				REQUIRE(normalized == (Nz::Vector3f::Unit() / std::sqrt(3.f)));
+				REQUIRE(ratio == Approx(std::sqrt(3.f)));
+			}
+
+			THEN("For null vector")
+			{
+				Nz::Vector3f zero = Nz::Vector3f::Zero();
+				REQUIRE(zero.GetNormal(&ratio) == Nz::Vector3f::Zero());
+				REQUIRE(ratio == Approx(0.f));
+			}
+		}
+
+		WHEN("We try to maximize and minimize")
+		{
+			Nz::Vector3f maximize(2.f, 1.f, 2.f);
+			Nz::Vector3f minimize(1.f, 2.f, 1.f);
+
+			THEN("The minimised and maximised should be (1, 1, 1) and (2, 2, 2)")
+			{
+				Nz::Vector3f maximized = maximize;
+				Nz::Vector3f minimized = minimize;
+				REQUIRE(minimized.Minimize(maximized) == Nz::Vector3f::Unit());
+				REQUIRE(maximize.Maximize(minimize) == (2.f * Nz::Vector3f::Unit()));
+			}
+
+		}
+
+		WHEN("We try to lerp")
+		{
+			THEN("Compilation should be fine")
+			{
+				Nz::Vector3f zero = Nz::Vector3f::Zero();
+				Nz::Vector3f unit = Nz::Vector3f::Unit();
+				REQUIRE(Nz::Vector3f::Lerp(zero, unit, 0.5f) == (Nz::Vector3f::Unit() * 0.5f));
 			}
 		}
 	}

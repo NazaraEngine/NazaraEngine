@@ -8,10 +8,14 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Config.hpp>
+#include <Nazara/Network/NetPacket.hpp>
+#include <Nazara/Network/RUdpConnection.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <Nazara/Network/Posix/SocketImpl.hpp>
 #else
 #error Missing implementation: Network
 #endif
@@ -46,6 +50,18 @@ namespace Nz
 			return false;
 		}
 
+		if (!NetPacket::Initialize())
+		{
+			NazaraError("Failed to initialize packets");
+			return false;
+		}
+
+		if (!RUdpConnection::Initialize())
+		{
+			NazaraError("Failed to initialize RUdp");
+			return false;
+		}
+
 		onExit.Reset();
 
 		NazaraNotice("Initialized: Network module");
@@ -71,6 +87,8 @@ namespace Nz
 		s_moduleReferenceCounter = 0;
 
 		// Uninitialize module here
+		RUdpConnection::Uninitialize();
+		NetPacket::Uninitialize();
 		SocketImpl::Uninitialize();
 
 		NazaraNotice("Uninitialized: Network module");

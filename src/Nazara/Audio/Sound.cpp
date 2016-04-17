@@ -42,23 +42,17 @@ namespace Nz
 
 	UInt32 Sound::GetDuration() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_buffer)
-		{
-			NazaraError("Invalid sound buffer");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_buffer, "Invalid sound buffer");
 
 		return m_buffer->GetDuration();
 	}
 
 	UInt32 Sound::GetPlayingOffset() const
 	{
-		ALfloat seconds = -1.f;
-		alGetSourcef(m_source, AL_SEC_OFFSET, &seconds);
+		ALint samples = 0;
+		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
-		return static_cast<UInt32>(seconds*1000);
+		return static_cast<UInt32>(1000ULL * samples / m_buffer->GetSampleRate());
 	}
 
 	SoundStatus Sound::GetStatus() const
@@ -166,7 +160,7 @@ namespace Nz
 
 	void Sound::SetPlayingOffset(UInt32 offset)
 	{
-		alSourcef(m_source, AL_SEC_OFFSET, offset/1000.f);
+		alSourcei(m_source, AL_SAMPLE_OFFSET, static_cast<ALint>(offset/1000.f * m_buffer->GetSampleRate()));
 	}
 
 	void Sound::Stop()
