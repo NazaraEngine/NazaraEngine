@@ -60,14 +60,16 @@ namespace Ndk
 	{
 		if (m_updateRate > 0.f)
 		{
-			m_updateCounter -= elapsedTime;
-			if (m_updateCounter >= 0.f)
-				return;
+			m_updateCounter += elapsedTime;
 
-			m_updateCounter += m_updateRate;
+			while (m_updateCounter >= m_updateRate)
+			{
+				OnUpdate(m_updateRate);
+				m_updateCounter -= m_updateRate;
+			}
 		}
-
-		OnUpdate(elapsedTime);
+		else
+			OnUpdate(elapsedTime);
 	}
 
 	template<typename ComponentType>
