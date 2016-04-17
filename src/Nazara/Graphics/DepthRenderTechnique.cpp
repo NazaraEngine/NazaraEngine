@@ -55,8 +55,8 @@ namespace Nz
 		Renderer::Clear(RendererBuffer_Depth);
 
 		// Just in case the background does render depth
-		if (sceneData.background)
-			sceneData.background->Draw(sceneData.viewer);
+		//if (sceneData.background)
+		//	sceneData.background->Draw(sceneData.viewer);
 	}
 
 	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
@@ -121,9 +121,9 @@ namespace Nz
 
 			float vertices[2 * 4] = {
 			   -0.5f, -0.5f,
-				0.5f, -0.5f,
+			    0.5f, -0.5f,
 			   -0.5f, 0.5f,
-				0.5f, 0.5f,
+			    0.5f, 0.5f,
 			};
 
 			s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
@@ -157,8 +157,6 @@ namespace Nz
 	
 	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -183,7 +181,7 @@ namespace Nz
 					if (spriteChainCount > 0)
 					{
 						// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-						UInt32 flags = ShaderFlags_VertexColor;
+						UInt32 flags = 0;
 						if (overlay)
 							flags |= ShaderFlags_TextureOverlay;
 
@@ -203,12 +201,10 @@ namespace Nz
 							// Index des uniformes dans le shader
 							shaderUniforms = GetShaderUniforms(shader);
 
-							// Couleur ambiante de la scène
-							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 							// Overlay
 							shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
 							// Position de la caméra
-							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+							shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 							lastShader = shader;
 						}
@@ -263,8 +259,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -293,10 +287,8 @@ namespace Nz
 						// Index des uniformes dans le shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Couleur ambiante de la scène
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 						// Position de la caméra
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+						shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 						lastShader = shader;
 					}
@@ -342,10 +334,8 @@ namespace Nz
 						// Index des uniformes dans le shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Couleur ambiante de la scène
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 						// Position de la caméra
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+						shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 						lastShader = shader;
 					}
@@ -408,8 +398,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -531,7 +519,6 @@ namespace Nz
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
 
 			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
-			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
 			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;

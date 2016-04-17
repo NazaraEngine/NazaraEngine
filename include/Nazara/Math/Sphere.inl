@@ -124,6 +124,7 @@ namespace Nz
 	*
 	* \param point Position of the point
 	*/
+
 	template<typename T>
 	bool Sphere<T>::Contains(const Vector3<T>& point) const
 	{
@@ -131,7 +132,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the distance from the center of the sphere to the point
+	* \brief Returns the distance from the sphere to the point (is negative when the point is inside the sphere)
 	* \return Distance to the point
 	*
 	* \param X X position of the point
@@ -148,7 +149,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the distance from the center of the sphere to the point
+	* \brief Returns the distance from the sphere to the point (is negative when the point is inside the sphere)
 	* \return Distance to the point
 	*
 	* \param point Position of the point
@@ -303,7 +304,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Intersect(const Sphere& sphere) const
 	{
-		return SquaredDistance(sphere.x, sphere.y, sphere.z) - radius * radius <= sphere.radius * sphere.radius;
+		return SquaredDistance(sphere.x, sphere.y, sphere.z) <= sphere.radius * sphere.radius;
 	}
 
 	/*!
@@ -392,7 +393,6 @@ namespace Nz
 
 		return *this;
 	}
-
 	/*
 	template<typename T>
 	Sphere<T>& Sphere<T>::Set(const Circle<T>& circle)
@@ -407,11 +407,12 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Sets the components of the sphere with center and radius from another sphere
+	* \brief Sets the components of the sphere with center and radius from another
 	* \return A reference to this sphere
 	*
 	* \param sphere The other sphere
 	*/
+
 	template<typename T>
 	Sphere<T>& Sphere<T>::Set(const Sphere& sphere)
 	{
@@ -458,7 +459,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the squared distance from the center of the sphere to the point
+	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
 	* \return Squared distance to the point
 	*
 	* \param X X position of the point
@@ -467,7 +468,6 @@ namespace Nz
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
 	T Sphere<T>::SquaredDistance(T X, T Y, T Z) const
 	{
@@ -475,14 +475,13 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the squared distance from the center of the sphere to the point
+	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
 	* \return Squared distance to the point
 	*
 	* \param point Position of the point
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
 	T Sphere<T>::SquaredDistance(const Vector3<T>& point) const
 	{
