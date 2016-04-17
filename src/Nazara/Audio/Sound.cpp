@@ -42,13 +42,7 @@ namespace Nz
 
 	UInt32 Sound::GetDuration() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_buffer)
-		{
-			NazaraError("Invalid sound buffer");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_buffer, "Invalid sound buffer");
 
 		return m_buffer->GetDuration();
 	}
