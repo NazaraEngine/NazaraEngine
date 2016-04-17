@@ -9,6 +9,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#elif defined(NAZARA_PLATFORM_POSIX)
+#include <Nazara/Network/Posix/SocketImpl.hpp>
 #else
 #error Missing implementation: Socket
 #endif
@@ -16,6 +18,7 @@
 namespace Nz
 {
 	AbstractSocket::AbstractSocket(SocketType type) :
+	m_lastError(SocketError_NoError),
 	m_handle(SocketImpl::InvalidHandle),
 	m_state(SocketState_NotConnected),
 	m_type(type),
@@ -61,7 +64,7 @@ namespace Nz
 		}
 	}
 
-	unsigned int AbstractSocket::QueryAvailableBytes() const
+	std::size_t AbstractSocket::QueryAvailableBytes() const
 	{
 		if (m_handle == SocketImpl::InvalidHandle)
 			return 0;
@@ -104,5 +107,21 @@ namespace Nz
 
 		m_handle = handle;
 		OnOpened();
+	}
+
+	AbstractSocket& AbstractSocket::operator=(AbstractSocket&& abstractSocket)
+	{
+		Close();
+
+		m_handle = abstractSocket.m_handle;
+		m_protocol = abstractSocket.m_protocol;
+		m_isBlockingEnabled = abstractSocket.m_isBlockingEnabled;
+		m_lastError = abstractSocket.m_lastError;
+		m_state = abstractSocket.m_state;
+		m_type = abstractSocket.m_type;
+		
+		abstractSocket.m_handle = SocketImpl::InvalidHandle;
+
+		return *this;
 	}
 }

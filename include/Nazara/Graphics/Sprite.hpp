@@ -23,6 +23,9 @@ namespace Nz
 
 	class NAZARA_GRAPHICS_API Sprite : public InstancedRenderable
 	{
+		friend SpriteLibrary;
+		friend class Graphics;
+
 		public:
 			inline Sprite();
 			inline Sprite(MaterialRef material);
@@ -56,6 +59,9 @@ namespace Nz
 			inline void InvalidateVertices();
 			void MakeBoundingVolume() const override;
 			void UpdateData(InstanceData* instanceData) const override;
+
+			static bool Initialize();
+			static void Uninitialize();
 
 			Color m_color;
 			MaterialRef m_material;

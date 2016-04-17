@@ -18,6 +18,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class Frustum
 	{
@@ -52,6 +54,11 @@ namespace Nz
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
 			String ToString() const;
+
+			template<typename U>
+			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum);
+			template<typename U>
+			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum);
 
 		private:
 			Vector3<T> m_corners[BoxCorner_Max+1];

@@ -54,7 +54,7 @@ namespace Nz
 			const Vector3f* GetTexCoords() const;
 			unsigned int GetTexCoordCount() const;
 
-			bool Parse();
+			bool Parse(std::size_t reservedVertexCount = 100);
 
 		private:
 			bool Advance(bool required = true);

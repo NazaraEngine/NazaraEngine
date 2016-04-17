@@ -4,12 +4,14 @@
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include "CameraComponent.hpp"
 
 namespace Ndk
 {
 	inline CameraComponent::CameraComponent() :
 	m_projectionType(Nz::ProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
+	m_size(0.f),
 	m_target(nullptr),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
@@ -28,6 +30,7 @@ namespace Ndk
 	AbstractViewer(camera),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
+	m_size(camera.m_size),
 	m_target(nullptr),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
@@ -102,6 +105,11 @@ namespace Ndk
 		return m_projectionType;
 	}
 
+	inline const Nz::Vector2f & CameraComponent::GetSize() const
+	{
+		return m_size;
+	}
+
 	inline const Nz::RenderTarget* CameraComponent::GetTarget() const
 	{
 		return m_target;
@@ -149,6 +157,18 @@ namespace Ndk
 		m_projectionType = projectionType;
 
 		InvalidateProjectionMatrix();
+	}
+
+	inline void CameraComponent::SetSize(const Nz::Vector2f& size)
+	{
+		m_size = size;
+
+		InvalidateProjectionMatrix();
+	}
+
+	inline void CameraComponent::SetSize(float width, float height)
+	{
+		SetSize({width, height});
 	}
 
 	inline void CameraComponent::SetTarget(const Nz::RenderTarget* renderTarget)

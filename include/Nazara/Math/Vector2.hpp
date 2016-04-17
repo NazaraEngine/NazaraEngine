@@ -11,6 +11,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T> class Vector3;
 	template<typename T> class Vector4;
 
@@ -62,8 +64,8 @@ namespace Nz
 
 			String ToString() const;
 
-			operator T*();
-			operator const T*() const;
+			operator T* ();
+			operator const T* () const;
 
 			const Vector2& operator+() const;
 			Vector2 operator-() const;
@@ -89,7 +91,9 @@ namespace Nz
 			bool operator>(const Vector2& vec) const;
 			bool operator>=(const Vector2& vec) const;
 
+			static T DotProduct(const Vector2& vec1, const Vector2& vec2);
 			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
+			static Vector2 Normalize(const Vector2& vec);
 			static Vector2 Unit();
 			static Vector2 UnitX();
 			static Vector2 UnitY();
@@ -109,6 +113,9 @@ namespace Nz
 	typedef Vector2<unsigned int> Vector2ui;
 	typedef Vector2<Int32> Vector2i32;
 	typedef Vector2<UInt32> Vector2ui32;
+
+	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
 }
 
 #include <Nazara/Math/Vector2.inl>

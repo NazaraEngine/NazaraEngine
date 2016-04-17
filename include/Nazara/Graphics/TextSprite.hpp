@@ -28,6 +28,7 @@ namespace Nz
 	{
 		public:
 			inline TextSprite();
+			inline TextSprite(const AbstractTextDrawer& drawer);
 			inline TextSprite(const TextSprite& sprite);
 			~TextSprite() = default;
 
@@ -65,6 +66,7 @@ namespace Nz
 
 			struct AtlasSlots
 			{
+				bool used;
 				NazaraSlot(AbstractAtlas, OnAtlasCleared, clearSlot);
 				NazaraSlot(AbstractAtlas, OnAtlasLayerChange, layerChangeSlot);
 				NazaraSlot(AbstractAtlas, OnAtlasRelease, releaseSlot);

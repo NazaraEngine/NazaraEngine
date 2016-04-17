@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	template<typename T>
 	class EulerAngles
 	{
@@ -28,14 +30,14 @@ namespace Nz
 
 			void MakeZero();
 
-			void Normalize();
+			EulerAngles& Normalize();
 
-			void Set(T P, T Y, T R);
-			void Set(const T angles[3]);
-			void Set(const EulerAngles<T>& angles);
-			//void Set(const Matrix3<T>& mat);
-			void Set(const Quaternion<T>& quat);
-			template<typename U> void Set(const EulerAngles<U>& angles);
+			EulerAngles& Set(T P, T Y, T R);
+			EulerAngles& Set(const T angles[3]);
+			EulerAngles& Set(const EulerAngles<T>& angles);
+			//EulerAngles& Set(const Matrix3<T>& mat);
+			EulerAngles& Set(const Quaternion<T>& quat);
+			template<typename U> EulerAngles& Set(const EulerAngles<U>& angles);
 
 			//Matrix3<T> ToRotationMatrix() const;
 			Quaternion<T> ToQuaternion() const;
@@ -61,6 +63,9 @@ namespace Nz
 
 	typedef EulerAngles<double> EulerAnglesd;
 	typedef EulerAngles<float> EulerAnglesf;
+
+	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles);
+	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);

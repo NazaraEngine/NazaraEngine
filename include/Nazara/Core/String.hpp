@@ -23,11 +23,11 @@ namespace Nz
 		public:
 			enum Flags
 			{
-				None            = 0x00, // Mode par défaut
-				CaseInsensitive = 0x01, // Insensible à la casse
-				HandleUtf8      = 0x02, // Traite les octets comme une suite de caractères UTF-8
-				TrimOnlyLeft    = 0x04, // Trim(med), ne coupe que la partie gauche de la chaîne
-				TrimOnlyRight   = 0x08  // Trim(med), ne coupe que la partie droite de la chaîne
+				None            = 0x00, // Default mode
+				CaseInsensitive = 0x01, // Case insensitive
+				HandleUtf8      = 0x02, // Considers bytes as a list of UTF-8 characters
+				TrimOnlyLeft    = 0x04, // Trim(med), only cut the left part of the string
+				TrimOnlyRight   = 0x08  // Trim(med), only cut the right part of the string
 			};
 
 			String();
@@ -71,7 +71,7 @@ namespace Nz
 			std::size_t FindAny(const char* string, std::intmax_t start = 0, UInt32 flags = None) const;
 			std::size_t FindAny(const String& string, std::intmax_t start = 0, UInt32 flags = None) const;
 			std::size_t FindLast(char character, std::intmax_t start = -1, UInt32 flags = None) const;
-			std::size_t FindLast(const char *string, std::intmax_t start = -1, UInt32 flags = None) const;
+			std::size_t FindLast(const char* string, std::intmax_t start = -1, UInt32 flags = None) const;
 			std::size_t FindLast(const String& string, std::intmax_t start = -1, UInt32 flags = None) const;
 			std::size_t FindLastAny(const char* string, std::intmax_t start = -1, UInt32 flags = None) const;
 			std::size_t FindLastAny(const String& string, std::intmax_t start = -1, UInt32 flags = None) const;
@@ -119,8 +119,8 @@ namespace Nz
 
 			void Reserve(std::size_t bufferSize);
 
-			String& Resize(std::intmax_t size, char character = ' ');
-			String Resized(std::intmax_t size, char character = ' ') const;
+			String& Resize(std::intmax_t size, UInt32 flags = None);
+			String Resized(std::intmax_t size, UInt32 flags = None) const;
 
 			String& Reverse();
 			String Reversed() const;
@@ -326,7 +326,7 @@ namespace Nz
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
 	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(UnserializationContext& context, String* string);
+	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string);
 }
 
 namespace std

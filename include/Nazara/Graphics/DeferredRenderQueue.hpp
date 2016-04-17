@@ -42,7 +42,7 @@ namespace Nz
 			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
 			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) override;
 
-			void Clear(bool fully = false);
+			void Clear(bool fully = false) override;
 
 			struct MeshDataComparator
 			{

@@ -24,6 +24,20 @@ namespace Nz
 		};
 	}
 
+	/*!
+	* \ingroup core
+	* \class Nz::PluginManager
+	* \brief Core class that represents a manager for plugin
+	*/
+
+	/*!
+	* \brief Adds a directory
+	*
+	* \param directoryPath Path to the directory
+	*
+	* \remark Produces a NazaraError if not initialized
+	*/
+
 	void PluginManager::AddDirectory(const String& directoryPath)
 	{
 		if (!Initialize())
@@ -34,6 +48,11 @@ namespace Nz
 
 		s_directories.insert(File::AbsolutePath(directoryPath));
 	}
+
+	/*!
+	* \brief Initializes the plugin manager
+	* \return true if everything is ok
+	*/
 
 	bool PluginManager::Initialize()
 	{
@@ -48,10 +67,35 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Mounts the plugin
+	* \return true if mounting was a success
+	*
+	* \remark Produces a NazaraError if not initialized
+	* \remark Produces a NazaraError if plugin is not found
+	* \remark Produces a NazaraError if fail to load plugin
+	* \remark Produces a NazaraError if fail to get symbol PluginLoad
+	* \remark Produces a NazaraError if fail to initialize the plugin with PluginLoad
+	*/
+
 	bool PluginManager::Mount(Plugin plugin)
 	{
 		return Mount(s_pluginFiles[plugin]);
 	}
+
+	/*!
+	* \brief Mounts the plugin with a path
+	* \return true if mounting was a success
+	*
+	* \param pluginPath Path to the plugin
+	* \param appendExtension Adds the extension to the path or not
+	*
+	* \remark Produces a NazaraError if not initialized
+	* \remark Produces a NazaraError if plugin is not found
+	* \remark Produces a NazaraError if fail to load plugin
+	* \remark Produces a NazaraError if fail to get symbol PluginLoad
+	* \remark Produces a NazaraError if fail to initialize the plugin with PluginLoad
+	*/
 
 	bool PluginManager::Mount(const String& pluginPath, bool appendExtension)
 	{
@@ -119,6 +163,14 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Removes a directory
+	*
+	* \param directoryPath Path to the directory
+	*
+	* \remark Produces a NazaraError if not initialized
+	*/
+
 	void PluginManager::RemoveDirectory(const String& directoryPath)
 	{
 		if (!Initialize())
@@ -130,10 +182,28 @@ namespace Nz
 		s_directories.erase(File::AbsolutePath(directoryPath));
 	}
 
+	/*!
+	* \brief Unmounts the plugin with a path
+	*
+	* \param pluginPath Path to the plugin
+	*
+	* \remark Produces a NazaraError if not initialized
+	* \remark Produces a NazaraError if plugin is not loaded
+	*/
+
 	void PluginManager::Unmount(Plugin plugin)
 	{
 		Unmount(s_pluginFiles[plugin]);
 	}
+
+	/*!
+	* \brief Unmounts the plugin with a path
+	*
+	* \param pluginPath Path to the plugin
+	*
+	* \remark Produces a NazaraError if not initialized
+	* \remark Produces a NazaraError if plugin is not loaded
+	*/
 
 	void PluginManager::Unmount(const String& pluginPath)
 	{
@@ -159,6 +229,10 @@ namespace Nz
 
 		s_plugins.erase(it);
 	}
+
+	/*!
+	* \brief Uninitializes the plugin manager
+	*/
 
 	void PluginManager::Uninitialize()
 	{

@@ -30,10 +30,26 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup core
+	* \class Nz::File
+	* \brief Core class that represents a file
+	*/
+
+	/*!
+	* \brief Constructs a File object by default
+	*/
+
 	File::File() :
 	m_impl(nullptr)
 	{
 	}
+
+	/*!
+	* \brief Constructs a File object with a file path
+	*
+	* \param filePath Path to the file
+	*/
 
 	File::File(const String& filePath) :
 	File()
@@ -41,11 +57,24 @@ namespace Nz
 		SetFile(filePath);
 	}
 
+	/*!
+	* \brief Constructs a File object with a file path and flags
+	*
+	* \param filePath Path to the file
+	* \param openMode Flag of the file
+	*/
+
 	File::File(const String& filePath, UInt32 openMode) :
 	File()
 	{
 		Open(filePath, openMode);
 	}
+
+	/*!
+	* \brief Constructs a File object by move semantic
+	*
+	* \param file File to move into this
+	*/
 
 	File::File(File&& file) noexcept :
 	Stream(std::move(file)),
@@ -55,15 +84,32 @@ namespace Nz
 		file.m_impl = nullptr;
 	}
 
+	/*!
+	* \brief Destructs the object and calls Close
+	*
+	* \see Close
+	*/
+
 	File::~File()
 	{
 		Close();
 	}
 
+	/*!
+	* \brief Copies this file to a new file path
+	* \return true if copy is successful
+	*
+	* \param newFilePath Path of the new file
+	*/
+
 	bool File::Copy(const String& newFilePath)
 	{
 		return Copy(m_filePath, newFilePath);
 	}
+
+	/*!
+	* \brief Closes the file
+	*/
 
 	void File::Close()
 	{
@@ -79,6 +125,11 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Deletes the file
+	* \return true if delete is successful
+	*/
+
 	bool File::Delete()
 	{
 		NazaraLock(m_mutex)
@@ -88,6 +139,13 @@ namespace Nz
 		return Delete(m_filePath);
 	}
 
+	/*!
+	* \brief Checks whether the file has reached the end
+	* \return true if cursor is at the end of the file
+	*
+	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
+	*/
+
 	bool File::EndOfFile() const
 	{
 		NazaraLock(m_mutex)
@@ -95,7 +153,7 @@ namespace Nz
 		#if NAZARA_CORE_SAFE
 		if (!IsOpen())
 		{
-			NazaraError("File not opened");
+			NazaraError("File not open");
 			return false;
 		}
 		#endif
@@ -103,10 +161,24 @@ namespace Nz
 		return m_impl->EndOfFile();
 	}
 
+	/*!
+	* \brief Checks whether the file has reached the end of the stream
+	* \return true if cursor is at the end of the file
+	*
+	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
+	*
+	* \see EndOfFile
+	*/
+
 	bool File::EndOfStream() const
 	{
 		return EndOfFile();
 	}
+
+	/*!
+	* \brief Checks whether the file exists
+	* \return true if file exists
+	*/
 
 	bool File::Exists() const
 	{
@@ -118,6 +190,11 @@ namespace Nz
 			return Exists(m_filePath);
 	}
 
+	/*!
+	* \brief Gets the creation time of the file
+	* \return Information about the creation time
+	*/
+
 	time_t File::GetCreationTime() const
 	{
 		NazaraLock(m_mutex)
@@ -125,14 +202,26 @@ namespace Nz
 		return GetCreationTime(m_filePath);
 	}
 
+	/*!
+	* \brief Gets the position of the cursor in the file
+	* \return Position of the cursor
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+
 	UInt64 File::GetCursorPos() const
 	{
 		NazaraLock(m_mutex)
 
-		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->GetCursorPos();
 	}
+
+	/*!
+	* \brief Gets the directory of the file
+	* \return Directory of the file
+	*/
 
 	String File::GetDirectory() const
 	{
@@ -141,12 +230,22 @@ namespace Nz
 		return m_filePath.SubStringTo(NAZARA_DIRECTORY_SEPARATOR, -1, true, true);
 	}
 
+	/*!
+	* \brief Gets the name of the file
+	* \return Name of the file
+	*/
+
 	String File::GetFileName() const
 	{
 		NazaraLock(m_mutex)
 
 		return m_filePath.SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
 	}
+
+	/*!
+	* \brief Gets the last time the file was accessed
+	* \return Information about the last access time
+	*/
 
 	time_t File::GetLastAccessTime() const
 	{
@@ -155,12 +254,22 @@ namespace Nz
 		return GetLastAccessTime(m_filePath);
 	}
 
+	/*!
+	* \brief Gets the last time the file was written
+	* \return Information about the last writing time
+	*/
+
 	time_t File::GetLastWriteTime() const
 	{
 		NazaraLock(m_mutex)
 
 		return GetLastWriteTime(m_filePath);
 	}
+
+	/*!
+	* \brief Gets the path of the file
+	* \return Path of the file
+	*/
 
 	String File::GetPath() const
 	{
@@ -169,12 +278,22 @@ namespace Nz
 		return m_filePath;
 	}
 
+	/*!
+	* \brief Gets the size of the file
+	* \return Size of the file
+	*/
+
 	UInt64 File::GetSize() const
 	{
 		NazaraLock(m_mutex)
 
 		return GetSize(m_filePath);
 	}
+
+	/*!
+	* \brief Checks whether the file is open
+	* \return true if open
+	*/
 
 	bool File::IsOpen() const
 	{
@@ -183,22 +302,14 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	bool File::Rename(const String& newFilePath)
-	{
-		NazaraLock(m_mutex)
-
-		bool opened = IsOpen();
-		Close();
-
-		bool success = Rename(m_filePath, newFilePath);
-		if (success)
-			m_filePath = NormalizePath(newFilePath);
-
-		if (opened)
-			Open();
-
-		return success;
-	}
+	/*!
+	* \brief Opens the file with flags
+	* \return true if opening is successful
+	*
+	* \param openMode Flag for file
+	*
+	* \remark Produces a NazaraError if OS error to open a file
+	*/
 
 	bool File::Open(unsigned int openMode)
 	{
@@ -215,7 +326,7 @@ namespace Nz
 		std::unique_ptr<FileImpl> impl(new FileImpl(this));
 		if (!impl->Open(m_filePath, openMode))
 		{
-			ErrorFlags flags(ErrorFlag_Silent); // Silencieux par défaut
+			ErrorFlags flags(ErrorFlag_Silent); // Silent by default
 			NazaraError("Failed to open \"" + m_filePath + "\": " + Error::GetLastSystemError());
 			return false;
 		}
@@ -231,6 +342,16 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Opens the file with file path and flags
+	* \return true if opening is successful
+	*
+	* \param filePath Path to the file
+	* \param openMode Flag for file
+	*
+	* \remark Produces a NazaraError if OS error to open a file
+	*/
+
 	bool File::Open(const String& filePath, unsigned int openMode)
 	{
 		NazaraLock(m_mutex)
@@ -241,23 +362,71 @@ namespace Nz
 		return Open(openMode);
 	}
 
+	/*!
+	* \brief Renames the file with a new name
+	* \return true if rename is successful
+	*/
+
+	bool File::Rename(const String& newFilePath)
+	{
+		NazaraLock(m_mutex)
+
+		bool open = IsOpen();
+		Close();
+
+		bool success = Rename(m_filePath, newFilePath);
+		if (success)
+			m_filePath = NormalizePath(newFilePath);
+
+		if (open)
+			Open();
+
+		return success;
+	}
+
+	/*!
+	* \brief Sets the position of the cursor	
+	* \return true if cursor is successfully positioned
+	*
+	* \param pos Position of the cursor
+	* \param offset Offset according to the cursor position
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+
 	bool File::SetCursorPos(CursorPosition pos, Int64 offset)
 	{
 		NazaraLock(m_mutex)
 
-		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->SetCursorPos(pos, offset);
 	}
+
+	/*!
+	* \brief Sets the position of the cursor	
+	* \return true if cursor is successfully positioned
+	*
+	* \param offset Offset according to the cursor begin position
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
 
 	bool File::SetCursorPos(UInt64 offset)
 	{
 		NazaraLock(m_mutex)
 
-		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->SetCursorPos(CursorPosition_AtBegin, offset);
 	}
+
+	/*!
+	* \brief Sets the file path
+	* \return true if file opening is successful
+	*
+	* \remark Produces a NazaraError if file path can not be open
+	*/
 
 	bool File::SetFile(const String& filePath)
 	{
@@ -285,12 +454,26 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sets the file path
+	* \return A reference to this
+	*
+	* \remark Produces a NazaraError if file path can not be open
+	*/
+
 	File& File::operator=(const String& filePath)
 	{
 		SetFile(filePath);
 
 		return *this;
 	}
+
+	/*!
+	* \brief Moves the other file into this
+	* \return A reference to this
+	*
+	* \param file File to move in this
+	*/
 
 	File& File::operator=(File&& file) noexcept
 	{
@@ -302,9 +485,18 @@ namespace Nz
 		return *this;
 	}
 
+	/*!
+	* \brief Gets the absolute path of the file
+	* \return Absolute path of the file
+	*
+	* \param filePath Path of the file
+	*
+	* \remark Produces a NazaraError if filePath is weird with NAZARA_PLATFORM_WINDOWS defined
+	*/
+
 	String File::AbsolutePath(const String& filePath)
 	{
-		// Je n'utilise pas les fonctions de l'OS car elles ne fonctionnent que pour un chemin existant
+		// We don't use OS functions because they only work for existing path
 		String path = NormalizePath(filePath);
 		if (path.IsEmpty())
 			return String();
@@ -319,7 +511,7 @@ namespace Nz
 			base = "\\\\";
 			start = 2;
 		}
-		else if (path.StartsWith('\\')) // Spécial : '\' fait référence au disque racine
+		else if (path.StartsWith('\\')) // Special : '\' refering to root
 		{
 			String drive = Directory::GetCurrent().SubStringTo('\\');
 			String end = path.SubString(1, -1);
@@ -351,14 +543,14 @@ namespace Nz
 		if (path.Split(sep, NAZARA_DIRECTORY_SEPARATOR) <= 1)
 			return path;
 
-		// Nous avons un chemin absolu, mais il nous faut un peu le nettoyer
+		// We have the absolute path, but we need to clean it up
 		for (unsigned int i = 0; i < sep.size(); ++i)
 		{
 			if (sep[i] == '.')
 				sep.erase(sep.begin() + i--);
 			else if (sep[i] == "..")
 			{
-				if (i > start) // Si nous ne sommes pas dans la partie protégée
+				if (i > start) // If we are not in the protected area
 					sep.erase(sep.begin() + i--);
 
 				sep.erase(sep.begin() + i--);
@@ -377,6 +569,14 @@ namespace Nz
 		return stream;
 	}
 
+	/*!
+	* \brief Copies the first file to a new file path
+	* \return true if copy is successful
+	*
+	* \param sourcePath Path of the original file
+	* \param targetPath Path of the copied file
+	*/
+
 	bool File::Copy(const String& sourcePath, const String& targetPath)
 	{
 		if (sourcePath.IsEmpty() || targetPath.IsEmpty())
@@ -384,6 +584,13 @@ namespace Nz
 
 		return FileImpl::Copy(NormalizePath(sourcePath), NormalizePath(targetPath));
 	}
+
+	/*!
+	* \brief Deletes the file
+	* \return true if delete is successful
+	*
+	* \param filePath Path of the file
+	*/
 
 	bool File::Delete(const String& filePath)
 	{
@@ -393,6 +600,13 @@ namespace Nz
 		return FileImpl::Delete(NormalizePath(filePath));
 	}
 
+	/*!
+	* \brief Checks whether the file exists
+	* \return true if file exists
+	*
+	* \param filePath Path of the file
+	*/
+
 	bool File::Exists(const String& filePath)
 	{
 		if (filePath.IsEmpty())
@@ -400,6 +614,13 @@ namespace Nz
 
 		return FileImpl::Exists(NormalizePath(filePath));
 	}
+
+	/*!
+	* \brief Gets the creation time of the file
+	* \return Information about the creation time
+	*
+	* \param filePath Path of the file
+	*/
 
 	time_t File::GetCreationTime(const String& filePath)
 	{
@@ -409,10 +630,23 @@ namespace Nz
 		return FileImpl::GetCreationTime(NormalizePath(filePath));
 	}
 
+	/*!
+	* \brief Gets the directory of the file
+	* \return Directory of the file
+	*
+	* \param filePath Path of the file
+	*/
+
 	String File::GetDirectory(const String& filePath)
 	{
 		return filePath.SubStringTo(NAZARA_DIRECTORY_SEPARATOR, -1, true, true);
 	}
+	/*!
+	* \brief Gets the last time the file was accessed
+	* \return Information about the last access time
+	*
+	* \param filePath Path of the file
+	*/
 
 	time_t File::GetLastAccessTime(const String& filePath)
 	{
@@ -422,6 +656,13 @@ namespace Nz
 		return FileImpl::GetLastAccessTime(NormalizePath(filePath));
 	}
 
+	/*!
+	* \brief Gets the last time the file was written
+	* \return Information about the last writing time
+	*
+	* \param filePath Path of the file
+	*/
+
 	time_t File::GetLastWriteTime(const String& filePath)
 	{
 		if (filePath.IsEmpty())
@@ -430,6 +671,13 @@ namespace Nz
 		return FileImpl::GetLastWriteTime(NormalizePath(filePath));
 	}
 
+	/*!
+	* \brief Gets the size of the file
+	* \return Size of the file
+	*
+	* \param filePath Path of the file
+	*/
+
 	UInt64 File::GetSize(const String& filePath)
 	{
 		if (filePath.IsEmpty())
@@ -437,6 +685,13 @@ namespace Nz
 
 		return FileImpl::GetSize(NormalizePath(filePath));
 	}
+
+	/*!
+	* \brief Checks whether the file path is absolute
+	* \return true if path is absolute
+	*
+	* \param filePath Path to test
+	*/
 
 	bool File::IsAbsolute(const String& filePath)
 	{
@@ -451,7 +706,7 @@ namespace Nz
 			return true;
 		else if (path.Match("\\\\*")) // Ex: \\Laptop
 			return true;
-		else if (path.StartsWith('\\')) // Spécial : '\' fait référence au disque racine
+		else if (path.StartsWith('\\')) // Special : '\' refering to the root
 			return true;
 		else
 			return false;
@@ -461,6 +716,13 @@ namespace Nz
 			#error OS case not implemented
 		#endif
 	}
+
+	/*!
+	* \brief Normalizes the file path
+	* \return Path normalized (replacing '/' with '\\' on Windows, ...)
+	*
+	* \param filePath Path to normalize
+	*/
 
 	String File::NormalizePath(const String& filePath)
 	{
@@ -474,6 +736,13 @@ namespace Nz
 
 		return path;
 	}
+
+	/*!
+	* \brief Normalizes the path separator
+	* \return Path normalized (replacing '/' with '\\' on Windows, ...)
+	*
+	* \param filePath Path to normalize
+	*/
 
 	String File::NormalizeSeparators(const String& filePath)
 	{
@@ -490,6 +759,14 @@ namespace Nz
 		return path;
 	}
 
+	/*!
+	* \brief Renames the file with a new name
+	* \return true if rename is successful
+	*
+	* \param sourcePath Path of the original file
+	* \param targetPath Path of the renamed file
+	*/
+
 	bool File::Rename(const String& sourcePath, const String& targetPath)
 	{
 		if (sourcePath.IsEmpty() || targetPath.IsEmpty())
@@ -497,6 +774,12 @@ namespace Nz
 
 		return FileImpl::Rename(NormalizePath(sourcePath), NormalizePath(targetPath));
 	}
+
+	/*!
+	* \brief Flushes the stream
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
 
 	void File::FlushStream()
 	{
@@ -507,11 +790,21 @@ namespace Nz
 		m_impl->Flush();
 	}
 
+	/*!
+	* \brief Reads blocks
+	* \return Number of blocks read
+	*
+	* \param buffer Preallocated buffer to contain information read
+	* \param size Size of the read and thus of the buffer
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+
 	std::size_t File::ReadBlock(void* buffer, std::size_t size)
 	{
 		NazaraLock(m_mutex)
 
-		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsOpen(), "File is not open");
 
 		if (size == 0)
 			return 0;
@@ -520,7 +813,7 @@ namespace Nz
 			return m_impl->Read(buffer, size);
 		else
 		{
-			// Si nous ne devons rien lire, nous avançons simplement
+			// If we don't have to read, we move forward
 			UInt64 currentPos = m_impl->GetCursorPos();
 
 			m_impl->SetCursorPos(CursorPosition_AtCurrent, size);
@@ -529,11 +822,22 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Writes blocks
+	* \return Number of blocks written
+	*
+	* \param buffer Preallocated buffer containing information to write
+	* \param size Size of the writting and thus of the buffer
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	* \remark Produces a NazaraAssert if buffer is nullptr
+	*/
+
 	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
 	{
 		NazaraLock(m_mutex)
 
-		NazaraAssert(IsOpen(), "File is not opened");
+		NazaraAssert(IsOpen(), "File is not open");
 
 		if (size == 0)
 			return 0;
@@ -543,9 +847,22 @@ namespace Nz
 		return m_impl->Write(buffer, size);
 	}
 
+	/*!
+	* \brief Appends the file to the hash
+	* \return true if hash is successful
+	*
+	* \param hash Hash to append data of the file
+	* \param originalFile Path of the file
+	*
+	* \remark Produces a NazaraAssert if hash is nullptr
+	* \remark Produces a NazaraError if file could not be open
+	* \remark Produces a NazaraError if file could not be read
+	*/
 
 	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile)
 	{
+		NazaraAssert(hash, "Invalid hash");
+
 		File file(originalFile.GetPath());
 		if (!file.Open(OpenMode_ReadOnly))
 		{

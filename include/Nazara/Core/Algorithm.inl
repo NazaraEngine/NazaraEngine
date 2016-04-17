@@ -30,6 +30,16 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Applies the tuple to the function (e.g. calls the function using the tuple content as arguments)
+	* \return The result of the function
+	*
+	* \param fn Function
+	* \param t Tuple of arguments for the function
+	*
+	* \see Apply
+	*/
 	template<typename F, typename Tuple>
 	auto Apply(F&& fn, Tuple&& t)
 	{
@@ -38,6 +48,17 @@ namespace Nz
 		return Detail::ApplyImplFunc(std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Applies the tuple to the member function on an object (e.g. calls the member function using the tuple content as arguments)
+	* \return The result of the member function called
+	*
+	* \param object Object of a class
+	* \param fn Member function
+	* \param t Tuple of arguments for the member function
+	*
+	* \see Apply
+	*/
 	template<typename O, typename F, typename Tuple>
 	auto Apply(O& object, F&& fn, Tuple&& t)
 	{
@@ -46,15 +67,42 @@ namespace Nz
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Computes the hash of a hashable object
+	* \return A bytearray which represents the hash
+	*
+	* \param hash Enumeration of type HashType
+	* \param v Object to hash
+	*
+	* \remark a HashAppend specialization for type T is required
+	* 
+	* \see ComputeHash
+	*/
 	template<typename T>
 	ByteArray ComputeHash(HashType hash, const T& v)
 	{
 		return ComputeHash(AbstractHash::Get(hash).get(), v);
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Computes the hash of a hashable object
+	* \return A bytearray which represents the hash
+	*
+	* \param hash Pointer to abstract hash
+	* \param v Object to hash
+	*
+	* \remark Produce a NazaraAssert if pointer to Abstracthash is invalid
+	* \remark a HashAppend specialization for type T is required
+	*
+	* \see ComputeHash
+	*/
 	template<typename T>
 	ByteArray ComputeHash(AbstractHash* hash, const T& v)
 	{
+		NazaraAssert(hash != nullptr, "Invalid abstracthash pointer");
+
 		hash->Begin();
 
 		HashAppend(hash, v);
@@ -62,7 +110,44 @@ namespace Nz
 		return hash->End();
 	}
 
-	// Algorithme venant de CityHash par Google
+	/*!
+	* \ingroup core
+	* \brief Returns the number of elements in a C-array
+	* \return The number of elements
+	*
+	* \param name C-array
+	*
+	* \see CountOf
+	*/
+	template<typename T, std::size_t N>
+	constexpr std::size_t CountOf(T(&name)[N]) noexcept
+	{
+		return N;
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Returns the number of elements in a container
+	* \return The number of elements
+	*
+	* \param c Container with the member function "size()"
+	*
+	* \see CountOf
+	*/
+	template<typename T>
+	std::size_t CountOf(const T& c)
+	{
+		return c.size();
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Combines two hash in one
+	*
+	* \param seed First value that will be modified (expected to be 64bits)
+	* \param v Second value to hash
+	*/
+	// Algorithm from CityHash by Google
 	// http://stackoverflow.com/questions/8513911/how-to-create-a-good-hash-combine-with-64-bit-output-inspired-by-boosthash-co
 	template<typename T>
 	void HashCombine(std::size_t& seed, const T& v)
@@ -79,6 +164,21 @@ namespace Nz
 		seed = static_cast<std::size_t>(b * kMul);
 	}
 
+	template<typename T> struct PointedType<T*>                {typedef T type;};
+	template<typename T> struct PointedType<T* const>          {typedef T type;};
+	template<typename T> struct PointedType<T* volatile>       {typedef T type;};
+	template<typename T> struct PointedType<T* const volatile> {typedef T type;};
+
+	/*!
+	* \ingroup core
+	* \brief Serializes a boolean
+	* \return true if serialization succedeed
+	*
+	* \param context Context for the serialization
+	* \param value Boolean to serialize
+	*
+	* \see Serialize, Unserialize
+	*/
 	inline bool Serialize(SerializationContext& context, bool value)
 	{
 		if (context.currentBitPos == 8)
@@ -96,6 +196,16 @@ namespace Nz
 			return true;
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Serializes an arithmetic type
+	* \return true if serialization succedeed
+	*
+	* \param context Context for the serialization
+	* \param value Arithmetic type to serialize
+	*
+	* \see Serialize, Unserialize
+	*/
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
@@ -114,10 +224,18 @@ namespace Nz
 		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
 	}
 
-	inline bool Unserialize(UnserializationContext& context, bool* value)
+	/*!
+	* \ingroup core
+	* \brief Unserializes a boolean
+	* \return true if unserialization succedeed
+	*
+	* \param context Context for the unserialization
+	* \param value Pointer to boolean to unserialize
+	*
+	* \see Serialize, Unserialize
+	*/
+	inline bool Unserialize(SerializationContext& context, bool* value)
 	{
-		NazaraAssert(value, "Invalid data pointer");
-
 		if (context.currentBitPos == 8)
 		{
 			if (!Unserialize(context, &context.currentByte))
@@ -134,8 +252,20 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Unserializes an arithmetic type
+	* \return true if unserialization succedeed
+	*
+	* \param context Context for the unserialization
+	* \param value Pointer to arithmetic type to serialize
+	*
+	* \remark Produce a NazaraAssert if pointer to value is invalid
+	*
+	* \see Serialize, Unserialize
+	*/
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(UnserializationContext& context, T* value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value)
 	{
 		NazaraAssert(value, "Invalid data pointer");
 

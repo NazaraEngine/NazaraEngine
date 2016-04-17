@@ -60,14 +60,16 @@ namespace Ndk
 	{
 		if (m_updateRate > 0.f)
 		{
-			m_updateCounter -= elapsedTime;
-			if (m_updateCounter >= 0.f)
-				return;
+			m_updateCounter += elapsedTime;
 
-			m_updateCounter += m_updateRate;
+			while (m_updateCounter >= m_updateRate)
+			{
+				OnUpdate(m_updateRate);
+				m_updateCounter -= m_updateRate;
+			}
 		}
-
-		OnUpdate(elapsedTime);
+		else
+			OnUpdate(elapsedTime);
 	}
 
 	template<typename ComponentType>
@@ -172,9 +174,9 @@ namespace Ndk
 		OnEntityValidation(entity, justAdded);
 	}
 
-	inline void BaseSystem::SetWorld(World& world)
+	inline void BaseSystem::SetWorld(World* world) noexcept
 	{
-		m_world = &world;
+		m_world = world;
 	}
 
 	inline bool BaseSystem::Initialize()
@@ -186,6 +188,6 @@ namespace Ndk
 
 	inline void BaseSystem::Uninitialize()
 	{
-		// Rien à faire
+		// Nothing to do
 	}
 }

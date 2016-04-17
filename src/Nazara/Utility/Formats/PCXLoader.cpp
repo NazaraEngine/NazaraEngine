@@ -47,7 +47,9 @@ namespace Nz
 
 		Ternary Check(Stream& stream, const ImageParams& parameters)
 		{
-			NazaraUnused(parameters);
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativePCXLoader", &skip) && skip)
+				return Ternary_False;
 
 			UInt8 manufacturer;
 			if (stream.Read(&manufacturer, 1) == 1)

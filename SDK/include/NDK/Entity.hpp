@@ -8,6 +8,7 @@
 #define NDK_ENTITY_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <NDK/Algorithm.hpp>
 #include <memory>
 #include <vector>
@@ -15,13 +16,14 @@
 namespace Ndk
 {
 	class BaseComponent;
-	class EntityHandle;
+	class Entity;
 	class World;
 
-	class NDK_API Entity
+	using EntityHandle = Nz::ObjectHandle<Entity>;
+
+	class NDK_API Entity : public Nz::HandledObject<Entity>
 	{
 		friend class BaseSystem;
-		friend EntityHandle;
 		friend World;
 
 		public:
@@ -32,7 +34,7 @@ namespace Ndk
 			BaseComponent& AddComponent(std::unique_ptr<BaseComponent>&& component);
 			template<typename ComponentType, typename... Args> ComponentType& AddComponent(Args&&... args);
 
-			EntityHandle CreateHandle();
+			inline void Enable(bool enable);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
@@ -47,32 +49,36 @@ namespace Ndk
 			void Kill();
 
 			void Invalidate();
+			inline bool IsEnabled() const;
 			inline bool IsValid() const;
 
 			void RemoveAllComponents();
 			void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
 
+			inline Nz::String ToString() const;
+
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;
 
 		private:
-			Entity(World& world, EntityId id);
+			Entity(World* world, EntityId id);
 
 			void Create();
 			void Destroy();
 
-			inline void RegisterHandle(EntityHandle* handle);
 			inline void RegisterSystem(SystemIndex index);
-			inline void UnregisterHandle(EntityHandle* handle);
+
+			inline void SetWorld(World* world) noexcept;
+
 			inline void UnregisterSystem(SystemIndex index);
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
-			std::vector<EntityHandle*> m_handles;
 			Nz::Bitset<> m_componentBits;
 			Nz::Bitset<> m_systemBits;
 			EntityId m_id;
 			World* m_world;
+			bool m_enabled;
 			bool m_valid;
 	};
 }

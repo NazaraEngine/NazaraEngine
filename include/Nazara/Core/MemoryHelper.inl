@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Je ne suis pas fier des cinq lignes qui suivent mais difficile de faire autrement pour le moment...
+// I'm not proud of those five following lines but ti's hard to do with another way now
 #ifdef NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
 	#define NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION_DEFINED
 #else
@@ -16,6 +16,17 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup core
+	* \fn Nz::MemoryHelper
+	* \brief Core functions that helps the handle of memory in the engine
+	*/
+
+	/*!
+	* \brief Calls the operator delete on the pointer
+	*
+	* \remark Uses MemoryManager with NAZARA_CORE_MANAGE_MEMORY defined else operator delete
+	*/
 	inline void OperatorDelete(void* ptr)
 	{
 		#if NAZARA_CORE_MANAGE_MEMORY
@@ -25,6 +36,11 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Calls the operator new on the pointer
+	*
+	* \remark Uses MemoryManager with NAZARA_CORE_MANAGE_MEMORY defined else operator new
+	*/
 	inline void* OperatorNew(std::size_t size)
 	{
 		#if NAZARA_CORE_MANAGE_MEMORY
@@ -34,6 +50,13 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Constructs the object inplace
+	* \return Pointer to the constructed object
+	*
+	* \param ptr Pointer to raw memory allocated
+	* \param args Arguments for the constructor
+	*/
 	template<typename T, typename... Args>
 	T* PlacementNew(void* ptr, Args&&... args)
 	{
@@ -43,7 +66,7 @@ namespace Nz
 
 #include <Nazara/Core/DebugOff.hpp>
 
-// Si c'est nous qui avons défini la constante, alors il nous faut l'enlever (Pour éviter que le moteur entier n'en souffre)
+// If we have defined the constant, then we have to undefine it (to avoid bloating in the engine)
 #ifndef NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION_DEFINED
 	#undef NAZARA_DEBUG_NEWREDEFINITION_DISABLE_REDEFINITION
 #endif

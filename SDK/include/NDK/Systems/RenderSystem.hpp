@@ -27,11 +27,15 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
+			template<typename T> void ChangeRenderTechnique();
+			inline void ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique);
+
 			inline const Nz::BackgroundRef& GetDefaultBackground() const;
 			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;
 			inline Nz::Vector3f GetGlobalForward() const;
 			inline Nz::Vector3f GetGlobalRight() const;
 			inline Nz::Vector3f GetGlobalUp() const;
+			inline Nz::AbstractRenderTechnique& GetRenderTechnique() const;
 
 			inline void SetDefaultBackground(Nz::BackgroundRef background);
 			inline void SetGlobalForward(const Nz::Vector3f& direction);
@@ -49,6 +53,7 @@ namespace Ndk
 			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
+			std::unique_ptr<Nz::AbstractRenderTechnique> m_renderTechnique;
 			EntityList m_cameras;
 			EntityList m_drawables;
 			EntityList m_directionalLights;
@@ -56,7 +61,6 @@ namespace Ndk
 			EntityList m_pointSpotLights;
 			Nz::BackgroundRef m_background;
 			Nz::DepthRenderTechnique m_shadowTechnique;
-			Nz::ForwardRenderTechnique m_renderTechnique;
 			Nz::Matrix4f m_coordinateSystemMatrix;
 			Nz::RenderTexture m_shadowRT;
 			bool m_coordinateSystemInvalidated;

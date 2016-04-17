@@ -9,6 +9,17 @@ namespace Ndk
 	{
 	}
 
+	template<typename T>
+	inline void RenderSystem::ChangeRenderTechnique()
+	{
+		ChangeRenderTechnique(std::make_unique<T>());
+	}
+
+	inline void RenderSystem::ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique)
+	{
+		m_renderTechnique = std::move(renderTechnique);
+	}
+
 	inline const Nz::BackgroundRef& RenderSystem::GetDefaultBackground() const
 	{
 		return m_background;
@@ -32,6 +43,11 @@ namespace Ndk
 	inline Nz::Vector3f RenderSystem::GetGlobalUp() const
 	{
 		return Nz::Vector3f(m_coordinateSystemMatrix.m12, m_coordinateSystemMatrix.m22, m_coordinateSystemMatrix.m32);
+	}
+
+	inline Nz::AbstractRenderTechnique& RenderSystem::GetRenderTechnique() const
+	{
+		return *m_renderTechnique.get();
 	}
 
 	inline void RenderSystem::SetDefaultBackground(Nz::BackgroundRef background)

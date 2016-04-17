@@ -136,7 +136,6 @@ namespace Nz
 			OpenEWMHConnection(sharedConnection);
 		}
 
-		NazaraNotice("Initialized: Utility module");
 		return true;
 	}
 
@@ -208,8 +207,6 @@ namespace Nz
 
 			xcb_disconnect(sharedConnection);
 		}
-
-		NazaraNotice("Uninitialized: Display module");
 	}
 
 	xcb_window_t X11::XCBDefaultRootWindow(xcb_connection_t* connection)

@@ -14,6 +14,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -23,7 +24,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API AnimationParams
+	struct NAZARA_UTILITY_API AnimationParams : ResourceParameters
 	{
 		// La frame de fin à charger
 		unsigned int endFrame = std::numeric_limits<unsigned int>::max();

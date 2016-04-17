@@ -82,6 +82,21 @@ SCENARIO("String", "[CORE][STRING]")
 		}
 	}
 
+	GIVEN("One character string")
+	{
+		Nz::String characterString;
+
+		WHEN("We set the string to one character")
+		{
+			characterString.Set('/');
+
+			THEN("The string must contain it")
+			{
+				REQUIRE(characterString == '/');
+			}
+		}
+	}
+
 	/* TODO
 	GIVEN("One unicode string")
 	{

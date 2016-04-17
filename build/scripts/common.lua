@@ -9,7 +9,7 @@ function NazaraBuild:Execute()
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
 	
 		if (#self.OrderedExtLibs > 0) then
-			solution("NazaraExtlibs")
+			workspace("NazaraExtlibs")
 			platforms({"x32", "x64"})
 
 			-- Configuration générale
@@ -60,7 +60,10 @@ function NazaraBuild:Execute()
 				flags("Symbols")
 
 			configuration("Release*")
-				flags({"EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI"})
+				flags("NoFramePointer")
+                optimize("Speed")
+                rtti("Off")
+                vectorextensions("SSE2")
 
 			configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
 				buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
@@ -98,7 +101,7 @@ function NazaraBuild:Execute()
 			end
 		end
 
-		solution("NazaraEngine")
+		workspace("NazaraEngine")
 		platforms({"x32", "x64"})
 
 		-- Configuration générale
@@ -117,7 +120,10 @@ function NazaraBuild:Execute()
 			flags("Symbols")
 
 		configuration("Release*")
-			flags({"EnableSSE2", "Optimize", "OptimizeSpeed", "NoFramePointer", "NoRTTI"})
+            flags("NoFramePointer")
+            optimize("Speed")
+            rtti("Off")
+            vectorextensions("SSE2")
 
 		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
 			buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
