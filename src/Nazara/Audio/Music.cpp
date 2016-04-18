@@ -6,6 +6,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <memory>
 #include <vector>
@@ -23,7 +24,9 @@ namespace Nz
 		ALenum audioFormat;
 		std::unique_ptr<SoundStream> stream;
 		std::vector<Int16> chunkSamples;
+		Mutex bufferLock;
 		Thread thread;
+		UInt64 processedSamples;
 		bool loop = false;
 		bool streaming = false;
 		unsigned int sampleRate;
@@ -36,15 +39,9 @@ namespace Nz
 
 	bool Music::Create(SoundStream* soundStream)
 	{
-		Destroy();
+		NazaraAssert(soundStream, "Invalid stream");
 
-		#if NAZARA_AUDIO_SAFE
-		if (!soundStream)
-		{
-			NazaraError("Sound stream must be valid");
-			return false;
-		}
-		#endif
+		Destroy();
 
 		AudioFormat format = soundStream->GetFormat();
 
@@ -53,6 +50,8 @@ namespace Nz
 		m_impl->audioFormat = OpenAL::AudioFormat[format];
 		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // Une seconde de samples
 		m_impl->stream.reset(soundStream);
+
+		SetPlayingOffset(0);
 
 		return true;
 	}
@@ -116,9 +115,14 @@ namespace Nz
 			return 0;
 		}
 		#endif
+		
+		// Prevent music thread from enqueing new buffers while we're getting the count
+		Nz::LockGuard lock(m_impl->bufferLock);
 
-		///TODO
-		return 0;
+		ALint samples = 0;
+		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
+
+		return (1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate;
 	}
 
 	UInt32 Music::GetSampleCount() const
@@ -144,7 +148,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_impl->stream->GetSampleRate();
+		return m_impl->sampleRate;
 	}
 
 	SoundStatus Music::GetStatus() const
@@ -209,22 +213,29 @@ namespace Nz
 		}
 		#endif
 
-		// Nous sommes déjà en train de jouer
+		// Maybe we are already playing
 		if (m_impl->streaming)
 		{
-			// Peut-être sommes-nous en pause
-			if (GetStatus() != SoundStatus_Playing)
-				alSourcePlay(m_source);
+			switch (GetStatus())
+			{
+				case SoundStatus_Playing:
+					SetPlayingOffset(0);
+					break;
 
-			return;
+				case SoundStatus_Paused:
+					alSourcePlay(m_source);
+					break;
+
+				default:
+					break; // We shouldn't be stopped
+			}
 		}
-
-		// Lancement du thread de streaming
-		m_impl->stream->Seek(0);
-		m_impl->streaming = true;
-		m_impl->thread = Thread(&Music::MusicThread, this);
-
-		return;
+		else
+		{
+			// Starting streaming's thread
+			m_impl->streaming = true;
+			m_impl->thread = Thread(&Music::MusicThread, this);
+		}
 	}
 
 	void Music::SetPlayingOffset(UInt32 offset)
@@ -237,7 +248,16 @@ namespace Nz
 		}
 		#endif
 
-		///TODO
+		bool isPlaying = m_impl->streaming;
+		
+		if (isPlaying)
+			Stop();
+
+		m_impl->stream->Seek(offset);
+		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
+
+		if (isPlaying)
+			Play();
 	}
 
 	void Music::Stop()
@@ -312,17 +332,28 @@ namespace Nz
 				break;
 			}
 
+			Nz::LockGuard lock(m_impl->bufferLock);
+
 			// On traite les buffers lus
 			ALint processedCount = 0;
 			alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
-
-			ALuint buffer;
 			while (processedCount--)
 			{
+				ALuint buffer;
 				alSourceUnqueueBuffers(m_source, 1, &buffer);
+				
+				ALint bits, size;
+				alGetBufferi(buffer, AL_BITS, &bits);
+				alGetBufferi(buffer, AL_SIZE, &size);
+				
+				if (bits != 0)
+					m_impl->processedSamples += (8 * size) / bits;
+
 				if (FillAndQueueBuffer(buffer))
 					break;
 			}
+
+			lock.Unlock();
 
 			// On retourne dormir un peu
 			Thread::Sleep(50);

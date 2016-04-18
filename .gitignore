@@ -39,6 +39,7 @@ build/**/*.slo
 build/**/*.lo
 build/**/*.o
 build/**/*.obj
+build/**/*.obj.enc
 
 # Compiled Dynamic libraries
 build/**/*.so
