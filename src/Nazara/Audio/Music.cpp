@@ -6,6 +6,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <memory>
 #include <vector>
@@ -13,6 +14,18 @@
 
 namespace Nz
 {
+	/*!
+	* \class Nz::Music
+	* \brief Audio class that represents a music
+	*
+	* \remark Module Audio needs to be initialized to use this class
+	*/
+
+	/*!
+	* \brief Checks whether the parameters for the loading of the music are correct
+	* \return true is parameters are valid
+	*/
+
 	bool MusicParams::IsValid() const
 	{
 		return true;
@@ -27,12 +40,28 @@ namespace Nz
 		bool loop = false;
 		bool streaming = false;
 		unsigned int sampleRate;
+		ALint processedCount = 0;
 	};
+
+	/*!
+	* \brief Destructs the object and calls Destroy
+	*
+	* \see Destroy
+	*/
 
 	Music::~Music()
 	{
 		Destroy();
 	}
+
+	/*!
+	* \brief Creates a music with a sound stream
+	* \return true if creation was succesful
+	*
+	* \param soundStream Sound stream which is the source for the music
+	*
+	* \remark Produces a NazaraError if soundStream is invalid with NAZARA_AUDIO_SAFE defined
+	*/
 
 	bool Music::Create(SoundStream* soundStream)
 	{
@@ -51,11 +80,15 @@ namespace Nz
 		m_impl = new MusicImpl;
 		m_impl->sampleRate = soundStream->GetSampleRate();
 		m_impl->audioFormat = OpenAL::AudioFormat[format];
-		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // Une seconde de samples
+		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
 		m_impl->stream.reset(soundStream);
 
 		return true;
 	}
+
+	/*!
+	* \brief Destroys the current music and frees resources
+	*/
 
 	void Music::Destroy()
 	{
@@ -67,6 +100,14 @@ namespace Nz
 			m_impl = nullptr;
 		}
 	}
+
+	/*!
+	* \brief Enables the looping of the music
+	*
+	* \param loop Should music loop
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	void Music::EnableLooping(bool loop)
 	{
@@ -81,6 +122,13 @@ namespace Nz
 		m_impl->loop = loop;
 	}
 
+	/*!
+	* \brief Gets the duration of the music
+	* \return Duration of the music in milliseconds
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
+
 	UInt32 Music::GetDuration() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -93,6 +141,13 @@ namespace Nz
 
 		return m_impl->stream->GetDuration();
 	}
+
+	/*!
+	* \brief Gets the format of the music
+	* \return Enumeration of type AudioFormat (mono, stereo, ...)
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	AudioFormat Music::GetFormat() const
 	{
@@ -107,6 +162,13 @@ namespace Nz
 		return m_impl->stream->GetFormat();
 	}
 
+	/*!
+	* \brief Gets the current offset in the music
+	* \return Offset in
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
+
 	UInt32 Music::GetPlayingOffset() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -116,10 +178,14 @@ namespace Nz
 			return 0;
 		}
 		#endif
-
-		///TODO
-		return 0;
 	}
+
+	/*!
+	* \brief Gets the number of samples in the music
+	* \return Count of samples (number of seconds * sample rate * channel count)
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	UInt32 Music::GetSampleCount() const
 	{
@@ -134,6 +200,13 @@ namespace Nz
 		return m_impl->stream->GetSampleCount();
 	}
 
+	/*!
+	* \brief Gets the rates of sample in the music
+	* \return Rate of sample in Hertz (Hz)
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
+
 	UInt32 Music::GetSampleRate() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -147,6 +220,14 @@ namespace Nz
 		return m_impl->stream->GetSampleRate();
 	}
 
+	/*!
+	* \brief Gets the status of the music
+	* \return Enumeration of type SoundStatus (Playing, Stopped, ...)
+	*
+	* \remark If the music is not playing, Stopped is returned
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
+
 	SoundStatus Music::GetStatus() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -159,12 +240,19 @@ namespace Nz
 
 		SoundStatus status = GetInternalStatus();
 
-		// Pour compenser les éventuels retards (ou le laps de temps entre Play() et la mise en route du thread)
+		// To compensate any delays (or the timelaps between Play() and the thread startup)
 		if (m_impl->streaming && status == SoundStatus_Stopped)
 			status = SoundStatus_Playing;
 
 		return status;
 	}
+
+	/*!
+	* \brief Checks whether the music is looping
+	* \return true if it is the case
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	bool Music::IsLooping() const
 	{
@@ -179,25 +267,60 @@ namespace Nz
 		return m_impl->loop;
 	}
 
+	/*!
+	* \brief Loads the music from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the music
+	*/
+
 	bool Music::OpenFromFile(const String& filePath, const MusicParams& params)
 	{
 		return MusicLoader::LoadFromFile(this, filePath, params);
 	}
+
+	/*!
+	* \brief Loads the music from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the music
+	*/
 
 	bool Music::OpenFromMemory(const void* data, std::size_t size, const MusicParams& params)
 	{
 		return MusicLoader::LoadFromMemory(this, data, size, params);
 	}
 
+	/*!
+	* \brief Loads the music from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the music
+	* \param params Parameters for the music
+	*/
+
 	bool Music::OpenFromStream(Stream& stream, const MusicParams& params)
 	{
 		return MusicLoader::LoadFromStream(this, stream, params);
 	}
 
+	/*!
+	* \brief Pauses the music
+	*/
+
 	void Music::Pause()
 	{
 		alSourcePause(m_source);
 	}
+
+	/*!
+	* \brief Plays the music
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	void Music::Play()
 	{
@@ -209,23 +332,31 @@ namespace Nz
 		}
 		#endif
 
-		// Nous sommes déjà en train de jouer
+		// Are we already playing ?
 		if (m_impl->streaming)
 		{
-			// Peut-être sommes-nous en pause
+			// Maybe are we in pause ?
 			if (GetStatus() != SoundStatus_Playing)
 				alSourcePlay(m_source);
 
 			return;
 		}
 
-		// Lancement du thread de streaming
+		// Launch of streaming thread
 		m_impl->stream->Seek(0);
 		m_impl->streaming = true;
 		m_impl->thread = Thread(&Music::MusicThread, this);
 
 		return;
 	}
+
+	/*!
+	* \brief Sets the playing offset for the music
+	*
+	* \param offset Offset in the music in
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	void Music::SetPlayingOffset(UInt32 offset)
 	{
@@ -236,9 +367,13 @@ namespace Nz
 			return;
 		}
 		#endif
-
-		///TODO
 	}
+
+	/*!
+	* \brief Stops the music
+	*
+	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
+	*/
 
 	void Music::Stop()
 	{
@@ -257,6 +392,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Fills the buffer and queues it up
+	* \return true if operation was successful
+	*
+	* \param buffer Index of the buffer
+	*/
+
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
 	{
 		unsigned int sampleCount = m_impl->chunkSamples.size();
@@ -270,6 +412,7 @@ namespace Nz
 			{
 				// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
 				m_impl->stream->Seek(0);
+				m_impl->processedCount = 0;
 				continue;
 			}
 
@@ -284,27 +427,31 @@ namespace Nz
 			alSourceQueueBuffers(m_source, 1, &buffer);
 		}
 
-		return sampleRead != sampleCount; // Fin du stream (N'arrive pas en cas de loop)
+		return sampleRead != sampleCount; // End of stream (Does not happen when looping)
 	}
+
+	/*!
+	* \brief Thread function for the music
+	*/
 
 	void Music::MusicThread()
 	{
-		// Allocation des buffers de streaming
+		// Allocation of streaming buffers
 		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 
 		for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
 		{
 			if (FillAndQueueBuffer(buffers[i]))
-				break; // Nous avons atteint la fin du stream, inutile de rajouter des buffers
+				break; // We have reached the end of the stream, we don't need more buffers
 		}
 
 		alSourcePlay(m_source);
 
-		// Boucle de lecture (remplissage de nouveaux buffers au fur et à mesure)
+		// Loop of lecture (filling new buffers as it gets to)
 		while (m_impl->streaming)
 		{
-			// La lecture s'est arrêtée, nous avons atteint la fin du stream
+			// The lecture stopped, we have reached the end of the stream
 			SoundStatus status = GetInternalStatus();
 			if (status == SoundStatus_Stopped)
 			{
@@ -312,9 +459,10 @@ namespace Nz
 				break;
 			}
 
-			// On traite les buffers lus
+			// We process the read buffers
 			ALint processedCount = 0;
 			alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
+			m_impl->processedCount += processedCount;
 
 			ALuint buffer;
 			while (processedCount--)
@@ -324,14 +472,14 @@ namespace Nz
 					break;
 			}
 
-			// On retourne dormir un peu
+			// We go back sleeping a little bit
 			Thread::Sleep(50);
 		}
 
-		// Arrêt de la lecture du son (dans le cas où ça ne serait pas déjà fait)
+		// Stop of sound lecture (in the case where it would not already been)
 		alSourceStop(m_source);
 
-		// On supprime les buffers du stream
+		// We delete buffers from the stream
 		ALint queuedBufferCount;
 		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
 
