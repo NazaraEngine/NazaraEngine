@@ -122,7 +122,7 @@ namespace Nz
 		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
-		return (1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate;
+		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate);
 	}
 
 	UInt32 Music::GetSampleCount() const
