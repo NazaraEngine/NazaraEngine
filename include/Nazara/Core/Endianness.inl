@@ -34,7 +34,7 @@ namespace Nz
 
 	inline void SwapBytes(void* buffer, unsigned int size)
 	{
-		UInt8* bytes = reinterpret_cast<UInt8*>(buffer);
+		UInt8* bytes = static_cast<UInt8*>(buffer);
 		unsigned int i = 0;
 		unsigned int j = size - 1;
 

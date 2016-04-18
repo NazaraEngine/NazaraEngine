@@ -195,7 +195,7 @@ namespace Nz
 
 	unsigned int __stdcall TaskSchedulerImpl::WorkerProc(void* userdata)
 	{
-		unsigned int workerID = *reinterpret_cast<unsigned int*>(userdata);
+		unsigned int workerID = *static_cast<unsigned int*>(userdata);
 		SetEvent(s_doneEvents[workerID]);
 
 		Worker& worker = s_workers[workerID];

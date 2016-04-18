@@ -14,25 +14,25 @@ namespace Nz
 	{
 		UInt32 Getter16(const void* buffer, unsigned int i)
 		{
-			const UInt16* ptr = reinterpret_cast<const UInt16*>(buffer);
+			const UInt16* ptr = static_cast<const UInt16*>(buffer);
 			return ptr[i];
 		}
 
 		UInt32 Getter32(const void* buffer, unsigned int i)
 		{
-			const UInt32* ptr = reinterpret_cast<const UInt32*>(buffer);
+			const UInt32* ptr = static_cast<const UInt32*>(buffer);
 			return ptr[i];
 		}
 
 		void Setter16(void* buffer, unsigned int i, UInt32 value)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(buffer);
+			UInt16* ptr = static_cast<UInt16*>(buffer);
 			ptr[i] = static_cast<UInt16>(value);
 		}
 
 		void Setter32(void* buffer, unsigned int i, UInt32 value)
 		{
-			UInt32* ptr = reinterpret_cast<UInt32*>(buffer);
+			UInt32* ptr = static_cast<UInt32*>(buffer);
 			ptr[i] = value;
 		}
 

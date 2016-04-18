@@ -28,7 +28,7 @@ namespace Ndk
 			return nullptr;
 		});
 
-		eulerAnglesClass.SetMethod("__tostring", &Nz::EulerAnglesd::ToString);
+		eulerAnglesClass.BindMethod("__tostring", &Nz::EulerAnglesd::ToString);
 
 		eulerAnglesClass.SetGetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
 		{
@@ -173,7 +173,7 @@ namespace Ndk
 			return nullptr;
 		});
 
-		quaternionClass.SetMethod("__tostring", &Nz::Quaterniond::ToString);
+		quaternionClass.BindMethod("__tostring", &Nz::Quaterniond::ToString);
 
 		quaternionClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
@@ -262,7 +262,7 @@ namespace Ndk
 			return nullptr;
 		});
 
-		vector2dClass.SetMethod("__tostring", &Nz::Vector2d::ToString);
+		vector2dClass.BindMethod("__tostring", &Nz::Vector2d::ToString);
 
 		vector2dClass.SetGetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
 		{
@@ -381,7 +381,7 @@ namespace Ndk
 			return nullptr;
 		});
 
-		vector3dClass.SetMethod("__tostring", &Nz::Vector3d::ToString);
+		vector3dClass.BindMethod("__tostring", &Nz::Vector3d::ToString);
 
 		vector3dClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
 		{

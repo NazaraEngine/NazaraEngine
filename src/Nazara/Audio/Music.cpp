@@ -6,7 +6,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <memory>
 #include <vector>
@@ -36,7 +36,9 @@ namespace Nz
 		ALenum audioFormat;
 		std::unique_ptr<SoundStream> stream;
 		std::vector<Int16> chunkSamples;
+		Mutex bufferLock;
 		Thread thread;
+		UInt64 processedSamples;
 		bool loop = false;
 		bool streaming = false;
 		unsigned int sampleRate;
@@ -65,15 +67,9 @@ namespace Nz
 
 	bool Music::Create(SoundStream* soundStream)
 	{
-		Destroy();
+		NazaraAssert(soundStream, "Invalid stream");
 
-		#if NAZARA_AUDIO_SAFE
-		if (!soundStream)
-		{
-			NazaraError("Sound stream must be valid");
-			return false;
-		}
-		#endif
+		Destroy();
 
 		AudioFormat format = soundStream->GetFormat();
 
@@ -82,6 +78,8 @@ namespace Nz
 		m_impl->audioFormat = OpenAL::AudioFormat[format];
 		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
 		m_impl->stream.reset(soundStream);
+
+		SetPlayingOffset(0);
 
 		return true;
 	}
@@ -178,6 +176,14 @@ namespace Nz
 			return 0;
 		}
 		#endif
+		
+		// Prevent music thread from enqueing new buffers while we're getting the count
+		Nz::LockGuard lock(m_impl->bufferLock);
+
+		ALint samples = 0;
+		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
+
+		return (1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate;
 	}
 
 	/*!
@@ -217,7 +223,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_impl->stream->GetSampleRate();
+		return m_impl->sampleRate;
 	}
 
 	/*!
@@ -332,22 +338,29 @@ namespace Nz
 		}
 		#endif
 
-		// Are we already playing ?
+		// Maybe we are already playing
 		if (m_impl->streaming)
 		{
-			// Maybe are we in pause ?
-			if (GetStatus() != SoundStatus_Playing)
-				alSourcePlay(m_source);
+			switch (GetStatus())
+			{
+				case SoundStatus_Playing:
+					SetPlayingOffset(0);
+					break;
 
-			return;
+				case SoundStatus_Paused:
+					alSourcePlay(m_source);
+					break;
+
+				default:
+					break; // We shouldn't be stopped
+			}
 		}
-
-		// Launch of streaming thread
-		m_impl->stream->Seek(0);
-		m_impl->streaming = true;
-		m_impl->thread = Thread(&Music::MusicThread, this);
-
-		return;
+		else
+		{
+			// Starting streaming's thread
+			m_impl->streaming = true;
+			m_impl->thread = Thread(&Music::MusicThread, this);
+		}
 	}
 
 	/*!
@@ -367,6 +380,17 @@ namespace Nz
 			return;
 		}
 		#endif
+
+		bool isPlaying = m_impl->streaming;
+		
+		if (isPlaying)
+			Stop();
+
+		m_impl->stream->Seek(offset);
+		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
+
+		if (isPlaying)
+			Play();
 	}
 
 	/*!
@@ -436,22 +460,22 @@ namespace Nz
 
 	void Music::MusicThread()
 	{
-		// Allocation of streaming buffers
+		// Allocation des buffers de streaming
 		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 
 		for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
 		{
 			if (FillAndQueueBuffer(buffers[i]))
-				break; // We have reached the end of the stream, we don't need more buffers
+				break; // Nous avons atteint la fin du stream, inutile de rajouter des buffers
 		}
 
 		alSourcePlay(m_source);
 
-		// Loop of lecture (filling new buffers as it gets to)
+		// Boucle de lecture (remplissage de nouveaux buffers au fur et à mesure)
 		while (m_impl->streaming)
 		{
-			// The lecture stopped, we have reached the end of the stream
+			// La lecture s'est arrêtée, nous avons atteint la fin du stream
 			SoundStatus status = GetInternalStatus();
 			if (status == SoundStatus_Stopped)
 			{
@@ -459,27 +483,37 @@ namespace Nz
 				break;
 			}
 
-			// We process the read buffers
+			Nz::LockGuard lock(m_impl->bufferLock);
+
+			// On traite les buffers lus
 			ALint processedCount = 0;
 			alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
-			m_impl->processedCount += processedCount;
-
-			ALuint buffer;
 			while (processedCount--)
 			{
+				ALuint buffer;
 				alSourceUnqueueBuffers(m_source, 1, &buffer);
+				
+				ALint bits, size;
+				alGetBufferi(buffer, AL_BITS, &bits);
+				alGetBufferi(buffer, AL_SIZE, &size);
+				
+				if (bits != 0)
+					m_impl->processedSamples += (8 * size) / bits;
+
 				if (FillAndQueueBuffer(buffer))
 					break;
 			}
 
-			// We go back sleeping a little bit
+			lock.Unlock();
+
+			// On retourne dormir un peu
 			Thread::Sleep(50);
 		}
 
-		// Stop of sound lecture (in the case where it would not already been)
+		// Arrêt de la lecture du son (dans le cas où ça ne serait pas déjà fait)
 		alSourceStop(m_source);
 
-		// We delete buffers from the stream
+		// On supprime les buffers du stream
 		ALint queuedBufferCount;
 		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
 

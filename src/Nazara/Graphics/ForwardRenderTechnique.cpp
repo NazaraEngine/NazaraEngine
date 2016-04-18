@@ -49,18 +49,21 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 	}
 
-	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
+	void ForwardRenderTechnique::Clear(const SceneData& sceneData) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
-		m_renderQueue.Sort(sceneData.viewer);
-
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
 		Renderer::Clear(RendererBuffer_Depth);
 
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
+	}
+
+	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+
+		m_renderQueue.Sort(sceneData.viewer);
 
 		for (auto& pair : m_renderQueue.layers)
 		{
@@ -272,7 +275,7 @@ namespace Nz
 						{
 							// On ouvre le buffer en écriture
 							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-							VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+							VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 							unsigned int spriteCount = 0;
 							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
@@ -411,7 +414,7 @@ namespace Nz
 						billboardCount -= renderedBillboardCount;
 
 						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
-						BillboardPoint* vertices = reinterpret_cast<BillboardPoint*>(vertexMapper.GetPointer());
+						BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
 
 						for (unsigned int i = 0; i < renderedBillboardCount; ++i)
 						{
