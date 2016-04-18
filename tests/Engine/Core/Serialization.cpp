@@ -5,6 +5,7 @@
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Ray.hpp>
+#include <array>
 
 #include <Catch/catch.hpp>
 

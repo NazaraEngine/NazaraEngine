@@ -221,7 +221,7 @@ namespace Nz
 		{
 			int sendSize = static_cast<int>(std::min<std::size_t>(size - totalByteSent, std::numeric_limits<int>::max())); //< Handle very large send
 			int sentSize;
-			if (!SocketImpl::Send(m_handle, reinterpret_cast<const UInt8*>(buffer) + totalByteSent, sendSize, &sentSize, &m_lastError))
+			if (!SocketImpl::Send(m_handle, static_cast<const UInt8*>(buffer) + totalByteSent, sendSize, &sentSize, &m_lastError))
 			{
 				switch (m_lastError)
 				{

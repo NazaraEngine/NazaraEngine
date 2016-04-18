@@ -275,7 +275,7 @@ namespace Nz
 						{
 							// On ouvre le buffer en écriture
 							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-							VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+							VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 							unsigned int spriteCount = 0;
 							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
@@ -414,7 +414,7 @@ namespace Nz
 						billboardCount -= renderedBillboardCount;
 
 						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
-						BillboardPoint* vertices = reinterpret_cast<BillboardPoint*>(vertexMapper.GetPointer());
+						BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
 
 						for (unsigned int i = 0; i < renderedBillboardCount; ++i)
 						{

@@ -14,16 +14,16 @@ namespace Ndk
 			return new Nz::Clock(lua.Check<Nz::Int64>(&argIndex, 0), lua.Check<bool>(&argIndex, false));
 		});
 
-		clockClass.SetMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
-		clockClass.SetMethod("GetMilliseconds", &Nz::Clock::GetMilliseconds);
-		clockClass.SetMethod("GetSeconds", &Nz::Clock::GetSeconds);
-		clockClass.SetMethod("IsPaused", &Nz::Clock::IsPaused);
-		clockClass.SetMethod("Pause", &Nz::Clock::Pause);
-		clockClass.SetMethod("Restart", &Nz::Clock::Restart);
-		clockClass.SetMethod("Unpause", &Nz::Clock::Unpause);
+		clockClass.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
+		clockClass.BindMethod("GetMilliseconds", &Nz::Clock::GetMilliseconds);
+		clockClass.BindMethod("GetSeconds", &Nz::Clock::GetSeconds);
+		clockClass.BindMethod("IsPaused", &Nz::Clock::IsPaused);
+		clockClass.BindMethod("Pause", &Nz::Clock::Pause);
+		clockClass.BindMethod("Restart", &Nz::Clock::Restart);
+		clockClass.BindMethod("Unpause", &Nz::Clock::Unpause);
 
 		// Manual
-		clockClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock) -> int {
+		clockClass.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock) -> int {
 			Nz::StringStream stream("Clock(Elapsed: ");
 			stream << clock.GetSeconds();
 			stream << "s, Paused: ";
@@ -52,29 +52,29 @@ namespace Ndk
 			return nullptr;
 		});
 
-		directoryClass.SetMethod("Close", &Nz::Directory::Close);
-		directoryClass.SetMethod("Exists", &Nz::Directory::Exists);
-		directoryClass.SetMethod("GetPath", &Nz::Directory::GetPath);
-		directoryClass.SetMethod("GetPattern", &Nz::Directory::GetPattern);
-		directoryClass.SetMethod("GetResultName", &Nz::Directory::GetResultName);
-		directoryClass.SetMethod("GetResultPath", &Nz::Directory::GetResultPath);
-		directoryClass.SetMethod("GetResultSize", &Nz::Directory::GetResultSize);
-		directoryClass.SetMethod("IsOpen",  &Nz::Directory::IsOpen);
-		directoryClass.SetMethod("IsResultDirectory",  &Nz::Directory::IsResultDirectory);
-		directoryClass.SetMethod("NextResult", &Nz::Directory::NextResult, true);
-		directoryClass.SetMethod("Open", &Nz::Directory::Open);
-		directoryClass.SetMethod("SetPath", &Nz::Directory::SetPath);
-		directoryClass.SetMethod("SetPattern", &Nz::Directory::SetPattern);
+		directoryClass.BindMethod("Close", &Nz::Directory::Close);
+		directoryClass.BindMethod("Exists", &Nz::Directory::Exists);
+		directoryClass.BindMethod("GetPath", &Nz::Directory::GetPath);
+		directoryClass.BindMethod("GetPattern", &Nz::Directory::GetPattern);
+		directoryClass.BindMethod("GetResultName", &Nz::Directory::GetResultName);
+		directoryClass.BindMethod("GetResultPath", &Nz::Directory::GetResultPath);
+		directoryClass.BindMethod("GetResultSize", &Nz::Directory::GetResultSize);
+		directoryClass.BindMethod("IsOpen",  &Nz::Directory::IsOpen);
+		directoryClass.BindMethod("IsResultDirectory",  &Nz::Directory::IsResultDirectory);
+		directoryClass.BindMethod("NextResult", &Nz::Directory::NextResult, true);
+		directoryClass.BindMethod("Open", &Nz::Directory::Open);
+		directoryClass.BindMethod("SetPath", &Nz::Directory::SetPath);
+		directoryClass.BindMethod("SetPattern", &Nz::Directory::SetPattern);
 
-		directoryClass.SetStaticMethod("Copy", Nz::Directory::Copy);
-		directoryClass.SetStaticMethod("Create", Nz::Directory::Create);
-		directoryClass.SetStaticMethod("Exists", Nz::Directory::Exists);
-		directoryClass.SetStaticMethod("GetCurrent", Nz::Directory::GetCurrent);
-		directoryClass.SetStaticMethod("Remove", Nz::Directory::Remove);
-		directoryClass.SetStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
+		directoryClass.BindStaticMethod("Copy", Nz::Directory::Copy);
+		directoryClass.BindStaticMethod("Create", Nz::Directory::Create);
+		directoryClass.BindStaticMethod("Exists", Nz::Directory::Exists);
+		directoryClass.BindStaticMethod("GetCurrent", Nz::Directory::GetCurrent);
+		directoryClass.BindStaticMethod("Remove", Nz::Directory::Remove);
+		directoryClass.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
 
 		// Manual
-		directoryClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& directory) -> int {
+		directoryClass.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& directory) -> int {
 			Nz::StringStream stream("Directory(");
 			stream << directory.GetPath();
 			stream << ')';
@@ -84,22 +84,22 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Stream ***********************************/
-		streamClass.SetMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
-		streamClass.SetMethod("Flush", &Nz::Stream::Flush);
-		streamClass.SetMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
-		streamClass.SetMethod("GetDirectory", &Nz::Stream::GetDirectory);
-		streamClass.SetMethod("GetPath", &Nz::Stream::GetPath);
-		streamClass.SetMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
-		streamClass.SetMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
-		streamClass.SetMethod("GetSize", &Nz::Stream::GetSize);
-		streamClass.SetMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
-		streamClass.SetMethod("IsReadable", &Nz::Stream::IsReadable);
-		streamClass.SetMethod("IsSequential", &Nz::Stream::IsSequential);
-		streamClass.SetMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
-		streamClass.SetMethod("IsWritable", &Nz::Stream::IsWritable);
-		streamClass.SetMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
+		streamClass.BindMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
+		streamClass.BindMethod("Flush", &Nz::Stream::Flush);
+		streamClass.BindMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
+		streamClass.BindMethod("GetDirectory", &Nz::Stream::GetDirectory);
+		streamClass.BindMethod("GetPath", &Nz::Stream::GetPath);
+		streamClass.BindMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
+		streamClass.BindMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
+		streamClass.BindMethod("GetSize", &Nz::Stream::GetSize);
+		streamClass.BindMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
+		streamClass.BindMethod("IsReadable", &Nz::Stream::IsReadable);
+		streamClass.BindMethod("IsSequential", &Nz::Stream::IsSequential);
+		streamClass.BindMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
+		streamClass.BindMethod("IsWritable", &Nz::Stream::IsWritable);
+		streamClass.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-		streamClass.SetMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
+		streamClass.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
 			int argIndex = 1;
 
 			std::size_t length = lua.Check<std::size_t>(&argIndex);
@@ -111,7 +111,7 @@ namespace Ndk
 			return 1;
 		});
 
-		streamClass.SetMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
+		streamClass.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
 			int argIndex = 1;
 
 			std::size_t bufferSize = 0;
@@ -147,37 +147,37 @@ namespace Ndk
 			return nullptr;
 		});
 
-		fileClass.SetMethod("Close", &Nz::File::Close);
-		fileClass.SetMethod("Copy", &Nz::File::Copy);
-		fileClass.SetMethod("Delete", &Nz::File::Delete);
-		fileClass.SetMethod("EndOfFile", &Nz::File::EndOfFile);
-		fileClass.SetMethod("Exists", &Nz::File::Exists);
-		fileClass.SetMethod("GetCreationTime", &Nz::File::GetCreationTime);
-		fileClass.SetMethod("GetFileName", &Nz::File::GetFileName);
-		fileClass.SetMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
-		fileClass.SetMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		fileClass.SetMethod("IsOpen", &Nz::File::IsOpen);
-		fileClass.SetMethod("Rename", &Nz::File::GetLastWriteTime);
-		fileClass.SetMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		fileClass.SetMethod("SetFile", &Nz::File::GetLastWriteTime);
+		fileClass.BindMethod("Close", &Nz::File::Close);
+		fileClass.BindMethod("Copy", &Nz::File::Copy);
+		fileClass.BindMethod("Delete", &Nz::File::Delete);
+		fileClass.BindMethod("EndOfFile", &Nz::File::EndOfFile);
+		fileClass.BindMethod("Exists", &Nz::File::Exists);
+		fileClass.BindMethod("GetCreationTime", &Nz::File::GetCreationTime);
+		fileClass.BindMethod("GetFileName", &Nz::File::GetFileName);
+		fileClass.BindMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
+		fileClass.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
+		fileClass.BindMethod("IsOpen", &Nz::File::IsOpen);
+		fileClass.BindMethod("Rename", &Nz::File::GetLastWriteTime);
+		fileClass.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
+		fileClass.BindMethod("SetFile", &Nz::File::GetLastWriteTime);
 
-		fileClass.SetStaticMethod("AbsolutePath", &Nz::File::AbsolutePath);
-		fileClass.SetStaticMethod("ComputeHash", (Nz::ByteArray (*)(Nz::HashType, const Nz::String&)) &Nz::File::ComputeHash);
-		fileClass.SetStaticMethod("Copy", &Nz::File::Copy);
-		fileClass.SetStaticMethod("Delete", &Nz::File::Delete);
-		fileClass.SetStaticMethod("Exists", &Nz::File::Exists);
+		fileClass.BindStaticMethod("AbsolutePath", &Nz::File::AbsolutePath);
+		fileClass.BindStaticMethod("ComputeHash", (Nz::ByteArray (*)(Nz::HashType, const Nz::String&)) &Nz::File::ComputeHash);
+		fileClass.BindStaticMethod("Copy", &Nz::File::Copy);
+		fileClass.BindStaticMethod("Delete", &Nz::File::Delete);
+		fileClass.BindStaticMethod("Exists", &Nz::File::Exists);
 		//fileClass.SetStaticMethod("GetCreationTime", &Nz::File::GetCreationTime);
-		fileClass.SetStaticMethod("GetDirectory", &Nz::File::GetDirectory);
+		fileClass.BindStaticMethod("GetDirectory", &Nz::File::GetDirectory);
 		//fileClass.SetStaticMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
 		//fileClass.SetStaticMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		fileClass.SetStaticMethod("GetSize", &Nz::File::GetSize);
-		fileClass.SetStaticMethod("IsAbsolute", &Nz::File::IsAbsolute);
-		fileClass.SetStaticMethod("NormalizePath", &Nz::File::NormalizePath);
-		fileClass.SetStaticMethod("NormalizeSeparators", &Nz::File::NormalizeSeparators);
-		fileClass.SetStaticMethod("Rename", &Nz::File::Rename);
+		fileClass.BindStaticMethod("GetSize", &Nz::File::GetSize);
+		fileClass.BindStaticMethod("IsAbsolute", &Nz::File::IsAbsolute);
+		fileClass.BindStaticMethod("NormalizePath", &Nz::File::NormalizePath);
+		fileClass.BindStaticMethod("NormalizeSeparators", &Nz::File::NormalizeSeparators);
+		fileClass.BindStaticMethod("Rename", &Nz::File::Rename);
 
 		// Manual
-		fileClass.SetMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
+		fileClass.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 
@@ -196,7 +196,7 @@ namespace Ndk
 			return 0;
 		});
 
-		fileClass.SetMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
+		fileClass.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 
@@ -214,7 +214,7 @@ namespace Ndk
 			return 0;
 		});
 
-		fileClass.SetMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
+		fileClass.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
 			Nz::StringStream stream("File(");
 			if (file.IsOpen())
 				stream << "Path: " << file.GetPath();
