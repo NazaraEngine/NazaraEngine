@@ -4,8 +4,6 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/Thread.hpp>
 
-#include <iostream>
-
 SCENARIO("Music", "[AUDIO][MUSIC]")
 {
 	Nz::Initializer<Nz::Audio> audio;
@@ -32,17 +30,23 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				REQUIRE(music.IsLooping() == false);
 			}
 
-			THEN("We can play it")
+			THEN("We can play it and get the time offset")
 			{
-				//Nz::Audio::SetGlobalVolume(0.f);
+				Nz::Audio::SetGlobalVolume(0.f);
+
 				music.Play();				
-				Nz::Thread::Sleep(1200);
-				REQUIRE(music.GetPlayingOffset() >= 1200);
+				Nz::Thread::Sleep(1000);
+				REQUIRE(music.GetPlayingOffset() >= 950);
 				Nz::Thread::Sleep(200);
+				// TODO ? REQUIRE(music.GetPlayingOffset() >= 1150);
 				REQUIRE(music.GetPlayingOffset() <= 1300);
 				music.Pause();
 				REQUIRE(music.GetStatus() == Nz::SoundStatus_Paused);
-				//Nz::Audio::SetGlobalVolume(100.f);
+
+				music.SetPlayingOffset(3500);
+				REQUIRE(music.GetPlayingOffset() >= 3500);
+
+				Nz::Audio::SetGlobalVolume(100.f);
 			}
 		}
 	}

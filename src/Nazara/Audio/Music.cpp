@@ -162,7 +162,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets the current offset in the music
-	* \return Offset in
+	* \return Offset in milliseconds (works with entire seconds)
 	*
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
@@ -366,7 +366,7 @@ namespace Nz
 	/*!
 	* \brief Sets the playing offset for the music
 	*
-	* \param offset Offset in the music in
+	* \param offset Offset in the music in milliseconds
 	*
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
@@ -460,22 +460,22 @@ namespace Nz
 
 	void Music::MusicThread()
 	{
-		// Allocation des buffers de streaming
+		// Allocation of streaming buffers
 		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 
 		for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
 		{
 			if (FillAndQueueBuffer(buffers[i]))
-				break; // Nous avons atteint la fin du stream, inutile de rajouter des buffers
+				break; // We have reached the end of the stream, there is no use to add new buffers
 		}
 
 		alSourcePlay(m_source);
 
-		// Boucle de lecture (remplissage de nouveaux buffers au fur et à mesure)
+		// Reading loop (Filling new buffers as playing)
 		while (m_impl->streaming)
 		{
-			// La lecture s'est arrêtée, nous avons atteint la fin du stream
+			// The reading has stopped, we have reached the end of the stream
 			SoundStatus status = GetInternalStatus();
 			if (status == SoundStatus_Stopped)
 			{
@@ -485,7 +485,7 @@ namespace Nz
 
 			Nz::LockGuard lock(m_impl->bufferLock);
 
-			// On traite les buffers lus
+			// We treat read buffers
 			ALint processedCount = 0;
 			alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
 			while (processedCount--)
@@ -506,14 +506,14 @@ namespace Nz
 
 			lock.Unlock();
 
-			// On retourne dormir un peu
+			// We go back to sleep
 			Thread::Sleep(50);
 		}
 
-		// Arrêt de la lecture du son (dans le cas où ça ne serait pas déjà fait)
+		// Stop playing of the sound (in the case where it has not been already done)
 		alSourceStop(m_source);
 
-		// On supprime les buffers du stream
+		// We delete buffers from the stream
 		ALint queuedBufferCount;
 		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
 
