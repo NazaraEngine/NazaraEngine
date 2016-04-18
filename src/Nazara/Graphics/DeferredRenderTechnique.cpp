@@ -120,7 +120,7 @@ namespace Nz
 
 		for (unsigned int i = 0; i < 3; ++i)
 			m_GBuffer[i] = Texture::New();
-
+			
 		try
 		{
 			ErrorFlags errFlags(ErrorFlag_ThrowException);

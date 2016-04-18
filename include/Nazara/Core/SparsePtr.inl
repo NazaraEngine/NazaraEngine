@@ -161,7 +161,7 @@ namespace Nz
 	template<typename T>
 	void SparsePtr<T>::SetPtr(VoidPtr ptr)
 	{
-		m_ptr = reinterpret_cast<BytePtr>(ptr);
+		m_ptr = static_cast<BytePtr>(ptr);
 	}
 
 	/*!

@@ -33,7 +33,7 @@ namespace Nz
 		return m_lastError;
 	}
 
-	inline bool RUdpConnection::Listen(NetProtocol protocol, UInt16 port, unsigned int queueSize)
+	inline bool RUdpConnection::Listen(NetProtocol protocol, UInt16 port)
 	{
 		NazaraAssert(protocol != NetProtocol_Any, "Any protocol not supported for Listen"); //< TODO
 		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol"); 
@@ -56,7 +56,7 @@ namespace Nz
 		}
 
 		any.SetPort(port);
-		return Listen(any, queueSize);
+		return Listen(any);
 	}
 
 	inline void RUdpConnection::SetProtocolId(UInt32 protocolId)
@@ -120,6 +120,19 @@ namespace Nz
 
 		NazaraError("PacketReliability not handled (0x" + String::Number(reliability, 16) + ')');
 		return false;
+	}
+
+	inline void RUdpConnection::SimulateNetwork(double packetLoss)
+	{
+		NazaraAssert(packetLoss >= 0.0 && packetLoss <= 1.0, "Packet loss must be in range [0..1]");
+
+		if (packetLoss > 0.0)
+		{
+			m_isSimulationEnabled = true;
+			m_packetLossProbability = std::bernoulli_distribution(packetLoss);
+		}
+		else
+			m_isSimulationEnabled = false;
 	}
 }
 
