@@ -1019,25 +1019,52 @@ namespace Nz
 		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, srcHeight);
 
 		OpenGL::BindTexture(m_impl->type, m_impl->id);
-		switch (m_impl->type)
+
+		if (PixelFormat::IsCompressed(m_impl->format))
 		{
-			case ImageType_1D:
-				glTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.dataFormat, format.dataType, pixels);
-				break;
+			switch (m_impl->type)
+			{
+				case ImageType_1D:
+					glCompressedTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, 1, 1), pixels);
+					break;
 
-			case ImageType_1D_Array:
-			case ImageType_2D:
-				glTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_1D_Array:
+				case ImageType_2D:
+					glCompressedTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, 1), pixels);
+					break;
 
-			case ImageType_2D_Array:
-			case ImageType_3D:
-				glTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_2D_Array:
+				case ImageType_3D:
+					glCompressedTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, box.depth), pixels);
+					break;
 
-			case ImageType_Cubemap:
-				glTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_Cubemap:
+					glCompressedTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, box.depth), pixels);
+					break;
+			}
+		}
+		else
+		{
+			switch (m_impl->type)
+			{
+				case ImageType_1D:
+					glTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_1D_Array:
+				case ImageType_2D:
+					glTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_2D_Array:
+				case ImageType_3D:
+					glTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_Cubemap:
+					glTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+					break;
+			}
 		}
 
 		return true;
