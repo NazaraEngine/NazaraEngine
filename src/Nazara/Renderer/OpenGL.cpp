@@ -892,6 +892,9 @@ namespace Nz
 			glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(LoadEntry("glCreateProgram"));
 			glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(LoadEntry("glCreateShader"));
 			glColorMask = reinterpret_cast<PFNGLCOLORMASKPROC>(LoadEntry("glColorMask"));
+			glCompressedTexSubImage1D = reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC>(LoadEntry("glCompressedTexSubImage1D"));
+			glCompressedTexSubImage2D = reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>(LoadEntry("glCompressedTexSubImage2D"));
+			glCompressedTexSubImage3D = reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC>(LoadEntry("glCompressedTexSubImage3D"));
 			glCullFace = reinterpret_cast<PFNGLCULLFACEPROC>(LoadEntry("glCullFace"));
 			glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(LoadEntry("glCompileShader"));
 			glCopyTexSubImage2D = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE2DPROC>(LoadEntry("glCopyTexSubImage2D"));
@@ -976,6 +979,7 @@ namespace Nz
 			glTexImage3D = reinterpret_cast<PFNGLTEXIMAGE3DPROC>(LoadEntry("glTexImage3D"));
 			glTexParameterf = reinterpret_cast<PFNGLTEXPARAMETERFPROC>(LoadEntry("glTexParameterf"));
 			glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(LoadEntry("glTexParameteri"));
+			glTexSubImage1D = reinterpret_cast<PFNGLTEXSUBIMAGE1DPROC>(LoadEntry("glTexSubImage1D"));
 			glTexSubImage2D = reinterpret_cast<PFNGLTEXSUBIMAGE2DPROC>(LoadEntry("glTexSubImage2D"));
 			glTexSubImage3D = reinterpret_cast<PFNGLTEXSUBIMAGE3DPROC>(LoadEntry("glTexSubImage3D"));
 			glUniform1f = reinterpret_cast<PFNGLUNIFORM1FPROC>(LoadEntry("glUniform1f"));
@@ -2104,6 +2108,9 @@ PFNGLCREATEPROGRAMPROC            glCreateProgram            = nullptr;
 PFNGLCREATESHADERPROC             glCreateShader             = nullptr;
 PFNGLCHECKFRAMEBUFFERSTATUSPROC   glCheckFramebufferStatus   = nullptr;
 PFNGLCOLORMASKPROC                glColorMask                = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC  glCompressedTexSubImage1D  = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC  glCompressedTexSubImage2D  = nullptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC  glCompressedTexSubImage3D  = nullptr;
 PFNGLCULLFACEPROC                 glCullFace                 = nullptr;
 PFNGLCOMPILESHADERPROC            glCompileShader            = nullptr;
 PFNGLCOPYTEXSUBIMAGE2DPROC        glCopyTexSubImage2D        = nullptr;
