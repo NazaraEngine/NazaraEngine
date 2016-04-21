@@ -168,6 +168,17 @@ namespace Nz
 		PixelFormatType_Max = PixelFormatType_Stencil16
 	};
 
+	enum PixelFormatSubType
+	{
+		PixelFormatSubType_Double,   // F64
+		PixelFormatSubType_Float,    // F32
+		PixelFormatSubType_Half,     // F16
+		PixelFormatSubType_Int,      // I32
+		PixelFormatSubType_Unsigned, // U32
+
+		PixelFormatSubType_Max = PixelFormatSubType_Unsigned
+	};
+
 	enum PixelFormatTypeType
 	{
 		PixelFormatTypeType_Undefined = -1,
