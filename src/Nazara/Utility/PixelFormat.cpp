@@ -1268,6 +1268,22 @@ namespace Nz
 		}
 	}
 
+	PixelFormatType PixelFormat::IdentifyFormat(const PixelFormatInfo& info)
+	{
+		switch (info.bitsPerPixel)
+		{
+			case 32:
+				if (info.redMask   == Bitset<>(0xFF000000) &&
+					info.greenMask == Bitset<>(0x00FF0000) &&
+					info.blueMask  == Bitset<>(0x0000FF00) &&
+					info.alphaMask == Bitset<>(0x000000FF))
+					return PixelFormatType_RGBA8;
+				break;
+		}
+
+		return PixelFormatType_Undefined;
+	}
+
 	bool PixelFormat::Initialize()
 	{
 		// Réinitialisation
