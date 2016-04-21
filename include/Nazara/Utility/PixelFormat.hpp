@@ -8,6 +8,7 @@
 #define NAZARA_PIXELFORMAT_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -20,6 +21,34 @@
 
 namespace Nz
 {
+	struct PixelFormatInfo
+	{
+		PixelFormatInfo() :
+		bitsPerPixel(0)
+		{
+		}
+
+		PixelFormatInfo(UInt8 bpp, PixelFormatSubType subType) :
+		bitsPerPixel(bpp),
+		redType(subType),
+		greenType(subType),
+		blueType(subType),
+		alphaType(subType)
+		{
+		}
+
+		// Warning: Bit Endian
+		Bitset<> redMask;
+		Bitset<> greenMask;
+		Bitset<> blueMask;
+		Bitset<> alphaMask;
+		PixelFormatSubType redType;
+		PixelFormatSubType greenType;
+		PixelFormatSubType blueType;
+		PixelFormatSubType alphaType;
+		UInt8 bitsPerPixel;
+	};
+
 	class PixelFormat
 	{
 		friend class Utility;
@@ -40,6 +69,8 @@ namespace Nz
 			static PixelFormatTypeType GetType(PixelFormatType format);
 
 			static bool HasAlpha(PixelFormatType format);
+
+			static PixelFormatType IdentifyFormat(const PixelFormatInfo& info);
 
 			static bool IsCompressed(PixelFormatType format);
 			static bool IsConversionSupported(PixelFormatType srcFormat, PixelFormatType dstFormat);
