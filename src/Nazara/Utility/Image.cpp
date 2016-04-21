@@ -179,7 +179,7 @@ namespace Nz
 		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
-		Copy(dstPtr, srcPtr, bpp, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
+		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
 	}
 
 	bool Image::Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
@@ -273,7 +273,7 @@ namespace Nz
 			// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 			try
 			{
-				levels[i].reset(new UInt8[w * h * d * PixelFormat::GetBytesPerPixel(format)]);
+				levels[i].reset(new UInt8[PixelFormat::ComputeSize(format, w, h, d)]);
 
 				if (w > 1)
 					w >>= 1;
@@ -341,7 +341,7 @@ namespace Nz
 
 		for (unsigned int i = 0; i < levels.size(); ++i)
 		{
-			unsigned int size = width*height*depth*bpp;
+			std::size_t size = PixelFormat::ComputeSize(m_sharedImage->format, width, height, depth);
 			levels[i].reset(new UInt8[size]);
 
 			UInt8* ptr = levels[i].get();
@@ -377,6 +377,12 @@ namespace Nz
 		if (m_sharedImage == &emptyImage)
 		{
 			NazaraError("Image must be valid");
+			return false;
+		}
+
+		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		{
+			NazaraError("Cannot access pixels from compressed image");
 			return false;
 		}
 
@@ -436,6 +442,12 @@ namespace Nz
 		if (m_sharedImage == &emptyImage)
 		{
 			NazaraError("Image must be valid");
+			return false;
+		}
+
+		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		{
+			NazaraError("Cannot access pixels from compressed image");
 			return false;
 		}
 
@@ -683,10 +695,7 @@ namespace Nz
 
 	unsigned int Image::GetMemoryUsage(UInt8 level) const
 	{
-		return (GetLevelSize(m_sharedImage->width, level)) *
-			   (GetLevelSize(m_sharedImage->height, level)) *
-			   ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)) *
-			   PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		return PixelFormat::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
 	}
 
 	Color Image::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -1261,7 +1270,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		Copy(m_sharedImage->levels[level].get(), pixels, PixelFormat::GetBytesPerPixel(m_sharedImage->format),
+		Copy(m_sharedImage->levels[level].get(), pixels, m_sharedImage->format,
 		     GetLevelSize(m_sharedImage->width, level),
 		     GetLevelSize(m_sharedImage->height, level),
 		     GetLevelSize(m_sharedImage->depth, level),
@@ -1317,7 +1326,7 @@ namespace Nz
 		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[level].get(), bpp, box.x, box.y, box.z, width, height);
 
-		Copy(dstPixels, pixels, bpp,
+		Copy(dstPixels, pixels, m_sharedImage->format,
 			 box.width, box.height, box.depth,
 			 width, height,
 			 srcWidth, srcHeight);
@@ -1341,7 +1350,7 @@ namespace Nz
 		return *this;
 	}
 
-	void Image::Copy(UInt8* destination, const UInt8* source, UInt8 bpp, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
+	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
 		if (dstWidth == 0)
 			dstWidth = width;
@@ -1356,9 +1365,10 @@ namespace Nz
 			srcHeight = height;
 
 		if ((height == 1 || (dstWidth == width && srcWidth == width)) && (depth == 1 || (dstHeight == height && srcHeight == height)))
-			std::memcpy(destination, source, width*height*depth*bpp);
+			std::memcpy(destination, source, PixelFormat::ComputeSize(format, width, height, depth));
 		else
 		{
+			unsigned int bpp = PixelFormat::GetBytesPerPixel(format);
 			unsigned int lineStride = width * bpp;
 			unsigned int dstLineStride = dstWidth * bpp;
 			unsigned int dstFaceStride = dstLineStride * dstHeight;

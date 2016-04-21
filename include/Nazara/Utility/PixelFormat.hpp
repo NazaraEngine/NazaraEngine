@@ -28,6 +28,8 @@ namespace Nz
 			using ConvertFunction = std::function<UInt8*(const UInt8* start, const UInt8* end, UInt8* dst)>;
 			using FlipFunction = std::function<void(unsigned int width, unsigned int height, unsigned int depth, const UInt8* src, UInt8* dst)>;
 
+			static inline std::size_t ComputeSize(PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth);
+
 			static bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* src, void* dst);
 			static bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* start, const void* end, void* dst);
 
