@@ -109,6 +109,35 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a Bitset copying an unsigned integral number
+	*
+	* \param value Number to be used as a base
+	*/
+	template<typename Block, class Allocator>
+	template<typename T>
+	Bitset<Block, Allocator>::Bitset(T value) :
+	Bitset()
+	{
+		if (sizeof(T) <= sizeof(Block))
+		{
+			m_bitCount = CountBits(value);
+			m_blocks.push_back(value);
+		}
+		else
+		{
+			// Note: I was kinda tired when I wrote this, there's probably a much easier method than checking bits to write bits
+			unsigned int bitPos = 0;
+			for (T bit = 1; bit < std::numeric_limits<T>::digits; bit <<= 1)
+			{
+				if (value & bit)
+					UnboundedSet(bitPos, true);
+
+				bitPos++;
+			}
+		}
+	}
+
+	/*!
 	* \brief Clears the content of the bitset, GetSize() is now equals to 0
 	*
 	* \remark The memory allocated is not released
@@ -633,7 +662,7 @@ namespace Nz
 	* \param bit Index of the bit
 	* \param val Value of the bit
 	*
-	* \remark if bit is greather than the number of bits, the bitset is enlarged and the added bits are set to false and the one at bit is set to val
+	* \remark if bit is greater than the number of bits, the bitset is enlarged and the added bits are set to false and the one at bit is set to val
 	*
 	* \see Set
 	*/
@@ -716,6 +745,22 @@ namespace Nz
 	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator=(const String& bits)
 	{
 		Bitset bitset(bits);
+		std::swap(*this, bitset);
+
+		return *this;
+	}
+
+	/*!
+	* \brief Copies the internal representation of an unsigned integer
+	* \return A reference to this
+	*
+	* \param value Unsigned number which will be used as a source
+	*/
+	template<typename Block, class Allocator>
+	template<typename T>
+	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator=(T value)
+	{
+		Bitset bitset(value);
 		std::swap(*this, bitset);
 
 		return *this;
