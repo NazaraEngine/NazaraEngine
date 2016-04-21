@@ -9,3 +9,6 @@ namespace Nz
 {
 }
 
+#define NAZARA_VULKAN_EXPORTED_FUNCTION_IMPL(func) PFN_##func func = nullptr;
+
+NAZARA_VULKAN_EXPORTED_FUNCTION_IMPL(vkGetInstanceProcAddr)
