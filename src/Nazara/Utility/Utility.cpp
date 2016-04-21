@@ -20,6 +20,7 @@
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Window.hpp>
+#include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
@@ -113,6 +114,7 @@ namespace Nz
 		Loaders::RegisterFreeType();
 
 		// Image
+		Loaders::RegisterDDSLoader(); // Generic loader (STB)
 		Loaders::RegisterSTBLoader(); // Generic loader (STB)
 		Loaders::RegisterSTBSaver();  // Generic saver (STB)
 
