@@ -78,6 +78,7 @@ namespace Ndk
 
 			// Utility
 			Nz::LuaClass<Nz::AbstractImage*> abstractImage;
+			Nz::LuaClass<Nz::FontRef> fontClass;
 			Nz::LuaClass<Nz::Node> nodeClass;
 
 			// SDK
