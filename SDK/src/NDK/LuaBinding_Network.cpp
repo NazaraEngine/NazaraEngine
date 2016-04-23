@@ -90,10 +90,10 @@ namespace Ndk
 				{
 					instance.PushInteger(index++);
 					instance.PushTable(0, 4);
-					instance.SetField("Address", std::move(info.address));
-					instance.SetField("CanonicalName", std::move(info.canonicalName));
-					instance.SetField("Protocol", std::move(info.protocol));
-					instance.SetField("SocketType", std::move(info.socketType));
+					instance.PushField("Address", std::move(info.address));
+					instance.PushField("CanonicalName", std::move(info.canonicalName));
+					instance.PushField("Protocol", std::move(info.protocol));
+					instance.PushField("SocketType", std::move(info.socketType));
 					instance.SetTable();
 				}
 
@@ -120,10 +120,10 @@ namespace Ndk
 		static_assert(Nz::NetProtocol_Max + 1 == 4, "Nz::NetProtocol has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 4);
 		{
-			instance.SetField("Any",     Nz::NetProtocol_Any);
-			instance.SetField("IPv4",    Nz::NetProtocol_IPv4);
-			instance.SetField("IPv6",    Nz::NetProtocol_IPv6);
-			instance.SetField("Unknown", Nz::NetProtocol_Unknown);
+			instance.PushField("Any",     Nz::NetProtocol_Any);
+			instance.PushField("IPv4",    Nz::NetProtocol_IPv4);
+			instance.PushField("IPv6",    Nz::NetProtocol_IPv6);
+			instance.PushField("Unknown", Nz::NetProtocol_Unknown);
 		}
 		instance.SetGlobal("NetProtocol");
 
@@ -131,12 +131,12 @@ namespace Ndk
 		static_assert(Nz::PacketPriority_Max + 1 == 4, "Nz::PacketPriority has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 6);
 		{
-			instance.SetField("High",      Nz::PacketPriority_High);
-			instance.SetField("Highest",   Nz::PacketPriority_Highest);
-			instance.SetField("Immediate", Nz::PacketPriority_Immediate);
-			instance.SetField("Medium",    Nz::PacketPriority_Medium);
-			instance.SetField("Low",       Nz::PacketPriority_Low);
-			instance.SetField("Lowest",    Nz::PacketPriority_Lowest);
+			instance.PushField("High",      Nz::PacketPriority_High);
+			instance.PushField("Highest",   Nz::PacketPriority_Highest);
+			instance.PushField("Immediate", Nz::PacketPriority_Immediate);
+			instance.PushField("Medium",    Nz::PacketPriority_Medium);
+			instance.PushField("Low",       Nz::PacketPriority_Low);
+			instance.PushField("Lowest",    Nz::PacketPriority_Lowest);
 		}
 		instance.SetGlobal("PacketPriority");
 
@@ -144,9 +144,9 @@ namespace Ndk
 		static_assert(Nz::PacketReliability_Max + 1 == 3, "Nz::PacketReliability has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 3);
 		{
-			instance.SetField("Reliable",        Nz::PacketReliability_Reliable);
-			instance.SetField("ReliableOrdered", Nz::PacketReliability_ReliableOrdered);
-			instance.SetField("Unreliable",      Nz::PacketReliability_Unreliable);
+			instance.PushField("Reliable",        Nz::PacketReliability_Reliable);
+			instance.PushField("ReliableOrdered", Nz::PacketReliability_ReliableOrdered);
+			instance.PushField("Unreliable",      Nz::PacketReliability_Unreliable);
 		}
 		instance.SetGlobal("PacketReliability");
 
@@ -154,15 +154,15 @@ namespace Ndk
 		static_assert(Nz::ResolveError_Max + 1 == 9, "Nz::ResolveError has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 9);
 		{
-			instance.SetField("Internal",             Nz::ResolveError_Internal);
-			instance.SetField("ResourceError",        Nz::ResolveError_ResourceError);
-			instance.SetField("NoError",              Nz::ResolveError_NoError);
-			instance.SetField("NonRecoverable",       Nz::ResolveError_NonRecoverable);
-			instance.SetField("NotFound",             Nz::ResolveError_NotFound);
-			instance.SetField("NotInitialized",       Nz::ResolveError_NotInitialized);
-			instance.SetField("ProtocolNotSupported", Nz::ResolveError_ProtocolNotSupported);
-			instance.SetField("TemporaryFailure",     Nz::ResolveError_TemporaryFailure);
-			instance.SetField("Unknown",              Nz::ResolveError_Unknown);
+			instance.PushField("Internal",             Nz::ResolveError_Internal);
+			instance.PushField("ResourceError",        Nz::ResolveError_ResourceError);
+			instance.PushField("NoError",              Nz::ResolveError_NoError);
+			instance.PushField("NonRecoverable",       Nz::ResolveError_NonRecoverable);
+			instance.PushField("NotFound",             Nz::ResolveError_NotFound);
+			instance.PushField("NotInitialized",       Nz::ResolveError_NotInitialized);
+			instance.PushField("ProtocolNotSupported", Nz::ResolveError_ProtocolNotSupported);
+			instance.PushField("TemporaryFailure",     Nz::ResolveError_TemporaryFailure);
+			instance.PushField("Unknown",              Nz::ResolveError_Unknown);
 		}
 		instance.SetGlobal("ResolveError");
 		
@@ -170,21 +170,21 @@ namespace Ndk
 		static_assert(Nz::SocketError_Max + 1 == 15, "Nz::ResolveError has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 15);
 		{
-			instance.SetField("AddressNotAvailable", Nz::SocketError_AddressNotAvailable);
-			instance.SetField("ConnectionClosed",    Nz::SocketError_ConnectionClosed);
-			instance.SetField("ConnectionRefused",   Nz::SocketError_ConnectionRefused);
-			instance.SetField("DatagramSize",        Nz::SocketError_DatagramSize);
-			instance.SetField("Internal",            Nz::SocketError_Internal);
-			instance.SetField("Packet",              Nz::SocketError_Packet);
-			instance.SetField("NetworkError",        Nz::SocketError_NetworkError);
-			instance.SetField("NoError",             Nz::SocketError_NoError);
-			instance.SetField("NotInitialized",      Nz::SocketError_NotInitialized);
-			instance.SetField("NotSupported",        Nz::SocketError_NotSupported);
-			instance.SetField("ResolveError",        Nz::SocketError_ResolveError);
-			instance.SetField("ResourceError",       Nz::SocketError_ResourceError);
-			instance.SetField("TimedOut",            Nz::SocketError_TimedOut);
-			instance.SetField("Unknown",             Nz::SocketError_Unknown);
-			instance.SetField("UnreachableHost",     Nz::SocketError_UnreachableHost);
+			instance.PushField("AddressNotAvailable", Nz::SocketError_AddressNotAvailable);
+			instance.PushField("ConnectionClosed",    Nz::SocketError_ConnectionClosed);
+			instance.PushField("ConnectionRefused",   Nz::SocketError_ConnectionRefused);
+			instance.PushField("DatagramSize",        Nz::SocketError_DatagramSize);
+			instance.PushField("Internal",            Nz::SocketError_Internal);
+			instance.PushField("Packet",              Nz::SocketError_Packet);
+			instance.PushField("NetworkError",        Nz::SocketError_NetworkError);
+			instance.PushField("NoError",             Nz::SocketError_NoError);
+			instance.PushField("NotInitialized",      Nz::SocketError_NotInitialized);
+			instance.PushField("NotSupported",        Nz::SocketError_NotSupported);
+			instance.PushField("ResolveError",        Nz::SocketError_ResolveError);
+			instance.PushField("ResourceError",       Nz::SocketError_ResourceError);
+			instance.PushField("TimedOut",            Nz::SocketError_TimedOut);
+			instance.PushField("Unknown",             Nz::SocketError_Unknown);
+			instance.PushField("UnreachableHost",     Nz::SocketError_UnreachableHost);
 		}
 		instance.SetGlobal("SocketError");
 
@@ -192,11 +192,11 @@ namespace Ndk
 		static_assert(Nz::SocketState_Max + 1 == 5, "Nz::SocketState has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 5);
 		{
-			instance.SetField("Bound",        Nz::SocketState_Bound);
-			instance.SetField("Connecting",   Nz::SocketState_Connecting);
-			instance.SetField("Connected",    Nz::SocketState_Connected);
-			instance.SetField("NotConnected", Nz::SocketState_NotConnected);
-			instance.SetField("Resolving",    Nz::SocketState_Resolving);
+			instance.PushField("Bound",        Nz::SocketState_Bound);
+			instance.PushField("Connecting",   Nz::SocketState_Connecting);
+			instance.PushField("Connected",    Nz::SocketState_Connected);
+			instance.PushField("NotConnected", Nz::SocketState_NotConnected);
+			instance.PushField("Resolving",    Nz::SocketState_Resolving);
 		}
 		instance.SetGlobal("SocketState");
 
@@ -204,10 +204,10 @@ namespace Ndk
 		static_assert(Nz::SocketType_Max + 1 == 4, "Nz::SocketState has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 4);
 		{
-			instance.SetField("Raw",     Nz::SocketType_Raw);
-			instance.SetField("TCP",     Nz::SocketType_TCP);
-			instance.SetField("UDP",     Nz::SocketType_UDP);
-			instance.SetField("Unknown", Nz::SocketType_Unknown);
+			instance.PushField("Raw",     Nz::SocketType_Raw);
+			instance.PushField("TCP",     Nz::SocketType_TCP);
+			instance.PushField("UDP",     Nz::SocketType_UDP);
+			instance.PushField("Unknown", Nz::SocketType_Unknown);
 		}
 		instance.SetGlobal("SocketType");
 	}
