@@ -144,6 +144,13 @@ namespace Nz
 		return 1;
 	}
 
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T&>)
+	{
+		using NoRefT = typename std::remove_reference<T>::type;
+		return LuaImplReplyVal(instance, val, TypeTag<NoRefT>());
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
