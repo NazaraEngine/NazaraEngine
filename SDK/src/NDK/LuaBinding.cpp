@@ -23,6 +23,7 @@ namespace Ndk
 
 	// Utility
 	abstractImage("AbstractImage"),
+	fontClass("Font"),
 	nodeClass("Node"),
 
 	// SDK

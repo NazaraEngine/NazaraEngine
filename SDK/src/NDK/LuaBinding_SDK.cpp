@@ -38,7 +38,7 @@ namespace Ndk
 		consoleClass.BindMethod("GetInput", &Console::GetInput);
 		consoleClass.BindMethod("GetInputBackground", &Console::GetInputBackground);
 		consoleClass.BindMethod("GetSize", &Console::GetSize);
-		//consoleClass.SetMethod("GetTextFont", &Console::GetTextFont);
+		consoleClass.BindMethod("GetTextFont", &Console::GetTextFont);
 
 		consoleClass.BindMethod("IsVisible", &Console::IsVisible);
 
@@ -47,7 +47,7 @@ namespace Ndk
 
 		consoleClass.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
 		consoleClass.BindMethod("SetSize", &Console::SetSize);
-		//consoleClass.SetMethod("SetTextFont", &Console::SetTextFont);
+		consoleClass.BindMethod("SetTextFont", &Console::SetTextFont);
 		
 		consoleClass.BindMethod("Show", &Console::Show, true);
 		#endif
@@ -194,8 +194,7 @@ namespace Ndk
 				if (entry.name.IsEmpty())
 					continue;
 
-				instance.PushInteger(entry.index);
-				instance.SetField(entry.name);
+				instance.PushField(entry.name, entry.index);
 			}
 		}
 		instance.SetGlobal("ComponentType");

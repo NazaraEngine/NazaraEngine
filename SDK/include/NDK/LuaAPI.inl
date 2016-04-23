@@ -64,6 +64,33 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontRef* fontRef, TypeTag<FontRef>)
+	{
+		*fontRef = *(*static_cast<FontRef**>(instance.CheckUserdata(index, "Font")));
+		
+		return 1;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontParams* params, TypeTag<FontParams>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		return 1;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MeshParams* params, TypeTag<MeshParams>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		params->animated = instance.CheckField<bool>("Animated", params->animated);
+		params->center = instance.CheckField<bool>("Center", params->center);
+		params->flipUVs = instance.CheckField<bool>("FlipUVs", params->flipUVs);
+		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
+		params->scale = instance.CheckField<Vector3f>("Scale", params->scale);
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
 	{
 		switch (instance.GetType(index))
@@ -209,19 +236,6 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MeshParams* params, TypeTag<MeshParams>)
-	{
-		instance.CheckType(index, Nz::LuaType_Table);
-
-		params->animated             = instance.CheckField<bool>("Animated", params->animated);
-		params->center               = instance.CheckField<bool>("Center", params->center);
-		params->flipUVs              = instance.CheckField<bool>("FlipUVs", params->flipUVs);
-		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
-		params->scale                = instance.CheckField<Vector3f>("Scale", params->scale);
-
-		return 1;
-	}
-
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, ModelParameters* params, TypeTag<ModelParameters>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
@@ -264,6 +278,23 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesf val, TypeTag<EulerAnglesf>)
 	{
 		instance.PushInstance<EulerAnglesd>("EulerAngles", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, FontRef val, TypeTag<FontRef>)
+	{
+		instance.PushInstance<FontRef>("Font", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Font::SizeInfo val, TypeTag<Font::SizeInfo>)
+	{
+		instance.PushTable();
+		instance.PushField("LineHeight", val.lineHeight);
+		instance.PushField("SpaceAdvance", val.spaceAdvance);
+		instance.PushField("UnderlinePosition", val.underlinePosition);
+		instance.PushField("UnderlineThickness", val.underlineThickness);
+
 		return 1;
 	}
 

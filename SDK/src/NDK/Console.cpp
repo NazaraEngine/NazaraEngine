@@ -186,6 +186,12 @@ namespace Ndk
 
 	void Console::SetTextFont(Nz::FontRef font)
 	{
+		NazaraAssert(font && font->IsValid(), "Invalid font");
+
+		m_defaultFont = std::move(font);
+		m_historyDrawer.SetFont(m_defaultFont);
+		m_inputDrawer.SetFont(m_defaultFont);
+
 		Layout();
 	}
 
