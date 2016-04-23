@@ -88,6 +88,65 @@ namespace Ndk
 			return 0;
 		});
 
+		/*********************************** Nz::Font **********************************/
+		fontClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::FontRef*
+		{
+			return new Nz::FontRef(new Nz::Font);
+		});
+
+		fontClass.BindMethod("ClearGlyphCache",    &Nz::Font::ClearGlyphCache);
+		fontClass.BindMethod("ClearKerningCache",  &Nz::Font::ClearKerningCache);
+		fontClass.BindMethod("ClearSizeInfoCache", &Nz::Font::ClearSizeInfoCache);
+
+		fontClass.BindMethod("Destroy", &Nz::Font::Destroy);
+
+		fontClass.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance) -> int
+		{
+			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+
+			int argIndex = 1;
+			switch (argCount)
+			{
+				case 0:
+					lua.Push(instance->GetCachedGlyphCount());
+					return 1;
+
+				case 2:
+				{
+					unsigned int characterSize = lua.Check<unsigned int>(&argIndex);
+					Nz::UInt32 style = lua.Check<Nz::UInt32>(&argIndex);
+
+					lua.Push(instance->GetCachedGlyphCount(characterSize, style));
+					return 1;
+				}
+			}
+
+			lua.Error("No matching overload for method GetCachedGlyphCount");
+			return 0;
+		});
+
+		fontClass.BindMethod("GetFamilyName",      &Nz::Font::GetFamilyName);
+		fontClass.BindMethod("GetKerning",         &Nz::Font::GetKerning);
+		fontClass.BindMethod("GetGlyphBorder",     &Nz::Font::GetGlyphBorder);
+		fontClass.BindMethod("GetMinimumStepSize", &Nz::Font::GetMinimumStepSize);
+		fontClass.BindMethod("GetSizeInfo",        &Nz::Font::GetSizeInfo);
+		fontClass.BindMethod("GetStyleName",       &Nz::Font::GetStyleName);
+
+		fontClass.BindMethod("IsValid", &Nz::Font::IsValid);
+
+		fontClass.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
+
+		fontClass.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
+
+		fontClass.BindMethod("SetGlyphBorder",     &Nz::Font::SetGlyphBorder);
+		fontClass.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
+
+		fontClass.BindStaticMethod("GetDefaultGlyphBorder", &Nz::Font::GetDefaultGlyphBorder);
+		fontClass.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
+
+		fontClass.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
+		fontClass.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
+
 		/*********************************** Nz::Node **********************************/
 		nodeClass.BindMethod("GetBackward", &Nz::Node::GetBackward);
 		//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
@@ -250,6 +309,7 @@ namespace Ndk
 	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
 	{
 		abstractImage.Register(instance);
+		fontClass.Register(instance);
 		nodeClass.Register(instance);
 	}
 }
