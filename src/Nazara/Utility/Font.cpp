@@ -350,7 +350,7 @@ namespace Nz
 		return s_defaultAtlas;
 	}
 
-	Font* Font::GetDefault()
+	const FontRef& Font::GetDefault()
 	{
 		// Nous n'initialisons la police par défaut qu'à la demande pour qu'elle prenne
 		// les paramètres par défaut (qui peuvent avoir étés changés par l'utilisateur),

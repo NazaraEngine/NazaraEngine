@@ -125,8 +125,12 @@ namespace Nz
 			template<typename T> int Push(T arg) const;
 			void PushBoolean(bool value) const;
 			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0) const;
+			template<typename T> void PushField(const char* name, T&& arg, int tableIndex = -2) const;
+			template<typename T> void PushField(const String& name, T&& arg, int tableIndex = -2) const;
 			void PushFunction(LuaFunction func) const;
 			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const;
+			template<typename T> void PushGlobal(const char* name, T&& arg);
+			template<typename T> void PushGlobal(const String& name, T&& arg);
 			template<typename T> void PushInstance(const char* tname, T* instance) const;
 			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args) const;
 			void PushInteger(long long value) const;
@@ -146,12 +150,8 @@ namespace Nz
 			void Remove(int index) const;
 			void Replace(int index) const;
 
-			template<typename T> void SetField(const char* name, T&& arg, int tableIndex = -2);
-			template<typename T> void SetField(const String& name, T&& arg, int tableIndex = -2);
-			void SetField(const char* name, int tableIndex = -2);
-			void SetField(const String& name, int tableIndex = -2);
-			template<typename T> void SetGlobal(const char* name, T&& arg);
-			template<typename T> void SetGlobal(const String& name, T&& arg);
+			void SetField(const char* name, int tableIndex = -2) const;
+			void SetField(const String& name, int tableIndex = -2) const;
 			void SetGlobal(const char* name);
 			void SetGlobal(const String& name);
 			void SetMetatable(const char* tname) const;

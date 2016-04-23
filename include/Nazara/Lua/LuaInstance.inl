@@ -144,6 +144,18 @@ namespace Nz
 		return 1;
 	}
 
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T&>)
+	{
+		return LuaImplReplyVal(instance, val, TypeTag<T>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<const T&>)
+	{
+		return LuaImplReplyVal(instance, val, TypeTag<T>());
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
@@ -541,6 +553,19 @@ namespace Nz
 		return LuaImplReplyVal(*this, std::move(arg), TypeTag<T>());
 	}
 
+	template<typename T>
+	void LuaInstance::PushField(const char* name, T&& arg, int tableIndex) const
+	{
+		Push<T>(std::forward<T>(arg));
+		SetField(name, tableIndex);
+	}
+
+	template<typename T>
+	void LuaInstance::PushField(const String& name, T&& arg, int tableIndex) const
+	{
+		PushField(name.GetConstBuffer(), std::forward<T>(arg), tableIndex);
+	}
+
 	template<typename R, typename... Args, typename... DefArgs>
 	void LuaInstance::PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const
 	{
@@ -555,6 +580,19 @@ namespace Nz
 	}
 
 	template<typename T>
+	void LuaInstance::PushGlobal(const char* name, T&& arg)
+	{
+		Push<T>(std::forward<T>(arg));
+		SetGlobal(name);
+	}
+
+	template<typename T>
+	void LuaInstance::PushGlobal(const String& name, T&& arg)
+	{
+		PushGlobal(name.GetConstBuffer(), std::forward<T>(arg));
+	}
+
+	template<typename T>
 	void LuaInstance::PushInstance(const char* tname, T* instance) const
 	{
 		T** userdata = static_cast<T**>(PushUserdata(sizeof(T*)));
@@ -566,32 +604,6 @@ namespace Nz
 	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
 	{
 		PushInstance(tname, new T(std::forward<Args>(args)...));
-	}
-
-	template<typename T>
-	void LuaInstance::SetField(const char* name, T&& arg, int tableIndex)
-	{
-		Push<T>(std::forward<T>(arg));
-		SetField(name, tableIndex);
-	}
-
-	template<typename T>
-	void LuaInstance::SetField(const String& name, T&& arg, int tableIndex)
-	{
-		SetField(name.GetConstBuffer(), std::forward<T>(arg), tableIndex);
-	}
-
-	template<typename T>
-	void LuaInstance::SetGlobal(const char* name, T&& arg)
-	{
-		Push<T>(std::forward<T>(arg));
-		SetGlobal(name);
-	}
-
-	template<typename T>
-	void LuaInstance::SetGlobal(const String& name, T&& arg)
-	{
-		SetGlobal(name.GetConstBuffer(), std::forward<T>(arg));
 	}
 
 	template<typename T>
