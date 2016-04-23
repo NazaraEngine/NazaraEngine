@@ -90,10 +90,10 @@ namespace Ndk
 				{
 					instance.PushInteger(index++);
 					instance.PushTable(0, 4);
-					instance.SetField("Address", std::move(info.address));
-					instance.SetField("CanonicalName", std::move(info.canonicalName));
-					instance.SetField("Protocol", std::move(info.protocol));
-					instance.SetField("SocketType", std::move(info.socketType));
+					instance.PushField("Address", std::move(info.address));
+					instance.PushField("CanonicalName", std::move(info.canonicalName));
+					instance.PushField("Protocol", std::move(info.protocol));
+					instance.PushField("SocketType", std::move(info.socketType));
 					instance.SetTable();
 				}
 
