@@ -194,8 +194,7 @@ namespace Ndk
 				if (entry.name.IsEmpty())
 					continue;
 
-				instance.PushInteger(entry.index);
-				instance.SetField(entry.name);
+				instance.PushField(entry.name, entry.index);
 			}
 		}
 		instance.SetGlobal("ComponentType");
