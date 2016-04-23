@@ -89,7 +89,7 @@ namespace Nz
 			Font& operator=(Font&&) = delete;
 
 			static std::shared_ptr<AbstractAtlas> GetDefaultAtlas();
-			static Font* GetDefault();
+			static const FontRef& GetDefault();
 			static unsigned int GetDefaultGlyphBorder();
 			static unsigned int GetDefaultMinimumStepSize();
 

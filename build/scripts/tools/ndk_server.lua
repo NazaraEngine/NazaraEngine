@@ -38,6 +38,7 @@ TOOL.FilesExclusion = {
 TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraLua",
+    "NazaraNetwork",
 	"NazaraNoise",
 	"NazaraPhysics",
 	"NazaraUtility"
