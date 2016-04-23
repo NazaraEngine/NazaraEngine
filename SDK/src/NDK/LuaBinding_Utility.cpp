@@ -141,7 +141,8 @@ namespace Ndk
 		fontClass.BindMethod("SetGlyphBorder",     &Nz::Font::SetGlyphBorder);
 		fontClass.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
 
-		fontClass.BindStaticMethod("GetDefaultGlyphBorder", &Nz::Font::GetDefaultGlyphBorder);
+		fontClass.BindStaticMethod("GetDefault",                &Nz::Font::GetDefault);
+		fontClass.BindStaticMethod("GetDefaultGlyphBorder",     &Nz::Font::GetDefaultGlyphBorder);
 		fontClass.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
 
 		fontClass.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
