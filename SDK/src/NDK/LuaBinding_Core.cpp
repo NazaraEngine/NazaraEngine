@@ -141,7 +141,11 @@ namespace Ndk
 					return new Nz::File(lua.Check<Nz::String>(&argIndex));
 
 				case 2:
-					return new Nz::File(lua.Check<Nz::String>(&argIndex), lua.Check<Nz::UInt32>(&argIndex));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
+					return new Nz::File(filePath, openMode);
+				}
 			}
 
 			return nullptr;
@@ -189,7 +193,11 @@ namespace Ndk
 					return lua.Push(file.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
 
 				case 2:
-					return lua.Push(file.Open(lua.Check<Nz::String>(&argIndex), lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
+					return lua.Push(file.Open(filePath, openMode));
+				}
 			}
 
 			lua.Error("No matching overload for method Open");
@@ -207,7 +215,11 @@ namespace Ndk
 					return lua.Push(file.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
 
 				case 2:
-					return lua.Push(file.SetCursorPos(lua.Check<Nz::CursorPosition>(&argIndex), lua.Check<Nz::Int64>(&argIndex)));
+				{
+					Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
+					Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
+					return lua.Push(file.SetCursorPos(curPos, offset));
+				}
 			}
 
 			lua.Error("No matching overload for method SetCursorPos");
