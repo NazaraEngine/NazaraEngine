@@ -58,7 +58,7 @@ namespace Nz
 	* \param args Arguments for the constructor
 	*/
 	template<typename T, typename... Args>
-	T* PlacementNew(void* ptr, Args&&... args)
+	T* PlacementNew(T* ptr, Args&&... args)
 	{
 		return new (ptr) T(std::forward<Args>(args)...);
 	}

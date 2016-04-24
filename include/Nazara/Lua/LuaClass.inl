@@ -54,8 +54,8 @@ namespace Nz
 		// cette UserData disposera d'un finalizer qui libérera le ClassInfo
 		// Ainsi c'est Lua qui va s'occuper de la destruction pour nous :-)
 		// De même, l'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
-		void* info = lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>));
-		PlacementNew<std::shared_ptr<ClassInfo>>(info, m_info);
+		std::shared_ptr<ClassInfo>* info = static_cast<std::shared_ptr<ClassInfo>*>(lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>)));
+		PlacementNew(info, m_info);
 
 		// On créé la table qui contiendra une méthode (Le finalizer) pour libérer le ClassInfo
 		lua.PushTable(0, 1);
