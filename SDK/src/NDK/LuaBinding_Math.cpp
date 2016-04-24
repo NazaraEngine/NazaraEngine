@@ -1,6 +1,7 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
 #include <NDK/LuaBinding.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 #include <cstring>
 
@@ -9,23 +10,26 @@ namespace Ndk
 	void LuaBinding::BindMath()
 	{
 		/*********************************** Nz::EulerAngles **********************************/
-		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::EulerAnglesd*
+		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* angles)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::EulerAnglesd(0.0, 0.0, 0.0);
+					Nz::PlacementNew(angles, Nz::EulerAnglesd::Zero());
+					return true;
 
 				case 1:
-					return new Nz::EulerAnglesd(*(*static_cast<Nz::EulerAnglesd**>(lua.CheckUserdata(1, "EulerAngles"))));
+					Nz::PlacementNew(angles, *static_cast<Nz::EulerAnglesd*>(lua.CheckUserdata(1, "EulerAngles")));
+					return true;
 
 				case 3:
-					return new Nz::EulerAnglesd(lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3));
+					Nz::PlacementNew(angles, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3));
+					return true;
 			}
 
 			lua.Error("No matching overload for EulerAngles constructor");
-			return nullptr;
+			return false;
 		});
 
 		eulerAnglesClass.BindMethod("__tostring", &Nz::EulerAnglesd::ToString);
@@ -146,31 +150,38 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Quaternion **********************************/
-		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Quaterniond*
+		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::Quaterniond(1.0, 0.0, 0.0, 0.0);
+					Nz::PlacementNew(quaternion, Nz::Quaterniond::Zero());
+					return true;
 
 				case 1:
 				{
 					if (lua.IsOfType(1, "EulerAngles"))
-						return new Nz::Quaterniond(*(*static_cast<Nz::EulerAnglesd**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(quaternion, *static_cast<Nz::EulerAnglesd*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Quaternion"))
-						return new Nz::Quaterniond(*(*static_cast<Nz::Quaterniond**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(quaternion, *static_cast<Nz::Quaterniond*>(lua.ToUserdata(1)));
+					else
+						break;
+					
+					return true;
 				}
 
 				case 2:
-					return new Nz::Quaterniond(lua.CheckNumber(1), *(*static_cast<Nz::Vector3d**>(lua.CheckUserdata(2, "Vector3"))));
+					Nz::PlacementNew(quaternion, lua.CheckNumber(1), *(*static_cast<Nz::Vector3d**>(lua.CheckUserdata(2, "Vector3"))));
+					return true;
 
 				case 4:
-					return new Nz::Quaterniond(lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3), lua.CheckNumber(4));
+					Nz::PlacementNew(quaternion, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3), lua.CheckNumber(4));
+					return true;
 			}
 
 			lua.Error("No matching overload for Quaternion constructor");
-			return nullptr;
+			return false;
 		});
 
 		quaternionClass.BindMethod("__tostring", &Nz::Quaterniond::ToString);
@@ -238,28 +249,31 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector2 **********************************/
-		vector2dClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Vector2d* 
+		vector2dClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Vector2d* vector)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 			switch (argCount)
 			{
 				case 0:
 				case 2:
-					return new Nz::Vector2d(lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0));
+					Nz::PlacementNew(vector, lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0));
+					return true;
 
 				case 1:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						return new Nz::Vector2d(lua.CheckNumber(1));
+						Nz::PlacementNew(vector, lua.CheckNumber(1));
 					else if (lua.IsOfType(1, "Vector2"))
-						return new Nz::Vector2d(*(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
+					else
+						break;
 
-					break;
+					return true;
 				}
 			}
 
 			lua.Error("No matching overload for Vector2 constructor");
-			return nullptr;
+			return false;
 		});
 
 		vector2dClass.BindMethod("__tostring", &Nz::Vector2d::ToString);
@@ -345,40 +359,44 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector3 **********************************/
-		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Vector3d*
+		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector3d* vector)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
 			switch (argCount)
 			{
 				case 0:
 				case 3:
-					return new Nz::Vector3d(lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0));
+					Nz::PlacementNew(vector, lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0));
 
 				case 1:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						return new Nz::Vector3d(lua.CheckNumber(1), *(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Vector2"))
-						return new Nz::Vector3d(*(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Vector3"))
-						return new Nz::Vector3d(*(*static_cast<Nz::Vector3d**>(lua.ToUserdata(1))));
+						Nz::PlacementNew(vector, *static_cast<Nz::Vector3d*>(lua.ToUserdata(1)));
+					else
+						break;
 
-					break;
+					return true;
 				}
 
 				case 2:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						return new Nz::Vector3d(lua.CheckNumber(1), *(*static_cast<Nz::Vector2d**>(lua.CheckUserdata(1, "Vector2"))));
+						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.CheckUserdata(1, "Vector2")));
 					else if (lua.IsOfType(1, "Vector2"))
-						return new Nz::Vector3d(*(*static_cast<Nz::Vector2d**>(lua.ToUserdata(1))), lua.CheckNumber(2));
+						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)), lua.CheckNumber(2));
+					else
+						break;
 
-					break;
+					return true;
 				}
 			}
 
 			lua.Error("No matching overload for constructor");
-			return nullptr;
+			return false;
 		});
 
 		vector3dClass.BindMethod("__tostring", &Nz::Vector3d::ToString);
