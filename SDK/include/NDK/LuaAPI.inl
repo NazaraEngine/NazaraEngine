@@ -214,6 +214,20 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
+	{
+		*handle = std::move(*static_cast<Ndk::EntityHandle*>(instance.CheckUserdata(index, "Entity")));
+
+		return 1;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::WorldHandle* handle, TypeTag<Ndk::WorldHandle>)
+	{
+		*handle = std::move(*static_cast<Ndk::WorldHandle*>(instance.CheckUserdata(index, "World")));
+
+		return 1;
+	}
+
 #ifndef NDK_SERVER
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, InstancedRenderableRef* renderable, TypeTag<InstancedRenderableRef>)
 	{
