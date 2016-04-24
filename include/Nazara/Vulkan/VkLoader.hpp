@@ -1,11 +1,11 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2016 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Vulkan"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VULKAN_LOADER_HPP
-#define NAZARA_VULKAN_LOADER_HPP
+#ifndef NAZARA_VULKAN_VKLOADER_HPP
+#define NAZARA_VULKAN_VKLOADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -14,21 +14,35 @@
 
 namespace Nz
 {
-	class NAZARA_VULKAN_API VkLoader
+	namespace Vk
 	{
-		public:
-			VkLoader() = delete;
-			~VkLoader() = delete;
+		class NAZARA_VULKAN_API Loader
+		{
+			public:
+				Loader() = delete;
+				~Loader() = delete;
+				
+				static inline PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* name);
 
-			static bool Initialize();
+				static bool Initialize();
+				static void Uninitialize();
 
-		private:
-			static DynLib s_vulkanLib;
-	};
+				// Vulkan functions
+				#define NAZARA_VULKAN_GLOBAL_FUNCTION(func) static PFN_##func func
+
+				NAZARA_VULKAN_GLOBAL_FUNCTION(vkCreateInstance);
+				NAZARA_VULKAN_GLOBAL_FUNCTION(vkEnumerateInstanceExtensionProperties);
+				NAZARA_VULKAN_GLOBAL_FUNCTION(vkEnumerateInstanceLayerProperties);
+				NAZARA_VULKAN_GLOBAL_FUNCTION(vkGetInstanceProcAddr);
+
+				#undef NAZARA_VULKAN_GLOBAL_FUNCTION
+
+			private:
+				static DynLib s_vulkanLib;
+		};
+	}
 }
 
-#define NAZARA_VULKAN_EXPORTED_FUNCTION(func) extern PFN_##func func;
+#include <Nazara/Vulkan/VkLoader.inl>
 
-NAZARA_VULKAN_EXPORTED_FUNCTION(vkGetInstanceProcAddr);
-
-#endif // NAZARA_VULKAN_LOADER_HPP
+#endif // NAZARA_VULKAN_VKLOADER_HPP
