@@ -8,6 +8,8 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
@@ -67,7 +69,7 @@ namespace Nz
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontRef* fontRef, TypeTag<FontRef>)
 	{
 		*fontRef = *(*static_cast<FontRef**>(instance.CheckUserdata(index, "Font")));
-		
+
 		return 1;
 	}
 
