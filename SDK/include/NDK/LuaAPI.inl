@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
@@ -22,6 +23,14 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <NDK/Console.hpp>
 #endif
+
+namespace Ndk
+{
+	inline LuaBinding* LuaAPI::GetBinding()
+	{
+		return s_binding;
+	}
+}
 
 namespace Nz
 {

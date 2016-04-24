@@ -24,6 +24,8 @@ namespace Ndk
 			LuaAPI() = delete;
 			~LuaAPI() = delete;
 
+			static inline LuaBinding* GetBinding();
+
 			static bool Initialize();
 
 			static void RegisterClasses(Nz::LuaInstance& instance);
