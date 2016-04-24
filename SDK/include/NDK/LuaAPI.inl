@@ -48,9 +48,9 @@ namespace Nz
 			default:
 			{
 				if (instance.IsOfType(index, "EulerAngles"))
-					angles->Set(*(*static_cast<EulerAnglesd**>(instance.ToUserdata(index))));
+					angles->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
 				else
-					angles->Set(*(*static_cast<Quaterniond**>(instance.CheckUserdata(index, "Quaternion"))));
+					angles->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
 
 				return 1;
 			}
@@ -68,7 +68,7 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontRef* fontRef, TypeTag<FontRef>)
 	{
-		*fontRef = *(*static_cast<FontRef**>(instance.CheckUserdata(index, "Font")));
+		*fontRef = *static_cast<FontRef*>(instance.CheckUserdata(index, "Font"));
 
 		return 1;
 	}
@@ -104,9 +104,9 @@ namespace Nz
 			default:
 			{
 				if (instance.IsOfType(index, "EulerAngles"))
-					quat->Set(*(*static_cast<EulerAnglesd**>(instance.ToUserdata(index))));
+					quat->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
 				else
-					quat->Set(*(*static_cast<Quaterniond**>(instance.CheckUserdata(index, "Quaternion"))));
+					quat->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
 
 				return 1;
 			}
@@ -152,7 +152,7 @@ namespace Nz
 				return 1;
 
 			default:
-				vec->Set(*(*static_cast<Vector2d**>(instance.CheckUserdata(index, "Vector2"))));
+				vec->Set(*static_cast<Vector2d*>(instance.CheckUserdata(index, "Vector2")));
 				return 1;
 		}
 	}
@@ -191,7 +191,7 @@ namespace Nz
 				return 1;
 
 			default:
-				vec->Set(*(*static_cast<Vector3d**>(instance.CheckUserdata(index, "Vector3"))));
+				vec->Set(*static_cast<Vector3d*>(instance.CheckUserdata(index, "Vector3")));
 				return 1;
 		}
 	}
@@ -218,9 +218,9 @@ namespace Nz
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, InstancedRenderableRef* renderable, TypeTag<InstancedRenderableRef>)
 	{
 		if (instance.IsOfType(index, "InstancedRenderable"))
-			*renderable = *(*static_cast<InstancedRenderableRef**>(instance.CheckUserdata(index, "InstancedRenderable")));
+			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "InstancedRenderable"));
 		else
-			*renderable = *(*static_cast<InstancedRenderableRef**>(instance.CheckUserdata(index, "Model")));
+			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "Model"));
 		return 1;
 	}
 
