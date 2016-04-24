@@ -1,5 +1,9 @@
 MODULE.Name = "Vulkan"
 
+MODULE.Defines = {
+	"VK_NO_PROTOTYPES"
+}
+
 MODULE.Libraries = {
 	"NazaraCore",
 	"NazaraUtility"

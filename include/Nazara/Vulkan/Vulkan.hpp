@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2016 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Vulkan"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 

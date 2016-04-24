@@ -1,3 +1,5 @@
+// This file was automatically generated on 24 Apr 2016 at 02:26:55
+
 /*
 	Nazara Engine - Vulkan
 
@@ -24,30 +26,13 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_VULKAN_HPP
-#define NAZARA_CONFIG_VULKAN_HPP
+#ifndef NAZARA_GLOBAL_VULKAN_HPP
+#define NAZARA_GLOBAL_VULKAN_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+#include <Nazara/Vulkan/Config.hpp>
+#include <Nazara/Vulkan/VkDevice.hpp>
+#include <Nazara/Vulkan/VkInstance.hpp>
+#include <Nazara/Vulkan/VkLoader.hpp>
+#include <Nazara/Vulkan/Vulkan.hpp>
 
-// Utilise le MemoryManager pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
-#define NAZARA_VULKAN_MANAGE_MEMORY 0
-
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_VULKAN_SAFE 1
-
-/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Vulkan/ConfigCheck.hpp>
-
-#if !defined(NAZARA_STATIC)
-	#ifdef NAZARA_VULKAN_BUILD
-		#define NAZARA_VULKAN_API NAZARA_EXPORT
-	#else
-		#define NAZARA_VULKAN_API NAZARA_IMPORT
-	#endif
-#else
-	#define NAZARA_VULKAN_API
-#endif
-
-#endif // NAZARA_CONFIG_MODULENAME_HPP
+#endif // NAZARA_GLOBAL_VULKAN_HPP
