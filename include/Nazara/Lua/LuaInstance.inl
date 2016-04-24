@@ -156,21 +156,21 @@ namespace Nz
 		return LuaImplReplyVal(instance, val, TypeTag<T>());
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::string&& val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
 		return 1;
 	}
 
 	template<typename T>
-	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T> valContainer, TypeTag<std::vector<T>>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T>&& valContainer, TypeTag<std::vector<T>>)
 	{
 		std::size_t index = 1;
 		instance.PushTable(valContainer.size());
-		for (const T& val : valContainer)
+		for (T& val : valContainer)
 		{
 			instance.PushInteger(index++);
-			if (LuaImplReplyVal(instance, val, TypeTag<T>()) != 1)
+			if (LuaImplReplyVal(instance, std::move(val), TypeTag<T>()) != 1)
 			{
 				instance.Error("Couldn't create table: type need more than one place to store");
 				return 0;
@@ -181,20 +181,20 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, ByteArray val, TypeTag<ByteArray>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, ByteArray&& val, TypeTag<ByteArray>)
 	{
 		instance.PushString(reinterpret_cast<const char*>(val.GetConstBuffer()), val.GetSize());
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, String val, TypeTag<String>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, String&& val, TypeTag<String>)
 	{
 		instance.PushString(std::move(val));
 		return 1;
 	}
 
 	template<typename T1, typename T2>
-	int LuaImplReplyVal(const LuaInstance& instance, std::pair<T1, T2> val, TypeTag<std::pair<T1, T2>>)
+	int LuaImplReplyVal(const LuaInstance& instance, std::pair<T1, T2>&& val, TypeTag<std::pair<T1, T2>>)
 	{
 		int retVal = 0;
 
@@ -593,17 +593,30 @@ namespace Nz
 	}
 
 	template<typename T>
-	void LuaInstance::PushInstance(const char* tname, T* instance) const
+	void LuaInstance::PushInstance(const char* tname, const T& instance) const
 	{
-		T** userdata = static_cast<T**>(PushUserdata(sizeof(T*)));
-		*userdata = instance;
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, instance);
+
+		SetMetatable(tname);
+	}
+
+	template<typename T>
+	void LuaInstance::PushInstance(const char* tname, T&& instance) const
+	{
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, std::move(instance));
+
 		SetMetatable(tname);
 	}
 
 	template<typename T, typename... Args>
 	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
 	{
-		PushInstance(tname, new T(std::forward<Args>(args)...));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, std::forward<Args>(args)...);
+
+		SetMetatable(tname);
 	}
 
 	template<typename T>
