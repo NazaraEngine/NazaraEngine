@@ -22,6 +22,9 @@ namespace Nz
 				Loader() = delete;
 				~Loader() = delete;
 				
+				static bool EnumerateInstanceExtensionProperties(std::vector<VkExtensionProperties>* properties, const char* layerName = nullptr);
+				static bool EnumerateInstanceLayerProperties(std::vector<VkLayerProperties>* properties);
+
 				static inline PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* name);
 
 				static bool Initialize();
@@ -39,6 +42,7 @@ namespace Nz
 
 			private:
 				static DynLib s_vulkanLib;
+				static VkResult s_lastErrorCode;
 		};
 	}
 }
