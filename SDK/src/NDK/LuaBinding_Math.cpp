@@ -172,7 +172,7 @@ namespace Ndk
 				}
 
 				case 2:
-					Nz::PlacementNew(quaternion, lua.CheckNumber(1), *(*static_cast<Nz::Vector3d**>(lua.CheckUserdata(2, "Vector3"))));
+					Nz::PlacementNew(quaternion, lua.CheckNumber(1), *static_cast<Nz::Vector3d*>(lua.CheckUserdata(2, "Vector3")));
 					return true;
 
 				case 4:
