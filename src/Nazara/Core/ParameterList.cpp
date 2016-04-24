@@ -449,7 +449,7 @@ namespace Nz
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
 
-		PlacementNew<String>(&parameter.value.stringVal, value);
+		PlacementNew(&parameter.value.stringVal, value);
 	}
 
 	/*!
@@ -464,7 +464,7 @@ namespace Nz
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
 
-		PlacementNew<String>(&parameter.value.stringVal, value);
+		PlacementNew(&parameter.value.stringVal, value);
 	}
 
 	/*!
@@ -565,7 +565,7 @@ namespace Nz
 				case ParameterType_String:
 					parameter.type = ParameterType_String;
 
-					PlacementNew<String>(&parameter.value.stringVal, it->second.value.stringVal);
+					PlacementNew(&parameter.value.stringVal, it->second.value.stringVal);
 					break;
 
 				case ParameterType_Userdata:
