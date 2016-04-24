@@ -271,25 +271,25 @@ namespace Nz
 
 
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesd val, TypeTag<EulerAnglesd>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesd&& val, TypeTag<EulerAnglesd>)
 	{
 		instance.PushInstance<EulerAnglesd>("EulerAngles", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesf val, TypeTag<EulerAnglesf>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesf&& val, TypeTag<EulerAnglesf>)
 	{
 		instance.PushInstance<EulerAnglesd>("EulerAngles", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, FontRef val, TypeTag<FontRef>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, FontRef&& val, TypeTag<FontRef>)
 	{
 		instance.PushInstance<FontRef>("Font", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Font::SizeInfo val, TypeTag<Font::SizeInfo>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Font::SizeInfo&& val, TypeTag<Font::SizeInfo>)
 	{
 		instance.PushTable();
 		instance.PushField("LineHeight", val.lineHeight);
@@ -300,55 +300,55 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Quaterniond val, TypeTag<Quaterniond>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Quaterniond&& val, TypeTag<Quaterniond>)
 	{
 		instance.PushInstance<Quaterniond>("Quaternion", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Quaternionf val, TypeTag<Quaternionf>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Quaternionf&& val, TypeTag<Quaternionf>)
 	{
 		instance.PushInstance<Quaterniond>("Quaternion", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress val, TypeTag<IpAddress>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
 	{
 		instance.PushInstance<IpAddress>("IpAddress", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2d val, TypeTag<Vector2d>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2d&& val, TypeTag<Vector2d>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2f val, TypeTag<Vector2f>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2f&& val, TypeTag<Vector2f>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2ui val, TypeTag<Vector2ui>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2ui&& val, TypeTag<Vector2ui>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3d val, TypeTag<Vector3d>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3d&& val, TypeTag<Vector3d>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3f val, TypeTag<Vector3f>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3f&& val, TypeTag<Vector3f>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3ui val, TypeTag<Vector3ui>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3ui&& val, TypeTag<Vector3ui>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
 		return 1;
@@ -366,19 +366,19 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::EntityHandle handle, TypeTag<Ndk::EntityHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::EntityHandle&& handle, TypeTag<Ndk::EntityHandle>)
 	{
 		instance.PushInstance<Ndk::EntityHandle>("Entity", handle);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::NodeComponentHandle handle, TypeTag<Ndk::NodeComponentHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::NodeComponentHandle&& handle, TypeTag<Ndk::NodeComponentHandle>)
 	{
 		instance.PushInstance<Ndk::NodeComponentHandle>("NodeComponent", handle);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::VelocityComponentHandle handle, TypeTag<Ndk::VelocityComponentHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::VelocityComponentHandle&& handle, TypeTag<Ndk::VelocityComponentHandle>)
 	{
 		instance.PushInstance<Ndk::VelocityComponentHandle>("VelocityComponent", handle);
 		return 1;
@@ -390,20 +390,20 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::WorldHandle handle, TypeTag<Ndk::WorldHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::WorldHandle&& handle, TypeTag<Ndk::WorldHandle>)
 	{
 		instance.PushInstance<Ndk::WorldHandle>("World", handle);
 		return 1;
 	}
 
 #ifndef NDK_SERVER
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::ConsoleHandle handle, TypeTag<Ndk::ConsoleHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::ConsoleHandle&& handle, TypeTag<Ndk::ConsoleHandle>)
 	{
 		instance.PushInstance<Ndk::ConsoleHandle>("Console", handle);
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::GraphicsComponentHandle handle, TypeTag<Ndk::GraphicsComponentHandle>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::GraphicsComponentHandle&& handle, TypeTag<Ndk::GraphicsComponentHandle>)
 	{
 		instance.PushInstance<Ndk::GraphicsComponentHandle>("GraphicsComponent", handle);
 		return 1;
