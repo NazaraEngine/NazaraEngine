@@ -4,6 +4,7 @@
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
 #include <string>
@@ -622,8 +623,8 @@ namespace Nz
 	template<typename T>
 	T LuaInstance::CheckBounds(int index, long long value) const
 	{
-		long long minBounds = std::numeric_limits<T>::min();
-		long long maxBounds = std::numeric_limits<T>::max();
+		constexpr long long minBounds = std::numeric_limits<T>::min();
+		constexpr long long maxBounds = std::numeric_limits<T>::max();
 		if (value < minBounds || value > maxBounds)
 		{
 			Nz::StringStream stream;
