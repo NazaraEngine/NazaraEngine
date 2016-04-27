@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="style.css" />
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="style.css">
 		<title>Avancement de Nazara</title>
 	</head>
 	<body>
-		<p class="centre">
-			<img src="https://github.com/DigitalPulseSoftware/NazaraEngine/raw/master/Logo.png" alt="Nazara Engine" />
-			<br>
-			<br>
-			Retrouvez le moteur sur GitHub !
-			<br>
-			<a href="https://github.com/DigitalPulseSoftware/NazaraEngine">Dépôt Github</a><br><br>
-			Ou venez vous renseigner sur les topics dédiés à Nazara présents sur plusieurs site webs:
-			<br>
-			<a href="http://openclassrooms.com/forum/sujet/moteur-de-jeu-nazara-engine-69732">OpenClassrooms</a> ou <a href="http://pdp.microjoe.org/forums/sujet/354/projet-nazara-engine-moteur-de-jeu">Progdupeupl</a> ou <a href="http://zestedesavoir.com/forums/sujet/1039/nazara-engine">ZesteDeSavoir</a>
-			<br>
-			<br>
-			... ou pourquoi ne pas venir faire un tour sur <a href="http://forum.digitalpulsesoftware.com">le forum dédié au moteur</a> ?
-		</p>
-		<div class="centre">
+		<div id="englob">
+			<img style="display: block;margin-left: auto;margin-right: auto;" src="https://github.com/DigitalPulseSoftware/NazaraEngine/raw/master/Logo.png" alt="Nazara Engine" />
+
+			<hr>
+
+			Retrouvez le moteur sur GitHub !<br>
+			<a href="https://github.com/DigitalPulseSoftware/NazaraEngine">Dépôt GitHub</a><br><br>
+			Venez vous renseigner sur les topics dédiés à Nazara présents sur plusieurs sites web :<br>
+			<a href="https://openclassrooms.com/forum/sujet/moteur-de-jeu-nazara-engine-69732">OpenClassrooms</a>, <a href="http://pdp.microjoe.org/forums/sujet/354/projet-nazara-engine-moteur-de-jeu">Progdupeupl</a> ou <a href="https://zestedesavoir.com/forums/sujet/1039/nazara-engine/">ZesteDeSavoir</a>
+			<br><br>
+			... ou pourquoi ne pas venir faire un tour sur <a href="http://forum.digitalpulsesoftware.net">le forum dédié au moteur</a> ?
+
+			<hr>
+
 			<h1>Fonctionnalités de Nazara</h1>
-			<br>
-			Dernière mise à jour:
-			<span class="lastupdate">
+			
+			<div>Dernière mise à jour : <span class="lastupdate">
 			%DATE%
-			</span>
-			<br>
-			<br>
-			<h2>Important:</h2><br>
-			Afin de faciliter la mise à jour, la page que vous voyez ici a été généré automatiquement par un script Lua, ce qui m'oblige néanmoins à encoder les fonctionnalités de chaque module dans un premier temps.<br>
+			</span></div>
+
+			<h2>Important:</h2>
+			<p>Afin de faciliter la mise à jour, la page que vous voyez ici a été générée automatiquement par un <i>script Lua</i>, ce qui m'oblige néanmoins à encoder les fonctionnalités de chaque module dans un premier temps.
 			C'est un travail assez long (pour vous donner une idée, les données du noyau représentent un fichier de 200 lignes), et il n'est pas encore complet, c'est pourquoi des modules manquent sur cette page.<br>
-			Gardez donc à l'esprit que le moteur possède plus de fonctionnalités que ce qui est décrit actuellement sur cette page.<br>
-			<br>
-			Oh et bien sûr je ne suis pas concepteur de site web, c'est pourquoi cette page est moche (j'ai <u>essayé</u> de minimiser les dégats).<br>
-			Si vous sentez en vous l'irrésistible envie d'améliorer cette page, sachez que votre aide sera grandement appréciée (vous pouvez me contacter via le lien de votre choix plus haut).
-			<br>
-			<br>
-			Le pourcentage indiqué est calculé automatiquement en fonction des <u>fonctionnalités</u>,<br>cela signifie qu'une fonctionnalité présente sera comptée à 100% à partir du moment où son implémentation de base est considérée fonctionnelle,<br><u>cela n'est donc pas une assurance qu'aucun bug n'existe concernant cette fonctionnalité</u> (cependant cela signifie que la fonctionnalité est utilisable).<br>
-			Et bien entendu, un module ou une fonctionnalité ayant atteint les 100% peut toujours évoluer par la suite.
-			<br>
-			<br>
+			Gardez donc à l'esprit que le moteur possède plus de fonctionnalités que ce qui est décrit actuellement sur cette page.</p>
+
+			<p>Oh et bien sûr je ne suis pas concepteur de site web, c'est pourquoi cette page est moche (j'ai <u>essayé</u> de minimiser les dégâts).<br>
+			Si vous sentez en vous l'irrésistible envie d'améliorer cette page, sachez que votre aide serait grandement appréciée (vous pouvez me contacter via le lien de votre choix plus haut).</p>
+
+			<p>Le pourcentage indiqué est calculé automatiquement en fonction des <u>fonctionnalités</u>, cela signifie qu'une fonctionnalité présente sera comptée à 100% à partir du moment où son implémentation de base est considérée fonctionnelle, <u>cela n'est donc pas une assurance qu'aucun bug n'existe concernant cette fonctionnalité</u> (cependant cela signifie que la fonctionnalité est utilisable).<br>
+			Et bien entendu, un module ou une fonctionnalité ayant atteint les 100% peut toujours évoluer par la suite.</p>
+
+			<hr>
+
 			<table>
 				<caption>Sommaire</caption>
 				<thead>
@@ -54,10 +51,9 @@
 					%MODULELIST%
 				</tbody>
 			</table>
-		</div>
-		%MODULEDESCRIPTION%
-		<hr />
-		<div class="centre">
+
+			%MODULEDESCRIPTION%
+			<hr>
 			<table>
 				<caption>Sommaire</caption>
 				<thead>
