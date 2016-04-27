@@ -64,7 +64,7 @@ namespace Nz
 		{
 			access |= GENERIC_READ;
 
-			if ((mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode_MustExit || (mode & OpenMode_WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
 		
@@ -77,6 +77,8 @@ namespace Nz
 
 			if (mode & OpenMode_Truncate)
 				openMode |= CREATE_ALWAYS;
+			else if (mode & OpenMode_MustExit)
+				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
