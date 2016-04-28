@@ -20,6 +20,33 @@ namespace Nz
 			Destroy();
 		}
 
+		inline bool Instance::Create(const String& appName, UInt32 appVersion, const String& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
+		{
+			VkApplicationInfo appInfo = 
+			{
+				VK_STRUCTURE_TYPE_APPLICATION_INFO,
+				nullptr,
+				appName.GetConstBuffer(),
+				appVersion,
+				engineName.GetConstBuffer(),
+				engineVersion
+			};
+
+			VkInstanceCreateInfo instanceInfo = 
+			{
+				VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+				nullptr,
+				0,
+				&appInfo,
+				static_cast<UInt32>(layers.size()),
+				&layers[0],
+				static_cast<UInt32>(extensions.size()),
+				&extensions[0]
+			};
+
+			return Create(instanceInfo, allocator);
+		}
+
 		inline void Instance::Destroy()
 		{
 			if (m_instance)
@@ -38,6 +65,21 @@ namespace Nz
 		inline VkResult Instance::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
+		}
+
+		inline bool Instance::IsExtensionLoaded(const String& extensionName)
+		{
+			return m_loadedExtensions.count(extensionName) != 0;
+		}
+
+		inline bool Instance::IsLayerLoaded(const String& layerName)
+		{
+			return m_loadedLayers.count(layerName) != 0;
+		}
+
+		inline Instance::operator VkInstance()
+		{
+			return m_instance;
 		}
 
 		inline void Instance::GetPhysicalDeviceFeatures(VkPhysicalDevice device, VkPhysicalDeviceFeatures* features)

@@ -26,12 +26,21 @@ namespace Nz
 			else
 				m_allocator.pfnAllocation = nullptr;
 
+			// Parse extensions and layers
+			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
+				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
+
+			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
+				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
+
+			// And now load everything
 			#define NAZARA_VULKAN_LOAD_INSTANCE(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
 
 			try
 			{
 				ErrorFlags flags(ErrorFlag_ThrowException, true);
 
+				// Vulkan core
 				NAZARA_VULKAN_LOAD_INSTANCE(vkCreateDevice);
 				NAZARA_VULKAN_LOAD_INSTANCE(vkDestroyInstance);
 				NAZARA_VULKAN_LOAD_INSTANCE(vkEnumeratePhysicalDevices);
@@ -42,6 +51,101 @@ namespace Nz
 				NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceMemoryProperties);
 				NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceProperties);
 				NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceQueueFamilyProperties);
+
+				// VK_KHR_display
+				if (IsExtensionLoaded("VK_KHR_display"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateDisplayModeKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateDisplayPlaneSurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetDisplayModePropertiesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetDisplayPlaneCapabilitiesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetDisplayPlaneSupportedDisplaysKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceDisplayPropertiesKHR);
+				}
+
+				// VK_KHR_display_swapchain
+				if (IsExtensionLoaded("VK_KHR_display_swapchain"))
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateSharedSwapchainsKHR);
+
+				// VK_KHR_surface
+				if (IsExtensionLoaded("VK_KHR_display"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkDestroySurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceFormatsKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfacePresentModesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceSupportKHR);
+				}
+
+				// VK_KHR_swapchain
+				if (IsExtensionLoaded("VK_KHR_swapchain"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkAcquireNextImageKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateSwapchainKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkDestroySwapchainKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetSwapchainImagesKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkQueuePresentKHR);
+				}
+
+				// VK_EXT_debug_report
+				if (IsExtensionLoaded("VK_EXT_debug_report"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateDebugReportCallbackEXT);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkDestroyDebugReportCallbackEXT);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkDebugReportMessageEXT);
+				}
+
+				#ifdef VK_USE_PLATFORM_ANDROID_KHR
+				// VK_KHR_android_surface
+				if (IsExtensionLoaded("VK_KHR_android_surface"))
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateAndroidSurfaceKHR);
+				#endif
+
+				#ifdef VK_USE_PLATFORM_MIR_KHR
+				// VK_KHR_mir_surface
+				if (IsExtensionLoaded("VK_KHR_mir_surface"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateMirSurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceMirPresentationSupportKHR);
+				}
+				#endif
+
+				#ifdef VK_USE_PLATFORM_XCB_KHR
+				// VK_KHR_xcb_surface
+				if (IsExtensionLoaded("VK_KHR_xcb_surface"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateXcbSurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceXcbPresentationSupportKHR);
+				}
+				#endif
+
+				#ifdef VK_USE_PLATFORM_XLIB_KHR
+				// VK_KHR_xlib_surface
+				if (IsExtensionLoaded("VK_KHR_xlib_surface"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateXlibSurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceXlibPresentationSupportKHR);
+				}
+				#endif
+
+				#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+				// VK_KHR_wayland_surface
+				if (IsExtensionLoaded("VK_KHR_wayland_surface"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateWaylandSurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceWaylandPresentationSupportKHR);
+				}
+				#endif
+
+				#ifdef VK_USE_PLATFORM_WIN32_KHR
+				// VK_KHR_win32_surface
+				if (IsExtensionLoaded("VK_KHR_win32_surface"))
+				{
+					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateWin32SurfaceKHR);
+					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceWin32PresentationSupportKHR);
+				}
+				#endif
 			}
 			catch (const std::exception& e)
 			{
