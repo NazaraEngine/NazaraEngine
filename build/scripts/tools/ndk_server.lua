@@ -22,7 +22,7 @@ TOOL.Files = {
 }
 
 -- Exlude client-only files
-TOOL.FilesExclusion = {
+TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
 	"../SDK/**/Console.*",
 	"../SDK/**/GraphicsComponent.*",
