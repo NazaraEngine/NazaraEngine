@@ -16,9 +16,10 @@ namespace Ndk
 			return reinterpret_cast<Nz::InstancedRenderableRef*>(model); //TODO: Make a ObjectRefCast
 		});
 
-		modelClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::ModelRef*
+		modelClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::ModelRef* model)
 		{
-			return new Nz::ModelRef(new Nz::Model);
+			Nz::PlacementNew(model, Nz::Model::New());
+			return true;
 		});
 
 		//modelClass.SetMethod("GetMaterial", &Nz::Model::GetMaterial);
