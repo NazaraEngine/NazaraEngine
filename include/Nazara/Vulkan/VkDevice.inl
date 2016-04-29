@@ -36,6 +36,16 @@ namespace Nz
 			return vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, queue);
 		}
 
+		inline Instance& Device::GetInstance()
+		{
+			return m_instance;
+		}
+
+		inline const Instance& Device::GetInstance() const
+		{
+			return m_instance;
+		}
+
 		inline VkResult Device::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
@@ -51,6 +61,11 @@ namespace Nz
 			}
 
 			return true;
+		}
+
+		inline Device::operator VkDevice()
+		{
+			return m_device;
 		}
 
 		inline PFN_vkVoidFunction Device::GetProcAddr(const char* name)
