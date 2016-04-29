@@ -23,6 +23,12 @@ namespace Nz
 		}
 
 		#ifdef VK_USE_PLATFORM_ANDROID_KHR
+		inline bool Surface::Create(const VkAndroidSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.PFN_vkCreateAndroidSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(ANativeWindow* window, VkAndroidSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkAndroidSurfaceCreateInfoKHR createInfo = 
@@ -38,6 +44,12 @@ namespace Nz
 		#endif
 
 		#ifdef VK_USE_PLATFORM_MIR_KHR
+		inline bool Surface::Create(const VkMirSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.PFN_vkCreateMirSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(MirConnection* connection, MirSurface* surface, VkMirSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkMirSurfaceCreateInfoKHR createInfo =
@@ -54,6 +66,12 @@ namespace Nz
 		#endif
 
 		#ifdef VK_USE_PLATFORM_XCB_KHR
+		inline bool Surface::Create(const VkXcbSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.PFN_vkCreateXcbSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(xcb_connection_t* connection, xcb_window_t window, VkXcbSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkXcbSurfaceCreateInfoKHR createInfo =
@@ -70,6 +88,12 @@ namespace Nz
 		#endif
 
 		#ifdef VK_USE_PLATFORM_XLIB_KHR
+		inline bool Surface::Create(const VkXlibSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.PFN_vkCreateXlibSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(Display* display, Window window, VkXlibSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkXlibSurfaceCreateInfoKHR createInfo =
@@ -86,6 +110,12 @@ namespace Nz
 		#endif
 
 		#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+		inline bool Surface::Create(const VkWaylandSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.vkCreateWaylandSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(wl_display* display, wl_surface* surface, VkWaylandSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkWaylandSurfaceCreateInfoKHR createInfo =
@@ -102,6 +132,12 @@ namespace Nz
 		#endif
 
 		#ifdef VK_USE_PLATFORM_WIN32_KHR
+		inline bool Surface::Create(const VkWin32SurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.vkCreateWin32SurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
 		inline bool Surface::Create(HINSTANCE instance, HWND handle, VkWin32SurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 		{
 			VkWin32SurfaceCreateInfoKHR createInfo =
@@ -164,6 +200,23 @@ namespace Nz
 			#endif
 
 			return false;
+		}
+
+		inline bool Surface::Create(const VkAllocationCallbacks* allocator)
+		{
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to create Vulkan surface");
+				return false;
+			}
+
+			// Store the allocator to access them when needed
+			if (allocator)
+				m_allocator = *allocator;
+			else
+				m_allocator.pfnAllocation = nullptr;
+
+			return true;
 		}
 	}
 }
