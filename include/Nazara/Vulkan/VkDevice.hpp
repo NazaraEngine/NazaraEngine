@@ -30,12 +30,16 @@ namespace Nz
 				inline void Destroy();
 
 				inline void GetDeviceQueue(UInt32 queueFamilyIndex, UInt32 queueIndex, VkQueue* queue);
+				inline Instance& GetInstance();
+				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
 
 				inline bool WaitForIdle();
 
 				Device& operator=(const Device&) = delete;
 				Device& operator=(Device&&) = delete;
+
+				inline operator VkDevice();
 
 				// Vulkan functions
 				#define NAZARA_VULKAN_DEVICE_FUNCTION(func) PFN_##func func
