@@ -64,10 +64,6 @@ namespace Nz
 					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceDisplayPropertiesKHR);
 				}
 
-				// VK_KHR_display_swapchain
-				if (IsExtensionLoaded("VK_KHR_display_swapchain"))
-					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateSharedSwapchainsKHR);
-
 				// VK_KHR_surface
 				if (IsExtensionLoaded("VK_KHR_display"))
 				{
@@ -76,16 +72,6 @@ namespace Nz
 					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceFormatsKHR);
 					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfacePresentModesKHR);
 					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceSupportKHR);
-				}
-
-				// VK_KHR_swapchain
-				if (IsExtensionLoaded("VK_KHR_swapchain"))
-				{
-					NAZARA_VULKAN_LOAD_INSTANCE(vkAcquireNextImageKHR);
-					NAZARA_VULKAN_LOAD_INSTANCE(vkCreateSwapchainKHR);
-					NAZARA_VULKAN_LOAD_INSTANCE(vkDestroySwapchainKHR);
-					NAZARA_VULKAN_LOAD_INSTANCE(vkGetSwapchainImagesKHR);
-					NAZARA_VULKAN_LOAD_INSTANCE(vkQueuePresentKHR);
 				}
 
 				// VK_EXT_debug_report

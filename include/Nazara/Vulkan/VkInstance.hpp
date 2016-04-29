@@ -75,22 +75,12 @@ namespace Nz
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceDisplayPropertiesKHR);
 
-				// VK_KHR_display_swapchain
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkCreateSharedSwapchainsKHR);
-
 				// VK_KHR_surface
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkDestroySurfaceKHR);
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceFormatsKHR);
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfacePresentModesKHR);
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR);
-
-				// VK_KHR_swapchain
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkAcquireNextImageKHR);
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkCreateSwapchainKHR);
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkDestroySwapchainKHR);
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkGetSwapchainImagesKHR);
-				NAZARA_VULKAN_INSTANCE_FUNCTION(vkQueuePresentKHR);
 
 				// VK_EXT_debug_report
 				NAZARA_VULKAN_INSTANCE_FUNCTION(vkCreateDebugReportCallbackEXT);
