@@ -15,7 +15,7 @@ namespace Nz
 	void* OperatorNew(std::size_t size);
 
 	template<typename T, typename... Args>
-	T* PlacementNew(void* ptr, Args&&... args);
+	T* PlacementNew(T* ptr, Args&&... args);
 }
 
 #include <Nazara/Core/MemoryHelper.inl>

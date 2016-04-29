@@ -17,7 +17,7 @@ namespace Ndk
 		abstractSocketClass.BindMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
 
 		/*********************************** Nz::IpAddress **********************************/
-		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::IpAddress*
+		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* address)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 9U);
 
@@ -25,30 +25,54 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::IpAddress;
+					Nz::PlacementNew(address);
+					return true;
 
 				case 1:
-					return new Nz::IpAddress(lua.CheckString(argIndex));
+					Nz::PlacementNew(address, lua.CheckString(argIndex));
+					return true;
 
 				case 4:
 				case 5:
-					return new Nz::IpAddress(lua.Check<Nz::UInt8>(&argIndex), lua.Check<Nz::UInt8>(&argIndex), lua.Check<Nz::UInt8>(&argIndex), lua.Check<Nz::UInt8>(&argIndex), lua.Check<Nz::UInt16>(&argIndex, 0));
+				{
+					Nz::UInt8 a = lua.Check<Nz::UInt8>(&argIndex);
+					Nz::UInt8 b = lua.Check<Nz::UInt8>(&argIndex);
+					Nz::UInt8 c = lua.Check<Nz::UInt8>(&argIndex);
+					Nz::UInt8 d = lua.Check<Nz::UInt8>(&argIndex);
+					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
+
+					Nz::PlacementNew(address, a, b, c, d, port);
+					return true;
+				}
 
 				case 8:
 				case 9:
-					return new Nz::IpAddress(lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex),
-											 lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex), lua.Check<Nz::UInt16>(&argIndex, 0));
+				{
+					Nz::UInt16 a = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 b = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 c = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 d = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 e = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 f = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 g = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 h = lua.Check<Nz::UInt16>(&argIndex);
+					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
+
+					Nz::PlacementNew(address, a, b, c, d, e, f, g, h, port);
+					return true;
+				}
 			}
 
-			return nullptr;
+			lua.Error("No matching overload for constructor");
+			return false;
 		});
 
-		ipAddressClass.BindMethod("GetPort", &Nz::IpAddress::GetPort);
+		ipAddressClass.BindMethod("GetPort",     &Nz::IpAddress::GetPort);
 		ipAddressClass.BindMethod("GetProtocol", &Nz::IpAddress::GetProtocol);
-		ipAddressClass.BindMethod("IsLoopback", &Nz::IpAddress::IsLoopback);
-		ipAddressClass.BindMethod("IsValid", &Nz::IpAddress::IsValid);
-		ipAddressClass.BindMethod("ToUInt32", &Nz::IpAddress::ToUInt32);
-		ipAddressClass.BindMethod("__tostring", &Nz::IpAddress::ToString);
+		ipAddressClass.BindMethod("IsLoopback",  &Nz::IpAddress::IsLoopback);
+		ipAddressClass.BindMethod("IsValid",     &Nz::IpAddress::IsValid);
+		ipAddressClass.BindMethod("ToUInt32",    &Nz::IpAddress::ToUInt32);
+		ipAddressClass.BindMethod("__tostring",  &Nz::IpAddress::ToString);
 
 		ipAddressClass.BindStaticMethod("ResolveAddress", [] (Nz::LuaInstance& instance) -> int
 		{
@@ -79,7 +103,7 @@ namespace Ndk
 			int argIndex = 1;
 			Nz::NetProtocol protocol = instance.Check<Nz::NetProtocol>(&argIndex);
 			Nz::String      hostname = instance.Check<Nz::String>(&argIndex);
-			Nz::String      service = instance.Check<Nz::String>(&argIndex, "http");
+			Nz::String      service  = instance.Check<Nz::String>(&argIndex, "http");
 
 			std::vector<Nz::HostnameInfo> addresses = Nz::IpAddress::ResolveHostname(protocol, hostname, service, &error);
 			if (error == Nz::ResolveError_NoError)

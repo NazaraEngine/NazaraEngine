@@ -243,12 +243,17 @@ function NazaraBuild:Execute()
 		
 		-- Tools
 		for k, toolTable in ipairs(self.OrderedTools) do
-			project("Nazara" .. toolTable.Name)
+			local prefix = "Nazara"
+			if (toolTable.Kind == "plugin") then
+				prefix = "Plugin"
+			end
+			
+			project(prefix .. toolTable.Name)
 
 			location(_ACTION .. "/tools")
 			targetdir(toolTable.Directory)
 
-			if (toolTable.Kind == "library") then
+			if (toolTable.Kind == "plugin" or toolTable.Kind == "library") then
 				kind("SharedLib")
 			elseif (toolTable.Kind == "consoleapp") then
 				debugdir(toolTable.Directory)
@@ -257,7 +262,7 @@ function NazaraBuild:Execute()
 				debugdir(toolTable.Directory)
 				kind("WindowedApp")
 			else
-				assert(false, "wut")
+				assert(false, "Invalid tool Kind")
 			end
 
 			includedirs({
@@ -280,6 +285,8 @@ function NazaraBuild:Execute()
 				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/" .. makeLibDir .. "/x86")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x32")
 				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
@@ -287,6 +294,8 @@ function NazaraBuild:Execute()
 				libdirs("../lib/" .. makeLibDir .. "/x64")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/" .. makeLibDir .. "/x64")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
 
 			configuration({"vs*", "x32"})
@@ -294,6 +303,8 @@ function NazaraBuild:Execute()
 				libdirs("../lib/msvc/x86")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/msvc/x86")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x86")
 				end
 
 			configuration({"vs*", "x64"})
@@ -301,6 +312,8 @@ function NazaraBuild:Execute()
 				libdirs("../lib/msvc/x64")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/msvc/x64")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x64")
 				end
 
 			configuration({"xcode3 or xcode4", "x32"})
@@ -308,6 +321,8 @@ function NazaraBuild:Execute()
 				libdirs("../lib/xcode/x86")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/xcode/x86")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x86")
 				end
 
 			configuration({"xcode3 or xcode4", "x64"})
@@ -315,9 +330,11 @@ function NazaraBuild:Execute()
 				libdirs("../lib/xcode/x64")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/xcode/x64")
+				elseif (toolTable.Kind == "plugin") then
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
 				end
 
-			if (toolTable.Kind == "library") then
+			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
 				configuration("*Static")
 					kind("StaticLib")
 
@@ -719,7 +736,7 @@ function NazaraBuild:RegisterTool(toolTable)
 	end
 
 	local lowerCaseKind = toolTable.Kind:lower()
-	if (lowerCaseKind == "library" or lowerCaseKind == "consoleapp" or lowerCaseKind == "windowapp") then
+	if (lowerCaseKind == "library" or lowerCaseKind == "plugin" or lowerCaseKind == "consoleapp" or lowerCaseKind == "windowapp") then
 		toolTable.Kind = lowerCaseKind
 	else
 		return false, "Invalid tool type"
@@ -787,6 +804,23 @@ function NazaraBuild:Process(infoTable)
 	end
 	infoTable.Libraries = libraries
 
+	for platform, defineTable in pairs(infoTable.OsDefines) do
+		platform = string.lower(platform)
+		if (platform == "posix") then
+			local osname = os.get()
+			if (PosixOSes[osname]) then
+				platform = osname
+			end
+		end
+
+		if (os.is(platform)) then
+			for k,v in ipairs(defineTable) do
+				table.insert(infoTable.Defines, v)
+			end
+		end
+	end
+	infoTable.OsDefines = nil
+
 	for platform, fileTable in pairs(infoTable.OsFiles) do
 		platform = string.lower(platform)
 		if (platform == "posix") then
@@ -838,6 +872,7 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.Flags = {}
 	infoTable.Includes = {}
 	infoTable.Libraries = {}
+	infoTable.OsDefines = {}
 	infoTable.OsFiles = {}
 	infoTable.OsLibraries = {}
 end

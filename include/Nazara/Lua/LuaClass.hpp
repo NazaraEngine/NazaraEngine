@@ -28,13 +28,15 @@ namespace Nz
 		public:
 			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
 			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using ConstructorFunc = std::function<T*(LuaInstance& lua)>;
+			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance)>;
 			template<typename P> using ConvertToParent = std::function<P*(T*)>;
 			using FinalizerFunc = std::function<bool(LuaInstance& lua, T& instance)>;
 			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
 			using StaticFunc = std::function<int(LuaInstance& lua)>;
 
 			LuaClass(const String& name);
+
+			void BindDefaultConstructor();
 
 			void BindMethod(const String& name, ClassFunc method);
 			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> BindMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
