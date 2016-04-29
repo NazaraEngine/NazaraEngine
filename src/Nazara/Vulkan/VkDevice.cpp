@@ -35,6 +35,20 @@ namespace Nz
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyDevice);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDeviceWaitIdle);
 				NAZARA_VULKAN_LOAD_DEVICE(vkGetDeviceQueue);
+
+				// VK_KHR_display_swapchain
+				if (m_instance.IsExtensionLoaded("VK_KHR_display_swapchain"))
+					NAZARA_VULKAN_LOAD_DEVICE(vkCreateSharedSwapchainsKHR);
+
+				// VK_KHR_swapchain
+				if (m_instance.IsExtensionLoaded("VK_KHR_swapchain"))
+				{
+					NAZARA_VULKAN_LOAD_DEVICE(vkAcquireNextImageKHR);
+					NAZARA_VULKAN_LOAD_DEVICE(vkCreateSwapchainKHR);
+					NAZARA_VULKAN_LOAD_DEVICE(vkDestroySwapchainKHR);
+					NAZARA_VULKAN_LOAD_DEVICE(vkGetSwapchainImagesKHR);
+					NAZARA_VULKAN_LOAD_DEVICE(vkQueuePresentKHR);
+				}
 			}
 			catch (const std::exception& e)
 			{

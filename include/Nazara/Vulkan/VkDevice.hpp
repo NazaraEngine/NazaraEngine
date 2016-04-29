@@ -40,9 +40,27 @@ namespace Nz
 				// Vulkan functions
 				#define NAZARA_VULKAN_DEVICE_FUNCTION(func) PFN_##func func
 
+				// Vulkan core
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyDevice);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDeviceWaitIdle);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetDeviceQueue);
+
+				// VK_KHR_display_swapchain
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateSharedSwapchainsKHR);
+
+				// VK_KHR_surface
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroySurfaceKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetPhysicalDeviceSurfaceFormatsKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetPhysicalDeviceSurfacePresentModesKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR);
+
+				// VK_KHR_swapchain
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkAcquireNextImageKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateSwapchainKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroySwapchainKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkGetSwapchainImagesKHR);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkQueuePresentKHR);
 
 				#undef NAZARA_VULKAN_DEVICE_FUNCTION
 
