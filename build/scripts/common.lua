@@ -804,6 +804,23 @@ function NazaraBuild:Process(infoTable)
 	end
 	infoTable.Libraries = libraries
 
+	for platform, defineTable in pairs(infoTable.OsDefines) do
+		platform = string.lower(platform)
+		if (platform == "posix") then
+			local osname = os.get()
+			if (PosixOSes[osname]) then
+				platform = osname
+			end
+		end
+
+		if (os.is(platform)) then
+			for k,v in ipairs(defineTable) do
+				table.insert(infoTable.Defines, v)
+			end
+		end
+	end
+	infoTable.OsDefines = nil
+
 	for platform, fileTable in pairs(infoTable.OsFiles) do
 		platform = string.lower(platform)
 		if (platform == "posix") then
@@ -855,6 +872,7 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.Flags = {}
 	infoTable.Includes = {}
 	infoTable.Libraries = {}
+	infoTable.OsDefines = {}
 	infoTable.OsFiles = {}
 	infoTable.OsLibraries = {}
 end
