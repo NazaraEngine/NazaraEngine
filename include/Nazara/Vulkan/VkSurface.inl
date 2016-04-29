@@ -13,7 +13,7 @@ namespace Nz
 	{
 		inline Surface::Surface(Instance& instance) :
 		m_instance(instance),
-		m_surface(0)
+		m_surface(VK_NULL_HANDLE)
 		{
 		}
 
@@ -119,8 +119,13 @@ namespace Nz
 
 		inline void Surface::Destroy()
 		{
-			if (m_surface)
+			if (m_surface != VK_NULL_HANDLE)
 				m_instance.vkDestroySurfaceKHR(m_instance, m_surface, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+		}
+		
+		inline VkResult Surface::GetLastErrorCode() const
+		{
+			return m_lastErrorCode;
 		}
 
 		inline bool Surface::IsSupported() const
