@@ -359,13 +359,10 @@ namespace Nz
 		if (!s_defaultFont)
 		{
 			FontRef cabin = Font::New();
-			if (!cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
-			{
+			if (cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
+                s_defaultFont = cabin;
+			else
 				NazaraError("Failed to open default font");
-				return nullptr;
-			}
-
-			s_defaultFont = cabin;
 		}
 
 		return s_defaultFont;

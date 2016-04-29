@@ -89,9 +89,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Font **********************************/
-		fontClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::FontRef*
+		fontClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::FontRef* font)
 		{
-			return new Nz::FontRef(new Nz::Font);
+			Nz::PlacementNew(font, Nz::Font::New());
+			return true;
 		});
 
 		fontClass.BindMethod("ClearGlyphCache",    &Nz::Font::ClearGlyphCache);

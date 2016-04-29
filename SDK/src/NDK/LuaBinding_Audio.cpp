@@ -1,6 +1,7 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
 #include <NDK/LuaBinding.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
 namespace Ndk
@@ -10,10 +11,7 @@ namespace Ndk
 		/*********************************** Nz::Music **********************************/
 		musicClass.Inherit(soundEmitter);
 
-		musicClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Music*
-		{
-			return new Nz::Music;
-		});
+		musicClass.BindDefaultConstructor();
 
 		//musicClass.SetMethod("Create", &Nz::Music::Create);
 		//musicClass.SetMethod("Destroy", &Nz::Music::Destroy);
@@ -51,10 +49,7 @@ namespace Ndk
 		/*********************************** Nz::Sound **********************************/
 		soundClass.Inherit(soundEmitter);
 
-		soundClass.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::Sound*
-		{
-			return new Nz::Sound;
-		});
+		soundClass.BindDefaultConstructor();
 
 		soundClass.BindMethod("GetBuffer", &Nz::Sound::GetBuffer);
 
@@ -79,9 +74,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::SoundBuffer **********************************/
-		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua) -> Nz::SoundBufferRef*
+		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua, Nz::SoundBufferRef* instance)
 		{
-			return new Nz::SoundBufferRef(new Nz::SoundBuffer);
+			Nz::PlacementNew(instance, Nz::SoundBuffer::New());
+			return true;
 		});
 
 		soundBuffer.BindMethod("Destroy", &Nz::SoundBuffer::Destroy);
