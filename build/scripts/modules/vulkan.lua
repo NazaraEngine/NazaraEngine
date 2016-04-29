@@ -9,6 +9,16 @@ MODULE.Libraries = {
 	"NazaraUtility"
 }
 
+MODULE.OsDefines.Linux = {
+	"VK_USE_PLATFORM_MIR_KHR",
+	"VK_USE_PLATFORM_XCB_KHR",
+	"VK_USE_PLATFORM_XLIB_KHR",
+	"VK_USE_PLATFORM_WAYLAND_KHR"
+}
+
+MODULE.OsDefines.BSD = MODULE.OsDefines.Linux
+MODULE.OsDefines.Solaris = MODULE.OsDefines.Linux
+
 MODULE.OsDefines.Windows = {
 	"VK_USE_PLATFORM_WIN32_KHR"
 }
