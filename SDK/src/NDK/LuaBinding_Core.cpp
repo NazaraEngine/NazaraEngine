@@ -1,6 +1,7 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
 #include <NDK/LuaBinding.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
 namespace Ndk
@@ -8,10 +9,14 @@ namespace Ndk
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clockClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Clock*
+		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock)
 		{
 			int argIndex = 1;
-			return new Nz::Clock(lua.Check<Nz::Int64>(&argIndex, 0), lua.Check<bool>(&argIndex, false));
+			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+			bool paused = lua.Check<bool>(&argIndex, false);
+
+			Nz::PlacementNew(clock, startingValue, paused);
+			return true;
 		});
 
 		clockClass.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
@@ -35,7 +40,7 @@ namespace Ndk
 		});
 
 		/********************************* Nz::Directory ********************************/
-		directoryClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Directory*
+		directoryClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* directory)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
 
@@ -43,13 +48,15 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::Directory;
+					Nz::PlacementNew(directory);
+					return true;
 
 				case 1:
-					return new Nz::Directory(lua.Check<Nz::String>(&argIndex));
+					Nz::PlacementNew(directory, lua.Check<Nz::String>(&argIndex));
+					return true;
 			}
 
-			return nullptr;
+			return false;
 		});
 
 		directoryClass.BindMethod("Close", &Nz::Directory::Close);
@@ -127,7 +134,7 @@ namespace Ndk
 		/*********************************** Nz::File ***********************************/
 		fileClass.Inherit(streamClass);
 
-		fileClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::File*
+		fileClass.SetConstructor([](Nz::LuaInstance& lua, Nz::File* file)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 
@@ -135,20 +142,29 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::File;
+					Nz::PlacementNew(file);
+					return true;
 
 				case 1:
-					return new Nz::File(lua.Check<Nz::String>(&argIndex));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+
+					Nz::PlacementNew(file, filePath);
+					return true;
+				}
 
 				case 2:
 				{
 					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
 					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
-					return new Nz::File(filePath, openMode);
+
+					Nz::PlacementNew(file, filePath, openMode);
+					return true;
 				}
 			}
 
-			return nullptr;
+			lua.Error("No matching overload for File constructor");
+			return false;
 		});
 
 		fileClass.BindMethod("Close", &Nz::File::Close);

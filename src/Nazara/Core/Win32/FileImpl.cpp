@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/FileImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Win32/Time.hpp>
 #include <memory>
@@ -64,7 +65,7 @@ namespace Nz
 		{
 			access |= GENERIC_READ;
 
-			if ((mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode_MustExit || (mode & OpenMode_WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
 		
@@ -77,6 +78,8 @@ namespace Nz
 
 			if (mode & OpenMode_Truncate)
 				openMode |= CREATE_ALWAYS;
+			else if (mode & OpenMode_MustExit)
+				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
@@ -154,6 +157,31 @@ namespace Nz
 		m_endOfFileUpdated = false;
 
 		return SetFilePointerEx(m_handle, distance, nullptr, moveMethod) != 0;
+	}
+
+	bool FileImpl::SetSize(UInt64 size)
+	{
+		UInt64 cursorPos = GetCursorPos();
+
+		CallOnExit resetCursor([this, cursorPos] ()
+		{
+			if (!SetCursorPos(CursorPosition_AtBegin, cursorPos))
+				NazaraWarning("Failed to reset cursor position to previous position: " + Error::GetLastSystemError());
+		});
+
+		if (!SetCursorPos(CursorPosition_AtBegin, size))
+		{
+			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		if (!SetEndOfFile(m_handle))
+		{
+			NazaraError("Failed to set file size: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		return true;
 	}
 
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
