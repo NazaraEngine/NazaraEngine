@@ -8,6 +8,7 @@
 #define NAZARA_PARAMETERLIST_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/String.hpp>
 #include <atomic>
 #include <unordered_map>
@@ -27,6 +28,7 @@ namespace Nz
 			void Clear();
 
 			bool GetBooleanParameter(const String& name, bool* value) const;
+			bool GetColorParameter(const String& name, Color* value) const;
 			bool GetFloatParameter(const String& name, float* value) const;
 			bool GetIntegerParameter(const String& name, int* value) const;
 			bool GetParameterType(const String& name, ParameterType* type) const;
@@ -39,13 +41,14 @@ namespace Nz
 			void RemoveParameter(const String& name);
 
 			void SetParameter(const String& name);
+			void SetParameter(const String& name, const Color& value);
 			void SetParameter(const String& name, const String& value);
 			void SetParameter(const String& name, const char* value);
-			void SetParameter(const String& name, void* value);
-			void SetParameter(const String& name, void* value, Destructor destructor);
 			void SetParameter(const String& name, bool value);
 			void SetParameter(const String& name, float value);
 			void SetParameter(const String& name, int value);
+			void SetParameter(const String& name, void* value);
+			void SetParameter(const String& name, void* value, Destructor destructor);
 
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
@@ -79,6 +82,7 @@ namespace Nz
 					float floatVal;
 					int intVal;
 					void* ptrVal;
+					Color colorVal;
 					String stringVal;
 					UserdataValue* userdataVal;
 				};
