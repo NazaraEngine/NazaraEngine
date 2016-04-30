@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
@@ -189,7 +190,10 @@ namespace Nz
 					vertexMapper.Unmap();
 
 					// Material
-					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+					ParameterList matData;
+					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+
+					mesh->SetMaterialData(i, std::move(matData));
 
 					// Submesh
 					SkeletalMeshRef subMesh = SkeletalMesh::New(mesh);
@@ -285,7 +289,10 @@ namespace Nz
 					mesh->AddSubMesh(subMesh);
 
 					// Material
-					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+					ParameterList matData;
+					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+
+					mesh->SetMaterialData(i, std::move(matData));
 				}
 
 				if (parameters.center)

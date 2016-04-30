@@ -93,7 +93,8 @@ namespace Nz
 			String GetAnimation() const;
 			AnimationType GetAnimationType() const;
 			unsigned int GetJointCount() const;
-			String GetMaterial(unsigned int index) const;
+			ParameterList& GetMaterialData(unsigned int index);
+			const ParameterList& GetMaterialData(unsigned int index) const;
 			unsigned int GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
@@ -124,8 +125,8 @@ namespace Nz
 			void RemoveSubMesh(unsigned int index);
 
 			void SetAnimation(const String& animationPath);
-			void SetMaterial(unsigned int matIndex, const String& materialPath);
 			void SetMaterialCount(unsigned int matCount);
+			void SetMaterialData(unsigned int matIndex, ParameterList data);
 
 			void Transform(const Matrix4f& matrix);
 
