@@ -202,6 +202,11 @@ namespace Nz
 			return false;
 		}
 
+		inline Surface::operator VkSurfaceKHR()
+		{
+			return m_surface;
+		}
+
 		inline bool Surface::Create(const VkAllocationCallbacks* allocator)
 		{
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
