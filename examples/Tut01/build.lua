@@ -9,6 +9,7 @@ EXAMPLE.Files = {
 EXAMPLE.Libraries = {
 	"NazaraCore",
 	"NazaraGraphics",
+	"NazaraRenderer",
 	"NazaraUtility",
 	"NazaraSDK"
 }
