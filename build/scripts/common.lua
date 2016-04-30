@@ -85,7 +85,7 @@ function NazaraBuild:Execute()
 				location(_ACTION .. "/extlibs")
 
 				files(libTable.Files)
-				excludes(libTable.FilesExclusion)
+				excludes(libTable.FilesExcluded)
 
 				defines(libTable.Defines)
 				flags(libTable.Flags)
@@ -226,7 +226,7 @@ function NazaraBuild:Execute()
 			configuration({})
 
 			files(moduleTable.Files)
-			excludes(moduleTable.FilesExclusion)
+			excludes(moduleTable.FilesExcluded)
 
 			defines(moduleTable.Defines)
 			flags(moduleTable.Flags)
@@ -354,7 +354,7 @@ function NazaraBuild:Execute()
 			configuration({})
 
 			files(toolTable.Files)
-			excludes(toolTable.FilesExclusion)
+			excludes(toolTable.FilesExcluded)
 
 			defines(toolTable.Defines)
 			flags(toolTable.Flags)
@@ -389,7 +389,7 @@ function NazaraBuild:Execute()
 			targetdir("../examples/bin")
 
 			files(exampleTable.Files)
-			excludes(exampleTable.FilesExclusion)
+			excludes(exampleTable.FilesExcluded)
 
 			defines(exampleTable.Defines)
 			flags(exampleTable.Flags)
@@ -709,7 +709,7 @@ function NazaraBuild:RegisterModule(moduleTable)
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.cpp")
 	
 	if (_OPTIONS["united"] and lowerCaseName ~= "core") then
-		table.insert(moduleTable.FilesExclusion, "../src/Nazara/" .. moduleTable.Name .. "/Debug/NewOverload.cpp")
+		table.insert(moduleTable.FilesExcluded, "../src/Nazara/" .. moduleTable.Name .. "/Debug/NewOverload.cpp")
 	end
 
 	moduleTable.Type = "Module"
@@ -804,60 +804,36 @@ function NazaraBuild:Process(infoTable)
 	end
 	infoTable.Libraries = libraries
 
-	for platform, defineTable in pairs(infoTable.OsDefines) do
-		platform = string.lower(platform)
-		if (platform == "posix") then
-			local osname = os.get()
-			if (PosixOSes[osname]) then
-				platform = osname
-			end
-		end
+	for k,v in pairs(infoTable) do
+		local target = k:match("Os(%w+)")
+		if (target) then
+			local targetTable = infoTable[target]
+			if (targetTable) then
+				local excludeTargetTable = infoTable[target .. "Excluded"]
+				for platform, defineTable in pairs(v) do
+					platform = string.lower(platform)
+					if (platform == "posix") then
+						local osname = os.get()
+						if (PosixOSes[osname]) then
+							platform = osname
+						end
+					end
 
-		if (os.is(platform)) then
-			for k,v in ipairs(defineTable) do
-				table.insert(infoTable.Defines, v)
+					if (os.is(platform)) then
+						for k,v in ipairs(defineTable) do
+							table.insert(targetTable, v)
+						end
+					elseif (excludeTargetTable) then
+						for k,v in ipairs(defineTable) do
+							table.insert(excludeTargetTable, v)
+						end
+					end
+				end
+
+				infoTable[k] = nil
 			end
 		end
 	end
-	infoTable.OsDefines = nil
-
-	for platform, fileTable in pairs(infoTable.OsFiles) do
-		platform = string.lower(platform)
-		if (platform == "posix") then
-			local osname = os.get()
-			if (PosixOSes[osname]) then
-				platform = osname
-			end
-		end
-		
-		if (os.is(platform)) then
-			for k,v in ipairs(fileTable) do
-				table.insert(infoTable.Files, v)
-			end
-		else
-			for k,v in ipairs(fileTable) do
-				table.insert(infoTable.FilesExclusion, v)
-			end
-		end
-	end
-	infoTable.OsFiles = nil
-
-	for platform, libraryTable in pairs(infoTable.OsLibraries) do
-		platform = string.lower(platform)
-		if (platform == "posix") then
-			local osname = os.get()
-			if (PosixOSes[osname]) then
-				platform = osname
-			end
-		end
-
-		if (os.is(platform)) then
-			for k,v in ipairs(libraryTable) do
-				table.insert(infoTable.Libraries, v)
-			end
-		end
-	end
-	infoTable.OsLibraries = nil
 end
 
 function NazaraBuild:SetupInfoTable(infoTable)
@@ -866,13 +842,10 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.ConfigurationLibraries.ReleaseStatic = {}
 	infoTable.ConfigurationLibraries.DebugDynamic = {}
 	infoTable.ConfigurationLibraries.ReleaseDynamic = {}
-	infoTable.Defines = {}
-	infoTable.Files = {}
-	infoTable.FilesExclusion = {}
-	infoTable.Flags = {}
-	infoTable.Includes = {}
-	infoTable.Libraries = {}
-	infoTable.OsDefines = {}
-	infoTable.OsFiles = {}
-	infoTable.OsLibraries = {}
+	
+	local infos = {"Defines", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
+	for k,v in ipairs(infos) do
+		infoTable[v] = {}
+		infoTable["Os" .. v] = {}
+	end
 end
