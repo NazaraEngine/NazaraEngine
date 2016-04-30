@@ -20,7 +20,6 @@
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Graphics/Formats/OBJLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -95,9 +94,6 @@ namespace Nz
 			NazaraError("Failed to initialize sprites");
 			return false;
 		}
-
-		// Loaders
-		Loaders::RegisterOBJ();
 
 		// Loaders génériques
 		Loaders::RegisterMesh();
@@ -176,7 +172,6 @@ namespace Nz
 
 		// Loaders
 		Loaders::UnregisterMesh();
-		Loaders::UnregisterOBJ();
 		Loaders::UnregisterTexture();
 
 		DeferredRenderTechnique::Uninitialize();

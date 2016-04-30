@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
