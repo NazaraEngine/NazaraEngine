@@ -9,6 +9,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MD2Constants.hpp>
@@ -99,7 +100,11 @@ namespace Nz
 					for (unsigned int i = 0; i < header.num_skins; ++i)
 					{
 						stream.Read(skin, 68*sizeof(char));
-						mesh->SetMaterial(i, baseDir + skin);
+
+						ParameterList matData;
+						matData.SetParameter(MaterialData::FilePath, baseDir + skin);
+
+						mesh->SetMaterialData(i, std::move(matData));
 					}
 				}
 			}
