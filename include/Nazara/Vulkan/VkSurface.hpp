@@ -71,6 +71,8 @@ namespace Nz
 				Surface& operator=(const Surface&) = delete;
 				Surface& operator=(Surface&&) = delete;
 
+				inline operator VkSurfaceKHR();
+
 			private:
 				inline bool Create(const VkAllocationCallbacks* allocator);
 
@@ -84,4 +86,4 @@ namespace Nz
 
 #include <Nazara/Vulkan/VkSurface.inl>
 
-#endif // Surface
+#endif // NAZARA_VULKAN_VKSURFACE_HPP
