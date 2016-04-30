@@ -51,6 +51,16 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
+		inline bool Device::IsExtensionLoaded(const String& extensionName)
+		{
+			return m_loadedExtensions.count(extensionName) > 0;
+		}
+
+		inline bool Device::IsLayerLoaded(const String& layerName)
+		{
+			return m_loadedLayers.count(layerName) > 0;
+		}
+
 		inline bool Device::WaitForIdle()
 		{
 			m_lastErrorCode = vkDeviceWaitIdle(m_device);
