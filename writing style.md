@@ -3,7 +3,7 @@ Examples writing-style:
 Alphabetical order for everything and try to regroup each methods beginning with the same letter in the header
 
 Class header:
-
+```cpp
 // Copyright (C) YEAR AUTHOR
 // This file is part of the "Nazara Engine - MODULE module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
@@ -40,9 +40,10 @@ class NAZARA_API NzClassName
 };
 
 #endif // NAZARA_FILENAME_HPP
+```
 
 Class source:
-
+```cpp
 // Copyright (C) YEAR AUTHOR
 // This file is part of the "Nazara Engine - MODULE module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
@@ -63,9 +64,10 @@ m_variableName(init)
 NzClassName::PublicFunctions()
 NzClassName::ProtectedFunctions()
 NzClassName::PrivateFunctions()
+```
 
 Structure:
-
+```cpp
 /!\ enum in Enums.hpp
 
 enum nzEnum
@@ -75,10 +77,12 @@ enum nzEnum
 
 	nzEnum_Max = nzEnum_2
 };
+```
 
 Function:
-
+```cpp
 FunctionName()
 {
 	variableName = init;
 }
+```
