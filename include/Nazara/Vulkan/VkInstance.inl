@@ -39,9 +39,9 @@ namespace Nz
 				0,
 				&appInfo,
 				static_cast<UInt32>(layers.size()),
-				&layers[0],
+				(!layers.empty()) ? layers.data() : nullptr,
 				static_cast<UInt32>(extensions.size()),
-				&extensions[0]
+				(!extensions.empty()) ? extensions.data() : nullptr
 			};
 
 			return Create(instanceInfo, allocator);
@@ -69,12 +69,12 @@ namespace Nz
 
 		inline bool Instance::IsExtensionLoaded(const String& extensionName)
 		{
-			return m_loadedExtensions.count(extensionName) != 0;
+			return m_loadedExtensions.count(extensionName) > 0;
 		}
 
 		inline bool Instance::IsLayerLoaded(const String& layerName)
 		{
-			return m_loadedLayers.count(layerName) != 0;
+			return m_loadedLayers.count(layerName) > 0;
 		}
 
 		inline Instance::operator VkInstance()
