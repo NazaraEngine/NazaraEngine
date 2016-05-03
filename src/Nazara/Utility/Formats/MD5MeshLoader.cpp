@@ -42,7 +42,7 @@ namespace Nz
 
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
-										 Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
+			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
 			String baseDir = stream.GetDirectory();
 
