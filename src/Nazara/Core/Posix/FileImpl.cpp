@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
@@ -116,6 +117,31 @@ namespace Nz
 		m_endOfFileUpdated = false;
 
 		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
+	}
+
+	bool FileImpl::SetSize(UInt64 size)
+	{
+		UInt64 cursorPos = GetCursorPos();
+
+		CallOnExit resetCursor([this, cursorPos] ()
+		{
+			if (!SetCursorPos(CursorPosition_AtBegin, cursorPos))
+				NazaraWarning("Failed to reset cursor position to previous position: " + Error::GetLastSystemError());
+		});
+
+		if (!SetCursorPos(CursorPosition_AtBegin, size))
+		{
+			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		if (ftruncate64(m_fileDescriptor, size) == -1)
+		{
+			NazaraError("Failed to set file size: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		return true;
 	}
 
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
