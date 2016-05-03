@@ -194,6 +194,7 @@ namespace Nz
 				m_currentLine = m_stream.ReadLine();
 				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
+				m_currentLine.Trim();
 			}
 			while (m_currentLine.IsEmpty());
 		}
