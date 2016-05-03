@@ -4240,7 +4240,7 @@ namespace Nz
 				utf8::unchecked::iterator<const char*> it(m_sharedString->string.get());
 				do
 				{
-					if ((Unicode::GetCategory(*it) & Unicode::Category_Separator) == 0)
+					if (*it != '\t' && (Unicode::GetCategory(*it) & Unicode::Category_Separator) == 0)
 						break;
 				}
 				while (*++it);
@@ -4255,7 +4255,7 @@ namespace Nz
 				utf8::unchecked::iterator<const char*> it(&m_sharedString->string[m_sharedString->size]);
 				while ((it--).base() != m_sharedString->string.get())
 				{
-					if ((Unicode::GetCategory(*it) & Unicode::Category_Separator) == 0)
+					if (*it != '\t' && (Unicode::GetCategory(*it) & Unicode::Category_Separator) == 0)
 						break;
 				}
 
@@ -4271,7 +4271,8 @@ namespace Nz
 			{
 				for (; startPos < m_sharedString->size; ++startPos)
 				{
-					if ((Unicode::GetCategory(m_sharedString->string[startPos]) & Unicode::Category_Separator) == 0)
+                    char c = m_sharedString->string[startPos];
+					if (c != '\t' && (Unicode::GetCategory(c) & Unicode::Category_Separator) == 0)
 						break;
 				}
 			}
@@ -4281,7 +4282,8 @@ namespace Nz
 			{
 				for (; endPos > 0; --endPos)
 				{
-					if ((Unicode::GetCategory(m_sharedString->string[endPos]) & Unicode::Category_Separator) == 0)
+                    char c = m_sharedString->string[endPos];
+					if (c != '\t' && (Unicode::GetCategory(c) & Unicode::Category_Separator) == 0)
 						break;
 				}
 			}
