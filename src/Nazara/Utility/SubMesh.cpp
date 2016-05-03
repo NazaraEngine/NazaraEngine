@@ -209,5 +209,5 @@ namespace Nz
 	void SubMesh::SetMaterialIndex(unsigned int matIndex)
 	{
 		m_matIndex = matIndex;
-}
+	}
 }
