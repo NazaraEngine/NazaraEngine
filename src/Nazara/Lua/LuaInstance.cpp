@@ -634,7 +634,7 @@ namespace Nz
 	void LuaInstance::PushFunction(LuaFunction func) const
 	{
 		LuaFunction* luaFunc = static_cast<LuaFunction*>(lua_newuserdata(m_state, sizeof(LuaFunction)));
-		PlacementNew<LuaFunction>(luaFunc, std::move(func));
+		PlacementNew(luaFunc, std::move(func));
 
 		lua_pushcclosure(m_state, ProxyFunc, 1);
 	}
@@ -714,12 +714,12 @@ namespace Nz
 		lua_replace(m_state, index);
 	}
 
-	void LuaInstance::SetField(const char* name, int tableIndex)
+	void LuaInstance::SetField(const char* name, int tableIndex) const
 	{
 		lua_setfield(m_state, tableIndex, name);
 	}
 
-	void LuaInstance::SetField(const String& name, int tableIndex)
+	void LuaInstance::SetField(const String& name, int tableIndex) const
 	{
 		lua_setfield(m_state, tableIndex, name.GetConstBuffer());
 	}

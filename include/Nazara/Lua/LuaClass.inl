@@ -17,6 +17,16 @@ namespace Nz
 	}
 
 	template<class T>
+	inline void LuaClass<T>::BindDefaultConstructor()
+	{
+		SetConstructor([] (Nz::LuaInstance& lua, T* instance)
+		{
+			PlacementNew(instance);
+			return true;
+		});
+	}
+
+	template<class T>
 	template<class P>
 	inline void LuaClass<T>::Inherit(LuaClass<P>& parent)
 	{
@@ -36,7 +46,7 @@ namespace Nz
 
 		parentInfo->instanceGetters[m_info->name] = [info = m_info, convertFunc] (LuaInstance& lua) -> P*
 		{
-			return convertFunc(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+			return convertFunc(static_cast<T*>(lua.CheckUserdata(1, info->name)));
 		};
 
 		m_info->parentGetters.emplace_back([parentInfo, convertFunc] (LuaInstance& lua, T* instance)
@@ -54,8 +64,8 @@ namespace Nz
 		// cette UserData disposera d'un finalizer qui libérera le ClassInfo
 		// Ainsi c'est Lua qui va s'occuper de la destruction pour nous :-)
 		// De même, l'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
-		void* info = lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>));
-		PlacementNew<std::shared_ptr<ClassInfo>>(info, m_info);
+		std::shared_ptr<ClassInfo>* info = static_cast<std::shared_ptr<ClassInfo>*>(lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>)));
+		PlacementNew(info, m_info);
 
 		// On créé la table qui contiendra une méthode (Le finalizer) pour libérer le ClassInfo
 		lua.PushTable(0, 1);
@@ -124,7 +134,7 @@ namespace Nz
 
 			m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& lua)
 			{
-				return *static_cast<T**>(lua.CheckUserdata(1, info->name));
+				return static_cast<T*>(lua.CheckUserdata(1, info->name));
 			};
 		}
 		lua.Pop(); // On pop la metatable
@@ -322,14 +332,15 @@ namespace Nz
 
 		lua.Remove(1); // On enlève l'argument "table" du stack
 
-		T* instance = constructor(lua);
-		if (!instance)
+		T* instance = static_cast<T*>(lua.PushUserdata(sizeof(T)));
+
+		if (!constructor(lua, instance))
 		{
 			lua.Error("Constructor failed");
 			return 0; // Normalement jamais exécuté (l'erreur provoquant une exception)
 		}
 
-		lua.PushInstance(info->name.GetConstBuffer(), instance);
+		lua.SetMetatable(info->name);
 		return 1;
 	}
 
@@ -341,11 +352,11 @@ namespace Nz
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const FinalizerFunc& finalizer = info->finalizer;
 
-		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
+		T* instance = static_cast<T*>(lua.CheckUserdata(1, info->name));
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!finalizer || finalizer(lua, *instance))
-			delete instance;
+			instance->~T();
 
 		return 0;
 	}
@@ -399,7 +410,7 @@ namespace Nz
 
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
-		T* instance = *static_cast<T**>(lua.CheckUserdata(1, info->name));
+		T* instance = static_cast<T*>(lua.CheckUserdata(1, info->name));
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		Get(info, lua, instance);
@@ -448,7 +459,7 @@ namespace Nz
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 		const ClassIndexFunc& setter = info->setter;
 
-		T& instance = *(*static_cast<T**>(lua.CheckUserdata(1, info->name)));
+		T& instance = *static_cast<T*>(lua.CheckUserdata(1, info->name));
 		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!setter(lua, instance))

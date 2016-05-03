@@ -7,6 +7,7 @@
 #endif
 
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
@@ -137,6 +138,166 @@ namespace Nz
 			*lastUsedUnit = textureUnit;
 
 		return instance.shader;
+	}
+
+	void Material::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
+	{
+		Color color;
+		bool isEnabled;
+		float fValue;
+		int iValue;
+		String path;
+
+		ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled, true);
+
+
+		if (matData.GetFloatParameter(MaterialData::AlphaThreshold, &fValue))
+			SetAlphaThreshold(fValue);
+
+		if (matData.GetBooleanParameter(MaterialData::AlphaTest, &isEnabled))
+			EnableAlphaTest(isEnabled);
+
+		if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
+			SetAmbientColor(color);
+
+		if (matData.GetIntegerParameter(MaterialData::DepthFunc, &iValue))
+			SetDepthFunc(static_cast<RendererComparison>(iValue));
+
+		if (matData.GetBooleanParameter(MaterialData::DepthSorting, &isEnabled))
+			EnableDepthSorting(isEnabled);
+
+		if (matData.GetColorParameter(MaterialData::DiffuseColor, &color))
+			SetDiffuseColor(color);
+
+		if (matData.GetIntegerParameter(MaterialData::DstBlend, &iValue))
+			SetDstBlend(static_cast<BlendFunc>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::FaceCulling, &iValue))
+			SetFaceCulling(static_cast<FaceSide>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::FaceFilling, &iValue))
+			SetFaceFilling(static_cast<FaceFilling>(iValue));
+
+		if (matData.GetBooleanParameter(MaterialData::Lighting, &isEnabled))
+			EnableLighting(isEnabled);
+
+		if (matData.GetFloatParameter(MaterialData::LineWidth, &fValue))
+			m_states.lineWidth = fValue;
+
+		if (matData.GetFloatParameter(MaterialData::PointSize, &fValue))
+			m_states.pointSize = fValue;
+
+		if (matData.GetColorParameter(MaterialData::SpecularColor, &color))
+			SetSpecularColor(color);
+
+		if (matData.GetFloatParameter(MaterialData::Shininess, &fValue))
+			SetShininess(fValue);
+
+		if (matData.GetIntegerParameter(MaterialData::SrcBlend, &iValue))
+			SetSrcBlend(static_cast<BlendFunc>(iValue));
+
+		if (matData.GetBooleanParameter(MaterialData::Transform, &isEnabled))
+			EnableTransform(isEnabled);
+
+		// RendererParameter
+		if (matData.GetBooleanParameter(MaterialData::Blending, &isEnabled))
+			Enable(RendererParameter_Blend, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::ColorWrite, &isEnabled))
+			Enable(RendererParameter_ColorWrite, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::DepthBuffer, &isEnabled))
+			Enable(RendererParameter_DepthBuffer, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::DepthWrite, &isEnabled))
+			Enable(RendererParameter_DepthWrite, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::FaceCulling, &isEnabled))
+			Enable(RendererParameter_FaceCulling, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::ScissorTest, &isEnabled))
+			Enable(RendererParameter_ScissorTest, isEnabled);
+
+		if (matData.GetBooleanParameter(MaterialData::StencilTest, &isEnabled))
+			Enable(RendererParameter_StencilTest, isEnabled);
+
+		// Samplers
+		if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
+			m_diffuseSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::DiffuseFilter, &iValue))
+			m_diffuseSampler.SetFilterMode(static_cast<SamplerFilter>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::DiffuseWrap, &iValue))
+			m_diffuseSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::SpecularAnisotropyLevel, &iValue))
+			m_specularSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::SpecularFilter, &iValue))
+			m_specularSampler.SetFilterMode(static_cast<SamplerFilter>(iValue));
+
+		if (matData.GetIntegerParameter(MaterialData::SpecularWrap, &iValue))
+			m_specularSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));
+
+		// Stencil
+		if (matData.GetIntegerParameter(MaterialData::StencilCompare, &iValue))
+			m_states.frontFace.stencilCompare = static_cast<RendererComparison>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::StencilFail, &iValue))
+			m_states.frontFace.stencilFail = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::StencilPass, &iValue))
+			m_states.frontFace.stencilPass = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::StencilZFail, &iValue))
+			m_states.frontFace.stencilZFail = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::StencilMask, &iValue))
+			m_states.frontFace.stencilMask = static_cast<UInt32>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::StencilReference, &iValue))
+			m_states.frontFace.stencilReference = static_cast<unsigned int>(iValue);
+
+		// Stencil (back)
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilCompare, &iValue))
+			m_states.backFace.stencilCompare = static_cast<RendererComparison>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilFail, &iValue))
+			m_states.backFace.stencilFail = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilPass, &iValue))
+			m_states.backFace.stencilPass = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilZFail, &iValue))
+			m_states.backFace.stencilZFail = static_cast<StencilOperation>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilMask, &iValue))
+			m_states.backFace.stencilMask = static_cast<UInt32>(iValue);
+
+		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilReference, &iValue))
+			m_states.backFace.stencilReference = static_cast<unsigned int>(iValue);
+
+		// Textures
+		if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
+			SetAlphaMap(path);
+
+		if (matParams.loadDiffuseMap && matData.GetStringParameter(MaterialData::DiffuseTexturePath, &path))
+			SetDiffuseMap(path);
+
+		if (matParams.loadEmissiveMap && matData.GetStringParameter(MaterialData::EmissiveTexturePath, &path))
+			SetEmissiveMap(path);
+
+		if (matParams.loadHeightMap && matData.GetStringParameter(MaterialData::HeightTexturePath, &path))
+			SetHeightMap(path);
+
+		if (matParams.loadNormalMap && matData.GetStringParameter(MaterialData::NormalTexturePath, &path))
+			SetNormalMap(path);
+
+		if (matParams.loadSpecularMap && matData.GetStringParameter(MaterialData::SpecularTexturePath, &path))
+			SetSpecularMap(path);
+
+		SetShader(matParams.shaderName);
 	}
 
 	void Material::Enable(RendererParameter renderParameter, bool enable)

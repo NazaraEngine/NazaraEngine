@@ -4,6 +4,7 @@
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
 #include <string>
@@ -144,21 +145,33 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, std::string val, TypeTag<std::string>)
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T&>)
+	{
+		return LuaImplReplyVal(instance, val, TypeTag<T>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_arithmetic<T>::value || std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<const T&>)
+	{
+		return LuaImplReplyVal(instance, val, TypeTag<T>());
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::string&& val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
 		return 1;
 	}
 
 	template<typename T>
-	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T> valContainer, TypeTag<std::vector<T>>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, std::vector<T>&& valContainer, TypeTag<std::vector<T>>)
 	{
 		std::size_t index = 1;
 		instance.PushTable(valContainer.size());
-		for (const T& val : valContainer)
+		for (T& val : valContainer)
 		{
 			instance.PushInteger(index++);
-			if (LuaImplReplyVal(instance, val, TypeTag<T>()) != 1)
+			if (LuaImplReplyVal(instance, std::move(val), TypeTag<T>()) != 1)
 			{
 				instance.Error("Couldn't create table: type need more than one place to store");
 				return 0;
@@ -169,20 +182,20 @@ namespace Nz
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, ByteArray val, TypeTag<ByteArray>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, ByteArray&& val, TypeTag<ByteArray>)
 	{
 		instance.PushString(reinterpret_cast<const char*>(val.GetConstBuffer()), val.GetSize());
 		return 1;
 	}
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, String val, TypeTag<String>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, String&& val, TypeTag<String>)
 	{
 		instance.PushString(std::move(val));
 		return 1;
 	}
 
 	template<typename T1, typename T2>
-	int LuaImplReplyVal(const LuaInstance& instance, std::pair<T1, T2> val, TypeTag<std::pair<T1, T2>>)
+	int LuaImplReplyVal(const LuaInstance& instance, std::pair<T1, T2>&& val, TypeTag<std::pair<T1, T2>>)
 	{
 		int retVal = 0;
 
@@ -541,6 +554,19 @@ namespace Nz
 		return LuaImplReplyVal(*this, std::move(arg), TypeTag<T>());
 	}
 
+	template<typename T>
+	void LuaInstance::PushField(const char* name, T&& arg, int tableIndex) const
+	{
+		Push<T>(std::forward<T>(arg));
+		SetField(name, tableIndex);
+	}
+
+	template<typename T>
+	void LuaInstance::PushField(const String& name, T&& arg, int tableIndex) const
+	{
+		PushField(name.GetConstBuffer(), std::forward<T>(arg), tableIndex);
+	}
+
 	template<typename R, typename... Args, typename... DefArgs>
 	void LuaInstance::PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const
 	{
@@ -555,50 +581,50 @@ namespace Nz
 	}
 
 	template<typename T>
-	void LuaInstance::PushInstance(const char* tname, T* instance) const
-	{
-		T** userdata = static_cast<T**>(PushUserdata(sizeof(T*)));
-		*userdata = instance;
-		SetMetatable(tname);
-	}
-
-	template<typename T, typename... Args>
-	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
-	{
-		PushInstance(tname, new T(std::forward<Args>(args)...));
-	}
-
-	template<typename T>
-	void LuaInstance::SetField(const char* name, T&& arg, int tableIndex)
-	{
-		Push<T>(std::forward<T>(arg));
-		SetField(name, tableIndex);
-	}
-
-	template<typename T>
-	void LuaInstance::SetField(const String& name, T&& arg, int tableIndex)
-	{
-		SetField(name.GetConstBuffer(), std::forward<T>(arg), tableIndex);
-	}
-
-	template<typename T>
-	void LuaInstance::SetGlobal(const char* name, T&& arg)
+	void LuaInstance::PushGlobal(const char* name, T&& arg)
 	{
 		Push<T>(std::forward<T>(arg));
 		SetGlobal(name);
 	}
 
 	template<typename T>
-	void LuaInstance::SetGlobal(const String& name, T&& arg)
+	void LuaInstance::PushGlobal(const String& name, T&& arg)
 	{
-		SetGlobal(name.GetConstBuffer(), std::forward<T>(arg));
+		PushGlobal(name.GetConstBuffer(), std::forward<T>(arg));
+	}
+
+	template<typename T>
+	void LuaInstance::PushInstance(const char* tname, const T& instance) const
+	{
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, instance);
+
+		SetMetatable(tname);
+	}
+
+	template<typename T>
+	void LuaInstance::PushInstance(const char* tname, T&& instance) const
+	{
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, std::move(instance));
+
+		SetMetatable(tname);
+	}
+
+	template<typename T, typename... Args>
+	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
+	{
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		PlacementNew(userdata, std::forward<Args>(args)...);
+
+		SetMetatable(tname);
 	}
 
 	template<typename T>
 	T LuaInstance::CheckBounds(int index, long long value) const
 	{
-		long long minBounds = std::numeric_limits<T>::min();
-		long long maxBounds = std::numeric_limits<T>::max();
+		constexpr long long minBounds = std::numeric_limits<T>::min();
+		constexpr long long maxBounds = std::numeric_limits<T>::max();
 		if (value < minBounds || value > maxBounds)
 		{
 			Nz::StringStream stream;

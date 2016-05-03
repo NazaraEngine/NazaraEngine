@@ -24,6 +24,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 
 namespace Nz
 {
@@ -61,6 +62,8 @@ namespace Nz
 			~Material();
 
 			const Shader* Apply(UInt32 shaderFlags = 0, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
+
+			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
 
 			void Enable(RendererParameter renderParameter, bool enable);
 			void EnableAlphaTest(bool alphaTest);

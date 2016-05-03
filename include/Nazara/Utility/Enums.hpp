@@ -17,6 +17,22 @@ namespace Nz
 		AnimationType_Max = AnimationType_Static
 	};
 
+	enum BlendFunc
+	{
+		BlendFunc_DestAlpha,
+		BlendFunc_DestColor,
+		BlendFunc_SrcAlpha,
+		BlendFunc_SrcColor,
+		BlendFunc_InvDestAlpha,
+		BlendFunc_InvDestColor,
+		BlendFunc_InvSrcAlpha,
+		BlendFunc_InvSrcColor,
+		BlendFunc_One,
+		BlendFunc_Zero,
+
+		BlendFunc_Max = BlendFunc_Zero
+	};
+
 	enum BufferAccess
 	{
 		BufferAccess_DiscardAndWrite,
@@ -85,6 +101,24 @@ namespace Nz
 		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
 
 		DataStorage_Max = DataStorage_Software*2-1
+	};
+
+	enum FaceFilling
+	{
+		FaceFilling_Fill,
+		FaceFilling_Line,
+		FaceFilling_Point,
+
+		FaceFilling_Max = FaceFilling_Point
+	};
+
+	enum FaceSide
+	{
+		FaceSide_Back,
+		FaceSide_Front,
+		FaceSide_FrontAndBack,
+
+		FaceSide_Max = FaceSide_FrontAndBack
 	};
 
 	enum ImageType
@@ -168,6 +202,17 @@ namespace Nz
 		PixelFormatType_Max = PixelFormatType_Stencil16
 	};
 
+	enum PixelFormatSubType
+	{
+		PixelFormatSubType_Double,   // F64
+		PixelFormatSubType_Float,    // F32
+		PixelFormatSubType_Half,     // F16
+		PixelFormatSubType_Int,      // I32
+		PixelFormatSubType_Unsigned, // U32
+
+		PixelFormatSubType_Max = PixelFormatSubType_Unsigned
+	};
+
 	enum PixelFormatTypeType
 	{
 		PixelFormatTypeType_Undefined = -1,
@@ -198,6 +243,73 @@ namespace Nz
 		PrimitiveMode_TriangleFan,
 
 		PrimitiveMode_Max = PrimitiveMode_TriangleFan
+	};
+
+	enum RendererComparison
+	{
+		RendererComparison_Always,
+		RendererComparison_Equal,
+		RendererComparison_Greater,
+		RendererComparison_GreaterOrEqual,
+		RendererComparison_Less,
+		RendererComparison_LessOrEqual,
+		RendererComparison_Never,
+		RendererComparison_NotEqual,
+
+		RendererComparison_Max = RendererComparison_NotEqual
+	};
+
+	enum RendererParameter
+	{
+		RendererParameter_Blend,
+		RendererParameter_ColorWrite,
+		RendererParameter_DepthBuffer,
+		RendererParameter_DepthWrite,
+		RendererParameter_FaceCulling,
+		RendererParameter_ScissorTest,
+		RendererParameter_StencilTest,
+
+		RendererParameter_Max = RendererParameter_StencilTest
+	};
+
+	enum SamplerFilter
+	{
+		SamplerFilter_Unknown = -1,
+
+		SamplerFilter_Bilinear,
+		SamplerFilter_Nearest,
+		SamplerFilter_Trilinear,
+
+		SamplerFilter_Default,
+
+		SamplerFilter_Max = SamplerFilter_Default
+	};
+
+	enum SamplerWrap
+	{
+		SamplerWrap_Unknown = -1,
+
+		SamplerWrap_Clamp,
+		SamplerWrap_MirroredRepeat,
+		SamplerWrap_Repeat,
+
+		SamplerWrap_Default,
+
+		SamplerWrap_Max = SamplerWrap_Repeat
+	};
+
+	enum StencilOperation
+	{
+		StencilOperation_Decrement,
+		StencilOperation_DecrementNoClamp,
+		StencilOperation_Increment,
+		StencilOperation_IncrementNoClamp,
+		StencilOperation_Invert,
+		StencilOperation_Keep,
+		StencilOperation_Replace,
+		StencilOperation_Zero,
+
+		StencilOperation_Max = StencilOperation_Zero
 	};
 
 	enum TextAlign

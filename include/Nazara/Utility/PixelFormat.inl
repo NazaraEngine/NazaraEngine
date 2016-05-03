@@ -9,6 +9,26 @@
 
 namespace Nz
 {
+	inline std::size_t PixelFormat::ComputeSize(PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth)
+	{
+		if (IsCompressed(format))
+		{
+			switch (format)
+			{
+				case PixelFormatType_DXT1:
+				case PixelFormatType_DXT3:
+				case PixelFormatType_DXT5:
+					return (((width + 3) / 4) * ((height + 3) / 4) * (format == PixelFormatType_DXT1) ? 8 : 16) * depth;
+
+				default:
+					NazaraError("Unsupported format");
+					return 0;
+			}
+		}
+		else
+			return width * height * depth * GetBytesPerPixel(format);
+	}
+
 	inline bool PixelFormat::Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* src, void* dst)
 	{
 		if (srcFormat == dstFormat)

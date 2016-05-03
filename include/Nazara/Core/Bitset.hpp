@@ -26,11 +26,12 @@ namespace Nz
 			class Bit;
 
 			Bitset();
-			explicit Bitset(unsigned int bitCount, bool val = false);
+			explicit Bitset(unsigned int bitCount, bool val);
 			explicit Bitset(const char* bits);
 			Bitset(const char* bits, unsigned int bitCount);
 			Bitset(const Bitset& bitset) = default;
 			explicit Bitset(const String& bits);
+			template<typename T> explicit Bitset(T value);
 			Bitset(Bitset&& bitset) noexcept = default;
 			~Bitset() noexcept = default;
 
@@ -84,6 +85,7 @@ namespace Nz
 
 			Bitset& operator=(const Bitset& bitset) = default;
 			Bitset& operator=(const String& bits);
+			template<typename T> Bitset& operator=(T value);
 			Bitset& operator=(Bitset&& bitset) noexcept = default;
 
 			Bitset& operator&=(const Bitset& bitset);

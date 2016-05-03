@@ -79,7 +79,8 @@ namespace Nz
 
 		OpenMode_Append    = 0x01, // Disable writing on existing parts and put the cursor at the end
 		OpenMode_Lock      = 0x02, // Disable modifying the file before it is open
-		OpenMode_ReadOnly  = 0x04, // Open in read only
+		OpenMode_MustExit  = 0x04, // Fail if the file doesn't exists, even if opened in write mode
+		OpenMode_ReadOnly  = 0x08, // Open in read only
 		OpenMode_Text      = 0x10, // Open in text mod
 		OpenMode_Truncate  = 0x20, // Create the file if it doesn't exist and empty it if it exists
 		OpenMode_WriteOnly = 0x40, // Open in write only, create the file if it doesn't exist
@@ -92,6 +93,7 @@ namespace Nz
 	enum ParameterType
 	{
 		ParameterType_Boolean,
+		ParameterType_Color,
 		ParameterType_Float,
 		ParameterType_Integer,
 		ParameterType_None,
@@ -105,7 +107,8 @@ namespace Nz
 	enum Plugin
 	{
 		Plugin_Assimp,
-		Plugin_FreeType
+
+		Plugin_Count
 	};
 
 	enum PrimitiveType

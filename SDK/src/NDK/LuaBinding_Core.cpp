@@ -1,6 +1,7 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
 #include <NDK/LuaBinding.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
 namespace Ndk
@@ -8,10 +9,14 @@ namespace Ndk
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clockClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Clock*
+		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock)
 		{
 			int argIndex = 1;
-			return new Nz::Clock(lua.Check<Nz::Int64>(&argIndex, 0), lua.Check<bool>(&argIndex, false));
+			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+			bool paused = lua.Check<bool>(&argIndex, false);
+
+			Nz::PlacementNew(clock, startingValue, paused);
+			return true;
 		});
 
 		clockClass.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
@@ -35,7 +40,7 @@ namespace Ndk
 		});
 
 		/********************************* Nz::Directory ********************************/
-		directoryClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::Directory*
+		directoryClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* directory)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
 
@@ -43,13 +48,15 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::Directory;
+					Nz::PlacementNew(directory);
+					return true;
 
 				case 1:
-					return new Nz::Directory(lua.Check<Nz::String>(&argIndex));
+					Nz::PlacementNew(directory, lua.Check<Nz::String>(&argIndex));
+					return true;
 			}
 
-			return nullptr;
+			return false;
 		});
 
 		directoryClass.BindMethod("Close", &Nz::Directory::Close);
@@ -127,7 +134,7 @@ namespace Ndk
 		/*********************************** Nz::File ***********************************/
 		fileClass.Inherit(streamClass);
 
-		fileClass.SetConstructor([](Nz::LuaInstance& lua) -> Nz::File*
+		fileClass.SetConstructor([](Nz::LuaInstance& lua, Nz::File* file)
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 
@@ -135,16 +142,29 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					return new Nz::File;
+					Nz::PlacementNew(file);
+					return true;
 
 				case 1:
-					return new Nz::File(lua.Check<Nz::String>(&argIndex));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+
+					Nz::PlacementNew(file, filePath);
+					return true;
+				}
 
 				case 2:
-					return new Nz::File(lua.Check<Nz::String>(&argIndex), lua.Check<Nz::UInt32>(&argIndex));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
+
+					Nz::PlacementNew(file, filePath, openMode);
+					return true;
+				}
 			}
 
-			return nullptr;
+			lua.Error("No matching overload for File constructor");
+			return false;
 		});
 
 		fileClass.BindMethod("Close", &Nz::File::Close);
@@ -189,7 +209,11 @@ namespace Ndk
 					return lua.Push(file.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
 
 				case 2:
-					return lua.Push(file.Open(lua.Check<Nz::String>(&argIndex), lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
+				{
+					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
+					return lua.Push(file.Open(filePath, openMode));
+				}
 			}
 
 			lua.Error("No matching overload for method Open");
@@ -207,7 +231,11 @@ namespace Ndk
 					return lua.Push(file.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
 
 				case 2:
-					return lua.Push(file.SetCursorPos(lua.Check<Nz::CursorPosition>(&argIndex), lua.Check<Nz::Int64>(&argIndex)));
+				{
+					Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
+					Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
+					return lua.Push(file.SetCursorPos(curPos, offset));
+				}
 			}
 
 			lua.Error("No matching overload for method SetCursorPos");
@@ -240,9 +268,9 @@ namespace Ndk
 		static_assert(Nz::CursorPosition_Max + 1 == 3, "Nz::CursorPosition has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 3);
 		{
-			instance.SetField("AtBegin", Nz::CursorPosition_AtBegin);
-			instance.SetField("AtCurrent", Nz::CursorPosition_AtCurrent);
-			instance.SetField("AtEnd", Nz::CursorPosition_AtEnd);
+			instance.PushField("AtBegin", Nz::CursorPosition_AtBegin);
+			instance.PushField("AtCurrent", Nz::CursorPosition_AtCurrent);
+			instance.PushField("AtEnd", Nz::CursorPosition_AtEnd);
 		}
 		instance.SetGlobal("CursorPosition");
 
@@ -250,15 +278,15 @@ namespace Ndk
 		static_assert(Nz::HashType_Max + 1 == 9, "Nz::HashType has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 9);
 		{
-			instance.SetField("CRC32", Nz::HashType_CRC32);
-			instance.SetField("Fletcher16", Nz::HashType_Fletcher16);
-			instance.SetField("MD5", Nz::HashType_MD5);
-			instance.SetField("SHA1", Nz::HashType_SHA1);
-			instance.SetField("SHA224", Nz::HashType_SHA224);
-			instance.SetField("SHA256", Nz::HashType_SHA256);
-			instance.SetField("SHA384", Nz::HashType_SHA384);
-			instance.SetField("SHA512", Nz::HashType_SHA512);
-			instance.SetField("Whirlpool", Nz::HashType_Whirlpool);
+			instance.PushField("CRC32", Nz::HashType_CRC32);
+			instance.PushField("Fletcher16", Nz::HashType_Fletcher16);
+			instance.PushField("MD5", Nz::HashType_MD5);
+			instance.PushField("SHA1", Nz::HashType_SHA1);
+			instance.PushField("SHA224", Nz::HashType_SHA224);
+			instance.PushField("SHA256", Nz::HashType_SHA256);
+			instance.PushField("SHA384", Nz::HashType_SHA384);
+			instance.PushField("SHA512", Nz::HashType_SHA512);
+			instance.PushField("Whirlpool", Nz::HashType_Whirlpool);
 		}
 		instance.SetGlobal("HashType");
 
@@ -266,14 +294,14 @@ namespace Ndk
 		static_assert(Nz::OpenMode_Max + 1 == 2 * (64), "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 8);
 		{
-			instance.SetField("Append", Nz::OpenMode_Append);
-			instance.SetField("NotOpen", Nz::OpenMode_NotOpen);
-			instance.SetField("Lock", Nz::OpenMode_Lock);
-			instance.SetField("ReadOnly", Nz::OpenMode_ReadOnly);
-			instance.SetField("ReadWrite", Nz::OpenMode_ReadWrite);
-			instance.SetField("Text", Nz::OpenMode_Text);
-			instance.SetField("Truncate", Nz::OpenMode_Truncate);
-			instance.SetField("WriteOnly", Nz::OpenMode_WriteOnly);
+			instance.PushField("Append", Nz::OpenMode_Append);
+			instance.PushField("NotOpen", Nz::OpenMode_NotOpen);
+			instance.PushField("Lock", Nz::OpenMode_Lock);
+			instance.PushField("ReadOnly", Nz::OpenMode_ReadOnly);
+			instance.PushField("ReadWrite", Nz::OpenMode_ReadWrite);
+			instance.PushField("Text", Nz::OpenMode_Text);
+			instance.PushField("Truncate", Nz::OpenMode_Truncate);
+			instance.PushField("WriteOnly", Nz::OpenMode_WriteOnly);
 		}
 		instance.SetGlobal("OpenMode");
 	}

@@ -350,7 +350,7 @@ namespace Nz
 		return s_defaultAtlas;
 	}
 
-	Font* Font::GetDefault()
+	const FontRef& Font::GetDefault()
 	{
 		// Nous n'initialisons la police par défaut qu'à la demande pour qu'elle prenne
 		// les paramètres par défaut (qui peuvent avoir étés changés par l'utilisateur),
@@ -359,13 +359,10 @@ namespace Nz
 		if (!s_defaultFont)
 		{
 			FontRef cabin = Font::New();
-			if (!cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
-			{
+			if (cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
+                s_defaultFont = cabin;
+			else
 				NazaraError("Failed to open default font");
-				return nullptr;
-			}
-
-			s_defaultFont = cabin;
 		}
 
 		return s_defaultFont;

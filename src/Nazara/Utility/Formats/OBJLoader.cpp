@@ -1,14 +1,13 @@
-// Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// Copyright (C) 2016 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Formats/OBJLoader.hpp>
+#include <Nazara/Utility/Formats/OBJLoader.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
@@ -17,7 +16,7 @@
 #include <limits>
 #include <memory>
 #include <unordered_map>
-#include <Nazara/Graphics/Debug.hpp>
+#include <Nazara/Utility/Debug.hpp>
 
 ///TODO: N'avoir qu'un seul VertexBuffer communs à tous les meshes
 
@@ -30,7 +29,7 @@ namespace Nz
 			return (extension == "obj");
 		}
 
-		Ternary Check(Stream& stream, const ModelParameters& parameters)
+		Ternary Check(Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(stream);
 
@@ -41,7 +40,7 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool LoadMaterials(Model* model, const String& filePath, const MaterialParams& parameters, const String* materials, const OBJParser::Mesh* meshes, unsigned int meshCount)
+		bool ParseMTL(Mesh* mesh, const String& filePath, const String* materials, const OBJParser::Mesh* meshes, unsigned int meshCount)
 		{
 			File file(filePath);
 			if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
@@ -57,7 +56,7 @@ namespace Nz
 				return false;
 			}
 
-			std::unordered_map<String, MaterialRef> materialCache;
+			std::unordered_map<String, ParameterList> materialCache;
 			String baseDir = file.GetDirectory();
 			for (unsigned int i = 0; i < meshCount; ++i)
 			{
@@ -72,8 +71,9 @@ namespace Nz
 				auto it = materialCache.find(matName);
 				if (it == materialCache.end())
 				{
-					MaterialRef material = Material::New();
-					material->SetShader(parameters.shaderName);
+					ParameterList data;
+
+					data.SetParameter(MaterialData::CustomDefined);
 
 					UInt8 alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
 
@@ -84,54 +84,40 @@ namespace Nz
 					diffuseColor.a = alphaValue;
 					specularColor.a = alphaValue;
 
-					material->SetAmbientColor(ambientColor);
-					material->SetDiffuseColor(diffuseColor);
-					material->SetSpecularColor(specularColor);
-					material->SetShininess(mtlMat->shininess);
+					data.SetParameter(MaterialData::AmbientColor, ambientColor);
+					data.SetParameter(MaterialData::DiffuseColor, diffuseColor);
+					data.SetParameter(MaterialData::Shininess, mtlMat->shininess);
+					data.SetParameter(MaterialData::SpecularColor, specularColor);
 
-					bool isTranslucent = (alphaValue != 255);
+					if (!mtlMat->alphaMap.IsEmpty())
+						data.SetParameter(MaterialData::AlphaTexturePath, baseDir + mtlMat->alphaMap);
 
-					if (parameters.loadAlphaMap && !mtlMat->alphaMap.IsEmpty())
+					if (!mtlMat->diffuseMap.IsEmpty())
+						data.SetParameter(MaterialData::DiffuseTexturePath, baseDir + mtlMat->diffuseMap);
+
+					if (!mtlMat->specularMap.IsEmpty())
+						data.SetParameter(MaterialData::SpecularTexturePath, baseDir + mtlMat->specularMap);
+
+					// If we either have an alpha value or an alpha map, let's configure the material for transparency
+					if (alphaValue != 255 || !mtlMat->alphaMap.IsEmpty())
 					{
-						if (material->SetAlphaMap(baseDir + mtlMat->alphaMap))
-							isTranslucent = true; // Une alpha map indique de la transparence
-						else
-							NazaraWarning("Failed to load alpha map (" + mtlMat->alphaMap + ')');
+						// Some default settings
+						data.SetParameter(MaterialData::Blending, true);
+						data.SetParameter(MaterialData::DepthWrite, true);
+						data.SetParameter(MaterialData::DstBlend, static_cast<int>(BlendFunc_InvSrcAlpha));
+						data.SetParameter(MaterialData::SrcBlend, static_cast<int>(BlendFunc_SrcAlpha));
 					}
 
-					if (parameters.loadDiffuseMap && !mtlMat->diffuseMap.IsEmpty())
-					{
-						if (!material->SetDiffuseMap(baseDir + mtlMat->diffuseMap))
-							NazaraWarning("Failed to load diffuse map (" + mtlMat->diffuseMap + ')');
-					}
-
-					if (parameters.loadSpecularMap && !mtlMat->specularMap.IsEmpty())
-					{
-						if (!material->SetSpecularMap(baseDir + mtlMat->specularMap))
-							NazaraWarning("Failed to load specular map (" + mtlMat->specularMap + ')');
-					}
-
-					// Si nous avons une alpha map ou des couleurs transparentes,
-					// nous devons configurer le matériau pour accepter la transparence au mieux
-					if (isTranslucent)
-					{
-						// On paramètre le matériau pour accepter la transparence au mieux
-						material->Enable(RendererParameter_Blend, true);
-						material->Enable(RendererParameter_DepthWrite, false);
-						material->SetDstBlend(BlendFunc_InvSrcAlpha);
-						material->SetSrcBlend(BlendFunc_SrcAlpha);
-					}
-
-					it = materialCache.emplace(matName, std::move(material)).first;
+					it = materialCache.emplace(matName, std::move(data)).first;
 				}
 
-				model->SetMaterial(meshes[i].material, it->second);
+				mesh->SetMaterialData(meshes[i].material, it->second);
 			}
 
 			return true;
 		}
 
-		bool Load(Model* model, Stream& stream, const ModelParameters& parameters)
+		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		{
 			int reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
@@ -144,12 +130,7 @@ namespace Nz
 				return false;
 			}
 
-			MeshRef mesh = Mesh::New();
-			if (!mesh->CreateStatic()) // Ne devrait jamais échouer
-			{
-				NazaraInternalError("Failed to create mesh");
-				return false;
-			}
+			mesh->CreateStatic();
 
 			const String* materials = parser.GetMaterials();
 			const Vector4f* positions = parser.GetPositions();
@@ -160,8 +141,8 @@ namespace Nz
 			unsigned int meshCount = parser.GetMeshCount();
 
 			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr &&
-						 texCoords != nullptr && meshes != nullptr && meshCount > 0,
-						 "Invalid OBJParser output");
+			             texCoords != nullptr && meshes != nullptr && meshCount > 0,
+			             "Invalid OBJParser output");
 
 			// Un conteneur temporaire pour contenir les indices de face avant triangulation
 			std::vector<unsigned int> faceIndices(3); // Comme il y aura au moins trois sommets
@@ -197,8 +178,8 @@ namespace Nz
 					bool operator()(const OBJParser::FaceVertex& lhs, const OBJParser::FaceVertex& rhs) const
 					{
 						return lhs.normal == rhs.normal &&
-							   lhs.position == rhs.position &&
-							   lhs.texCoord == rhs.texCoord;
+						       lhs.position == rhs.position &&
+						       lhs.texCoord == rhs.texCoord;
 					}
 				};
 
@@ -230,8 +211,8 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indices.size(), parameters.mesh.storage, BufferUsage_Static);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.mesh.storage, BufferUsage_Static);
+				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indices.size(), parameters.storage, BufferUsage_Static);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, BufferUsage_Static);
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
@@ -254,7 +235,7 @@ namespace Nz
 
 					const Vector4f& vec = positions[vertexIndices.position];
 					vertex.position.Set(vec.x, vec.y, vec.z);
-					vertex.position *= parameters.mesh.scale/vec.w;
+					vertex.position *= parameters.scale/vec.w;
 
 					if (vertexIndices.normal >= 0)
 						vertex.normal = normals[vertexIndices.normal];
@@ -264,7 +245,7 @@ namespace Nz
 					if (vertexIndices.texCoord >= 0)
 					{
 						const Vector3f& uvw = texCoords[vertexIndices.texCoord];
-						vertex.uv.Set(uvw.x, (parameters.mesh.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
+						vertex.uv.Set(uvw.x, (parameters.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
 					}
 					else
 						hasTexCoords = false;
@@ -279,7 +260,7 @@ namespace Nz
 					continue;
 				}
 
-				if (parameters.mesh.optimizeIndexBuffers)
+				if (parameters.optimizeIndexBuffers)
 					indexBuffer->Optimize();
 
 				subMesh->GenerateAABB();
@@ -299,17 +280,15 @@ namespace Nz
 			}
 			mesh->SetMaterialCount(parser.GetMaterialCount());
 
-			if (parameters.mesh.center)
+			if (parameters.center)
 				mesh->Recenter();
-
-			model->SetMesh(mesh);
 
 			// On charge les matériaux si demandé
 			String mtlLib = parser.GetMtlLib();
-			if (parameters.loadMaterials && !mtlLib.IsEmpty())
+			if (!mtlLib.IsEmpty())
 			{
 				ErrorFlags flags(ErrorFlag_ThrowExceptionDisabled);
-				LoadMaterials(model, stream.GetDirectory() + mtlLib, parameters.material, materials, meshes, meshCount);
+				ParseMTL(mesh, stream.GetDirectory() + mtlLib, materials, meshes, meshCount);
 			}
 
 			return true;
@@ -320,12 +299,12 @@ namespace Nz
 	{
 		void RegisterOBJ()
 		{
-			ModelLoader::RegisterLoader(IsSupported, Check, Load);
+			MeshLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
 		void UnregisterOBJ()
 		{
-			ModelLoader::UnregisterLoader(IsSupported, Check, Load);
+			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
 		}
 	}
 }
