@@ -170,7 +170,7 @@ namespace Nz
 				return 1;
 
 			default:
-				*address = *(*static_cast<IpAddress**>(instance.CheckUserdata(index, "IpAddress")));
+				*address = *static_cast<IpAddress*>(instance.CheckUserdata(index, "IpAddress"));
 				return 1;
 		}
 	}
