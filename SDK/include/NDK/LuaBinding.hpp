@@ -83,12 +83,6 @@ namespace Ndk
 			Nz::LuaClass<Nz::Node> nodeClass;
 
 			// SDK
-			Nz::LuaClass<Application*> application;
-			Nz::LuaClass<EntityHandle> entityClass;
-			Nz::LuaClass<NodeComponentHandle> nodeComponent;
-			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
-			Nz::LuaClass<WorldHandle> worldClass;
-
 			using AddComponentFunc = int(*)(Nz::LuaInstance&, EntityHandle&);
 			using GetComponentFunc = int(*)(Nz::LuaInstance&, BaseComponent&);
 
@@ -100,7 +94,16 @@ namespace Ndk
 				Nz::String name;
 			};
 
+			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 1);
+
+			Nz::LuaClass<Application*> application;
+			Nz::LuaClass<EntityHandle> entityClass;
+			Nz::LuaClass<NodeComponentHandle> nodeComponent;
+			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
+			Nz::LuaClass<WorldHandle> worldClass;
+
 			std::vector<ComponentBinding> m_componentBinding;
+			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;
 
 			#ifndef NDK_SERVER
 			// Audio
