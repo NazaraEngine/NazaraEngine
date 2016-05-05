@@ -209,14 +209,8 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
-		// Flush bits if a writing is in progress
-		if (context.currentBitPos != 8)
-		{
-			context.currentBitPos = 8;
-
-			if (!Serialize<UInt8>(context, context.currentByte))
-				NazaraWarning("Failed to flush bits");
-		}
+		// Flush bits in case a writing is in progress
+		context.FlushBits();
 
 		if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
 			SwapBytes(&value, sizeof(T));
@@ -269,8 +263,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
-		// Reset bit position
-		context.currentBitPos = 8;
+		context.ResetBitPosition();
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{
