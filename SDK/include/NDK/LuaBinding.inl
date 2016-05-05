@@ -21,6 +21,7 @@ namespace Ndk
 			m_componentBinding.resize(T::componentIndex + 1);
 
 		m_componentBinding[T::componentIndex] = std::move(binding);
+		m_componentBindingByName[name] = T::componentIndex;
 	}
 
 	template<typename T>
