@@ -1,4 +1,4 @@
-#include <Nazara/Core/Serialization.hpp>
+#include <Nazara/Core/SerializationContext.hpp>
 
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/MemoryView.hpp>
@@ -35,6 +35,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 			{
 				context.stream->SetCursorPos(0);
 				REQUIRE(Serialize(context, true));
+				context.FlushBits(); //< Don't forget to flush bits (it is NOT done by the stream)
 				context.stream->SetCursorPos(0);
 				bool value = false;
 				REQUIRE(Unserialize(context, &value));
