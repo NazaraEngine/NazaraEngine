@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/Serialization.hpp>
+#include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <memory>
 

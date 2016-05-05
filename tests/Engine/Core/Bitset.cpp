@@ -7,7 +7,7 @@ SCENARIO("Bitset", "[CORE][BITSET]")
 {
 	GIVEN("Allocate and constructor")
 	{
-		Nz::Bitset<> bitset(3);
+		Nz::Bitset<> bitset(3, false);
 
 		THEN("Capacity is 3 and size is 3")
 		{
