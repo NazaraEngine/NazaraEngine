@@ -8,6 +8,7 @@
 #define NAZARA_VULKAN_VKDEVICE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkLoader.hpp>
 #include <vulkan/vulkan.h>
@@ -17,9 +18,12 @@ namespace Nz
 {
 	namespace Vk
 	{
+		class Device;
 		class Instance;
 
-		class NAZARA_VULKAN_API Device
+		using DeviceHandle = ObjectHandle<Device>;
+
+		class NAZARA_VULKAN_API Device : public HandledObject<Device>
 		{
 			public:
 				inline Device(Instance& instance);
