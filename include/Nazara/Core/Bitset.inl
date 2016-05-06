@@ -120,14 +120,14 @@ namespace Nz
 	{
 		if (sizeof(T) <= sizeof(Block))
 		{
-			m_bitCount = CountBits(value);
+			m_bitCount = std::numeric_limits<T>::digits;
 			m_blocks.push_back(value);
 		}
 		else
 		{
 			// Note: I was kinda tired when I wrote this, there's probably a much easier method than checking bits to write bits
 			unsigned int bitPos = 0;
-			for (T bit = 1; bit < std::numeric_limits<T>::digits; bit <<= 1)
+			for (T bit = 1; bit < std::numeric_limits<T>::max(); bit <<= 1)
 			{
 				if (value & bit)
 					UnboundedSet(bitPos, true);
@@ -838,7 +838,7 @@ namespace Nz
 
 		Block block = m_blocks[i];
 
-		// Compute the position of LSB in the block (and adjustement of the position)
+		// Compute the position of LSB in the block (and adjustment of the position)
 		return IntegralLog2Pot(block & -block) + i*bitsPerBlock;
 	}
 
