@@ -71,14 +71,24 @@ namespace Nz
 	}
 
 	template<typename T>
-	void HandledObject<T>::UnregisterHandle(ObjectHandle<T>* handle)
+	void HandledObject<T>::UnregisterHandle(ObjectHandle<T>* handle) noexcept
 	{
 		///DOC: Un handle ne doit être libéré qu'une fois, et doit faire partie de la liste, sous peine de crash
 		auto it = std::find(m_handles.begin(), m_handles.end(), handle);
-		NazaraAssert(it != m_handles.end(), "Handle not registred");
+		NazaraAssert(it != m_handles.end(), "Handle not registered");
 
-		// On échange cet élément avec le dernier, et on diminue la taille du vector de 1
+		// Swap and pop idiom, more efficient than vector::erase
 		std::swap(*it, m_handles.back());
 		m_handles.pop_back();
+	}
+
+	template<typename T>
+	void HandledObject<T>::UpdateHandle(ObjectHandle<T>* oldHandle, ObjectHandle<T>* newHandle) noexcept
+	{
+		auto it = std::find(m_handles.begin(), m_handles.end(), oldHandle);
+		NazaraAssert(it != m_handles.end(), "Handle not registered");
+
+		// Simply update the handle
+		*it = newHandle;
 	}
 }
