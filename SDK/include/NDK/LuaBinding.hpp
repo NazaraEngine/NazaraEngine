@@ -37,29 +37,6 @@ namespace Ndk
 
 			void RegisterClasses(Nz::LuaInstance& instance);
 
-		private:
-			void BindCore();
-			void BindMath();
-			void BindNetwork();
-			void BindSDK();
-			void BindUtility();
-
-			void RegisterCore(Nz::LuaInstance& instance);
-			void RegisterMath(Nz::LuaInstance& instance);
-			void RegisterNetwork(Nz::LuaInstance& instance);
-			void RegisterSDK(Nz::LuaInstance& instance);
-			void RegisterUtility(Nz::LuaInstance& instance);
-
-			#ifndef NDK_SERVER
-			void BindAudio();
-			void BindGraphics();
-			void BindRenderer();
-
-			void RegisterAudio(Nz::LuaInstance& instance);
-			void RegisterGraphics(Nz::LuaInstance& instance);
-			void RegisterRenderer(Nz::LuaInstance& instance);
-			#endif
-
 			// Core
 			Nz::LuaClass<Nz::Clock> clockClass;
 			Nz::LuaClass<Nz::Directory> directoryClass;
@@ -83,27 +60,11 @@ namespace Ndk
 			Nz::LuaClass<Nz::Node> nodeClass;
 
 			// SDK
-			using AddComponentFunc = int(*)(Nz::LuaInstance&, EntityHandle&);
-			using GetComponentFunc = int(*)(Nz::LuaInstance&, BaseComponent&);
-
-			struct ComponentBinding
-			{
-				AddComponentFunc adder;
-				ComponentIndex index;
-				GetComponentFunc getter;
-				Nz::String name;
-			};
-
-			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 1);
-
 			Nz::LuaClass<Application*> application;
 			Nz::LuaClass<EntityHandle> entityClass;
 			Nz::LuaClass<NodeComponentHandle> nodeComponent;
 			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
 			Nz::LuaClass<WorldHandle> worldClass;
-
-			std::vector<ComponentBinding> m_componentBinding;
-			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;
 
 			#ifndef NDK_SERVER
 			// Audio
@@ -120,6 +81,46 @@ namespace Ndk
 			Nz::LuaClass<ConsoleHandle> consoleClass;
 			Nz::LuaClass<GraphicsComponentHandle> graphicsComponent;
 			#endif
+
+		private:
+			void BindCore();
+			void BindMath();
+			void BindNetwork();
+			void BindSDK();
+			void BindUtility();
+
+			void RegisterCore(Nz::LuaInstance& instance);
+			void RegisterMath(Nz::LuaInstance& instance);
+			void RegisterNetwork(Nz::LuaInstance& instance);
+			void RegisterSDK(Nz::LuaInstance& instance);
+			void RegisterUtility(Nz::LuaInstance& instance);
+
+			#ifndef NDK_SERVER
+			void BindAudio();
+			void BindGraphics();
+			void BindRenderer();
+
+			void RegisterAudio(Nz::LuaInstance& instance);
+			void RegisterGraphics(Nz::LuaInstance& instance);
+			void RegisterRenderer(Nz::LuaInstance& instance);
+			#endif
+
+
+			using AddComponentFunc = int(*)(Nz::LuaInstance&, EntityHandle&);
+			using GetComponentFunc = int(*)(Nz::LuaInstance&, BaseComponent&);
+
+			struct ComponentBinding
+			{
+				AddComponentFunc adder;
+				ComponentIndex index;
+				GetComponentFunc getter;
+				Nz::String name;
+			};
+
+			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 1);
+
+			std::vector<ComponentBinding> m_componentBinding;
+			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;
 	};
 
 	template<typename T>
