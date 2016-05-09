@@ -126,13 +126,10 @@ namespace Nz
 		else
 		{
 			// Note: I was kinda tired when I wrote this, there's probably a much easier method than checking bits to write bits
-			unsigned int bitPos = 0;
-			for (T bit = 1; bit < std::numeric_limits<T>::max(); bit <<= 1)
+			for (unsigned int bitPos = 0; bitPos < std::numeric_limits<T>::digits; bitPos++)
 			{
-				if (value & bit)
+				if (value & (T(1U) << bitPos))
 					UnboundedSet(bitPos, true);
-
-				bitPos++;
 			}
 		}
 	}
