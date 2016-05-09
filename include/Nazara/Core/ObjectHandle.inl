@@ -81,8 +81,9 @@ namespace Nz
 
 		if (T* object = handle.GetObject())
 		{
-			object->UpdateHandle(&handle, this);
+			m_object = handle.m_object;
 			handle.m_object = nullptr;
+			object->UpdateHandle(&handle, this);
 		}
 	}
 
