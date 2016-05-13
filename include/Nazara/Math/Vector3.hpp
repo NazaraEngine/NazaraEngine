@@ -105,12 +105,15 @@ namespace Nz
 			static Vector3 Backward();
 			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
 			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
+			static T Distance(const Vector3& vec1, const Vector3& vec2);
+			static float Distancef(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Down();
 			static Vector3 Forward();
 			static Vector3 Left();
 			static Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
 			static Vector3 Normalize(const Vector3& vec);
 			static Vector3 Right();
+			static T SquaredDistance(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Unit();
 			static Vector3 UnitX();
 			static Vector3 UnitY();
