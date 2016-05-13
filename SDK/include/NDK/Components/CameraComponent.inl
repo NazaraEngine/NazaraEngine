@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Components/CameraComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include "CameraComponent.hpp"
 
 namespace Ndk
 {
