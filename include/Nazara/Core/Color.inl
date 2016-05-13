@@ -73,6 +73,15 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Return true is the color has no degree of transparency
+	* \return true if the color has an alpha value of 255
+	*/
+	inline bool Color::IsOpaque() const
+	{
+		return a == 255;
+	}
+
+	/*!
 	* \brief Converts this to string
 	* \return String representation of the object "Color(r, g, b[, a])"
 	*/
