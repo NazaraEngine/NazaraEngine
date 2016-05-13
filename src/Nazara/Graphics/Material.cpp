@@ -911,11 +911,28 @@ namespace Nz
 			UberShaderLibrary::Register("PhongLighting", uberShader);
 		}
 
-		// Une fois les shaders de base enregistrés, on peut créer le matériau par défaut
-		s_defaultMaterial = Material::New();
+		// Once the base shaders are registered, we can now set some default materials
+		s_defaultMaterial = New();
 		s_defaultMaterial->Enable(RendererParameter_FaceCulling, false);
 		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
 		MaterialLibrary::Register("Default", s_defaultMaterial);
+
+        MaterialRef mat;
+
+        mat = New();
+        mat->Enable(RendererParameter_DepthWrite, false);
+        mat->Enable(RendererParameter_FaceCulling, false);
+        mat->EnableLighting(false);
+        MaterialLibrary::Register("Basic2D", std::move(mat));
+
+        mat = New();
+        mat->Enable(RendererParameter_Blend, true);
+        mat->Enable(RendererParameter_DepthWrite, false);
+        mat->Enable(RendererParameter_FaceCulling, false);
+        mat->EnableLighting(false);
+        mat->SetDstBlend(BlendFunc_InvSrcAlpha);
+        mat->SetSrcBlend(BlendFunc_SrcAlpha);
+        MaterialLibrary::Register("Translucent2D", std::move(mat));
 
 		return true;
 	}
