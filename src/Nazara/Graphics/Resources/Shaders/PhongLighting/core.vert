@@ -15,6 +15,7 @@ in vec2 VertexTexCoord;
 
 /********************Sortant********************/
 out vec4 vColor;
+out vec4 vLightSpacePos[3];
 out mat3 vLightToWorld;
 out vec3 vNormal;
 out vec2 vTexCoord;
@@ -23,6 +24,8 @@ out vec3 vWorldPos;
 
 /********************Uniformes********************/
 uniform vec3 EyePosition;
+uniform mat4 InvViewMatrix;
+uniform mat4 LightViewProjMatrix[3];
 uniform float VertexDepth;
 uniform mat4 ViewProjMatrix;
 uniform mat4 WorldMatrix;
@@ -119,6 +122,11 @@ void main()
 	#else
 	vNormal = normalize(rotationMatrix * VertexNormal);
 	#endif
+#endif
+
+#if SHADOW_MAPPING
+	for (int i = 0; i < 3; ++i)
+		vLightSpacePos[i] = LightViewProjMatrix[i] * WorldMatrix * vec4(VertexPosition, 1.0);
 #endif
 
 #if TEXTURE_MAPPING

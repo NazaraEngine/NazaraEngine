@@ -1713,6 +1713,14 @@ namespace Nz
 		// Et on termine par envoyer nos états au driver
 		OpenGL::ApplyStates(s_states);
 
+		#ifdef NAZARA_DEBUG
+		if (!s_shader->Validate())
+		{
+			NazaraError(Error::GetLastError());
+			return false;
+		}
+		#endif
+
 		return true;
 	}
 
