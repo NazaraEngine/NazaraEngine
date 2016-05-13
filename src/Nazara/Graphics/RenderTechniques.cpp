@@ -18,6 +18,7 @@ namespace Nz
 			"Advanced Forward",
 			"Basic Forward",
 			"Deferred Shading",
+			"Depth Pass",
 			"Light Pre-Pass",
 			"User"
 		};
