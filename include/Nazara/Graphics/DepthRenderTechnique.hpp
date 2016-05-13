@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifndef NAZARA_FORWARDRENDERTECHNIQUE_HPP
-#define NAZARA_FORWARDRENDERTECHNIQUE_HPP
+#ifndef NAZARA_DEPTHRENDERTECHNIQUE_HPP
+#define NAZARA_DEPTHRENDERTECHNIQUE_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/DepthRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -18,42 +18,29 @@
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API ForwardRenderTechnique : public AbstractRenderTechnique
+	class NAZARA_GRAPHICS_API DepthRenderTechnique : public AbstractRenderTechnique
 	{
 		public:
-			ForwardRenderTechnique();
-			~ForwardRenderTechnique() = default;
+			DepthRenderTechnique();
+			~DepthRenderTechnique() = default;
 
 			void Clear(const SceneData& sceneData) const override;
 			bool Draw(const SceneData& sceneData) const override;
 
-			unsigned int GetMaxLightPassPerObject() const;
 			AbstractRenderQueue* GetRenderQueue() override;
 			RenderTechniqueType GetType() const override;
-
-			void SetMaxLightPassPerObject(unsigned int passCount);
 
 			static bool Initialize();
 			static void Uninitialize();
 
-		protected:
+		private:
 			struct ShaderUniforms;
 
-			void ChooseLights(const Spheref& object, bool includeDirectionalLights = true) const;
 			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
-			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, UInt8 availableTextureUnit) const;
-
-			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
-			static float ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light);
-			static float ComputeSpotLightScore(const Spheref& object, const AbstractRenderQueue::SpotLight& light);
-			static bool IsDirectionalLightSuitable(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
-			static bool IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light);
-			static bool IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light);
 
 			struct LightIndex
 			{
@@ -67,13 +54,6 @@ namespace Nz
 				NazaraSlot(Shader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
 				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
 
-				LightUniforms lightUniforms;
-				bool hasLightUniforms;
-
-				/// Moins coûteux en mémoire que de stocker un LightUniforms par index de lumière,
-				/// à voir si ça fonctionne chez tout le monde
-				int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
-
 				// Autre uniformes
 				int eyePosition;
 				int sceneAmbient;
@@ -81,21 +61,19 @@ namespace Nz
 			};
 
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
-			mutable std::vector<LightIndex> m_lights;
 			Buffer m_vertexBuffer;
-			mutable ForwardRenderQueue m_renderQueue;
+			mutable DepthRenderQueue m_renderQueue;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
-			unsigned int m_maxLightPassPerObject;
 
 			static IndexBuffer s_quadIndexBuffer;
-			static TextureSampler s_shadowSampler;
 			static VertexBuffer s_quadVertexBuffer;
 			static VertexDeclaration s_billboardInstanceDeclaration;
 			static VertexDeclaration s_billboardVertexDeclaration;
 	};
 }
 
-#include <Nazara/Graphics/ForwardRenderTechnique.inl>
 
-#endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP
+#include <Nazara/Graphics/dEPTHRenderTechnique.inl>
+
+#endif // NAZARA_DEPTHRENDERTECHNIQUE_HPP

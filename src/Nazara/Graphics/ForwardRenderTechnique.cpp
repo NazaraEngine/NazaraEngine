@@ -29,7 +29,7 @@ namespace Nz
 			Color color;
 			Vector3f position;
 			Vector2f size;
-			Vector2f sinCos; // doit suivre size
+			Vector2f sinCos; // must follow `size` (both will be sent as a Vector4f)
 			Vector2f uv;
 		};
 
@@ -156,6 +156,9 @@ namespace Nz
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
+
+			s_shadowSampler.SetFilterMode(SamplerFilter_Bilinear);
+			s_shadowSampler.SetWrapMode(SamplerWrap_Clamp);
 		}
 		catch (const std::exception& e)
 		{
@@ -487,7 +490,8 @@ namespace Nz
 					bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || noPointSpotLight) && matEntry.instancingEnabled;
 
 					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0);
+					UInt8 freeTextureUnit;
+					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0, 0, &freeTextureUnit);
 
 					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 					if (shader != lastShader)
@@ -571,7 +575,10 @@ namespace Nz
 
 										// Sends the uniforms
 										for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, i*shaderUniforms->lightOffset);
+											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
+
+										// Et on passe à l'affichage
+										drawFunc(meshData.primitiveMode, 0, indexCount);
 									}
 
 									const Matrix4f* instanceMatrices = &instances[0];
@@ -630,7 +637,7 @@ namespace Nz
 
 											// Sends the light uniforms to the shader
 											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i);
+												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
 
 											// Et on passe à l'affichage
 											drawFunc(meshData.primitiveMode, 0, indexCount);
@@ -680,7 +687,8 @@ namespace Nz
 			const Material* material = modelData.material;
 
 			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
-			const Shader* shader = material->Apply();
+			UInt8 freeTextureUnit;
+			const Shader* shader = material->Apply(0, 0, &freeTextureUnit);
 
 			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
 			if (shader != lastShader)
@@ -699,7 +707,7 @@ namespace Nz
 					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
 
 					for (unsigned int i = 0; i < lightCount; ++i)
-						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i);
+						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i, freeTextureUnit++);
 				}
 
 				lastShader = shader;
@@ -738,7 +746,7 @@ namespace Nz
 				ChooseLights(Spheref(position, radius), false);
 
 				for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset*i);
+					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset*i, freeTextureUnit++);
 			}
 
 			Renderer::SetMatrix(MatrixType_World, matrix);
@@ -770,9 +778,13 @@ namespace Nz
 				uniforms.lightUniforms.locations.type = type0Location;
 				uniforms.lightUniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
 				uniforms.lightUniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
+				uniforms.lightUniforms.locations.lightViewProjMatrix = shader->GetUniformLocation("LightViewProjMatrix[0]");
 				uniforms.lightUniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
 				uniforms.lightUniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
 				uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
+				uniforms.lightUniforms.locations.pointLightShadowMap = shader->GetUniformLocation("PointLightShadowMap[0]");
+				uniforms.lightUniforms.locations.shadowMapping = shader->GetUniformLocation("Lights[0].shadowMapping");
+				uniforms.lightUniforms.locations.directionalSpotLightShadowMap = shader->GetUniformLocation("DirectionalSpotLightShadowMap[0]");
 			}
 			else
 				uniforms.hasLightUniforms = false;
@@ -789,6 +801,7 @@ namespace Nz
 	}
 
 	IndexBuffer ForwardRenderTechnique::s_quadIndexBuffer;
+	TextureSampler ForwardRenderTechnique::s_shadowSampler;
 	VertexBuffer ForwardRenderTechnique::s_quadVertexBuffer;
 	VertexDeclaration ForwardRenderTechnique::s_billboardInstanceDeclaration;
 	VertexDeclaration ForwardRenderTechnique::s_billboardVertexDeclaration;
