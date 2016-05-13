@@ -995,6 +995,7 @@ namespace Nz
 			glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(LoadEntry("glUniformMatrix4fv"));
 			glUnmapBuffer = reinterpret_cast<PFNGLUNMAPBUFFERPROC>(LoadEntry("glUnmapBuffer"));
 			glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(LoadEntry("glUseProgram"));
+			glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(LoadEntry("glValidateProgram"));
 			glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(LoadEntry("glVertexAttrib4f"));
 			glVertexAttribDivisor = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORPROC>(LoadEntry("glVertexAttribDivisor"));
 			glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(LoadEntry("glVertexAttribPointer"));
@@ -1684,24 +1685,44 @@ namespace Nz
 				format->dataFormat = GL_DEPTH_COMPONENT;
 				format->dataType = GL_UNSIGNED_SHORT;
 				format->internalFormat = GL_DEPTH_COMPONENT16;
+
+				format->swizzle[0] = GL_RED;
+				format->swizzle[1] = GL_RED;
+				format->swizzle[2] = GL_RED;
+				format->swizzle[3] = GL_ONE;
 				return true;
 
 			case PixelFormatType_Depth24:
 				format->dataFormat = GL_DEPTH_COMPONENT;
 				format->dataType = GL_UNSIGNED_INT;
 				format->internalFormat = GL_DEPTH_COMPONENT24;
+
+				format->swizzle[0] = GL_RED;
+				format->swizzle[1] = GL_RED;
+				format->swizzle[2] = GL_RED;
+				format->swizzle[3] = GL_ONE;
 				return true;
 
 			case PixelFormatType_Depth24Stencil8:
 				format->dataFormat = GL_DEPTH_STENCIL;
 				format->dataType = GL_UNSIGNED_INT_24_8;
 				format->internalFormat = GL_DEPTH24_STENCIL8;
+
+				format->swizzle[0] = GL_RED;
+				format->swizzle[1] = GL_RED;
+				format->swizzle[2] = GL_RED;
+				format->swizzle[3] = GL_GREEN;
 				return true;
 
 			case PixelFormatType_Depth32:
 				format->dataFormat = GL_DEPTH_COMPONENT;
 				format->dataType = GL_UNSIGNED_BYTE;
 				format->internalFormat = GL_DEPTH_COMPONENT32;
+
+				format->swizzle[0] = GL_RED;
+				format->swizzle[1] = GL_RED;
+				format->swizzle[2] = GL_RED;
+				format->swizzle[3] = GL_ONE;
 				return true;
 
 			case PixelFormatType_Stencil1:
@@ -2248,12 +2269,14 @@ PFNGLUNIFORMMATRIX4DVPROC         glUniformMatrix4dv         = nullptr;
 PFNGLUNIFORMMATRIX4FVPROC         glUniformMatrix4fv         = nullptr;
 PFNGLUNMAPBUFFERPROC              glUnmapBuffer              = nullptr;
 PFNGLUSEPROGRAMPROC               glUseProgram               = nullptr;
+PFNGLVALIDATEPROGRAMPROC          glValidateProgram          = nullptr;
 PFNGLVERTEXATTRIB4FPROC           glVertexAttrib4f           = nullptr;
 PFNGLVERTEXATTRIBDIVISORPROC      glVertexAttribDivisor      = nullptr;
 PFNGLVERTEXATTRIBPOINTERPROC      glVertexAttribPointer      = nullptr;
 PFNGLVERTEXATTRIBIPOINTERPROC     glVertexAttribIPointer     = nullptr;
 PFNGLVERTEXATTRIBLPOINTERPROC     glVertexAttribLPointer     = nullptr;
 PFNGLVIEWPORTPROC                 glViewport                 = nullptr;
+
 #if defined(NAZARA_PLATFORM_WINDOWS)
 PFNWGLCHOOSEPIXELFORMATARBPROC    wglChoosePixelFormat       = nullptr;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribs    = nullptr;
