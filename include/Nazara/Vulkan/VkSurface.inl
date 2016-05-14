@@ -17,6 +17,15 @@ namespace Nz
 		{
 		}
 
+		inline Surface::Surface(Surface&& surface) :
+		m_instance(surface.m_instance),
+		m_allocator(surface.m_allocator),
+		m_surface(surface.m_surface),
+		m_lastErrorCode(surface.m_lastErrorCode)
+		{
+			surface.m_surface = VK_NULL_HANDLE;
+		}
+
 		inline Surface::~Surface()
 		{
 			Destroy();

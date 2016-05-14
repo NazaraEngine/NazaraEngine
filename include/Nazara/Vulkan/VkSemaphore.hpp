@@ -21,7 +21,7 @@ namespace Nz
 			public:
 				inline Semaphore(Device& instance);
 				Semaphore(const Semaphore&) = delete;
-				Semaphore(Semaphore&&) = delete;
+				Semaphore(Semaphore&&) = default;
 				~Semaphore() = default;
 
 				using DeviceObject::Create;
