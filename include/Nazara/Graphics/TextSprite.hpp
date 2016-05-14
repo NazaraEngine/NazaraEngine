@@ -77,7 +77,7 @@ namespace Nz
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
 			MaterialRef m_material;
-			Rectui m_localBounds;
+			Recti m_localBounds;
 			mutable bool m_verticesUpdated;
 			float m_scale;
 

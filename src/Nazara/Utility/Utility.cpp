@@ -25,6 +25,7 @@
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
+#include <Nazara/Utility/Formats/OBJLoader.hpp>
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
@@ -114,13 +115,16 @@ namespace Nz
 		Loaders::RegisterFreeType();
 
 		// Image
-		Loaders::RegisterDDSLoader(); // Generic loader (STB)
+		Loaders::RegisterDDSLoader(); // DDS Loader (DirectX format)
 		Loaders::RegisterSTBLoader(); // Generic loader (STB)
 		Loaders::RegisterSTBSaver();  // Generic saver (STB)
 
 		/// Loaders spécialisés
 		// Animation
 		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
+
+		// Mesh (text)
+		Loaders::RegisterOBJ();
 
 		// Mesh
 		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
@@ -158,6 +162,7 @@ namespace Nz
 		Loaders::UnregisterMD2();
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
+		Loaders::UnregisterOBJ();
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();

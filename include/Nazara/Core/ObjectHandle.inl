@@ -24,9 +24,16 @@ namespace Nz
 
 	template<typename T>
 	ObjectHandle<T>::ObjectHandle(const ObjectHandle<T>& handle) :
-		ObjectHandle()
+	ObjectHandle()
 	{
 		Reset(handle);
+	}
+
+	template<typename T>
+	ObjectHandle<T>::ObjectHandle(ObjectHandle<T>&& handle) noexcept :
+	ObjectHandle()
+	{
+		Reset(std::move(handle));
 	}
 
 	template<typename T>
@@ -64,6 +71,20 @@ namespace Nz
 	void ObjectHandle<T>::Reset(const ObjectHandle<T>& handle)
 	{
 		Reset(handle.GetObject());
+	}
+
+	template<typename T>
+	void ObjectHandle<T>::Reset(ObjectHandle<T>&& handle) noexcept
+	{
+		if (m_object)
+			m_object->UnregisterHandle(this);
+
+		if (T* object = handle.GetObject())
+		{
+			m_object = handle.m_object;
+			handle.m_object = nullptr;
+			object->UpdateHandle(&handle, this);
+		}
 	}
 
 	template<typename T>
@@ -134,6 +155,14 @@ namespace Nz
 	ObjectHandle<T>& ObjectHandle<T>::operator=(const ObjectHandle<T>& handle)
 	{
 		Reset(handle);
+
+		return *this;
+	}
+
+	template<typename T>
+	ObjectHandle<T>& ObjectHandle<T>::operator=(ObjectHandle<T>&& handle) noexcept
+	{
+		Reset(std::move(handle));
 
 		return *this;
 	}

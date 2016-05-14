@@ -27,6 +27,7 @@ SOFTWARE.
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
@@ -165,6 +166,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	{
 		mesh->CreateStatic();
 	
+		// aiMaterial index in scene => Material index and data in Mesh
+		std::unordered_map<unsigned int, std::pair<unsigned int, ParameterList>> materials;
+
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
 			aiMesh* iMesh = scene->mMeshes[i];
@@ -222,8 +226,86 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 
+				auto matIt = materials.find(iMesh->mMaterialIndex);
+				if (matIt == materials.end())
+				{
+					ParameterList matData;
+					aiMaterial* aiMat = scene->mMaterials[iMesh->mMaterialIndex];
+
+					auto ConvertColor = [&] (const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
+					{
+						aiColor4D color;
+						if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
+						{
+							matData.SetParameter(MaterialData::CustomDefined);
+
+							matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
+						}
+					};
+
+					auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
+					{
+						aiString path;
+						aiTextureMapMode mapMode;
+						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode, nullptr) == aiReturn_SUCCESS)
+						{
+							matData.SetParameter(MaterialData::CustomDefined);
+							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+
+							if (wrapKey)
+							{
+								SamplerWrap wrap = SamplerWrap_Default;
+								switch (mapMode)
+								{
+									case aiTextureMapMode_Clamp:
+									case aiTextureMapMode_Decal:
+										wrap = SamplerWrap_Clamp;
+										break;
+
+									case aiTextureMapMode_Mirror:
+										wrap = SamplerWrap_MirroredRepeat;
+										break;
+
+									case aiTextureMapMode_Wrap:
+										wrap = SamplerWrap_Repeat;
+										break;
+
+									default:
+										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode, 16) + " not handled");
+										break;
+								}
+
+								matData.SetParameter(wrapKey, static_cast<int>(wrap));
+							}
+						}
+					};
+
+					ConvertColor(AI_MATKEY_COLOR_AMBIENT, MaterialData::AmbientColor);
+					ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::DiffuseColor);
+					ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
+
+					ConvertTexture(aiTextureType_DIFFUSE, MaterialData::DiffuseTexturePath, MaterialData::DiffuseWrap);
+					ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
+					ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
+					ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);
+					ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
+					ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
+
+					int iValue;
+					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue))
+						matData.SetParameter(MaterialData::FaceCulling, !iValue);
+
+					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(materials.size(), std::move(matData)))).first;
+				}
+
+				subMesh->SetMaterialIndex(matIt->first);
+
 				mesh->AddSubMesh(subMesh);
 			}
+
+			mesh->SetMaterialCount(std::max<unsigned int>(materials.size(), 1));
+			for (const auto& pair : materials)
+				mesh->SetMaterialData(pair.second.first, pair.second.second);
 		}
 
 		if (parameters.center)

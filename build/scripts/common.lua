@@ -298,6 +298,14 @@ function NazaraBuild:Execute()
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
 
+			-- Copy the module binaries to the example folder
+			if (toolTable.CopyTargetToExampleDir) then
+				if (os.is("windows")) then
+					configuration({})
+						postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
+				end
+			end
+
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")

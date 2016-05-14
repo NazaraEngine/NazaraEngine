@@ -24,6 +24,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 
 namespace Nz
 {
@@ -56,90 +57,99 @@ namespace Nz
 		friend class Graphics;
 
 		public:
-			Material();
-			Material(const Material& material);
-			~Material();
+			inline Material();
+			inline Material(const Material& material);
+			inline ~Material();
 
 			const Shader* Apply(UInt32 shaderFlags = 0, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
 
-			void Enable(RendererParameter renderParameter, bool enable);
-			void EnableAlphaTest(bool alphaTest);
-			void EnableDepthSorting(bool depthSorting);
-			void EnableLighting(bool lighting);
-			void EnableTransform(bool transform);
+			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
 
-			Texture* GetAlphaMap() const;
-			float GetAlphaThreshold() const;
-			Color GetAmbientColor() const;
-			RendererComparison GetDepthFunc() const;
-			Color GetDiffuseColor() const;
-			Texture* GetDiffuseMap() const;
-			TextureSampler& GetDiffuseSampler();
-			const TextureSampler& GetDiffuseSampler() const;
-			BlendFunc GetDstBlend() const;
-			Texture* GetEmissiveMap() const;
-			FaceSide GetFaceCulling() const;
-			FaceFilling GetFaceFilling() const;
-			Texture* GetHeightMap() const;
-			Texture* GetNormalMap() const;
-			const RenderStates& GetRenderStates() const;
-			const UberShader* GetShader() const;
-			const UberShaderInstance* GetShaderInstance(UInt32 flags = ShaderFlags_None) const;
-			float GetShininess() const;
-			Color GetSpecularColor() const;
-			Texture* GetSpecularMap() const;
-			TextureSampler& GetSpecularSampler();
-			const TextureSampler& GetSpecularSampler() const;
-			BlendFunc GetSrcBlend() const;
+			inline void Enable(RendererParameter renderParameter, bool enable);
+			inline void EnableAlphaTest(bool alphaTest);
+			inline void EnableDepthSorting(bool depthSorting);
+			inline void EnableLighting(bool lighting);
+			inline void EnableShadowCasting(bool castShadows);
+			inline void EnableShadowReceive(bool receiveShadows);
+			inline void EnableTransform(bool transform);
 
-			bool HasAlphaMap() const;
-			bool HasDiffuseMap() const;
-			bool HasEmissiveMap() const;
-			bool HasHeightMap() const;
-			bool HasNormalMap() const;
-			bool HasSpecularMap() const;
+			inline const TextureRef& GetAlphaMap() const;
+			inline float GetAlphaThreshold() const;
+			inline Color GetAmbientColor() const;
+			inline RendererComparison GetDepthFunc() const;
+			inline const MaterialRef& GetDepthMaterial() const;
+			inline Color GetDiffuseColor() const;
+			inline const TextureRef& GetDiffuseMap() const;
+			inline TextureSampler& GetDiffuseSampler();
+			inline const TextureSampler& GetDiffuseSampler() const;
+			inline BlendFunc GetDstBlend() const;
+			inline const TextureRef& GetEmissiveMap() const;
+			inline FaceSide GetFaceCulling() const;
+			inline FaceFilling GetFaceFilling() const;
+			inline const TextureRef& GetHeightMap() const;
+			inline const TextureRef& GetNormalMap() const;
+			inline const RenderStates& GetRenderStates() const;
+			inline const UberShader* GetShader() const;
+			inline const UberShaderInstance* GetShaderInstance(UInt32 flags = ShaderFlags_None) const;
+			inline float GetShininess() const;
+			inline Color GetSpecularColor() const;
+			inline const TextureRef& GetSpecularMap() const;
+			inline TextureSampler& GetSpecularSampler();
+			inline const TextureSampler& GetSpecularSampler() const;
+			inline BlendFunc GetSrcBlend() const;
 
-			bool IsAlphaTestEnabled() const;
-			bool IsDepthSortingEnabled() const;
-			bool IsEnabled(RendererParameter renderParameter) const;
-			bool IsLightingEnabled() const;
-			bool IsTransformEnabled() const;
+			inline bool HasAlphaMap() const;
+			inline bool HasDepthMaterial() const;
+			inline bool HasDiffuseMap() const;
+			inline bool HasEmissiveMap() const;
+			inline bool HasHeightMap() const;
+			inline bool HasNormalMap() const;
+			inline bool HasSpecularMap() const;
 
-			bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
-			bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
+			inline bool IsAlphaTestEnabled() const;
+			inline bool IsDepthSortingEnabled() const;
+			inline bool IsEnabled(RendererParameter renderParameter) const;
+			inline bool IsLightingEnabled() const;
+			inline bool IsShadowCastingEnabled() const;
+			inline bool IsShadowReceiveEnabled() const;
+			inline bool IsTransformEnabled() const;
+
+			inline bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
+			inline bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
+			inline bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
 
 			void Reset();
 
-			bool SetAlphaMap(const String& textureName);
-			void SetAlphaMap(TextureRef alphaMap);
-			void SetAlphaThreshold(float alphaThreshold);
-			void SetAmbientColor(const Color& ambient);
-			void SetDepthFunc(RendererComparison depthFunc);
-			void SetDiffuseColor(const Color& diffuse);
-			bool SetDiffuseMap(const String& textureName);
-			void SetDiffuseMap(TextureRef diffuseMap);
-			void SetDiffuseSampler(const TextureSampler& sampler);
-			void SetDstBlend(BlendFunc func);
-			bool SetEmissiveMap(const String& textureName);
-			void SetEmissiveMap(TextureRef textureName);
-			void SetFaceCulling(FaceSide faceSide);
-			void SetFaceFilling(FaceFilling filling);
-			bool SetHeightMap(const String& textureName);
-			void SetHeightMap(TextureRef textureName);
-			bool SetNormalMap(const String& textureName);
-			void SetNormalMap(TextureRef textureName);
-			void SetRenderStates(const RenderStates& states);
-			void SetShader(UberShaderConstRef uberShader);
-			bool SetShader(const String& uberShaderName);
-			void SetShininess(float shininess);
-			void SetSpecularColor(const Color& specular);
-			bool SetSpecularMap(const String& textureName);
-			void SetSpecularMap(TextureRef specularMap);
-			void SetSpecularSampler(const TextureSampler& sampler);
-			void SetSrcBlend(BlendFunc func);
+			inline bool SetAlphaMap(const String& textureName);
+			inline void SetAlphaMap(TextureRef alphaMap);
+			inline void SetAlphaThreshold(float alphaThreshold);
+			inline void SetAmbientColor(const Color& ambient);
+			inline void SetDepthFunc(RendererComparison depthFunc);
+			inline void SetDepthMaterial(MaterialRef depthMaterial);
+			inline void SetDiffuseColor(const Color& diffuse);
+			inline bool SetDiffuseMap(const String& textureName);
+			inline void SetDiffuseMap(TextureRef diffuseMap);
+			inline void SetDiffuseSampler(const TextureSampler& sampler);
+			inline void SetDstBlend(BlendFunc func);
+			inline bool SetEmissiveMap(const String& textureName);
+			inline void SetEmissiveMap(TextureRef textureName);
+			inline void SetFaceCulling(FaceSide faceSide);
+			inline void SetFaceFilling(FaceFilling filling);
+			inline bool SetHeightMap(const String& textureName);
+			inline void SetHeightMap(TextureRef textureName);
+			inline bool SetNormalMap(const String& textureName);
+			inline void SetNormalMap(TextureRef textureName);
+			inline void SetRenderStates(const RenderStates& states);
+			inline void SetShader(UberShaderConstRef uberShader);
+			inline bool SetShader(const String& uberShaderName);
+			inline void SetShininess(float shininess);
+			inline void SetSpecularColor(const Color& specular);
+			inline bool SetSpecularMap(const String& textureName);
+			inline void SetSpecularMap(TextureRef specularMap);
+			inline void SetSpecularSampler(const TextureSampler& sampler);
+			inline void SetSrcBlend(BlendFunc func);
 
-			Material& operator=(const Material& material);
+			inline Material& operator=(const Material& material);
 
 			static MaterialRef GetDefault();
 			template<typename... Args> static MaterialRef New(Args&&... args);
@@ -158,7 +168,7 @@ namespace Nz
 
 			void Copy(const Material& material);
 			void GenerateShader(UInt32 flags) const;
-			void InvalidateShaders();
+			inline void InvalidateShaders();
 
 			static bool Initialize();
 			static void Uninitialize();
@@ -166,6 +176,7 @@ namespace Nz
 			Color m_ambientColor;
 			Color m_diffuseColor;
 			Color m_specularColor;
+			MaterialRef m_depthMaterial; //< Materialception
 			RenderStates m_states;
 			TextureSampler m_diffuseSampler;
 			TextureSampler m_specularSampler;
@@ -180,6 +191,8 @@ namespace Nz
 			bool m_alphaTestEnabled;
 			bool m_depthSortingEnabled;
 			bool m_lightingEnabled;
+			bool m_shadowCastingEnabled;
+			bool m_shadowReceiveEnabled;
 			bool m_transformEnabled;
 			float m_alphaThreshold;
 			float m_shininess;
