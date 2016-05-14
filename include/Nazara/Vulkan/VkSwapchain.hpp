@@ -8,7 +8,6 @@
 #define NAZARA_VULKAN_VKSWAPCHAIN_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>
 
 namespace Nz 

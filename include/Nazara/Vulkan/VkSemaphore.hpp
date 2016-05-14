@@ -8,9 +8,7 @@
 #define NAZARA_VULKAN_VKSEMAPHORE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>
-#include <vulkan/vulkan.h>
 
 namespace Nz 
 {
