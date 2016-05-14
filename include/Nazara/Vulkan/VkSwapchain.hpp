@@ -21,7 +21,7 @@ namespace Nz
 			public:
 				inline Swapchain(Device& instance);
 				Swapchain(const Swapchain&) = delete;
-				Swapchain(Swapchain&&) = delete;
+				Swapchain(Swapchain&&) = default;
 				~Swapchain() = default;
 
 				inline bool IsSupported() const;
