@@ -61,6 +61,18 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
+		inline Device& DeviceObject<C, VkType, CreateInfo>::GetDevice()
+		{
+			return m_device;
+		}
+
+		template<typename C, typename VkType, typename CreateInfo>
+		inline const Device& DeviceObject<C, VkType, CreateInfo>::GetDevice() const
+		{
+			return m_device;
+		}
+
+		template<typename C, typename VkType, typename CreateInfo>
 		inline VkResult DeviceObject<C, VkType, CreateInfo>::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
