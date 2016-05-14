@@ -21,6 +21,16 @@ namespace Nz
 			if (!m_device.IsExtensionLoaded("VK_KHR_swapchain"))
 				return false;
 		}
+
+		VkResult Swapchain::CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
+		{
+			return device.vkCreateSwapchainKHR(device, createInfo, allocator, handle);
+		}
+
+		void Swapchain::DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
+		{
+			return device.vkDestroySwapchainKHR(device, handle, allocator);
+		}
 	}
 }
 
