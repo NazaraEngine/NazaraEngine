@@ -62,7 +62,9 @@ namespace Nz
 			struct DirectionalLight
 			{
 				Color color;
+				Matrix4f transformMatrix;
 				Vector3f direction;
+				Texture* shadowMap;
 				float ambientFactor;
 				float diffuseFactor;
 			};
@@ -71,6 +73,7 @@ namespace Nz
 			{
 				Color color;
 				Vector3f position;
+				Texture* shadowMap;
 				float ambientFactor;
 				float attenuation;
 				float diffuseFactor;
@@ -81,8 +84,10 @@ namespace Nz
 			struct SpotLight
 			{
 				Color color;
+				Matrix4f transformMatrix;
 				Vector3f direction;
 				Vector3f position;
+				Texture* shadowMap;
 				float ambientFactor;
 				float attenuation;
 				float diffuseFactor;

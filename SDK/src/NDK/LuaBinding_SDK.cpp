@@ -59,56 +59,29 @@ namespace Ndk
 		entityClass.BindMethod("Kill", &Entity::Kill);
 		entityClass.BindMethod("IsEnabled", &Entity::IsEnabled);
 		entityClass.BindMethod("IsValid", &Entity::IsValid);
-		entityClass.BindMethod("RemoveComponent", (void(Entity::*)(ComponentIndex)) &Entity::RemoveComponent);
 		entityClass.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
 		entityClass.BindMethod("__tostring", &EntityHandle::ToString);
 
-		entityClass.BindMethod("AddComponent", [this] (Nz::LuaInstance& lua, EntityHandle& handle) -> int
+		entityClass.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
 		{
-			int index = 1;
-			ComponentIndex componentIndex = lua.Check<ComponentIndex>(&index);
+			ComponentBinding* binding = QueryComponentIndex(instance);
 
-			if (componentIndex > m_componentBinding.size())
-			{
-				lua.Error("Invalid component index");
-				return 0;
-			}
-
-			ComponentBinding& binding = m_componentBinding[componentIndex];
-			if (binding.name.IsEmpty())
-			{
-				lua.Error("This component is not available to the LuaAPI");
-				return 0;
-			}
-
-			return binding.adder(lua, handle);
+			return binding->adder(instance, handle);
 		});
 
-		entityClass.BindMethod("GetComponent", [this] (Nz::LuaInstance& lua, EntityHandle& handle) -> int
+		entityClass.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
 		{
-			int index = 1;
-			ComponentIndex componentIndex = lua.Check<ComponentIndex>(&index);
+			ComponentBinding* binding = QueryComponentIndex(instance);
 
-			if (!handle->HasComponent(componentIndex))
-			{
-				lua.PushNil();
-				return 1;
-			}
+			return binding->getter(instance, handle->GetComponent(binding->index));
+		});
 
-			if (componentIndex > m_componentBinding.size())
-			{
-				lua.Error("Invalid component index");
-				return 0;
-			}
+		entityClass.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		{
+			ComponentBinding* binding = QueryComponentIndex(instance);
 
-			ComponentBinding& binding = m_componentBinding[componentIndex];
-			if (binding.name.IsEmpty())
-			{
-				lua.Error("This component is not available to the LuaAPI");
-				return 0;
-			}
-
-			return binding.getter(lua, handle->GetComponent(componentIndex));
+			handle->RemoveComponent(binding->index);
+			return 0;
 		});
 
 		/*********************************** Ndk::NodeComponent **********************************/
@@ -198,5 +171,46 @@ namespace Ndk
 			}
 		}
 		instance.SetGlobal("ComponentType");
+	}
+
+	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaInstance& instance, int argIndex)
+	{
+		switch (instance.GetType(argIndex))
+		{
+			case Nz::LuaType_Number:
+			{
+				ComponentIndex componentIndex = instance.Check<ComponentIndex>(&argIndex);
+				if (componentIndex > m_componentBinding.size())
+				{
+					instance.Error("Invalid component index");
+					return nullptr;
+				}
+
+				ComponentBinding& binding = m_componentBinding[componentIndex];
+				if (binding.name.IsEmpty())
+				{
+					instance.Error("Invalid component index");
+					return nullptr;
+				}
+
+				return &binding;
+			}
+
+			case Nz::LuaType_String:
+			{
+				const char* key = instance.CheckString(argIndex);
+				auto it = m_componentBindingByName.find(key);
+				if (it == m_componentBindingByName.end())
+				{
+					instance.Error("Invalid component name");
+					return nullptr;
+				}
+
+				return &m_componentBinding[it->second];
+			}
+		}
+
+		instance.Error("Invalid component index at #" + Nz::String::Number(argIndex));
+		return nullptr;
 	}
 }

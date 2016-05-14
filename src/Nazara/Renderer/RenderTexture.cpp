@@ -156,9 +156,6 @@ namespace Nz
 		InvalidateSize();
 		InvalidateTargets();
 
-		if (attachmentPoint == AttachmentPoint_Color && !m_impl->userDefinedTargets)
-			m_impl->colorTargets.push_back(index);
-
 		return true;
 	}
 
@@ -292,9 +289,6 @@ namespace Nz
 
 		InvalidateSize();
 		InvalidateTargets();
-
-		if (attachmentPoint == AttachmentPoint_Color && !m_impl->userDefinedTargets)
-			m_impl->colorTargets.push_back(index);
 
 		return true;
 	}
@@ -819,6 +813,15 @@ namespace Nz
 
 	void RenderTexture::UpdateTargets() const
 	{
+		if (!m_impl->userDefinedTargets)
+		{
+			m_impl->colorTargets.clear();
+
+			unsigned int colorIndex = 0;
+			for (unsigned int index = attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
+				m_impl->colorTargets.push_back(colorIndex++);
+		}
+
 		if (m_impl->colorTargets.empty())
 		{
 			m_impl->drawBuffers.resize(1);
