@@ -23,7 +23,7 @@ namespace Nz
 			public:
 				inline Surface(Instance& instance);
 				Surface(const Surface&) = delete;
-				Surface(Surface&&) = delete;
+				Surface(Surface&& surface);
 				inline ~Surface();
 
 				#ifdef VK_USE_PLATFORM_ANDROID_KHR
