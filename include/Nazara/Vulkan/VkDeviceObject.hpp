@@ -27,6 +27,8 @@ namespace Nz
 				inline bool Create(const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
+				inline Device& GetDevice();
+				inline const Device& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
 
 				DeviceObject& operator=(const DeviceObject&) = delete;
