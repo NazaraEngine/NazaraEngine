@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Vulkan/VkSemaphore.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/Debug.hpp>
 
 namespace Nz
@@ -12,32 +10,8 @@ namespace Nz
 	namespace Vk
 	{
 		inline Semaphore::Semaphore(Device& device) :
-		m_device(device),
-		m_semaphore(VK_NULL_HANDLE)
+		DeviceObject(device)
 		{
-		}
-
-		inline Semaphore::~Semaphore()
-		{
-			Destroy();
-		}
-
-		inline bool Semaphore::Create(const VkSemaphoreCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
-		{
-			m_lastErrorCode = m_device.vkCreateSemaphore(m_device, &createInfo, allocator, &m_semaphore);
-			if (m_lastErrorCode != VkResult::VK_SUCCESS)
-			{
-				NazaraError("Failed to create Vulkan semaphore");
-				return false;
-			}
-
-			// Store the allocator to access them when needed
-			if (allocator)
-				m_allocator = *allocator;
-			else
-				m_allocator.pfnAllocation = nullptr;
-
-			return true;
 		}
 
 		inline bool Semaphore::Create(VkSemaphoreCreateFlags flags, const VkAllocationCallbacks* allocator)
@@ -52,20 +26,14 @@ namespace Nz
 			return Create(createInfo, allocator);
 		}
 
-		inline void Semaphore::Destroy()
+		VkResult Semaphore::CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)
 		{
-			if (m_semaphore != VK_NULL_HANDLE)
-				m_device.vkDestroySemaphore(m_device, m_semaphore, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+			return device.vkCreateSemaphore(device, createInfo, allocator, handle);
 		}
 
-		inline VkResult Semaphore::GetLastErrorCode() const
+		void Semaphore::DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator)
 		{
-			return m_lastErrorCode;
-		}
-
-		inline Semaphore::operator VkSemaphore()
-		{
-			return m_semaphore;
+			return device.vkDestroySemaphore(device, handle, allocator);
 		}
 	}
 }
