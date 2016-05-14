@@ -454,24 +454,24 @@ namespace Nz
 		return true;
 	}
 
-    /*!
-    * \brief Sets the size of the file
-    * \return true if the file size has correctly changed
-    *
-    * \param size The size the file should have after this call
-    *
-    * \remark The cursor position is not affected by this call
-    * \remark The file must be open in write mode
-    */
-    bool File::SetSize(UInt64 size)
-    {
-        NazaraLock(m_mutex)
+	/*!
+	* \brief Sets the size of the file
+	* \return true if the file size has correctly changed
+	*
+	* \param size The size the file should have after this call
+	*
+	* \remark The cursor position is not affected by this call
+	* \remark The file must be open in write mode
+	*/
+	bool File::SetSize(UInt64 size)
+	{
+		NazaraLock(m_mutex)
 
-        NazaraAssert(IsOpen(), "File is not open");
-        NazaraAssert(IsWritable(), "File is not writable");
+		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssert(IsWritable(), "File is not writable");
 
-        return m_impl->SetSize(size);
-    }
+		return m_impl->SetSize(size);
+	}
 
 	/*!
 	* \brief Sets the file path

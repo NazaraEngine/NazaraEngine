@@ -1306,6 +1306,12 @@ namespace Nz
 			glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
 		}
 
+		if (!proxy && PixelFormat::GetType(m_impl->format) == PixelFormatTypeType_Depth)
+		{
+			glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		}
+
 		return true;
 	}
 
