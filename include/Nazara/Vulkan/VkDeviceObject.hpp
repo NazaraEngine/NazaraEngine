@@ -8,7 +8,6 @@
 #define NAZARA_VULKAN_VKDEVICEOBJECT_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <vulkan/vulkan.h>
 
