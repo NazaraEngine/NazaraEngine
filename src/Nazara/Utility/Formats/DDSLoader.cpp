@@ -65,7 +65,7 @@ namespace Nz
 					headerDX10.resourceDimension = D3D10_RESOURCE_DIMENSION_UNKNOWN;
 				}
 
-				if (header.flags & DDSD_WIDTH == 0)
+				if ((header.flags & DDSD_WIDTH) == 0)
 					NazaraWarning("Ill-formed DDS file, doesn't have a width flag");
 
 				unsigned int width = std::max(header.width, 1U);
@@ -141,7 +141,7 @@ namespace Nz
 				{
 					if (header.ddsCaps[1] & DDSCAPS2_CUBEMAP)
 					{
-						if (header.ddsCaps[1] & DDSCAPS2_CUBEMAP_ALLFACES != DDSCAPS2_CUBEMAP_ALLFACES)
+						if ((header.ddsCaps[1] & DDSCAPS2_CUBEMAP_ALLFACES) != DDSCAPS2_CUBEMAP_ALLFACES)
 						{
 							NazaraError("Partial cubemap are not yet supported, sorry");
 							return false;

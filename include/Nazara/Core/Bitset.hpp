@@ -31,7 +31,7 @@ namespace Nz
 			Bitset(const char* bits, unsigned int bitCount);
 			Bitset(const Bitset& bitset) = default;
 			explicit Bitset(const String& bits);
-			template<typename T> explicit Bitset(T value);
+			template<typename T> Bitset(T value);
 			Bitset(Bitset&& bitset) noexcept = default;
 			~Bitset() noexcept = default;
 

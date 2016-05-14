@@ -49,7 +49,7 @@ namespace Nz
 		ClearGlyphs();
 	}
 
-	const Rectui& SimpleTextDrawer::GetBounds() const
+	const Recti& SimpleTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();

@@ -108,6 +108,7 @@ namespace Nz
 		RenderTechniqueType_AdvancedForward, // AdvancedForwardRenderTechnique
 		RenderTechniqueType_BasicForward,    // BasicForwardRenderTechnique
 		RenderTechniqueType_DeferredShading, // DeferredRenderTechnique
+		RenderTechniqueType_Depth,           // DepthRenderTechnique
 		RenderTechniqueType_LightPrePass,    // LightPrePassRenderTechnique
 		RenderTechniqueType_User,
 

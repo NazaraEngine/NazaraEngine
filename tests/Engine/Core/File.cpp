@@ -78,9 +78,9 @@ SCENARIO("File", "[CORE][FILE]")
 
 			THEN("The relative positioning should disappear")
 			{
-				Nz::String containingNoMoreDot = "/resources/Spaceship/spaceship.mtl";
-				REQUIRE(Nz::File::AbsolutePath(containingDot) == containingNoMoreDot);
-				REQUIRE(Nz::File::AbsolutePath(containingDoubleDot) == containingNoMoreDot);
+				Nz::String containingNoMoreDot = Nz::File::NormalizePath("/resources/Spaceship/spaceship.mtl");
+				REQUIRE(Nz::File::AbsolutePath(containingDot).EndsWith(containingNoMoreDot));
+				REQUIRE(Nz::File::AbsolutePath(containingDoubleDot).EndsWith(containingNoMoreDot));
 			}
 		}
 	}
