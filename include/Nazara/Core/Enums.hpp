@@ -93,6 +93,7 @@ namespace Nz
 	enum ParameterType
 	{
 		ParameterType_Boolean,
+		ParameterType_Color,
 		ParameterType_Float,
 		ParameterType_Integer,
 		ParameterType_None,

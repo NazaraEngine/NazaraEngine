@@ -25,6 +25,8 @@ namespace Nz
 			inline Color(const Color& color) = default;
 			inline ~Color() = default;
 
+			inline bool IsOpaque() const;
+
 			inline String ToString() const;
 
 			inline Color operator+(const Color& angles) const;

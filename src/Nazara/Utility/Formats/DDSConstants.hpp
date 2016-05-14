@@ -8,7 +8,7 @@
 #define NAZARA_LOADERS_DDS_CONSTANTS_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Serialization.hpp>
+#include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Utility/Config.hpp>
 
 namespace Nz

@@ -17,8 +17,6 @@ namespace Nz
 	template<typename T>
 	class ObjectRef
 	{
-		static_assert(std::is_base_of<RefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
-
 		public:
 			ObjectRef();
 			ObjectRef(T* object);

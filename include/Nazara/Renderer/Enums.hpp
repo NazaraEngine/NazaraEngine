@@ -19,40 +19,6 @@ namespace Nz
 		AttachmentPoint_Max = AttachmentPoint_Stencil
 	};
 
-	enum BlendFunc
-	{
-		BlendFunc_DestAlpha,
-		BlendFunc_DestColor,
-		BlendFunc_SrcAlpha,
-		BlendFunc_SrcColor,
-		BlendFunc_InvDestAlpha,
-		BlendFunc_InvDestColor,
-		BlendFunc_InvSrcAlpha,
-		BlendFunc_InvSrcColor,
-		BlendFunc_One,
-		BlendFunc_Zero,
-
-		BlendFunc_Max = BlendFunc_Zero
-	};
-
-	enum FaceFilling
-	{
-		FaceFilling_Fill,
-		FaceFilling_Line,
-		FaceFilling_Point,
-
-		FaceFilling_Max = FaceFilling_Point
-	};
-
-	enum FaceSide
-	{
-		FaceSide_Back,
-		FaceSide_Front,
-		FaceSide_FrontAndBack,
-
-		FaceSide_Max = FaceSide_FrontAndBack
-	};
-
 	enum GpuQueryCondition
 	{
 		GpuQueryCondition_Region_NoWait,
@@ -124,59 +90,6 @@ namespace Nz
 		RendererBuffer_Max = RendererBuffer_Stencil*2-1
 	};
 
-	enum RendererComparison
-	{
-		RendererComparison_Always,
-		RendererComparison_Equal,
-		RendererComparison_Greater,
-		RendererComparison_GreaterOrEqual,
-		RendererComparison_Less,
-		RendererComparison_LessOrEqual,
-		RendererComparison_Never,
-		RendererComparison_NotEqual,
-
-		RendererComparison_Max = RendererComparison_NotEqual
-	};
-
-	enum RendererParameter
-	{
-		RendererParameter_Blend,
-		RendererParameter_ColorWrite,
-		RendererParameter_DepthBuffer,
-		RendererParameter_DepthWrite,
-		RendererParameter_FaceCulling,
-		RendererParameter_ScissorTest,
-		RendererParameter_StencilTest,
-
-		RendererParameter_Max = RendererParameter_StencilTest
-	};
-
-	enum SamplerFilter
-	{
-		SamplerFilter_Unknown = -1,
-
-		SamplerFilter_Bilinear,
-		SamplerFilter_Nearest,
-		SamplerFilter_Trilinear,
-
-		SamplerFilter_Default,
-
-		SamplerFilter_Max = SamplerFilter_Default
-	};
-
-	enum SamplerWrap
-	{
-		SamplerWrap_Unknown = -1,
-
-		SamplerWrap_Clamp,
-		SamplerWrap_MirroredRepeat,
-		SamplerWrap_Repeat,
-
-		SamplerWrap_Default,
-
-		SamplerWrap_Max = SamplerWrap_Repeat
-	};
-
 	enum ShaderUniform
 	{
 		ShaderUniform_InvProjMatrix,
@@ -204,20 +117,6 @@ namespace Nz
 		ShaderStageType_Vertex,
 
 		ShaderStageType_Max = ShaderStageType_Vertex
-	};
-
-	enum StencilOperation
-	{
-		StencilOperation_Decrement,
-		StencilOperation_DecrementNoClamp,
-		StencilOperation_Increment,
-		StencilOperation_IncrementNoClamp,
-		StencilOperation_Invert,
-		StencilOperation_Keep,
-		StencilOperation_Replace,
-		StencilOperation_Zero,
-
-		StencilOperation_Max = StencilOperation_Zero
 	};
 }
 
