@@ -16,6 +16,8 @@ namespace Nz
 	{
 		class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR>
 		{
+			friend DeviceObject;
+
 			public:
 				inline Swapchain(Device& instance);
 				Swapchain(const Swapchain&) = delete;
@@ -26,6 +28,10 @@ namespace Nz
 
 				Swapchain& operator=(const Swapchain&) = delete;
 				Swapchain& operator=(Swapchain&&) = delete;
+
+			private:
+				static VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
+				static void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }
