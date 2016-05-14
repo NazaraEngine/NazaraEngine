@@ -9,39 +9,32 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Vulkan/Config.hpp>
-#include <Nazara/Vulkan/VkLoader.hpp>
+#include <Nazara/Vulkan/VkDeviceObject.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Nz 
 {
 	namespace Vk
 	{
-		class Device;
-
-		class NAZARA_VULKAN_API Semaphore
+		class Semaphore : public DeviceObject<Semaphore, VkSemaphore, VkSemaphoreCreateInfo>
 		{
+			friend DeviceObject;
+
 			public:
 				inline Semaphore(Device& instance);
 				Semaphore(const Semaphore&) = delete;
 				Semaphore(Semaphore&&) = delete;
-				inline ~Semaphore();
+				~Semaphore() = default;
 
-				inline bool Create(const VkSemaphoreCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				using DeviceObject::Create;
 				inline bool Create(VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				inline void Destroy();
-
-				inline VkResult GetLastErrorCode() const;
 
 				Semaphore& operator=(const Semaphore&) = delete;
 				Semaphore& operator=(Semaphore&&) = delete;
 
-				inline operator VkSemaphore();
-
 			private:
-				Device& m_device;
-				VkAllocationCallbacks m_allocator;
-				VkSemaphore m_semaphore;
-				VkResult m_lastErrorCode;
+				static VkResult CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
+				static void DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

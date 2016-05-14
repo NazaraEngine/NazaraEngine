@@ -9,40 +9,24 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Vulkan/Config.hpp>
-#include <Nazara/Vulkan/VkLoader.hpp>
-#include <vulkan/vulkan.h>
+#include <Nazara/Vulkan/VkDeviceObject.hpp>
 
 namespace Nz 
 {
 	namespace Vk
 	{
-		class Device;
-
-		class NAZARA_VULKAN_API Swapchain
+		class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR>
 		{
 			public:
 				inline Swapchain(Device& instance);
 				Swapchain(const Swapchain&) = delete;
 				Swapchain(Swapchain&&) = delete;
-				inline ~Swapchain();
-
-				bool Create(const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				inline void Destroy();
+				~Swapchain() = default;
 
 				inline bool IsSupported() const;
 
-				inline VkResult GetLastErrorCode() const;
-
 				Swapchain& operator=(const Swapchain&) = delete;
 				Swapchain& operator=(Swapchain&&) = delete;
-
-				inline operator VkSwapchainKHR();
-
-			private:
-				Device& m_device;
-				VkAllocationCallbacks m_allocator;
-				VkSwapchainKHR m_swapchain;
-				VkResult m_lastErrorCode;
 		};
 	}
 }
