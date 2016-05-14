@@ -188,6 +188,29 @@ function NazaraBuild:Execute()
 				libdirs("../lib/" .. makeLibDir .. "/x64")
 				targetdir("../lib/" .. makeLibDir .. "/x64")
 
+			-- Copy the module binaries to the example folder
+			if (os.is("windows")) then
+				configuration({})
+					postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
+
+				for k,v in pairs(table.join(moduleTable.Libraries, moduleTable.DynLib)) do
+					local paths = {}
+					table.insert(paths, {"x32", "../extlibs/lib/common/x86/" .. v .. ".dll"})
+					table.insert(paths, {"x32", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
+					table.insert(paths, {"x64", "../extlibs/lib/common/x64/" .. v .. ".dll"})
+					table.insert(paths, {"x64", "../extlibs/lib/common/x64/lib" .. v .. ".dll"})
+
+					for k,v in pairs(paths) do
+						local config = v[1]
+						local path = v[2]
+						if (os.isfile(path)) then
+							configuration(config)
+							postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. path .. [[")}" "..\..\..\examples\bin\" /E /Y]]})
+						end
+					end
+				end
+			end
+
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
@@ -851,7 +874,7 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.ConfigurationLibraries.DebugDynamic = {}
 	infoTable.ConfigurationLibraries.ReleaseDynamic = {}
 	
-	local infos = {"Defines", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
+	local infos = {"Defines", "DynLib", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
 	for k,v in ipairs(infos) do
 		infoTable[v] = {}
 		infoTable["Os" .. v] = {}
