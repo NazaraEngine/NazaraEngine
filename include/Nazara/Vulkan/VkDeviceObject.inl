@@ -19,6 +19,16 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
+		inline DeviceObject<C, VkType, CreateInfo>::DeviceObject(DeviceObject&& object) :
+		m_device(object.m_device),
+		m_allocator(object.m_allocator),
+		m_handle(object.m_handle),
+		m_lastErrorCode(object.m_lastErrorCode)
+		{
+			object.m_handle = VK_NULL_HANDLE;
+		}
+
+		template<typename C, typename VkType, typename CreateInfo>
 		inline DeviceObject<C, VkType, CreateInfo>::~DeviceObject()
 		{
 			Destroy();
