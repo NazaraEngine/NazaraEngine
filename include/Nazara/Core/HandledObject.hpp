@@ -36,7 +36,8 @@ namespace Nz
 
 		private:
 			void RegisterHandle(ObjectHandle<T>* handle);
-			void UnregisterHandle(ObjectHandle<T>* handle);
+			void UnregisterHandle(ObjectHandle<T>* handle) noexcept;
+			void UpdateHandle(ObjectHandle<T>* oldHandle, ObjectHandle<T>* newHandle) noexcept;
 
 			std::vector<ObjectHandle<T>*> m_handles;
 	};

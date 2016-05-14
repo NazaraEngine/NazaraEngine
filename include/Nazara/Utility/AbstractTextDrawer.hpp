@@ -26,7 +26,7 @@ namespace Nz
 			AbstractTextDrawer() = default;
 			virtual ~AbstractTextDrawer();
 
-			virtual const Rectui& GetBounds() const = 0;
+			virtual const Recti& GetBounds() const = 0;
 			virtual Font* GetFont(unsigned int index) const = 0;
 			virtual unsigned int GetFontCount() const = 0;
 			virtual const Glyph& GetGlyph(unsigned int index) const = 0;

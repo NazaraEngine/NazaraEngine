@@ -23,6 +23,7 @@ namespace Nz
 			ObjectHandle();
 			explicit ObjectHandle(T* object);
 			ObjectHandle(const ObjectHandle& handle);
+			ObjectHandle(ObjectHandle&& handle) noexcept;
 			~ObjectHandle();
 
 			T* GetObject() const;
@@ -31,6 +32,7 @@ namespace Nz
 
 			void Reset(T* object = nullptr);
 			void Reset(const ObjectHandle& handle);
+			void Reset(ObjectHandle&& handle) noexcept;
 
 			ObjectHandle& Swap(ObjectHandle& handle);
 
@@ -42,6 +44,7 @@ namespace Nz
 
 			ObjectHandle& operator=(T* object);
 			ObjectHandle& operator=(const ObjectHandle& handle);
+			ObjectHandle& operator=(ObjectHandle&& handle) noexcept;
 
 			static const ObjectHandle InvalidHandle;
 

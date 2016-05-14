@@ -28,7 +28,7 @@ namespace Nz
 
 			void Clear();
 
-			const Rectui& GetBounds() const override;
+			const Recti& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;
@@ -71,7 +71,7 @@ namespace Nz
 			Color m_color;
 			FontRef m_font;
 			mutable Rectf m_workingBounds;
-			mutable Rectui m_bounds;
+			mutable Recti m_bounds;
 			String m_text;
 			mutable UInt32 m_previousCharacter;
 			UInt32 m_style;

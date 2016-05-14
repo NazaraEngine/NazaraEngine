@@ -118,6 +118,11 @@ namespace Nz
 		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
 	}
 
+	bool FileImpl::SetSize(UInt64 size)
+	{
+		return ftruncate64(m_fileDescriptor, size) != 0;
+	}
+
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
 		lockf64(m_fileDescriptor, F_LOCK, size);

@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERSTATES_HPP
 #define NAZARA_RENDERSTATES_HPP
 
-#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {

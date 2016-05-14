@@ -8,6 +8,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -20,7 +21,6 @@
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Graphics/Formats/OBJLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -96,14 +96,17 @@ namespace Nz
 			return false;
 		}
 
-		// Loaders
-		Loaders::RegisterOBJ();
-
 		// Loaders génériques
 		Loaders::RegisterMesh();
 		Loaders::RegisterTexture();
 
 		// RenderTechniques
+		if (!DepthRenderTechnique::Initialize())
+		{
+			NazaraError("Failed to initialize Depth Rendering");
+			return false;
+		}
+
 		if (!ForwardRenderTechnique::Initialize())
 		{
 			NazaraError("Failed to initialize Forward Rendering");
@@ -176,10 +179,10 @@ namespace Nz
 
 		// Loaders
 		Loaders::UnregisterMesh();
-		Loaders::UnregisterOBJ();
 		Loaders::UnregisterTexture();
 
 		DeferredRenderTechnique::Uninitialize();
+		DepthRenderTechnique::Uninitialize();
 		ForwardRenderTechnique::Uninitialize();
 		SkinningManager::Uninitialize();
 		ParticleRenderer::Uninitialize();
