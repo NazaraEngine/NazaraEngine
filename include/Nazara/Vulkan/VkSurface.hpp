@@ -18,7 +18,7 @@ namespace Nz
 	{
 		class Instance;
 
-		class NAZARA_VULKAN_API Surface
+		class Surface
 		{
 			public:
 				inline Surface(Instance& instance);
