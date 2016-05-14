@@ -1,5 +1,7 @@
 TOOL.Name = "SDKServer"
 
+TOOL.CopyTargetToExampleDir = true
+
 TOOL.Directory = "../SDK/lib"
 TOOL.Kind = "Library"
 
