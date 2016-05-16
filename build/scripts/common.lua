@@ -190,25 +190,7 @@ function NazaraBuild:Execute()
 
 			-- Copy the module binaries to the example folder
 			if (os.is("windows")) then
-				configuration({})
-					postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
-
-				for k,v in pairs(table.join(moduleTable.Libraries, moduleTable.DynLib)) do
-					local paths = {}
-					table.insert(paths, {"x32", "../extlibs/lib/common/x86/" .. v .. ".dll"})
-					table.insert(paths, {"x32", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
-					table.insert(paths, {"x64", "../extlibs/lib/common/x64/" .. v .. ".dll"})
-					table.insert(paths, {"x64", "../extlibs/lib/common/x64/lib" .. v .. ".dll"})
-
-					for k,v in pairs(paths) do
-						local config = v[1]
-						local path = v[2]
-						if (os.isfile(path)) then
-							configuration(config)
-							postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. path .. [[")}" "..\..\..\examples\bin\" /E /Y]]})
-						end
-					end
-				end
+				self:MakeCopyAfterBuild(moduleTable)
 			end
 
 			configuration({"vs*", "x32"})
@@ -323,10 +305,7 @@ function NazaraBuild:Execute()
 
 			-- Copy the module binaries to the example folder
 			if (toolTable.CopyTargetToExampleDir) then
-				if (os.is("windows")) then
-					configuration({})
-						postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
-				end
+				self:MakeCopyAfterBuild(toolTable)
 			end
 
 			configuration({"vs*", "x32"})
@@ -862,6 +841,34 @@ function NazaraBuild:Process(infoTable)
 				end
 
 				infoTable[k] = nil
+			end
+		end
+	end
+end
+
+function NazaraBuild:MakeCopyAfterBuild(infoTable)
+	if (os.is("windows")) then
+		configuration({})
+			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
+
+		for k,v in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
+			local paths = {}
+			table.insert(paths, {"x32", "../extlibs/lib/common/x86/" .. v .. ".dll"})
+			table.insert(paths, {"x32", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
+			table.insert(paths, {"x64", "../extlibs/lib/common/x64/" .. v .. ".dll"})
+			table.insert(paths, {"x64", "../extlibs/lib/common/x64/lib" .. v .. ".dll"})
+
+			for k,v in pairs(paths) do
+				local config = v[1]
+				local path = v[2]
+				if (os.isfile(path)) then
+					if (infoTable.Kind == "plugin") then
+						path = "../../" .. path
+					end
+
+					configuration(config)
+					postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. path .. [[")}" "..\..\..\examples\bin\" /E /Y]]})
+				end
 			end
 		end
 	end
