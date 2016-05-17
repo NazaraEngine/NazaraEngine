@@ -169,20 +169,20 @@ namespace Nz
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatInfo info(header.format.bpp, PixelFormatSubType_Unsigned);
+					PixelFormatInfo info(PixelFormatContent_ColorRGBA, header.format.bpp, PixelFormatSubType_Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{
-						// DDS Masks are in little endian
-						info.redMask   = SwapBytes(header.format.redMask);
-						info.greenMask = SwapBytes(header.format.greenMask);
-						info.blueMask  = SwapBytes(header.format.blueMask);
+						// Reverse bits for our masks
+						info.redMask = ReverseBits(header.format.redMask);
+						info.greenMask = ReverseBits(header.format.greenMask);
+						info.blueMask = ReverseBits(header.format.blueMask);
 					}
 					else if (header.format.flags & DDPF_LUMINANCE)
-						info.redMask = SwapBytes(header.format.redMask);
+						info.redMask = ReverseBits(header.format.redMask);
 
 					if (header.format.flags & (DDPF_ALPHA | DDPF_ALPHAPIXELS))
-						info.alphaMask = SwapBytes(header.format.alphaMask);
+						info.alphaMask = ReverseBits(header.format.alphaMask);
 
 					*format = PixelFormat::IdentifyFormat(info);
 					if (!PixelFormat::IsValid(*format))
