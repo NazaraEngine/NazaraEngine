@@ -329,8 +329,8 @@ namespace Nz
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::PerformsOR(const Bitset& a, const Bitset& b)
 	{
-		const Bitset& greater = (a.GetBlockCount() > b.GetBlockCount()) ? a : b;
-		const Bitset& lesser = (a.GetBlockCount() > b.GetBlockCount()) ? b : a;
+		const Bitset& greater = (a.GetSize() > b.GetSize()) ? a : b;
+		const Bitset& lesser = (a.GetSize() > b.GetSize()) ? b : a;
 
 		unsigned int maxBlockCount = greater.GetBlockCount();
 		unsigned int minBlockCount = lesser.GetBlockCount();
@@ -358,8 +358,8 @@ namespace Nz
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::PerformsXOR(const Bitset& a, const Bitset& b)
 	{
-		const Bitset& greater = (a.GetBlockCount() > b.GetBlockCount()) ? a : b;
-		const Bitset& lesser = (a.GetBlockCount() > b.GetBlockCount()) ? b : a;
+		const Bitset& greater = (a.GetSize() > b.GetSize()) ? a : b;
+		const Bitset& lesser = (a.GetSize() > b.GetSize()) ? b : a;
 
 		unsigned int maxBlockCount = greater.GetBlockCount();
 		unsigned int minBlockCount = lesser.GetBlockCount();

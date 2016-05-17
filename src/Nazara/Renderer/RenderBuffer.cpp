@@ -44,7 +44,7 @@ namespace Nz
 		OpenGL::Format openglFormat;
 		if (!OpenGL::TranslateFormat(format, &openglFormat, OpenGL::FormatType_RenderBuffer))
 		{
-			NazaraError("Failed to translate pixel format \"" + PixelFormat::ToString(format) + "\" into OpenGL format");
+			NazaraError("Failed to translate pixel format \"" + PixelFormat::GetName(format) + "\" into OpenGL format");
 			return false;
 		}
 
