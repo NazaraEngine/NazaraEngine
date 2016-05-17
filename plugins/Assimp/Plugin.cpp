@@ -104,7 +104,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder 
 	                         | aiProcess_Debone;
 
-	if (!parameters.flipUVs)
+	if (parameters.flipUVs)
 		postProcess |= aiProcess_FlipUVs;
 
 	if (parameters.optimizeIndexBuffers)
