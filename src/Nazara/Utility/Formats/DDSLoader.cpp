@@ -169,7 +169,7 @@ namespace Nz
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatInfo info(header.format.bpp, PixelFormatSubType_Unsigned);
+					PixelFormatInfo info(PixelFormatContent_ColorRGBA, header.format.bpp, PixelFormatSubType_Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{
