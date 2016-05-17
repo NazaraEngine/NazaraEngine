@@ -28,6 +28,8 @@ namespace Nz
 		{
 			return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
 		}
+
+		NAZARA_CORE_API extern const UInt8 BitReverseTable256[256];
 	}
 
 	/*!
@@ -162,6 +164,23 @@ namespace Nz
 		b ^= (b >> 47);
 
 		seed = static_cast<std::size_t>(b * kMul);
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Reverse the bit order of the integer
+	* \return integer with reversed bits
+	*
+	* \param integer Integer whose bits are to be reversed
+	*/
+	template<typename T>
+	T ReverseBits(T integer)
+	{
+		T reversed = 0;
+		for (std::size_t i = 0; i < sizeof(T); ++i)
+			reversed |= T(Detail::BitReverseTable256[(integer >> i * 8) & 0xFF]) << sizeof(T) * 8 - (i + 1) * 8;
+
+		return reversed;
 	}
 
 	template<typename T> struct PointedType<T*>                {typedef T type;};
