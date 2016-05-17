@@ -521,7 +521,7 @@ namespace Nz
 		{
 			///TODO: Sélectionner le format le plus adapté selon les composantes présentes dans le premier format
 			PixelFormatType newFormat = (PixelFormat::HasAlpha(format)) ? PixelFormatType_BGRA8 : PixelFormatType_BGR8;
-			NazaraWarning("Format " + PixelFormat::ToString(format) + " not supported, trying to convert it to " + PixelFormat::ToString(newFormat) + "...");
+			NazaraWarning("Format " + PixelFormat::GetName(format) + " not supported, trying to convert it to " + PixelFormat::GetName(newFormat) + "...");
 
 			if (PixelFormat::IsConversionSupported(format, newFormat))
 			{
@@ -1197,7 +1197,7 @@ namespace Nz
 		OpenGL::Format openGLFormat;
 		if (!OpenGL::TranslateFormat(m_impl->format, &openGLFormat, OpenGL::FormatType_Texture))
 		{
-			NazaraError("Format " + PixelFormat::ToString(m_impl->format) + " not supported by OpenGL");
+			NazaraError("Format " + PixelFormat::GetName(m_impl->format) + " not supported by OpenGL");
 			return false;
 		}
 
@@ -1306,7 +1306,7 @@ namespace Nz
 			glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
 		}
 
-		if (!proxy && PixelFormat::GetType(m_impl->format) == PixelFormatTypeType_Depth)
+		if (!proxy && PixelFormat::GetContent(m_impl->format) == PixelFormatContent_DepthStencil)
 		{
 			glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 			glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
