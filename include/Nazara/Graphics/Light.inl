@@ -178,7 +178,7 @@ namespace Nz
 
 	inline void Light::SetShadowMapFormat(PixelFormatType shadowFormat)
 	{
-		NazaraAssert(PixelFormat::GetType(shadowFormat) == PixelFormatTypeType_Depth, "Shadow format type is not a depth format");
+		NazaraAssert(PixelFormat::GetContent(shadowFormat) == PixelFormatContent_DepthStencil, "Shadow format type is not a depth format");
 
 		m_shadowMapFormat = shadowFormat;
 
