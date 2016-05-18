@@ -173,6 +173,79 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
+		inline bool Surface::GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities)
+		{
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, surfaceCapabilities);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query surface capabilities");
+				return false;
+			}
+
+			return true;
+		}
+
+		inline bool Surface::GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats)
+		{
+			// First, query format count
+			UInt32 surfaceCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceCount, nullptr);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS || surfaceCount == 0)
+			{
+				NazaraError("Failed to query format count");
+				return false;
+			}
+
+			// Now we can get the list of the available physical device
+			surfaceFormats->resize(surfaceCount);
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceCount, surfaceFormats->data());
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query formats");
+				return false;
+			}
+
+			return true;
+		}
+
+		inline bool Surface::GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes)
+		{
+			// First, query present modes count
+			UInt32 presentModeCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_surface, &presentModeCount, nullptr);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS || presentModeCount == 0)
+			{
+				NazaraError("Failed to query present mode count");
+				return false;
+			}
+
+			// Now we can get the list of the available physical device
+			presentModes->resize(presentModeCount);
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_surface, &presentModeCount, presentModes->data());
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query present modes");
+				return false;
+			}
+
+			return true;
+		}
+
+		inline bool Surface::GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported)
+		{
+			VkBool32 presentationSupported = VK_FALSE;
+			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &presentationSupported);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query surface capabilities");
+				return false;
+			}
+
+			*supported = (presentationSupported == VK_TRUE);
+
+			return true;
+		}
+
 		inline bool Surface::IsSupported() const
 		{
 			if (!m_instance.IsExtensionLoaded("VK_KHR_surface"))
