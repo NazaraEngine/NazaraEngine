@@ -64,6 +64,11 @@ namespace Nz
 
 				inline void Destroy();
 
+				bool GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities);
+				bool GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats);
+				bool GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes);
+				bool GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported);
+
 				inline bool IsSupported() const;
 
 				inline VkResult GetLastErrorCode() const;
