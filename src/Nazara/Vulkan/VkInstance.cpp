@@ -65,7 +65,7 @@ namespace Nz
 				}
 
 				// VK_KHR_surface
-				if (IsExtensionLoaded("VK_KHR_display"))
+				if (IsExtensionLoaded("VK_KHR_surface"))
 				{
 					NAZARA_VULKAN_LOAD_INSTANCE(vkDestroySurfaceKHR);
 					NAZARA_VULKAN_LOAD_INSTANCE(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
