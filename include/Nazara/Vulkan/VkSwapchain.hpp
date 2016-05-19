@@ -24,6 +24,14 @@ namespace Nz
 				Swapchain(Swapchain&&) = default;
 				~Swapchain() = default;
 
+				inline bool AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex);
+
+				inline bool Create(const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+
+				inline VkImage GetImage(UInt32 index) const;
+				inline const std::vector<VkImage>& GetImages() const;
+				inline UInt32 GetImageCount() const;
+
 				inline bool IsSupported() const;
 
 				Swapchain& operator=(const Swapchain&) = delete;
@@ -32,6 +40,8 @@ namespace Nz
 			private:
 				static VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
 				static void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
+
+				std::vector<VkImage> m_images;
 		};
 	}
 }
