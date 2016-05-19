@@ -31,6 +31,104 @@ namespace Nz
 			Free();
 		}
 
+		inline bool CommandBuffer::Begin(const VkCommandBufferBeginInfo& info)
+		{
+			m_lastErrorCode = m_pool->GetDevice().vkBeginCommandBuffer(m_handle, &info);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to begin command buffer");
+				return false;
+			}
+
+			return true;
+		}
+
+		inline bool CommandBuffer::Begin(VkCommandBufferUsageFlags flags)
+		{
+			VkCommandBufferBeginInfo beginInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				nullptr,
+				flags,
+				nullptr
+			};
+
+			return Begin(beginInfo);
+		}
+
+		inline bool CommandBuffer::Begin(VkCommandBufferUsageFlags flags, const VkCommandBufferInheritanceInfo& inheritanceInfo)
+		{
+			VkCommandBufferBeginInfo beginInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				nullptr,
+				flags,
+				&inheritanceInfo
+			};
+
+			return Begin(beginInfo);
+		}
+
+		inline bool CommandBuffer::Begin(VkCommandBufferUsageFlags flags, VkRenderPass renderPass, UInt32 subpass, VkFramebuffer framebuffer, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics)
+		{
+			NazaraAssert(flags & VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, "Continue bit is required to ignore renderPass, subpass and framebuffer");
+
+			VkCommandBufferInheritanceInfo inheritanceInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+				nullptr,
+				renderPass,
+				subpass,
+				framebuffer,
+				(occlusionQueryEnable) ? VK_TRUE : VK_FALSE,
+				queryFlags,
+				pipelineStatistics
+			};
+
+			VkCommandBufferBeginInfo beginInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				nullptr,
+				flags,
+				&inheritanceInfo
+			};
+
+			return Begin(beginInfo);
+		}
+
+		inline bool CommandBuffer::Begin(VkCommandBufferUsageFlags flags, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics)
+		{
+			NazaraAssert(flags & VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, "Continue bit is required to ignore renderPass, subpass and framebuffer");
+
+			VkCommandBufferInheritanceInfo inheritanceInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+				nullptr,
+				VK_NULL_HANDLE,
+				0,
+				VK_NULL_HANDLE,
+				(occlusionQueryEnable) ? VK_TRUE : VK_FALSE,
+				queryFlags,
+				pipelineStatistics
+			};
+
+			VkCommandBufferBeginInfo beginInfo = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				nullptr,
+				flags,
+				&inheritanceInfo
+			};
+
+			return Begin(beginInfo);
+		}
+
+		inline bool CommandBuffer::End()
+		{
+			m_lastErrorCode = m_pool->GetDevice().vkEndCommandBuffer(m_handle);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to end command buffer");
+				return false;
+			}
+
+			return true;
+		}
+
 		inline void CommandBuffer::Free()
 		{
 			if (m_handle)
