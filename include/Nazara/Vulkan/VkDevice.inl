@@ -5,6 +5,7 @@
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Vulkan/VkInstance.hpp>
+#include <Nazara/Vulkan/VkQueue.hpp>
 #include <Nazara/Vulkan/Debug.hpp>
 
 namespace Nz
@@ -31,12 +32,12 @@ namespace Nz
 			}
 		}
 
-		inline VkQueue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
+		inline Queue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
 			VkQueue queue;
 			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
 			
-			return queue;
+			return Queue(*this, queue);
 		}
 
 		inline Instance& Device::GetInstance()
