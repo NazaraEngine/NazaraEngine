@@ -19,6 +19,7 @@ namespace Nz
 	namespace Vk
 	{
 		class Device;
+		class Queue;
 		class Instance;
 
 		using DeviceHandle = ObjectHandle<Device>;
@@ -34,7 +35,7 @@ namespace Nz
 				bool Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
-				inline VkQueue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
+				inline Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
