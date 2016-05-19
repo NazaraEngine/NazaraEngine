@@ -31,9 +31,12 @@ namespace Nz
 			}
 		}
 
-		inline void Device::GetDeviceQueue(UInt32 queueFamilyIndex, UInt32 queueIndex, VkQueue* queue)
+		inline VkQueue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
-			return vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, queue);
+			VkQueue queue;
+			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
+			
+			return queue;
 		}
 
 		inline Instance& Device::GetInstance()
