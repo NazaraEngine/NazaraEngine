@@ -23,7 +23,15 @@ namespace Nz
 				CommandBuffer(const CommandBuffer&) = delete;
 				CommandBuffer(CommandBuffer&& commandBuffer);
 				inline ~CommandBuffer();
-				
+
+				inline bool Begin(const VkCommandBufferBeginInfo& info);
+				inline bool Begin(VkCommandBufferUsageFlags flags);
+				inline bool Begin(VkCommandBufferUsageFlags flags, const VkCommandBufferInheritanceInfo& inheritanceInfo);
+				inline bool Begin(VkCommandBufferUsageFlags flags, VkRenderPass renderPass, UInt32 subpass, VkFramebuffer framebuffer, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
+				inline bool Begin(VkCommandBufferUsageFlags flags, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
+
+				inline bool End();
+
 				inline void Free();
 
 				inline VkResult GetLastErrorCode() const;
