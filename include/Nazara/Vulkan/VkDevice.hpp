@@ -34,7 +34,7 @@ namespace Nz
 				bool Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
-				inline void GetDeviceQueue(UInt32 queueFamilyIndex, UInt32 queueIndex, VkQueue* queue);
+				inline VkQueue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
