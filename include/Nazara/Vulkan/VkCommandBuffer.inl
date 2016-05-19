@@ -33,7 +33,8 @@ namespace Nz
 
 		inline void CommandBuffer::Free()
 		{
-			m_pool->GetDevice().vkFreeCommandBuffers(m_pool->GetDevice(), *m_pool, 1, &m_handle);
+			if (m_handle)
+				m_pool->GetDevice().vkFreeCommandBuffers(m_pool->GetDevice(), *m_pool, 1, &m_handle);
 		}
 
 		inline VkResult CommandBuffer::GetLastErrorCode() const
