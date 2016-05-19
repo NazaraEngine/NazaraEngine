@@ -38,12 +38,12 @@ namespace Nz
 			return true;
 		}
 
-		VkResult CommandPool::CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle)
+		inline VkResult CommandPool::CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle)
 		{
 			return device.vkCreateCommandPool(device, createInfo, allocator, handle);
 		}
 
-		void CommandPool::DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator)
+		inline void CommandPool::DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator)
 		{
 			return device.vkDestroyCommandPool(device, handle, allocator);
 		}

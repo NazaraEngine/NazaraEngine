@@ -20,7 +20,7 @@ namespace Nz
 
 		using CommandPoolHandle = ObjectHandle<CommandPool>;
 
-		class CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo>, public HandledObject<CommandPool>
+		class NAZARA_VULKAN_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo>, public HandledObject<CommandPool>
 		{
 			friend DeviceObject;
 
@@ -42,8 +42,8 @@ namespace Nz
 				CommandPool& operator=(CommandPool&&) = delete;
 
 			private:
-				static VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
-				static void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
+				static inline void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }
