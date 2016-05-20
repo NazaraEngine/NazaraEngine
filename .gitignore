@@ -34,7 +34,7 @@ build/**/*.sln
 build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
-build/**/*.VC.opendb
+build/**/*.VC.*
 
 # Compiled Object files
 build/**/*.slo
