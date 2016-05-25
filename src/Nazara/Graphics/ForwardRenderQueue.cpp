@@ -524,9 +524,9 @@ namespace Nz
 		Vector3f viewerPos = viewer->GetEyePosition();
 		Vector3f viewerNormal = viewer->GetForward();
 
-		for (auto& pair : layers)
+		for (auto& layerPair : layers)
 		{
-			Layer& layer = pair.second;
+			Layer& layer = layerPair.second;
 
 			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (unsigned int index1, unsigned int index2)
 			{
@@ -562,7 +562,7 @@ namespace Nz
 		auto it = layers.find(i);
 		if (it == layers.end())
 			it = layers.insert(std::make_pair(i, Layer())).first;
-		
+
 		Layer& layer = it->second;
 		layer.clearCount = 0;
 
