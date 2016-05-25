@@ -78,7 +78,7 @@ namespace Nz
 	* \param v Object to hash
 	*
 	* \remark a HashAppend specialization for type T is required
-	* 
+	*
 	* \see ComputeHash
 	*/
 	template<typename T>
@@ -178,7 +178,7 @@ namespace Nz
 	{
 		T reversed = 0;
 		for (std::size_t i = 0; i < sizeof(T); ++i)
-			reversed |= T(Detail::BitReverseTable256[(integer >> i * 8) & 0xFF]) << sizeof(T) * 8 - (i + 1) * 8;
+			reversed |= T(Detail::BitReverseTable256[(integer >> i * 8) & 0xFF]) << (sizeof(T) * 8 - (i + 1) * 8);
 
 		return reversed;
 	}
