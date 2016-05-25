@@ -57,11 +57,14 @@ namespace Nz
 
 				case PixelFormatContent_Stencil:
 					return AttachmentPoint_Stencil;
+
+				case PixelFormatContent_Undefined:
+					break;
 			}
 
 			NazaraInternalError("Unexpected pixel format content: 0x" + String::Number(info.content, 16));
 			return AttachmentPoint_Max;
-		};
+		}
 
 		GLuint lockedPrevious = 0;
 		UInt8 lockedLevel = 0;

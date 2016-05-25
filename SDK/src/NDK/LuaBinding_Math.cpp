@@ -238,9 +238,15 @@ namespace Ndk
 						case 'h':
 							lua.Push(instance.height);
 							return true;
+
+						default:
+							break;
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
@@ -290,6 +296,9 @@ namespace Ndk
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
@@ -313,7 +322,7 @@ namespace Ndk
 						Nz::PlacementNew(quaternion, *static_cast<Nz::Quaterniond*>(lua.ToUserdata(1)));
 					else
 						break;
-					
+
 					return true;
 				}
 
@@ -389,6 +398,9 @@ namespace Ndk
 				case 'z':
 					instance.z = value;
 					return true;
+
+				default:
+					break;
 			}
 
 			return false;
@@ -455,9 +467,15 @@ namespace Ndk
 						case 'y':
 							lua.Push(instance.y);
 							return true;
+
+						default:
+							break;
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
@@ -496,9 +514,15 @@ namespace Ndk
 						case 'y':
 							instance.y = value;
 							return true;
+
+						default:
+							break;
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
@@ -582,9 +606,15 @@ namespace Ndk
 						case 'z':
 							lua.Push(instance.z);
 							return true;
+
+						default:
+							break;
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
@@ -627,9 +657,15 @@ namespace Ndk
 						case 'z':
 							instance.z = value;
 							return true;
+
+						default:
+							break;
 					}
 					break;
 				}
+
+				default:
+					break;
 			}
 
 			return false;
