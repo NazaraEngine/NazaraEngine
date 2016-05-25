@@ -105,9 +105,9 @@ namespace Nz
 					for (unsigned int i = 0; i < recursionLevel; ++i)
 					{
 						std::size_t triangleCount = triangles.size();
-						for (std::size_t i = 0; i < triangleCount; ++i)
+						for (std::size_t j = 0; j < triangleCount; ++j)
 						{
-							Vector3ui& triangle = triangles[i];
+							Vector3ui& triangle = triangles[j];
 
 							unsigned int a = GetMiddleVertex(triangle.x, triangle.y);
 							unsigned int b = GetMiddleVertex(triangle.y, triangle.z);

@@ -84,7 +84,11 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontParams* params, TypeTag<FontParams>)
 	{
+		NazaraUnused(params);
+
 		instance.CheckType(index, Nz::LuaType_Table);
+
+		// Structure is empty for now
 
 		return 1;
 	}
