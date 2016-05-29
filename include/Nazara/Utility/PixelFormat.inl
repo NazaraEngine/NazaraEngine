@@ -12,29 +12,29 @@
 namespace Nz
 {
 	inline PixelFormatInfo::PixelFormatInfo() :
-	bitsPerPixel(0),
-	content(PixelFormatContent_Undefined)
+	content(PixelFormatContent_Undefined),
+	bitsPerPixel(0)
 	{
 	}
 
 	inline PixelFormatInfo::PixelFormatInfo(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
-	bitsPerPixel(bpp),
-	content(formatContent),
-	redType(subType),
-	greenType(subType),
-	blueType(subType),
-	alphaType(subType)
-	{
-	}
-	
-	inline PixelFormatInfo::PixelFormatInfo(const String& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
-	bitsPerPixel(bpp),
 	content(formatContent),
 	redType(subType),
 	greenType(subType),
 	blueType(subType),
 	alphaType(subType),
-	name(formatName)
+	bitsPerPixel(bpp)
+	{
+	}
+
+	inline PixelFormatInfo::PixelFormatInfo(const String& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	content(formatContent),
+	redType(subType),
+	greenType(subType),
+	blueType(subType),
+	alphaType(subType),
+	name(formatName),
+	bitsPerPixel(bpp)
 	{
 	}
 
