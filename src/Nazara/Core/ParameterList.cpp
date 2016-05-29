@@ -94,6 +94,7 @@ namespace Nz
 				break;
 			}
 
+			case ParameterType_Color:
 			case ParameterType_Float:
 			case ParameterType_None:
 			case ParameterType_Pointer:
@@ -198,6 +199,7 @@ namespace Nz
 				}
 
 			case ParameterType_Boolean:
+			case ParameterType_Color:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -207,7 +209,7 @@ namespace Nz
 		NazaraError("Parameter value is not representable as a float");
 		return false;
 	}
-	
+
 	/*!
 	* \brief Gets a parameter as an integer
 	* \return true if the parameter could be represented as an integer
@@ -263,6 +265,7 @@ namespace Nz
 					break;
 				}
 
+			case ParameterType_Color:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -331,6 +334,7 @@ namespace Nz
 				return true;
 
 			case ParameterType_Boolean:
+			case ParameterType_Color:
 			case ParameterType_Float:
 			case ParameterType_Integer:
 			case ParameterType_None:
@@ -411,7 +415,7 @@ namespace Nz
 		NazaraInternalError("Parameter value is not valid");
 		return false;
 	}
-	
+
 	/*!
 	* \brief Gets a parameter as an userdata
 	* \return true if the parameter could be represented as a userdata
@@ -584,7 +588,7 @@ namespace Nz
 		parameter.type = ParameterType_Integer;
 		parameter.value.intVal = value;
 	}
-	
+
 	/*!
 	* \brief Sets a pointer parameter named `name`
 	*
@@ -593,7 +597,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The pointer value
 	*
-	* \remark This sets a raw pointer, this class takes no responsibility toward it, 
+	* \remark This sets a raw pointer, this class takes no responsibility toward it,
 	          if you wish to destroy the pointed variable along with the parameter list, you should set a userdata
 	*/
 	void ParameterList::SetParameter(const String& name, void* value)
@@ -639,6 +643,7 @@ namespace Nz
 			switch (it->second.type)
 			{
 				case ParameterType_Boolean:
+				case ParameterType_Color:
 				case ParameterType_Float:
 				case ParameterType_Integer:
 				case ParameterType_Pointer:

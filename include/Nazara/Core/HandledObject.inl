@@ -13,6 +13,7 @@ namespace Nz
 	template<typename T>
 	HandledObject<T>::HandledObject(const HandledObject& object)
 	{
+		NazaraUnused(object);
 		// Don't copy anything, we're a copy of the object, we have no handle right now
 	}
 
@@ -40,7 +41,7 @@ namespace Nz
 	HandledObject<T>& HandledObject<T>::operator=(const HandledObject& object)
 	{
 		// Nothing to do
-		return *this; 
+		return *this;
 	}
 
 	template<typename T>

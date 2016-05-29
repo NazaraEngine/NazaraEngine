@@ -21,6 +21,8 @@ namespace Nz
 	{
 		SetConstructor([] (Nz::LuaInstance& lua, T* instance)
 		{
+			NazaraUnused(lua);
+
 			PlacementNew(instance);
 			return true;
 		});
@@ -132,9 +134,9 @@ namespace Nz
 				lua.SetField(pair.first); // Method name
 			}
 
-			m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& lua)
+			m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& instance)
 			{
-				return static_cast<T*>(lua.CheckUserdata(1, info->name));
+				return static_cast<T*>(instance.CheckUserdata(1, info->name));
 			};
 		}
 		lua.Pop(); // On pop la metatable
@@ -391,11 +393,11 @@ namespace Nz
 
 			if (!lua.IsValid(-1))
 			{
-				for (const ParentFunc& getter : info->parentGetters)
+				for (const ParentFunc& parentGetter : info->parentGetters)
 				{
 					lua.Pop(); //< Pop the last nil value
 
-					getter(lua, instance);
+					parentGetter(lua, instance);
 					if (lua.IsValid(-1))
 						return;
 				}
