@@ -8,6 +8,7 @@ namespace Ndk
 {
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
+	HandledObject(graphicsComponent),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
@@ -41,7 +42,7 @@ namespace Ndk
 		r.data.renderOrder = renderOrder;
 		r.renderable = std::move(renderable);
 		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size()-1));
-	
+
 		InvalidateBoundingVolume();
 	}
 
