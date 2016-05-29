@@ -76,6 +76,8 @@ namespace Ndk
 		/*********************************** Nz::SoundBuffer **********************************/
 		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua, Nz::SoundBufferRef* instance)
 		{
+			NazaraUnused(lua);
+
 			Nz::PlacementNew(instance, Nz::SoundBuffer::New());
 			return true;
 		});
@@ -115,16 +117,16 @@ namespace Ndk
 			return 1;
 		});
 
-		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& soundBuffer) -> int
+		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
 		{
 			Nz::StringStream stream("SoundBuffer(");
-			if (soundBuffer->IsValid())
+			if (instance->IsValid())
 			{
-				Nz::String filePath = soundBuffer->GetFilePath();
+				Nz::String filePath = instance->GetFilePath();
 				if (!filePath.IsEmpty())
 					stream << "File: " << filePath << ", ";
-				
-				stream << "Duration: " << soundBuffer->GetDuration() / 1000.f << "s";
+
+				stream << "Duration: " << instance->GetDuration() / 1000.f << "s";
 			}
 			stream << ')';
 
@@ -148,17 +150,17 @@ namespace Ndk
 
 		soundEmitter.BindMethod("IsLooping", &Nz::SoundEmitter::IsLooping);
 		soundEmitter.BindMethod("IsSpatialized", &Nz::SoundEmitter::IsSpatialized);
-		
+
 		soundEmitter.BindMethod("Pause", &Nz::SoundEmitter::Pause);
 		soundEmitter.BindMethod("Play", &Nz::SoundEmitter::Play);
-		
+
 		soundEmitter.BindMethod("SetAttenuation", &Nz::SoundEmitter::SetAttenuation);
 		soundEmitter.BindMethod("SetMinDistance", &Nz::SoundEmitter::SetMinDistance);
 		soundEmitter.BindMethod("SetPitch", &Nz::SoundEmitter::SetPitch);
 		soundEmitter.BindMethod("SetPosition", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetPosition);
 		soundEmitter.BindMethod("SetVelocity", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetVelocity);
 		soundEmitter.BindMethod("SetVolume", &Nz::SoundEmitter::SetVolume);
-		
+
 		soundEmitter.BindMethod("Stop", &Nz::SoundEmitter::Stop);
 	}
 

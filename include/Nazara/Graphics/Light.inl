@@ -9,9 +9,9 @@ namespace Nz
 {
 	inline Light::Light(const Light& light) :
 	Renderable(light),
+	m_color(light.m_color),
 	m_type(light.m_type),
 	m_shadowMapFormat(light.m_shadowMapFormat),
-	m_color(light.m_color),
 	m_shadowMapSize(light.m_shadowMapSize),
 	m_shadowCastingEnabled(light.m_shadowCastingEnabled),
 	m_shadowMapUpdated(false),
