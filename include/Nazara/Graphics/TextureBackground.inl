@@ -7,10 +7,21 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Gets the texture of the background
+	* \return Texture of the background
+	*/
+
 	inline const TextureRef& TextureBackground::GetTexture() const
 	{
 		return m_texture;
 	}
+
+	/*!
+	* \brief Sets the texture of the background
+	*
+	* \param texture Texture of the background
+	*/
 
 	inline void TextureBackground::SetTexture(TextureRef texture)
 	{
@@ -18,6 +29,13 @@ namespace Nz
 
 		m_texture = std::move(texture);
 	}
+
+	/*!
+	* \brief Creates a new texture background from the arguments
+	* \return A reference to the newly created texture background
+	*
+	* \param args Arguments for the texture background
+	*/
 
 	template<typename... Args>
 	TextureBackgroundRef TextureBackground::New(Args&&... args)
