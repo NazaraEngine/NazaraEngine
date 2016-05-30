@@ -12,10 +12,23 @@
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
-///FIXME: Adapter la création
+///FIXME: Adapt the creation
 
 namespace Nz
 {
+	/*!
+	* \ingroup audio
+	* \class Nz::SoundBuffer
+	* \brief Audio class that represents a buffer for sound
+	*
+	* \remark Module Audio needs to be initialized to use this class
+	*/
+
+	/*!
+	* \brief Checks whether the parameters for the buffer' sound are correct
+	* \return true If parameters are valid
+	*/
+
 	bool SoundBufferParams::IsValid() const
 	{
 		return true;
@@ -31,6 +44,20 @@ namespace Nz
 		UInt32 sampleRate;
 	};
 
+	/*!
+	* \brief Constructs a SoundBuffer object
+	*
+	* \param format Format for the audio
+	* \param sampleCount Number of samples
+	* \param sampleRate Rate of samples
+	* \param samples Samples raw data
+	*
+	* \remark Produces a NazaraError if creation went wrong with NAZARA_AUDIO_SAFE defined
+	* \remark Produces a std::runtime_error if creation went wrong with NAZARA_AUDIO_SAFE defined
+	*
+	* \see Create
+	*/
+
 	SoundBuffer::SoundBuffer(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples)
 	{
 		Create(format, sampleCount, sampleRate, samples);
@@ -44,12 +71,31 @@ namespace Nz
 		#endif
 	}
 
+	/*!
+	* \brief Destructs the object and calls Destroy
+	*
+	* \see Destroy
+	*/
+
 	SoundBuffer::~SoundBuffer()
 	{
 		OnSoundBufferRelease(this);
 
 		Destroy();
 	}
+
+	/*!
+	* \brief Creates the SoundBuffer object
+	* \return true if creation is successful
+	*
+	* \param format Format for the audio
+	* \param sampleCount Number of samples
+	* \param sampleRate Rate of samples
+	* \param samples Samples raw data
+	*
+	* \remark Produces a NazaraError if creation went wrong with NAZARA_AUDIO_SAFE defined,
+	* this could happen if parameters are invalid or creation of OpenAL buffers failed
+	*/
 
 	bool SoundBuffer::Create(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples)
 	{
@@ -81,7 +127,7 @@ namespace Nz
 		}
 		#endif
 
-		// On vide le stack d'erreurs
+		// We empty the error stack
 		while (alGetError() != AL_NO_ERROR);
 
 		ALuint buffer;
@@ -115,6 +161,10 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Destroys the current sound buffer and frees resources
+	*/
+
 	void SoundBuffer::Destroy()
 	{
 		if (m_impl)
@@ -125,6 +175,13 @@ namespace Nz
 			m_impl = nullptr;
 		}
 	}
+
+	/*!
+	* \brief Gets the duration of the sound buffer
+	* \return Duration of the sound buffer in milliseconds
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
 
 	UInt32 SoundBuffer::GetDuration() const
 	{
@@ -139,6 +196,13 @@ namespace Nz
 		return m_impl->duration;
 	}
 
+	/*!
+	* \brief Gets the format of the sound buffer
+	* \return Enumeration of type AudioFormat (mono, stereo, ...)
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
+
 	AudioFormat SoundBuffer::GetFormat() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -151,6 +215,13 @@ namespace Nz
 
 		return m_impl->format;
 	}
+
+	/*!
+	* \brief Gets the internal raw samples
+	* \return Pointer to raw data
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
 
 	const Int16* SoundBuffer::GetSamples() const
 	{
@@ -165,6 +236,13 @@ namespace Nz
 		return m_impl->samples.get();
 	}
 
+	/*!
+	* \brief Gets the number of samples in the sound buffer
+	* \return Count of samples (number of seconds * sample rate * channel count)
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
+
 	unsigned int SoundBuffer::GetSampleCount() const
 	{
 		#if NAZARA_AUDIO_SAFE
@@ -177,6 +255,13 @@ namespace Nz
 
 		return m_impl->sampleCount;
 	}
+
+	/*!
+	* \brief Gets the rates of sample in the sound buffer
+	* \return Rate of sample in Hertz (Hz)
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
 
 	unsigned int SoundBuffer::GetSampleRate() const
 	{
@@ -191,30 +276,74 @@ namespace Nz
 		return m_impl->sampleRate;
 	}
 
+	/*!
+	* \brief Checks whether the sound buffer is valid
+	* \return true if it is the case
+	*/
+
 	bool SoundBuffer::IsValid() const
 	{
 		return m_impl != nullptr;
 	}
+
+	/*!
+	* \brief Loads the sound buffer from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the sound buffer
+	*/
 
 	bool SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
 	{
 		return SoundBufferLoader::LoadFromFile(this, filePath, params);
 	}
 
+	/*!
+	* \brief Loads the sound buffer from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the sound buffer
+	*/
+
 	bool SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
 		return SoundBufferLoader::LoadFromMemory(this, data, size, params);
 	}
+
+	/*!
+	* \brief Loads the sound buffer from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the sound buffer
+	* \param params Parameters for the sound buffer
+	*/
 
 	bool SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
 		return SoundBufferLoader::LoadFromStream(this, stream, params);
 	}
 
+	/*!
+	* \brief Checks whether the format is supported by the engine
+	* \return true if it is the case
+	*
+	* \param format Format to check
+	*/
+
 	bool SoundBuffer::IsFormatSupported(AudioFormat format)
 	{
 		return Audio::IsFormatSupported(format);
 	}
+
+	/*!
+	* \brief Gets the internal OpenAL buffer
+	* \return The index of the OpenAL buffer
+	*
+	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
+	*/
 
 	unsigned int SoundBuffer::GetOpenALBuffer() const
 	{
@@ -228,6 +357,13 @@ namespace Nz
 
 		return m_impl->buffer;
 	}
+
+	/*!
+	* \brief Initializes the libraries and managers
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraError if sub-initialization failed
+	*/
 
 	bool SoundBuffer::Initialize()
 	{
@@ -245,6 +381,10 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the libraries and managers
+	*/
 
 	void SoundBuffer::Uninitialize()
 	{
