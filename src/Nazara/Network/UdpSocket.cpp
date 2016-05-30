@@ -17,6 +17,16 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Binds a specific IpAddress
+	* \return State of the socket
+	*
+	* \param address Address to bind
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	* \remark Produces a NazaraAssert if address is invalid
+	*/
+
 	SocketState UdpSocket::Bind(const IpAddress& address)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
@@ -30,6 +40,14 @@ namespace Nz
 		return state;
 	}
 
+	/*!
+	* \brief Enables broadcasting
+	*
+	* \param broadcasting Should the UDP broadcast
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	*/
+
 	void UdpSocket::EnableBroadcasting(bool broadcasting)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
@@ -41,6 +59,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Gets the maximum datagram size allowed
+	* \return Number of bytes
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	*/
+
 	std::size_t UdpSocket::QueryMaxDatagramSize()
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
@@ -48,8 +73,22 @@ namespace Nz
 		return SocketImpl::QueryMaxDatagramSize(m_handle, &m_lastError);
 	}
 
+	/*!
+	* \brief Receives the data available
+	* \return true If data received
+	*
+	* \param buffer Raw memory to write
+	* \param size Size of the buffer
+	* \param from IpAddress of the peer
+	* \param received Optional argument to get the number of bytes received
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	* \remark Produces a NazaraAssert if buffer and its size is invalid
+	*/
+
 	bool UdpSocket::Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received)
 	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
 		NazaraAssert(buffer && size > 0, "Invalid buffer");
 
 		int read;
@@ -62,8 +101,21 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Receives the packet available
+	* \return true If packet received
+	*
+	* \param packet Packet to receive
+	* \param from IpAddress of the peer
+	*
+	* \remark Produces a NazaraAssert if packet is invalid
+	* \remark Produces a NazaraWarning if packet's header is invalid
+	*/
+
 	bool UdpSocket::ReceivePacket(NetPacket* packet, IpAddress* from)
 	{
+		NazaraAssert(packet, "Invalid packet");
+
 		// I'm not sure what's the best between having a 65k bytes buffer ready for any datagram size
 		// or querying the next datagram size every time, for now I'll leave it as is
 		packet->Reset(NetCode_Invalid, std::numeric_limits<UInt16>::max());
@@ -97,6 +149,20 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sends the data available
+	* \return true If data sended
+	*
+	* \param to IpAddress of the peer
+	* \param buffer Raw memory to read
+	* \param size Size of the buffer
+	* \param sent Optional argument to get the number of bytes sent
+	*
+	* \remark Produces a NazaraAssert if peer address is invalid
+	* \remark Produces a NazaraAssert if protocol of communication is not the same than the peer
+	* \remark Produces a NazaraAssert if buffer and its size is invalid
+	*/
+
 	bool UdpSocket::Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent)
 	{
 		NazaraAssert(to.IsValid(), "Invalid ip address");
@@ -113,6 +179,16 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sends the packet available
+	* \return true If packet sent
+	*
+	* \param to IpAddress of the peer
+	* \param packet Packet to send
+	*
+	* \remark Produces a NazaraError if packet could not be prepared for sending
+	*/
+
 	bool UdpSocket::SendPacket(const IpAddress& to, const NetPacket& packet)
 	{
 		std::size_t size = 0;
@@ -127,12 +203,20 @@ namespace Nz
 		return Send(to, ptr, size, nullptr);
 	}
 
+	/*!
+	* \brief Operation to do when closing socket
+	*/
+
 	void UdpSocket::OnClose()
 	{
 		AbstractSocket::OnClose();
 
 		m_boundAddress = IpAddress::Invalid;
 	}
+
+	/*!
+	* \brief Operation to do when opening socket
+	*/
 
 	void UdpSocket::OnOpened()
 	{
