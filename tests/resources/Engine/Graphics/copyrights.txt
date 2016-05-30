@@ -1,0 +1,82 @@
+skybox.png
+
+https://commons.wikimedia.org/wiki/File:Skybox_example.png
+
+Original file:
+Skybox example.ogg ‎(Ogg Vorbis sound file, length 1 min 3 s, 378 kbps)
+
+Summary:
+
+Description: English: An example of a skybox and how the faces can be aligned
+Date: 8 June 2011
+Source: Own work
+Author: Creator:Arieee
+
+Description: The Belgian national anthem (instrumental version) performed by the United States Navy Band. Direct link is at http://www.navyband.navy.mil/anthems/ANTHEMS/Belgium.mp3.
+Date: 19 October 2004
+Source: http://www.navyband.navy.mil/anthems/national_anthems.htm
+Author: United States Navy Band (rendition), uploaded to Wikimedia by Keith Lehwald
+
+Licencing:
+
+This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license. 	
+
+    You are free:
+
+        to share – to copy, distribute and transmit the work
+        to remix – to adapt the work
+
+    Under the following conditions:
+
+        attribution – You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).
+        share alike – If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
+
+-------------------------------------------------------------------------------------------------
+
+Bob lamp
+
+http://www.katsbits.com/download/models/md5-example.php
+
+Original file:
+bob_lamp_update.zip (Animated MD5 sample file)
+
+Summary:
+
+Description: Updated version of "Bob", a low-poly character mesh for general export and testing of MD5 mesh and animation - "*.md5mesh" and "*.md5anim". File and it's contents should be opened in Blender 2.69 or above to avoid compatibility issues with older versions of Blender and/or resulting MD5 exports (md5mesh & md5anim).
+
+File includes two versions of the source file, one 'working' - mesh is intact with surfaces in 'quad' form; and one 'prepped' (exported) - mesh has been tessilated (triangulated) for export.
+Date: Januari 2014
+Source: http://www.katsbits.com/download/models/md5-example.php
+Author: KatsBits
+
+Licencing:
+
+Please, refer to "Bob lamp/Readme.txt" file.
+
+-------------------------------------------------------------------------------------------------
+
+Standford dragon
+
+http://graphics.stanford.edu/data/3Dscanrep/
+
+Original file:
+dragon_recon.tar.gz (PLY files)
+
+Summary:
+
+Dragon
+Source: Stanford University Computer Graphics Laboratory
+Scanner: Cyberware 3030 MS + spacetime analysis
+Number of scans: ~70
+Total size of scans: 2,748,318 points (about 5,500,000 triangles)
+Reconstruction: vrip (conservatively decimated)
+Size of reconstruction: 566,098 vertices, 1,132,830 triangles
+Comments: contains numerous small holes
+Date: 1996
+Source: http://graphics.stanford.edu/data/3Dscanrep/
+Author: Stanford University Computer Graphics Laboratory
+
+Licencing:
+
+Please be sure to acknowledge the source of the data and models you take from this repository. In each of the listings below, we have cited the source of the range data and reconstructed models. You are welcome to use the data and models for research purposes. You are also welcome to mirror or redistribute them for free. Finally, you may publish images made using these models, or the images on this web site, in a scholarly article or book - as long as credit is given to the Stanford Computer Graphics Laboratory. However, such models or images are not to be used for commercial purposes, nor should they appear in a product for sale (with the exception of scholarly journals or books), without our permission. 
+Please, refer to "dragon_recon/README" file.

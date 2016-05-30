@@ -11,6 +11,11 @@ namespace Nz
 {
 	namespace
 	{
+		/*!
+		* \brief Defines render states
+		* \return RenderStates for the color background
+		*/
+
 		RenderStates BuildRenderStates()
 		{
 			RenderStates states;
@@ -23,6 +28,18 @@ namespace Nz
 			return states;
 		}
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::TextureBackground
+	* \brief Graphics class that represents a background with a texture
+	*/
+
+	/*!
+	* \brief Constructs a TextureBackground object with a texture
+	*
+	* \param texture Texture
+	*/
 
 	TextureBackground::TextureBackground(TextureRef texture)
 	{
@@ -43,6 +60,12 @@ namespace Nz
 		SetTexture(std::move(texture));
 	}
 
+	/*!
+	* \brief Draws this relatively to the viewer
+	*
+	* \param viewer Viewer for the background
+	*/
+
 	void TextureBackground::Draw(const AbstractViewer* viewer) const
 	{
 		NazaraUnused(viewer);
@@ -61,6 +84,11 @@ namespace Nz
 
 		Renderer::DrawFullscreenQuad();
 	}
+
+	/*!
+	* \brief Gets the background type
+	* \return Type of background
+	*/
 
 	BackgroundType TextureBackground::GetBackgroundType() const
 	{

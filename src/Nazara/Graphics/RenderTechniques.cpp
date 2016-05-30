@@ -23,7 +23,7 @@ namespace Nz
 			"User"
 		};
 
-		static_assert(sizeof(techniquesName)/sizeof(const char*) == RenderTechniqueType_Max+1, "Render technique type name array is incomplete");
+		static_assert(sizeof(techniquesName) / sizeof(const char*) == RenderTechniqueType_Max + 1, "Render technique type name array is incomplete");
 
 		struct RenderTechnique
 		{
@@ -33,6 +33,22 @@ namespace Nz
 
 		std::unordered_map<String, RenderTechnique> s_renderTechniques;
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::RenderTechniques
+	* \brief Graphics class that represents the techniques used in rendering
+	*/
+
+	/*!
+	* \brief Gets the technique by enumeration
+	* \return A reference to the newly created technique
+	*
+	* \param renderTechnique Enumeration of the technique
+	* \param techniqueRanking Ranking for the technique
+	*
+	* \remark Produces a NazaraError if renderTechnique does not exist
+	*/
 
 	AbstractRenderTechnique* RenderTechniques::GetByEnum(RenderTechniqueType renderTechnique, int* techniqueRanking)
 	{
@@ -46,6 +62,16 @@ namespace Nz
 
 		return GetByName(techniquesName[renderTechnique], techniqueRanking);
 	}
+
+	/*!
+	* \brief Gets the technique by index
+	* \return A reference to the newly created technique
+	*
+	* \param index Index of the technique
+	* \param techniqueRanking Ranking for the technique
+	*
+	* \remark Produces a NazaraError if index is out or range
+	*/
 
 	AbstractRenderTechnique* RenderTechniques::GetByIndex(unsigned int index, int* techniqueRanking)
 	{
@@ -65,6 +91,16 @@ namespace Nz
 
 		return it->second.factory();
 	}
+
+	/*!
+	* \brief Gets the technique by name
+	* \return A reference to the newly created technique
+	*
+	* \param name Name of the technique
+	* \param techniqueRanking Ranking for the technique
+	*
+	* \remark Produces a NazaraError if name does not exist or is invalid
+	*/
 
 	AbstractRenderTechnique* RenderTechniques::GetByName(const String& name, int* techniqueRanking)
 	{
@@ -88,6 +124,16 @@ namespace Nz
 
 		return it->second.factory();
 	}
+
+	/*!
+	* \brief Gets the technique by ranking
+	* \return A reference to the newly created technique
+	*
+	* \param maxRanking Ranking maximum of the technique
+	* \param techniqueRanking Ranking for the technique
+	*
+	* \remark Produces a NazaraError if name does not exist or is invalid
+	*/
 
 	AbstractRenderTechnique* RenderTechniques::GetByRanking(int maxRanking, int* techniqueRanking)
 	{
@@ -119,10 +165,27 @@ namespace Nz
 		return technique->factory();
 	}
 
+	/*!
+	* \brief Gets the number of techniques available
+	* \return Number of techniques
+	*/
+
 	unsigned int RenderTechniques::GetCount()
 	{
 		return s_renderTechniques.size();
 	}
+
+	/*!
+	* \brief Registers a technique
+	*
+	* \param name Name of the technique
+	* \param ranking Ranking of the technique
+	* \param factory Factory to create the technique
+	*
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if name is empty
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if ranking is negative
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if factory is invalid is invalid
+	*/
 
 	void RenderTechniques::Register(const String& name, int ranking, RenderTechniqueFactory factory)
 	{
@@ -149,6 +212,15 @@ namespace Nz
 		s_renderTechniques[name] = {factory, ranking};
 	}
 
+	/*!
+	* \brief Converts the enumeration to string
+	* \return String symbolizing the technique
+	*
+	* \param renderTechnique Enumeration of the technique
+	*
+	* \remark Produces a NazaraError if renderTechnique does not exist and returns "Error"
+	*/
+
 	String RenderTechniques::ToString(RenderTechniqueType renderTechnique)
 	{
 		#ifdef NAZARA_DEBUG
@@ -161,6 +233,12 @@ namespace Nz
 
 		return techniquesName[renderTechnique];
 	}
+
+	/*!
+	* \brief Unregisters a technique
+	*
+	* \param name Name of the technique
+	*/
 
 	void RenderTechniques::Unregister(const String& name)
 	{

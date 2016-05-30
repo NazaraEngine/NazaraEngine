@@ -8,69 +8,207 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-///TODO: Rendre les billboards via Deferred Shading si possible
+///TODO: Render billboards using Deferred Shading if possible
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredRenderQueue
+	* \brief Graphics class that represents the rendering queue for deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredRenderQueue object with the rendering queue of forward rendering
+	*
+	* \param forwardQueue Queue of data to render
+	*/
+
 	DeferredRenderQueue::DeferredRenderQueue(ForwardRenderQueue* forwardQueue) :
 	m_forwardQueue(forwardQueue)
 	{
 	}
+
+	/*!
+	* \brief Adds billboard to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboard
+	* \param position Position of the billboard
+	* \param size Sizes of the billboard
+	* \param sinCos Rotation of the billboard
+	* \param color Color of the billboard
+	*/
 
 	void DeferredRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
 	{
 		m_forwardQueue->AddBillboard(renderOrder, material, position, size, sinCos, color);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
+	/*!
+	* \brief Adds drawable to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param drawable Drawable user defined
+	*
+	* \remark Produces a NazaraError if drawable is invalid
+	*/
+
 	void DeferredRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
 		m_forwardQueue->AddDrawable(renderOrder, drawable);
 	}
 
+	/*!
+	* \brief Adds mesh to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the mesh
+	* \param meshData Data of the mesh
+	* \param meshAABB Box of the mesh
+	* \param transformMatrix Matrix of the mesh
+	*/
+
 	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
 		if (material->IsEnabled(RendererParameter_Blend))
-			// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
+			// One transparent material ? I don't like it, go see if I'm in the forward queue
 			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
 		else
 		{
@@ -103,20 +241,36 @@ namespace Nz
 				it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 			}
 
-			// On ajoute la matrice à la liste des instances de cet objet
+			// We add matrices to the list of instances of this object
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
+			// Do we have enough instances to perform instancing ?
 			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-				entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
+				entry.instancingEnabled = true; // Thus we can activate it
 		}
 	}
+
+	/*!
+	* \brief Adds sprites to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the sprites
+	* \param vertices Buffer of data for the sprites
+	* \param spriteCount Number of sprites
+	* \param overlay Texture of the sprites
+	*/
 
 	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
 		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, overlay);
 	}
+
+	/*!
+	* \brief Clears the queue
+	*
+	* \param fully Should everything be cleared or we can keep layers
+	*/
 
 	void DeferredRenderQueue::Clear(bool fully)
 	{
@@ -137,6 +291,13 @@ namespace Nz
 		m_forwardQueue->Clear(fully);
 	}
 
+	/*!
+	* \brief Gets the ith layer
+	* \return Reference to the ith layer for the queue
+	*
+	* \param i Index of the layer
+	*/
+
 	DeferredRenderQueue::Layer& DeferredRenderQueue::GetLayer(unsigned int i)
 	{
 		auto it = layers.find(i);
@@ -148,6 +309,12 @@ namespace Nz
 
 		return layer;
 	}
+
+	/*!
+	* \brief Handle the invalidation of an index buffer
+	*
+	* \param indexBuffer Index buffer being invalidated
+	*/
 
 	void DeferredRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
@@ -170,6 +337,12 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Handle the invalidation of a material
+	*
+	* \param material Material being invalidated
+	*/
+
 	void DeferredRenderQueue::OnMaterialInvalidation(const Material* material)
 	{
 		for (auto& pair : layers)
@@ -179,6 +352,12 @@ namespace Nz
 			layer.opaqueModels.erase(material);
 		}
 	}
+
+	/*!
+	* \brief Handle the invalidation of a vertex buffer
+	*
+	* \param vertexBuffer Vertex buffer being invalidated
+	*/
 
 	void DeferredRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
 	{
@@ -201,6 +380,14 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Functor to compare two batched model with material
+	* \return true If first material is "smaller" than the second one
+	*
+	* \param mat1 First material to compare
+	* \param mat2 Second material to compare
+	*/
+
 	bool DeferredRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
 	{
 		const UberShader* uberShader1 = mat1->GetShader();
@@ -220,6 +407,14 @@ namespace Nz
 
 		return mat1 < mat2;
 	}
+
+	/*!
+	* \brief Functor to compare two mesh data
+	* \return true If first mesh is "smaller" than the second one
+	*
+	* \param data1 First mesh to compare
+	* \param data2 Second mesh to compare
+	*/
 
 	bool DeferredRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
 	{

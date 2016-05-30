@@ -33,9 +33,19 @@ namespace Nz
 			Vector2f uv;
 		};
 
-		unsigned int s_maxQuads = std::numeric_limits<UInt16>::max()/6;
-		unsigned int s_vertexBufferSize = 4*1024*1024; // 4 MiB
+		unsigned int s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
+		unsigned int s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::ForwardRenderTechnique
+	* \brief Graphics class that represents the technique used in forward rendering
+	*/
+
+	/*!
+	* \brief Constructs a ForwardRenderTechnique object by default
+	*/
 
 	ForwardRenderTechnique::ForwardRenderTechnique() :
 	m_vertexBuffer(BufferType_Vertex),
@@ -49,6 +59,12 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 	}
 
+	/*!
+	* \brief Clears the data
+	*
+	* \param sceneData Data of the scene
+	*/
+
 	void ForwardRenderTechnique::Clear(const SceneData& sceneData) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
@@ -58,6 +74,15 @@ namespace Nz
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
 	}
+
+	/*!
+	* \brief Draws the data of the scene
+	* \return true If successful
+	*
+	* \param sceneData Data of the scene
+	*
+	* \remark Produces a NazaraAssert if viewer of the scene is invalid
+	*/
 
 	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
 	{
@@ -88,25 +113,53 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Gets the maximum number of lights available per pass per object
+	* \return Maximum number of light simulatenously per object
+	*/
+
 	unsigned int ForwardRenderTechnique::GetMaxLightPassPerObject() const
 	{
 		return m_maxLightPassPerObject;
 	}
+
+	/*!
+	* \brief Gets the render queue
+	* \return Pointer to the render queue
+	*/
 
 	AbstractRenderQueue* ForwardRenderTechnique::GetRenderQueue()
 	{
 		return &m_renderQueue;
 	}
 
+	/*!
+	* \brief Gets the type of the current technique
+	* \return Type of the render technique
+	*/
+
 	RenderTechniqueType ForwardRenderTechnique::GetType() const
 	{
 		return RenderTechniqueType_BasicForward;
 	}
 
-	void ForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int passCount)
+	/*!
+	* \brief Sets the maximum number of lights available per pass per object
+	*
+	* \param passCount Maximum number of light simulatenously per object
+	*/
+
+	void ForwardRenderTechnique::SetMaxLightPassPerObject(unsigned int maxLightPassPerObject)
 	{
-		m_maxLightPassPerObject = passCount;
+		m_maxLightPassPerObject = maxLightPassPerObject;
 	}
+
+	/*!
+	* \brief Initializes the forward render technique
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if one shader creation failed
+	*/
 
 	bool ForwardRenderTechnique::Initialize()
 	{
@@ -114,29 +167,29 @@ namespace Nz
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-			s_quadIndexBuffer.Reset(false, s_maxQuads*6, DataStorage_Hardware, BufferUsage_Static);
+			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, BufferUsage_Static);
 
 			BufferMapper<IndexBuffer> mapper(s_quadIndexBuffer, BufferAccess_WriteOnly);
 			UInt16* indices = static_cast<UInt16*>(mapper.GetPointer());
 
 			for (unsigned int i = 0; i < s_maxQuads; ++i)
 			{
-				*indices++ = i*4 + 0;
-				*indices++ = i*4 + 2;
-				*indices++ = i*4 + 1;
+				*indices++ = i * 4 + 0;
+				*indices++ = i * 4 + 2;
+				*indices++ = i * 4 + 1;
 
-				*indices++ = i*4 + 2;
-				*indices++ = i*4 + 3;
-				*indices++ = i*4 + 1;
+				*indices++ = i * 4 + 2;
+				*indices++ = i * 4 + 3;
+				*indices++ = i * 4 + 1;
 			}
 
-			mapper.Unmap(); // Inutile de garder le buffer ouvert plus longtemps
+			mapper.Unmap(); // No point to keep the buffer open any longer
 
-			// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
-			//Note: Les UV sont calculés dans le shader
+			// Quad buffer (used for instancing of billboards and sprites)
+			//Note: UV are computed in the shader
 			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, BufferUsage_Static);
 
-			float vertices[2*4] = {
+			float vertices[2 * 4] = {
 			   -0.5f, -0.5f,
 				0.5f, -0.5f,
 			   -0.5f, 0.5f,
@@ -145,14 +198,14 @@ namespace Nz
 
 			s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
 
-			// Déclaration lors du rendu des billboards par sommet
+			// Declaration used when rendering the vertex billboards
 			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Color,     ComponentType_Color,  NazaraOffsetOf(BillboardPoint, color));
 			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Position,  ComponentType_Float3, NazaraOffsetOf(BillboardPoint, position));
 			s_billboardVertexDeclaration.EnableComponent(VertexComponent_TexCoord,  ComponentType_Float2, NazaraOffsetOf(BillboardPoint, uv));
-			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Userdata0, ComponentType_Float4, NazaraOffsetOf(BillboardPoint, size)); // Englobe sincos
+			s_billboardVertexDeclaration.EnableComponent(VertexComponent_Userdata0, ComponentType_Float4, NazaraOffsetOf(BillboardPoint, size)); // Includes sincos
 
-			// Declaration utilisée lors du rendu des billboards par instancing
-			// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
+			// Declaration used when rendering the billboards with intancing
+			// The main advantage is the direct copy (std::memcpy) of data in the RenderQueue to the GPU buffer
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
@@ -169,11 +222,22 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Uninitializes the forward render technique
+	*/
+
 	void ForwardRenderTechnique::Uninitialize()
 	{
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
+
+	/*!
+	* \brief Chooses the nearest lights for one object
+	*
+	* \param object Sphere symbolising the object
+	* \param includeDirectionalLights Should directional lights be included in the computation
+	*/
 
 	void ForwardRenderTechnique::ChooseLights(const Spheref& object, bool includeDirectionalLights) const
 	{
@@ -213,6 +277,15 @@ namespace Nz
 		});
 	}
 
+	/*!
+	* \brief Draws basic sprites
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*
+	* \remark Produces a NazaraAssert is viewer is invalid
+	*/
+
 	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
@@ -240,7 +313,7 @@ namespace Nz
 					unsigned int spriteChainCount = spriteChainVector.size();
 					if (spriteChainCount > 0)
 					{
-						// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+						// We begin to apply the material (and get the shader activated doing so)
 						UInt32 flags = ShaderFlags_VertexColor;
 						if (overlay)
 							flags |= ShaderFlags_TextureOverlay;
@@ -255,46 +328,46 @@ namespace Nz
 							Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
 						}
 
-						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+						// Uniforms are conserved in our program, there's no point to send them back until they change
 						if (shader != lastShader)
 						{
-							// Index des uniformes dans le shader
+							// Index of uniforms in the shader
 							shaderUniforms = GetShaderUniforms(shader);
 
-							// Couleur ambiante de la scène
+							// Ambiant color of the scene
 							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 							// Overlay
 							shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
-							// Position de la caméra
+							// Position of the camera
 							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 							lastShader = shader;
 						}
 
-						unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
-						unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+						unsigned int spriteChain = 0; // Which chain of sprites are we treating
+						unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
 
 						do
 						{
-							// On ouvre le buffer en écriture
+							// We open the buffer in writing mode
 							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
 							VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 							unsigned int spriteCount = 0;
-							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount()/4);
+							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 							do
 							{
 								ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
 								unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
 
-								std::memcpy(vertices, currentChain.vertices + spriteChainOffset*4, 4*count*sizeof(VertexStruct_XYZ_Color_UV));
-								vertices += count*4;
+								std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
+								vertices += count * 4;
 
 								spriteCount += count;
 								spriteChainOffset += count;
 
-								// Avons-nous traité la chaîne entière ?
+								// Have we treated the entire chain ?
 								if (spriteChainOffset == currentChain.spriteCount)
 								{
 									spriteChain++;
@@ -305,7 +378,7 @@ namespace Nz
 
 							vertexMapper.Unmap();
 
-							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount*6);
+							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
 						}
 						while (spriteChain < spriteChainCount);
 
@@ -313,11 +386,20 @@ namespace Nz
 					}
 				}
 
-				// On remet à zéro
+				// We set it back to zero
 				matEntry.enabled = false;
 			}
 		}
 	}
+
+	/*!
+	* \brief Draws billboards
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*
+	* \remark Produces a NazaraAssert is viewer is invalid
+	*/
 
 	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
@@ -342,18 +424,18 @@ namespace Nz
 				unsigned int billboardCount = billboardVector.size();
 				if (billboardCount > 0)
 				{
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Couleur ambiante de la scène
+						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position de la caméra
+						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
@@ -391,32 +473,32 @@ namespace Nz
 				unsigned int billboardCount = billboardVector.size();
 				if (billboardCount > 0)
 				{
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Couleur ambiante de la scène
+						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position de la caméra
+						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
 
 					const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-					unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount()/4);
+					unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
 
 					do
 					{
 						unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 						billboardCount -= renderedBillboardCount;
 
-						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount*4);
+						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
 						BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
 
 						for (unsigned int i = 0; i < renderedBillboardCount; ++i)
@@ -454,7 +536,7 @@ namespace Nz
 
 						vertexMapper.Unmap();
 
-						Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount*6);
+						Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount * 6);
 					}
 					while (billboardCount > 0);
 
@@ -463,6 +545,15 @@ namespace Nz
 			}
 		}
 	}
+
+	/*!
+	* \brief Draws opaques models
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*
+	* \remark Produces a NazaraAssert is viewer is invalid
+	*/
 
 	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
@@ -483,25 +574,25 @@ namespace Nz
 				{
 					const Material* material = matIt.first;
 
-					// Nous utilisons de l'instancing que lorsqu'aucune lumière (autre que directionnelle) n'est active
-					// Ceci car l'instancing n'est pas compatible avec la recherche des lumières les plus proches
-					// (Le deferred shading n'a pas ce problème)
+					// We only use instancing when no light (other than directional) is active
+					// This is because instancing is not compatible with the search of nearest lights
+					// Deferred shading does not have this problem
 					bool noPointSpotLight = m_renderQueue.pointLights.empty() && m_renderQueue.spotLights.empty();
 					bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || noPointSpotLight) && matEntry.instancingEnabled;
 
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					UInt8 freeTextureUnit;
 					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0, 0, &freeTextureUnit);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Couleur ambiante de la scène
+						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position de la caméra
+						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
@@ -521,7 +612,7 @@ namespace Nz
 							const IndexBuffer* indexBuffer = meshData.indexBuffer;
 							const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-							// Gestion du draw call avant la boucle de rendu
+							// Handle draw call before rendering loop
 							Renderer::DrawCall drawFunc;
 							Renderer::DrawCallInstanced instancedDrawFunc;
 							unsigned int indexCount;
@@ -544,17 +635,17 @@ namespace Nz
 
 							if (instancing)
 							{
-								// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+								// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
 								VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 								instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
-								// Avec l'instancing, impossible de sélectionner les lumières pour chaque objet
-								// Du coup, il n'est activé que pour les lumières directionnelles
+								// With instancing, impossible to select the lights for each object
+								// So, it's only activated for directional lights
 								unsigned int lightCount = m_renderQueue.directionalLights.size();
 								unsigned int lightIndex = 0;
 								RendererComparison oldDepthFunc = Renderer::GetDepthFunc();
 
-								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 								for (unsigned int pass = 0; pass < passCount; ++pass)
 								{
 									if (shaderUniforms->hasLightUniforms)
@@ -564,10 +655,10 @@ namespace Nz
 
 										if (pass == 1)
 										{
-											// Pour additionner le résultat des calculs de lumière
-											// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
-											// (Autrement dit, sans blending)
-											// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+											// To add the result of light computations
+											// We won't interfeer with materials parameters because we only render opaques objects
+											// (A.K.A., without blending)
+											// About the depth function, it must be applied only the first time
 											Renderer::Enable(RendererParameter_Blend, true);
 											Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
 											Renderer::SetDepthFunc(RendererComparison_Equal);
@@ -575,32 +666,32 @@ namespace Nz
 
 										// Sends the uniforms
 										for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
+											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset * i, freeTextureUnit + i);
 
-										// Et on passe à l'affichage
+										// And we give them to draw
 										drawFunc(meshData.primitiveMode, 0, indexCount);
 									}
 
 									const Matrix4f* instanceMatrices = &instances[0];
 									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
+									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
 
 									while (instanceCount > 0)
 									{
-										// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+										// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
 										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 										instanceCount -= renderedInstanceCount;
 
-										// On remplit l'instancing buffer avec nos matrices world
+										// We fill the instancing buffer with our world matrices
 										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
 										instanceMatrices += renderedInstanceCount;
 
-										// Et on affiche
+										// And we draw
 										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 									}
 								}
 
-								// On n'oublie pas de désactiver le blending pour ne pas interférer sur le reste du rendu
+								// We don't forget to disable the blending to avoid to interfeer with the rest of the rendering
 								Renderer::Enable(RendererParameter_Blend, false);
 								Renderer::SetDepthFunc(oldDepthFunc);
 							}
@@ -617,19 +708,19 @@ namespace Nz
 
 										Renderer::SetMatrix(MatrixType_World, matrix);
 										unsigned int lightIndex = 0;
-										RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // Dans le cas où nous aurions à le changer
+										RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
-										unsigned int passCount = (lightCount == 0) ? 1 : (lightCount-1)/NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+										unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 										for (unsigned int pass = 0; pass < passCount; ++pass)
 										{
 											lightCount -= std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
 
 											if (pass == 1)
 											{
-												// Pour additionner le résultat des calculs de lumière
-												// Aucune chance d'interférer avec les paramètres du matériau car nous ne rendons que les objets opaques
-												// (Autrement dit, sans blending)
-												// Quant à la fonction de profondeur, elle ne doit être appliquée que la première fois
+												// To add the result of light computations
+												// We won't interfeer with materials parameters because we only render opaques objects
+												// (A.K.A., without blending)
+												// About the depth function, it must be applied only the first time
 												Renderer::Enable(RendererParameter_Blend, true);
 												Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
 												Renderer::SetDepthFunc(RendererComparison_Equal);
@@ -639,7 +730,7 @@ namespace Nz
 											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
 
-											// Et on passe à l'affichage
+											// And we draw
 											drawFunc(meshData.primitiveMode, 0, indexCount);
 										}
 
@@ -649,9 +740,9 @@ namespace Nz
 								}
 								else
 								{
-									// Sans instancing, on doit effectuer un draw call pour chaque instance
-									// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-									// À cause du temps de modification du buffer d'instancing
+									// Without instancing, we must do a draw call for each instance
+									// This may be faster than instancing under a certain number
+									// Due to the time to modify the instancing buffer
 									for (const Matrix4f& matrix : instances)
 									{
 										Renderer::SetMatrix(MatrixType_World, matrix);
@@ -664,12 +755,21 @@ namespace Nz
 					}
 				}
 
-				// Et on remet à zéro les données
+				// And we set the data back to zero
 				matEntry.enabled = false;
 				matEntry.instancingEnabled = false;
 			}
 		}
 	}
+
+	/*!
+	* \brief Draws transparent models
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*
+	* \remark Produces a NazaraAssert is viewer is invalid
+	*/
 
 	void ForwardRenderTechnique::DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
@@ -683,25 +783,25 @@ namespace Nz
 		{
 			const ForwardRenderQueue::TransparentModelData& modelData = layer.transparentModelData[index];
 
-			// Matériau
+			// Material
 			const Material* material = modelData.material;
 
-			// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+			// We begin to apply the material (and get the shader activated doing so)
 			UInt8 freeTextureUnit;
 			const Shader* shader = material->Apply(0, 0, &freeTextureUnit);
 
-			// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+			// Uniforms are conserved in our program, there's no point to send them back until they change
 			if (shader != lastShader)
 			{
-				// Index des uniformes dans le shader
+				// Index of uniforms in the shader
 				shaderUniforms = GetShaderUniforms(shader);
 
-				// Couleur ambiante de la scène
+				// Ambiant color of the scene
 				shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-				// Position de la caméra
+				// Position of the camera
 				shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-				// On envoie les lumières directionnelles s'il y a (Les mêmes pour tous)
+				// We send the directional lights if there is one (same for all)
 				if (shaderUniforms->hasLightUniforms)
 				{
 					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
@@ -720,7 +820,7 @@ namespace Nz
 			const IndexBuffer* indexBuffer = meshData.indexBuffer;
 			const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-			// Gestion du draw call avant la boucle de rendu
+			// Handle draw call before the rendering loop
 			Renderer::DrawCall drawFunc;
 			unsigned int indexCount;
 
@@ -753,6 +853,13 @@ namespace Nz
 			drawFunc(meshData.primitiveMode, 0, indexCount);
 		}
 	}
+
+	/*!
+	* \brief Gets the shader uniforms
+	* \return Uniforms of the shader
+	*
+	* \param shader Shader to get uniforms from
+	*/
 
 	const ForwardRenderTechnique::ShaderUniforms* ForwardRenderTechnique::GetShaderUniforms(const Shader* shader) const
 	{
@@ -794,6 +901,12 @@ namespace Nz
 
 		return &it->second;
 	}
+
+	/*!
+	* \brief Handle the invalidation of a shader
+	*
+	* \param shader Shader being invalidated
+	*/
 
 	void ForwardRenderTechnique::OnShaderInvalidated(const Shader* shader) const
 	{

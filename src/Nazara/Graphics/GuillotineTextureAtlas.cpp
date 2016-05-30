@@ -9,10 +9,31 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::GuillotineTextureAtlas
+	* \brief Graphics class that represents an atlas texture for guillotine
+	*/
+
+	/*!
+	* \brief Gets the underlying data storage
+	* \return Value of the enumeration of the underlying data storage
+	*/
+
 	UInt32 GuillotineTextureAtlas::GetStorage() const
 	{
 		return DataStorage_Hardware;
 	}
+
+	/*!
+	* \brief Resizes the image
+	* \return Updated texture
+	*
+	* \param oldImage Old image to resize
+	* \param size New image size
+	*
+	* \remark Produces a NazaraError if resize failed
+	*/
 
 	AbstractImage* GuillotineTextureAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
@@ -23,8 +44,8 @@ namespace Nz
 			{
 				Texture* oldTexture = static_cast<Texture*>(oldImage);
 
-				// Copie des anciennes données
-				///TODO: Copie de texture à texture
+				// Copy of old data
+				///TODO: Copy from texture to texture
 				Image image;
 				if (!oldTexture->Download(&image))
 				{
@@ -43,8 +64,7 @@ namespace Nz
 		}
 		else
 		{
-			// Si on arrive ici c'est que la taille demandée est trop grande pour la carte graphique
-			// ou que nous manquons de mémoire
+			// If we are here, it is that the size is too big for the graphic card or we don't have enough
 			return nullptr;
 		}
 	}
