@@ -608,6 +608,54 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gives a string representation
+	* \return A string representation of the object: "ParameterList(Name: Type(value), ...)"
+	*/
+	String ParameterList::ToString() const
+	{
+		StringStream ss;
+
+		ss << "ParameterList(";
+		for (auto it = m_parameters.cbegin(); it != m_parameters.cend();)
+		{
+			ss << it->first << ": ";
+			switch (it->second.type)
+			{
+				case ParameterType_Boolean:
+					ss << "Boolean(" << String::Boolean(it->second.value.boolVal) << ")";
+					break;
+				case ParameterType_Color:
+					ss << "Color(" << it->second.value.colorVal.ToString() << ")";
+					break;
+				case ParameterType_Float:
+					ss << "Float(" << it->second.value.floatVal << ")";
+					break;
+				case ParameterType_Integer:
+					ss << "Integer(" << it->second.value.intVal << ")";
+					break;
+				case ParameterType_String:
+					ss << "String(" << it->second.value.stringVal << ")";
+					break;
+				case ParameterType_Pointer:
+					ss << "Pointer(" << String::Pointer(it->second.value.ptrVal) << ")";
+					break;
+				case ParameterType_Userdata:
+					ss << "Userdata(" << String::Pointer(it->second.value.userdataVal->ptr) << ")";
+					break;
+				case ParameterType_None:
+					ss << "None";
+					break;
+			}
+
+			if (++it != m_parameters.cend())
+				ss << ", ";
+		}
+		ss << ")";
+
+		return ss;
+	}
+
+	/*!
 	* \brief Sets a userdata parameter named `name`
 	*
 	* If a parameter already exists with that name, it is destroyed and replaced by this call
@@ -723,4 +771,18 @@ namespace Nz
 				break;
 		}
 	}
+}
+
+/*!
+* \brief Output operator
+* \return The stream
+*
+* \param out The stream
+* \param parameterList The ParameterList to output
+*/
+
+std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList)
+{
+	out << parameterList.ToString();
+	return out;
 }
