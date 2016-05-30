@@ -50,6 +50,8 @@ namespace Nz
 			void SetParameter(const String& name, void* value);
 			void SetParameter(const String& name, void* value, Destructor destructor);
 
+			String ToString() const;
+
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
 
@@ -73,7 +75,7 @@ namespace Nz
 				ParameterType type;
 				union Value
 				{
-					// On définit un constructeur/destructeur vide, permettant de mettre des classes dans l'union
+					// We define an empty constructor/destructor, to be able to put classes in the union
 					Value() {}
 					Value(const Value&) {} // Placeholder
 					~Value() {}
@@ -97,5 +99,7 @@ namespace Nz
 			ParameterMap m_parameters;
 	};
 }
+
+std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
 
 #endif // NAZARA_PARAMETERLIST_HPP

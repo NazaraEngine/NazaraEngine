@@ -385,7 +385,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor
+	* \brief Sets the position of the cursor	
 	* \return true if cursor is successfully positioned
 	*
 	* \param pos Position of the cursor
@@ -404,7 +404,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor
+	* \brief Sets the position of the cursor	
 	* \return true if cursor is successfully positioned
 	*
 	* \param offset Offset according to the cursor begin position
@@ -906,5 +906,5 @@ namespace Nz
 		}
 
 		return true;
-	}
+	};
 }
