@@ -28,7 +28,7 @@ namespace Nz
 
 	bool Core::Initialize()
 	{
-		if (s_moduleReferenceCounter > 0)
+		if (IsInitialized())
 		{
 			s_moduleReferenceCounter++;
 			return true; // Already initialized
