@@ -9,7 +9,7 @@ function NazaraBuild:Execute()
 	if (os.is64bit()) then
 		platformData = {"x64", "x86"}
 	else
-		platformData = {"x64", "x86"}
+		platformData = {"x86", "x64"}
 	end
 	
 	if (self.Actions[_ACTION] == nil) then
