@@ -7,10 +7,29 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-///TODO: Remplacer les sinus/cosinus par une lookup table (va booster les perfs d'un bon x10)
+///TODO: Replace sinus/cosinus by a lookup table (which will lead to a speed up about 10x)
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::ForwardRenderQueue
+	* \brief Graphics class that represents the rendering queue for forward rendering
+	*/
+
+	/*!
+	* \brief Adds billboard to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboard
+	* \param position Position of the billboard
+	* \param size Sizes of the billboard
+	* \param sinCos Rotation of the billboard
+	* \param color Color of the billboard
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
 	{
 		NazaraAssert(material, "Invalid material");
@@ -32,37 +51,33 @@ namespace Nz
 		billboardVector.push_back(BillboardData{color, position, size, sinCos});
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seont remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
-			sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		if (!colorPtr)
-			colorPtr.Reset(&Color::White, 0); // Pareil
+			colorPtr.Reset(&Color::White, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			billboardData->center = *positionPtr++;
@@ -72,40 +87,36 @@ namespace Nz
 			billboardData++;
 		}
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
 
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
-			sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		float defaultAlpha = 1.f;
 
 		if (!alphaPtr)
-			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+			alphaPtr.Reset(&defaultAlpha, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			billboardData->center = *positionPtr++;
@@ -115,38 +126,34 @@ namespace Nz
 			billboardData++;
 		}
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
 
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
-			anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			anglePtr.Reset(&defaultRotation, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		if (!colorPtr)
-			colorPtr.Reset(&Color::White, 0); // Pareil
+			colorPtr.Reset(&Color::White, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
@@ -160,40 +167,36 @@ namespace Nz
 			billboardData++;
 		}
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
 
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
-			anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			anglePtr.Reset(&defaultRotation, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		float defaultAlpha = 1.f;
 
 		if (!alphaPtr)
-			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+			alphaPtr.Reset(&defaultAlpha, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
@@ -208,37 +211,33 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
-			sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		if (!colorPtr)
-			colorPtr.Reset(&Color::White, 0); // Pareil
+			colorPtr.Reset(&Color::White, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			billboardData->center = *positionPtr++;
@@ -248,40 +247,36 @@ namespace Nz
 			billboardData++;
 		}
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
 
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
-			sinCosPtr.Reset(&defaultSinCos, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		float defaultAlpha = 1.f;
 
 		if (!alphaPtr)
-			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+			alphaPtr.Reset(&defaultAlpha, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			billboardData->center = *positionPtr++;
@@ -292,37 +287,33 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et colorPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
-			anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			anglePtr.Reset(&defaultRotation, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		if (!colorPtr)
-			colorPtr.Reset(&Color::White, 0); // Pareil
+			colorPtr.Reset(&Color::White, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
@@ -337,39 +328,35 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		///DOC: sinCosPtr et alphaPtr peuvent être nuls, ils seront remplacés respectivement par Vector2f(0.f, 1.f) et Color::White
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
-			anglePtr.Reset(&defaultRotation, 0); // L'astuce ici est de mettre le stride sur zéro, rendant le pointeur immobile
+			anglePtr.Reset(&defaultRotation, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
 
 		float defaultAlpha = 1.f;
 
 		if (!alphaPtr)
-			alphaPtr.Reset(&defaultAlpha, 0); // Pareil
+			alphaPtr.Reset(&defaultAlpha, 0); // Same
 
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		BillboardData* billboardData = &billboardVector[prevSize];
+		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
@@ -383,6 +370,15 @@ namespace Nz
 			billboardData++;
 		}
 	}
+
+	/*!
+	* \brief Adds drawable to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param drawable Drawable user defined
+	*
+	* \remark Produces a NazaraError if drawable is invalid
+	*/
 
 	void ForwardRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
@@ -399,15 +395,29 @@ namespace Nz
 		otherDrawables.push_back(drawable);
 	}
 
+	/*!
+	* \brief Adds mesh to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the mesh
+	* \param meshData Data of the mesh
+	* \param meshAABB Box of the mesh
+	* \param transformMatrix Matrix of the mesh
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
+		NazaraAssert(material, "Invalid material");
+
 		if (material->IsEnabled(RendererParameter_Blend))
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
 			auto& transparentModels = currentLayer.transparentModels;
 			auto& transparentModelData = currentLayer.transparentModelData;
 
-			// Le matériau est transparent, nous devons rendre ce mesh d'une autre façon (après le rendu des objets opaques et en les triant)
+			// The material is transparent, we must draw this mesh using another way (after the rendering of opages objects while sorting them)
 			unsigned int index = transparentModelData.size();
 			transparentModelData.resize(index+1);
 
@@ -455,14 +465,28 @@ namespace Nz
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
+			// Do we have enough instances to perform instancing ?
 			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-				entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
+				entry.instancingEnabled = true; // Thus we can activate it
 		}
 	}
 
+	/*!
+	* \brief Adds sprites to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the sprites
+	* \param vertices Buffer of data for the sprites
+	* \param spriteCount Number of sprites
+	* \param overlay Texture of the sprites
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
 	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
+		NazaraAssert(material, "Invalid material");
+
 		Layer& currentLayer = GetLayer(renderOrder);
 		auto& basicSprites = currentLayer.basicSprites;
 
@@ -494,6 +518,12 @@ namespace Nz
 		spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 	}
 
+	/*!
+	* \brief Clears the queue
+	*
+	* \param fully Should everything be cleared or we can keep layers
+	*/
+
 	void ForwardRenderQueue::Clear(bool fully)
 	{
 		AbstractRenderQueue::Clear(fully);
@@ -518,15 +548,21 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Sorts the object according to the viewer position, furthest to nearest
+	*
+	* \param viewer Viewer of the scene
+	*/
+
 	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
 	{
 		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
 		Vector3f viewerPos = viewer->GetEyePosition();
 		Vector3f viewerNormal = viewer->GetForward();
 
-		for (auto& layerPair : layers)
+		for (auto& pair : layers)
 		{
-			Layer& layer = layerPair.second;
+			Layer& layer = pair.second;
 
 			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (unsigned int index1, unsigned int index2)
 			{
@@ -557,17 +593,60 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Gets the billboard data
+	* \return Pointer to the data of the billboards
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboard
+	*/
+
+	ForwardRenderQueue::BillboardData* ForwardRenderQueue::GetBillboardData(int renderOrder, const Material* material, unsigned int count)
+	{
+		auto& billboards = GetLayer(renderOrder).billboards;
+
+		auto it = billboards.find(material);
+		if (it == billboards.end())
+		{
+			BatchedBillboardEntry entry;
+			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
+
+			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+		}
+
+		BatchedBillboardEntry& entry = it->second;
+
+		auto& billboardVector = entry.billboards;
+		unsigned int prevSize = billboardVector.size();
+		billboardVector.resize(prevSize + count);
+
+		return &billboardVector[prevSize];
+	}
+
+	/*!
+	* \brief Gets the ith layer
+	* \return Reference to the ith layer for the queue
+	*
+	* \param i Index of the layer
+	*/
+
 	ForwardRenderQueue::Layer& ForwardRenderQueue::GetLayer(int i)
 	{
 		auto it = layers.find(i);
 		if (it == layers.end())
 			it = layers.insert(std::make_pair(i, Layer())).first;
-
+		
 		Layer& layer = it->second;
 		layer.clearCount = 0;
 
 		return layer;
 	}
+
+	/*!
+	* \brief Handle the invalidation of an index buffer
+	*
+	* \param indexBuffer Index buffer being invalidated
+	*/
 
 	void ForwardRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
@@ -590,6 +669,12 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Handle the invalidation of a material
+	*
+	* \param material Material being invalidated
+	*/
+
 	void ForwardRenderQueue::OnMaterialInvalidation(const Material* material)
 	{
 		for (auto& pair : layers)
@@ -601,6 +686,12 @@ namespace Nz
 			layer.opaqueModels.erase(material);
 		}
 	}
+
+	/*!
+	* \brief Handle the invalidation of a texture
+	*
+	* \param texture Texture being invalidated
+	*/
 
 	void ForwardRenderQueue::OnTextureInvalidation(const Texture* texture)
 	{
@@ -614,6 +705,12 @@ namespace Nz
 			}
 		}
 	}
+
+	/*!
+	* \brief Handle the invalidation of a vertex buffer
+	*
+	* \param vertexBuffer Vertex buffer being invalidated
+	*/
 
 	void ForwardRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
 	{
@@ -635,6 +732,14 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Functor to compare two batched billboard with material
+	* \return true If first material is "smaller" than the second one
+	*
+	* \param mat1 First material to compare
+	* \param mat2 Second material to compare
+	*/
+
 	bool ForwardRenderQueue::BatchedBillboardComparator::operator()(const Material* mat1, const Material* mat2) const
 	{
 		const UberShader* uberShader1 = mat1->GetShader();
@@ -654,6 +759,14 @@ namespace Nz
 
 		return mat1 < mat2;
 	}
+
+	/*!
+	* \brief Functor to compare two batched model with material
+	* \return true If first material is "smaller" than the second one
+	*
+	* \param mat1 First material to compare
+	* \param mat2 Second material to compare
+	*/
 
 	bool ForwardRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
 	{
@@ -675,6 +788,14 @@ namespace Nz
 		return mat1 < mat2;
 	}
 
+	/*!
+	* \brief Functor to compare two batched sprites with material
+	* \return true If first material is "smaller" than the second one
+	*
+	* \param mat1 First material to compare
+	* \param mat2 Second material to compare
+	*/
+
 	bool ForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const Material* mat1, const Material* mat2)
 	{
 		const UberShader* uberShader1 = mat1->GetShader();
@@ -694,6 +815,14 @@ namespace Nz
 
 		return mat1 < mat2;
 	}
+
+	/*!
+	* \brief Functor to compare two mesh data
+	* \return true If first mesh is "smaller" than the second one
+	*
+	* \param data1 First mesh to compare
+	* \param data2 Second mesh to compare
+	*/
 
 	bool ForwardRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
 	{

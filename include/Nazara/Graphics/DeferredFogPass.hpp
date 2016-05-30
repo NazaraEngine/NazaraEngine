@@ -21,7 +21,7 @@ namespace Nz
 			DeferredFogPass();
 			virtual ~DeferredFogPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
 
 		protected:
 			RenderStates m_states;
