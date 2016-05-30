@@ -21,7 +21,7 @@ namespace Nz
 			virtual ~DeferredForwardPass();
 
 			void Initialize(DeferredRenderTechnique* technique);
-			bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned int sceneTexture) const;
 
 		protected:
 			const ForwardRenderTechnique* m_forwardTechnique;

@@ -13,6 +13,10 @@ namespace Nz
 {
 	namespace
 	{
+		/*!
+		* \brief Builds the shader for the depth of field
+		* \return Reference to the shader newly created
+		*/
 		// http://digitalerr0r.wordpress.com/2009/05/16/xna-shader-programming-tutorial-20-depth-of-field/
 		ShaderRef BuildDepthOfFieldShader()
 		{
@@ -92,6 +96,16 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredDOFPass
+	* \brief Graphics class that represents the pass for depth of field in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredDOFPass object by default
+	*/
+
 	DeferredDOFPass::DeferredDOFPass()
 	{
 		m_dofShader = BuildDepthOfFieldShader();
@@ -118,7 +132,16 @@ namespace Nz
 
 	DeferredDOFPass::~DeferredDOFPass() = default;
 
-	bool DeferredDOFPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredDOFPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraUnused(sceneData);
 
@@ -162,6 +185,13 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Resizes the texture sizes
+	* \return true If successful
+	*
+	* \param dimensions Dimensions for the compute texture
+	*/
+
 	bool DeferredDOFPass::Resize(const Vector2ui& dimensions)
 	{
 		DeferredRenderPass::Resize(dimensions);
@@ -181,5 +211,5 @@ namespace Nz
 		}
 
 		return true;
-}
+	}
 }

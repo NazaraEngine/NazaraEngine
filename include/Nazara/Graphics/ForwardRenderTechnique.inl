@@ -6,6 +6,16 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Sens the uniforms for light
+	*
+	* \param shader Shader to send uniforms to
+	* \param uniforms Uniforms to send
+	* \param index Index of the light
+	* \param uniformOffset Offset for the uniform
+	* \param availableTextureUnit Unit texture available
+	*/
+
 	inline void ForwardRenderTechnique::SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, UInt8 availableTextureUnit) const
 	{
 		// If anyone got a better idea..
@@ -104,6 +114,14 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Computes the score for directional light
+	* \return 0.f
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
+
 	inline float ForwardRenderTechnique::ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light)
 	{
 		NazaraUnused(object);
@@ -113,17 +131,41 @@ namespace Nz
 		return 0.f;
 	}
 
+	/*!
+	* \brief Computes the score for point light
+	* \return Distance to the light
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
+
 	inline float ForwardRenderTechnique::ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity
 		return object.SquaredDistance(light.position);
 	}
 
+	/*!
+	* \brief Computes the score for spot light
+	* \return Distance to the light
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
+
 	inline float ForwardRenderTechnique::ComputeSpotLightScore(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity and spot direction
 		return object.SquaredDistance(light.position);
 	}
+
+	/*!
+	* \brief Checks whether the directional light is suitable for the computations
+	* \return true if light is enoughly close
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
 
 	inline bool ForwardRenderTechnique::IsDirectionalLightSuitable(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light)
 	{
@@ -134,11 +176,27 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the point light is suitable for the computations
+	* \return true if light is enoughly close
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
+
 	inline bool ForwardRenderTechnique::IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		// If the object is too far away from this point light, there is not way it could light it
 		return object.SquaredDistance(light.position) <= light.radius * light.radius;
 	}
+
+	/*!
+	* \brief Checks whether the spot light is suitable for the computations
+	* \return true if light is enoughly close
+	*
+	* \param object Sphere symbolising the object
+	* \param light Light to compute
+	*/
 
 	inline bool ForwardRenderTechnique::IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
