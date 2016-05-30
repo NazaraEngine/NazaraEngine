@@ -7,6 +7,13 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Creates a new color background from the arguments
+	* \return A reference to the newly created color background
+	*
+	* \param args Arguments for the color background
+	*/
+
 	template<typename... Args>
 	ColorBackgroundRef ColorBackground::New(Args&&... args)
 	{
