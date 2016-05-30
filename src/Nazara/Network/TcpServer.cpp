@@ -19,6 +19,22 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup network
+	* \class Nz::TcpServer
+	* \brief Network class that represents a server in a TCP connection
+	*/
+
+	/*!
+	* \brief Accepts a client
+	* \return true If client'socket is valid
+	*
+	* \param newClient Client connection
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	* \remark Produces a NazaraAssert if newClient is invalid
+	*/
+
 	bool TcpServer::AcceptClient(TcpClient* newClient)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Server isn't listening");
@@ -35,6 +51,16 @@ namespace Nz
 			return false;
 	}
 
+	/*!
+	* \brief Listens to a socket
+	* \return State of the socket
+	*
+	* \param address Address to listen to
+	* \param queueSize Size of the queue
+	*
+	* \remark Produces a NazaraAssert if address is invalid
+	*/
+
 	SocketState TcpServer::Listen(const IpAddress& address, unsigned int queueSize)
 	{
 		NazaraAssert(address.IsValid(), "Invalid address");
@@ -49,12 +75,20 @@ namespace Nz
 		return state;
 	}
 
+	/*!
+	* \brief Operation to do when closing socket
+	*/
+
 	void TcpServer::OnClose()
 	{
 		AbstractSocket::OnClose();
 
 		m_boundAddress = IpAddress::Invalid;
 	}
+
+	/*!
+	* \brief Operation to do when opening socket
+	*/
 
 	void TcpServer::OnOpened()
 	{
