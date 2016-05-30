@@ -6,6 +6,14 @@
 
 namespace Nz
 {
+
+	/*!
+	* \brief Checks whether the material is suitable to fit in the render queue
+	* \return true If it is the case
+	*
+	* \param material Material to verify
+	*/
+
 	bool DepthRenderQueue::IsMaterialSuitable(const Material* material) const
 	{
 		NazaraAssert(material, "Invalid material");

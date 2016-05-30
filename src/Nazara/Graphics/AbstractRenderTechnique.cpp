@@ -10,6 +10,18 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::AbstractRenderTechnique
+	* \brief Graphics class that represents the rendering technique for our scene
+	*
+	* \remark This class is abstract
+	*/
+
+	/*!
+	* \brief Constructs a AbstractRenderTechnique object
+	*/
+
 	AbstractRenderTechnique::AbstractRenderTechnique() :
 	m_instancingEnabled(true)
 	{
@@ -17,15 +29,33 @@ namespace Nz
 
 	AbstractRenderTechnique::~AbstractRenderTechnique() = default;
 
+	/*!
+	* \brief Enables the instancing
+	*
+	* \param instancing Should instancing be enabled
+	*
+	* \remark This may improve performances
+	*/
+
 	void AbstractRenderTechnique::EnableInstancing(bool instancing)
 	{
 		m_instancingEnabled = instancing;
 	}
 
+	/*!
+	* \brief Gets the name of the actual technique
+	* \return Name of the technique being used
+	*/
+
 	String AbstractRenderTechnique::GetName() const
 	{
 		return RenderTechniques::ToString(GetType());
 	}
+
+	/*!
+	* \brief Checks whether the instancing is enabled
+	* \return true If it is the case
+	*/
 
 	bool AbstractRenderTechnique::IsInstancingEnabled() const
 	{

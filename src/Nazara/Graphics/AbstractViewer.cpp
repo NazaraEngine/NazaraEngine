@@ -7,5 +7,13 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::AbstractViewer
+	* \brief Graphics class that represents the viewer for our scene
+	*
+	* \remark This class is abstract
+	*/
+
 	AbstractViewer::~AbstractViewer() = default;
 }

@@ -12,6 +12,19 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::Billboard
+	* \brief Graphics class that represents a billboard, a 2D surface which simulates a 3D object
+	*/
+
+	/*!
+	* \brief Adds this billboard to the render queue
+	*
+	* \param renderQueue Queue to be added
+	* \param instanceData Data used for instance
+	*/
+
 	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
 		if (!m_material)
@@ -20,11 +33,15 @@ namespace Nz
 		renderQueue->AddBillboard(instanceData.renderOrder, m_material, instanceData.transformMatrix.GetTranslation(), m_size, m_sinCos, m_color);
 	}
 
+	/*
+	* \brief Makes the bounding volume of this billboard
+	*/
+
 	void Billboard::MakeBoundingVolume() const
 	{
 		constexpr float sqrt2 = float(M_SQRT2);
 
-		m_boundingVolume.Set(Vector3f(0.f), sqrt2*m_size.x*Vector3f::Right() + sqrt2*m_size.y*Vector3f::Down());
+		m_boundingVolume.Set(Vector3f(0.f), sqrt2 * m_size.x * Vector3f::Right() + sqrt2 * m_size.y * Vector3f::Down());
 	}
 
 	BillboardLibrary::LibraryMap Billboard::s_library;
