@@ -78,7 +78,7 @@ namespace Nz
 	* \param v Object to hash
 	*
 	* \remark a HashAppend specialization for type T is required
-	*
+	* 
 	* \see ComputeHash
 	*/
 	template<typename T>

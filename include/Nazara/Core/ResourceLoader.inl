@@ -66,7 +66,7 @@ namespace Nz
 			return false;
 		}
 
-		File file(path); // Ouvert seulement en cas de besoin
+		File file(path); // Open only if needed
 
 		bool found = false;
 		for (Loader& loader : Type::s_loaders)
