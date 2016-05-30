@@ -27,17 +27,22 @@
 #ifndef NAZARA_CONFIG_NETWORK_HPP
 #define NAZARA_CONFIG_NETWORK_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/*!
+* \defgroup network (NazaraNetwork) Network module
+*  Network/System module including classes to handle networking elements...
+*/
 
-// Utilise le MemoryManager pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+/// Each modification of a paramater of the module needs a recompilation of the unit
+
+// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
 #define NAZARA_NETWORK_MANAGE_MEMORY 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Activate the security tests based on the code (Advised for development)
 #define NAZARA_NETWORK_SAFE 1
 
-/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
+/// Each modification of a parameter following implies a modification (often minor) of the code
 
-/// Vérification des valeurs et types de certaines constantes
+/// Checking the values and types of certain constants
 #include <Nazara/Network/ConfigCheck.hpp>
 
 #if defined(NAZARA_STATIC)
