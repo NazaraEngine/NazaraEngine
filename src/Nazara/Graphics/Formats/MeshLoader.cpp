@@ -27,6 +27,12 @@ namespace Nz
 				String filePath;
 				if (matData.GetStringParameter(MaterialData::FilePath, &filePath))
 				{
+					if (!File::Exists(filePath))
+					{
+						NazaraWarning("Shader name does not refer to an existing file, \".tga\" is used by default");
+						filePath += ".tga";
+					}
+
 					MaterialRef material = Material::New();
 					if (material->LoadFromFile(filePath, parameters.material))
 						model->SetMaterial(i, std::move(material));
