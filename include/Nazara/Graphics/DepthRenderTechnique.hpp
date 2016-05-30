@@ -74,6 +74,6 @@ namespace Nz
 }
 
 
-#include <Nazara/Graphics/dEPTHRenderTechnique.inl>
+#include <Nazara/Graphics/DepthRenderTechnique.inl>
 
 #endif // NAZARA_DEPTHRENDERTECHNIQUE_HPP
