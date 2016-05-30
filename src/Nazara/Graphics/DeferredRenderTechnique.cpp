@@ -77,7 +77,18 @@ namespace Nz
 			3,    // RenderPassType_SSAO
 		};
 
-		static_assert(sizeof(RenderPassPriority)/sizeof(unsigned int) == RenderPassType_Max+1, "Render pass priority array is incomplete");
+		static_assert(sizeof(RenderPassPriority) / sizeof(unsigned int) == RenderPassType_Max + 1, "Render pass priority array is incomplete");
+
+		/*!
+		* \brief Registers the deferred shader
+		* \return Reference to the newly created shader
+		*
+		* \param name Name of the shader
+		* \param fragmentSource Raw data to fragment shader
+		* \param fragmentSourceLength Size of the fragment source
+		* \param vertexStage Stage of the shader
+		* \param err Pointer to string to contain error message
+		*/
 
 		inline ShaderRef RegisterDeferredShader(const String& name, const UInt8* fragmentSource, unsigned int fragmentSourceLength, const ShaderStage& vertexStage, String* err)
 		{
@@ -108,6 +119,18 @@ namespace Nz
 			return shader;
 		}
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredRenderTechnique
+	* \brief Graphics class that represents the technique used in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredRenderTechnique object by default
+	*
+	* \remark Produces a NazaraError if one pass could not be created
+	*/
 
 	DeferredRenderTechnique::DeferredRenderTechnique() :
 	m_renderQueue(static_cast<ForwardRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
@@ -204,10 +227,26 @@ namespace Nz
 
 	DeferredRenderTechnique::~DeferredRenderTechnique() = default;
 
+	/*!
+	* \brief Clears the data
+	*
+	* \param sceneData Data of the scene
+	*/
+
 	void DeferredRenderTechnique::Clear(const SceneData& sceneData) const
 	{
 		NazaraUnused(sceneData);
 	}
+
+	/*!
+	* \brief Draws the data of the scene
+	* \return true If successful
+	*
+	* \param sceneData Data of the scene
+	*
+	* \remark Produces a NazaraAssert if viewer of the scene is invalid
+	* \remark Produces a NazaraError if updating viewport dimensions failed
+	*/
 
 	bool DeferredRenderTechnique::Draw(const SceneData& sceneData) const
 	{
@@ -242,6 +281,14 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Enables a pass
+	*
+	* \param renderPass Enumeration for the pass
+	* \param position Position of the pass
+	* \param enable Should the pass be enabled
+	*/
+
 	void DeferredRenderTechnique::EnablePass(RenderPassType renderPass, int position, bool enable)
 	{
 		auto it = m_passes.find(renderPass);
@@ -253,10 +300,24 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Gets the stencil buffer
+	* \return Pointer to the rendering buffer
+	*/
+
 	RenderBuffer* DeferredRenderTechnique::GetDepthStencilBuffer() const
 	{
 		return m_depthStencilBuffer;
 	}
+
+	/*!
+	* \brief Gets the G-buffer
+	* \return Pointer to the ith texture
+	*
+	* \param i Index of the G-buffer
+	*
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if index is invalid
+	*/
 
 	Texture* DeferredRenderTechnique::GetGBuffer(unsigned int i) const
 	{
@@ -271,15 +332,33 @@ namespace Nz
 		return m_GBuffer[i];
 	}
 
+	/*!
+	* \brief Gets the rendering texture of the G-buffer
+	* \return Pointer to the rendering buffer
+	*/
+
 	RenderTexture* DeferredRenderTechnique::GetGBufferRTT() const
 	{
 		return &m_GBufferRTT;
 	}
 
+	/*!
+	* \brief Gets the forward technique
+	* \return Constant pointer to the forward technique
+	*/
+
 	const ForwardRenderTechnique* DeferredRenderTechnique::GetForwardTechnique() const
 	{
 		return &m_forwardTechnique;
 	}
+
+	/*!
+	* \brief Gets the pass
+	* \return Pointer to the deferred render pass
+	*
+	* \param renderPass Enumeration for the pass
+	* \param position Position of the pass
+	*/
 
 	DeferredRenderPass* DeferredRenderTechnique::GetPass(RenderPassType renderPass, int position)
 	{
@@ -294,20 +373,44 @@ namespace Nz
 		return nullptr;
 	}
 
+	/*!
+	* \brief Gets the render queue
+	* \return Pointer to the render queue
+	*/
+
 	AbstractRenderQueue* DeferredRenderTechnique::GetRenderQueue()
 	{
 		return &m_renderQueue;
 	}
+
+	/*!
+	* \brief Gets the type of the current technique
+	* \return Type of the render technique
+	*/
 
 	RenderTechniqueType DeferredRenderTechnique::GetType() const
 	{
 		return RenderTechniqueType_DeferredShading;
 	}
 
+	/*!
+	* \brief Gets the render texture used to work
+	* \return Pointer to the rendering texture
+	*/
+
 	RenderTexture* DeferredRenderTechnique::GetWorkRTT() const
 	{
 		return &m_workRTT;
 	}
+
+	/*!
+	* \brief Gets the ith texture to work
+	* \return Pointer to the texture
+	*
+	* \param i Index of the texture used to work
+	*
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if index is invalid
+	*/
 
 	Texture* DeferredRenderTechnique::GetWorkTexture(unsigned int i) const
 	{
@@ -322,6 +425,14 @@ namespace Nz
 		return m_workTextures[i];
 	}
 
+	/*!
+	* \brief Checks whether the pass is enable
+	* \return true If it is the case
+	*
+	* \param renderPass Enumeration for the pass
+	* \param position Position of the pass
+	*/
+
 	bool DeferredRenderTechnique::IsPassEnabled(RenderPassType renderPass, int position)
 	{
 		auto it = m_passes.find(renderPass);
@@ -335,9 +446,17 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Resets the pass
+	* \return Pointer to the new deferred render pass
+	*
+	* \param renderPass Enumeration for the pass
+	* \param position Position of the pass
+	*/
+
 	DeferredRenderPass* DeferredRenderTechnique::ResetPass(RenderPassType renderPass, int position)
 	{
-		std::unique_ptr<DeferredRenderPass> smartPtr; // Nous évite un leak en cas d'exception
+		std::unique_ptr<DeferredRenderPass> smartPtr; // We avoid to leak in case of exception
 
 		switch (renderPass)
 		{
@@ -386,6 +505,14 @@ namespace Nz
 		return smartPtr.release();
 	}
 
+	/*!
+	* \brief Sets the pass
+	*
+	* \param relativeTo Enumeration for the pass
+	* \param position Position of the pass
+	* \param pass Render pass to set
+	*/
+
 	void DeferredRenderTechnique::SetPass(RenderPassType relativeTo, int position, DeferredRenderPass* pass)
 	{
 		if (pass)
@@ -400,11 +527,25 @@ namespace Nz
 			m_passes[relativeTo].erase(position);
 	}
 
+	/*!
+	* \brief Checks whether the technique is supported
+	* \return true if it is the case
+	*/
+
 	bool DeferredRenderTechnique::IsSupported()
 	{
-		// Depuis qu'OpenGL 3.3 est la version minimale, le Renderer supporte ce qu'il faut, mais par acquis de conscience...
+		// Since OpenGL 3.3 is the minimal version, the Renderer supports what it needs, but we are never sure...
 		return Renderer::GetMaxColorAttachments() >= 4 && Renderer::GetMaxRenderTargets() >= 4;
 	}
+
+	/*!
+	* \brief Resizes the texture sizes used for the render technique
+	* \return true If successful
+	*
+	* \param dimensions Dimensions for the render technique
+	*
+	* \param Produces a NazaraError if one pass could not be resized
+	*/
 
 	bool DeferredRenderTechnique::Resize(const Vector2ui& dimensions) const
 	{
@@ -426,6 +567,13 @@ namespace Nz
 			return false;
 		}
 	}
+
+	/*!
+	* \brief Initializes the deferred render technique
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if one shader creation failed
+	*/
 
 	bool DeferredRenderTechnique::Initialize()
 	{
@@ -560,6 +708,10 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Uninitializes the deferred render technique
+	*/
+
 	void DeferredRenderTechnique::Uninitialize()
 	{
 		ShaderLibrary::Unregister("DeferredGBufferClear");
@@ -570,6 +722,14 @@ namespace Nz
 		ShaderLibrary::Unregister("DeferredFXAA");
 		ShaderLibrary::Unregister("DeferredGaussianBlur");
 	}
+
+	/*!
+	* \brief Functor to compare two render pass
+	* \return true If first render pass is "smaller" than the second one
+	*
+	* \param pass1 First render pass to compare
+	* \param pass2 Second render pass to compare
+	*/
 
 	bool DeferredRenderTechnique::RenderPassComparator::operator()(RenderPassType pass1, RenderPassType pass2) const
 	{
