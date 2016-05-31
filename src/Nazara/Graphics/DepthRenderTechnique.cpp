@@ -464,7 +464,6 @@ namespace Nz
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
-		const ShaderUniforms* shaderUniforms = nullptr;
 
 		for (auto& matIt : layer.opaqueModels)
 		{
@@ -488,7 +487,7 @@ namespace Nz
 					if (shader != lastShader)
 					{
 						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
+						GetShaderUniforms(shader);
 						lastShader = shader;
 					}
 
