@@ -122,5 +122,25 @@ SCENARIO("String", "[CORE][STRING]")
 			}
 		}
 	}*/
+
+	GIVEN("A string")
+	{
+		Nz::String replaceAny("abapeilomuky");
+		Nz::String replaceAnyWithCase("abapEilOmuky");
+
+		WHEN("We replace any of vowels after character 3")
+		{
+			unsigned int nbrOfChanges = replaceAny.ReplaceAny("aeiouy", '$', 3);
+			unsigned int nbrOfChangesWithCase = replaceAnyWithCase.ReplaceAny("AEIOUY", '$', 3);
+
+			THEN("These results are expected")
+			{
+				REQUIRE(replaceAny == "abap$$l$m$k$");
+				REQUIRE(nbrOfChanges == 5);
+				REQUIRE(replaceAnyWithCase == "abap$il$muky");
+				REQUIRE(nbrOfChangesWithCase == 2);
+			}
+		}
+	}
 }
 
