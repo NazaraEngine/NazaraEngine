@@ -132,7 +132,7 @@ namespace Nz
 		else
 			difference = sequence - sequence2;
 
-		return 0;
+		return difference;
 	}
 
 	/*!
