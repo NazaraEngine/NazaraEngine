@@ -34,7 +34,7 @@ namespace Nz
 		#ifdef VK_USE_PLATFORM_ANDROID_KHR
 		inline bool Surface::Create(const VkAndroidSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_lastErrorCode = m_instance.PFN_vkCreateAndroidSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			m_lastErrorCode = m_instance.vkCreateAndroidSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
 			return Create(allocator);
 		}
 
@@ -55,7 +55,7 @@ namespace Nz
 		#ifdef VK_USE_PLATFORM_MIR_KHR
 		inline bool Surface::Create(const VkMirSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_lastErrorCode = m_instance.PFN_vkCreateMirSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			m_lastErrorCode = m_instance.vkCreateMirSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
 			return Create(allocator);
 		}
 
@@ -77,7 +77,7 @@ namespace Nz
 		#ifdef VK_USE_PLATFORM_XCB_KHR
 		inline bool Surface::Create(const VkXcbSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_lastErrorCode = m_instance.PFN_vkCreateXcbSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			m_lastErrorCode = m_instance.vkCreateXcbSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
 			return Create(allocator);
 		}
 
@@ -99,7 +99,7 @@ namespace Nz
 		#ifdef VK_USE_PLATFORM_XLIB_KHR
 		inline bool Surface::Create(const VkXlibSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_lastErrorCode = m_instance.PFN_vkCreateXlibSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
+			m_lastErrorCode = m_instance.vkCreateXlibSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
 			return Create(allocator);
 		}
 
