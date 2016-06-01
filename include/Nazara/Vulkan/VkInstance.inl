@@ -50,7 +50,10 @@ namespace Nz
 		inline void Instance::Destroy()
 		{
 			if (m_instance)
+			{
 				vkDestroyInstance(m_instance, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+				m_instance = nullptr;
+			}
 		}
 
 		inline PFN_vkVoidFunction Instance::GetDeviceProcAddr(VkDevice device, const char* name)

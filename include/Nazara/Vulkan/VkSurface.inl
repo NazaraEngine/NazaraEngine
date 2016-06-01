@@ -165,7 +165,10 @@ namespace Nz
 		inline void Surface::Destroy()
 		{
 			if (m_surface != VK_NULL_HANDLE)
+			{
 				m_instance.vkDestroySurfaceKHR(m_instance, m_surface, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+				m_surface = VK_NULL_HANDLE;
+			}
 		}
 		
 		inline VkResult Surface::GetLastErrorCode() const
