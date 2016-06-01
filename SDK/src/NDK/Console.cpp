@@ -145,6 +145,7 @@ namespace Ndk
 				{
 					case Nz::Keyboard::Down:
 					case Nz::Keyboard::Up:
+					{
 						if (event.key.code == Nz::Keyboard::Up)
 							m_historyPosition = std::min<std::size_t>(m_commandHistory.size(), m_historyPosition + 1);
 						else
@@ -158,6 +159,10 @@ namespace Ndk
 						Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
 						m_inputDrawer.SetText(s_inputPrefix + text);
 						m_inputTextSprite->Update(m_inputDrawer);
+						break;
+					}
+
+					default:
 						break;
 				}
 				break;
