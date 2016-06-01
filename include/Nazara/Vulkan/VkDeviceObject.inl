@@ -57,7 +57,10 @@ namespace Nz
 		inline void DeviceObject<C, VkType, CreateInfo>::Destroy()
 		{
 			if (m_handle != VK_NULL_HANDLE)
+			{
 				C::DestroyHelper(m_device, m_handle, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+				m_handle = VK_NULL_HANDLE;
+			}
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>

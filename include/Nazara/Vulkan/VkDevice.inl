@@ -29,6 +29,8 @@ namespace Nz
 			{
 				vkDeviceWaitIdle(m_device);
 				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+
+				m_device = nullptr;
 			}
 		}
 
