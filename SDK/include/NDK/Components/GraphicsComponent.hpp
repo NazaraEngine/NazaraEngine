@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
@@ -80,3 +81,4 @@ namespace Ndk
 #include <NDK/Components/GraphicsComponent.inl>
 
 #endif // NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
+#endif // NDK_SERVER
