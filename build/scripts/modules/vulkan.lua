@@ -1,5 +1,7 @@
 MODULE.Name = "Vulkan"
 
+MODULE.ClientOnly = true
+
 MODULE.Defines = {
 	"VK_NO_PROTOTYPES"
 }

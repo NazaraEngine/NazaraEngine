@@ -15,7 +15,7 @@ function NazaraBuild:Execute()
 	if (self.Actions[_ACTION] == nil) then
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
 	
-		if (#self.OrderedExtLibs > 0) then
+        if (_OPTIONS["with-extlibs"]) then
 			workspace("NazaraExtlibs")
 			platforms(platformData)
 
@@ -196,9 +196,7 @@ function NazaraBuild:Execute()
 				targetdir("../lib/" .. makeLibDir .. "/x64")
 
 			-- Copy the module binaries to the example folder
-			if (os.is("windows")) then
-				self:MakeCopyAfterBuild(moduleTable)
-			end
+			self:MakeCopyAfterBuild(moduleTable)
 
 			configuration({"vs*", "x86"})
 				libdirs("../extlibs/lib/msvc/x86")
@@ -310,7 +308,7 @@ function NazaraBuild:Execute()
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
 
-			-- Copy the module binaries to the example folder
+			-- Copy the tool binaries to the example folder
 			if (toolTable.CopyTargetToExampleDir) then
 				self:MakeCopyAfterBuild(toolTable)
 			end
@@ -451,6 +449,11 @@ end
 function NazaraBuild:Initialize()
 	-- Commençons par les options
 	newoption({
+		trigger     = "server",
+		description = "Excludes client-only modules/tools/examples"
+	})
+
+	newoption({
 		trigger     = "united",
 		description = "Builds all the modules as one united library"
 	})
@@ -491,26 +494,24 @@ function NazaraBuild:Initialize()
 	ACTION = nil
 
 	-- Extern libraries
-	if (_OPTIONS["with-extlibs"]) then
-		local extlibs = os.matchfiles("../extlibs/build/*.lua")
-		for k,v in pairs(extlibs) do
-			local f, err = loadfile(v)
-			if (f) then
-				LIBRARY = {}
-				self:SetupInfoTable(LIBRARY)
+    local extlibs = os.matchfiles("../extlibs/build/*.lua")
+    for k,v in pairs(extlibs) do
+        local f, err = loadfile(v)
+        if (f) then
+            LIBRARY = {}
+            self:SetupInfoTable(LIBRARY)
 
-				f()
+            f()
 
-				local succeed, err = self:RegisterExternLibrary(LIBRARY)
-				if (not succeed) then
-					print("Unable to register extern library: " .. err)
-				end
-			else
-				print("Unable to load extern library file: " .. err)
-			end
-		end
-		LIBRARY = nil
-	end
+            local succeed, err = self:RegisterExternLibrary(LIBRARY)
+            if (not succeed) then
+                print("Unable to register extern library: " .. err)
+            end
+        else
+            print("Unable to load extern library file: " .. err)
+        end
+    end
+    LIBRARY = nil
 
 	-- Then the modules
 	local modules = os.matchfiles("scripts/modules/*.lua")
@@ -605,13 +606,20 @@ function NazaraBuild:Initialize()
 	self.OrderedExtLibs  = {}
 	self.OrderedModules  = {}
 	self.OrderedTools    = {}
-	local tables = {self.Examples, self.ExtLibs, self.Modules, self.Tools}
-	local orderedTables = {self.OrderedExamples, self.OrderedExtLibs, self.OrderedModules, self.OrderedTools}
+	local tables = {self.ExtLibs, self.Modules, self.Tools, self.Examples}
+	local orderedTables = {self.OrderedExtLibs, self.OrderedModules, self.OrderedTools, self.OrderedExamples}
 	for k,projects in ipairs(tables) do
+        -- Begin by resolving every project (because of dependencies in the same category)
 		for projectId,projectTable in pairs(projects) do
-			self:Process(projectTable)
-			
-			table.insert(orderedTables[k], projectTable)
+            self:Resolve(projectTable)
+        end
+
+		for projectId,projectTable in pairs(projects) do
+			if (self:Process(projectTable)) then
+                table.insert(orderedTables[k], projectTable)
+            else
+                print("Rejected client-only " .. projectTable.Name .. " " .. projectTable.Type) 
+            end
 		end
 		
 		table.sort(orderedTables[k], function (a, b) return a.Name < b.Name end)
@@ -772,13 +780,22 @@ local PosixOSes = {
 }
 
 function NazaraBuild:Process(infoTable)
-	local libraries = {}
+    if (infoTable.ClientOnly and _OPTIONS["server"]) then
+        return false
+    end
+
+	local libraries = {}    
 	for k, library in pairs(infoTable.Libraries) do
 		local moduleName = library:match("Nazara(%w+)")
 		local moduleTable = moduleName and self.Modules[moduleName:lower()]
 		local toolTable = moduleName and self.Tools[moduleName:lower()]
 		
 		if (moduleTable) then
+            if (moduleTable.ClientOnly and _OPTIONS["server"]) then
+                infoTable.ClientOnly = true
+                return false -- We depend on a client-only library
+            end
+
 			if (_OPTIONS["united"]) then
 				library = "NazaraEngine"
 			else
@@ -794,6 +811,11 @@ function NazaraBuild:Process(infoTable)
 		else
 			local extLibTable = self.ExtLibs[library:lower()]
 			if (extLibTable) then
+                if (extLibTable.ClientOnly and _OPTIONS["server"]) then
+                    infoTable.ClientOnly = true
+                    return false -- We depend on a client-only library
+                end
+
 				library = extLibTable.Name
 				
 				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
@@ -802,6 +824,11 @@ function NazaraBuild:Process(infoTable)
 				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
 			else
 				if (toolTable and toolTable.Kind == "library") then
+                    if (toolTable.ClientOnly and _OPTIONS["server"]) then
+                        infoTable.ClientOnly = true
+                        return false -- We depend on a client-only library
+                    end
+
 					library = "Nazara" .. toolTable.Name
 					
 					-- Import tools includes
@@ -862,6 +889,14 @@ function NazaraBuild:Process(infoTable)
 			end
 		end
 	end
+
+    return true
+end
+
+function NazaraBuild:Resolve(infoTable)
+    if (type(infoTable.Libraries) == "function") then
+        infoTable.Libraries = infoTable.Libraries()
+    end
 end
 
 function NazaraBuild:MakeCopyAfterBuild(infoTable)
