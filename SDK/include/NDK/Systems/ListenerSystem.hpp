@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_LISTENERSYSTEM_HPP
 #define NDK_SYSTEMS_LISTENERSYSTEM_HPP
 
@@ -27,3 +28,4 @@ namespace Ndk
 #include <NDK/Systems/ListenerSystem.inl>
 
 #endif // NDK_SYSTEMS_LISTENERSYSTEM_HPP
+#endif // NDK_SERVER
