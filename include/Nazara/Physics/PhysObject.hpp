@@ -15,7 +15,7 @@
 #include <Nazara/Physics/Config.hpp>
 #include <Nazara/Physics/Geom.hpp>
 
-struct NewtonBody;
+class NewtonBody;
 
 namespace Nz
 {
