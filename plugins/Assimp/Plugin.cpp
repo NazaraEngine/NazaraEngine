@@ -206,8 +206,8 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				{
 					aiVector3D position = iMesh->mVertices[j];
 					aiVector3D normal = iMesh->mNormals[j];
-					aiVector3D tangent = iMesh->mTangents[j];
-					aiVector3D uv = iMesh->mTextureCoords[0][j];
+					aiVector3D tangent = (iMesh->HasTangentsAndBitangents()) ? iMesh->mTangents[j] : aiVector3D(0.f, 1.f, 0.f);
+					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
 
 					vertex->position = parameters.scale * Vector3f(position.x, position.y, position.z);
 					vertex->normal.Set(normal.x, normal.y, normal.z);
@@ -246,8 +246,8 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
 					{
 						aiString path;
-						aiTextureMapMode mapMode;
-						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode, nullptr) == aiReturn_SUCCESS)
+						aiTextureMapMode mapMode[3];
+						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
 							matData.SetParameter(MaterialData::CustomDefined);
 							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
@@ -255,7 +255,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 							if (wrapKey)
 							{
 								SamplerWrap wrap = SamplerWrap_Default;
-								switch (mapMode)
+								switch (mapMode[0])
 								{
 									case aiTextureMapMode_Clamp:
 									case aiTextureMapMode_Decal:
@@ -271,7 +271,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 										break;
 
 									default:
-										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode, 16) + " not handled");
+										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
 										break;
 								}
 
