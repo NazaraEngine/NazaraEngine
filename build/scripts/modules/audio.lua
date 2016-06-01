@@ -5,17 +5,24 @@ MODULE.Defines = {
 }
 
 MODULE.Libraries = {
-	"NazaraCore",
+	"NazaraCore"
+}
+
+MODULE.OsLibraries.Windows = {
 	"sndfile-1"
+}
+
+MODULE.OsLibraries.Posix = {
+	"sndfile"
+}
+
+MODULE.OsDynLib.Windows = {
+	"soft_oal"
 }
 
 MODULE.OsFiles.Windows = {
 	"../src/Nazara/Audio/Win32/**.hpp",
 	"../src/Nazara/Audio/Win32/**.cpp"
-}
-
-MODULE.OsDynLib.Windows = {
-	"soft_oal"
 }
 
 MODULE.OsFiles.Posix = {
