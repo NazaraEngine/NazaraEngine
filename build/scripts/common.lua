@@ -15,7 +15,7 @@ function NazaraBuild:Execute()
 	if (self.Actions[_ACTION] == nil) then
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
 	
-		if (#self.OrderedExtLibs > 0) then
+        if (_OPTIONS["with-extlibs"]) then
 			workspace("NazaraExtlibs")
 			platforms(platformData)
 
@@ -494,26 +494,24 @@ function NazaraBuild:Initialize()
 	ACTION = nil
 
 	-- Extern libraries
-	if (_OPTIONS["with-extlibs"]) then
-		local extlibs = os.matchfiles("../extlibs/build/*.lua")
-		for k,v in pairs(extlibs) do
-			local f, err = loadfile(v)
-			if (f) then
-				LIBRARY = {}
-				self:SetupInfoTable(LIBRARY)
+    local extlibs = os.matchfiles("../extlibs/build/*.lua")
+    for k,v in pairs(extlibs) do
+        local f, err = loadfile(v)
+        if (f) then
+            LIBRARY = {}
+            self:SetupInfoTable(LIBRARY)
 
-				f()
+            f()
 
-				local succeed, err = self:RegisterExternLibrary(LIBRARY)
-				if (not succeed) then
-					print("Unable to register extern library: " .. err)
-				end
-			else
-				print("Unable to load extern library file: " .. err)
-			end
-		end
-		LIBRARY = nil
-	end
+            local succeed, err = self:RegisterExternLibrary(LIBRARY)
+            if (not succeed) then
+                print("Unable to register extern library: " .. err)
+            end
+        else
+            print("Unable to load extern library file: " .. err)
+        end
+    end
+    LIBRARY = nil
 
 	-- Then the modules
 	local modules = os.matchfiles("scripts/modules/*.lua")
