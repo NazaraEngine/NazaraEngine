@@ -5,12 +5,19 @@ function NazaraBuild:Execute()
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
 
+	local platformData
+	if (os.is64bit()) then
+		platformData = {"x64", "x86"}
+	else
+		platformData = {"x86", "x64"}
+	end
+	
 	if (self.Actions[_ACTION] == nil) then
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
 	
 		if (#self.OrderedExtLibs > 0) then
 			workspace("NazaraExtlibs")
-			platforms({"x32", "x64"})
+			platforms(platformData)
 
 			-- Configuration générale
 			configurations({
@@ -23,13 +30,13 @@ function NazaraBuild:Execute()
 			location(_ACTION)
 			kind("StaticLib")
 
-			configuration("x32")
+			configuration("x86")
 				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				libdirs("../extlibs/lib/common/x64")
 
-			configuration({"codeblocks or codelite or gmake", "x32"})
+			configuration({"codeblocks or codelite or gmake", "x86"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
 				targetdir("../extlibs/lib/" .. makeLibDir .. "/x86")
 
@@ -40,7 +47,7 @@ function NazaraBuild:Execute()
 			configuration("vs*")
 				buildoptions("/MP")
 
-			configuration({"vs*", "x32"})
+			configuration({"vs*", "x86"})
 				libdirs("../extlibs/lib/msvc/x86")
 				targetdir("../extlibs/lib/msvc/x86")
 
@@ -48,7 +55,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/msvc/x64")
 				targetdir("../extlibs/lib/msvc/x64")
 
-			configuration({"xcode3 or xcode4", "x32"})
+			configuration({"xcode3 or xcode4", "x86"})
 				libdirs("../extlibs/lib/xcode/x86")
 				targetdir("../extlibs/lib/xcode/x86")
 
@@ -102,7 +109,7 @@ function NazaraBuild:Execute()
 		end
 
 		workspace("NazaraEngine")
-		platforms({"x32", "x64"})
+		platforms(platformData)
 
 		-- Configuration générale
 		configurations({
@@ -171,14 +178,14 @@ function NazaraBuild:Execute()
 			libdirs("../lib")
 			libdirs("../extlibs/lib/common")
 
-			configuration("x32")
+			configuration("x86")
 				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
 				libdirs("../extlibs/lib/common/x64")
 
-			configuration({"codeblocks or codelite or gmake", "x32"})
+			configuration({"codeblocks or codelite or gmake", "x86"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
 				libdirs("../lib/" .. makeLibDir .. "/x86")
 				targetdir("../lib/" .. makeLibDir .. "/x86")
@@ -193,7 +200,7 @@ function NazaraBuild:Execute()
 				self:MakeCopyAfterBuild(moduleTable)
 			end
 
-			configuration({"vs*", "x32"})
+			configuration({"vs*", "x86"})
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
 				targetdir("../lib/msvc/x86")
@@ -203,7 +210,7 @@ function NazaraBuild:Execute()
 				libdirs("../lib/msvc/x64")
 				targetdir("../lib/msvc/x64")
 
-			configuration({"xcode3 or xcode4", "x32"})
+			configuration({"xcode3 or xcode4", "x86"})
 				libdirs("../extlibs/lib/xcode/x86")
 				libdirs("../lib/xcode/x86")
 				targetdir("../lib/xcode/x86")
@@ -278,20 +285,20 @@ function NazaraBuild:Execute()
 			libdirs("../lib")
 			libdirs("../extlibs/lib/common")
 
-			configuration("x32")
+			configuration("x86")
 				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
 				libdirs("../extlibs/lib/common/x64")
 
-			configuration({"codeblocks or codelite or gmake", "x32"})
+			configuration({"codeblocks or codelite or gmake", "x86"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
 				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir("../lib/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x32")
+					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x86")
 				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
@@ -308,7 +315,7 @@ function NazaraBuild:Execute()
 				self:MakeCopyAfterBuild(toolTable)
 			end
 
-			configuration({"vs*", "x32"})
+			configuration({"vs*", "x86"})
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
 				if (toolTable.Kind == "library") then
@@ -326,7 +333,7 @@ function NazaraBuild:Execute()
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x64")
 				end
 
-			configuration({"xcode3 or xcode4", "x32"})
+			configuration({"xcode3 or xcode4", "x86"})
 				libdirs("../extlibs/lib/xcode/x86")
 				libdirs("../lib/xcode/x86")
 				if (toolTable.Kind == "library") then
@@ -406,26 +413,26 @@ function NazaraBuild:Execute()
 			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
 
-			configuration("x32")
+			configuration("x86")
 				libdirs("../extlibs/lib/common/x86")
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
 				libdirs("../extlibs/lib/common/x64")
 
-			configuration({"codeblocks or codelite or gmake", "x32"})
+			configuration({"codeblocks or codelite or gmake", "x86"})
 				libdirs("../lib/" .. makeLibDir .. "/x86")
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../lib/" .. makeLibDir .. "/x64")
 
-			configuration({"vs*", "x32"})
+			configuration({"vs*", "x86"})
 				libdirs("../lib/msvc/x86")
 
 			configuration({"vs*", "x64"})
 				libdirs("../lib/msvc/x64")
 
-			configuration({"xcode3 or xcode4", "x32"})
+			configuration({"xcode3 or xcode4", "x86"})
 				libdirs("../lib/xcode/x86")
 
 			configuration({"xcode3 or xcode4", "x64"})
@@ -801,6 +808,17 @@ function NazaraBuild:Process(infoTable)
 					for k,v in ipairs(toolTable.Includes) do
 						table.insert(infoTable.Includes, v)
 					end
+					
+					-- And libraries
+					for k, v in pairs(toolTable.Libraries) do
+						table.insert(infoTable.Libraries, v)
+					end
+					
+					for config, libs in pairs(toolTable.ConfigurationLibraries) do
+						for k,v in pairs(libs) do
+							table.insert(infoTable.ConfigurationLibraries[config], v)
+						end
+					end
 
 					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
 					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
@@ -853,8 +871,8 @@ function NazaraBuild:MakeCopyAfterBuild(infoTable)
 
 		for k,v in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
 			local paths = {}
-			table.insert(paths, {"x32", "../extlibs/lib/common/x86/" .. v .. ".dll"})
-			table.insert(paths, {"x32", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
+			table.insert(paths, {"x86", "../extlibs/lib/common/x86/" .. v .. ".dll"})
+			table.insert(paths, {"x86", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
 			table.insert(paths, {"x64", "../extlibs/lib/common/x64/" .. v .. ".dll"})
 			table.insert(paths, {"x64", "../extlibs/lib/common/x64/lib" .. v .. ".dll"})
 
