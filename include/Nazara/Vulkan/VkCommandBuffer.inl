@@ -77,7 +77,7 @@ namespace Nz
 				renderPass,
 				subpass,
 				framebuffer,
-				(occlusionQueryEnable) ? VK_TRUE : VK_FALSE,
+				VkBool32((occlusionQueryEnable) ? VK_TRUE : VK_FALSE),
 				queryFlags,
 				pipelineStatistics
 			};
@@ -102,7 +102,7 @@ namespace Nz
 				VK_NULL_HANDLE,
 				0,
 				VK_NULL_HANDLE,
-				(occlusionQueryEnable) ? VK_TRUE : VK_FALSE,
+				VkBool32((occlusionQueryEnable) ? VK_TRUE : VK_FALSE),
 				queryFlags,
 				pipelineStatistics
 			};
