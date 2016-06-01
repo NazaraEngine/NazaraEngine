@@ -112,6 +112,12 @@ namespace Ndk
 		// Uninitialize the SDK
 		s_referenceCounter = 0;
 
+		// Components
+		BaseComponent::Uninitialize();
+
+		// Systems
+		BaseSystem::Uninitialize();
+
 		// Uninitialize the engine
 
 		#ifndef NDK_SERVER
