@@ -156,7 +156,7 @@ namespace Nz
 				case PixelFormatType_DXT1:
 				case PixelFormatType_DXT3:
 				case PixelFormatType_DXT5:
-					return (((width + 3) / 4) * ((height + 3) / 4) * (format == PixelFormatType_DXT1) ? 8 : 16) * depth;
+					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormatType_DXT1) ? 8 : 16)) * depth;
 
 				default:
 					NazaraError("Unsupported format");
