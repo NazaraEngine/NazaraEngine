@@ -94,6 +94,7 @@ float VectorToDepthValue(vec3 vec, float zNear, float zFar)
 	return (normZ + 1.0) * 0.5;
 }
 
+#if SHADOW_MAPPING
 float CalculateDirectionalShadowFactor(int lightIndex)
 {
 	vec4 lightSpacePos = vLightSpacePos[lightIndex];
@@ -119,6 +120,7 @@ float CalculateSpotShadowFactor(int lightIndex)
 	
 	return visibility;
 }
+#endif
 
 void main()
 {
