@@ -68,7 +68,7 @@ namespace Nz
 	PhysObject::~PhysObject()
 	{
 		if (m_body)
-			NewtonDestroyBody(m_world->GetHandle(), m_body);
+			NewtonDestroyBody(m_body);
 	}
 
 	void PhysObject::AddForce(const Vector3f& force, CoordSys coordSys)
@@ -304,11 +304,13 @@ namespace Nz
 			Vector3f min, max;
 			NewtonBodyGetAABB(m_body, min, max);
 
-			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData)
+			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData) -> int
 			{
 				NazaraUnused(userData);
 				NewtonBodySetSleepState(body, 0);
-			}, nullptr);
+				return 1;
+			}, 
+			nullptr);
 		}
 		/*for (std::set<PhysObjectListener*>::iterator it = m_listeners.begin(); it != m_listeners.end(); ++it)
 			(*it)->PhysObjectOnUpdate(this);*/
@@ -317,7 +319,7 @@ namespace Nz
 	PhysObject& PhysObject::operator=(PhysObject&& object)
 	{
 		if (m_body)
-			NewtonDestroyBody(m_world->GetHandle(), m_body);
+			NewtonDestroyBody(m_body);
 
 		m_body               = object.m_body;
 		m_forceAccumulator   = std::move(object.m_forceAccumulator);
