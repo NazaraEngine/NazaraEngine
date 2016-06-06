@@ -22,14 +22,11 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
-TOOL.Libraries = {
-	"NazaraCore",
-	"NazaraAudio",
-	"NazaraLua",
-	"NazaraNetwork",
-	"NazaraNoise",
-	"NazaraPhysics",
-	"NazaraUtility",
-	"NazaraRenderer",
-	"NazaraGraphics"
-}
+TOOL.Libraries = function()
+    local libraries = {}
+    for k,v in pairs(NazaraBuild.Modules) do
+        table.insert(libraries, "Nazara" .. v.Name)
+    end
+    
+    return libraries
+end
