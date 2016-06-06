@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_RENDERSYSTEM_HPP
 #define NDK_SYSTEMS_RENDERSYSTEM_HPP
 
@@ -70,3 +71,4 @@ namespace Ndk
 #include <NDK/Systems/RenderSystem.inl>
 
 #endif // NDK_SYSTEMS_RENDERSYSTEM_HPP
+#endif // NDK_SERVER
