@@ -1,5 +1,7 @@
 MODULE.Name = "Audio"
 
+MODULE.ClientOnly = true
+
 MODULE.Defines = {
 	"NAZARA_AUDIO_OPENAL"
 }
