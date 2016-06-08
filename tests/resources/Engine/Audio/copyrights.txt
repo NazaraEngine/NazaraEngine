@@ -1,0 +1,54 @@
+The_Brabanconne.ogg
+
+https://en.wikipedia.org/wiki/File:The_Brabanconne.ogg
+
+Original file:
+The_Brabanconne.ogg ‎(Ogg Vorbis sound file, length 1 min 3 s, 378 kbps)
+
+Summary:
+
+Description: The Belgian national anthem (instrumental version) performed by the United States Navy Band. Direct link is at http://www.navyband.navy.mil/anthems/ANTHEMS/Belgium.mp3.
+Date: 19 October 2004
+Source: http://www.navyband.navy.mil/anthems/national_anthems.htm
+Author: United States Navy Band (rendition), uploaded to Wikimedia by Keith Lehwald
+
+Licencing:
+
+This file is a work of a sailor or employee of the U.S. Navy, taken or made as part of that person's official duties. As a work of the U.S. federal government, the image is in the public domain.
+This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.
+
+-------------------------------------------------------------------------------------------------
+
+Cat.flac:
+
+http://www.freesound.org/people/EARR/sounds/148013/
+
+Original file:
+148013__earr__angry-cat.flac (Flac sound file, length 8 s, 96000 Hz, 24 bit depth)
+
+Author:
+
+EARR
+
+Description:
+
+Slightly angry cat. She is a beautiful Siamese cat called Agostina. She is angry for the recording because i pressed his tail.
+
+Information about the recording and equipment:
+
+-Location: Living room.
+-Type of acoustic environment: Small, diffuse, moderately reflective.
+-Distance from sound source to microphones: Approx a few centimeters.
+-Miking technique: Jecklin disk.
+
+-Microphones: 2 Brüel & Kjaer type 4190 capsules with type 2669L head amplifier.
+-Microphone preamps: Modified Brüel & Kjaer type 5935L.
+-ADC: Echo Audiofire 4. (line inputs 3 & 4).
+-Recorder: Echo Audiofire 4 and Dell D630C running Samplitude 10.
+
+Eq: Compensation only for the response of the microphones (In this case for flat response at 60º. See Brüel & Kjaer type 4190 datasheet).
+No reverb, no compression, no fx.
+
+Licencing:
+
+Creative commons
