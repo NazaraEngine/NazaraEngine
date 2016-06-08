@@ -285,7 +285,8 @@ namespace Nz
 			if (!Advance())
 				return false;
 
-			if (std::sscanf(&m_currentLine[0], "( %f %f %f ) ( %f %f %f )", &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
+			// Space is important for the buffer of \n
+			if (std::sscanf(&m_currentLine[0], " ( %f %f %f ) ( %f %f %f )", &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
 																			&m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 6)
 			{
 				UnrecognizedLine(true);
@@ -324,7 +325,8 @@ namespace Nz
 				return false;
 
 			Vector3f min, max;
-			if (std::sscanf(&m_currentLine[0], "( %f %f %f ) ( %f %f %f )", &min.x, &min.y, &min.z, &max.x, &max.y, &max.z) != 6)
+			// Space is important for the buffer of \n
+			if (std::sscanf(&m_currentLine[0], " ( %f %f %f ) ( %f %f %f )", &min.x, &min.y, &min.z, &max.x, &max.y, &max.z) != 6)
 			{
 				UnrecognizedLine(true);
 				return false;

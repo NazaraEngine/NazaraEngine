@@ -128,7 +128,7 @@ namespace Nz
 		SceneNodeType_Max = SceneNodeType_User
 	};
 
-	// Ces paramètres sont indépendants du matériau: ils peuvent être demandés à tout moment
+	// These parameters are independant of the material: they can not be asked for the moment
 	enum ShaderFlags
 	{
 		ShaderFlags_None = 0,
@@ -139,7 +139,7 @@ namespace Nz
 		ShaderFlags_TextureOverlay = 0x08,
 		ShaderFlags_VertexColor    = 0x10,
 
-		ShaderFlags_Max = ShaderFlags_VertexColor*2-1
+		ShaderFlags_Max = ShaderFlags_VertexColor * 2 - 1
 	};
 }
 

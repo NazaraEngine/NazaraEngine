@@ -10,6 +10,16 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredFinalPass
+	* \brief Graphics class that represents the final pass in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredFinalPass object by default
+	*/
+
 	DeferredFinalPass::DeferredFinalPass()
 	{
 		m_pointSampler.SetAnisotropyLevel(1);
@@ -34,7 +44,16 @@ namespace Nz
 
 	DeferredFinalPass::~DeferredFinalPass() = default;
 
-	bool DeferredFinalPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredFinalPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 

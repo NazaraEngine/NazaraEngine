@@ -28,15 +28,29 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::Graphics
+	* \brief Graphics class that represents the module initializer of Graphics
+	*/
+
+	/*!
+	* \brief Initializes the Graphics module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	* \remark Produces a NazaraError if one submodule failed
+	*/
+
 	bool Graphics::Initialize()
 	{
-		if (s_moduleReferenceCounter > 0)
+		if (IsInitialized())
 		{
 			s_moduleReferenceCounter++;
-			return true; // Déjà initialisé
+			return true; // Already initialized
 		}
 
-		// Initialisation des dépendances
+		// Initialisation of dependances
 		if (!Renderer::Initialize())
 		{
 			NazaraError("Failed to initialize Renderer module");
@@ -45,7 +59,7 @@ namespace Nz
 
 		s_moduleReferenceCounter++;
 
-		// Initialisation du module
+		// Initialisation of the module
 		CallOnExit onExit(Graphics::Uninitialize);
 
 		if (!Material::Initialize())
@@ -96,7 +110,7 @@ namespace Nz
 			return false;
 		}
 
-		// Loaders génériques
+		// Generic loaders
 		Loaders::RegisterMesh();
 		Loaders::RegisterTexture();
 
@@ -133,43 +147,54 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the module is initialized
+	* \return true if module is initialized
+	*/
+
 	bool Graphics::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
 	}
 
+	/*!
+	* \brief Uninitializes the Core module
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
 	void Graphics::Uninitialize()
 	{
 		if (s_moduleReferenceCounter != 1)
 		{
-			// Le module est soit encore utilisé, soit pas initialisé
+			// The module is still in use, or can not be uninitialized
 			if (s_moduleReferenceCounter > 1)
 				s_moduleReferenceCounter--;
 
 			return;
 		}
 
-		// Libération du module
+		// Free of module
 		s_moduleReferenceCounter = 0;
 
-		// Libération de l'atlas s'il vient de nous
+		// Free of atlas if it is ours
 		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
 		if (defaultAtlas && defaultAtlas->GetStorage() & DataStorage_Hardware)
 		{
 			Font::SetDefaultAtlas(nullptr);
 
-			// La police par défaut peut faire vivre un atlas hardware après la libération du module (ce qui va être problématique)
-			// du coup, si la police par défaut utilise un atlas hardware, on lui enlève.
-			// Je n'aime pas cette solution mais je n'en ai pas de meilleure sous la main pour l'instant
+			// The default police can make live one hardware atlas after the free of a module (which could be problematic)
+			// So, if the default police use a hardware atlas, we stole it.
+			// I don't like this solution, but I don't have any better
 			if (!defaultAtlas.unique())
 			{
-				// Encore au moins une police utilise l'atlas
+				// Still at least one police use the atlas
 				Font* defaultFont = Font::GetDefault();
 				defaultFont->SetAtlas(nullptr);
 
 				if (!defaultAtlas.unique())
 				{
-					// Toujours pas seuls propriétaires ? Ah ben zut.
+					// Still not the only one to own it ? Then crap.
 					NazaraWarning("Default font atlas uses hardware storage and is still used");
 				}
 			}
@@ -195,7 +220,7 @@ namespace Nz
 
 		NazaraNotice("Uninitialized: Graphics module");
 
-		// Libération des dépendances
+		// Free of dependances
 		Renderer::Uninitialize();
 	}
 
