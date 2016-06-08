@@ -23,7 +23,7 @@ namespace Nz
 			DeferredDOFPass();
 			virtual ~DeferredDOFPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
 			bool Resize(const Vector2ui& dimensions);
 
 		protected:

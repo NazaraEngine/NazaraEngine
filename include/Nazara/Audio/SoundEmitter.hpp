@@ -12,7 +12,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-///TODO: Faire hériter SoundEmitter de Node
+///TODO: Inherit SoundEmitter from Node
 
 namespace Nz
 {
