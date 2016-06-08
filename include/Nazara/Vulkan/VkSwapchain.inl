@@ -11,14 +11,9 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline Swapchain::Swapchain(Device& device) :
-		DeviceObject(device)
-		{
-		}
-
 		inline bool Swapchain::AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex)
 		{
-			m_lastErrorCode = m_device.vkAcquireNextImageKHR(m_device, m_handle, timeout, semaphore, fence, imageIndex);
+			m_lastErrorCode = m_device->vkAcquireNextImageKHR(*m_device, m_handle, timeout, semaphore, fence, imageIndex);
 			switch (m_lastErrorCode)
 			{
 				case VkResult::VK_SUBOPTIMAL_KHR:
@@ -30,13 +25,13 @@ namespace Nz
 			}
 		}
 
-		inline bool Swapchain::Create(const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		inline bool Swapchain::Create(const DeviceHandle& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			if (!DeviceObject::Create(createInfo, allocator))
+			if (!DeviceObject::Create(device, createInfo, allocator))
 				return false;
 
 			UInt32 imageCount = 0;
-			m_lastErrorCode = m_device.vkGetSwapchainImagesKHR(m_device, m_handle, &imageCount, nullptr);
+			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, nullptr);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS || imageCount == 0)
 			{
 				NazaraError("Failed to query swapchain image count");
@@ -44,7 +39,7 @@ namespace Nz
 			}
 
 			m_images.resize(imageCount);
-			m_lastErrorCode = m_device.vkGetSwapchainImagesKHR(m_device, m_handle, &imageCount, m_images.data());
+			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, m_images.data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to query swapchain images");
@@ -71,18 +66,18 @@ namespace Nz
 
 		inline bool Swapchain::IsSupported() const
 		{
-			if (!m_device.IsExtensionLoaded("VK_KHR_swapchain"))
+			if (!m_device->IsExtensionLoaded("VK_KHR_swapchain"))
 				return false;
 		}
 
-		VkResult Swapchain::CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
+		VkResult Swapchain::CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
 		{
-			return device.vkCreateSwapchainKHR(device, createInfo, allocator, handle);
+			return device->vkCreateSwapchainKHR(*device, createInfo, allocator, handle);
 		}
 
-		void Swapchain::DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
+		void Swapchain::DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
 		{
-			return device.vkDestroySwapchainKHR(device, handle, allocator);
+			return device->vkDestroySwapchainKHR(*device, handle, allocator);
 		}
 	}
 }

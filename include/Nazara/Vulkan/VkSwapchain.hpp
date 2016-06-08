@@ -19,14 +19,14 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
-				inline Swapchain(Device& instance);
+				Swapchain() = default;
 				Swapchain(const Swapchain&) = delete;
 				Swapchain(Swapchain&&) = default;
 				~Swapchain() = default;
 
 				inline bool AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex);
 
-				inline bool Create(const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(const DeviceHandle& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline VkImage GetImage(UInt32 index) const;
 				inline const std::vector<VkImage>& GetImages() const;
@@ -38,8 +38,8 @@ namespace Nz
 				Swapchain& operator=(Swapchain&&) = delete;
 
 			private:
-				static VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
-				static void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
+				static VkResult CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
+				static void DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
 
 				std::vector<VkImage> m_images;
 		};
