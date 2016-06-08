@@ -100,6 +100,7 @@ namespace Nz
 		return IpAddress::Invalid;
 	}
 
+	#if NAZARA_CORE_WINDOWS_VISTA
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfoW* info)
 	{
 		switch (info->ai_family)
@@ -121,6 +122,7 @@ namespace Nz
 
 		return IpAddress::Invalid;
 	}
+	#endif
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr* address)
 	{
