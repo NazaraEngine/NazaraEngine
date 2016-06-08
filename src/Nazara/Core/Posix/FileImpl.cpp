@@ -143,7 +143,18 @@ namespace Nz
 			return false;
 		}
 
-		mode_t permissions; // TODO : get permission from first file
+		mode_t permissions;
+		struct stat sb;
+		if (fstat(fd1, &sb) == -1) // get permission from first file
+		{
+			NazaraWarning("Could not get permissions of source file");
+			permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+		}
+		else
+		{
+			permissions = sb.st_mode & ~S_IFMT; // S_IFMT: bit mask for the file type bit field -> ~S_IFMT: general permissions
+		}
+
 		int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
 		if (fd2 == -1)
 		{

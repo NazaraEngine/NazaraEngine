@@ -11,6 +11,19 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::Sprite
+	* \brief Graphics class that represents the rendering of a sprite
+	*/
+
+	/*!
+	* \brief Adds the sprite to the rendering queue
+	*
+	* \param renderQueue Queue to be added
+	* \param instanceData Data for the instance
+	*/
+
 	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
 		if (!m_material)
@@ -20,10 +33,20 @@ namespace Nz
 		renderQueue->AddSprites(instanceData.renderOrder, m_material, vertices, 1);
 	}
 
+	/*!
+	* \brief Makes the bounding volume of this text
+	*/
+
 	void Sprite::MakeBoundingVolume() const
 	{
 		m_boundingVolume.Set(Vector3f(0.f), m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
 	}
+
+	/*!
+	* \brief Updates the data of the sprite
+	*
+	* \param instanceData Data of the instance
+	*/
 
 	void Sprite::UpdateData(InstanceData* instanceData) const
 	{
@@ -51,6 +74,13 @@ namespace Nz
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 
+	/*!
+	* \brief Initializes the sprite librairies
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if the sprite library failed to be initialized
+	*/
+
 	bool Sprite::Initialize()
 	{
 		if (!SpriteLibrary::Initialize())
@@ -61,6 +91,10 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the sprite librairies
+	*/
 
 	void Sprite::Uninitialize()
 	{

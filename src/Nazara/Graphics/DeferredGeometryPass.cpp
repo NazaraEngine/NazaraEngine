@@ -18,6 +18,16 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredGeometryPass
+	* \brief Graphics class that represents the pass for geometries in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredGeometryPass object by default
+	*/
+
 	DeferredGeometryPass::DeferredGeometryPass()
 	{
 		m_clearShader = ShaderLibrary::Get("DeferredGBufferClear");
@@ -31,7 +41,16 @@ namespace Nz
 
 	DeferredGeometryPass::~DeferredGeometryPass() = default;
 
-	bool DeferredGeometryPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return false
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredGeometryPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 		NazaraUnused(firstWorkTexture);
@@ -72,22 +91,22 @@ namespace Nz
 
 						bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
 
-						// On commence par récupérer le programme du matériau
+						// We begin by getting the program for materials
 						UInt32 flags = ShaderFlags_Deferred;
 						if (useInstancing)
 							flags |= ShaderFlags_Instancing;
 
 						const Shader* shader = material->Apply(flags);
 
-						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+						// The uniforms are conserved in our program, there's no point to send them back if they don't change
 						if (shader != lastShader)
 						{
-							// Index des uniformes dans le shader
+							// Index of uniforms in the shader
 							shaderUniforms = GetShaderUniforms(shader);
 
-							// Couleur ambiante de la scène
+							// Ambient color for the scene
 							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-							// Position de la caméra
+							// Position of the camera
 							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 							lastShader = shader;
@@ -105,7 +124,7 @@ namespace Nz
 								const IndexBuffer* indexBuffer = meshData.indexBuffer;
 								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-								// Gestion du draw call avant la boucle de rendu
+								// Handle draw call before rendering loop
 								Renderer::DrawCall drawFunc;
 								Renderer::DrawCallInstanced instancedDrawFunc;
 								unsigned int indexCount;
@@ -128,33 +147,33 @@ namespace Nz
 
 								if (useInstancing)
 								{
-									// On récupère le buffer d'instancing du Renderer et on le configure pour fonctionner avec des matrices
+									// We get the buffer for instance of Renderer and we configure it to work with matrices
 									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
 									const Matrix4f* instanceMatrices = &instances[0];
 									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de matrices que peut contenir le buffer
+									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
 
 									while (instanceCount > 0)
 									{
-										// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+										// We compute the number of instances that we will be able to show this time (Depending on the instance buffer size)
 										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 										instanceCount -= renderedInstanceCount;
 
-										// On remplit l'instancing buffer avec nos matrices world
+										// We fill the instancing buffer with our world matrices
 										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
 										instanceMatrices += renderedInstanceCount;
 
-										// Et on affiche
+										// And we show
 										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 									}
 								}
 								else
 								{
-									// Sans instancing, on doit effectuer un draw call pour chaque instance
-									// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-									// À cause du temps de modification du buffer d'instancing
+									// Without instancing, we must do one draw call for each instance
+									// This may be faster than instancing under a threshold
+									// Due to the time to modify the instancing buffer
 									for (const Matrix4f& matrix : instances)
 									{
 										Renderer::SetMatrix(MatrixType_World, matrix);
@@ -167,15 +186,22 @@ namespace Nz
 						}
 					}
 
-					// Et on remet à zéro les données
+					// Abd we set it back data to zero
 					matEntry.enabled = false;
 					matEntry.instancingEnabled = false;
 				}
 			}
 		}
 
-		return false; // On ne fait que remplir le G-Buffer, les work texture ne sont pas affectées
+		return false; // We only fill the G-Buffer, the work texture are unchanged
 	}
+
+	/*!
+	* \brief Resizes the texture sizes
+	* \return true If successful
+	*
+	* \param dimensions Dimensions for the compute texture
+	*/
 
 	bool DeferredGeometryPass::Resize(const Vector2ui& dimensions)
 	{
@@ -241,6 +267,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Gets the uniforms of a shader
+	* \return Uniforms of the shader
+	*
+	* \param shader Shader to get uniforms from
+	*/
+
 	const DeferredGeometryPass::ShaderUniforms* DeferredGeometryPass::GetShaderUniforms(const Shader* shader) const
 	{
 		auto it = m_shaderUniforms.find(shader);
@@ -259,6 +292,12 @@ namespace Nz
 
 		return &it->second;
 	}
+
+	/*!
+	* \brief Handle the invalidation of a shader
+	*
+	* \param shader Shader being invalidated
+	*/
 
 	void DeferredGeometryPass::OnShaderInvalidated(const Shader* shader) const
 	{

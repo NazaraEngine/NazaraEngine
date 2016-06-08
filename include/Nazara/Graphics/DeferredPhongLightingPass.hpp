@@ -28,7 +28,7 @@ namespace Nz
 
 			bool IsLightMeshesDrawingEnabled() const;
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
 
 		protected:
 			LightUniforms m_directionalLightUniforms;
