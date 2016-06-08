@@ -39,14 +39,14 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 		WHEN("We ask for distance")
 		{
-			THEN("These results are expected")
+			THEN("These results are expected because we don't take into account the border")
 			{
-				REQUIRE(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX()) == Approx(1.f));
-				REQUIRE(firstCenterAndUnit.SquaredDistance(Nz::Vector3f::UnitX()) == Approx(1.f));
+				REQUIRE(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX() * 2.f) == Approx(1.f));
+				REQUIRE(firstCenterAndUnit.SquaredDistance(Nz::Vector3f::UnitX() * 2.f) == Approx(1.f));
 
 				Nz::Spheref tmp(Nz::Vector3f::UnitX(), 1.f);
-				REQUIRE(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Approx(3.f));
-				REQUIRE(tmp.SquaredDistance(Nz::Vector3f::UnitX() * 4.f) == Approx(9.f));
+				REQUIRE(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Approx(2.f));
+				REQUIRE(tmp.SquaredDistance(Nz::Vector3f::UnitX() * 4.f) == Approx(4.f));
 			}
 		}
 
@@ -84,7 +84,7 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 			THEN("Sphere must contain it and distance should be good")
 			{
 				CHECK(firstCenterAndUnit.Contains(point));
-				REQUIRE(firstCenterAndUnit.Distance(point) == 2.f);
+				REQUIRE(firstCenterAndUnit.Distance(point) == 1.f);
 			}
 		}
 

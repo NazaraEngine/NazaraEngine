@@ -22,6 +22,19 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup network
+	* \class Nz::IpAddress
+	* \brief Network class that represents an IP address
+	*/
+
+	/*!
+	* \brief Builds the IP from a hostname
+	* \return true If successful
+	*
+	* \remark address C-string symbolizing the IP address or hostname
+	*/
+
 	bool IpAddress::BuildFromAddress(const char* address)
 	{
 		m_isValid = false;
@@ -50,6 +63,13 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the IP address is loopback
+	* \return true If it is the case
+	*
+	* \remark Produces a NazaraAssert if internal protocol is invalid (should never happen)
+	*/
+
 	bool IpAddress::IsLoopback() const
 	{
 		if (!m_isValid)
@@ -72,6 +92,13 @@ namespace Nz
 		NazaraInternalError("Invalid protocol for IpAddress (0x" + String::Number(m_protocol) + ')');
 		return false;
 	}
+
+	/*!
+	* \brief Gives a string representation
+	* \return A string representation of the object
+	*
+	* \remark Produces a NazaraAssert if internal protocol is invalid (should never happen)
+	*/
 
 	String IpAddress::ToString() const
 	{
@@ -153,6 +180,17 @@ namespace Nz
 		return stream;
 	}
 
+	/*!
+	* \brief Resolves the address based on the IP
+	* \return Hostname of the address
+	*
+	* \param address IP address to resolve
+	* \param service Optional argument to specify the protocol used
+	* \param error Optional argument to get the error
+	*
+	* \remark Produces a NazaraAssert if address is invalid
+	*/
+
 	String IpAddress::ResolveAddress(const IpAddress& address, String* service, ResolveError* error)
 	{
 		NazaraAssert(address.IsValid(), "Invalid address");
@@ -162,6 +200,18 @@ namespace Nz
 
 		return hostname;
 	}
+
+	/*!
+	* \brief Resolves the address based on the hostname
+	* \return Informations about the host: IP(s) of the address, names, ...
+	*
+	* \param protocol Net protocol to use
+	* \param hostname Hostname to resolve
+	* \param service Specify the service used (http, ...)
+	* \param error Optional argument to get the error
+	*
+	* \remark Produces a NazaraAssert if net protocol is set to unknown
+	*/
 
 	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service, ResolveError* error)
 	{

@@ -15,18 +15,18 @@
 #include <Nazara/Core/String.hpp>
 #include <vector>
 
-// Inclusion des headers OpenAL
+// Inclusion of OpenAL headers
 
-// Étant donné que les headers OpenAL ne nous permettent pas de n'avoir que les signatures sans les pointeurs de fonctions
-// Et que je ne souhaite pas les modifier, je suis contraint de les placer dans un espace de nom différent pour ensuite
-// remettre dans l'espace global les choses intéressantes (les typedef notamment)
+// OpenAL headers does not allow us to only get the signatures without the pointers to the functions
+// And I do no want to modify them, I'm obliged to put them in a different namespace
+// to put only interesting things back in the global namespace (specially typedef)
 namespace OpenALDetail
 {
 	#include <AL/al.h>
 	#include <AL/alc.h>
 }
 
-// Si quelqu'un a une meilleure idée ...
+// If someone has a better idea ...
 using OpenALDetail::ALboolean;
 using OpenALDetail::ALbyte;
 using OpenALDetail::ALchar;
