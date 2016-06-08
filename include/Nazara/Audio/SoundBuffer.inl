@@ -7,6 +7,13 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Creates a new sound buffer from the arguments
+	* \return A reference to the newly created sound buffer
+	*
+	* \param args Arguments for the sound buffer
+	*/
+
 	template<typename... Args>
 	SoundBufferRef SoundBuffer::New(Args&&... args)
 	{
