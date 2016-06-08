@@ -213,4 +213,24 @@ SCENARIO("ByteArray", "[CORE][BYTEARRAY]")
 			}
 		}
 	}
+
+	GIVEN("A default byte array")
+	{
+		Nz::ByteArray defaultByteArray;
+
+		WHEN("We resize")
+		{
+			Nz::UInt64 oldSize = defaultByteArray.GetSize();
+			REQUIRE(oldSize == 0);
+			defaultByteArray.Resize(10);
+
+			THEN("Capacity has increased")
+			{
+				REQUIRE(defaultByteArray[oldSize] == 0);
+
+				REQUIRE(defaultByteArray.GetCapacity() >= 10);
+				REQUIRE(defaultByteArray.GetSize() == 10);
+			}
+		}
+	}
 }

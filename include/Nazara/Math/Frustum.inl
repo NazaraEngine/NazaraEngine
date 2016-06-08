@@ -491,8 +491,8 @@ namespace Nz
 	*
 	* \remark If volume is infinite, IntersectionSide_Intersecting is returned
 	* \remark If volume is null, IntersectionSide_Outside is returned
-	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and false is returned
-	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and false is returned. This should not never happen for a user of the library
+	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and IntersectionSide_Outside is returned
+	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and IntersectionSide_Outside is returned. This should not never happen for a user of the library
 	*/
 
 	template<typename T>

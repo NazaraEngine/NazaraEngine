@@ -49,7 +49,6 @@ namespace Nz
 			void OnOpened() override;
 
 			IpAddress m_boundAddress;
-			SocketState m_state;
 			bool m_isBroadCastingEnabled;
 	};
 }
