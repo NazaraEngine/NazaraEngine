@@ -7,6 +7,13 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Creates a new Model from the arguments
+	* \return A reference to the newly created model
+	*
+	* \param args Arguments for the model
+	*/
+
 	template<typename... Args>
 	ModelRef Model::New(Args&&... args)
 	{

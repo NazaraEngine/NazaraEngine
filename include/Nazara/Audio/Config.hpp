@@ -27,18 +27,23 @@
 #ifndef NAZARA_CONFIG_AUDIO_HPP
 #define NAZARA_CONFIG_AUDIO_HPP
 
-/// Modifier la configuration d'un module nécessite une recompilation quasi-intégrale de celui-ci et de ceux en héritant
+/*!
+* \defgroup audio (NazaraAudio) Audio module
+*  Audio/System module including classes to handle music, sound, etc...
+*/
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+/// Each modification of a parameter needs a recompilation of the module
+
+// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
 #define NAZARA_AUDIO_MANAGE_MEMORY 0
 
-// Active les tests de sécurité supplémentaires (Teste notamment les arguments des fonctions, conseillé pour le développement)
+// Activate the security tests based on the code (Advised for development)
 #define NAZARA_AUDIO_SAFE 1
 
-// Le nombre de buffers utilisés lors du streaming d'objets audio (Au moins deux)
+// The number of buffers used for audio streaming (At least two)
 #define NAZARA_AUDIO_STREAMED_BUFFER_COUNT 2
 
-/// Vérification des valeurs et types de certaines constantes
+/// Checking the values and types of certain constants
 #include <Nazara/Audio/ConfigCheck.hpp>
 
 #if !defined(NAZARA_STATIC)

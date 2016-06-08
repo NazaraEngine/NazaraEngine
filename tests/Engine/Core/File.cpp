@@ -32,11 +32,21 @@ SCENARIO("File", "[CORE][FILE]")
 				REQUIRE(Nz::String(message) == "Test String");
 			}
 
+			AND_THEN("We can get its size")
+			{
+				REQUIRE(file.GetSize() == 33U);
+			}
+
 			AND_THEN("We close it")
 			{
 				file.Close();
-				REQUIRE(file.GetSize() == 33U);
 				CHECK(!file.IsOpen());
+			}
+
+			AND_THEN("Change its size")
+			{
+				file.SetSize(50U);
+				REQUIRE(file.GetSize() == 50U);
 			}
 		}
 
