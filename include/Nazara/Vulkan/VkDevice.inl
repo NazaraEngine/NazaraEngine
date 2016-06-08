@@ -59,6 +59,11 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
+		inline VkPhysicalDevice Device::GetPhysicalDevice() const
+		{
+			return m_physicalDevice;
+		}
+
 		inline bool Device::IsExtensionLoaded(const String& extensionName)
 		{
 			return m_loadedExtensions.count(extensionName) > 0;
