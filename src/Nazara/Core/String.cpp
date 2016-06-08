@@ -2827,15 +2827,21 @@ namespace Nz
 			{
 				const char* c = oldCharacters;
 				char character = Detail::ToLower(*ptr);
-
-				std::ptrdiff_t offset = ptr - m_sharedString->string.get();
-				EnsureOwnership();
-				ptr = &m_sharedString->string[offset];
-
+				bool found = false;
 				do
 				{
 					if (character == Detail::ToLower(*c))
 					{
+						if (!found)
+						{
+							std::ptrdiff_t offset = ptr - m_sharedString->string.get();
+
+							EnsureOwnership();
+
+							ptr = &m_sharedString->string[offset];
+							found = true;
+						}
+
 						*ptr = replaceCharacter;
 						++count;
 						break;
@@ -2847,12 +2853,19 @@ namespace Nz
 		}
 		else
 		{
-			std::ptrdiff_t offset = ptr - m_sharedString->string.get();
-			EnsureOwnership();
-			ptr = &m_sharedString->string[offset];
-
+			bool found = false;
 			while ((ptr = std::strpbrk(ptr, oldCharacters)) != nullptr)
 			{
+				if (!found)
+				{
+					std::ptrdiff_t offset = ptr - m_sharedString->string.get();
+
+					EnsureOwnership();
+
+					ptr = &m_sharedString->string[offset];
+					found = true;
+				}
+
 				*ptr++ = replaceCharacter;
 				++count;
 			}
