@@ -7,5 +7,13 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::Drawable
+	* \brief Graphics class that represents something drawable for our scene
+	*
+	* \remark This class is abstract
+	*/
+
 	Drawable::~Drawable() = default;
 }
