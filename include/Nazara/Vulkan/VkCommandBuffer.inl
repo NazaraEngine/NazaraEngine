@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Vulkan"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Vulkan/VkSurface.hpp>
+#include <Nazara/Vulkan/VkCommandBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Vulkan/VkInstance.hpp>
 #include <Nazara/Vulkan/Debug.hpp>
@@ -33,7 +33,7 @@ namespace Nz
 
 		inline bool CommandBuffer::Begin(const VkCommandBufferBeginInfo& info)
 		{
-			m_lastErrorCode = m_pool->GetDevice().vkBeginCommandBuffer(m_handle, &info);
+			m_lastErrorCode = m_pool->GetDevice()->vkBeginCommandBuffer(m_handle, &info);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to begin command buffer");
@@ -119,7 +119,7 @@ namespace Nz
 
 		inline bool CommandBuffer::End()
 		{
-			m_lastErrorCode = m_pool->GetDevice().vkEndCommandBuffer(m_handle);
+			m_lastErrorCode = m_pool->GetDevice()->vkEndCommandBuffer(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to end command buffer");
@@ -132,7 +132,7 @@ namespace Nz
 		inline void CommandBuffer::Free()
 		{
 			if (m_handle)
-				m_pool->GetDevice().vkFreeCommandBuffers(m_pool->GetDevice(), *m_pool, 1, &m_handle);
+				m_pool->GetDevice()->vkFreeCommandBuffers(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
 		}
 
 		inline VkResult CommandBuffer::GetLastErrorCode() const

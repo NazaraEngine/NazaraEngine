@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Vulkan"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Vulkan/VkCommandPool.hpp>
+#include <Nazara/Vulkan/VkQueue.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/Debug.hpp>
@@ -11,7 +11,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline Queue::Queue(Device& device, VkQueue queue) :
+		inline Queue::Queue(const DeviceHandle& device, VkQueue queue) :
 		m_device(device),
 		m_handle(queue),
 		m_lastErrorCode(VkResult::VK_SUCCESS)
@@ -32,7 +32,7 @@ namespace Nz
 		{
 		}
 
-		inline Device& Queue::GetDevice()
+		inline const DeviceHandle& Queue::GetDevice() const
 		{
 			return m_device;
 		}
@@ -44,7 +44,7 @@ namespace Nz
 
 		inline bool Queue::Present(const VkPresentInfoKHR& presentInfo)
 		{
-			m_lastErrorCode = m_device.vkQueuePresentKHR(m_handle, &presentInfo);
+			m_lastErrorCode = m_device->vkQueuePresentKHR(m_handle, &presentInfo);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 				return false;
 
@@ -75,7 +75,7 @@ namespace Nz
 
 		inline bool Queue::Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence)
 		{
-			m_lastErrorCode = m_device.vkQueueSubmit(m_handle, submitCount, submits, fence);
+			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, fence);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 				return false;
 
@@ -84,7 +84,7 @@ namespace Nz
 
 		inline bool Queue::WaitIdle()
 		{
-			m_lastErrorCode = m_device.vkQueueWaitIdle(m_handle);
+			m_lastErrorCode = m_device->vkQueueWaitIdle(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 				return false;
 
