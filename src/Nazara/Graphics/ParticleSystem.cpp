@@ -13,10 +13,30 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::ParticleSystem
+	* \brief Graphics class that represents the system to handle particles
+	*/
+
+	/*!
+	* \brief Constructs a ParticleSystem object with a maximal number of particles and a layout
+	*
+	* \param maxParticleCount Maximum number of particles to generate
+	* \param layout Enumeration for the layout of data information for the particles
+	*/
+
 	ParticleSystem::ParticleSystem(unsigned int maxParticleCount, ParticleLayout layout) :
 	ParticleSystem(maxParticleCount, ParticleDeclaration::Get(layout))
 	{
 	}
+
+	/*!
+	* \brief Constructs a ParticleSystem object with a maximal number of particles and a particle declaration
+	*
+	* \param maxParticleCount Maximum number of particles to generate
+	* \param declaration Data information for the particles
+	*/
 
 	ParticleSystem::ParticleSystem(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration) :
 	m_declaration(std::move(declaration)),
@@ -24,13 +44,19 @@ namespace Nz
 	m_maxParticleCount(maxParticleCount),
 	m_particleCount(0)
 	{
-		// En cas d'erreur, un constructeur ne peut que lancer une exception
+		// In case of error, the constructor can only throw an exception
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		m_particleSize = m_declaration->GetStride(); // La taille de chaque particule
+		m_particleSize = m_declaration->GetStride(); // The size of each particle
 
 		ResizeBuffer();
 	}
+
+	/*!
+	* \brief Constructs a ParticleSystem object by assignation
+	*
+	* \param system ParticleSystem to copy into this
+	*/
 
 	ParticleSystem::ParticleSystem(const ParticleSystem& system) :
 	Renderable(system),
@@ -47,11 +73,19 @@ namespace Nz
 
 		ResizeBuffer();
 
-		// On ne copie que les particules vivantes
+		// We only copy alive particles
 		std::memcpy(m_buffer.data(), system.m_buffer.data(), system.m_particleCount*m_particleSize);
 	}
 
 	ParticleSystem::~ParticleSystem() = default;
+
+	/*!
+	* \brief Adds a controller to the particles
+	*
+	* \param controller Controller for the particles
+	*
+	* \remark Produces a NazaraAssert if controller is invalid
+	*/
 
 	void ParticleSystem::AddController(ParticleControllerRef controller)
 	{
@@ -60,6 +94,14 @@ namespace Nz
 		m_controllers.emplace_back(std::move(controller));
 	}
 
+	/*!
+	* \brief Adds an emitter to the particles
+	*
+	* \param emitter Emitter for the particles
+	*
+	* \remark Produces a NazaraAssert if emitter is invalid
+	*/
+
 	void ParticleSystem::AddEmitter(ParticleEmitter* emitter)
 	{
 		NazaraAssert(emitter, "Invalid particle emitter");
@@ -67,12 +109,30 @@ namespace Nz
 		m_emitters.emplace_back(emitter);
 	}
 
+	/*!
+	* \brief Adds a generator to the particles
+	*
+	* \param generator Generator for the particles
+	*
+	* \remark Produces a NazaraAssert if generator is invalid
+	*/
+
 	void ParticleSystem::AddGenerator(ParticleGeneratorRef generator)
 	{
 		NazaraAssert(generator, "Invalid particle generator");
 
 		m_generators.emplace_back(std::move(generator));
 	}
+
+	/*!
+	* \brief Adds the particle system to the rendering queue
+	*
+	* \param renderQueue Queue to be added
+	* \param transformMatrix Transformation matrix for the system
+	*
+	* \remark Produces a NazaraAssert if inner renderer is invalid
+	* \remark Produces a NazaraAssert if renderQueue is invalid
+	*/
 
 	void ParticleSystem::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const
 	{
@@ -83,44 +143,62 @@ namespace Nz
 		if (m_particleCount > 0)
 		{
 			ParticleMapper mapper(m_buffer.data(), m_declaration);
-			m_renderer->Render(*this, mapper, 0, m_particleCount-1, renderQueue);
+			m_renderer->Render(*this, mapper, 0, m_particleCount - 1, renderQueue);
 		}
 	}
+
+	/*!
+	* \brief Applies the controllers
+	*
+	* \param mapper Mapper containing layout information of each particle
+	* \param particleCount Number of particles
+	* \param elapsedTime Delta time between the previous frame
+	*/
 
 	void ParticleSystem::ApplyControllers(ParticleMapper& mapper, unsigned int particleCount, float elapsedTime)
 	{
 		m_processing = true;
 
-		// Pour éviter un verrouillage en cas d'exception
+		// To avoid a lock in case of exception
 		CallOnExit onExit([this]()
 		{
 			m_processing = false;
 		});
 
 		for (ParticleController* controller : m_controllers)
-			controller->Apply(*this, mapper, 0, particleCount-1, elapsedTime);
+			controller->Apply(*this, mapper, 0, particleCount - 1, elapsedTime);
 
 		onExit.CallAndReset();
 
-		// On tue maintenant les particules mortes durant la mise à jour
+		// We only kill now the dead particles during the update
 		if (m_dyingParticles.size() < m_particleCount)
 		{
-			// On tue les particules depuis la dernière vers la première (en terme de place), le std::set étant trié via std::greater
-			// La raison est simple, étant donné que la mort d'une particule signifie le déplacement de la dernière particule du buffer,
-			// sans cette solution certaines particules pourraient échapper à la mort
+			// We kill them in reverse order, std::set sorting them via std::greater
+			// The reason is simple, as the death of a particle means the move of the last particle in the buffer,
+			// without this solution, certain particles could avoid the death
 			for (unsigned int index : m_dyingParticles)
 				KillParticle(index);
 		}
 		else
-			KillParticles(); // Toutes les particules sont mortes, ceci est beaucoup plus rapide
+			KillParticles(); // Every particles are dead, this is way faster
 
 		m_dyingParticles.clear();
 	}
+
+	/*!
+	* \brief Creates one particle
+	* \return Pointer to the particle memory buffer
+	*/
 
 	void* ParticleSystem::CreateParticle()
 	{
 		return CreateParticles(1);
 	}
+
+	/*!
+	* \brief Creates multiple particles
+	* \return Pointer to the first particle memory buffer
+	*/
 
 	void* ParticleSystem::CreateParticles(unsigned int count)
 	{
@@ -133,13 +211,23 @@ namespace Nz
 		unsigned int particlesIndex = m_particleCount;
 		m_particleCount += count;
 
-		return &m_buffer[particlesIndex*m_particleSize];
+		return &m_buffer[particlesIndex * m_particleSize];
 	}
+
+	/*!
+	* \brief Generates one particle
+	* \return Pointer to the particle memory buffer
+	*/
 
 	void* ParticleSystem::GenerateParticle()
 	{
 		return GenerateParticles(1);
 	}
+
+	/*!
+	* \brief Generates multiple particles
+	* \return Pointer to the first particle memory buffer
+	*/
 
 	void* ParticleSystem::GenerateParticles(unsigned int count)
 	{
@@ -149,56 +237,107 @@ namespace Nz
 
 		ParticleMapper mapper(ptr, m_declaration);
 		for (ParticleGenerator* generator : m_generators)
-			generator->Generate(*this, mapper, 0, count-1);
+			generator->Generate(*this, mapper, 0, count - 1);
 
 		return ptr;
 	}
+
+	/*!
+	* \brief Gets the particle declaration
+	* \return Particle declaration
+	*/
 
 	const ParticleDeclarationConstRef& ParticleSystem::GetDeclaration() const
 	{
 		return m_declaration;
 	}
 
+	/*!
+	* \brief Gets the fixed step size
+	* \return Current fixed step size
+	*/
+
 	float ParticleSystem::GetFixedStepSize() const
 	{
 		return m_stepSize;
 	}
+
+	/*!
+	* \brief Gets the maximum number of particles
+	* \return Current maximum number
+	*/
 
 	unsigned int ParticleSystem::GetMaxParticleCount() const
 	{
 		return m_maxParticleCount;
 	}
 
+	/*!
+	* \brief Gets the number of particles
+	* \return Current number
+	*/
+
 	unsigned int ParticleSystem::GetParticleCount() const
 	{
 		return m_particleCount;
 	}
+
+	/*!
+	* \brief Gets the size of particles
+	* \return Current size
+	*/
 
 	unsigned int ParticleSystem::GetParticleSize() const
 	{
 		return m_particleSize;
 	}
 
+	/*!
+	* \brief Checks whether the fixed step is enabled
+	* \return true If it is the case
+	*/
+
+	bool ParticleSystem::IsFixedStepEnabled() const
+	{
+		return m_fixedStepEnabled;
+	}
+
+	/*!
+	* \brief Kills one particle
+	*
+	* \param index Index of the particle
+	*/
+
 	void ParticleSystem::KillParticle(unsigned int index)
 	{
-		///FIXME: Vérifier index
+		///FIXME: Verify the index
 
 		if (m_processing)
 		{
-			// Le buffer est en train d'être modifié, nous ne pouvons pas réduire sa taille, on place alors la particule dans une liste d'attente
+			// The buffer is being modified, we can not reduce its size, we put the particle in the waiting list
 			m_dyingParticles.insert(index);
 			return;
 		}
 
-		// On déplace la dernière particule vivante à la place de celle-ci
+		// We move the last alive particle to the place of this one
 		if (--m_particleCount > 0)
-			std::memcpy(&m_buffer[index*m_particleSize], &m_buffer[m_particleCount*m_particleSize], m_particleSize);
+			std::memcpy(&m_buffer[index * m_particleSize], &m_buffer[m_particleCount * m_particleSize], m_particleSize);
 	}
+
+	/*!
+	* \brief Kills every particles
+	*/
 
 	void ParticleSystem::KillParticles()
 	{
 		m_particleCount = 0;
 	}
+
+	/*!
+	* \brief Removes a controller to the particles
+	*
+	* \param controller Controller for the particles to remove
+	*/
 
 	void ParticleSystem::RemoveController(ParticleController* controller)
 	{
@@ -207,12 +346,24 @@ namespace Nz
 			m_controllers.erase(it);
 	}
 
+	/*!
+	* \brief Removes an emitter to the particles
+	*
+	* \param emitter Emitter for the particles to remove
+	*/
+
 	void ParticleSystem::RemoveEmitter(ParticleEmitter* emitter)
 	{
 		auto it = std::find(m_emitters.begin(), m_emitters.end(), emitter);
 		if (it != m_emitters.end())
 			m_emitters.erase(it);
 	}
+
+	/*!
+	* \brief Removes a generator to the particles
+	*
+	* \param generator Generator for the particles to remove
+	*/
 
 	void ParticleSystem::RemoveGenerator(ParticleGenerator* generator)
 	{
@@ -221,30 +372,54 @@ namespace Nz
 			m_generators.erase(it);
 	}
 
+	/*!
+	* \brief Sets the fixed step size
+	*
+	* \param stepSize Fixed step size
+	*/
+
 	void ParticleSystem::SetFixedStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
 	}
+
+	/*!
+	* \brief Sets the renderer of the particles
+	*
+	* \param renderer Renderer for the particles
+	*/
 
 	void ParticleSystem::SetRenderer(ParticleRenderer* renderer)
 	{
 		m_renderer = renderer;
 	}
 
+	/*!
+	* \brief Updates the system
+	*
+	* \param elapsedTime Delta time between the previous frame
+	*/
+
 	void ParticleSystem::Update(float elapsedTime)
 	{
-		// Émission
+		// Emission
 		for (ParticleEmitter* emitter : m_emitters)
 			emitter->Emit(*this, elapsedTime);
 
-		// Mise à jour
+		// Update
 		if (m_particleCount > 0)
 		{
-			///TODO: Mettre à jour en utilisant des threads
+			///TODO: Update using threads
 			ParticleMapper mapper(m_buffer.data(), m_declaration);
 			ApplyControllers(mapper, m_particleCount, elapsedTime);
 		}
 	}
+
+	/*!
+	* \brief Updates the bounding volume by a matrix
+	*
+	* \param transformMatrix Matrix transformation for our bounding volume
+	*/
 
 	void ParticleSystem::UpdateBoundingVolume(const Matrix4f& transformMatrix)
 	{
@@ -252,6 +427,13 @@ namespace Nz
 
 		// Nothing to do here (our bounding volume is global)
 	}
+
+	/*!
+	* \brief Sets the current particle system with the content of the other one
+	* \return A reference to this
+	*
+	* \param system The other ParticleSystem
+	*/
 
 	ParticleSystem& ParticleSystem::operator=(const ParticleSystem& system)
 	{
@@ -268,29 +450,39 @@ namespace Nz
 		m_renderer = system.m_renderer;
 		m_stepSize = system.m_stepSize;
 
-		// La copie ne peut pas (ou plutôt ne devrait pas) avoir lieu pendant une mise à jour, inutile de copier
+		// The copy can not (or should not) happen during the update, there is no use to copy
 		m_dyingParticles.clear();
 		m_processing = false;
 		m_stepAccumulator = 0.f;
 
-		m_buffer.clear(); // Pour éviter une recopie lors du resize() qui ne servira pas à grand chose
+		m_buffer.clear(); // To avoid a copy due to resize() which will be pointless
 		ResizeBuffer();
 
-		// On ne copie que les particules vivantes
-		std::memcpy(m_buffer.data(), system.m_buffer.data(), system.m_particleCount*m_particleSize);
+		// We only copy alive particles
+		std::memcpy(m_buffer.data(), system.m_buffer.data(), system.m_particleCount * m_particleSize);
 
 		return *this;
 	}
 
+	/*!
+	* \brief Makes the bounding volume of this text
+	*/
+
 	void ParticleSystem::MakeBoundingVolume() const
 	{
-		///TODO: Calculer l'AABB (prendre la taille des particules en compte s'il y a)
+		///TODO: Compute the AABB (taking into account the size of particles)
 		m_boundingVolume.MakeInfinite();
 	}
 
+	/*!
+	* \brief Resizes the internal buffer
+	*
+	* \remark Produces a NazaraError if resize did not work
+	*/
+
 	void ParticleSystem::ResizeBuffer()
 	{
-		// Histoire de décrire un peu mieux l'erreur en cas d'échec
+		// Just to have a better description of our problem in case of error
 		try
 		{
 			m_buffer.resize(m_maxParticleCount*m_particleSize);
