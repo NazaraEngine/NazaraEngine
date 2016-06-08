@@ -17,7 +17,9 @@ namespace Nz
 			~IpAddressImpl() = delete;
 
 			static IpAddress FromAddrinfo(const addrinfo* info);
+			#if NAZARA_CORE_WINDOWS_VISTA
 			static IpAddress FromAddrinfo(const addrinfoW* info);
+			#endif
 			static IpAddress FromSockAddr(const sockaddr* address);
 			static IpAddress FromSockAddr(const sockaddr_in* addressv4);
 			static IpAddress FromSockAddr(const sockaddr_in6* addressv6);
