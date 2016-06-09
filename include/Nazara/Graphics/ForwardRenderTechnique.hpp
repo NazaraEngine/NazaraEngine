@@ -31,7 +31,7 @@ namespace Nz
 			AbstractRenderQueue* GetRenderQueue() override;
 			RenderTechniqueType GetType() const override;
 
-			void SetMaxLightPassPerObject(unsigned int passCount);
+			void SetMaxLightPassPerObject(unsigned int maxLightPassPerObject);
 
 			static bool Initialize();
 			static void Uninitialize();
@@ -70,11 +70,11 @@ namespace Nz
 				LightUniforms lightUniforms;
 				bool hasLightUniforms;
 
-				/// Moins coûteux en mémoire que de stocker un LightUniforms par index de lumière,
-				/// à voir si ça fonctionne chez tout le monde
-				int lightOffset; // "Distance" entre Lights[0].type et Lights[1].type
+				/// Less costly in memory than storing a LightUniforms by index of light,
+				/// this may not work everywhere
+				int lightOffset; // "Distance" between Lights[0].type and Lights[1].type
 
-				// Autre uniformes
+				// Other uniforms
 				int eyePosition;
 				int sceneAmbient;
 				int textureOverlay;
