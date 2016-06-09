@@ -39,9 +39,9 @@ namespace Nz
 			return false;
 		}
 
-		if (scale == Vector3f::Zero())
+		if (matrix == Matrix4f::Zero())
 		{
-			NazaraError("Invalid scale");
+			NazaraError("Invalid matrix");
 			return false;
 		}
 
@@ -111,7 +111,7 @@ namespace Nz
 		VertexBufferRef vertexBuffer;
 
 		Matrix4f matrix(primitive.matrix);
-		matrix.ApplyScale(params.scale);
+		matrix *= params.matrix;
 
 		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
