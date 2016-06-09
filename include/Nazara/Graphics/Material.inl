@@ -586,7 +586,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get alpha map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetAlphaMap(std::move(texture));
@@ -679,7 +682,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get diffuse map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetDiffuseMap(std::move(texture));
@@ -738,7 +744,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get emissive map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetEmissiveMap(std::move(texture));
@@ -797,7 +806,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get height map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetHeightMap(std::move(texture));
@@ -834,7 +846,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get normal map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetNormalMap(std::move(texture));
@@ -936,7 +951,10 @@ namespace Nz
 		{
 			texture = TextureManager::Get(textureName);
 			if (!texture)
+			{
+				NazaraError("Failed to get specular map \"" + textureName + "\"");
 				return false;
+			}
 		}
 
 		SetSpecularMap(std::move(texture));
