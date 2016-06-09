@@ -188,11 +188,10 @@ namespace Nz
 			SwapBytes(&translate.z, sizeof(float));
 			#endif
 
-			// Un personnage de taille moyenne fait ~50 unités de haut dans Quake 2
-			// Avec Nazara, 1 unité = 1 mètre, nous devons donc adapter l'échelle
-			Vector3f s(parameters.scale/29.f); // 50/29 = 1.72 (Soit 1.72 mètre, proche de la taille moyenne d'un individu)
-			scale *= s;
-			translate *= s;
+			constexpr float ScaleAdjust = 1.f / 27.8f; // Make a 50 Quake 2 units character a 1.8 unit long
+
+			scale *= ScaleAdjust;
+			translate *= ScaleAdjust;
 
 			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
 			MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());
@@ -215,11 +214,13 @@ namespace Nz
 			/// Chargement des positions
 			// Pour que le modèle soit correctement aligné, on génère un quaternion que nous appliquerons à chacune des vertices
 			Quaternionf rotationQuat = EulerAnglesf(-90.f, 90.f, 0.f);
+			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
+			matrix *= parameters.matrix;
 
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const MD2_Vertex& vert = vertices[v];
-				Vector3f position = rotationQuat * Vector3f(vert.x*scale.x + translate.x, vert.y*scale.y + translate.y, vert.z*scale.z + translate.z);
+				Vector3f position = matrix * Vector3f(vert.x, vert.y, vert.z);
 
 				vertex->position = position;
 				vertex->normal = rotationQuat * md2Normals[vert.n];
