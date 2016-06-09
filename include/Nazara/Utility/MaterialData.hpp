@@ -41,6 +41,7 @@ namespace Nz
 		static constexpr const char* HeightTexturePath        = "MatHeightTexturePath";
 		static constexpr const char* Lighting                 = "MatLighting";
 		static constexpr const char* LineWidth                = "MatLineWidth";
+		static constexpr const char* Name                     = "MatName";
 		static constexpr const char* NormalTexturePath        = "MatNormalTexturePath";
 		static constexpr const char* PointSize                = "MatPointSize";
 		static constexpr const char* ScissorTest              = "MatScissorTest";
