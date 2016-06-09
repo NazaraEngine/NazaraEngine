@@ -296,7 +296,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 						matData.SetParameter(MaterialData::Name, String(name.data, name.length));
 
 					int iValue;
-					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue))
+					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
 						matData.SetParameter(MaterialData::FaceCulling, !iValue);
 
 					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(materials.size(), std::move(matData)))).first;
