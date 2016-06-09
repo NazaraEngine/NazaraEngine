@@ -11,6 +11,15 @@ namespace Nz
 {
 	namespace Detail
 	{
+		/*!
+		* \brief Parses a decimal number
+		* \return true If successful
+		*
+		* \param str C-string symbolizing the string to parse
+		* \param number Optional argument to return the number parsed
+		* \param endOfRead Optional argument to determine where parsing stopped
+		*/
+
 		bool ParseDecimal(const char* str, unsigned int* number, const char** endOfRead)
 		{
 			const char* ptr = str;
@@ -34,6 +43,15 @@ namespace Nz
 
 			return true;
 		}
+
+		/*!
+		* \brief Parses a hexadecimal number
+		* \return true If successful
+		*
+		* \param str C-string symbolizing the string to parse
+		* \param number Optional argument to return the number parsed
+		* \param endOfRead Optional argument to determine where parsing stopped
+		*/
 
 		bool ParseHexadecimal(const char* str, unsigned int* number, const char** endOfRead)
 		{
@@ -60,10 +78,26 @@ namespace Nz
 		}
 	}
 
-	// From http://rosettacode.org/wiki/Parse_an_IP_Address
-	// Parse a textual IPv4 or IPv6 address, optionally with port, into a binary
-	// array (for the address, in host order), and an optionally provided port.
-	// Also, indicate which of those forms (4 or 6) was parsed.
+	/*!
+    * \ingroup network
+	* \brief Parse a textual IPv4 or IPv6 address
+	* \return true If successful
+	*
+	* From http://rosettacode.org/wiki/Parse_an_IP_Address
+	* Parse a textual IPv4 or IPv6 address, optionally with port, into a binary
+	* array (for the address, in host order), and an optionally provided port.
+	* Also, indicate which of those forms (4 or 6) was parsed.
+	*
+	* \param addressPtr C-string which symbolizes the ip adress
+	* \param result Byte array to return the result in
+	* \param port Optional argument to resolve according to a specific port
+	* \param isIPv6 Optional argument to determine if the address is IPv6
+	* \param endOfRead Optional argument to determine where parsing stopped
+	*
+	* \remark Produces a NazaraAssert if addressPtr is invalid
+	* \remark Produces a NazaraAssert if result is invalid
+	*/
+
 	bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port, bool* isIPv6, const char** endOfRead)
 	{
 		NazaraAssert(addressPtr, "Invalid address string");
