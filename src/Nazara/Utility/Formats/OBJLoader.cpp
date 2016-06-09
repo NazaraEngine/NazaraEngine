@@ -234,8 +234,7 @@ namespace Nz
 					MeshVertex& vertex = meshVertices[index];
 
 					const Vector4f& vec = positions[vertexIndices.position];
-					vertex.position.Set(vec.x, vec.y, vec.z);
-					vertex.position *= parameters.scale/vec.w;
+					vertex.position = Vector3f(parameters.matrix * vec);
 
 					if (vertexIndices.normal >= 0)
 						vertex.normal = normals[vertexIndices.normal];
