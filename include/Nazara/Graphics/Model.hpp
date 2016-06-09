@@ -68,8 +68,6 @@ namespace Nz
 			bool SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material);
 			void SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material);
 			virtual void SetMesh(Mesh* mesh);
-			bool SetSequence(const String& sequenceName);
-			void SetSequence(unsigned int sequenceIndex);
 			void SetSkin(unsigned int skin);
 			void SetSkinCount(unsigned int skinCount);
 

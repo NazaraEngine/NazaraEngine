@@ -27,23 +27,28 @@
 #ifndef NAZARA_CONFIG_GRAPHICS_HPP
 #define NAZARA_CONFIG_GRAPHICS_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/*!
+* \defgroup graphics (NazaraGraphics) Graphics module
+*  Graphics/System module including classes to handle graphical elements...
+*/
 
-// À partir de combien d'instances d'un même mesh/matériau l'instancing doit-il être utilisé ?
+/// Each modification of a paramater of the module needs a recompilation of the unit
+
+// How much instances are need of a same mesh/material to enable instancing ?
 #define NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT 10
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
+// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
 #define NAZARA_GRAPHICS_MANAGE_MEMORY 0
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+// Activate the security tests based on the code (Advised for development)
 #define NAZARA_GRAPHICS_SAFE 1
 
-/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
+/// Each modification of a parameter following implies a modification (often minor) of the code
 
-// Le nombre maximum de lumières qu'un shader standard supportera
+// The maximum number of lights in a standard shader
 #define NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS 3
 
-/// Vérification des valeurs et types de certaines constantes
+/// Checking the values and types of certain constants
 #include <Nazara/Graphics/ConfigCheck.hpp>
 
 #if defined(NAZARA_STATIC)
