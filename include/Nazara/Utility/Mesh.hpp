@@ -29,8 +29,8 @@ namespace Nz
 	{
 		MeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
 
-		// La mise à l'échelle éventuelle que subira le mesh
-		Vector3f scale = Vector3f::Unit();
+		// La transformation appliquée à tous les sommets du mesh
+		Matrix4f matrix = Matrix4f::Identity();
 
 		// Si ceci sera le stockage utilisé par les buffers
 		UInt32 storage = DataStorage_Hardware;

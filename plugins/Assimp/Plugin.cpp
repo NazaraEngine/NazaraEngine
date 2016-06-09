@@ -209,7 +209,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					aiVector3D tangent = (iMesh->HasTangentsAndBitangents()) ? iMesh->mTangents[j] : aiVector3D(0.f, 1.f, 0.f);
 					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
 
-					vertex->position = parameters.scale * Vector3f(position.x, position.y, position.z);
+					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
 					vertex->normal.Set(normal.x, normal.y, normal.z);
 					vertex->tangent.Set(tangent.x, tangent.y, tangent.z);
 					vertex->uv.Set(uv.x, uv.y);
