@@ -291,6 +291,10 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
 					ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
 
+					aiString name;
+					if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+						matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+
 					int iValue;
 					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue))
 						matData.SetParameter(MaterialData::FaceCulling, !iValue);
