@@ -83,7 +83,7 @@ function NazaraBuild:Execute()
 				targetsuffix("-s")
 
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions({"-fPIC", "-std=c++14"})
+				buildoptions({"-fPIC", "-std=c++14", "-U__STRICT_ANSI__"})
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -900,6 +900,10 @@ function NazaraBuild:Resolve(infoTable)
 end
 
 function NazaraBuild:MakeCopyAfterBuild(infoTable)
+    if (PremakeVersion < 50) then
+        return
+    end
+
 	if (os.is("windows")) then
 		configuration({})
 			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
