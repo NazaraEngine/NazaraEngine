@@ -6,5 +6,13 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup audio
+	* \class Nz::SoundStream
+	* \brief Audio class that represents a sound stream
+	*
+	* \remark This class is abstract
+	*/
+
 	SoundStream::~SoundStream() = default;
 }
