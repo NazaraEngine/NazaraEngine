@@ -61,6 +61,13 @@ namespace Ndk
 		return m_updateTime;
 	}
 
+	#ifndef NDK_SERVER
+	inline void Application::MakeExitOnLastWindowClosed(bool exitOnClosedWindows)
+	{
+		m_exitOnClosedWindows = exitOnClosedWindows;
+	}
+	#endif
+
 	inline void Application::Quit()
 	{
 		m_shouldQuit = true;
