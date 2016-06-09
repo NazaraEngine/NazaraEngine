@@ -22,6 +22,18 @@ namespace Nz
 		static VertexBufferRef s_vertexBuffer;
 	}
 
+	/*!
+	* \ingroup graphics
+	* \class Nz::SkyboxBackground
+	* \brief Graphics class that represents a background with a cubemap texture
+	*/
+
+	/*!
+	* \brief Constructs a SkyboxBackground object with a cubemap texture
+	*
+	* \param cubemapTexture Cubemap texture
+	*/
+
 	SkyboxBackground::SkyboxBackground(TextureRef cubemapTexture) :
 	m_movementOffset(Vector3f::Zero()),
 	m_movementScale(0.f)
@@ -30,6 +42,12 @@ namespace Nz
 
 		SetTexture(std::move(cubemapTexture));
 	}
+
+	/*!
+	* \brief Draws this relatively to the viewer
+	*
+	* \param viewer Viewer for the background
+	*/
 
 	void SkyboxBackground::Draw(const AbstractViewer* viewer) const
 	{
@@ -65,14 +83,26 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_View, viewer->GetViewMatrix());
 	}
 
+	/*!
+	* \brief Gets the background type
+	* \return Type of background
+	*/
+
 	BackgroundType SkyboxBackground::GetBackgroundType() const
 	{
 		return BackgroundType_Skybox;
 	}
 
+	/*!
+	* \brief Initializes the skybox
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if initialization failed
+	*/
+
 	bool SkyboxBackground::Initialize()
 	{
-		const UInt16 indices[6*6] =
+		const UInt16 indices[6 * 6] =
 		{
 			0, 1, 2, 0, 2, 3,
 			3, 2, 6, 3, 6, 7,
@@ -169,6 +199,10 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the skybox
+	*/
 
 	void SkyboxBackground::Uninitialize()
 	{

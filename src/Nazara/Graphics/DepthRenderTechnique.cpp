@@ -37,6 +37,16 @@ namespace Nz
 		unsigned int s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 	}
 
+	/*!
+	* \ingroup graphics
+	* \class Nz::DepthRenderTechnique
+	* \brief Graphics class that represents the technique used in depth rendering
+	*/
+
+	/*!
+	* \brief Constructs a DepthRenderTechnique object by default
+	*/
+
 	DepthRenderTechnique::DepthRenderTechnique() :
 		m_vertexBuffer(BufferType_Vertex)
 	{
@@ -48,6 +58,12 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 	}
 
+	/*!
+	* \brief Clears the data
+	*
+	* \param sceneData Data of the scene
+	*/
+
 	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
@@ -58,6 +74,13 @@ namespace Nz
 		//if (sceneData.background)
 		//	sceneData.background->Draw(sceneData.viewer);
 	}
+
+	/*!
+	* \brief Draws the data of the scene
+	* \return true If successful
+	*
+	* \param sceneData Data of the scene
+	*/
 
 	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
 	{
@@ -81,15 +104,32 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Gets the render queue
+	* \return Pointer to the render queue
+	*/
+
 	AbstractRenderQueue* DepthRenderTechnique::GetRenderQueue()
 	{
 		return &m_renderQueue;
 	}
 
+	/*!
+	* \brief Gets the type of the current technique
+	* \return Type of the render technique
+	*/
+
 	RenderTechniqueType DepthRenderTechnique::GetType() const
 	{
 		return RenderTechniqueType_Depth;
 	}
+
+	/*!
+	* \brief Initializes the depth render technique
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if one shader creation failed
+	*/
 
 	bool DepthRenderTechnique::Initialize()
 	{
@@ -149,12 +189,23 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Uninitializes the depth render technique
+	*/
+
 	void DepthRenderTechnique::Uninitialize()
 	{
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
 	
+	/*!
+	* \brief Draws basic sprites
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*/
+
 	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
@@ -180,7 +231,7 @@ namespace Nz
 					unsigned int spriteChainCount = spriteChainVector.size();
 					if (spriteChainCount > 0)
 					{
-						// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+						// We begin to apply the material (and get the shader activated doing so)
 						UInt32 flags = 0;
 						if (overlay)
 							flags |= ShaderFlags_TextureOverlay;
@@ -195,26 +246,26 @@ namespace Nz
 							Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
 						}
 
-						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+						// Uniforms are conserved in our program, there's no point to send them back until they change
 						if (shader != lastShader)
 						{
-							// Index des uniformes dans le shader
+							// Index of uniforms in the shader
 							shaderUniforms = GetShaderUniforms(shader);
 
 							// Overlay
 							shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
-							// Position de la caméra
+							// Position of the camera
 							shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 							lastShader = shader;
 						}
 
-						unsigned int spriteChain = 0; // Quelle chaîne de sprite traitons-nous
-						unsigned int spriteChainOffset = 0; // À quel offset dans la dernière chaîne nous sommes-nous arrêtés
+						unsigned int spriteChain = 0; // Which chain of sprites are we treating
+						unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
 
 						do
 						{
-							// On ouvre le buffer en écriture
+							// We open the buffer in writing mode
 							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
 							VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
@@ -232,7 +283,7 @@ namespace Nz
 								spriteCount += count;
 								spriteChainOffset += count;
 
-								// Avons-nous traité la chaîne entière ?
+								// Have we treated the entire chain ?
 								if (spriteChainOffset == currentChain.spriteCount)
 								{
 									spriteChain++;
@@ -257,6 +308,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Draws billboards
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*/
+
 	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
@@ -278,16 +336,16 @@ namespace Nz
 				unsigned int billboardCount = billboardVector.size();
 				if (billboardCount > 0)
 				{
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Position de la caméra
+						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 						lastShader = shader;
@@ -325,16 +383,16 @@ namespace Nz
 				unsigned int billboardCount = billboardVector.size();
 				if (billboardCount > 0)
 				{
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 
-						// Position de la caméra
+						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, Renderer::GetMatrix(MatrixType_ViewProj).GetTranslation());
 
 						lastShader = shader;
@@ -396,6 +454,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Draws opaques models
+	*
+	* \param sceneData Data of the scene
+	* \param layer Layer of the rendering
+	*/
+
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
@@ -415,14 +480,14 @@ namespace Nz
 
 					bool instancing = m_instancingEnabled && matEntry.instancingEnabled;
 
-					// On commence par appliquer du matériau (et récupérer le shader ainsi activé)
+					// We begin to apply the material (and get the shader activated doing so)
 					UInt8 freeTextureUnit;
 					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0, 0, &freeTextureUnit);
 
-					// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
+					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
-						// Index des uniformes dans le shader
+						// Index of uniforms in the shader
 						shaderUniforms = GetShaderUniforms(shader);
 						lastShader = shader;
 					}
@@ -441,7 +506,7 @@ namespace Nz
 							const IndexBuffer* indexBuffer = meshData.indexBuffer;
 							const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-							// Gestion du draw call avant la boucle de rendu
+							// Handle draw call before rendering loop
 							Renderer::DrawCall drawFunc;
 							Renderer::DrawCallInstanced instancedDrawFunc;
 							unsigned int indexCount;
@@ -464,33 +529,33 @@ namespace Nz
 
 							if (instancing)
 							{
-								// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+								// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
 								VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 								instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
 								const Matrix4f* instanceMatrices = &instances[0];
 								unsigned int instanceCount = instances.size();
-								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre maximum d'instances en une fois
+								unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // The maximum number of instances in one batch
 
 								while (instanceCount > 0)
 								{
-									// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
+									// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
 									unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 									instanceCount -= renderedInstanceCount;
 
-									// On remplit l'instancing buffer avec nos matrices world
+									// We fill the instancing buffer with our world matrices
 									instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
 									instanceMatrices += renderedInstanceCount;
 
-									// Et on affiche
+									// And we draw
 									instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
 								}
 							}
 							else
 							{
-								// Sans instancing, on doit effectuer un draw call pour chaque instance
-								// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-								// À cause du temps de modification du buffer d'instancing
+								// Without instancing, we must do a draw call for each instance
+									// This may be faster than instancing under a certain number
+									// Due to the time to modify the instancing buffer
 								for (const Matrix4f& matrix : instances)
 								{
 									Renderer::SetMatrix(MatrixType_World, matrix);
@@ -502,12 +567,19 @@ namespace Nz
 					}
 				}
 
-				// Et on remet à zéro les données
+				// And we set the data back to zero
 				matEntry.enabled = false;
 				matEntry.instancingEnabled = false;
 			}
 		}
 	}
+
+	/*!
+	* \brief Gets the shader uniforms
+	* \return Uniforms of the shader
+	*
+	* \param shader Shader to get uniforms from
+	*/
 
 	const DepthRenderTechnique::ShaderUniforms* DepthRenderTechnique::GetShaderUniforms(const Shader* shader) const
 	{
@@ -526,6 +598,12 @@ namespace Nz
 
 		return &it->second;
 	}
+
+	/*!
+	* \brief Handle the invalidation of a shader
+	*
+	* \param shader Shader being invalidated
+	*/
 
 	void DepthRenderTechnique::OnShaderInvalidated(const Shader* shader) const
 	{
