@@ -151,7 +151,7 @@ namespace Nz
 
 			inline Material& operator=(const Material& material);
 
-			static MaterialRef GetDefault();
+			inline static MaterialRef GetDefault();
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
@@ -163,7 +163,7 @@ namespace Nz
 			{
 				const Shader* shader;
 				UberShaderInstance* uberInstance = nullptr;
-				int uniforms[MaterialUniform_Max+1];
+				int uniforms[MaterialUniform_Max + 1];
 			};
 
 			void Copy(const Material& material);
@@ -187,7 +187,7 @@ namespace Nz
 			TextureRef m_normalMap;
 			TextureRef m_specularMap;
 			UberShaderConstRef m_uberShader;
-			mutable ShaderInstance m_shaders[ShaderFlags_Max+1];
+			mutable ShaderInstance m_shaders[ShaderFlags_Max + 1];
 			bool m_alphaTestEnabled;
 			bool m_depthSortingEnabled;
 			bool m_lightingEnabled;
