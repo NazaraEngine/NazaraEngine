@@ -33,6 +33,10 @@ namespace Ndk
 
 			bool Run();
 
+			#ifndef NDK_SERVER
+			inline void MakeExitOnLastWindowClosed(bool exitOnClosedWindows);
+			#endif
+
 			inline void Quit();
 
 			Application& operator=(const Application&) = delete;
