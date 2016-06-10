@@ -149,8 +149,6 @@ namespace Nz
 			std::vector<PendingPacket>& pendingPackets = peer.pendingPackets[priority];
 			if (!pendingPackets.empty())
 				return true;
-
-			pendingPackets.clear();
 		}
 
 		return false;
