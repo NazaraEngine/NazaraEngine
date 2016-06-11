@@ -1,3 +1,5 @@
+PremakeVersion = 44
+
 -- Premake5 features
 function floatingpoint(value)
     if (value == "Fast") then
