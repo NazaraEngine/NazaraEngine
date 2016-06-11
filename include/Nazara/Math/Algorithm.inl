@@ -90,7 +90,7 @@ namespace Nz
 
 				// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
 				unsigned int log2 = IntegralLog2Pot<UInt32>(val);
-				if (log2)
+				if (log2 || val == 1)
 					return log2 + i*8;
 			}
 
