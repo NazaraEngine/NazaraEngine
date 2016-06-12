@@ -11,11 +11,11 @@ function NazaraBuild:Execute()
 	else
 		platformData = {"x32", "x64"}
 	end
-	
+
 	if (self.Actions[_ACTION] == nil) then
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
-	
-        if (_OPTIONS["with-extlibs"]) then
+
+		if (_OPTIONS["with-extlibs"]) then
 			workspace("NazaraExtlibs")
 			platforms(platformData)
 
@@ -68,9 +68,9 @@ function NazaraBuild:Execute()
 
 			configuration("Release*")
 				flags("NoFramePointer")
-                optimize("Speed")
-                rtti("Off")
-                vectorextensions("SSE2")
+				optimize("Speed")
+				rtti("Off")
+				vectorextensions("SSE2")
 
 			configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
 				buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
@@ -82,7 +82,7 @@ function NazaraBuild:Execute()
 			configuration("ReleaseStatic")
 				targetsuffix("-s")
 
-			configuration({"not windows", "codeblocks or codelite or gmake or xcode3 or xcode4"})	
+			configuration({"not windows", "codeblocks or codelite or gmake or xcode3 or xcode4"})
 				buildoptions("-fPIC")
 
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
@@ -90,7 +90,7 @@ function NazaraBuild:Execute()
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
-				
+
 				language(libTable.Language)
 				location(_ACTION .. "/extlibs")
 
@@ -106,7 +106,7 @@ function NazaraBuild:Execute()
 					configuration(k)
 					links(v)
 				end
-				
+
 				configuration({})
 			end
 		end
@@ -130,10 +130,10 @@ function NazaraBuild:Execute()
 			flags("Symbols")
 
 		configuration("Release*")
-            flags("NoFramePointer")
-            optimize("Speed")
-            rtti("Off")
-            vectorextensions("SSE2")
+			flags("NoFramePointer")
+			optimize("Speed")
+			rtti("Off")
+			vectorextensions("SSE2")
 
 		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
 			buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
@@ -250,17 +250,17 @@ function NazaraBuild:Execute()
 				configuration(k)
 				links(v)
 			end
-			
+
 			configuration({})
 		end
-		
+
 		-- Tools
 		for k, toolTable in ipairs(self.OrderedTools) do
 			local prefix = "Nazara"
 			if (toolTable.Kind == "plugin") then
 				prefix = "Plugin"
 			end
-			
+
 			project(prefix .. toolTable.Name)
 
 			location(_ACTION .. "/tools")
@@ -358,7 +358,7 @@ function NazaraBuild:Execute()
 
 				configuration("*Dynamic")
 					kind("SharedLib")
-				
+
 				configuration("DebugStatic")
 					targetsuffix("-s-d")
 
@@ -443,7 +443,7 @@ function NazaraBuild:Execute()
 				configuration(k)
 				links(v)
 			end
-			
+
 			configuration({})
 		end
 	end
@@ -497,24 +497,24 @@ function NazaraBuild:Initialize()
 	ACTION = nil
 
 	-- Extern libraries
-    local extlibs = os.matchfiles("../extlibs/build/*.lua")
-    for k,v in pairs(extlibs) do
-        local f, err = loadfile(v)
-        if (f) then
-            LIBRARY = {}
-            self:SetupInfoTable(LIBRARY)
+	local extlibs = os.matchfiles("../extlibs/build/*.lua")
+	for k,v in pairs(extlibs) do
+		local f, err = loadfile(v)
+		if (f) then
+			LIBRARY = {}
+			self:SetupInfoTable(LIBRARY)
 
-            f()
+			f()
 
-            local succeed, err = self:RegisterExternLibrary(LIBRARY)
-            if (not succeed) then
-                print("Unable to register extern library: " .. err)
-            end
-        else
-            print("Unable to load extern library file: " .. err)
-        end
-    end
-    LIBRARY = nil
+			local succeed, err = self:RegisterExternLibrary(LIBRARY)
+			if (not succeed) then
+				print("Unable to register extern library: " .. err)
+			end
+		else
+			print("Unable to load extern library file: " .. err)
+		end
+	end
+	LIBRARY = nil
 
 	-- Then the modules
 	local modules = os.matchfiles("scripts/modules/*.lua")
@@ -587,7 +587,7 @@ function NazaraBuild:Initialize()
 		end
 		EXAMPLE = nil
 	end
-	
+
 	-- Once everything is registred, let's process all the tables
 	self.OrderedExamples = {}
 	self.OrderedExtLibs  = {}
@@ -596,19 +596,19 @@ function NazaraBuild:Initialize()
 	local tables = {self.ExtLibs, self.Modules, self.Tools, self.Examples}
 	local orderedTables = {self.OrderedExtLibs, self.OrderedModules, self.OrderedTools, self.OrderedExamples}
 	for k,projects in ipairs(tables) do
-        -- Begin by resolving every project (because of dependencies in the same category)
+		-- Begin by resolving every project (because of dependencies in the same category)
 		for projectId,projectTable in pairs(projects) do
-            self:Resolve(projectTable)
-        end
+			self:Resolve(projectTable)
+		end
 
 		for projectId,projectTable in pairs(projects) do
 			if (self:Process(projectTable)) then
 				table.insert(orderedTables[k], projectTable)
-            else
-                print("Rejected " .. projectTable.Name .. " " .. string.lower(projectTable.Type) .. ": " .. projectTable.ExcludeReason) 
-            end
+			else
+				print("Rejected " .. projectTable.Name .. " " .. string.lower(projectTable.Type) .. ": " .. projectTable.ExcludeReason)
+			end
 		end
-		
+
 		table.sort(orderedTables[k], function (a, b) return a.Name < b.Name end)
 	end
 end
@@ -668,13 +668,13 @@ function NazaraBuild:RegisterExample(exampleTable)
 	if (#exampleTable.Files == 0) then
 		return false, "This example has no files"
 	end
-	
+
 	local files = {}
 	for k, file in ipairs(exampleTable.Files) do
 		table.insert(files, "../examples/" .. exampleTable.Directory .. "/" .. file)
 	end
 	exampleTable.Files = files
-	
+
 	exampleTable.Type = "Example"
 	self.Examples[lowerCaseName] = exampleTable
 	return true
@@ -719,7 +719,7 @@ function NazaraBuild:RegisterModule(moduleTable)
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.hpp")
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.inl")
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.cpp")
-	
+
 	if (_OPTIONS["united"] and lowerCaseName ~= "core") then
 		table.insert(moduleTable.FilesExcluded, "../src/Nazara/" .. moduleTable.Name .. "/Debug/NewOverload.cpp")
 	end
@@ -767,18 +767,18 @@ local PosixOSes = {
 }
 
 function NazaraBuild:Process(infoTable)
-	local libraries = {}    
+	local libraries = {}
 	for k, library in pairs(infoTable.Libraries) do
 		local projectName = library:match("Nazara(%w+)")
 		local moduleTable = projectName and self.Modules[projectName:lower()]
 		local toolTable = projectName and self.Tools[projectName:lower()]
-		
+
 		if (moduleTable) then
-            if (moduleTable.Excluded) then
+			if (moduleTable.Excluded) then
 				infoTable.Excluded = true
 				infoTable.ExcludeReason = "depends on excluded " .. projectName .. " module"
-                return false
-            end
+				return false
+			end
 
 			if (_OPTIONS["united"]) then
 				library = "NazaraEngine"
@@ -795,38 +795,38 @@ function NazaraBuild:Process(infoTable)
 		else
 			local extLibTable = self.ExtLibs[library:lower()]
 			if (extLibTable) then
-                if (extLibTable.Excluded) then
+				if (extLibTable.Excluded) then
 					infoTable.Excluded = true
 					infoTable.ExcludeReason = "depends on excluded " .. extLibTable.Name .. " external library"
-                    return false
-                end
+					return false
+				end
 
 				library = extLibTable.Name
-				
+
 				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
 				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
 			else
 				if (toolTable and toolTable.Kind == "library") then
-                    if (toolTable.Excluded) then
+					if (toolTable.Excluded) then
 						infoTable.Excluded = true
 						infoTable.ExcludeReason = "depends on excluded " .. toolTable.Name .. " tool"
-                        return false
-                    end
+						return false
+					end
 
 					library = "Nazara" .. toolTable.Name
-					
+
 					-- Import tools includes
 					for k,v in ipairs(toolTable.Includes) do
 						table.insert(infoTable.Includes, v)
 					end
-					
+
 					-- And libraries
 					for k, v in pairs(toolTable.Libraries) do
 						table.insert(infoTable.Libraries, v)
 					end
-					
+
 					for config, libs in pairs(toolTable.ConfigurationLibraries) do
 						for k,v in pairs(libs) do
 							table.insert(infoTable.ConfigurationLibraries[config], v)
@@ -876,14 +876,14 @@ function NazaraBuild:Process(infoTable)
 		end
 	end
 
-    return true
+	return true
 end
 
 function NazaraBuild:Resolve(infoTable)
-    if (infoTable.ClientOnly and _OPTIONS["server"]) then
+	if (infoTable.ClientOnly and _OPTIONS["server"]) then
 		infoTable.Excluded = true
 		infoTable.ExcludeReason = "excluded by command-line options (client-only)"
-    end
+	end
 
 	if (infoTable.Excludable) then
 		local optionName = "excludes-" .. string.lower(infoTable.Type .. "-" .. infoTable.Name)
@@ -891,22 +891,22 @@ function NazaraBuild:Resolve(infoTable)
 			trigger     = optionName,
 			description = "Excludes the " .. infoTable.Name .. " " .. string.lower(infoTable.Type) .. " and projects relying on it"
 		})
-		
+
 		if (_OPTIONS[optionName]) then
 			infoTable.Excluded = true
 			infoTable.ExcludeReason = "excluded by command-line options"
 		end
 	end
 
-    if (type(infoTable.Libraries) == "function") then
-        infoTable.Libraries = infoTable.Libraries()
-    end
+	if (type(infoTable.Libraries) == "function") then
+		infoTable.Libraries = infoTable.Libraries()
+	end
 end
 
 function NazaraBuild:MakeCopyAfterBuild(infoTable)
-    if (PremakeVersion < 50) then
-        return
-    end
+	if (PremakeVersion < 50) then
+		return
+	end
 
 	if (os.is("windows")) then
 		configuration({})
@@ -942,7 +942,7 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.ConfigurationLibraries.ReleaseStatic = {}
 	infoTable.ConfigurationLibraries.DebugDynamic = {}
 	infoTable.ConfigurationLibraries.ReleaseDynamic = {}
-	
+
 	local infos = {"Defines", "DynLib", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
 	for k,v in ipairs(infos) do
 		infoTable[v] = {}
