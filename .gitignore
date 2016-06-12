@@ -1,4 +1,8 @@
 # Nazara build
+editor/bin/*.exe
+editor/bin/*.pdb
+editor/bin/*.dll
+editor/bin/*.so
 examples/bin/*.exe
 examples/bin/*.pdb
 examples/bin/*.dll
