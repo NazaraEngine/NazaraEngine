@@ -1,6 +1,6 @@
 EXAMPLE.Name = "Tut00_EmptyProject"
 
-EXAMPLE.Console = true
+EXAMPLE.EnableConsole = true
 
 EXAMPLE.Files = {
 	"main.cpp"
