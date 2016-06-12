@@ -1,7 +1,8 @@
 TOOL.Name = "UnitTests"
 
 TOOL.Directory = "../tests"
-TOOL.Kind = "ConsoleApp"
+TOOL.EnableConsole = true
+TOOL.Kind = "Application"
 
 TOOL.Defines = {
 }
