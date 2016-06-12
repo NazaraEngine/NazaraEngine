@@ -1,6 +1,6 @@
 EXAMPLE.Name = "MeshInfos"
 
-EXAMPLE.Console = true
+EXAMPLE.EnableConsole = true
 
 EXAMPLE.Files = {
 	"main.cpp"

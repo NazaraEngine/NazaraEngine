@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_RENDERER_OPENGL
-#define NAZARA_RENDERER_OPENGL // Nécessaire pour inclure les headers OpenGL
+#define NAZARA_RENDERER_OPENGL // Mandatory to include the OpenGL headers
 #endif
 
 #include <Nazara/Graphics/Material.hpp>
@@ -36,6 +36,17 @@ namespace Nz
 		};
 	}
 
+	/*!
+	* \ingroup graphics
+	* \class Nz::Material
+	* \brief Graphics class that represents a material
+	*/
+
+	/*!
+	* \brief Checks whether the parameters for the material are correct
+	* \return true If parameters are valid
+	*/
+
 	bool MaterialParams::IsValid() const
 	{
 		if (!UberShaderLibrary::Has(shaderName))
@@ -43,6 +54,15 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Applies shader to the material
+	* \return Constant pointer to the shader
+	*
+	* \param shaderFlags Flags for the shader
+	* \param textureUnit Unit for the texture GL_TEXTURE"i"
+	* \param lastUsedUnit Optional argument to get the last texture unit
+	*/
 
 	const Shader* Material::Apply(UInt32 shaderFlags, UInt8 textureUnit, UInt8* lastUsedUnit) const
 	{
@@ -122,6 +142,13 @@ namespace Nz
 
 		return instance.shader;
 	}
+
+	/*!
+	* \brief Builds the material from parameters
+	*
+	* \param matData Data information for the material
+	* \param matParams Parameters for the material
+	*/
 
 	void Material::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
 	{
@@ -283,6 +310,10 @@ namespace Nz
 		SetShader(matParams.shaderName);
 	}
 
+	/*!
+	* \brief Resets the material, cleans everything
+	*/
+
 	void Material::Reset()
 	{
 		OnMaterialReset(this);
@@ -319,9 +350,15 @@ namespace Nz
 		SetShader("Basic");
 	}
 
+	/*!
+	* \brief Copies the other material
+	*
+	* \param material Material to copy into this
+	*/
+
 	void Material::Copy(const Material& material)
 	{
-		// Copie des états de base
+		// Copy of base states
 		m_alphaTestEnabled     = material.m_alphaTestEnabled;
 		m_alphaThreshold       = material.m_alphaThreshold;
 		m_ambientColor         = material.m_ambientColor;
@@ -337,7 +374,7 @@ namespace Nz
 		m_states               = material.m_states;
 		m_transformEnabled     = material.m_transformEnabled;
 
-		// Copie des références de texture
+		// Copy of reference to the textures
 		m_alphaMap      = material.m_alphaMap;
 		m_depthMaterial = material.m_depthMaterial;
 		m_diffuseMap    = material.m_diffuseMap;
@@ -347,9 +384,15 @@ namespace Nz
 		m_specularMap   = material.m_specularMap;
 		m_uberShader = material.m_uberShader;
 
-		// On copie les instances de shader par la même occasion
-		std::memcpy(&m_shaders[0], &material.m_shaders[0], (ShaderFlags_Max+1)*sizeof(ShaderInstance));
+		// We copy the instances of the shader too
+		std::memcpy(&m_shaders[0], &material.m_shaders[0], (ShaderFlags_Max + 1) * sizeof(ShaderInstance));
 	}
+
+	/*!
+	* \brief Generates the shader based on flag
+	*
+	* \param flags Flag for the shaer
+	*/
 
 	void Material::GenerateShader(UInt32 flags) const
 	{
@@ -395,6 +438,13 @@ namespace Nz
 
 		#undef CacheUniform
 	}
+
+	/*!
+	* \brief Initializes the material librairies
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if the material library failed to be initialized
+	*/
 
 	bool Material::Initialize()
 	{
@@ -442,25 +492,29 @@ namespace Nz
 		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
 		MaterialLibrary::Register("Default", s_defaultMaterial);
 
-        MaterialRef mat;
+		MaterialRef mat;
 
-        mat = New();
-        mat->Enable(RendererParameter_DepthWrite, false);
-        mat->Enable(RendererParameter_FaceCulling, false);
-        mat->EnableLighting(false);
-        MaterialLibrary::Register("Basic2D", std::move(mat));
+		mat = New();
+		mat->Enable(RendererParameter_DepthWrite, false);
+		mat->Enable(RendererParameter_FaceCulling, false);
+		mat->EnableLighting(false);
+		MaterialLibrary::Register("Basic2D", std::move(mat));
 
-        mat = New();
-        mat->Enable(RendererParameter_Blend, true);
-        mat->Enable(RendererParameter_DepthWrite, false);
-        mat->Enable(RendererParameter_FaceCulling, false);
-        mat->EnableLighting(false);
-        mat->SetDstBlend(BlendFunc_InvSrcAlpha);
-        mat->SetSrcBlend(BlendFunc_SrcAlpha);
-        MaterialLibrary::Register("Translucent2D", std::move(mat));
+		mat = New();
+		mat->Enable(RendererParameter_Blend, true);
+		mat->Enable(RendererParameter_DepthWrite, false);
+		mat->Enable(RendererParameter_FaceCulling, false);
+		mat->EnableLighting(false);
+		mat->SetDstBlend(BlendFunc_InvSrcAlpha);
+		mat->SetSrcBlend(BlendFunc_SrcAlpha);
+		MaterialLibrary::Register("Translucent2D", std::move(mat));
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the material librairies
+	*/
 
 	void Material::Uninitialize()
 	{
