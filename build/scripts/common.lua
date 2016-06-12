@@ -519,28 +519,19 @@ function NazaraBuild:Initialize()
 		local moduleName = v:match(".*/(.*).lua")
 		local moduleNameLower = moduleName:lower()
 
-		if (moduleNameLower ~= "core") then -- exclure le noyau n'aurait aucun sens
-			newoption({
-				trigger     = "exclude-" .. moduleNameLower,
-				description = "Exclude the " .. moduleName .. " module from the build system"
-			})
-		end
+		local f, err = loadfile(v)
+		if (f) then
+			MODULE = {}
+			self:SetupInfoTable(MODULE)
 
-		if (not _OPTIONS["exclude-" .. moduleNameLower]) then
-			local f, err = loadfile(v)
-			if (f) then
-				MODULE = {}
-				self:SetupInfoTable(MODULE)
+			f()
 
-				f()
-
-				local succeed, err = self:RegisterModule(MODULE)
-				if (not succeed) then
-					print("Unable to register module: " .. err)
-				end
-			else
-				print("Unable to load module file: " .. err)
+			local succeed, err = self:RegisterModule(MODULE)
+			if (not succeed) then
+				print("Unable to register module: " .. err)
 			end
+		else
+			print("Unable to load module file: " .. err)
 		end
 	end
 	MODULE = nil
@@ -551,26 +542,19 @@ function NazaraBuild:Initialize()
 		local toolName = v:match(".*/(.*).lua")
 		local toolNameLower = toolName:lower()
 
-		newoption({
-			trigger     = "exclude-" .. toolNameLower,
-			description = "Exclude the " .. toolName .. " tool from the build system"
-		})
+		local f, err = loadfile(v)
+		if (f) then
+			TOOL = {}
+			self:SetupInfoTable(TOOL)
 
-		if (not _OPTIONS["exclude-" .. toolNameLower]) then
-			local f, err = loadfile(v)
-			if (f) then
-				TOOL = {}
-				self:SetupInfoTable(TOOL)
+			f()
 
-				f()
-
-				local succeed, err = self:RegisterTool(TOOL)
-				if (not succeed) then
-					print("Unable to register tool: " .. err)
-				end
-			else
-				print("Unable to load tool file: " .. err)
+			local succeed, err = self:RegisterTool(TOOL)
+			if (not succeed) then
+				print("Unable to register tool: " .. err)
 			end
+		else
+			print("Unable to load tool file: " .. err)
 		end
 	end
 	TOOL = nil
@@ -616,9 +600,9 @@ function NazaraBuild:Initialize()
 
 		for projectId,projectTable in pairs(projects) do
 			if (self:Process(projectTable)) then
-                table.insert(orderedTables[k], projectTable)
+				table.insert(orderedTables[k], projectTable)
             else
-                print("Rejected client-only " .. projectTable.Name .. " " .. projectTable.Type) 
+                print("Rejected " .. projectTable.Name .. " " .. string.lower(projectTable.Type) .. ": " .. projectTable.ExcludeReason) 
             end
 		end
 		
@@ -780,20 +764,17 @@ local PosixOSes = {
 }
 
 function NazaraBuild:Process(infoTable)
-    if (infoTable.ClientOnly and _OPTIONS["server"]) then
-        return false
-    end
-
 	local libraries = {}    
 	for k, library in pairs(infoTable.Libraries) do
-		local moduleName = library:match("Nazara(%w+)")
-		local moduleTable = moduleName and self.Modules[moduleName:lower()]
-		local toolTable = moduleName and self.Tools[moduleName:lower()]
+		local projectName = library:match("Nazara(%w+)")
+		local moduleTable = projectName and self.Modules[projectName:lower()]
+		local toolTable = projectName and self.Tools[projectName:lower()]
 		
 		if (moduleTable) then
-            if (moduleTable.ClientOnly and _OPTIONS["server"]) then
-                infoTable.ClientOnly = true
-                return false -- We depend on a client-only library
+            if (moduleTable.Excluded) then
+				infoTable.Excluded = true
+				infoTable.ExcludeReason = "depends on excluded " .. projectName .. " module"
+                return false
             end
 
 			if (_OPTIONS["united"]) then
@@ -811,9 +792,10 @@ function NazaraBuild:Process(infoTable)
 		else
 			local extLibTable = self.ExtLibs[library:lower()]
 			if (extLibTable) then
-                if (extLibTable.ClientOnly and _OPTIONS["server"]) then
-                    infoTable.ClientOnly = true
-                    return false -- We depend on a client-only library
+                if (extLibTable.Excluded) then
+					infoTable.Excluded = true
+					infoTable.ExcludeReason = "depends on excluded " .. extLibTable.Name .. " external library"
+                    return false
                 end
 
 				library = extLibTable.Name
@@ -824,9 +806,10 @@ function NazaraBuild:Process(infoTable)
 				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
 			else
 				if (toolTable and toolTable.Kind == "library") then
-                    if (toolTable.ClientOnly and _OPTIONS["server"]) then
-                        infoTable.ClientOnly = true
-                        return false -- We depend on a client-only library
+                    if (toolTable.Excluded) then
+						infoTable.Excluded = true
+						infoTable.ExcludeReason = "depends on excluded " .. toolTable.Name .. " tool"
+                        return false
                     end
 
 					library = "Nazara" .. toolTable.Name
@@ -894,6 +877,24 @@ function NazaraBuild:Process(infoTable)
 end
 
 function NazaraBuild:Resolve(infoTable)
+    if (infoTable.ClientOnly and _OPTIONS["server"]) then
+		infoTable.Excluded = true
+		infoTable.ExcludeReason = "excluded by command-line options (client-only)"
+    end
+
+	if (infoTable.Excludable) then
+		local optionName = "excludes-" .. string.lower(infoTable.Type .. "-" .. infoTable.Name)
+		newoption({
+			trigger     = optionName,
+			description = "Excludes the " .. infoTable.Name .. " " .. string.lower(infoTable.Type) .. " and projects relying on it"
+		})
+		
+		if (_OPTIONS[optionName]) then
+			infoTable.Excluded = true
+			infoTable.ExcludeReason = "excluded by command-line options"
+		end
+	end
+
     if (type(infoTable.Libraries) == "function") then
         infoTable.Libraries = infoTable.Libraries()
     end
@@ -932,6 +933,7 @@ function NazaraBuild:MakeCopyAfterBuild(infoTable)
 end
 
 function NazaraBuild:SetupInfoTable(infoTable)
+	infoTable.Excludable = true
 	infoTable.ConfigurationLibraries = {}
 	infoTable.ConfigurationLibraries.DebugStatic = {}
 	infoTable.ConfigurationLibraries.ReleaseStatic = {}
