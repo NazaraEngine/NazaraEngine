@@ -1,5 +1,14 @@
 NazaraBuild = {} -- L'équivalent d'un namespace en Lua est une table
 
+function NazaraBuild:AddExecutablePath(path)
+	self.ExecutableDir[path] = true
+	self.InstallDir[path] = true
+end
+
+function NazaraBuild:AddInstallPath(path)
+	self.InstallDir[path] = true
+end
+
 function NazaraBuild:Execute()
 	if (_ACTION == nil) then -- Si aucune action n'est spécifiée
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
@@ -196,7 +205,7 @@ function NazaraBuild:Execute()
 				targetdir("../lib/" .. makeLibDir .. "/x64")
 
 			-- Copy the module binaries to the example folder
-			self:MakeCopyAfterBuild(moduleTable)
+			self:MakeInstallCommands(moduleTable)
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
@@ -265,12 +274,16 @@ function NazaraBuild:Execute()
 
 			if (toolTable.Kind == "plugin" or toolTable.Kind == "library") then
 				kind("SharedLib")
-			elseif (toolTable.Kind == "consoleapp") then
+				
+				-- Copy the tool binaries to the example folder
+				self:MakeInstallCommands(toolTable)
+			elseif (toolTable.Kind == "application") then
 				debugdir(toolTable.Directory)
-				kind("ConsoleApp")
-			elseif (toolTable.Kind == "windowapp") then
-				debugdir(toolTable.Directory)
-				kind("WindowedApp")
+				if (toolTable.EnableConsole) then
+					kind("ConsoleApp")
+				else
+					kind("WindowedApp")
+				end
 			else
 				assert(false, "Invalid tool Kind")
 			end
@@ -307,11 +320,6 @@ function NazaraBuild:Execute()
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
-
-			-- Copy the tool binaries to the example folder
-			if (toolTable.CopyTargetToExampleDir) then
-				self:MakeCopyAfterBuild(toolTable)
-			end
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
@@ -385,23 +393,34 @@ function NazaraBuild:Execute()
 		end
 
 		for k, exampleTable in ipairs(self.OrderedExamples) do
+			local destPath = "../examples/bin"
+				
 			project("Demo" .. exampleTable.Name)
 
 			location(_ACTION .. "/examples")
 
-			if (exampleTable.Console) then
-				kind("ConsoleApp")
+			if (exampleTable.Kind == "plugin" or exampleTable.Kind == "library") then
+				kind("SharedLib")
+				
+				self:MakeInstallCommands(toolTable)
+			elseif (exampleTable.Kind == "application") then
+				debugdir(exampleTable.Directory)
+				if (exampleTable.EnableConsole) then
+					kind("ConsoleApp")
+				else
+					kind("WindowedApp")
+				end
 			else
-				kind("Window")
+				assert(false, "Invalid tool Kind")
 			end
 
-			debugdir("../examples/bin")
+			debugdir(destPath)
 			includedirs({
 				"../include",
 				"../extlibs/include"
 			})
 			libdirs("../lib")
-			targetdir("../examples/bin")
+			targetdir(destPath)
 
 			files(exampleTable.Files)
 			excludes(exampleTable.FilesExcluded)
@@ -449,6 +468,11 @@ end
 function NazaraBuild:Initialize()
 	-- Commençons par les options
 	newoption({
+		trigger     = "install-path",
+		description = "Setup additionnals install directories (library binaries will be copied there)"
+	})
+
+	newoption({
 		trigger     = "server",
 		description = "Excludes client-only modules/tools/examples"
 	})
@@ -470,9 +494,18 @@ function NazaraBuild:Initialize()
 
 	self.Actions = {}
 	self.Examples = {}
+	self.ExecutableDir = {}
 	self.ExtLibs = {}
+	self.InstallDir = {}
 	self.Modules = {}
 	self.Tools = {}
+	
+	if (_OPTIONS["install-path"]) then
+		local paths = string.explode(_OPTIONS["install-path"], ";")
+		for k,v in pairs(paths) do
+			self:AddInstallPath(v)
+		end
+	end
 
 	-- Actions
 	modules = os.matchfiles("scripts/actions/*.lua")
@@ -499,7 +532,7 @@ function NazaraBuild:Initialize()
 		local f, err = loadfile(v)
 		if (f) then
 			LIBRARY = {}
-			self:SetupInfoTable(LIBRARY)
+			self:SetupExtlibTable(LIBRARY)
 
 			f()
 
@@ -522,7 +555,7 @@ function NazaraBuild:Initialize()
 		local f, err = loadfile(v)
 		if (f) then
 			MODULE = {}
-			self:SetupInfoTable(MODULE)
+			self:SetupModuleTable(MODULE)
 
 			f()
 
@@ -545,7 +578,7 @@ function NazaraBuild:Initialize()
 		local f, err = loadfile(v)
 		if (f) then
 			TOOL = {}
-			self:SetupInfoTable(TOOL)
+			self:SetupToolTable(TOOL)
 
 			f()
 
@@ -569,7 +602,7 @@ function NazaraBuild:Initialize()
 				if (f) then
 					EXAMPLE = {}
 					EXAMPLE.Directory = dirName
-					self:SetupInfoTable(EXAMPLE)
+					self:SetupExampleTable(EXAMPLE)
 
 					f()
 
@@ -745,7 +778,7 @@ function NazaraBuild:RegisterTool(toolTable)
 	end
 
 	local lowerCaseKind = toolTable.Kind:lower()
-	if (lowerCaseKind == "library" or lowerCaseKind == "plugin" or lowerCaseKind == "consoleapp" or lowerCaseKind == "windowapp") then
+	if (lowerCaseKind == "library" or lowerCaseKind == "plugin" or lowerCaseKind == "application") then
 		toolTable.Kind = lowerCaseKind
 	else
 		return false, "Invalid tool type"
@@ -873,6 +906,10 @@ function NazaraBuild:Process(infoTable)
 		end
 	end
 
+	if (infoTable.Kind == "application") then
+		self:AddExecutablePath(infoTable.Directory)
+	end
+
 	return true
 end
 
@@ -900,14 +937,18 @@ function NazaraBuild:Resolve(infoTable)
 	end
 end
 
-function NazaraBuild:MakeCopyAfterBuild(infoTable)
+function NazaraBuild:MakeInstallCommands(infoTable)
 	if (PremakeVersion < 50) then
 		return
 	end
 
 	if (os.is("windows")) then
 		configuration({})
-			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "..\..\..\examples\bin\" /E /Y]]})
+		
+		for k,v in pairs(self.InstallDir) do
+			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "]] .. destPath .. [[\" /E /Y]]})
+		end
 
 		for k,v in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
 			local paths = {}
@@ -918,14 +959,18 @@ function NazaraBuild:MakeCopyAfterBuild(infoTable)
 
 			for k,v in pairs(paths) do
 				local config = v[1]
-				local path = v[2]
-				if (os.isfile(path)) then
+				local srcPath = v[2]
+				if (os.isfile(srcPath)) then
 					if (infoTable.Kind == "plugin") then
-						path = "../../" .. path
+						srcPath = "../../" .. srcPath
 					end
 
 					configuration(config)
-					postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. path .. [[")}" "..\..\..\examples\bin\" /E /Y]]})
+					
+					for k,v in pairs(self.ExecutableDir) do
+						local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+						postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}" "]] .. destPath .. [[\" /E /Y]]})
+					end
 				end
 			end
 		end
@@ -946,3 +991,24 @@ function NazaraBuild:SetupInfoTable(infoTable)
 		infoTable["Os" .. v] = {}
 	end
 end
+
+function NazaraBuild:SetupExampleTable(infoTable)
+	self:SetupInfoTable(infoTable)
+
+	infoTable.Directory = "../example/bin"
+	infoTable.Kind = "application"
+end
+
+function NazaraBuild:SetupExtlibTable(infoTable)
+	self:SetupInfoTable(infoTable)
+
+	infoTable.Kind = "library"
+end
+
+function NazaraBuild:SetupModuleTable(infoTable)
+	self:SetupInfoTable(infoTable)
+
+	infoTable.Kind = "library"
+end
+
+NazaraBuild.SetupToolTable = NazaraBuild.SetupInfoTable
