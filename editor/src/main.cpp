@@ -6,6 +6,7 @@
 #include <Ndk/Systems.hpp>
 #include <iostream>
 #include <QApplication>
+#include <QtGui>
 #include <QTimer>
 #include <QFrame>
 
@@ -24,10 +25,20 @@ class NazaraCanvas : public QWidget, public Nz::RenderWindow
 			setFocusPolicy(Qt::StrongFocus);
 
 			// Setup the widget geometry
-			move(QPoint(20, 20));
+			move(QPoint(0, 0));
 			resize(QSize(360, 360));
 		}
-	
+
+		unsigned int GetHeight() const override
+		{
+			return height();
+		}
+
+		unsigned int GetWidth() const override
+		{
+			return width();
+		}
+
 	private:
 		void resizeEvent(QResizeEvent*) override
 		{
@@ -38,8 +49,6 @@ class NazaraCanvas : public QWidget, public Nz::RenderWindow
 		{
 			if (!IsValid())
 			{
-				// Under X11, we need to flush the commands sent to the server to ensure that
-				// SFML will get an updated view of the windows
 				#ifdef Q_WS_X11
 				XFlush(QX11Info::display());
 				#endif
@@ -56,6 +65,11 @@ class NazaraCanvas : public QWidget, public Nz::RenderWindow
 		void paintEvent(QPaintEvent*) override
 		{
 		}
+
+		virtual void keyPressEvent(QKeyEvent* key) override
+		{
+			std::cout << (char) key->key() << std::endl;
+		}
 };
 
 int main(int argc, char *argv[])
@@ -66,7 +80,7 @@ int main(int argc, char *argv[])
 	QApplication App(argc, argv);
 	// Create the main frame
 	QFrame* MainFrame = new QFrame;
-	MainFrame->setWindowTitle("Qt Nazara");
+	MainFrame->setWindowTitle("Nazara Model Importer");
 	MainFrame->resize(400, 400);
 	MainFrame->show();
 
@@ -74,6 +88,7 @@ int main(int argc, char *argv[])
 
 	NazaraCanvas* NazaraView = new NazaraCanvas(MainFrame, world);
 	NazaraView->show();
+	NazaraView->resize(400, 400);
 
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(192, 100, 100)));
@@ -110,7 +125,16 @@ int main(int argc, char *argv[])
 			Nz::WindowEvent event;
 			while (NazaraView->PollEvent(&event))
 			{
-				std::cout << event.type << std::endl;
+				switch (event.type)
+				{
+					case Nz::WindowEventType_MouseMoved:
+						std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
+						break;
+
+					case Nz::WindowEventType_KeyPressed:
+						std::cout << event.key.code << std::endl;
+						break;
+				}
 			}
 
 			NazaraView->Display();
