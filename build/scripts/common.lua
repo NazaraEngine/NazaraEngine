@@ -82,8 +82,11 @@ function NazaraBuild:Execute()
 			configuration("ReleaseStatic")
 				targetsuffix("-s")
 
+			configuration({"not windows", "codeblocks or codelite or gmake or xcode3 or xcode4"})	
+				buildoptions("-fPIC")
+
 			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions({"-fPIC", "-std=c++14", "-U__STRICT_ANSI__"})
+				buildoptions({"-std=c++14", "-U__STRICT_ANSI__"})
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
