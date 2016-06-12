@@ -148,9 +148,6 @@ function NazaraBuild:Execute()
 		configuration({"linux or bsd or macosx", "gmake"})
 			buildoptions("-fvisibility=hidden")
 
-		configuration({"linux or bsd or macosx", "gmake"})
-			buildoptions("-fvisibility=hidden")
-
 		configuration("vs*")
 			buildoptions("/MP") -- Multiprocessus build
 			flags("NoMinimalRebuild")
