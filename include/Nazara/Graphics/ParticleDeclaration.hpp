@@ -62,16 +62,16 @@ namespace Nz
 
 				/*
 				** -Lynix:
-				** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
-				** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
-				** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
+				** It would be also possible to precise the stride by an independant way, what I don't allow
+				** to decomplexify the interface of something I consider useless.
+				** If you think that could be useful, don't hesitate to make me aware !
 				*/
 			};
 
-			Component m_components[ParticleComponent_Max+1];
+			Component m_components[ParticleComponent_Max + 1];
 			unsigned int m_stride;
 
-			static ParticleDeclaration s_declarations[ParticleLayout_Max+1];
+			static ParticleDeclaration s_declarations[ParticleLayout_Max + 1];
 			static ParticleDeclarationLibrary::LibraryMap s_library;
 	};
 }
