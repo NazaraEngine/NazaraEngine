@@ -995,7 +995,7 @@ end
 function NazaraBuild:SetupExampleTable(infoTable)
 	self:SetupInfoTable(infoTable)
 
-	infoTable.Directory = "../example/bin"
+	infoTable.Directory = "../examples/bin"
 	infoTable.Kind = "application"
 end
 

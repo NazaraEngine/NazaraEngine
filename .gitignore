@@ -9,6 +9,8 @@ examples/bin/*.dll
 examples/bin/*.so
 tests/*.exe
 tests/*.pdb
+tests/*.dll
+tests/*.so
 lib/*
 
 # Feature page
