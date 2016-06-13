@@ -27,10 +27,10 @@ namespace Nz
 			virtual ~AbstractTextDrawer();
 
 			virtual const Recti& GetBounds() const = 0;
-			virtual Font* GetFont(unsigned int index) const = 0;
-			virtual unsigned int GetFontCount() const = 0;
-			virtual const Glyph& GetGlyph(unsigned int index) const = 0;
-			virtual unsigned int GetGlyphCount() const = 0;
+			virtual Font* GetFont(std::size_t index) const = 0;
+			virtual std::size_t GetFontCount() const = 0;
+			virtual const Glyph& GetGlyph(std::size_t index) const = 0;
+			virtual std::size_t GetGlyphCount() const = 0;
 
 			struct Glyph
 			{

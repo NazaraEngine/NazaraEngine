@@ -58,7 +58,7 @@ namespace Nz
 		return m_joints.data();
 	}
 
-	unsigned int MD5MeshParser::GetJointCount() const
+	std::size_t MD5MeshParser::GetJointCount() const
 	{
 		return m_joints.size();
 	}
@@ -68,7 +68,7 @@ namespace Nz
 		return m_meshes.data();
 	}
 
-	unsigned int MD5MeshParser::GetMeshCount() const
+	std::size_t MD5MeshParser::GetMeshCount() const
 	{
 		return m_meshes.size();
 	}

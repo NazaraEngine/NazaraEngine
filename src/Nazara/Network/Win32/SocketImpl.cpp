@@ -328,7 +328,7 @@ namespace Nz
 		return code == TRUE;
 	}
 
-	unsigned int SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
 		unsigned int code;
 		int codeLength = sizeof(code);

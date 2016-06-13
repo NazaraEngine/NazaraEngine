@@ -32,10 +32,10 @@ namespace Nz
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;
-			Font* GetFont(unsigned int index) const override;
-			unsigned int GetFontCount() const override;
-			const Glyph& GetGlyph(unsigned int index) const override;
-			unsigned int GetGlyphCount() const override;
+			Font* GetFont(std::size_t index) const override;
+			std::size_t GetFontCount() const override;
+			const Glyph& GetGlyph(std::size_t index) const override;
+			std::size_t GetGlyphCount() const override;
 			UInt32 GetStyle() const;
 			const String& GetText() const;
 
