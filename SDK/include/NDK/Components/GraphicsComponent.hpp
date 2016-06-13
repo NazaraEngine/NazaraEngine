@@ -40,7 +40,7 @@ namespace Ndk
 
 		private:
 			inline void InvalidateBoundingVolume();
-			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index);
+			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
 

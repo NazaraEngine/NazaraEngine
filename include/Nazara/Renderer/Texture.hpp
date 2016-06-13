@@ -59,8 +59,8 @@ namespace Nz
 			unsigned int GetHeight(UInt8 level = 0) const;
 			UInt8 GetLevelCount() const;
 			UInt8 GetMaxLevel() const;
-			unsigned int GetMemoryUsage() const;
-			unsigned int GetMemoryUsage(UInt8 level) const;
+			std::size_t GetMemoryUsage() const;
+			std::size_t GetMemoryUsage(UInt8 level) const;
 			Vector3ui GetSize(UInt8 level = 0) const;
 			ImageType GetType() const;
 			unsigned int GetWidth(UInt8 level = 0) const;

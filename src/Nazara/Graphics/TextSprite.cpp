@@ -64,8 +64,8 @@ namespace Nz
 			pair.second.used = false;
 
 		// ... until they are marked as used by the drawer
-		unsigned int fontCount = drawer.GetFontCount();
-		for (unsigned int i = 0; i < fontCount; ++i)
+		std::size_t fontCount = drawer.GetFontCount();
+		for (std::size_t i = 0; i < fontCount; ++i)
 		{
 			Font* font = drawer.GetFont(i);
 			const AbstractAtlas* atlas = font->GetAtlas().get();
@@ -95,7 +95,7 @@ namespace Nz
 				++atlasIt;
 		}
 
-		unsigned int glyphCount = drawer.GetGlyphCount();
+		std::size_t glyphCount = drawer.GetGlyphCount();
 		m_localVertices.resize(glyphCount * 4);
 
 		// Reset glyph count for every texture to zero
@@ -105,7 +105,7 @@ namespace Nz
 		// Count glyph count for each texture
 		Texture* lastTexture = nullptr;
 		unsigned int* count = nullptr;
-		for (unsigned int i = 0; i < glyphCount; ++i)
+		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
 

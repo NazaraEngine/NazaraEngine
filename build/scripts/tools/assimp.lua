@@ -1,7 +1,8 @@
 TOOL.Name = "Assimp"
 
-TOOL.Directory = "../SDK/lib"
+TOOL.Directory = "../plugins/Assimp"
 TOOL.Kind = "Plugin"
+TOOL.TargetDirectory = "../SDK/lib"
 
 TOOL.Includes = {
 	"../include",

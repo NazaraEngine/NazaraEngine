@@ -401,7 +401,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int length = static_cast<unsigned int>(file.GetSize());
+		std::size_t length = static_cast<std::size_t>(file.GetSize());
 
 		String source(length, '\0');
 
@@ -416,7 +416,7 @@ namespace Nz
 		return Execute(source);
 	}
 
-	bool LuaInstance::ExecuteFromMemory(const void* data, unsigned int size)
+	bool LuaInstance::ExecuteFromMemory(const void* data, std::size_t size)
 	{
 		MemoryView stream(data, size);
 		return ExecuteFromStream(stream);
@@ -679,7 +679,7 @@ namespace Nz
 		lua_pushstring(m_state, str);
 	}
 
-	void LuaInstance::PushString(const char* str, unsigned int size) const
+	void LuaInstance::PushString(const char* str, std::size_t size) const
 	{
 		lua_pushlstring(m_state, str, size);
 	}
@@ -694,7 +694,7 @@ namespace Nz
 		lua_createtable(m_state, sequenceElementCount, arrayElementCount);
 	}
 
-	void* LuaInstance::PushUserdata(unsigned int size) const
+	void* LuaInstance::PushUserdata(std::size_t size) const
 	{
 		return lua_newuserdata(m_state, size);
 	}
@@ -749,7 +749,7 @@ namespace Nz
 		lua_setmetatable(m_state, index);
 	}
 
-	void LuaInstance::SetMemoryLimit(UInt32 memoryLimit)
+	void LuaInstance::SetMemoryLimit(std::size_t memoryLimit)
 	{
 		m_memoryLimit = memoryLimit;
 	}
@@ -860,8 +860,8 @@ namespace Nz
 	void* LuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std::size_t nsize)
 	{
 		LuaInstance* instance = static_cast<LuaInstance*>(ud);
-		UInt32& memoryLimit = instance->m_memoryLimit;
-		UInt32& memoryUsage = instance->m_memoryUsage;
+		std::size_t& memoryLimit = instance->m_memoryLimit;
+		std::size_t& memoryUsage = instance->m_memoryUsage;
 
 		if (nsize == 0)
 		{
@@ -872,7 +872,7 @@ namespace Nz
 		}
 		else
 		{
-			UInt32 usage = memoryUsage + nsize;
+			std::size_t usage = memoryUsage + nsize;
 			if (ptr)
 				usage -= osize;
 
