@@ -47,12 +47,12 @@ namespace Nz
 
 			Ternary Check();
 
-			unsigned int GetAnimatedComponentCount() const;
+			std::size_t GetAnimatedComponentCount() const;
 			const Frame* GetFrames() const;
-			unsigned int GetFrameCount() const;
-			unsigned int GetFrameRate() const;
+			std::size_t GetFrameCount() const;
+			std::size_t GetFrameRate() const;
 			const Joint* GetJoints() const;
-			unsigned int GetJointCount() const;
+			std::size_t GetJointCount() const;
 
 			bool Parse();
 

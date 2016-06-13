@@ -96,7 +96,7 @@ namespace Nz
 		//UInt64 oldCursorPos = GetCursorPos();
 
 		DWORD read = 0;
-		if (ReadFile(m_handle, buffer, size, &read, nullptr))
+		if (ReadFile(m_handle, buffer, static_cast<DWORD>(size), &read, nullptr))
 		{
 			m_endOfFile = (read != size);
 			m_endOfFileUpdated = true;
@@ -191,9 +191,9 @@ namespace Nz
 		LARGE_INTEGER cursorPos;
 		cursorPos.QuadPart = GetCursorPos();
 
-		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
-		WriteFile(m_handle, buffer, size, &written, nullptr);
-		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
+		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
+		WriteFile(m_handle, buffer, static_cast<DWORD>(size), &written, nullptr);
+		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 
 		m_endOfFileUpdated = false;
 
