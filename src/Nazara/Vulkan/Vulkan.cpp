@@ -158,7 +158,7 @@ namespace Nz
 		return s_moduleReferenceCounter != 0;
 	}
 
-	Vk::Device& Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	Vk::DeviceHandle Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -230,8 +230,8 @@ namespace Nz
 			queueCreateInfos.data(),
 			UInt32(enabledLayers.size()),
 			enabledLayers.data(),
-			UInt32(enabledLayers.size()),
-			enabledLayers.data(),
+			UInt32(enabledExtensions.size()),
+			enabledExtensions.data(),
 			nullptr
 		};
 
@@ -243,10 +243,10 @@ namespace Nz
 
 		*presentableFamilyQueue = presentQueueNodeIndex;
 
-		return device;
+		return device.CreateHandle();
 	}
 
-	Vk::Device& Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	Vk::DeviceHandle Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		// First, try to find a device compatible with that surface
 		for (Vk::Device& device : s_devices)
@@ -276,7 +276,6 @@ namespace Nz
 
 		// No device had support for that surface, create one
 		return CreateDevice(gpu, surface, presentableFamilyQueue);
-		
 	}
 
 	void Vulkan::SetParameters(const ParameterList& parameters)
@@ -298,6 +297,7 @@ namespace Nz
 		s_moduleReferenceCounter = 0;
 
 		// Uninitialize module here
+		s_devices.clear();
 		s_instance.Destroy();
 
 		Vk::Loader::Uninitialize();
