@@ -176,7 +176,7 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline bool Surface::GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities)
+		inline bool Surface::GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities) const
 		{
 			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, surfaceCapabilities);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -188,7 +188,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Surface::GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats)
+		inline bool Surface::GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats) const
 		{
 			// First, query format count
 			UInt32 surfaceCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
@@ -211,7 +211,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Surface::GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes)
+		inline bool Surface::GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes) const
 		{
 			// First, query present modes count
 			UInt32 presentModeCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
@@ -234,7 +234,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Surface::GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported)
+		inline bool Surface::GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported) const
 		{
 			VkBool32 presentationSupported = VK_FALSE;
 			m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &presentationSupported);
