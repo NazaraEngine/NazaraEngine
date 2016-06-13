@@ -64,10 +64,10 @@ namespace Nz
 
 				inline void Destroy();
 
-				bool GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities);
-				bool GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats);
-				bool GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes);
-				bool GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported);
+				bool GetCapabilities(VkPhysicalDevice physicalDevice, VkSurfaceCapabilitiesKHR* surfaceCapabilities) const;
+				bool GetFormats(VkPhysicalDevice physicalDevice, std::vector<VkSurfaceFormatKHR>* surfaceFormats) const;
+				bool GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes) const;
+				bool GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported) const;
 
 				inline bool IsSupported() const;
 
@@ -84,7 +84,7 @@ namespace Nz
 				Instance& m_instance;
 				VkAllocationCallbacks m_allocator;
 				VkSurfaceKHR m_surface;
-				VkResult m_lastErrorCode;
+				mutable VkResult m_lastErrorCode;
 		};
 	}
 }
