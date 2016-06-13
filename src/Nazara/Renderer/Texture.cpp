@@ -364,7 +364,7 @@ namespace Nz
 		return Image::GetMaxLevel(m_impl->type, m_impl->width, m_impl->height, m_impl->depth);
 	}
 
-	unsigned int Texture::GetMemoryUsage() const
+	std::size_t Texture::GetMemoryUsage() const
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (!m_impl)
@@ -399,7 +399,7 @@ namespace Nz
 		return size * PixelFormat::GetBytesPerPixel(m_impl->format);
 	}
 
-	unsigned int Texture::GetMemoryUsage(UInt8 level) const
+	std::size_t Texture::GetMemoryUsage(UInt8 level) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
