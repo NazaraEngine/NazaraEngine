@@ -19,20 +19,20 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
-				inline Semaphore(Device& instance);
+				Semaphore() = default;
 				Semaphore(const Semaphore&) = delete;
 				Semaphore(Semaphore&&) = default;
 				~Semaphore() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(const DeviceHandle& device, VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				Semaphore& operator=(const Semaphore&) = delete;
 				Semaphore& operator=(Semaphore&&) = delete;
 
 			private:
-				static VkResult CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
-				static void DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
+				static VkResult CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
+				static void DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }
