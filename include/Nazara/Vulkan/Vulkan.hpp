@@ -23,7 +23,7 @@ namespace Nz
 			Vulkan() = delete;
 			~Vulkan() = delete;
 
-			static Vk::Device& CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+			static Vk::DeviceHandle CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
 
 			static Vk::Instance& GetInstance();
 
@@ -31,7 +31,7 @@ namespace Nz
 
 			static bool IsInitialized();
 
-			static Vk::Device& SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+			static Vk::DeviceHandle SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
 
 			static void SetParameters(const ParameterList& parameters);
 
