@@ -287,7 +287,7 @@ namespace Nz
 			return false;
 		}
 
-		inline Surface::operator VkSurfaceKHR()
+		inline Surface::operator VkSurfaceKHR() const
 		{
 			return m_surface;
 		}

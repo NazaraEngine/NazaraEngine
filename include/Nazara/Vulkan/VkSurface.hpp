@@ -76,7 +76,7 @@ namespace Nz
 				Surface& operator=(const Surface&) = delete;
 				Surface& operator=(Surface&&) = delete;
 
-				inline operator VkSurfaceKHR();
+				inline operator VkSurfaceKHR() const;
 
 			private:
 				inline bool Create(const VkAllocationCallbacks* allocator);
