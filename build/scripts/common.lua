@@ -270,7 +270,7 @@ function NazaraBuild:Execute()
 			project(prefix .. toolTable.Name)
 
 			location(_ACTION .. "/tools")
-			targetdir(toolTable.Directory)
+			targetdir(toolTable.TargetDirectory)
 
 			if (toolTable.Kind == "plugin" or toolTable.Kind == "library") then
 				kind("SharedLib")
@@ -278,7 +278,7 @@ function NazaraBuild:Execute()
 				-- Copy the tool binaries to the example folder
 				self:MakeInstallCommands(toolTable)
 			elseif (toolTable.Kind == "application") then
-				debugdir(toolTable.Directory)
+				debugdir(toolTable.TargetDirectory)
 				if (toolTable.EnableConsole) then
 					kind("ConsoleApp")
 				else
@@ -404,7 +404,7 @@ function NazaraBuild:Execute()
 				
 				self:MakeInstallCommands(toolTable)
 			elseif (exampleTable.Kind == "application") then
-				debugdir(exampleTable.Directory)
+				debugdir(exampleTable.TargetDirectory)
 				if (exampleTable.EnableConsole) then
 					kind("ConsoleApp")
 				else
@@ -769,7 +769,7 @@ function NazaraBuild:RegisterTool(toolTable)
 		return false, "This tool name is already in use"
 	end
 
-	if (toolTable.Directory == nil or type(toolTable.Directory) ~= "string" or string.len(toolTable.Directory) == 0) then
+	if (toolTable.TargetDirectory == nil or type(toolTable.TargetDirectory) ~= "string" or string.len(toolTable.TargetDirectory) == 0) then
 		return false, "Invalid tool directory"
 	end
 
@@ -907,7 +907,7 @@ function NazaraBuild:Process(infoTable)
 	end
 
 	if (infoTable.Kind == "application") then
-		self:AddExecutablePath(infoTable.Directory)
+		self:AddExecutablePath(infoTable.TargetDirectory)
 	end
 
 	return true
@@ -995,8 +995,8 @@ end
 function NazaraBuild:SetupExampleTable(infoTable)
 	self:SetupInfoTable(infoTable)
 
-	infoTable.Directory = "../examples/bin"
 	infoTable.Kind = "application"
+	infoTable.TargetDirectory = "../examples/bin"
 end
 
 function NazaraBuild:SetupExtlibTable(infoTable)
