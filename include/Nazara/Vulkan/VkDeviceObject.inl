@@ -12,15 +12,14 @@ namespace Nz
 	namespace Vk
 	{
 		template<typename C, typename VkType, typename CreateInfo>
-		inline DeviceObject<C, VkType, CreateInfo>::DeviceObject(Device& device) :
-		m_device(device),
+		inline DeviceObject<C, VkType, CreateInfo>::DeviceObject() :
 		m_handle(VK_NULL_HANDLE)
 		{
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
 		inline DeviceObject<C, VkType, CreateInfo>::DeviceObject(DeviceObject&& object) :
-		m_device(object.m_device),
+		m_device(std::move(object.m_device)),
 		m_allocator(object.m_allocator),
 		m_handle(object.m_handle),
 		m_lastErrorCode(object.m_lastErrorCode)
@@ -35,8 +34,9 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		inline bool DeviceObject<C, VkType, CreateInfo>::Create(const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		inline bool DeviceObject<C, VkType, CreateInfo>::Create(const DeviceHandle& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
+			m_device = device;
 			m_lastErrorCode = C::CreateHelper(m_device, &createInfo, allocator, &m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
@@ -64,13 +64,7 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		inline Device& DeviceObject<C, VkType, CreateInfo>::GetDevice()
-		{
-			return m_device;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo>
-		inline const Device& DeviceObject<C, VkType, CreateInfo>::GetDevice() const
+		inline const DeviceHandle& DeviceObject<C, VkType, CreateInfo>::GetDevice() const
 		{
 			return m_device;
 		}

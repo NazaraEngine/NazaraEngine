@@ -14,7 +14,7 @@ namespace Nz
 	{
 		inline Device::Device(Instance& instance) :
 		m_instance(instance),
-		m_device(nullptr)
+		m_device(VK_NULL_HANDLE),
 		{
 		}
 
@@ -25,12 +25,12 @@ namespace Nz
 
 		inline void Device::Destroy()
 		{
-			if (m_device)
+			if (m_device != VK_NULL_HANDLE)
 			{
 				vkDeviceWaitIdle(m_device);
 				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 
-				m_device = nullptr;
+				m_device = VK_NULL_HANDLE;
 			}
 		}
 
@@ -39,7 +39,7 @@ namespace Nz
 			VkQueue queue;
 			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
 			
-			return Queue(*this, queue);
+			return Queue(CreateHandle(), queue);
 		}
 
 		inline Instance& Device::GetInstance()

@@ -11,12 +11,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline CommandPool::CommandPool(Device& device) :
-		DeviceObject(device)
-		{
-		}
-
-		inline bool CommandPool::Create(UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool CommandPool::Create(const DeviceHandle& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkCommandPoolCreateInfo createInfo =
 			{
@@ -26,26 +21,26 @@ namespace Nz
 				queueFamilyIndex
 			};
 
-			return Create(createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
 		inline bool CommandPool::Reset(VkCommandPoolResetFlags flags)
 		{
-			m_lastErrorCode = m_device.vkResetCommandPool(m_device, m_handle, flags);
+			m_lastErrorCode = m_device->vkResetCommandPool(*m_device, m_handle, flags);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 				return false;
 
 			return true;
 		}
 
-		inline VkResult CommandPool::CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle)
+		inline VkResult CommandPool::CreateHelper(const DeviceHandle& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle)
 		{
-			return device.vkCreateCommandPool(device, createInfo, allocator, handle);
+			return device->vkCreateCommandPool(*device, createInfo, allocator, handle);
 		}
 
-		inline void CommandPool::DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator)
+		inline void CommandPool::DestroyHelper(const DeviceHandle& device, VkCommandPool handle, const VkAllocationCallbacks* allocator)
 		{
-			return device.vkDestroyCommandPool(device, handle, allocator);
+			return device->vkDestroyCommandPool(*device, handle, allocator);
 		}
 	}
 }

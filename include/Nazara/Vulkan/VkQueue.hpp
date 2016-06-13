@@ -18,12 +18,12 @@ namespace Nz
 		class Queue
 		{
 			public:
-				inline Queue(Device& device, VkQueue queue);
+				inline Queue(const DeviceHandle& device, VkQueue queue);
 				inline Queue(const Queue& queue);
 				inline Queue(Queue&& queue);
 				inline ~Queue() = default;
 
-				inline Device& GetDevice();
+				inline const DeviceHandle& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
 
 				inline bool Present(const VkPresentInfoKHR& presentInfo);
@@ -40,7 +40,7 @@ namespace Nz
 				inline operator VkQueue();
 
 			protected:
-				Device& m_device;
+				DeviceHandle m_device;
 				VkQueue m_handle;
 				VkResult m_lastErrorCode;
 		};

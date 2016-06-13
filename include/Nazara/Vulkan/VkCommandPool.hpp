@@ -25,7 +25,7 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
-				inline CommandPool(Device& instance);
+				CommandPool() = default;
 				CommandPool(const CommandPool&) = delete;
 				CommandPool(CommandPool&&) = default;
 				~CommandPool() = default;
@@ -34,7 +34,7 @@ namespace Nz
 				std::vector<CommandBuffer> AllocateCommandBuffers(UInt32 commandBufferCount, VkCommandBufferLevel level);
 
 				using DeviceObject::Create;
-				inline bool Create(UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(const DeviceHandle& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline bool Reset(VkCommandPoolResetFlags flags);
 
@@ -42,8 +42,8 @@ namespace Nz
 				CommandPool& operator=(CommandPool&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
-				static inline void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(const DeviceHandle& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
+				static inline void DestroyHelper(const DeviceHandle& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }
