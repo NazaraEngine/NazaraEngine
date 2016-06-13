@@ -29,7 +29,7 @@ namespace Nz
 			virtual void Clear() = 0;
 			virtual void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count) = 0;
 			virtual AbstractImage* GetLayer(unsigned int layerIndex) const = 0;
-			virtual unsigned int GetLayerCount() const = 0;
+			virtual std::size_t GetLayerCount() const = 0;
 			virtual UInt32 GetStorage() const = 0;
 			virtual bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
 

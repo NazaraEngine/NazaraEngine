@@ -160,7 +160,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
+	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, std::size_t size, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(data, "Invalid data pointer");

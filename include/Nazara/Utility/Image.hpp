@@ -84,8 +84,8 @@ namespace Nz
 			unsigned int GetHeight(UInt8 level = 0) const;
 			UInt8 GetLevelCount() const;
 			UInt8 GetMaxLevel() const;
-			unsigned int GetMemoryUsage() const;
-			unsigned int GetMemoryUsage(UInt8 level) const;
+			std::size_t GetMemoryUsage() const;
+			std::size_t GetMemoryUsage(UInt8 level) const;
 			Color GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
 			UInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0);
 			Vector3ui GetSize(UInt8 level = 0) const;

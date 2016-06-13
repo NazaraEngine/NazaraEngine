@@ -127,7 +127,7 @@ namespace Nz
 		return m_atlas;
 	}
 
-	unsigned int Font::GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const
+	std::size_t Font::GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const
 	{
 		UInt64 key = ComputeKey(characterSize, style);
 		auto it = m_glyphes.find(key);
@@ -137,9 +137,9 @@ namespace Nz
 		return it->second.size();
 	}
 
-	unsigned int Font::GetCachedGlyphCount() const
+	std::size_t Font::GetCachedGlyphCount() const
 	{
-		unsigned int count = 0;
+		std::size_t count = 0;
 		for (auto& pair : m_glyphes)
 			count += pair.second.size();
 

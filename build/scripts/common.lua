@@ -54,7 +54,7 @@ function NazaraBuild:Execute()
 				targetdir("../extlibs/lib/" .. makeLibDir .. "/x64")
 
 			configuration("vs*")
-				buildoptions("/MP")
+				buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
 
 			configuration({"vs*", "x32"})
 				libdirs("../extlibs/lib/msvc/x86")
@@ -158,7 +158,7 @@ function NazaraBuild:Execute()
 			buildoptions("-fvisibility=hidden")
 
 		configuration("vs*")
-			buildoptions("/MP") -- Multiprocessus build
+			buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
 			flags("NoMinimalRebuild")
 			defines("_CRT_SECURE_NO_WARNINGS")
 			defines("_SCL_SECURE_NO_WARNINGS")
