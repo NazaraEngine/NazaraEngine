@@ -13,6 +13,13 @@ namespace Nz
 	{
 		bool Device::Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
+			std::vector<VkQueueFamilyProperties> queuesProperties;
+			if (!m_instance.GetPhysicalDeviceQueueFamilyProperties(device, &queuesProperties))
+			{
+				NazaraError("Failed to query queue family properties");
+				return false;
+			}
+
 			m_lastErrorCode = m_instance.vkCreateDevice(device, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
@@ -32,6 +39,25 @@ namespace Nz
 
 			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
 				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
+
+			// And retains informations about queues
+			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
+			for (UInt32 i = 0; i < createInfo.queueCreateInfoCount; ++i)
+			{
+				const VkDeviceQueueCreateInfo& queueCreateInfo = createInfo.pQueueCreateInfos[i];
+				QueueFamilyInfo& info = m_enabledQueuesInfos[i];
+
+				info.familyIndex = queueCreateInfo.queueFamilyIndex;
+				
+				const VkQueueFamilyProperties& queueProperties = queuesProperties[info.familyIndex];
+				info.flags = queueProperties.queueFlags;
+				info.minImageTransferGranularity = queueProperties.minImageTransferGranularity;
+				info.timestampValidBits = queueProperties.timestampValidBits;
+				
+				info.queues.resize(queueCreateInfo.queueCount);
+				for (UInt32 queueCount = 0; queueCount < queueCreateInfo.queueCount; ++queueCount)
+					info.queues[queueCount] = queueCreateInfo.pQueuePriorities[queueCount];
+			}
 
 			#define NAZARA_VULKAN_LOAD_DEVICE(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
 

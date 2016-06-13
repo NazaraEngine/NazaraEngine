@@ -34,6 +34,11 @@ namespace Nz
 			}
 		}
 
+		inline const std::vector<Device::QueueFamilyInfo>& Device::GetEnabledQueues() const
+		{
+			return m_enabledQueuesInfos;
+		}
+
 		inline Queue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
 			VkQueue queue;
