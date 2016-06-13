@@ -5,9 +5,11 @@
 #include <Nazara/Vulkan/Vulkan.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Vulkan/Config.hpp>
+#include <array>
 #include <Nazara/Vulkan/Debug.hpp>
 
 namespace Nz
@@ -156,6 +158,127 @@ namespace Nz
 		return s_moduleReferenceCounter != 0;
 	}
 
+	Vk::Device& Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	{
+		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies;
+		s_instance.GetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilies);
+
+		// Find a queue that supports graphics operations
+		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
+		UInt32 presentQueueNodeIndex = UINT32_MAX;
+		UInt32 transfertQueueNodeFamily = UINT32_MAX;
+		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		{
+			bool supportPresentation = false;
+			if (!surface.GetSupportPresentation(gpu, i, &supportPresentation))
+				NazaraWarning("Failed to get presentation support of queue family #" + String::Number(i));
+
+			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			{
+				if (graphicsQueueNodeIndex == UINT32_MAX)
+					graphicsQueueNodeIndex = i;
+
+				if (supportPresentation)
+				{
+					graphicsQueueNodeIndex = i;
+					presentQueueNodeIndex = i;
+					break;
+				}
+			}
+			else if (supportPresentation)
+				presentQueueNodeIndex = i;
+		}
+
+		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		{
+			if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+			{
+				transfertQueueNodeFamily = i;
+				if (transfertQueueNodeFamily != graphicsQueueNodeIndex)
+					break;
+			}
+		}
+
+		std::array<UInt32, 3> usedQueueFamilies = {graphicsQueueNodeIndex, presentQueueNodeIndex, transfertQueueNodeFamily};
+		float priority = 1.f;
+
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		for (UInt32 queueFamily : usedQueueFamilies)
+		{
+			VkDeviceQueueCreateInfo createInfo = {
+				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+				nullptr,
+				0,
+				queueFamily,
+				1,
+				&priority
+			};
+
+			queueCreateInfos.emplace_back(createInfo);
+		}
+
+		std::array<const char*, 1> enabledExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+		std::array<const char*, 0> enabledLayers;
+
+		VkDeviceCreateInfo createInfo = {
+			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+			nullptr,
+			0,
+			UInt32(queueCreateInfos.size()),
+			queueCreateInfos.data(),
+			UInt32(enabledLayers.size()),
+			enabledLayers.data(),
+			UInt32(enabledLayers.size()),
+			enabledLayers.data(),
+			nullptr
+		};
+
+		///TODO: First create then move
+		s_devices.emplace_back(s_instance);
+
+		Vk::Device& device = s_devices.back();
+		device.Create(gpu, createInfo);
+
+		*presentableFamilyQueue = presentQueueNodeIndex;
+
+		return device;
+	}
+
+	Vk::Device& Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	{
+		// First, try to find a device compatible with that surface
+		for (Vk::Device& device : s_devices)
+		{
+			if (device.GetPhysicalDevice() == gpu)
+			{
+				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = device.GetEnabledQueues();
+				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
+				for (Vk::Device::QueueFamilyInfo queueInfo : queueFamilyInfo)
+				{
+					bool supported = false;
+					if (surface.GetSupportPresentation(gpu, queueInfo.familyIndex, &supported) && supported)
+					{
+						if (presentableQueueFamilyIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+						{
+							presentableQueueFamilyIndex = queueInfo.familyIndex;
+							if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+								break;
+						}
+					}
+				}
+
+				if (presentableQueueFamilyIndex != UINT32_MAX)
+					*presentableFamilyQueue = presentableQueueFamilyIndex;
+			}
+		}
+
+		// No device had support for that surface, create one
+		return CreateDevice(gpu, surface, presentableFamilyQueue);
+		
+	}
+
 	void Vulkan::SetParameters(const ParameterList& parameters)
 	{
 		s_initializationParameters = parameters;
@@ -185,6 +308,7 @@ namespace Nz
 		Utility::Uninitialize();
 	}
 
+	std::list<Vk::Device> Vulkan::s_devices;
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;
 	unsigned int Vulkan::s_moduleReferenceCounter = 0;	
