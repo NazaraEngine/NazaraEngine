@@ -22,7 +22,7 @@ namespace Nz
 			};
 
 			VkCommandBuffer handle = VK_NULL_HANDLE;
-			m_lastErrorCode = m_device.vkAllocateCommandBuffers(m_device, &createInfo, &handle);
+			m_lastErrorCode = m_device->vkAllocateCommandBuffers(*m_device, &createInfo, &handle);
 
 			return CommandBuffer(*this, handle);
 		}
@@ -39,7 +39,7 @@ namespace Nz
 			};
 
 			std::vector<VkCommandBuffer> handles(commandBufferCount, VK_NULL_HANDLE);
-			m_lastErrorCode = m_device.vkAllocateCommandBuffers(m_device, &createInfo, handles.data());
+			m_lastErrorCode = m_device->vkAllocateCommandBuffers(*m_device, &createInfo, handles.data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 				return std::vector<CommandBuffer>();
 
