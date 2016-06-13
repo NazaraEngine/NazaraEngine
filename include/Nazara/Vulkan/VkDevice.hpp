@@ -42,6 +42,7 @@ namespace Nz
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
+				inline VkPhysicalDevice GetPhysicalDevice() const;
 
 				inline bool IsExtensionLoaded(const String& extensionName);
 				inline bool IsLayerLoaded(const String& layerName);
@@ -202,6 +203,7 @@ namespace Nz
 				Instance& m_instance;
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
+				VkPhysicalDevice m_physicalDevice;
 				VkResult m_lastErrorCode;
 				std::unordered_set<String> m_loadedExtensions;
 				std::unordered_set<String> m_loadedLayers;
