@@ -28,8 +28,8 @@ namespace Nz
 			virtual unsigned int GetHeight(UInt8 level = 0) const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
 			virtual UInt8 GetMaxLevel() const = 0;
-			virtual unsigned int GetMemoryUsage() const = 0;
-			virtual unsigned int GetMemoryUsage(UInt8 level) const = 0;
+			virtual std::size_t GetMemoryUsage() const = 0;
+			virtual std::size_t GetMemoryUsage(UInt8 level) const = 0;
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;
 			virtual unsigned int GetWidth(UInt8 level = 0) const = 0;
