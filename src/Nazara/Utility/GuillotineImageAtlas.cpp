@@ -70,7 +70,7 @@ namespace Nz
 		return layer.image.get();
 	}
 
-	unsigned int GuillotineImageAtlas::GetLayerCount() const
+	std::size_t GuillotineImageAtlas::GetLayerCount() const
 	{
 		return m_layers.size();
 	}

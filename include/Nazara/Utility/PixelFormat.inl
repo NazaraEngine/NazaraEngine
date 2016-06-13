@@ -100,7 +100,7 @@ namespace Nz
 		counter |= blueMask;
 		counter |= alphaMask;
 
-		bitsPerPixel = counter.Count();
+		bitsPerPixel = static_cast<UInt8>(counter.Count());
 	}
 
 	inline bool PixelFormatInfo::Validate() const
@@ -116,7 +116,7 @@ namespace Nz
 
 		for (unsigned int i = 0; i < 4; ++i)
 		{
-			unsigned int usedBits = masks[i]->Count();
+			UInt8 usedBits = static_cast<UInt8>(masks[i]->Count());
 			if (usedBits == 0)
 				continue;
 
