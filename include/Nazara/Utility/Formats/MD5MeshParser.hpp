@@ -58,9 +58,9 @@ namespace Nz
 			Ternary Check();
 
 			const Joint* GetJoints() const;
-			unsigned int GetJointCount() const;
+			std::size_t GetJointCount() const;
 			const Mesh* GetMeshes() const;
-			unsigned int GetMeshCount() const;
+			std::size_t GetMeshCount() const;
 
 			bool Parse();
 

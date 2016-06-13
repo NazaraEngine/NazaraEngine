@@ -9,7 +9,7 @@
 
 namespace Ndk
 {
-	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index)
+	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index)
 	{
 		NazaraAssert(index < m_renderables.size(), "Invalid renderable index");
 		NazaraUnused(renderable);

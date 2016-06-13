@@ -227,7 +227,8 @@ namespace Nz
 		}
 
 		GLenum type;
-		UInt8* offset = reinterpret_cast<UInt8*>(s_indexBuffer->GetStartOffset());
+		UInt8* offset = nullptr;
+		offset += s_indexBuffer->GetStartOffset();
 
 		if (s_indexBuffer->HasLargeIndices())
 		{
@@ -290,7 +291,8 @@ namespace Nz
 		}
 
 		GLenum type;
-		UInt8* offset = reinterpret_cast<UInt8*>(s_indexBuffer->GetStartOffset());
+		UInt8* offset = nullptr;
+		offset += s_indexBuffer->GetStartOffset();
 
 		if (s_indexBuffer->HasLargeIndices())
 		{
