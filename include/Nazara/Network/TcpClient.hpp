@@ -79,8 +79,8 @@ namespace Nz
 			PendingPacket m_pendingPacket;
 			UInt64 m_keepAliveInterval;
 			UInt64 m_keepAliveTime;
-			bool m_isKeepAliveEnabled;
 			bool m_isLowDelayEnabled;
+			bool m_isKeepAliveEnabled;
 	};
 }
 

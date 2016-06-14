@@ -11,7 +11,9 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Vulkan/Config.hpp>
+#include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkInstance.hpp>
+#include <Nazara/Vulkan/VkSurface.hpp>
 
 namespace Nz
 {
@@ -21,17 +23,22 @@ namespace Nz
 			Vulkan() = delete;
 			~Vulkan() = delete;
 
+			static Vk::DeviceHandle CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+
 			static Vk::Instance& GetInstance();
 
 			static bool Initialize();
 
 			static bool IsInitialized();
 
+			static Vk::DeviceHandle SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+
 			static void SetParameters(const ParameterList& parameters);
 
 			static void Uninitialize();
 
 		private:
+			static std::list<Vk::Device> s_devices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;
 			static unsigned int s_moduleReferenceCounter;

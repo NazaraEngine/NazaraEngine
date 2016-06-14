@@ -39,7 +39,7 @@ namespace Nz
 			static bool IsExtensionSupported(const String& extension);
 
 			static bool LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters = Parameters());
-			static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
+			static bool LoadFromMemory(Type* resource, const void* data, std::size_t size, const Parameters& parameters = Parameters());
 			static bool LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters = Parameters());
 
 			static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);

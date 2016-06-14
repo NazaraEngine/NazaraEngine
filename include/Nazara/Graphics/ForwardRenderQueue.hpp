@@ -159,6 +159,7 @@ namespace Nz
 			std::map<int, Layer> layers;
 
 		private:
+			BillboardData* GetBillboardData(int renderOrder, const Material* material, unsigned int count);
 			Layer& GetLayer(int i); ///TODO: Inline
 
 			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
