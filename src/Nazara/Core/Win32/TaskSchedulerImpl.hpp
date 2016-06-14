@@ -44,7 +44,7 @@ namespace Nz
 			static std::unique_ptr<HANDLE[]> s_doneEvents; // Doivent être contigus
 			static std::unique_ptr<Worker[]> s_workers;
 			static std::unique_ptr<HANDLE[]> s_workerThreads; // Doivent être contigus
-			static std::size_t s_workerCount;
+			static DWORD s_workerCount;
 };
 }
 

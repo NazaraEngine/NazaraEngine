@@ -76,7 +76,7 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		inline DeviceObject<C, VkType, CreateInfo>::operator VkType()
+		inline DeviceObject<C, VkType, CreateInfo>::operator VkType() const
 		{
 			return m_handle;
 		}

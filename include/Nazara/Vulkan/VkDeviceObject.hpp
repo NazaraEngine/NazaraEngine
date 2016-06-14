@@ -33,7 +33,7 @@ namespace Nz
 				DeviceObject& operator=(const DeviceObject&) = delete;
 				DeviceObject& operator=(DeviceObject&&) = delete;
 
-				inline operator VkType();
+				inline operator VkType() const;
 
 			protected:
 				DeviceHandle m_device;

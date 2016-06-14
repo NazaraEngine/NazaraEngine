@@ -1,9 +1,8 @@
 TOOL.Name = "SDKServer"
 
-TOOL.CopyTargetToExampleDir = true
-
-TOOL.Directory = "../SDK/lib"
+TOOL.Directory = "../SDK"
 TOOL.Kind = "Library"
+TOOL.TargetDirectory = "../SDK/lib"
 
 TOOL.Defines = {
 	"NDK_BUILD",
@@ -23,7 +22,7 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
--- Exlude client-only files
+-- Excludes client-only files
 TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
 	"../SDK/**/Console.*",

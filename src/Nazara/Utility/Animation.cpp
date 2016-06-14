@@ -37,6 +37,8 @@ namespace Nz
 	Animation::~Animation()
 	{
 		OnAnimationRelease(this);
+
+		Destroy();
 	}
 
 	bool Animation::AddSequence(const Sequence& sequence)

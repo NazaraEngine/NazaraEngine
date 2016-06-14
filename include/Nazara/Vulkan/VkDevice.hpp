@@ -27,6 +27,8 @@ namespace Nz
 		class NAZARA_VULKAN_API Device : public HandledObject<Device>
 		{
 			public:
+				struct QueueFamilyInfo;
+
 				inline Device(Instance& instance);
 				Device(const Device&) = delete;
 				Device(Device&&) = delete;
@@ -35,6 +37,7 @@ namespace Nz
 				bool Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
+				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
 				inline Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
@@ -185,6 +188,15 @@ namespace Nz
 
 				#undef NAZARA_VULKAN_DEVICE_FUNCTION
 
+				struct QueueFamilyInfo
+				{
+					std::vector<float> queues;
+					VkExtent3D minImageTransferGranularity;
+					VkQueueFlags flags;
+					UInt32 familyIndex;
+					UInt32 timestampValidBits;
+				};
+
 			private:
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
@@ -195,6 +207,7 @@ namespace Nz
 				VkResult m_lastErrorCode;
 				std::unordered_set<String> m_loadedExtensions;
 				std::unordered_set<String> m_loadedLayers;
+				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
 		};
 	}
 }

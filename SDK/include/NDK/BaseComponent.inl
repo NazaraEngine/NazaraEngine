@@ -26,7 +26,7 @@ namespace Ndk
 	inline ComponentIndex BaseComponent::RegisterComponent(ComponentId id, Factory factoryFunc)
 	{
 		// Nous allons rajouter notre composant à la fin
-		ComponentIndex index = s_entries.size();
+		ComponentIndex index = static_cast<ComponentIndex>(s_entries.size());
 		s_entries.resize(index + 1);
 
 		// On récupère et on affecte
