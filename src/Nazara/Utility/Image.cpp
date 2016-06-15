@@ -666,7 +666,7 @@ namespace Nz
 		return GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 	}
 
-	unsigned int Image::GetMemoryUsage() const
+	std::size_t Image::GetMemoryUsage() const
 	{
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
@@ -693,7 +693,7 @@ namespace Nz
 		return size * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	}
 
-	unsigned int Image::GetMemoryUsage(UInt8 level) const
+	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
 		return PixelFormat::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
 	}

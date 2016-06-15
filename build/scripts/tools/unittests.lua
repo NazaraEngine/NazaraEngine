@@ -3,6 +3,7 @@ TOOL.Name = "UnitTests"
 TOOL.Directory = "../tests"
 TOOL.EnableConsole = true
 TOOL.Kind = "Application"
+TOOL.TargetDirectory = TOOL.Directory
 
 TOOL.Defines = {
 }

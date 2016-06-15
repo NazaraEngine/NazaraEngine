@@ -84,7 +84,7 @@ namespace Nz
 
 			bool Execute(const String& code);
 			bool ExecuteFromFile(const String& filePath);
-			bool ExecuteFromMemory(const void* data, unsigned int size);
+			bool ExecuteFromMemory(const void* data, std::size_t size);
 			bool ExecuteFromStream(Stream& stream);
 
 			int GetAbsIndex(int index) const;
@@ -142,10 +142,10 @@ namespace Nz
 			void PushNumber(double value) const;
 			void PushReference(int ref) const;
 			void PushString(const char* str) const;
-			void PushString(const char* str, unsigned int size) const;
+			void PushString(const char* str, std::size_t size) const;
 			void PushString(const String& str) const;
 			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0) const;
-			void* PushUserdata(unsigned int size) const;
+			void* PushUserdata(std::size_t size) const;
 			void PushValue(int index) const;
 
 			void Remove(int index) const;
@@ -158,7 +158,7 @@ namespace Nz
 			void SetMetatable(const char* tname) const;
 			void SetMetatable(const String& tname) const;
 			void SetMetatable(int index) const;
-			void SetMemoryLimit(UInt32 memoryLimit);
+			void SetMemoryLimit(std::size_t memoryLimit);
 			void SetTable(int index = -3) const;
 			void SetTimeLimit(UInt32 timeLimit);
 
@@ -185,8 +185,8 @@ namespace Nz
 			static int ProxyFunc(lua_State* state);
 			static void TimeLimiter(lua_State* state, lua_Debug* debug);
 
-			UInt32 m_memoryLimit;
-			UInt32 m_memoryUsage;
+			std::size_t m_memoryLimit;
+			std::size_t m_memoryUsage;
 			UInt32 m_timeLimit;
 			Clock m_clock;
 			String m_lastError;
