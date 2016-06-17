@@ -1,8 +1,9 @@
 TOOL.Name = "Editor"
 
-TOOL.Directory = "../editor/bin"
+TOOL.Directory = "../editor"
 TOOL.EnableConsole = true
 TOOL.Kind = "Application"
+TOOL.TargetDirectory = "../editor/bin"
 
 TOOL.Defines = {
 }
