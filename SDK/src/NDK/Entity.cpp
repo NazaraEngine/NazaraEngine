@@ -51,7 +51,7 @@ namespace Ndk
 		BaseComponent& component = *m_components[index].get();
 		component.SetEntity(this);
 
-		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 		{
 			if (i != index)
 				m_components[i]->OnComponentAttached(component);
@@ -73,8 +73,8 @@ namespace Ndk
 
 	void Entity::RemoveAllComponents()
 	{
-		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			RemoveComponent(i);
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			RemoveComponent(static_cast<ComponentIndex>(i));
 
 		NazaraAssert(m_componentBits.TestNone(), "All components should be gone");
 
@@ -90,7 +90,7 @@ namespace Ndk
 		{
 			// On récupère le component et on informe les composants du détachement
 			BaseComponent& component = *m_components[index].get();
-			for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 			{
 				if (i != index)
 					m_components[i]->OnComponentDetached(component);
@@ -114,7 +114,7 @@ namespace Ndk
 	void Entity::Destroy()
 	{
 		// On informe chaque système
-		for (SystemIndex index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
+		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
 			if (m_world->HasSystem(index))
 			{
