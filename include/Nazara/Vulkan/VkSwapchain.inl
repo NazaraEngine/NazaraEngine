@@ -11,7 +11,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Swapchain::AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex)
+		inline bool Swapchain::AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex) const
 		{
 			m_lastErrorCode = m_device->vkAcquireNextImageKHR(*m_device, m_handle, timeout, semaphore, fence, imageIndex);
 			switch (m_lastErrorCode)
