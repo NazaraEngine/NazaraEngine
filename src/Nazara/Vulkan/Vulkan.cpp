@@ -219,8 +219,31 @@ namespace Nz
 			queueCreateInfos.emplace_back(createInfo);
 		}
 
-		std::array<const char*, 1> enabledExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-		std::array<const char*, 0> enabledLayers;
+
+		std::vector<const char*> enabledLayers;
+		std::vector<const char*> enabledExtensions;
+
+		bool bParam;
+		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
+			enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+		int iParam;
+		std::vector<String> additionalExtensions; // Just to keep the String alive
+		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
+		{
+			for (int i = 0; i < iParam; ++i)
+			{
+				Nz::String parameterName = "VkDeviceInfo_EnabledExtension" + String::Number(i);
+				Nz::String extension;
+				if (s_initializationParameters.GetStringParameter(parameterName, &extension))
+				{
+					additionalExtensions.emplace_back(std::move(extension));
+					enabledExtensions.push_back(additionalExtensions.back().GetConstBuffer());
+				}
+				else
+					NazaraWarning("Parameter " + parameterName + " expected");
+			}
+		}
 
 		VkDeviceCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
