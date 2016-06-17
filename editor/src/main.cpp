@@ -4,73 +4,13 @@
 #include <Ndk/Application.hpp>
 #include <Ndk/Components.hpp>
 #include <Ndk/Systems.hpp>
+#include <NdkQt/QtCanvas.hpp>
+#include <Editor/EditorWindow.hpp>
 #include <iostream>
 #include <QApplication>
 #include <QtGui>
 #include <QTimer>
 #include <QFrame>
-
-class NazaraCanvas : public QWidget, public Nz::RenderWindow
-{
-	public:
-		NazaraCanvas(QWidget* parent, Ndk::World& world) :
-		QWidget(parent)
-		{
-			// Setup some states to allow direct rendering into the widget
-			setAttribute(Qt::WA_PaintOnScreen);
-			setAttribute(Qt::WA_OpaquePaintEvent);
-			setAttribute(Qt::WA_NoSystemBackground);
-
-			// Set strong focus to enable keyboard events to be received
-			setFocusPolicy(Qt::StrongFocus);
-
-			// Setup the widget geometry
-			move(QPoint(0, 0));
-			resize(QSize(360, 360));
-		}
-
-		unsigned int GetHeight() const override
-		{
-			return height();
-		}
-
-		unsigned int GetWidth() const override
-		{
-			return width();
-		}
-
-	private:
-		void resizeEvent(QResizeEvent*) override
-		{
-			OnRenderTargetSizeChange(this);
-		}
-
-		void showEvent(QShowEvent*) override
-		{
-			if (!IsValid())
-			{
-				#ifdef Q_WS_X11
-				XFlush(QX11Info::display());
-				#endif
-
-				Nz::RenderWindow::Create(reinterpret_cast<Nz::WindowHandle>(winId()));
-			}
-		}
-
-		QPaintEngine* paintEngine() const override
-		{
-			return nullptr;
-		}
-
-		void paintEvent(QPaintEvent*) override
-		{
-		}
-
-		virtual void keyPressEvent(QKeyEvent* key) override
-		{
-			std::cout << (char) key->key() << std::endl;
-		}
-};
 
 int main(int argc, char *argv[])
 {
@@ -78,17 +18,19 @@ int main(int argc, char *argv[])
 	ndkApp.MakeExitOnLastWindowClosed(false);
 
 	QApplication App(argc, argv);
-	// Create the main frame
-	QFrame* MainFrame = new QFrame;
-	MainFrame->setWindowTitle("Nazara Model Importer");
-	MainFrame->resize(400, 400);
-	MainFrame->show();
+
+
+	EditorWindow mainWindow;
+	mainWindow.setWindowTitle("Nazara Model Importer");
+	mainWindow.resize(400, 400);
+	mainWindow.show();
+
+	Ndk::QtCanvas* NazaraView = new Ndk::QtCanvas(&mainWindow);
+	NazaraView->move(0, 40);
+	NazaraView->resize(400, 360);
+	NazaraView->show();
 
 	Ndk::World& world = ndkApp.AddWorld();
-
-	NazaraCanvas* NazaraView = new NazaraCanvas(MainFrame, world);
-	NazaraView->show();
-	NazaraView->resize(400, 400);
 
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(192, 100, 100)));
