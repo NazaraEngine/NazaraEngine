@@ -39,7 +39,7 @@ namespace Nz
 				DeviceHandle m_device;
 				VkAllocationCallbacks m_allocator;
 				VkType m_handle;
-				VkResult m_lastErrorCode;
+				mutable VkResult m_lastErrorCode;
 		};
 	}
 }
