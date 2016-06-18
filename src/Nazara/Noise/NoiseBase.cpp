@@ -7,13 +7,13 @@
 
 namespace Nz
 {
-	NoiseBase::NoiseBase(unsigned int seed)
+	NoiseBase::NoiseBase(unsigned int seed) :
+	m_scale(0.05f)
 	{
 		SetSeed(seed);
-		m_scale = 0.05f;
 
-		for(unsigned int i(0) ; i < 512; ++i)
-			perm[i] = i & 255;
+		// Fill permutations with initial values
+		std::iota(m_permutations.begin(), m_permutations.begin() + 256, 0);
 	}
 
 	float NoiseBase::GetScale()
@@ -28,32 +28,46 @@ namespace Nz
 
 	void NoiseBase::SetSeed(unsigned int seed)
 	{
-		generator.seed(seed);
+		m_randomEngine.seed(seed);
 	}
 
 	void NoiseBase::Shuffle()
 	{
-		int xchanger;
-		unsigned int ncase;
+		std::shuffle(m_permutations.begin(), m_permutations.begin() + 256, m_randomEngine);
 
-		for(unsigned int i(0) ; i < 256 ; i++)
-			perm[i] = i;
-
-		for (unsigned int i(0); i < 256 ; ++i)
-		{
-			ncase = generator() & 255;
-			xchanger = perm[i];
-			perm[i] = perm[ncase];
-			perm[ncase] = xchanger;
-		}
-
-		for(unsigned int i(256) ; i < 512; ++i)
-			perm[i] = perm[i & 255];
+		for(std::size_t i = 1; i < (m_permutations.size() / 256); ++i)
+			std::copy(m_permutations.begin(), m_permutations.begin() + 256, m_permutations.begin() + 256 * i);
 	}
 
-	void NoiseBase::Shuffle(unsigned int amount)
+	std::array<Vector2f, 2 * 2 * 2> NoiseBase::s_gradients2 =
 	{
-		for(unsigned int j(0) ; j < amount ; ++j)
-			Shuffle();
-	}
+		{
+			{1.f, 1.f}, {-1.f, 1.f}, {1.f, -1.f}, {-1.f, -1.f},
+			{1.f, 0.f}, {-1.f, 0.f}, {0.f,  1.f}, { 0.f, -1.f}
+		}
+	};
+
+	std::array<Vector3f, 2 * 2 * 2 * 2> NoiseBase::s_gradients3 =
+	{
+		{
+			{1.f,1.f,0.f}, {-1.f,  1.f, 0.f}, {1.f, -1.f,  0.f}, {-1.f, -1.f,  0.f},
+			{1.f,0.f,1.f}, {-1.f,  0.f, 1.f}, {1.f,  0.f, -1.f}, {-1.f,  0.f, -1.f},
+			{0.f,1.f,1.f}, { 0.f, -1.f, 1.f}, {0.f,  1.f, -1.f}, {0.f,  -1.f, -1.f},
+			{1.f,1.f,0.f}, {-1.f,  1.f, 0.f}, {0.f, -1.f,  1.f}, {0.f,  -1.f, -1.f}
+		}
+	};
+
+	std::array<Vector4f, 2 * 2 * 2 * 2 * 2> NoiseBase::s_gradients4 =
+	{
+		{
+			{0,1,1,1}, {0,1,1,-1}, {0,1,-1,1}, {0,1,-1,-1},
+			{0,-1,1,1},{0,-1,1,-1},{0,-1,-1,1},{0,-1,-1,-1},
+			{1,0,1,1}, {1,0,1,-1}, {1,0,-1,1}, {1,0,-1,-1},
+			{-1,0,1,1},{-1,0,1,-1},{-1,0,-1,1},{-1,0,-1,-1},
+			{1,1,0,1}, {1,1,0,-1}, {1,-1,0,1}, {1,-1,0,-1},
+			{-1,1,0,1},{-1,1,0,-1},{-1,-1,0,1},{-1,-1,0,-1},
+			{1,1,1,0}, {1,1,-1,0}, {1,-1,1,0}, {1,-1,-1,0},
+			{-1,1,1,0},{-1,1,-1,0},{-1,-1,1,0},{-1,-1,-1,0}
+		}
+	};
 }
