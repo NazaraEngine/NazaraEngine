@@ -11,20 +11,51 @@ namespace Nz
 	{
 	}
 
-	float FBM::Get(std::initializer_list<float> coordinates, float scale) const
+	///TODO: Handle with variadic templates
+	float FBM::Get(float x, float y, float scale) const
 	{
-		float value = 0.0;
-
-		for(int i(0); i < m_octaves; ++i)
+		float value = 0.f;
+		for(int i = 0; i < m_octaves; ++i)
 		{
-			value += m_source.Get(coordinates,scale) * m_exponent_array.at(i);
+			value += m_source.Get(x, y, scale) * m_exponent_array.at(i);
 			scale *= m_lacunarity;
 		}
 
 		float remainder = m_octaves - static_cast<int>(m_octaves);
-
 		if(std::fabs(remainder) > 0.01f)
-		  value += remainder * m_source.Get(coordinates,scale) * m_exponent_array.at(static_cast<int>(m_octaves-1));
+		  value += remainder * m_source.Get(x, y, scale) * m_exponent_array.at(static_cast<int>(m_octaves-1));
+
+		return value / m_sum;
+	}
+
+	float FBM::Get(float x, float y, float z, float scale) const
+	{
+		float value = 0.f;
+		for(int i = 0; i < m_octaves; ++i)
+		{
+			value += m_source.Get(x, y, z, scale) * m_exponent_array.at(i);
+			scale *= m_lacunarity;
+		}
+
+		float remainder = m_octaves - static_cast<int>(m_octaves);
+		if(std::fabs(remainder) > 0.01f)
+		  value += remainder * m_source.Get(x, y, z, scale) * m_exponent_array.at(static_cast<int>(m_octaves-1));
+
+		return value / m_sum;
+	}
+
+	float FBM::Get(float x, float y, float z, float w, float scale) const
+	{
+		float value = 0.f;
+		for(int i = 0; i < m_octaves; ++i)
+		{
+			value += m_source.Get(x, y, z, w, scale) * m_exponent_array.at(i);
+			scale *= m_lacunarity;
+		}
+
+		float remainder = m_octaves - static_cast<int>(m_octaves);
+		if(std::fabs(remainder) > 0.01f)
+		  value += remainder * m_source.Get(x, y, z, w, scale) * m_exponent_array.at(static_cast<int>(m_octaves-1));
 
 		return value / m_sum;
 	}

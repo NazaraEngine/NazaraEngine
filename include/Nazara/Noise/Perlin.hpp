@@ -15,21 +15,13 @@ namespace Nz
 	class NAZARA_NOISE_API Perlin : public NoiseBase
 	{
 		public:
-		  Perlin();
-		  Perlin(unsigned int seed);
-		  ~Perlin() = default;
+			Perlin() = default;
+			Perlin(unsigned int seed);
+			~Perlin() = default;
 
-		  float Get(std::initializer_list<float> coordinates, float scale) const;
-
-		protected:
-		  float _2D(std::initializer_list<float> coordinates, float scale) const;
-		  float _3D(std::initializer_list<float> coordinates, float scale) const;
-		  float _4D(std::initializer_list<float> coordinates, float scale) const;
-
-		private:
-		  const float gradient2[8][2];
-		  const float gradient3[16][3];
-		  const float gradient4[32][4];
+			float Get(float x, float y, float scale) const override;
+			float Get(float x, float y, float z, float scale) const override;
+			float Get(float x, float y, float z, float w, float scale) const override;
 	};
 }
 
