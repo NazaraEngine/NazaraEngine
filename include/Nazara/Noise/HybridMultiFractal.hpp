@@ -17,7 +17,9 @@ namespace Nz
 			HybridMultiFractal(const HybridMultiFractal&) = delete;
 			~HybridMultiFractal() = default;
 
-			float Get(std::initializer_list<float> coordinates, float scale) const;
+			float Get(float x, float y, float scale) const override;
+			float Get(float x, float y, float z, float scale) const override;
+			float Get(float x, float y, float z, float w, float scale) const override;
 
 			HybridMultiFractal& operator=(const HybridMultiFractal&) = delete;
 
