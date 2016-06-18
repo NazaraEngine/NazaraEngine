@@ -18,23 +18,20 @@ namespace Nz
 	class NAZARA_NOISE_API Worley : public NoiseBase
 	{
 		public:
-		  Worley();
-		  Worley(unsigned int seed);
-		  ~Worley() = default;
+			Worley();
+			Worley(unsigned int seed);
+			~Worley() = default;
 
-		  void Set(WorleyFunction func);
+			float Get(float x, float y, float scale) const override;
+			float Get(float x, float y, float z, float scale) const override;
+			float Get(float x, float y, float z, float w, float scale) const override;
 
-		  float Get(std::initializer_list<float> coordinates, float scale) const;
-
-		protected:
-		  float _2D(std::initializer_list<float> coordinates, float scale) const;
-		  float _3D(std::initializer_list<float> coordinates, float scale) const;
-		  float _4D(std::initializer_list<float> coordinates, float scale) const;
-		  void _SquareTest(int xi, int yi, float x, float y, std::map<float, Vector2f> & featurePoints) const;
+			void Set(WorleyFunction func);
 
 		private:
-		  const float scales[4];
-		  WorleyFunction function;
+			void SquareTest(int xi, int yi, float x, float y, std::map<float, Vector2f> & featurePoints) const;
+
+			WorleyFunction m_function;
 	};
 }
 

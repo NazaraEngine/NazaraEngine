@@ -18,7 +18,9 @@ namespace Nz
 			FBM(const FBM&) = delete;
 			~FBM() = default;
 
-			float Get(std::initializer_list<float> coordinates, float scale) const;
+			float Get(float x, float y, float scale) const override;
+			float Get(float x, float y, float z, float scale) const override;
+			float Get(float x, float y, float z, float w, float scale) const override;
 
 			FBM& operator=(const FBM&) = delete;
 
