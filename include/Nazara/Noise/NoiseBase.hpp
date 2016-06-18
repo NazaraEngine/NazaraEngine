@@ -1,48 +1,38 @@
-// Copyright (C) 2015 Rémi Bèges
+// Copyright (C) 2016 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#pragma once
-
-#ifndef NOISEBASE_HPP
-#define NOISEBASE_HPP
+#ifndef NAZARA_NOISEBASE_HPP
+#define NAZARA_NOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <random>
 
 namespace Nz
 {
-	enum NoiseType
-	{
-		PERLIN,
-		SIMPLEX,
-		CELL
-	};
-
 	class NAZARA_NOISE_API NoiseBase
 	{
 		public:
 			NoiseBase(unsigned int seed = 0);
 			~NoiseBase() = default;
 
-			void SetNewSeed(unsigned int seed);
+			virtual float Get(std::initializer_list<float> coordinates, float scale) const = 0;
+			float GetScale();
 
-			void ShufflePermutationTable();
+			void SetScale(float scale);
+			void SetSeed(unsigned int seed);
 
-			unsigned int GetUniformRandomValue();
-
-			int fastfloor(float n);
-			int JenkinsHash(int a, int b, int c);
+			void Shuffle();
+			void Shuffle(unsigned int amount);
 
 		protected:
 			unsigned int perm[512];
+			float m_scale;
 
 		private:
-			unsigned int Ua, Uc, Um;
-			unsigned int UcurrentSeed;
-			unsigned int Uprevious, Ulast;
-
+			std::default_random_engine generator;
 	};
 }
 
-#endif // NOISEBASE_HPP
+#endif // NAZARA_NOISEBASE_HPP
