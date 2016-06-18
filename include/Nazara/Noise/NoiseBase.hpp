@@ -6,7 +6,11 @@
 #define NAZARA_NOISEBASE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Noise/Config.hpp>
+#include <array>
 #include <random>
 
 namespace Nz
@@ -17,21 +21,26 @@ namespace Nz
 			NoiseBase(unsigned int seed = 0);
 			~NoiseBase() = default;
 
-			virtual float Get(std::initializer_list<float> coordinates, float scale) const = 0;
+			virtual float Get(float x, float y, float scale) const = 0;
+			virtual float Get(float x, float y, float z, float scale) const = 0;
+			virtual float Get(float x, float y, float z, float w, float scale) const = 0;
 			float GetScale();
 
 			void SetScale(float scale);
 			void SetSeed(unsigned int seed);
 
 			void Shuffle();
-			void Shuffle(unsigned int amount);
 
 		protected:
-			unsigned int perm[512];
+			std::array<std::size_t, 3 * 256> m_permutations;
 			float m_scale;
 
+			static std::array<Vector2f, 2 * 2 * 2>         s_gradients2;
+			static std::array<Vector3f, 2 * 2 * 2 * 2>     s_gradients3;
+			static std::array<Vector4f, 2 * 2 * 2 * 2 * 2> s_gradients4;
+
 		private:
-			std::default_random_engine generator;
+			std::default_random_engine m_randomEngine;
 	};
 }
 
