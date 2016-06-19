@@ -29,7 +29,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 
 int main()
 {
-	// Pour commencer, nous initialisons le SDK de Nazara, celui-ci va préparer le terrain en initialisant le moteur, 
+	// Pour commencer, nous initialisons le SDK de Nazara, celui-ci va préparer le terrain en initialisant le moteur,
 	// les composants, systèmes, etc.
 	// NzInitializer est une classe RAII appelant Initialize dans son constructeur et Uninitialize dans son destructeur.
 	// Autrement dit, une fois ceci fait nous n'avons plus à nous soucier de la libération du moteur.
@@ -101,7 +101,7 @@ int main()
 	// Le format OBJ ne précise aucune échelle pour ses données, contrairement à Nazara (une unité = un mètre en 3D).
 	// Comme le vaisseau est très grand (Des centaines de mètres de long), nous allons le rendre plus petit pour les besoins de la démo.
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
-	params.mesh.scale.Set(0.01f); // Un centième de la taille originelle
+	params.mesh.matrix.MakeScale(Nz::Vector3f(0.01f)); // Un centième de la taille originelle
 
 	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
 	// Nous devons donc indiquer au moteur de les retourner lors du chargement
@@ -156,7 +156,7 @@ int main()
 	// Nous devons donc lui rajouter les composants que nous voulons.
 
 	// Un NodeComponent donne à notre entité une position, rotation, échelle, et nous permet de l'attacher à d'autres entités (ce que nous ne ferons pas ici).
-	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient, 
+	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient,
 	// nous n'avons pas besoin d'agir sur le composant créé.
 	spaceship->AddComponent<Ndk::NodeComponent>();
 

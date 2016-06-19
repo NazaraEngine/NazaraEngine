@@ -94,7 +94,7 @@ namespace Ndk
 	void World::Update()
 	{
 		// Gestion des entités tuées depuis le dernier appel
-		for (unsigned int i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
+		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
 			EntityBlock& block = m_entities[i];
 			Entity& entity = block.entity;
@@ -127,7 +127,7 @@ namespace Ndk
 		m_killedEntities.Reset();
 
 		// Gestion des entités nécessitant une mise à jour de leurs systèmes
-		for (unsigned int i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
+		for (std::size_t i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
 		{
 			NazaraAssert(i < m_entities.size(), "Entity index out of range");
 
