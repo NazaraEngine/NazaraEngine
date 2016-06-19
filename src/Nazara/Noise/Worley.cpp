@@ -14,10 +14,10 @@ namespace Nz
 	{
 		static constexpr std::array<float, 4> m_functionScales =
 		{
-			1.f  / M_SQRT2,
-			0.5f / M_SQRT2,
-			0.5f / M_SQRT2,
-			0.5f / M_SQRT2
+			1.f  / float(M_SQRT2),
+			0.5f / float(M_SQRT2),
+			0.5f / float(M_SQRT2),
+			0.5f / float(M_SQRT2)
 		};
 	}
 	Worley::Worley() :
@@ -53,58 +53,60 @@ namespace Nz
 
 		SquareTest(x0,y0,xc,yc,featurePoints);
 
+		std::size_t functionIndex = static_cast<std::size_t>(m_function);
+
 		auto it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if(fractx < it->first)
 			SquareTest(x0 - 1,y0,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if(1.f - fractx < it->first)
 			SquareTest(x0 + 1,y0,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if(fracty < it->first)
 			SquareTest(x0,y0 - 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if (1.f - fracty < it->first)
 			SquareTest(x0,y0 + 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if (fractx < it->first && fracty < it->first)
 			SquareTest(x0 - 1, y0 - 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if (1.f - fractx < it->first && fracty < it->first)
 		   SquareTest(x0 + 1, y0 - 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if (fractx < it->first && 1.f - fracty < it->first)
 		   SquareTest(x0 - 1, y0 + 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
 		if(1.f - fractx < it->first && 1.f - fracty < it->first)
 		   SquareTest(x0 + 1, y0 + 1,xc,yc,featurePoints);
 
 		it = featurePoints.begin();
-		std::advance(it, m_function);
+		std::advance(it, functionIndex);
 
-		return it->first * m_functionScales[m_function];
+		return it->first * m_functionScales[functionIndex];
 	}
 
 	float Worley::Get(float x, float y, float z, float scale) const
@@ -127,16 +129,16 @@ namespace Nz
 		int ii = xi & 255;
 		int jj = yi & 255;
 
-		int seed = m_permutations[ii +     m_permutations[jj]];
+		std::size_t seed = m_permutations[ii + m_permutations[jj]];
 
 		//On initialise notre rng avec seed
-		std::minstd_rand0 randomNumberGenerator(seed);
+		std::minstd_rand0 randomNumberGenerator(static_cast<unsigned int>(seed));
 
 		//On prend un nombre de points à déterminer dans le cube, compris entre 1 et 8
-		unsigned int m = (seed & 7) + 1;
+		std::size_t m = (seed & 7) + 1;
 
 		//On calcule les emplacements des différents points
-		for(unsigned int i(0) ; i < m ; ++i)
+		for(std::size_t i(0) ; i < m; ++i)
 		{
 			Nz::Vector2f featurePoint;
 			featurePoint.x = (randomNumberGenerator() & 1023) / 1023.f + static_cast<float>(xi);
