@@ -61,13 +61,15 @@ namespace Nz
 
 		inline UInt32 Swapchain::GetImageCount() const
 		{
-			return m_images.size();
+			return static_cast<UInt32>(m_images.size());
 		}
 
 		inline bool Swapchain::IsSupported() const
 		{
 			if (!m_device->IsExtensionLoaded("VK_KHR_swapchain"))
 				return false;
+
+			return true;
 		}
 
 		VkResult Swapchain::CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
