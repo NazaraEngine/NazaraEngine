@@ -76,9 +76,6 @@ namespace Nz
 		float Li1,Li2,Li3,Li4,Li5,Li6;
 		float s[2],t[2],u[2],v[2];
 		float Cx,Cy,Cz;
-		float nx,ny,nz;
-
-		float tmp;
 		float tempx,tempy,tempz;
 
 		xc = x * scale;
@@ -157,7 +154,6 @@ namespace Nz
 		float s[4],t[4],u[4],v[4];
 		float Cx,Cy,Cz,Cw;
 
-		float tmp;
 		float tempx,tempy,tempz,tempw;
 
 		xc = x * scale;
