@@ -12,12 +12,12 @@ namespace Nz
 {
 	namespace
 	{
-		constexpr float s_SkewCoeff2D   = 0.5f * (M_SQRT3 - 1.f);
-		constexpr float s_UnskewCoeff2D = (3.f - M_SQRT3)/6.f;
+		constexpr float s_SkewCoeff2D   = 0.5f * (float(M_SQRT3) - 1.f);
+		constexpr float s_UnskewCoeff2D = (3.f - float(M_SQRT3))/6.f;
 		constexpr float s_SkewCoeff3D   = 1.f / 3.f;
 		constexpr float s_UnskewCoeff3D = 1.f / 6.f;
-		constexpr float s_SkewCoeff4D   = (M_SQRT5 - 1.f)/4.f;
-		constexpr float s_UnskewCoeff4D = (5.f - M_SQRT5)/20.f;
+		constexpr float s_SkewCoeff4D   = (float(M_SQRT5) - 1.f)/4.f;
+		constexpr float s_UnskewCoeff4D = (5.f - float(M_SQRT5))/20.f;
 	}
 
 	Simplex::Simplex(unsigned int seed)
@@ -39,7 +39,7 @@ namespace Nz
 
 		Vector2f unskewedDistToOrigin(xc - unskewedCubeOrigin.x, yc - unskewedCubeOrigin.y);
 
-		Vector2f off1;
+		Vector2ui off1;
 		if(unskewedDistToOrigin.x > unskewedDistToOrigin.y)
 			off1.Set(1, 0);
 		else
@@ -47,7 +47,7 @@ namespace Nz
 
 		std::array<Vector2f, 3> d;
 		d[0] = -unskewedDistToOrigin;
-		d[1] = d[0] + off1 - Vector2f(s_UnskewCoeff2D);
+		d[1] = d[0] + Vector2f(off1) - Vector2f(s_UnskewCoeff2D);
 		d[2] = d[0] + Vector2f(1.f - 2.f * s_UnskewCoeff2D);
 
 		Vector2i offset(skewedCubeOrigin.x & 255, skewedCubeOrigin.y & 255);
@@ -248,7 +248,7 @@ namespace Nz
 
 		int c;
 		float n1,n2,n3,n4,n5;
-		float c1,c2,c3,c4,c5,c6;
+		float c1,c2,c3,c4,c5;
 
 		float sum;
 		float unskewedCubeOriginx,unskewedCubeOriginy,unskewedCubeOriginz,unskewedCubeOriginw;
@@ -280,13 +280,13 @@ namespace Nz
 		unskewedDistToOriginz = zc - unskewedCubeOriginz;
 		unskewedDistToOriginw = wc - unskewedCubeOriginw;
 
-		c1 = (unskewedDistToOriginx > unskewedDistToOriginy) ? 32 : 0;
-		c2 = (unskewedDistToOriginx > unskewedDistToOriginz) ? 16 : 0;
-		c3 = (unskewedDistToOriginy > unskewedDistToOriginz) ? 8  : 0;
-		c4 = (unskewedDistToOriginx > unskewedDistToOriginw) ? 4  : 0;
-		c5 = (unskewedDistToOriginy > unskewedDistToOriginw) ? 2  : 0;
-		c6 = (unskewedDistToOriginz > unskewedDistToOriginw) ? 1  : 0;
-		c = c1 + c2 + c3 + c4 + c5 + c6;
+		c = 0;
+		c += (unskewedDistToOriginx > unskewedDistToOriginy) ? 32 : 0;
+		c += (unskewedDistToOriginx > unskewedDistToOriginz) ? 16 : 0;
+		c += (unskewedDistToOriginy > unskewedDistToOriginz) ? 8  : 0;
+		c += (unskewedDistToOriginx > unskewedDistToOriginw) ? 4  : 0;
+		c += (unskewedDistToOriginy > unskewedDistToOriginw) ? 2  : 0;
+		c += (unskewedDistToOriginz > unskewedDistToOriginw) ? 1  : 0;
 
 		off1x = lookupTable[c][0] >= 3 ? 1 : 0;
 		off1y = lookupTable[c][1] >= 3 ? 1 : 0;
