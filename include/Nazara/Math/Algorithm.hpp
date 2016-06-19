@@ -1,3 +1,4 @@
+
 // Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
@@ -26,6 +27,10 @@
 
 #ifndef M_SQRT3
 #define M_SQRT3 1.7320508075688772935274463
+#endif
+
+#ifndef M_SQRT5
+#define M_SQRT5 2.23606797749979
 #endif
 
 namespace Nz
