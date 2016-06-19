@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/NoiseBase.hpp>
+#include <numeric>
 #include <Nazara/Noise/Debug.hpp>
 
 namespace Nz
