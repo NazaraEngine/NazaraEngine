@@ -13,7 +13,10 @@
 #include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkInstance.hpp>
+#include <Nazara/Vulkan/VkPhysicalDevice.hpp>
 #include <Nazara/Vulkan/VkSurface.hpp>
+#include <list>
+#include <vector>
 
 namespace Nz
 {
@@ -27,6 +30,8 @@ namespace Nz
 
 			static Vk::Instance& GetInstance();
 
+			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
+			
 			static bool Initialize();
 
 			static bool IsInitialized();
@@ -39,6 +44,7 @@ namespace Nz
 
 		private:
 			static std::list<Vk::Device> s_devices;
+			static std::vector<Vk::PhysicalDevice> s_physDevices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;
 			static unsigned int s_moduleReferenceCounter;
