@@ -21,6 +21,9 @@ namespace Ndk
 			unsigned int GetHeight() const;
 			unsigned int GetWidth() const;
 
+			virtual QSize minimumSizeHint() const override;
+			virtual QSize sizeHint() const override;
+
 		private:
 			void paintEvent(QPaintEvent*) override;
 			QPaintEngine* paintEngine() const override;

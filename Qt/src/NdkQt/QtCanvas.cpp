@@ -18,6 +18,8 @@ namespace Ndk
 
 		// Set strong focus to enable keyboard events to be received
 		setFocusPolicy(Qt::StrongFocus);
+
+		setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 	}
 
 	unsigned int QtCanvas::GetHeight() const
@@ -30,9 +32,19 @@ namespace Ndk
 		return width();
 	}
 
+	QSize QtCanvas::minimumSizeHint() const
+	{
+		return QSize(640, 480);
+	}
+
+	QSize QtCanvas::sizeHint() const
+	{
+		return QSize();
+	}
+
 	void QtCanvas::resizeEvent(QResizeEvent*)
 	{
-		OnRenderTargetSizeChange(this);
+		OnWindowResized();
 	}
 
 	void QtCanvas::showEvent(QShowEvent*)
@@ -58,6 +70,5 @@ namespace Ndk
 
 	void QtCanvas::keyPressEvent(QKeyEvent* key)
 	{
-		std::cout << (char) key->key() << std::endl;
 	}
 }
