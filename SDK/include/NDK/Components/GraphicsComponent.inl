@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <algorithm>
+#include "GraphicsComponent.hpp"
 
 namespace Ndk
 {
@@ -44,6 +45,18 @@ namespace Ndk
 		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size()-1));
 
 		InvalidateBoundingVolume();
+	}
+
+	inline void GraphicsComponent::Detach(Nz::InstancedRenderableRef renderable)
+	{
+		for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
+		{
+			if (it->renderable == renderable)
+			{
+				m_renderables.erase(it);
+				break;
+			}
+		}
 	}
 
 	inline void GraphicsComponent::EnsureBoundingVolumeUpdate() const
