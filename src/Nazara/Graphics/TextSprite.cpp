@@ -310,7 +310,7 @@ namespace Nz
 					Vector3f localPos = localVertex->position.x*Vector3f::Right() + localVertex->position.y*Vector3f::Down();
 					localPos *= m_scale;
 
-					*pos++ = instanceData->transformMatrix.Transform(localPos);
+					*pos++ = instanceData->transformMatrix->Transform(localPos);
 					*color++ = m_color * localVertex->color;
 					*uv++ = localVertex->uv;
 
