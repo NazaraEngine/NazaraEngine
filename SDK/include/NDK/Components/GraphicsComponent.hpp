@@ -31,7 +31,9 @@ namespace Ndk
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 
-			inline void Detach(Nz::InstancedRenderableRef renderable);
+			inline void Clear();
+
+			inline void Detach(const Nz::InstancedRenderableRef& renderable);
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
