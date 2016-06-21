@@ -58,19 +58,19 @@ namespace Nz
 		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix.Transform(Vector3f(0.f));
+		*posPtr++ = instanceData->transformMatrix->Transform(Vector3f(0.f));
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix.Transform(m_size.y*Vector3f::Down());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.y*Vector3f::Down());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftBottom);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 

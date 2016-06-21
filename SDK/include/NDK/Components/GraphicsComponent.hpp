@@ -31,6 +31,10 @@ namespace Ndk
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 
+			inline void Clear();
+
+			inline void Detach(const Nz::InstancedRenderableRef& renderable);
+
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
@@ -61,6 +65,22 @@ namespace Ndk
 				data(transformMatrix),
 				dataUpdated(false)
 				{
+				}
+
+				Renderable(Renderable&& renderable) noexcept :
+				data(std::move(renderable.data)),
+				renderable(std::move(renderable.renderable)),
+				dataUpdated(renderable.dataUpdated)
+				{
+				}
+
+				Renderable& operator=(Renderable&& r) noexcept
+				{
+					data = std::move(r.data);
+					dataUpdated = r.dataUpdated;
+					renderable = std::move(r.renderable);
+
+					return *this;
 				}
 
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
