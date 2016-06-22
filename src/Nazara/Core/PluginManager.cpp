@@ -19,8 +19,7 @@ namespace Nz
 
 		String s_pluginFiles[] =
 		{
-			"NazaraAssimp",  // Plugin_Assimp
-			"NazaraFreetype" // Plugin_FreeType
+			"PluginAssimp",  // Plugin_Assimp
 		};
 	}
 
@@ -80,7 +79,13 @@ namespace Nz
 
 	bool PluginManager::Mount(Plugin plugin)
 	{
-		return Mount(s_pluginFiles[plugin]);
+		Nz::String pluginName = s_pluginFiles[plugin];
+		#ifdef NAZARA_DEBUG
+		if (Mount(pluginName + "-d", true))
+			return true;
+		#endif
+
+		return Mount(pluginName, true);
 	}
 
 	/*!
