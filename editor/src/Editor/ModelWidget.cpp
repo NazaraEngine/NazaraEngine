@@ -47,7 +47,7 @@ ModelWidget::~ModelWidget()
 {
 }
 
-void ModelWidget::OnModelChanged(const Nz::ModelRef& model)
+void ModelWidget::OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& disabledModel)
 {
 	m_model = model;
 
@@ -59,6 +59,7 @@ void ModelWidget::OnModelChanged(const Nz::ModelRef& model)
 		m_box = model->GetBoundingVolume().obb.localBox;
 
 		modelGraphics.Attach(model);
+		modelGraphics.Attach(disabledModel);
 
 		Nz::Vector3f center = m_box.GetCenter();
 

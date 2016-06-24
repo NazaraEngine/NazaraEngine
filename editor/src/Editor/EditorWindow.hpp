@@ -30,9 +30,9 @@ class EditorWindow : public QMainWindow
 		void OnNormalToggled(bool active);
 		void OnSubmeshChanged();
 
-		std::vector<Nz::MaterialRef> m_activesMaterials;
-		std::vector<Nz::MaterialRef> m_disabledMaterials;
 		Nz::Bitset<> m_activeSubmeshes;
+		Nz::MaterialRef m_disabledMaterial;
+		Nz::ModelRef m_disabledModel;
 		Nz::ModelRef m_model;
 		QFrame* m_mainFrame;
 		QGridLayout* m_mainLayout;

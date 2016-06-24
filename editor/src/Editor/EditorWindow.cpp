@@ -8,6 +8,16 @@
 EditorWindow::EditorWindow(QWidget* parent) :
 QMainWindow(parent)
 {
+	m_disabledModel = Nz::Model::New();
+	m_disabledMaterial = Nz::Material::New();
+	m_disabledMaterial->Enable(Nz::RendererParameter_Blend, true);
+	m_disabledMaterial->Enable(Nz::RendererParameter_DepthWrite, false);
+	m_disabledMaterial->Enable(Nz::RendererParameter_FaceCulling, false);
+	m_disabledMaterial->SetDiffuseColor(Nz::Color(128, 128, 128, 50));
+	m_disabledMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
+	m_disabledMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
+
+
 	QMenu* menuFichier = menuBar()->addMenu("&Fichier");
 	QAction* import = menuFichier->addAction("Importer...");
 	connect(import, &QAction::triggered, this, &EditorWindow::OnImport);
@@ -61,7 +71,7 @@ EditorWindow::~EditorWindow()
 void EditorWindow::SetModel(Nz::ModelRef model)
 {
 	m_model = std::move(model);
-	m_modelWidget->OnModelChanged(m_model);
+	m_modelWidget->OnModelChanged(m_model, m_disabledModel);
 
 	Nz::Mesh* mesh = m_model->GetMesh();
 
@@ -79,6 +89,10 @@ void EditorWindow::SetModel(Nz::ModelRef model)
 		m_subMeshList->addItem(item);
 	}
 
+	m_disabledModel->SetMesh(mesh);
+	for (std::size_t i = 0; i < mesh->GetMaterialCount(); ++i)
+		m_disabledModel->SetMaterial(i, m_disabledMaterial);
+
 	OnSubmeshChanged();
 }
 
@@ -86,16 +100,8 @@ void EditorWindow::ShowSubmeshes(const Nz::Bitset<>& submeshes)
 {
 	m_activeSubmeshes = submeshes;
 
-	Nz::Mesh* mesh = m_model->GetMesh();
-	for (std::size_t i = 0; i < mesh->GetSubMeshCount(); ++i)
-	{
-		std::size_t matIndex = mesh->GetSubMesh(i)->GetMaterialIndex();
-
-		if (m_activeSubmeshes.Test(i))
-			m_model->SetMaterial(matIndex, m_activesMaterials[matIndex]);
-		else
-			m_model->SetMaterial(matIndex, m_disabledMaterials[matIndex]);
-	}
+	m_model->ShowSubmeshes(submeshes);
+	m_disabledModel->ShowSubmeshes(~submeshes);
 }
 
 void EditorWindow::OnFlipUVs()
@@ -152,27 +158,6 @@ void EditorWindow::OnImport()
 		m_textEdit->append(message.GetConstBuffer());
 
 		return;
-	}
-
-	m_activesMaterials.resize(model->GetMaterialCount());
-	m_disabledMaterials.resize(model->GetMaterialCount());
-
-	for (unsigned int i = 0; i < model->GetMaterialCount(); ++i)
-	{
-		model->GetMaterial(i)->Enable(Nz::RendererParameter_FaceCulling, false);
-
-		Nz::MaterialRef activeMaterial = model->GetMaterial(i);
-
-		Nz::MaterialRef disabledMaterial = Nz::Material::New();
-		disabledMaterial->Enable(Nz::RendererParameter_Blend, true);
-		disabledMaterial->Enable(Nz::RendererParameter_DepthWrite, false);
-		disabledMaterial->Enable(Nz::RendererParameter_FaceCulling, false);
-		disabledMaterial->SetDiffuseColor(Nz::Color(128, 128, 128, 50));
-		disabledMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
-		disabledMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
-
-		m_activesMaterials[i] = activeMaterial;
-		m_disabledMaterials[i] = disabledMaterial;
 	}
 
 	SetModel(std::move(model));

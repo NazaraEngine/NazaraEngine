@@ -13,7 +13,7 @@ class ModelWidget : public Ndk::QtCanvas
 		ModelWidget(QWidget* parent = nullptr);
 		~ModelWidget();
 
-		void OnModelChanged(const Nz::ModelRef& model);
+		void OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& disabledModel);
 
 		void ResetCamera();
 
