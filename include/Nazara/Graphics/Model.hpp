@@ -8,6 +8,7 @@
 #define NAZARA_MODEL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
@@ -71,6 +72,8 @@ namespace Nz
 			void SetSkin(unsigned int skin);
 			void SetSkinCount(unsigned int skinCount);
 
+			inline void ShowSubmeshes(Bitset<> enabledSubmeshes);
+
 			Model& operator=(const Model& node) = default;
 			Model& operator=(Model&& node) = default;
 
@@ -80,6 +83,7 @@ namespace Nz
 			void MakeBoundingVolume() const override;
 
 			std::vector<MaterialRef> m_materials;
+			Bitset<> m_enabledSubmeshes;
 			MeshRef m_mesh;
 			unsigned int m_matCount;
 			unsigned int m_skin;

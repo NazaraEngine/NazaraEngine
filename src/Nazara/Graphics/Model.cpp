@@ -74,6 +74,9 @@ namespace Nz
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
 		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
+			if (!m_enabledSubmeshes.Test(i))
+				continue;
+
 			const StaticMesh* mesh = static_cast<const StaticMesh*>(m_mesh->GetSubMesh(i));
 			Material* material = m_materials[mesh->GetMaterialIndex()];
 
@@ -495,6 +498,9 @@ namespace Nz
 			m_materials.clear();
 			m_materials.resize(m_matCount, Material::GetDefault());
 			m_skinCount = 1;
+
+			m_enabledSubmeshes.Resize(mesh->GetSubMeshCount());
+			m_enabledSubmeshes.Set();
 		}
 		else
 		{

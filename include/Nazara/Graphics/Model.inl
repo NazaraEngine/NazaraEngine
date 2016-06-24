@@ -8,12 +8,21 @@
 namespace Nz
 {
 	/*!
+	* \brief Specify which submeshes should be renderered
+	*
+	* \param enabledSubmeshes A bitset specifying which submeshes should be drawn
+	*/
+	inline void Model::ShowSubmeshes(Bitset<> enabledSubmeshes)
+	{
+		m_enabledSubmeshes = std::move(enabledSubmeshes);
+	}
+
+	/*!
 	* \brief Creates a new Model from the arguments
 	* \return A reference to the newly created model
 	*
 	* \param args Arguments for the model
 	*/
-
 	template<typename... Args>
 	ModelRef Model::New(Args&&... args)
 	{
