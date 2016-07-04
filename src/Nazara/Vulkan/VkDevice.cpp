@@ -125,6 +125,7 @@ namespace Nz
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreateGraphicsPipelines);
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreateImage);
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreateImageView);
+				NAZARA_VULKAN_LOAD_DEVICE(vkCreatePipelineCache);
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreatePipelineLayout);
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreateRenderPass);
 				NAZARA_VULKAN_LOAD_DEVICE(vkCreateSampler);
@@ -141,6 +142,7 @@ namespace Nz
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyImage);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyImageView);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyPipeline);
+				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyPipelineCache);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyPipelineLayout);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroyRenderPass);
 				NAZARA_VULKAN_LOAD_DEVICE(vkDestroySampler);

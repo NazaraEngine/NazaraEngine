@@ -38,6 +38,7 @@ namespace Nz
 				inline void Destroy();
 
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
+
 				inline Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
@@ -118,6 +119,7 @@ namespace Nz
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateGraphicsPipelines);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateImage);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateImageView);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreatePipelineCache);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreatePipelineLayout);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateRenderPass);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkCreateSampler);
@@ -134,6 +136,7 @@ namespace Nz
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyImage);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyImageView);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyPipeline);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyPipelineCache);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyPipelineLayout);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroyRenderPass);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkDestroySampler);
