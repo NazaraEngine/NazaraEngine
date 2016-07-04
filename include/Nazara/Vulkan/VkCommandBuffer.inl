@@ -11,6 +11,12 @@ namespace Nz
 {
 	namespace Vk
 	{
+		inline CommandBuffer::CommandBuffer() :
+		m_pool(),
+		m_handle(VK_NULL_HANDLE)
+		{
+		}
+
 		inline CommandBuffer::CommandBuffer(CommandPool& pool, VkCommandBuffer handle) :
 		m_pool(&pool),
 		m_handle(handle)
@@ -140,7 +146,20 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline CommandBuffer::operator VkCommandBuffer()
+		inline CommandBuffer& CommandBuffer::operator=(CommandBuffer&& commandBuffer)
+		{
+			m_allocator = commandBuffer.m_allocator;
+			m_handle = commandBuffer.m_handle;
+			m_lastErrorCode = commandBuffer.m_lastErrorCode;
+			m_pool = std::move(commandBuffer.m_pool);
+			m_handle = commandBuffer.m_handle;
+			
+			commandBuffer.m_handle = VK_NULL_HANDLE;
+
+			return *this;
+		}
+
+		inline CommandBuffer::operator VkCommandBuffer() const
 		{
 			return m_handle;
 		}

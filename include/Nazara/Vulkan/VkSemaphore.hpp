@@ -31,8 +31,8 @@ namespace Nz
 				Semaphore& operator=(Semaphore&&) = delete;
 
 			private:
-				static VkResult CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
-				static void DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
+				static inline void DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }
