@@ -11,6 +11,11 @@ namespace Nz
 {
 	namespace Vk
 	{
+		inline Queue::Queue() :
+		Queue(DeviceHandle(), VK_NULL_HANDLE)
+		{
+		}
+
 		inline Queue::Queue(const DeviceHandle& device, VkQueue queue) :
 		m_device(device),
 		m_handle(queue),
@@ -42,7 +47,7 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline bool Queue::Present(const VkPresentInfoKHR& presentInfo)
+		inline bool Queue::Present(const VkPresentInfoKHR& presentInfo) const
 		{
 			m_lastErrorCode = m_device->vkQueuePresentKHR(m_handle, &presentInfo);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -51,7 +56,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Queue::Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore)
+		inline bool Queue::Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore) const
 		{
 			VkPresentInfoKHR presentInfo =
 			{
@@ -68,12 +73,12 @@ namespace Nz
 			return Present(presentInfo);
 		}
 
-		inline bool Queue::Submit(const VkSubmitInfo& submit, VkFence fence)
+		inline bool Queue::Submit(const VkSubmitInfo& submit, VkFence fence) const
 		{
 			return Submit(1, &submit, fence);
 		}
 
-		inline bool Queue::Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence)
+		inline bool Queue::Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence) const
 		{
 			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, fence);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -82,7 +87,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Queue::WaitIdle()
+		inline bool Queue::WaitIdle() const
 		{
 			m_lastErrorCode = m_device->vkQueueWaitIdle(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -91,11 +96,19 @@ namespace Nz
 			return true;
 		}
 
+		inline Queue& Queue::operator=(Queue&& queue)
+		{
+			m_device = std::move(queue.m_device);
+			m_handle = queue.m_handle;
+			m_lastErrorCode = queue.m_lastErrorCode;
+
+			return *this;
+		}
+
 		inline Queue::operator VkQueue()
 		{
 			return m_handle;
 		}
-
 	}
 }
 

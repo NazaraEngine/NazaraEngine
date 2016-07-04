@@ -18,6 +18,7 @@ namespace Nz
 		class Queue
 		{
 			public:
+				inline Queue();
 				inline Queue(const DeviceHandle& device, VkQueue queue);
 				inline Queue(const Queue& queue);
 				inline Queue(Queue&& queue);
@@ -26,23 +27,23 @@ namespace Nz
 				inline const DeviceHandle& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
 
-				inline bool Present(const VkPresentInfoKHR& presentInfo);
-				inline bool Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
+				inline bool Present(const VkPresentInfoKHR& presentInfo) const;
+				inline bool Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) const;
 
-				inline bool Submit(const VkSubmitInfo& submit, VkFence fence = VK_NULL_HANDLE);
-				inline bool Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence = VK_NULL_HANDLE);
+				inline bool Submit(const VkSubmitInfo& submit, VkFence fence = VK_NULL_HANDLE) const;
+				inline bool Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence = VK_NULL_HANDLE) const;
 
-				inline bool WaitIdle();
+				inline bool WaitIdle() const;
 
 				Queue& operator=(const Queue& queue) = delete;
-				Queue& operator=(Queue&&) = delete;
+				inline Queue& operator=(Queue&&);
 
 				inline operator VkQueue();
 
 			protected:
 				DeviceHandle m_device;
 				VkQueue m_handle;
-				VkResult m_lastErrorCode;
+				mutable VkResult m_lastErrorCode;
 		};
 	}
 }
