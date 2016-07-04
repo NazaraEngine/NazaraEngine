@@ -15,13 +15,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class NAZARA_VULKAN_API CommandBuffer
+		class CommandBuffer
 		{
 			friend CommandPool;
 
 			public:
+				inline CommandBuffer();
 				CommandBuffer(const CommandBuffer&) = delete;
-				CommandBuffer(CommandBuffer&& commandBuffer);
+				inline CommandBuffer(CommandBuffer&& commandBuffer);
 				inline ~CommandBuffer();
 
 				inline bool Begin(const VkCommandBufferBeginInfo& info);
@@ -37,9 +38,9 @@ namespace Nz
 				inline VkResult GetLastErrorCode() const;
 
 				CommandBuffer& operator=(const CommandBuffer&) = delete;
-				CommandBuffer& operator=(CommandBuffer&&) = delete;
+				CommandBuffer& operator=(CommandBuffer&& commandBuffer);
 
-				inline operator VkCommandBuffer();
+				inline operator VkCommandBuffer() const;
 
 			private:
 				inline CommandBuffer(CommandPool& pool, VkCommandBuffer handle);

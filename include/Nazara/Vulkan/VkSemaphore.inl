@@ -21,12 +21,12 @@ namespace Nz
 			return Create(device, createInfo, allocator);
 		}
 
-		VkResult Semaphore::CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)
+		inline VkResult Semaphore::CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)
 		{
 			return device->vkCreateSemaphore(*device, createInfo, allocator, handle);
 		}
 
-		void Semaphore::DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator)
+		inline void Semaphore::DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator)
 		{
 			return device->vkDestroySemaphore(*device, handle, allocator);
 		}
