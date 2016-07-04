@@ -27,38 +27,15 @@ namespace Nz
 				return false;
 			}
 
+			m_physicalDevice = device;
+
 			// Store the allocator to access them when needed
 			if (allocator)
 				m_allocator = *allocator;
 			else
 				m_allocator.pfnAllocation = nullptr;
 
-			// Parse extensions and layers
-			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
-				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
-
-			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
-				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
-
-			// And retains informations about queues
-			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
-			for (UInt32 i = 0; i < createInfo.queueCreateInfoCount; ++i)
-			{
-				const VkDeviceQueueCreateInfo& queueCreateInfo = createInfo.pQueueCreateInfos[i];
-				QueueFamilyInfo& info = m_enabledQueuesInfos[i];
-
-				info.familyIndex = queueCreateInfo.queueFamilyIndex;
-				
-				const VkQueueFamilyProperties& queueProperties = queuesProperties[info.familyIndex];
-				info.flags = queueProperties.queueFlags;
-				info.minImageTransferGranularity = queueProperties.minImageTransferGranularity;
-				info.timestampValidBits = queueProperties.timestampValidBits;
-				
-				info.queues.resize(queueCreateInfo.queueCount);
-				for (UInt32 queueCount = 0; queueCount < queueCreateInfo.queueCount; ++queueCount)
-					info.queues[queueCount] = queueCreateInfo.pQueuePriorities[queueCount];
-			}
-
+			// Load all device-related functions
 			#define NAZARA_VULKAN_LOAD_DEVICE(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
 
 			try
@@ -199,6 +176,40 @@ namespace Nz
 			}
 
 			#undef NAZARA_VULKAN_LOAD_DEVICE
+
+			// Parse extensions and layers
+			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
+				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
+
+			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
+				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
+
+			// And retains informations about queues
+			UInt32 maxFamilyIndex = 0;
+			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
+			for (UInt32 i = 0; i < createInfo.queueCreateInfoCount; ++i)
+			{
+				const VkDeviceQueueCreateInfo& queueCreateInfo = createInfo.pQueueCreateInfos[i];
+				QueueFamilyInfo& info = m_enabledQueuesInfos[i];
+
+				info.familyIndex = queueCreateInfo.queueFamilyIndex;
+				if (info.familyIndex > maxFamilyIndex)
+					maxFamilyIndex = info.familyIndex;
+
+				const VkQueueFamilyProperties& queueProperties = queuesProperties[info.familyIndex];
+				info.flags = queueProperties.queueFlags;
+				info.minImageTransferGranularity = queueProperties.minImageTransferGranularity;
+				info.timestampValidBits = queueProperties.timestampValidBits;
+
+				info.queues.resize(queueCreateInfo.queueCount);
+				for (UInt32 queueIndex = 0; queueIndex < queueCreateInfo.queueCount; ++queueIndex)
+				{
+					QueueInfo queueInfo;
+					queueInfo.familyInfo = &info;
+					queueInfo.priority = queueCreateInfo.pQueuePriorities[queueIndex];
+					queueInfo.queue = GetQueue(info.familyIndex, queueIndex);
+				}
+			}
 
 			return true;
 		}
