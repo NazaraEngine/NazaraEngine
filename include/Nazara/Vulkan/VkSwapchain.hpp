@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>
+#include <Nazara/Vulkan/VkImageView.hpp>
 
 namespace Nz 
 {
@@ -19,6 +20,8 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
+				struct Buffer;
+				
 				Swapchain() = default;
 				Swapchain(const Swapchain&) = delete;
 				Swapchain(Swapchain&&) = default;
@@ -28,20 +31,26 @@ namespace Nz
 
 				inline bool Create(const DeviceHandle& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 
-				inline VkImage GetImage(UInt32 index) const;
-				inline const std::vector<VkImage>& GetImages() const;
-				inline UInt32 GetImageCount() const;
+				inline const Buffer& GetBuffer(UInt32 index) const;
+				inline const std::vector<Buffer>& GetBuffers() const;
+				inline UInt32 GetBufferCount() const;
 
 				inline bool IsSupported() const;
 
 				Swapchain& operator=(const Swapchain&) = delete;
 				Swapchain& operator=(Swapchain&&) = delete;
 
-			private:
-				static VkResult CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
-				static void DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
+				struct Buffer
+				{
+					VkImage image;
+					ImageView view;
+				};
 
-				std::vector<VkImage> m_images;
+			private:
+				static inline VkResult CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
+				static inline void DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
+
+				std::vector<Buffer> m_buffers;
 		};
 	}
 }

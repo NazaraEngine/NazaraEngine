@@ -38,30 +38,64 @@ namespace Nz
 				return false;
 			}
 
-			m_images.resize(imageCount);
-			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, m_images.data());
+			std::vector<VkImage> images(imageCount);
+			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, images.data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to query swapchain images");
 				return false;
 			}
 
+			m_buffers.resize(imageCount);
+			for (UInt32 i = 0; i < imageCount; ++i)
+			{
+				m_buffers[i].image = images[i];
+
+				VkImageViewCreateInfo imageViewCreateInfo = {
+					VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType            sType;
+					nullptr,                                  // const void*                pNext;
+					0,                                        // VkImageViewCreateFlags     flags;
+					m_buffers[i].image,                       // VkImage                    image;
+					VK_IMAGE_VIEW_TYPE_2D,                    // VkImageViewType            viewType;
+					createInfo.imageFormat,                   // VkFormat                   format;
+					{                                         // VkComponentMapping         components;
+						VK_COMPONENT_SWIZZLE_R,               // VkComponentSwizzle         .r;
+						VK_COMPONENT_SWIZZLE_G,               // VkComponentSwizzle         .g;
+						VK_COMPONENT_SWIZZLE_B,               // VkComponentSwizzle         .b;
+						VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
+					},
+					{                                         // VkImageSubresourceRange    subresourceRange;
+						VK_IMAGE_ASPECT_COLOR_BIT,            // VkImageAspectFlags         .aspectMask;
+						0,                                    // uint32_t                   .baseMipLevel;
+						1,                                    // uint32_t                   .levelCount;
+						0,                                    // uint32_t                   .baseArrayLayer;
+						1                                     // uint32_t                   .layerCount;
+					}
+				};
+
+				if (!m_buffers[i].view.Create(m_device, imageViewCreateInfo))
+				{
+					NazaraError("Failed to create image view for image #" + String::Number(i));
+					return false;
+				}
+			}
+
 			return true;
 		}
 
-		inline VkImage Swapchain::GetImage(UInt32 index) const
+		inline const Swapchain::Buffer& Swapchain::GetBuffer(UInt32 index) const
 		{
-			return m_images[index];
+			return m_buffers[index];
 		}
 
-		inline const std::vector<VkImage>& Swapchain::GetImages() const
+		inline const std::vector<Swapchain::Buffer>& Swapchain::GetBuffers() const
 		{
-			return m_images;
+			return m_buffers;
 		}
 
-		inline UInt32 Swapchain::GetImageCount() const
+		inline UInt32 Swapchain::GetBufferCount() const
 		{
-			return static_cast<UInt32>(m_images.size());
+			return static_cast<UInt32>(m_buffers.size());
 		}
 
 		inline bool Swapchain::IsSupported() const
@@ -72,12 +106,12 @@ namespace Nz
 			return true;
 		}
 
-		VkResult Swapchain::CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
+		inline VkResult Swapchain::CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
 		{
 			return device->vkCreateSwapchainKHR(*device, createInfo, allocator, handle);
 		}
 
-		void Swapchain::DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
+		inline void Swapchain::DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
 		{
 			return device->vkDestroySwapchainKHR(*device, handle, allocator);
 		}
