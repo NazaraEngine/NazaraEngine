@@ -35,7 +35,7 @@ namespace Nz
 				nullptr,
 				m_handle,
 				level,
-				1U
+				commandBufferCount
 			};
 
 			std::vector<VkCommandBuffer> handles(commandBufferCount, VK_NULL_HANDLE);
