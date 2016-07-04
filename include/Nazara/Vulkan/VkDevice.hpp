@@ -28,6 +28,7 @@ namespace Nz
 		{
 			public:
 				struct QueueFamilyInfo;
+				struct QueueInfo;
 
 				inline Device(Instance& instance);
 				Device(const Device&) = delete;
@@ -191,9 +192,18 @@ namespace Nz
 
 				#undef NAZARA_VULKAN_DEVICE_FUNCTION
 
-				struct QueueFamilyInfo
+				struct QueueInfo
 				{
-					std::vector<float> queues;
+					QueueFamilyInfo* familyInfo;
+					Queue queue;
+					float priority;
+				};
+
+				using QueueList = std::vector<QueueInfo>;
+
+				struct QueueFamilyInfoi 
+				{
+					QueueList queues;
 					VkExtent3D minImageTransferGranularity;
 					VkQueueFlags flags;
 					UInt32 familyIndex;
