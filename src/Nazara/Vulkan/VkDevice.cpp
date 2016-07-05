@@ -35,6 +35,13 @@ namespace Nz
 			else
 				m_allocator.pfnAllocation = nullptr;
 
+			// Parse extensions and layers
+			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
+				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
+
+			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
+				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
+
 			// Load all device-related functions
 			#define NAZARA_VULKAN_LOAD_DEVICE(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
 
@@ -177,13 +184,6 @@ namespace Nz
 
 			#undef NAZARA_VULKAN_LOAD_DEVICE
 
-			// Parse extensions and layers
-			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
-				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
-
-			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
-				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
-
 			// And retains informations about queues
 			UInt32 maxFamilyIndex = 0;
 			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
@@ -204,12 +204,16 @@ namespace Nz
 				info.queues.resize(queueCreateInfo.queueCount);
 				for (UInt32 queueIndex = 0; queueIndex < queueCreateInfo.queueCount; ++queueIndex)
 				{
-					QueueInfo queueInfo;
+					QueueInfo& queueInfo = info.queues[queueIndex];
 					queueInfo.familyInfo = &info;
 					queueInfo.priority = queueCreateInfo.pQueuePriorities[queueIndex];
-					queueInfo.queue = GetQueue(info.familyIndex, queueIndex);
+					vkGetDeviceQueue(m_device, info.familyIndex, queueIndex, &queueInfo.queue);
 				}
 			}
+
+			m_queuesByFamily.resize(maxFamilyIndex + 1);
+			for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
+				m_queuesByFamily[familyInfo.familyIndex] = &familyInfo.queues;
 
 			return true;
 		}

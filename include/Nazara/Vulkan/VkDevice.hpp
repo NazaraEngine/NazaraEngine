@@ -29,6 +29,7 @@ namespace Nz
 			public:
 				struct QueueFamilyInfo;
 				struct QueueInfo;
+				using QueueList = std::vector<QueueInfo>;
 
 				inline Device(Instance& instance);
 				Device(const Device&) = delete;
@@ -39,6 +40,7 @@ namespace Nz
 				inline void Destroy();
 
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
+				inline const QueueList& GetEnabledQueues(UInt32 familyQueue) const;
 
 				inline Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
@@ -195,13 +197,11 @@ namespace Nz
 				struct QueueInfo
 				{
 					QueueFamilyInfo* familyInfo;
-					Queue queue;
+					VkQueue queue;
 					float priority;
 				};
 
-				using QueueList = std::vector<QueueInfo>;
-
-				struct QueueFamilyInfoi 
+				struct QueueFamilyInfo
 				{
 					QueueList queues;
 					VkExtent3D minImageTransferGranularity;
@@ -221,6 +221,7 @@ namespace Nz
 				std::unordered_set<String> m_loadedExtensions;
 				std::unordered_set<String> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
+				std::vector<const QueueList*> m_queuesByFamily;
 		};
 	}
 }

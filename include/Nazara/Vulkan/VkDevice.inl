@@ -41,6 +41,13 @@ namespace Nz
 			return m_enabledQueuesInfos;
 		}
 
+		inline const Device::QueueList& Device::GetEnabledQueues(UInt32 familyQueue) const
+		{
+			NazaraAssert(familyQueue < m_enabledQueuesInfos.size(), "Invalid family queue");
+
+			return *m_queuesByFamily[familyQueue];
+		}
+
 		inline Queue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
 			VkQueue queue;
