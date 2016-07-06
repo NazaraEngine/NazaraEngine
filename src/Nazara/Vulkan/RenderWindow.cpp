@@ -261,23 +261,23 @@ namespace Nz
 
 			VkImage image = m_swapchain.GetBuffer(i).image;
 
-			// Barriers
-			VkImageMemoryBarrier presentToDrawBarrier = {
-				VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // VkStructureType         sType
-				nullptr,                                // const void*             pNext
-				VK_ACCESS_MEMORY_READ_BIT,              // VkAccessFlags           srcAccessMask
-				VK_ACCESS_TRANSFER_WRITE_BIT,           // VkAccessFlags           dstAccessMask
-				VK_IMAGE_LAYOUT_UNDEFINED,              // VkImageLayout           oldLayout
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,   // VkImageLayout           newLayout
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                srcQueueFamilyIndex
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                dstQueueFamilyIndex
-				image,                                  // VkImage                 image
-				imageRange                              // VkImageSubresourceRange subresourceRange
-			};
-
 			imageData.presentToDrawCmd.Begin(0);
+			{
+				VkImageMemoryBarrier presentToDrawBarrier = {
+					VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // VkStructureType         sType
+					nullptr,                                  // const void*             pNext
+					VK_ACCESS_MEMORY_READ_BIT,                // VkAccessFlags           srcAccessMask
+					VK_ACCESS_TRANSFER_WRITE_BIT,             // VkAccessFlags           dstAccessMask
+					VK_IMAGE_LAYOUT_UNDEFINED,                // VkImageLayout           oldLayout
+					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout           newLayout
+					VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                srcQueueFamilyIndex
+					VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                dstQueueFamilyIndex
+					image,                                    // VkImage                 image
+					imageRange                                // VkImageSubresourceRange subresourceRange
+				};
 
-			m_device->vkCmdPipelineBarrier(imageData.presentToDrawCmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &presentToDrawBarrier);
+				imageData.presentToDrawCmd.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, presentToDrawBarrier);
+			}
 
 			if (!imageData.presentToDrawCmd.End())
 			{
@@ -285,22 +285,23 @@ namespace Nz
 				return false;
 			}
 
-			VkImageMemoryBarrier drawToPresentBarrier = {
-				VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // VkStructureType         sType
-				nullptr,                                // const void*             pNext
-				VK_ACCESS_TRANSFER_WRITE_BIT,           // VkAccessFlags           srcAccessMask
-				VK_ACCESS_MEMORY_READ_BIT,              // VkAccessFlags           dstAccessMask
-				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,   // VkImageLayout           oldLayout
-				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,        // VkImageLayout           newLayout
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                srcQueueFamilyIndex
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                dstQueueFamilyIndex
-				image,                                  // VkImage                 image
-				imageRange                              // VkImageSubresourceRange subresourceRange
-			};
-
 			imageData.drawToPresentCmd.Begin(0);
+			{
+				VkImageMemoryBarrier drawToPresentBarrier = {
+					VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // VkStructureType         sType
+					nullptr,                                  // const void*             pNext
+					VK_ACCESS_TRANSFER_WRITE_BIT,             // VkAccessFlags           srcAccessMask
+					VK_ACCESS_MEMORY_READ_BIT,                // VkAccessFlags           dstAccessMask
+					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout           oldLayout
+					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,          // VkImageLayout           newLayout
+					VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                srcQueueFamilyIndex
+					VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                dstQueueFamilyIndex
+					image,                                    // VkImage                 image
+					imageRange                                // VkImageSubresourceRange subresourceRange
+				};
 
-			m_device->vkCmdPipelineBarrier(imageData.drawToPresentCmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &drawToPresentBarrier);
+				imageData.drawToPresentCmd.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, drawToPresentBarrier);
+			}
 
 			if (!imageData.drawToPresentCmd.End())
 			{
