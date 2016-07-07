@@ -65,6 +65,7 @@ namespace Nz
 		inline bool Pipeline::Create(const DeviceHandle& device, VkResult result, const VkAllocationCallbacks* allocator)
 		{
 			m_device = device;
+			m_lastErrorCode = result;
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to create Vulkan object");
