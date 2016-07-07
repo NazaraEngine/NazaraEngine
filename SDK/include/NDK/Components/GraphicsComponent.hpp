@@ -40,7 +40,7 @@ namespace Ndk
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
-			inline void GetAttachedRenderables(Nz::InstancedRenderableRef* renderables) const;
+			inline void GetAttachedRenderables(RenderableList* renderables) const;
 			inline std::size_t GetAttachedRenderableCount() const;
 
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
