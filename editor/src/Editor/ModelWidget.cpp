@@ -17,6 +17,21 @@ m_cameraDistance(5)
 	m_updateTimer.connect(&m_updateTimer, &QTimer::timeout, this, &ModelWidget::Update);
 	m_updateTimer.start();
 
+	m_normalMaterial = Nz::Material::New();
+	m_normalMaterial->SetDiffuseColor(Nz::Color::Red);
+	m_normalMaterial->SetShader("Basic");
+
+	m_normalModel = Nz::Model::New();
+
+	m_disabledModel = Nz::Model::New();
+	m_disabledMaterial = Nz::Material::New();
+	m_disabledMaterial->Enable(Nz::RendererParameter_Blend, true);
+	m_disabledMaterial->Enable(Nz::RendererParameter_DepthWrite, false);
+	m_disabledMaterial->Enable(Nz::RendererParameter_FaceCulling, false);
+	m_disabledMaterial->SetDiffuseColor(Nz::Color(128, 128, 128, 50));
+	m_disabledMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
+	m_disabledMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
+
 	m_camera = m_world.CreateEntity();
 	m_camera->AddComponent<Ndk::NodeComponent>();
 
@@ -47,28 +62,50 @@ ModelWidget::~ModelWidget()
 {
 }
 
-void ModelWidget::OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& disabledModel)
+void ModelWidget::OnModelChanged(const Nz::ModelRef& model)
 {
-	m_model = model;
-
 	Ndk::GraphicsComponent& modelGraphics = m_modelEntity->GetComponent<Ndk::GraphicsComponent>();
 	modelGraphics.Clear();
 
+	m_model = model;
+
 	if (m_model)
 	{
+		Nz::Mesh* mesh = m_model->GetMesh();
+		m_disabledModel->SetMesh(mesh);
+		for (std::size_t i = 0; i < mesh->GetMaterialCount(); ++i)
+			m_disabledModel->SetMaterial(i, m_disabledMaterial);
+
+		m_normalModel->SetMesh(nullptr);
+
 		m_box = model->GetBoundingVolume().obb.localBox;
 
 		modelGraphics.Attach(model);
-		modelGraphics.Attach(disabledModel);
+		modelGraphics.Attach(m_disabledModel);
 
 		Nz::Vector3f center = m_box.GetCenter();
 
 		Ndk::NodeComponent& modelNode = m_modelEntity->GetComponent<Ndk::NodeComponent>();
 		modelNode.SetPosition(-center.x, m_box.GetLengths().y / 2.f - center.y, -center.z);
 		ResetCamera();
+	}
+	else
+		m_box.MakeZero();
+}
 
-		// Generate normal mesh
-		Nz::Mesh* mesh = model->GetMesh();
+void ModelWidget::ResetCamera()
+{
+	m_cameraAngles.MakeZero();
+	m_cameraDistance = m_box.GetRadius();
+
+	UpdateCamera();
+}
+
+void ModelWidget::ShowNormals(bool normals)
+{
+	if (!m_normalModel->GetMesh() && normals)
+	{
+		Nz::Mesh* mesh = m_model->GetMesh();
 
 		Nz::MeshRef normalMesh = Nz::Mesh::New();
 		normalMesh->CreateStatic();
@@ -92,7 +129,7 @@ void ModelWidget::OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& 
 				Nz::Vector3f normal = *normalPtr++;
 
 				*linePtr++ = position;
-				*linePtr++ = position + normal / 10.f;
+				*linePtr++ = position + normal / 5.f;
 			}
 
 			originalMapper.Unmap();
@@ -107,38 +144,21 @@ void ModelWidget::OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& 
 			normalMesh->AddSubMesh(normalSubmesh);
 		}
 
-		Nz::MaterialRef normalMat = Nz::Material::New();
-		normalMat->SetDiffuseColor(Nz::Color::Red);
-		normalMat->SetShader("Basic");
-
-		Nz::ModelRef normalModel = Nz::Model::New();
-		normalModel->SetMesh(normalMesh);
-		normalModel->SetMaterial(0, normalMat);
-
-		m_modelEntity->GetComponent<Ndk::GraphicsComponent>().Attach(normalModel);
-		m_modelEntity->GetComponent<Ndk::GraphicsComponent>().Detach(normalModel);
+		m_normalModel->SetMesh(normalMesh);
+		m_normalModel->SetMaterial(0, m_normalMaterial);
 	}
+
+	if (normals)
+		m_modelEntity->GetComponent<Ndk::GraphicsComponent>().Attach(m_normalModel);
 	else
-	{
-		m_box.MakeZero();
-	}
+		m_modelEntity->GetComponent<Ndk::GraphicsComponent>().Detach(m_normalModel);
 }
 
-void ModelWidget::ResetCamera()
+void ModelWidget::ShowSubmeshes(const Nz::Bitset<>& submeshes)
 {
-	m_cameraAngles.MakeZero();
-	m_cameraDistance = m_box.GetRadius();
-
-	UpdateCamera();
-}
-
-void ModelWidget::ShowNormals(bool normals)
-{
-	if (!m_normalModel)
-	{
-		Nz::MeshRef normalMesh = Nz::Mesh::New();
-		normalMesh->CreateStatic();
-	}
+	m_disabledModel->ShowSubmeshes(~submeshes);
+	m_model->ShowSubmeshes(submeshes);
+	m_normalModel->ShowSubmeshes(submeshes);
 }
 
 Nz::MeshRef ModelWidget::CreateGridMesh(unsigned int size)

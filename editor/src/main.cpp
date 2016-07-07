@@ -1,4 +1,3 @@
-#include <Nazara/Core/PluginManager.hpp>
 #include <Ndk/Application.hpp>
 #include <NdkQt/QtCanvas.hpp>
 #include <Editor/EditorWindow.hpp>
@@ -8,7 +7,6 @@
 int main(int argc, char *argv[])
 {
 	Ndk::Application ndkApp;
-	Nz::PluginManager::Mount(Nz::Plugin_Assimp);
 
 	QApplication App(argc, argv);
 

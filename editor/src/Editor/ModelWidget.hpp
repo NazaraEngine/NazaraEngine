@@ -13,11 +13,12 @@ class ModelWidget : public Ndk::QtCanvas
 		ModelWidget(QWidget* parent = nullptr);
 		~ModelWidget();
 
-		void OnModelChanged(const Nz::ModelRef& model, const Nz::ModelRef& disabledModel);
+		void OnModelChanged(const Nz::ModelRef& model);
 
 		void ResetCamera();
 
 		void ShowNormals(bool normals = true);
+		void ShowSubmeshes(const Nz::Bitset<>& submeshes);
 
 	private:
 		enum class MouseControl
@@ -41,6 +42,9 @@ class ModelWidget : public Ndk::QtCanvas
 		Nz::Boxf m_box;
 		Nz::Clock m_updateClock;
 		Nz::EulerAnglesf m_cameraAngles;
+		Nz::MaterialRef m_disabledMaterial;
+		Nz::MaterialRef m_normalMaterial;
+		Nz::ModelRef m_disabledModel;
 		Nz::ModelRef m_gridModel;
 		Nz::ModelRef m_model;
 		Nz::ModelRef m_normalModel;
