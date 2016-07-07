@@ -120,6 +120,8 @@ namespace Nz
 
 			void Reset();
 
+			void SaveToParameters(ParameterList* matData);
+
 			inline bool SetAlphaMap(const String& textureName);
 			inline void SetAlphaMap(TextureRef alphaMap);
 			inline void SetAlphaThreshold(float alphaThreshold);
