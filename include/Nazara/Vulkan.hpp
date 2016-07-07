@@ -1,4 +1,4 @@
-// This file was automatically generated on 15 May 2016 at 00:11:13
+// This file was automatically generated on 06 Jul 2016 at 14:00:09
 
 /*
 	Nazara Engine - Vulkan
@@ -30,13 +30,24 @@
 #define NAZARA_GLOBAL_VULKAN_HPP
 
 #include <Nazara/Vulkan/Config.hpp>
+#include <Nazara/Vulkan/RenderTarget.hpp>
+#include <Nazara/Vulkan/RenderWindow.hpp>
 #include <Nazara/Vulkan/VkCommandBuffer.hpp>
 #include <Nazara/Vulkan/VkCommandPool.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>
+#include <Nazara/Vulkan/VkFramebuffer.hpp>
+#include <Nazara/Vulkan/VkImageView.hpp>
 #include <Nazara/Vulkan/VkInstance.hpp>
 #include <Nazara/Vulkan/VkLoader.hpp>
+#include <Nazara/Vulkan/VkPhysicalDevice.hpp>
+#include <Nazara/Vulkan/VkPipeline.hpp>
+#include <Nazara/Vulkan/VkPipelineCache.hpp>
+#include <Nazara/Vulkan/VkPipelineLayout.hpp>
+#include <Nazara/Vulkan/VkQueue.hpp>
+#include <Nazara/Vulkan/VkRenderPass.hpp>
 #include <Nazara/Vulkan/VkSemaphore.hpp>
+#include <Nazara/Vulkan/VkShaderModule.hpp>
 #include <Nazara/Vulkan/VkSurface.hpp>
 #include <Nazara/Vulkan/VkSwapchain.hpp>
 #include <Nazara/Vulkan/Vulkan.hpp>
