@@ -170,6 +170,9 @@ namespace Nz
 		if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
 			SetAmbientColor(color);
 
+		if (matData.GetIntegerParameter(MaterialData::CullingSide, &iValue))
+			SetFaceCulling(static_cast<FaceSide>(iValue));
+
 		if (matData.GetIntegerParameter(MaterialData::DepthFunc, &iValue))
 			SetDepthFunc(static_cast<RendererComparison>(iValue));
 
@@ -181,9 +184,6 @@ namespace Nz
 
 		if (matData.GetIntegerParameter(MaterialData::DstBlend, &iValue))
 			SetDstBlend(static_cast<BlendFunc>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::FaceCulling, &iValue))
-			SetFaceCulling(static_cast<FaceSide>(iValue));
 
 		if (matData.GetIntegerParameter(MaterialData::FaceFilling, &iValue))
 			SetFaceFilling(static_cast<FaceFilling>(iValue));
