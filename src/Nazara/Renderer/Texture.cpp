@@ -582,6 +582,9 @@ namespace Nz
 			}
 		}
 
+		// Keep resource path info
+		SetFilePath(image.GetFilePath());
+
 		destroyOnExit.Reset();
 
 		return true;
