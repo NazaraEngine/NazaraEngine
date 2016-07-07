@@ -17,7 +17,6 @@
 #include <Nazara/Vulkan/VkCommandPool.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkFramebuffer.hpp>
-#include <Nazara/Vulkan/VkRenderPass.hpp>
 #include <Nazara/Vulkan/VkSemaphore.hpp>
 #include <Nazara/Vulkan/VkSurface.hpp>
 #include <Nazara/Vulkan/VkSwapchain.hpp>
@@ -75,7 +74,6 @@ namespace Nz
 			Vk::CommandPool m_cmdPool;
 			Vk::DeviceHandle m_device;
 			Vk::Queue m_presentQueue;
-			Vk::RenderPass m_renderPass;
 			Vk::Semaphore m_imageReadySemaphore;
 			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;

@@ -11,6 +11,7 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkFrameBuffer.hpp>
+#include <Nazara/Vulkan/VkRenderPass.hpp>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 
@@ -30,6 +31,8 @@ namespace Nz
 
 			virtual bool Acquire(const Vk::Framebuffer** framebuffer) const = 0;
 
+			const Vk::RenderPass& GetRenderPass() const { return m_renderPass; }
+
 			virtual void Present() = 0;
 
 			RenderTarget& operator=(const RenderTarget&) = delete;
@@ -38,6 +41,9 @@ namespace Nz
 			// Signals:
 			NazaraSignal(OnRenderTargetRelease,	const RenderTarget* /*renderTarget*/);
 			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/);
+
+		protected:
+			Vk::RenderPass m_renderPass;
 	};
 }
 
