@@ -363,6 +363,148 @@ namespace Nz
 		return true;
 	}
 
+	bool OBJParser::Save(Stream& stream) const
+	{
+		m_currentStream = &stream;
+
+		// Force stream in text mode, reset it at the end
+		Nz::CallOnExit resetTextMode;
+		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		{
+			stream.EnableTextMode(true);
+
+			resetTextMode.Reset([&stream] ()
+			{
+				stream.EnableTextMode(false);
+			});
+		}
+
+		m_outputStream.Clear();
+
+		EmitLine("# Exported by Nazara Engine");
+
+		if (!m_mtlLib.IsEmpty())
+		{
+			Emit("mtlib ");
+			EmitLine(m_mtlLib);
+			EmitLine();
+		}
+
+		Emit("# position count: ");
+		EmitLine(m_positions.size());
+
+		for (const Nz::Vector4f& position : m_positions)
+		{
+			Emit("v ");
+			Emit(position.x);
+			Emit(' ');
+			Emit(position.y);
+			if (!NumberEquals(position.z, 0.f) || !NumberEquals(position.w, 1.f))
+			{
+				Emit(' ');
+				Emit(position.z);
+
+				if (!NumberEquals(position.w, 1.f))
+				{
+					Emit(' ');
+					Emit(position.w);
+				}
+			}
+			EmitLine();
+		}
+		EmitLine();
+
+		Emit("# normal count: ");
+		EmitLine(m_normals.size());
+
+		for (const Nz::Vector3f& normal : m_normals)
+		{
+			Emit("vn ");
+			Emit(normal.x);
+			Emit(' ');
+			Emit(normal.y);
+			Emit(' ');
+			Emit(normal.y);
+			EmitLine();
+		}
+		EmitLine();
+
+		Emit("# texcoords count: ");
+		EmitLine(m_texCoords.size());
+
+		for (const Nz::Vector3f& uvw : m_texCoords)
+		{
+			Emit("vt ");
+			Emit(uvw.x);
+			Emit(' ');
+			Emit(uvw.y);
+			if (NumberEquals(uvw.z, 0.f))
+			{
+				Emit(' ');
+				Emit(uvw.z);
+			}
+			EmitLine();
+		}
+		EmitLine();
+
+		std::unordered_map<std::size_t /* mesh */, std::vector<std::size_t> /* meshes*/> meshesByMaterials;
+		std::size_t meshIndex = 0;
+		for (const Mesh& mesh : m_meshes)
+			meshesByMaterials[mesh.material].push_back(meshIndex++);
+
+		for (auto& pair : meshesByMaterials)
+		{
+			Emit("usemtl ");
+			EmitLine(m_materials[pair.first]);
+			Emit("# groups count: ");
+			EmitLine(pair.second.size());
+			EmitLine();
+
+			for (std::size_t meshIndex : pair.second)
+			{
+				const Mesh& mesh = m_meshes[meshIndex];
+
+				Emit("g ");
+				EmitLine(mesh.name);
+				EmitLine();
+				
+				Emit("# face count: ");
+				EmitLine(mesh.faces.size());
+				Emit("# vertex count: ");
+				EmitLine(mesh.vertices.size());
+				
+				for (const Face& face : mesh.faces)
+				{
+					Emit('f');
+					for (std::size_t i = 0; i < face.vertexCount; ++i)
+					{
+						Emit(' ');
+						const FaceVertex& faceVertex = mesh.vertices[face.firstVertex + i];
+						Emit(faceVertex.position);
+						if (faceVertex.texCoord != 0 || faceVertex.normal != 0)
+						{
+							Emit('/');
+							if (faceVertex.texCoord != 0)
+								Emit(faceVertex.texCoord);
+
+							if (faceVertex.normal != 0)
+							{
+								Emit('/');
+								Emit(faceVertex.normal);
+							}
+						}
+					}
+					EmitLine();
+				}
+			}
+			EmitLine();
+		}
+
+		Flush();
+
+		return true;
+	}
+
 	bool OBJParser::Advance(bool required)
 	{
 		if (!m_keepLastLine)
