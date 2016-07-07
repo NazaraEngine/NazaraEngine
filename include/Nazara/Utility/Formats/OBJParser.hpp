@@ -58,6 +58,8 @@ namespace Nz
 
 			bool Parse(Stream& stream, std::size_t reservedVertexCount = 100);
 
+			bool Save(Stream& stream) const;
+
 		private:
 			bool Advance(bool required = true);
 			template<typename T> void Emit(const T& text) const;
