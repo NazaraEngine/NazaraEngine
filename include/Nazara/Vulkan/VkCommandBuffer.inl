@@ -123,6 +123,21 @@ namespace Nz
 			return Begin(beginInfo);
 		}
 
+		inline void CommandBuffer::BeginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents contents)
+		{
+			return m_pool->GetDevice()->vkCmdBeginRenderPass(m_handle, &beginInfo, contents);
+		}
+
+		inline void CommandBuffer::BindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
+		{
+			return m_pool->GetDevice()->vkCmdBindPipeline(m_handle, pipelineBindPoint, pipeline);
+		}
+
+		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
+		{
+			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);
+		}
+
 		inline bool CommandBuffer::End()
 		{
 			m_lastErrorCode = m_pool->GetDevice()->vkEndCommandBuffer(m_handle);
@@ -133,6 +148,11 @@ namespace Nz
 			}
 
 			return true;
+		}
+
+		inline void CommandBuffer::EndRenderPass()
+		{
+			return m_pool->GetDevice()->vkCmdEndRenderPass(m_handle);
 		}
 
 		inline void CommandBuffer::Free()
@@ -153,7 +173,51 @@ namespace Nz
 
 		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers)
 		{
-			m_pool->GetDevice()->vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers, bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount, imageMemoryBarriers);
+			return m_pool->GetDevice()->vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers, bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount, imageMemoryBarriers);
+		}
+
+		inline void CommandBuffer::SetScissor(const Recti& scissorRegion)
+		{
+			VkRect2D rect = {
+				{scissorRegion.x, scissorRegion.y},         // VkOffset2D    offset
+				{scissorRegion.width, scissorRegion.height} // VkExtent2D    extent
+			};
+
+			SetScissor(rect);
+		}
+
+		inline void CommandBuffer::SetScissor(const VkRect2D& scissorRegion)
+		{
+			return SetScissor(0, 1, &scissorRegion);
+		}
+
+		inline void CommandBuffer::SetScissor(UInt32 firstScissor, UInt32 scissorCount, const VkRect2D* scissors)
+		{
+			return m_pool->GetDevice()->vkCmdSetScissor(m_handle, firstScissor, scissorCount, scissors);
+		}
+
+		inline void CommandBuffer::SetViewport(const Rectf& viewport, float minDepth, float maxDepth)
+		{
+			VkViewport rect = {
+				viewport.x,      // float    x;
+				viewport.y,      // float    y;
+				viewport.width,  // float    width;
+				viewport.height, // float    height;
+				minDepth,        // float    minDepth;
+				maxDepth         // float    maxDepth;
+			};
+
+			SetViewport(rect);
+		}
+
+		inline void CommandBuffer::SetViewport(const VkViewport& viewport)
+		{
+			return SetViewport(0, 1, &viewport);
+		}
+
+		inline void CommandBuffer::SetViewport(UInt32 firstViewport, UInt32 viewportCount, const VkViewport* viewports)
+		{
+			return m_pool->GetDevice()->vkCmdSetViewport(m_handle, firstViewport, viewportCount, viewports);
 		}
 
 		inline VkResult CommandBuffer::GetLastErrorCode() const
