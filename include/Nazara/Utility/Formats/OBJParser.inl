@@ -63,10 +63,35 @@ namespace Nz
 		return m_texCoords.size();
 	}
 
+	template<typename T>
+	void OBJParser::Emit(const T& text) const
+	{
+		m_outputStream << text;
+		if (m_outputStream.GetBufferSize() > 1024 * 1024)
+			Flush();
+	}
+
+	inline void OBJParser::EmitLine() const
+	{
+		Emit('\n');
+	}
+
+	template<typename T>
+	void OBJParser::EmitLine(const T& line) const
+	{
+		Emit(line);
+		Emit('\n');
+	}
 
 	inline void OBJParser::Error(const String& message)
 	{
 		NazaraError(message + " at line #" + String::Number(m_lineCount));
+	}
+
+	inline void OBJParser::Flush() const
+	{
+		m_currentStream->Write(m_outputStream);
+		m_outputStream.Clear();
 	}
 
 	inline void OBJParser::Warning(const String& message)
