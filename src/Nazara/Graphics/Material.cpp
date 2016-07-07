@@ -170,6 +170,9 @@ namespace Nz
 		if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
 			SetAmbientColor(color);
 
+		if (matData.GetIntegerParameter(MaterialData::CullingSide, &iValue))
+			SetFaceCulling(static_cast<FaceSide>(iValue));
+
 		if (matData.GetIntegerParameter(MaterialData::DepthFunc, &iValue))
 			SetDepthFunc(static_cast<RendererComparison>(iValue));
 
@@ -181,9 +184,6 @@ namespace Nz
 
 		if (matData.GetIntegerParameter(MaterialData::DstBlend, &iValue))
 			SetDstBlend(static_cast<BlendFunc>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::FaceCulling, &iValue))
-			SetFaceCulling(static_cast<FaceSide>(iValue));
 
 		if (matData.GetIntegerParameter(MaterialData::FaceFilling, &iValue))
 			SetFaceFilling(static_cast<FaceFilling>(iValue));
@@ -310,10 +310,108 @@ namespace Nz
 		SetShader(matParams.shaderName);
 	}
 
+	void Material::SaveToParameters(ParameterList* matData)
+	{
+		NazaraAssert(matData, "Invalid ParameterList");
+
+		matData->SetParameter(MaterialData::AlphaTest, IsAlphaTestEnabled());
+		matData->SetParameter(MaterialData::AlphaThreshold, GetAlphaThreshold());
+		matData->SetParameter(MaterialData::AmbientColor, GetAmbientColor());
+		matData->SetParameter(MaterialData::CullingSide, int(GetFaceCulling()));
+		matData->SetParameter(MaterialData::DepthFunc, int(GetDepthFunc()));
+		matData->SetParameter(MaterialData::DepthSorting, IsDepthSortingEnabled());
+		matData->SetParameter(MaterialData::DiffuseColor, GetDiffuseColor());
+		matData->SetParameter(MaterialData::DstBlend, int(GetDstBlend()));
+		matData->SetParameter(MaterialData::FaceFilling, int(GetFaceFilling()));
+		matData->SetParameter(MaterialData::Lighting, IsLightingEnabled());
+		matData->SetParameter(MaterialData::LineWidth, GetRenderStates().lineWidth);
+		matData->SetParameter(MaterialData::PointSize, GetRenderStates().pointSize);
+		matData->SetParameter(MaterialData::Shininess, GetShininess());
+		matData->SetParameter(MaterialData::SpecularColor, GetSpecularColor());
+		matData->SetParameter(MaterialData::SrcBlend, int(GetSrcBlend()));
+		matData->SetParameter(MaterialData::Transform, IsTransformEnabled());
+
+		// RendererParameter
+		matData->SetParameter(MaterialData::Blending, GetRenderStates().parameters[RendererParameter_Blend]);
+		matData->SetParameter(MaterialData::ColorWrite, GetRenderStates().parameters[RendererParameter_ColorWrite]);
+		matData->SetParameter(MaterialData::DepthBuffer, GetRenderStates().parameters[RendererParameter_DepthBuffer]);
+		matData->SetParameter(MaterialData::DepthWrite, GetRenderStates().parameters[RendererParameter_DepthWrite]);
+		matData->SetParameter(MaterialData::FaceCulling, GetRenderStates().parameters[RendererParameter_FaceCulling]);
+		matData->SetParameter(MaterialData::ScissorTest, GetRenderStates().parameters[RendererParameter_ScissorTest]);
+		matData->SetParameter(MaterialData::StencilTest, GetRenderStates().parameters[RendererParameter_StencilTest]);
+
+		// Samplers
+		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, int(GetDiffuseSampler().GetAnisotropicLevel()));
+		matData->SetParameter(MaterialData::DiffuseFilter, int(GetDiffuseSampler().GetFilterMode()));
+		matData->SetParameter(MaterialData::DiffuseWrap, int(GetDiffuseSampler().GetWrapMode()));
+
+		matData->SetParameter(MaterialData::SpecularAnisotropyLevel, int(GetSpecularSampler().GetAnisotropicLevel()));
+		matData->SetParameter(MaterialData::SpecularFilter, int(GetSpecularSampler().GetFilterMode()));
+		matData->SetParameter(MaterialData::SpecularWrap, int(GetSpecularSampler().GetWrapMode()));
+
+		// Stencil
+		matData->SetParameter(MaterialData::StencilCompare, int(GetRenderStates().frontFace.stencilCompare));
+		matData->SetParameter(MaterialData::StencilFail, int(GetRenderStates().frontFace.stencilFail));
+		matData->SetParameter(MaterialData::StencilPass, int(GetRenderStates().frontFace.stencilPass));
+		matData->SetParameter(MaterialData::StencilZFail, int(GetRenderStates().frontFace.stencilZFail));
+		matData->SetParameter(MaterialData::StencilMask, int(GetRenderStates().frontFace.stencilMask));
+		matData->SetParameter(MaterialData::StencilReference, int(GetRenderStates().frontFace.stencilReference));
+
+		// Stencil (back)
+		matData->SetParameter(MaterialData::BackFaceStencilCompare, int(GetRenderStates().backFace.stencilCompare));
+		matData->SetParameter(MaterialData::BackFaceStencilFail, int(GetRenderStates().backFace.stencilFail));
+		matData->SetParameter(MaterialData::BackFaceStencilPass, int(GetRenderStates().backFace.stencilPass));
+		matData->SetParameter(MaterialData::BackFaceStencilZFail, int(GetRenderStates().backFace.stencilZFail));
+		matData->SetParameter(MaterialData::BackFaceStencilMask, int(GetRenderStates().backFace.stencilMask));
+		matData->SetParameter(MaterialData::BackFaceStencilReference, int(GetRenderStates().backFace.stencilReference));
+
+		// Textures
+		if (HasAlphaMap())
+		{
+			const String& path = GetAlphaMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::AlphaTexturePath, path);
+		}
+
+		if (HasDiffuseMap())
+		{
+			const String& path = GetDiffuseMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::DiffuseTexturePath, path);
+		}
+
+		if (HasEmissiveMap())
+		{
+			const String& path = GetEmissiveMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::EmissiveTexturePath, path);
+		}
+
+		if (HasHeightMap())
+		{
+			const String& path = GetHeightMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::HeightTexturePath, path);
+		}
+
+		if (HasNormalMap())
+		{
+			const String& path = GetNormalMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::NormalTexturePath, path);
+		}
+
+		if (HasSpecularMap())
+		{
+			const String& path = GetSpecularMap()->GetFilePath();
+			if (!path.IsEmpty())
+				matData->SetParameter(MaterialData::SpecularTexturePath, path);
+		}
+	}
+
 	/*!
 	* \brief Resets the material, cleans everything
 	*/
-
 	void Material::Reset()
 	{
 		OnMaterialReset(this);

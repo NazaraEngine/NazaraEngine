@@ -211,7 +211,7 @@ namespace Nz
 	*/
 
 	String::String(const std::string& string) :
-	String(string.c_str(), string.size())
+	String(string.data(), string.size())
 	{
 	}
 
