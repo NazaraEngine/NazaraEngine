@@ -148,6 +148,7 @@ namespace Nz
 			static MeshLoader::LoaderList s_loaders;
 			static MeshManager::ManagerMap s_managerMap;
 			static MeshManager::ManagerParams s_managerParameters;
+			static MeshSaver::SaverList s_savers;
 	};
 }
 
