@@ -79,6 +79,20 @@ namespace Ndk
 			UpdateTransformMatrix();
 	}
 
+	inline void GraphicsComponent::GetAttachedRenderables(RenderableList* renderables) const
+	{
+		NazaraAssert(renderables, "Invalid renderable list");
+
+		renderables->reserve(renderables->size() + m_renderables.size());
+		for (const Renderable& r : m_renderables)
+			renderables->push_back(r.renderable);
+	}
+
+	inline std::size_t GraphicsComponent::GetAttachedRenderableCount() const
+	{
+		return m_renderables.size();
+	}
+
 	inline const Nz::BoundingVolumef& GraphicsComponent::GetBoundingVolume() const
 	{
 		EnsureBoundingVolumeUpdate();

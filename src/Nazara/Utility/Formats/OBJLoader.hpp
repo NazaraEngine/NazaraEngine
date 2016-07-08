@@ -13,8 +13,8 @@ namespace Nz
 {
 	namespace Loaders
 	{
-		void RegisterOBJ();
-		void UnregisterOBJ();
+		void RegisterOBJLoader();
+		void UnregisterOBJLoader();
 	}
 }
 
