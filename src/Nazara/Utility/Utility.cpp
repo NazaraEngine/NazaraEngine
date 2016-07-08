@@ -124,7 +124,7 @@ namespace Nz
 		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
 
 		// Mesh (text)
-		Loaders::RegisterOBJ();
+		Loaders::RegisterOBJLoader();
 
 		// Mesh
 		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
@@ -162,7 +162,7 @@ namespace Nz
 		Loaders::UnregisterMD2();
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
-		Loaders::UnregisterOBJ();
+		Loaders::UnregisterOBJLoader();
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
