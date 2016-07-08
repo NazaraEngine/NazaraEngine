@@ -23,6 +23,8 @@ namespace Ndk
 		friend class RenderSystem;
 
 		public:
+			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
+
 			GraphicsComponent() = default;
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
@@ -37,6 +39,9 @@ namespace Ndk
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
+
+			inline void GetAttachedRenderables(RenderableList* renderables) const;
+			inline std::size_t GetAttachedRenderableCount() const;
 
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
