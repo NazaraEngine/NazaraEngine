@@ -20,17 +20,53 @@ namespace Nz
 	class NAZARA_UTILITY_API OBJParser
 	{
 		public:
-			struct FaceVertex
-			{
-				int normal;
-				int position;
-				int texCoord;
-			};
+			struct Face;
+			struct FaceVertex;
+			struct Mesh;
+
+			OBJParser() = default;
+			~OBJParser() = default;
+
+			inline void Clear();
+
+			inline String* GetMaterials();
+			inline const String* GetMaterials() const;
+			inline unsigned int GetMaterialCount() const;
+			inline Mesh* GetMeshes();
+			inline const Mesh* GetMeshes() const;
+			inline unsigned int GetMeshCount() const;
+			inline const String& GetMtlLib() const;
+			inline Vector3f* GetNormals();
+			inline const Vector3f* GetNormals() const;
+			inline unsigned int GetNormalCount() const;
+			inline Vector4f* GetPositions();
+			inline const Vector4f* GetPositions() const;
+			inline unsigned int GetPositionCount() const;
+			inline Vector3f* GetTexCoords();
+			inline const Vector3f* GetTexCoords() const;
+			inline unsigned int GetTexCoordCount() const;
+
+			bool Parse(Stream& stream, std::size_t reservedVertexCount = 100);
+
+			bool Save(Stream& stream) const;
+
+			inline String* SetMaterialCount(std::size_t materialCount);
+			inline Mesh* SetMeshCount(std::size_t meshCount);
+			inline Vector3f* SetNormalCount(std::size_t normalCount);
+			inline Vector4f* SetPositionCount(std::size_t positionCount);
+			inline Vector3f* SetTexCoordCount(std::size_t texCoordCount);
 
 			struct Face
 			{
 				std::size_t firstVertex;
 				std::size_t vertexCount;
+			};
+
+			struct FaceVertex
+			{
+				std::size_t normal;
+				std::size_t position;
+				std::size_t texCoord;
 			};
 
 			struct Mesh
@@ -40,25 +76,6 @@ namespace Nz
 				String name;
 				std::size_t material;
 			};
-
-			OBJParser() = default;
-			~OBJParser() = default;
-
-			inline const String* GetMaterials() const;
-			inline unsigned int GetMaterialCount() const;
-			inline const Mesh* GetMeshes() const;
-			inline unsigned int GetMeshCount() const;
-			inline const String& GetMtlLib() const;
-			inline const Vector3f* GetNormals() const;
-			inline unsigned int GetNormalCount() const;
-			inline const Vector4f* GetPositions() const;
-			inline unsigned int GetPositionCount() const;
-			inline const Vector3f* GetTexCoords() const;
-			inline unsigned int GetTexCoordCount() const;
-
-			bool Parse(Stream& stream, std::size_t reservedVertexCount = 100);
-
-			bool Save(Stream& stream) const;
 
 		private:
 			bool Advance(bool required = true);
