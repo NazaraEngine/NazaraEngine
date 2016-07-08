@@ -17,12 +17,19 @@ namespace Nz
 		m_triangleIndices[1] = m_indexMapper.Get(1);
 		m_triangleIndices[2] = m_indexMapper.Get(2);
 
-		m_indexCount = indexBuffer->GetIndexCount();
+		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
-	TriangleIterator::TriangleIterator(SubMesh* subMesh) :
-	TriangleIterator(subMesh->GetPrimitiveMode(), subMesh->GetIndexBuffer())
+	TriangleIterator::TriangleIterator(const SubMesh* subMesh) :
+	m_primitiveMode(subMesh->GetPrimitiveMode()),
+	m_indexMapper(subMesh, BufferAccess_ReadOnly)
 	{
+		m_currentIndex = 3;
+		m_triangleIndices[0] = m_indexMapper.Get(0);
+		m_triangleIndices[1] = m_indexMapper.Get(1);
+		m_triangleIndices[2] = m_indexMapper.Get(2);
+
+		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
 	bool TriangleIterator::Advance()
