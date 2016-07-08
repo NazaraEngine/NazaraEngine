@@ -12,6 +12,7 @@
 #include <Nazara/Vulkan/Config.hpp>
 #include <Nazara/Vulkan/VkFrameBuffer.hpp>
 #include <Nazara/Vulkan/VkRenderPass.hpp>
+#include <Nazara/Vulkan/VkSemaphore.hpp>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 
@@ -29,11 +30,19 @@ namespace Nz
 			RenderTarget(RenderTarget&&) = delete; ///TOOD?
 			virtual ~RenderTarget();
 
-			virtual bool Acquire(const Vk::Framebuffer** framebuffer) const = 0;
+			virtual bool Acquire(UInt32* imageIndex) const = 0;
+
+			virtual void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) = 0;
+			virtual void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) = 0;
+
+			virtual const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const = 0;
+			virtual UInt32 GetFramebufferCount() const = 0;
 
 			const Vk::RenderPass& GetRenderPass() const { return m_renderPass; }
 
-			virtual void Present() = 0;
+			const Vk::Semaphore& GetRenderSemaphore() const { return m_imageReadySemaphore; }
+
+			virtual void Present(UInt32 imageIndex) = 0;
 
 			RenderTarget& operator=(const RenderTarget&) = delete;
 			RenderTarget& operator=(RenderTarget&&) = delete; ///TOOD?
@@ -44,6 +53,7 @@ namespace Nz
 
 		protected:
 			Vk::RenderPass m_renderPass;
+			Vk::Semaphore m_imageReadySemaphore;
 	};
 }
 
