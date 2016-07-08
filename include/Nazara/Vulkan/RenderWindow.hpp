@@ -17,7 +17,6 @@
 #include <Nazara/Vulkan/VkCommandPool.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkFramebuffer.hpp>
-#include <Nazara/Vulkan/VkSemaphore.hpp>
 #include <Nazara/Vulkan/VkSurface.hpp>
 #include <Nazara/Vulkan/VkSwapchain.hpp>
 #include <Nazara/Utility/Window.hpp>
@@ -35,7 +34,14 @@ namespace Nz
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();
 
-			bool Acquire(const Vk::Framebuffer** framebuffer) const override;
+			bool Acquire(UInt32* index) const override;
+
+			void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
+			void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
+
+			const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
+
+			UInt32 GetFramebufferCount() const;
 
 			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
 			bool Create(WindowHandle handle);
@@ -45,7 +51,7 @@ namespace Nz
 			const Vk::Surface& GetSurface() const;
 			const Vk::Swapchain& GetSwapchain() const;
 
-			void Present() override;
+			void Present(UInt32 imageIndex) override;
 
 			bool IsValid() const;
 
@@ -59,25 +65,20 @@ namespace Nz
 			void OnWindowDestroy() override;
 			void OnWindowResized() override;
 
-			bool SetupRenderPass(VkFormat colorFormat, VkFormat depthFormat);
-
-			struct ImageData
-			{
-				Vk::CommandBuffer drawToPresentCmd;
-				Vk::CommandBuffer presentToDrawCmd;
-				Vk::Framebuffer frameBuffer;
-			};
+			bool SetupCommandBuffers();
+			bool SetupRenderPass();
+			bool SetupSwapchain();
 
 			Clock m_clock;
+			VkFormat m_colorFormat;
+			VkFormat m_depthFormat;
+			VkColorSpaceKHR m_colorSpace;
 			VkPhysicalDevice m_forcedPhysicalDevice;
-			std::vector<ImageData> m_images;
-			Vk::CommandPool m_cmdPool;
+			std::vector<Vk::Framebuffer> m_frameBuffers;
 			Vk::DeviceHandle m_device;
 			Vk::Queue m_presentQueue;
-			Vk::Semaphore m_imageReadySemaphore;
 			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
-			mutable UInt32 m_lastImageAcquired;
 			UInt32 m_presentableFamilyQueue;
 	};
 }
