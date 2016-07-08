@@ -56,11 +56,17 @@ namespace Nz
 		template<typename C, typename VkType, typename CreateInfo>
 		inline void DeviceObject<C, VkType, CreateInfo>::Destroy()
 		{
-			if (m_handle != VK_NULL_HANDLE)
+			if (IsValid())
 			{
 				C::DestroyHelper(m_device, m_handle, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 				m_handle = VK_NULL_HANDLE;
 			}
+		}
+
+		template<typename C, typename VkType, typename CreateInfo>
+		inline bool DeviceObject<C, VkType, CreateInfo>::IsValid() const
+		{
+			return m_handle != VK_NULL_HANDLE;
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
@@ -84,3 +90,4 @@ namespace Nz
 }
 
 #include <Nazara/Vulkan/DebugOff.hpp>
+#include "VkDeviceObject.hpp"
