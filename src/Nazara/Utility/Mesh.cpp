@@ -697,4 +697,5 @@ namespace Nz
 	MeshLoader::LoaderList Mesh::s_loaders;
 	MeshManager::ManagerMap Mesh::s_managerMap;
 	MeshManager::ManagerParams Mesh::s_managerParameters;
+	MeshSaver::SaverList Mesh::s_savers;
 }
