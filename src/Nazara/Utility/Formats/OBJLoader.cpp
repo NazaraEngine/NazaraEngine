@@ -298,12 +298,12 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterOBJ()
+		void RegisterOBJLoader()
 		{
 			MeshLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		void UnregisterOBJ()
+		void UnregisterOBJLoader()
 		{
 			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
 		}
