@@ -59,6 +59,7 @@ namespace Nz
 		s_initializationParameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);
 		s_initializationParameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);
 
+		bool bParam;
 		int iParam;
 
 		if (s_initializationParameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
@@ -88,7 +89,29 @@ namespace Nz
 		std::vector<const char*> enabledLayers;
 		std::vector<const char*> enabledExtensions;
 
-		bool bParam;
+		if (!s_initializationParameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
+		{
+			//< Nazara default layers goes here
+		}
+
+		std::vector<String> additionalLayers; // Just to keep the String alive
+		if (s_initializationParameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
+		{
+			additionalLayers.reserve(iParam);
+			for (int i = 0; i < iParam; ++i)
+			{
+				Nz::String parameterName = "VkInstanceInfo_EnabledLayer" + String::Number(i);
+				Nz::String layer;
+				if (s_initializationParameters.GetStringParameter(parameterName, &layer))
+				{
+					additionalLayers.emplace_back(std::move(layer));
+					enabledLayers.push_back(additionalLayers.back().GetConstBuffer());
+				}
+				else
+					NazaraWarning("Parameter " + parameterName + " expected");
+			}
+		}
+
 		if (!s_initializationParameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
 		{
 			enabledExtensions.push_back("VK_KHR_surface");
@@ -121,6 +144,7 @@ namespace Nz
 		std::vector<String> additionalExtensions; // Just to keep the String alive
 		if (s_initializationParameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount", &iParam))
 		{
+			additionalExtensions.reserve(iParam);
 			for (int i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkInstanceInfo_EnabledExtension" + String::Number(i);
@@ -242,21 +266,29 @@ namespace Nz
 		}
 
 		std::array<UInt32, 3> usedQueueFamilies = {graphicsQueueNodeIndex, presentQueueNodeIndex, transfertQueueNodeFamily};
-		float priority = 1.f;
+		std::array<float, 3>  priorities = {1.f, 1.f, 1.f};
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		for (UInt32 queueFamily : usedQueueFamilies)
 		{
-			VkDeviceQueueCreateInfo createInfo = {
-				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-				nullptr,
-				0,
-				queueFamily,
-				1,
-				&priority
-			};
+			auto it = std::find_if(queueCreateInfos.begin(), queueCreateInfos.end(), [queueFamily] (const VkDeviceQueueCreateInfo& createInfo)
+			{
+				return createInfo.queueFamilyIndex == queueFamily;
+			});
 
-			queueCreateInfos.emplace_back(createInfo);
+			if (it == queueCreateInfos.end())
+			{
+				VkDeviceQueueCreateInfo createInfo = {
+								VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // VkStructureType             sType;
+								nullptr,                                    // const void*                 pNext;
+								0,                                          // VkDeviceQueueCreateFlags    flags;
+								queueFamily,                                // uint32_t                    queueFamilyIndex;
+								1,                                          // uint32_t                    queueCount;
+								priorities.data()                           // const float*                pQueuePriorities;
+				};
+
+				queueCreateInfos.emplace_back(createInfo);
+			}
 		}
 
 
@@ -264,10 +296,34 @@ namespace Nz
 		std::vector<const char*> enabledExtensions;
 
 		bool bParam;
+		int iParam;
+
+		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledLayers", &bParam) || !bParam)
+		{
+			//< Nazara default layers goes here
+		}
+
+		std::vector<String> additionalLayers; // Just to keep the String alive
+		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledLayerCount", &iParam))
+		{
+			additionalLayers.reserve(iParam);
+			for (int i = 0; i < iParam; ++i)
+			{
+				Nz::String parameterName = "VkDeviceInfo_EnabledLayer" + String::Number(i);
+				Nz::String layer;
+				if (s_initializationParameters.GetStringParameter(parameterName, &layer))
+				{
+					additionalLayers.emplace_back(std::move(layer));
+					enabledLayers.push_back(additionalLayers.back().GetConstBuffer());
+				}
+				else
+					NazaraWarning("Parameter " + parameterName + " expected");
+			}
+		}
+
 		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
 			enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-		int iParam;
 		std::vector<String> additionalExtensions; // Just to keep the String alive
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
 		{
