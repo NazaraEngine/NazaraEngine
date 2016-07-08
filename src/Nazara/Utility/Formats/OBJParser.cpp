@@ -125,9 +125,9 @@ namespace Nz
 					for (unsigned int i = 0; i < vertexCount; ++i)
 					{
 						int offset;
-						int& n = currentMesh->vertices[face.firstVertex + i].normal;
-						int& p = currentMesh->vertices[face.firstVertex + i].position;
-						int& t = currentMesh->vertices[face.firstVertex + i].texCoord;
+						int n = 0;
+						int p = 0;
+						int t = 0;
 
 						if (std::sscanf(&m_currentLine[pos], "%d/%d/%d%n", &p, &t, &n, &offset) != 3)
 						{
@@ -198,6 +198,10 @@ namespace Nz
 							error = true;
 							break;
 						}
+
+						currentMesh->vertices[face.firstVertex + i].normal = static_cast<std::size_t>(n);
+						currentMesh->vertices[face.firstVertex + i].position = static_cast<std::size_t>(p);
+						currentMesh->vertices[face.firstVertex + i].texCoord = static_cast<std::size_t>(t);
 
 						pos += offset;
 					}

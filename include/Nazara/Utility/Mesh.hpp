@@ -16,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -61,6 +62,7 @@ namespace Nz
 	using MeshLoader = ResourceLoader<Mesh, MeshParams>;
 	using MeshManager = ResourceManager<Mesh, MeshParams>;
 	using MeshRef = ObjectRef<Mesh>;
+	using MeshSaver = ResourceSaver<Mesh, MeshParams>;
 
 	struct MeshImpl;
 
