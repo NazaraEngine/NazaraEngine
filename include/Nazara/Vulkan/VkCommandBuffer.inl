@@ -179,8 +179,8 @@ namespace Nz
 		inline void CommandBuffer::SetScissor(const Recti& scissorRegion)
 		{
 			VkRect2D rect = {
-				{scissorRegion.x, scissorRegion.y},         // VkOffset2D    offset
-				{scissorRegion.width, scissorRegion.height} // VkExtent2D    extent
+				{scissorRegion.x, scissorRegion.y},                         // VkOffset2D    offset
+				{UInt32(scissorRegion.width), UInt32(scissorRegion.height)} // VkExtent2D    extent
 			};
 
 			SetScissor(rect);
