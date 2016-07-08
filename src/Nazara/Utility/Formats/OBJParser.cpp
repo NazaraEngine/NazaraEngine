@@ -125,9 +125,9 @@ namespace Nz
 					for (unsigned int i = 0; i < vertexCount; ++i)
 					{
 						int offset;
-						int n = 0;
-						int p = 0;
-						int t = 0;
+						std::size_t n = 0;
+						std::size_t p = 0;
+						std::size_t t = 0;
 
 						if (std::sscanf(&m_currentLine[pos], "%d/%d/%d%n", &p, &t, &n, &offset) != 3)
 						{
