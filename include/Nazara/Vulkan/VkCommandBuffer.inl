@@ -196,6 +196,112 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdSetScissor(m_handle, firstScissor, scissorCount, scissors);
 		}
 
+		inline void CommandBuffer::SetImageLayout(VkImage image, VkImageLayout oldImageLayout, VkImageLayout newImageLayout)
+		{
+			return SetImageLayout(image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, oldImageLayout, newImageLayout);
+		}
+
+		inline void CommandBuffer::SetImageLayout(VkImage image, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange)
+		{
+			return SetImageLayout(image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, oldImageLayout, newImageLayout, subresourceRange);
+		}
+
+		inline void CommandBuffer::SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout)
+		{
+			VkImageSubresourceRange imageRange = {
+				VK_IMAGE_ASPECT_COLOR_BIT, // VkImageAspectFlags                     aspectMask
+				0,                         // uint32_t                               baseMipLevel
+				1,                         // uint32_t                               levelCount
+				0,                         // uint32_t                               baseArrayLayer
+				1                          // uint32_t                               layerCount
+			};
+
+			return SetImageLayout(image, srcStageMask, dstStageMask, oldImageLayout, newImageLayout, imageRange);
+		}
+
+		inline void CommandBuffer::SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange)
+		{
+			VkAccessFlags srcAccessMask;
+			switch (oldImageLayout)
+			{
+				case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+					srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+					srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+					srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+					srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+					srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+					srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_PREINITIALIZED:
+					srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_GENERAL:
+				case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+				case VK_IMAGE_LAYOUT_UNDEFINED:
+				default:
+					srcAccessMask = 0;
+					break;
+			}
+
+			VkAccessFlags dstAccessMask;
+			switch (newImageLayout)
+			{
+				case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+					if (oldImageLayout != VK_IMAGE_LAYOUT_UNDEFINED)
+						srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+					dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+					dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+					if (srcAccessMask == 0)
+						srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+
+					dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+					dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+					srcAccessMask |= VK_ACCESS_TRANSFER_READ_BIT;
+					dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					break;
+				case VK_IMAGE_LAYOUT_GENERAL:
+				case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+				case VK_IMAGE_LAYOUT_UNDEFINED:
+				default:
+					dstAccessMask = 0;
+					break;
+			}
+
+			VkImageMemoryBarrier imageBarrier = {
+				VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // VkStructureType         sType
+				nullptr,                                // const void*             pNext
+				srcAccessMask,                          // VkAccessFlags           srcAccessMask
+				dstAccessMask,                          // VkAccessFlags           dstAccessMask
+				oldImageLayout,                         // VkImageLayout           oldLayout
+				newImageLayout,                         // VkImageLayout           newLayout
+				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                srcQueueFamilyIndex
+				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                dstQueueFamilyIndex
+				image,                                  // VkImage                 image
+				subresourceRange                        // VkImageSubresourceRange subresourceRange
+			};
+
+			return PipelineBarrier(srcStageMask, dstStageMask, 0, imageBarrier);
+		}
+
 		inline void CommandBuffer::SetViewport(const Rectf& viewport, float minDepth, float maxDepth)
 		{
 			VkViewport rect = {

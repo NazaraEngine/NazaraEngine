@@ -55,6 +55,11 @@ namespace Nz
 				inline void SetViewport(const VkViewport& viewport);
 				inline void SetViewport(UInt32 firstViewport, UInt32 viewportCount, const VkViewport* viewports);
 
+				inline void SetImageLayout(VkImage image, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
+				inline void SetImageLayout(VkImage image, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange);
+				inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
+				inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange);
+
 				inline VkResult GetLastErrorCode() const;
 
 				CommandBuffer& operator=(const CommandBuffer&) = delete;
