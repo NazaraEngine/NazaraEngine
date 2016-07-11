@@ -249,7 +249,7 @@ namespace Nz
 
 			case ParameterType_Integer:
 				*value = it->second.value.intVal;
-				return false;
+				return true;
 
 			case ParameterType_String:
 				{
