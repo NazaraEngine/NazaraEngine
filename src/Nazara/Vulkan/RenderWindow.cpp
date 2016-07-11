@@ -208,6 +208,7 @@ namespace Nz
 
 	void RenderWindow::OnWindowDestroy()
 	{
+		m_device->WaitForIdle();
 		m_frameBuffers.clear();
 		m_renderPass.Destroy();
 
