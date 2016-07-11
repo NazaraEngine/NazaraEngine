@@ -52,54 +52,12 @@ namespace Nz
 
 	void RenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
-		VkImageSubresourceRange imageRange = {
-			VK_IMAGE_ASPECT_COLOR_BIT, // VkImageAspectFlags                     aspectMask
-			0,                         // uint32_t                               baseMipLevel
-			1,                         // uint32_t                               levelCount
-			0,                         // uint32_t                               baseArrayLayer
-			1                          // uint32_t                               layerCount
-		};
-
-		VkImageMemoryBarrier presentToDrawBarrier = {
-			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // VkStructureType         sType
-			nullptr,                                  // const void*             pNext
-			0,                                        // VkAccessFlags           srcAccessMask
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,     // VkAccessFlags           dstAccessMask
-			VK_IMAGE_LAYOUT_UNDEFINED,                // VkImageLayout           oldLayout
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout           newLayout
-			VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                srcQueueFamilyIndex
-			VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                dstQueueFamilyIndex
-			m_swapchain.GetBuffer(imageIndex).image,  // VkImage                 image
-			imageRange                                // VkImageSubresourceRange subresourceRange
-		};
-
-		commandBuffer.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, presentToDrawBarrier);
+		commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	}
 
 	void RenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
-		VkImageSubresourceRange imageRange = {
-			VK_IMAGE_ASPECT_COLOR_BIT, // VkImageAspectFlags                     aspectMask
-			0,                         // uint32_t                               baseMipLevel
-			1,                         // uint32_t                               levelCount
-			0,                         // uint32_t                               baseArrayLayer
-			1                          // uint32_t                               layerCount
-		};
-
-		VkImageMemoryBarrier drawToPresentBarrier = {
-			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // VkStructureType         sType
-			nullptr,                                  // const void*             pNext
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,     // VkAccessFlags           srcAccessMask
-			0,                                        // VkAccessFlags           dstAccessMask
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout           oldLayout
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,          // VkImageLayout           newLayout
-			VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                srcQueueFamilyIndex
-			VK_QUEUE_FAMILY_IGNORED,                  // uint32_t                dstQueueFamilyIndex
-			m_swapchain.GetBuffer(imageIndex).image,  // VkImage                 image
-			imageRange                                // VkImageSubresourceRange subresourceRange
-		};
-
-		commandBuffer.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, drawToPresentBarrier);
+		commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
 	const Vk::Framebuffer& RenderWindow::GetFrameBuffer(UInt32 imageIndex) const
