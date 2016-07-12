@@ -386,10 +386,11 @@ namespace Nz
 		m_outputStream.Clear();
 
 		EmitLine("# Exported by Nazara Engine");
+		EmitLine();
 
 		if (!m_mtlLib.IsEmpty())
 		{
-			Emit("mtlib ");
+			Emit("mtllib ");
 			EmitLine(m_mtlLib);
 			EmitLine();
 		}
@@ -403,17 +404,15 @@ namespace Nz
 			Emit(position.x);
 			Emit(' ');
 			Emit(position.y);
-			if (!NumberEquals(position.z, 0.f) || !NumberEquals(position.w, 1.f))
+			Emit(' ');
+			Emit(position.z);
+
+			if (!NumberEquals(position.w, 1.f))
 			{
 				Emit(' ');
-				Emit(position.z);
-
-				if (!NumberEquals(position.w, 1.f))
-				{
-					Emit(' ');
-					Emit(position.w);
-				}
+				Emit(position.w);
 			}
+
 			EmitLine();
 		}
 		EmitLine();
