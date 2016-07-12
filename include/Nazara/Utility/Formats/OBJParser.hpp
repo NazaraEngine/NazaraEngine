@@ -52,6 +52,7 @@ namespace Nz
 
 			inline String* SetMaterialCount(std::size_t materialCount);
 			inline Mesh* SetMeshCount(std::size_t meshCount);
+			inline void SetMtlLib(const String& mtlLib);
 			inline Vector3f* SetNormalCount(std::size_t normalCount);
 			inline Vector4f* SetPositionCount(std::size_t positionCount);
 			inline Vector3f* SetTexCoordCount(std::size_t texCoordCount);
