@@ -30,6 +30,7 @@ m_faceFilling(Nz::FaceFilling_Fill)
 	addDockWidget(Qt::RightDockWidgetArea, m_materialsDock);
 
 	connect(m_materialList, &QListWidget::itemDoubleClicked, this, &EditorWindow::OnEditMaterial);
+	connect(m_materialList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnMaterialSelected);
 
 	m_submeshesDock = new QDockWidget("Submeshes", this);
 	m_submeshesDock->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -39,7 +40,7 @@ m_faceFilling(Nz::FaceFilling_Fill)
 	m_submeshesDock->setWidget(m_subMeshList);
 	addDockWidget(Qt::RightDockWidgetArea, m_submeshesDock);
 
-	connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshChanged);
+	connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
 
 	m_consoleDock = new QDockWidget("Console", this);
 	m_consoleDock->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -49,8 +50,6 @@ m_faceFilling(Nz::FaceFilling_Fill)
 
 	m_consoleDock->setWidget(m_textEdit);
 	addDockWidget(Qt::BottomDockWidgetArea, m_consoleDock);
-
-	connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshChanged);
 
 	m_materialEditor = new MaterialEditor(this);
 	addDockWidget(Qt::LeftDockWidgetArea, m_materialEditor);
@@ -166,7 +165,7 @@ void EditorWindow::SetModel(Nz::ModelRef model)
 	if (m_showNormalButton->isChecked())
 		m_modelWidget->ShowNormals(true);
 
-	OnSubmeshChanged();
+	OnSubmeshSelected();
 	UpdateFaceFilling();
 }
 
@@ -260,12 +259,42 @@ void EditorWindow::OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex
 	mat->BuildFromParameters(materialParameters);
 }
 
+void EditorWindow::OnMaterialSelected()
+{
+	auto selectedItems = m_materialList->selectedItems();
+
+	Nz::Bitset<> activeSubmeshes(m_model->GetMesh()->GetSubMeshCount(), false);
+	if (selectedItems.isEmpty())
+		activeSubmeshes.Set(true);
+	else
+	{
+		Nz::Mesh* mesh = m_model->GetMesh();
+		std::size_t submeshCount = mesh->GetSubMeshCount();
+		for (QListWidgetItem* item : selectedItems)
+		{
+			QVariant data = item->data(Qt::UserRole);
+			if (data.isNull())
+				activeSubmeshes.Set(true);
+			else
+			{
+				for (std::size_t i = 0; i < submeshCount; ++i)
+				{
+					if (mesh->GetSubMesh(i)->GetMaterialIndex() == data.toUInt())
+						activeSubmeshes.Set(i, true);
+				}
+			}
+		}
+	}
+
+	ShowSubmeshes(activeSubmeshes);
+}
+
 void EditorWindow::OnNormalToggled(bool active)
 {
 	m_modelWidget->ShowNormals(active);
 }
 
-void EditorWindow::OnSubmeshChanged()
+void EditorWindow::OnSubmeshSelected()
 {
 	auto selectedItems = m_subMeshList->selectedItems();
 

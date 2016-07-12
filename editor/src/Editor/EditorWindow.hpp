@@ -33,8 +33,9 @@ class EditorWindow : public QMainWindow
 		void OnFlipUVs();
 		void OnImport();
 		void OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters);
+		void OnMaterialSelected();
 		void OnNormalToggled(bool active);
-		void OnSubmeshChanged();
+		void OnSubmeshSelected();
 		void UpdateFaceFilling();
 
 		Nz::Bitset<> m_activeSubmeshes;
