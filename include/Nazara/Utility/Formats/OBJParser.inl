@@ -109,6 +109,11 @@ namespace Nz
 		return m_meshes.data();
 	}
 
+	inline void OBJParser::SetMtlLib(const String& mtlLib)
+	{
+		m_mtlLib = mtlLib;
+	}
+
 	inline Vector3f* OBJParser::SetNormalCount(std::size_t normalCount)
 	{
 		m_normals.resize(normalCount);
