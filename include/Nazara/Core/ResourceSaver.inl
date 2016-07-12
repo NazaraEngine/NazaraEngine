@@ -84,7 +84,7 @@ namespace Nz
 			}
 			else
 			{
-				if (!file.Open(OpenMode_WriteOnly))
+				if (!file.Open(OpenMode_WriteOnly | OpenMode_Truncate))
 				{
 					NazaraError("Failed to save to file: unable to open \"" + filePath + "\" in write mode");
 					return false;
