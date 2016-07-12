@@ -16,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -61,6 +62,7 @@ namespace Nz
 	using MeshLoader = ResourceLoader<Mesh, MeshParams>;
 	using MeshManager = ResourceManager<Mesh, MeshParams>;
 	using MeshRef = ObjectRef<Mesh>;
+	using MeshSaver = ResourceSaver<Mesh, MeshParams>;
 
 	struct MeshImpl;
 
@@ -69,6 +71,7 @@ namespace Nz
 		friend MeshLibrary;
 		friend MeshLoader;
 		friend MeshManager;
+		friend MeshSaver;
 		friend class Utility;
 
 		public:
@@ -124,6 +127,9 @@ namespace Nz
 			void RemoveSubMesh(const String& identifier);
 			void RemoveSubMesh(unsigned int index);
 
+			bool SaveToFile(const String& filePath, const MeshParams& params = MeshParams());
+			bool SaveToStream(Stream& stream, const String& format, const MeshParams& params = MeshParams());
+
 			void SetAnimation(const String& animationPath);
 			void SetMaterialCount(unsigned int matCount);
 			void SetMaterialData(unsigned int matIndex, ParameterList data);
@@ -146,6 +152,7 @@ namespace Nz
 			static MeshLoader::LoaderList s_loaders;
 			static MeshManager::ManagerMap s_managerMap;
 			static MeshManager::ManagerParams s_managerParameters;
+			static MeshSaver::SaverList s_savers;
 	};
 }
 

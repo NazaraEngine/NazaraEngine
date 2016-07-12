@@ -47,6 +47,42 @@ namespace Nz
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 		m_mapper.Map(vertexBuffer, access);
 	}
+	
+	VertexMapper::VertexMapper(const SubMesh* subMesh, BufferAccess access)
+	{
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+
+		const VertexBuffer* buffer = nullptr;
+		switch (subMesh->GetAnimationType())
+		{
+			case AnimationType_Skeletal:
+			{
+				const SkeletalMesh* skeletalMesh = static_cast<const SkeletalMesh*>(subMesh);
+				buffer = skeletalMesh->GetVertexBuffer();
+				break;
+			}
+
+			case AnimationType_Static:
+			{
+				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(subMesh);
+				buffer = staticMesh->GetVertexBuffer();
+				break;
+			}
+		}
+
+		if (!buffer)
+		{
+			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
+		}
+
+		m_mapper.Map(buffer, access);
+	}
+
+	VertexMapper::VertexMapper(const VertexBuffer* vertexBuffer, BufferAccess access)
+	{
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		m_mapper.Map(vertexBuffer, access);
+	}
 
 	VertexMapper::~VertexMapper() = default;
 

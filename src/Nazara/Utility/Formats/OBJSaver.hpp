@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_OBJ_HPP
-#define NAZARA_LOADERS_OBJ_HPP
+#ifndef NAZARA_FORMATS_OBJSAVER_HPP
+#define NAZARA_FORMATS_OBJSAVER_HPP
 
 #include <Nazara/Prerequesites.hpp>
 
@@ -13,9 +13,9 @@ namespace Nz
 {
 	namespace Loaders
 	{
-		void RegisterOBJLoader();
-		void UnregisterOBJLoader();
+		void RegisterOBJSaver();
+		void UnregisterOBJSaver();
 	}
 }
 
-#endif // NAZARA_LOADERS_OBJ_HPP
+#endif // NAZARA_FORMATS_OBJSAVER_HPP
