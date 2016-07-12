@@ -79,6 +79,11 @@ void EditorWindow::BuildMenu()
 	fichiersRecents->addAction("Fichier bidon 2.txt");
 	fichiersRecents->addAction("Fichier bidon 3.txt");
 
+	QIcon exitIcon = QIcon::fromTheme("application-exit");
+	QAction* exitAction = menuFichier->addAction(exitIcon, "Exit", qApp, &QApplication::closeAllWindows);
+	exitAction->setShortcuts(QKeySequence::Quit);
+	exitAction->setStatusTip(tr("Exit the application"));
+
 	QMenu* menuEdition = menuBar()->addMenu("&Edition");
 	QAction* flipUVs = menuEdition->addAction("Inverser les coordonnées de texture");
 	connect(flipUVs, &QAction::triggered, this, &EditorWindow::OnFlipUVs);
