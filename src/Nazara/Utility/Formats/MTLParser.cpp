@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MTLParser.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -12,36 +13,22 @@
 
 namespace Nz
 {
-	MTLParser::MTLParser(Stream& stream) :
-	m_stream(stream),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	bool MTLParser::Parse(Stream& stream)
 	{
-		m_stream.EnableTextMode(true);
-	}
+		m_currentStream = &stream;
 
-	MTLParser::~MTLParser()
-	{
-		// Reset stream flags
-		if ((m_streamFlags & StreamOption_Text) == 0)
-			m_stream.EnableTextMode(false);
-	}
+		// Force stream in text mode, reset it at the end
+		Nz::CallOnExit resetTextMode;
+		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		{
+			stream.EnableTextMode(true);
 
-	const MTLParser::Material* MTLParser::GetMaterial(const String& materialName) const
-	{
-		auto it = m_materials.find(materialName);
-		if (it != m_materials.end())
-			return &it->second;
-		else
-			return nullptr;
-	}
+			resetTextMode.Reset([&stream] ()
+			{
+				stream.EnableTextMode(false);
+			});
+		}
 
-	const std::unordered_map<String, MTLParser::Material>& MTLParser::GetMaterials() const
-	{
-		return m_materials;
-	}
-
-	bool MTLParser::Parse()
-	{
 		m_keepLastLine = false;
 		m_lineCount = 0;
 		m_materials.clear();
@@ -57,7 +44,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->ambient = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
 				}
@@ -72,7 +59,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->diffuse = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
 				}
@@ -87,7 +74,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->specular = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
 				}
@@ -102,7 +89,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[3], "%f", &density) == 1)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->refractionIndex = density;
 				}
@@ -117,7 +104,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[3], "%f", &coef) == 1)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->shininess = coef;
 				}
@@ -132,7 +119,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[(keyword[0] == 'd') ? 2 : 3], "%f", &alpha) == 1)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->alpha = alpha;
 				}
@@ -147,7 +134,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[(keyword[0] == 'd') ? 2 : 3], "%f", &alpha) == 1)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->alpha = 1.f - alpha; // tr vaut pour la "valeur de transparence", 0 = opaque
 				}
@@ -162,7 +149,7 @@ namespace Nz
 				if (std::sscanf(&m_currentLine[6], "%u", &model) == 1)
 				{
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->illumModel = model;
 				}
@@ -178,7 +165,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->ambientMap = map;
 				}
@@ -190,7 +177,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->diffuseMap = map;
 				}
@@ -202,7 +189,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->specularMap = map;
 				}
@@ -214,7 +201,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->bumpMap = map;
 				}
@@ -226,7 +213,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->alphaMap = map;
 				}
@@ -238,7 +225,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->decalMap = map;
 				}
@@ -250,7 +237,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->displacementMap = map;
 				}
@@ -262,7 +249,7 @@ namespace Nz
 				{
 					String map = m_currentLine.SubString(mapPos);
 					if (!currentMaterial)
-						currentMaterial = &m_materials["default"];
+						currentMaterial = AddMaterial("default");
 
 					currentMaterial->reflectionMap = map;
 				}
@@ -271,7 +258,7 @@ namespace Nz
 			{
 				String materialName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
 				if (!materialName.IsEmpty())
-					currentMaterial = &m_materials[materialName];
+					currentMaterial = AddMaterial(materialName);
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				else
 					UnrecognizedLine();
@@ -286,13 +273,150 @@ namespace Nz
 		return true;
 	}
 
+	bool MTLParser::Save(Stream& stream) const
+	{
+		m_currentStream = &stream;
+
+		// Force stream in text mode, reset it at the end
+		Nz::CallOnExit resetTextMode;
+		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		{
+			stream.EnableTextMode(true);
+
+			resetTextMode.Reset([&stream] ()
+			{
+				stream.EnableTextMode(false);
+			});
+		}
+
+		m_outputStream.Clear();
+
+		EmitLine("# Exported by Nazara Engine");
+		EmitLine();
+
+		Emit("# material count: ");
+		Emit(m_materials.size());
+		EmitLine();
+
+		for (auto& pair : m_materials)
+		{
+			const String& matName = pair.first;
+			const Material& mat = pair.second;
+
+			Emit("newmtl ");
+			EmitLine(pair.first);
+			EmitLine();
+
+			Emit("Ka ");
+			Emit(mat.ambient.r / 255.f);
+			Emit(' ');
+			Emit(mat.ambient.g / 255.f);
+			Emit(' ');
+			Emit(mat.ambient.b / 255.f);
+			EmitLine();
+
+			Emit("Kd ");
+			Emit(mat.diffuse.r / 255.f);
+			Emit(' ');
+			Emit(mat.diffuse.g / 255.f);
+			Emit(' ');
+			Emit(mat.diffuse.b / 255.f);
+			EmitLine();
+
+			Emit("Ks ");
+			Emit(mat.specular.r / 255.f);
+			Emit(' ');
+			Emit(mat.specular.g / 255.f);
+			Emit(' ');
+			Emit(mat.specular.b / 255.f);
+			EmitLine();
+
+			if (mat.alpha != 1.f)
+			{
+				Emit("d ");
+				EmitLine(mat.alpha);
+			}
+
+			if (mat.refractionIndex != 1.f)
+			{
+				Emit("ni ");
+				EmitLine(mat.refractionIndex);
+			}
+
+			if (mat.shininess != 1.f)
+			{
+				Emit("ns ");
+				EmitLine(mat.shininess);
+			}
+
+			if (mat.illumModel != 0)
+			{
+				Emit("illum ");
+				EmitLine(mat.illumModel);
+			}
+
+			if (!mat.ambientMap.IsEmpty())
+			{
+				Emit("map_Ka ");
+				EmitLine(mat.ambientMap);
+			}
+
+			if (!mat.diffuseMap.IsEmpty())
+			{
+				Emit("map_Kd ");
+				EmitLine(mat.diffuseMap);
+			}
+
+			if (!mat.specularMap.IsEmpty())
+			{
+				Emit("map_Ks ");
+				EmitLine(mat.specularMap);
+			}
+
+			if (!mat.bumpMap.IsEmpty())
+			{
+				Emit("map_bump ");
+				EmitLine(mat.bumpMap);
+			}
+
+			if (!mat.alphaMap.IsEmpty())
+			{
+				Emit("map_d ");
+				EmitLine(mat.alphaMap);
+			}
+
+			if (!mat.decalMap.IsEmpty())
+			{
+				Emit("map_decal ");
+				EmitLine(mat.decalMap);
+			}
+
+			if (!mat.displacementMap.IsEmpty())
+			{
+				Emit("map_disp ");
+				EmitLine(mat.displacementMap);
+			}
+
+			if (!mat.reflectionMap.IsEmpty())
+			{
+				Emit("map_refl ");
+				EmitLine(mat.reflectionMap);
+			}
+			EmitLine();
+		}
+
+		Flush();
+
+		return true;
+	}
+
 	bool MTLParser::Advance(bool required)
 	{
 		if (!m_keepLastLine)
 		{
 			do
 			{
-				if (m_stream.EndOfStream())
+				if (m_currentStream->EndOfStream())
 				{
 					if (required)
 						Error("Incomplete MTL file");
@@ -302,7 +426,7 @@ namespace Nz
 
 				m_lineCount++;
 
-				m_currentLine = m_stream.ReadLine();
+				m_currentLine = m_currentStream->ReadLine();
 				m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 			}
@@ -312,25 +436,5 @@ namespace Nz
 			m_keepLastLine = false;
 
 		return true;
-	}
-
-	void MTLParser::Error(const String& message)
-	{
-		NazaraError(message + " at line #" + String::Number(m_lineCount));
-	}
-
-	void MTLParser::Warning(const String& message)
-	{
-		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
-	}
-
-	void MTLParser::UnrecognizedLine(bool error)
-	{
-		String message = "Unrecognized \"" + m_currentLine + '"';
-
-		if (error)
-			Error(message);
-		else
-			Warning(message);
 	}
 }
