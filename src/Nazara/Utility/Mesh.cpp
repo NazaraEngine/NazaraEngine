@@ -606,6 +606,16 @@ namespace Nz
 		InvalidateAABB();
 	}
 
+	bool Mesh::SaveToFile(const String& filePath, const MeshParams& params)
+	{
+		return MeshSaver::SaveToFile(*this, filePath, params);
+	}
+
+	bool Mesh::SaveToStream(Stream& stream, const String& format, const MeshParams& params)
+	{
+		return MeshSaver::SaveToStream(*this, stream, format, params);
+	}
+
 	void Mesh::SetAnimation(const String& animationPath)
 	{
 		NazaraAssert(m_impl, "Mesh should be created first");
