@@ -30,6 +30,7 @@ class EditorWindow : public QMainWindow
 	private:
 		void BuildMenu();
 		void OnEditMaterial(QListWidgetItem* item);
+		void OnExport();
 		void OnFlipUVs();
 		void OnImport();
 		void OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters);

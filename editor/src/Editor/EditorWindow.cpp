@@ -79,6 +79,9 @@ void EditorWindow::BuildMenu()
 	fichiersRecents->addAction("Fichier bidon 2.txt");
 	fichiersRecents->addAction("Fichier bidon 3.txt");
 
+	QAction* exportAction = menuFichier->addAction("Exporter...");
+	connect(exportAction, &QAction::triggered, this, &EditorWindow::OnExport);
+
 	QIcon exitIcon = QIcon::fromTheme("application-exit");
 	QAction* exitAction = menuFichier->addAction(exitIcon, "Exit", qApp, &QApplication::closeAllWindows);
 	exitAction->setShortcuts(QKeySequence::Quit);
@@ -194,6 +197,24 @@ void EditorWindow::OnEditMaterial(QListWidgetItem* item)
 
 	m_materialEditor->FillValues(data.toUInt(), parameters);
 	m_materialEditor->show();
+}
+
+void EditorWindow::OnExport()
+{
+	if (m_model)
+	{
+		QString filePath = QFileDialog::getSaveFileName(this, "Export a model", QString(), "OBJ files (*.obj)");
+		if (filePath.isEmpty())
+			return;
+
+		Nz::Mesh* mesh = m_model->GetMesh();
+		if (mesh->SaveToFile(filePath.toUtf8().constData()))
+			statusBar()->showMessage("Model exported to " + filePath);
+		else
+			statusBar()->showMessage("Failed to export model");
+	}
+	else
+		statusBar()->showMessage("No model loaded");
 }
 
 void EditorWindow::OnFlipUVs()
