@@ -31,6 +31,7 @@ namespace Nz
 			static Vk::Instance& GetInstance();
 
 			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
+			static const Vk::PhysicalDevice& GetPhysicalDeviceInfo(VkPhysicalDevice physDevice);
 			
 			static bool Initialize();
 
