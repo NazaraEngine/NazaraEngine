@@ -1,4 +1,4 @@
-// This file was automatically generated on 24 Jun 2015 at 13:55:50
+// This file was automatically generated on 12 Jul 2016 at 17:44:43
 
 /*
 	Nazara Engine - Utility module
@@ -54,6 +54,7 @@
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Joystick.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/Mouse.hpp>
