@@ -9,6 +9,11 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
+	"../extlibs/include",
+	"../extlibs/include/QtCore",
+	"../extlibs/include/QtGui",
+	"../extlibs/include/QtWidgets",
+    "../include",
 	"../Qt/include",
 	"../Qt/src"
 }
