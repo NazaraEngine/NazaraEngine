@@ -128,14 +128,34 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdBeginRenderPass(m_handle, &beginInfo, contents);
 		}
 
+		inline void CommandBuffer::BindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
+		{
+			return m_pool->GetDevice()->vkCmdBindIndexBuffer(m_handle, buffer, offset, indexType);
+		}
+
 		inline void CommandBuffer::BindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
 		{
 			return m_pool->GetDevice()->vkCmdBindPipeline(m_handle, pipelineBindPoint, pipeline);
 		}
 
+		inline void CommandBuffer::BindVertexBuffer(UInt32 binding, const VkBuffer buffer, const VkDeviceSize offset)
+		{
+			return BindVertexBuffers(binding, 1, &buffer, &offset);
+		}
+
+		inline void CommandBuffer::BindVertexBuffers(UInt32 firstBinding, UInt32 bindingCount, const VkBuffer* buffer, const VkDeviceSize* offset)
+		{
+			return m_pool->GetDevice()->vkCmdBindVertexBuffers(m_handle, firstBinding, bindingCount, buffer, offset);
+		}
+
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 		{
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);
+		}
+
+		inline void CommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstVertex, Int32 vertexOffset, UInt32 firstInstance)
+		{
+			return m_pool->GetDevice()->vkCmdDrawIndexed(m_handle, indexCount, instanceCount, firstVertex, vertexOffset, firstInstance);
 		}
 
 		inline bool CommandBuffer::End()
