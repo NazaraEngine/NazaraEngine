@@ -1,4 +1,4 @@
-// This file was automatically generated on 17 Nov 2015 at 13:20:45
+// This file was automatically generated on 12 Jul 2016 at 17:44:43
 
 /*
 	Nazara Engine - Graphics module
@@ -47,6 +47,8 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DepthRenderQueue.hpp>
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
