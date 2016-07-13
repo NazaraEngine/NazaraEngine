@@ -36,6 +36,7 @@
 #include <Nazara/Vulkan/VkCommandBuffer.hpp>
 #include <Nazara/Vulkan/VkCommandPool.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
+#include <Nazara/Vulkan/VkDeviceMemory.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>
 #include <Nazara/Vulkan/VkFramebuffer.hpp>
 #include <Nazara/Vulkan/VkImageView.hpp>
