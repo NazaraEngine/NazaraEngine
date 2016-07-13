@@ -24,6 +24,9 @@ namespace Nz
 				Buffer(Buffer&&) = default;
 				~Buffer() = default;
 
+				using DeviceObject::Create;
+				inline bool Create(const DeviceHandle& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
+
 				VkMemoryRequirements GetMemoryRequirements() const;
 
 				Buffer& operator=(const Buffer&) = delete;
