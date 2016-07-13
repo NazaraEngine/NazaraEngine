@@ -9,6 +9,34 @@ namespace Nz
 {
 	namespace Vk
 	{
+		inline bool Buffer::BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset)
+		{
+			m_lastErrorCode = m_device->vkBindBufferMemory(*m_device, m_handle, memory, offset);
+			if (m_lastErrorCode != VK_SUCCESS)
+			{
+				NazaraError("Failed to bind buffer memory");
+				return false;
+			}
+
+			return true;
+		}
+
+		inline bool Buffer::Create(const DeviceHandle& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
+		{
+			VkBufferCreateInfo createInfo = {
+				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, // VkStructureType        sType;
+				nullptr,                              // const void*            pNext;
+				flags,                                // VkBufferCreateFlags    flags;
+				size,                                 // VkDeviceSize           size;
+				usage,                                // VkBufferUsageFlags     usage;
+				VK_SHARING_MODE_EXCLUSIVE,            // VkSharingMode          sharingMode;
+				0,                                    // uint32_t               queueFamilyIndexCount;
+				nullptr                               // const uint32_t*        pQueueFamilyIndices;
+			};
+
+			return Create(device, createInfo, allocator);
+		}
+
 		inline VkMemoryRequirements Buffer::GetMemoryRequirements() const
 		{
 			NazaraAssert(IsValid(), "Invalid buffer");

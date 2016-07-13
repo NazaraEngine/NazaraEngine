@@ -34,9 +34,13 @@ namespace Nz
 
 				inline void BeginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
+				inline void BindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType);
 				inline void BindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
+				inline void BindVertexBuffer(UInt32 binding, const VkBuffer buffer, const VkDeviceSize offset);
+				inline void BindVertexBuffers(UInt32 firstBinding, UInt32 bindingCount, const VkBuffer* buffer, const VkDeviceSize* offset);
 
 				inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
+				inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, Int32 vertexOffset = 0, UInt32 firstInstance = 0);
 
 				inline bool End();
 
