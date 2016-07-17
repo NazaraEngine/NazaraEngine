@@ -102,7 +102,8 @@ namespace Nz
 						stream.Read(skin, 68*sizeof(char));
 
 						ParameterList matData;
-						matData.SetParameter(MaterialData::FilePath, baseDir + skin);
+						matData.SetParameter(MaterialData::CustomDefined);
+						matData.SetParameter(MaterialData::DiffuseTexturePath, baseDir + skin);
 
 						mesh->SetMaterialData(i, std::move(matData));
 					}
