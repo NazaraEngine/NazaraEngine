@@ -122,7 +122,7 @@ namespace Nz
 
 				bool bValue;
 				String strVal;
-				if (matData.GetBooleanParameter(MaterialData::CustomDefined, &bValue) && bValue)
+				if (matData.HasParameter(MaterialData::CustomDefined))
 				{
 					Color colorVal;
 					float fValue;
@@ -160,9 +160,10 @@ namespace Nz
 				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(mesh.GetSubMesh(i));
 
 				std::size_t triangleCount = staticMesh->GetTriangleCount();
-				std::size_t vertexCount = staticMesh->GetVertexCount();
 
 				meshes[i].faces.resize(triangleCount);
+				meshes[i].material = staticMesh->GetMaterialIndex();
+				meshes[i].name = "mesh_" + String::Number(i);
 				meshes[i].vertices.resize(triangleCount * 3);
 
 				{
