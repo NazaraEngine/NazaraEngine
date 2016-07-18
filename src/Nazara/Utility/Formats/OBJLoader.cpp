@@ -49,8 +49,8 @@ namespace Nz
 				return false;
 			}
 
-			MTLParser materialParser(file);
-			if (!materialParser.Parse())
+			MTLParser materialParser;
+			if (!materialParser.Parse(file))
 			{
 				NazaraError("MTL parser failed");
 				return false;
@@ -90,13 +90,31 @@ namespace Nz
 					data.SetParameter(MaterialData::SpecularColor, specularColor);
 
 					if (!mtlMat->alphaMap.IsEmpty())
-						data.SetParameter(MaterialData::AlphaTexturePath, baseDir + mtlMat->alphaMap);
+					{
+						String fullPath = mtlMat->alphaMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::AlphaTexturePath, fullPath);
+					}
 
 					if (!mtlMat->diffuseMap.IsEmpty())
-						data.SetParameter(MaterialData::DiffuseTexturePath, baseDir + mtlMat->diffuseMap);
+					{
+						String fullPath = mtlMat->diffuseMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
+					}
 
 					if (!mtlMat->specularMap.IsEmpty())
-						data.SetParameter(MaterialData::SpecularTexturePath, baseDir + mtlMat->specularMap);
+					{
+						String fullPath = mtlMat->specularMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::SpecularTexturePath, fullPath);
+					}
 
 					// If we either have an alpha value or an alpha map, let's configure the material for transparency
 					if (alphaValue != 255 || !mtlMat->alphaMap.IsEmpty())

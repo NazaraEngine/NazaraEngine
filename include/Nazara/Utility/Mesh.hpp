@@ -71,6 +71,7 @@ namespace Nz
 		friend MeshLibrary;
 		friend MeshLoader;
 		friend MeshManager;
+		friend MeshSaver;
 		friend class Utility;
 
 		public:
@@ -125,6 +126,9 @@ namespace Nz
 
 			void RemoveSubMesh(const String& identifier);
 			void RemoveSubMesh(unsigned int index);
+
+			bool SaveToFile(const String& filePath, const MeshParams& params = MeshParams());
+			bool SaveToStream(Stream& stream, const String& format, const MeshParams& params = MeshParams());
 
 			void SetAnimation(const String& animationPath);
 			void SetMaterialCount(unsigned int matCount);
