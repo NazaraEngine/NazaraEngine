@@ -26,10 +26,13 @@ m_faceFilling(Nz::FaceFilling_Fill)
 
 	m_materialList = new QListWidget(m_materialsDock);
 	m_materialList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	m_materialList->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(m_materialList, &QListWidget::customContextMenuRequested, this, &EditorWindow::ShowMaterialContextMenu);
+
 	m_materialsDock->setWidget(m_materialList);
 	addDockWidget(Qt::RightDockWidgetArea, m_materialsDock);
 
-	connect(m_materialList, &QListWidget::itemDoubleClicked, this, &EditorWindow::OnEditMaterial);
 	connect(m_materialList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnMaterialSelected);
 
 	m_submeshesDock = new QDockWidget("Submeshes", this);
@@ -184,18 +187,14 @@ void EditorWindow::ShowSubmeshes(const Nz::Bitset<>& submeshes)
 	m_modelWidget->ShowSubmeshes(submeshes);
 }
 
-void EditorWindow::OnEditMaterial(QListWidgetItem* item)
+void EditorWindow::OnEditMaterial(std::size_t matIndex)
 {
-	QVariant data = item->data(Qt::UserRole);
-	if (data.isNull())
-		return;
-
 	Nz::ParameterList parameters;
-	m_model->GetMaterial(data.toUInt())->SaveToParameters(&parameters);
+	m_model->GetMaterial(matIndex)->SaveToParameters(&parameters);
 
 	m_materialEditedSlot.Connect(m_materialEditor->OnMaterialEditorSave, this, &EditorWindow::OnMaterialEdited);
 
-	m_materialEditor->FillValues(data.toUInt(), parameters);
+	m_materialEditor->FillValues(matIndex, parameters);
 	m_materialEditor->show();
 }
 
@@ -356,6 +355,27 @@ void EditorWindow::OnSubmeshSelected()
 	}
 
 	ShowSubmeshes(activeSubmeshes);
+}
+
+void EditorWindow::ShowMaterialContextMenu(const QPoint& location)
+{
+	QListWidgetItem* item = m_materialList->currentItem();
+	if (!item)
+		return;
+
+	QVariant data = item->data(Qt::UserRole);
+	if (data.isNull())
+		return;
+
+	std::size_t matIndex = data.toUInt();
+
+	// Create menu and insert some actions
+	QMenu matMenu(this);
+	matMenu.addAction("Edit", [this, matIndex] (bool) { OnEditMaterial(matIndex); });
+
+	// Show context menu at handling position
+	QPoint globalPos = m_materialList->mapToGlobal(location);
+	matMenu.exec(globalPos);
 }
 
 void EditorWindow::UpdateFaceFilling()

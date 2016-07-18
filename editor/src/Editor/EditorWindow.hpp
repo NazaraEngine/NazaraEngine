@@ -13,6 +13,7 @@ class QFrame;
 class QGridLayout;
 class QListWidget;
 class QListWidgetItem;
+class QPoint;
 class QTextEdit;
 
 class EditorWindow : public QMainWindow
@@ -29,7 +30,7 @@ class EditorWindow : public QMainWindow
 
 	private:
 		void BuildMenu();
-		void OnEditMaterial(QListWidgetItem* item);
+		void OnEditMaterial(std::size_t matIndex);
 		void OnExport();
 		void OnFlipUVs();
 		void OnImport();
@@ -37,6 +38,7 @@ class EditorWindow : public QMainWindow
 		void OnMaterialSelected();
 		void OnNormalToggled(bool active);
 		void OnSubmeshSelected();
+		void ShowMaterialContextMenu(const QPoint& location);
 		void UpdateFaceFilling();
 
 		Nz::Bitset<> m_activeSubmeshes;
