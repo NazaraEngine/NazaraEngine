@@ -61,6 +61,7 @@ m_faceFilling(Nz::FaceFilling_Fill)
 	m_materialEditor->hide();
 
 	BuildMenu();
+	BuildTransformDialogs();
 
 	if (Nz::PluginManager::Mount(Nz::Plugin_Assimp))
 		statusBar()->showMessage("Assimp plugin mounted");
@@ -70,6 +71,39 @@ m_faceFilling(Nz::FaceFilling_Fill)
 
 EditorWindow::~EditorWindow()
 {
+}
+
+void EditorWindow::ApplyTransform(const Nz::Matrix4f& transform)
+{
+	if (m_model)
+	{
+		Nz::Mesh* mesh = m_model->GetMesh();
+		std::size_t subMeshCount = mesh->GetSubMeshCount();
+
+		for (std::size_t i = 0; i < subMeshCount; ++i)
+		{
+			if (!m_activeSubmeshes.Test(i))
+				continue;
+
+			Nz::StaticMesh* submesh = static_cast<Nz::StaticMesh*>(mesh->GetSubMesh(i));
+			Nz::VertexMapper mapper(submesh);
+			std::size_t vertexCount = submesh->GetVertexCount();
+
+			Nz::SparsePtr<Nz::Vector3f> position = mapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent_Position);
+
+			for (unsigned int j = 0; j < vertexCount; ++j)
+			{
+				*position = transform.Transform(*position);
+				++position;
+			}
+
+			mapper.Unmap();
+
+			submesh->GenerateAABB();
+		}
+
+		mesh->InvalidateAABB();
+	}
 }
 
 void EditorWindow::BuildMenu()
@@ -92,6 +126,15 @@ void EditorWindow::BuildMenu()
 	exitAction->setStatusTip(tr("Exit the application"));
 
 	QMenu* menuEdition = menuBar()->addMenu("&Edition");
+
+	menuEdition->addAction("Translate", [this] () { if (m_model) m_translateDialog->show(); });
+	menuEdition->addAction("Rotate", [this] () { if (m_model) m_rotateDialog->show(); });
+	menuEdition->addAction("Scale", [this] () { if (m_model) m_scaleDialog->show(); });
+
+	menuEdition->addSeparator();
+
+	menuEdition->addAction("Re-center", this, &EditorWindow::OnRecenter);
+
 	QAction* flipUVs = menuEdition->addAction("Inverser les coordonnées de texture");
 	connect(flipUVs, &QAction::triggered, this, &EditorWindow::OnFlipUVs);
 
@@ -132,6 +175,83 @@ void EditorWindow::BuildMenu()
 	pointButton->setCheckable(true);
 	pointButton->setData(static_cast<unsigned int>(Nz::FaceFilling_Point));
 	fillModeMenu->addAction(pointButton);
+}
+
+QPushButton* EditorWindow::BuildTransformDialog(QDialog*& dialog, const QString& name, const QString& unitName, const QString& buttonName, std::size_t valueCount, QDoubleSpinBox** spinBoxes, const char* const* valueNames)
+{
+	dialog = new QDialog(this);
+
+	QVBoxLayout* mainLayout = new QVBoxLayout;
+	dialog->setLayout(mainLayout);
+
+	mainLayout->addWidget(new QLabel(name));
+
+	for (unsigned int i = 0; i < 3; ++i)
+	{
+		QHBoxLayout* lineLayout = new QHBoxLayout;
+		lineLayout->addStretch();
+		lineLayout->addWidget(new QLabel(QString(valueNames[i]) + ": "));
+
+		QDoubleSpinBox* spinbox = new QDoubleSpinBox;
+		spinbox->setDecimals(4);
+		spinbox->setRange(-1000.0, 1000.0);
+		spinbox->setSingleStep(0.1);
+
+		lineLayout->addWidget(spinbox);
+		spinBoxes[i] = spinbox;
+
+		lineLayout->addWidget(new QLabel(unitName));
+
+		mainLayout->addLayout(lineLayout);
+	}
+
+	QPushButton* translateButton = new QPushButton(buttonName);
+	mainLayout->addWidget(translateButton);
+
+	QPushButton* closeButton = new QPushButton("Close");
+	mainLayout->addWidget(closeButton);
+	connect(closeButton, &QPushButton::clicked, [dialog] (bool) { dialog->hide(); });
+
+	return translateButton;
+}
+
+void EditorWindow::BuildTransformDialogs()
+{
+	constexpr const char* translateAxis[3] = {"x", "y", "z"};
+	constexpr const char* rotationeAxis[3] = {"pitch (x)", "yaw (y)", "roll (z)"};
+
+	// Translate
+	QPushButton* translateButton = BuildTransformDialog(m_translateDialog, "Translation offset:", "units", "Translate", 3, m_translateValues.data(), translateAxis);
+	connect(translateButton, &QPushButton::clicked, [this] (bool)
+	{
+		Nz::Vector3f offset;
+		for (unsigned int i = 0; i < 3; ++i)
+			offset[i] = static_cast<float>(m_translateValues[i]->value());
+
+		ApplyTransform(Nz::Matrix4f::Translate(offset));
+	});
+
+	// Rotation
+	QPushButton* rotationButton = BuildTransformDialog(m_rotateDialog, "Rotation angles:", " degrees", "Rotate", 3, m_rotationValues.data(), rotationeAxis);
+	connect(rotationButton, &QPushButton::clicked, [this] (bool)
+	{
+		std::array<float, 3> angles;
+		for (unsigned int i = 0; i < 3; ++i)
+			angles[i] = static_cast<float>(m_rotationValues[i]->value());
+
+		ApplyTransform(Nz::Matrix4f::Rotate(Nz::EulerAnglesf(angles.data())));
+	});
+
+	// Scale
+	QPushButton* scaleButton = BuildTransformDialog(m_scaleDialog, "Scale multiplier:", "x", "Scale", 3, m_scaleValues.data(), translateAxis);
+	connect(scaleButton, &QPushButton::clicked, [this] (bool)
+	{
+		Nz::Vector3f scale;
+		for (unsigned int i = 0; i < 3; ++i)
+			scale[i] = static_cast<float>(m_scaleValues[i]->value());
+
+		ApplyTransform(Nz::Matrix4f::Scale(scale));
+	});
 }
 
 void EditorWindow::SetModel(Nz::ModelRef model)
@@ -348,6 +468,15 @@ void EditorWindow::OnMaterialSelected()
 void EditorWindow::OnNormalToggled(bool active)
 {
 	m_modelWidget->ShowNormals(active);
+}
+
+void EditorWindow::OnRecenter()
+{
+	if (!m_model)
+		return;
+
+	Nz::Vector3f center = m_model->GetMesh()->GetAABB().GetCenter();
+	ApplyTransform(Nz::Matrix4f::Translate(-center));
 }
 
 void EditorWindow::OnSubmeshSelected()
