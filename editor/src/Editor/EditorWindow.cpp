@@ -40,7 +40,7 @@ m_faceFilling(Nz::FaceFilling_Fill)
 	m_submeshesDock->setWidget(m_subMeshList);
 	addDockWidget(Qt::RightDockWidgetArea, m_submeshesDock);
 
-	connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
+	m_subMeshListOnSelectionChange = connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
 
 	m_consoleDock = new QDockWidget("Console", this);
 	m_consoleDock->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -289,9 +289,14 @@ void EditorWindow::OnMaterialSelected()
 {
 	auto selectedItems = m_materialList->selectedItems();
 
+	m_subMeshList->clearSelection();
+
+	if (selectedItems.size() > 1)
+		disconnect(m_subMeshListOnSelectionChange);
+
 	Nz::Bitset<> activeSubmeshes(m_model->GetMesh()->GetSubMeshCount(), false);
 	if (selectedItems.isEmpty())
-		activeSubmeshes.Set(true);
+		m_subMeshList->item(0)->setSelected(true);
 	else
 	{
 		Nz::Mesh* mesh = m_model->GetMesh();
@@ -300,19 +305,23 @@ void EditorWindow::OnMaterialSelected()
 		{
 			QVariant data = item->data(Qt::UserRole);
 			if (data.isNull())
-				activeSubmeshes.Set(true);
+				m_subMeshList->item(0)->setSelected(true);
 			else
 			{
 				for (std::size_t i = 0; i < submeshCount; ++i)
 				{
 					if (mesh->GetSubMesh(i)->GetMaterialIndex() == data.toUInt())
-						activeSubmeshes.Set(i, true);
+						m_subMeshList->item(i + 1)->setSelected(true);
 				}
 			}
 		}
 	}
 
-	ShowSubmeshes(activeSubmeshes);
+	if (selectedItems.size() > 1)
+	{
+		m_subMeshListOnSelectionChange = connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
+		OnSubmeshSelected();
+	}
 }
 
 void EditorWindow::OnNormalToggled(bool active)

@@ -50,6 +50,7 @@ class EditorWindow : public QMainWindow
 		QGridLayout* m_mainLayout;
 		QListWidget* m_materialList;
 		QListWidget* m_subMeshList;
+		QMetaObject::Connection m_subMeshListOnSelectionChange;
 		QTextEdit* m_textEdit;
 		MaterialEditor* m_materialEditor;
 		ModelWidget* m_modelWidget;
