@@ -5,6 +5,7 @@ TOOL.Kind = "Plugin"
 TOOL.TargetDirectory = "../SDK/lib"
 
 TOOL.Includes = {
+	"../extlibs/include",
 	"../include",
     "../plugins/Assimp"
 }
