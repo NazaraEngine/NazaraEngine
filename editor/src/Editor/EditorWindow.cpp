@@ -281,8 +281,15 @@ void EditorWindow::OnImport()
 void EditorWindow::OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters)
 {
 	Nz::Material* mat = m_model->GetMaterial(matIndex);
+
+	// The shader is going to be overwritten by the reset, save it to restore it
+	//TODO: Get rid of this hackfix
+	Nz::UberShaderConstRef shader = mat->GetShader();
+
 	mat->Reset();
 	mat->BuildFromParameters(materialParameters);
+
+	mat->SetShader(shader);
 }
 
 void EditorWindow::OnMaterialSelected()
