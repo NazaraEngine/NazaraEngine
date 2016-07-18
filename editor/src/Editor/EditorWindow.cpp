@@ -134,6 +134,7 @@ void EditorWindow::BuildMenu()
 	menuEdition->addSeparator();
 
 	menuEdition->addAction("Re-center", this, &EditorWindow::OnRecenter);
+	menuEdition->addAction("Regenerate normals/tangents", this, &EditorWindow::OnRegenerateNormals);
 
 	QAction* flipUVs = menuEdition->addAction("Inverser les coordonnées de texture");
 	connect(flipUVs, &QAction::triggered, this, &EditorWindow::OnFlipUVs);
@@ -410,6 +411,29 @@ void EditorWindow::OnImport()
 
 		statusBar()->showMessage("Failed to load model");
 	}
+}
+
+void EditorWindow::OnRegenerateNormals()
+{
+	if (!m_model)
+		return;
+
+	Nz::Mesh* mesh = m_model->GetMesh();
+	std::size_t subMeshCount = mesh->GetSubMeshCount();
+
+	for (std::size_t i = 0; i < subMeshCount; ++i)
+	{
+		if (!m_activeSubmeshes.Test(i))
+			continue;
+
+		Nz::SubMesh* submesh = mesh->GetSubMesh(i);
+		submesh->GenerateNormalsAndTangents();
+	}
+
+	m_modelWidget->InvalidateNormals();
+
+	if (m_showNormalButton->isChecked())
+		m_modelWidget->ShowNormals(true);
 }
 
 void EditorWindow::OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters)

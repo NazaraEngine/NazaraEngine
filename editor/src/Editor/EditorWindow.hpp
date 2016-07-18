@@ -40,6 +40,7 @@ class EditorWindow : public QMainWindow
 		void OnExport();
 		void OnFlipUVs();
 		void OnImport();
+		void OnRegenerateNormals();
 		void OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters);
 		void OnMaterialSelected();
 		void OnNormalToggled(bool active);

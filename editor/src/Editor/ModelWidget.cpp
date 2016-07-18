@@ -62,6 +62,11 @@ ModelWidget::~ModelWidget()
 {
 }
 
+void ModelWidget::InvalidateNormals()
+{
+	m_normalModel->SetMesh(nullptr);
+}
+
 void ModelWidget::OnModelChanged(const Nz::ModelRef& model)
 {
 	Ndk::GraphicsComponent& modelGraphics = m_modelEntity->GetComponent<Ndk::GraphicsComponent>();

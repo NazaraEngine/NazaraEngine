@@ -13,6 +13,8 @@ class ModelWidget : public Ndk::QtCanvas
 		ModelWidget(QWidget* parent = nullptr);
 		~ModelWidget();
 
+		void InvalidateNormals();
+
 		void OnModelChanged(const Nz::ModelRef& model);
 
 		void ResetCamera();
@@ -30,10 +32,10 @@ class ModelWidget : public Ndk::QtCanvas
 
 		Nz::MeshRef CreateGridMesh(unsigned int size);
 		void HandleEvent(const Nz::WindowEvent& event);
-		void UpdateCamera();
 		bool OnWindowCreated() override;
 		void OnWindowResized() override;
 		void Update();
+		void UpdateCamera();
 
 		Ndk::EntityHandle m_camera;
 		Ndk::EntityHandle m_modelEntity;
