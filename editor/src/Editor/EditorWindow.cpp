@@ -40,10 +40,11 @@ m_faceFilling(Nz::FaceFilling_Fill)
 
 	m_subMeshList = new QListWidget(m_submeshesDock);
 	m_subMeshList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	m_submeshesDock->setWidget(m_subMeshList);
-	addDockWidget(Qt::RightDockWidgetArea, m_submeshesDock);
 
 	m_subMeshListOnSelectionChange = connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
+
+	m_submeshesDock->setWidget(m_subMeshList);
+	addDockWidget(Qt::RightDockWidgetArea, m_submeshesDock);
 
 	m_consoleDock = new QDockWidget("Console", this);
 	m_consoleDock->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -207,10 +208,25 @@ void EditorWindow::OnExport()
 			return;
 
 		Nz::Mesh* mesh = m_model->GetMesh();
-		if (mesh->SaveToFile(filePath.toUtf8().constData()))
-			statusBar()->showMessage("Model exported to " + filePath);
-		else
+
+		Nz::Clock saveClock;
+		try
+		{
+			Nz::ErrorFlags errFlags(Nz::ErrorFlag_Silent | Nz::ErrorFlag_ThrowException, true);
+
+			mesh->SaveToFile(filePath.toUtf8().constData());
+
+			statusBar()->showMessage("Model exported to " + filePath + " in " + QString::number(saveClock.GetSeconds()) + "s");
+		}
+		catch (const std::exception& e)
+		{
+			Nz::String message = "Failed to save model: ";
+			message += e.what();
+
+			m_textEdit->append(message.GetConstBuffer());
+
 			statusBar()->showMessage("Failed to export model");
+		}
 	}
 	else
 		statusBar()->showMessage("No model loaded");
@@ -249,18 +265,21 @@ void EditorWindow::OnImport()
 	if (filePath.isEmpty())
 		return;
 
-	Nz::ErrorFlags errFlags(Nz::ErrorFlag_Silent | Nz::ErrorFlag_ThrowException, true);
-
 	Nz::ModelRef model = Nz::Model::New();
 
 	Nz::Clock loadClock;
-
 	try
 	{
+		Nz::ErrorFlags errFlags(Nz::ErrorFlag_Silent | Nz::ErrorFlag_ThrowException, true);
+
 		Nz::ModelParameters parameters;
 		parameters.mesh.optimizeIndexBuffers = false;
 
 		model->LoadFromFile(filePath.toUtf8().constData(), parameters);
+
+		SetModel(std::move(model));
+
+		statusBar()->showMessage("Loaded " + filePath + " in " + QString::number(loadClock.GetSeconds()) + "s");
 	}
 	catch (const std::exception& e)
 	{
@@ -269,12 +288,8 @@ void EditorWindow::OnImport()
 
 		m_textEdit->append(message.GetConstBuffer());
 
-		return;
+		statusBar()->showMessage("Failed to load model");
 	}
-
-	SetModel(std::move(model));
-
-	statusBar()->showMessage("Loaded " + filePath + " in " + QString::number(loadClock.GetSeconds()) + "s");
 }
 
 void EditorWindow::OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters)
