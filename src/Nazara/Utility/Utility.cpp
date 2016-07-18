@@ -26,6 +26,7 @@
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/Formats/OBJLoader.hpp>
+#include <Nazara/Utility/Formats/OBJSaver.hpp>
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
@@ -125,10 +126,12 @@ namespace Nz
 
 		// Mesh (text)
 		Loaders::RegisterOBJLoader();
+		Loaders::RegisterOBJSaver();
 
 		// Mesh
 		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
 		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
+		Loaders::RegisterOBJLoader(); // Loader de fichiers .md5mesh (v10)
 
 		// Image
 		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
@@ -163,6 +166,7 @@ namespace Nz
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
 		Loaders::UnregisterOBJLoader();
+		Loaders::UnregisterOBJSaver();
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
