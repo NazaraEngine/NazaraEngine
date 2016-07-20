@@ -13,6 +13,8 @@ class ModelWidget : public Ndk::QtCanvas
 		ModelWidget(QWidget* parent = nullptr);
 		~ModelWidget();
 
+		void EnableFreeflyCamera(bool freeflyCamera);
+
 		void InvalidateNormals();
 
 		void OnModelChanged(const Nz::ModelRef& model);
@@ -27,7 +29,7 @@ class ModelWidget : public Ndk::QtCanvas
 		{
 			Movement,
 			None,
-			Rotation
+			Camera
 		};
 
 		Nz::MeshRef CreateGridMesh(unsigned int size);
@@ -50,7 +52,9 @@ class ModelWidget : public Ndk::QtCanvas
 		Nz::ModelRef m_gridModel;
 		Nz::ModelRef m_model;
 		Nz::ModelRef m_normalModel;
+		Nz::Vector3f m_freeflyPosition;
 		QTimer m_updateTimer;
 		MouseControl m_mouseControl;
+		bool m_freeflyCamera;
 		float m_cameraDistance;
 };

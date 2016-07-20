@@ -125,25 +125,32 @@ void EditorWindow::BuildMenu()
 	exitAction->setShortcuts(QKeySequence::Quit);
 	exitAction->setStatusTip(tr("Exit the application"));
 
-	QMenu* menuEdition = menuBar()->addMenu("&Edition");
+	QMenu* menuEdition = menuBar()->addMenu("&Model");
 
+	menuEdition->addSection("Transforms");
 	menuEdition->addAction("Translate", [this] () { if (m_model) m_translateDialog->show(); });
 	menuEdition->addAction("Rotate", [this] () { if (m_model) m_rotateDialog->show(); });
 	menuEdition->addAction("Scale", [this] () { if (m_model) m_scaleDialog->show(); });
 
-	menuEdition->addSeparator();
-
+	menuEdition->addSection("Vertices");
 	menuEdition->addAction("Re-center", this, &EditorWindow::OnRecenter);
 	menuEdition->addAction("Regenerate normals/tangents", this, &EditorWindow::OnRegenerateNormals);
 
 	QAction* flipUVs = menuEdition->addAction("Inverser les coordonnées de texture");
 	connect(flipUVs, &QAction::triggered, this, &EditorWindow::OnFlipUVs);
 
-	QMenu* drawMenu = menuBar()->addMenu("&Affichage");
+	QMenu* drawMenu = menuBar()->addMenu("&View");
+
+	drawMenu->addSection("Camera");
+	m_freeflyCameraButton = drawMenu->addAction("Freefly mode");
+	m_freeflyCameraButton->setCheckable(true);
+	connect(m_freeflyCameraButton, &QAction::toggled, this, &EditorWindow::OnFreeflyToggled);
+
 	drawMenu->addSection("Editor");
 	drawMenu->addAction(m_materialsDock->toggleViewAction());
 	drawMenu->addAction(m_submeshesDock->toggleViewAction());
 	drawMenu->addAction(m_consoleDock->toggleViewAction());
+
 	drawMenu->addSection("Model");
 
 	m_showNormalButton = new QAction("Draw normals", drawMenu);
@@ -380,6 +387,11 @@ void EditorWindow::OnFlipUVs()
 	}
 }
 
+void EditorWindow::OnFreeflyToggled(bool active)
+{
+	m_modelWidget->EnableFreeflyCamera(active);
+}
+
 void EditorWindow::OnImport()
 {
 	QString filePath = QFileDialog::getOpenFileName(this, "Import a model");
@@ -499,7 +511,9 @@ void EditorWindow::OnRecenter()
 	if (!m_model)
 		return;
 
-	Nz::Vector3f center = m_model->GetMesh()->GetAABB().GetCenter();
+	const Nz::Boxf& aabb = m_model->GetMesh()->GetAABB();
+
+	Nz::Vector3f center = aabb.GetCenter();
 	ApplyTransform(Nz::Matrix4f::Translate(-center));
 }
 

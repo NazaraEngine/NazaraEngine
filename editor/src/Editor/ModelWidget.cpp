@@ -11,6 +11,8 @@
 ModelWidget::ModelWidget(QWidget* parent) :
 QtCanvas(parent),
 m_cameraAngles(-30, 45, 0),
+m_freeflyCamera(false),
+m_freeflyPosition(Nz::Vector3f::Zero()),
 m_cameraDistance(5)
 {
 	m_updateTimer.setInterval(0);
@@ -62,6 +64,13 @@ ModelWidget::~ModelWidget()
 {
 }
 
+void ModelWidget::EnableFreeflyCamera(bool freeflyCamera)
+{
+	m_freeflyCamera = freeflyCamera;
+
+	UpdateCamera();
+}
+
 void ModelWidget::InvalidateNormals()
 {
 	m_normalModel->SetMesh(nullptr);
@@ -108,6 +117,9 @@ void ModelWidget::ResetCamera()
 
 void ModelWidget::ShowNormals(bool normals)
 {
+	if (!m_model)
+		return;
+
 	if (!m_normalModel->GetMesh() && normals)
 	{
 		Nz::Mesh* mesh = m_model->GetMesh();
@@ -232,6 +244,11 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 {
 	switch (event.type)
 	{
+		case Nz::WindowEventType_MouseLeft:
+			m_mouseControl = MouseControl::None;
+			SetCursor(Nz::WindowCursor_Default);
+			break;
+
 		case Nz::WindowEventType_MouseWheelMoved:
 		{
 			m_cameraDistance -= event.mouseWheel.delta * m_cameraDistance / 100.f;
@@ -246,11 +263,11 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 			{
 				case Nz::Mouse::Left:
 					SetCursor(Nz::WindowCursor_None);
-					m_mouseControl = MouseControl::Rotation;
+					m_mouseControl = MouseControl::Camera;
 					break;
 
 				case Nz::Mouse::Right:
-					SetCursor(Nz::WindowCursor_None);
+					SetCursor(Nz::WindowCursor_Move);
 					m_mouseControl = MouseControl::Movement;
 					break;
 			}
@@ -274,6 +291,17 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 		{
 			switch (m_mouseControl)
 			{
+				case MouseControl::Camera:
+				{
+					constexpr float sensitivity = 0.3f;
+
+					m_cameraAngles.yaw = Nz::NormalizeAngle(m_cameraAngles.yaw - event.mouseMove.deltaX*sensitivity);
+					m_cameraAngles.pitch = Nz::Clamp(m_cameraAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
+
+					UpdateCamera();
+					break;
+				}
+
 				case MouseControl::Movement:
 				{
 					constexpr float speed = 0.1f;
@@ -314,17 +342,6 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 					break;
 				}
 
-				case MouseControl::Rotation:
-				{
-					constexpr float sensitivity = 0.3f;
-
-					m_cameraAngles.yaw = Nz::NormalizeAngle(m_cameraAngles.yaw - event.mouseMove.deltaX*sensitivity);
-					m_cameraAngles.pitch = Nz::Clamp(m_cameraAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					UpdateCamera();
-					break;
-				}
-
 				case MouseControl::None:
 				default:
 					break;
@@ -338,7 +355,16 @@ void ModelWidget::UpdateCamera()
 {
 	Ndk::NodeComponent& cameraNode = m_camera->GetComponent<Ndk::NodeComponent>();
 	cameraNode.SetRotation(m_cameraAngles);
-	cameraNode.SetPosition(cameraNode.GetBackward() * m_cameraDistance);
+
+	if (m_freeflyCamera)
+		cameraNode.SetPosition(m_freeflyPosition);
+	else
+	{
+		cameraNode.SetPosition(cameraNode.GetBackward() * m_cameraDistance);
+
+		// In order to keep the same position when switching to freefly mode
+		m_freeflyPosition = cameraNode.GetPosition();
+	}
 }
 
 bool ModelWidget::OnWindowCreated()
@@ -362,6 +388,35 @@ void ModelWidget::Update()
 	m_updateClock.Restart();
 
 	m_world.Update(elapsedTime);
+
+	if (m_freeflyCamera && m_mouseControl == MouseControl::Camera)
+	{
+		float cameraSpeed = 5.f * elapsedTime; // Three units per second
+
+		Ndk::NodeComponent& cameraNode = m_camera->GetComponent<Ndk::NodeComponent>();
+		Nz::Vector3f targetPos = m_freeflyPosition;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+			targetPos += cameraNode.GetForward() * cameraSpeed;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+			targetPos += cameraNode.GetBackward() * cameraSpeed;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+			targetPos += cameraNode.GetLeft() * cameraSpeed;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+			targetPos += cameraNode.GetRight() * cameraSpeed;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+			targetPos += Nz::Vector3f::Up() * cameraSpeed;
+
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+			targetPos += Nz::Vector3f::Down() * cameraSpeed;
+
+		m_freeflyPosition = targetPos;
+		UpdateCamera();
+	}
 
 	Nz::DebugDrawer::DrawAxes();
 

@@ -39,6 +39,7 @@ class EditorWindow : public QMainWindow
 		void OnEditMaterial(std::size_t matIndex);
 		void OnExport();
 		void OnFlipUVs();
+		void OnFreeflyToggled(bool active);
 		void OnImport();
 		void OnRegenerateNormals();
 		void OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters);
@@ -55,6 +56,7 @@ class EditorWindow : public QMainWindow
 		Nz::Bitset<> m_activeSubmeshes;
 		Nz::FaceFilling m_faceFilling;
 		Nz::ModelRef m_model;
+		QAction* m_freeflyCameraButton;
 		QAction* m_showNormalButton;
 		QDialog* m_rotateDialog;
 		QDialog* m_scaleDialog;
