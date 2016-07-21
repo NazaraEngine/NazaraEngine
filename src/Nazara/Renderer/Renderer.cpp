@@ -396,7 +396,38 @@ namespace Nz
 		}
 		#endif
 
-		s_states.parameters[parameter] = enable;
+		switch (parameter)
+		{
+			case RendererParameter_Blend:
+				s_states.blending = enable;
+				return;
+
+			case RendererParameter_ColorWrite:
+				s_states.colorWrite = enable;
+				return;
+
+			case RendererParameter_DepthBuffer:
+				s_states.depthBuffer = enable;
+				return;
+
+			case RendererParameter_DepthWrite:
+				s_states.depthWrite = enable;
+				return;
+
+			case RendererParameter_FaceCulling:
+				s_states.faceCulling = enable;
+				return;
+
+			case RendererParameter_ScissorTest:
+				s_states.scissorTest = enable;
+				return;
+
+			case RendererParameter_StencilTest:
+				s_states.stencilTest = enable;
+				return;
+		}
+
+		NazaraInternalError("Unhandled renderer parameter: 0x" + String::Number(parameter, 16));
 	}
 
 	void Renderer::EndCondition()
@@ -762,7 +793,32 @@ namespace Nz
 		}
 		#endif
 
-		return s_states.parameters[parameter];
+		switch (parameter)
+		{
+			case RendererParameter_Blend:
+				return s_states.blending;
+
+			case RendererParameter_ColorWrite:
+				return s_states.colorWrite;
+
+			case RendererParameter_DepthBuffer:
+				return s_states.depthBuffer;
+
+			case RendererParameter_DepthWrite:
+				return s_states.depthWrite;
+
+			case RendererParameter_FaceCulling:
+				return s_states.faceCulling;
+
+			case RendererParameter_ScissorTest:
+				return s_states.scissorTest;
+
+			case RendererParameter_StencilTest:
+				return s_states.stencilTest;
+		}
+
+		NazaraInternalError("Unhandled renderer parameter: 0x" + String::Number(parameter, 16));
+		return false;
 	}
 
 	bool Renderer::IsInitialized()
@@ -865,7 +921,7 @@ namespace Nz
 		}
 		#endif
 
-		s_states.faceCulling = faceSide;
+		s_states.cullingSide = faceSide;
 	}
 
 	void Renderer::SetFaceFilling(FaceFilling fillingMode)
@@ -1042,16 +1098,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilCompare = compareFunc;
+				s_states.stencilCompare.back = compareFunc;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilCompare = compareFunc;
+				s_states.stencilCompare.front = compareFunc;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilCompare = compareFunc;
-				s_states.frontFace.stencilCompare = compareFunc;
+				s_states.stencilCompare.back = compareFunc;
+				s_states.stencilCompare.front = compareFunc;
 				break;
 		}
 	}
@@ -1075,16 +1131,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilFail = failOperation;
+				s_states.stencilFail.back = failOperation;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilFail = failOperation;
+				s_states.stencilFail.front = failOperation;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilFail = failOperation;
-				s_states.frontFace.stencilFail = failOperation;
+				s_states.stencilFail.back = failOperation;
+				s_states.stencilFail.front = failOperation;
 				break;
 		}
 	}
@@ -1102,16 +1158,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilMask = mask;
+				s_states.stencilWriteMask.back = mask;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilMask = mask;
+				s_states.stencilWriteMask.front = mask;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilMask = mask;
-				s_states.frontFace.stencilMask = mask;
+				s_states.stencilWriteMask.back = mask;
+				s_states.stencilWriteMask.front = mask;
 				break;
 		}
 	}
@@ -1135,16 +1191,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilPass = passOperation;
+				s_states.stencilPass.back = passOperation;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilPass = passOperation;
+				s_states.stencilPass.front = passOperation;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilPass = passOperation;
-				s_states.frontFace.stencilPass = passOperation;
+				s_states.stencilPass.back = passOperation;
+				s_states.stencilPass.front = passOperation;
 				break;
 		}
 	}
@@ -1162,16 +1218,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilReference = refValue;
+				s_states.stencilReference.back = refValue;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilReference = refValue;
+				s_states.stencilReference.front = refValue;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilReference = refValue;
-				s_states.frontFace.stencilReference = refValue;
+				s_states.stencilReference.back = refValue;
+				s_states.stencilReference.front = refValue;
 				break;
 		}
 	}
@@ -1195,16 +1251,16 @@ namespace Nz
 		switch (faceSide)
 		{
 			case FaceSide_Back:
-				s_states.backFace.stencilZFail = zfailOperation;
+				s_states.stencilDepthFail.back = zfailOperation;
 				break;
 
 			case FaceSide_Front:
-				s_states.frontFace.stencilZFail = zfailOperation;
+				s_states.stencilDepthFail.front = zfailOperation;
 				break;
 
 			case FaceSide_FrontAndBack:
-				s_states.backFace.stencilZFail = zfailOperation;
-				s_states.frontFace.stencilZFail = zfailOperation;
+				s_states.stencilDepthFail.back = zfailOperation;
+				s_states.stencilDepthFail.front = zfailOperation;
 				break;
 		}
 	}
