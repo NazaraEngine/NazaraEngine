@@ -53,7 +53,36 @@ namespace Nz
 	{
 		NazaraAssert(renderParameter <= RendererParameter_Max, "Renderer parameter out of enum");
 
-		m_states.parameters[renderParameter] = enable;
+		switch (renderParameter)
+		{
+			case RendererParameter_Blend:
+				m_states.blending = enable;
+				return;
+
+			case RendererParameter_ColorWrite:
+				m_states.colorWrite = enable;
+				return;
+
+			case RendererParameter_DepthBuffer:
+				m_states.depthBuffer = enable;
+				return;
+
+			case RendererParameter_DepthWrite:
+				m_states.depthWrite = enable;
+				return;
+
+			case RendererParameter_FaceCulling:
+				m_states.faceCulling = enable;
+				return;
+
+			case RendererParameter_ScissorTest:
+				m_states.scissorTest = enable;
+				return;
+
+			case RendererParameter_StencilTest:
+				m_states.stencilTest = enable;
+				return;
+		}
 	}
 
 	/*!
@@ -257,7 +286,7 @@ namespace Nz
 
 	inline FaceSide Material::GetFaceCulling() const
 	{
-		return m_states.faceCulling;
+		return m_states.cullingSide;
 	}
 
 	/*!
@@ -489,7 +518,32 @@ namespace Nz
 	{
 		NazaraAssert(parameter <= RendererParameter_Max, "Renderer parameter out of enum");
 
-		return m_states.parameters[parameter];
+		switch (parameter)
+		{
+			case RendererParameter_Blend:
+				return m_states.blending;
+
+			case RendererParameter_ColorWrite:
+				return m_states.colorWrite;
+
+			case RendererParameter_DepthBuffer:
+				return m_states.depthBuffer;
+
+			case RendererParameter_DepthWrite:
+				return m_states.depthWrite;
+
+			case RendererParameter_FaceCulling:
+				return m_states.faceCulling;
+
+			case RendererParameter_ScissorTest:
+				return m_states.scissorTest;
+
+			case RendererParameter_StencilTest:
+				return m_states.stencilTest;
+		}
+
+		NazaraInternalError("Unhandled renderer parameter: 0x" + String::Number(parameter, 16));
+		return false;
 	}
 
 	/*!
@@ -778,7 +832,7 @@ namespace Nz
 
 	inline void Material::SetFaceCulling(FaceSide faceSide)
 	{
-		m_states.faceCulling = faceSide;
+		m_states.cullingSide = faceSide;
 	}
 
 	/*!
