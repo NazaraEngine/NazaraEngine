@@ -163,6 +163,36 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdBindVertexBuffers(m_handle, firstBinding, bindingCount, buffer, offset);
 		}
 
+		inline void CommandBuffer::ClearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect)
+		{
+			return ClearAttachments(1U, &attachment, 1U, &rect);
+		}
+
+		inline void CommandBuffer::ClearAttachments(UInt32 attachmentCount, const VkClearAttachment* attachments, UInt32 rectCount, const VkClearRect* rects)
+		{
+			return m_pool->GetDevice()->vkCmdClearAttachments(m_handle, attachmentCount, attachments, rectCount, rects);
+		}
+
+		inline void CommandBuffer::ClearColorImage(VkImage image, VkImageLayout imageLayout, const VkClearColorValue& color, const VkImageSubresourceRange& range)
+		{
+			return ClearColorImage(image, imageLayout, color, 1U, &range);
+		}
+
+		inline void CommandBuffer::ClearColorImage(VkImage image, VkImageLayout imageLayout, const VkClearColorValue& color, UInt32 rangeCount, const VkImageSubresourceRange* ranges)
+		{
+			return m_pool->GetDevice()->vkCmdClearColorImage(m_handle, image, imageLayout, &color, rangeCount, ranges);
+		}
+
+		inline void CommandBuffer::ClearDepthStencilImage(VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue& depthStencil, const VkImageSubresourceRange& range)
+		{
+			return ClearDepthStencilImage(image, imageLayout, depthStencil, 1U, &range);
+		}
+
+		inline void CommandBuffer::ClearDepthStencilImage(VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue& depthStencil, UInt32 rangeCount, const VkImageSubresourceRange * ranges)
+		{
+			return m_pool->GetDevice()->vkCmdClearDepthStencilImage(m_handle, image, imageLayout, &depthStencil, rangeCount, ranges);
+		}
+
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 		{
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);
