@@ -50,6 +50,7 @@ namespace Nz
 				ErrorFlags flags(ErrorFlag_ThrowException, true);
 
 				NAZARA_VULKAN_LOAD_DEVICE(vkAllocateCommandBuffers);
+				NAZARA_VULKAN_LOAD_DEVICE(vkAllocateDescriptorSets);
 				NAZARA_VULKAN_LOAD_DEVICE(vkAllocateMemory);
 				NAZARA_VULKAN_LOAD_DEVICE(vkBeginCommandBuffer);
 				NAZARA_VULKAN_LOAD_DEVICE(vkBindBufferMemory);
