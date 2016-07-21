@@ -181,10 +181,10 @@ namespace Nz
 
 			// Renderstates
 			s_renderStates.depthFunc = RendererComparison_Equal;
-			s_renderStates.faceCulling = FaceSide_Front;
-			s_renderStates.parameters[RendererParameter_DepthBuffer] = true;
-			s_renderStates.parameters[RendererParameter_DepthWrite] = false;
-			s_renderStates.parameters[RendererParameter_FaceCulling] = true;
+			s_renderStates.cullingSide = FaceSide_Front;
+			s_renderStates.depthBuffer = true;
+			s_renderStates.depthWrite = false;
+			s_renderStates.faceCulling = true;
 
 			// Exception-free zone
 			s_indexBuffer = std::move(indexBuffer);
