@@ -252,41 +252,41 @@ namespace Nz
 
 		// Stencil
 		if (matData.GetIntegerParameter(MaterialData::StencilCompare, &iValue))
-			m_states.frontFace.stencilCompare = static_cast<RendererComparison>(iValue);
+			m_states.stencilCompare.front = static_cast<RendererComparison>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::StencilFail, &iValue))
-			m_states.frontFace.stencilFail = static_cast<StencilOperation>(iValue);
+			m_states.stencilFail.front = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::StencilPass, &iValue))
-			m_states.frontFace.stencilPass = static_cast<StencilOperation>(iValue);
+			m_states.stencilPass.front = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::StencilZFail, &iValue))
-			m_states.frontFace.stencilZFail = static_cast<StencilOperation>(iValue);
+			m_states.stencilDepthFail.front = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::StencilMask, &iValue))
-			m_states.frontFace.stencilMask = static_cast<UInt32>(iValue);
+			m_states.stencilWriteMask.front = static_cast<UInt32>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::StencilReference, &iValue))
-			m_states.frontFace.stencilReference = static_cast<unsigned int>(iValue);
+			m_states.stencilReference.front = static_cast<unsigned int>(iValue);
 
 		// Stencil (back)
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilCompare, &iValue))
-			m_states.backFace.stencilCompare = static_cast<RendererComparison>(iValue);
+			m_states.stencilCompare.back = static_cast<RendererComparison>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilFail, &iValue))
-			m_states.backFace.stencilFail = static_cast<StencilOperation>(iValue);
+			m_states.stencilFail.back = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilPass, &iValue))
-			m_states.backFace.stencilPass = static_cast<StencilOperation>(iValue);
+			m_states.stencilPass.back = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilZFail, &iValue))
-			m_states.backFace.stencilZFail = static_cast<StencilOperation>(iValue);
+			m_states.stencilDepthFail.back = static_cast<StencilOperation>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilMask, &iValue))
-			m_states.backFace.stencilMask = static_cast<UInt32>(iValue);
+			m_states.stencilWriteMask.back = static_cast<UInt32>(iValue);
 
 		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilReference, &iValue))
-			m_states.backFace.stencilReference = static_cast<unsigned int>(iValue);
+			m_states.stencilReference.back = static_cast<unsigned int>(iValue);
 
 		// Textures
 		if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
@@ -332,13 +332,13 @@ namespace Nz
 		matData->SetParameter(MaterialData::Transform, IsTransformEnabled());
 
 		// RendererParameter
-		matData->SetParameter(MaterialData::Blending, GetRenderStates().parameters[RendererParameter_Blend]);
-		matData->SetParameter(MaterialData::ColorWrite, GetRenderStates().parameters[RendererParameter_ColorWrite]);
-		matData->SetParameter(MaterialData::DepthBuffer, GetRenderStates().parameters[RendererParameter_DepthBuffer]);
-		matData->SetParameter(MaterialData::DepthWrite, GetRenderStates().parameters[RendererParameter_DepthWrite]);
-		matData->SetParameter(MaterialData::FaceCulling, GetRenderStates().parameters[RendererParameter_FaceCulling]);
-		matData->SetParameter(MaterialData::ScissorTest, GetRenderStates().parameters[RendererParameter_ScissorTest]);
-		matData->SetParameter(MaterialData::StencilTest, GetRenderStates().parameters[RendererParameter_StencilTest]);
+		matData->SetParameter(MaterialData::Blending, GetRenderStates().blending);
+		matData->SetParameter(MaterialData::ColorWrite, GetRenderStates().colorWrite);
+		matData->SetParameter(MaterialData::DepthBuffer, GetRenderStates().depthBuffer);
+		matData->SetParameter(MaterialData::DepthWrite, GetRenderStates().depthWrite);
+		matData->SetParameter(MaterialData::FaceCulling, GetRenderStates().faceCulling);
+		matData->SetParameter(MaterialData::ScissorTest, GetRenderStates().scissorTest);
+		matData->SetParameter(MaterialData::StencilTest, GetRenderStates().stencilTest);
 
 		// Samplers
 		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, int(GetDiffuseSampler().GetAnisotropicLevel()));
@@ -350,20 +350,20 @@ namespace Nz
 		matData->SetParameter(MaterialData::SpecularWrap, int(GetSpecularSampler().GetWrapMode()));
 
 		// Stencil
-		matData->SetParameter(MaterialData::StencilCompare, int(GetRenderStates().frontFace.stencilCompare));
-		matData->SetParameter(MaterialData::StencilFail, int(GetRenderStates().frontFace.stencilFail));
-		matData->SetParameter(MaterialData::StencilPass, int(GetRenderStates().frontFace.stencilPass));
-		matData->SetParameter(MaterialData::StencilZFail, int(GetRenderStates().frontFace.stencilZFail));
-		matData->SetParameter(MaterialData::StencilMask, int(GetRenderStates().frontFace.stencilMask));
-		matData->SetParameter(MaterialData::StencilReference, int(GetRenderStates().frontFace.stencilReference));
+		matData->SetParameter(MaterialData::StencilCompare, int(GetRenderStates().stencilCompare.front));
+		matData->SetParameter(MaterialData::StencilFail, int(GetRenderStates().stencilFail.front));
+		matData->SetParameter(MaterialData::StencilPass, int(GetRenderStates().stencilPass.front));
+		matData->SetParameter(MaterialData::StencilZFail, int(GetRenderStates().stencilDepthFail.front));
+		matData->SetParameter(MaterialData::StencilMask, int(GetRenderStates().stencilWriteMask.front));
+		matData->SetParameter(MaterialData::StencilReference, int(GetRenderStates().stencilReference.front));
 
 		// Stencil (back)
-		matData->SetParameter(MaterialData::BackFaceStencilCompare, int(GetRenderStates().backFace.stencilCompare));
-		matData->SetParameter(MaterialData::BackFaceStencilFail, int(GetRenderStates().backFace.stencilFail));
-		matData->SetParameter(MaterialData::BackFaceStencilPass, int(GetRenderStates().backFace.stencilPass));
-		matData->SetParameter(MaterialData::BackFaceStencilZFail, int(GetRenderStates().backFace.stencilZFail));
-		matData->SetParameter(MaterialData::BackFaceStencilMask, int(GetRenderStates().backFace.stencilMask));
-		matData->SetParameter(MaterialData::BackFaceStencilReference, int(GetRenderStates().backFace.stencilReference));
+		matData->SetParameter(MaterialData::BackFaceStencilCompare, int(GetRenderStates().stencilCompare.back));
+		matData->SetParameter(MaterialData::BackFaceStencilFail, int(GetRenderStates().stencilFail.back));
+		matData->SetParameter(MaterialData::BackFaceStencilPass, int(GetRenderStates().stencilPass.back));
+		matData->SetParameter(MaterialData::BackFaceStencilZFail, int(GetRenderStates().stencilDepthFail.back));
+		matData->SetParameter(MaterialData::BackFaceStencilMask, int(GetRenderStates().stencilWriteMask.back));
+		matData->SetParameter(MaterialData::BackFaceStencilReference, int(GetRenderStates().stencilReference.back));
 
 		// Textures
 		if (HasAlphaMap())
@@ -441,8 +441,8 @@ namespace Nz
 		m_specularColor = Color::White;
 		m_specularSampler = TextureSampler();
 		m_states = RenderStates();
-		m_states.parameters[RendererParameter_DepthBuffer] = true;
-		m_states.parameters[RendererParameter_FaceCulling] = true;
+		m_states.depthBuffer = true;
+		m_states.faceCulling = true;
 		m_transformEnabled = true;
 
 		SetShader("Basic");
