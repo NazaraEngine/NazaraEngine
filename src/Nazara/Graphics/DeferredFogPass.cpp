@@ -141,7 +141,7 @@ namespace Nz
 		m_shader = BuildFogShader();
 		m_shaderEyePositionLocation = m_shader->GetUniformLocation("EyePosition");
 
-		m_states.parameters[RendererParameter_DepthBuffer] = false;
+		m_states.depthBuffer = false;
 	}
 
 	DeferredFogPass::~DeferredFogPass() = default;
