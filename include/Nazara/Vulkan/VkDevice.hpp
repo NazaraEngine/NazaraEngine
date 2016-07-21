@@ -63,6 +63,7 @@ namespace Nz
 
 				// Vulkan core
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkAllocateCommandBuffers);
+				NAZARA_VULKAN_DEVICE_FUNCTION(vkAllocateDescriptorSets);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkAllocateMemory);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkBeginCommandBuffer);
 				NAZARA_VULKAN_DEVICE_FUNCTION(vkBindBufferMemory);

@@ -1,4 +1,4 @@
-// This file was automatically generated on 12 Jul 2016 at 17:44:44
+// This file was automatically generated on 20 Jul 2016 at 13:49:17
 
 /*
 	Nazara Engine - Vulkan
@@ -35,6 +35,9 @@
 #include <Nazara/Vulkan/VkBuffer.hpp>
 #include <Nazara/Vulkan/VkCommandBuffer.hpp>
 #include <Nazara/Vulkan/VkCommandPool.hpp>
+#include <Nazara/Vulkan/VkDescriptorPool.hpp>
+#include <Nazara/Vulkan/VkDescriptorSet.hpp>
+#include <Nazara/Vulkan/VkDescriptorSetLayout.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
 #include <Nazara/Vulkan/VkDeviceMemory.hpp>
 #include <Nazara/Vulkan/VkDeviceObject.hpp>

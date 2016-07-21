@@ -128,6 +128,21 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdBeginRenderPass(m_handle, &beginInfo, contents);
 		}
 
+		inline void CommandBuffer::BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSets)
+		{
+			return BindDescriptorSets(pipelineBindPoint, layout, firstSet, 1U, &descriptorSets);
+		}
+
+		inline void CommandBuffer::BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, UInt32 descriptorSetCount, const VkDescriptorSet* descriptorSets)
+		{
+			return BindDescriptorSets(pipelineBindPoint, layout, firstSet, descriptorSetCount, descriptorSets, 0U, nullptr);
+		}
+
+		inline void CommandBuffer::BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, UInt32 descriptorSetCount, const VkDescriptorSet* descriptorSets, UInt32 dynamicOffsetCount, const UInt32* dynamicOffsets)
+		{
+			return m_pool->GetDevice()->vkCmdBindDescriptorSets(m_handle, pipelineBindPoint, layout, firstSet, descriptorSetCount, descriptorSets, dynamicOffsetCount, dynamicOffsets);
+		}
+
 		inline void CommandBuffer::BindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
 		{
 			return m_pool->GetDevice()->vkCmdBindIndexBuffer(m_handle, buffer, offset, indexType);
