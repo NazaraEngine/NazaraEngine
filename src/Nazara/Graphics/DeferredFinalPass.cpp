@@ -26,7 +26,7 @@ namespace Nz
 		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
 		m_pointSampler.SetWrapMode(SamplerWrap_Clamp);
 
-		m_states.parameters[RendererParameter_DepthBuffer] = false;
+		m_states.depthBuffer = false;
 
 		m_uberShader = UberShaderLibrary::Get("Basic");
 
