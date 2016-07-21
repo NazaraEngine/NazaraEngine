@@ -31,12 +31,12 @@ namespace Nz
 	DeferredGeometryPass::DeferredGeometryPass()
 	{
 		m_clearShader = ShaderLibrary::Get("DeferredGBufferClear");
-		m_clearStates.parameters[RendererParameter_DepthBuffer] = true;
-		m_clearStates.parameters[RendererParameter_FaceCulling] = true;
-		m_clearStates.parameters[RendererParameter_StencilTest] = true;
+		m_clearStates.depthBuffer = true;
+		m_clearStates.faceCulling = true;
+		m_clearStates.stencilTest = true;
 		m_clearStates.depthFunc = RendererComparison_Always;
-		m_clearStates.frontFace.stencilCompare = RendererComparison_Always;
-		m_clearStates.frontFace.stencilPass = StencilOperation_Zero;
+		m_clearStates.stencilCompare.front = RendererComparison_Always;
+		m_clearStates.stencilPass.front = StencilOperation_Zero;
 	}
 
 	DeferredGeometryPass::~DeferredGeometryPass() = default;
