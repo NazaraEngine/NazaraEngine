@@ -20,6 +20,7 @@
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -107,6 +108,12 @@ namespace Nz
 		if (!Sprite::Initialize())
 		{
 			NazaraError("Failed to initialize sprites");
+			return false;
+		}
+
+		if (!TileMap::Initialize())
+		{
+			NazaraError("Failed to initialize tilemaps");
 			return false;
 		}
 
@@ -217,6 +224,7 @@ namespace Nz
 		Material::Uninitialize();
 		SkyboxBackground::Uninitialize();
 		Sprite::Uninitialize();
+		TileMap::Uninitialize();
 
 		NazaraNotice("Uninitialized: Graphics module");
 
