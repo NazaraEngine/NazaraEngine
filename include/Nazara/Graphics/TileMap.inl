@@ -42,7 +42,7 @@ namespace Nz
 	*
 	* \param tilePos Position of the tile to disable
 	*
-	* \seealso DisableTiles
+	* \see DisableTiles
 	*/
 	inline void TileMap::DisableTile(const Vector2ui& tilePos)
 	{
@@ -81,7 +81,7 @@ namespace Nz
 	*
 	* \remark if tileCount is zero, this is a no-op and the value of tilesPos is not used
 	*
-	* \seealso DisableTile
+	* \see DisableTile
 	*/
 	inline void TileMap::DisableTiles(const Vector2ui* tilesPos, std::size_t tileCount)
 	{
@@ -118,7 +118,7 @@ namespace Nz
 	* \param color The multiplicative color applied to the tile
 	* \param materialIndex The material which will be used for rendering this tile
 	*
-	* \seealso EnableTiles
+	* \see EnableTiles
 	*/
 	inline void TileMap::EnableTile(const Vector2ui& tilePos, const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
@@ -161,7 +161,7 @@ namespace Nz
 	* \remark The material at [materialIndex] must have a valid diffuse map before using this function, 
 	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
 	*
-	* \seealso EnableTiles
+	* \see EnableTiles
 	*/
 	inline void TileMap::EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
@@ -188,7 +188,7 @@ namespace Nz
 	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
 	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
 	*
-	* \seealso EnableTile
+	* \see EnableTile
 	*/
 	inline void TileMap::EnableTiles(const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
@@ -223,7 +223,7 @@ namespace Nz
 	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
 	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
 	*
-	* \seealso EnableTile
+	* \see EnableTile
 	*/
 	inline void TileMap::EnableTiles(const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
@@ -248,7 +248,7 @@ namespace Nz
 	* \param color The multiplicative color applied to the tile
 	* \param materialIndex The material which will be used for rendering this tile
 	*
-	* \seealso EnableTile
+	* \see EnableTile
 	*/
 	inline void TileMap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
@@ -299,7 +299,7 @@ namespace Nz
 	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
 	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
 	*
-	* \seealso EnableTile
+	* \see EnableTile
 	*/
 	inline void TileMap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
@@ -341,8 +341,8 @@ namespace Nz
 	* \brief Gets the tilemap size (i.e. number of tiles in each dimension)
 	* \return Number of tiles in each dimension
 	*
-	* \seealso GetSize
-	* \seealso GetTileSize
+	* \see GetSize
+	* \see GetTileSize
 	*/
 	inline const Vector2ui& TileMap::GetMapSize() const
 	{
@@ -353,8 +353,8 @@ namespace Nz
 	* \brief Returns the size of the tilemap in units (which is equivalent to GetMapSize() * GetTileSize())
 	* \return Maximum size in units occupied by this tilemap
 	*
-	* \seealso GetMapSize
-	* \seealso GetTileSize
+	* \see GetMapSize
+	* \see GetTileSize
 	*/
 	inline Vector2f TileMap::GetSize() const
 	{
@@ -379,8 +379,8 @@ namespace Nz
 	* \brief Gets the tile size (i.e. number of units occupied by a tile in each dimension)
 	* \return Tile size in each dimension
 	*
-	* \seealso GetMapSize
-	* \seealso GetSize
+	* \see GetMapSize
+	* \see GetSize
 	*/
 	inline const Vector2f& TileMap::GetTileSize() const
 	{
