@@ -1352,6 +1352,15 @@ namespace Nz
 
 	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
+		#if NAZARA_UTILITY_SAFE
+		if (width == 0)
+			NazaraError("Width must be greater than zero");
+		if (height == 0)
+			NazaraError("Height must be greater than zero");
+		if (depth == 0)
+			NazaraError("Depth must be greater than zero");
+		#endif
+
 		if (dstWidth == 0)
 			dstWidth = width;
 
