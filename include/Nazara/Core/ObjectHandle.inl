@@ -291,15 +291,16 @@ namespace Nz
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, const ObjectHandle<T>& handle)
 	{
-		return handle.ToString();
+		out << handle.ToString();
+		return out;
 	}
 
 	/*!
 	* \brief Checks whether the first object handle is equal to the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -311,8 +312,8 @@ namespace Nz
 	* \brief Checks whether the object is equal to the second object handle
 	* \return true if it is the case
 	*
-	* \param first Object to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs Object to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const T& lhs, const ObjectHandle<T>& rhs)
@@ -324,8 +325,8 @@ namespace Nz
 	* \brief Checks whether the object handle is equal to the second object
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second Object to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs Object to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const ObjectHandle<T>& lhs, const T& rhs)
@@ -337,8 +338,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is equal to the second object handle
 	* \return false if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -350,8 +351,8 @@ namespace Nz
 	* \brief Checks whether the object is equal to the second object handle
 	* \return false if it is the case
 	*
-	* \param first Object to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs Object to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const T& lhs, const ObjectHandle<T>& rhs)
@@ -363,8 +364,8 @@ namespace Nz
 	* \brief Checks whether the object handle is equal to the second object
 	* \return false if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second Object to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs Object to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const ObjectHandle<T>& lhs, const T& rhs)
@@ -376,8 +377,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -389,8 +390,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const T& lhs, const ObjectHandle<T>& rhs)
@@ -402,8 +403,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const ObjectHandle<T>& lhs, const T& rhs)
@@ -415,8 +416,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -428,8 +429,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const T& lhs, const ObjectHandle<T>& rhs)
@@ -441,8 +442,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const ObjectHandle<T>& lhs, const T& rhs)
@@ -454,8 +455,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -467,8 +468,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const T& lhs, const ObjectHandle<T>& rhs)
@@ -480,8 +481,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const ObjectHandle<T>& lhs, const T& rhs)
@@ -493,8 +494,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
@@ -506,8 +507,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const T& lhs, const ObjectHandle<T>& rhs)
@@ -519,8 +520,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectHandle to compare in left hand side
-	* \param second ObjectHandle to compare in right hand side
+	* \param lhs ObjectHandle to compare in left hand side
+	* \param rhs ObjectHandle to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const ObjectHandle<T>& lhs, const T& rhs)
