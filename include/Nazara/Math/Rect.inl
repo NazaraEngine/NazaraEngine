@@ -629,7 +629,7 @@ namespace Nz
 	* \brief Multiplies the lengths with the scalar
 	* \return A rectangle where the position is the same and width and height are the product of the old width and height and the scalar
 	*
-	* \param scale The scalar to multiply width and height with
+	* \param scalar The scalar to multiply width and height with
 	*/
 
 	template<typename T>
@@ -655,13 +655,13 @@ namespace Nz
 	* \brief Divides the lengths with the scalar
 	* \return A rectangle where the position is the same and width and height are the quotient of the old width and height and the scalar
 	*
-	* \param scale The scalar to divide width and height with
+	* \param scalar The scalar to divide width and height with
 	*/
 
 	template<typename T>
 	Rect<T> Rect<T>::operator/(T scalar) const
 	{
-		return Rect(x, y, width/scalar, height/scalar);
+		return Rect(x, y, width / scalar, height / scalar);
 	}
 
 	/*!
@@ -745,7 +745,7 @@ namespace Nz
 	* \brief Compares the rectangle to other one
 	* \return true if the rectangles are the same
 	*
-	* \param rec Other rectangle to compare with
+	* \param rect Other rectangle to compare with
 	*/
 
 	template<typename T>
@@ -759,7 +759,7 @@ namespace Nz
 	* \brief Compares the rectangle to other one
 	* \return false if the rectangles are the same
 	*
-	* \param rec Other rectangle to compare with
+	* \param rect Other rectangle to compare with
 	*/
 
 	template<typename T>

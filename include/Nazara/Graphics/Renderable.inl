@@ -24,9 +24,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Updates the bounding volume by a matrix
-	*
-	* \param transformMatrix Matrix transformation for our bounding volume
+	* \brief Updates the bounding volume
 	*/
 
 	inline void Renderable::UpdateBoundingVolume() const

@@ -50,6 +50,8 @@ namespace Nz
 			IntersectionSide Intersect(const Sphere<T>& sphere) const;
 			IntersectionSide Intersect(const Vector3<T>* points, unsigned int pointCount) const;
 
+			Frustum& operator=(const Frustum& other) = default;
+
 			Frustum& Set(const Frustum& frustum);
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
