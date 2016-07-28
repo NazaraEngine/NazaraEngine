@@ -71,6 +71,7 @@ namespace Nz
 			Rect operator*(const Vector2<T>& vec) const;
 			Rect operator/(T scalar) const;
 			Rect operator/(const Vector2<T>& vec) const;
+			Rect& operator=(const Rect& other) = default;
 
 			Rect& operator*=(T scalar);
 			Rect& operator*=(const Vector2<T>& vec);
