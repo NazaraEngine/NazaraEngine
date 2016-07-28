@@ -13,7 +13,7 @@ namespace Ndk
 {
 	class StateMachine;
 
-	class State
+	class NDK_API State
 	{
 		public:
 			State() = default;
