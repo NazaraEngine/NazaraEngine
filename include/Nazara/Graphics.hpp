@@ -63,10 +63,10 @@
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
+#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
-#include <Nazara/Graphics/ParticleSystem.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>

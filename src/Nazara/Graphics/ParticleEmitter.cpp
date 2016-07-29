@@ -7,7 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
-#include <Nazara/Graphics/ParticleSystem.hpp>
+#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <cstdlib>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -41,7 +41,7 @@ namespace Nz
 	* \param elapsedTime Delta time between the previous frame
 	*/
 
-	void ParticleEmitter::Emit(ParticleSystem& system, float elapsedTime) const
+	void ParticleEmitter::Emit(ParticleGroup& system, float elapsedTime) const
 	{
 		if (m_emissionRate > 0.f)
 		{
