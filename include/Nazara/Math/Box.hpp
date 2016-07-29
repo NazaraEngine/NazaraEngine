@@ -79,6 +79,7 @@ namespace Nz
 
 			Box operator*(T scalar) const;
 			Box operator*(const Vector3<T>& vec) const;
+			Box& operator=(const Box& other) = default;
 
 			Box& operator*=(T scalar);
 			Box& operator*=(const Vector3<T>& vec);
