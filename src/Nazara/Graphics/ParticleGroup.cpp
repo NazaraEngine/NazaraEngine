@@ -154,7 +154,6 @@ namespace Nz
 	* \param particleCount Number of particles
 	* \param elapsedTime Delta time between the previous frame
 	*/
-
 	void ParticleGroup::ApplyControllers(ParticleMapper& mapper, unsigned int particleCount, float elapsedTime)
 	{
 		m_processing = true;
@@ -174,8 +173,8 @@ namespace Nz
 		if (m_dyingParticles.size() < m_particleCount)
 		{
 			// We kill them in reverse order, std::set sorting them via std::greater
-			// The reason is simple, as the death of a particle means the move of the last particle in the buffer,
-			// without this solution, certain particles could avoid the death
+			// The reason is simple, as the death of a particle means moving the last particle in the buffer,
+			// without this solution, certain particles could avoid death
 			for (unsigned int index : m_dyingParticles)
 				KillParticle(index);
 		}
@@ -253,16 +252,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the fixed step size
-	* \return Current fixed step size
-	*/
-
-	float ParticleGroup::GetFixedStepSize() const
-	{
-		return m_stepSize;
-	}
-
-	/*!
 	* \brief Gets the maximum number of particles
 	* \return Current maximum number
 	*/
@@ -290,16 +279,6 @@ namespace Nz
 	unsigned int ParticleGroup::GetParticleSize() const
 	{
 		return m_particleSize;
-	}
-
-	/*!
-	* \brief Checks whether the fixed step is enabled
-	* \return true If it is the case
-	*/
-
-	bool ParticleGroup::IsFixedStepEnabled() const
-	{
-		return m_fixedStepEnabled;
 	}
 
 	/*!
@@ -373,17 +352,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the fixed step size
-	*
-	* \param stepSize Fixed step size
-	*/
-
-	void ParticleGroup::SetFixedStepSize(float stepSize)
-	{
-		m_stepSize = stepSize;
-	}
-
-	/*!
 	* \brief Sets the renderer of the particles
 	*
 	* \param renderer Renderer for the particles
@@ -448,12 +416,10 @@ namespace Nz
 		m_particleCount = system.m_particleCount;
 		m_particleSize = system.m_particleSize;
 		m_renderer = system.m_renderer;
-		m_stepSize = system.m_stepSize;
 
 		// The copy can not (or should not) happen during the update, there is no use to copy
 		m_dyingParticles.clear();
 		m_processing = false;
-		m_stepAccumulator = 0.f;
 
 		m_buffer.clear(); // To avoid a copy due to resize() which will be pointless
 		ResizeBuffer();
