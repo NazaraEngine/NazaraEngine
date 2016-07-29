@@ -1,4 +1,5 @@
 # Nazara build
+build/config.lua
 editor/bin/*.exe
 editor/bin/*.pdb
 editor/bin/*.dll
