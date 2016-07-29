@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PARTICLESYSTEM_HPP
-#define NAZARA_PARTICLESYSTEM_HPP
+#ifndef NAZARA_PARTICLEGROUP_HPP
+#define NAZARA_PARTICLEGROUP_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
@@ -22,13 +22,13 @@
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API ParticleSystem : public Renderable
+	class NAZARA_GRAPHICS_API ParticleGroup : public Renderable
 	{
 		public:
-			ParticleSystem(unsigned int maxParticleCount, ParticleLayout layout);
-			ParticleSystem(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration);
-			ParticleSystem(const ParticleSystem& emitter);
-			~ParticleSystem();
+			ParticleGroup(unsigned int maxParticleCount, ParticleLayout layout);
+			ParticleGroup(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration);
+			ParticleGroup(const ParticleGroup& emitter);
+			~ParticleGroup();
 
 			void AddController(ParticleControllerRef controller);
 			void AddEmitter(ParticleEmitter* emitter);
@@ -66,7 +66,7 @@ namespace Nz
 			void Update(float elapsedTime);
 			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
 
-			ParticleSystem& operator=(const ParticleSystem& emitter);
+			ParticleGroup& operator=(const ParticleGroup& emitter);
 
 		private:
 			void MakeBoundingVolume() const override;
@@ -89,4 +89,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PARTICLESYSTEM_HPP
+#endif // NAZARA_PARTICLEGROUP_HPP
