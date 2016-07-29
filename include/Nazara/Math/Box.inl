@@ -787,7 +787,7 @@ namespace Nz
 	* \brief Multiplies the lengths with the scalar
 	* \return A box where the position is the same and width, height and depth are the product of the old width, height and depth and the scalar
 	*
-	* \param scale The scalar to multiply width, height and depth with
+	* \param scalar The scalar to multiply width, height and depth with
 	*/
 
 	template<typename T>
