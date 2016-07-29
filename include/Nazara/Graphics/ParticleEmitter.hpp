@@ -14,7 +14,7 @@
 namespace Nz
 {
 	class ParticleMapper;
-	class ParticleSystem;
+	class ParticleGroup;
 
 	class NAZARA_GRAPHICS_API ParticleEmitter : public Node
 	{
@@ -24,7 +24,7 @@ namespace Nz
 			ParticleEmitter(ParticleEmitter&& emitter) = default;
 			virtual ~ParticleEmitter();
 
-			virtual void Emit(ParticleSystem& system, float elapsedTime) const;
+			virtual void Emit(ParticleGroup& system, float elapsedTime) const;
 
 			void EnableLagCompensation(bool enable);
 
