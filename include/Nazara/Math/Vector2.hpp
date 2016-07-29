@@ -76,6 +76,7 @@ namespace Nz
 			Vector2 operator*(T scale) const;
 			Vector2 operator/(const Vector2& vec) const;
 			Vector2 operator/(T scale) const;
+			Vector2& operator=(const Vector2& other) = default;
 
 			Vector2& operator+=(const Vector2& vec);
 			Vector2& operator-=(const Vector2& vec);

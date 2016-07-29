@@ -184,7 +184,7 @@ namespace Nz
 	{
 		return m_object;
 	}
-	
+
 	/*!
 	* \brief Assigns the object into this
 	* \return A reference to this
@@ -251,8 +251,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is equal to the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -264,8 +264,8 @@ namespace Nz
 	* \brief Checks whether the object is equal to the second object handle
 	* \return true if it is the case
 	*
-	* \param first Object to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs Object to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const T& lhs, const ObjectRef<T>& rhs)
@@ -277,8 +277,8 @@ namespace Nz
 	* \brief Checks whether the object handle is equal to the second object
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second Object to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs Object to compare in right hand side
 	*/
 	template<typename T>
 	bool operator==(const ObjectRef<T>& lhs, const T& rhs)
@@ -290,8 +290,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is equal to the second object handle
 	* \return false if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -303,8 +303,8 @@ namespace Nz
 	* \brief Checks whether the object is equal to the second object handle
 	* \return false if it is the case
 	*
-	* \param first Object to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs Object to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const T& lhs, const ObjectRef<T>& rhs)
@@ -316,8 +316,8 @@ namespace Nz
 	* \brief Checks whether the object handle is equal to the second object
 	* \return false if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second Object to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs Object to compare in right hand side
 	*/
 	template<typename T>
 	bool operator!=(const ObjectRef<T>& lhs, const T& rhs)
@@ -329,8 +329,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -342,8 +342,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const T& lhs, const ObjectRef<T>& rhs)
@@ -355,8 +355,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const T& rhs)
@@ -368,8 +368,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -381,8 +381,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const T& lhs, const ObjectRef<T>& rhs)
@@ -394,8 +394,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is less or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator<=(const ObjectRef<T>& lhs, const T& rhs)
@@ -407,8 +407,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -420,8 +420,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const T& lhs, const ObjectRef<T>& rhs)
@@ -433,8 +433,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>(const ObjectRef<T>& lhs, const T& rhs)
@@ -446,8 +446,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
@@ -459,8 +459,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const T& lhs, const ObjectRef<T>& rhs)
@@ -472,8 +472,8 @@ namespace Nz
 	* \brief Checks whether the first object handle is greather or equal than the second object handle
 	* \return true if it is the case
 	*
-	* \param first ObjectRef to compare in left hand side
-	* \param second ObjectRef to compare in right hand side
+	* \param lhs ObjectRef to compare in left hand side
+	* \param rhs ObjectRef to compare in right hand side
 	*/
 	template<typename T>
 	bool operator>=(const ObjectRef<T>& lhs, const T& rhs)

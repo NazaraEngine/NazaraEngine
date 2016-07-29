@@ -61,6 +61,7 @@ namespace Nz
 			String ToString() const;
 
 			Vector3<T> operator*(T lambda) const;
+			Ray& operator=(const Ray& other) = default;
 
 			bool operator==(const Ray& ray) const;
 			bool operator!=(const Ray& ray) const;

@@ -67,6 +67,7 @@ namespace Nz
 			T operator[](unsigned int i) const;
 
 			Sphere operator*(T scalar) const;
+			Sphere& operator=(const Sphere& other) = default;
 
 			Sphere& operator*=(T scalar);
 

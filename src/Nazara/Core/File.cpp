@@ -385,7 +385,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor	
+	* \brief Sets the position of the cursor
 	* \return true if cursor is successfully positioned
 	*
 	* \param pos Position of the cursor
@@ -404,7 +404,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor	
+	* \brief Sets the position of the cursor
 	* \return true if cursor is successfully positioned
 	*
 	* \param offset Offset according to the cursor begin position
@@ -725,7 +725,7 @@ namespace Nz
 			return true;
 		else if (path.Match("\\\\*")) // Ex: \\Laptop
 			return true;
-		else if (path.StartsWith('\\')) // Special : '\' refering to the root
+		else if (path.StartsWith('\\')) // Special : '\' referring to the root
 			return true;
 		else
 			return false;
