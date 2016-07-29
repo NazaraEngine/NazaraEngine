@@ -168,7 +168,7 @@ namespace Nz
 		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
 	}
 
-	inline void OBJParser::UnrecognizedLine(bool error)
+	inline bool OBJParser::UnrecognizedLine(bool error)
 	{
 		String message = "Unrecognized \"" + m_currentLine + '"';
 
@@ -176,6 +176,16 @@ namespace Nz
 			Error(message);
 		else
 			Warning(message);
+
+		m_errorCount++;
+
+		if (m_lineCount > 20 && (m_errorCount * 100 / m_lineCount) > 50)
+		{
+			NazaraError("Aborting parsing because of error percentage");
+			return false; //< Abort parsing if error percentage is too high
+		}
+
+		return true;
 	}
 }
 
