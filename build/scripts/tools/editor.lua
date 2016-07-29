@@ -9,9 +9,6 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../extlibs/include/QtCore",
-	"../extlibs/include/QtGui",
-	"../extlibs/include/QtWidgets",
 	"../editor/src",
 	"../include"
 }
@@ -29,3 +26,8 @@ TOOL.Libraries = {
 	"NazaraQt",
 	"NazaraSDK"
 }
+
+function TOOL:Validate()
+	local qtDepTable = NazaraBuild:GetDependency(self, "NazaraQt")
+	return qtDepTable.Validate(self)
+end
