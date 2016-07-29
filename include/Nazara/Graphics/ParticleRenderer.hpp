@@ -19,7 +19,7 @@ namespace Nz
 	class AbstractRenderQueue;
 	class ParticleMapper;
 	class ParticleRenderer;
-	class ParticleSystem;
+	class ParticleGroup;
 
 	using ParticleRendererConstRef = ObjectRef<const ParticleRenderer>;
 	using ParticleRendererLibrary = ObjectLibrary<ParticleRenderer>;
@@ -35,7 +35,7 @@ namespace Nz
 			ParticleRenderer(const ParticleRenderer& renderer);
 			virtual ~ParticleRenderer();
 
-			virtual void Render(const ParticleSystem& system, const ParticleMapper& mapper, unsigned int startId, unsigned int endId, AbstractRenderQueue* renderQueue) = 0;
+			virtual void Render(const ParticleGroup& system, const ParticleMapper& mapper, unsigned int startId, unsigned int endId, AbstractRenderQueue* renderQueue) = 0;
 
 			// Signals:
 			NazaraSignal(OnParticleRendererRelease, const ParticleRenderer* /*particleRenderer*/);
