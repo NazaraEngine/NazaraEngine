@@ -45,7 +45,7 @@ namespace Nz
 	*/
 
 	inline String::SharedString::SharedString(std::size_t strSize) :
-	capacity(strSize), 
+	capacity(strSize),
 	size(strSize),
 	string(new char[strSize + 1])
 	{
@@ -84,16 +84,15 @@ namespace Nz
 
 namespace std
 {
-	/*!
-	* \brief Specialisation of std to hash
-	* \return Result of the hash
-	*
-	* \param str String to hash
-	*/
-
 	template<>
 	struct hash<Nz::String>
 	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param str String to hash
+		*/
 		size_t operator()(const Nz::String& str) const
 		{
 			// Algorithme DJB2

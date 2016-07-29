@@ -21,9 +21,10 @@ TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraAudio",
 	"NazaraLua",
+	"NazaraGraphics",
+	"NazaraRenderer",
+	"NazaraNetwork",
 	"NazaraNoise",
 	"NazaraPhysics",
-	"NazaraUtility",
-	"NazaraRenderer",
-	"NazaraGraphics"
+	"NazaraUtility"
 }

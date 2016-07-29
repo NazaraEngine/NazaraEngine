@@ -9,8 +9,11 @@ SCENARIO("Model", "[GRAPHICS][MODEL]")
 		{
 			THEN("These results are expected")
 			{
+				Nz::ModelParameters params;
+				params.mesh.optimizeIndexBuffers = false;
+
 				Nz::ModelRef model = Nz::Model::New();
-				REQUIRE(model->LoadFromFile("resources/Engine/Graphics/dragon_recon/dragon_vrip_res4.obj"));
+				REQUIRE(model->LoadFromFile("resources/Engine/Graphics/dragon_recon/dragon_vrip_res4.obj", params));
 
 				REQUIRE(model->GetMaterialCount() == 2);
 				REQUIRE(model->GetSkin() == 0);

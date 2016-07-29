@@ -24,7 +24,7 @@ function NazaraBuild:Execute()
 	if (self.Actions[_ACTION] == nil) then
 		local makeLibDir = os.is("windows") and "mingw" or "gmake"
 
-		if (_OPTIONS["with-extlibs"]) then
+		if (self.Config["BuildDependencies"]) then
 			workspace("NazaraExtlibs")
 			platforms(platformData)
 
@@ -38,12 +38,6 @@ function NazaraBuild:Execute()
 			libdirs("../extlibs/lib/common")
 			location(_ACTION)
 			kind("StaticLib")
-
-			configuration("x32")
-				libdirs("../extlibs/lib/common/x86")
-
-			configuration("x64")
-				libdirs("../extlibs/lib/common/x64")
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
@@ -110,6 +104,12 @@ function NazaraBuild:Execute()
 				flags(libTable.Flags)
 				includedirs(libTable.Includes)
 				links(libTable.Libraries)
+
+				configuration("x32")
+					libdirs(libTable.LibraryPaths.x86)
+
+				configuration("x64")
+					libdirs(libTable.LibraryPaths.x64)
 
 				for k,v in pairs(libTable.ConfigurationLibraries) do
 					configuration(k)
@@ -188,11 +188,11 @@ function NazaraBuild:Execute()
 			libdirs("../extlibs/lib/common")
 
 			configuration("x32")
-				libdirs("../extlibs/lib/common/x86")
+				libdirs(moduleTable.LibraryPaths.x86)
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
-				libdirs("../extlibs/lib/common/x64")
+				libdirs(moduleTable.LibraryPaths.x64)
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
@@ -297,11 +297,11 @@ function NazaraBuild:Execute()
 			libdirs("../extlibs/lib/common")
 
 			configuration("x32")
-				libdirs("../extlibs/lib/common/x86")
+				libdirs(toolTable.LibraryPaths.x86)
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
-				libdirs("../extlibs/lib/common/x64")
+				libdirs(toolTable.LibraryPaths.x64)
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
@@ -431,11 +431,11 @@ function NazaraBuild:Execute()
 			links(exampleTable.Libraries)
 
 			configuration("x32")
-				libdirs("../extlibs/lib/common/x86")
+				libdirs(exampleTable.LibraryPaths.x86)
 
 			configuration("x64")
 				defines("NAZARA_PLATFORM_x64")
-				libdirs("../extlibs/lib/common/x64")
+				libdirs(exampleTable.LibraryPaths.x64)
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../lib/" .. makeLibDir .. "/x86")
@@ -465,33 +465,29 @@ function NazaraBuild:Execute()
 	end
 end
 
+function NazaraBuild:GetConfig()
+	return self.Config
+end
+
+function NazaraBuild:GetDependency(infoTable, name)
+	local projectName = name:match("Nazara(%w+)")
+	if (projectName) then
+		-- tool or module
+		local moduleTable = self.Modules[projectName:lower()]
+		if (moduleTable) then
+			return moduleTable
+		else
+			local toolTable = self.Tools[projectName:lower()]
+			if (toolTable) then
+				return toolTable
+			end
+		end
+	else
+		return self.ExtLibs[name:lower()]
+	end
+end
+
 function NazaraBuild:Initialize()
-	-- Commençons par les options
-	newoption({
-		trigger     = "install-path",
-		description = "Setup additionnals install directories (library binaries will be copied there)"
-	})
-
-	newoption({
-		trigger     = "server",
-		description = "Excludes client-only modules/tools/examples"
-	})
-
-	newoption({
-		trigger     = "united",
-		description = "Builds all the modules as one united library"
-	})
-
-	newoption({
-		trigger     = "with-extlibs",
-		description = "Builds the extern libraries"
-	})
-
-	newoption({
-		trigger     = "with-examples",
-		description = "Builds the examples"
-	})
-
 	self.Actions = {}
 	self.Examples = {}
 	self.ExecutableDir = {}
@@ -500,12 +496,8 @@ function NazaraBuild:Initialize()
 	self.Modules = {}
 	self.Tools = {}
 	
-	if (_OPTIONS["install-path"]) then
-		local paths = string.explode(_OPTIONS["install-path"], ";")
-		for k,v in pairs(paths) do
-			self:AddInstallPath(v)
-		end
-	end
+	self.Config = {}
+	self:LoadConfig()
 
 	-- Actions
 	modules = os.matchfiles("scripts/actions/*.lua")
@@ -593,7 +585,7 @@ function NazaraBuild:Initialize()
 	TOOL = nil
 
 	-- Examples
-	if (_OPTIONS["with-examples"]) then
+	if (self.Config["BuildExamples"]) then
 		local examples = os.matchdirs("../examples/*")
 		for k,v in pairs(examples) do
 			local dirName = v:match(".*/(.*)")
@@ -641,6 +633,236 @@ function NazaraBuild:Initialize()
 
 		table.sort(orderedTables[k], function (a, b) return a.Name < b.Name end)
 	end
+end
+
+function NazaraBuild:LoadConfig()
+    local f = io.open("config.lua", "r")
+	if (not f) then
+		print("Failed to open config.lua")
+		return
+	end
+
+    local content = f:read("*a")
+    f:close()
+
+	local func, err = loadstring(content)
+	if (not func) then
+		print("Failed to parse config.lua: " .. err)
+		return
+	end
+
+	setfenv(func, self.Config)
+	
+	local status, err = pcall(func)
+	if (not status) then
+		print("Failed to load config.lua: " .. err)
+		return
+	end
+	
+	local configTable = self.Config
+	local AddBoolOption = function (option, name, description)
+		newoption({
+			trigger     = name,
+			description = description
+		})
+
+		local str = _OPTIONS[name]
+		if (str) then
+			if (#str == 0 or str == "1" or str == "yes" or str == "true") then
+				configTable[option] = true
+			elseif (str == "0" or str == "no" or str == "false") then
+				configTable[option] = false
+			else
+				error("Invalid entry for " .. name .. " option: \"" .. str .. "\"")
+			end
+		end
+	end
+
+	AddBoolOption("BuildDependencies", "with-extlibs", "Builds the extern libraries")
+	AddBoolOption("BuildExamples", "with-examples", "Builds the examples")
+	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
+	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
+
+	-- InstallDir
+	newoption({
+		trigger     = "install-path",
+		description = "Setup additionnals install directories (library binaries will be copied there)"
+	})
+
+	self.Config["InstallDir"] = self.Config["InstallDir"] or ""
+	if (_OPTIONS["install-path"] ~= nil) then
+		self.Config["InstallDir"] = self.Config["InstallDir"] .. ";" .. _OPTIONS["install-path"]
+	end
+
+	local paths = string.explode(self.Config["InstallDir"], ";")
+	for k,v in pairs(paths) do
+		self:AddInstallPath(v)
+	end
+end
+
+function NazaraBuild:MakeInstallCommands(infoTable)
+	if (PremakeVersion < 50) then
+		return
+	end
+
+	if (os.is("windows")) then
+		configuration({})
+		
+		for k,v in pairs(self.InstallDir) do
+			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "]] .. destPath .. [[\" /E /Y]]})
+		end
+
+		for k,fileName in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
+			local paths = {}
+			for k,v in pairs(infoTable.BinaryPaths.x86) do
+				table.insert(paths, {"x32", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x32", v .. "/lib" .. fileName .. ".dll"})
+			end
+
+			for k,v in pairs(infoTable.BinaryPaths.x64) do
+				table.insert(paths, {"x64", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x64", v .. "/lib" .. fileName .. ".dll"})
+			end
+
+			for k,v in pairs(paths) do
+				local config = v[1]
+				local srcPath = v[2]
+				if (os.isfile(srcPath)) then
+					if (infoTable.Kind == "plugin") then
+						srcPath = "../../" .. srcPath
+					end
+
+					configuration(config)
+					
+					for k,v in pairs(self.ExecutableDir) do
+						local srcPath = path.isabsolute(srcPath) and path.translate(srcPath) or [[%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}]]
+						local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+						postbuildcommands({[[xcopy "]] .. srcPath .. [[" "]] .. destPath .. [[\" /E /Y]]})
+					end
+				end
+			end
+		end
+	end
+end
+
+local PosixOSes = {
+	["bsd"] = true,
+	["linux"] = true,
+	["macosx"] = true,
+	["solaris"] = true
+}
+
+function NazaraBuild:Process(infoTable)
+	local libraries = {}
+	for k, library in pairs(infoTable.Libraries) do
+		local libraryTable = self:GetDependency(infoTable, library)
+		if (libraryTable) then
+			if (libraryTable.Excluded) then
+				infoTable.Excluded = true
+				infoTable.ExcludeReason = "depends on excluded " .. library .. " " .. libraryTable.Type:lower()
+				return false
+			end
+
+			if (libraryTable.Type == "Module") then
+				if (_OPTIONS["united"]) then
+					library = "NazaraEngine"
+				else
+					library = "Nazara" .. libraryTable.Name
+				end
+
+				if (not self.Config["UniteModules"] or infoTable.Type ~= "Module") then
+					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
+				end
+			elseif (libraryTable.Type == "ExternLib") then
+				library = libraryTable.Name
+
+				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
+			elseif (libraryTable.Type == "Tool") then
+				library = "Nazara" .. libraryTable.Name
+
+				-- Import tools includes
+				for k,v in ipairs(libraryTable.Includes) do
+					table.insert(infoTable.Includes, v)
+				end
+
+				-- And libraries
+				for k, v in pairs(libraryTable.Libraries) do
+					table.insert(infoTable.Libraries, v)
+				end
+
+				for config, libs in pairs(libraryTable.ConfigurationLibraries) do
+					for k,v in pairs(libs) do
+						table.insert(infoTable.ConfigurationLibraries[config], v)
+					end
+				end
+
+				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
+			else
+				infoTable.Excluded = true
+				infoTable.ExcludeReason = "dependency " .. library .. " has invalid type \"" .. libraryTable.Type .. "\""
+				return false
+			end		
+		else
+			table.insert(libraries, library)
+		end
+	end
+	infoTable.Libraries = libraries
+
+	for k,v in pairs(infoTable) do
+		local target = k:match("Os(%w+)")
+		if (target) then
+			local targetTable = infoTable[target]
+			if (targetTable) then
+				local excludeTargetTable = infoTable[target .. "Excluded"]
+				for platform, defineTable in pairs(v) do
+					platform = string.lower(platform)
+					if (platform == "posix") then
+						local osname = os.get()
+						if (PosixOSes[osname]) then
+							platform = osname
+						end
+					end
+
+					if (os.is(platform)) then
+						for k,v in ipairs(defineTable) do
+							table.insert(targetTable, v)
+						end
+					elseif (excludeTargetTable) then
+						for k,v in ipairs(defineTable) do
+							table.insert(excludeTargetTable, v)
+						end
+					end
+				end
+
+				infoTable[k] = nil
+			end
+		end
+	end
+
+	if (infoTable.Kind == "application") then
+		self:AddExecutablePath(infoTable.TargetDirectory)
+	end
+
+	if (infoTable.Validate) then
+		local ret, err = infoTable:Validate()
+		if (not ret) then
+			infoTable.Excluded = true
+			infoTable.ExcludeReason = "validation failed: " .. err
+			return false
+		end
+	end
+	
+	return true
 end
 
 function NazaraBuild:RegisterAction(actionTable)
@@ -750,7 +972,7 @@ function NazaraBuild:RegisterModule(moduleTable)
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.inl")
 	table.insert(moduleTable.Files, "../src/Nazara/" .. moduleTable.Name .. "/**.cpp")
 
-	if (_OPTIONS["united"] and lowerCaseName ~= "core") then
+	if (self.Config["UniteModules"] and lowerCaseName ~= "core") then
 		table.insert(moduleTable.FilesExcluded, "../src/Nazara/" .. moduleTable.Name .. "/Debug/NewOverload.cpp")
 	end
 
@@ -789,132 +1011,8 @@ function NazaraBuild:RegisterTool(toolTable)
 	return true
 end
 
-local PosixOSes = {
-	["bsd"] = true,
-	["linux"] = true,
-	["macosx"] = true,
-	["solaris"] = true
-}
-
-function NazaraBuild:Process(infoTable)
-	local libraries = {}
-	for k, library in pairs(infoTable.Libraries) do
-		local projectName = library:match("Nazara(%w+)")
-		local moduleTable = projectName and self.Modules[projectName:lower()]
-		local toolTable = projectName and self.Tools[projectName:lower()]
-
-		if (moduleTable) then
-			if (moduleTable.Excluded) then
-				infoTable.Excluded = true
-				infoTable.ExcludeReason = "depends on excluded " .. projectName .. " module"
-				return false
-			end
-
-			if (_OPTIONS["united"]) then
-				library = "NazaraEngine"
-			else
-				library = "Nazara" .. moduleTable.Name
-			end
-
-			if (not _OPTIONS["united"] or infoTable.Type ~= "Module") then
-				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
-			end
-		else
-			local extLibTable = self.ExtLibs[library:lower()]
-			if (extLibTable) then
-				if (extLibTable.Excluded) then
-					infoTable.Excluded = true
-					infoTable.ExcludeReason = "depends on excluded " .. extLibTable.Name .. " external library"
-					return false
-				end
-
-				library = extLibTable.Name
-
-				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
-			else
-				if (toolTable and toolTable.Kind == "library") then
-					if (toolTable.Excluded) then
-						infoTable.Excluded = true
-						infoTable.ExcludeReason = "depends on excluded " .. toolTable.Name .. " tool"
-						return false
-					end
-
-					library = "Nazara" .. toolTable.Name
-
-					-- Import tools includes
-					for k,v in ipairs(toolTable.Includes) do
-						table.insert(infoTable.Includes, v)
-					end
-
-					-- And libraries
-					for k, v in pairs(toolTable.Libraries) do
-						table.insert(infoTable.Libraries, v)
-					end
-
-					for config, libs in pairs(toolTable.ConfigurationLibraries) do
-						for k,v in pairs(libs) do
-							table.insert(infoTable.ConfigurationLibraries[config], v)
-						end
-					end
-
-					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
-				else
-					table.insert(libraries, library)
-				end
-			end
-		end
-	end
-	infoTable.Libraries = libraries
-
-	for k,v in pairs(infoTable) do
-		local target = k:match("Os(%w+)")
-		if (target) then
-			local targetTable = infoTable[target]
-			if (targetTable) then
-				local excludeTargetTable = infoTable[target .. "Excluded"]
-				for platform, defineTable in pairs(v) do
-					platform = string.lower(platform)
-					if (platform == "posix") then
-						local osname = os.get()
-						if (PosixOSes[osname]) then
-							platform = osname
-						end
-					end
-
-					if (os.is(platform)) then
-						for k,v in ipairs(defineTable) do
-							table.insert(targetTable, v)
-						end
-					elseif (excludeTargetTable) then
-						for k,v in ipairs(defineTable) do
-							table.insert(excludeTargetTable, v)
-						end
-					end
-				end
-
-				infoTable[k] = nil
-			end
-		end
-	end
-
-	if (infoTable.Kind == "application") then
-		self:AddExecutablePath(infoTable.TargetDirectory)
-	end
-
-	return true
-end
-
 function NazaraBuild:Resolve(infoTable)
-	if (infoTable.ClientOnly and _OPTIONS["server"]) then
+	if (infoTable.ClientOnly and self.Config["ServerMode"]) then
 		infoTable.Excluded = true
 		infoTable.ExcludeReason = "excluded by command-line options (client-only)"
 	end
@@ -937,53 +1035,19 @@ function NazaraBuild:Resolve(infoTable)
 	end
 end
 
-function NazaraBuild:MakeInstallCommands(infoTable)
-	if (PremakeVersion < 50) then
-		return
-	end
-
-	if (os.is("windows")) then
-		configuration({})
-		
-		for k,v in pairs(self.InstallDir) do
-			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
-			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "]] .. destPath .. [[\" /E /Y]]})
-		end
-
-		for k,v in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
-			local paths = {}
-			table.insert(paths, {"x32", "../extlibs/lib/common/x86/" .. v .. ".dll"})
-			table.insert(paths, {"x32", "../extlibs/lib/common/x86/lib" .. v .. ".dll"})
-			table.insert(paths, {"x64", "../extlibs/lib/common/x64/" .. v .. ".dll"})
-			table.insert(paths, {"x64", "../extlibs/lib/common/x64/lib" .. v .. ".dll"})
-
-			for k,v in pairs(paths) do
-				local config = v[1]
-				local srcPath = v[2]
-				if (os.isfile(srcPath)) then
-					if (infoTable.Kind == "plugin") then
-						srcPath = "../../" .. srcPath
-					end
-
-					configuration(config)
-					
-					for k,v in pairs(self.ExecutableDir) do
-						local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
-						postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}" "]] .. destPath .. [[\" /E /Y]]})
-					end
-				end
-			end
-		end
-	end
-end
-
 function NazaraBuild:SetupInfoTable(infoTable)
-	infoTable.Excludable = true
+	infoTable.BinaryPaths = {}
+	infoTable.BinaryPaths.x86 = {}
+	infoTable.BinaryPaths.x64 = {}
 	infoTable.ConfigurationLibraries = {}
 	infoTable.ConfigurationLibraries.DebugStatic = {}
 	infoTable.ConfigurationLibraries.ReleaseStatic = {}
 	infoTable.ConfigurationLibraries.DebugDynamic = {}
 	infoTable.ConfigurationLibraries.ReleaseDynamic = {}
+	infoTable.Excludable = true
+	infoTable.LibraryPaths = {}
+	infoTable.LibraryPaths.x86 = {}
+	infoTable.LibraryPaths.x64 = {}
 
 	local infos = {"Defines", "DynLib", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
 	for k,v in ipairs(infos) do
@@ -1003,12 +1067,22 @@ function NazaraBuild:SetupExtlibTable(infoTable)
 	self:SetupInfoTable(infoTable)
 
 	infoTable.Kind = "library"
+
+	table.insert(infoTable.BinaryPaths.x86, "../extlibs/lib/common/x86")
+	table.insert(infoTable.BinaryPaths.x64, "../extlibs/lib/common/x64")
+	table.insert(infoTable.LibraryPaths.x86, "../extlibs/lib/common/x86")
+	table.insert(infoTable.LibraryPaths.x64, "../extlibs/lib/common/x64")
 end
 
 function NazaraBuild:SetupModuleTable(infoTable)
 	self:SetupInfoTable(infoTable)
 
 	infoTable.Kind = "library"
+
+	table.insert(infoTable.BinaryPaths.x86, "../extlibs/lib/common/x86")
+	table.insert(infoTable.BinaryPaths.x64, "../extlibs/lib/common/x64")
+	table.insert(infoTable.LibraryPaths.x86, "../extlibs/lib/common/x86")
+	table.insert(infoTable.LibraryPaths.x64, "../extlibs/lib/common/x64")
 end
 
 NazaraBuild.SetupToolTable = NazaraBuild.SetupInfoTable

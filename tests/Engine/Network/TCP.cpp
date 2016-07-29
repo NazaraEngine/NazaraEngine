@@ -18,6 +18,8 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 
 		Nz::UInt16 port = dis(gen);
 		Nz::TcpServer server;
+		server.EnableBlocking(false);
+
 		REQUIRE(server.Listen(Nz::NetProtocol_IPv4, port) == Nz::SocketState_Bound);
 		Nz::IpAddress serverIP = server.GetBoundAddress();
 		REQUIRE(serverIP.IsValid());

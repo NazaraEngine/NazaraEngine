@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PARTICLESYSTEM_HPP
-#define NAZARA_PARTICLESYSTEM_HPP
+#ifndef NAZARA_PARTICLEGROUP_HPP
+#define NAZARA_PARTICLEGROUP_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
@@ -22,13 +22,13 @@
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API ParticleSystem : public Renderable
+	class NAZARA_GRAPHICS_API ParticleGroup : public Renderable
 	{
 		public:
-			ParticleSystem(unsigned int maxParticleCount, ParticleLayout layout);
-			ParticleSystem(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration);
-			ParticleSystem(const ParticleSystem& emitter);
-			~ParticleSystem();
+			ParticleGroup(unsigned int maxParticleCount, ParticleLayout layout);
+			ParticleGroup(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration);
+			ParticleGroup(const ParticleGroup& emitter);
+			~ParticleGroup();
 
 			void AddController(ParticleControllerRef controller);
 			void AddEmitter(ParticleEmitter* emitter);
@@ -40,18 +40,13 @@ namespace Nz
 			void* CreateParticle();
 			void* CreateParticles(unsigned int count);
 
-			void EnableFixedStep(bool fixedStep);
-
 			void* GenerateParticle();
 			void* GenerateParticles(unsigned int count);
 
 			const ParticleDeclarationConstRef& GetDeclaration() const;
-			float GetFixedStepSize() const;
 			unsigned int GetMaxParticleCount() const;
 			unsigned int GetParticleCount() const;
 			unsigned int GetParticleSize() const;
-
-			bool IsFixedStepEnabled() const;
 
 			void KillParticle(unsigned int index);
 			void KillParticles();
@@ -60,13 +55,12 @@ namespace Nz
 			void RemoveEmitter(ParticleEmitter* emitter);
 			void RemoveGenerator(ParticleGenerator* generator);
 
-			void SetFixedStepSize(float stepSize);
 			void SetRenderer(ParticleRenderer* renderer);
 
 			void Update(float elapsedTime);
 			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
 
-			ParticleSystem& operator=(const ParticleSystem& emitter);
+			ParticleGroup& operator=(const ParticleGroup& emitter);
 
 		private:
 			void MakeBoundingVolume() const override;
@@ -79,14 +73,11 @@ namespace Nz
 			std::vector<ParticleGeneratorRef> m_generators;
 			ParticleDeclarationConstRef m_declaration;
 			ParticleRendererRef m_renderer;
-			bool m_fixedStepEnabled;
 			bool m_processing;
-			float m_stepAccumulator;
-			float m_stepSize;
 			unsigned int m_maxParticleCount;
 			unsigned int m_particleCount;
 			unsigned int m_particleSize;
 	};
 }
 
-#endif // NAZARA_PARTICLESYSTEM_HPP
+#endif // NAZARA_PARTICLEGROUP_HPP

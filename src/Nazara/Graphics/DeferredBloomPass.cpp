@@ -32,7 +32,7 @@ namespace Nz
 
 		m_bloomBrightShader = ShaderLibrary::Get("DeferredBloomBright");
 		m_bloomFinalShader = ShaderLibrary::Get("DeferredBloomFinal");
-		m_bloomStates.parameters[RendererParameter_DepthBuffer] = false;
+		m_bloomStates.depthBuffer = false;
 		m_gaussianBlurShader = ShaderLibrary::Get("DeferredGaussianBlur");
 		m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
