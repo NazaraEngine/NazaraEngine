@@ -74,6 +74,7 @@ namespace Nz
 			Vector4 operator*(T scale) const;
 			Vector4 operator/(const Vector4& vec) const;
 			Vector4 operator/(T scale) const;
+			Vector4& operator=(const Vector4& other) = default;
 
 			Vector4& operator+=(const Vector4& vec);
 			Vector4& operator-=(const Vector4& vec);
