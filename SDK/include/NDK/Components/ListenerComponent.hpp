@@ -15,11 +15,11 @@ namespace Ndk
 	class NDK_API ListenerComponent : public Component<ListenerComponent>
 	{
 		public:
-			ListenerComponent();
+			inline ListenerComponent();
 			~ListenerComponent() = default;
 
-			bool IsActive() const;
-			void SetActive(bool active = true);
+			inline bool IsActive() const;
+			inline void SetActive(bool active = true);
 
 			static ComponentIndex componentIndex;
 
