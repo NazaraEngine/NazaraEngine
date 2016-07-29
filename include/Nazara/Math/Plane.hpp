@@ -45,6 +45,8 @@ namespace Nz
 
 			String ToString() const;
 
+			Plane& operator=(const Plane& other) = default;
+
 			bool operator==(const Plane& plane) const;
 			bool operator!=(const Plane& plane) const;
 
