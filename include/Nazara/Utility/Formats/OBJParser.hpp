@@ -86,7 +86,7 @@ namespace Nz
 			inline void Error(const String& message);
 			inline void Flush() const;
 			inline void Warning(const String& message);
-			inline void UnrecognizedLine(bool error = false);
+			inline bool UnrecognizedLine(bool error = false);
 
 			std::vector<Mesh> m_meshes;
 			std::vector<String> m_materials;
@@ -99,6 +99,7 @@ namespace Nz
 			mutable StringStream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
+			unsigned int m_errorCount;
 	};
 }
 

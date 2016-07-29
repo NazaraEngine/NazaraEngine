@@ -97,7 +97,8 @@ namespace Nz
 					if (m_currentLine.GetSize() < 7) // Since we only treat triangles, this is the minimum length of a face line (f 1 2 3)
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 						#endif
 						break;
 					}
@@ -106,7 +107,8 @@ namespace Nz
 					if (vertexCount < 3)
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 						#endif
 						break;
 					}
@@ -138,7 +140,8 @@ namespace Nz
 									if (std::sscanf(&m_currentLine[pos], "%d%n", &p, &offset) != 1)
 									{
 										#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-										UnrecognizedLine();
+										if (!UnrecognizedLine())
+											return false;
 										#endif
 										error = true;
 										break;
@@ -217,7 +220,8 @@ namespace Nz
 				case 'm': //< MTLLib
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 					if (m_currentLine.GetWord(0).ToLower() != "mtllib")
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 					#endif
 
 					m_mtlLib = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
@@ -229,7 +233,8 @@ namespace Nz
 					if (m_currentLine.GetSize() <= 2 || m_currentLine[1] != ' ')
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 						#endif
 						break;
 					}
@@ -238,7 +243,8 @@ namespace Nz
 					if (objectName.IsEmpty())
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 						#endif
 						break;
 					}
@@ -254,17 +260,20 @@ namespace Nz
 					{
 						String param = m_currentLine.SubString(2);
 						if (param != "all" && param != "on" && param != "off" && !param.IsNumber())
-							UnrecognizedLine();
+						{
+							if (!UnrecognizedLine())
+								return false;
+						}
 					}
-					else
-						UnrecognizedLine();
+					else if (!UnrecognizedLine())
+						return false;
 					break;
 					#endif
 
 				case 'u': //< Usemtl
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (m_currentLine.GetWord(0) != "usemtl")
-						UnrecognizedLine();
+					if (m_currentLine.GetWord(0) != "usemtl" && !UnrecognizedLine())
+						return false;
 					#endif
 
 					matName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
@@ -272,7 +281,8 @@ namespace Nz
 					if (matName.IsEmpty())
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						UnrecognizedLine();
+						if (!UnrecognizedLine())
+							return false;
 						#endif
 						break;
 					}
@@ -288,8 +298,8 @@ namespace Nz
 						if (paramCount >= 1)
 							m_positions.push_back(vertex);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						else
-							UnrecognizedLine();
+						else if (!UnrecognizedLine())
+							false;
 						#endif
 					}
 					else if (word == "vn")
@@ -299,8 +309,8 @@ namespace Nz
 						if (paramCount == 3)
 							m_normals.push_back(normal);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						else
-							UnrecognizedLine();
+						else if (!UnrecognizedLine())
+							false;
 						#endif
 					}
 					else if (word == "vt")
@@ -310,13 +320,13 @@ namespace Nz
 						if (paramCount >= 2)
 							m_texCoords.push_back(uvw);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-						else
-							UnrecognizedLine();
+						else if (!UnrecognizedLine())
+							false;
 						#endif
 					}
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					else
-						UnrecognizedLine();
+					else if (!UnrecognizedLine())
+						false;
 					#endif
 
 					break;
@@ -324,7 +334,8 @@ namespace Nz
 
 				default:
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					UnrecognizedLine();
+					if (!UnrecognizedLine())
+						return false;
 					#endif
 					break;
 			}
