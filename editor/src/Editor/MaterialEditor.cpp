@@ -1,7 +1,7 @@
 #include <Editor/MaterialEditor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
-#include <QtWidgets>
+#include <QtWidgets/QtWidgets>
 
 MaterialEditor::MaterialEditor(QWidget* parent) :
 QDockWidget("Material editor", parent),

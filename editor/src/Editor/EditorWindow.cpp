@@ -3,7 +3,7 @@
 #include <Nazara/Core/PluginManager.hpp>
 #include <Nazara/Utility.hpp>
 #include <Editor/ModelWidget.hpp>
-#include <QtWidgets>
+#include <QtWidgets/QtWidgets>
 #include <iostream>
 
 EditorWindow::EditorWindow(QWidget* parent) :
