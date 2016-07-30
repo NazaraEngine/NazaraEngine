@@ -9,14 +9,13 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Utility/Node.hpp>
 
 namespace Nz
 {
 	class ParticleMapper;
 	class ParticleGroup;
 
-	class NAZARA_GRAPHICS_API ParticleEmitter : public Node
+	class NAZARA_GRAPHICS_API ParticleEmitter
 	{
 		public:
 			ParticleEmitter();
