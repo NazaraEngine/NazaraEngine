@@ -60,6 +60,7 @@ namespace Ndk
 			EntityList m_directionalLights;
 			EntityList m_lights;
 			EntityList m_pointSpotLights;
+			EntityList m_particleGroups;
 			Nz::BackgroundRef m_background;
 			Nz::DepthRenderTechnique m_shadowTechnique;
 			Nz::Matrix4f m_coordinateSystemMatrix;
