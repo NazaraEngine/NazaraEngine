@@ -1,4 +1,4 @@
-// This file was automatically generated on 01 Jun 2016 at 13:11:09
+// This file was automatically generated on 30 Jul 2016 at 15:29:16
 
 #pragma once
 
@@ -11,6 +11,8 @@
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/ParticleEmitterComponent.hpp>
+#include <NDK/Components/ParticleGroupComponent.hpp>
 #include <NDK/Components/PhysicsComponent.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 
