@@ -1,1 +1,1 @@
-premake4 --with-extlibs --with-examples codeblocks
+premake4 codeblocks
