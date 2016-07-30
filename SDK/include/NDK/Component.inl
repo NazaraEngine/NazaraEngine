@@ -28,13 +28,11 @@ namespace Ndk
 	template<typename ComponentType>
 	ComponentIndex Component<ComponentType>::RegisterComponent(ComponentId id)
 	{
-		// Il faut que notre composant possède un constructeur par défaut (pour la factory)
-		static_assert(std::is_default_constructible<ComponentType>::value, "ComponentType must be default-constructible");
-
 		// On utilise les lambda pour créer une fonction factory
 		auto factory = []() -> BaseComponent*
 		{
-			return new ComponentType;
+			return nullptr; //< Temporary workaround to allow non-default-constructed components, will be updated for serialization
+			//return new ComponentType;
 		};
 
 		return BaseComponent::RegisterComponent(id, factory);
