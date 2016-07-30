@@ -10,6 +10,7 @@
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/ParticleGroupComponent.hpp>
 
 namespace Ndk
 {
@@ -25,8 +26,11 @@ namespace Ndk
 	void RenderSystem::OnEntityRemoved(Entity* entity)
 	{
 		m_cameras.Remove(entity);
+		m_directionalLights.Remove(entity);
 		m_drawables.Remove(entity);
 		m_lights.Remove(entity);
+		m_particleGroups.Remove(entity);
+		m_pointSpotLights.Remove(entity);
 	}
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
@@ -71,6 +75,11 @@ namespace Ndk
 			m_lights.Remove(entity);
 			m_pointSpotLights.Remove(entity);
 		}
+
+		if (entity->HasComponent<ParticleGroupComponent>())
+			m_particleGroups.Insert(entity);
+		else
+			m_particleGroups.Remove(entity);
 	}
 
 	void RenderSystem::OnUpdate(float elapsedTime)
@@ -116,6 +125,13 @@ namespace Ndk
 
 				///TODO: Cache somehow?
 				lightComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::ConcatenateAffine(m_coordinateSystemMatrix, lightNode.GetTransformMatrix()));
+			}
+
+			for (const Ndk::EntityHandle& particleGroup : m_particleGroups)
+			{
+				ParticleGroupComponent& groupComponent = particleGroup->GetComponent<ParticleGroupComponent>();
+
+				groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use Matrix4f
 			}
 
 			camComponent.ApplyView();
