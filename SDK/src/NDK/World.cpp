@@ -9,6 +9,7 @@
 
 #ifndef NDK_SERVER
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #endif
 
@@ -27,6 +28,7 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		AddSystem<ListenerSystem>();
+		AddSystem<ParticleSystem>();
 		AddSystem<RenderSystem>();
 		#endif
 	}
