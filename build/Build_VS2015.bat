@@ -1,1 +1,1 @@
-premake5 --with-extlibs --with-examples vs2015
+premake5 vs2015
