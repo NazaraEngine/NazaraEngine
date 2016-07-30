@@ -25,6 +25,9 @@
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Components/ParticleEmitterComponent.hpp>
+#include <NDK/Components/ParticleGroupComponent.hpp>
+#include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #endif
@@ -71,6 +74,8 @@ namespace Ndk
 			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<GraphicsComponent>("NdkGfx");
+			InitializeComponent<ParticleEmitterComponent>("NdkPaEmi");
+			InitializeComponent<ParticleGroupComponent>("NdkPaGrp");
 			#endif
 
 			// Systems
@@ -84,6 +89,7 @@ namespace Ndk
 			#ifndef NDK_SERVER
 			// Client systems
 			InitializeSystem<ListenerSystem>();
+			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();
 			#endif
 
