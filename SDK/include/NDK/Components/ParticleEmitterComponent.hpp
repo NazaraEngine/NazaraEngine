@@ -20,6 +20,7 @@ namespace Ndk
 
 			ParticleEmitterComponent(Nz::ParticleGroup* group);
 			ParticleEmitterComponent(const ParticleEmitterComponent& emitter);
+			ParticleEmitterComponent(ParticleEmitterComponent&& emitter);
 			~ParticleEmitterComponent();
 
 			inline bool IsActive() const;
@@ -31,7 +32,11 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
+			void OnParticleGroupRelease(const Nz::ParticleGroup* particleGroup);
+
 			void SetupParticles(Nz::ParticleMapper& mapper, unsigned int count) const override;
+
+			NazaraSlot(Nz::ParticleGroup, OnParticleGroupRelease, m_particleGroupRelease);
 
 			SetupFunc m_setupFunc;
 			Nz::ParticleGroup* m_particleGroup;
