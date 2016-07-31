@@ -77,7 +77,10 @@ namespace Nz
 		std::memcpy(m_buffer.data(), system.m_buffer.data(), system.m_particleCount*m_particleSize);
 	}
 
-	ParticleGroup::~ParticleGroup() = default;
+	ParticleGroup::~ParticleGroup()
+	{
+		OnParticleGroupRelease(this);
+	}
 
 	/*!
 	* \brief Adds a controller to the particles

@@ -8,6 +8,7 @@
 #define NAZARA_PARTICLEGROUP_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/signal.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
@@ -61,6 +62,9 @@ namespace Nz
 			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
 
 			ParticleGroup& operator=(const ParticleGroup& emitter);
+
+			// Signals:
+			NazaraSignal(OnParticleGroupRelease, const ParticleGroup* /*particleGroup*/);
 
 		private:
 			void MakeBoundingVolume() const override;
