@@ -693,7 +693,9 @@ function NazaraBuild:LoadConfig()
 
 	local paths = string.explode(self.Config["InstallDir"], ";")
 	for k,v in pairs(paths) do
-		self:AddInstallPath(v)
+		if (#v > 0) then
+			self:AddInstallPath(v)
+		end
 	end
 end
 

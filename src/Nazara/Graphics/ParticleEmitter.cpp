@@ -32,7 +32,19 @@ namespace Nz
 	{
 	}
 
-	ParticleEmitter::~ParticleEmitter() = default;
+	ParticleEmitter::ParticleEmitter(ParticleEmitter&& emitter) :
+	m_lagCompensationEnabled(emitter.m_lagCompensationEnabled),
+	m_emissionAccumulator(0.f),
+	m_emissionRate(emitter.m_emissionRate),
+	m_emissionCount(emitter.m_emissionCount)
+	{
+		OnParticleEmitterMove(&emitter, this);
+	}
+
+	ParticleEmitter::~ParticleEmitter()
+	{
+		OnParticleEmitterRelease(this);
+	}
 
 	/*!
 	* \brief Emits particles according to the delta time between the previous frame
@@ -140,5 +152,15 @@ namespace Nz
 	void ParticleEmitter::SetEmissionRate(float rate)
 	{
 		m_emissionRate = rate;
+	}
+
+	ParticleEmitter& ParticleEmitter::operator=(ParticleEmitter && emitter)
+	{
+		m_emissionCount = emitter.m_emissionCount;
+		m_emissionRate = emitter.m_emissionRate;
+		m_lagCompensationEnabled = emitter.m_lagCompensationEnabled;
+
+		OnParticleEmitterMove(&emitter, this);
+		return *this;
 	}
 }
