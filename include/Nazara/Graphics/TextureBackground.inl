@@ -41,6 +41,8 @@ namespace Nz
 	TextureBackgroundRef TextureBackground::New(Args&&... args)
 	{
 		std::unique_ptr<TextureBackground> object(new TextureBackground(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

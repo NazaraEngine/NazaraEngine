@@ -11,6 +11,8 @@ namespace Nz
 	MeshRef Mesh::New(Args&&... args)
 	{
 		std::unique_ptr<Mesh> object(new Mesh(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

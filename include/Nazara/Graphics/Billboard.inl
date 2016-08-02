@@ -234,6 +234,8 @@ namespace Nz
 	BillboardRef Billboard::New(Args&&... args)
 	{
 		std::unique_ptr<Billboard> object(new Billboard(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

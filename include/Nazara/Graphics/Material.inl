@@ -1099,6 +1099,8 @@ namespace Nz
 	MaterialRef Material::New(Args&&... args)
 	{
 		std::unique_ptr<Material> object(new Material(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

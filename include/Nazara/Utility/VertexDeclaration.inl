@@ -11,6 +11,8 @@ namespace Nz
 	VertexDeclarationRef VertexDeclaration::New(Args&&... args)
 	{
 		std::unique_ptr<VertexDeclaration> object(new VertexDeclaration(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

@@ -11,6 +11,8 @@ namespace Nz
 	SkeletalMeshRef SkeletalMesh::New(Args&&... args)
 	{
 		std::unique_ptr<SkeletalMesh> object(new SkeletalMesh(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }
