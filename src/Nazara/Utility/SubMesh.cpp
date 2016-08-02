@@ -15,7 +15,6 @@
 namespace Nz
 {
 	SubMesh::SubMesh(const Mesh* parent) :
-	RefCounted(false), // Un SubMesh n'est pas persistant par défaut
 	m_primitiveMode(PrimitiveMode_TriangleList),
 	m_parent(parent),
 	m_matIndex(0)
