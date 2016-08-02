@@ -22,9 +22,9 @@ namespace Nz
 
 	VertexDeclaration::VertexDeclaration(const VertexDeclaration& declaration) :
 	RefCounted(),
+	m_components(declaration.m_components),
 	m_stride(declaration.m_stride)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component)*(VertexComponent_Max+1));
 	}
 
 	VertexDeclaration::~VertexDeclaration()
@@ -133,7 +133,7 @@ namespace Nz
 
 	VertexDeclaration& VertexDeclaration::operator=(const VertexDeclaration& declaration)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component)*(VertexComponent_Max+1));
+		m_components = declaration.m_components;
 		m_stride = declaration.m_stride;
 
 		return *this;
@@ -141,13 +141,7 @@ namespace Nz
 
 	VertexDeclaration* VertexDeclaration::Get(VertexLayout layout)
 	{
-		#ifdef NAZARA_DEBUG
-		if (layout > VertexLayout_Max)
-		{
-			NazaraError("Vertex layout out of enum");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(layout <= VertexLayout_Max, "Vertex layout out of enum");
 
 		return &s_declarations[layout];
 	}
@@ -301,6 +295,6 @@ namespace Nz
 		VertexDeclarationLibrary::Uninitialize();
 	}
 
-	VertexDeclaration VertexDeclaration::s_declarations[VertexLayout_Max+1];
+	std::array<VertexDeclaration, VertexLayout_Max + 1> VertexDeclaration::s_declarations;
 	VertexDeclarationLibrary::LibraryMap VertexDeclaration::s_library;
 }
