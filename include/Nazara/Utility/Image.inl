@@ -11,6 +11,8 @@ namespace Nz
 	ImageRef Image::New(Args&&... args)
 	{
 		std::unique_ptr<Image> object(new Image(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

@@ -432,6 +432,8 @@ namespace Nz
 	TileMapRef TileMap::New(Args&&... args)
 	{
 		std::unique_ptr<TileMap> object(new TileMap(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }
