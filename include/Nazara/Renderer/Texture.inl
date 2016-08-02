@@ -11,6 +11,8 @@ namespace Nz
 	TextureRef Texture::New(Args&&... args)
 	{
 		std::unique_ptr<Texture> object(new Texture(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
