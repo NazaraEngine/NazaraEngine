@@ -11,8 +11,6 @@ namespace Nz
 	BufferRef Buffer::New(Args&&... args)
 	{
 		std::unique_ptr<Buffer> object(new Buffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }

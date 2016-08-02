@@ -11,8 +11,6 @@ namespace Nz
 	FontRef Font::New(Args&&... args)
 	{
 		std::unique_ptr<Font> object(new Font(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }
