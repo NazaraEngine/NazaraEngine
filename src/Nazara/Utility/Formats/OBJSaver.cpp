@@ -120,7 +120,6 @@ namespace Nz
 
 				MTLParser::Material* material = mtlFormat.AddMaterial(name);
 
-				bool bValue;
 				String strVal;
 				if (matData.HasParameter(MaterialData::CustomDefined))
 				{
