@@ -15,6 +15,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 
 namespace Nz
 {
@@ -46,6 +47,7 @@ namespace Nz
 
 			static ParticleDeclaration* Get(ParticleLayout layout);
 			static bool IsTypeSupported(ComponentType type);
+			template<typename... Args> static ParticleDeclarationRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnParticleDeclarationRelease, const ParticleDeclaration* /*particleDeclaration*/);
@@ -68,12 +70,14 @@ namespace Nz
 				*/
 			};
 
-			Component m_components[ParticleComponent_Max + 1];
+			std::array<Component, ParticleComponent_Max + 1> m_components;
 			unsigned int m_stride;
 
-			static ParticleDeclaration s_declarations[ParticleLayout_Max + 1];
+			static std::array<ParticleDeclaration, ParticleLayout_Max + 1> s_declarations;
 			static ParticleDeclarationLibrary::LibraryMap s_library;
 	};
 }
+
+#include <Nazara/Graphics/ParticleDeclaration.inl>
 
 #endif // NAZARA_PARTICLEDECLARATION_HPP
