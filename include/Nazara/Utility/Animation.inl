@@ -11,8 +11,6 @@ namespace Nz
 	AnimationRef Animation::New(Args&&... args)
 	{
 		std::unique_ptr<Animation> object(new Animation(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }
