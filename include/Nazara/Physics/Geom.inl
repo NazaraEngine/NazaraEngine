@@ -11,6 +11,8 @@ namespace Nz
 	BoxGeomRef BoxGeom::New(Args&&... args)
 	{
 		std::unique_ptr<BoxGeom> object(new BoxGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -18,6 +20,8 @@ namespace Nz
 	CapsuleGeomRef CapsuleGeom::New(Args&&... args)
 	{
 		std::unique_ptr<CapsuleGeom> object(new CapsuleGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -25,6 +29,8 @@ namespace Nz
 	CompoundGeomRef CompoundGeom::New(Args&&... args)
 	{
 		std::unique_ptr<CompoundGeom> object(new CompoundGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -32,6 +38,8 @@ namespace Nz
 	ConeGeomRef ConeGeom::New(Args&&... args)
 	{
 		std::unique_ptr<ConeGeom> object(new ConeGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -39,6 +47,8 @@ namespace Nz
 	ConvexHullGeomRef ConvexHullGeom::New(Args&&... args)
 	{
 		std::unique_ptr<ConvexHullGeom> object(new ConvexHullGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -46,6 +56,8 @@ namespace Nz
 	CylinderGeomRef CylinderGeom::New(Args&&... args)
 	{
 		std::unique_ptr<CylinderGeom> object(new CylinderGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -53,6 +65,8 @@ namespace Nz
 	NullGeomRef NullGeom::New(Args&&... args)
 	{
 		std::unique_ptr<NullGeom> object(new NullGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 
@@ -60,6 +74,8 @@ namespace Nz
 	SphereGeomRef SphereGeom::New(Args&&... args)
 	{
 		std::unique_ptr<SphereGeom> object(new SphereGeom(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

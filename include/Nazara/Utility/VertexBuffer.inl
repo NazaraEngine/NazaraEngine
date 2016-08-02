@@ -11,6 +11,8 @@ namespace Nz
 	VertexBufferRef VertexBuffer::New(Args&&... args)
 	{
 		std::unique_ptr<VertexBuffer> object(new VertexBuffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }

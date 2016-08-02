@@ -18,6 +18,8 @@ namespace Nz
 	SoundBufferRef SoundBuffer::New(Args&&... args)
 	{
 		std::unique_ptr<SoundBuffer> object(new SoundBuffer(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }
