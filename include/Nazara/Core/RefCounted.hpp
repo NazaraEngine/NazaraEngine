@@ -22,7 +22,7 @@ namespace Nz
 	class NAZARA_CORE_API RefCounted
 	{
 		public:
-			RefCounted(bool persistent = true);
+			RefCounted();
 			RefCounted(const RefCounted&) = delete;
 			RefCounted(RefCounted&&) = default;
 			virtual ~RefCounted();
@@ -31,17 +31,12 @@ namespace Nz
 
 			unsigned int GetReferenceCount() const;
 
-			bool IsPersistent() const;
-
 			bool RemoveReference() const;
-
-			bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
 
 			RefCounted& operator=(const RefCounted&) = delete;
 			RefCounted& operator=(RefCounted&&) = default;
 
 		private:
-			std::atomic_bool m_persistent;
 			mutable std::atomic_uint m_referenceCount;
 	};
 }
