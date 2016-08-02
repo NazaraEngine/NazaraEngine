@@ -11,6 +11,8 @@ namespace Nz
 	StaticMeshRef StaticMesh::New(Args&&... args)
 	{
 		std::unique_ptr<StaticMesh> object(new StaticMesh(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }
