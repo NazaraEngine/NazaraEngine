@@ -14,6 +14,7 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 
 namespace Nz
 {
@@ -69,14 +70,14 @@ namespace Nz
 				*/
 			};
 
-			Component m_components[VertexComponent_Max+1];
+			std::array<Component, VertexComponent_Max + 1> m_components;
 			std::size_t m_stride;
 
-			static VertexDeclaration s_declarations[VertexLayout_Max+1];
+			static std::array<VertexDeclaration, VertexLayout_Max + 1> s_declarations;
 			static VertexDeclarationLibrary::LibraryMap s_library;
 	};
 }
 
-#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexDeclaration.inl>
 
 #endif // NAZARA_VERTEXDECLARATION_HPP
