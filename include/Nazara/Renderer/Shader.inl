@@ -11,8 +11,6 @@ namespace Nz
 	ShaderRef Shader::New(Args&&... args)
 	{
 		std::unique_ptr<Shader> object(new Shader(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }
