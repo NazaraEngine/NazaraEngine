@@ -271,6 +271,8 @@ namespace Nz
 	SpriteRef Sprite::New(Args&&... args)
 	{
 		std::unique_ptr<Sprite> object(new Sprite(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
 		return object.release();
 	}
 }
