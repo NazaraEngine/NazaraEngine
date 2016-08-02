@@ -23,13 +23,10 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a RefCounted object with a persistance aspect
-	*
-	* \param persistent if false, object is destroyed when no more referenced
+	* \brief Constructs a RefCounted object
 	*/
 
-	RefCounted::RefCounted(bool persistent) :
-	m_persistent(persistent),
+	RefCounted::RefCounted() :
 	m_referenceCount(0)
 	{
 	}
@@ -68,16 +65,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the object is persistent
-	* \return true if object is not destroyed when no more referenced
-	*/
-
-	bool RefCounted::IsPersistent() const
-	{
-		return m_persistent;
-	}
-
-	/*!
 	* \brief Removes a reference to the object
 	* \return true if object is deleted because no more referenced
 	*
@@ -94,31 +81,9 @@ namespace Nz
 		}
 		#endif
 
-		if (--m_referenceCount == 0 && !m_persistent)
+		if (--m_referenceCount == 0)
 		{
 			delete this; // Suicide
-
-			return true;
-		}
-		else
-			return false;
-	}
-
-	/*!
-	* \brief Sets the persistence of the object
-	* \return true if object is deleted because no more referenced
-	*
-	* \param persistent Sets the persistence of the object
-	* \param checkReferenceCount Checks if the object should be destroyed if true
-	*/
-
-	bool RefCounted::SetPersistent(bool persistent, bool checkReferenceCount)
-	{
-		m_persistent = persistent;
-
-		if (checkReferenceCount && !persistent && m_referenceCount == 0)
-		{
-			delete this;
 
 			return true;
 		}

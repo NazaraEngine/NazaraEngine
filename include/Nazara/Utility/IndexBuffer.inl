@@ -11,8 +11,6 @@ namespace Nz
 	IndexBufferRef IndexBuffer::New(Args&&... args)
 	{
 		std::unique_ptr<IndexBuffer> object(new IndexBuffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }
