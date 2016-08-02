@@ -11,8 +11,6 @@ namespace Nz
 	UberShaderPreprocessorRef UberShaderPreprocessor::New(Args&&... args)
 	{
 		std::unique_ptr<UberShaderPreprocessor> object(new UberShaderPreprocessor(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
 		return object.release();
 	}
 }
