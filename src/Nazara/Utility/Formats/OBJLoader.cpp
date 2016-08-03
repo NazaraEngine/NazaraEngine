@@ -73,8 +73,6 @@ namespace Nz
 				{
 					ParameterList data;
 
-					data.SetParameter(MaterialData::CustomDefined);
-
 					UInt8 alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
 
 					Color ambientColor(mtlMat->ambient);
