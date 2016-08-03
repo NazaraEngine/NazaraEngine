@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -129,6 +130,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
+
+	if (!scene)
+	{
+		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		return false;
+	}
 
 	std::set<Nz::String> joints;
 
