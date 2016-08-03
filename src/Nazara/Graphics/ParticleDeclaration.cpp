@@ -308,9 +308,9 @@ namespace Nz
 			declaration = &s_declarations[ParticleLayout_Sprite];
 			declaration->EnableComponent(ParticleComponent_Color,    ComponentType_Color,  NazaraOffsetOf(ParticleStruct_Sprite, color));
 			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,   NazaraOffsetOf(ParticleStruct_Sprite, life));
-			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, position));
+			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Sprite, rotation));
-			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
+			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
 
 			NazaraAssert(declaration->GetStride() == sizeof(ParticleStruct_Sprite), "Invalid stride for declaration ParticleLayout_Sprite");
 		}
