@@ -39,7 +39,7 @@ namespace Nz
 					else
 						NazaraWarning("Failed to load material from file " + String::Number(i));
 				}
-				else if (matData.HasParameter(MaterialData::CustomDefined))
+				else
 				{
 					MaterialRef material = Material::New();
 					material->BuildFromParameters(matData, parameters.material);
