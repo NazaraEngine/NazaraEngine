@@ -26,6 +26,11 @@ namespace Ndk
 		m_nextState = std::move(state);
 	}
 
+	inline const std::shared_ptr<State>& StateMachine::GetCurrentState() const
+	{
+		return m_currentState;
+	}
+
 	inline bool StateMachine::Update(float elapsedTime)
 	{
 		if (m_nextState)
