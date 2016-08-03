@@ -23,6 +23,8 @@ namespace Ndk
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
+			inline const std::shared_ptr<State>& GetCurrentState() const;
+
 			inline bool Update(float elapsedTime);
 
 			inline StateMachine& operator=(StateMachine&& fsm) = default;

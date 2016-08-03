@@ -637,28 +637,25 @@ end
 
 function NazaraBuild:LoadConfig()
     local f = io.open("config.lua", "r")
-	if (not f) then
+	if (f) then
+	    local content = f:read("*a")
+		f:close()
+
+		local func, err = loadstring(content)
+		if (func) then
+			setfenv(func, self.Config)
+
+			local status, err = pcall(func)
+			if (not status) then
+				print("Failed to load config.lua: " .. err)
+			end
+		else
+			print("Failed to parse config.lua: " .. err)
+		end
+	else
 		print("Failed to open config.lua")
-		return
 	end
 
-    local content = f:read("*a")
-    f:close()
-
-	local func, err = loadstring(content)
-	if (not func) then
-		print("Failed to parse config.lua: " .. err)
-		return
-	end
-
-	setfenv(func, self.Config)
-	
-	local status, err = pcall(func)
-	if (not status) then
-		print("Failed to load config.lua: " .. err)
-		return
-	end
-	
 	local configTable = self.Config
 	local AddBoolOption = function (option, name, description)
 		newoption({
@@ -696,7 +693,9 @@ function NazaraBuild:LoadConfig()
 
 	local paths = string.explode(self.Config["InstallDir"], ";")
 	for k,v in pairs(paths) do
-		self:AddInstallPath(v)
+		if (#v > 0) then
+			self:AddInstallPath(v)
+		end
 	end
 end
 

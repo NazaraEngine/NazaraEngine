@@ -8,20 +8,20 @@
 #define NAZARA_PARTICLEEMITTER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Utility/Node.hpp>
 
 namespace Nz
 {
 	class ParticleMapper;
 	class ParticleGroup;
 
-	class NAZARA_GRAPHICS_API ParticleEmitter : public Node
+	class NAZARA_GRAPHICS_API ParticleEmitter
 	{
 		public:
 			ParticleEmitter();
 			ParticleEmitter(const ParticleEmitter& emitter) = default;
-			ParticleEmitter(ParticleEmitter&& emitter) = default;
+			ParticleEmitter(ParticleEmitter&& emitter);
 			virtual ~ParticleEmitter();
 
 			virtual void Emit(ParticleGroup& system, float elapsedTime) const;
@@ -37,7 +37,11 @@ namespace Nz
 			void SetEmissionRate(float rate);
 
 			ParticleEmitter& operator=(const ParticleEmitter& emitter) = default;
-			ParticleEmitter& operator=(ParticleEmitter&& emitter) = default;
+			ParticleEmitter& operator=(ParticleEmitter&& emitter);
+
+			// Signals:
+			NazaraSignal(OnParticleEmitterMove, const ParticleEmitter* /*oldParticleEmitter*/, const ParticleEmitter* /*newParticleEmitter*/);
+			NazaraSignal(OnParticleEmitterRelease, const ParticleEmitter* /*particleEmitter*/);
 
 		private:
 			virtual void SetupParticles(ParticleMapper& mapper, unsigned int count) const = 0;
