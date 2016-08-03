@@ -23,7 +23,6 @@ namespace Nz
 		static constexpr const char* BackFaceStencilZFail     = "MatBackFaceStencilZFail";
 		static constexpr const char* Blending                 = "MatBlending";
 		static constexpr const char* CullingSide              = "MatCullingSide";
-		static constexpr const char* CustomDefined            = "MatCustomDefined";
 		static constexpr const char* ColorWrite               = "MatColorWrite";
 		static constexpr const char* DepthBuffer              = "MatDepthBuffer";
 		static constexpr const char* DepthFunc                = "MatDepthfunc";
