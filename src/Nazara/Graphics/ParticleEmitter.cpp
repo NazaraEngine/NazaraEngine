@@ -32,6 +32,14 @@ namespace Nz
 	{
 	}
 
+	ParticleEmitter::ParticleEmitter(const ParticleEmitter& emitter) :
+	m_lagCompensationEnabled(emitter.m_lagCompensationEnabled),
+	m_emissionAccumulator(0.f),
+	m_emissionRate(emitter.m_emissionRate),
+	m_emissionCount(emitter.m_emissionCount)
+	{
+	}
+
 	ParticleEmitter::ParticleEmitter(ParticleEmitter&& emitter) :
 	m_lagCompensationEnabled(emitter.m_lagCompensationEnabled),
 	m_emissionAccumulator(0.f),
