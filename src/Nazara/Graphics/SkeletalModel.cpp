@@ -61,6 +61,9 @@ namespace Nz
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
 		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
+			if (!m_enabledSubmeshes.Test(i))
+				continue;
+
 			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
 			const Material* material = m_materials[mesh->GetMaterialIndex()];
 
