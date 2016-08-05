@@ -109,7 +109,12 @@ namespace Nz
 	{
 		NazaraAssert(emitter, "Invalid particle emitter");
 
-		m_emitters.emplace_back(emitter);
+		EmitterEntry entry;
+		entry.emitter = emitter;
+		entry.moveSlot.Connect(emitter->OnParticleEmitterMove, this, &ParticleGroup::OnEmitterMove);
+		entry.releaseSlot.Connect(emitter->OnParticleEmitterRelease, this, &ParticleGroup::OnEmitterRelease);
+
+		m_emitters.emplace_back(std::move(entry));
 	}
 
 	/*!
@@ -336,9 +341,14 @@ namespace Nz
 
 	void ParticleGroup::RemoveEmitter(ParticleEmitter* emitter)
 	{
-		auto it = std::find(m_emitters.begin(), m_emitters.end(), emitter);
-		if (it != m_emitters.end())
-			m_emitters.erase(it);
+		for (auto it = m_emitters.begin(); it != m_emitters.end(); ++it)
+		{
+			if (it->emitter == emitter)
+			{
+				m_emitters.erase(it);
+				break;
+			}
+		}
 	}
 
 	/*!
@@ -374,8 +384,8 @@ namespace Nz
 	void ParticleGroup::Update(float elapsedTime)
 	{
 		// Emission
-		for (ParticleEmitter* emitter : m_emitters)
-			emitter->Emit(*this, elapsedTime);
+		for (const EmitterEntry& entry : m_emitters)
+			entry.emitter->Emit(*this, elapsedTime);
 
 		// Update
 		if (m_particleCount > 0)
@@ -441,6 +451,26 @@ namespace Nz
 	{
 		///TODO: Compute the AABB (taking into account the size of particles)
 		m_boundingVolume.MakeInfinite();
+	}
+
+	void ParticleGroup::OnEmitterMove(ParticleEmitter* oldEmitter, ParticleEmitter* newEmitter)
+	{
+		for (EmitterEntry& entry : m_emitters)
+		{
+			if (entry.emitter == oldEmitter)
+				entry.emitter = newEmitter;
+		}
+	}
+
+	void ParticleGroup::OnEmitterRelease(const ParticleEmitter* emitter)
+	{
+		for (auto it = m_emitters.begin(); it != m_emitters.end();)
+		{
+			if (it->emitter == emitter)
+				it = m_emitters.erase(it);
+			else
+				++it;
+		}
 	}
 
 	/*!
