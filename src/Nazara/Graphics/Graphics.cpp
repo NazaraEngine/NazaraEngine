@@ -63,12 +63,20 @@ namespace Nz
 		// Initialisation of the module
 		CallOnExit onExit(Graphics::Uninitialize);
 
+		// Materials
+		if (!MaterialPipeline::Initialize())
+		{
+			NazaraError("Failed to initialize material pipelines");
+			return false;
+		}
+
 		if (!Material::Initialize())
 		{
 			NazaraError("Failed to initialize materials");
 			return false;
 		}
 
+		// Renderables
 		if (!ParticleController::Initialize())
 		{
 			NazaraError("Failed to initialize particle controllers");
@@ -121,7 +129,7 @@ namespace Nz
 		Loaders::RegisterMesh();
 		Loaders::RegisterTexture();
 
-		// RenderTechniques
+		// Render techniques
 		if (!DepthRenderTechnique::Initialize())
 		{
 			NazaraError("Failed to initialize Depth Rendering");
@@ -213,18 +221,24 @@ namespace Nz
 		Loaders::UnregisterMesh();
 		Loaders::UnregisterTexture();
 
-		DeferredRenderTechnique::Uninitialize();
-		DepthRenderTechnique::Uninitialize();
-		ForwardRenderTechnique::Uninitialize();
-		SkinningManager::Uninitialize();
+		// Renderables
 		ParticleRenderer::Uninitialize();
 		ParticleGenerator::Uninitialize();
 		ParticleDeclaration::Uninitialize();
 		ParticleController::Uninitialize();
-		Material::Uninitialize();
 		SkyboxBackground::Uninitialize();
 		Sprite::Uninitialize();
 		TileMap::Uninitialize();
+
+		// Render techniques
+		DeferredRenderTechnique::Uninitialize();
+		DepthRenderTechnique::Uninitialize();
+		ForwardRenderTechnique::Uninitialize();
+		SkinningManager::Uninitialize();
+		
+		// Materials
+		Material::Uninitialize();
+		MaterialPipeline::Uninitialize();
 
 		NazaraNotice("Uninitialized: Graphics module");
 
