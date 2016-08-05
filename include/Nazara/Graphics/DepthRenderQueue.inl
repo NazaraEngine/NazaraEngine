@@ -18,7 +18,7 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
-		return material->HasDepthMaterial() || (material->IsEnabled(RendererParameter_DepthBuffer) && material->IsEnabled(RendererParameter_DepthWrite) && material->IsShadowCastingEnabled());
+		return material->HasDepthMaterial() || (material->IsDepthBufferEnabled() && material->IsDepthWriteEnabled() && material->IsShadowCastingEnabled());
 	}
 }
 

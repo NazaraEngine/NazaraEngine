@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -21,8 +21,6 @@
 
 namespace Nz
 {
-	class ForwardRenderQueue;
-
 	class NAZARA_GRAPHICS_API DeferredRenderQueue : public AbstractRenderQueue
 	{
 		public:
@@ -43,11 +41,6 @@ namespace Nz
 
 			void Clear(bool fully = false) override;
 
-			struct MeshDataComparator
-			{
-				bool operator()(const MeshData& data1, const MeshData& data2) const;
-			};
-
 			struct MeshInstanceEntry
 			{
 				NazaraSlot(IndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
@@ -56,12 +49,7 @@ namespace Nz
 				std::vector<Matrix4f> instances;
 			};
 
-			typedef std::map<MeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
-
-			struct BatchedModelMaterialComparator
-			{
-				bool operator()(const Material* mat1, const Material* mat2) const;
-			};
+			typedef std::map<MeshData, MeshInstanceEntry, ForwardRenderQueue::MeshDataComparator> MeshInstanceContainer;
 
 			struct BatchedModelEntry
 			{
@@ -69,14 +57,21 @@ namespace Nz
 
 				MeshInstanceContainer meshMap;
 				bool enabled = false;
-				bool instancingEnabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedModelEntry, BatchedModelMaterialComparator> ModelBatches;
+			typedef std::map<const Material*, BatchedModelEntry, ForwardRenderQueue::MaterialComparator> MeshMaterialBatches;
+
+			struct BatchedMaterialEntry
+			{
+				std::size_t maxInstanceCount = 0;
+				MeshMaterialBatches materialMap;
+			};
+
+			typedef std::map<const MaterialPipeline*, BatchedMaterialEntry, ForwardRenderQueue::MaterialPipelineComparator> MeshPipelineBatches;
 
 			struct Layer
 			{
-				ModelBatches opaqueModels;
+				MeshPipelineBatches opaqueModels;
 				unsigned int clearCount = 0;
 			};
 
