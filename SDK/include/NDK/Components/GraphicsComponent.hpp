@@ -66,7 +66,7 @@ namespace Ndk
 
 			struct Renderable
 			{
-				Renderable(Nz::Matrix4f& transformMatrix) :
+				Renderable(const Nz::Matrix4f& transformMatrix) :
 				data(transformMatrix),
 				dataUpdated(false)
 				{
