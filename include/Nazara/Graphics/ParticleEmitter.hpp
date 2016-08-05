@@ -20,7 +20,7 @@ namespace Nz
 	{
 		public:
 			ParticleEmitter();
-			ParticleEmitter(const ParticleEmitter& emitter) = default;
+			ParticleEmitter(const ParticleEmitter& emitter);
 			ParticleEmitter(ParticleEmitter&& emitter);
 			virtual ~ParticleEmitter();
 
@@ -40,7 +40,7 @@ namespace Nz
 			ParticleEmitter& operator=(ParticleEmitter&& emitter);
 
 			// Signals:
-			NazaraSignal(OnParticleEmitterMove, const ParticleEmitter* /*oldParticleEmitter*/, const ParticleEmitter* /*newParticleEmitter*/);
+			NazaraSignal(OnParticleEmitterMove, ParticleEmitter* /*oldParticleEmitter*/, ParticleEmitter* /*newParticleEmitter*/);
 			NazaraSignal(OnParticleEmitterRelease, const ParticleEmitter* /*particleEmitter*/);
 
 		private:
