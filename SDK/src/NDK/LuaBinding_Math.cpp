@@ -205,7 +205,7 @@ namespace Ndk
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					auto index = lua.CheckBoundInteger<std::size_t>(1);
 					if (index < 1 || index > 4)
 						return false;
 
@@ -258,7 +258,7 @@ namespace Ndk
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					auto index = lua.CheckBoundInteger<std::size_t>(1);
 					if (index < 1 || index > 4)
 						return false;
 
@@ -537,11 +537,12 @@ namespace Ndk
 				case 0:
 				case 3:
 					Nz::PlacementNew(vector, lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0));
+					return true;
 
 				case 1:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
+						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.CheckUserdata(1, "Vector2")));
 					else if (lua.IsOfType(1, "Vector2"))
 						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Vector3"))
