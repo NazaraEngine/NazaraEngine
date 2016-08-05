@@ -54,7 +54,7 @@ namespace Nz
 
 			struct InstanceData
 			{
-				InstanceData(Matrix4f& referenceMatrix) :
+				InstanceData(const Matrix4f& referenceMatrix) :
 				transformMatrix(&referenceMatrix),
 				flags(0)
 				{
@@ -75,7 +75,7 @@ namespace Nz
 
 				std::vector<UInt8> data;
 				BoundingVolumef volume;
-				Matrix4f* transformMatrix;
+				const Matrix4f* transformMatrix;
 				UInt32 flags;
 				int renderOrder;
 			};
