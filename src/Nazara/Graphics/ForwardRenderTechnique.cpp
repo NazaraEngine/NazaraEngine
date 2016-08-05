@@ -824,11 +824,12 @@ namespace Nz
 				lastPipeline = pipeline;
 			}
 
-			// We begin to apply the material (and get the shader activated doing so)
+			// We begin to apply the material
 			UInt8 freeTextureUnit;
-			const Shader* shader = material->Apply(*pipelineInstance, 0, &freeTextureUnit);
+			material->Apply(*pipelineInstance, 0, &freeTextureUnit);
 
 			// Uniforms are conserved in our program, there's no point to send them back until they change
+			const Shader* shader = pipelineInstance->uberInstance->GetShader();
 			if (shader != lastShader)
 			{
 				// Index of uniforms in the shader
