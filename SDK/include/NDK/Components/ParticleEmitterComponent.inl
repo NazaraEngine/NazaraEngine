@@ -6,6 +6,16 @@
 
 namespace Ndk
 {
+	inline ParticleEmitterComponent::ParticleEmitterComponent() :
+	m_isActive(true)
+	{
+	}
+
+	inline void Ndk::ParticleEmitterComponent::Enable(bool active)
+	{
+		m_isActive = active;
+	}
+
 	inline bool ParticleEmitterComponent::IsActive() const
 	{
 		return m_isActive;
