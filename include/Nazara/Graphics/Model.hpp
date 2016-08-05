@@ -45,6 +45,7 @@ namespace Nz
 			virtual ~Model();
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder = 0);
 
 			Material* GetMaterial(const String& subMeshName) const;
 			Material* GetMaterial(unsigned int matIndex) const;
