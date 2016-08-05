@@ -28,8 +28,8 @@ namespace Ndk
 	m_characterSize(24)
 	{
 		Nz::MaterialRef backgroundMaterial = Nz::Material::New();
-		backgroundMaterial->Enable(Nz::RendererParameter_Blend, true);
-		backgroundMaterial->Enable(Nz::RendererParameter_DepthBuffer, false);
+		backgroundMaterial->EnableBlending(true);
+		backgroundMaterial->EnableDepthBuffer(false);
 		backgroundMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
 		backgroundMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
