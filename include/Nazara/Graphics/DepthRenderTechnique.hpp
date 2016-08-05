@@ -63,6 +63,7 @@ namespace Nz
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			Buffer m_vertexBuffer;
 			mutable DepthRenderQueue m_renderQueue;
+			Texture m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
 

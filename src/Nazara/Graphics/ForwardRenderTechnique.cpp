@@ -53,6 +53,10 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
+		std::array<UInt8, 4> whitePixel = {255, 255, 255, 255};
+		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
+		m_whiteTexture.Update(whitePixel.data());
+
 		m_vertexBuffer.Create(s_vertexBufferSize, DataStorage_Hardware, BufferUsage_Dynamic);
 
 		m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
@@ -297,97 +301,102 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		for (auto& matIt : layer.basicSprites)
+		for (auto& pipelinePair : layer.basicSprites)
 		{
-			const Material* material = matIt.first;
-			auto& matEntry = matIt.second;
+			const MaterialPipeline* pipeline = pipelinePair.first;
+			auto& pipelineEntry = pipelinePair.second;
 
-			if (matEntry.enabled)
+			if (pipelineEntry.enabled)
 			{
-				auto& overlayMap = matEntry.overlayMap;
-				for (auto& overlayIt : overlayMap)
+				const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+
+				const Shader* shader = pipelineInstance.uberInstance->GetShader();
+
+				// Uniforms are conserved in our program, there's no point to send them back until they change
+				if (shader != lastShader)
 				{
-					const Texture* overlay = overlayIt.first;
-					auto& spriteChainVector = overlayIt.second.spriteChains;
+					// Index of uniforms in the shader
+					shaderUniforms = GetShaderUniforms(shader);
 
-					unsigned int spriteChainCount = spriteChainVector.size();
-					if (spriteChainCount > 0)
-					{
-						// We begin to apply the material (and get the shader activated doing so)
-						UInt32 flags = ShaderFlags_VertexColor;
-						if (overlay)
-							flags |= ShaderFlags_TextureOverlay;
+					// Ambiant color of the scene
+					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+					// Position of the camera
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-						UInt8 overlayUnit;
-						const Shader* shader = material->Apply(flags, 0, &overlayUnit);
-
-						if (overlay)
-						{
-							overlayUnit++;
-							Renderer::SetTexture(overlayUnit, overlay);
-							Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
-						}
-
-						// Uniforms are conserved in our program, there's no point to send them back until they change
-						if (shader != lastShader)
-						{
-							// Index of uniforms in the shader
-							shaderUniforms = GetShaderUniforms(shader);
-
-							// Ambiant color of the scene
-							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-							// Overlay
-							shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
-							// Position of the camera
-							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-							lastShader = shader;
-						}
-
-						unsigned int spriteChain = 0; // Which chain of sprites are we treating
-						unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
-
-						do
-						{
-							// We open the buffer in writing mode
-							BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-							VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
-
-							unsigned int spriteCount = 0;
-							unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
-
-							do
-							{
-								ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-								unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
-
-								std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
-								vertices += count * 4;
-
-								spriteCount += count;
-								spriteChainOffset += count;
-
-								// Have we treated the entire chain ?
-								if (spriteChainOffset == currentChain.spriteCount)
-								{
-									spriteChain++;
-									spriteChainOffset = 0;
-								}
-							}
-							while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
-
-							vertexMapper.Unmap();
-
-							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
-						}
-						while (spriteChain < spriteChainCount);
-
-						spriteChainVector.clear();
-					}
+					lastShader = shader;
 				}
 
-				// We set it back to zero
-				matEntry.enabled = false;
+				for (auto& materialPair : pipelineEntry.materialMap)
+				{
+					const Material* material = materialPair.first;
+					auto& matEntry = materialPair.second;
+
+					if (matEntry.enabled)
+					{
+						UInt8 overlayUnit;
+						material->Apply(pipelineInstance, 0, &overlayUnit);
+						overlayUnit++;
+
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+
+						Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+
+						auto& overlayMap = matEntry.overlayMap;
+						for (auto& overlayIt : overlayMap)
+						{
+							const Texture* overlay = overlayIt.first;
+							auto& spriteChainVector = overlayIt.second.spriteChains;
+
+							unsigned int spriteChainCount = spriteChainVector.size();
+							if (spriteChainCount > 0)
+							{
+								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
+
+								unsigned int spriteChain = 0; // Which chain of sprites are we treating
+								unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
+
+								do
+								{
+									// We open the buffer in writing mode
+									BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+									VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+									unsigned int spriteCount = 0;
+									unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+
+									do
+									{
+										ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+										unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
+
+										std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
+										vertices += count * 4;
+
+										spriteCount += count;
+										spriteChainOffset += count;
+
+										// Have we treated the entire chain ?
+										if (spriteChainOffset == currentChain.spriteCount)
+										{
+											spriteChain++;
+											spriteChainOffset = 0;
+										}
+									} while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
+
+									vertexMapper.Unmap();
+
+									Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
+								} while (spriteChain < spriteChainCount);
+
+								spriteChainVector.clear();
+							}
+						}
+
+						// We set it back to zero
+						matEntry.enabled = false;
+					}
+				}
+				pipelineEntry.enabled = false;
 			}
 		}
 	}
@@ -415,17 +424,16 @@ namespace Nz
 
 			Renderer::SetVertexBuffer(&s_quadVertexBuffer);
 
-			for (auto& matIt : layer.billboards)
+			for (auto& pipelinePair : layer.billboards)
 			{
-				const Material* material = matIt.first;
-				auto& entry = matIt.second;
-				auto& billboardVector = entry.billboards;
+				const MaterialPipeline* pipeline = pipelinePair.first;
+				auto& pipelineEntry = pipelinePair.second;
 
-				unsigned int billboardCount = billboardVector.size();
-				if (billboardCount > 0)
+				if (pipelineEntry.enabled)
 				{
-					// We begin to apply the material (and get the shader activated doing so)
-					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
+					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance.uberInstance->GetShader();
 
 					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
@@ -441,21 +449,35 @@ namespace Nz
 						lastShader = shader;
 					}
 
-					const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-					unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
-					do
+					for (auto& matIt : pipelinePair.second.materialMap)
 					{
-						unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-						billboardCount -= renderedBillboardCount;
+						const Material* material = matIt.first;
+						auto& entry = matIt.second;
+						auto& billboardVector = entry.billboards;
 
-						instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
-						data += renderedBillboardCount;
+						unsigned int billboardCount = billboardVector.size();
+						if (billboardCount > 0)
+						{
+							// We begin to apply the material (and get the shader activated doing so)
+							material->Apply(pipelineInstance);
 
-						Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+							const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+							unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+							do
+							{
+								unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+								billboardCount -= renderedBillboardCount;
+
+								instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
+								data += renderedBillboardCount;
+
+								Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+							}
+							while (billboardCount > 0);
+
+							billboardVector.clear();
+						}
 					}
-					while (billboardCount > 0);
-
-					billboardVector.clear();
 				}
 			}
 		}
@@ -464,17 +486,16 @@ namespace Nz
 			Renderer::SetIndexBuffer(&s_quadIndexBuffer);
 			Renderer::SetVertexBuffer(&m_billboardPointBuffer);
 
-			for (auto& matIt : layer.billboards)
+			for (auto& pipelinePair : layer.billboards)
 			{
-				const Material* material = matIt.first;
-				auto& entry = matIt.second;
-				auto& billboardVector = entry.billboards;
+				const MaterialPipeline* pipeline = pipelinePair.first;
+				auto& pipelineEntry = pipelinePair.second;
 
-				unsigned int billboardCount = billboardVector.size();
-				if (billboardCount > 0)
+				if (pipelineEntry.enabled)
 				{
-					// We begin to apply the material (and get the shader activated doing so)
-					const Shader* shader = material->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
+					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance.uberInstance->GetShader();
 
 					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
@@ -490,57 +511,65 @@ namespace Nz
 						lastShader = shader;
 					}
 
-					const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-					unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
-
-					do
+					for (auto& matIt : pipelinePair.second.materialMap)
 					{
-						unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-						billboardCount -= renderedBillboardCount;
+						const Material* material = matIt.first;
+						auto& entry = matIt.second;
+						auto& billboardVector = entry.billboards;
 
-						BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
-						BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
+						const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+						unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
 
-						for (unsigned int i = 0; i < renderedBillboardCount; ++i)
+						unsigned int billboardCount = billboardVector.size();
+						do
 						{
-							const ForwardRenderQueue::BillboardData& billboard = *data++;
+							unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+							billboardCount -= renderedBillboardCount;
 
-							vertices->color = billboard.color;
-							vertices->position = billboard.center;
-							vertices->sinCos = billboard.sinCos;
-							vertices->size = billboard.size;
-							vertices->uv.Set(0.f, 1.f);
-							vertices++;
+							BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
+							BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
 
-							vertices->color = billboard.color;
-							vertices->position = billboard.center;
-							vertices->sinCos = billboard.sinCos;
-							vertices->size = billboard.size;
-							vertices->uv.Set(1.f, 1.f);
-							vertices++;
+							for (unsigned int i = 0; i < renderedBillboardCount; ++i)
+							{
+								const ForwardRenderQueue::BillboardData& billboard = *data++;
 
-							vertices->color = billboard.color;
-							vertices->position = billboard.center;
-							vertices->sinCos = billboard.sinCos;
-							vertices->size = billboard.size;
-							vertices->uv.Set(0.f, 0.f);
-							vertices++;
+								vertices->color = billboard.color;
+								vertices->position = billboard.center;
+								vertices->sinCos = billboard.sinCos;
+								vertices->size = billboard.size;
+								vertices->uv.Set(0.f, 1.f);
+								vertices++;
 
-							vertices->color = billboard.color;
-							vertices->position = billboard.center;
-							vertices->sinCos = billboard.sinCos;
-							vertices->size = billboard.size;
-							vertices->uv.Set(1.f, 0.f);
-							vertices++;
+								vertices->color = billboard.color;
+								vertices->position = billboard.center;
+								vertices->sinCos = billboard.sinCos;
+								vertices->size = billboard.size;
+								vertices->uv.Set(1.f, 1.f);
+								vertices++;
+
+								vertices->color = billboard.color;
+								vertices->position = billboard.center;
+								vertices->sinCos = billboard.sinCos;
+								vertices->size = billboard.size;
+								vertices->uv.Set(0.f, 0.f);
+								vertices++;
+
+								vertices->color = billboard.color;
+								vertices->position = billboard.center;
+								vertices->sinCos = billboard.sinCos;
+								vertices->size = billboard.size;
+								vertices->uv.Set(1.f, 0.f);
+								vertices++;
+							}
+
+							vertexMapper.Unmap();
+
+							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount * 6);
 						}
+						while (billboardCount > 0);
 
-						vertexMapper.Unmap();
-
-						Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount * 6);
+						billboardVector.clear();
 					}
-					while (billboardCount > 0);
-
-					billboardVector.clear();
 				}
 			}
 		}
@@ -562,158 +591,98 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		for (auto& matIt : layer.opaqueModels)
+		for (auto& pipelinePair : layer.opaqueModels)
 		{
-			auto& matEntry = matIt.second;
+			const MaterialPipeline* pipeline = pipelinePair.first;
+			auto& pipelineEntry = pipelinePair.second;
 
-			if (matEntry.enabled)
+			if (pipelineEntry.maxInstanceCount > 0)
 			{
-				ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
+				bool instancing = (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
+				const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply((instancing) ? ShaderFlags_Instancing : 0);
 
-				if (!meshInstances.empty())
+				const Shader* shader = pipelineInstance.uberInstance->GetShader();
+
+				// Uniforms are conserved in our program, there's no point to send them back until they change
+				if (shader != lastShader)
 				{
-					const Material* material = matIt.first;
+					// Index of uniforms in the shader
+					shaderUniforms = GetShaderUniforms(shader);
 
-					// We only use instancing when no light (other than directional) is active
-					// This is because instancing is not compatible with the search of nearest lights
-					// Deferred shading does not have this problem
-					bool noPointSpotLight = m_renderQueue.pointLights.empty() && m_renderQueue.spotLights.empty();
-					bool instancing = m_instancingEnabled && (!material->IsLightingEnabled() || noPointSpotLight) && matEntry.instancingEnabled;
+					// Ambiant color of the scene
+					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+					// Position of the camera
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-					// We begin to apply the material (and get the shader activated doing so)
-					UInt8 freeTextureUnit;
-					const Shader* shader = material->Apply((instancing) ? ShaderFlags_Instancing : 0, 0, &freeTextureUnit);
+					lastShader = shader;
+				}
 
-					// Uniforms are conserved in our program, there's no point to send them back until they change
-					if (shader != lastShader)
+				for (auto& materialPair : pipelineEntry.materialMap)
+				{
+					const Material* material = materialPair.first;
+					auto& matEntry = materialPair.second;
+
+					if (matEntry.enabled)
 					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
+						UInt8 freeTextureUnit;
+						material->Apply(pipelineInstance, 0, &freeTextureUnit);
 
-						// Ambiant color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
-						lastShader = shader;
-					}
-
-					// Meshes
-					for (auto& meshIt : meshInstances)
-					{
-						const MeshData& meshData = meshIt.first;
-						auto& meshEntry = meshIt.second;
-
-						const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
-						std::vector<Matrix4f>& instances = meshEntry.instances;
-
-						if (!instances.empty())
+						// Meshes
+						for (auto& meshIt : meshInstances)
 						{
-							const IndexBuffer* indexBuffer = meshData.indexBuffer;
-							const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
+							const MeshData& meshData = meshIt.first;
+							auto& meshEntry = meshIt.second;
 
-							// Handle draw call before rendering loop
-							Renderer::DrawCall drawFunc;
-							Renderer::DrawCallInstanced instancedDrawFunc;
-							unsigned int indexCount;
+							const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
+							std::vector<Matrix4f>& instances = meshEntry.instances;
 
-							if (indexBuffer)
+							if (!instances.empty())
 							{
-								drawFunc = Renderer::DrawIndexedPrimitives;
-								instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
-								indexCount = indexBuffer->GetIndexCount();
-							}
-							else
-							{
-								drawFunc = Renderer::DrawPrimitives;
-								instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
-								indexCount = vertexBuffer->GetVertexCount();
-							}
+								const IndexBuffer* indexBuffer = meshData.indexBuffer;
+								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-							Renderer::SetIndexBuffer(indexBuffer);
-							Renderer::SetVertexBuffer(vertexBuffer);
+								// Handle draw call before rendering loop
+								Renderer::DrawCall drawFunc;
+								Renderer::DrawCallInstanced instancedDrawFunc;
+								unsigned int indexCount;
 
-							if (instancing)
-							{
-								// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-								VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-								instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
-
-								// With instancing, impossible to select the lights for each object
-								// So, it's only activated for directional lights
-								unsigned int lightCount = m_renderQueue.directionalLights.size();
-								unsigned int lightIndex = 0;
-								RendererComparison oldDepthFunc = Renderer::GetDepthFunc();
-
-								unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-								for (unsigned int pass = 0; pass < passCount; ++pass)
+								if (indexBuffer)
 								{
-									if (shaderUniforms->hasLightUniforms)
-									{
-										unsigned int renderedLightCount = std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
-										lightCount -= renderedLightCount;
-
-										if (pass == 1)
-										{
-											// To add the result of light computations
-											// We won't interfeer with materials parameters because we only render opaques objects
-											// (A.K.A., without blending)
-											// About the depth function, it must be applied only the first time
-											Renderer::Enable(RendererParameter_Blend, true);
-											Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
-											Renderer::SetDepthFunc(RendererComparison_Equal);
-										}
-
-										// Sends the uniforms
-										for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-											SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset * i, freeTextureUnit + i);
-
-										// And we give them to draw
-										drawFunc(meshData.primitiveMode, 0, indexCount);
-									}
-
-									const Matrix4f* instanceMatrices = &instances[0];
-									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
-
-									while (instanceCount > 0)
-									{
-										// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-										instanceCount -= renderedInstanceCount;
-
-										// We fill the instancing buffer with our world matrices
-										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
-										instanceMatrices += renderedInstanceCount;
-
-										// And we draw
-										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
-									}
+									drawFunc = Renderer::DrawIndexedPrimitives;
+									instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+									indexCount = indexBuffer->GetIndexCount();
+								}
+								else
+								{
+									drawFunc = Renderer::DrawPrimitives;
+									instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+									indexCount = vertexBuffer->GetVertexCount();
 								}
 
-								// We don't forget to disable the blending to avoid to interfeer with the rest of the rendering
-								Renderer::Enable(RendererParameter_Blend, false);
-								Renderer::SetDepthFunc(oldDepthFunc);
-							}
-							else
-							{
-								if (shaderUniforms->hasLightUniforms)
+								Renderer::SetIndexBuffer(indexBuffer);
+								Renderer::SetVertexBuffer(vertexBuffer);
+
+								if (instancing)
 								{
-									for (const Matrix4f& matrix : instances)
+									// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
+									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
+
+									// With instancing, impossible to select the lights for each object
+									// So, it's only activated for directional lights
+									unsigned int lightCount = m_renderQueue.directionalLights.size();
+									unsigned int lightIndex = 0;
+									RendererComparison oldDepthFunc = Renderer::GetDepthFunc();
+
+									unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+									for (unsigned int pass = 0; pass < passCount; ++pass)
 									{
-										// Choose the lights depending on an object position and apparent radius
-										ChooseLights(Spheref(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius));
-
-										unsigned int lightCount = m_lights.size();
-
-										Renderer::SetMatrix(MatrixType_World, matrix);
-										unsigned int lightIndex = 0;
-										RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
-
-										unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-										for (unsigned int pass = 0; pass < passCount; ++pass)
+										if (shaderUniforms->hasLightUniforms)
 										{
-											lightCount -= std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+											unsigned int renderedLightCount = std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+											lightCount -= renderedLightCount;
 
 											if (pass == 1)
 											{
@@ -726,38 +695,98 @@ namespace Nz
 												Renderer::SetDepthFunc(RendererComparison_Equal);
 											}
 
-											// Sends the light uniforms to the shader
+											// Sends the uniforms
 											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
-
-											// And we draw
-											drawFunc(meshData.primitiveMode, 0, indexCount);
+												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset * i, freeTextureUnit + i);
 										}
 
-										Renderer::Enable(RendererParameter_Blend, false);
-										Renderer::SetDepthFunc(oldDepthFunc);
+										const Matrix4f* instanceMatrices = &instances[0];
+										unsigned int instanceCount = instances.size();
+										unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
+
+										while (instanceCount > 0)
+										{
+											// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
+											unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+											instanceCount -= renderedInstanceCount;
+
+											// We fill the instancing buffer with our world matrices
+											instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+											instanceMatrices += renderedInstanceCount;
+
+											// And we draw
+											instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+										}
 									}
+
+									// We don't forget to disable the blending to avoid to interferering with the rest of the rendering
+									Renderer::Enable(RendererParameter_Blend, false);
+									Renderer::SetDepthFunc(oldDepthFunc);
 								}
 								else
 								{
-									// Without instancing, we must do a draw call for each instance
-									// This may be faster than instancing under a certain number
-									// Due to the time to modify the instancing buffer
-									for (const Matrix4f& matrix : instances)
+									if (shaderUniforms->hasLightUniforms)
 									{
-										Renderer::SetMatrix(MatrixType_World, matrix);
-										drawFunc(meshData.primitiveMode, 0, indexCount);
+										for (const Matrix4f& matrix : instances)
+										{
+											// Choose the lights depending on an object position and apparent radius
+											ChooseLights(Spheref(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius));
+
+											unsigned int lightCount = m_lights.size();
+
+											Renderer::SetMatrix(MatrixType_World, matrix);
+											unsigned int lightIndex = 0;
+											RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
+
+											unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+											for (unsigned int pass = 0; pass < passCount; ++pass)
+											{
+												lightCount -= std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+
+												if (pass == 1)
+												{
+													// To add the result of light computations
+													// We won't interfeer with materials parameters because we only render opaques objects
+													// (A.K.A., without blending)
+													// About the depth function, it must be applied only the first time
+													Renderer::Enable(RendererParameter_Blend, true);
+													Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
+													Renderer::SetDepthFunc(RendererComparison_Equal);
+												}
+
+												// Sends the light uniforms to the shader
+												for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+													SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
+
+												// And we draw
+												drawFunc(meshData.primitiveMode, 0, indexCount);
+											}
+
+											Renderer::Enable(RendererParameter_Blend, false);
+											Renderer::SetDepthFunc(oldDepthFunc);
+										}
+									}
+									else
+									{
+										// Without instancing, we must do a draw call for each instance
+										// This may be faster than instancing under a certain number
+										// Due to the time to modify the instancing buffer
+										for (const Matrix4f& matrix : instances)
+										{
+											Renderer::SetMatrix(MatrixType_World, matrix);
+											drawFunc(meshData.primitiveMode, 0, indexCount);
+										}
 									}
 								}
+								instances.clear();
 							}
-							instances.clear();
 						}
+
+						matEntry.enabled = false;
 					}
 				}
 
-				// And we set the data back to zero
-				matEntry.enabled = false;
-				matEntry.instancingEnabled = false;
+				pipelineEntry.maxInstanceCount = 0;
 			}
 		}
 	}
@@ -775,6 +804,8 @@ namespace Nz
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
+		const MaterialPipeline* lastPipeline = nullptr;
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		unsigned int lightCount = 0;
@@ -786,9 +817,16 @@ namespace Nz
 			// Material
 			const Material* material = modelData.material;
 
+			const MaterialPipeline* pipeline = material->GetPipeline();
+			if (pipeline != lastPipeline)
+			{
+				pipelineInstance = &pipeline->Apply();
+				lastPipeline = pipeline;
+			}
+
 			// We begin to apply the material (and get the shader activated doing so)
 			UInt8 freeTextureUnit;
-			const Shader* shader = material->Apply(0, 0, &freeTextureUnit);
+			const Shader* shader = material->Apply(*pipelineInstance, 0, &freeTextureUnit);
 
 			// Uniforms are conserved in our program, there's no point to send them back until they change
 			if (shader != lastShader)

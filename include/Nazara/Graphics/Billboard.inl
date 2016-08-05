@@ -121,8 +121,7 @@ namespace Nz
 	inline void Billboard::SetDefaultMaterial()
 	{
 		MaterialRef material = Material::New();
-		material->Enable(RendererParameter_FaceCulling, true);
-		material->EnableLighting(false);
+		material->EnableFaceCulling(true);
 
 		SetMaterial(std::move(material));
 	}

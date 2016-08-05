@@ -20,7 +20,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
@@ -58,20 +58,33 @@ namespace Nz
 
 		public:
 			inline Material();
+			inline Material(const MaterialPipeline* pipeline);
+			inline Material(const MaterialPipelineInfo& pipelineInfo);
+			inline Material(const String& pipelineName);
 			inline Material(const Material& material);
 			inline ~Material();
 
-			const Shader* Apply(UInt32 shaderFlags = 0, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
+			void Apply(const MaterialPipeline::Instance& instance, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
 
 			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
 
-			inline void Enable(RendererParameter renderParameter, bool enable);
+			inline void Configure(const MaterialPipeline* pipeline);
+			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
+			inline bool Configure(const String& pipelineName);
+
 			inline void EnableAlphaTest(bool alphaTest);
+			inline void EnableBlending(bool blending);
+			inline void EnableColorWrite(bool colorWrite);
+			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthSorting(bool depthSorting);
-			inline void EnableLighting(bool lighting);
+			inline void EnableDepthWrite(bool depthWrite);
+			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableShadowCasting(bool castShadows);
 			inline void EnableShadowReceive(bool receiveShadows);
-			inline void EnableTransform(bool transform);
+			inline void EnableStencilTest(bool stencilTest);
+
+			inline void EnsurePipelineUpdate() const;
 
 			inline const TextureRef& GetAlphaMap() const;
 			inline float GetAlphaThreshold() const;
@@ -87,10 +100,12 @@ namespace Nz
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline const TextureRef& GetHeightMap() const;
+			inline float GetLineWidth() const;
 			inline const TextureRef& GetNormalMap() const;
-			inline const RenderStates& GetRenderStates() const;
+			inline const MaterialPipeline* GetPipeline() const;
+			inline const MaterialPipelineInfo& GetPipelineInfo() const;
+			inline float GetPointSize() const;
 			inline const UberShader* GetShader() const;
-			inline const UberShaderInstance* GetShaderInstance(UInt32 flags = ShaderFlags_None) const;
 			inline float GetShininess() const;
 			inline Color GetSpecularColor() const;
 			inline const TextureRef& GetSpecularMap() const;
@@ -107,12 +122,16 @@ namespace Nz
 			inline bool HasSpecularMap() const;
 
 			inline bool IsAlphaTestEnabled() const;
+			inline bool IsBlendingEnabled() const;
+			inline bool IsColorWriteEnabled() const;
+			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthSortingEnabled() const;
-			inline bool IsEnabled(RendererParameter renderParameter) const;
-			inline bool IsLightingEnabled() const;
+			inline bool IsDepthWriteEnabled() const;
+			inline bool IsFaceCullingEnabled() const;
+			inline bool IsScissorTestEnabled() const;
+			inline bool IsStencilTestEnabled() const;
 			inline bool IsShadowCastingEnabled() const;
 			inline bool IsShadowReceiveEnabled() const;
-			inline bool IsTransformEnabled() const;
 
 			inline bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
 			inline bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
@@ -139,9 +158,10 @@ namespace Nz
 			inline void SetFaceFilling(FaceFilling filling);
 			inline bool SetHeightMap(const String& textureName);
 			inline void SetHeightMap(TextureRef textureName);
+			inline void SetLineWidth(float lineWidth);
 			inline bool SetNormalMap(const String& textureName);
 			inline void SetNormalMap(TextureRef textureName);
-			inline void SetRenderStates(const RenderStates& states);
+			inline void SetPointSize(float pointSize);
 			inline void SetShader(UberShaderConstRef uberShader);
 			inline bool SetShader(const String& uberShaderName);
 			inline void SetShininess(float shininess);
@@ -161,16 +181,9 @@ namespace Nz
 			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
 		private:
-			struct ShaderInstance
-			{
-				const Shader* shader;
-				UberShaderInstance* uberInstance = nullptr;
-				int uniforms[MaterialUniform_Max + 1];
-			};
-
 			void Copy(const Material& material);
-			void GenerateShader(UInt32 flags) const;
-			inline void InvalidateShaders();
+			inline void InvalidatePipeline();
+			inline void UpdatePipeline() const;
 
 			static bool Initialize();
 			static void Uninitialize();
@@ -179,7 +192,8 @@ namespace Nz
 			Color m_diffuseColor;
 			Color m_specularColor;
 			MaterialRef m_depthMaterial; //< Materialception
-			RenderStates m_states;
+			mutable const MaterialPipeline* m_pipeline;
+			MaterialPipelineInfo m_pipelineInfo;
 			TextureSampler m_diffuseSampler;
 			TextureSampler m_specularSampler;
 			TextureRef m_alphaMap;
@@ -188,14 +202,8 @@ namespace Nz
 			TextureRef m_heightMap;
 			TextureRef m_normalMap;
 			TextureRef m_specularMap;
-			UberShaderConstRef m_uberShader;
-			mutable ShaderInstance m_shaders[ShaderFlags_Max + 1];
-			bool m_alphaTestEnabled;
-			bool m_depthSortingEnabled;
-			bool m_lightingEnabled;
+			mutable bool m_pipelineUpdated;
 			bool m_shadowCastingEnabled;
-			bool m_shadowReceiveEnabled;
-			bool m_transformEnabled;
 			float m_alphaThreshold;
 			float m_shininess;
 

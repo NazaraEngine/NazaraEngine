@@ -7,8 +7,8 @@
 #ifndef NAZARA_RENDERSTATES_HPP
 #define NAZARA_RENDERSTATES_HPP
 
+#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Renderer/Shader.hpp>
 
 namespace Nz
 {
@@ -74,10 +74,7 @@ namespace Nz
 		float pointSize = 1.f;
 	};
 
-	struct RenderPipeline : RenderStates
-	{
-		ShaderConstRef shader;
-	};
+	inline bool operator==(const RenderStates& lhs, const RenderStates& rhs);
 }
 
 #include <Nazara/Renderer/RenderStates.inl>
