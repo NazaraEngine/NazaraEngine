@@ -18,40 +18,6 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Adds billboard to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	* \param position Position of the billboard
-	* \param size Sizes of the billboard
-	* \param sinCos Rotation of the billboard
-	* \param color Color of the billboard
-	*
-	* \remark Produces a NazaraAssert if material is invalid
-	*/
-
-	void ForwardRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		NazaraAssert(material, "Invalid material");
-
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		billboardVector.push_back(BillboardData{color, position, size, sinCos});
-	}
-
-	/*!
 	* \brief Adds multiple billboards to the queue
 	*
 	* \param renderOrder Order of rendering

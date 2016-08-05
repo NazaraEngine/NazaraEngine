@@ -30,22 +30,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Adds billboard to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	* \param position Position of the billboard
-	* \param size Sizes of the billboard
-	* \param sinCos Rotation of the billboard
-	* \param color Color of the billboard
-	*/
-
-	void DeferredRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		m_forwardQueue->AddBillboard(renderOrder, material, position, size, sinCos, color);
-	}
-
-	/*!
 	* \brief Adds multiple billboards to the queue
 	*
 	* \param renderOrder Order of rendering
