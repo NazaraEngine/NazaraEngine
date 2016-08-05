@@ -84,6 +84,7 @@ namespace Nz
 			mutable std::vector<LightIndex> m_lights;
 			Buffer m_vertexBuffer;
 			mutable ForwardRenderQueue m_renderQueue;
+			Texture m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
 			unsigned int m_maxLightPassPerObject;

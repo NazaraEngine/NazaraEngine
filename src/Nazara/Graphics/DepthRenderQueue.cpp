@@ -23,8 +23,8 @@ namespace Nz
 	{
 		// Material
 		m_baseMaterial = Material::New();
-		m_baseMaterial->Enable(RendererParameter_ColorWrite, false);
-		m_baseMaterial->Enable(RendererParameter_FaceCulling, false);
+		m_baseMaterial->EnableColorWrite(false);
+		m_baseMaterial->EnableFaceCulling(false);
 		//m_baseMaterial->SetFaceCulling(FaceSide_Front);
 	}
 

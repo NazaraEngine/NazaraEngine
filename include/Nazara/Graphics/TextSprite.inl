@@ -119,10 +119,9 @@ namespace Nz
 	inline void TextSprite::SetDefaultMaterial()
 	{
 		MaterialRef material = Material::New();
-		material->Enable(RendererParameter_Blend, true);
-		material->Enable(RendererParameter_DepthWrite, false);
-		material->Enable(RendererParameter_FaceCulling, false);
-		material->EnableLighting(false);
+		material->EnableBlending(true);
+		material->EnableDepthWrite(false);
+		material->EnableFaceCulling(false);
 		material->SetDstBlend(BlendFunc_InvSrcAlpha);
 		material->SetSrcBlend(BlendFunc_SrcAlpha);
 
