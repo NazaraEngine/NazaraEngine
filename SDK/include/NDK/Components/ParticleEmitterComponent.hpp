@@ -19,28 +19,23 @@ namespace Ndk
 		public:
 			using SetupFunc = std::function<void(const EntityHandle& /*entity*/, Nz::ParticleMapper& /*mapper*/, unsigned int /*count*/)>;
 
-			ParticleEmitterComponent(Nz::ParticleGroup* group);
-			ParticleEmitterComponent(const ParticleEmitterComponent& emitter);
-			ParticleEmitterComponent(ParticleEmitterComponent&& emitter);
-			~ParticleEmitterComponent();
+			inline ParticleEmitterComponent();
+			ParticleEmitterComponent(const ParticleEmitterComponent& emitter) = default;
+			ParticleEmitterComponent(ParticleEmitterComponent&& emitter) = default;
+			~ParticleEmitterComponent() = default;
+
+			void Enable(bool active = true);
 
 			inline bool IsActive() const;
 
-			void SetActive(bool active = true);
-			void SetGroup(Nz::ParticleGroup* group);
 			inline void SetSetupFunc(SetupFunc func);
 
 			static ComponentIndex componentIndex;
 
 		private:
-			void OnParticleGroupRelease(const Nz::ParticleGroup* particleGroup);
-
 			void SetupParticles(Nz::ParticleMapper& mapper, unsigned int count) const override;
 
-			NazaraSlot(Nz::ParticleGroup, OnParticleGroupRelease, m_particleGroupRelease);
-
 			SetupFunc m_setupFunc;
-			Nz::ParticleGroup* m_particleGroup;
 			bool m_isActive;
 	};
 }
