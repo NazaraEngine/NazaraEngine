@@ -7,7 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
-#include <Nazara/Graphics/ParticleSystem.hpp>
+#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <cstdlib>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -32,7 +32,27 @@ namespace Nz
 	{
 	}
 
-	ParticleEmitter::~ParticleEmitter() = default;
+	ParticleEmitter::ParticleEmitter(const ParticleEmitter& emitter) :
+	m_lagCompensationEnabled(emitter.m_lagCompensationEnabled),
+	m_emissionAccumulator(0.f),
+	m_emissionRate(emitter.m_emissionRate),
+	m_emissionCount(emitter.m_emissionCount)
+	{
+	}
+
+	ParticleEmitter::ParticleEmitter(ParticleEmitter&& emitter) :
+	m_lagCompensationEnabled(emitter.m_lagCompensationEnabled),
+	m_emissionAccumulator(0.f),
+	m_emissionRate(emitter.m_emissionRate),
+	m_emissionCount(emitter.m_emissionCount)
+	{
+		OnParticleEmitterMove(&emitter, this);
+	}
+
+	ParticleEmitter::~ParticleEmitter()
+	{
+		OnParticleEmitterRelease(this);
+	}
 
 	/*!
 	* \brief Emits particles according to the delta time between the previous frame
@@ -41,7 +61,7 @@ namespace Nz
 	* \param elapsedTime Delta time between the previous frame
 	*/
 
-	void ParticleEmitter::Emit(ParticleSystem& system, float elapsedTime) const
+	void ParticleEmitter::Emit(ParticleGroup& system, float elapsedTime) const
 	{
 		if (m_emissionRate > 0.f)
 		{
@@ -140,5 +160,15 @@ namespace Nz
 	void ParticleEmitter::SetEmissionRate(float rate)
 	{
 		m_emissionRate = rate;
+	}
+
+	ParticleEmitter& ParticleEmitter::operator=(ParticleEmitter && emitter)
+	{
+		m_emissionCount = emitter.m_emissionCount;
+		m_emissionRate = emitter.m_emissionRate;
+		m_lagCompensationEnabled = emitter.m_lagCompensationEnabled;
+
+		OnParticleEmitterMove(&emitter, this);
+		return *this;
 	}
 }

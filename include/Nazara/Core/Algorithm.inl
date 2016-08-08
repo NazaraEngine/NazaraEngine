@@ -78,7 +78,7 @@ namespace Nz
 	* \param v Object to hash
 	*
 	* \remark a HashAppend specialization for type T is required
-	* 
+	*
 	* \see ComputeHash
 	*/
 	template<typename T>
@@ -124,6 +124,7 @@ namespace Nz
 	template<typename T, std::size_t N>
 	constexpr std::size_t CountOf(T(&name)[N]) noexcept
 	{
+		NazaraUnused(name);
 		return N;
 	}
 

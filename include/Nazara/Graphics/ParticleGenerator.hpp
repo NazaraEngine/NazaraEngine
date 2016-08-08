@@ -18,7 +18,7 @@ namespace Nz
 {
 	class ParticleGenerator;
 	class ParticleMapper;
-	class ParticleSystem;
+	class ParticleGroup;
 
 	using ParticleGeneratorConstRef = ObjectRef<const ParticleGenerator>;
 	using ParticleGeneratorLibrary = ObjectLibrary<ParticleGenerator>;
@@ -34,7 +34,7 @@ namespace Nz
 			ParticleGenerator(const ParticleGenerator& generator);
 			virtual ~ParticleGenerator();
 
-			virtual void Generate(ParticleSystem& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
+			virtual void Generate(ParticleGroup& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId) = 0;
 
 			// Signals:
 			NazaraSignal(OnParticleGeneratorRelease, const ParticleGenerator* /*particleGenerator*/);

@@ -19,11 +19,11 @@ namespace Nz
 		RenderStates BuildRenderStates()
 		{
 			RenderStates states;
+			states.cullingSide = FaceSide_Back;
 			states.depthFunc = RendererComparison_Equal;
-			states.faceCulling = FaceSide_Back;
-			states.parameters[RendererParameter_DepthBuffer] = true;
-			states.parameters[RendererParameter_DepthWrite] = false;
-			states.parameters[RendererParameter_FaceCulling] = true;
+			states.depthBuffer = true;
+			states.depthWrite = false;
+			states.faceCulling = true;
 
 			return states;
 		}
