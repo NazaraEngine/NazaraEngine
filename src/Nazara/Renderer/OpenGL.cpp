@@ -158,7 +158,7 @@ namespace Nz
 		RenderStates& currentRenderStates = s_contextStates->renderStates;
 
 		// Les fonctions de blend n'a aucun intérêt sans blending
-		if (states.parameters[RendererParameter_Blend])
+		if (states.blending)
 		{
 			if (currentRenderStates.dstBlend != states.dstBlend ||
 				currentRenderStates.srcBlend != states.srcBlend)
@@ -169,7 +169,7 @@ namespace Nz
 			}
 		}
 
-		if (states.parameters[RendererParameter_DepthBuffer])
+		if (states.depthBuffer)
 		{
 			// La comparaison de profondeur n'a aucun intérêt sans depth buffer
 			if (currentRenderStates.depthFunc != states.depthFunc)
@@ -179,20 +179,20 @@ namespace Nz
 			}
 
 			// Le DepthWrite n'a aucune importance si le DepthBuffer est désactivé
-			if (currentRenderStates.parameters[RendererParameter_DepthWrite] != states.parameters[RendererParameter_DepthWrite])
+			if (currentRenderStates.depthWrite != states.depthWrite)
 			{
-				glDepthMask((states.parameters[RendererParameter_DepthWrite]) ? GL_TRUE : GL_FALSE);
-				currentRenderStates.parameters[RendererParameter_DepthWrite] = states.parameters[RendererParameter_DepthWrite];
+				glDepthMask((states.depthWrite) ? GL_TRUE : GL_FALSE);
+				currentRenderStates.depthWrite = states.depthWrite;
 			}
 		}
 
 		// Inutile de changer le mode de face culling s'il n'est pas actif
-		if (states.parameters[RendererParameter_FaceCulling])
+		if (states.faceCulling)
 		{
-			if (currentRenderStates.faceCulling != states.faceCulling)
+			if (currentRenderStates.cullingSide != states.cullingSide)
 			{
-				glCullFace(FaceSide[states.faceCulling]);
-				currentRenderStates.faceCulling = states.faceCulling;
+				glCullFace(FaceSide[states.cullingSide]);
+				currentRenderStates.cullingSide = states.cullingSide;
 			}
 		}
 
@@ -203,33 +203,46 @@ namespace Nz
 		}
 
 		// Ici encore, ça ne sert à rien de se soucier des fonctions de stencil sans qu'il soit activé
-		if (states.parameters[RendererParameter_StencilTest])
+		if (states.stencilTest)
 		{
-			for (unsigned int i = 0; i < 2; ++i)
+			if (currentRenderStates.stencilCompare.back != states.stencilCompare.back ||
+				currentRenderStates.stencilReference.back != states.stencilReference.back ||
+				currentRenderStates.stencilWriteMask.back != states.stencilWriteMask.back)
 			{
-				GLenum face = (i == 0) ? GL_BACK : GL_FRONT;
-				const RenderStates::Face& srcStates = (i == 0) ? states.backFace : states.frontFace;
-				RenderStates::Face& dstStates = (i == 0) ? currentRenderStates.backFace : currentRenderStates.frontFace;
+				glStencilFuncSeparate(GL_BACK, RendererComparison[states.stencilCompare.back], states.stencilReference.back, states.stencilWriteMask.back);
+				currentRenderStates.stencilCompare.back = states.stencilCompare.back;
+				currentRenderStates.stencilReference.back = states.stencilReference.back;
+				currentRenderStates.stencilWriteMask.back = states.stencilWriteMask.back;
+			}
 
-				if (dstStates.stencilCompare != srcStates.stencilCompare ||
-					dstStates.stencilMask != srcStates.stencilMask ||
-					dstStates.stencilReference != srcStates.stencilReference)
-				{
-					glStencilFuncSeparate(face, RendererComparison[srcStates.stencilCompare], srcStates.stencilReference, srcStates.stencilMask);
-					dstStates.stencilCompare = srcStates.stencilCompare;
-					dstStates.stencilMask = srcStates.stencilMask;
-					dstStates.stencilReference = srcStates.stencilReference;
-				}
+			if (currentRenderStates.stencilDepthFail.back != states.stencilDepthFail.back ||
+				currentRenderStates.stencilFail.back != states.stencilFail.back ||
+				currentRenderStates.stencilPass.back != states.stencilPass.back)
+			{
+				glStencilOpSeparate(GL_BACK, StencilOperation[states.stencilFail.back], StencilOperation[states.stencilDepthFail.back], StencilOperation[states.stencilPass.back]);
+				currentRenderStates.stencilDepthFail.back = states.stencilDepthFail.back;
+				currentRenderStates.stencilFail.back = states.stencilFail.back;
+				currentRenderStates.stencilPass.back = states.stencilPass.back;
+			}
 
-				if (dstStates.stencilFail != srcStates.stencilFail ||
-					dstStates.stencilPass != srcStates.stencilPass ||
-					dstStates.stencilZFail != srcStates.stencilZFail)
-				{
-					glStencilOpSeparate(face, StencilOperation[srcStates.stencilFail], StencilOperation[srcStates.stencilZFail], StencilOperation[srcStates.stencilPass]);
-					dstStates.stencilFail = srcStates.stencilFail;
-					dstStates.stencilPass = srcStates.stencilPass;
-					dstStates.stencilZFail = srcStates.stencilZFail;
-				}
+			if (currentRenderStates.stencilCompare.front != states.stencilCompare.front ||
+				currentRenderStates.stencilReference.front != states.stencilReference.front ||
+				currentRenderStates.stencilWriteMask.front != states.stencilWriteMask.front)
+			{
+				glStencilFuncSeparate(GL_FRONT, RendererComparison[states.stencilCompare.front], states.stencilReference.front, states.stencilWriteMask.front);
+				currentRenderStates.stencilCompare.front = states.stencilCompare.front;
+				currentRenderStates.stencilReference.front = states.stencilReference.front;
+				currentRenderStates.stencilWriteMask.front = states.stencilWriteMask.front;
+			}
+
+			if (currentRenderStates.stencilDepthFail.front != states.stencilDepthFail.front ||
+				currentRenderStates.stencilFail.front != states.stencilFail.front ||
+				currentRenderStates.stencilPass.front != states.stencilPass.front)
+			{
+				glStencilOpSeparate(GL_FRONT, StencilOperation[states.stencilFail.front], StencilOperation[states.stencilDepthFail.front], StencilOperation[states.stencilPass.front]);
+				currentRenderStates.stencilDepthFail.front = states.stencilDepthFail.front;
+				currentRenderStates.stencilFail.front = states.stencilFail.front;
+				currentRenderStates.stencilPass.front = states.stencilPass.front;
 			}
 		}
 
@@ -246,62 +259,62 @@ namespace Nz
 		}
 
 		// Paramètres de rendu
-		if (currentRenderStates.parameters[RendererParameter_Blend] != states.parameters[RendererParameter_Blend])
+		if (currentRenderStates.blending != states.blending)
 		{
-			if (states.parameters[RendererParameter_Blend])
+			if (states.blending)
 				glEnable(GL_BLEND);
 			else
 				glDisable(GL_BLEND);
 
-			currentRenderStates.parameters[RendererParameter_Blend] = states.parameters[RendererParameter_Blend];
+			currentRenderStates.blending = states.blending;
 		}
 
-		if (currentRenderStates.parameters[RendererParameter_ColorWrite] != states.parameters[RendererParameter_ColorWrite])
+		if (currentRenderStates.colorWrite != states.colorWrite)
 		{
-			GLboolean param = (states.parameters[RendererParameter_ColorWrite]) ? GL_TRUE : GL_FALSE;
+			GLboolean param = (states.colorWrite) ? GL_TRUE : GL_FALSE;
 			glColorMask(param, param, param, param);
 
-			currentRenderStates.parameters[RendererParameter_ColorWrite] = states.parameters[RendererParameter_ColorWrite];
+			currentRenderStates.colorWrite = states.colorWrite;
 		}
 
-		if (currentRenderStates.parameters[RendererParameter_DepthBuffer] != states.parameters[RendererParameter_DepthBuffer])
+		if (currentRenderStates.depthBuffer != states.depthBuffer)
 		{
-			if (states.parameters[RendererParameter_DepthBuffer])
+			if (states.depthBuffer)
 				glEnable(GL_DEPTH_TEST);
 			else
 				glDisable(GL_DEPTH_TEST);
 
-			currentRenderStates.parameters[RendererParameter_DepthBuffer] = states.parameters[RendererParameter_DepthBuffer];
+			currentRenderStates.depthBuffer = states.depthBuffer;
 		}
 
-		if (currentRenderStates.parameters[RendererParameter_FaceCulling] != states.parameters[RendererParameter_FaceCulling])
+		if (currentRenderStates.faceCulling != states.faceCulling)
 		{
-			if (states.parameters[RendererParameter_FaceCulling])
+			if (states.faceCulling)
 				glEnable(GL_CULL_FACE);
 			else
 				glDisable(GL_CULL_FACE);
 
-			currentRenderStates.parameters[RendererParameter_FaceCulling] = states.parameters[RendererParameter_FaceCulling];
+			currentRenderStates.faceCulling = states.faceCulling;
 		}
 
-		if (currentRenderStates.parameters[RendererParameter_ScissorTest] != states.parameters[RendererParameter_ScissorTest])
+		if (currentRenderStates.scissorTest != states.scissorTest)
 		{
-			if (states.parameters[RendererParameter_ScissorTest])
+			if (states.scissorTest)
 				glEnable(GL_SCISSOR_TEST);
 			else
 				glDisable(GL_SCISSOR_TEST);
 
-			currentRenderStates.parameters[RendererParameter_ScissorTest] = states.parameters[RendererParameter_ScissorTest];
+			currentRenderStates.scissorTest = states.scissorTest;
 		}
 
-		if (currentRenderStates.parameters[RendererParameter_StencilTest] != states.parameters[RendererParameter_StencilTest])
+		if (currentRenderStates.stencilTest != states.stencilTest)
 		{
-			if (states.parameters[RendererParameter_StencilTest])
+			if (states.stencilTest)
 				glEnable(GL_STENCIL_TEST);
 			else
 				glDisable(GL_STENCIL_TEST);
 
-			currentRenderStates.parameters[RendererParameter_StencilTest] = states.parameters[RendererParameter_StencilTest];
+			currentRenderStates.stencilTest = states.stencilTest;
 		}
 	}
 

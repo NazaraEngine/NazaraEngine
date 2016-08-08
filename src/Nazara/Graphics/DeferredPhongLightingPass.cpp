@@ -120,9 +120,9 @@ namespace Nz
 		RenderStates lightStates;
 		lightStates.dstBlend = BlendFunc_One;
 		lightStates.srcBlend = BlendFunc_One;
-		lightStates.parameters[RendererParameter_Blend] = true;
-		lightStates.parameters[RendererParameter_DepthBuffer] = false;
-		lightStates.parameters[RendererParameter_DepthWrite] = false;
+		lightStates.blending = true;
+		lightStates.depthBuffer = false;
+		lightStates.depthWrite = false;
 
 		// Directional lights
 		if (!m_renderQueue->directionalLights.empty())
@@ -146,18 +146,18 @@ namespace Nz
 		if (!m_renderQueue->pointLights.empty() || !m_renderQueue->spotLights.empty())
 		{
 			// http://www.altdevblogaday.com/2011/08/08/stencil-buffer-optimisation-for-deferred-lights/
-			lightStates.parameters[RendererParameter_StencilTest] = true;
-			lightStates.faceCulling = FaceSide_Front;
-			lightStates.backFace.stencilMask = 0xFF;
-			lightStates.backFace.stencilReference = 0;
-			lightStates.backFace.stencilFail = StencilOperation_Keep;
-			lightStates.backFace.stencilPass = StencilOperation_Keep;
-			lightStates.backFace.stencilZFail = StencilOperation_Invert;
-			lightStates.frontFace.stencilMask = 0xFF;
-			lightStates.frontFace.stencilReference = 0;
-			lightStates.frontFace.stencilFail = StencilOperation_Keep;
-			lightStates.frontFace.stencilPass = StencilOperation_Keep;
-			lightStates.frontFace.stencilZFail = StencilOperation_Invert;
+			lightStates.cullingSide = FaceSide_Front;
+			lightStates.stencilTest = true;
+			lightStates.stencilDepthFail.back = StencilOperation_Invert;
+			lightStates.stencilDepthFail.front = StencilOperation_Invert;
+			lightStates.stencilFail.back = StencilOperation_Keep;
+			lightStates.stencilFail.front = StencilOperation_Keep;
+			lightStates.stencilPass.back = StencilOperation_Keep;
+			lightStates.stencilPass.front = StencilOperation_Keep;
+			lightStates.stencilReference.back = 0;
+			lightStates.stencilReference.front = 0;
+			lightStates.stencilWriteMask.back = 0xFF;
+			lightStates.stencilWriteMask.front = 0xFF;
 
 			Renderer::SetRenderStates(lightStates);
 

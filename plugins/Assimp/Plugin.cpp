@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -129,6 +130,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
+
+	if (!scene)
+	{
+		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		return false;
+	}
 
 	std::set<Nz::String> joints;
 
@@ -237,8 +244,6 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 						aiColor4D color;
 						if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(MaterialData::CustomDefined);
-
 							matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
 						}
 					};
@@ -249,7 +254,6 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 						aiTextureMapMode mapMode[3];
 						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(MaterialData::CustomDefined);
 							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
 
 							if (wrapKey)

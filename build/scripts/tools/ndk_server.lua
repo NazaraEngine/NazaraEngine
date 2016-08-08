@@ -37,13 +37,11 @@ TOOL.FilesExcluded = {
 }
 
 
-TOOL.Libraries = function()
-    local libraries = {}
-    for k,v in pairs(NazaraBuild.Modules) do
-        if (not v.ClientOnly) then
-            table.insert(libraries, "Nazara" .. v.Name)
-        end
-    end
-
-    return libraries
-end
+TOOL.Libraries = {
+	"NazaraCore",
+	"NazaraLua",
+	"NazaraNetwork",
+	"NazaraNoise",
+	"NazaraPhysics",
+	"NazaraUtility"
+}

@@ -38,9 +38,9 @@ namespace Nz
 
 	ParticleDeclaration::ParticleDeclaration(const ParticleDeclaration& declaration) :
 	RefCounted(),
+	m_components(declaration.m_components),
 	m_stride(declaration.m_stride)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component) * (ParticleComponent_Max + 1));
 	}
 
 	/*!
@@ -205,7 +205,7 @@ namespace Nz
 
 	ParticleDeclaration& ParticleDeclaration::operator=(const ParticleDeclaration& declaration)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component) * (ParticleComponent_Max + 1));
+		m_components = declaration.m_components;
 		m_stride = declaration.m_stride;
 
 		return *this;
@@ -222,13 +222,7 @@ namespace Nz
 
 	ParticleDeclaration* ParticleDeclaration::Get(ParticleLayout layout)
 	{
-		#ifdef NAZARA_DEBUG
-		if (layout > ParticleLayout_Max)
-		{
-			NazaraError("Particle layout out of enum");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(layout <= ParticleLayout_Max, "Particle layout out of enum");
 
 		return &s_declarations[layout];
 	}
@@ -314,9 +308,9 @@ namespace Nz
 			declaration = &s_declarations[ParticleLayout_Sprite];
 			declaration->EnableComponent(ParticleComponent_Color,    ComponentType_Color,  NazaraOffsetOf(ParticleStruct_Sprite, color));
 			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,   NazaraOffsetOf(ParticleStruct_Sprite, life));
-			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, position));
+			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Sprite, rotation));
-			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
+			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
 
 			NazaraAssert(declaration->GetStride() == sizeof(ParticleStruct_Sprite), "Invalid stride for declaration ParticleLayout_Sprite");
 		}
@@ -338,6 +332,6 @@ namespace Nz
 		ParticleDeclarationLibrary::Uninitialize();
 	}
 
-	ParticleDeclaration ParticleDeclaration::s_declarations[ParticleLayout_Max + 1];
+	std::array<ParticleDeclaration, ParticleLayout_Max + 1> ParticleDeclaration::s_declarations;
 	ParticleDeclarationLibrary::LibraryMap ParticleDeclaration::s_library;
 }

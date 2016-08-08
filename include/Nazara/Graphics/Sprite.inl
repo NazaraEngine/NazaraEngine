@@ -123,8 +123,7 @@ namespace Nz
 	inline void Sprite::SetDefaultMaterial()
 	{
 		MaterialRef material = Material::New();
-		material->Enable(RendererParameter_FaceCulling, false);
-		material->EnableLighting(false);
+		material->EnableFaceCulling(false);
 
 		SetMaterial(std::move(material));
 	}

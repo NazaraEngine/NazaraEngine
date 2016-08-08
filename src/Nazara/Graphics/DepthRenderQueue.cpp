@@ -23,38 +23,9 @@ namespace Nz
 	{
 		// Material
 		m_baseMaterial = Material::New();
-		m_baseMaterial->Enable(RendererParameter_ColorWrite, false);
-		m_baseMaterial->Enable(RendererParameter_FaceCulling, false);
+		m_baseMaterial->EnableColorWrite(false);
+		m_baseMaterial->EnableFaceCulling(false);
 		//m_baseMaterial->SetFaceCulling(FaceSide_Front);
-	}
-
-	/*!
-	* \brief Adds billboard to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	* \param position Position of the billboard
-	* \param size Sizes of the billboard
-	* \param sinCos Rotation of the billboard
-	* \param color Color of the billboard
-	*
-	* \remark Produces a NazaraAssert if material is invalid
-	*/
-
-	void DepthRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		NazaraAssert(material, "Invalid material");
-		NazaraUnused(renderOrder);
-
-		if (!IsMaterialSuitable(material))
-			return;
-
-		if (material->HasDepthMaterial())
-			material = material->GetDepthMaterial();
-		else
-			material = m_baseMaterial;
-
-		ForwardRenderQueue::AddBillboard(0, material, position, size, sinCos, color);
 	}
 
 	/*!

@@ -120,9 +120,10 @@ namespace Nz
 
 				MTLParser::Material* material = mtlFormat.AddMaterial(name);
 
-				bool bValue;
 				String strVal;
-				if (matData.HasParameter(MaterialData::CustomDefined))
+				if (matData.GetStringParameter(MaterialData::FilePath, &strVal))
+					material->diffuseMap = strVal;
+				else
 				{
 					Color colorVal;
 					float fValue;
@@ -148,8 +149,6 @@ namespace Nz
 					if (matData.GetStringParameter(MaterialData::SpecularTexturePath, &strVal))
 						material->specularMap = strVal;
 				}
-				else if (matData.GetStringParameter(MaterialData::FilePath, &strVal))
-					material->diffuseMap = strVal;
 			}
 
 			// Meshes

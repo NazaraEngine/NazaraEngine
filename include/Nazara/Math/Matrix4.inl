@@ -750,7 +750,7 @@ namespace Nz
 	* \brief Inverts this matrix
 	* \return A reference to this matrix inverted
 	*
-	* \param bool Optional argument to know if matrix has been successfully inverted
+	* \param succeeded Optional argument to know if matrix has been successfully inverted
 	*
 	* \see InverseAffine
 	*/
@@ -769,7 +769,7 @@ namespace Nz
 	* \brief Inverts this matrix
 	* \return A reference to this matrix inverted
 	*
-	* \param bool Optional argument to know if matrix has been successfully inverted
+	* \param succeeded Optional argument to know if matrix has been successfully inverted
 	*
 	* \see Inverse
 	*/
@@ -1487,7 +1487,7 @@ namespace Nz
 	* \brief Compares the matrix to other one
 	* \return true if the matrices are the same
 	*
-	* \param matrix Other matrix to compare with
+	* \param mat Other matrix to compare with
 	*/
 
 	template<typename T>
@@ -1504,7 +1504,7 @@ namespace Nz
 	* \brief Compares the matrix to other one
 	* \return false if the matrices are the same
 	*
-	* \param matrix Other matrix to compare with
+	* \param mat Other matrix to compare with
 	*/
 
 	template<typename T>
