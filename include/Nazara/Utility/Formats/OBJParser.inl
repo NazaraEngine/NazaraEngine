@@ -179,7 +179,7 @@ namespace Nz
 
 		m_errorCount++;
 
-		if (m_lineCount > 20 && (m_errorCount * 100 / m_lineCount) > 50)
+		if (m_errorCount > 10 && (m_errorCount * 100 / m_lineCount) > 50)
 		{
 			NazaraError("Aborting parsing because of error percentage");
 			return false; //< Abort parsing if error percentage is too high
