@@ -31,6 +31,7 @@ namespace Nz
 
 		String matName, meshName;
 		matName = meshName = "default";
+		m_errorCount = 0;
 		m_keepLastLine = false;
 		m_lineCount = 0;
 		m_meshes.clear();
