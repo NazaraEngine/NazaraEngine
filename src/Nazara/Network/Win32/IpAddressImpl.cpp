@@ -56,7 +56,7 @@ namespace Nz
 			std::array<char, NI_MAXHOST> hostnameBuffer;
 			std::array<char, NI_MAXSERV> serviceBuffer;
 
-			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), flags);
+			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), static_cast<std::size_t>(hostnameBuffer.size()), serviceBuffer.data(), static_cast<std::size_t>(serviceBuffer.size()), flags);
 			if (result == 0)
 			{
 				if (hostname)
@@ -84,22 +84,28 @@ namespace Nz
 			{
 				sockaddr_in* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
 
-				auto& rawIpV4 = ipv4->sin_addr.S_un.S_un_b;
-				return IpAddress(rawIpV4.s_b1, rawIpV4.s_b2, rawIpV4.s_b3, rawIpV4.s_b4, ntohs(ipv4->sin_port));
+				auto& rawIpV4 = ipv4->sin_addr;
+				return IpAddress(rawIpV4.s_net, rawIpV4.s_host, rawIpV4.s_lh, rawIpV4.s_impno, ntohs(ipv4->sin_port));
 			}
 
 			case AF_INET6:
 			{
 				sockaddr_in6* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
 
-				auto& rawIpV6 = ipv6->sin6_addr.u.Word;
-				return IpAddress(rawIpV6[0], rawIpV6[1], rawIpV6[2], rawIpV6[3], rawIpV6[4], rawIpV6[5], rawIpV6[6], rawIpV6[7], ntohs(ipv6->sin6_port));
+				auto& rawIpV6 = ipv6->sin6_addr.s6_addr;
+
+				IpAddress::IPv6 structIpV6;
+				for (unsigned int i = 0; i < 8; ++i)
+					structIpV6[i] = UInt16(rawIpV6[i * 2]) << 8 | UInt16(rawIpV6[i * 2 + 1]);
+
+				return IpAddress(structIpV6, ntohs(ipv6->sin6_port));
 			}
 		}
 
 		return IpAddress::Invalid;
 	}
 
+	#if NAZARA_CORE_WINDOWS_VISTA
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfoW* info)
 	{
 		switch (info->ai_family)
@@ -121,6 +127,7 @@ namespace Nz
 
 		return IpAddress::Invalid;
 	}
+	#endif
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr* address)
 	{
@@ -144,8 +151,13 @@ namespace Nz
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr_in6* addressv6)
 	{
-		auto& rawIpV6 = addressv6->sin6_addr.u.Word;
-		return IpAddress(rawIpV6[0], rawIpV6[1], rawIpV6[2], rawIpV6[3], rawIpV6[4], rawIpV6[5], rawIpV6[6], rawIpV6[7], ntohs(addressv6->sin6_port));
+		auto& rawIpV6 = addressv6->sin6_addr.s6_addr;
+
+		IpAddress::IPv6 ipv6;
+		for (unsigned int i = 0; i < 8; ++i)
+			ipv6[i] = rawIpV6[i*2] << 8 | rawIpV6[i*2+1];
+
+		return IpAddress(ipv6, ntohs(addressv6->sin6_port));
 	}
 
 	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service, ResolveError* error)
@@ -221,7 +233,7 @@ namespace Nz
 					std::memset(socketAddress, 0, sizeof(sockaddr_in));
 					socketAddress->sin_family = AF_INET;
 					socketAddress->sin_port = htons(ipAddress.GetPort());
-					socketAddress->sin_addr.S_un.S_addr = htonl(ipAddress.ToUInt32());
+					socketAddress->sin_addr.s_addr = htonl(ipAddress.ToUInt32());
 
 					return sizeof(sockaddr_in);
 				}
@@ -236,7 +248,10 @@ namespace Nz
 
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
-						socketAddress->sin6_addr.u.Word[i] = htons(address[i]);
+					{
+						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = htons(address[i]) >> 8;
+						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = htons(address[i]) >> 0;
+					}
 
 					return sizeof(sockaddr_in6);
 				}

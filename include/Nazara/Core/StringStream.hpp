@@ -22,6 +22,10 @@ namespace Nz
 			StringStream(const StringStream&) = default;
 			StringStream(StringStream&&) noexcept = default;
 
+			void Clear();
+
+			std::size_t GetBufferSize() const;
+
 			String ToString() const;
 
 			StringStream& operator=(const StringStream&) = default;

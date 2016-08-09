@@ -31,7 +31,6 @@ namespace Nz
 			ForwardRenderQueue() = default;
 			~ForwardRenderQueue() = default;
 
-			void AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos = Vector2f(0.f, 1.f), const Color& color = Color::White) override;
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
@@ -48,6 +47,16 @@ namespace Nz
 
 			void Sort(const AbstractViewer* viewer);
 
+			struct MaterialComparator
+			{
+				bool operator()(const Material* mat1, const Material* mat2) const;
+			};
+
+			struct MaterialPipelineComparator
+			{
+				bool operator()(const MaterialPipeline* pipeline1, const MaterialPipeline* pipeline2) const;
+			};
+
 			/// Billboards
 			struct BillboardData
 			{
@@ -57,11 +66,6 @@ namespace Nz
 				Vector2f sinCos;
 			};
 
-			struct BatchedBillboardComparator
-			{
-				bool operator()(const Material* mat1, const Material* mat2) const;
-			};
-
 			struct BatchedBillboardEntry
 			{
 				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
@@ -69,7 +73,15 @@ namespace Nz
 				std::vector<BillboardData> billboards;
 			};
 
-			typedef std::map<const Material*, BatchedBillboardEntry, BatchedBillboardComparator> BatchedBillboardContainer;
+			typedef std::map<const Material*, BatchedBillboardEntry, MaterialComparator> BatchedBillboardContainer;
+
+			struct BatchedBillboardPipelineEntry
+			{
+				BatchedBillboardContainer materialMap;
+				bool enabled = false;
+			};
+
+			typedef std::map<const MaterialPipeline*, BatchedBillboardPipelineEntry, MaterialPipelineComparator> BillboardPipelineBatches;
 
 			/// Sprites
 			struct SpriteChain_XYZ_Color_UV
@@ -85,22 +97,25 @@ namespace Nz
 				std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
 			};
 
-			struct BatchedSpriteMaterialComparator
-			{
-				bool operator()(const Material* mat1, const Material* mat2);
-			};
-
-			typedef std::map<const Texture*, BatchedSpriteEntry> BasicSpriteOverlayContainer;
+			typedef std::map<const Texture*, BatchedSpriteEntry> SpriteOverlayBatches;
 
 			struct BatchedBasicSpriteEntry
 			{
 				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
 
-				BasicSpriteOverlayContainer overlayMap;
+				SpriteOverlayBatches overlayMap;
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedBasicSpriteEntry> BasicSpriteBatches;
+			typedef std::map<const Material*, BatchedBasicSpriteEntry, MaterialComparator> SpriteMaterialBatches;
+
+			struct BatchedSpritePipelineEntry
+			{
+				SpriteMaterialBatches materialMap;
+				bool enabled = false;
+			};
+
+			typedef std::map<const MaterialPipeline*, BatchedSpritePipelineEntry, MaterialPipelineComparator> SpritePipelineBatches;
 
 			/// Meshes
 			struct MeshDataComparator
@@ -119,21 +134,23 @@ namespace Nz
 
 			typedef std::map<MeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
 
-			struct BatchedModelMaterialComparator
-			{
-				bool operator()(const Material* mat1, const Material* mat2) const;
-			};
-
 			struct BatchedModelEntry
 			{
 				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
 
 				MeshInstanceContainer meshMap;
 				bool enabled = false;
-				bool instancingEnabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedModelEntry, BatchedModelMaterialComparator> ModelBatches;
+			typedef std::map<const Material*, BatchedModelEntry, MaterialComparator> MeshMaterialBatches;
+
+			struct BatchedMaterialEntry
+			{
+				std::size_t maxInstanceCount = 0;
+				MeshMaterialBatches materialMap;
+			};
+
+			typedef std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator> MeshPipelineBatches;
 
 			struct TransparentModelData
 			{
@@ -147,9 +164,9 @@ namespace Nz
 
 			struct Layer
 			{
-				BatchedBillboardContainer billboards;
-				BasicSpriteBatches basicSprites;
-				ModelBatches opaqueModels;
+				BillboardPipelineBatches billboards;
+				SpritePipelineBatches basicSprites;
+				MeshPipelineBatches opaqueModels;
 				TransparentModelContainer transparentModels;
 				std::vector<TransparentModelData> transparentModelData;
 				std::vector<const Drawable*> otherDrawables;
@@ -159,6 +176,7 @@ namespace Nz
 			std::map<int, Layer> layers;
 
 		private:
+			BillboardData* GetBillboardData(int renderOrder, const Material* material, unsigned int count);
 			Layer& GetLayer(int i); ///TODO: Inline
 
 			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);

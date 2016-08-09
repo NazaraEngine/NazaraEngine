@@ -1,7 +1,6 @@
 MODULE.Name = "Utility"
 
 MODULE.Libraries = {
-	"freetype-s",
 	"NazaraCore",
 	"stb_image"
 }
@@ -17,10 +16,12 @@ MODULE.OsFiles.Posix = {
 }
 
 MODULE.OsLibraries.Windows = {
+	"freetype-s",
 	"gdi32"
 }
 
 MODULE.OsLibraries.Posix = {
+	"freetype",
 	"X11",
 	"xcb",
 	"xcb-cursor",

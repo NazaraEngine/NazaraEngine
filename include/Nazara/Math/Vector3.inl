@@ -1012,6 +1012,40 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Measure the distance between two points
+	* Shorthand for vec1.Distance(vec2)
+	*
+	* param vec1 the first point
+	* param vec2 the second point
+	*
+	* \return The distance between the two vectors
+	*
+	* \see SquaredDistance
+	*/
+	template<typename T>
+	T Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
+	{
+		return vec1.Distance(vec2);
+	}
+
+	/*!
+	* \brief Measure the distance between two points as a float
+	* Shorthand for vec1.Distancef(vec2)
+	*
+	* param vec1 the first point
+	* param vec2 the second point
+	*
+	* \return The distance between the two vectors as a float
+	*
+	* \see SquaredDistancef
+	*/
+	template<typename T>
+	float Vector3<T>::Distancef(const Vector3& vec1, const Vector3& vec2)
+	{
+		return vec1.Distancef(vec2);
+	}
+
+	/*!
 	* \brief Shorthand for the vector (0, -1, 0)
 	* \return A vector with components (0, -1, 0)
 	*
@@ -1108,6 +1142,21 @@ namespace Nz
 		vector.MakeRight();
 
 		return vector;
+	}
+
+	/*!
+	* \brief Calculates the squared distance between two vectors
+	* \return The metric distance between two vectors with the squared euclidean norm
+	*
+	* \param vec1 The first point to measure the distance with
+	* \param vec2 The second point to measure the distance with
+	*
+	* \see Distance
+	*/
+	template<typename T>
+	T Vector3<T>::SquaredDistance(const Vector3& vec1, const Vector3& vec2)
+	{
+		return vec1.SquaredDistance(vec2);
 	}
 
 	/*!

@@ -53,6 +53,7 @@ namespace Nz
 			void Update(const Vector3<T>& translation);
 
 			BoundingVolume operator*(T scalar) const;
+			BoundingVolume& operator=(const BoundingVolume& other) = default;
 
 			BoundingVolume& operator*=(T scalar);
 

@@ -35,8 +35,8 @@ namespace Nz
 	struct ParticleStruct_Sprite
 	{
 		Color color;
-		Vector2f position;
-		Vector2f velocity;
+		Vector3f position;
+		Vector3f velocity;
 		UInt32 life;
 		float rotation;
 	};

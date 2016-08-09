@@ -47,6 +47,7 @@ namespace Nz
 			EulerAngles operator-(const EulerAngles& angles) const;
 			/*EulerAngles operator*(const EulerAngles& angles) const;
 			EulerAngles operator/(const EulerAngles& angles) const;*/
+			EulerAngles& operator=(const EulerAngles& other) = default;
 
 			EulerAngles& operator+=(const EulerAngles& angles);
 			EulerAngles& operator-=(const EulerAngles& angles);

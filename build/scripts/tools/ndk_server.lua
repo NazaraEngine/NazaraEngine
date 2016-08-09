@@ -1,7 +1,8 @@
 TOOL.Name = "SDKServer"
 
-TOOL.Directory = "../SDK/lib"
+TOOL.Directory = "../SDK"
 TOOL.Kind = "Library"
+TOOL.TargetDirectory = "../SDK/lib"
 
 TOOL.Defines = {
 	"NDK_BUILD",
@@ -21,7 +22,7 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
--- Exlude client-only files
+-- Excludes client-only files
 TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
 	"../SDK/**/Console.*",
@@ -35,10 +36,11 @@ TOOL.FilesExcluded = {
 	"../SDK/**/LuaBinding_Renderer.*"
 }
 
+
 TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraLua",
-    "NazaraNetwork",
+	"NazaraNetwork",
 	"NazaraNoise",
 	"NazaraPhysics",
 	"NazaraUtility"

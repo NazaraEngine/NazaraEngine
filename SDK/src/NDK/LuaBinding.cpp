@@ -29,8 +29,8 @@ namespace Ndk
 
 	// SDK
 	application("Application"),
-	nodeComponent("NodeComponent"),
 	entityClass("Entity"),
+	nodeComponent("NodeComponent"),
 	velocityComponent("VelocityComponent"),
 	worldClass("World")
 
@@ -39,9 +39,9 @@ namespace Ndk
 
 	// Audio
 	musicClass("Music"),
+	soundClass("Sound"),
 	soundBuffer("SoundBuffer"),
 	soundEmitter("SoundEmitter"),
-	soundClass("Sound"),
 
 	// Graphics
 	instancedRenderable("InstancedRenderable"),

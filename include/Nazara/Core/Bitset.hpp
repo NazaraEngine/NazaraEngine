@@ -26,9 +26,9 @@ namespace Nz
 			class Bit;
 
 			Bitset();
-			explicit Bitset(unsigned int bitCount, bool val);
+			explicit Bitset(std::size_t bitCount, bool val);
 			explicit Bitset(const char* bits);
-			Bitset(const char* bits, unsigned int bitCount);
+			Bitset(const char* bits, std::size_t bitCount);
 			Bitset(const Bitset& bitset) = default;
 			explicit Bitset(const String& bits);
 			template<typename T> Bitset(T value);
@@ -36,16 +36,16 @@ namespace Nz
 			~Bitset() noexcept = default;
 
 			void Clear() noexcept;
-			unsigned int Count() const;
+			std::size_t Count() const;
 			void Flip();
 
-			unsigned int FindFirst() const;
-			unsigned int FindNext(unsigned int bit) const;
+			std::size_t FindFirst() const;
+			std::size_t FindNext(std::size_t bit) const;
 
-			Block GetBlock(unsigned int i) const;
-			unsigned int GetBlockCount() const;
-			unsigned int GetCapacity() const;
-			unsigned int GetSize() const;
+			Block GetBlock(std::size_t i) const;
+			std::size_t GetBlockCount() const;
+			std::size_t GetCapacity() const;
+			std::size_t GetSize() const;
 
 			void PerformsAND(const Bitset& a, const Bitset& b);
 			void PerformsNOT(const Bitset& a);
@@ -54,19 +54,19 @@ namespace Nz
 
 			bool Intersects(const Bitset& bitset) const;
 
-			void Reserve(unsigned int bitCount);
-			void Resize(unsigned int bitCount, bool defaultVal = false);
+			void Reserve(std::size_t bitCount);
+			void Resize(std::size_t bitCount, bool defaultVal = false);
 
 			void Reset();
-			void Reset(unsigned int bit);
+			void Reset(std::size_t bit);
 
 			void Set(bool val = true);
-			void Set(unsigned int bit, bool val = true);
-			void SetBlock(unsigned int i, Block block);
+			void Set(std::size_t bit, bool val = true);
+			void SetBlock(std::size_t i, Block block);
 
 			void Swap(Bitset& bitset);
 
-			bool Test(unsigned int bit) const;
+			bool Test(std::size_t bit) const;
 			bool TestAll() const;
 			bool TestAny() const;
 			bool TestNone() const;
@@ -74,9 +74,9 @@ namespace Nz
 			template<typename T> T To() const;
 			String ToString() const;
 
-			void UnboundedReset(unsigned int bit);
-			void UnboundedSet(unsigned int bit, bool val = true);
-			bool UnboundedTest(unsigned int bit) const;
+			void UnboundedReset(std::size_t bit);
+			void UnboundedSet(std::size_t bit, bool val = true);
+			bool UnboundedTest(std::size_t bit) const;
 
 			Bit operator[](int index);
 			bool operator[](int index) const;
@@ -93,20 +93,20 @@ namespace Nz
 			Bitset& operator^=(const Bitset& bitset);
 
 			static constexpr Block fullBitMask = std::numeric_limits<Block>::max();
-			static constexpr unsigned int bitsPerBlock = std::numeric_limits<Block>::digits;
-			static constexpr unsigned int npos = std::numeric_limits<unsigned int>::max();
+			static constexpr std::size_t bitsPerBlock = std::numeric_limits<Block>::digits;
+			static constexpr std::size_t npos = std::numeric_limits<std::size_t>::max();
 
 		private:
-			unsigned int FindFirstFrom(unsigned int blockIndex) const;
+			std::size_t FindFirstFrom(std::size_t blockIndex) const;
 			Block GetLastBlockMask() const;
 			void ResetExtraBits();
 
-			static unsigned int ComputeBlockCount(unsigned int bitCount);
-			static unsigned int GetBitIndex(unsigned int bit);
-			static unsigned int GetBlockIndex(unsigned int bit);
+			static std::size_t ComputeBlockCount(std::size_t bitCount);
+			static std::size_t GetBitIndex(std::size_t bit);
+			static std::size_t GetBlockIndex(std::size_t bit);
 
 			std::vector<Block, Allocator> m_blocks;
-			unsigned int m_bitCount;
+			std::size_t m_bitCount;
 	};
 
 	template<typename Block, class Allocator>

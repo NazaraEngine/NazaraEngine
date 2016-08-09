@@ -1,4 +1,4 @@
-// This file was automatically generated on 17 Nov 2015 at 13:20:45
+// This file was automatically generated on 20 Jul 2016 at 13:49:17
 
 /*
 	Nazara Engine - Graphics module
@@ -47,6 +47,8 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DepthRenderQueue.hpp>
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
@@ -61,11 +63,12 @@
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
+#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
-#include <Nazara/Graphics/ParticleSystem.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
