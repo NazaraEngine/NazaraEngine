@@ -5,6 +5,7 @@
 #include <Nazara/Vulkan/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Vulkan/Vulkan.hpp>
 #include <array>
 #include <stdexcept>
@@ -15,7 +16,8 @@ namespace Nz
 	RenderWindow::RenderWindow() :
 	RenderTarget(), Window(), 
 	m_surface(Nz::Vulkan::GetInstance()),
-	m_forcedPhysicalDevice(nullptr)
+	m_forcedPhysicalDevice(nullptr),
+	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
 	{
 	}
 
@@ -53,6 +55,20 @@ namespace Nz
 	void RenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
 		commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+		// Temporary
+		if (m_depthBufferView != VK_FORMAT_MAX_ENUM)
+		{
+			VkImageSubresourceRange imageRange = {
+						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // VkImageAspectFlags                     aspectMask
+						0,                         // uint32_t                               baseMipLevel
+						1,                         // uint32_t                               levelCount
+						0,                         // uint32_t                               baseArrayLayer
+						1                          // uint32_t                               layerCount
+			};
+
+			commandBuffer.SetImageLayout(m_depthBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, imageRange);
+		}
 	}
 
 	void RenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
@@ -112,6 +128,11 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
+	void RenderWindow::SetDepthStencilFormats(std::vector<PixelFormatType> pixelFormat)
+	{
+		m_wantedDepthStencilFormats = std::move(pixelFormat);
+	}
+
 	void RenderWindow::SetPhysicalDevice(VkPhysicalDevice device)
 	{
 		m_forcedPhysicalDevice = device;
@@ -158,11 +179,68 @@ namespace Nz
 
 		m_colorSpace = surfaceFormats[0].colorSpace;
 
-		m_depthFormat = VK_FORMAT_MAX_ENUM;
+		if (!m_wantedDepthStencilFormats.empty())
+		{
+			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(m_forcedPhysicalDevice);
+
+			for (PixelFormatType format : m_wantedDepthStencilFormats)
+			{
+				switch (format)
+				{
+					case PixelFormatType_Depth16:
+						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
+						break;
+
+					case PixelFormatType_Depth24:
+					case PixelFormatType_Depth24Stencil8:
+						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
+						break;
+
+					case PixelFormatType_Depth32:
+						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
+						break;
+
+					case PixelFormatType_Stencil1:
+					case PixelFormatType_Stencil4:
+					case PixelFormatType_Stencil8:
+						m_depthStencilFormat = VK_FORMAT_S8_UINT;
+						break;
+
+					case PixelFormatType_Stencil16:
+						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
+						break;
+
+					default:
+					{
+						PixelFormatContent formatContent = PixelFormat::GetContent(format);
+						if (formatContent != PixelFormatContent_DepthStencil && formatContent != PixelFormatContent_Stencil)
+							NazaraWarning("Invalid format " + PixelFormat::GetName(format) + " for depth-stencil attachment");
+
+						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
+						break;
+					}
+				}
+
+				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
+				{
+					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(m_forcedPhysicalDevice, m_depthStencilFormat);
+					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+						break; //< Found it
+
+					m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
+				}
+			}
+		}
 
 		if (!SetupSwapchain())
 		{
 			NazaraError("Failed to create swapchain");
+			return false;
+		}
+
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer())
+		{
+			NazaraError("Failed to create depth buffer");
 			return false;
 		}
 
@@ -178,7 +256,7 @@ namespace Nz
 		m_frameBuffers.resize(imageCount);
 		for (UInt32 i = 0; i < imageCount; ++i)
 		{
-			std::array<VkImageView, 2> attachments = {m_swapchain.GetBuffer(i).view, VK_NULL_HANDLE};
+			std::array<VkImageView, 2> attachments = {m_swapchain.GetBuffer(i).view, m_depthBufferView};
 
 			VkFramebufferCreateInfo frameBufferCreate = {
 				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,    // VkStructureType             sType;
@@ -221,9 +299,74 @@ namespace Nz
 		OnRenderTargetSizeChange(this);
 	}
 
-	bool RenderWindow::SetupCommandBuffers()
+	bool RenderWindow::SetupDepthBuffer()
 	{
-		return false;
+		VkImageCreateInfo imageCreateInfo = {
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,                                           // VkStructureType          sType;
+			nullptr,                                                                       // const void*              pNext;
+			0U,                                                                            // VkImageCreateFlags       flags;
+			VK_IMAGE_TYPE_2D,                                                              // VkImageType              imageType;
+			m_depthStencilFormat,                                                          // VkFormat                 format;
+			{GetWidth(), GetHeight(), 1U},                                                 // VkExtent3D               extent;
+			1U,                                                                            // uint32_t                 mipLevels;
+			1U,                                                                            // uint32_t                 arrayLayers;
+			VK_SAMPLE_COUNT_1_BIT,                                                         // VkSampleCountFlagBits    samples;
+			VK_IMAGE_TILING_OPTIMAL,                                                       // VkImageTiling            tiling;
+			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, // VkImageUsageFlags        usage;
+			VK_SHARING_MODE_EXCLUSIVE,                                                     // VkSharingMode            sharingMode;
+			0U,                                                                            // uint32_t                 queueFamilyIndexCount;
+			nullptr,                                                                       // const uint32_t*          pQueueFamilyIndices;
+			VK_IMAGE_LAYOUT_UNDEFINED,                                                     // VkImageLayout            initialLayout;
+		};
+
+		if (!m_depthBuffer.Create(m_device, imageCreateInfo))
+		{
+			NazaraError("Failed to create depth buffer");
+			return false;
+		}
+
+		VkMemoryRequirements memoryReq = m_depthBuffer.GetMemoryRequirements();
+		if (!m_depthBufferMemory.Create(m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+		{
+			NazaraError("Failed to allocate depth buffer memory");
+			return false;
+		}
+
+		if (!m_depthBuffer.BindImageMemory(m_depthBufferMemory))
+		{
+			NazaraError("Failed to bind depth buffer to buffer");
+			return false;
+		}
+
+		VkImageViewCreateInfo imageViewCreateInfo = {
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType            sType;
+			nullptr,                                  // const void*                pNext;
+			0,                                        // VkImageViewCreateFlags     flags;
+			m_depthBuffer,                            // VkImage                    image;
+			VK_IMAGE_VIEW_TYPE_2D,                    // VkImageViewType            viewType;
+			m_depthStencilFormat,                     // VkFormat                   format;
+			{                                         // VkComponentMapping         components;
+				VK_COMPONENT_SWIZZLE_R,               // VkComponentSwizzle         .r;
+				VK_COMPONENT_SWIZZLE_G,               // VkComponentSwizzle         .g;
+				VK_COMPONENT_SWIZZLE_B,               // VkComponentSwizzle         .b;
+				VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
+			},
+			{                                         // VkImageSubresourceRange    subresourceRange;
+				VK_IMAGE_ASPECT_DEPTH_BIT,            // VkImageAspectFlags         .aspectMask;
+				0,                                    // uint32_t                   .baseMipLevel;
+				1,                                    // uint32_t                   .levelCount;
+				0,                                    // uint32_t                   .baseArrayLayer;
+				1                                     // uint32_t                   .layerCount;
+			}
+		};
+
+		if (!m_depthBufferView.Create(m_device, imageViewCreateInfo))
+		{
+			NazaraError("Failed to create depth buffer view");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool RenderWindow::SetupRenderPass()
@@ -242,15 +385,15 @@ namespace Nz
 					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
 				},
 				{
-					0,                                        // VkAttachmentDescriptionFlags    flags;
-					m_depthFormat,                            // VkFormat                        format;
-					VK_SAMPLE_COUNT_1_BIT,                    // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
+					0,                                                // VkAttachmentDescriptionFlags    flags;
+					m_depthStencilFormat,                             // VkFormat                        format;
+					VK_SAMPLE_COUNT_1_BIT,                            // VkSampleCountFlagBits           samples;
+					VK_ATTACHMENT_LOAD_OP_CLEAR,                      // VkAttachmentLoadOp              loadOp;
+					VK_ATTACHMENT_STORE_OP_DONT_CARE,                     // VkAttachmentStoreOp             storeOp;
+					VK_ATTACHMENT_LOAD_OP_DONT_CARE,                  // VkAttachmentLoadOp              stencilLoadOp;
+					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             stencilStoreOp;
+					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // VkImageLayout                   initialLayout;
+					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
 				},
 			}
 		};
@@ -266,28 +409,28 @@ namespace Nz
 		};
 
 		VkSubpassDescription subpass = {
-			0,                                                                 // VkSubpassDescriptionFlags       flags;
-			VK_PIPELINE_BIND_POINT_GRAPHICS,                                   // VkPipelineBindPoint             pipelineBindPoint;
-			0U,                                                                // uint32_t                        inputAttachmentCount;
-			nullptr,                                                           // const VkAttachmentReference*    pInputAttachments;
-			1U,                                                                // uint32_t                        colorAttachmentCount;
-			&colorReference,                                                   // const VkAttachmentReference*    pColorAttachments;
-			nullptr,                                                           // const VkAttachmentReference*    pResolveAttachments;
-			(m_depthFormat != VK_FORMAT_MAX_ENUM) ? &depthReference : nullptr, // const VkAttachmentReference*    pDepthStencilAttachment;
-			0U,                                                                // uint32_t                        preserveAttachmentCount;
-			nullptr                                                            // const uint32_t*                 pPreserveAttachments;
+			0,                                                                        // VkSubpassDescriptionFlags       flags;
+			VK_PIPELINE_BIND_POINT_GRAPHICS,                                          // VkPipelineBindPoint             pipelineBindPoint;
+			0U,                                                                       // uint32_t                        inputAttachmentCount;
+			nullptr,                                                                  // const VkAttachmentReference*    pInputAttachments;
+			1U,                                                                       // uint32_t                        colorAttachmentCount;
+			&colorReference,                                                          // const VkAttachmentReference*    pColorAttachments;
+			nullptr,                                                                  // const VkAttachmentReference*    pResolveAttachments;
+			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? &depthReference : nullptr, // const VkAttachmentReference*    pDepthStencilAttachment;
+			0U,                                                                       // uint32_t                        preserveAttachmentCount;
+			nullptr                                                                   // const uint32_t*                 pPreserveAttachments;
 		};
 
 		VkRenderPassCreateInfo createInfo = {
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,       // VkStructureType                   sType;
-			nullptr,                                         // const void*                       pNext;
-			0,                                               // VkRenderPassCreateFlags           flags;
-			(m_depthFormat != VK_FORMAT_MAX_ENUM) ? 2U : 1U, // uint32_t                          attachmentCount;
-			attachments.data(),                              // const VkAttachmentDescription*    pAttachments;
-			1U,                                              // uint32_t                          subpassCount;
-			&subpass,                                        // const VkSubpassDescription*       pSubpasses;
-			0U,                                              // uint32_t                          dependencyCount;
-			nullptr                                          // const VkSubpassDependency*        pDependencies;
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,              // VkStructureType                   sType;
+			nullptr,                                                // const void*                       pNext;
+			0,                                                      // VkRenderPassCreateFlags           flags;
+			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? 2U : 1U, // uint32_t                          attachmentCount;
+			attachments.data(),                                     // const VkAttachmentDescription*    pAttachments;
+			1U,                                                     // uint32_t                          subpassCount;
+			&subpass,                                               // const VkSubpassDescription*       pSubpasses;
+			0U,                                                     // uint32_t                          dependencyCount;
+			nullptr                                                 // const VkSubpassDependency*        pDependencies;
 		};
 
 		return m_renderPass.Create(m_device, createInfo);
