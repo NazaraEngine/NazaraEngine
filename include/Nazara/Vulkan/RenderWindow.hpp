@@ -16,7 +16,9 @@
 #include <Nazara/Vulkan/VkCommandBuffer.hpp>
 #include <Nazara/Vulkan/VkCommandPool.hpp>
 #include <Nazara/Vulkan/VkDevice.hpp>
+#include <Nazara/Vulkan/VkDeviceMemory.hpp>
 #include <Nazara/Vulkan/VkFramebuffer.hpp>
+#include <Nazara/Vulkan/VkImage.hpp>
 #include <Nazara/Vulkan/VkSurface.hpp>
 #include <Nazara/Vulkan/VkSwapchain.hpp>
 #include <Nazara/Utility/Window.hpp>
@@ -39,13 +41,11 @@ namespace Nz
 			void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 			void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 
-			const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
-
-			UInt32 GetFramebufferCount() const;
-
 			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
 			bool Create(WindowHandle handle);
 
+			const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
+			UInt32 GetFramebufferCount() const;
 			const Vk::DeviceHandle& GetDevice() const;
 			UInt32 GetPresentableFamilyQueue() const;
 			const Vk::Surface& GetSurface() const;
@@ -55,6 +55,7 @@ namespace Nz
 
 			bool IsValid() const;
 
+			void SetDepthStencilFormats(std::vector<PixelFormatType> pixelFormat);
 			void SetPhysicalDevice(VkPhysicalDevice device);
 
 			RenderWindow& operator=(const RenderWindow&) = delete;
@@ -65,17 +66,21 @@ namespace Nz
 			void OnWindowDestroy() override;
 			void OnWindowResized() override;
 
-			bool SetupCommandBuffers();
+			bool SetupDepthBuffer();
 			bool SetupRenderPass();
 			bool SetupSwapchain();
 
 			Clock m_clock;
-			VkFormat m_colorFormat;
-			VkFormat m_depthFormat;
 			VkColorSpaceKHR m_colorSpace;
+			VkFormat m_colorFormat;
+			VkFormat m_depthStencilFormat;
 			VkPhysicalDevice m_forcedPhysicalDevice;
+			std::vector<PixelFormatType> m_wantedDepthStencilFormats;
 			std::vector<Vk::Framebuffer> m_frameBuffers;
 			Vk::DeviceHandle m_device;
+			Vk::DeviceMemory m_depthBufferMemory;
+			Vk::Image m_depthBuffer;
+			Vk::ImageView m_depthBufferView;
 			Vk::Queue m_presentQueue;
 			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
