@@ -747,6 +747,31 @@ namespace Nz
 		}
 	}
 
+	bool Shader::Validate() const
+	{
+		#if NAZARA_RENDERER_SAFE
+		if (!m_program)
+		{
+			NazaraError("Shader is not initialized");
+			return false;
+		}
+		#endif
+
+		glValidateProgram(m_program);
+
+		GLint success;
+		glGetProgramiv(m_program, GL_VALIDATE_STATUS, &success);
+
+		if (success == GL_TRUE)
+			return true;
+		else
+		{
+			NazaraError("Failed to validate shader: " + GetLog());
+			return false;
+		}
+	}
+
+
 	unsigned int Shader::GetOpenGLID() const
 	{
 		return m_program;

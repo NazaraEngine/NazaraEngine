@@ -44,7 +44,7 @@ namespace Ndk
 		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a component");
 
 		// Allocation et affectation du component
-		std::unique_ptr<SystemType> ptr(new SystemType(std::forward(args)...));
+		std::unique_ptr<SystemType> ptr(new SystemType(std::forward<Args>(args)...));
 		return static_cast<SystemType&>(AddSystem(std::move(ptr)));
 	}
 

@@ -12,7 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics/Config.hpp>
 
-struct NewtonWorld;
+class NewtonWorld;
 
 namespace Nz
 {

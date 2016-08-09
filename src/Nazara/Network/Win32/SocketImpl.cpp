@@ -6,7 +6,22 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
-#include <Mstcpip.h>
+
+#include <Winsock2.h>
+#ifdef NAZARA_COMPILER_MINGW
+// MinGW is lacking Mstcpip.h and that's too bad
+struct tcp_keepalive
+{
+    u_long onoff;
+    u_long keepalivetime;
+    u_long keepaliveinterval;
+};
+
+#define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
+#else
+    #include <Mstcpip.h>
+#endif // NAZARA_COMPILER_MINGW
+
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -93,7 +108,7 @@ namespace Nz
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
-		
+
 		if (error)
 			*error = SocketError_NoError;
 
@@ -313,7 +328,7 @@ namespace Nz
 		return code == TRUE;
 	}
 
-	unsigned int SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
+	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
 		unsigned int code;
 		int codeLength = sizeof(code);
@@ -365,7 +380,7 @@ namespace Nz
 
 			return IpAddress();
 		}
-		
+
 		if (error)
 			*error = SocketError_NoError;
 
@@ -566,7 +581,7 @@ namespace Nz
 
 		return true;
 	}
-	
+
 	bool SocketImpl::SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");

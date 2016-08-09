@@ -45,6 +45,7 @@ namespace Nz
 			virtual ~Model();
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder = 0);
 
 			Material* GetMaterial(const String& subMeshName) const;
 			Material* GetMaterial(unsigned int matIndex) const;
@@ -68,8 +69,6 @@ namespace Nz
 			bool SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material);
 			void SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material);
 			virtual void SetMesh(Mesh* mesh);
-			bool SetSequence(const String& sequenceName);
-			void SetSequence(unsigned int sequenceIndex);
 			void SetSkin(unsigned int skin);
 			void SetSkinCount(unsigned int skinCount);
 

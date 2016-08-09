@@ -1,7 +1,9 @@
 TOOL.Name = "UnitTests"
 
 TOOL.Directory = "../tests"
-TOOL.Kind = "ConsoleApp"
+TOOL.EnableConsole = true
+TOOL.Kind = "Application"
+TOOL.TargetDirectory = TOOL.Directory
 
 TOOL.Defines = {
 }
@@ -19,9 +21,10 @@ TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraAudio",
 	"NazaraLua",
+	"NazaraGraphics",
+	"NazaraRenderer",
+	"NazaraNetwork",
 	"NazaraNoise",
 	"NazaraPhysics",
-	"NazaraUtility",
-	"NazaraRenderer",
-	"NazaraGraphics"
+	"NazaraUtility"
 }

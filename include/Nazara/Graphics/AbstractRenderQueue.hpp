@@ -38,7 +38,6 @@ namespace Nz
 
 			// Je ne suis vraiment pas fan du nombre de surcharges pour AddBillboards,
 			// mais je n'ai pas d'autre solution tout aussi performante pour le moment...
-			virtual void AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos = Vector2f(0.f, 1.f), const Color& color = Color::White) = 0;
 			virtual void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) = 0;
 			virtual void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) = 0;
 			virtual void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) = 0;
@@ -62,7 +61,9 @@ namespace Nz
 			struct DirectionalLight
 			{
 				Color color;
+				Matrix4f transformMatrix;
 				Vector3f direction;
+				Texture* shadowMap;
 				float ambientFactor;
 				float diffuseFactor;
 			};
@@ -71,6 +72,7 @@ namespace Nz
 			{
 				Color color;
 				Vector3f position;
+				Texture* shadowMap;
 				float ambientFactor;
 				float attenuation;
 				float diffuseFactor;
@@ -81,8 +83,10 @@ namespace Nz
 			struct SpotLight
 			{
 				Color color;
+				Matrix4f transformMatrix;
 				Vector3f direction;
 				Vector3f position;
+				Texture* shadowMap;
 				float ambientFactor;
 				float attenuation;
 				float diffuseFactor;

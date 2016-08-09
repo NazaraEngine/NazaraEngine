@@ -65,12 +65,11 @@ namespace Nz
 		protected:
 			bool Activate() const override;
 			void EnsureTargetUpdated() const override;
-
-		private:
 			bool OnWindowCreated() override;
 			void OnWindowDestroy() override;
 			void OnWindowResized() override;
 
+		private:
 			mutable std::vector<UInt8> m_buffer;
 			Clock m_clock;
 			ContextParameters m_parameters;

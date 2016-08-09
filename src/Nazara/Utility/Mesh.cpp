@@ -39,9 +39,9 @@ namespace Nz
 			return false;
 		}
 
-		if (scale == Vector3f::Zero())
+		if (matrix == Matrix4f::Zero())
 		{
-			NazaraError("Invalid scale");
+			NazaraError("Invalid matrix");
 			return false;
 		}
 
@@ -111,7 +111,7 @@ namespace Nz
 		VertexBufferRef vertexBuffer;
 
 		Matrix4f matrix(primitive.matrix);
-		matrix.ApplyScale(params.scale);
+		matrix *= params.matrix;
 
 		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
@@ -606,6 +606,16 @@ namespace Nz
 		InvalidateAABB();
 	}
 
+	bool Mesh::SaveToFile(const String& filePath, const MeshParams& params)
+	{
+		return MeshSaver::SaveToFile(*this, filePath, params);
+	}
+
+	bool Mesh::SaveToStream(Stream& stream, const String& format, const MeshParams& params)
+	{
+		return MeshSaver::SaveToStream(*this, stream, format, params);
+	}
+
 	void Mesh::SetAnimation(const String& animationPath)
 	{
 		NazaraAssert(m_impl, "Mesh should be created first");
@@ -697,4 +707,5 @@ namespace Nz
 	MeshLoader::LoaderList Mesh::s_loaders;
 	MeshManager::ManagerMap Mesh::s_managerMap;
 	MeshManager::ManagerParams Mesh::s_managerParameters;
+	MeshSaver::SaverList Mesh::s_savers;
 }

@@ -52,6 +52,7 @@ namespace Nz
 			Vector3<T> operator()(unsigned int i) const;
 
 			OrientedBox operator*(T scalar) const;
+			OrientedBox& operator=(const OrientedBox& other) = default;
 
 			OrientedBox& operator*=(T scalar);
 

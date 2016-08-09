@@ -173,12 +173,7 @@ int main()
 
 				Nz::String data;
 				if (!matData.GetStringParameter(Nz::MaterialData::FilePath, &data))
-				{
-					if (matData.HasParameter(Nz::MaterialData::CustomDefined))
-						data = "<Custom>";
-					else
-						data = "<No data>";
-				}
+					data = "<Custom>";
 
 				std::cout << "\t" << (i+1) << ": " << data << std::endl;
 			}

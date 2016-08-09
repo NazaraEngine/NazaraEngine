@@ -61,8 +61,8 @@ namespace Nz
 			bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* glyph) const;
 
 			const std::shared_ptr<AbstractAtlas>& GetAtlas() const;
-			unsigned int GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const;
-			unsigned int GetCachedGlyphCount() const;
+			std::size_t GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const;
+			std::size_t GetCachedGlyphCount() const;
 			String GetFamilyName() const;
 			int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
 			const Glyph& GetGlyph(unsigned int characterSize, UInt32 style, char32_t character) const;

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 #define NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 
@@ -14,11 +15,11 @@ namespace Ndk
 	class NDK_API ListenerComponent : public Component<ListenerComponent>
 	{
 		public:
-			ListenerComponent();
+			inline ListenerComponent();
 			~ListenerComponent() = default;
 
-			bool IsActive() const;
-			void SetActive(bool active = true);
+			inline bool IsActive() const;
+			inline void SetActive(bool active = true);
 
 			static ComponentIndex componentIndex;
 
@@ -30,3 +31,4 @@ namespace Ndk
 #include <NDK/Components/ListenerComponent.inl>
 
 #endif // NDK_COMPONENTS_LISTENERCOMPONENT_HPP
+#endif // NDK_SERVER

@@ -17,8 +17,6 @@ namespace Nz
 	template<typename T>
 	class ObjectRef
 	{
-		static_assert(std::is_base_of<RefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
-
 		public:
 			ObjectRef();
 			ObjectRef(T* object);
@@ -46,8 +44,33 @@ namespace Nz
 			T* m_object;
 	};
 
-    template<typename T> struct PointedType<ObjectRef<T>> {typedef T type;};
-    template<typename T> struct PointedType<ObjectRef<T> const> {typedef T type;};
+	template<typename T> bool operator==(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator==(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator==(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator!=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator!=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator!=(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator<(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator<=(const ObjectRef<T>, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<=(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator>(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const T& rhs);
+
+
+	template<typename T> struct PointedType<ObjectRef<T>> { typedef T type; };
+	template<typename T> struct PointedType<ObjectRef<T> const> { typedef T type; };
 }
 
 #include <Nazara/Core/ObjectRef.inl>

@@ -13,11 +13,11 @@ namespace Ndk
 {
 	class StateMachine;
 
-	class State
+	class NDK_API State
 	{
 		public:
 			State() = default;
-			~State() = default;
+			virtual ~State();
 
 			virtual void Enter(StateMachine& fsm) = 0;
 			virtual void Leave(StateMachine& fsm) = 0;
