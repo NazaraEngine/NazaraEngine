@@ -34,11 +34,11 @@ namespace Nz
 
 				inline PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* name);
 
-				inline void GetPhysicalDeviceFeatures(VkPhysicalDevice device, VkPhysicalDeviceFeatures* features);
-				inline void GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format, VkFormatProperties* formatProperties);
+				inline VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures(VkPhysicalDevice device);
+				inline VkFormatProperties GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format);
 				inline bool GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties);
-				inline void GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties* properties);
-				inline void GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties* properties);
+				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device);
+				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device);
 				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties);
 
 				inline VkResult GetLastErrorCode() const;

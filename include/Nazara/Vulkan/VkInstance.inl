@@ -85,14 +85,20 @@ namespace Nz
 			return m_instance;
 		}
 
-		inline void Instance::GetPhysicalDeviceFeatures(VkPhysicalDevice device, VkPhysicalDeviceFeatures* features)
+		inline VkPhysicalDeviceFeatures Instance::GetPhysicalDeviceFeatures(VkPhysicalDevice device)
 		{
-			return vkGetPhysicalDeviceFeatures(device, features);
+			VkPhysicalDeviceFeatures features;
+			vkGetPhysicalDeviceFeatures(device, &features);
+
+			return features;
 		}
 
-		inline void Instance::GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format, VkFormatProperties* formatProperties)
+		inline VkFormatProperties Instance::GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format)
 		{
-			return vkGetPhysicalDeviceFormatProperties(device, format, formatProperties);
+			VkFormatProperties formatProperties;
+			vkGetPhysicalDeviceFormatProperties(device, format, &formatProperties);
+
+			return formatProperties;
 		}
 
 		inline bool Instance::GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties)
@@ -107,14 +113,20 @@ namespace Nz
 			return true;
 		}
 
-		inline void Instance::GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties* memoryProperties)
+		inline VkPhysicalDeviceMemoryProperties Instance::GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device)
 		{
-			return vkGetPhysicalDeviceMemoryProperties(device, memoryProperties);
+			VkPhysicalDeviceMemoryProperties memoryProperties;
+			vkGetPhysicalDeviceMemoryProperties(device, &memoryProperties);
+
+			return memoryProperties;
 		}
 
-		inline void Instance::GetPhysicalDeviceProperties(VkPhysicalDevice device, VkPhysicalDeviceProperties* properties)
+		inline VkPhysicalDeviceProperties Instance::GetPhysicalDeviceProperties(VkPhysicalDevice device)
 		{
-			return vkGetPhysicalDeviceProperties(device, properties);
+			VkPhysicalDeviceProperties properties;
+			vkGetPhysicalDeviceProperties(device, &properties);
+
+			return properties;
 		}
 
 		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name)
