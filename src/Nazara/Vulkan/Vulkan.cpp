@@ -213,9 +213,9 @@ namespace Nz
 
 			deviceInfo.device = physDevice;
 
-			s_instance.GetPhysicalDeviceFeatures(physDevice, &deviceInfo.features);
-			s_instance.GetPhysicalDeviceMemoryProperties(physDevice, &deviceInfo.memoryProperties);
-			s_instance.GetPhysicalDeviceProperties(physDevice, &deviceInfo.properties);
+			deviceInfo.features = s_instance.GetPhysicalDeviceFeatures(physDevice);
+			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
+			deviceInfo.properties = s_instance.GetPhysicalDeviceProperties(physDevice);
 
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
