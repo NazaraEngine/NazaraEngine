@@ -23,16 +23,17 @@ namespace Nz
 			GuillotineImageAtlas();
 			virtual ~GuillotineImageAtlas();
 
-			void Clear();
-			void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count);
+			void Clear() override;
+
+			void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count) override;
 
 			GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
 			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
-			AbstractImage* GetLayer(unsigned int layerIndex) const;
-			unsigned int GetLayerCount() const;
-			UInt32 GetStorage() const;
+			AbstractImage* GetLayer(unsigned int layerIndex) const override;
+			std::size_t GetLayerCount() const override;
+			UInt32 GetStorage() const override;
 
-			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex);
+			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) override;
 
 			void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);
 			void SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic);

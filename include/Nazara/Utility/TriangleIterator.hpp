@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer* indexBuffer);
-			TriangleIterator(SubMesh* subMesh);
+			TriangleIterator(const SubMesh* subMesh);
 			~TriangleIterator() = default;
 
 			bool Advance();

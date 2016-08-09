@@ -1,15 +1,11 @@
 EXAMPLE.Name = "FirstScene"
 
-EXAMPLE.Console = true
+EXAMPLE.EnableConsole = true
 
 EXAMPLE.Files = {
 	"main.cpp"
 }
 
 EXAMPLE.Libraries = {
-	"NazaraCore",
-	"NazaraGraphics",
-	"NazaraRenderer",
-	"NazaraUtility",
 	"NazaraSDK"
 }

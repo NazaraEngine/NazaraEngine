@@ -44,13 +44,27 @@ namespace Nz
 			2  // AttachmentPoint_Stencil
 		};
 
-		AttachmentPoint formatTypeToAttachment[PixelFormatTypeType_Max+1] =
+		AttachmentPoint FormatTypeToAttachment(PixelFormatType format)
 		{
-			AttachmentPoint_Color,        // PixelFormatTypeType_Color
-			AttachmentPoint_Depth,        // PixelFormatTypeType_Depth
-			AttachmentPoint_DepthStencil, // PixelFormatTypeType_DepthStencil
-			AttachmentPoint_Stencil       // PixelFormatTypeType_Stencil
-		};
+			const PixelFormatInfo& info = PixelFormat::GetInfo(format);
+			switch (info.content)
+			{
+				case PixelFormatContent_ColorRGBA:
+					return AttachmentPoint_Color;
+
+				case PixelFormatContent_DepthStencil:
+					return (!info.greenMask.TestAny()) ? AttachmentPoint_Depth : AttachmentPoint_DepthStencil;
+
+				case PixelFormatContent_Stencil:
+					return AttachmentPoint_Stencil;
+
+				case PixelFormatContent_Undefined:
+					break;
+			}
+
+			NazaraInternalError("Unexpected pixel format content: 0x" + String::Number(info.content, 16));
+			return AttachmentPoint_Max;
+		}
 
 		GLuint lockedPrevious = 0;
 		UInt8 lockedLevel = 0;
@@ -118,9 +132,9 @@ namespace Nz
 			}
 		}
 
-		AttachmentPoint targetAttachmentPoint = formatTypeToAttachment[PixelFormat::GetType(buffer->GetFormat())];
+		AttachmentPoint targetAttachmentPoint = FormatTypeToAttachment(buffer->GetFormat());
 		if (targetAttachmentPoint != attachmentPoint && targetAttachmentPoint != AttachmentPoint_DepthStencil &&
-			attachmentPoint != AttachmentPoint_Depth && attachmentPoint != AttachmentPoint_Stencil)
+		    attachmentPoint != AttachmentPoint_Depth && attachmentPoint != AttachmentPoint_Stencil)
 		{
 			NazaraError("Pixel format type does not match attachment point type");
 			return false;
@@ -155,9 +169,6 @@ namespace Nz
 
 		InvalidateSize();
 		InvalidateTargets();
-
-		if (attachmentPoint == AttachmentPoint_Color && !m_impl->userDefinedTargets)
-			m_impl->colorTargets.push_back(index);
 
 		return true;
 	}
@@ -233,7 +244,7 @@ namespace Nz
 			return false;
 		}
 
-		AttachmentPoint targetAttachmentPoint = formatTypeToAttachment[PixelFormat::GetType(texture->GetFormat())];
+		AttachmentPoint targetAttachmentPoint = FormatTypeToAttachment(texture->GetFormat());
 		if (targetAttachmentPoint != attachmentPoint && targetAttachmentPoint != AttachmentPoint_DepthStencil &&
 			attachmentPoint != AttachmentPoint_Depth && attachmentPoint != AttachmentPoint_Stencil)
 		{
@@ -292,9 +303,6 @@ namespace Nz
 
 		InvalidateSize();
 		InvalidateTargets();
-
-		if (attachmentPoint == AttachmentPoint_Color && !m_impl->userDefinedTargets)
-			m_impl->colorTargets.push_back(index);
 
 		return true;
 	}
@@ -819,6 +827,15 @@ namespace Nz
 
 	void RenderTexture::UpdateTargets() const
 	{
+		if (!m_impl->userDefinedTargets)
+		{
+			m_impl->colorTargets.clear();
+
+			unsigned int colorIndex = 0;
+			for (unsigned int index = attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
+				m_impl->colorTargets.push_back(colorIndex++);
+		}
+
 		if (m_impl->colorTargets.empty())
 		{
 			m_impl->drawBuffers.resize(1);

@@ -26,6 +26,7 @@ namespace Nz
 	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
 	template<typename T> std::size_t CountOf(const T& c);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
+	template<typename T> T ReverseBits(T integer);
 
 	template<typename T>
 	struct PointedType

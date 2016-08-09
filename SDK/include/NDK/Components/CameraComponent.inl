@@ -2,17 +2,17 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Components/CameraComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include "CameraComponent.hpp"
 
 namespace Ndk
 {
 	inline CameraComponent::CameraComponent() :
 	m_projectionType(Nz::ProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
-	m_size(0.f),
 	m_target(nullptr),
+	m_size(0.f),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
@@ -30,8 +30,8 @@ namespace Ndk
 	AbstractViewer(camera),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
-	m_size(camera.m_size),
 	m_target(nullptr),
+	m_size(camera.m_size),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),

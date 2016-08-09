@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -104,7 +105,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder 
 	                         | aiProcess_Debone;
 
-	if (!parameters.flipUVs)
+	if (parameters.flipUVs)
 		postProcess |= aiProcess_FlipUVs;
 
 	if (parameters.optimizeIndexBuffers)
@@ -129,6 +130,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
+
+	if (!scene)
+	{
+		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		return false;
+	}
 
 	std::set<Nz::String> joints;
 
@@ -206,10 +213,10 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				{
 					aiVector3D position = iMesh->mVertices[j];
 					aiVector3D normal = iMesh->mNormals[j];
-					aiVector3D tangent = iMesh->mTangents[j];
-					aiVector3D uv = iMesh->mTextureCoords[0][j];
+					aiVector3D tangent = (iMesh->HasTangentsAndBitangents()) ? iMesh->mTangents[j] : aiVector3D(0.f, 1.f, 0.f);
+					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
 
-					vertex->position = parameters.scale * Vector3f(position.x, position.y, position.z);
+					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
 					vertex->normal.Set(normal.x, normal.y, normal.z);
 					vertex->tangent.Set(tangent.x, tangent.y, tangent.z);
 					vertex->uv.Set(uv.x, uv.y);
@@ -237,8 +244,6 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 						aiColor4D color;
 						if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(MaterialData::CustomDefined);
-
 							matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
 						}
 					};
@@ -246,16 +251,15 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
 					{
 						aiString path;
-						aiTextureMapMode mapMode;
-						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode, nullptr) == aiReturn_SUCCESS)
+						aiTextureMapMode mapMode[3];
+						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(MaterialData::CustomDefined);
 							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
 
 							if (wrapKey)
 							{
 								SamplerWrap wrap = SamplerWrap_Default;
-								switch (mapMode)
+								switch (mapMode[0])
 								{
 									case aiTextureMapMode_Clamp:
 									case aiTextureMapMode_Decal:
@@ -271,7 +275,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 										break;
 
 									default:
-										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode, 16) + " not handled");
+										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
 										break;
 								}
 
@@ -291,8 +295,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
 					ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
 
+					aiString name;
+					if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+						matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+
 					int iValue;
-					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue))
+					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
 						matData.SetParameter(MaterialData::FaceCulling, !iValue);
 
 					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(materials.size(), std::move(matData)))).first;

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_CAMERACOMPONENT_HPP
 #define NDK_COMPONENTS_CAMERACOMPONENT_HPP
 
@@ -108,3 +109,4 @@ namespace Ndk
 #include <NDK/Components/CameraComponent.inl>
 
 #endif // NDK_COMPONENTS_CAMERACOMPONENT_HPP
+#endif // NDK_SERVER

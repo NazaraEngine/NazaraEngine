@@ -37,10 +37,10 @@ namespace Nz
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
-			unsigned int frameCount = parser.GetFrameCount();
-			unsigned int frameRate = parser.GetFrameRate();
+			std::size_t frameCount = parser.GetFrameCount();
+			std::size_t frameRate = parser.GetFrameRate();
 			const MD5AnimParser::Joint* joints = parser.GetJoints();
-			unsigned int jointCount = parser.GetJointCount();
+			std::size_t jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
 			animation->CreateSkeletal(frameCount, jointCount);
@@ -59,10 +59,10 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 										 Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			for (unsigned int i = 0; i < jointCount; ++i)
+			for (std::size_t i = 0; i < jointCount; ++i)
 			{
 				int parent = joints[i].parent;
-				for (unsigned int j = 0; j < frameCount; ++j)
+				for (std::size_t j = 0; j < frameCount; ++j)
 				{
 					SequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
 

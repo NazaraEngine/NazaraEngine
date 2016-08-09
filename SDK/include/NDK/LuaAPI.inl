@@ -84,7 +84,11 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontParams* params, TypeTag<FontParams>)
 	{
+		NazaraUnused(params);
+
 		instance.CheckType(index, Nz::LuaType_Table);
+
+		// Structure is empty for now
 
 		return 1;
 	}
@@ -96,8 +100,8 @@ namespace Nz
 		params->animated = instance.CheckField<bool>("Animated", params->animated);
 		params->center = instance.CheckField<bool>("Center", params->center);
 		params->flipUVs = instance.CheckField<bool>("FlipUVs", params->flipUVs);
+		//params->matrix = instance.CheckField<Matrix4f>("Matrix", params->matrix);
 		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
-		params->scale = instance.CheckField<Vector3f>("Scale", params->scale);
 
 		return 1;
 	}
@@ -255,14 +259,14 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
 	{
-		*handle = std::move(*static_cast<Ndk::EntityHandle*>(instance.CheckUserdata(index, "Entity")));
+		*handle = *static_cast<Ndk::EntityHandle*>(instance.CheckUserdata(index, "Entity"));
 
 		return 1;
 	}
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::WorldHandle* handle, TypeTag<Ndk::WorldHandle>)
 	{
-		*handle = std::move(*static_cast<Ndk::WorldHandle*>(instance.CheckUserdata(index, "World")));
+		*handle = *static_cast<Ndk::WorldHandle*>(instance.CheckUserdata(index, "World"));
 
 		return 1;
 	}

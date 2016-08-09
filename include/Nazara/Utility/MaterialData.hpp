@@ -22,7 +22,7 @@ namespace Nz
 		static constexpr const char* BackFaceStencilReference = "MatBackFaceStencilReference";
 		static constexpr const char* BackFaceStencilZFail     = "MatBackFaceStencilZFail";
 		static constexpr const char* Blending                 = "MatBlending";
-		static constexpr const char* CustomDefined            = "MatCustomDefined";
+		static constexpr const char* CullingSide              = "MatCullingSide";
 		static constexpr const char* ColorWrite               = "MatColorWrite";
 		static constexpr const char* DepthBuffer              = "MatDepthBuffer";
 		static constexpr const char* DepthFunc                = "MatDepthfunc";
@@ -41,6 +41,7 @@ namespace Nz
 		static constexpr const char* HeightTexturePath        = "MatHeightTexturePath";
 		static constexpr const char* Lighting                 = "MatLighting";
 		static constexpr const char* LineWidth                = "MatLineWidth";
+		static constexpr const char* Name                     = "MatName";
 		static constexpr const char* NormalTexturePath        = "MatNormalTexturePath";
 		static constexpr const char* PointSize                = "MatPointSize";
 		static constexpr const char* ScissorTest              = "MatScissorTest";
