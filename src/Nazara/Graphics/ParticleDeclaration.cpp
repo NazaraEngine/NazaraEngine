@@ -15,22 +15,53 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::ParticleDeclaration
+	* \brief Graphics class that represents the declaration of the particle, works like an ECS
+	*/
+
+	/*!
+	* \brief Constructs a ParticleDeclaration object by default
+	*/
+
 	ParticleDeclaration::ParticleDeclaration() :
 	m_stride(0)
 	{
 	}
 
+	/*!
+	* \brief Constructs a ParticleDeclaration object by assignation
+	*
+	* \param declaration ParticleDeclaration to copy into this
+	*/
+
 	ParticleDeclaration::ParticleDeclaration(const ParticleDeclaration& declaration) :
 	RefCounted(),
+	m_components(declaration.m_components),
 	m_stride(declaration.m_stride)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component)*(ParticleComponent_Max+1));
 	}
+
+	/*!
+	* \brief Destructs the object and calls OnParticleDeclarationRelease
+	*
+	* \see OnParticleDeclarationRelease
+	*/
 
 	ParticleDeclaration::~ParticleDeclaration()
 	{
 		OnParticleDeclarationRelease(this);
 	}
+
+	/*!
+	* \brief Disables a component
+	*
+	* \param component Component to disable in the declaration
+	*
+	* \remark Produces a NazaraError with NAZARA_DEBUG defined if enumeration is invalid
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if enumeration is equal to ParticleComponent_Unused
+	*/
 
 	void ParticleDeclaration::DisableComponent(ParticleComponent component)
 	{
@@ -57,6 +88,17 @@ namespace Nz
 			m_stride -= Utility::ComponentStride[vertexComponent.type];
 		}
 	}
+
+	/*!
+	* \brief Enables a component
+	*
+	* \param component Component to enable in the declaration
+	* \param type Type of this component
+	* \param offset Offset in the declaration
+	*
+	* \remark Produces a NazaraError with NAZARA_DEBUG defined if enumeration is invalid
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if type is not supported
+	*/
 
 	void ParticleDeclaration::EnableComponent(ParticleComponent component, ComponentType type, unsigned int offset)
 	{
@@ -91,6 +133,18 @@ namespace Nz
 		m_stride += Utility::ComponentStride[type];
 	}
 
+	/*!
+	* \brief Gets a component
+	*
+	* \param component Component in the declaration
+	* \param enabled Optional argument to get if this component is enabled
+	* \param type Optional argument to get if the type of the component
+	* \param offset Optional argument to get if the offset in the declaration
+	*
+	* \remark Produces a NazaraError with NAZARA_DEBUG defined if enumeration is invalid
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if enumeration is equal to ParticleComponent_Unused
+	*/
+
 	void ParticleDeclaration::GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const
 	{
 		#ifdef NAZARA_DEBUG
@@ -121,36 +175,66 @@ namespace Nz
 			*offset = particleComponent.offset;
 	}
 
+	/*!
+	* \brief Gets the stride of the declaration
+	* \return Stride of the declaration
+	*/
+
 	unsigned int ParticleDeclaration::GetStride() const
 	{
 		return m_stride;
 	}
+
+	/*!
+	* \brief Sets the stride of the declaration
+	*
+	* \param stride Stride of the declaration
+	*/
 
 	void ParticleDeclaration::SetStride(unsigned int stride)
 	{
 		m_stride = stride;
 	}
 
+	/*!
+	* \brief Sets the current particle declaration with the content of the other one
+	* \return A reference to this
+	*
+	* \param declaration The other ParticleDeclaration
+	*/
+
 	ParticleDeclaration& ParticleDeclaration::operator=(const ParticleDeclaration& declaration)
 	{
-		std::memcpy(m_components, declaration.m_components, sizeof(Component)*(ParticleComponent_Max+1));
+		m_components = declaration.m_components;
 		m_stride = declaration.m_stride;
 
 		return *this;
 	}
 
+	/*!
+	* \brief Gets the particle declaration based on the layout
+	* \return Pointer to the declaration
+	*
+	* \param layout Layout of the particle declaration
+	*
+	* \remark Produces a NazaraError with NAZARA_DEBUG if enumeration is invalid
+	*/
+
 	ParticleDeclaration* ParticleDeclaration::Get(ParticleLayout layout)
 	{
-		#ifdef NAZARA_DEBUG
-		if (layout > ParticleLayout_Max)
-		{
-			NazaraError("Particle layout out of enum");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(layout <= ParticleLayout_Max, "Particle layout out of enum");
 
 		return &s_declarations[layout];
 	}
+
+	/*!
+	* \brief Checks whether the type is supported
+	* \return true If it is the case
+	*
+	* \param type Type of the component
+	*
+	* \remark Produces a NazaraError if enumeration is invalid
+	*/
 
 	bool ParticleDeclaration::IsTypeSupported(ComponentType type)
 	{
@@ -176,6 +260,14 @@ namespace Nz
 		NazaraError("Component type not handled (0x" + String::Number(type, 16) + ')');
 		return false;
 	}
+
+	/*!
+	* \brief Initializes the particle declaration librairies
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if the particle declaration library failed to be initialized
+	* \remark Produces a NazaraAssert if memory layout of declaration does not match the corresponding structure
+	*/
 
 	bool ParticleDeclaration::Initialize()
 	{
@@ -216,9 +308,9 @@ namespace Nz
 			declaration = &s_declarations[ParticleLayout_Sprite];
 			declaration->EnableComponent(ParticleComponent_Color,    ComponentType_Color,  NazaraOffsetOf(ParticleStruct_Sprite, color));
 			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,   NazaraOffsetOf(ParticleStruct_Sprite, life));
-			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, position));
+			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Sprite, rotation));
-			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
+			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, velocity));
 
 			NazaraAssert(declaration->GetStride() == sizeof(ParticleStruct_Sprite), "Invalid stride for declaration ParticleLayout_Sprite");
 		}
@@ -231,11 +323,15 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Uninitializes the particle declaration librairies
+	*/
+
 	void ParticleDeclaration::Uninitialize()
 	{
 		ParticleDeclarationLibrary::Uninitialize();
 	}
 
-	ParticleDeclaration ParticleDeclaration::s_declarations[ParticleLayout_Max+1];
+	std::array<ParticleDeclaration, ParticleLayout_Max + 1> ParticleDeclaration::s_declarations;
 	ParticleDeclarationLibrary::LibraryMap ParticleDeclaration::s_library;
 }

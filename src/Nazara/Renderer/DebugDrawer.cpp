@@ -652,7 +652,7 @@ namespace Nz
 
 	void DebugDrawer::EnableDepthBuffer(bool depthBuffer)
 	{
-		s_renderStates.parameters[RendererParameter_DepthBuffer] = depthBuffer;
+		s_renderStates.depthBuffer = depthBuffer;
 	}
 
 	float DebugDrawer::GetLineWidth()
@@ -698,7 +698,7 @@ namespace Nz
 			}
 
 			s_primaryColor = Color::Red;
-			s_renderStates.parameters[RendererParameter_DepthBuffer] = true;
+			s_renderStates.depthBuffer = true;
 			s_secondaryColor = Color::Green;
 
 			s_initialized = true;
@@ -709,7 +709,7 @@ namespace Nz
 
 	bool DebugDrawer::IsDepthBufferEnabled()
 	{
-		return s_renderStates.parameters[RendererParameter_DepthBuffer];
+		return s_renderStates.depthBuffer;
 	}
 
 	void DebugDrawer::SetLineWidth(float width)

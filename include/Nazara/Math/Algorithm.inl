@@ -90,7 +90,7 @@ namespace Nz
 
 				// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
 				unsigned int log2 = IntegralLog2Pot<UInt32>(val);
-				if (log2)
+				if (log2 || val == 1)
 					return log2 + i*8;
 			}
 
@@ -105,7 +105,7 @@ namespace Nz
 	*
 	* \param value Initial value
 	* \param objective Target value
-	* \parma increment One step value
+	* \param increment One step value
 	*/
 
 	template<typename T>
@@ -412,7 +412,7 @@ namespace Nz
 	* \brief Gets the log in base 2 of integral number, only works for power of two !
 	* \return Log of the number
 	*
-	* \param number To get log in base 2
+	* \param pot To get log in base 2
 	*
 	* \remark Only works for power of two
 	* \remark If number is 0, 0 is returned
@@ -431,7 +431,7 @@ namespace Nz
 	* \return base^exponent for integral
 	*
 	* \param base Base of the exponentation
-	* \parma exponent Power for the base
+	* \param exponent Power for the base
 	*/
 
 	//TODO: Mark as constexpr when supported by all major compilers

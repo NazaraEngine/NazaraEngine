@@ -20,7 +20,7 @@
 #include <Nazara/Physics/Enums.hpp>
 #include <unordered_map>
 
-struct NewtonCollision;
+class NewtonCollision;
 
 namespace Nz
 {

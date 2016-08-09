@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
@@ -22,6 +23,8 @@ namespace Ndk
 		friend class RenderSystem;
 
 		public:
+			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
+
 			GraphicsComponent() = default;
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
@@ -30,8 +33,15 @@ namespace Ndk
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 
+			inline void Clear();
+
+			inline void Detach(const Nz::InstancedRenderableRef& renderable);
+
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
+
+			inline void GetAttachedRenderables(RenderableList* renderables) const;
+			inline std::size_t GetAttachedRenderableCount() const;
 
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
@@ -39,7 +49,7 @@ namespace Ndk
 
 		private:
 			inline void InvalidateBoundingVolume();
-			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index);
+			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
 
@@ -56,10 +66,26 @@ namespace Ndk
 
 			struct Renderable
 			{
-				Renderable(Nz::Matrix4f& transformMatrix) :
+				Renderable(const Nz::Matrix4f& transformMatrix) :
 				data(transformMatrix),
 				dataUpdated(false)
 				{
+				}
+
+				Renderable(Renderable&& renderable) noexcept :
+				data(std::move(renderable.data)),
+				renderable(std::move(renderable.renderable)),
+				dataUpdated(renderable.dataUpdated)
+				{
+				}
+
+				Renderable& operator=(Renderable&& r) noexcept
+				{
+					data = std::move(r.data);
+					dataUpdated = r.dataUpdated;
+					renderable = std::move(r.renderable);
+
+					return *this;
 				}
 
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
@@ -80,3 +106,4 @@ namespace Ndk
 #include <NDK/Components/GraphicsComponent.inl>
 
 #endif // NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
+#endif // NDK_SERVER

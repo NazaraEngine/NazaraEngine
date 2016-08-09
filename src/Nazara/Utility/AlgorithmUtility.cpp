@@ -105,9 +105,9 @@ namespace Nz
 					for (unsigned int i = 0; i < recursionLevel; ++i)
 					{
 						std::size_t triangleCount = triangles.size();
-						for (std::size_t i = 0; i < triangleCount; ++i)
+						for (std::size_t j = 0; j < triangleCount; ++j)
 						{
-							Vector3ui& triangle = triangles[i];
+							Vector3ui& triangle = triangles[j];
 
 							unsigned int a = GetMiddleVertex(triangle.x, triangle.y);
 							unsigned int b = GetMiddleVertex(triangle.y, triangle.z);
@@ -333,21 +333,20 @@ namespace Nz
 				}
 
 			private:
-				float CalculateVertexScore(unsigned int vertex) const
+				float CalculateVertexScore(VertexCacheData& vertex) const
 				{
-					const VertexCacheData* v = &m_vertices[vertex];
-					if (v->remaining_valence <= 0)
+					if (vertex.remaining_valence <= 0)
 						// No tri needs this vertex!
 						return -1.0f;
 
 					float ret = 0.0f;
-					if (v->position_in_cache < 0)
+					if (vertex.position_in_cache < 0)
 					{
 						// Vertex is not in FIFO cache - no score.
 					}
 					else
 					{
-						if (v->position_in_cache < 3)
+						if (vertex.position_in_cache < 3)
 						{
 							// This vertex was used in the last triangle,
 							// so it has a fixed score, whichever of the three
@@ -360,14 +359,14 @@ namespace Nz
 						{
 							// Points for being high in the cache.
 							const float Scaler = 1.0f / (32  - 3);
-							ret = 1.0f - (v->position_in_cache - 3) * Scaler;
+							ret = 1.0f - (vertex.position_in_cache - 3) * Scaler;
 							ret = std::pow(ret, m_cacheDecayPower);
 						}
 					}
 
 					// Bonus points for having a low number of tris still to
 					// use the vert, so we get rid of lone verts quickly.
-					float valence_boost = std::pow(static_cast<float>(v->remaining_valence), -m_valenceBoostPower);
+					float valence_boost = std::pow(static_cast<float>(vertex.remaining_valence), -m_valenceBoostPower);
 					ret += m_valenceBoostScale * valence_boost;
 
 					return ret;
@@ -378,8 +377,8 @@ namespace Nz
 				int FullScoreRecalculation()
 				{
 					// calculate score for all vertices
-					for (unsigned int i = 0; i < m_vertices.size(); ++i)
-						m_vertices[i].current_score = CalculateVertexScore(i);
+					for (VertexCacheData& vertex : m_vertices)
+						vertex.current_score = CalculateVertexScore(vertex);
 
 					// calculate scores for all active triangles
 					float max_score = std::numeric_limits<float>::lowest();
@@ -548,13 +547,13 @@ namespace Nz
 					float sum = 0.f;
 					for (unsigned int i = 0; i < 3; ++i)
 					{
-						VertexCacheData* v = &m_vertices[t->verts[i]];
-						float sc = v->current_score;
-						if (!v->calculated)
-							sc = CalculateVertexScore(t->verts[i]);
+						VertexCacheData& v = m_vertices[t->verts[i]];
+						float sc = v.current_score;
+						if (!v.calculated)
+							sc = CalculateVertexScore(v);
 
-						v->current_score = sc;
-						v->calculated = true;
+						v.current_score = sc;
+						v.calculated = true;
 						sum += sc;
 					}
 

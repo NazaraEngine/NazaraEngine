@@ -22,6 +22,8 @@ namespace Nz
 		public:
 			VertexMapper(SubMesh* subMesh, BufferAccess access = BufferAccess_ReadWrite);
 			VertexMapper(VertexBuffer* vertexBuffer, BufferAccess access = BufferAccess_ReadWrite);
+			VertexMapper(const SubMesh* subMesh, BufferAccess access = BufferAccess_ReadOnly);
+			VertexMapper(const VertexBuffer* vertexBuffer, BufferAccess access = BufferAccess_ReadOnly);
 			~VertexMapper();
 
 			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component);

@@ -12,9 +12,11 @@ in vec3 VertexPosition;
 in vec3 VertexNormal;
 in vec3 VertexTangent;
 in vec2 VertexTexCoord;
+in vec4 VertexUserdata0;
 
 /********************Sortant********************/
 out vec4 vColor;
+out vec4 vLightSpacePos[3];
 out mat3 vLightToWorld;
 out vec3 vNormal;
 out vec2 vTexCoord;
@@ -23,7 +25,10 @@ out vec3 vWorldPos;
 
 /********************Uniformes********************/
 uniform vec3 EyePosition;
+uniform mat4 InvViewMatrix;
+uniform mat4 LightViewProjMatrix[3];
 uniform float VertexDepth;
+uniform mat4 ViewMatrix;
 uniform mat4 ViewProjMatrix;
 uniform mat4 WorldMatrix;
 uniform mat4 WorldViewProjMatrix;
@@ -104,33 +109,36 @@ void main()
 
 	vColor = color;
 
-#if LIGHTING
-	#if FLAG_INSTANCING
+#if FLAG_INSTANCING
 	mat3 rotationMatrix = mat3(InstanceData0);
-	#else
+#else
 	mat3 rotationMatrix = mat3(WorldMatrix);
-	#endif
+#endif
 	
-	#if COMPUTE_TBNMATRIX
+#if COMPUTE_TBNMATRIX
 	vec3 binormal = cross(VertexNormal, VertexTangent);
 	vLightToWorld[0] = normalize(rotationMatrix * VertexTangent);
 	vLightToWorld[1] = normalize(rotationMatrix * binormal);
 	vLightToWorld[2] = normalize(rotationMatrix * VertexNormal);
-	#else
+#else
 	vNormal = normalize(rotationMatrix * VertexNormal);
-	#endif
+#endif
+
+#if SHADOW_MAPPING
+	for (int i = 0; i < 3; ++i)
+		vLightSpacePos[i] = LightViewProjMatrix[i] * WorldMatrix * vec4(VertexPosition, 1.0);
 #endif
 
 #if TEXTURE_MAPPING
 	vTexCoord = VertexTexCoord;
 #endif
 
-#if LIGHTING && PARALLAX_MAPPING
+#if PARALLAX_MAPPING
 	vViewDir = EyePosition - VertexPosition; 
 	vViewDir *= vLightToWorld;
 #endif
 
-#if LIGHTING && !FLAG_DEFERRED
+#if !FLAG_DEFERRED
 	#if FLAG_INSTANCING
 	vWorldPos = vec3(InstanceData0 * vec4(VertexPosition, 1.0));
 	#else

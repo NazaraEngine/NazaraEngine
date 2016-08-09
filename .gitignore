@@ -1,10 +1,13 @@
 # Nazara build
+build/config.lua
 examples/bin/*.exe
 examples/bin/*.pdb
 examples/bin/*.dll
 examples/bin/*.so
 tests/*.exe
 tests/*.pdb
+tests/*.dll
+tests/*.so
 lib/*
 
 # Feature page
@@ -35,6 +38,7 @@ build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
 build/**/*.VC.opendb
+build/**/*.VC.db
 
 # Compiled Object files
 build/**/*.slo

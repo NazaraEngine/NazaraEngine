@@ -49,8 +49,8 @@ namespace Nz
 				return false;
 			}
 
-			MTLParser materialParser(file);
-			if (!materialParser.Parse())
+			MTLParser materialParser;
+			if (!materialParser.Parse(file))
 			{
 				NazaraError("MTL parser failed");
 				return false;
@@ -73,8 +73,6 @@ namespace Nz
 				{
 					ParameterList data;
 
-					data.SetParameter(MaterialData::CustomDefined);
-
 					UInt8 alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
 
 					Color ambientColor(mtlMat->ambient);
@@ -90,13 +88,31 @@ namespace Nz
 					data.SetParameter(MaterialData::SpecularColor, specularColor);
 
 					if (!mtlMat->alphaMap.IsEmpty())
-						data.SetParameter(MaterialData::AlphaTexturePath, baseDir + mtlMat->alphaMap);
+					{
+						String fullPath = mtlMat->alphaMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::AlphaTexturePath, fullPath);
+					}
 
 					if (!mtlMat->diffuseMap.IsEmpty())
-						data.SetParameter(MaterialData::DiffuseTexturePath, baseDir + mtlMat->diffuseMap);
+					{
+						String fullPath = mtlMat->diffuseMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
+					}
 
 					if (!mtlMat->specularMap.IsEmpty())
-						data.SetParameter(MaterialData::SpecularTexturePath, baseDir + mtlMat->specularMap);
+					{
+						String fullPath = mtlMat->specularMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::SpecularTexturePath, fullPath);
+					}
 
 					// If we either have an alpha value or an alpha map, let's configure the material for transparency
 					if (alphaValue != 255 || !mtlMat->alphaMap.IsEmpty())
@@ -123,8 +139,8 @@ namespace Nz
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
 				reservedVertexCount = 100;
 
-			OBJParser parser(stream);
-			if (!parser.Parse(reservedVertexCount))
+			OBJParser parser;
+			if (!parser.Parse(stream, reservedVertexCount))
 			{
 				NazaraError("OBJ parser failed");
 				return false;
@@ -177,23 +193,24 @@ namespace Nz
 				{
 					bool operator()(const OBJParser::FaceVertex& lhs, const OBJParser::FaceVertex& rhs) const
 					{
-						return lhs.normal == rhs.normal &&
+						return lhs.normal   == rhs.normal   &&
 						       lhs.position == rhs.position &&
 						       lhs.texCoord == rhs.texCoord;
 					}
 				};
 
 				std::unordered_map<OBJParser::FaceVertex, unsigned int, FaceVertexHasher, FaceVertexComparator> vertices;
+				vertices.reserve(meshes[i].vertices.size());
 
 				unsigned int vertexCount = 0;
 				for (unsigned int j = 0; j < faceCount; ++j)
 				{
-					unsigned int faceVertexCount = meshes[i].faces[j].vertices.size();
+					unsigned int faceVertexCount = meshes[i].faces[j].vertexCount;
 					faceIndices.resize(faceVertexCount);
 
 					for (unsigned int k = 0; k < faceVertexCount; ++k)
 					{
-						const OBJParser::FaceVertex& vertex = meshes[i].faces[j].vertices[k];
+						const OBJParser::FaceVertex& vertex = meshes[i].vertices[meshes[i].faces[j].firstVertex + k];
 
 						auto it = vertices.find(vertex);
 						if (it == vertices.end())
@@ -202,6 +219,7 @@ namespace Nz
 						faceIndices[k] = it->second;
 					}
 
+					// Triangulation
 					for (unsigned int k = 1; k < faceVertexCount-1; ++k)
 					{
 						indices.push_back(faceIndices[0]);
@@ -233,18 +251,17 @@ namespace Nz
 
 					MeshVertex& vertex = meshVertices[index];
 
-					const Vector4f& vec = positions[vertexIndices.position];
-					vertex.position.Set(vec.x, vec.y, vec.z);
-					vertex.position *= parameters.scale/vec.w;
+					const Vector4f& vec = positions[vertexIndices.position-1];
+					vertex.position = Vector3f(parameters.matrix * vec);
 
-					if (vertexIndices.normal >= 0)
-						vertex.normal = normals[vertexIndices.normal];
+					if (vertexIndices.normal > 0)
+						vertex.normal = normals[vertexIndices.normal-1];
 					else
 						hasNormals = false;
 
-					if (vertexIndices.texCoord >= 0)
+					if (vertexIndices.texCoord > 0)
 					{
-						const Vector3f& uvw = texCoords[vertexIndices.texCoord];
+						const Vector3f& uvw = texCoords[vertexIndices.texCoord-1];
 						vertex.uv.Set(uvw.x, (parameters.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
 					}
 					else
@@ -297,12 +314,12 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterOBJ()
+		void RegisterOBJLoader()
 		{
 			MeshLoader::RegisterLoader(IsSupported, Check, Load);
 		}
 
-		void UnregisterOBJ()
+		void UnregisterOBJLoader()
 		{
 			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
 		}

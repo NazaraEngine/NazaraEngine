@@ -121,7 +121,7 @@ namespace Nz
 			ImageType type = image.GetType();
 			if (type != ImageType_1D && type != ImageType_2D)
 			{
-				NazaraError("Image type 0x" + String::Number(type, 16) + " is not ");
+				NazaraError("Image type 0x" + String::Number(type, 16) + " is not in a supported format");
 				return false;
 			}
 

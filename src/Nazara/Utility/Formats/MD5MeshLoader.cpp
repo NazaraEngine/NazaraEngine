@@ -48,19 +48,20 @@ namespace Nz
 
 			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
-			Vector3f scale(parameters.scale/40.f);
+			Matrix4f matrix = Matrix4f::Transform(Nz::Vector3f::Zero(), rotationQuat, Vector3f(1.f / 40.f));
+			matrix *= parameters.matrix;
 
 			const MD5MeshParser::Joint* joints = parser.GetJoints();
 			const MD5MeshParser::Mesh* meshes = parser.GetMeshes();
-			unsigned int jointCount = parser.GetJointCount();
-			unsigned int meshCount = parser.GetMeshCount();
+			std::size_t jointCount = parser.GetJointCount();
+			std::size_t meshCount = parser.GetMeshCount();
 
 			if (parameters.animated)
 			{
 				mesh->CreateSkeletal(jointCount);
 
 				Skeleton* skeleton = mesh->GetSkeleton();
-				for (unsigned int i = 0; i < jointCount; ++i)
+				for (std::size_t i = 0; i < jointCount; ++i)
 				{
 					Joint* joint = skeleton->GetJoint(i);
 
@@ -81,12 +82,12 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (unsigned int i = 0; i < meshCount; ++i)
+				for (std::size_t i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
-					unsigned int indexCount = md5Mesh.triangles.size()*3;
-					unsigned int vertexCount = md5Mesh.vertices.size();
+					std::size_t indexCount = md5Mesh.triangles.size()*3;
+					std::size_t vertexCount = md5Mesh.vertices.size();
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
@@ -226,11 +227,11 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (unsigned int i = 0; i < meshCount; ++i)
+				for (std::size_t i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
-					unsigned int indexCount = md5Mesh.triangles.size()*3;
-					unsigned int vertexCount = md5Mesh.vertices.size();
+					std::size_t indexCount = md5Mesh.triangles.size()*3;
+					std::size_t vertexCount = md5Mesh.vertices.size();
 
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -267,7 +268,7 @@ namespace Nz
 						}
 
 						// On retourne le modèle dans le bon sens
-						vertex->position = scale * (rotationQuat * finalPos);
+						vertex->position = matrix * finalPos;
 						vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
 						vertex++;
 					}

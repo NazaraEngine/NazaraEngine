@@ -1,25 +1,27 @@
 /*
-** FirstScene - Première scène graphique
-** Prérequis: Aucun
-** Utilisation du module utilitaire et graphique
-** Présente:
-** - Création et gestion d'une fenêtre (Traitement des évènements clavier/souris)
-** - Gestion du clavier (Récupération de l'état d'une touche)
-** - Des outils pour afficher une scène basique via le chargement d'un modèle (et son affichage)
-** - Éclairage directionnel
-** - Gestion d'une caméra free-fly (Avec déplacement fluide)
-** - Gestion basique d'une horloge
+* FirstScene - Première scène graphique
+* Prérequis: Aucun
+* Utilisation du module utilitaire et graphique
+** Présente :
+	* -Création et gestion d'une fenêtre (Traitement des évènements clavier/souris)
+	* -Gestion du clavier(Récupération de l'état d'une touche)
+	* -Des outils pour afficher une scène basique via le chargement d'un modèle (et son affichage)
+	* -Éclairage directionnel
+	* -Gestion d'une caméra free-fly (Avec déplacement fluide)
+	* -Gestion basique d'une horloge
+	* -Console
 */
 
 #include <Nazara/Core/Clock.hpp> // Horloges
+#include <Nazara/Lua.hpp> // Module de scripting
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Utility.hpp> // Module utilitaire
-#include <NDK/Components/CameraComponent.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/LightComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Application.hpp>
+#include <NDK/Components.hpp>
+#include <NDK/Console.hpp>
+#include <NDK/Systems.hpp>
+#include <NDK/LuaAPI.hpp>
 #include <NDK/Sdk.hpp>
 #include <NDK/World.hpp>
 #include <iostream>
@@ -29,26 +31,15 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 
 int main()
 {
-	// Pour commencer, nous initialisons le SDK de Nazara, celui-ci va préparer le terrain en initialisant le moteur, 
-	// les composants, systèmes, etc.
-	// NzInitializer est une classe RAII appelant Initialize dans son constructeur et Uninitialize dans son destructeur.
-	// Autrement dit, une fois ceci fait nous n'avons plus à nous soucier de la libération du moteur.
-	Nz::Initializer<Ndk::Sdk> nazara;
-	if (!nazara)
-	{
-		// Une erreur s'est produite dans l'initialisation d'un des modules
-		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
-		std::getchar(); // On laise le temps de voir l'erreur
-
-		return EXIT_FAILURE;
-	}
+	// Ndk::Application est une classe s'occupant de l'initialisation du moteur ainsi que de la gestion de beaucoup de choses
+	Ndk::Application application;
 
 	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
 	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.
 	// Il contient les systèmes et les entités, ces dernières contiennent les composants.
 	// Il est possible d'utiliser plusieurs mondes au sein d'une même application, par exemple pour gérer un mélange de 2D et de 3D,
 	// mais nous verrons cela dans un prochain exemple.
-	Ndk::World world;
+	Ndk::WorldHandle world = application.AddWorld().CreateHandle();
 
 	// Nous pouvons maintenant ajouter des systèmes, mais dans cet exemple nous nous contenterons de ceux de base.
 
@@ -73,7 +64,7 @@ int main()
 		Nz::SkyboxBackgroundRef skybox = Nz::SkyboxBackground::New(std::move(texture));
 
 		// Accédons maintenant au système de rendu faisant partie du monde
-		Ndk::RenderSystem& renderSystem = world.GetSystem<Ndk::RenderSystem>(); // Une assertion valide la précondition "le système doit faire partie du monde"
+		Ndk::RenderSystem& renderSystem = world->GetSystem<Ndk::RenderSystem>(); // Une assertion valide la précondition "le système doit faire partie du monde"
 
 		// Nous assignons ensuite notre skybox comme "fond par défaut" du système
 		// La notion "par défaut" existe parce qu'une caméra pourrait utiliser son propre fond lors du rendu,
@@ -101,7 +92,7 @@ int main()
 	// Le format OBJ ne précise aucune échelle pour ses données, contrairement à Nazara (une unité = un mètre en 3D).
 	// Comme le vaisseau est très grand (Des centaines de mètres de long), nous allons le rendre plus petit pour les besoins de la démo.
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
-	params.mesh.scale.Set(0.01f); // Un centième de la taille originelle
+	params.mesh.matrix.MakeScale(Nz::Vector3f(0.01f)); // Un centième de la taille originelle
 
 	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
 	// Nous devons donc indiquer au moteur de les retourner lors du chargement
@@ -146,7 +137,7 @@ int main()
 
 	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
 	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.
-	Ndk::EntityHandle spaceship = world.CreateEntity();
+	Ndk::EntityHandle spaceship = world->CreateEntity();
 
 	// Note: Nous ne récupérons pas l'entité directement mais un "handle" vers elle, ce dernier est un pointeur intelligent non-propriétaire.
 	// Pour des raisons techniques, le pointeur de l'entité peut venir à changer, ou l'entité être simplement détruite pour n'importe quelle raison.
@@ -156,9 +147,10 @@ int main()
 	// Nous devons donc lui rajouter les composants que nous voulons.
 
 	// Un NodeComponent donne à notre entité une position, rotation, échelle, et nous permet de l'attacher à d'autres entités (ce que nous ne ferons pas ici).
-	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient, 
+	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient,
 	// nous n'avons pas besoin d'agir sur le composant créé.
 	spaceship->AddComponent<Ndk::NodeComponent>();
+	//spaceship->AddComponent<Ndk::VelocityComponent>().linearVelocity.Set(-1.f, 0.f, 0.f);
 
 	// Bien, notre entité nouvellement créé dispose maintenant d'une position dans la scène, mais est toujours invisible
 	// Nous lui ajoutons donc un GraphicsComponent
@@ -178,7 +170,7 @@ int main()
 
 	// Nous créons donc une seconde entité
 	// Note: La création d'entité est une opération légère au sein du moteur, mais plus vous aurez d'entités et plus le processeur devra travailler.
-	Ndk::EntityHandle camera = world.CreateEntity();
+	Ndk::EntityHandle camera = world->CreateEntity();
 
 	// Notre caméra a elle aussi besoin d'être positionnée dans la scène
 	Ndk::NodeComponent& cameraNode = camera->AddComponent<Ndk::NodeComponent>();
@@ -187,6 +179,9 @@ int main()
 
 	// Et dispose d'un composant pour chaque point de vue de la scène, le CameraComponent
 	Ndk::CameraComponent& cameraComp = camera->AddComponent<Ndk::CameraComponent>();
+
+	// Ajoutons un composant écouteur, si nous venions à avoir du son
+	camera->AddComponent<Ndk::ListenerComponent>();
 
 	// Et on n'oublie pas de définir les plans délimitant le champs de vision
 	// (Seul ce qui se trouvera entre les deux plans sera rendu)
@@ -208,7 +203,7 @@ int main()
 
 	// Nous allons créer une lumière directionnelle pour représenter la nébuleuse de notre skybox
 	// Encore une fois, nous créons notre entité
-	Ndk::EntityHandle nebulaLight = world.CreateEntity();
+	Ndk::EntityHandle nebulaLight = world->CreateEntity();
 
 	// Lui ajoutons une position dans la scène
 	Ndk::NodeComponent& nebulaLightNode = nebulaLight->AddComponent<Ndk::NodeComponent>();
@@ -246,7 +241,7 @@ int main()
 	Nz::RenderTargetParameters parameters;
 	parameters.antialiasingLevel = 4;
 
-	Nz::RenderWindow window(mode, windowTitle, style, parameters);
+	Nz::RenderWindow& window = application.AddWindow<Nz::RenderWindow>(mode, windowTitle, style, parameters);
 	if (!window.IsValid())
 	{
 		std::cout << "Failed to create render window" << std::endl;
@@ -272,8 +267,70 @@ int main()
 	bool smoothMovement = true;
 	Nz::Vector3f targetPos = cameraNode.GetPosition();
 
-	// Début de la boucle de rendu du programme
-	while (window.IsOpen())
+	// Pour ajouter une console à notre application, nous avons besoin d'un monde 2D pour gérer ces rendus
+	Ndk::WorldHandle world2D = application.AddWorld().CreateHandle();
+	world2D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(nullptr);
+	world2D->GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+
+	// Nous ajoutons une caméra comme précédement
+	Ndk::EntityHandle viewEntity = world2D->CreateEntity();
+	viewEntity->AddComponent<Ndk::NodeComponent>();
+
+	// À la différence que celui-ci effectuera une projection orthogonale
+	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
+	viewer.SetTarget(&window);
+	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+
+	// Nous créons un environnement Lua pour gérer nos scripts
+	Nz::LuaInstance lua;
+
+	// Faisons en sorte d'enregistrer les classes du moteur dans cet environnement
+	Ndk::LuaAPI::RegisterClasses(lua);
+
+	// Ensuite nous créons la console en elle-même
+	Ndk::Console console(*world2D, Nz::Vector2f(window.GetWidth(), window.GetHeight() / 4), lua);
+
+	// Nous redirigeons les logs vers cette console
+	Nz::Log::OnLogWriteType::ConnectionGuard logGuard = Nz::Log::OnLogWrite.Connect([&console] (const Nz::String& str)
+	{
+		console.AddLine(str);
+	});
+
+	// Nous réécrivons la fonction "print" du Lua pour la rediriger vers la console
+	lua.PushFunction([&console] (Nz::LuaInstance& instance)
+	{
+		Nz::StringStream stream;
+
+		unsigned int argCount = instance.GetStackTop();
+		instance.GetGlobal("tostring");
+		for (unsigned int i = 1; i <= argCount; ++i)
+		{
+			instance.PushValue(-1); // ToString
+			instance.PushValue(i);  // Arg
+			instance.Call(1, 1);
+
+			std::size_t length;
+			const char* str = instance.CheckString(-1, &length);
+			if (i > 1)
+				stream << '\t';
+
+			stream << Nz::String(str, length);
+			instance.Pop(1);
+		}
+
+		console.AddLine(stream);
+		return 0;
+	});
+	lua.SetGlobal("print");
+
+	// Définissons quelques variables de base
+	lua.PushGlobal("Application", Ndk::Application::Instance());
+	lua.PushGlobal("Console", console.CreateHandle());
+	lua.PushGlobal("Spaceship", spaceship->CreateHandle());
+	lua.PushGlobal("World", world->CreateHandle());
+
+	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
+	while (application.Run())
 	{
 		// Ensuite nous allons traiter les évènements (Étape indispensable pour la fenêtre)
 		Nz::WindowEvent event;
@@ -283,6 +340,9 @@ int main()
 			{
 				case Nz::WindowEventType_MouseMoved: // La souris a bougé
 				{
+					if (console.IsVisible())
+						break;
+
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
 
@@ -297,15 +357,18 @@ int main()
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Mouse::SetPosition(window.GetWidth()/2, window.GetHeight()/2, window);
+					Nz::Mouse::SetPosition(window.GetWidth() / 2, window.GetHeight() / 2, window);
 					break;
 				}
 
 				case  Nz::WindowEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
-					window.Close(); // On demande la fermeture de la fenêtre (Qui aura lieu au prochain tour de boucle)
+					application.Quit();
 					break;
 
 				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
+					if (console.IsVisible())
+						console.SendEvent(event);
+
 					if (event.key.code == Nz::Keyboard::Key::Escape)
 						window.Close();
 					else if (event.key.code == Nz::Keyboard::F1)
@@ -318,6 +381,19 @@ int main()
 						else
 							smoothMovement = true;
 					}
+					else if (event.key.code == Nz::Keyboard::F9)
+						console.Show(!console.IsVisible());
+					break;
+
+				case Nz::WindowEventType_TextEntered:
+				{
+					if (console.IsVisible())
+						console.SendCharacter(event.text.character);
+					break;
+				}
+
+				case Nz::WindowEventType_Resized:
+					console.SetSize({float(event.size.width), event.size.height / 4.f});
 					break;
 
 				default:
@@ -337,51 +413,47 @@ int main()
 		{
 			// Le temps écoulé en seconde depuis la dernière fois que ce bloc a été exécuté
 			float elapsedTime = updateAccumulator / 1000000.f;
-			std::cout << elapsedTime << std::endl;
 
 			// Vitesse de déplacement de la caméra
 			float cameraSpeed = 3.f * elapsedTime; // Trois mètres par seconde
 
-			// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
-				cameraSpeed *= 2.f;
+			if (!console.IsVisible())
+			{
+				// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
+					cameraSpeed *= 2.f;
 
-			// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
-			// les directions locales de la caméra
+				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
+				// les directions locales de la caméra
 
-			// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
-				targetPos += cameraNode.GetForward() * cameraSpeed;
+				// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+					targetPos += cameraNode.GetForward() * cameraSpeed;
 
-			// Si la flèche du bas ou la touche S est pressée, on recule
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
-				targetPos += cameraNode.GetBackward() * cameraSpeed;
+				// Si la flèche du bas ou la touche S est pressée, on recule
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+					targetPos += cameraNode.GetBackward() * cameraSpeed;
 
-			// Etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
-				targetPos += cameraNode.GetLeft() * cameraSpeed;
+				// Etc...
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+					targetPos += cameraNode.GetLeft() * cameraSpeed;
 
-			// Etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
-				targetPos += cameraNode.GetRight() * cameraSpeed;
+				// Etc...
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+					targetPos += cameraNode.GetRight() * cameraSpeed;
 
-			// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
-				targetPos += Nz::Vector3f::Up() * cameraSpeed;
+				// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+					targetPos += Nz::Vector3f::Up() * cameraSpeed;
 
-			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
-				targetPos += Nz::Vector3f::Down() * cameraSpeed;
+				// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+					targetPos += Nz::Vector3f::Down() * cameraSpeed;
+			}
 
 			cameraNode.SetPosition((smoothMovement) ? DampedString(cameraNode.GetPosition(), targetPos, elapsedTime) : targetPos, Nz::CoordSys_Global);
-
 			updateAccumulator = 0;
 		}
-
-		// Et maintenant pour rendre la scène, il nous suffit de mettre à jour le monde en lui envoyant le temps depuis la dernière mise à jour
-		// Note: La plupart des systèmes, à l'exception de celui de rendu, ont une fréquence de mise à jour fixe (modifiable)
-		// Il n'est donc pas nécessaire de limiter vous-même les mises à jour du monde
-		world.Update(elapsedUS / 1000000.f);
 
 		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
@@ -410,7 +482,7 @@ int main()
 		}
 	}
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& targetPos, float frametime, float springStrength)
@@ -430,7 +502,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 	if (Nz::NumberEquals(displacementLength, 0.f))
 		return currentPos;
 
-	float invDisplacementLength = 1.f/displacementLength;
+	float invDisplacementLength = 1.f / displacementLength;
 
 	const float dampConstant = 0.000065f; // Something v.small to offset 1/ displacement length
 

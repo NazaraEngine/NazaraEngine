@@ -142,6 +142,17 @@ namespace Nz
 		NodeType_Max = NodeType_Skeletal
 	};
 
+	enum PixelFormatContent
+	{
+		PixelFormatContent_Undefined = -1,
+
+		PixelFormatContent_ColorRGBA,
+		PixelFormatContent_DepthStencil,
+		PixelFormatContent_Stencil,
+
+		PixelFormatContent_Max = PixelFormatContent_Stencil
+	};
+
 	enum PixelFormatType
 	{
 		PixelFormatType_Undefined = -1,
@@ -204,25 +215,14 @@ namespace Nz
 
 	enum PixelFormatSubType
 	{
-		PixelFormatSubType_Double,   // F64
-		PixelFormatSubType_Float,    // F32
-		PixelFormatSubType_Half,     // F16
-		PixelFormatSubType_Int,      // I32
-		PixelFormatSubType_Unsigned, // U32
+		PixelFormatSubType_Compressed, // Opaque
+		PixelFormatSubType_Double,     // F64
+		PixelFormatSubType_Float,      // F32
+		PixelFormatSubType_Half,       // F16
+		PixelFormatSubType_Int,        //   Signed integer
+		PixelFormatSubType_Unsigned,   // Unsigned integer
 
 		PixelFormatSubType_Max = PixelFormatSubType_Unsigned
-	};
-
-	enum PixelFormatTypeType
-	{
-		PixelFormatTypeType_Undefined = -1,
-
-		PixelFormatTypeType_Color,
-		PixelFormatTypeType_Depth,
-		PixelFormatTypeType_DepthStencil,
-		PixelFormatTypeType_Stencil,
-
-		PixelFormatTypeType_Max = PixelFormatTypeType_Stencil
 	};
 
 	enum PixelFlipping

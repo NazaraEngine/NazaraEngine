@@ -33,8 +33,8 @@ namespace Nz
 	inline void SwapBytes(void* buffer, std::size_t size)
 	{
 		UInt8* bytes = static_cast<UInt8*>(buffer);
-		unsigned int i = 0;
-		unsigned int j = size - 1;
+		std::size_t i = 0;
+		std::size_t j = size - 1;
 
 		while (i < j)
 			std::swap(bytes[i++], bytes[j--]);

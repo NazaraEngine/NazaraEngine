@@ -89,7 +89,7 @@ namespace Nz
 
 		if (!PixelFormat::IsConversionSupported(m_sharedImage->format, newFormat))
 		{
-			NazaraError("Conversion from " + PixelFormat::ToString(m_sharedImage->format) + " to " + PixelFormat::ToString(newFormat) + " is not supported");
+			NazaraError("Conversion from " + PixelFormat::GetName(m_sharedImage->format) + " to " + PixelFormat::GetName(newFormat) + " is not supported");
 			return false;
 		}
 		#endif
@@ -327,7 +327,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::ToString(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -405,7 +405,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::ToString(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -477,7 +477,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::ToString(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -666,7 +666,7 @@ namespace Nz
 		return GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 	}
 
-	unsigned int Image::GetMemoryUsage() const
+	std::size_t Image::GetMemoryUsage() const
 	{
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
@@ -693,7 +693,7 @@ namespace Nz
 		return size * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
 	}
 
-	unsigned int Image::GetMemoryUsage(UInt8 level) const
+	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
 		return PixelFormat::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
 	}
@@ -1352,6 +1352,15 @@ namespace Nz
 
 	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
+		#if NAZARA_UTILITY_SAFE
+		if (width == 0)
+			NazaraError("Width must be greater than zero");
+		if (height == 0)
+			NazaraError("Height must be greater than zero");
+		if (depth == 0)
+			NazaraError("Depth must be greater than zero");
+		#endif
+
 		if (dstWidth == 0)
 			dstWidth = width;
 

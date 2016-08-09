@@ -98,6 +98,8 @@ namespace Nz
 			void SendVectorArray(int location, const Vector4f* vectors, unsigned int count) const;
 			void SendVectorArray(int location, const Vector4i* vectors, unsigned int count) const;
 
+			bool Validate() const;
+
 			// Fonctions OpenGL
 			unsigned int GetOpenGLID() const;
 
