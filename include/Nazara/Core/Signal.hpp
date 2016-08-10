@@ -34,7 +34,7 @@ namespace Nz
 			Signal();
 			Signal(const Signal&) = delete;
 			Signal(Signal&& signal);
-			~Signal() = default;
+			~Signal();
 
 			void Clear();
 
