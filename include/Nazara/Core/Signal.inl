@@ -36,6 +36,12 @@ namespace Nz
 		operator=(std::move(signal));
 	}
 
+	template<typename ...Args>
+	Signal<Args...>::~Signal()
+	{
+		NazaraWarning("~Signal(" + String::Pointer(this) + ')');
+	}
+
 	/*!
 	* \brief Clears the list of actions attached to the signal
 	*/
@@ -429,3 +435,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Signal.hpp"
