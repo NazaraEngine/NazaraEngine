@@ -54,10 +54,10 @@ namespace Nz
 
 	void RenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
-		commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Temporary
-		if (m_depthBufferView != VK_FORMAT_MAX_ENUM)
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 		{
 			VkImageSubresourceRange imageRange = {
 						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // VkImageAspectFlags                     aspectMask
@@ -73,7 +73,7 @@ namespace Nz
 
 	void RenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
-		commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
 	const Vk::Framebuffer& RenderWindow::GetFrameBuffer(UInt32 imageIndex) const
@@ -381,8 +381,8 @@ namespace Nz
 					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
 					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
 					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
+					VK_IMAGE_LAYOUT_UNDEFINED, // VkImageLayout                   initialLayout;
+					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  // VkImageLayout                   finalLayout;
 				},
 				{
 					0,                                                // VkAttachmentDescriptionFlags    flags;
@@ -421,6 +421,27 @@ namespace Nz
 			nullptr                                                                   // const uint32_t*                 pPreserveAttachments;
 		};
 
+		std::array<VkSubpassDependency, 2> dependencies;
+		// First dependency at the start of the renderpass
+		// Does the transition from final to initial layout 
+		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;								// Producer of the dependency 
+		dependencies[0].dstSubpass = 0;													// Consumer is our single subpass that will wait for the execution depdendency
+		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		// Second dependency at the end the renderpass
+		// Does the transition from the initial to the final layout
+		dependencies[1].srcSubpass = 0;													// Producer of the dependency is our single subpass
+		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;								// Consumer are all commands outside of the renderpass
+		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
 		VkRenderPassCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,              // VkStructureType                   sType;
 			nullptr,                                                // const void*                       pNext;
@@ -429,8 +450,8 @@ namespace Nz
 			attachments.data(),                                     // const VkAttachmentDescription*    pAttachments;
 			1U,                                                     // uint32_t                          subpassCount;
 			&subpass,                                               // const VkSubpassDescription*       pSubpasses;
-			0U,                                                     // uint32_t                          dependencyCount;
-			nullptr                                                 // const VkSubpassDependency*        pDependencies;
+			dependencies.size(),                                                     // uint32_t                          dependencyCount;
+			dependencies.data()                                                 // const VkSubpassDependency*        pDependencies;
 		};
 
 		return m_renderPass.Create(m_device, createInfo);
