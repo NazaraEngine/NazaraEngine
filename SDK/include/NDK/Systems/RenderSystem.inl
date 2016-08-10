@@ -10,14 +10,15 @@ namespace Ndk
 	}
 
 	template<typename T>
-	inline void RenderSystem::ChangeRenderTechnique()
+	inline T& RenderSystem::ChangeRenderTechnique()
 	{
-		ChangeRenderTechnique(std::make_unique<T>());
+		return *static_cast<T*>(ChangeRenderTechnique(std::make_unique<T>()));
 	}
 
-	inline void RenderSystem::ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique)
+	inline Nz::AbstractRenderTechnique& RenderSystem::ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique)
 	{
 		m_renderTechnique = std::move(renderTechnique);
+        return *m_renderTechnique.get();
 	}
 
 	inline const Nz::BackgroundRef& RenderSystem::GetDefaultBackground() const
