@@ -588,7 +588,7 @@ namespace Nz
 		std::memcpy(&m_impl->colorTargets[0], targets, targetCount*sizeof(UInt8));
 
 		m_impl->userDefinedTargets = true;
-		InvalidateDrawBuffers();
+		InvalidateTargets();
 	}
 
 	void RenderTexture::SetColorTargets(const std::initializer_list<UInt8>& targets) const
@@ -614,7 +614,7 @@ namespace Nz
 			*ptr++ = index;
 
 		m_impl->userDefinedTargets = true;
-		InvalidateDrawBuffers();
+		InvalidateTargets();
 	}
 
 	void RenderTexture::Unlock() const
