@@ -103,10 +103,29 @@ namespace Ndk
 		RemoveComponent(index);
 	}
 
+	inline void Entity::RemoveAllComponents()
+	{
+		m_removedComponentBits = m_componentBits;
+
+		Invalidate();
+	}
+
+	inline void Entity::RemoveComponent(ComponentIndex index)
+	{
+		m_removedComponentBits.UnboundedSet(index);
+
+		Invalidate();
+	}
+
 	inline Nz::String Entity::ToString() const
 	{
 		Nz::StringStream ss;
 		return ss << "Entity(" << GetId() << ')';
+	}
+
+	inline Nz::Bitset<>& Entity::GetRemovedComponentBits()
+	{
+		return m_removedComponentBits;
 	}
 
 	inline void Entity::RegisterSystem(SystemIndex index)
