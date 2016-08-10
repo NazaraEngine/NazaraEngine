@@ -54,7 +54,7 @@ namespace Ndk
 		InvalidateBoundingVolume();
 	}
 
-	inline void GraphicsComponent::Detach(const Nz::InstancedRenderableRef& renderable)
+	inline void GraphicsComponent::Detach(const Nz::InstancedRenderable* renderable)
 	{
 		for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
 		{
