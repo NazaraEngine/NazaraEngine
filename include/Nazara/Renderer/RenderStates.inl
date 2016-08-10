@@ -81,59 +81,59 @@ namespace std
 			Nz::UInt8 parameterHash = 0;
 			Nz::UInt8 parameterIndex = 0;
 
-			#define NazaraRenderStateMember(member) Nz::HashCombine(seed, pipelineInfo.member)
-			#define NazaraRenderStateBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
-			#define NazaraRenderStateBoolMemberDep(dependency, member) parameterHash |= ((pipelineInfo.dependency && pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
-			#define NazaraRenderStateFloatMember(member, maxDiff) Nz::HashCombine(seed, std::floor(pipelineInfo.member / maxDiff) * maxDiff)
+			#define NazaraRenderStateBool(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
+			#define NazaraRenderStateBoolDep(dependency, member) parameterHash |= ((pipelineInfo.dependency && pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
+			#define NazaraRenderStateEnum(member) Nz::HashCombine(seed, static_cast<Nz::UInt8>(pipelineInfo.member))
+			#define NazaraRenderStateFloat(member, maxDiff) Nz::HashCombine(seed, std::floor(pipelineInfo.member / maxDiff) * maxDiff)
 
-			NazaraRenderStateBoolMember(blending);
-			NazaraRenderStateBoolMember(colorWrite);
-			NazaraRenderStateBoolMember(depthBuffer);
-			NazaraRenderStateBoolMember(faceCulling);
-			NazaraRenderStateBoolMember(scissorTest);
-			NazaraRenderStateBoolMember(stencilTest);
+			NazaraRenderStateBool(blending);
+			NazaraRenderStateBool(colorWrite);
+			NazaraRenderStateBool(depthBuffer);
+			NazaraRenderStateBool(faceCulling);
+			NazaraRenderStateBool(scissorTest);
+			NazaraRenderStateBool(stencilTest);
 
-			NazaraRenderStateBoolMemberDep(depthBuffer, depthWrite);
+			NazaraRenderStateBoolDep(depthBuffer, depthWrite);
 
-			NazaraRenderStateMember(faceFilling);
+			NazaraRenderStateEnum(faceFilling);
 
 			if (pipelineInfo.blending) //< Remember, at this time we know lhs.blending == rhs.blending
 			{
-				NazaraRenderStateMember(dstBlend);
-				NazaraRenderStateMember(srcBlend);
+				NazaraRenderStateEnum(dstBlend);
+				NazaraRenderStateEnum(srcBlend);
 			}
 
 			if (pipelineInfo.depthBuffer)
-				NazaraRenderStateMember(depthFunc);
+				NazaraRenderStateEnum(depthFunc);
 
 			if (pipelineInfo.faceCulling)
-				NazaraRenderStateMember(cullingSide);
+				NazaraRenderStateEnum(cullingSide);
 
 			if (pipelineInfo.stencilTest)
 			{
-				NazaraRenderStateMember(stencilCompare.back);
-				NazaraRenderStateMember(stencilCompare.front);
-				NazaraRenderStateMember(stencilCompareMask.back);
-				NazaraRenderStateMember(stencilCompareMask.front);
-				NazaraRenderStateMember(stencilDepthFail.back);
-				NazaraRenderStateMember(stencilDepthFail.front);
-				NazaraRenderStateMember(stencilFail.back);
-				NazaraRenderStateMember(stencilFail.front);
-				NazaraRenderStateMember(stencilPass.back);
-				NazaraRenderStateMember(stencilPass.front);
-				NazaraRenderStateMember(stencilReference.back);
-				NazaraRenderStateMember(stencilReference.front);
-				NazaraRenderStateMember(stencilWriteMask.back);
-				NazaraRenderStateMember(stencilWriteMask.front);
+				NazaraRenderStateEnum(stencilCompare.back);
+				NazaraRenderStateEnum(stencilCompare.front);
+				NazaraRenderStateEnum(stencilCompareMask.back);
+				NazaraRenderStateEnum(stencilCompareMask.front);
+				NazaraRenderStateEnum(stencilDepthFail.back);
+				NazaraRenderStateEnum(stencilDepthFail.front);
+				NazaraRenderStateEnum(stencilFail.back);
+				NazaraRenderStateEnum(stencilFail.front);
+				NazaraRenderStateEnum(stencilPass.back);
+				NazaraRenderStateEnum(stencilPass.front);
+				NazaraRenderStateEnum(stencilReference.back);
+				NazaraRenderStateEnum(stencilReference.front);
+				NazaraRenderStateEnum(stencilWriteMask.back);
+				NazaraRenderStateEnum(stencilWriteMask.front);
 			}
 
-			NazaraRenderStateFloatMember(lineWidth, 0.001f);
-			NazaraRenderStateFloatMember(pointSize, 0.001f);
+			NazaraRenderStateFloat(lineWidth, 0.001f);
+			NazaraRenderStateFloat(pointSize, 0.001f);
 
-			#undef NazaraRenderStateMember
-			#undef NazaraRenderStateBoolMember
-			#undef NazaraRenderStateBoolMemberDep
-			#undef NazaraRenderStateFloatMember
+			#undef NazaraRenderStateBool
+			#undef NazaraRenderStateBoolDep
+			#undef NazaraRenderStateEnum
+			#undef NazaraRenderStateFloat
 
 			Nz::HashCombine(seed, parameterHash);
 
