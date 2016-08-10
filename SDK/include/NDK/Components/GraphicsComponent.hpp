@@ -35,7 +35,7 @@ namespace Ndk
 
 			inline void Clear();
 
-			inline void Detach(const Nz::InstancedRenderableRef& renderable);
+			inline void Detach(const Nz::InstancedRenderable* renderable);
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
@@ -75,7 +75,8 @@ namespace Ndk
 				Renderable(Renderable&& renderable) noexcept :
 				data(std::move(renderable.data)),
 				renderable(std::move(renderable.renderable)),
-				dataUpdated(renderable.dataUpdated)
+				dataUpdated(renderable.dataUpdated),
+				renderableInvalidationSlot(std::move(renderable.renderableInvalidationSlot)),
 				{
 				}
 
@@ -84,6 +85,7 @@ namespace Ndk
 					data = std::move(r.data);
 					dataUpdated = r.dataUpdated;
 					renderable = std::move(r.renderable);
+					renderableInvalidationSlot = std::move(r.renderableInvalidationSlot);
 
 					return *this;
 				}
