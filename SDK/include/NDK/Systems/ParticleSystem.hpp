@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_PARTICLESYSTEM_HPP
 #define NDK_SYSTEMS_PARTICLESYSTEM_HPP
 
@@ -27,3 +28,4 @@ namespace Ndk
 #include <NDK/Systems/ParticleSystem.inl>
 
 #endif // NDK_SYSTEMS_PARTICLESYSTEM_HPP
+#endif // NDK_SERVER
