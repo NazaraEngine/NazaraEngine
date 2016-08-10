@@ -49,8 +49,8 @@ namespace Nz
 	*/
 	MaterialPipelineRef MaterialPipeline::GetPipeline(const MaterialPipelineInfo& pipelineInfo)
 	{
-		auto it = s_pipelineCache.lower_bound(pipelineInfo);
-		if (it == s_pipelineCache.end() || it->first != pipelineInfo)
+		auto it = s_pipelineCache.find(pipelineInfo);
+		if (it == s_pipelineCache.end())
 			it = s_pipelineCache.insert(it, PipelineCache::value_type(pipelineInfo, New(pipelineInfo)));
 
 		return it->second;
