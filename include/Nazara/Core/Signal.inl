@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -34,12 +35,6 @@ namespace Nz
 	Signal<Args...>::Signal(Signal&& signal)
 	{
 		operator=(std::move(signal));
-	}
-
-	template<typename ...Args>
-	Signal<Args...>::~Signal()
-	{
-		NazaraWarning("~Signal(" + String::Pointer(this) + ')');
 	}
 
 	/*!
@@ -435,4 +430,3 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Signal.hpp"
