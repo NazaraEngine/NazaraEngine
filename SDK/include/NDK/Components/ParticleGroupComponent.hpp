@@ -25,6 +25,12 @@ namespace Ndk
 			ParticleGroupComponent(const ParticleGroupComponent&) = default;
 			~ParticleGroupComponent() = default;
 
+			void AddEmitter(Entity* emitter);
+			using ParticleGroup::AddEmitter;
+
+			void RemoveEmitter(Entity* emitter);
+			using ParticleGroup::RemoveEmitter;
+
 			static ComponentIndex componentIndex;
 	};
 }
