@@ -44,6 +44,7 @@ namespace Ndk
 		// Affectation et retour du component
 		m_components[index] = std::move(componentPtr);
 		m_componentBits.UnboundedSet(index);
+		m_removedComponentBits.UnboundedReset(index);
 
 		Invalidate();
 
@@ -71,40 +72,6 @@ namespace Ndk
 		m_world->Invalidate(m_id);
 	}
 
-	void Entity::RemoveAllComponents()
-	{
-		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			RemoveComponent(static_cast<ComponentIndex>(i));
-
-		NazaraAssert(m_componentBits.TestNone(), "All components should be gone");
-
-		m_components.clear();
-
-		Invalidate();
-	}
-
-	void Entity::RemoveComponent(ComponentIndex index)
-	{
-		///DOC: N'a aucun effet si le component n'est pas présent
-		if (HasComponent(index))
-		{
-			// On récupère le component et on informe les composants du détachement
-			BaseComponent& component = *m_components[index].get();
-			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			{
-				if (i != index)
-					m_components[i]->OnComponentDetached(component);
-			}
-
-			component.SetEntity(nullptr);
-
-			m_components[index].reset();
-			m_componentBits.Reset(index);
-
-			Invalidate();
-		}
-	}
-
 	void Entity::Create()
 	{
 		m_enabled = true;
@@ -128,4 +95,25 @@ namespace Ndk
 
 		m_valid = false;
 	}
+
+	void Entity::DestroyComponent(ComponentIndex index)
+	{
+		///DOC: N'a aucun effet si le component n'est pas présent
+		if (HasComponent(index))
+		{
+			// On récupère le component et on informe les composants du détachement
+			BaseComponent& component = *m_components[index].get();
+			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			{
+				if (i != index)
+					m_components[i]->OnComponentDetached(component);
+			}
+
+			component.SetEntity(nullptr);
+
+			m_components[index].reset();
+			m_componentBits.Reset(index);
+		}
+	}
+
 }
