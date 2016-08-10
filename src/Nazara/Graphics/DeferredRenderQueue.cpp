@@ -239,6 +239,8 @@ namespace Nz
 
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
+
+			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());
 		}
 	}
 
