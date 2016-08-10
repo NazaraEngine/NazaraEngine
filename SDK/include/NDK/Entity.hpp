@@ -52,8 +52,8 @@ namespace Ndk
 			inline bool IsEnabled() const;
 			inline bool IsValid() const;
 
-			void RemoveAllComponents();
-			void RemoveComponent(ComponentIndex index);
+			inline void RemoveAllComponents();
+			inline void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
 
 			inline Nz::String ToString() const;
@@ -67,6 +67,10 @@ namespace Ndk
 			void Create();
 			void Destroy();
 
+			void DestroyComponent(ComponentIndex index);
+
+			inline Nz::Bitset<>& GetRemovedComponentBits();
+
 			inline void RegisterSystem(SystemIndex index);
 
 			inline void SetWorld(World* world) noexcept;
@@ -75,6 +79,7 @@ namespace Ndk
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
 			Nz::Bitset<> m_componentBits;
+			Nz::Bitset<> m_removedComponentBits;
 			Nz::Bitset<> m_systemBits;
 			EntityId m_id;
 			World* m_world;
