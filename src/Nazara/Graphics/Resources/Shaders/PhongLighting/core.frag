@@ -2,6 +2,13 @@
 layout(early_fragment_tests) in;
 #endif
 
+// HACK UNTIL PROPER FIX
+#if GLSL_VERSION < 400
+	#undef SHADOW_MAPPING
+	#define SHADOW_MAPPING 0
+#endif
+// HACK
+
 #define LIGHT_DIRECTIONAL 0
 #define LIGHT_POINT 1
 #define LIGHT_SPOT 2
