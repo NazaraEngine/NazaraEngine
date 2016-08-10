@@ -77,7 +77,14 @@ namespace Ndk
 				renderable(std::move(renderable.renderable)),
 				dataUpdated(renderable.dataUpdated),
 				renderableInvalidationSlot(std::move(renderable.renderableInvalidationSlot)),
+				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot))
 				{
+				}
+
+				~Renderable()
+				{
+					// Disconnect release slot before releasing instanced renderable reference
+					renderableReleaseSlot.Disconnect(); 
 				}
 
 				Renderable& operator=(Renderable&& r) noexcept
@@ -86,11 +93,13 @@ namespace Ndk
 					dataUpdated = r.dataUpdated;
 					renderable = std::move(r.renderable);
 					renderableInvalidationSlot = std::move(r.renderableInvalidationSlot);
+					renderableReleaseSlot = std::move(r.renderableReleaseSlot);
 
 					return *this;
 				}
 
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableRelease, renderableReleaseSlot);
 
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;
