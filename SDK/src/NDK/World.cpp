@@ -139,6 +139,11 @@ namespace Ndk
 			if (!entity->IsValid())
 				continue;
 
+			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
+			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
+				entity->DestroyComponent(j);
+			removedComponents.Reset();
+
 			for (auto& system : m_systems)
 			{
 				// Ignore non-existent systems
