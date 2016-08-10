@@ -12,7 +12,7 @@ namespace Ndk
 	template<typename T>
 	inline T& RenderSystem::ChangeRenderTechnique()
 	{
-		return *static_cast<T*>(ChangeRenderTechnique(std::make_unique<T>()));
+		return static_cast<T&>(ChangeRenderTechnique(std::make_unique<T>()));
 	}
 
 	inline Nz::AbstractRenderTechnique& RenderSystem::ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique)
