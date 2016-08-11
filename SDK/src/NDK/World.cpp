@@ -4,6 +4,7 @@
 
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <NDK/BaseComponent.hpp>
 #include <NDK/Systems/PhysicsSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
@@ -72,6 +73,27 @@ namespace Ndk
 		m_aliveEntities.clear();
 		m_dirtyEntities.Clear();
 		m_killedEntities.Clear();
+	}
+
+	const EntityHandle& World::CloneEntity(EntityId id)
+	{
+		EntityHandle original = GetEntity(id);
+		if (!original)
+		{
+			NazaraError("Invalid entity ID");
+			return EntityHandle::InvalidHandle;
+		}
+
+		EntityHandle clone = CreateEntity();
+
+		const Nz::Bitset<>& componentBits = original->GetComponentBits();
+		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
+		{
+			std::unique_ptr<BaseComponent> component(original->GetComponent(ComponentIndex(i)).Clone());
+			clone->AddComponent(std::move(component));
+		}
+
+		return GetEntity(clone->GetId());
 	}
 
 	void World::KillEntity(Entity* entity)
