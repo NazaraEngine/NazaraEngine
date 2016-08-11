@@ -61,6 +61,14 @@ namespace Ndk
 		return component;
 	}
 
+	const EntityHandle& Entity::Clone() const
+	{
+		///DOC: The clone is enabled by default, even if the original entity is disabled
+		NazaraAssert(IsValid(), "Invalid entity");
+
+		return m_world->CloneEntity(m_id);
+	}
+
 	void Entity::Kill()
 	{
 		m_world->KillEntity(this);
