@@ -34,6 +34,8 @@ namespace Ndk
 			BaseComponent& AddComponent(std::unique_ptr<BaseComponent>&& component);
 			template<typename ComponentType, typename... Args> ComponentType& AddComponent(Args&&... args);
 
+			const EntityHandle& Clone() const;
+
 			inline void Enable(bool enable);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
