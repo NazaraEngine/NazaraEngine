@@ -300,7 +300,7 @@ namespace Nz
 							m_positions.push_back(vertex);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					else if (word == "vn")
@@ -311,7 +311,7 @@ namespace Nz
 							m_normals.push_back(normal);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					else if (word == "vt")
@@ -322,12 +322,12 @@ namespace Nz
 							m_texCoords.push_back(uvw);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 					else if (!UnrecognizedLine())
-						false;
+						return false;
 					#endif
 
 					break;
