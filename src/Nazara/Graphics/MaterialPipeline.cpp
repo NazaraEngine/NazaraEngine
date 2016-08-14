@@ -155,6 +155,16 @@ namespace Nz
 
 		MaterialPipelineLibrary::Register("Translucent2D", GetPipeline(pipelineInfo));
 
+		// Translucent 3D - Alpha blending with depth buffer and no depth write/face culling
+		pipelineInfo.blending = true;
+		pipelineInfo.depthBuffer = true;
+		pipelineInfo.depthWrite = false;
+		pipelineInfo.faceCulling = false;
+		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
+		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
+
+		MaterialPipelineLibrary::Register("Translucent3D", GetPipeline(pipelineInfo));
+
 		return true;
 	}
 
