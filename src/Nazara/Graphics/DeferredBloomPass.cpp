@@ -23,7 +23,7 @@ namespace Nz
 	m_uniformUpdated(false),
 	m_brightLuminance(0.8f),
 	m_brightMiddleGrey(0.5f),
-	m_brightThreshold(0.8f),
+	m_brightThreshold(0.4f),
 	m_blurPassCount(5)
 	{
 		m_bilinearSampler.SetAnisotropyLevel(1);
