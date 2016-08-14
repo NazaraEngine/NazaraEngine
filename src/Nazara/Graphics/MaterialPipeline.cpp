@@ -147,7 +147,7 @@ namespace Nz
 		MaterialPipelineLibrary::Register("Basic2D", GetPipeline(pipelineInfo));
 
 		// Translucent 2D - Alpha blending with no depth write/face culling
-		pipelineInfo.blending = false;
+		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
