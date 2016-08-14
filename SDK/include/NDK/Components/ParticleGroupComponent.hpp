@@ -17,7 +17,7 @@ namespace Ndk
 
 	using ParticleGroupComponentHandle = Nz::ObjectHandle<ParticleGroupComponent>;
 
-	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup
+	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup, public Nz::HandledObject<ParticleGroupComponent>
 	{
 		public:
 			inline ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleLayout layout);
