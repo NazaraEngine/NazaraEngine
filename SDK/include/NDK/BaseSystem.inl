@@ -2,12 +2,14 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/BaseSystem.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <type_traits>
 
 namespace Ndk
 {
 	inline BaseSystem::BaseSystem(SystemIndex systemId) :
+	m_updateEnabled(true),
 	m_systemIndex(systemId)
 	{
 		SetUpdateRate(30);
@@ -17,9 +19,15 @@ namespace Ndk
 	m_excludedComponents(system.m_excludedComponents),
 	m_requiredComponents(system.m_requiredComponents),
 	m_systemIndex(system.m_systemIndex),
+	m_updateEnabled(system.m_updateEnabled),
 	m_updateCounter(0.f),
 	m_updateRate(system.m_updateRate)
 	{
+	}
+
+	inline void BaseSystem::Enable(bool enable)
+	{
+		m_updateEnabled = enable;
 	}
 
 	inline const std::vector<EntityHandle>& BaseSystem::GetEntities() const
@@ -42,6 +50,11 @@ namespace Ndk
 		return *m_world;
 	}
 
+	inline bool BaseSystem::IsEnabled() const
+	{
+		return m_updateEnabled;
+	}
+
 	inline bool BaseSystem::HasEntity(const Entity* entity) const
 	{
 		if (!entity)
@@ -58,6 +71,9 @@ namespace Ndk
 
 	inline void BaseSystem::Update(float elapsedTime)
 	{
+		if (!IsEnabled())
+			return;
+
 		if (m_updateRate > 0.f)
 		{
 			m_updateCounter += elapsedTime;
