@@ -27,6 +27,8 @@ namespace Ndk
 			BaseSystem(BaseSystem&&) noexcept = default;
 			virtual ~BaseSystem();
 
+			inline void Enable(bool enable = true);
+
 			virtual BaseSystem* Clone() const = 0;
 
 			bool Filters(const Entity* entity) const;
@@ -35,6 +37,8 @@ namespace Ndk
 			inline SystemIndex GetIndex() const;
 			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
+
+			inline bool IsEnabled() const;
 
 			inline bool HasEntity(const Entity* entity) const;
 
@@ -86,6 +90,7 @@ namespace Ndk
 			Nz::Bitset<> m_requiredComponents;
 			SystemIndex m_systemIndex;
 			World* m_world;
+			bool m_updateEnabled;
 			float m_updateCounter;
 			float m_updateRate;
 
