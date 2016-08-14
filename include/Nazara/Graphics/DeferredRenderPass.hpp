@@ -47,9 +47,9 @@ namespace Nz
 			Vector2ui m_dimensions;
 			DeferredRenderTechnique* m_deferredTechnique;
 			DeferredRenderQueue* m_renderQueue;
-			RenderBuffer* m_depthStencilBuffer;
 			RenderTexture* m_GBufferRTT;
 			RenderTexture* m_workRTT;
+			Texture* m_depthStencilTexture;
 			Texture* m_GBuffer[4];
 			Texture* m_workTextures[2];
 
