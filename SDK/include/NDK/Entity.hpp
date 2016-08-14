@@ -40,6 +40,8 @@ namespace Ndk
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
+			inline const BaseComponent& GetComponent(ComponentIndex index) const;
+			template<typename ComponentType> const ComponentType& GetComponent() const;
 			inline const Nz::Bitset<>& GetComponentBits() const;
 			inline EntityId GetId() const;
 			inline const Nz::Bitset<>& GetSystemBits() const;
