@@ -58,6 +58,8 @@ namespace Nz
 
 	void MaterialPipeline::GenerateRenderPipeline(UInt32 flags) const
 	{
+		NazaraAssert(m_pipelineInfo.uberShader, "Material pipeline has no uber shader");
+
 		ParameterList list;
 		list.SetParameter("ALPHA_MAPPING",     m_pipelineInfo.hasAlphaMap);
 		list.SetParameter("ALPHA_TEST",        m_pipelineInfo.alphaTest);
@@ -136,6 +138,7 @@ namespace Nz
 
 		// Once the base shaders are registered, we can now set some default materials
 		MaterialPipelineInfo pipelineInfo;
+		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
 		// Basic 2D - No depth write/face culling
 		pipelineInfo.depthWrite = false;
