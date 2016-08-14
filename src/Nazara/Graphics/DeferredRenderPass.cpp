@@ -48,7 +48,7 @@ namespace Nz
 		m_deferredTechnique = technique;
 		m_renderQueue = static_cast<DeferredRenderQueue*>(technique->GetRenderQueue());
 
-		m_depthStencilBuffer = technique->GetDepthStencilBuffer();
+		m_depthStencilTexture = technique->GetDepthStencilTexture();
 
 		m_GBufferRTT = technique->GetGBufferRTT();
 		for (unsigned int i = 0; i < 3; ++i)
