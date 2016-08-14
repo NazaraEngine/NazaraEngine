@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Entity.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
@@ -42,6 +43,27 @@ namespace Ndk
 
 	template<typename ComponentType>
 	ComponentType& Entity::GetComponent()
+	{
+		///DOC: Le component doit être présent
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
+
+		ComponentIndex index = GetComponentIndex<ComponentType>();
+		return static_cast<ComponentType&>(GetComponent(index));
+	}
+
+	inline const BaseComponent& Entity::GetComponent(ComponentIndex index) const
+	{
+		///DOC: Le component doit être présent
+		NazaraAssert(HasComponent(index), "This component is not part of the entity");
+
+		BaseComponent* component = m_components[index].get();
+		NazaraAssert(component, "Invalid component pointer");
+
+		return *component;
+	}
+
+	template<typename ComponentType>
+	const ComponentType& Entity::GetComponent() const
 	{
 		///DOC: Le component doit être présent
 		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
