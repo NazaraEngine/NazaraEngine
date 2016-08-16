@@ -49,8 +49,8 @@ namespace Nz
 	*/
 	MaterialPipelineRef MaterialPipeline::GetPipeline(const MaterialPipelineInfo& pipelineInfo)
 	{
-		auto it = s_pipelineCache.lower_bound(pipelineInfo);
-		if (it == s_pipelineCache.end() || it->first != pipelineInfo)
+		auto it = s_pipelineCache.find(pipelineInfo);
+		if (it == s_pipelineCache.end())
 			it = s_pipelineCache.insert(it, PipelineCache::value_type(pipelineInfo, New(pipelineInfo)));
 
 		return it->second;
@@ -58,6 +58,8 @@ namespace Nz
 
 	void MaterialPipeline::GenerateRenderPipeline(UInt32 flags) const
 	{
+		NazaraAssert(m_pipelineInfo.uberShader, "Material pipeline has no uber shader");
+
 		ParameterList list;
 		list.SetParameter("ALPHA_MAPPING",     m_pipelineInfo.hasAlphaMap);
 		list.SetParameter("ALPHA_TEST",        m_pipelineInfo.alphaTest);
@@ -136,6 +138,7 @@ namespace Nz
 
 		// Once the base shaders are registered, we can now set some default materials
 		MaterialPipelineInfo pipelineInfo;
+		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
 		// Basic 2D - No depth write/face culling
 		pipelineInfo.depthWrite = false;
@@ -144,13 +147,23 @@ namespace Nz
 		MaterialPipelineLibrary::Register("Basic2D", GetPipeline(pipelineInfo));
 
 		// Translucent 2D - Alpha blending with no depth write/face culling
-		pipelineInfo.blending = false;
+		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
 
 		MaterialPipelineLibrary::Register("Translucent2D", GetPipeline(pipelineInfo));
+
+		// Translucent 3D - Alpha blending with depth buffer and no depth write/face culling
+		pipelineInfo.blending = true;
+		pipelineInfo.depthBuffer = true;
+		pipelineInfo.depthWrite = false;
+		pipelineInfo.faceCulling = false;
+		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
+		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
+
+		MaterialPipelineLibrary::Register("Translucent3D", GetPipeline(pipelineInfo));
 
 		return true;
 	}

@@ -42,7 +42,8 @@ namespace Ndk
 		Renderable& r = m_renderables.back();
 		r.data.renderOrder = renderOrder;
 		r.renderable = std::move(renderable);
-		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size()-1));
+		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
+		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
 
 		InvalidateBoundingVolume();
 	}
@@ -54,7 +55,7 @@ namespace Ndk
 		InvalidateBoundingVolume();
 	}
 
-	inline void GraphicsComponent::Detach(const Nz::InstancedRenderableRef& renderable)
+	inline void GraphicsComponent::Detach(const Nz::InstancedRenderable* renderable)
 	{
 		for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
 		{
