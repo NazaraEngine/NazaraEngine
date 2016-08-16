@@ -44,6 +44,8 @@ namespace Ndk
 
 			void Clear() noexcept;
 
+			const EntityHandle& CloneEntity(EntityId id);
+
 			const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities();
 			inline BaseSystem& GetSystem(SystemIndex index);

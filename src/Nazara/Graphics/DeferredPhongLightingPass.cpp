@@ -114,6 +114,9 @@ namespace Nz
 		Renderer::SetTexture(2, m_GBuffer[2]);
 		Renderer::SetTextureSampler(2, m_pointSampler);
 
+		Renderer::SetTexture(3, m_depthStencilTexture);
+		Renderer::SetTextureSampler(3, m_pointSampler);
+
 		Renderer::SetClearColor(Color::Black);
 		Renderer::Clear(RendererBuffer_Color);
 
