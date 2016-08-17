@@ -278,6 +278,7 @@ function NazaraBuild:Execute()
 				self:MakeInstallCommands(toolTable)
 			elseif (toolTable.Kind == "application") then
 				debugdir(toolTable.TargetDirectory)
+				targetdir(toolTable.TargetDirectory)
 				if (toolTable.EnableConsole) then
 					kind("ConsoleApp")
 				else
@@ -295,8 +296,6 @@ function NazaraBuild:Execute()
 			libdirs("../lib")
 			libdirs("../extlibs/lib/common")
 
-			targetdir(toolTable.TargetDirectory)
-
 			configuration("x32")
 				libdirs(toolTable.LibraryPaths.x86)
 
@@ -306,7 +305,7 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				libdirs(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
@@ -315,6 +314,7 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
