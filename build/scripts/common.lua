@@ -278,6 +278,7 @@ function NazaraBuild:Execute()
 				self:MakeInstallCommands(toolTable)
 			elseif (toolTable.Kind == "application") then
 				debugdir(toolTable.TargetDirectory)
+				targetdir(toolTable.TargetDirectory)
 				if (toolTable.EnableConsole) then
 					kind("ConsoleApp")
 				else
@@ -295,8 +296,6 @@ function NazaraBuild:Execute()
 			libdirs("../lib")
 			libdirs("../extlibs/lib/common")
 
-			targetdir(toolTable.TargetDirectory)
-
 			configuration("x32")
 				libdirs(toolTable.LibraryPaths.x86)
 
@@ -306,7 +305,7 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				libdirs(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
@@ -315,6 +314,7 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
+				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
@@ -576,10 +576,10 @@ function NazaraBuild:Initialize()
 
 			local succeed, err = self:RegisterTool(TOOL)
 			if (not succeed) then
-				print("Unable to register tool: " .. err)
+				print("Unable to register tool " .. tostring(TOOL.Name) .. ": " .. err)
 			end
 		else
-			print("Unable to load tool file: " .. err)
+			print("Unable to load tool file " .. v .. ": " .. err)
 		end
 	end
 	TOOL = nil
@@ -990,10 +990,6 @@ function NazaraBuild:RegisterTool(toolTable)
 		return false, "This tool name is already in use"
 	end
 
-	if (toolTable.TargetDirectory == nil or type(toolTable.TargetDirectory) ~= "string" or string.len(toolTable.TargetDirectory) == 0) then
-		return false, "Invalid tool directory"
-	end
-
 	if (toolTable.Kind == nil or type(toolTable.Kind) ~= "string" or string.len(toolTable.Kind) == 0) then
 		return false, "Invalid tool type"
 	end
@@ -1003,6 +999,10 @@ function NazaraBuild:RegisterTool(toolTable)
 		toolTable.Kind = lowerCaseKind
 	else
 		return false, "Invalid tool type"
+	end
+
+	if (lowerCaseKind ~= "plugin" and (toolTable.TargetDirectory == nil or type(toolTable.TargetDirectory) ~= "string" or string.len(toolTable.TargetDirectory) == 0)) then
+		return false, "Invalid tool directory"
 	end
 
 	toolTable.Type = "Tool"
