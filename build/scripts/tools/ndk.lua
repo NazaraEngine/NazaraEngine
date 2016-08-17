@@ -2,7 +2,7 @@ TOOL.Name = "SDK"
 
 TOOL.Directory = "../SDK"
 TOOL.Kind = "Library"
-TOOL.TargetDirectory = "../SDK/lib"
+TOOL.TargetDirectory = "../lib"
 
 TOOL.Defines = {
 	"NDK_BUILD"

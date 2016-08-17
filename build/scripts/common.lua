@@ -270,7 +270,6 @@ function NazaraBuild:Execute()
 			project(prefix .. toolTable.Name)
 
 			location(_ACTION .. "/tools")
-			targetdir(toolTable.TargetDirectory)
 
 			if (toolTable.Kind == "plugin" or toolTable.Kind == "library") then
 				kind("SharedLib")
@@ -296,6 +295,8 @@ function NazaraBuild:Execute()
 			libdirs("../lib")
 			libdirs("../extlibs/lib/common")
 
+			targetdir(toolTable.TargetDirectory)
+
 			configuration("x32")
 				libdirs(toolTable.LibraryPaths.x86)
 
@@ -305,18 +306,17 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x32"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				libdirs("../lib/" .. makeLibDir .. "/x86")
+				libdirs(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/" .. makeLibDir .. "/x86")
+					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x86")
 				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
-				libdirs("../lib/" .. makeLibDir .. "/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/" .. makeLibDir .. "/x64")
+					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
@@ -325,7 +325,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/msvc/x86")
+					targetdir(toolTable.TargetDirectory .. "/msvc/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x86")
 				end
@@ -334,7 +334,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/msvc/x64")
 				libdirs("../lib/msvc/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/msvc/x64")
+					targetdir(toolTable.TargetDirectory .. "/msvc/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x64")
 				end
@@ -343,7 +343,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/xcode/x86")
 				libdirs("../lib/xcode/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/xcode/x86")
+					targetdir(toolTable.TargetDirectory .. "/xcode/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x86")
 				end
@@ -352,7 +352,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/xcode/x64")
 				libdirs("../lib/xcode/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/xcode/x64")
+					targetdir(toolTable.TargetDirectory .. "/xcode/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
 				end
