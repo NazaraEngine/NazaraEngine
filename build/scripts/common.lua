@@ -314,7 +314,7 @@ function NazaraBuild:Execute()
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
-				libdirs("../lib/" .. makeLibDir .. "/x86")
+				libdirs("../lib/" .. makeLibDir .. "/x64")
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
