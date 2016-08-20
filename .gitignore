@@ -10,6 +10,9 @@ tests/*.dll
 tests/*.so
 lib/*
 
+# Example generated files
+examples/bin/HardwareInfo.txt
+
 # Feature page
 build/scripts/features/index.html
 
