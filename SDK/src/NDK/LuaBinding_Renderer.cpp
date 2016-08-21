@@ -7,9 +7,19 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Renderer module to Lua
+	*/
+
 	void LuaBinding::BindRenderer()
 	{
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Renderer classes
+	*/
 
 	void LuaBinding::RegisterRenderer(Nz::LuaInstance& instance)
 	{

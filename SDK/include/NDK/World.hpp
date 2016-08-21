@@ -43,7 +43,6 @@ namespace Ndk
 			inline EntityList CreateEntities(unsigned int count);
 
 			void Clear() noexcept;
-
 			const EntityHandle& CloneEntity(EntityId id);
 
 			const EntityHandle& GetEntity(EntityId id);

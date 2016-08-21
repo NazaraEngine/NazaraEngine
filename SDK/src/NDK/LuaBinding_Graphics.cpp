@@ -6,6 +6,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Graphics module to Lua
+	*/
+
 	void LuaBinding::BindGraphics()
 	{
 		/*********************************** Nz::InstancedRenderable ***********************************/
@@ -39,6 +43,12 @@ namespace Ndk
 		modelClass.BindMethod("SetSkin", &Nz::Model::SetSkin);
 		modelClass.BindMethod("SetSkinCount", &Nz::Model::SetSkinCount);
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Graphics classes
+	*/
 
 	void LuaBinding::RegisterGraphics(Nz::LuaInstance& instance)
 	{

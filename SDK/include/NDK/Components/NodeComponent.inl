@@ -7,6 +7,15 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Sets the parent node of the entity
+	*
+	* \param entity Pointer to the entity considered as parent
+	* \param keepDerived Should this component considered as a derived
+	*
+	* \remark Produces a NazaraAssert if entity has no component NodeComponent
+	*/
+
 	inline void NodeComponent::SetParent(Entity* entity, bool keepDerived)
 	{
 		if (entity)
