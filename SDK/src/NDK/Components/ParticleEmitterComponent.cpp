@@ -7,6 +7,19 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::ParticleEmitterComponent
+	* \brief NDK class that represents the component emitter of particles
+	*/
+
+	/*!
+	* \brief Sets up the particles
+	*
+	* \param mapper Mapper containing layout information of each particle
+	* \param count Number of particles
+	*/
+
 	void ParticleEmitterComponent::SetupParticles(Nz::ParticleMapper& mapper, unsigned int count) const
 	{
 		if (m_isActive && m_setupFunc)

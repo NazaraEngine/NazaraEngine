@@ -8,6 +8,12 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Constructs an Application object by default
+	*
+	* \remark Produces a NazaraAssert if there's more than one application instance currently running
+	*/
+
 	inline Application::Application() :
 	#ifndef NDK_SERVER
 	m_exitOnClosedWindows(true),
@@ -24,6 +30,10 @@ namespace Ndk
 		Sdk::Initialize();
 	}
 
+	/*!
+	* \brief Destructs the object
+	*/
+
 	inline Application::~Application()
 	{
 		m_worlds.clear();
@@ -31,12 +41,19 @@ namespace Ndk
 		m_windows.clear();
 		#endif
 
-		// Libération du SDK
+		// Free of SDK
 		Sdk::Uninitialize();
 
-		// Libération automatique des modules
+		// Automatic free of modules
 		s_application = nullptr;
 	}
+
+	/*!
+	* \brief Adds a window to the application
+	* \return A reference to the newly created windows
+	*
+	* \param args Arguments used to create the window
+	*/
 
 	#ifndef NDK_SERVER
 	template<typename T, typename... Args> 
@@ -49,6 +66,13 @@ namespace Ndk
 	}
 	#endif
 
+	/*!
+	* \brief Adds a world to the application
+	* \return A reference to the newly created world
+	*
+	* \param args Arguments used to create the world
+	*/
+
 	template<typename... Args> 
 	World& Application::AddWorld(Args&&... args)
 	{
@@ -56,10 +80,21 @@ namespace Ndk
 		return m_worlds.back();
 	}
 
+	/*!
+	* \brief Gets the update time of the application
+	* \return Update rate
+	*/
+
 	inline float Application::GetUpdateTime() const
 	{
 		return m_updateTime;
 	}
+
+	/*!
+	* \brief Makes the application exit when there's no more open window
+	*
+	* \param exitOnClosedWindows Should exit be called when no more window is open
+	*/
 
 	#ifndef NDK_SERVER
 	inline void Application::MakeExitOnLastWindowClosed(bool exitOnClosedWindows)
@@ -68,10 +103,19 @@ namespace Ndk
 	}
 	#endif
 
+	/*!
+	* \brief Quits the application
+	*/
+
 	inline void Application::Quit()
 	{
 		m_shouldQuit = true;
 	}
+
+	/*!
+	* \brief Gets the singleton instance of the application
+	* \return Singleton application
+	*/
 
 	inline Application* Application::Instance()
 	{
