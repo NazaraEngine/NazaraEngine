@@ -29,7 +29,7 @@ namespace Ndk
 
 			inline void Enable(bool enable = true);
 
-			virtual BaseSystem* Clone() const = 0;
+			virtual std::unique_ptr<BaseSystem> Clone() const = 0;
 
 			bool Filters(const Entity* entity) const;
 

@@ -9,11 +9,23 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Constructs a CollisionComponent object with a geometry
+	*
+	* \param geom Reference to a geometry symbolizing the entity
+	*/
+
 	inline CollisionComponent::CollisionComponent(Nz::PhysGeomRef geom) :
 	m_geom(std::move(geom)),
 	m_bodyUpdated(false)
 	{
 	}
+
+	/*!
+	* \brief Constructs a CollisionComponent object by copy semantic
+	*
+	* \param collision CollisionComponent to copy
+	*/
 
 	inline CollisionComponent::CollisionComponent(const CollisionComponent& collision) :
 	m_geom(collision.m_geom),
@@ -21,10 +33,22 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Gets the geometry representing the entity
+	* \return A constant reference to the physics geometry
+	*/
+
 	inline const Nz::PhysGeomRef& CollisionComponent::GetGeom() const
 	{
 		return m_geom;
 	}
+
+	/*!
+	* \brief Assigns the geometry to this component
+	* \return A reference to this
+	*
+	* \param geom Reference to a geometry symbolizing the entity
+	*/
 
 	inline CollisionComponent& CollisionComponent::operator=(Nz::PhysGeomRef geom)
 	{
@@ -32,6 +56,11 @@ namespace Ndk
 
 		return *this;
 	}
+
+	/*!
+	* \brief Gets the static body used by the entity
+	* \return A pointer to the entity
+	*/
 
 	inline Nz::PhysObject* CollisionComponent::GetStaticBody()
 	{

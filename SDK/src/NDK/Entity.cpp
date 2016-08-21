@@ -8,6 +8,18 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Entity
+	* \brief NDK class that represents an entity in a world
+	*/
+
+	/*!
+	* \brief Constructs a Entity object by move semantic
+	*
+	* \param entity Entity to move into this
+	*/
+
 	Entity::Entity(Entity&& entity) :
 	HandledObject(std::move(entity)),
 	m_components(std::move(entity.m_components)),
@@ -20,16 +32,38 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Constructs a Entity object linked to a world and with an id
+	*
+	* \param world World in which the entity interact
+	* \param id Identifier of the entity
+	*/
+
 	Entity::Entity(World* world, EntityId id) :
 	m_id(id),
 	m_world(world)
 	{
 	}
 
+	/*!
+	* \brief Destructs the object and calls Destroy
+	*
+	* \see Destroy
+	*/
+
 	Entity::~Entity()
 	{
 		Destroy();
 	}
+
+	/*!
+	* \brief Adds a component to the entity
+	* \return A reference to the newly added component
+	*
+	* \param componentPtr Component to add to the entity
+	*
+	* \remark Produces a NazaraAssert if component is nullptr
+	*/
 
 	BaseComponent& Entity::AddComponent(std::unique_ptr<BaseComponent>&& componentPtr)
 	{
@@ -37,18 +71,18 @@ namespace Ndk
 
 		ComponentIndex index = componentPtr->GetIndex();
 
-		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
+		// We ensure that the vector has enough space
 		if (index >= m_components.size())
 			m_components.resize(index + 1);
 
-		// Affectation et retour du component
+		// Affectation and return of the component
 		m_components[index] = std::move(componentPtr);
 		m_componentBits.UnboundedSet(index);
 		m_removedComponentBits.UnboundedReset(index);
 
 		Invalidate();
 
-		// On récupère le component et on informe les composants existants du nouvel arrivant
+		// We get the new component and we alert other existing components of the new one
 		BaseComponent& component = *m_components[index].get();
 		component.SetEntity(this);
 
@@ -61,24 +95,43 @@ namespace Ndk
 		return component;
 	}
 
+	/*!
+	* \brief Clones the entity
+	* \return The clone newly created
+	*
+	* \remark The close is enable by default, even if the original is disabled
+	* \remark Produces a NazaraAssert if the entity is not valid
+	*/
+
 	const EntityHandle& Entity::Clone() const
 	{
-		///DOC: The clone is enabled by default, even if the original entity is disabled
 		NazaraAssert(IsValid(), "Invalid entity");
 
 		return m_world->CloneEntity(m_id);
 	}
+
+	/*!
+	* \brief Kills the entity
+	*/
 
 	void Entity::Kill()
 	{
 		m_world->KillEntity(this);
 	}
 
+	/*!
+	* \brief Invalidates the entity
+	*/
+
 	void Entity::Invalidate()
 	{
-		// On informe le monde que nous avons besoin d'une mise à jour
+		// We alert everyone that we have been updated
 		m_world->Invalidate(m_id);
 	}
+
+	/*!
+	* \brief Creates the entity
+	*/
 
 	void Entity::Create()
 	{
@@ -86,9 +139,13 @@ namespace Ndk
 		m_valid = true;
 	}
 
+	/*!
+	* \brief Destroys the entity
+	*/
+
 	void Entity::Destroy()
 	{
-		// On informe chaque système
+		// We alert each system
 		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
 			if (m_world->HasSystem(index))
@@ -104,12 +161,19 @@ namespace Ndk
 		m_valid = false;
 	}
 
+	/*!
+	* \brief Destroys a component by index
+	*
+	* \param index Index of the component
+	*
+	* \remark If component is not available, no action is performed
+	*/
+
 	void Entity::DestroyComponent(ComponentIndex index)
 	{
-		///DOC: N'a aucun effet si le component n'est pas présent
 		if (HasComponent(index))
 		{
-			// On récupère le component et on informe les composants du détachement
+			// We get the component and we alert existing components of the deleted one
 			BaseComponent& component = *m_components[index].get();
 			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 			{

@@ -7,11 +7,23 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Constructs a World object
+	*
+	* \param addDefaultSystems Should default provided systems be used
+	*/
+
 	inline World::World(bool addDefaultSystems)
 	{
 		if (addDefaultSystems)
 			AddDefaultSystems();
 	}
+
+	/*!
+	* \brief Constructs a World object by move semantic
+	*
+	* \param world World to move into this
+	*/
 
 	inline World::World(World&& world) noexcept :
 	HandledObject(std::move(world))
@@ -19,34 +31,55 @@ namespace Ndk
 		operator=(std::move(world));
 	}
 
+	/*!
+	* \brief Adds a system to the world
+	* \return A reference to the newly created system
+	*
+	* \param system System to add to the world
+	*/
+
 	inline BaseSystem& World::AddSystem(std::unique_ptr<BaseSystem>&& system)
 	{
 		NazaraAssert(system, "System must be valid");
 
 		SystemIndex index = system->GetIndex();
 
-		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
+		// We must ensure that the vector is big enough to hold the new system
 		if (index >= m_systems.size())
 			m_systems.resize(index + 1);
 
-		// Affectation et retour du système
+		// Affectation and return of system
 		m_systems[index] = std::move(system);
 		m_systems[index]->SetWorld(this);
 
-		Invalidate(); // On force une mise à jour de toutes les entités
+		Invalidate(); // We force an update for every entities
 
 		return *m_systems[index].get();
 	}
+
+	/*!
+	* \brief Adds a system to the world
+	* \return A reference to the newly created system
+	*
+	* \param args Arguments used to create the system
+	*/
 
 	template<typename SystemType, typename... Args>
 	SystemType& World::AddSystem(Args&&... args)
 	{
 		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a component");
 
-		// Allocation et affectation du component
+		// Allocation and affectation of the system
 		std::unique_ptr<SystemType> ptr(new SystemType(std::forward<Args>(args)...));
 		return static_cast<SystemType&>(AddSystem(std::move(ptr)));
 	}
+
+	/*!
+	* \brief Creates multiple entities in the world
+	* \return The set of entities created
+	*
+	* \param count Number of entities to create
+	*/
 
 	inline World::EntityList World::CreateEntities(unsigned int count)
 	{
@@ -59,14 +92,27 @@ namespace Ndk
 		return list;
 	}
 
+	/*!
+	* \brief Gets every entities in the world
+	* \return A constant reference to the entities
+	*/
+
 	inline const World::EntityList& World::GetEntities()
 	{
 		return m_aliveEntities;
 	}
 
+	/*!
+	* \brief Gets a system in the world by index
+	* \return A reference to the system
+	*
+	* \param index Index of the system
+	*
+	* \remark Produces a NazaraAssert if system is not available in this world
+	*/
+
 	inline BaseSystem& World::GetSystem(SystemIndex index)
 	{
-		///DOC: Le système doit être présent
 		NazaraAssert(HasSystem(index), "This system is not part of the world");
 
 		BaseSystem* system = m_systems[index].get();
@@ -75,20 +121,38 @@ namespace Ndk
 		return *system;
 	}
 
+	/*!
+	* \brief Gets a system in the world by type
+	* \return A reference to the system
+	*
+	* \remark Produces a NazaraAssert if system is not available in this world
+	*/
+
 	template<typename SystemType>
 	SystemType& World::GetSystem()
 	{
-		///DOC: Le système doit être présent
 		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a system");
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		return static_cast<SystemType&>(GetSystem(index));
 	}
 
+	/*!
+	* \brief Checks whether or not a system is present in the world by index
+	* \return true If it is the case
+	*
+	* \param index Index of the system
+	*/
+
 	inline bool World::HasSystem(SystemIndex index) const
 	{
 		return index < m_systems.size() && m_systems[index];
 	}
+
+	/*!
+	* \brief Checks whether or not a system is present in the world by type
+	* \return true If it is the case
+	*/
 
 	template<typename SystemType>
 	bool World::HasSystem() const
@@ -99,33 +163,68 @@ namespace Ndk
 		return HasSystem(index);
 	}
 
+	/*!
+	* \brief Kills a set of entities
+	*
+	* \param list Set of entities to kill
+	*/
+
 	inline void World::KillEntities(const EntityList& list)
 	{
 		for (const EntityHandle& entity : list)
 			KillEntity(entity);
 	}
 
+	/*!
+	* \brief Checks whether or not an entity is valid
+	* \return true If it is the case
+	*
+	* \param entity Pointer to the entity
+	*/
+
 	inline bool World::IsEntityValid(const Entity* entity) const
 	{
 		return entity && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
 	}
+
+	/*!
+	* \brief Checks whether or not an entity is valid
+	* \return true If it is the case
+	*
+	* \param id Identifier of the entity
+	*/
 
 	inline bool World::IsEntityIdValid(EntityId id) const
 	{
 		return id < m_entities.size() && m_entities[id].entity.IsValid();
 	}
 
+	/*!
+	* \brief Removes each system from the world
+	*/
+
 	inline void World::RemoveAllSystems()
 	{
 		m_systems.clear();
 	}
 
+	/*!
+	* \brief Removes a system from the world by index
+	*
+	* \param index Index of the system
+	*
+	* \remark No change is done if system is not present
+	*/
+
 	inline void World::RemoveSystem(SystemIndex index)
 	{
-		///DOC: N'a aucun effet si le système n'est pas présent
 		if (HasSystem(index))
 			m_systems[index].reset();
 	}
+
+	/*!
+	* \brief Removes a system from the world by type
+	*/
 
 	template<typename SystemType>
 	void World::RemoveSystem()
@@ -135,6 +234,12 @@ namespace Ndk
 		SystemIndex index = GetSystemIndex<SystemType>();
 		RemoveSystem(index);
 	}
+
+	/*!
+	* \brief Updates the world
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
 
 	inline void World::Update(float elapsedTime)
 	{
@@ -148,16 +253,31 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Invalidates each entity in the world
+	*/
+
 	inline void World::Invalidate()
 	{
 		m_dirtyEntities.Resize(m_entities.size(), false);
-		m_dirtyEntities.Set(true); // Activation de tous les bits
+		m_dirtyEntities.Set(true); // Activation of all bits
 	}
+
+	/*!
+	* \brief Invalidates an entity in the world
+	*
+	* \param id Identifier of the entity
+	*/
 
 	inline void World::Invalidate(EntityId id)
 	{
 		m_dirtyEntities.UnboundedSet(id, true);
 	}
+
+	/*!
+	* \brief Moves a world into another world object
+	* \return A reference to the object
+	*/
 
 	inline World& World::operator=(World&& world) noexcept
 	{
