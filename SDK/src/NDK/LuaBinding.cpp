@@ -4,6 +4,16 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::LuaBinding
+	* \brief NDK class that represents the binding between the engine & the SDK with the Lua scripting
+	*/
+
+	/*!
+	* \brief Binds modules to Lua
+	*/
+
 	LuaBinding::LuaBinding() :
 	// Core
 	clockClass("Clock"),
@@ -64,6 +74,12 @@ namespace Ndk
 		BindRenderer();
 		#endif
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the engine & SDK
+	*/
 
 	void LuaBinding::RegisterClasses(Nz::LuaInstance& instance)
 	{
