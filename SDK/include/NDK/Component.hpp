@@ -18,7 +18,7 @@ namespace Ndk
 			Component();
 			virtual ~Component();
 
-			BaseComponent* Clone() const override;
+			std::unique_ptr<BaseComponent> Clone() const override;
 
 			static ComponentIndex RegisterComponent(ComponentId id);
 

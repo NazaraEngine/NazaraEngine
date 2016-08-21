@@ -14,6 +14,21 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::RenderSystem
+	* \brief NDK class that represents the rendering system
+	*
+	* \remark This system is enabled if the entity is a 'camera' with the trait: CameraComponent and NodeComponent
+	* or a drawable element with trait: GraphicsComponent and NodeComponent
+	* or a light element with trait: LightComponent and NodeComponent
+	* or a set of particles with trait: ParticleGroupComponent
+	*/
+
+	/*!
+	* \brief Constructs an RenderSystem object by default
+	*/
+
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true)
@@ -22,6 +37,12 @@ namespace Ndk
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateRate(0.f);
 	}
+
+	/*!
+	* \brief Operation to perform when an entity is removed
+	*
+	* \param entity Pointer to the entity
+	*/
 
 	void RenderSystem::OnEntityRemoved(Entity* entity)
 	{
@@ -32,6 +53,13 @@ namespace Ndk
 		m_particleGroups.Remove(entity);
 		m_pointSpotLights.Remove(entity);
 	}
+
+	/*!
+	* \brief Operation to perform when entity is validated for the system
+	*
+	* \param entity Pointer to the entity
+	* \param justAdded Is the entity newly added
+	*/
 
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
@@ -81,6 +109,12 @@ namespace Ndk
 		else
 			m_particleGroups.Remove(entity);
 	}
+
+	/*!
+	* \brief Operation to perform when system is updated
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
 
 	void RenderSystem::OnUpdate(float elapsedTime)
 	{
@@ -146,6 +180,12 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Updates the directional shadow maps according to the position of the viewer
+	*
+	* \param viewer Viewer of the scene
+	*/
+
 	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer)
 	{
 		if (!m_shadowRT.IsValid())
@@ -190,6 +230,10 @@ namespace Ndk
 			m_shadowTechnique.Draw(dummySceneData);
 		}
 	}
+
+	/*!
+	* \brief Updates the point spot shadow maps
+	*/
 
 	void RenderSystem::UpdatePointSpotShadowMaps()
 	{
