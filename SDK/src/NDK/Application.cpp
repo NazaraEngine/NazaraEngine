@@ -6,6 +6,16 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Application
+	* \brief NDK class that represents the application, it offers a set of tools to ease the development
+	*/
+
+	/*!
+	* \brief Runs the application by updating worlds, taking care about windows, ...
+	*/
+
 	bool Application::Run()
 	{
 		#ifndef NDK_SERVER
