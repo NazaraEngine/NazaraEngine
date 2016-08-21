@@ -4,6 +4,11 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Checks whether the module is initialized
+	* \return true if module is initialized
+	*/
+
 	inline bool Sdk::IsInitialized()
 	{
 		return s_referenceCounter != 0;

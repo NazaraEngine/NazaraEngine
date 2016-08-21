@@ -6,5 +6,11 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::State
+	* \brief NDK class that represents a state of your application
+	*/
+
 	State::~State() = default;
 }
