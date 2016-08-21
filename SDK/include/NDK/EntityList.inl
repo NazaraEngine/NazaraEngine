@@ -7,21 +7,53 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::EntityList
+	* \brief NDK class that represents a set of entities to help performing batch operations
+	*/
+
+	/*!
+	* \brief Clears the set from every entities
+	*/
+
 	inline void EntityList::Clear()
 	{
 		m_entities.clear();
 		m_entityBits.Clear();
 	}
 
+	/*!
+	* \brief Checks whether or not the set contains the entity
+	* \return true If it is the case
+	*
+	* \param entity Pointer to the entity
+	*/
+
 	inline bool EntityList::Has(const Entity* entity)
 	{
 		return entity && entity->IsValid() && Has(entity->GetId());
 	}
 
+	/*!
+	* \brief Checks whether or not the set contains the entity by id
+	* \return true If it is the case
+	*
+	* \param id Identifier of the entity
+	*/
+
 	inline bool EntityList::Has(EntityId entity)
 	{
 		return m_entityBits.UnboundedTest(entity);
 	}
+
+	/*!
+	* \brief Inserts the entity into the set
+	*
+	* \param entity Pointer to the entity
+	*
+	* \remark If entity is already contained, no action is performed
+	*/
 
 	inline void EntityList::Insert(Entity* entity)
 	{
@@ -32,6 +64,14 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Removes the entity from the set
+	*
+	* \param entity Pointer to the entity
+	*
+	* \remark If entity is not contained, no action is performed
+	*/
+
 	inline void EntityList::Remove(Entity* entity)
 	{
 		if (Has(entity))
@@ -40,7 +80,7 @@ namespace Ndk
 			NazaraAssert(it != m_entities.end(), "Entity should be part of the vector");
 
 			std::swap(*it, m_entities.back());
-			m_entities.pop_back(); // On le sort du vector
+			m_entities.pop_back(); // We get it out of the vector
 			m_entityBits.UnboundedSet(entity->GetId(), false);
 		}
 	}

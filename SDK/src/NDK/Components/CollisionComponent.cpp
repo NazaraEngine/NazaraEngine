@@ -11,13 +11,27 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::CollisionComponent
+	* \brief NDK class that represents the component for collision (meant for static objects)
+	*/
+
+	/*!
+	* \brief Sets geometry for the entity
+	*
+	* \param geom Geometry used for collisions
+	*
+	* \remark Produces a NazaraAssert if the entity has no physics component and has no static body
+	*/
+
 	void CollisionComponent::SetGeom(Nz::PhysGeomRef geom)
 	{
 		m_geom = std::move(geom);
 
 		if (m_entity->HasComponent<PhysicsComponent>())
 		{
-			// On met à jour la géométrie du PhysObject associé au PhysicsComponent
+			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent
 			PhysicsComponent& physComponent = m_entity->GetComponent<PhysicsComponent>();
 			physComponent.GetPhysObject().SetGeom(m_geom);
 		}
@@ -27,6 +41,13 @@ namespace Ndk
 			m_staticBody->SetGeom(m_geom);
 		}
 	}
+
+	/*!
+	* \brief Initializes the static body
+	*
+	* \remark Produces a NazaraAssert if entity is invalid
+	* \remark Produces a NazaraAssert if entity is not linked to a world, or the world has no physics system
+	*/
 
 	void CollisionComponent::InitializeStaticBody()
 	{
@@ -41,11 +62,21 @@ namespace Ndk
 		m_staticBody->EnableAutoSleep(false);
 	}
 
+	/*!
+	* \brief Operation to perform when component is attached to an entity
+	*/
+
 	void CollisionComponent::OnAttached()
 	{
 		if (!m_entity->HasComponent<PhysicsComponent>())
 			InitializeStaticBody();
 	}
+
+	/*!
+	* \brief Operation to perform when component is attached to this component
+	*
+	* \param component Component being attached
+	*/
 
 	void CollisionComponent::OnComponentAttached(BaseComponent& component)
 	{
@@ -53,11 +84,21 @@ namespace Ndk
 			m_staticBody.reset();
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from this component
+	*
+	* \param component Component being detached
+	*/
+
 	void CollisionComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<PhysicsComponent>(component))
 			InitializeStaticBody();
 	}
+
+	/*!
+	* \brief Operation to perform when component is detached from an entity
+	*/
 
 	void CollisionComponent::OnDetached()
 	{
