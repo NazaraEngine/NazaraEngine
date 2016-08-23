@@ -36,7 +36,7 @@ namespace Ndk
 
 			const EntityHandle& Clone() const;
 
-			inline void Enable(bool enable);
+			inline void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
