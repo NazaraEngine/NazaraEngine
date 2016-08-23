@@ -57,7 +57,7 @@ namespace Ndk
 		#endif
 
 		/*********************************** Ndk::Entity **********************************/
-		entityClass.BindMethod("Enable", &Entity::Enable);
+		entityClass.BindMethod("Enable", &Entity::Enable, true);
 		entityClass.BindMethod("GetId", &Entity::GetId);
 		entityClass.BindMethod("GetWorld", &Entity::GetWorld);
 		entityClass.BindMethod("Kill", &Entity::Kill);
