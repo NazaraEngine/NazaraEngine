@@ -34,6 +34,19 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Sdk
+	* \brief NDK class that represents the software development kit, a set of tools made to ease the conception of application
+	*/
+
+	/*!
+	* \brief Initializes the Sdk module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
 	bool Sdk::Initialize()
 	{
 		if (s_referenceCounter++ > 0)
@@ -103,6 +116,12 @@ namespace Ndk
 			return false;
 		}
 	}
+
+	/*!
+	* \brief Uninitializes the Sdk module
+	*
+	* \remark Produces a NazaraNotice
+	*/
 
 	void Sdk::Uninitialize()
 	{
