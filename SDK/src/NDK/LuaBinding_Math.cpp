@@ -7,6 +7,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Math module to Lua
+	*/
+
 	void LuaBinding::BindMath()
 	{
 		/*********************************** Nz::EulerAngles **********************************/
@@ -672,6 +676,12 @@ namespace Ndk
 			return false;
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Math classes
+	*/
 
 	void LuaBinding::RegisterMath(Nz::LuaInstance& instance)
 	{
