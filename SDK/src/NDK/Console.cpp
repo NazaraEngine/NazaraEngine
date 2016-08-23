@@ -320,9 +320,7 @@ namespace Ndk
 		unsigned int lineHeight = m_defaultFont->GetSizeInfo(m_characterSize).lineHeight;
 
 		Ndk::NodeComponent& inputNode = m_input->GetComponent<Ndk::NodeComponent>();
-		NazaraError(inputNode.GetPosition().ToString());
 		inputNode.SetPosition(0.f, m_size.y - lineHeight - 5.f);
-		NazaraError(inputNode.GetPosition().ToString());
 
 		float historyHeight = m_size.y - lineHeight - 5.f - 2.f;
 		m_historyBackgroundSprite->SetSize(m_size.x, historyHeight);
@@ -330,14 +328,10 @@ namespace Ndk
 		m_maxHistoryLines = static_cast<unsigned int>(std::ceil(historyHeight / lineHeight));
 
 		Ndk::NodeComponent& historyNode = m_history->GetComponent<Ndk::NodeComponent>();
-		NazaraError(historyNode.GetPosition().ToString());
 		historyNode.SetPosition(0.f, historyHeight - m_maxHistoryLines * lineHeight);
-		NazaraError(historyNode.GetPosition().ToString());
 
 		Ndk::NodeComponent& inputBackgroundNode = m_inputBackground->GetComponent<Ndk::NodeComponent>();
-		NazaraError(inputBackgroundNode.GetPosition().ToString());
 		inputBackgroundNode.SetPosition(0.f, historyHeight + 2.f);
-		NazaraError(inputBackgroundNode.GetPosition().ToString());
 
 		m_inputBackgroundSprite->SetSize(m_size.x, m_size.y - historyHeight);
 	}
