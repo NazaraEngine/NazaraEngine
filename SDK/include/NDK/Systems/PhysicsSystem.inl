@@ -4,10 +4,20 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Gets the physical world
+	* \return A reference to the physical world
+	*/
+
 	inline Nz::PhysWorld& PhysicsSystem::GetWorld()
 	{
 		return m_world;
 	}
+
+	/*!
+	* \brief Gets the physical world
+	* \return A constant reference to the physical world
+	*/
 
 	inline const Nz::PhysWorld& PhysicsSystem::GetWorld() const
 	{
