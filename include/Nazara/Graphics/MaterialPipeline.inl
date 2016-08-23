@@ -97,6 +97,7 @@ namespace Nz
 	MaterialPipelineRef MaterialPipeline::New(Args&&... args)
 	{
 		std::unique_ptr<MaterialPipeline> object(new MaterialPipeline(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 		return object.release();
 	}
 }
