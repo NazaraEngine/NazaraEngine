@@ -75,7 +75,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Initializes the sprite librairies
+	* \brief Initializes the sprite library
 	* \return true If successful
 	*
 	* \remark Produces a NazaraError if the sprite library failed to be initialized
@@ -93,7 +93,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Uninitializes the sprite librairies
+	* \brief Uninitializes the sprite library
 	*/
 
 	void Sprite::Uninitialize()

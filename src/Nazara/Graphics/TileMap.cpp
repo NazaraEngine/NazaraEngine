@@ -90,6 +90,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Initializes the tilemap library
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if the tilemap library failed to be initialized
+	*/
+
 	bool TileMap::Initialize()
 	{
 		if (!TileMapLibrary::Initialize())
@@ -100,6 +107,10 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the tilemap library
+	*/
 
 	void TileMap::Uninitialize()
 	{

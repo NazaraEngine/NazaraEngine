@@ -6,6 +6,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Audio module to Lua
+	*/
+
 	void LuaBinding::BindAudio()
 	{
 		/*********************************** Nz::Music **********************************/
@@ -163,6 +167,12 @@ namespace Ndk
 
 		soundEmitter.BindMethod("Stop", &Nz::SoundEmitter::Stop);
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Audio classes
+	*/
 
 	void LuaBinding::RegisterAudio(Nz::LuaInstance& instance)
 	{
