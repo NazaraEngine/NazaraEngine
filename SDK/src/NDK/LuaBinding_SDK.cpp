@@ -7,6 +7,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds SDK module to Lua
+	*/
+
 	void LuaBinding::BindSDK()
 	{
 		/*********************************** Ndk::Application **********************************/
@@ -143,6 +147,12 @@ namespace Ndk
 		#endif
 	}
 
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the SDK classes
+	*/
+
 	void LuaBinding::RegisterSDK(Nz::LuaInstance& instance)
 	{
 		// Classes
@@ -172,6 +182,14 @@ namespace Ndk
 		}
 		instance.SetGlobal("ComponentType");
 	}
+
+	/*!
+	* \brief Gets the index of the component
+	* \return A pointer to the binding linked to a component
+	*
+	* \param instance Lua instance that will interact with the component
+	* \param argIndex Index of the component
+	*/
 
 	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaInstance& instance, int argIndex)
 	{

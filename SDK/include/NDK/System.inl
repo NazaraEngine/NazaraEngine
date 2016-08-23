@@ -7,6 +7,18 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::System<SystemType>
+	* \brief NDK class that represents a system which interacts on a world
+	*
+	* \remark This class is meant to be derived as CRTP: "System<Subtype>"
+	*/
+
+	/*!
+	* \brief Constructs a System object by default
+	*/
+
 	template<typename SystemType>
 	System<SystemType>::System() :
 	BaseSystem(GetSystemIndex<SystemType>())
@@ -16,14 +28,25 @@ namespace Ndk
 	template<typename SystemType>
 	System<SystemType>::~System() = default;
 
+	/*!
+	* \brief Clones the system
+	* \return The clone newly created
+	*
+	* \remark The system to clone should be trivially copy constructible
+	*/
+
 	template<typename SystemType>
-	BaseSystem* System<SystemType>::Clone() const
+	std::unique_ptr<BaseSystem> System<SystemType>::Clone() const
 	{
-		///FIXME: Pas encore supporté par GCC (4.9.2)
+		///FIXME: Not fully supported in GCC (4.9.2)
 		//static_assert(std::is_trivially_copy_constructible<SystemType>::value, "SystemType should be copy-constructible");
 
-		return new SystemType(static_cast<const SystemType&>(*this));
+		return std::make_unique<SystemType>(static_cast<const SystemType&>(*this));
 	}
+
+	/*!
+	* \brief Registers the system by assigning it an index
+	*/
 
 	template<typename SystemType>
 	SystemIndex System<SystemType>::RegisterSystem()

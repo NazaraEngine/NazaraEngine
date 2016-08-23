@@ -93,7 +93,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Uninitializes the Core module
+	* \brief Uninitializes the Network module
 	*
 	* \remark Produces a NazaraNotice
 	*/
