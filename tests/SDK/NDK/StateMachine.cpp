@@ -21,6 +21,7 @@ class TestState : public Ndk::State
 		bool Update(Ndk::StateMachine& fsm, float elapsedTime) override
 		{
 			m_isUpdated = true;
+			return true;
 		}
 
 	private:
