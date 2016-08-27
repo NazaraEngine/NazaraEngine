@@ -53,7 +53,10 @@ namespace Nz
 			void Destroy();
 
 			inline void EnableCloseOnQuit(bool closeOnQuit);
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system") inline void EnableEventPolling(bool enable);
+
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
+			inline void EnableEventPolling(bool enable);
+
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
@@ -74,7 +77,8 @@ namespace Nz
 			inline bool IsValid() const;
 			bool IsVisible() const;
 
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system") bool PollEvent(WindowEvent* event);
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
+			bool PollEvent(WindowEvent* event);
 
 			void ProcessEvents(bool block = false);
 
@@ -95,7 +99,8 @@ namespace Nz
 			void SetTitle(const String& title);
 			void SetVisible(bool visible);
 
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")bool WaitEvent(WindowEvent* event);
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
+			bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
 			inline Window& operator=(Window&& window);
