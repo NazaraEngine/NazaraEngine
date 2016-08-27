@@ -26,6 +26,8 @@ namespace Ndk
 		{
 			Nz::Window& window = **it;
 
+			window.ProcessEvents();
+
 			if (!window.IsOpen(true))
 			{
 				it = m_windows.erase(it);
