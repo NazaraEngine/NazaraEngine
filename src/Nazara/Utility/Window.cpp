@@ -325,6 +325,15 @@ namespace Nz
 		return false;
 	}
 
+	void Window::ProcessEvents(bool block)
+	{
+		NazaraAssert(m_impl, "Window not created");
+
+		#if !NAZARA_UTILITY_THREADED_WINDOW
+		m_impl->ProcessEvents(block);
+		#endif
+	}
+
 	void Window::SetCursor(WindowCursor cursor)
 	{
 		#if NAZARA_UTILITY_SAFE
