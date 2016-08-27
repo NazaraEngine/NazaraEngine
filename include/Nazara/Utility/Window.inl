@@ -16,6 +16,7 @@ namespace Nz
 	#if NAZARA_UTILITY_THREADED_WINDOW
 	m_waitForEvent(false),
 	#endif
+	m_closeOnQuit(true),
 	m_eventPolling(false)
 	{
 	}
@@ -44,10 +45,11 @@ namespace Nz
 	m_eventCondition(std::move(window.m_eventCondition)),
 	m_eventMutex(std::move(window.m_eventMutex)),
 	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
-	m_eventPolling(window.m_eventPolling),
 	m_waitForEvent(window.m_waitForEvent),
 	#endif
 	m_closed(window.m_closed),
+	m_closeOnQuit(window.m_closeOnQuit),
+	m_eventPolling(window.m_eventPolling),
 	m_ownsWindow(window.m_ownsWindow)
 	{
 		window.m_impl = nullptr;
@@ -61,6 +63,11 @@ namespace Nz
 	inline void Window::Close()
 	{
 		m_closed = true; // The window will be closed at the next non-const IsOpen() call
+	}
+
+	inline void Window::EnableCloseOnQuit(bool closeOnQuit)
+	{
+		m_closeOnQuit = closeOnQuit;
 	}
 
 	inline void Window::EnableEventPolling(bool enable)
@@ -116,6 +123,9 @@ namespace Nz
 		if (event.type == WindowEventType_Resized)
 			OnWindowResized();
 
+		if (event.type == WindowEventType_Quit && m_closeOnQuit)
+			Close();
+
 		#if NAZARA_UTILITY_THREADED_WINDOW
 		m_eventMutex.Unlock();
 
@@ -137,6 +147,7 @@ namespace Nz
 		Destroy();
 
 		m_closed        = window.m_closed; 
+		m_closeOnQuit   = window.m_closeOnQuit;
 		m_eventPolling  = window.m_eventPolling;
 		m_impl          = window.m_impl;
 		m_events        = std::move(window.m_events);
