@@ -52,6 +52,7 @@ namespace Nz
 
 			void Destroy();
 
+			inline void EnableCloseOnQuit(bool closeOnQuit);
 			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system") inline void EnableEventPolling(bool enable);
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
@@ -122,6 +123,7 @@ namespace Nz
 			#endif
 			EventHandler m_eventHandler;
 			bool m_closed;
+			bool m_closeOnQuit;
 			bool m_eventPolling;
 			bool m_ownsWindow;
 	};
