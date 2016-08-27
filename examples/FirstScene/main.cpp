@@ -329,6 +329,8 @@ int main()
 	lua.PushGlobal("Spaceship", spaceship->CreateHandle());
 	lua.PushGlobal("World", world->CreateHandle());
 
+	window.EnableEventPolling(true); // Déprécié
+
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
