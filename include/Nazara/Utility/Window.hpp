@@ -14,7 +14,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Event.hpp>
+#include <Nazara/Utility/EventHandler.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <queue>
@@ -52,9 +52,11 @@ namespace Nz
 
 			void Destroy();
 
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system") inline void EnableEventPolling(bool enable);
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
+			EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
@@ -71,7 +73,9 @@ namespace Nz
 			inline bool IsValid() const;
 			bool IsVisible() const;
 
-			bool PollEvent(WindowEvent* event);
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system") bool PollEvent(WindowEvent* event);
+
+			void ProcessEvents(bool block = false);
 
 			void SetCursor(WindowCursor cursor);
 			void SetCursor(const Cursor& cursor);
@@ -90,7 +94,7 @@ namespace Nz
 			void SetTitle(const String& title);
 			void SetVisible(bool visible);
 
-			bool WaitEvent(WindowEvent* event);
+			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
 			inline Window& operator=(Window&& window);
@@ -114,10 +118,11 @@ namespace Nz
 			ConditionVariable m_eventCondition;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;
-			bool m_eventListener;
 			bool m_waitForEvent;
 			#endif
+			EventHandler m_eventHandler;
 			bool m_closed;
+			bool m_eventPolling;
 			bool m_ownsWindow;
 	};
 }
