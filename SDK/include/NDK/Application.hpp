@@ -11,6 +11,7 @@
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <map>
 #include <list>
 #include <set>
 #include <vector>
@@ -35,7 +36,7 @@ namespace Ndk
 			#endif
 
 			inline Application();
-			inline Application(int argc, const char* argv[]);
+			Application(int argc, char* argv[]);
 			Application(const Application&) = delete;
 			Application(Application&&) = delete;
 			inline ~Application();
@@ -53,7 +54,13 @@ namespace Ndk
 			inline FPSCounterOverlay& GetFPSCounterOverlay(std::size_t windowIndex = 0U);
 			#endif
 
+			inline const std::set<Nz::String>& GetOptions() const;
+			inline const std::map<Nz::String, Nz::String>& GetParameters() const;
+
 			inline float GetUpdateTime() const;
+
+			inline bool HasOption(const Nz::String& option) const;
+			inline bool HasParameter(const Nz::String& key, Nz::String* value) const;
 
 			#ifndef NDK_SERVER
 			inline bool IsConsoleEnabled() const;
@@ -120,6 +127,8 @@ namespace Ndk
 			template<typename T> void SetupWindow(WindowInfo& info, T* renderTarget, std::true_type /*isRenderTarget*/);
 			template<typename T> void SetupWindow(WindowInfo& /*info*/, T* /*renderTarget*/, std::false_type /*isNotRenderTarget*/);
 
+			std::map<Nz::String, Nz::String> m_parameters;
+			std::set<Nz::String> m_options;
 			std::vector<WindowInfo> m_windows;
 			#endif
 			std::list<World> m_worlds;
