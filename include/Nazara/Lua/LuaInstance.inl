@@ -13,6 +13,33 @@
 
 namespace Nz
 {
+	inline LuaInstance::LuaInstance(LuaInstance&& instance) noexcept :
+	m_memoryLimit(instance.m_memoryLimit),
+	m_memoryUsage(instance.m_memoryUsage),
+	m_timeLimit(m_timeLimit),
+	m_clock(std::move(m_clock)),
+	m_lastError(std::move(m_lastError)),
+	m_state(m_state),
+	m_level(m_level)
+	{
+		instance.m_state = nullptr;
+	}
+
+	inline LuaInstance& LuaInstance::operator=(LuaInstance&& instance) noexcept
+	{
+		m_clock = std::move(m_clock);
+		m_lastError = std::move(m_lastError);
+		m_level = m_level;
+		m_memoryLimit = instance.m_memoryLimit;
+		m_memoryUsage = instance.m_memoryUsage;
+		m_state = m_state;
+		m_timeLimit = m_timeLimit;
+		
+		instance.m_state = nullptr;
+
+		return *this;
+	}
+
 	// Functions args
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, bool* arg, TypeTag<bool>)
 	{
