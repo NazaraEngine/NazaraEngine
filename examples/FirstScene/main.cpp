@@ -269,6 +269,10 @@ int main()
 	application.EnableConsole(true);
 	application.EnableFPSCounter(true);
 
+	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
+	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
+	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
+
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
