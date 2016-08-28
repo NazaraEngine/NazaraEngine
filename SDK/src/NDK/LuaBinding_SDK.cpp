@@ -17,7 +17,14 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		//application.SetMethod("AddWindow", &Application::AddWindow);
+
+		application.BindMethod("EnableConsole", &Application::EnableConsole);
+		application.BindMethod("EnableFPSCounter", &Application::EnableFPSCounter);
+
+		application.BindMethod("IsConsoleEnabled", &Application::IsConsoleEnabled);
+		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
+
 		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application) -> int
 		{
 			instance.Push(application->AddWorld().CreateHandle());
