@@ -114,6 +114,9 @@ namespace Ndk
 		#ifndef NDK_SERVER
 		for (WindowInfo& info : m_windows)
 		{
+			if (!info.overlayWorld)
+				continue;
+
 			if (info.fpsCounter)
 			{
 				FPSCounterOverlay& fpsCounter = *info.fpsCounter;
