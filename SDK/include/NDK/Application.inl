@@ -74,7 +74,6 @@ namespace Ndk
 	*
 	* \param args Arguments used to create the window
 	*/
-
 	#ifndef NDK_SERVER
 	template<typename T, typename... Args> 
 	T& Application::AddWindow(Args&&... args)
@@ -125,6 +124,7 @@ namespace Ndk
 	*
 	* \param enable Should the console overlay be enabled
 	*/
+	#ifndef NDK_SERVER
 	inline void Application::EnableConsole(bool enable)
 	{
 		if (enable != ((m_overlayFlags & OverlayFlags_Console) != 0))
@@ -157,12 +157,14 @@ namespace Ndk
 			}
 		}
 	}
+	#endif
 
 	/*!
 	* \brief Enable/disable debug FPS counter
 	*
 	* \param enable Should the FPS counter be displayed
 	*/
+	#ifndef NDK_SERVER
 	inline void Application::EnableFPSCounter(bool enable)
 	{
 		if (enable != ((m_overlayFlags & OverlayFlags_FPSCounter) != 0))
@@ -195,6 +197,7 @@ namespace Ndk
 			}
 		}
 	}
+	#endif
 
 	/*!
 	* \brief Gets the console overlay for a specific window
@@ -207,6 +210,7 @@ namespace Ndk
 	*
 	* \see IsConsoleOverlayEnabled
 	*/
+	#ifndef NDK_SERVER
 	inline Application::ConsoleOverlay& Application::GetConsoleOverlay(std::size_t windowIndex)
 	{
 		NazaraAssert(m_overlayFlags & OverlayFlags_Console, "Console overlay is not enabled");
@@ -214,6 +218,7 @@ namespace Ndk
 
 		return *m_windows[windowIndex].console;
 	}
+	#endif
 
 	/*!
 	* \brief Gets the console overlay for a specific window
@@ -226,6 +231,7 @@ namespace Ndk
 	*
 	* \see IsFPSCounterEnabled
 	*/
+	#ifndef NDK_SERVER
 	inline Application::FPSCounterOverlay& Application::GetFPSCounterOverlay(std::size_t windowIndex)
 	{
 		NazaraAssert(m_overlayFlags & OverlayFlags_FPSCounter, "FPS counter overlay is not enabled");
@@ -233,6 +239,7 @@ namespace Ndk
 
 		return *m_windows[windowIndex].fpsCounter;
 	}
+	#endif
 
 	/*!
 	* \brief Gets the update time of the application
@@ -252,10 +259,12 @@ namespace Ndk
 	*
 	* \see GetConsoleOverlay
 	*/
+	#ifndef NDK_SERVER
 	inline bool Application::IsConsoleEnabled() const
 	{
 		return (m_overlayFlags & OverlayFlags_Console) != 0;
 	}
+	#endif
 
 	/*!
 	* \brief Checks if the FPS counter overlay is enabled
@@ -263,10 +272,12 @@ namespace Ndk
 	*
 	* \see GetFPSCounterOverlay
 	*/
+	#ifndef NDK_SERVER
 	inline bool Application::IsFPSCounterEnabled() const
 	{
 		return (m_overlayFlags & OverlayFlags_FPSCounter) != 0;
 	}
+	#endif
 
 	/*!
 	* \brief Makes the application exit when there's no more open window
@@ -299,9 +310,11 @@ namespace Ndk
 		return s_application;
 	}
 
+	#ifndef NDK_SERVER
 	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& window) :
 	window(std::move(window)),
 	renderTarget(nullptr)
 	{
 	}
+	#endif
 }
