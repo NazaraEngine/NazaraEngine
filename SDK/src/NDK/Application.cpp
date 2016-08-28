@@ -87,6 +87,7 @@ namespace Ndk
 		return true;
 	}
 
+	#ifndef NDK_SERVER
 	void Application::SetupConsole(WindowInfo& info)
 	{
 		std::unique_ptr<ConsoleOverlay> overlay = std::make_unique<ConsoleOverlay>();
@@ -184,6 +185,7 @@ namespace Ndk
 		camComponent.SetProjectionType(Nz::ProjectionType_Orthogonal);
 		camComponent.SetTarget(info.renderTarget);
 	}
+	#endif
 
 	Application* Application::s_application = nullptr;
 }
