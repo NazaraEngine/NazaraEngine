@@ -85,21 +85,7 @@ namespace Ndk
 
 		T& window = static_cast<T&>(*info.window.get()); //< Warning: ugly
 
-		if (std::is_base_of<Nz::RenderTarget, T>())
-		{
-			info.renderTarget = &window;
-
-			if (m_overlayFlags)
-			{
-				SetupOverlay(info);
-
-				if (m_overlayFlags & OverlayFlags_Console)
-					SetupConsole(info);
-
-				if (m_overlayFlags & OverlayFlags_FPSCounter)
-					SetupFPSCounter(info);
-			}
-		}
+		SetupWindow(info, &window, std::is_base_of<Nz::RenderTarget, T>());
 
 		return window;
 	}
@@ -138,7 +124,10 @@ namespace Ndk
 				}
 
 				for (WindowInfo& info : m_windows)
-					SetupConsole(info);
+				{
+					if (info.renderTarget)
+						SetupConsole(info);
+				}
 
 				m_overlayFlags |= OverlayFlags_Console;
 
@@ -178,7 +167,10 @@ namespace Ndk
 				}
 
 				for (WindowInfo& info : m_windows)
-					SetupFPSCounter(info);
+				{
+					if (info.renderTarget)
+						SetupFPSCounter(info);
+				}
 
 				m_overlayFlags |= OverlayFlags_FPSCounter;
 
@@ -308,6 +300,28 @@ namespace Ndk
 	inline Application* Application::Instance()
 	{
 		return s_application;
+	}
+
+	template<typename T>
+	inline void Application::SetupWindow(WindowInfo& info, T* renderTarget, std::true_type)
+	{
+		info.renderTarget = renderTarget;
+
+		if (m_overlayFlags)
+		{
+			SetupOverlay(info);
+
+			if (m_overlayFlags & OverlayFlags_Console)
+				SetupConsole(info);
+
+			if (m_overlayFlags & OverlayFlags_FPSCounter)
+				SetupFPSCounter(info);
+		}
+	}
+
+	template<typename T>
+	inline void Application::SetupWindow(WindowInfo&, T*, std::false_type)
+	{
 	}
 
 	#ifndef NDK_SERVER
