@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Application.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <type_traits>
 #include <NDK/Sdk.hpp>
@@ -9,13 +10,15 @@
 namespace Ndk
 {
 	/*!
-	* \brief Constructs an Application object by default
+	* \brief Constructs an Application object without passing command-line arguments
 	*
-	* \remark Produces a NazaraAssert if there's more than one application instance currently running
+	* This calls Sdk::Initialize()
+	*
+	* \remark Only one Application instance can exist at a time
 	*/
-
 	inline Application::Application() :
 	#ifndef NDK_SERVER
+	m_overlayFlags(0U),
 	m_exitOnClosedWindows(true),
 	#endif
 	m_shouldQuit(false),
@@ -31,9 +34,26 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Destructs the object
+	* \brief Constructs an Application object with command-line arguments
+	*
+	* Pass the argc and argv arguments from the main function.
+	*
+	* Command-line arguments can be retrieved by application methods
+	*
+	* This calls Sdk::Initialize()
+	*
+	* \remark Only one Application instance can exist at a time
 	*/
+	inline Application::Application(int argc, const char* argv[]) :
+	Application()
+	{
+	}
 
+	/*!
+	* \brief Destructs the application object
+	*
+	* This destroy all worlds and windows and then calls Sdk::Uninitialize
+	*/
 	inline Application::~Application()
 	{
 		m_worlds.clear();
@@ -61,8 +81,28 @@ namespace Ndk
 	{
 		static_assert(std::is_base_of<Nz::Window, T>::value, "Type must inherit Window");
 
-		m_windows.emplace_back(new T(std::forward<Args>(args)...));
-		return static_cast<T&>(*m_windows.back().get());
+		m_windows.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+		WindowInfo& info = m_windows.back();
+
+		T& window = static_cast<T&>(*info.window.get()); //< Warning: ugly
+
+		if (std::is_base_of<Nz::RenderTarget, T>())
+		{
+			info.renderTarget = &window;
+
+			if (m_overlayFlags)
+			{
+				SetupOverlay(info);
+
+				if (m_overlayFlags & OverlayFlags_Console)
+					SetupConsole(info);
+
+				if (m_overlayFlags & OverlayFlags_FPSCounter)
+					SetupFPSCounter(info);
+			}
+		}
+
+		return window;
 	}
 	#endif
 
@@ -81,13 +121,151 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Enable/disable debug console
+	*
+	* \param enable Should the console overlay be enabled
+	*/
+	inline void Application::EnableConsole(bool enable)
+	{
+		if (enable != ((m_overlayFlags & OverlayFlags_Console) != 0))
+		{
+			if (enable)
+			{
+				if (m_overlayFlags == 0)
+				{
+					for (WindowInfo& info : m_windows)
+						SetupOverlay(info);
+				}
+
+				for (WindowInfo& info : m_windows)
+					SetupConsole(info);
+
+				m_overlayFlags |= OverlayFlags_Console;
+
+			}
+			else
+			{
+				for (WindowInfo& info : m_windows)
+					info.console.reset();
+
+				m_overlayFlags &= ~OverlayFlags_Console;
+				if (m_overlayFlags == 0)
+				{
+					for (WindowInfo& info : m_windows)
+						info.overlayWorld.reset();
+				}
+			}
+		}
+	}
+
+	/*!
+	* \brief Enable/disable debug FPS counter
+	*
+	* \param enable Should the FPS counter be displayed
+	*/
+	inline void Application::EnableFPSCounter(bool enable)
+	{
+		if (enable != ((m_overlayFlags & OverlayFlags_FPSCounter) != 0))
+		{
+			if (enable)
+			{
+				if (m_overlayFlags == 0)
+				{
+					for (WindowInfo& info : m_windows)
+						SetupOverlay(info);
+				}
+
+				for (WindowInfo& info : m_windows)
+					SetupFPSCounter(info);
+
+				m_overlayFlags |= OverlayFlags_FPSCounter;
+
+			}
+			else
+			{
+				for (WindowInfo& info : m_windows)
+					info.fpsCounter.reset();
+
+				m_overlayFlags &= ~OverlayFlags_FPSCounter;
+				if (m_overlayFlags == 0)
+				{
+					for (WindowInfo& info : m_windows)
+						info.overlayWorld.reset();
+				}
+			}
+		}
+	}
+
+	/*!
+	* \brief Gets the console overlay for a specific window
+	*
+	* \param windowIndex Index of the window to get
+	*
+	* \remark The console overlay must be enabled
+	*
+	* \return A reference to the console overlay of the window
+	*
+	* \see IsConsoleOverlayEnabled
+	*/
+	inline Application::ConsoleOverlay& Application::GetConsoleOverlay(std::size_t windowIndex)
+	{
+		NazaraAssert(m_overlayFlags & OverlayFlags_Console, "Console overlay is not enabled");
+		NazaraAssert(windowIndex <= m_windows.size(), "Window index is out of range");
+
+		return *m_windows[windowIndex].console;
+	}
+
+	/*!
+	* \brief Gets the console overlay for a specific window
+	*
+	* \param windowIndex Index of the window to get
+	*
+	* \remark The console overlay must be enabled
+	*
+	* \return A reference to the console overlay of the window
+	*
+	* \see IsFPSCounterEnabled
+	*/
+	inline Application::FPSCounterOverlay& Application::GetFPSCounterOverlay(std::size_t windowIndex)
+	{
+		NazaraAssert(m_overlayFlags & OverlayFlags_FPSCounter, "FPS counter overlay is not enabled");
+		NazaraAssert(windowIndex <= m_windows.size(), "Window index is out of range");
+
+		return *m_windows[windowIndex].fpsCounter;
+	}
+
+	/*!
 	* \brief Gets the update time of the application
 	* \return Update rate
 	*/
-
 	inline float Application::GetUpdateTime() const
 	{
 		return m_updateTime;
+	}
+
+	/*!
+	* \brief Checks if the console overlay is enabled
+	*
+	* \remark This has nothing to do with the visibility state of the console
+	*
+	* \return True if the console overlay is enabled
+	*
+	* \see GetConsoleOverlay
+	*/
+	inline bool Application::IsConsoleEnabled() const
+	{
+		return (m_overlayFlags & OverlayFlags_Console) != 0;
+	}
+
+	/*!
+	* \brief Checks if the FPS counter overlay is enabled
+	* \return True if the FPS counter overlay is enabled
+	*
+	* \see GetFPSCounterOverlay
+	*/
+	inline bool Application::IsFPSCounterEnabled() const
+	{
+		return (m_overlayFlags & OverlayFlags_FPSCounter) != 0;
 	}
 
 	/*!
@@ -95,7 +273,6 @@ namespace Ndk
 	*
 	* \param exitOnClosedWindows Should exit be called when no more window is open
 	*/
-
 	#ifndef NDK_SERVER
 	inline void Application::MakeExitOnLastWindowClosed(bool exitOnClosedWindows)
 	{
@@ -120,5 +297,11 @@ namespace Ndk
 	inline Application* Application::Instance()
 	{
 		return s_application;
+	}
+
+	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& window) :
+	window(std::move(window)),
+	renderTarget(nullptr)
+	{
 	}
 }
