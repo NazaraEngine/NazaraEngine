@@ -14,6 +14,8 @@ namespace Nz
 
 	inline void EventHandler::Dispatch(const WindowEvent& event)
 	{
+		OnEvent(this, event);
+
 		switch (event.type)
 		{
 			case WindowEventType_GainedFocus:
