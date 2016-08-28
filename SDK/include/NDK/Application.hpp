@@ -117,6 +117,9 @@ namespace Ndk
 			void SetupFPSCounter(WindowInfo& info);
 			void SetupOverlay(WindowInfo& info);
 
+			template<typename T> void SetupWindow(WindowInfo& info, T* renderTarget, std::true_type /*isRenderTarget*/);
+			template<typename T> void SetupWindow(WindowInfo& /*info*/, T* /*renderTarget*/, std::false_type /*isNotRenderTarget*/);
+
 			std::vector<WindowInfo> m_windows;
 			#endif
 			std::list<World> m_worlds;
