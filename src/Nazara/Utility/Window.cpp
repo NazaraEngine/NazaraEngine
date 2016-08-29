@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Window.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
@@ -60,15 +61,15 @@ namespace Nz
 		else if (style & WindowStyle_Closable || style & WindowStyle_Resizable)
 			style |= WindowStyle_Titlebar;
 
-		m_impl = new WindowImpl(this);
-		if (!m_impl->Create(mode, title, style))
+		std::unique_ptr<WindowImpl> impl = std::make_unique<WindowImpl>(this);
+		if (!impl->Create(mode, title, style))
 		{
 			NazaraError("Failed to create window implementation");
-			delete m_impl;
-			m_impl = nullptr;
-
 			return false;
 		}
+
+		m_impl = impl.release();
+		CallOnExit destroyOnFailure([this] () { Destroy(); });
 
 		m_closed = false;
 		m_ownsWindow = true;
@@ -76,9 +77,6 @@ namespace Nz
 		if (!OnWindowCreated())
 		{
 			NazaraError("Failed to initialize window extension");
-			delete m_impl;
-			m_impl = nullptr;
-
 			return false;
 		}
 
@@ -92,6 +90,10 @@ namespace Nz
 
 		if (opened)
 			m_impl->SetPosition(position.x, position.y);
+
+		OnWindowResized();
+
+		destroyOnFailure.Reset();
 
 		return true;
 	}
