@@ -145,7 +145,8 @@ namespace Nz
 
 	LuaInstance::~LuaInstance()
 	{
-		lua_close(m_state);
+		if (m_state)
+			lua_close(m_state);
 	}
 
 	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const char* error)
