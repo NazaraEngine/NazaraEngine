@@ -127,12 +127,14 @@ namespace Ndk
 			template<typename T> void SetupWindow(WindowInfo& info, T* renderTarget, std::true_type /*isRenderTarget*/);
 			template<typename T> void SetupWindow(WindowInfo& /*info*/, T* /*renderTarget*/, std::false_type /*isNotRenderTarget*/);
 
-			std::map<Nz::String, Nz::String> m_parameters;
-			std::set<Nz::String> m_options;
 			std::vector<WindowInfo> m_windows;
 			#endif
+
+			std::map<Nz::String, Nz::String> m_parameters;
+			std::set<Nz::String> m_options;
 			std::list<World> m_worlds;
 			Nz::Clock m_updateClock;
+
 			#ifndef NDK_SERVER
 			Nz::UInt32 m_overlayFlags;
 			bool m_exitOnClosedWindows;
