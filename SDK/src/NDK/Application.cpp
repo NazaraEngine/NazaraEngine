@@ -144,9 +144,16 @@ namespace Ndk
 	{
 		std::unique_ptr<ConsoleOverlay> overlay = std::make_unique<ConsoleOverlay>();
 
-		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(Nz::Vector2ui(info.window->GetWidth(), info.window->GetHeight() / 4)), overlay->lua);
+		Nz::Vector2ui windowDimensions;
+		if (info.window->IsValid())
+			windowDimensions.Set(info.window->GetWidth(), info.window->GetHeight() / 4);
+		else
+			windowDimensions.MakeZero();
+
+		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(windowDimensions), overlay->lua);
 		
 		Console& consoleRef = *overlay->console;
+
 		// Redirect logs toward the console
 		overlay->logSlot.Connect(Nz::Log::OnLogWrite, [&consoleRef] (const Nz::String& str)
 		{
@@ -201,9 +208,9 @@ namespace Ndk
 				consoleRef.Show(!consoleRef.IsVisible());
 		});
 
-		overlay->resizedSlot.Connect(eventHandler.OnResized, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::SizeEvent& event)
+		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
-			consoleRef.SetSize({float(event.width), event.height / 4.f});
+			consoleRef.SetSize({float(renderTarget->GetWidth()), renderTarget->GetHeight() / 4.f});
 		});
 
 		info.console = std::move(overlay);

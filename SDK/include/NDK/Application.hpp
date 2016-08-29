@@ -88,7 +88,7 @@ namespace Ndk
 
 				NazaraSlot(Nz::EventHandler, OnEvent, eventSlot);
 				NazaraSlot(Nz::EventHandler, OnKeyPressed, keyPressedSlot);
-				NazaraSlot(Nz::EventHandler, OnResized, resizedSlot);
+				NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, resizedSlot);
 				NazaraSlot(Nz::Log, OnLogWrite, logSlot);
 			};
 
