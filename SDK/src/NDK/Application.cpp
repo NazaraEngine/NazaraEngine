@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Application.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <regex>
 
 #ifndef NDK_SERVER
@@ -63,11 +64,13 @@ namespace Ndk
 				NazaraWarning("Ignored command-line argument #" + Nz::String::Number(i) + " \"" + argument + '"');
 		}
 
+		#ifndef NDK_SERVER
 		if (HasOption("console"))
 			EnableConsole(true);
 
 		if (HasOption("fpscounter"))
 			EnableFPSCounter(true);
+		#endif
 	}
 
 	/*!
