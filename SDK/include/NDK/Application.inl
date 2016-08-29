@@ -350,6 +350,7 @@ namespace Ndk
 		return s_application;
 	}
 
+	#ifndef NDK_SERVER
 	template<typename T>
 	inline void Application::SetupWindow(WindowInfo& info, T* renderTarget, std::true_type)
 	{
@@ -372,7 +373,6 @@ namespace Ndk
 	{
 	}
 
-	#ifndef NDK_SERVER
 	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& window) :
 	window(std::move(window)),
 	renderTarget(nullptr)
