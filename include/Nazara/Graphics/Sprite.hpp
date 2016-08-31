@@ -38,12 +38,14 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const MaterialRef& GetMaterial() const;
+			inline const Vector3f& GetOrigin() const;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTextureCoords() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeSprite = true);
+			inline void SetOrigin(const Vector3f& origin);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
 			inline void SetTexture(TextureRef texture, bool resizeSprite = true);
@@ -67,6 +69,7 @@ namespace Nz
 			MaterialRef m_material;
 			Rectf m_textureCoords;
 			Vector2f m_size;
+			Vector3f m_origin;
 
 			static SpriteLibrary::LibraryMap s_library;
 	};
