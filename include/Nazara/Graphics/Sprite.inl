@@ -14,6 +14,7 @@ namespace Nz
 
 	inline Sprite::Sprite() :
 	m_color(Color::White),
+	m_origin(Nz::Vector3f::Zero()),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
 	m_size(64.f, 64.f)
 	{
@@ -77,10 +78,21 @@ namespace Nz
 	* \brief Gets the material of the sprite
 	* \return Current material
 	*/
-
 	inline const MaterialRef& Sprite::GetMaterial() const
 	{
 		return m_material;
+	}
+
+	/*!
+	* \brief Gets the origin of the sprite
+	*
+	* \return Current material
+	*
+	* \see SetOrigin
+	*/
+	inline const Vector3f & Sprite::GetOrigin() const
+	{
+		return m_origin;
 	}
 
 	/*!
@@ -144,6 +156,24 @@ namespace Nz
 			if (diffuseMap && diffuseMap->IsValid())
 				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
 		}
+	}
+
+	/*!
+	* \brief Sets the origin of the sprite
+	*
+	* The origin is the center of translation/rotation/scaling of the sprite.
+	*
+	* \param origin New origin for the sprite
+	*
+	* \see GetOrigin
+	*/
+	inline void Sprite::SetOrigin(const Vector3f& origin)
+	{
+		m_origin = origin;
+
+		// On invalide la bounding box
+		InvalidateBoundingVolume();
+		InvalidateVertices();
 	}
 
 	/*!
@@ -277,3 +307,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "Sprite.hpp"
