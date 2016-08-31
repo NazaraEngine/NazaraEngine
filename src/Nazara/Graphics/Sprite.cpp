@@ -57,22 +57,20 @@ namespace Nz
 		SparsePtr<Vector3f> posPtr(&vertices[0].position, sizeof(VertexStruct_XYZ_Color_UV));
 		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
-        const Nz::Vector3f origin(m_size.x / 2.f, m_size.y / -2.f, 0.f);
-
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(Vector3f(-origin));
+		*posPtr++ = instanceData->transformMatrix->Transform(Vector3f(0.f));
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(-origin + m_size.x*Vector3f::Right());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(-origin + m_size.y*Vector3f::Down());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.y*Vector3f::Down());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftBottom);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(-origin + m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 
