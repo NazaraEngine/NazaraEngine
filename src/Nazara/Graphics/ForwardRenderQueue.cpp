@@ -527,6 +527,62 @@ namespace Nz
 					layers.erase(it++);
 				else
 				{
+					for (auto& pipelinePair : layer.basicSprites)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.enabled)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									auto& overlayMap = matEntry.overlayMap;
+									for (auto& overlayIt : overlayMap)
+									{
+										const Texture* overlay = overlayIt.first;
+										auto& spriteChainVector = overlayIt.second.spriteChains;
+
+										spriteChainVector.clear();
+									}
+
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.enabled = false;
+						}
+					}
+
+					for (auto& pipelinePair : layer.opaqueModels)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.maxInstanceCount > 0)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								const Material* material = materialPair.first;
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									MeshInstanceContainer& meshInstances = matEntry.meshMap;
+
+									for (auto& meshIt : meshInstances)
+									{
+										auto& meshEntry = meshIt.second;
+
+										meshEntry.instances.clear();
+									}
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.maxInstanceCount = 0;
+						}
+					}
+
 					layer.otherDrawables.clear();
 					layer.transparentModels.clear();
 					layer.transparentModelData.clear();
