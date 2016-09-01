@@ -386,17 +386,12 @@ namespace Nz
 									vertexMapper.Unmap();
 
 									Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
-								} while (spriteChain < spriteChainCount);
-
-								spriteChainVector.clear();
+								}
+								while (spriteChain < spriteChainCount);
 							}
 						}
-
-						// We set it back to zero
-						matEntry.enabled = false;
 					}
 				}
-				pipelineEntry.enabled = false;
 			}
 		}
 	}
@@ -781,12 +776,8 @@ namespace Nz
 								instances.clear();
 							}
 						}
-
-						matEntry.enabled = false;
 					}
 				}
-
-				pipelineEntry.maxInstanceCount = 0;
 			}
 		}
 	}
