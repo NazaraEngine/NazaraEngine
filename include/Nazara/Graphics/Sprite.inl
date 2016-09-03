@@ -14,9 +14,9 @@ namespace Nz
 
 	inline Sprite::Sprite() :
 	m_color(Color::White),
-	m_origin(Nz::Vector3f::Zero()),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	m_size(64.f, 64.f),
+	m_origin(Nz::Vector3f::Zero())
 	{
 		SetDefaultMaterial();
 	}
@@ -26,11 +26,8 @@ namespace Nz
 	*
 	* \param material Reference to a material
 	*/
-
 	inline Sprite::Sprite(MaterialRef material) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetMaterial(std::move(material), true);
 	}
@@ -42,9 +39,7 @@ namespace Nz
 	*/
 
 	inline Sprite::Sprite(Texture* texture) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetTexture(texture, true);
 	}
@@ -60,7 +55,8 @@ namespace Nz
 	m_color(sprite.m_color),
 	m_material(sprite.m_material),
 	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size)
+	m_size(sprite.m_size),
+	m_origin(sprite.m_origin)
 	{
 	}
 
@@ -270,6 +266,7 @@ namespace Nz
 
 		m_color = sprite.m_color;
 		m_material = sprite.m_material;
+		m_origin = sprite.m_origin;
 		m_textureCoords = sprite.m_textureCoords;
 		m_size = sprite.m_size;
 
