@@ -166,17 +166,10 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
-
 	UInt32 Music::GetPlayingOffset() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Music not created");
-			return 0;
-		}
-		#endif
-		
+		NazaraAssert(m_impl, "Music not created");
+
 		// Prevent music thread from enqueing new buffers while we're getting the count
 		Nz::LockGuard lock(m_impl->bufferLock);
 
@@ -192,16 +185,9 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
-
-	UInt32 Music::GetSampleCount() const
+	UInt64 Music::GetSampleCount() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Music not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Music not created");
 
 		return m_impl->stream->GetSampleCount();
 	}
@@ -212,16 +198,9 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
-
 	UInt32 Music::GetSampleRate() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Music not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Music not created");
 
 		return m_impl->sampleRate;
 	}
@@ -233,16 +212,9 @@ namespace Nz
 	* \remark If the music is not playing, Stopped is returned
 	* \remark Produces a NazaraError if there is no music with NAZARA_AUDIO_SAFE defined
 	*/
-
 	SoundStatus Music::GetStatus() const
 	{
-		#if NAZARA_AUDIO_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Music not created");
-			return SoundStatus_Stopped;
-		}
-		#endif
+		NazaraAssert(m_impl, "Music not created");
 
 		SoundStatus status = GetInternalStatus();
 
@@ -425,8 +397,8 @@ namespace Nz
 
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
 	{
-		unsigned int sampleCount = m_impl->chunkSamples.size();
-		unsigned int sampleRead = 0;
+		std::size_t sampleCount = m_impl->chunkSamples.size();
+		std::size_t sampleRead = 0;
 
 		// Fill the buffer by reading from the stream
 		for (;;)
@@ -446,7 +418,7 @@ namespace Nz
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
 		{
-			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], sampleRead*sizeof(Int16), m_impl->sampleRate);
+			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], static_cast<ALsizei>(sampleRead*sizeof(Int16)), static_cast<ALsizei>(m_impl->sampleRate));
 			alSourceQueueBuffers(m_source, 1, &buffer);
 		}
 
