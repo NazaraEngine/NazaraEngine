@@ -62,19 +62,19 @@ namespace Nz
 		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(Vector3f(-origin));
+		*posPtr++ = instanceData->transformMatrix.Transform(Vector3f(-origin));
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right() - origin);
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightTop);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.y*Vector3f::Down() - origin);
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.y*Vector3f::Down() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftBottom);
 
 		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down() - origin);
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 

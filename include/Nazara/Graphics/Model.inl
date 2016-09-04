@@ -18,8 +18,9 @@ namespace Nz
 	*/
 	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder)
 	{
-		InstanceData instanceData(transformMatrix);
+		InstanceData instanceData(Nz::Matrix4f::Identity());
 		instanceData.renderOrder = renderOrder;
+		instanceData.transformMatrix = transformMatrix;
 		return AddToRenderQueue(renderQueue, instanceData);
 	}
 
