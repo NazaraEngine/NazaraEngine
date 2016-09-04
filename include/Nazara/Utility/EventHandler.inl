@@ -43,7 +43,7 @@ namespace Nz
 				break;
 
 			case WindowEventType_MouseButtonReleased:
-				OnMouseButtonPressed(this, event.mouseButton);
+				OnMouseButtonReleased(this, event.mouseButton);
 				break;
 
 			case WindowEventType_MouseEntered:
