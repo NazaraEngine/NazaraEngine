@@ -25,6 +25,31 @@ namespace Nz
 		instance.m_state = nullptr;
 	}
 
+	inline lua_State* LuaInstance::GetInternalState() const
+	{
+		return m_state;
+	}
+
+	inline String LuaInstance::GetLastError() const
+	{
+		return m_lastError;
+	}
+
+	inline std::size_t LuaInstance::GetMemoryLimit() const
+	{
+		return m_memoryLimit;
+	}
+
+	inline std::size_t LuaInstance::GetMemoryUsage() const
+	{
+		return m_memoryUsage;
+	}
+
+	inline UInt32 LuaInstance::GetTimeLimit() const
+	{
+		return m_timeLimit;
+	}
+
 	inline LuaInstance& LuaInstance::operator=(LuaInstance&& instance) noexcept
 	{
 		m_clock = std::move(m_clock);
