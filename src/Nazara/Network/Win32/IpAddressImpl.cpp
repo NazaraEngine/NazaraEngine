@@ -56,7 +56,7 @@ namespace Nz
 			std::array<char, NI_MAXHOST> hostnameBuffer;
 			std::array<char, NI_MAXSERV> serviceBuffer;
 
-			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), static_cast<std::size_t>(hostnameBuffer.size()), serviceBuffer.data(), static_cast<std::size_t>(serviceBuffer.size()), flags);
+			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), static_cast<DWORD>(hostnameBuffer.size()), serviceBuffer.data(), static_cast<DWORD>(serviceBuffer.size()), flags);
 			if (result == 0)
 			{
 				if (hostname)
