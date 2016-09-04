@@ -10,7 +10,7 @@ namespace Nz
 {
 	struct SkeletonImpl
 	{
-		std::unordered_map<String, unsigned int> jointMap;
+		std::unordered_map<String, UInt32> jointMap;
 		std::vector<Joint> joints;
 		Boxf aabb;
 		bool aabbUpdated = false;
@@ -31,7 +31,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Skeleton::Create(unsigned int jointCount)
+	bool Skeleton::Create(UInt32 jointCount)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (jointCount == 0)
@@ -72,12 +72,12 @@ namespace Nz
 
 		if (!m_impl->aabbUpdated)
 		{
-			unsigned int jointCount = m_impl->joints.size();
+			UInt32 jointCount = m_impl->joints.size();
 			if (jointCount > 0)
 			{
 				Vector3f pos = m_impl->joints[0].GetPosition();
 				m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
-				for (unsigned int i = 1; i < jointCount; ++i)
+				for (UInt32 i = 1; i < jointCount; ++i)
 					m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 			}
 			else
@@ -117,7 +117,7 @@ namespace Nz
 		return &m_impl->joints[it->second];
 	}
 
-	Joint* Skeleton::GetJoint(unsigned int index)
+	Joint* Skeleton::GetJoint(UInt32 index)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -164,7 +164,7 @@ namespace Nz
 		return &m_impl->joints[it->second];
 	}
 
-	const Joint* Skeleton::GetJoint(unsigned int index) const
+	const Joint* Skeleton::GetJoint(UInt32 index) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -209,7 +209,7 @@ namespace Nz
 		return &m_impl->joints[0];
 	}
 
-	unsigned int Skeleton::GetJointCount() const
+	UInt32 Skeleton::GetJointCount() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -278,13 +278,13 @@ namespace Nz
 
 		Joint* jointsA = &skeletonA.m_impl->joints[0];
 		Joint* jointsB = &skeletonB.m_impl->joints[0];
-		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
+		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
 			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys_Local);
 
 		InvalidateJoints();
 	}
 
-	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, unsigned int* indices, unsigned int indiceCount)
+	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, UInt32* indices, UInt32 indiceCount)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -314,9 +314,9 @@ namespace Nz
 
 		const Joint* jointsA = &skeletonA.m_impl->joints[0];
 		const Joint* jointsB = &skeletonB.m_impl->joints[0];
-		for (unsigned int i = 0; i < indiceCount; ++i)
+		for (UInt32 i = 0; i < indiceCount; ++i)
 		{
-			unsigned int index = indices[i];
+			UInt32 index = indices[i];
 
 			#if NAZARA_UTILITY_SAFE
 			if (index >= m_impl->joints.size())
@@ -351,16 +351,16 @@ namespace Nz
 			m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
 			m_impl->joints = skeleton.m_impl->joints;
 
-			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(unsigned int) en plus
+			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(UInt32) en plus
 			// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
 			// L'éternel trade-off mémoire/calculs ..
-			unsigned int jointCount = skeleton.m_impl->joints.size();
-			for (unsigned int i = 0; i < jointCount; ++i)
+			std::size_t jointCount = skeleton.m_impl->joints.size();
+			for (std::size_t i = 0; i < jointCount; ++i)
 			{
 				const Node* parent = skeleton.m_impl->joints[i].GetParent();
 				if (parent)
 				{
-					for (unsigned int j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
+					for (std::size_t j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
 					{
 						if (parent == &skeleton.m_impl->joints[j]) // A-t-on trouvé le parent ?
 						{
@@ -406,7 +406,7 @@ namespace Nz
 		#endif
 
 		m_impl->jointMap.clear();
-		for (unsigned int i = 0; i < m_impl->joints.size(); ++i)
+		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
 		{
 			String name = m_impl->joints[i].GetName();
 			if (!name.IsEmpty())
