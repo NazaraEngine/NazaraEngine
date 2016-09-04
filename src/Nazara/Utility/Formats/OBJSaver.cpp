@@ -78,7 +78,7 @@ namespace Nz
 				return false;
 			}
 
-			std::size_t worstCacheVertexCount = mesh.GetVertexCount();
+			UInt32 worstCacheVertexCount = mesh.GetVertexCount();
 			OBJParser objFormat;
 			objFormat.SetNormalCount(worstCacheVertexCount);
 			objFormat.SetPositionCount(worstCacheVertexCount);
@@ -101,9 +101,9 @@ namespace Nz
 			MTLParser mtlFormat;
 			std::unordered_set<String> registredMaterials;
 
-			std::size_t matCount = mesh.GetMaterialCount();
+			UInt32 matCount = mesh.GetMaterialCount();
 			String* materialNames = objFormat.SetMaterialCount(matCount);
-			for (std::size_t i = 0; i < matCount; ++i)
+			for (UInt32 i = 0; i < matCount; ++i)
 			{
 				const ParameterList& matData = mesh.GetMaterialData(i);
 
@@ -152,13 +152,13 @@ namespace Nz
 			}
 
 			// Meshes
-			std::size_t meshCount = mesh.GetSubMeshCount();
+			UInt32 meshCount = mesh.GetSubMeshCount();
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
-			for (std::size_t i = 0; i < meshCount; ++i)
+			for (UInt32 i = 0; i < meshCount; ++i)
 			{
 				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(mesh.GetSubMesh(i));
 
-				std::size_t triangleCount = staticMesh->GetTriangleCount();
+				UInt32 triangleCount = staticMesh->GetTriangleCount();
 
 				meshes[i].faces.resize(triangleCount);
 				meshes[i].material = staticMesh->GetMaterialIndex();
@@ -180,7 +180,7 @@ namespace Nz
 						face.firstVertex = faceIndex * 3;
 						face.vertexCount = 3;
 
-						for (std::size_t j = 0; j < 3; ++j)
+						for (unsigned int j = 0; j < 3; ++j)
 						{
 							OBJParser::FaceVertex& vertexIndices = meshes[i].vertices[face.firstVertex + j];
 

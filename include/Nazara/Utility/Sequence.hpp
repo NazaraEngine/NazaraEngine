@@ -16,9 +16,9 @@ namespace Nz
 	struct Sequence
 	{
 		String name;
-		unsigned int firstFrame;
-		unsigned int frameCount;
-		unsigned int frameRate;
+		UInt32 firstFrame;
+		UInt32 frameCount;
+		UInt32 frameRate;
 	};
 
 	struct SequenceJoint
