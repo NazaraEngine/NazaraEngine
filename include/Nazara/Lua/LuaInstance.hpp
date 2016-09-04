@@ -92,16 +92,16 @@ namespace Nz
 			LuaType GetField(const String& fieldName, int tableIndex = -1) const;
 			LuaType GetGlobal(const char* name) const;
 			LuaType GetGlobal(const String& name) const;
-			lua_State* GetInternalState() const;
-			String GetLastError() const;
-			UInt32 GetMemoryLimit() const;
-			UInt32 GetMemoryUsage() const;
+			inline lua_State* GetInternalState() const;
+			inline String GetLastError() const;
+			inline std::size_t GetMemoryLimit() const;
+			inline std::size_t GetMemoryUsage() const;
 			LuaType GetMetatable(const char* tname) const;
 			LuaType GetMetatable(const String& tname) const;
 			bool GetMetatable(int index) const;
 			unsigned int GetStackTop() const;
 			LuaType GetTable(int index = -2) const;
-			UInt32 GetTimeLimit() const;
+			inline UInt32 GetTimeLimit() const;
 			LuaType GetType(int index) const;
 			const char* GetTypeName(LuaType type) const;
 
@@ -144,7 +144,7 @@ namespace Nz
 			void PushString(const char* str) const;
 			void PushString(const char* str, std::size_t size) const;
 			void PushString(const String& str) const;
-			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0) const;
+			void PushTable(std::size_t sequenceElementCount = 0, std::size_t arrayElementCount = 0) const;
 			void* PushUserdata(std::size_t size) const;
 			void PushValue(int index) const;
 
