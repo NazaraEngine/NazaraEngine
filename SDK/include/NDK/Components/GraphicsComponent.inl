@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/World.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
 #include <algorithm>
-#include "GraphicsComponent.hpp"
 
 namespace Ndk
 {
@@ -36,10 +38,13 @@ namespace Ndk
 	{
 		EnsureTransformMatrixUpdate();
 
+		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
+
 		for (const Renderable& object : m_renderables)
 		{
 			if (!object.dataUpdated)
 			{
+				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
 				object.renderable->UpdateData(&object.data);
 				object.dataUpdated = true;
 			}
@@ -57,8 +62,14 @@ namespace Ndk
 
 	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
 	{
+		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
+	}
+
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
+	{
 		m_renderables.emplace_back(m_transformMatrix);
 		Renderable& r = m_renderables.back();
+		r.data.localMatrix = localMatrix;
 		r.data.renderOrder = renderOrder;
 		r.renderable = std::move(renderable);
 		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
