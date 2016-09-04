@@ -80,7 +80,7 @@ namespace Nz
 		NazaraAssert(instanceData, "Invalid instance data");
 		NazaraUnused(instanceData);
 
-		instanceData->volume.Update(*instanceData->transformMatrix);
+		instanceData->volume.Update(instanceData->transformMatrix);
 	}
 
 	/*!
