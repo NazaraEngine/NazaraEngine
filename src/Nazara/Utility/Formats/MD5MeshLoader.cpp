@@ -53,15 +53,15 @@ namespace Nz
 
 			const MD5MeshParser::Joint* joints = parser.GetJoints();
 			const MD5MeshParser::Mesh* meshes = parser.GetMeshes();
-			std::size_t jointCount = parser.GetJointCount();
-			std::size_t meshCount = parser.GetMeshCount();
+			UInt32 jointCount = parser.GetJointCount();
+			UInt32 meshCount = parser.GetMeshCount();
 
 			if (parameters.animated)
 			{
 				mesh->CreateSkeletal(jointCount);
 
 				Skeleton* skeleton = mesh->GetSkeleton();
-				for (std::size_t i = 0; i < jointCount; ++i)
+				for (UInt32 i = 0; i < jointCount; ++i)
 				{
 					Joint* joint = skeleton->GetJoint(i);
 
@@ -82,7 +82,7 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (std::size_t i = 0; i < meshCount; ++i)
+				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
@@ -100,7 +100,7 @@ namespace Nz
 					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
 					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
 					// (On parle ici de winding)
-					unsigned int index = 0;
+					UInt32 index = 0;
 					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
 					{
 						// On les respécifie dans le bon ordre (inversion du winding)
@@ -227,7 +227,7 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (std::size_t i = 0; i < meshCount; ++i)
+				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 					std::size_t indexCount = md5Mesh.triangles.size()*3;

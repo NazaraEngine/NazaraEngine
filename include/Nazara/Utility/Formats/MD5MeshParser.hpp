@@ -22,10 +22,10 @@ namespace Nz
 		public:
 			struct Joint
 			{
+				Int32 parent;
 				Quaternionf bindOrient;
 				String name;
 				Vector3f bindPos;
-				int parent;
 			};
 
 			typedef Vector3ui Triangle;
@@ -58,9 +58,9 @@ namespace Nz
 			Ternary Check();
 
 			const Joint* GetJoints() const;
-			std::size_t GetJointCount() const;
+			UInt32 GetJointCount() const;
 			const Mesh* GetMeshes() const;
-			std::size_t GetMeshCount() const;
+			UInt32 GetMeshCount() const;
 
 			bool Parse();
 

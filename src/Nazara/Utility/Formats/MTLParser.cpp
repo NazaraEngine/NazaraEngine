@@ -160,7 +160,7 @@ namespace Nz
 			}
 			else if (keyword == "map_ka")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -172,7 +172,7 @@ namespace Nz
 			}
 			else if (keyword == "map_kd")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -184,7 +184,7 @@ namespace Nz
 			}
 			else if (keyword == "map_ks")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -196,7 +196,7 @@ namespace Nz
 			}
 			else if (keyword == "map_bump" || keyword == "bump")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -208,7 +208,7 @@ namespace Nz
 			}
 			else if (keyword == "map_d")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -220,7 +220,7 @@ namespace Nz
 			}
 			else if (keyword == "map_decal" || keyword == "decal")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -232,7 +232,7 @@ namespace Nz
 			}
 			else if (keyword == "map_disp" || keyword == "disp")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
@@ -244,7 +244,7 @@ namespace Nz
 			}
 			else if (keyword == "map_refl" || keyword == "refl")
 			{
-				unsigned int mapPos = m_currentLine.GetWordPosition(1);
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
 				if (mapPos != String::npos)
 				{
 					String map = m_currentLine.SubString(mapPos);
