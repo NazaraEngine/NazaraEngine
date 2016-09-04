@@ -27,9 +27,9 @@ namespace Nz
 		return m_materials.data();
 	}
 
-	inline unsigned int OBJParser::GetMaterialCount() const
+	inline UInt32 OBJParser::GetMaterialCount() const
 	{
-		return m_materials.size();
+		return static_cast<UInt32>(m_materials.size());
 	}
 
 	inline OBJParser::Mesh* OBJParser::GetMeshes()
@@ -42,9 +42,9 @@ namespace Nz
 		return m_meshes.data();
 	}
 
-	inline unsigned int OBJParser::GetMeshCount() const
+	inline UInt32 OBJParser::GetMeshCount() const
 	{
-		return m_meshes.size();
+		return static_cast<UInt32>(m_meshes.size());
 	}
 
 	inline const String& OBJParser::GetMtlLib() const
@@ -62,9 +62,9 @@ namespace Nz
 		return m_normals.data();
 	}
 
-	inline unsigned int OBJParser::GetNormalCount() const
+	inline UInt32 OBJParser::GetNormalCount() const
 	{
-		return m_normals.size();
+		return static_cast<UInt32>(m_normals.size());
 	}
 
 	inline Vector4f* OBJParser::GetPositions()
@@ -77,9 +77,9 @@ namespace Nz
 		return m_positions.data();
 	}
 
-	inline unsigned int OBJParser::GetPositionCount() const
+	inline UInt32 OBJParser::GetPositionCount() const
 	{
-		return m_positions.size();
+		return static_cast<UInt32>(m_positions.size());
 	}
 
 	inline Vector3f* OBJParser::GetTexCoords()
@@ -92,18 +92,18 @@ namespace Nz
 		return m_texCoords.data();
 	}
 
-	inline unsigned int OBJParser::GetTexCoordCount() const
+	inline UInt32 OBJParser::GetTexCoordCount() const
 	{
-		return m_texCoords.size();
+		return static_cast<UInt32>(m_texCoords.size());
 	}
 
-	inline String* OBJParser::SetMaterialCount(std::size_t materialCount)
+	inline String* OBJParser::SetMaterialCount(UInt32 materialCount)
 	{
 		m_materials.resize(materialCount);
 		return m_materials.data();
 	}
 
-	inline OBJParser::Mesh* OBJParser::SetMeshCount(std::size_t meshCount)
+	inline OBJParser::Mesh* OBJParser::SetMeshCount(UInt32 meshCount)
 	{
 		m_meshes.resize(meshCount);
 		return m_meshes.data();
@@ -114,19 +114,19 @@ namespace Nz
 		m_mtlLib = mtlLib;
 	}
 
-	inline Vector3f* OBJParser::SetNormalCount(std::size_t normalCount)
+	inline Vector3f* OBJParser::SetNormalCount(UInt32 normalCount)
 	{
 		m_normals.resize(normalCount);
 		return m_normals.data();
 	}
 
-	inline Vector4f* OBJParser::SetPositionCount(std::size_t positionCount)
+	inline Vector4f* OBJParser::SetPositionCount(UInt32 positionCount)
 	{
 		m_positions.resize(positionCount);
 		return m_positions.data();
 	}
 
-	inline Vector3f* OBJParser::SetTexCoordCount(std::size_t texCoordCount)
+	inline Vector3f* OBJParser::SetTexCoordCount(UInt32 texCoordCount)
 	{
 		m_texCoords.resize(texCoordCount);
 		return m_texCoords.data();
