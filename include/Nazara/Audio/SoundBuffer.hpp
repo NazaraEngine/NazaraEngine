@@ -50,18 +50,18 @@ namespace Nz
 
 		public:
 			SoundBuffer() = default;
-			SoundBuffer(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples);
+			SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
 			SoundBuffer(const SoundBuffer&) = delete;
 			SoundBuffer(SoundBuffer&&) = delete;
 			~SoundBuffer();
 
-			bool Create(AudioFormat format, unsigned int sampleCount, unsigned int sampleRate, const Int16* samples);
+			bool Create(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
 			void Destroy();
 
 			UInt32 GetDuration() const;
 			AudioFormat GetFormat() const;
 			const Int16* GetSamples() const;
-			UInt32 GetSampleCount() const;
+			UInt64 GetSampleCount() const;
 			UInt32 GetSampleRate() const;
 
 			bool IsValid() const;
