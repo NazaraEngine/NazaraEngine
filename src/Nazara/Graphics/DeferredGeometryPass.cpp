@@ -187,18 +187,11 @@ namespace Nz
 												drawFunc(meshData.primitiveMode, 0, indexCount);
 											}
 										}
-
-										instances.clear();
 									}
 								}
 							}
-
-							// And we set it back data to zero
-							matEntry.enabled = false;
 						}
 					}
-
-					pipelineEntry.maxInstanceCount = 0;
 				}
 			}
 		}
