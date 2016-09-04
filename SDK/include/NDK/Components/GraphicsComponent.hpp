@@ -32,6 +32,7 @@ namespace Ndk
 			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			inline void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 
 			inline void Clear();
 

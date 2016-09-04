@@ -133,7 +133,7 @@ namespace Ndk
 
 		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
 
-		m_transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_entity->GetComponent<NodeComponent>().GetTransformMatrix());
+		m_transformMatrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
 		m_transformMatrixUpdated = true;
 	}
 
