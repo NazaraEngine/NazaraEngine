@@ -125,16 +125,7 @@ namespace Nz
 
 	PhysGeomRef PhysGeom::Build(const PrimitiveList& list)
 	{
-		unsigned int primitiveCount = list.GetSize();
-
-		#if NAZARA_PHYSICS_SAFE
-		if (primitiveCount == 0)
-		{
-			NazaraError("PrimitiveList must have at least one primitive");
-			return nullptr;
-		}
-		#endif
-
+		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
 		{
 			std::vector<PhysGeom*> geoms(primitiveCount);
@@ -144,8 +135,10 @@ namespace Nz
 
 			return CompoundGeom::New(&geoms[0], primitiveCount);
 		}
-		else
+		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
+		else
+			return NullGeom::New();
 	}
 
 	bool PhysGeom::Initialize()
@@ -246,10 +239,10 @@ namespace Nz
 
 	/******************************* CompoundGeom ********************************/
 
-	CompoundGeom::CompoundGeom(PhysGeom** geoms, unsigned int geomCount)
+	CompoundGeom::CompoundGeom(PhysGeom** geoms, std::size_t geomCount)
 	{
 		m_geoms.reserve(geomCount);
-		for (unsigned int i = 0; i < geomCount; ++i)
+		for (std::size_t i = 0; i < geomCount; ++i)
 			m_geoms.emplace_back(geoms[i]);
 	}
 
@@ -349,7 +342,7 @@ namespace Nz
 
 	NewtonCollision* ConvexHullGeom::CreateHandle(PhysWorld* world) const
 	{
-		return NewtonCreateConvexHull(world->GetHandle(), m_vertices.size(), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
+		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
 	}
 
 	/******************************* CylinderGeom ********************************/
