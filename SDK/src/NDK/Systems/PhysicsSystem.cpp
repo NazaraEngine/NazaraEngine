@@ -10,11 +10,30 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::PhysicsSystem
+	* \brief NDK class that represents the physics system
+	*
+	* \remark This system is enabled if the entity has the trait: NodeComponent and any of these two: CollisionComponent or PhysicsComponent
+	* \remark Static objects do not have a velocity specified by the physical engine
+	*/
+
+	/*!
+	* \brief Constructs an PhysicsSystem object by default
+	*/
+
 	PhysicsSystem::PhysicsSystem()
 	{
 		Requires<NodeComponent>();
 		RequiresAny<CollisionComponent, PhysicsComponent>();
 	}
+
+	/*!
+	* \brief Constructs a PhysicsSystem object by copy semantic
+	*
+	* \param system PhysicsSystem to copy
+	*/
 
 	PhysicsSystem::PhysicsSystem(const PhysicsSystem& system) :
 	System(system),
@@ -22,12 +41,19 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Operation to perform when entity is validated for the system
+	*
+	* \param entity Pointer to the entity
+	* \param justAdded Is the entity newly added
+	*/
+
 	void PhysicsSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		// Si l'entité ne vient pas d'être ajoutée au système, il est possible qu'elle fasse partie du mauvais tableau
+		// If entity has not been just added to the system, it is possible that it does not own to the right array
 		if (!justAdded)
 		{
-			// On prend le tableau inverse de celui dont l'entité devrait faire partie
+			// We take the inverted array from which the entity should belong to
 			auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_staticObjects : m_dynamicObjects;
 			entities.Remove(entity);
 		}
@@ -35,6 +61,12 @@ namespace Ndk
 		auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_dynamicObjects : m_staticObjects;
 		entities.Insert(entity);
 	}
+
+	/*!
+	* \brief Operation to perform when system is updated
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
 
 	void PhysicsSystem::OnUpdate(float elapsedTime)
 	{
@@ -63,8 +95,8 @@ namespace Ndk
 			Nz::Quaternionf newRotation = node.GetRotation(Nz::CoordSys_Global);
 			Nz::Vector3f newPosition = node.GetPosition(Nz::CoordSys_Global);
 
-			// Pour déplacer des objets statiques et assurer les collisions, il faut leur définir une vitesse
-			// (note importante: le moteur physique n'applique pas la vitesse sur les objets statiques)
+			// To move static objects and ensure their collisions, we have to specify them a velocity
+			// (/!\: the physical motor does not apply the speed on static objects)
 			if (newPosition != oldPosition)
 			{
 				physObj->SetPosition(newPosition);

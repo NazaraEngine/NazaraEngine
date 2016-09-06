@@ -61,7 +61,7 @@ namespace Nz
 		if (!operator==(static_cast<const RenderStates&>(lhs), static_cast<const RenderStates&>(rhs)))
 			return false;
 
-		#define NazaraPipelineMember(field) if (lhs.##field != rhs.##field) return false
+		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
 		#define NazaraPipelineBoolMember NazaraPipelineMember
 
 		NazaraPipelineBoolMember(alphaTest);
@@ -97,6 +97,7 @@ namespace Nz
 	MaterialPipelineRef MaterialPipeline::New(Args&&... args)
 	{
 		std::unique_ptr<MaterialPipeline> object(new MaterialPipeline(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 		return object.release();
 	}
 }
@@ -115,8 +116,8 @@ namespace std
 			Nz::UInt16 parameterHash = 0;
 			Nz::UInt16 parameterIndex = 0;
 
-			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.##member)
-			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.##member) ? 1U : 0U) << (parameterIndex++)
+			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.member)
+			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 
 			NazaraPipelineBoolMember(alphaTest);
 			NazaraPipelineBoolMember(depthSorting);

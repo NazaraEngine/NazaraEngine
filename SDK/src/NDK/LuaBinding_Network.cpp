@@ -5,6 +5,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Network module to Lua
+	*/
+
 	void LuaBinding::BindNetwork()
 	{
 		/*********************************** Nz::AbstractSocket **********************************/
@@ -131,6 +135,12 @@ namespace Ndk
 			}
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Network classes
+	*/
 
 	void LuaBinding::RegisterNetwork(Nz::LuaInstance& instance)
 	{
