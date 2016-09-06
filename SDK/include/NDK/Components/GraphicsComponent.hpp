@@ -32,10 +32,11 @@ namespace Ndk
 			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			inline void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 
 			inline void Clear();
 
-			inline void Detach(const Nz::InstancedRenderableRef& renderable);
+			inline void Detach(const Nz::InstancedRenderable* renderable);
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
@@ -75,8 +76,16 @@ namespace Ndk
 				Renderable(Renderable&& renderable) noexcept :
 				data(std::move(renderable.data)),
 				renderable(std::move(renderable.renderable)),
-				dataUpdated(renderable.dataUpdated)
+				dataUpdated(renderable.dataUpdated),
+				renderableInvalidationSlot(std::move(renderable.renderableInvalidationSlot)),
+				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot))
 				{
+				}
+
+				~Renderable()
+				{
+					// Disconnect release slot before releasing instanced renderable reference
+					renderableReleaseSlot.Disconnect(); 
 				}
 
 				Renderable& operator=(Renderable&& r) noexcept
@@ -84,11 +93,14 @@ namespace Ndk
 					data = std::move(r.data);
 					dataUpdated = r.dataUpdated;
 					renderable = std::move(r.renderable);
+					renderableInvalidationSlot = std::move(r.renderableInvalidationSlot);
+					renderableReleaseSlot = std::move(r.renderableReleaseSlot);
 
 					return *this;
 				}
 
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableRelease, renderableReleaseSlot);
 
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;

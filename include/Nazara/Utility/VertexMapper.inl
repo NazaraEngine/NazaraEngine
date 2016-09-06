@@ -28,8 +28,8 @@ namespace Nz
 		{
 			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<T>();
+		}
 	}
-}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

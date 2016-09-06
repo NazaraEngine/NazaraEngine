@@ -136,7 +136,7 @@ namespace Nz
 	m_renderQueue(static_cast<ForwardRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
 	m_GBufferSize(0U)
 	{
-		m_depthStencilBuffer = RenderBuffer::New();
+		m_depthStencilTexture = Texture::New();
 
 		for (unsigned int i = 0; i < 2; ++i)
 			m_workTextures[i] = Texture::New();
@@ -305,9 +305,9 @@ namespace Nz
 	* \return Pointer to the rendering buffer
 	*/
 
-	RenderBuffer* DeferredRenderTechnique::GetDepthStencilBuffer() const
+	Texture* DeferredRenderTechnique::GetDepthStencilTexture() const
 	{
-		return m_depthStencilBuffer;
+		return m_depthStencilTexture;
 	}
 
 	/*!
@@ -652,6 +652,7 @@ namespace Nz
 		shader->SendInteger(shader->GetUniformLocation("GBuffer0"), 0);
 		shader->SendInteger(shader->GetUniformLocation("GBuffer1"), 1);
 		shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 2);
+		shader->SendInteger(shader->GetUniformLocation("DepthBuffer"), 3);
 
 
 		shader = RegisterDeferredShader("DeferredPointSpotLight", r_fragmentSource_PointSpotLight, sizeof(r_fragmentSource_PointSpotLight), basicVertexStage, &error);
@@ -664,6 +665,7 @@ namespace Nz
 		shader->SendInteger(shader->GetUniformLocation("GBuffer0"), 0);
 		shader->SendInteger(shader->GetUniformLocation("GBuffer1"), 1);
 		shader->SendInteger(shader->GetUniformLocation("GBuffer2"), 2);
+		shader->SendInteger(shader->GetUniformLocation("DepthBuffer"), 3);
 
 
 		// Shaders optionnels (S'ils ne sont pas présents, le rendu minimal sera quand même assuré)

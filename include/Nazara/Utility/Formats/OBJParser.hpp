@@ -31,43 +31,43 @@ namespace Nz
 
 			inline String* GetMaterials();
 			inline const String* GetMaterials() const;
-			inline unsigned int GetMaterialCount() const;
+			inline UInt32 GetMaterialCount() const;
 			inline Mesh* GetMeshes();
 			inline const Mesh* GetMeshes() const;
-			inline unsigned int GetMeshCount() const;
+			inline UInt32 GetMeshCount() const;
 			inline const String& GetMtlLib() const;
 			inline Vector3f* GetNormals();
 			inline const Vector3f* GetNormals() const;
-			inline unsigned int GetNormalCount() const;
+			inline UInt32 GetNormalCount() const;
 			inline Vector4f* GetPositions();
 			inline const Vector4f* GetPositions() const;
-			inline unsigned int GetPositionCount() const;
+			inline UInt32 GetPositionCount() const;
 			inline Vector3f* GetTexCoords();
 			inline const Vector3f* GetTexCoords() const;
-			inline unsigned int GetTexCoordCount() const;
+			inline UInt32 GetTexCoordCount() const;
 
-			bool Parse(Stream& stream, std::size_t reservedVertexCount = 100);
+			bool Parse(Stream& stream, UInt32 reservedVertexCount = 100);
 
 			bool Save(Stream& stream) const;
 
-			inline String* SetMaterialCount(std::size_t materialCount);
-			inline Mesh* SetMeshCount(std::size_t meshCount);
+			inline String* SetMaterialCount(UInt32 materialCount);
+			inline Mesh* SetMeshCount(UInt32 meshCount);
 			inline void SetMtlLib(const String& mtlLib);
-			inline Vector3f* SetNormalCount(std::size_t normalCount);
-			inline Vector4f* SetPositionCount(std::size_t positionCount);
-			inline Vector3f* SetTexCoordCount(std::size_t texCoordCount);
+			inline Vector3f* SetNormalCount(UInt32 normalCount);
+			inline Vector4f* SetPositionCount(UInt32 positionCount);
+			inline Vector3f* SetTexCoordCount(UInt32 texCoordCount);
 
 			struct Face
 			{
-				std::size_t firstVertex;
-				std::size_t vertexCount;
+				UInt32 firstVertex;
+				UInt32 vertexCount;
 			};
 
 			struct FaceVertex
 			{
-				std::size_t normal;
-				std::size_t position;
-				std::size_t texCoord;
+				UInt32 normal;
+				UInt32 position;
+				UInt32 texCoord;
 			};
 
 			struct Mesh
@@ -75,7 +75,7 @@ namespace Nz
 				std::vector<Face> faces;
 				std::vector<FaceVertex> vertices;
 				String name;
-				std::size_t material;
+				UInt32 material;
 			};
 
 		private:

@@ -2,6 +2,13 @@
 layout(early_fragment_tests) in;
 #endif
 
+// HACK UNTIL PROPER FIX
+#if GLSL_VERSION < 400
+	#undef SHADOW_MAPPING
+	#define SHADOW_MAPPING 0
+#endif
+// HACK
+
 #define LIGHT_DIRECTIONAL 0
 #define LIGHT_POINT 1
 #define LIGHT_SPOT 2
@@ -61,21 +68,6 @@ uniform vec4 SceneAmbient;
 uniform sampler2D TextureOverlay;
 
 /********************Fonctions********************/
-vec3 FloatToColor(float f)
-{
-	vec3 color;
-
-	f *= 256.0;
-	color.x = floor(f);
-
-	f = (f - color.x) * 256.0;
-	color.y = floor(f);
-
-	color.z = f - color.y;
-	color.xy *= 0.00390625; // *= 1.0/256
-
-	return color;
-}
 
 #define kPI 3.1415926536
 
@@ -177,7 +169,7 @@ void main()
 	*/
 	RenderTarget0 = vec4(diffuseColor.rgb, dot(specularColor, vec3(0.3, 0.59, 0.11)));
 	RenderTarget1 = vec4(EncodeNormal(normal));
-	RenderTarget2 = vec4(FloatToColor(gl_FragCoord.z), (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
+	RenderTarget2 = vec4(0.0, 0.0, 0.0, (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
 #else // FLAG_DEFERRED
 	#if ALPHA_MAPPING
 	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
