@@ -8,6 +8,7 @@
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
+#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
@@ -16,6 +17,7 @@ namespace Ndk
 {
 	class GraphicsComponent;
 
+	using GraphicsComponentCullingList = Nz::CullingList<GraphicsComponent>;
 	using GraphicsComponentHandle = Nz::ObjectHandle<GraphicsComponent>;
 
 	class NDK_API GraphicsComponent : public Component<GraphicsComponent>, public Nz::HandledObject<GraphicsComponent>
@@ -29,10 +31,11 @@ namespace Ndk
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 
-			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
+			inline void AddToCullingList(GraphicsComponentCullingList* cullingList) const;
+			void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
-			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
-			inline void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
+			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 
 			inline void Clear();
 
@@ -46,10 +49,12 @@ namespace Ndk
 
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
+			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
+
 			static ComponentIndex componentIndex;
 
 		private:
-			inline void InvalidateBoundingVolume();
+			inline void InvalidateBoundingVolume() const;
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
@@ -72,12 +77,13 @@ namespace Ndk
 				dataUpdated(false)
 				{
 				}
-
+				
 				Renderable(Renderable&& renderable) noexcept :
 				data(std::move(renderable.data)),
 				renderable(std::move(renderable.renderable)),
 				dataUpdated(renderable.dataUpdated),
-				renderableInvalidationSlot(std::move(renderable.renderableInvalidationSlot)),
+				renderableBoundingVolumeInvalidationSlot(std::move(renderable.renderableBoundingVolumeInvalidationSlot)),
+				renderableDataInvalidationSlot(std::move(renderable.renderableDataInvalidationSlot)),
 				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot))
 				{
 				}
@@ -93,13 +99,15 @@ namespace Ndk
 					data = std::move(r.data);
 					dataUpdated = r.dataUpdated;
 					renderable = std::move(r.renderable);
-					renderableInvalidationSlot = std::move(r.renderableInvalidationSlot);
+					renderableBoundingVolumeInvalidationSlot = std::move(r.renderableBoundingVolumeInvalidationSlot);
+					renderableDataInvalidationSlot = std::move(r.renderableDataInvalidationSlot);
 					renderableReleaseSlot = std::move(r.renderableReleaseSlot);
 
 					return *this;
 				}
 
-				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateBoundingVolume, renderableBoundingVolumeInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableDataInvalidationSlot);
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableRelease, renderableReleaseSlot);
 
 				mutable Nz::InstancedRenderable::InstanceData data;
@@ -107,6 +115,16 @@ namespace Ndk
 				mutable bool dataUpdated;
 			};
 
+			using VolumeCullingListEntry = GraphicsComponentCullingList::VolumeEntry;
+
+			struct VolumeCullingEntry
+			{
+				VolumeCullingListEntry listEntry;
+
+				NazaraSlot(GraphicsComponentCullingList, OnCullingListRelease, cullingListReleaseSlot);
+			};
+
+			mutable std::vector<VolumeCullingEntry> m_volumeCullingEntries;
 			std::vector<Renderable> m_renderables;
 			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;

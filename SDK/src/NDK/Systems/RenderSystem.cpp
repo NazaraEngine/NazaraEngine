@@ -28,7 +28,6 @@ namespace Ndk
 	/*!
 	* \brief Constructs an RenderSystem object by default
 	*/
-
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true)
@@ -43,7 +42,6 @@ namespace Ndk
 	*
 	* \param entity Pointer to the entity
 	*/
-
 	void RenderSystem::OnEntityRemoved(Entity* entity)
 	{
 		m_cameras.Remove(entity);
@@ -52,6 +50,12 @@ namespace Ndk
 		m_lights.Remove(entity);
 		m_particleGroups.Remove(entity);
 		m_pointSpotLights.Remove(entity);
+
+		if (entity->HasComponent<GraphicsComponent>())
+		{
+			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
+			gfxComponent.RemoveFromCullingList(&m_drawableCulling);
+		}
 	}
 
 	/*!
@@ -60,7 +64,6 @@ namespace Ndk
 	* \param entity Pointer to the entity
 	* \param justAdded Is the entity newly added
 	*/
-
 	void RenderSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
 		NazaraUnused(justAdded);
@@ -77,9 +80,25 @@ namespace Ndk
 			m_cameras.Remove(entity);
 
 		if (entity->HasComponent<GraphicsComponent>() && entity->HasComponent<NodeComponent>())
+		{
 			m_drawables.Insert(entity);
+
+			if (justAdded)
+			{
+				GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
+				gfxComponent.AddToCullingList(&m_drawableCulling);
+			}
+		}
 		else
+		{
 			m_drawables.Remove(entity);
+
+			if (entity->HasComponent<GraphicsComponent>())
+			{
+				GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
+				gfxComponent.RemoveFromCullingList(&m_drawableCulling);
+			}
+		}
 
 		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
 		{
@@ -141,16 +160,19 @@ namespace Ndk
 			//UpdateDirectionalShadowMaps(camComponent);
 
 			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
-			renderQueue->Clear();
 
-			//TODO: Culling
+			// To make sure the bounding volume used by the culling list is updated
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
-
-				graphicsComponent.AddToRenderQueue(renderQueue);
+				graphicsComponent.EnsureBoundingVolumeUpdate();
 			}
+			
+			m_drawableCulling.Cull(camComponent.GetFrustum());
+
+			renderQueue->Clear();
+			for (const GraphicsComponent* gfxComponent : m_drawableCulling)
+				gfxComponent->AddToRenderQueue(renderQueue);
 
 			for (const Ndk::EntityHandle& light : m_lights)
 			{
@@ -165,7 +187,7 @@ namespace Ndk
 			{
 				ParticleGroupComponent& groupComponent = particleGroup->GetComponent<ParticleGroupComponent>();
 
-				groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use Matrix4f
+				groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use any transform matrix (yet)
 			}
 
 			camComponent.ApplyView();

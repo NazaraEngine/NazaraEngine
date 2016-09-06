@@ -28,52 +28,12 @@ namespace Ndk
 			Attach(r.renderable, r.data.renderOrder);
 	}
 
-	/*!
-	* \brief Adds the renderable elements to the render queue
-	*
-	* \param renderQueue Queue to be added
-	*/
-
-	inline void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
+	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		EnsureTransformMatrixUpdate();
-
-		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
-
-		for (const Renderable& object : m_renderables)
-		{
-			if (!object.dataUpdated)
-			{
-				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
-				object.renderable->UpdateData(&object.data);
-				object.dataUpdated = true;
-			}
-
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
-		}
-	}
-
-	/*!
-	* \brief Attaches a renderable to the entity
-	*
-	* \param renderable Reference to a renderable element
-	* \param renderOrder Render order of the element
-	*/
-
-	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
-	{
-		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
-	}
-
-	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
-	{
-		m_renderables.emplace_back(m_transformMatrix);
-		Renderable& r = m_renderables.back();
-		r.data.localMatrix = localMatrix;
-		r.data.renderOrder = renderOrder;
-		r.renderable = std::move(renderable);
-		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
-		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+		m_volumeCullingEntries.emplace_back(VolumeCullingEntry{});
+		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
+		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
+		entry.listEntry = cullingList->RegisterVolumeTest(this);
 
 		InvalidateBoundingVolume();
 	}
@@ -167,11 +127,26 @@ namespace Ndk
 		return m_boundingVolume;
 	}
 
+	inline void GraphicsComponent::RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const
+	{
+		for (auto it = m_volumeCullingEntries.begin(); it != m_volumeCullingEntries.end(); ++it)
+		{
+			if (it->listEntry.GetParent() == cullingList)
+			{
+				if (m_volumeCullingEntries.size() > 1)
+					*it = std::move(m_volumeCullingEntries.back());
+
+				m_volumeCullingEntries.pop_back();
+				break;
+			}
+		}
+	}
+
 	/*!
 	* \brief Invalidates the bounding volume
 	*/
 
-	inline void GraphicsComponent::InvalidateBoundingVolume()
+	inline void GraphicsComponent::InvalidateBoundingVolume() const
 	{
 		m_boundingVolumeUpdated = false;
 	}
@@ -192,9 +167,9 @@ namespace Ndk
 
 	inline void GraphicsComponent::InvalidateTransformMatrix()
 	{
-		m_boundingVolumeUpdated = false;
 		m_transformMatrixUpdated = false;
 
+		InvalidateBoundingVolume();
 		InvalidateRenderables();
 	}
 }
