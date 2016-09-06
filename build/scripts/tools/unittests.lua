@@ -14,17 +14,10 @@ TOOL.Includes = {
 
 TOOL.Files = {
 	"../tests/main.cpp",
-	"../tests/Engine/**.cpp"
+	"../tests/Engine/**.cpp",
+	"../tests/SDK/**.cpp"
 }
 
 TOOL.Libraries = {
-	"NazaraCore",
-	"NazaraAudio",
-	"NazaraLua",
-	"NazaraGraphics",
-	"NazaraRenderer",
-	"NazaraNetwork",
-	"NazaraNoise",
-	"NazaraPhysics",
-	"NazaraUtility"
+	"NazaraSDK"
 }

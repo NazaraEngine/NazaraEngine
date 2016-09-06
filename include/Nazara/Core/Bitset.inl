@@ -121,7 +121,7 @@ namespace Nz
 		if (sizeof(T) <= sizeof(Block))
 		{
 			m_bitCount = std::numeric_limits<T>::digits;
-			m_blocks.push_back(value);
+			m_blocks.push_back(static_cast<Block>(value));
 		}
 		else
 		{

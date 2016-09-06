@@ -28,8 +28,8 @@ namespace Ndk
 			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
-			template<typename T> void ChangeRenderTechnique();
-			inline void ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique);
+			template<typename T> T& ChangeRenderTechnique();
+			inline Nz::AbstractRenderTechnique& ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique);
 
 			inline const Nz::BackgroundRef& GetDefaultBackground() const;
 			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;

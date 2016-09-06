@@ -15,7 +15,8 @@ namespace Nz
 	inline Sprite::Sprite() :
 	m_color(Color::White),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	m_size(64.f, 64.f),
+	m_origin(Nz::Vector3f::Zero())
 	{
 		SetDefaultMaterial();
 	}
@@ -25,11 +26,8 @@ namespace Nz
 	*
 	* \param material Reference to a material
 	*/
-
 	inline Sprite::Sprite(MaterialRef material) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetMaterial(std::move(material), true);
 	}
@@ -41,9 +39,7 @@ namespace Nz
 	*/
 
 	inline Sprite::Sprite(Texture* texture) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetTexture(texture, true);
 	}
@@ -59,7 +55,8 @@ namespace Nz
 	m_color(sprite.m_color),
 	m_material(sprite.m_material),
 	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size)
+	m_size(sprite.m_size),
+	m_origin(sprite.m_origin)
 	{
 	}
 
@@ -77,10 +74,21 @@ namespace Nz
 	* \brief Gets the material of the sprite
 	* \return Current material
 	*/
-
 	inline const MaterialRef& Sprite::GetMaterial() const
 	{
 		return m_material;
+	}
+
+	/*!
+	* \brief Gets the origin of the sprite
+	*
+	* \return Current material
+	*
+	* \see SetOrigin
+	*/
+	inline const Vector3f & Sprite::GetOrigin() const
+	{
+		return m_origin;
 	}
 
 	/*!
@@ -144,6 +152,24 @@ namespace Nz
 			if (diffuseMap && diffuseMap->IsValid())
 				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
 		}
+	}
+
+	/*!
+	* \brief Sets the origin of the sprite
+	*
+	* The origin is the center of translation/rotation/scaling of the sprite.
+	*
+	* \param origin New origin for the sprite
+	*
+	* \see GetOrigin
+	*/
+	inline void Sprite::SetOrigin(const Vector3f& origin)
+	{
+		m_origin = origin;
+
+		// On invalide la bounding box
+		InvalidateBoundingVolume();
+		InvalidateVertices();
 	}
 
 	/*!
@@ -240,6 +266,7 @@ namespace Nz
 
 		m_color = sprite.m_color;
 		m_material = sprite.m_material;
+		m_origin = sprite.m_origin;
 		m_textureCoords = sprite.m_textureCoords;
 		m_size = sprite.m_size;
 
@@ -277,3 +304,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "Sprite.hpp"

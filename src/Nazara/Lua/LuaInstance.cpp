@@ -145,7 +145,8 @@ namespace Nz
 
 	LuaInstance::~LuaInstance()
 	{
-		lua_close(m_state);
+		if (m_state)
+			lua_close(m_state);
 	}
 
 	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const char* error)
@@ -463,26 +464,6 @@ namespace Nz
 		return FromLuaType(lua_getglobal(m_state, name.GetConstBuffer()));
 	}
 
-	lua_State* LuaInstance::GetInternalState() const
-	{
-		return m_state;
-	}
-
-	String LuaInstance::GetLastError() const
-	{
-		return m_lastError;
-	}
-
-	UInt32 LuaInstance::GetMemoryLimit() const
-	{
-		return m_memoryLimit;
-	}
-
-	UInt32 LuaInstance::GetMemoryUsage() const
-	{
-		return m_memoryUsage;
-	}
-
 	LuaType LuaInstance::GetMetatable(const char* tname) const
 	{
 		return FromLuaType(luaL_getmetatable(m_state, tname));
@@ -500,17 +481,12 @@ namespace Nz
 
 	unsigned int LuaInstance::GetStackTop() const
 	{
-		return lua_gettop(m_state);
+		return static_cast<int>(lua_gettop(m_state));
 	}
 
 	LuaType LuaInstance::GetTable(int index) const
 	{
 		return FromLuaType(lua_gettable(m_state, index));
-	}
-
-	UInt32 LuaInstance::GetTimeLimit() const
-	{
-		return m_timeLimit;
 	}
 
 	LuaType LuaInstance::GetType(int index) const
@@ -689,9 +665,10 @@ namespace Nz
 		lua_pushlstring(m_state, str.GetConstBuffer(), str.GetSize());
 	}
 
-	void LuaInstance::PushTable(unsigned int sequenceElementCount, unsigned int arrayElementCount) const
+	void LuaInstance::PushTable(std::size_t sequenceElementCount, std::size_t arrayElementCount) const
 	{
-		lua_createtable(m_state, sequenceElementCount, arrayElementCount);
+		constexpr std::size_t maxInt = std::numeric_limits<int>::max();
+		lua_createtable(m_state, static_cast<int>(std::min(sequenceElementCount, maxInt)), static_cast<int>(std::min(arrayElementCount, maxInt)));
 	}
 
 	void* LuaInstance::PushUserdata(std::size_t size) const

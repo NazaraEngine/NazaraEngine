@@ -97,7 +97,7 @@ namespace Nz
 						return m_format;
 				}
 
-				UInt32 GetSampleCount() const override
+				UInt64 GetSampleCount() const override
 				{
 					return m_sampleCount;
 				}
@@ -131,7 +131,7 @@ namespace Nz
 				bool Open(Stream& stream, bool forceMono)
 				{
 					SF_INFO infos;
-					infos.format = 0; // Format inconnu
+					infos.format = 0; // Unknown format
 
 					m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
 					if (!m_handle)
@@ -154,7 +154,7 @@ namespace Nz
 						return false;
 					}
 
-					m_sampleCount = static_cast<UInt32>(infos.channels*infos.frames);
+					m_sampleCount = infos.channels*infos.frames;
 					m_sampleRate = infos.samplerate;
 
 					// Durée de la musique (s) = samples / channels*rate
@@ -180,7 +180,7 @@ namespace Nz
 					return true;
 				}
 
-				unsigned int Read(void* buffer, unsigned int sampleCount) override
+				UInt64 Read(void* buffer, UInt64 sampleCount) override
 				{
 					// Si la musique a été demandée en mono, nous devons la convertir à la volée lors de la lecture
 					if (m_mixToMono)
@@ -190,13 +190,13 @@ namespace Nz
 						sf_count_t readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format * sampleCount);
 						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), m_format, sampleCount);
 
-						return static_cast<unsigned int>(readSampleCount / m_format);
+						return readSampleCount / m_format;
 					}
 					else
-						return static_cast<unsigned int>(sf_read_short(m_handle, static_cast<Int16*>(buffer), sampleCount));
+						return sf_read_short(m_handle, static_cast<Int16*>(buffer), sampleCount);
 				}
 
-				void Seek(UInt32 offset) override
+				void Seek(UInt64 offset) override
 				{
 					sf_seek(m_handle, offset*m_sampleRate / 1000, SEEK_SET);
 				}
@@ -208,8 +208,8 @@ namespace Nz
 				SNDFILE* m_handle;
 				bool m_mixToMono;
 				UInt32 m_duration;
-				unsigned int m_sampleCount;
-				unsigned int m_sampleRate;
+				UInt32 m_sampleRate;
+				UInt64 m_sampleCount;
 		};
 
 		bool IsSupported(const String& extension)

@@ -6,6 +6,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Core module to Lua
+	*/
+
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
@@ -253,6 +257,12 @@ namespace Ndk
 			return 1;
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Core classes
+	*/
 
 	void LuaBinding::RegisterCore(Nz::LuaInstance& instance)
 	{

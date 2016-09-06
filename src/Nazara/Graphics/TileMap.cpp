@@ -71,24 +71,31 @@ namespace Nz
 				Vector3f tileLeftCorner(x * m_tileSize.x, y * -m_tileSize.y, 0.f);
 
 				*colorPtr++ = tile.color;
-				*posPtr++ = instanceData->transformMatrix->Transform(tileLeftCorner);
+				*posPtr++ = instanceData->transformMatrix.Transform(tileLeftCorner);
 				*texCoordPtr++ = tile.textureCoords.GetCorner(RectCorner_LeftTop);
 
 				*colorPtr++ = tile.color;
-				*posPtr++ = instanceData->transformMatrix->Transform(tileLeftCorner + m_tileSize.x * Vector3f::Right());
+				*posPtr++ = instanceData->transformMatrix.Transform(tileLeftCorner + m_tileSize.x * Vector3f::Right());
 				*texCoordPtr++ = tile.textureCoords.GetCorner(RectCorner_RightTop);
 
 				*colorPtr++ = tile.color;
-				*posPtr++ = instanceData->transformMatrix->Transform(tileLeftCorner + m_tileSize.y * Vector3f::Down());
+				*posPtr++ = instanceData->transformMatrix.Transform(tileLeftCorner + m_tileSize.y * Vector3f::Down());
 				*texCoordPtr++ = tile.textureCoords.GetCorner(RectCorner_LeftBottom);
 
 				*colorPtr++ = tile.color;
-				*posPtr++ = instanceData->transformMatrix->Transform(tileLeftCorner + m_tileSize.x * Vector3f::Right() + m_tileSize.y * Vector3f::Down());
+				*posPtr++ = instanceData->transformMatrix.Transform(tileLeftCorner + m_tileSize.x * Vector3f::Right() + m_tileSize.y * Vector3f::Down());
 				*texCoordPtr++ = tile.textureCoords.GetCorner(RectCorner_RightBottom);
 			}
 			spriteCount += layer.tiles.size();
 		}
 	}
+
+	/*!
+	* \brief Initializes the tilemap library
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if the tilemap library failed to be initialized
+	*/
 
 	bool TileMap::Initialize()
 	{
@@ -100,6 +107,10 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Uninitializes the tilemap library
+	*/
 
 	void TileMap::Uninitialize()
 	{

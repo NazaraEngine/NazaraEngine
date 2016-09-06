@@ -256,78 +256,22 @@ int main()
 	// On lie la caméra à la fenêtre
 	cameraComp.SetTarget(&window);
 
-	// Et on créé deux horloges pour gérer le temps
-	Nz::Clock secondClock, updateClock;
+	// Et on créé une horloge pour gérer le temps
+	Nz::Clock updateClock;
 	Nz::UInt64 updateAccumulator = 0;
-
-	// Ainsi qu'un compteur de FPS improvisé
-	unsigned int fps = 0;
 
 	// Quelques variables de plus pour notre caméra
 	bool smoothMovement = true;
 	Nz::Vector3f targetPos = cameraNode.GetPosition();
 
-	// Pour ajouter une console à notre application, nous avons besoin d'un monde 2D pour gérer ces rendus
-	Ndk::WorldHandle world2D = application.AddWorld().CreateHandle();
-	world2D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(nullptr);
-	world2D->GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+	window.EnableEventPolling(true); // Déprécié
 
-	// Nous ajoutons une caméra comme précédement
-	Ndk::EntityHandle viewEntity = world2D->CreateEntity();
-	viewEntity->AddComponent<Ndk::NodeComponent>();
+	application.EnableConsole(true);
+	application.EnableFPSCounter(true);
 
-	// À la différence que celui-ci effectuera une projection orthogonale
-	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
-	viewer.SetTarget(&window);
-	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
-
-	// Nous créons un environnement Lua pour gérer nos scripts
-	Nz::LuaInstance lua;
-
-	// Faisons en sorte d'enregistrer les classes du moteur dans cet environnement
-	Ndk::LuaAPI::RegisterClasses(lua);
-
-	// Ensuite nous créons la console en elle-même
-	Ndk::Console console(*world2D, Nz::Vector2f(window.GetWidth(), window.GetHeight() / 4), lua);
-
-	// Nous redirigeons les logs vers cette console
-	Nz::Log::OnLogWriteType::ConnectionGuard logGuard = Nz::Log::OnLogWrite.Connect([&console] (const Nz::String& str)
-	{
-		console.AddLine(str);
-	});
-
-	// Nous réécrivons la fonction "print" du Lua pour la rediriger vers la console
-	lua.PushFunction([&console] (Nz::LuaInstance& instance)
-	{
-		Nz::StringStream stream;
-
-		unsigned int argCount = instance.GetStackTop();
-		instance.GetGlobal("tostring");
-		for (unsigned int i = 1; i <= argCount; ++i)
-		{
-			instance.PushValue(-1); // ToString
-			instance.PushValue(i);  // Arg
-			instance.Call(1, 1);
-
-			std::size_t length;
-			const char* str = instance.CheckString(-1, &length);
-			if (i > 1)
-				stream << '\t';
-
-			stream << Nz::String(str, length);
-			instance.Pop(1);
-		}
-
-		console.AddLine(stream);
-		return 0;
-	});
-	lua.SetGlobal("print");
-
-	// Définissons quelques variables de base
-	lua.PushGlobal("Application", Ndk::Application::Instance());
-	lua.PushGlobal("Console", console.CreateHandle());
-	lua.PushGlobal("Spaceship", spaceship->CreateHandle());
-	lua.PushGlobal("World", world->CreateHandle());
+	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
+	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
+	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
 
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
@@ -340,8 +284,12 @@ int main()
 			{
 				case Nz::WindowEventType_MouseMoved: // La souris a bougé
 				{
-					if (console.IsVisible())
-						break;
+					if (application.IsConsoleEnabled())
+					{
+						Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
+						if (consoleOverlay.console->IsVisible())
+							break;
+					}
 
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
@@ -366,9 +314,6 @@ int main()
 					break;
 
 				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
-					if (console.IsVisible())
-						console.SendEvent(event);
-
 					if (event.key.code == Nz::Keyboard::Key::Escape)
 						window.Close();
 					else if (event.key.code == Nz::Keyboard::F1)
@@ -381,19 +326,6 @@ int main()
 						else
 							smoothMovement = true;
 					}
-					else if (event.key.code == Nz::Keyboard::F9)
-						console.Show(!console.IsVisible());
-					break;
-
-				case Nz::WindowEventType_TextEntered:
-				{
-					if (console.IsVisible())
-						console.SendCharacter(event.text.character);
-					break;
-				}
-
-				case Nz::WindowEventType_Resized:
-					console.SetSize({float(event.size.width), event.size.height / 4.f});
 					break;
 
 				default:
@@ -417,7 +349,16 @@ int main()
 			// Vitesse de déplacement de la caméra
 			float cameraSpeed = 3.f * elapsedTime; // Trois mètres par seconde
 
-			if (!console.IsVisible())
+			bool move = true;
+
+			if (application.IsConsoleEnabled())
+			{
+				Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
+				if (consoleOverlay.console->IsVisible())
+					move = false;
+			}
+
+			if (move)
 			{
 				// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
@@ -458,28 +399,6 @@ int main()
 		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
 		window.Display();
-
-		// On incrémente le compteur de FPS improvisé
-		fps++;
-
-		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
-		{
-			// Et on insère ces données dans le titre de la fenêtre
-			window.SetTitle(windowTitle + " - " + Nz::String::Number(fps) + " FPS");
-
-			/*
-			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
-			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
-			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
-			*/
-
-			// Et on réinitialise le compteur de FPS
-			fps = 0;
-
-			// Et on relance l'horloge pour refaire ça dans une seconde
-			secondClock.Restart();
-		}
 	}
 
 	return EXIT_SUCCESS;

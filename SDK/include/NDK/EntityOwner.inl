@@ -8,16 +8,40 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::EntityOwner
+	* \brief NDK class that represents the owner of the entity and so its lifetime
+	*/
+
+	/*!
+	* \brief Constructs a EntityOwner object
+	*
+	* \param entity Entity to own
+	*/
+
 	inline EntityOwner::EntityOwner(Entity* entity) :
 	EntityOwner()
 	{
 		Reset(entity);
 	}
 
+	/*!
+	* \brief Destructs the object and calls Reset
+	*
+	* \see Reset
+	*/
+
 	inline EntityOwner::~EntityOwner()
 	{
 		Reset(nullptr);
 	}
+
+	/*!
+	* \brief Resets the ownership of the entity, previous is killed
+	*
+	* \param entity Entity to own
+	*/
 
 	inline void EntityOwner::Reset(Entity* entity)
 	{
@@ -27,11 +51,23 @@ namespace Ndk
 		EntityHandle::Reset(entity);
 	}
 
+	/*!
+	* \brief Resets the ownership of the entity by move semantic
+	*
+	* \param handle EntityOwner to move into this
+	*/
+
 	inline void EntityOwner::Reset(EntityOwner&& handle)
 	{
 		Reset(handle.GetObject());
 		handle.m_object = nullptr;
 	}
+
+	/*!
+	* \brief Resets the ownership of the entity to the affected one
+	*
+	* \param entity Entity to own
+	*/
 
 	inline EntityOwner& EntityOwner::operator=(Entity* entity)
 	{
