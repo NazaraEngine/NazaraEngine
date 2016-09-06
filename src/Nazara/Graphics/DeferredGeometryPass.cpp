@@ -187,18 +187,11 @@ namespace Nz
 												drawFunc(meshData.primitiveMode, 0, indexCount);
 											}
 										}
-
-										instances.clear();
 									}
 								}
 							}
-
-							// And we set it back data to zero
-							matEntry.enabled = false;
 						}
 					}
-
-					pipelineEntry.maxInstanceCount = 0;
 				}
 			}
 		}
@@ -232,7 +225,7 @@ namespace Nz
 			unsigned int width = dimensions.x;
 			unsigned int height = dimensions.y;
 
-			m_depthStencilBuffer->Create(PixelFormatType_Depth24Stencil8, width, height);
+			m_depthStencilTexture->Create(ImageType_2D, PixelFormatType_Depth24Stencil8, width, height);
 
 			m_GBuffer[0]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
 			m_GBuffer[1]->Create(ImageType_2D, PixelFormatType_RG16F, width, height); // Texture 1 : Encoded normal
@@ -246,7 +239,7 @@ namespace Nz
 
 			// Texture 3 : Emission map ?
 
-			m_GBufferRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_GBufferRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_GBufferRTT->Unlock();
 
@@ -258,7 +251,7 @@ namespace Nz
 				m_workRTT->AttachTexture(AttachmentPoint_Color, i, m_workTextures[i]);
 			}
 
-			m_workRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_workRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_workRTT->Unlock();
 

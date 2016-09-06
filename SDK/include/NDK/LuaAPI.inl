@@ -26,6 +26,11 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Gets the internal binding for Lua
+	* \return A pointer to the binding
+	*/
+
 	inline LuaBinding* LuaAPI::GetBinding()
 	{
 		return s_binding;
@@ -34,6 +39,15 @@ namespace Ndk
 
 namespace Nz
 {
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param color Resulting color
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Color* color, TypeTag<Color>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
@@ -45,6 +59,15 @@ namespace Nz
 
 		return 1;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param angles Resulting euler angles
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, EulerAnglesd* angles, TypeTag<EulerAnglesd>)
 	{
@@ -66,6 +89,15 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param angles Resulting euler angles
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, EulerAnglesf* angles, TypeTag<EulerAnglesf>)
 	{
 		EulerAnglesd anglesDouble;
@@ -75,12 +107,30 @@ namespace Nz
 		return ret;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param fontRef Resulting reference to a font
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontRef* fontRef, TypeTag<FontRef>)
 	{
 		*fontRef = *static_cast<FontRef*>(instance.CheckUserdata(index, "Font"));
 
 		return 1;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a font
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, FontParams* params, TypeTag<FontParams>)
 	{
@@ -92,6 +142,15 @@ namespace Nz
 
 		return 1;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a mesh
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MeshParams* params, TypeTag<MeshParams>)
 	{
@@ -106,6 +165,15 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param rect Resulting rectangle
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectd* rect, TypeTag<Rectd>)
 	{
 		instance.CheckType(index, LuaType_Table);
@@ -118,6 +186,15 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param rect Resulting rectangle
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectf* rect, TypeTag<Rectf>)
 	{
 		Rectd rectDouble;
@@ -127,6 +204,15 @@ namespace Nz
 		return ret;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param rect Resulting rectangle
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectui* rect, TypeTag<Rectui>)
 	{
 		Rectd rectDouble;
@@ -135,6 +221,15 @@ namespace Nz
 		rect->Set(rectDouble);
 		return ret;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
 	{
@@ -156,6 +251,15 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaternionf* quat, TypeTag<Quaternionf>)
 	{
 		Quaterniond quatDouble;
@@ -164,6 +268,15 @@ namespace Nz
 		quat->Set(quatDouble);
 		return ret;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param address Resulting IP address
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
 	{
@@ -178,6 +291,15 @@ namespace Nz
 				return 1;
 		}
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector2D
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector2d* vec, TypeTag<Vector2d>)
 	{
@@ -200,6 +322,15 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector2D
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector2f* vec, TypeTag<Vector2f>)
 	{
 		Vector2d vecDouble;
@@ -209,6 +340,15 @@ namespace Nz
 		return ret;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector2D
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector2ui* vec, TypeTag<Vector2ui>)
 	{
 		Vector2d vecDouble;
@@ -217,6 +357,15 @@ namespace Nz
 		vec->Set(vecDouble);
 		return ret;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector3D
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector3d* vec, TypeTag<Vector3d>)
 	{
@@ -239,6 +388,15 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector3D
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector3f* vec, TypeTag<Vector3f>)
 	{
 		Vector3d vecDouble;
@@ -247,6 +405,15 @@ namespace Nz
 		vec->Set(vecDouble);
 		return ret;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param vec Resulting vector3D
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Vector3ui* vec, TypeTag<Vector3ui>)
 	{
@@ -257,12 +424,30 @@ namespace Nz
 		return ret;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param handle Resulting entity
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
 	{
 		*handle = *static_cast<Ndk::EntityHandle*>(instance.CheckUserdata(index, "Entity"));
 
 		return 1;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param handle Resulting world
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Ndk::WorldHandle* handle, TypeTag<Ndk::WorldHandle>)
 	{
@@ -272,6 +457,16 @@ namespace Nz
 	}
 
 #ifndef NDK_SERVER
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param renderable Resulting reference to a instanced renderable
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, InstancedRenderableRef* renderable, TypeTag<InstancedRenderableRef>)
 	{
 		if (instance.IsOfType(index, "InstancedRenderable"))
@@ -280,6 +475,15 @@ namespace Nz
 			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "Model"));
 		return 1;
 	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a material
+	*/
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MaterialParams* params, TypeTag<MaterialParams>)
 	{
@@ -295,6 +499,15 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a model
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, ModelParameters* params, TypeTag<ModelParameters>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
@@ -307,6 +520,15 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a music
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MusicParams* params, TypeTag<MusicParams>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
@@ -316,6 +538,15 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param params Resulting parameters for a sound buffer
+	*/
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
@@ -324,9 +555,16 @@ namespace Nz
 
 		return 1;
 	}
+
 #endif
 
-
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting euler angles
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesd&& val, TypeTag<EulerAnglesd>)
 	{
@@ -334,17 +572,41 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting euler angles
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesf&& val, TypeTag<EulerAnglesf>)
 	{
 		instance.PushInstance<EulerAnglesd>("EulerAngles", val);
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting reference to a font
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, FontRef&& val, TypeTag<FontRef>)
 	{
 		instance.PushInstance<FontRef>("Font", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting size information for a font
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Font::SizeInfo&& val, TypeTag<Font::SizeInfo>)
 	{
@@ -357,11 +619,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting quaternion
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Quaterniond&& val, TypeTag<Quaterniond>)
 	{
 		instance.PushInstance<Quaterniond>("Quaternion", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting quaternion
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Quaternionf&& val, TypeTag<Quaternionf>)
 	{
@@ -369,11 +647,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting IP address
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
 	{
 		instance.PushInstance<IpAddress>("IpAddress", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Rectd&& val, TypeTag<Rectf>)
 	{
@@ -381,11 +675,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Rectf&& val, TypeTag<Rectf>)
 	{
 		instance.PushInstance<Rectd>("Rect", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Rectui&& val, TypeTag<Rectui>)
 	{
@@ -393,11 +703,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector2D
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2d&& val, TypeTag<Vector2d>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector2D
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2f&& val, TypeTag<Vector2f>)
 	{
@@ -405,11 +731,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector2D
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2ui&& val, TypeTag<Vector2ui>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector3D
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3d&& val, TypeTag<Vector3d>)
 	{
@@ -417,11 +759,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector3D
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3f&& val, TypeTag<Vector3f>)
 	{
 		instance.PushInstance<Vector3d>("Vector3", val);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting vector3D
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector3ui&& val, TypeTag<Vector3ui>)
 	{
@@ -429,11 +787,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param ptr Resulting entity
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::Entity* ptr, TypeTag<Ndk::Entity*>)
 	{
 		instance.PushInstance<Ndk::EntityHandle>("Entity", ptr);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param ptr Resulting application
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::Application* ptr, TypeTag<Ndk::Application*>)
 	{
@@ -441,11 +815,27 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting entity
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::EntityHandle&& handle, TypeTag<Ndk::EntityHandle>)
 	{
 		instance.PushInstance<Ndk::EntityHandle>("Entity", handle);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting node component
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::NodeComponentHandle&& handle, TypeTag<Ndk::NodeComponentHandle>)
 	{
@@ -453,17 +843,41 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting velocity component
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::VelocityComponentHandle&& handle, TypeTag<Ndk::VelocityComponentHandle>)
 	{
 		instance.PushInstance<Ndk::VelocityComponentHandle>("VelocityComponent", handle);
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param ptr Resulting world
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::World* ptr, TypeTag<Ndk::World*>)
 	{
 		instance.PushInstance<Ndk::WorldHandle>("World", ptr);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param ptr Resulting world
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::WorldHandle&& handle, TypeTag<Ndk::WorldHandle>)
 	{
@@ -472,11 +886,28 @@ namespace Nz
 	}
 
 #ifndef NDK_SERVER
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting console
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::ConsoleHandle&& handle, TypeTag<Ndk::ConsoleHandle>)
 	{
 		instance.PushInstance<Ndk::ConsoleHandle>("Console", handle);
 		return 1;
 	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting graphics component
+	*/
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::GraphicsComponentHandle&& handle, TypeTag<Ndk::GraphicsComponentHandle>)
 	{
@@ -484,10 +915,20 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting sound buffer
+	*/
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
 		return 1;
 	}
+
 #endif
+
 }

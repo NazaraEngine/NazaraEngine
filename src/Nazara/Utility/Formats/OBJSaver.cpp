@@ -35,12 +35,12 @@ namespace Nz
 				{
 				}
 
-				std::size_t GetCount() const
+				UInt32 GetCount() const
 				{
 					return m_count;
 				}
 
-				std::size_t Insert(const T& data)
+				UInt32 Insert(const T& data)
 				{
 					auto it = m_cache.find(data);
 					if (it == m_cache.end())
@@ -54,8 +54,8 @@ namespace Nz
 				}
 
 			private:
-				std::size_t m_count;
-				std::map<T, std::size_t> m_cache;
+				UInt32 m_count;
+				std::map<T, UInt32> m_cache;
 				T* m_buffer;
 		};
 
@@ -78,7 +78,7 @@ namespace Nz
 				return false;
 			}
 
-			std::size_t worstCacheVertexCount = mesh.GetVertexCount();
+			UInt32 worstCacheVertexCount = mesh.GetVertexCount();
 			OBJParser objFormat;
 			objFormat.SetNormalCount(worstCacheVertexCount);
 			objFormat.SetPositionCount(worstCacheVertexCount);
@@ -101,9 +101,9 @@ namespace Nz
 			MTLParser mtlFormat;
 			std::unordered_set<String> registredMaterials;
 
-			std::size_t matCount = mesh.GetMaterialCount();
+			UInt32 matCount = mesh.GetMaterialCount();
 			String* materialNames = objFormat.SetMaterialCount(matCount);
-			for (std::size_t i = 0; i < matCount; ++i)
+			for (UInt32 i = 0; i < matCount; ++i)
 			{
 				const ParameterList& matData = mesh.GetMaterialData(i);
 
@@ -152,13 +152,13 @@ namespace Nz
 			}
 
 			// Meshes
-			std::size_t meshCount = mesh.GetSubMeshCount();
+			UInt32 meshCount = mesh.GetSubMeshCount();
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
-			for (std::size_t i = 0; i < meshCount; ++i)
+			for (UInt32 i = 0; i < meshCount; ++i)
 			{
 				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(mesh.GetSubMesh(i));
 
-				std::size_t triangleCount = staticMesh->GetTriangleCount();
+				UInt32 triangleCount = staticMesh->GetTriangleCount();
 
 				meshes[i].faces.resize(triangleCount);
 				meshes[i].material = staticMesh->GetMaterialIndex();
@@ -172,7 +172,7 @@ namespace Nz
 					SparsePtr<Vector3f> positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
 
-					std::size_t faceIndex = 0;
+					UInt32 faceIndex = 0;
 					TriangleIterator triangle(staticMesh);
 					do 
 					{
@@ -180,11 +180,11 @@ namespace Nz
 						face.firstVertex = faceIndex * 3;
 						face.vertexCount = 3;
 
-						for (std::size_t j = 0; j < 3; ++j)
+						for (unsigned int j = 0; j < 3; ++j)
 						{
 							OBJParser::FaceVertex& vertexIndices = meshes[i].vertices[face.firstVertex + j];
 
-							std::size_t index = triangle[j];
+							UInt32 index = triangle[j];
 							vertexIndices.normal = normalCache.Insert(normalPtr[index]);
 							vertexIndices.position = positionCache.Insert(positionPtr[index]);
 							vertexIndices.texCoord = texCoordsCache.Insert(texCoordsPtr[index]);

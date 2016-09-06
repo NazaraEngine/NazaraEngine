@@ -7,13 +7,24 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds SDK module to Lua
+	*/
+
 	void LuaBinding::BindSDK()
 	{
 		/*********************************** Ndk::Application **********************************/
 
 		#ifndef NDK_SERVER
 		//application.SetMethod("AddWindow", &Application::AddWindow);
+
+		application.BindMethod("EnableConsole", &Application::EnableConsole);
+		application.BindMethod("EnableFPSCounter", &Application::EnableFPSCounter);
+
+		application.BindMethod("IsConsoleEnabled", &Application::IsConsoleEnabled);
+		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
+
 		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application) -> int
 		{
 			instance.Push(application->AddWorld().CreateHandle());
@@ -53,7 +64,7 @@ namespace Ndk
 		#endif
 
 		/*********************************** Ndk::Entity **********************************/
-		entityClass.BindMethod("Enable", &Entity::Enable);
+		entityClass.BindMethod("Enable", &Entity::Enable, true);
 		entityClass.BindMethod("GetId", &Entity::GetId);
 		entityClass.BindMethod("GetWorld", &Entity::GetWorld);
 		entityClass.BindMethod("Kill", &Entity::Kill);
@@ -128,7 +139,7 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", &GraphicsComponent::Attach, 0);
+		graphicsComponent.BindMethod("Attach", (void(Ndk::GraphicsComponent::*)(Nz::InstancedRenderableRef, int)) &GraphicsComponent::Attach, 0);
 		#endif
 
 
@@ -142,6 +153,12 @@ namespace Ndk
 		BindComponent<GraphicsComponent>("Graphics");
 		#endif
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the SDK classes
+	*/
 
 	void LuaBinding::RegisterSDK(Nz::LuaInstance& instance)
 	{
@@ -172,6 +189,14 @@ namespace Ndk
 		}
 		instance.SetGlobal("ComponentType");
 	}
+
+	/*!
+	* \brief Gets the index of the component
+	* \return A pointer to the binding linked to a component
+	*
+	* \param instance Lua instance that will interact with the component
+	* \param argIndex Index of the component
+	*/
 
 	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaInstance& instance, int argIndex)
 	{

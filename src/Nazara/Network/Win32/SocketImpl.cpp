@@ -8,8 +8,9 @@
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 #include <Winsock2.h>
-#ifdef NAZARA_COMPILER_MINGW
-// MinGW is lacking Mstcpip.h and that's too bad
+
+// Some compilers (olders versions of MinGW) are lacking Mstcpip.h which defines the following struct/#define
+// Define them ourself for now
 struct tcp_keepalive
 {
     u_long onoff;
@@ -18,9 +19,6 @@ struct tcp_keepalive
 };
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
-#else
-    #include <Mstcpip.h>
-#endif // NAZARA_COMPILER_MINGW
 
 #include <Nazara/Network/Debug.hpp>
 

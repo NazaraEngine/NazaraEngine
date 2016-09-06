@@ -134,7 +134,7 @@ namespace Nz
 	class NAZARA_PHYSICS_API CompoundGeom : public PhysGeom
 	{
 		public:
-			CompoundGeom(PhysGeom** geoms, unsigned int geomCount);
+			CompoundGeom(PhysGeom** geoms, std::size_t geomCount);
 
 			const std::vector<PhysGeomRef>& GetGeoms() const;
 			GeomType GetType() const override;
