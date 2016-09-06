@@ -139,7 +139,7 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", &GraphicsComponent::Attach, 0);
+		graphicsComponent.BindMethod("Attach", (void(Ndk::GraphicsComponent::*)(Nz::InstancedRenderableRef, int)) &GraphicsComponent::Attach, 0);
 		#endif
 
 
