@@ -18,6 +18,9 @@ namespace Nz
 	m_size(64.f, 64.f),
 	m_origin(Nz::Vector3f::Zero())
 	{
+		for (Color& color : m_cornerColor)
+			color = Color::White;
+
 		SetDefaultMaterial();
 	}
 
@@ -62,12 +65,33 @@ namespace Nz
 
 	/*!
 	* \brief Gets the color of the sprite
+	*
+	* This is the global color of the sprite, independent from corner colors
+	*
 	* \return Current color
+	*
+	* \see GetCornerColor
+	* \see SetColor
 	*/
-
 	inline const Color& Sprite::GetColor() const
 	{
 		return m_color;
+	}
+
+	/*!
+	* \brief Gets the color setup on a corner of the sprite
+	*
+	* \return Current color
+	*
+	* \param corner Corner of the sprite to query
+	*
+	* \see SetCornerColor
+	*/
+	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
+	{
+		NazaraAssert(corner < m_cornerColor.size(), "Invalid corner");
+
+		return m_cornerColor[corner];
 	}
 
 	/*!
@@ -86,7 +110,7 @@ namespace Nz
 	*
 	* \see SetOrigin
 	*/
-	inline const Vector3f & Sprite::GetOrigin() const
+	inline const Vector3f& Sprite::GetOrigin() const
 	{
 		return m_origin;
 	}
@@ -105,21 +129,44 @@ namespace Nz
 	* \brief Gets the texture coordinates of the sprite
 	* \return Current texture coordinates
 	*/
-
 	inline const Rectf& Sprite::GetTextureCoords() const
 	{
 		return m_textureCoords;
 	}
 
 	/*!
-	* \brief Sets the color of the billboard
+	* \brief Sets the global color of the sprite
 	*
-	* \param color Color for the billboard
+	* This is independent from the corner color of the sprite
+	*
+	* \param color Color for the sprite
+	*
+	* \see GetColor
+	* \see SetCornerColor
 	*/
-
 	inline void Sprite::SetColor(const Color& color)
 	{
 		m_color = color;
+
+		InvalidateVertices();
+	}
+
+	/*!
+	* \brief Sets a color for a corner of the sprite
+	*
+	* This is independent from the sprite global color, which gets multiplied by the corner color when rendering the sprite.
+	*
+	* \param corner Corner of the sprite to set
+	* \param color Color for the sprite
+	*
+	* \see GetCornerColor
+	* \see SetColor
+	*/
+	inline void Sprite::SetCornerColor(RectCorner corner, const Color& color)
+	{
+		NazaraAssert(corner < m_cornerColor.size(), "Invalid corner");
+
+		m_cornerColor[corner] = color;
 
 		InvalidateVertices();
 	}
