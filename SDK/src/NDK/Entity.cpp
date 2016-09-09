@@ -158,6 +158,9 @@ namespace Ndk
 
 		UnregisterAllHandles();
 
+		m_components.clear();
+		m_componentBits.Reset();
+
 		m_valid = false;
 	}
 
