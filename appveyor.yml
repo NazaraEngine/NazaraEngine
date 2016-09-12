@@ -1,0 +1,23 @@
+shallow_clone: true
+
+os:
+  - Visual Studio 2015
+
+environment:
+  matrix:
+  - TOOLSET: vs2010
+  - TOOLSET: vs2013
+  - TOOLSET: vs2015
+
+install:
+  - cd build && "./premake5.exe" %TOOLSET% && cd ..
+
+configuration:
+  - Debug
+  - Release
+
+build:
+  project: NazaraEngine/build/$(TOOLSET)/NazaraEngine.sln
+
+after_test:
+  - NazaraEngine\tests\Tests.exe
