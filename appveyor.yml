@@ -1,3 +1,5 @@
+version: '{branch}-rev{build}'
+configuration: DebugDynamic, ReleaseDynamic
 shallow_clone: true
 
 os:
