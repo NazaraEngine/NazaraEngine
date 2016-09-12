@@ -1,5 +1,5 @@
 version: '{branch}-rev{build}'
-configuration: DebugDynamic, ReleaseDynamic
+
 shallow_clone: true
 
 os:
@@ -13,8 +13,8 @@ install:
   - cd build && "./premake5.exe" %TOOLSET% && cd ..
 
 configuration:
-  - Debug
-  - Release
+  - DebugDynamic
+  - ReleaseDynamic
 
 build:
   project: build/$(TOOLSET)/NazaraEngine.sln
