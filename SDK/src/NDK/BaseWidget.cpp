@@ -15,7 +15,7 @@ namespace Ndk
 			delete child;
 	}
 
-	inline void Ndk::BaseWidget::EnableBackground(bool enable)
+	inline void BaseWidget::EnableBackground(bool enable)
 	{
 		if (m_backgroundEntity.IsValid() == enable)
 			return;
@@ -30,7 +30,7 @@ namespace Ndk
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
 			m_backgroundEntity->AddComponent<NodeComponent>().SetParent(this);
 
-			UpdateBackground();
+			BaseWidget::Layout(); // Only layout background
 		}
 		else
 		{
@@ -58,7 +58,7 @@ namespace Ndk
 		m_entities.erase(it);
 	}
 
-	void BaseWidget::UpdateBackground()
+	void BaseWidget::Layout()
 	{
 		if (m_backgroundEntity)
 		{
