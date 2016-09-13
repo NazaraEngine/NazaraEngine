@@ -89,7 +89,7 @@ namespace Nz
 	*/
 	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
 	{
-		NazaraAssert(corner < m_cornerColor.size(), "Invalid corner");
+		NazaraAssert(static_cast<std::size_t>(corner) < m_cornerColor.size(), "Invalid corner");
 
 		return m_cornerColor[corner];
 	}
@@ -164,7 +164,7 @@ namespace Nz
 	*/
 	inline void Sprite::SetCornerColor(RectCorner corner, const Color& color)
 	{
-		NazaraAssert(corner < m_cornerColor.size(), "Invalid corner");
+		NazaraAssert(static_cast<std::size_t>(corner) < m_cornerColor.size(), "Invalid corner");
 
 		m_cornerColor[corner] = color;
 
