@@ -21,7 +21,6 @@ namespace Ndk
 		m_gradientEntity = CreateEntity();
 		m_gradientEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_gradientEntity->AddComponent<GraphicsComponent>().Attach(m_gradientSprite);
-		m_gradientEntity->GetComponent<GraphicsComponent>().Attach(m_borderSprite, Nz::Matrix4f::Translate(Nz::Vector2f(-1.f, -1.f)), -1);
 
 		m_textSprite = Nz::TextSprite::New();
 
