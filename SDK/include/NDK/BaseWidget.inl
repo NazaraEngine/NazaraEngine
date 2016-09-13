@@ -27,6 +27,11 @@ namespace Ndk
 		return m_padding;
 	}
 
+	inline const Nz::Vector2f& BaseWidget::GetContentSize() const
+	{
+		return m_contentSize;
+	}
+
 	inline Nz::Vector2f BaseWidget::GetSize() const
 	{
 		return Nz::Vector2f(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
@@ -35,7 +40,8 @@ namespace Ndk
 	inline void BaseWidget::SetContentSize(const Nz::Vector2f& size)
 	{
 		m_contentSize = size;
-		UpdateBackground();
+		
+		Layout();
 	}
 
 	inline void BaseWidget::SetPadding(float left, float top, float right, float bottom)
@@ -45,6 +51,6 @@ namespace Ndk
 		m_padding.bottom = bottom;
 		m_padding.right = right;
 
-		UpdateBackground();
+		Layout();
 	}
 }

@@ -33,6 +33,7 @@ namespace Ndk
 			//virtual BaseWidget* Clone() const = 0;
 
 			inline const Padding& GetPadding() const;
+			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
 			virtual void ResizeToContent() = 0;
@@ -55,10 +56,9 @@ namespace Ndk
 		protected:
 			EntityHandle CreateEntity();
 			void DestroyEntity(Entity* entity);
+			virtual void Layout();
 
 		private:
-			void UpdateBackground();
-
 			std::vector<EntityOwner> m_entities;
 			std::vector<BaseWidget*> m_children;
 			EntityOwner m_backgroundEntity;
