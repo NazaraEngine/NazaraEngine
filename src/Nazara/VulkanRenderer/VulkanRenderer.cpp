@@ -4,10 +4,16 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/VulkanRenderer/VkLoader.hpp>
+#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
+	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl()
+	{
+		return std::make_unique<VkRenderWindow>();
+	}
+
 	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
 	{
 		if (other->QueryAPI() == RenderAPI_Vulkan && QueryAPIVersion() < other->QueryAPIVersion())
