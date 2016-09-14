@@ -8,15 +8,44 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::ParticleGroupComponent
+	* \brief NDK class that represents the component for a group of particles
+	*/
+
+	/*!
+	* \brief Constructs a ParticleGroupComponent object with a maximal number of particles and a layout
+	*
+	* \param maxParticleCount Maximum number of particles to generate
+	* \param layout Enumeration for the layout of data information for the particles
+	*/
+
 	inline ParticleGroupComponent::ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleLayout layout) :
 	ParticleGroup(maxParticleCount, layout)
 	{
 	}
 
+	/*!
+	* \brief Constructs a ParticleGroupComponent object with a maximal number of particles and a particle declaration
+	*
+	* \param maxParticleCount Maximum number of particles to generate
+	* \param declaration Data information for the particles
+	*/
+
 	inline ParticleGroupComponent::ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleDeclarationConstRef declaration) :
 	ParticleGroup(maxParticleCount, std::move(declaration))
 	{
 	}
+
+	/*!
+	* \brief Adds an emitter to the particles
+	*
+	* \param emitter Emitter for the particles
+	*
+	* \remark Produces a NazaraAssert if emitter is invalid
+	* \remark Produces a NazaraAssert if entity has no component of type ParticleEmitterComponent
+	*/
 
 	inline void ParticleGroupComponent::AddEmitter(Entity* emitter)
 	{
@@ -26,6 +55,16 @@ namespace Ndk
 		auto& emitterComponent = emitter->GetComponent<ParticleEmitterComponent>();
 		ParticleGroup::AddEmitter(&emitterComponent);
 	}
+
+
+	/*!
+	* \brief Removes an emitter to the particles
+	*
+	* \param emitter Emitter for the particles to remove
+	*
+	* \remark Produces a NazaraAssert if emitter is invalid
+	* \remark Produces a NazaraAssert if entity has no component of type ParticleEmitterComponent
+	*/
 
 	inline void ParticleGroupComponent::RemoveEmitter(Entity* emitter)
 	{

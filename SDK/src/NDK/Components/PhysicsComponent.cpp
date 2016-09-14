@@ -12,6 +12,18 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::PhysicsComponent
+	* \brief NDK class that represents the component for physics (meant for dynamic objects)
+	*/
+
+	/*!
+	* \brief Operation to perform when component is attached to an entity
+	*
+	* \remark Produces a NazaraAssert if the world does not have a physics system
+	*/
+
 	void PhysicsComponent::OnAttached()
 	{
 		World* entityWorld = m_entity->GetWorld();
@@ -33,6 +45,14 @@ namespace Ndk
 		m_object->SetMass(1.f);
 	}
 
+	/*!
+	* \brief Operation to perform when component is attached to this component
+	*
+	* \param component Component being attached
+	*
+	* \remark Produces a NazaraAssert if physical object is invalid
+	*/
+
 	void PhysicsComponent::OnComponentAttached(BaseComponent& component)
 	{
 		if (IsComponent<CollisionComponent>(component))
@@ -42,6 +62,14 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from this component
+	*
+	* \param component Component being detached
+	*
+	* \remark Produces a NazaraAssert if physical object is invalid
+	*/
+
 	void PhysicsComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<CollisionComponent>(component))
@@ -50,6 +78,10 @@ namespace Ndk
 			m_object->SetGeom(Nz::NullGeom::New());
 		}
 	}
+
+	/*!
+	* \brief Operation to perform when component is detached from an entity
+	*/
 
 	void PhysicsComponent::OnDetached()
 	{

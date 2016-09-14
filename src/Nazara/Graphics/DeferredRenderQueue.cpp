@@ -273,11 +273,43 @@ namespace Nz
 			layers.clear();
 		else
 		{
-			for (auto it = layers.begin(); it != layers.end(); ++it)
+			for (auto it = layers.begin(); it != layers.end();)
 			{
 				Layer& layer = it->second;
 				if (layer.clearCount++ >= 100)
 					it = layers.erase(it);
+				else
+				{
+					for (auto& pipelinePair : layer.opaqueModels)
+					{
+						const MaterialPipeline* pipeline = pipelinePair.first;
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.maxInstanceCount > 0)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									MeshInstanceContainer& meshInstances = matEntry.meshMap;
+
+									for (auto& meshIt : meshInstances)
+									{
+										auto& meshEntry = meshIt.second;
+
+										meshEntry.instances.clear();
+									}
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.maxInstanceCount = 0;
+						}
+					}
+
+					++it;
+				}
 			}
 		}
 

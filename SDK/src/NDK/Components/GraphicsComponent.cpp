@@ -9,7 +9,23 @@
 
 namespace Ndk
 {
-	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index)
+	/*!
+	* \ingroup NDK
+	* \class Ndk::GraphicsComponent
+	* \brief NDK class that represents the component for graphics
+	*/
+
+	/*!
+	* \brief Invalidates the data for renderable
+	*
+	* \param renderable Renderable to invalidate
+	* \param flags Flags for the instance
+	* \param index Index of the renderable to invalidate
+	*
+	* \remark Produces a NazaraAssert if index is out of bound
+	*/
+
+	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable , Nz::UInt32 flags, std::size_t index)
 	{
 		NazaraAssert(index < m_renderables.size(), "Invalid renderable index");
 		NazaraUnused(renderable);
@@ -19,6 +35,10 @@ namespace Ndk
 		r.renderable->InvalidateData(&r.data, flags);
 	}
 
+	/*!
+	* \brief Operation to perform when component is attached to an entity
+	*/
+
 	void GraphicsComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
@@ -26,6 +46,12 @@ namespace Ndk
 
 		InvalidateTransformMatrix();
 	}
+
+	/*!
+	* \brief Operation to perform when component is attached to this component
+	*
+	* \param component Component being attached
+	*/
 
 	void GraphicsComponent::OnComponentAttached(BaseComponent& component)
 	{
@@ -38,6 +64,12 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from this component
+	*
+	* \param component Component being detached
+	*/
+
 	void GraphicsComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<NodeComponent>(component))
@@ -48,12 +80,22 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from an entity
+	*/
+
 	void GraphicsComponent::OnDetached()
 	{
 		m_nodeInvalidationSlot.Disconnect();
 
 		InvalidateTransformMatrix();
 	}
+
+	/*!
+	* \brief Operation to perform when the node is invalidated
+	*
+	* \param node Pointer to the node
+	*/
 
 	void GraphicsComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
@@ -62,6 +104,10 @@ namespace Ndk
 		// Our view matrix depends on NodeComponent position/rotation
 		InvalidateTransformMatrix();
 	}
+
+	/*!
+	* \brief Updates the bounding volume
+	*/
 
 	void GraphicsComponent::UpdateBoundingVolume() const
 	{
@@ -75,13 +121,19 @@ namespace Ndk
 		m_boundingVolumeUpdated = true;
 	}
 
+	/*!
+	* \brief Updates the transform matrix of the renderable
+	*
+	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
+	*/
+
 	void GraphicsComponent::UpdateTransformMatrix() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "GraphicsComponent requires NodeComponent");
 
 		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
 
-		m_transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_entity->GetComponent<NodeComponent>().GetTransformMatrix());
+		m_transformMatrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
 		m_transformMatrixUpdated = true;
 	}
 
