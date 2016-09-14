@@ -1,0 +1,20 @@
+version: '{branch}-rev{build}'
+
+shallow_clone: true
+
+os:
+  - Visual Studio 2015
+
+environment:
+  matrix:
+  - TOOLSET: vs2015
+
+install:
+  - cd build && "./premake5.exe" %TOOLSET% && cd ..
+
+configuration:
+  - DebugDynamic
+  - ReleaseDynamic
+
+build:
+  project: build/$(TOOLSET)/NazaraEngine.sln

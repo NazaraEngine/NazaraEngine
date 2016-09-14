@@ -76,25 +76,25 @@ namespace Nz
 		#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 		int supported;
 		asm volatile (" pushfl\n"
-					  " pop %%eax\n"
-					  " mov %%eax, %%ecx\n"
-					  " xor $0x200000, %%eax\n"
-					  " push %%eax\n"
-					  " popfl\n"
-					  " pushfl\n"
-					  " pop %%eax\n"
-					  " xor %%ecx, %%eax\n"
-					  " mov %%eax, %0\n"
-					  " push %%ecx\n"
-					  " popfl"
-					  : "=m" (supported)         // output
-					  :                          // input
-					  : "eax", "ecx", "memory"); // clobbered register
+		              " pop %%eax\n"
+		              " mov %%eax, %%ecx\n"
+		              " xor $0x200000, %%eax\n"
+		              " push %%eax\n"
+		              " popfl\n"
+		              " pushfl\n"
+		              " pop %%eax\n"
+		              " xor %%ecx, %%eax\n"
+		              " mov %%eax, %0\n"
+		              " push %%ecx\n"
+		              " popfl"
+		              : "=m" (supported)         // output
+		              :                          // input
+		              : "eax", "ecx", "memory"); // clobbered register
 
 		return supported != 0;
 		#else
 		return false;
 		#endif
 	#endif
-}
+	}
 }

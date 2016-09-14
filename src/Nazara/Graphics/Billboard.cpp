@@ -30,7 +30,7 @@ namespace Nz
 		if (!m_material)
 			return;
 
-		Nz::Vector3f position = instanceData.transformMatrix->GetTranslation();
+		Nz::Vector3f position = instanceData.transformMatrix.GetTranslation();
 		renderQueue->AddBillboards(instanceData.renderOrder, m_material, 1, &position, &m_size, &m_sinCos, &m_color);
 	}
 

@@ -84,7 +84,7 @@ namespace Nz
 			SubMesh* BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
 			void BuildSubMeshes(const PrimitiveList& list, const MeshParams& params = MeshParams());
 
-			bool CreateSkeletal(unsigned int jointCount);
+			bool CreateSkeletal(UInt32 jointCount);
 			bool CreateStatic();
 			void Destroy();
 
@@ -95,23 +95,23 @@ namespace Nz
 			const Boxf& GetAABB() const;
 			String GetAnimation() const;
 			AnimationType GetAnimationType() const;
-			unsigned int GetJointCount() const;
-			ParameterList& GetMaterialData(unsigned int index);
-			const ParameterList& GetMaterialData(unsigned int index) const;
-			unsigned int GetMaterialCount() const;
+			UInt32 GetJointCount() const;
+			ParameterList& GetMaterialData(UInt32 index);
+			const ParameterList& GetMaterialData(UInt32 index) const;
+			UInt32 GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
 			SubMesh* GetSubMesh(const String& identifier);
-			SubMesh* GetSubMesh(unsigned int index);
+			SubMesh* GetSubMesh(UInt32 index);
 			const SubMesh* GetSubMesh(const String& identifier) const;
-			const SubMesh* GetSubMesh(unsigned int index) const;
-			unsigned int GetSubMeshCount() const;
-			int GetSubMeshIndex(const String& identifier) const;
-			unsigned int GetTriangleCount() const;
-			unsigned int GetVertexCount() const;
+			const SubMesh* GetSubMesh(UInt32 index) const;
+			UInt32 GetSubMeshCount() const;
+			UInt32 GetSubMeshIndex(const String& identifier) const;
+			UInt32 GetTriangleCount() const;
+			UInt32 GetVertexCount() const;
 
 			bool HasSubMesh(const String& identifier) const;
-			bool HasSubMesh(unsigned int index = 0) const;
+			bool HasSubMesh(UInt32 index = 0) const;
 
 			void InvalidateAABB() const;
 
@@ -125,14 +125,14 @@ namespace Nz
 			void Recenter();
 
 			void RemoveSubMesh(const String& identifier);
-			void RemoveSubMesh(unsigned int index);
+			void RemoveSubMesh(UInt32 index);
 
 			bool SaveToFile(const String& filePath, const MeshParams& params = MeshParams());
 			bool SaveToStream(Stream& stream, const String& format, const MeshParams& params = MeshParams());
 
 			void SetAnimation(const String& animationPath);
-			void SetMaterialCount(unsigned int matCount);
-			void SetMaterialData(unsigned int matIndex, ParameterList data);
+			void SetMaterialCount(UInt32 matCount);
+			void SetMaterialData(UInt32 matIndex, ParameterList data);
 
 			void Transform(const Matrix4f& matrix);
 

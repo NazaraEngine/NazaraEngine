@@ -9,16 +9,17 @@
 #include <NDK/World.hpp>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
-	Ndk::Application application;
+	Ndk::Application application(argc, argv);
 
 	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
 	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");
 
+
 	Ndk::World& world = application.AddWorld();
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
-	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(192, 100, 100)));
+	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(117, 122, 214)));
 
 
 	Ndk::EntityHandle viewEntity = world.CreateEntity();
@@ -43,13 +44,6 @@ int main()
 
 	while (application.Run())
 	{
-		Nz::WindowEvent event;
-		while (mainWindow.PollEvent(&event))
-		{
-			if (event.type == Nz::WindowEventType_Quit)
-				application.Quit();
-		}
-
 		mainWindow.Display();
 	}
 
