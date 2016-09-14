@@ -21,7 +21,7 @@ namespace Nz
 			public:
 				DeviceMemory();
 				DeviceMemory(const DeviceMemory&) = delete;
-				DeviceMemory(DeviceMemory&& memory);
+				inline DeviceMemory(DeviceMemory&& memory);
 				~DeviceMemory() = default;
 
 				using DeviceObject::Create;

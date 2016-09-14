@@ -16,7 +16,7 @@ namespace Nz
 		{
 		}
 
-		DeviceMemory::DeviceMemory(DeviceMemory&& memory) :
+		inline DeviceMemory::DeviceMemory(DeviceMemory&& memory) :
 		DeviceObject(std::move(memory))
 		{
 			m_mappedPtr = memory.m_mappedPtr;

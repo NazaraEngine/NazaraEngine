@@ -21,7 +21,7 @@ namespace Nz
 			public:
 				inline DeviceObject();
 				DeviceObject(const DeviceObject&) = delete;
-				DeviceObject(DeviceObject&&);
+				inline DeviceObject(DeviceObject&& object);
 				inline ~DeviceObject();
 
 				inline bool Create(const DeviceHandle& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
