@@ -21,6 +21,8 @@ namespace Nz
 			VulkanRenderer() = default;
 			~VulkanRenderer() = default;
 
+			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() override;
+
 			bool IsBetterThan(const RendererImpl* other) const override;
 
 			RenderAPI QueryAPI() const override;

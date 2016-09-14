@@ -1,4 +1,4 @@
-// This file was automatically generated on 17 Aug 2016 at 14:07:55
+// This file was automatically generated on 15 Sep 2016 at 00:43:26
 
 /*
 	Nazara Engine - Vulkan
@@ -30,8 +30,6 @@
 #define NAZARA_GLOBAL_VULKANRENDERER_HPP
 
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <Nazara/VulkanRenderer/RenderTarget.hpp>
-#include <Nazara/VulkanRenderer/RenderWindow.hpp>
 #include <Nazara/VulkanRenderer/VkBuffer.hpp>
 #include <Nazara/VulkanRenderer/VkCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VkCommandPool.hpp>
@@ -52,10 +50,13 @@
 #include <Nazara/VulkanRenderer/VkPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VkQueue.hpp>
 #include <Nazara/VulkanRenderer/VkRenderPass.hpp>
+#include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
+#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/VkSemaphore.hpp>
 #include <Nazara/VulkanRenderer/VkShaderModule.hpp>
 #include <Nazara/VulkanRenderer/VkSurface.hpp>
 #include <Nazara/VulkanRenderer/VkSwapchain.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 
 #endif // NAZARA_GLOBAL_VULKANRENDERER_HPP

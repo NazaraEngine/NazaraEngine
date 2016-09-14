@@ -18,6 +18,7 @@
 namespace Nz
 {
 	class RendererImpl;
+	class RenderWindowImpl;
 
 	using CreateRendererImplFunc = RendererImpl*(*)();
 
@@ -26,6 +27,8 @@ namespace Nz
 		public:
 			RendererImpl() = default;
 			virtual ~RendererImpl();
+
+			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() = 0;
 
 			virtual bool IsBetterThan(const RendererImpl* other) const = 0;
 

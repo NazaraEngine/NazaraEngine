@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERTARGET_HPP
-#define NAZARA_RENDERTARGET_HPP
+#ifndef NAZARA_VULKANRENDERER_RENDERTARGET_HPP
+#define NAZARA_VULKANRENDERER_RENDERTARGET_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -18,17 +18,13 @@
 
 namespace Nz
 {
-	class Renderer;
-
-	class NAZARA_VULKANRENDERER_API RenderTarget
+	class NAZARA_VULKANRENDERER_API VkRenderTarget
 	{
-		friend Renderer;
-
 		public:
-			RenderTarget() = default;
-			RenderTarget(const RenderTarget&) = delete;
-			RenderTarget(RenderTarget&&) = delete; ///TOOD?
-			virtual ~RenderTarget();
+			VkRenderTarget() = default;
+			VkRenderTarget(const VkRenderTarget&) = delete;
+			VkRenderTarget(VkRenderTarget&&) = delete; ///TOOD?
+			virtual ~VkRenderTarget();
 
 			virtual bool Acquire(UInt32* imageIndex) const = 0;
 
@@ -44,12 +40,12 @@ namespace Nz
 
 			virtual void Present(UInt32 imageIndex) = 0;
 
-			RenderTarget& operator=(const RenderTarget&) = delete;
-			RenderTarget& operator=(RenderTarget&&) = delete; ///TOOD?
+			VkRenderTarget& operator=(const VkRenderTarget&) = delete;
+			VkRenderTarget& operator=(VkRenderTarget&&) = delete; ///TOOD?
 
 			// Signals:
-			NazaraSignal(OnRenderTargetRelease,	const RenderTarget* /*renderTarget*/);
-			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetRelease,	const VkRenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetSizeChange, const VkRenderTarget* /*renderTarget*/);
 
 		protected:
 			Vk::RenderPass m_renderPass;
@@ -57,4 +53,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RENDERTARGET_HPP
+#endif // NAZARA_VULKANRENDERER_RENDERTARGET_HPP

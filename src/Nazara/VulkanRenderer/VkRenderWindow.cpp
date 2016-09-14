@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/RenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -13,35 +13,24 @@
 
 namespace Nz
 {
-	RenderWindow::RenderWindow() :
-	RenderTarget(), Window(), 
+	VkRenderWindow::VkRenderWindow() :
 	m_surface(Nz::Vulkan::GetInstance()),
-	m_forcedPhysicalDevice(nullptr),
+	m_physicalDevice(nullptr),
 	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
 	{
 	}
 
-	RenderWindow::RenderWindow(VideoMode mode, const String& title, UInt32 style) :
-	RenderWindow()
+	VkRenderWindow::~VkRenderWindow()
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
-		Create(mode, title, style);
+		m_device->WaitForIdle();
+		m_frameBuffers.clear();
+		m_renderPass.Destroy();
+
+		m_swapchain.Destroy();
+		m_surface.Destroy();
 	}
 
-	RenderWindow::RenderWindow(WindowHandle handle) :
-	RenderWindow()
-	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
-		Create(handle);
-	}
-
-	RenderWindow::~RenderWindow()
-	{
-		// Nécessaire si Window::Destroy est appelé par son destructeur
-		OnWindowDestroy();
-	}
-
-	bool RenderWindow::Acquire(UInt32* imageIndex) const
+	bool VkRenderWindow::Acquire(UInt32* imageIndex) const
 	{
 		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), m_imageReadySemaphore, VK_NULL_HANDLE, imageIndex))
 		{
@@ -52,7 +41,7 @@ namespace Nz
 		return true;
 	}
 
-	void RenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
+	void VkRenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
 		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
@@ -71,83 +60,19 @@ namespace Nz
 		}
 	}
 
-	void RenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
+	void VkRenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
 	{
 		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
-	const Vk::Framebuffer& RenderWindow::GetFrameBuffer(UInt32 imageIndex) const
+	bool VkRenderWindow::Create(WindowHandle handle, const Vector2ui& size, const RenderWindowParameters& parameters)
 	{
-		return m_frameBuffers[imageIndex];
-	}
-
-	UInt32 RenderWindow::GetFramebufferCount() const
-	{
-		return static_cast<UInt32>(m_frameBuffers.size());
-	}
-
-	bool RenderWindow::Create(VideoMode mode, const String& title, UInt32 style)
-	{
-		return Window::Create(mode, title, style);
-	}
-
-	bool RenderWindow::Create(WindowHandle handle)
-	{
-		return Window::Create(handle);
-	}
-
-	const Vk::DeviceHandle& RenderWindow::GetDevice() const
-	{
-		return m_device;
-	}
-
-	UInt32 RenderWindow::GetPresentableFamilyQueue() const
-	{
-		return m_presentableFamilyQueue;
-	}
-
-	const Vk::Surface& RenderWindow::GetSurface() const
-	{
-		return m_surface;
-	}
-
-	const Vk::Swapchain& RenderWindow::GetSwapchain() const
-	{
-		return m_swapchain;
-	}
-
-	void RenderWindow::Present(UInt32 imageIndex)
-	{
-		NazaraAssert(imageIndex < m_frameBuffers.size(), "Invalid image index");
-
-		m_presentQueue.Present(m_swapchain, imageIndex);
-	}
-
-	bool RenderWindow::IsValid() const
-	{
-		return m_impl != nullptr;
-	}
-
-	void RenderWindow::SetDepthStencilFormats(std::vector<PixelFormatType> pixelFormat)
-	{
-		m_wantedDepthStencilFormats = std::move(pixelFormat);
-	}
-
-	void RenderWindow::SetPhysicalDevice(VkPhysicalDevice device)
-	{
-		m_forcedPhysicalDevice = device;
-	}
-
-	bool RenderWindow::OnWindowCreated()
-	{
-		OnRenderTargetSizeChange(this);
-
 		#if defined(NAZARA_PLATFORM_WINDOWS)
-		HWND handle = reinterpret_cast<HWND>(GetHandle());
-		HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(handle, GWLP_HINSTANCE));
-		bool success = m_surface.Create(instance, handle);
+		HWND winHandle = reinterpret_cast<HWND>(handle);
+		HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
+		bool success = m_surface.Create(instance, winHandle);
 		#else
-			#error This OS is not supported by Vulkan
+		#error This OS is not supported by Vulkan
 		#endif
 
 		if (!success)
@@ -156,7 +81,9 @@ namespace Nz
 			return false;
 		}
 
-		m_device = Vulkan::SelectDevice(m_forcedPhysicalDevice, m_surface, &m_presentableFamilyQueue);
+		m_physicalDevice = Vulkan::GetPhysicalDevices()[0].device;
+
+		m_device = Vulkan::SelectDevice(m_physicalDevice, m_surface, &m_presentableFamilyQueue);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
@@ -166,7 +93,7 @@ namespace Nz
 		m_presentQueue = m_device->GetQueue(m_presentableFamilyQueue, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!m_surface.GetFormats(m_forcedPhysicalDevice, &surfaceFormats))
+		if (!m_surface.GetFormats(m_physicalDevice, &surfaceFormats))
 		{
 			NazaraError("Failed to query supported surface formats");
 			return false;
@@ -179,11 +106,11 @@ namespace Nz
 
 		m_colorSpace = surfaceFormats[0].colorSpace;
 
-		if (!m_wantedDepthStencilFormats.empty())
+		if (!parameters.depthFormats.empty())
 		{
-			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(m_forcedPhysicalDevice);
+			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(m_physicalDevice);
 
-			for (PixelFormatType format : m_wantedDepthStencilFormats)
+			for (PixelFormatType format : parameters.depthFormats)
 			{
 				switch (format)
 				{
@@ -223,7 +150,7 @@ namespace Nz
 
 				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 				{
-					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(m_forcedPhysicalDevice, m_depthStencilFormat);
+					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(m_physicalDevice, m_depthStencilFormat);
 					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 						break; //< Found it
 
@@ -232,19 +159,19 @@ namespace Nz
 			}
 		}
 
-		if (!SetupSwapchain())
+		if (!SetupSwapchain(size))
 		{
 			NazaraError("Failed to create swapchain");
 			return false;
 		}
 
-		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer())
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer(size))
 		{
 			NazaraError("Failed to create depth buffer");
 			return false;
 		}
 
-		if (!SetupRenderPass())
+		if (!SetupRenderPass(size))
 		{
 			NazaraError("Failed to create render pass");
 			return false;
@@ -265,8 +192,8 @@ namespace Nz
 				m_renderPass,                                 // VkRenderPass                renderPass;
 				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U, // uint32_t                    attachmentCount;
 				attachments.data(),                           // const VkImageView*          pAttachments;
-				GetWidth(),                                   // uint32_t                    width;
-				GetHeight(),                                  // uint32_t                    height;
+				size.x,                                       // uint32_t                    width;
+				size.y,                                       // uint32_t                    height;
 				1U                                            // uint32_t                    layers;
 			};
 
@@ -284,22 +211,7 @@ namespace Nz
 		return true;
 	}
 
-	void RenderWindow::OnWindowDestroy()
-	{
-		m_device->WaitForIdle();
-		m_frameBuffers.clear();
-		m_renderPass.Destroy();
-
-		m_swapchain.Destroy();
-		m_surface.Destroy();
-	}
-
-	void RenderWindow::OnWindowResized()
-	{
-		OnRenderTargetSizeChange(this);
-	}
-
-	bool RenderWindow::SetupDepthBuffer()
+	bool VkRenderWindow::SetupDepthBuffer(const Vector2ui& size)
 	{
 		VkImageCreateInfo imageCreateInfo = {
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,                                           // VkStructureType          sType;
@@ -307,7 +219,7 @@ namespace Nz
 			0U,                                                                            // VkImageCreateFlags       flags;
 			VK_IMAGE_TYPE_2D,                                                              // VkImageType              imageType;
 			m_depthStencilFormat,                                                          // VkFormat                 format;
-			{GetWidth(), GetHeight(), 1U},                                                 // VkExtent3D               extent;
+			{size.x, size.y, 1U},                                                 // VkExtent3D               extent;
 			1U,                                                                            // uint32_t                 mipLevels;
 			1U,                                                                            // uint32_t                 arrayLayers;
 			VK_SAMPLE_COUNT_1_BIT,                                                         // VkSampleCountFlagBits    samples;
@@ -369,7 +281,7 @@ namespace Nz
 		return true;
 	}
 
-	bool RenderWindow::SetupRenderPass()
+	bool VkRenderWindow::SetupRenderPass(const Vector2ui& size)
 	{
 		std::array<VkAttachmentDescription, 2> attachments = {
 			{
@@ -424,8 +336,8 @@ namespace Nz
 		std::array<VkSubpassDependency, 2> dependencies;
 		// First dependency at the start of the renderpass
 		// Does the transition from final to initial layout 
-		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;								// Producer of the dependency 
-		dependencies[0].dstSubpass = 0;													// Consumer is our single subpass that will wait for the execution depdendency
+		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL; // Producer of the dependency 
+		dependencies[0].dstSubpass = 0; // Consumer is our single subpass that will wait for the execution depdendency
 		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
@@ -434,8 +346,8 @@ namespace Nz
 
 		// Second dependency at the end the renderpass
 		// Does the transition from the initial to the final layout
-		dependencies[1].srcSubpass = 0;													// Producer of the dependency is our single subpass
-		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;								// Consumer are all commands outside of the renderpass
+		dependencies[1].srcSubpass = 0; // Producer of the dependency is our single subpass
+		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL; // Consumer are all commands outside of the renderpass
 		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -450,17 +362,17 @@ namespace Nz
 			attachments.data(),                                     // const VkAttachmentDescription*    pAttachments;
 			1U,                                                     // uint32_t                          subpassCount;
 			&subpass,                                               // const VkSubpassDescription*       pSubpasses;
-			dependencies.size(),                                                     // uint32_t                          dependencyCount;
-			dependencies.data()                                                 // const VkSubpassDependency*        pDependencies;
+			UInt32(dependencies.size()),                            // uint32_t                          dependencyCount;
+			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
 		};
 
 		return m_renderPass.Create(m_device, createInfo);
 	}
 
-	bool RenderWindow::SetupSwapchain()
+	bool VkRenderWindow::SetupSwapchain(const Vector2ui& size)
 	{
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
-		if (!m_surface.GetCapabilities(m_forcedPhysicalDevice, &surfaceCapabilities))
+		if (!m_surface.GetCapabilities(m_physicalDevice, &surfaceCapabilities))
 		{
 			NazaraError("Failed to query surface capabilities");
 			return false;
@@ -473,14 +385,14 @@ namespace Nz
 		VkExtent2D extent;
 		if (surfaceCapabilities.currentExtent.width == -1)
 		{
-			extent.width = Nz::Clamp<Nz::UInt32>(GetWidth(), surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-			extent.height = Nz::Clamp<Nz::UInt32>(GetHeight(), surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+			extent.width = Nz::Clamp<Nz::UInt32>(size.x, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+			extent.height = Nz::Clamp<Nz::UInt32>(size.y, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 		}
 		else
 			extent = surfaceCapabilities.currentExtent;
 
 		std::vector<VkPresentModeKHR> presentModes;
-		if (!m_surface.GetPresentModes(m_forcedPhysicalDevice, &presentModes))
+		if (!m_surface.GetPresentModes(m_physicalDevice, &presentModes))
 		{
 			NazaraError("Failed to query supported present modes");
 			return false;
