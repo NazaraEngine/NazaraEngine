@@ -20,7 +20,7 @@ namespace Ndk
 	class NDK_API ButtonWidget : public BaseWidget
 	{
 		public:
-			ButtonWidget(const WorldHandle& world, BaseWidget* parent = nullptr);
+			ButtonWidget(BaseWidget* parent = nullptr);
 			ButtonWidget(const ButtonWidget&) = delete;
 			ButtonWidget(ButtonWidget&&) = default;
 			~ButtonWidget() = default;
@@ -36,6 +36,10 @@ namespace Ndk
 
 		private:
 			void Layout() override;
+
+			void OnMouseEnter() override;
+			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
+			void OnMouseExit() override;
 
 			EntityHandle m_textEntity;
 			EntityHandle m_gradientEntity;

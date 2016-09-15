@@ -8,18 +8,23 @@
 
 namespace Ndk
 {
-	inline BaseWidget::BaseWidget(WorldHandle world, BaseWidget* parent) :
-	m_world(std::move(world)),
+	inline BaseWidget::BaseWidget() :
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
+	m_canvas(nullptr),
 	m_contentSize(50.f, 50.f),
-	m_widgetParent(parent)
+	m_widgetParent(nullptr)
 	{
 		SetPadding(5.f, 5.f, 5.f, 5.f);
 	}
 
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
-		m_children.push_back(widget.release());
+		m_children.emplace_back(std::move(widget));
+	}
+
+	inline Canvas* BaseWidget::GetCanvas()
+	{
+		return m_canvas;
 	}
 
 	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
@@ -52,5 +57,10 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline void BaseWidget::UpdateCanvasIndex(std::size_t index)
+	{
+		m_canvasIndex = index;
 	}
 }

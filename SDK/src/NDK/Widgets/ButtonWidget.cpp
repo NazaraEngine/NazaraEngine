@@ -9,8 +9,8 @@
 
 namespace Ndk
 {
-	ButtonWidget::ButtonWidget(const WorldHandle& world, BaseWidget* parent) :
-	BaseWidget(world, parent)
+	ButtonWidget::ButtonWidget(BaseWidget* parent) :
+	BaseWidget(parent)
 	{
 		m_gradientSprite = Nz::Sprite::New();
 		m_gradientSprite->SetColor(Nz::Color(74, 74, 74));
@@ -21,13 +21,14 @@ namespace Ndk
 		m_gradientEntity = CreateEntity();
 		m_gradientEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_gradientEntity->AddComponent<GraphicsComponent>().Attach(m_gradientSprite);
-		m_gradientEntity->GetComponent<GraphicsComponent>().Attach(m_borderSprite, Nz::Matrix4f::Translate(Nz::Vector2f(-1.f, -1.f)), -1);
 
 		m_textSprite = Nz::TextSprite::New();
 
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite, 1);
+
+		Layout();
 	}
 
 	void ButtonWidget::ResizeToContent()
@@ -37,11 +38,28 @@ namespace Ndk
 
 	void ButtonWidget::Layout()
 	{
+		BaseWidget::Layout();
+
 		const Nz::Vector2f& contentSize = GetContentSize();
 
 		m_gradientSprite->SetSize(contentSize);
 
 		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().aabb;
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(contentSize.x / 2 - textBox.width / 2, contentSize.y / 2 - textBox.height / 2);
+	}
+
+	void ButtonWidget::OnMouseEnter()
+	{
+		m_gradientSprite->SetColor(Nz::Color(128, 128, 128));
+	}
+
+	void ButtonWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	{
+		NazaraDebug(Nz::String::Number(x) + ", " + Nz::String::Number(y));
+	}
+
+	void ButtonWidget::OnMouseExit()
+	{
+		m_gradientSprite->SetColor(Nz::Color(74, 74, 74));
 	}
 }
