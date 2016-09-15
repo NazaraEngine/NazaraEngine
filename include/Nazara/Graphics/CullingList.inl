@@ -1,46 +1,71 @@
-#include "CullingList.hpp"
 // Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/CullingList.hpp>
+#include <Nazara/Graphics/Debug.hpp>
+
 namespace Nz
 {
 	template<typename T>
-	inline CullingList<T>::~CullingList()
+	CullingList<T>::~CullingList()
 	{
 		OnCullingListRelease(this);
 	}
 
 	template<typename T>
-	std::size_t CullingList<T>::Cull(const Frustumf& frustum)
+	std::size_t CullingList<T>::Cull(const Frustumf& frustum, bool* forceInvalidation)
 	{
 		m_results.clear();
 
+		bool forcedInvalidation = false;
+
 		std::size_t visibleHash = 0U;
 
-		for (const NoTestVisibilityEntry& entry : m_noTestList)
+		for (NoTestVisibilityEntry& entry : m_noTestList)
 		{
 			m_results.push_back(entry.renderable);
 			Nz::HashCombine(visibleHash, entry.renderable);
+
+			if (entry.forceInvalidation)
+			{
+				forcedInvalidation = true;
+				entry.forceInvalidation = false;
+			}
 		}
 
-		for (const SphereVisibilityEntry& entry : m_sphereTestList)
+		for (SphereVisibilityEntry& entry : m_sphereTestList)
 		{
 			if (frustum.Contains(entry.sphere))
 			{
 				m_results.push_back(entry.renderable);
 				Nz::HashCombine(visibleHash, entry.renderable);
+
+				if (entry.forceInvalidation)
+				{
+					forcedInvalidation = true;
+					entry.forceInvalidation = false;
+				}
 			}
 		}
 
-		for (const VolumeVisibilityEntry& entry : m_volumeTestList)
+		for (VolumeVisibilityEntry& entry : m_volumeTestList)
 		{
 			if (frustum.Contains(entry.volume))
 			{
 				m_results.push_back(entry.renderable);
 				Nz::HashCombine(visibleHash, entry.renderable);
+
+				if (entry.forceInvalidation)
+				{
+					forcedInvalidation = true;
+					entry.forceInvalidation = false;
+				}
 			}
 		}
+
+		if (forceInvalidation)
+			*forceInvalidation = forcedInvalidation;
 
 		return visibleHash;
 	}
@@ -49,7 +74,7 @@ namespace Nz
 	typename CullingList<T>::NoTestEntry CullingList<T>::RegisterNoTest(const T* renderable)
 	{
 		NoTestEntry entry(this, m_noTestList.size());
-		m_noTestList.emplace_back(NoTestVisibilityEntry{&entry, renderable}); //< Address of entry will be updated when moving
+		m_noTestList.emplace_back(NoTestVisibilityEntry{&entry, renderable, false}); //< Address of entry will be updated when moving
 
 		return entry;
 	}
@@ -58,7 +83,7 @@ namespace Nz
 	typename CullingList<T>::SphereEntry CullingList<T>::RegisterSphereTest(const T* renderable)
 	{
 		SphereEntry entry(this, m_sphereTestList.size());
-		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &entry, renderable}); //< Address of entry will be updated when moving
+		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &entry, renderable, false}); //< Address of entry will be updated when moving
 
 		return entry;
 	}
@@ -67,7 +92,7 @@ namespace Nz
 	typename CullingList<T>::VolumeEntry CullingList<T>::RegisterVolumeTest(const T* renderable)
 	{
 		VolumeEntry entry(this, m_volumeTestList.size());
-		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &entry, renderable}); //< Address of entry will be updated when moving
+		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &entry, renderable, false}); //< Address of entry will be updated when moving
 
 		return entry;
 	}
@@ -155,6 +180,35 @@ namespace Nz
 	typename CullingList<T>::ResultContainer::size_type CullingList<T>::size() const
 	{
 		return m_results.size();
+	}
+
+	template<typename T>
+	void CullingList<T>::NotifyForceInvalidation(CullTest type, std::size_t index)
+	{
+		switch (type)
+		{
+			case CullTest::NoTest:
+			{
+				m_noTestList[index].forceInvalidation = true;
+				break;
+			}
+
+			case CullTest::Sphere:
+			{
+				m_sphereTestList[index].forceInvalidation = true;
+				break;
+			}
+
+			case CullTest::Volume:
+			{
+				m_volumeTestList[index].forceInvalidation = true;
+				break;
+			}
+
+			default:
+				NazaraInternalError("Unhandled culltype");
+				break;
+		}
 	}
 
 	template<typename T>
@@ -281,6 +335,13 @@ namespace Nz
 
 	template<typename T>
 	template<CullTest Type>
+	void CullingList<T>::Entry<Type>::ForceInvalidation()
+	{
+		m_parent->NotifyForceInvalidation(Type, m_index);
+	}
+
+	template<typename T>
+	template<CullTest Type>
 	CullingList<T>* CullingList<T>::Entry<Type>::GetParent() const
 	{
 		return m_parent;
@@ -361,3 +422,5 @@ namespace Nz
 		m_parent->NotifyVolumeUpdate(m_index, volume);
 	}
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>
