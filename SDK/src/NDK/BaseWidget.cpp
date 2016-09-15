@@ -3,16 +3,28 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/BaseWidget.hpp>
+#include <NDK/Canvas.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/World.hpp>
 
 namespace Ndk
 {
+	BaseWidget::BaseWidget(BaseWidget* parent) :
+	BaseWidget()
+	{
+		NazaraAssert(parent, "Invalid parent");
+		NazaraAssert(parent->GetCanvas(), "Parent has no canvas");
+
+		m_canvas = parent->GetCanvas();
+		m_world = m_canvas->GetWorld();
+
+		m_canvasIndex = m_canvas->RegisterWidget(this);
+	}
+
 	BaseWidget::~BaseWidget()
 	{
-		for (BaseWidget* child : m_children)
-			delete child;
+		m_canvas->UnregisterWidget(m_canvasIndex);
 	}
 
 	inline void BaseWidget::EnableBackground(bool enable)
@@ -60,6 +72,9 @@ namespace Ndk
 
 	void BaseWidget::Layout()
 	{
+		if (m_canvas)
+			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
+
 		if (m_backgroundEntity)
 		{
 			NodeComponent& node = m_backgroundEntity->GetComponent<NodeComponent>();
@@ -67,5 +82,25 @@ namespace Ndk
 
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
 		}
+	}
+
+	void BaseWidget::InvalidateNode()
+	{
+		Node::InvalidateNode();
+
+		if (m_canvas)
+			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
+	}
+
+	void BaseWidget::OnMouseEnter()
+	{
+	}
+
+	void BaseWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	{
+	}
+
+	void BaseWidget::OnMouseExit()
+	{
 	}
 }

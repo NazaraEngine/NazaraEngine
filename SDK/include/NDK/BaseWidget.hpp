@@ -16,12 +16,16 @@
 
 namespace Ndk
 {
+	class Canvas;
+
 	class NDK_API BaseWidget : public Nz::Node
 	{
+		friend Canvas;
+
 		public:
 			struct Padding;
 
-			inline BaseWidget(WorldHandle world, BaseWidget* parent = nullptr);
+			BaseWidget(BaseWidget* parent);
 			BaseWidget(const BaseWidget&) = delete;
 			BaseWidget(BaseWidget&&) = default;
 			virtual ~BaseWidget();
@@ -32,6 +36,7 @@ namespace Ndk
 
 			//virtual BaseWidget* Clone() const = 0;
 
+			inline Canvas* GetCanvas();
 			inline const Padding& GetPadding() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
@@ -57,10 +62,21 @@ namespace Ndk
 			EntityHandle CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
+			void InvalidateNode() override;
+
+			virtual void OnMouseEnter();
+			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
+			virtual void OnMouseExit();
 
 		private:
+			inline BaseWidget();
+
+			inline void UpdateCanvasIndex(std::size_t index);
+
+			std::size_t m_canvasIndex;
 			std::vector<EntityOwner> m_entities;
-			std::vector<BaseWidget*> m_children;
+			std::vector<std::unique_ptr<BaseWidget>> m_children;
+			Canvas* m_canvas;
 			EntityOwner m_backgroundEntity;
 			Padding m_padding;
 			WorldHandle m_world;
