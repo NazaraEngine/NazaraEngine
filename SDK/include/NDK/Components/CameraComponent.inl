@@ -13,6 +13,7 @@ namespace Ndk
 	*/
 
 	inline CameraComponent::CameraComponent() :
+	m_visibilityHash(0U),
 	m_projectionType(Nz::ProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_target(nullptr),
@@ -38,6 +39,7 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	AbstractViewer(camera),
+	m_visibilityHash(camera.m_visibilityHash),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
 	m_target(nullptr),
@@ -369,6 +371,26 @@ namespace Ndk
 		m_zNear = zNear;
 
 		InvalidateProjectionMatrix();
+	}
+
+	/*!
+	* \brief Update the camera component visibility hash
+	*
+	* This is used with CullingList (which produce a visibility hash)
+	*
+	* \param visibilityHash New visibility hash
+	*
+	* \return True if the visibility hash is not the same as before
+	*/
+	inline bool CameraComponent::UpdateVisibility(std::size_t visibilityHash)
+	{
+		if (m_visibilityHash != visibilityHash)
+		{
+			m_visibilityHash = visibilityHash;
+			return true;
+		}
+
+		return false;
 	}
 
 	/*!

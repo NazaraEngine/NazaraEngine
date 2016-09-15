@@ -89,6 +89,9 @@ namespace Ndk
 		Renderable& r = m_renderables[index];
 		r.dataUpdated = false;
 		r.renderable->InvalidateData(&r.data, flags);
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation();
 	}
 
 	/*!

@@ -39,7 +39,7 @@ namespace Nz
 			CullingList(CullingList&& renderable) = delete;
 			~CullingList();
 
-			std::size_t Cull(const Frustumf& frustum);
+			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation = nullptr);
 
 			NoTestEntry RegisterNoTest(const T* renderable);
 			SphereEntry RegisterSphereTest(const T* renderable);
@@ -73,6 +73,7 @@ namespace Nz
 			NazaraSignal(OnCullingListRelease, CullingList* /*cullingList*/);
 
 		private:
+			inline void NotifyForceInvalidation(CullTest type, std::size_t index);
 			inline void NotifyMovement(CullTest type, std::size_t index, void* oldPtr, void* newPtr);
 			inline void NotifyRelease(CullTest type, std::size_t index);
 			inline void NotifySphereUpdate(std::size_t index, const Spheref& sphere);
@@ -82,6 +83,7 @@ namespace Nz
 			{
 				NoTestEntry* entry;
 				const T* renderable;
+				bool forceInvalidation;
 			};
 
 			struct SphereVisibilityEntry
@@ -89,6 +91,7 @@ namespace Nz
 				Spheref sphere;
 				SphereEntry* entry;
 				const T* renderable;
+				bool forceInvalidation;
 			};
 
 			struct VolumeVisibilityEntry
@@ -96,6 +99,7 @@ namespace Nz
 				BoundingVolumef volume;
 				VolumeEntry* entry;
 				const T* renderable;
+				bool forceInvalidation;
 			};
 
 			std::vector<NoTestVisibilityEntry> m_noTestList;
@@ -113,6 +117,8 @@ namespace Nz
 			Entry(const Entry&) = delete;
 			Entry(Entry&& entry);
 			~Entry();
+
+			void ForceInvalidation();
 
 			CullingList* GetParent() const;
 

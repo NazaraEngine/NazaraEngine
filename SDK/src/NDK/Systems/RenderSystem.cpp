@@ -30,7 +30,8 @@ namespace Ndk
 	*/
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
-	m_coordinateSystemInvalidated(true)
+	m_coordinateSystemInvalidated(true),
+	m_forceRenderQueueInvalidation(false)
 	{
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
@@ -44,6 +45,8 @@ namespace Ndk
 	*/
 	void RenderSystem::OnEntityRemoved(Entity* entity)
 	{
+		m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
+
 		m_cameras.Remove(entity);
 		m_directionalLights.Remove(entity);
 		m_drawables.Remove(entity);
@@ -102,6 +105,8 @@ namespace Ndk
 
 		if (entity->HasComponent<LightComponent>() && entity->HasComponent<NodeComponent>())
 		{
+			m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
+
 			LightComponent& lightComponent = entity->GetComponent<LightComponent>();
 			if (lightComponent.GetLightType() == Nz::LightType_Directional)
 			{
@@ -118,15 +123,25 @@ namespace Ndk
 		}
 		else
 		{
+			m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
+
 			m_directionalLights.Remove(entity);
 			m_lights.Remove(entity);
 			m_pointSpotLights.Remove(entity);
 		}
 
 		if (entity->HasComponent<ParticleGroupComponent>())
+		{
+			m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
+
 			m_particleGroups.Insert(entity);
+		}
 		else
+		{
+			m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
+
 			m_particleGroups.Remove(entity);
+		}
 	}
 
 	/*!
@@ -168,26 +183,32 @@ namespace Ndk
 				graphicsComponent.EnsureBoundingVolumeUpdate();
 			}
 			
-			m_drawableCulling.Cull(camComponent.GetFrustum());
+			bool forceInvalidation = false;
+			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
 
-			renderQueue->Clear();
-			for (const GraphicsComponent* gfxComponent : m_drawableCulling)
-				gfxComponent->AddToRenderQueue(renderQueue);
-
-			for (const Ndk::EntityHandle& light : m_lights)
+			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
 			{
-				LightComponent& lightComponent = light->GetComponent<LightComponent>();
-				NodeComponent& lightNode = light->GetComponent<NodeComponent>();
+				renderQueue->Clear();
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling)
+					gfxComponent->AddToRenderQueue(renderQueue);
 
-				///TODO: Cache somehow?
-				lightComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::ConcatenateAffine(m_coordinateSystemMatrix, lightNode.GetTransformMatrix()));
-			}
+				for (const Ndk::EntityHandle& light : m_lights)
+				{
+					LightComponent& lightComponent = light->GetComponent<LightComponent>();
+					NodeComponent& lightNode = light->GetComponent<NodeComponent>();
 
-			for (const Ndk::EntityHandle& particleGroup : m_particleGroups)
-			{
-				ParticleGroupComponent& groupComponent = particleGroup->GetComponent<ParticleGroupComponent>();
+					///TODO: Cache somehow?
+					lightComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::ConcatenateAffine(m_coordinateSystemMatrix, lightNode.GetTransformMatrix()));
+				}
 
-				groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use any transform matrix (yet)
+				for (const Ndk::EntityHandle& particleGroup : m_particleGroups)
+				{
+					ParticleGroupComponent& groupComponent = particleGroup->GetComponent<ParticleGroupComponent>();
+
+					groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use any transform matrix (yet)
+				}
+
+				m_forceRenderQueueInvalidation = false;
 			}
 
 			camComponent.ApplyView();

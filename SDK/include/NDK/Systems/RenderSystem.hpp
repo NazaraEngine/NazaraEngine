@@ -69,6 +69,7 @@ namespace Ndk
 			Nz::Matrix4f m_coordinateSystemMatrix;
 			Nz::RenderTexture m_shadowRT;
 			bool m_coordinateSystemInvalidated;
+			bool m_forceRenderQueueInvalidation;
 	};
 }
 
