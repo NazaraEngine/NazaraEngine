@@ -183,7 +183,8 @@ namespace Ndk
 				graphicsComponent.EnsureBoundingVolumeUpdate();
 			}
 			
-			bool forceInvalidation = false;
+			bool forceInvalidation = !m_particleGroups.empty(); //< Always regenerate renderqueue if particle groups are present for now (FIXME)
+
 			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
 
 			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
