@@ -19,7 +19,7 @@ namespace Ndk
 	class NDK_API LabelWidget : public BaseWidget
 	{
 		public:
-			LabelWidget(const WorldHandle& world, BaseWidget* parent = nullptr);
+			LabelWidget(BaseWidget* parent = nullptr);
 			LabelWidget(const LabelWidget&) = delete;
 			LabelWidget(LabelWidget&&) = default;
 			~LabelWidget() = default;

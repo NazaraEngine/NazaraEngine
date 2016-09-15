@@ -9,14 +9,16 @@
 
 namespace Ndk
 {
-	LabelWidget::LabelWidget(const WorldHandle& world, BaseWidget* parent) :
-	BaseWidget(world, parent)
+	LabelWidget::LabelWidget(BaseWidget* parent) :
+	BaseWidget(parent)
 	{
 		m_textSprite = Nz::TextSprite::New();
 
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
+
+		Layout();
 	}
 
 	void LabelWidget::ResizeToContent()
