@@ -469,8 +469,6 @@ namespace Nz
 								Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
 							}
 							while (billboardCount > 0);
-
-							billboardVector.clear();
 						}
 					}
 				}
@@ -562,8 +560,6 @@ namespace Nz
 							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount * 6);
 						}
 						while (billboardCount > 0);
-
-						billboardVector.clear();
 					}
 				}
 			}
@@ -773,7 +769,6 @@ namespace Nz
 										}
 									}
 								}
-								instances.clear();
 							}
 						}
 					}

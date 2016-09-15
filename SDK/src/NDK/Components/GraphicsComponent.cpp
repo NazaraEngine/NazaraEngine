@@ -161,7 +161,11 @@ namespace Ndk
 		NazaraUnused(node);
 
 		// Our view matrix depends on NodeComponent position/rotation
+		InvalidateBoundingVolume();
 		InvalidateTransformMatrix();
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
 	}
 
 	/*!
