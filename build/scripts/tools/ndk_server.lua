@@ -25,6 +25,7 @@ TOOL.Files = {
 -- Excludes client-only files
 TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
+	"../SDK/**/Canvas.*",
 	"../SDK/**/Console.*",
 	"../SDK/**/GraphicsComponent.*",
 	"../SDK/**/LightComponent.*",
