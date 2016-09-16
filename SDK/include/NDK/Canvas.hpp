@@ -40,7 +40,10 @@ namespace Ndk
 			void UnregisterWidget(std::size_t index);
 
 		private:
+			void OnMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
+			void OnMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
 			void OnMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
+			void OnMouseLeft(const Nz::EventHandler* eventHandler);
 		
 			struct WidgetBox
 			{
@@ -48,10 +51,13 @@ namespace Ndk
 				Nz::Boxf box;
 			};
 
+			NazaraSlot(Nz::EventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
+			NazaraSlot(Nz::EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
+			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
 
 			std::vector<WidgetBox> m_widgetBoxes;
-			BaseWidget* m_hoveredWidget;
+			const WidgetBox* m_hoveredWidget;
 			WorldHandle m_world;
 	};
 }

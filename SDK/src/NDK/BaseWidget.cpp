@@ -100,6 +100,14 @@ namespace Ndk
 	{
 	}
 
+	void BaseWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
+	{
+	}
+
+	void BaseWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
+	{
+	}
+
 	void BaseWidget::OnMouseExit()
 	{
 	}
