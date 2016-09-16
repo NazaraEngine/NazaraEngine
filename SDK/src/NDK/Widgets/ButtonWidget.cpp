@@ -48,6 +48,12 @@ namespace Ndk
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(contentSize.x / 2 - textBox.width / 2, contentSize.y / 2 - textBox.height / 2);
 	}
 
+	void ButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button button)
+	{
+		if (button == Nz::Mouse::Left)
+			OnButtonTrigger(this);
+	}
+
 	void ButtonWidget::OnMouseEnter()
 	{
 		m_gradientSprite->SetColor(Nz::Color(128, 128, 128));
