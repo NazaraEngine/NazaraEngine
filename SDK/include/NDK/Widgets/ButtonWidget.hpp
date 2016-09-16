@@ -34,11 +34,14 @@ namespace Ndk
 			ButtonWidget& operator=(const ButtonWidget&) = delete;
 			ButtonWidget& operator=(ButtonWidget&&) = default;
 
+			NazaraSignal(OnButtonTrigger, const ButtonWidget* /*button*/);
+
 		private:
 			void Layout() override;
 
 			void OnMouseEnter() override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
+			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			void OnMouseExit() override;
 
 			EntityHandle m_textEntity;
