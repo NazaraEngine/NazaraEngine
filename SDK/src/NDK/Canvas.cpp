@@ -54,9 +54,34 @@ namespace Ndk
 			WidgetBox& entry = m_widgetBoxes[index];
 			WidgetBox& lastEntry = m_widgetBoxes.back();
 
+			if (m_hoveredWidget == &entry)
+				m_hoveredWidget = nullptr;
+
 			entry = std::move(lastEntry);
 			entry.widget->UpdateCanvasIndex(index);
 			m_widgetBoxes.pop_back();
+		}
+	}
+
+	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event)
+	{
+		if (m_hoveredWidget)
+		{
+			int x = static_cast<int>(std::round(event.x - m_hoveredWidget->box.x));
+			int y = static_cast<int>(std::round(event.y - m_hoveredWidget->box.y));
+
+			m_hoveredWidget->widget->OnMouseButtonPress(x, y, event.button);
+		}
+	}
+
+	void Canvas::OnMouseButtonRelease(const Nz::EventHandler * eventHandler, const Nz::WindowEvent::MouseButtonEvent & event)
+	{
+		if (m_hoveredWidget)
+		{
+			int x = static_cast<int>(std::round(event.x - m_hoveredWidget->box.x));
+			int y = static_cast<int>(std::round(event.y - m_hoveredWidget->box.y));
+
+			m_hoveredWidget->widget->OnMouseButtonRelease(x, y, event.button);
 		}
 	}
 
@@ -82,20 +107,32 @@ namespace Ndk
 
 		if (bestEntry)
 		{
-			if (m_hoveredWidget != bestEntry->widget)
+			if (m_hoveredWidget != bestEntry)
 			{
 				if (m_hoveredWidget)
-					m_hoveredWidget->OnMouseExit();
+					m_hoveredWidget->widget->OnMouseExit();
 
-				m_hoveredWidget = bestEntry->widget;
-				m_hoveredWidget->OnMouseEnter();
+				m_hoveredWidget = bestEntry;
+				m_hoveredWidget->widget->OnMouseEnter();
 			}
 
-			bestEntry->widget->OnMouseMoved(event.x - bestEntry->box.x, event.y - bestEntry->box.y, event.deltaX, event.deltaY);
+			int x = static_cast<int>(std::round(event.x - m_hoveredWidget->box.x));
+			int y = static_cast<int>(std::round(event.y - m_hoveredWidget->box.y));
+
+			bestEntry->widget->OnMouseMoved(x, y, event.deltaX, event.deltaY);
 		}
 		else if (m_hoveredWidget)
 		{
-			m_hoveredWidget->OnMouseExit();
+			m_hoveredWidget->widget->OnMouseExit();
+			m_hoveredWidget = nullptr;
+		}
+	}
+
+	void Canvas::OnMouseLeft(const Nz::EventHandler* eventHandler)
+	{
+		if (m_hoveredWidget)
+		{
+			m_hoveredWidget->widget->OnMouseExit();
 			m_hoveredWidget = nullptr;
 		}
 	}

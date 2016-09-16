@@ -12,6 +12,7 @@
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
 
 namespace Ndk
@@ -66,6 +67,8 @@ namespace Ndk
 
 			virtual void OnMouseEnter();
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
+			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
+			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseExit();
 
 		private:
