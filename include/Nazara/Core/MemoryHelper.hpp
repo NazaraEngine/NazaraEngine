@@ -7,7 +7,7 @@
 #ifndef NAZARA_MEMORYHELPER_HPP
 #define NAZARA_MEMORYHELPER_HPP
 
-#if defined(NAZARA_COMPILER_MSVC)
+#if defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_COMPILER_MINGW)
 
 #include <malloc.h>
 
