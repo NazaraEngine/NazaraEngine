@@ -55,11 +55,6 @@ namespace Nz
 		window.m_impl = nullptr;
 	}
 
-	inline Window::~Window()
-	{
-		Destroy();
-	}
-
 	inline void Window::Close()
 	{
 		m_closed = true; // The window will be closed at the next non-const IsOpen() call
@@ -146,7 +141,7 @@ namespace Nz
 	{
 		Destroy();
 
-		m_closed        = window.m_closed; 
+		m_closed        = window.m_closed;
 		m_closeOnQuit   = window.m_closeOnQuit;
 		m_eventPolling  = window.m_eventPolling;
 		m_impl          = window.m_impl;
