@@ -41,6 +41,8 @@ namespace Nz
 			inline void DisableTiles();
 			inline void DisableTiles(const Vector2ui* tilesPos, std::size_t tileCount);
 
+			inline void EnableIsometricMode(bool isometric);
+
 			inline void EnableTile(const Vector2ui& tilePos, const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
 			inline void EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color = Color::White, std::size_t materialIndex = 0U);
 			inline void EnableTiles(const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
@@ -54,6 +56,8 @@ namespace Nz
 			inline Vector2f GetSize() const;
 			inline const Tile& GetTile(const Vector2ui& tilePos) const;
 			inline const Vector2f& GetTileSize() const;
+
+			inline bool IsIsometricModeEnabled() const;
 
 			inline void SetMaterial(std::size_t index, MaterialRef material);
 
@@ -87,6 +91,7 @@ namespace Nz
 			std::vector<Layer> m_layers;
 			Vector2ui m_mapSize;
 			Vector2f m_tileSize;
+			bool m_isometricModeEnabled;
 
 			static TileMapLibrary::LibraryMap s_library;
 	};

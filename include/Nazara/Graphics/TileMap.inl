@@ -25,7 +25,8 @@ namespace Nz
 	m_tiles(mapSize.x * mapSize.y),
 	m_layers(materialCount),
 	m_mapSize(mapSize),
-	m_tileSize(tileSize)
+	m_tileSize(tileSize),
+	m_isometricModeEnabled(false)
 	{
 		NazaraAssert(m_tiles.size() != 0U, "Invalid map size");
 		NazaraAssert(m_tileSize.x != 0U && m_tileSize.y != 0U, "Invalid tile size");
@@ -106,6 +107,22 @@ namespace Nz
 
 		if (tileCount > 0)
 			InvalidateInstanceData(invalidatedLayers);
+	}
+
+	/*!
+	* \brief Enable/Disable isometric mode
+	*
+	* If enabled, every odd line will overlap by half the tile size with the upper line
+	*
+	* \param isometric Should the isometric mode be enabled for this TileMap
+	*
+	* \see IsIsometricModeEnabled
+	*/
+	inline void TileMap::EnableIsometricMode(bool isometric)
+	{
+		m_isometricModeEnabled = isometric;
+
+		InvalidateInstanceData(0xFFFFFFFF);
 	}
 
 	/*!
@@ -385,6 +402,17 @@ namespace Nz
 	inline const Vector2f& TileMap::GetTileSize() const
 	{
 		return m_tileSize;
+	}
+
+	/*!
+	* \brief Gets the actual state of the isometric mode
+	* \return True if the isometric mode is enabled
+	*
+	* \see EnableIsometricMode
+	*/
+	inline bool TileMap::IsIsometricModeEnabled() const
+	{
+		return m_isometricModeEnabled;
 	}
 
 	/*!
