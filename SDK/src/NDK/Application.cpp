@@ -34,7 +34,7 @@ namespace Ndk
 	*
 	* \remark Only one Application instance can exist at a time
 	*/
-	inline Application::Application(int argc, char* argv[]) :
+	Application::Application(int argc, char* argv[]) :
 	Application()
 	{
 		std::regex optionRegex(R"(-(\w+))");
