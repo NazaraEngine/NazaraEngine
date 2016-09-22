@@ -9,6 +9,7 @@
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <poll.h>
 #include <unistd.h>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
@@ -397,6 +398,23 @@ namespace Nz
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
 
+	int SocketImpl::Poll(PollSocket* fdarray, unsigned long nfds, int timeout, SocketError* error)
+	{
+		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
+
+		static_assert(sizeof(PollSocket) == sizeof(pollfd), "PollSocket size must match WSAPOLLFD size");
+
+		int result = poll(reinterpret_cast<pollfd*>(fdarray), static_cast<nfds_t>(nfds), timeout);
+		if (result < 0)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return 0;
+		}
+
+		return result;
+	}
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)
 	{
