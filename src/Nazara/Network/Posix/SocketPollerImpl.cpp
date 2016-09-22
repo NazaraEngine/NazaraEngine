@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/Win32/SocketPollerImpl.hpp>
+#include <Nazara/Network/Posix/SocketPollerImpl.hpp>
 #include <poll.h>
 #include <Nazara/Network/Debug.hpp>
 
