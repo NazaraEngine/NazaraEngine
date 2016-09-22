@@ -72,7 +72,7 @@
 // Number of spinlocks to use with the Windows critical sections (0 to disable)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 
-// Optimize the Windows implementation with technologies of Windows vista (and greather) (Break the compatibility with XP)
+// Optimize the Windows implementation with technologies of Windows vista (and greater) (Break the compatibility with XP)
 #define NAZARA_CORE_WINDOWS_VISTA 0
 
 
