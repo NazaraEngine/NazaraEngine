@@ -415,6 +415,34 @@ namespace Nz
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
 
+	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
+	{
+		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
+
+		#if NAZARA_NETWORK_POLL_SUPPORT
+		static_assert(sizeof(PollSocket) == sizeof(WSAPOLLFD), "PollSocket size must match WSAPOLLFD size");
+
+		int result = WSAPoll(reinterpret_cast<WSAPOLLFD*>(fdarray), static_cast<ULONG>(nfds), timeout);
+		if (result == SOCKET_ERROR)
+		{
+			int errorCode = WSAGetLastError();
+			if (error)
+				*error = TranslateWSAErrorToSocketError(errorCode);
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return result;
+		#else
+		if (error)
+			*error = SocketError_NotSupported;
+
+		return 0;
+		#endif
+	}
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)
 	{
