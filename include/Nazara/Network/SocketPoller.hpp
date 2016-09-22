@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			SocketPoller();
 			inline SocketPoller(SocketPoller&& socketPoller);
-			~SocketPoller() = default;
+			~SocketPoller();
 
 			void Clear();
 
