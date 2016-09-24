@@ -262,6 +262,17 @@ namespace Nz
 		if (m_pendingPacket.headerReceived)
 		{
 			UInt16 packetSize = static_cast<UInt16>(m_pendingPacket.data.GetSize()); //< Total packet size
+			if (packetSize == 0)
+			{
+				// Special case: our packet carry no data
+				packet->Reset(packetSize);
+
+				// And reset every state
+				m_pendingPacket.data.Clear();
+				m_pendingPacket.headerReceived = false;
+				m_pendingPacket.received = 0;
+				return true;
+			}
 
 			std::size_t received;
 			if (!Receive(&m_pendingPacket.data[m_pendingPacket.received], packetSize - m_pendingPacket.received, &received))
