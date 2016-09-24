@@ -1,4 +1,4 @@
-// This file was automatically generated on 20 Jul 2016 at 13:49:17
+// This file was automatically generated on 15 Sep 2016 at 00:43:26
 
 /*
 	Nazara Engine - Graphics module
@@ -58,17 +58,20 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
+#include <Nazara/Graphics/ParticleFunctionController.hpp>
+#include <Nazara/Graphics/ParticleFunctionGenerator.hpp>
+#include <Nazara/Graphics/ParticleFunctionRenderer.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <Nazara/Graphics/ParticleGroup.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
-#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
@@ -77,5 +80,6 @@
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
+#include <Nazara/Graphics/TileMap.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP
