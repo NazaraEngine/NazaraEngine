@@ -11,6 +11,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <functional>
+#include <string>
 #include <tuple>
 #include <type_traits>
 
@@ -38,11 +39,13 @@ namespace Nz
 	struct TypeTag {};
 
 	inline bool Serialize(SerializationContext& context, bool value);
+	inline bool Serialize(SerializationContext& context, const std::string& value);
 
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value);
 
 	inline bool Unserialize(SerializationContext& context, bool* value);
+	inline bool Unserialize(SerializationContext& context, std::string* value);
 
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value);

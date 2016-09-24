@@ -6,6 +6,7 @@
 // Merci à Ryan "FullMetal Alchemist" Lahfa
 // Merci aussi à Freedom de siteduzero.com
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -192,7 +193,7 @@ namespace Nz
 	/*!
 	* \ingroup core
 	* \brief Serializes a boolean
-	* \return true if serialization succedeed
+	* \return true if serialization succeeded
 	*
 	* \param context Context for the serialization
 	* \param value Boolean to serialize
@@ -218,8 +219,24 @@ namespace Nz
 
 	/*!
 	* \ingroup core
+	* \brief Serializes a std::string
+	* \return true if successful
+	*
+	* \param context Context for the serialization
+	* \param value String to serialize
+	*/
+	bool Serialize(SerializationContext& context, const std::string& value)
+	{
+		if (!Serialize<UInt32>(context, value.size()))
+			return false;
+
+		return context.stream->Write(value.data(), value.size()) == value.size();
+	}
+
+	/*!
+	* \ingroup core
 	* \brief Serializes an arithmetic type
-	* \return true if serialization succedeed
+	* \return true if serialization succeeded
 	*
 	* \param context Context for the serialization
 	* \param value Arithmetic type to serialize
@@ -264,6 +281,23 @@ namespace Nz
 		context.currentBitPos++;
 
 		return true;
+	}
+
+	/*!
+	* \brief Unserializes a string
+	* \return true if successful
+	*
+	* \param context Context of unserialization
+	* \param string std::string to unserialize
+	*/
+	bool Unserialize(SerializationContext& context, std::string* string)
+	{
+		UInt32 size;
+		if (!Unserialize(context, &size))
+			return false;
+
+		string->resize(size);
+		return context.stream->Read(&string[0], size) == size;
 	}
 
 	/*!
