@@ -265,7 +265,7 @@ namespace Nz
 			if (packetSize == 0)
 			{
 				// Special case: our packet carry no data
-				packet->Reset(packetSize);
+				packet->Reset(m_pendingPacket.netcode);
 
 				// And reset every state
 				m_pendingPacket.data.Clear();
