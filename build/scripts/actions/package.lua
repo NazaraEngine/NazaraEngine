@@ -15,7 +15,7 @@ ACTION.Function = function ()
 		elseif (#libDirs == 0) then
 			error("No subdirectory was found in the lib directory, have you built the engine yet?")
 		else
-			libDir = libDirs[1]
+			libDir = libDirs[1] .. "/"
 			print("No directory was set by the --pack-libdir command, \"" .. libDir .. "\" will be used")
 		end
 	else
