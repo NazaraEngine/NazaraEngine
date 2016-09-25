@@ -57,7 +57,7 @@ namespace Nz
 	bool ConditionVariableImpl::Wait(MutexImpl* mutex, UInt32 timeout)
 	{
 		#if NAZARA_CORE_WINDOWS_VISTA
-		return SleepConditionVariableCS(&m_cv, &mutex->m_criticalSection, timeout);
+		return SleepConditionVariableCS(&m_cv, &mutex->m_criticalSection, timeout) == TRUE;
 		#else
 		m_count++;
 
