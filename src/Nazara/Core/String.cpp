@@ -5879,7 +5879,7 @@ namespace Nz
 	*/
 	bool Serialize(SerializationContext& context, const String& string)
 	{
-		if (!Serialize<UInt32>(context, string.GetSize()))
+		if (!Serialize(context, UInt32(string.GetSize())))
 			return false;
 
 		return context.stream->Write(string.GetConstBuffer(), string.GetSize()) == string.GetSize();
