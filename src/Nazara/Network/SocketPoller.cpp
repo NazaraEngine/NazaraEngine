@@ -17,7 +17,13 @@
 namespace Nz
 {
 	/*!
-	* \brief Constructs a SocketPoller object by default
+	* \ingroup network
+	* \class Nz::SocketPoller
+	* \brief Network class allowing an application to wait on multiples sockets for them to become active (readable)
+	*/
+
+	/*!
+	* \brief Constructs an empty SocketPoller object
 	*/
 	inline SocketPoller::SocketPoller() :
 	m_impl(new SocketPollerImpl)
@@ -26,6 +32,8 @@ namespace Nz
 
 	/*!
 	* \brief Destructs the SocketPoller
+	*
+	* \remark When the SocketPoller gets destroyed, all sockets are automatically unregistered from it.
 	*/
 	SocketPoller::~SocketPoller()
 	{
