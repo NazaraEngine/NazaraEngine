@@ -18,7 +18,7 @@ namespace Nz
 
 		int GetAddressInfo(const String& hostname, const String& service, const addrinfoImpl* hints, addrinfoImpl** results)
 		{
-			return GetAddrInfoW(hostname.GetWideString().c_str(), service.GetWideString().c_str(), &hints, &servinfo);
+			return GetAddrInfoW(hostname.GetWideString().c_str(), service.GetWideString().c_str(), hints, results);
 		}
 
 		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service, INT flags)
@@ -26,14 +26,14 @@ namespace Nz
 			std::array<wchar_t, NI_MAXHOST> hostnameBuffer;
 			std::array<wchar_t, NI_MAXSERV> serviceBuffer;
 
-			int result = GetNameInfoW(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), flags);
+			int result = GetNameInfoW(socketAddress, socketLen, hostnameBuffer.data(), static_cast<DWORD>(hostnameBuffer.size()), serviceBuffer.data(), static_cast<DWORD>(serviceBuffer.size()), flags);
 			if (result == 0)
 			{
 				if (hostname)
-					hostname->Set(hostnameBuffer.data());
+					*hostname = std::move(String::Unicode(hostnameBuffer.data()));
 
 				if (service)
-					service->Set(serviceBuffer.data());
+					*service = std::move(String::Unicode(serviceBuffer.data()));
 			}
 
 			return result;
