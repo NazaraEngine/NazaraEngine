@@ -227,7 +227,7 @@ namespace Nz
 	*/
 	bool Serialize(SerializationContext& context, const std::string& value)
 	{
-		if (!Serialize<UInt32>(context, value.size()))
+		if (!Serialize(context, UInt32(value.size())))
 			return false;
 
 		return context.stream->Write(value.data(), value.size()) == value.size();
