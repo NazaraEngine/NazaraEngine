@@ -112,12 +112,13 @@ namespace Nz
 		m_activeSockets.clear();
 		if (activeSockets > 0U)
 		{
+			int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)
 			{
 				if (entry.revents & POLLRDNORM)
 				{
 					m_activeSockets.insert(entry.fd);
-					if (--activeSockets == 0)
+					if (--socketRemaining == 0)
 						break;
 				}
 			}
