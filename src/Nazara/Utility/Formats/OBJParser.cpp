@@ -13,9 +13,87 @@
 
 namespace Nz
 {
+	bool OBJParser::Check(Stream& stream)
+	{
+		m_currentStream = &stream;
+		m_errorCount = 0;
+		m_keepLastLine = false;
+		m_lineCount = 0;
+
+		// Force stream in text mode, reset it at the end
+		Nz::CallOnExit resetTextMode;
+		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		{
+			stream.EnableTextMode(true);
+
+			resetTextMode.Reset([&stream] ()
+			{
+				stream.EnableTextMode(false);
+			});
+		}
+
+		unsigned int failureCount = 0;
+		while (Advance(false))
+		{
+			switch (std::tolower(m_currentLine[0]))
+			{
+				case '#': //< Comment
+					failureCount--;
+					break;
+
+				case 'f': //< Face
+				case 'g': //< Group (inside a mesh)
+				case 'o': //< Object (defines a mesh)
+				case 's': //< Smooth
+				{
+					if (m_currentLine.GetSize() > 1 && m_currentLine[1] == ' ')
+						return true;
+
+					break;
+				}
+
+				case 'm': //< MTLLib
+					if (m_currentLine.GetWord(0).ToLower() == "mtllib")
+						return true;
+
+					break;
+
+				case 'u': //< Usemtl
+					if (m_currentLine.GetWord(0).ToLower() == "usemtl")
+						return true;
+
+					break;
+
+				case 'v': //< Position/Normal/Texcoords
+				{
+					String word = m_currentLine.GetWord(0).ToLower();
+					if (word == 'v')
+						return true;
+					else if (word == "vn")
+						return true;
+					else if (word == "vt")
+						return true;
+
+					break;
+				}
+
+				default:
+					break;
+			}
+
+			if (++failureCount > 20U)
+				return false;
+		}
+
+		return false;
+	}
+
 	bool OBJParser::Parse(Nz::Stream& stream, UInt32 reservedVertexCount)
 	{
 		m_currentStream = &stream;
+		m_errorCount = 0;
+		m_keepLastLine = false;
+		m_lineCount = 0;
 
 		// Force stream in text mode, reset it at the end
 		Nz::CallOnExit resetTextMode;
@@ -31,9 +109,6 @@ namespace Nz
 
 		String matName, meshName;
 		matName = meshName = "default";
-		m_errorCount = 0;
-		m_keepLastLine = false;
-		m_lineCount = 0;
 		m_meshes.clear();
 		m_mtlLib.Clear();
 
