@@ -4553,7 +4553,7 @@ namespace Nz
 
 	String& String::operator=(String&& string) noexcept
 	{
-		return Set(string);
+		return Set(std::move(string));
 	}
 
 	/*!
@@ -5852,7 +5852,7 @@ namespace Nz
 		if (!m_sharedString.unique())
 		{
 			auto newSharedString = std::make_shared<SharedString>(GetSize(), GetCapacity());
-			if (!discardContent)
+			if (!discardContent && newSharedString->size > 0)
 				std::memcpy(newSharedString->string.get(), GetConstBuffer(), GetSize()+1);
 
 			m_sharedString = std::move(newSharedString);
