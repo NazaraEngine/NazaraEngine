@@ -27,7 +27,7 @@ namespace Nz
 	/*!
 	* \brief Constructs an empty SocketPoller object
 	*/
-	inline SocketPoller::SocketPoller() :
+	SocketPoller::SocketPoller() :
 	m_impl(new SocketPollerImpl)
 	{
 	}
