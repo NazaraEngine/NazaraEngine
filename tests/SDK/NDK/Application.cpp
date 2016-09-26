@@ -5,17 +5,20 @@ SCENARIO("Application", "[NDK][APPLICATION]")
 {
 	GIVEN("An application")
 	{
-		Ndk::Application application;
-		application.AddWorld();
-		Nz::Window& window = application.AddWindow<Nz::Window>();
+		Nz::Window& window = Ndk::Application::Instance()->AddWindow<Nz::Window>();
 
-		WHEN("We close the open window")
+		WHEN("We open a window")
 		{
-			window.Close();
+			REQUIRE(window.Create(Nz::VideoMode(800, 600, 32), "Nazara Unit Tests"));
 
-			THEN("Application should close")
+			AND_WHEN("We close the open window")
 			{
-				REQUIRE(!application.Run());
+				window.Close();
+
+				THEN("Application should close")
+				{
+					REQUIRE(!Ndk::Application::Instance()->Run());
+				}
 			}
 		}
 	}

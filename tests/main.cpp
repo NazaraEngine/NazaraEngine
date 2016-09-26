@@ -1,14 +1,16 @@
 #define CATCH_CONFIG_RUNNER
 #include <Catch/catch.hpp>
 
-#include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Core/Core.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
+#include <NDK/Application.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Network.hpp>
 
-int main(int argc, char* const argv[])
+int main(int argc, char* argv[])
 {
-	Nz::Initializer<Nz::Audio, Nz::Core, Nz::Graphics, Nz::Network> modules;
+	Ndk::Application application(argc, argv);
+	Nz::Initializer<Nz::Network> modules;
+
+	Nz::Log::GetLogger()->EnableStdReplication(false);
 
 	int result = Catch::Session().run(argc, argv);
 
