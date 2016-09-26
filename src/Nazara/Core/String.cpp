@@ -3461,7 +3461,7 @@ namespace Nz
 			p--;
 
 		*p = '\0';
-		m_sharedString->size = p - str;
+		newString->size = p - str;
 
 		return String(std::move(newString));
 	}
