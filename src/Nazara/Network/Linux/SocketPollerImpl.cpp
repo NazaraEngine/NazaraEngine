@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Linux/SocketPollerImpl.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
@@ -44,7 +45,7 @@ namespace Nz
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &event) != 0)
 		{
-			NazaraError("Failed to add socket to epoll structure (errno " String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraError("Failed to add socket to epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 			return false;
 		}
 
@@ -61,7 +62,7 @@ namespace Nz
 		m_sockets.erase(socket);
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_DEL, socket, nullptr) != 0)
-			NazaraWarning("An error occured while removing socket from epoll structure (errno " String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraWarning("An error occured while removing socket from epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 	}
 
 	int SocketPollerImpl::Wait(UInt64 msTimeout, SocketError* error)
