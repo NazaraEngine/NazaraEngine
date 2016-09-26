@@ -5,6 +5,7 @@
 #include <Nazara/Network/Linux/SocketPollerImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
+#include <unistd.h>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
