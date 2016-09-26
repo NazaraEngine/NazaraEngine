@@ -6,6 +6,8 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketPollerImpl.hpp>
+#elif defined(NAZARA_PLATFORM_LINUX)
+#include <Nazara/Network/Linux/SocketPollerImpl.hpp>
 #elif defined(NAZARA_PLATFORM_POSIX)
 #include <Nazara/Network/Posix/SocketPollerImpl.hpp>
 #else
