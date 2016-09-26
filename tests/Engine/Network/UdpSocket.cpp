@@ -11,10 +11,13 @@ SCENARIO("UdpSocket", "[NETWORK][UDPSOCKET]")
 		Nz::UInt16 port = 64256;
 		Nz::UdpSocket server(Nz::NetProtocol_IPv4);
 		REQUIRE(server.Bind(port) == Nz::SocketState_Bound);
-		Nz::IpAddress serverIP = server.GetBoundAddress();
+
+		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
+
 		Nz::UdpSocket client(Nz::NetProtocol_IPv4);
 		REQUIRE(client.Bind(port + 1) == Nz::SocketState_Bound);
+
 		Nz::IpAddress clientIP = client.GetBoundAddress();
 		REQUIRE(clientIP.IsValid());
 
