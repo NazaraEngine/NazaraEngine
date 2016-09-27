@@ -22,10 +22,10 @@ script:
         make -j4 -f NazaraEngine.make
       "
 
-after_script:
-  - docker exec Nazara
-      sh -c "
-        cd ../../tests &&
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
-        ./NazaraUnitTests
-      "
+#after_script:
+#  - docker exec Nazara
+#      sh -c "
+#        cd ../../tests &&
+#        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+#        ./NazaraUnitTests
+#      "
