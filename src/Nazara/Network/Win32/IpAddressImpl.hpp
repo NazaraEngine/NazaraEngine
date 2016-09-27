@@ -22,7 +22,7 @@ namespace Nz
 			~IpAddressImpl() = delete;
 
 			static IpAddress FromAddrinfo(const addrinfo* info);
-			#if NAZARA_CORE_WINDOWS_VISTA
+			#if NAZARA_CORE_WINDOWS_NT6
 			static IpAddress FromAddrinfo(const addrinfoW* info);
 			#endif
 			static IpAddress FromSockAddr(const sockaddr* address);

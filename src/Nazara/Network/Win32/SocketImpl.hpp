@@ -12,7 +12,7 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <winsock2.h>
 
-#define NAZARA_NETWORK_POLL_SUPPORT NAZARA_CORE_WINDOWS_VISTA
+#define NAZARA_NETWORK_POLL_SUPPORT NAZARA_CORE_WINDOWS_NT6
 
 namespace Nz
 {

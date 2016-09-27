@@ -74,7 +74,7 @@
 	#error Nazara requires a C++11 compliant compiler
 #endif
 
-// Version du moteur
+// Nazara version macro
 #define NAZARA_VERSION_MAJOR 0
 #define NAZARA_VERSION_MINOR 1
 
@@ -97,7 +97,7 @@
 			#define NOMINMAX
 		#endif
 
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 			// Version de Windows minimale : Vista
 			#define NAZARA_WINNT 0x0600
 		#else
