@@ -33,7 +33,7 @@
 
 // Importation/Exportation of the API
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#if !defined(NDK_STATIC)
+	#if !defined(NAZARA_STATIC)
 		#ifdef NDK_BUILD
 			#define NDK_API NAZARA_EXPORT
 		#else
@@ -43,7 +43,7 @@
 		#define NDK_API
 	#endif
 #elif defined(NAZARA_PLATFORM_LINUX)
-	#if !defined(NDK_STATIC) && defined(NAZARA_COMPILER_GCC)
+	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
 		#define NDK_API NAZARA_EXPORT
 	#else
 		#define NDK_API

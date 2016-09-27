@@ -228,6 +228,7 @@ function NazaraBuild:Execute()
 				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
+				defines("NAZARA_STATIC")
 				kind("StaticLib")
 
 			configuration("*Dynamic")
@@ -356,6 +357,9 @@ function NazaraBuild:Execute()
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
 				end
+
+			configuration("*Static")
+				defines("NAZARA_STATIC")
 
 			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
 				configuration("*Static")
@@ -705,7 +709,7 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 	end
 
 	if (os.is("windows")) then
-		configuration({})
+		configuration("*Dynamic")
 		
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
