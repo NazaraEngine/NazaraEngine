@@ -1,5 +1,12 @@
-language: cpp
-sudo: required
+language:
+  cpp
+
+sudo:
+  required
+
+notifications:
+  email: true
+
 services:
   - docker
 
@@ -7,19 +14,18 @@ before_install:
   - docker build -t nazara .
 
 script:
-  - docker run -v `pwd`:/NazaraEngine nazara
-    sh -c "cd build &&
-       ./premake5-linux64 --with-examples gmake &&
-       cd gmake &&
-       make -j4 -f NazaraEngine.make &&
-       cd ../../tests &&
-       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/
-    "
+  - docker run --name Nazara -v `pwd`:/NazaraEngine nazara
+      sh -c "
+        cd build &&
+        ./premake5-linux64 --with-examples gmake &&
+        cd gmake &&
+        make -j4 -f NazaraEngine.make
+      "
 
-notifications:
-  email: true
-
-branches:
-  only:
-    - master
-
+after_script:
+  - docker exec Nazara
+      sh -c "
+        cd ../../tests &&
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+        ./NazaraUnitTests
+      "
