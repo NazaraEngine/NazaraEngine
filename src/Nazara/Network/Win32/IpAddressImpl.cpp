@@ -13,7 +13,7 @@ namespace Nz
 {
 	namespace Detail
 	{
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 		using addrinfoImpl = addrinfoW;
 
 		int GetAddressInfo(const String& hostname, const String& service, const addrinfoImpl* hints, addrinfoImpl** results)
@@ -105,7 +105,7 @@ namespace Nz
 		return IpAddress::Invalid;
 	}
 
-	#if NAZARA_CORE_WINDOWS_VISTA
+	#if NAZARA_CORE_WINDOWS_NT6
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfoW* info)
 	{
 		switch (info->ai_family)
