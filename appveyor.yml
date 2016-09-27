@@ -19,5 +19,5 @@ configuration:
 build:
   project: build/$(TOOLSET)/NazaraEngine.sln
   
-after_build:
-  - cd tests && "./NazaraUnitTests"
+#after_build:
+#  - cd tests && "./NazaraUnitTests"
