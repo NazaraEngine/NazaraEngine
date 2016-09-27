@@ -12,7 +12,7 @@ namespace Nz
 {
 	ConditionVariableImpl::ConditionVariableImpl()
 	{
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 		InitializeConditionVariable(&m_cv);
 		#else
 		m_count = 0;
@@ -21,7 +21,7 @@ namespace Nz
 		#endif
 	}
 
-	#if !NAZARA_CORE_WINDOWS_VISTA
+	#if !NAZARA_CORE_WINDOWS_NT6
 	ConditionVariableImpl::~ConditionVariableImpl()
 	{
 		CloseHandle(m_events[BROADCAST]);
@@ -31,7 +31,7 @@ namespace Nz
 
 	void ConditionVariableImpl::Signal()
 	{
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 		WakeConditionVariable(&m_cv);
 		#else
 		if (m_count > 0)
@@ -41,7 +41,7 @@ namespace Nz
 
 	void ConditionVariableImpl::SignalAll()
 	{
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 		WakeAllConditionVariable(&m_cv);
 		#else
 		if (m_count > 0)
@@ -56,7 +56,7 @@ namespace Nz
 
 	bool ConditionVariableImpl::Wait(MutexImpl* mutex, UInt32 timeout)
 	{
-		#if NAZARA_CORE_WINDOWS_VISTA
+		#if NAZARA_CORE_WINDOWS_NT6
 		return SleepConditionVariableCS(&m_cv, &mutex->m_criticalSection, timeout) == TRUE;
 		#else
 		m_count++;
