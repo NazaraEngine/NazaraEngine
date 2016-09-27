@@ -10,7 +10,7 @@ environment:
   - TOOLSET: vs2015
 
 install:
-  - cd build && "./premake5.exe" %TOOLSET%
+  - cd build && "./premake5.exe" %TOOLSET% && cd ..
 
 configuration:
   - DebugDynamic
