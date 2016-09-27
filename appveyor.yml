@@ -10,8 +10,7 @@ environment:
   - TOOLSET: vs2015
 
 install:
-  - cd build
-  - "./premake5.exe" %TOOLSET%
+  - cd build && "./premake5.exe" %TOOLSET%
 
 configuration:
   - DebugDynamic
@@ -21,5 +20,4 @@ build:
   project: build/$(TOOLSET)/NazaraEngine.sln
   
 after_build:
-  - cd tests
-  - "./NazaraUnitTests"
+  - cd tests && "./NazaraUnitTests"
