@@ -48,6 +48,18 @@ ACTION.Function = function ()
 			Masks = {"**.*"},
 			Source = "../examples/bin/resources/",
 			Target = "examples/bin/resources/"
+		},
+		-- Unit test sources
+		{
+			Masks = {"**.hpp", "**.inl", "**.cpp"},
+			Source = "../tests/",
+			Target = "tests/src/"
+		},
+		-- Unit test resources
+		{
+			Masks = {"**.*"},
+			Source = "../tests/resources/",
+			Target = "tests/resources/"
 		}
 	}
 
@@ -76,9 +88,17 @@ ACTION.Function = function ()
 		-- Demo executable (Windows)
 		table.insert(copyTargets, {
 			Masks = {"Demo*.exe"},
-			Source = "../examples/bin",
-			Target = "examples/bin"
+			Source = "../examples/bin/",
+			Target = "examples/bin/"
 		})
+
+		-- Unit test (Windows)
+		table.insert(copyTargets, {
+			Masks = {"*.exe"},
+			Source = "../tests/",
+			Target = "tests/"
+		})
+
 	elseif (os.is("macosx")) then
 		-- Engine/SDK binaries
 		table.insert(copyTargets, { 
@@ -101,13 +121,22 @@ ACTION.Function = function ()
 			Target = "bin/"
 		})
 
-		-- Demo executable (Windows)
+		-- Demo executable (OS X)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
 			Filter = function (path) return path.getextension(path) == "" end,
-			Source = "../examples/bin",
-			Target = "examples/bin"
+			Source = "../examples/bin/",
+			Target = "examples/bin/"
 		})
+		
+		-- Unit test (OS X)
+		table.insert(copyTargets, {
+			Masks = {"*.*"},
+			Filter = function (path) return path.getextension(path) == "" end,
+			Source = "../tests/",
+			Target = "tests/"
+		})
+
 	else
 		-- Engine/SDK binaries
 		table.insert(copyTargets, { 
@@ -130,12 +159,20 @@ ACTION.Function = function ()
 			Target = "bin/"
 		})
 
-		-- Demo executable (Windows)
+		-- Demo executable (Linux)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
 			Filter = function (path) return path.getextension(path) == "" end,
-			Source = "../examples/bin",
-			Target = "examples/bin"
+			Source = "../examples/bin/",
+			Target = "examples/bin/"
+		})
+		
+		-- Unit test (Linux)
+		table.insert(copyTargets, {
+			Masks = {"*.*"},
+			Filter = function (path) return path.getextension(path) == "" end,
+			Source = "../tests/",
+			Target = "tests/"
 		})
 	end
 
@@ -143,24 +180,14 @@ ACTION.Function = function ()
 	-- Processing
 	os.mkdir(packageDir)
 
+	local size = 0
 	for k,v in pairs(copyTargets) do
 		local target = packageDir .. v.Target
 		local includePrefix = v.Source
-		for k,v in pairs(os.matchdirs(includePrefix .. "**")) do
-			local relPath = v:sub(#includePrefix + 1)
-
-			local targetPath = target .. relPath
-			
-			if (not os.isdir(targetPath)) then
-				local ok, err = os.mkdir(targetPath)
-				if (not ok) then
-					print("Failed to create directory \"" .. targetPath .. "\": " .. err)
-				end
-			end
-		end
 
 		local targetFiles = {}
 		for k, mask in pairs(v.Masks) do
+			print(includePrefix .. mask .. " => " .. target)
 			local files = os.matchfiles(includePrefix .. mask)
 			if (v.Filter) then
 				for k,path in pairs(files) do
@@ -169,7 +196,7 @@ ACTION.Function = function ()
 					end
 				end
 			end
-		
+
 			targetFiles = table.join(targetFiles, files)
 		end
 		
@@ -177,13 +204,26 @@ ACTION.Function = function ()
 			local relPath = v:sub(#includePrefix + 1)
 
 			local targetPath = target .. relPath
+			local targetDir = path.getdirectory(targetPath)
 			
+			if (not os.isdir(targetDir)) then
+				local ok, err = os.mkdir(targetDir)
+				if (not ok) then
+					print("Failed to create directory \"" .. targetDir .. "\": " .. err)
+				end
+			end
+
 			local ok, err = os.copyfile(v, targetPath)
 			if (not ok) then
 				print("Failed to copy \"" .. v .. "\" to \"" .. targetPath .. "\": " .. err)
 			end
+			
+			local stat = os.stat(targetPath)
+			if (stat) then
+				size = size + stat.size
+			end
 		end
 	end
 	
-	print(string.format("Package successfully created at \"%s\"", packageDir))
+	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), libDir))
 end
