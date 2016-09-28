@@ -2,6 +2,7 @@ TOOL.Name = "UnitTests"
 
 TOOL.Directory = "../tests"
 TOOL.EnableConsole = true
+TOOL.EnableRTTI = true
 TOOL.Kind = "Application"
 TOOL.TargetDirectory = TOOL.Directory
 
