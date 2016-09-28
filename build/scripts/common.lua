@@ -141,7 +141,6 @@ function NazaraBuild:Execute()
 		configuration("Release*")
 			flags("NoFramePointer")
 			optimize("Speed")
-			rtti("Off")
 			vectorextensions("SSE2")
 
 		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
@@ -242,6 +241,9 @@ function NazaraBuild:Execute()
 
 			configuration("DebugDynamic")
 				targetsuffix("-d")
+
+			configuration("Release*")
+				rtti(moduleTable.EnableRTTI and "On" or "Off")
 
 			configuration({})
 
@@ -360,6 +362,9 @@ function NazaraBuild:Execute()
 
 			configuration("*Static")
 				defines("NAZARA_STATIC")
+
+			configuration("Release*")
+				rtti(toolTable.EnableRTTI and "On" or "Off")
 
 			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
 				configuration("*Static")
