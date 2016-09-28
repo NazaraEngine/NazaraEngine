@@ -124,7 +124,7 @@ ACTION.Function = function ()
 		-- Demo executable (OS X)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
-			Filter = function (path) return path.getextension(path) == "" end,
+			Filter = function (filePath) return path.getextension(filePath) == "" end,
 			Source = "../examples/bin/",
 			Target = "examples/bin/"
 		})
@@ -132,7 +132,7 @@ ACTION.Function = function ()
 		-- Unit test (OS X)
 		table.insert(copyTargets, {
 			Masks = {"*.*"},
-			Filter = function (path) return path.getextension(path) == "" end,
+			Filter = function (filePath) return path.getextension(filePath) == "" end,
 			Source = "../tests/",
 			Target = "tests/"
 		})
@@ -162,7 +162,7 @@ ACTION.Function = function ()
 		-- Demo executable (Linux)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
-			Filter = function (path) return path.getextension(path) == "" end,
+			Filter = function (filePath) return path.getextension(filePath) == "" end,
 			Source = "../examples/bin/",
 			Target = "examples/bin/"
 		})
@@ -170,7 +170,7 @@ ACTION.Function = function ()
 		-- Unit test (Linux)
 		table.insert(copyTargets, {
 			Masks = {"*.*"},
-			Filter = function (path) return path.getextension(path) == "" end,
+			Filter = function (filePath) return path.getextension(filePath) == "" end,
 			Source = "../tests/",
 			Target = "tests/"
 		})
@@ -191,7 +191,7 @@ ACTION.Function = function ()
 			local files = os.matchfiles(includePrefix .. mask)
 			if (v.Filter) then
 				for k,path in pairs(files) do
-					if (not v.Filter(v)) then
+					if (not v.Filter(path)) then
 						files[k] = nil
 					end
 				end
@@ -213,7 +213,14 @@ ACTION.Function = function ()
 				end
 			end
 
-			local ok, err = os.copyfile(v, targetPath)
+			local ok, err
+			if (os.is("windows")) then
+				ok, err = os.copyfile(v, targetPath)
+			else
+				-- Workaround: As premake is translating this to "cp %s %s", it fails if there are space in the paths.
+				ok, err = os.copyfile(string.format("\"%s\"", v), string.format("\"%s\"", targetPath))
+			end
+
 			if (not ok) then
 				print("Failed to copy \"" .. v .. "\" to \"" .. targetPath .. "\": " .. err)
 			end
