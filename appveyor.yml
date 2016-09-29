@@ -28,7 +28,7 @@ build:
 
 after_build:
   - cd build && "./premake5.exe" package && cd ../package
-  - 7z a 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z' *
+  - 7z a 'NazaraEngine-%CONFIGURATION%-%PLATFORM%-%APPVEYOR_REPO_COMMIT%.7z' *
 
 artifacts:
   - path: package/NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z
