@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -103,7 +103,7 @@ typedef aiVector2t<float> aiVector2D;
 #else
 
 struct aiVector2D {
-    float x,y;
+    float x, y;
 };
 
 #endif // __cplusplus
