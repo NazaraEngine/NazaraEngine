@@ -15,15 +15,14 @@ ACTION.Function = function ()
 		elseif (#libDirs == 0) then
 			error("No subdirectory was found in the lib directory, have you built the engine yet?")
 		else
-			libDir = libDirs[1] .. "/"
+			libDir = path.getname(libDirs[1])
 			print("No directory was set by the --pack-libdir command, \"" .. libDir .. "\" will be used")
 		end
-	else
-		libDir = "../lib/" .. libDir .. "/"
 	end
 
-	if (not os.isdir(libDir)) then
-		error(string.format("\"%s\" doesn't seem to be an existing directory", libDir))
+	local realLibDir = "../lib/" .. libDir .. "/"
+	if (not os.isdir(realLibDir)) then
+		error(string.format("\"%s\" doesn't seem to be an existing directory", realLibDir))
 	end
 
 	local archEnabled = {
@@ -31,7 +30,7 @@ ACTION.Function = function ()
 		["x86"] = false
 	}
 	
-	for k,v in pairs(os.matchdirs(libDir .. "*")) do
+	for k,v in pairs(os.matchdirs(realLibDir .. "*")) do
 		local arch = path.getname(v)
 		if (archEnabled[arch] ~= nil) then
 			archEnabled[arch] = true
@@ -90,10 +89,11 @@ ACTION.Function = function ()
 		binFileMasks = {"**.so"}
 		libFileMasks = {"**.a"}
 	end
-	
+
+	local enabledArchs = {}
 	for arch, enabled in pairs(archEnabled) do
 		if (enabled) then
-			local archLibSrc = libDir .. arch .. "/"
+			local archLibSrc = realLibDir .. arch .. "/"
 			local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
 			local archBinDst = "bin/" .. arch .. "/"
 			local archLibDst = "lib/" .. arch .. "/"
@@ -118,6 +118,8 @@ ACTION.Function = function ()
 				Source = arch3rdPartyBinSrc,
 				Target = archBinDst
 			})
+
+			table.insert(enabledArchs, arch)
 		end
 	end
 
@@ -225,5 +227,6 @@ ACTION.Function = function ()
 		end
 	end
 	
-	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), libDir))
+	local config = libDir .. " - " .. table.concat(enabledArchs, ", ")
+	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), config))
 end
