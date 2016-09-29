@@ -21,7 +21,6 @@ platform:
   - x64
 
 build:
-  parallel: true
   project: build/$(TOOLSET)/NazaraEngine.sln
   
 #after_build:
@@ -29,8 +28,8 @@ build:
 
 after_build:
   - cd build && "./premake5.exe" package && cd ../package
-  - 7z a NazaraEngine.7z *
+  - 7z a 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z' *
 
 artifacts:
-  - path: package/NazaraEngine.7z
-    name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
+  - path: package/NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z
+    name: NazaraEngine
