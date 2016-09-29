@@ -17,7 +17,7 @@ configuration:
   - ReleaseDynamic
 
 platform:
-  - x86
+  - x32
   - x64
 
 build:
