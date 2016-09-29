@@ -21,3 +21,11 @@ build:
   
 #after_build:
 #  - cd tests && "./NazaraUnitTests"
+
+after_build:
+  - cd build && "./premake5.exe" package && cd ..
+  - 7z a NazaraEngine.7z package\*
+
+artifacts:
+  - path: NazaraEngine.7z
+    name: NazaraEngine
