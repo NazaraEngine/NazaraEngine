@@ -26,6 +26,21 @@ ACTION.Function = function ()
 		error(string.format("\"%s\" doesn't seem to be an existing directory", libDir))
 	end
 
+	local archEnabled = {
+		["x64"] = false,
+		["x86"] = false
+	}
+	
+	for k,v in pairs(os.matchdirs(libDir .. "*")) do
+		local arch = path.getname(v)
+		if (archEnabled[arch] ~= nil) then
+			archEnabled[arch] = true
+			print(arch .. " arch found")
+		else
+			print("Unknown directory " .. v .. " found, ignored")
+		end
+	end
+
 	local packageDir = "../package/"
 
 	local copyTargets = {
@@ -63,28 +78,48 @@ ACTION.Function = function ()
 		}
 	}
 
-	if (os.is("windows")) then
+	local binFileMasks
+	local libFileMasks
+	if (os.is("windows")) then	
+		binFileMasks = {"**.dll"}
+		libFileMasks = {"**.lib", "**.a"}
+	elseif (os.is("macosx")) then
+		binFileMasks = {"**.dynlib"}
+		libFileMasks = {"**.a"}
+	else
+		binFileMasks = {"**.so"}
+		libFileMasks = {"**.a"}
+	end
+	
+	for arch, enabled in pairs(archEnabled) do
+		local archLibSrc = libDir .. arch .. "/"
+		local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
+		local archBinDst = "bin/" .. arch .. "/"
+		local archLibDst = "lib/" .. arch .. "/"
+		
 		-- Engine/SDK binaries
 		table.insert(copyTargets, { 
-			Masks = {"**.dll"},
-			Source = libDir,
-			Target = "bin/"
+			Masks  = binFileMasks,
+			Source = archLibSrc,
+			Target = archBinDst
 		})
 	
 		-- Engine/SDK libraries
 		table.insert(copyTargets, { 
-			Masks = {"**.lib"},
-			Source = libDir,
-			Target = "lib/"
+			Masks  = libFileMasks,
+			Source = archLibSrc,
+			Target = archLibDst
 		})
 
 		-- 3rd party binary dep
 		table.insert(copyTargets, { 
-			Masks = {"**.dll"},
-			Source = "../extlibs/lib/common/",
-			Target = "bin/"
+			Masks  = binFileMasks,
+			Source = arch3rdPartyBinSrc,
+			Target = archBinDst
 		})
+	end
 
+	if (os.is("windows")) then	
 		-- Demo executable (Windows)
 		table.insert(copyTargets, {
 			Masks = {"Demo*.exe"},
@@ -98,29 +133,7 @@ ACTION.Function = function ()
 			Source = "../tests/",
 			Target = "tests/"
 		})
-
 	elseif (os.is("macosx")) then
-		-- Engine/SDK binaries
-		table.insert(copyTargets, { 
-			Masks = {"**.dynlib"},
-			Source = libDir,
-			Target = "bin/"
-		})
-	
-		-- Engine/SDK libraries
-		table.insert(copyTargets, { 
-			Masks = {"**.a"},
-			Source = libDir,
-			Target = "lib/"
-		})
-
-		-- 3rd party binary dep
-		table.insert(copyTargets, { 
-			Masks = {"**.dynlib"},
-			Source = "../extlibs/lib/common/",
-			Target = "bin/"
-		})
-
 		-- Demo executable (OS X)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
@@ -136,29 +149,7 @@ ACTION.Function = function ()
 			Source = "../tests/",
 			Target = "tests/"
 		})
-
 	else
-		-- Engine/SDK binaries
-		table.insert(copyTargets, { 
-			Masks = {"**.so"},
-			Source = libDir,
-			Target = "bin/"
-		})
-	
-		-- Engine/SDK libraries
-		table.insert(copyTargets, { 
-			Masks = {"**.a"},
-			Source = libDir,
-			Target = "lib/"
-		})
-
-		-- 3rd party binary dep
-		table.insert(copyTargets, { 
-			Masks = {"**.so"},
-			Source = "../extlibs/lib/common/",
-			Target = "bin/"
-		})
-
 		-- Demo executable (Linux)
 		table.insert(copyTargets, {
 			Masks = {"Demo*"},
