@@ -92,31 +92,33 @@ ACTION.Function = function ()
 	end
 	
 	for arch, enabled in pairs(archEnabled) do
-		local archLibSrc = libDir .. arch .. "/"
-		local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
-		local archBinDst = "bin/" .. arch .. "/"
-		local archLibDst = "lib/" .. arch .. "/"
+		if (enabled) then
+			local archLibSrc = libDir .. arch .. "/"
+			local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
+			local archBinDst = "bin/" .. arch .. "/"
+			local archLibDst = "lib/" .. arch .. "/"
+			
+			-- Engine/SDK binaries
+			table.insert(copyTargets, { 
+				Masks  = binFileMasks,
+				Source = archLibSrc,
+				Target = archBinDst
+			})
 		
-		-- Engine/SDK binaries
-		table.insert(copyTargets, { 
-			Masks  = binFileMasks,
-			Source = archLibSrc,
-			Target = archBinDst
-		})
-	
-		-- Engine/SDK libraries
-		table.insert(copyTargets, { 
-			Masks  = libFileMasks,
-			Source = archLibSrc,
-			Target = archLibDst
-		})
+			-- Engine/SDK libraries
+			table.insert(copyTargets, { 
+				Masks  = libFileMasks,
+				Source = archLibSrc,
+				Target = archLibDst
+			})
 
-		-- 3rd party binary dep
-		table.insert(copyTargets, { 
-			Masks  = binFileMasks,
-			Source = arch3rdPartyBinSrc,
-			Target = archBinDst
-		})
+			-- 3rd party binary dep
+			table.insert(copyTargets, { 
+				Masks  = binFileMasks,
+				Source = arch3rdPartyBinSrc,
+				Target = archBinDst
+			})
+		end
 	end
 
 	if (os.is("windows")) then	
