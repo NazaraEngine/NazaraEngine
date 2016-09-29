@@ -16,6 +16,10 @@ configuration:
   - DebugDynamic
   - ReleaseDynamic
 
+platform:
+  - x86
+  - x64
+
 build:
   project: build/$(TOOLSET)/NazaraEngine.sln
   
