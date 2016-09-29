@@ -17,19 +17,20 @@ configuration:
   - ReleaseDynamic
 
 platform:
-  - x32
+  - Win32
   - x64
 
 build:
+  parallel: true
   project: build/$(TOOLSET)/NazaraEngine.sln
   
 #after_build:
 #  - cd tests && "./NazaraUnitTests"
 
 after_build:
-  - cd build && "./premake5.exe" package && cd ..
-  - 7z a NazaraEngine.7z package\*
+  - cd build && "./premake5.exe" package && cd ../package
+  - 7z a NazaraEngine.7z *
 
 artifacts:
-  - path: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z'
+  - path: package/NazaraEngine.7z
     name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
