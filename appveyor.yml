@@ -31,5 +31,5 @@ after_build:
   - 7z a 'NazaraEngine-%CONFIGURATION%-%PLATFORM%-%APPVEYOR_REPO_COMMIT%.7z' *
 
 artifacts:
-  - path: package/NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z
+  - path: NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT).7z
     name: NazaraEngine
