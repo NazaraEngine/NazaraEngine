@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -152,7 +152,7 @@ public:
      *  vector called "from" into another vector called "to".
      * Input : from[3], to[3] which both must be *normalized* non-zero vectors
      * Output: mtx[3][3] -- a 3x3 matrix in colum-major form
-     * Authors: Tomas Möller, John Hughes
+     * Authors: Tomas Mï¿½ller, John Hughes
      *          "Efficiently Building a Matrix to Rotate One Vector to Another"
      *          Journal of Graphics Tools, 4(4):1-4, 1999
      */
@@ -160,8 +160,6 @@ public:
         const aiVector3t<TReal>& to, aiMatrix3x3t& out);
 
 public:
-
-
     TReal a1, a2, a3;
     TReal b1, b2, b3;
     TReal c1, c2, c3;
@@ -172,13 +170,12 @@ typedef aiMatrix3x3t<float> aiMatrix3x3;
 #else
 
 struct aiMatrix3x3 {
-
     float a1, a2, a3;
     float b1, b2, b3;
     float c1, c2, c3;
 } PACK_STRUCT;
 
-#endif
+#endif // __cplusplus
 
 #include "./Compiler/poppack1.h"
 
