@@ -23,7 +23,7 @@ script:
         cd build &&
         ./premake5-linux64 --with-examples gmake &&
         cd gmake &&
-        make -j4 -f NazaraEngine.make config=$(CONFIG)dynamic_x64
+        make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
       "
 
 #after_script:
