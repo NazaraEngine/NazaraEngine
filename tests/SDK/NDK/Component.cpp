@@ -6,6 +6,18 @@ namespace
 	class TestComponent : public Ndk::Component<TestComponent>
 	{
 		public:
+			TestComponent(int value) :
+			m_value(value)
+			{
+			}
+
+			int GetValue() const
+			{
+				return m_value;
+			}
+
+			int m_value;
+
 			static Ndk::ComponentIndex componentIndex;
 	};
 
@@ -16,7 +28,7 @@ SCENARIO("Component", "[NDK][COMPONENT]")
 {
 	GIVEN("Our TestComponent")
 	{
-		TestComponent testComponent;
+		TestComponent testComponent(42);
 
 		WHEN("We clone it")
 		{
@@ -24,7 +36,7 @@ SCENARIO("Component", "[NDK][COMPONENT]")
 
 			THEN("We should get a copy")
 			{
-				REQUIRE(dynamic_cast<TestComponent*>(clone.get()) != nullptr);
+				REQUIRE(static_cast<TestComponent*>(clone.get())->GetValue() == 42);
 			}
 		}
 	}
