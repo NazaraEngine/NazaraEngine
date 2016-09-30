@@ -439,6 +439,9 @@ function NazaraBuild:Execute()
 			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
 
+			configuration("Release*")
+				rtti(exampleTable.EnableRTTI and "On" or "Off")
+
 			configuration("x32")
 				libdirs(exampleTable.LibraryPaths.x86)
 
