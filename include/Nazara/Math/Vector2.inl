@@ -1083,6 +1083,8 @@ struct hash<Nz::Vector2<T>>
 		return seed;
 	    }
 };
+	
+}
 
 #undef F
 
