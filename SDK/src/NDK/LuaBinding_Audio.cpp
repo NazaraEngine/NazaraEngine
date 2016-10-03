@@ -78,9 +78,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::SoundBuffer **********************************/
-		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua, Nz::SoundBufferRef* instance)
+		soundBuffer.SetConstructor([] (Nz::LuaInstance& lua, Nz::SoundBufferRef* instance, std::size_t argumentCount)
 		{
 			NazaraUnused(lua);
+			NazaraUnused(argumentCount);
 
 			Nz::PlacementNew(instance, Nz::SoundBuffer::New());
 			return true;

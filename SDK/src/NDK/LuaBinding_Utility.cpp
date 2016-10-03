@@ -93,8 +93,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Font **********************************/
-		fontClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::FontRef* font)
+		fontClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::FontRef* font, std::size_t argumentCount)
 		{
+			NazaraUnused(argumentCount);
+
 			Nz::PlacementNew(font, Nz::Font::New());
 			return true;
 		});
