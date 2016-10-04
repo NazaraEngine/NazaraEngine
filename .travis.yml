@@ -23,7 +23,7 @@ addons:
       - mesa-common-dev
 
 sudo:
-  false
+  required
 
 notifications:
   email: true
