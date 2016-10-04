@@ -38,7 +38,6 @@ TOOL.FilesExcluded = {
 	"../SDK/**/LuaBinding_Renderer.*"
 }
 
-
 TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraLua",

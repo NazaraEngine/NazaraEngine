@@ -46,4 +46,4 @@ script:
 after_script:
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
     cd ../../tests &&
-    ./NazaraUnitTests
+    ./NazaraUnitTestsServer
