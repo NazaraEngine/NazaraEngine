@@ -27,10 +27,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 
-// Version of SDK
-#define NDK_VERSION_MAJOR 0
-#define NDK_VERSION_MINOR 1
-
 // Importation/Exportation of the API
 #if defined(NAZARA_STATIC)
   #define #define NDK_API
