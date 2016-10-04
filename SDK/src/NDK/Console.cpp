@@ -168,7 +168,7 @@ namespace Ndk
 	* \param event Event to be takin into consideration by the console
 	*/
 
-	void Console::SendEvent(Nz::WindowEvent event)
+	void Console::SendEvent(const Nz::WindowEvent& event)
 	{
 		switch (event.type)
 		{
@@ -204,6 +204,9 @@ namespace Ndk
 				}
 				break;
 			}
+
+			default:
+				break;
 		}
 	}
 
