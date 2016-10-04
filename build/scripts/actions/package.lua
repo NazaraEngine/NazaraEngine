@@ -29,16 +29,19 @@ ACTION.Function = function ()
 		["x64"] = false,
 		["x86"] = false
 	}
-	
+
+	local enabledArchs = {}
 	for k,v in pairs(os.matchdirs(realLibDir .. "*")) do
 		local arch = path.getname(v)
 		if (archEnabled[arch] ~= nil) then
 			archEnabled[arch] = true
-			print(arch .. " arch found")
+			table.insert(enabledArchs, arch)
 		else
 			print("Unknown directory " .. v .. " found, ignored")
 		end
 	end
+	enabledArchs = table.concat(enabledArchs, ", ")
+	print(enabledArchs .. " arch found")
 
 	local packageDir = "../package/"
 
@@ -79,18 +82,25 @@ ACTION.Function = function ()
 
 	local binFileMasks
 	local libFileMasks
+	local exeFileExt
+	local exeFilterFunc
 	if (os.is("windows")) then	
 		binFileMasks = {"**.dll"}
 		libFileMasks = {"**.lib", "**.a"}
+		exeFileExt = ".exe"
+		exeFilterFunc = function (filePath) return true end
 	elseif (os.is("macosx")) then
 		binFileMasks = {"**.dynlib"}
 		libFileMasks = {"**.a"}
+		exeFileExt = ""
+		exeFilterFunc = function (filePath) return path.getextension(filePath):contains('/') end
 	else
 		binFileMasks = {"**.so"}
 		libFileMasks = {"**.a"}
+		exeFileExt = ""
+		exeFilterFunc = function (filePath) return path.getextension(filePath):contains('/') end
 	end
 
-	local enabledArchs = {}
 	for arch, enabled in pairs(archEnabled) do
 		if (enabled) then
 			local archLibSrc = realLibDir .. arch .. "/"
@@ -118,59 +128,24 @@ ACTION.Function = function ()
 				Source = arch3rdPartyBinSrc,
 				Target = archBinDst
 			})
-
-			table.insert(enabledArchs, arch)
 		end
 	end
 
-	if (os.is("windows")) then	
-		-- Demo executable (Windows)
-		table.insert(copyTargets, {
-			Masks = {"Demo*.exe"},
-			Source = "../examples/bin/",
-			Target = "examples/bin/"
-		})
-
-		-- Unit test (Windows)
-		table.insert(copyTargets, {
-			Masks = {"*.exe"},
-			Source = "../tests/",
-			Target = "tests/"
-		})
-	elseif (os.is("macosx")) then
-		-- Demo executable (OS X)
-		table.insert(copyTargets, {
-			Masks = {"Demo*"},
-			Filter = function (filePath) return path.getextension(filePath) == "" end,
-			Source = "../examples/bin/",
-			Target = "examples/bin/"
-		})
+	-- Demo executable
+	table.insert(copyTargets, {
+		Masks = {"Demo*" .. exeFileExt},
+		Filter = exeFilterFunc,
+		Source = "../examples/bin/",
+		Target = "examples/bin/"
+	})
 		
-		-- Unit test (OS X)
-		table.insert(copyTargets, {
-			Masks = {"*.*"},
-			Filter = function (filePath) return path.getextension(filePath) == "" end,
-			Source = "../tests/",
-			Target = "tests/"
-		})
-	else
-		-- Demo executable (Linux)
-		table.insert(copyTargets, {
-			Masks = {"Demo*"},
-			Filter = function (filePath) return path.getextension(filePath) == "" end,
-			Source = "../examples/bin/",
-			Target = "examples/bin/"
-		})
-		
-		-- Unit test (Linux)
-		table.insert(copyTargets, {
-			Masks = {"*.*"},
-			Filter = function (filePath) return path.getextension(filePath) == "" end,
-			Source = "../tests/",
-			Target = "tests/"
-		})
-	end
-
+	-- Unit test
+	table.insert(copyTargets, {
+		Masks = {"*" .. exeFileExt},
+		Filter = exeFilterFunc,
+		Source = "../tests/",
+		Target = "tests/"
+	})
 
 	-- Processing
 	os.mkdir(packageDir)
@@ -212,7 +187,7 @@ ACTION.Function = function ()
 			if (os.is("windows")) then
 				ok, err = os.copyfile(v, targetPath)
 			else
-				-- Workaround: As premake is translating this to "cp %s %s", it fails if there are space in the paths.
+				-- Workaround: As premake is translating this to "cp %s %s", it fails if space are presents in source/destination paths.
 				ok, err = os.copyfile(string.format("\"%s\"", v), string.format("\"%s\"", targetPath))
 			end
 
@@ -227,6 +202,6 @@ ACTION.Function = function ()
 		end
 	end
 	
-	local config = libDir .. " - " .. table.concat(enabledArchs, ", ")
+	local config = libDir .. " - " .. enabledArchs
 	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), config))
 end
