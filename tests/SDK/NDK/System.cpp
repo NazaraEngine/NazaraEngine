@@ -43,7 +43,7 @@ SCENARIO("System", "[NDK][SYSTEM]")
 
 			THEN("We should get a copy")
 			{
-				REQUIRE(static_cast<TestSystem*>(clone.get())->GetValue() == 42);
+				REQUIRE(static_cast<TestSystem*>(clone.get())->GetValue() == 666);
 			}
 		}
 	}
