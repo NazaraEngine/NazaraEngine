@@ -4,6 +4,7 @@
 
 #include <Nazara/Network/Linux/SocketPollerImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <cstring>
 #include <unistd.h>
 #include <Nazara/Network/Debug.hpp>
@@ -75,6 +76,13 @@ namespace Nz
 		std::memset(m_events.data(), 0, m_events.size() * sizeof(epoll_event));
 
 		activeSockets = epoll_wait(m_handle, m_events.data(), static_cast<int>(m_events.size()), static_cast<int>(msTimeout));
+		if (activeSockets == -1)
+		{
+			if (error)
+				*error = SocketImpl::TranslateErrnoToResolveError(errno);
+
+			return 0;
+		}
 
 		m_activeSockets.clear();
 		if (activeSockets > 0U)
@@ -95,6 +103,9 @@ namespace Nz
 				}
 			}
 		}
+
+		if (error)
+			*error = SocketError_NoError;
 
 		return activeSockets;
 	}

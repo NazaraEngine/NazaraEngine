@@ -9,7 +9,6 @@
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
-#include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <unordered_set>
 #include <vector>
 #include <sys/epoll.h>
