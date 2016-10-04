@@ -9,7 +9,6 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.8
       - libassimp-dev
       - libfreetype6-dev
       - libgl1-mesa-dev
@@ -29,6 +28,9 @@ sudo:
 notifications:
   email: true
 
+compiler:
+  - clang
+
 env:
   - CONFIG=debug
   - CONFIG=release
@@ -37,8 +39,6 @@ script:
   - cd build &&
     ./premake5-linux64 --cc=clang gmake
   - cd gmake &&
-    export CC=clang-3.8 &&
-    export CXX=clang++-3.8 &&
     make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
 
 after_script:
