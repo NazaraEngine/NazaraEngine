@@ -102,10 +102,14 @@ namespace Nz
 			return false;
 		}
 
-		if (!Window::Initialize())
+		bool bParam;
+		if (!s_initializationParameters.GetBooleanParameter("NoWindowSystem", &bParam) || bParam)
 		{
-			NazaraError("Failed to initialize window's system");
-			return false;
+			if (!Window::Initialize())
+			{
+				NazaraError("Failed to initialize window's system");
+				return false;
+			}
 		}
 
 		// On enregistre les loaders pour les extensions
@@ -145,6 +149,11 @@ namespace Nz
 	bool Utility::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
+	}
+
+	void Utility::SetParameters(const ParameterList& parameters)
+	{
+		s_initializationParameters = parameters;
 	}
 
 	void Utility::Uninitialize()
@@ -227,5 +236,6 @@ namespace Nz
 
 	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
 
+	ParameterList Utility::s_initializationParameters;
 	unsigned int Utility::s_moduleReferenceCounter = 0;
 }
