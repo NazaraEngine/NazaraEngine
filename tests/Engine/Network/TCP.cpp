@@ -11,7 +11,7 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 {
 	GIVEN("Two TCP, one client, one server")
 	{
-		Nz::UInt16 port = 64256;
+		Nz::UInt16 port = 26456;
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
