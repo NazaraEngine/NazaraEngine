@@ -10,7 +10,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 {
 	GIVEN("A TcpServer and a TcpClient in a selector")
 	{
-		Nz::UInt16 port = 64256;
+		Nz::UInt16 port = 25664;
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
