@@ -1,8 +1,29 @@
 language:
   cpp
 
+dist: 
+  trusty
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libassimp-dev
+      - libfreetype6-dev
+      - libgl1-mesa-dev
+      - libopenal-dev
+      - libsndfile1-dev
+      - libx11-dev
+      - libxcb-cursor-dev
+      - libxcb-ewmh-dev
+      - libxcb-icccm4-dev
+      - libxcb-keysyms1-dev
+      - libxcb-randr0-dev
+      - mesa-common-dev
+
 sudo:
-  required
+  false
 
 notifications:
   email: true
@@ -10,26 +31,14 @@ notifications:
 env:
   - CONFIG=debug
   - CONFIG=release
-  
-services:
-  - docker
-
-before_install:
-  - docker build -t nazara .
 
 script:
-  - docker run --name Nazara -v `pwd`:/NazaraEngine nazara
-      sh -c "
-        cd build &&
-        ./premake5-linux64 --with-examples gmake &&
-        cd gmake &&
-        make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
-      "
+  - cd build &&
+       ./premake5-linux64 --with-examples gmake &&
+       cd gmake &&
+       make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
 
-#after_script:
-#  - docker exec Nazara
-#      sh -c "
-#        cd ../../tests &&
-#        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
-#        ./NazaraUnitTests
-#      "
+after_script:
+  - cd ../../tests &&
+       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+       ./NazaraUnitTests
