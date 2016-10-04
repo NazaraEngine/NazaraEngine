@@ -89,13 +89,13 @@ ACTION.Function = function ()
 		libFileMasks = {"**.lib", "**.a"}
 		exeFileExt = ".exe"
 		exeFilterFunc = function (filePath) return true end
-	elseif (os.is("macosx")) then
-		binFileMasks = {"**.dynlib"}
-		libFileMasks = {"**.a"}
-		exeFileExt = ""
-		exeFilterFunc = function (filePath) return path.getextension(filePath):contains('/') end
 	else
-		binFileMasks = {"**.so"}
+		if (os.is("macosx")) then
+			binFileMasks = {"**.dynlib"}
+		else
+			binFileMasks = {"**.so"}
+		end
+
 		libFileMasks = {"**.a"}
 		exeFileExt = ""
 		exeFilterFunc = function (filePath) return path.getextension(filePath):contains('/') end
