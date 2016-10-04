@@ -32,27 +32,14 @@
 #define NDK_VERSION_MINOR 1
 
 // Importation/Exportation of the API
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#if !defined(NAZARA_STATIC)
-		#ifdef NDK_BUILD
-			#define NDK_API NAZARA_EXPORT
-		#else
-			#define NDK_API NAZARA_IMPORT
-		#endif
-	#else
-		#define NDK_API
-	#endif
-#elif defined(NAZARA_PLATFORM_LINUX)
-	#if !defined(NAZARA_STATIC) && defined(NAZARA_COMPILER_GCC)
-		#define NDK_API NAZARA_EXPORT
-	#else
-		#define NDK_API
-	#endif
+#if defined(NAZARA_STATIC)
+  #define #define NDK_API
 #else
-	// To comment to force a compilation
-	#error This operating system is not fully supported by the Nazara Development Kit
-
-	#define NDK_API
+  #ifdef NDK_BUILD
+	  #define NDK_API NAZARA_EXPORT
+  #else
+	  #define NDK_API NAZARA_IMPORT
+	#endif
 #endif
 
 namespace Ndk
