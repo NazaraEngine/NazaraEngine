@@ -9,7 +9,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-	  - clang-3.8
+      - clang-3.8
       - libassimp-dev
       - libfreetype6-dev
       - libgl1-mesa-dev
