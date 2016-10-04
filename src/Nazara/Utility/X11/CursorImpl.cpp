@@ -14,7 +14,10 @@
 // This is a fixed bug (https://cgit.freedesktop.org/xcb/util-renderutil/commit/?id=8d15acc45a47dc4c922eee5b99885db42bc62c17) but until Travis-CI
 // has upgraded their Ubuntu version, I'm forced to use this ugly trick.
 #define template ptemplate
-#include <xcb/xcb_renderutil.h>
+extern "C"
+{
+	#include <xcb/xcb_renderutil.h>
+}
 #undef template
 
 #include <Nazara/Utility/Debug.hpp>
