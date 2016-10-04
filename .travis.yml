@@ -7,8 +7,10 @@ dist:
 addons:
   apt:
     sources:
+	  - llvm-toolchain-precise-3.7
       - ubuntu-toolchain-r-test
     packages:
+      - clang-3.7
       - libassimp-dev
       - libfreetype6-dev
       - libgl1-mesa-dev
@@ -32,8 +34,8 @@ compiler:
   - clang
 
 env:
-  - CONFIG=debug
-  - CONFIG=release
+  - COMPILER=clang++-3.7 CONFIG=debug
+  - COMPILER=clang++-3.7 CONFIG=release
 
 script:
   - cd build &&
