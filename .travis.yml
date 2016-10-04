@@ -30,8 +30,8 @@ notifications:
   email: true
 
 env:
-  - COMPILER=clang++-3.8 CONFIG=debug
-  - COMPILER=clang++-3.8 CONFIG=release
+  - CXX=clang++-3.8 CONFIG=debug
+  - CXX=clang++-3.8 CONFIG=release
 
 script:
   - cd build &&
