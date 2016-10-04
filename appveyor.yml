@@ -36,13 +36,11 @@ platform:
 
 build:
   project: build/$(TOOLSET)/NazaraEngine.sln
-  
-#after_build:
-#  - cd tests && "./NazaraUnitTests"
 
 after_build:
   - cd build && "./premake5.exe" package && cd ../package
-  - 7z a NazaraEngine.7z *
+  - 7z a NazaraEngine.7z * && cd ..
+  - cd tests && "./NazaraUnitTestsServer.exe"
 
 artifacts:
   - path: package/NazaraEngine.7z
