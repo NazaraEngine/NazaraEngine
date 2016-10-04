@@ -103,7 +103,7 @@ namespace Nz
 		}
 
 		bool bParam;
-		if (!s_initializationParameters.GetBooleanParameter("NoWindowSystem", &bParam) || bParam)
+		if (!s_initializationParameters.GetBooleanParameter("NoWindowSystem", &bParam) || !bParam)
 		{
 			if (!Window::Initialize())
 			{
