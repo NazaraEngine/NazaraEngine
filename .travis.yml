@@ -34,14 +34,14 @@ env:
   - CONFIG=release
 
 script:
-  - export CC=clang-3.8
-  - export CXX=clang++-3.8
-  - cd build
-  - ./premake5-linux64 --cc=clang gmake
-  - cd gmake
-  - make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
+  - cd build &&
+    ./premake5-linux64 --cc=clang gmake
+  - cd gmake &&
+    export CC=clang-3.8 &&
+    export CXX=clang++-3.8 &&
+    make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
 
 after_script:
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/
-  - cd ../../tests
-  - ./NazaraUnitTests
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+    cd ../../tests &&
+    ./NazaraUnitTests
