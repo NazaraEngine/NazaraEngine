@@ -6,6 +6,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Utility module to Lua
+	*/
+
 	void LuaBinding::BindUtility()
 	{
 		/*********************************** Nz::AbstractImage **********************************/
@@ -89,8 +93,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Font **********************************/
-		fontClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::FontRef* font)
+		fontClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::FontRef* font, std::size_t argumentCount)
 		{
+			NazaraUnused(argumentCount);
+
 			Nz::PlacementNew(font, Nz::Font::New());
 			return true;
 		});
@@ -307,6 +313,12 @@ namespace Ndk
 			return 0;
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Utility classes
+	*/
 
 	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
 	{

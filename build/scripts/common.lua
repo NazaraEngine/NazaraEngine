@@ -141,7 +141,6 @@ function NazaraBuild:Execute()
 		configuration("Release*")
 			flags("NoFramePointer")
 			optimize("Speed")
-			rtti("Off")
 			vectorextensions("SSE2")
 
 		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
@@ -228,6 +227,7 @@ function NazaraBuild:Execute()
 				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
+				defines("NAZARA_STATIC")
 				kind("StaticLib")
 
 			configuration("*Dynamic")
@@ -241,6 +241,9 @@ function NazaraBuild:Execute()
 
 			configuration("DebugDynamic")
 				targetsuffix("-d")
+
+			configuration("Release*")
+				rtti(moduleTable.EnableRTTI and "On" or "Off")
 
 			configuration({})
 
@@ -270,7 +273,6 @@ function NazaraBuild:Execute()
 			project(prefix .. toolTable.Name)
 
 			location(_ACTION .. "/tools")
-			targetdir(toolTable.TargetDirectory)
 
 			if (toolTable.Kind == "plugin" or toolTable.Kind == "library") then
 				kind("SharedLib")
@@ -279,6 +281,7 @@ function NazaraBuild:Execute()
 				self:MakeInstallCommands(toolTable)
 			elseif (toolTable.Kind == "application") then
 				debugdir(toolTable.TargetDirectory)
+				targetdir(toolTable.TargetDirectory)
 				if (toolTable.EnableConsole) then
 					kind("ConsoleApp")
 				else
@@ -307,7 +310,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
 				libdirs("../lib/" .. makeLibDir .. "/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/" .. makeLibDir .. "/x86")
+					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x86")
 				end
@@ -316,7 +319,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
 				libdirs("../lib/" .. makeLibDir .. "/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/" .. makeLibDir .. "/x64")
+					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
 				end
@@ -325,7 +328,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/msvc/x86")
 				libdirs("../lib/msvc/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/msvc/x86")
+					targetdir(toolTable.TargetDirectory .. "/msvc/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x86")
 				end
@@ -334,7 +337,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/msvc/x64")
 				libdirs("../lib/msvc/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/msvc/x64")
+					targetdir(toolTable.TargetDirectory .. "/msvc/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x64")
 				end
@@ -343,7 +346,7 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/xcode/x86")
 				libdirs("../lib/xcode/x86")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/xcode/x86")
+					targetdir(toolTable.TargetDirectory .. "/xcode/x86")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x86")
 				end
@@ -352,10 +355,16 @@ function NazaraBuild:Execute()
 				libdirs("../extlibs/lib/xcode/x64")
 				libdirs("../lib/xcode/x64")
 				if (toolTable.Kind == "library") then
-					targetdir("../lib/xcode/x64")
+					targetdir(toolTable.TargetDirectory .. "/xcode/x64")
 				elseif (toolTable.Kind == "plugin") then
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
 				end
+
+			configuration("*Static")
+				defines("NAZARA_STATIC")
+
+			configuration("Release*")
+				rtti(toolTable.EnableRTTI and "On" or "Off")
 
 			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
 				configuration("*Static")
@@ -429,6 +438,9 @@ function NazaraBuild:Execute()
 			flags(exampleTable.Flags)
 			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
+
+			configuration("Release*")
+				rtti(exampleTable.EnableRTTI and "On" or "Off")
 
 			configuration("x32")
 				libdirs(exampleTable.LibraryPaths.x86)
@@ -576,10 +588,10 @@ function NazaraBuild:Initialize()
 
 			local succeed, err = self:RegisterTool(TOOL)
 			if (not succeed) then
-				print("Unable to register tool: " .. err)
+				print("Unable to register tool " .. tostring(TOOL.Name) .. ": " .. err)
 			end
 		else
-			print("Unable to load tool file: " .. err)
+			print("Unable to load tool file " .. v .. ": " .. err)
 		end
 	end
 	TOOL = nil
@@ -705,7 +717,7 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 	end
 
 	if (os.is("windows")) then
-		configuration({})
+		configuration("*Dynamic")
 		
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
@@ -990,10 +1002,6 @@ function NazaraBuild:RegisterTool(toolTable)
 		return false, "This tool name is already in use"
 	end
 
-	if (toolTable.TargetDirectory == nil or type(toolTable.TargetDirectory) ~= "string" or string.len(toolTable.TargetDirectory) == 0) then
-		return false, "Invalid tool directory"
-	end
-
 	if (toolTable.Kind == nil or type(toolTable.Kind) ~= "string" or string.len(toolTable.Kind) == 0) then
 		return false, "Invalid tool type"
 	end
@@ -1003,6 +1011,10 @@ function NazaraBuild:RegisterTool(toolTable)
 		toolTable.Kind = lowerCaseKind
 	else
 		return false, "Invalid tool type"
+	end
+
+	if (lowerCaseKind ~= "plugin" and (toolTable.TargetDirectory == nil or type(toolTable.TargetDirectory) ~= "string" or string.len(toolTable.TargetDirectory) == 0)) then
+		return false, "Invalid tool directory"
 	end
 
 	toolTable.Type = "Tool"

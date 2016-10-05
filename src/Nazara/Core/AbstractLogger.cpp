@@ -47,5 +47,7 @@ namespace Nz
 
 		if (line != 0 && file && function)
 			stream << " (" << file << ':' << line << ": " << function << ')';
+
+		Write(stream);
 	}
 }

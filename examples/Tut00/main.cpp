@@ -9,16 +9,14 @@
 #include <Nazara/Utility.hpp>
 #include <NDK/Application.hpp>
 #include <iostream>
-#include <vector>
-#include <unordered_map>
 
-int main()
+int main(int argc, char* argv[])
 {
-    // This "example" has only one purpose: Giving an empty project for you to test whatever you want
-    // If you wish to have multiple test projects, you only have to copy/paste this directory and change the name in the build.lua
-    Ndk::Application app;
+	// This "example" has only one purpose: Giving an empty project for you to test whatever you want
+	// If you wish to have multiple test projects, you only have to copy/paste this directory and change the name in the build.lua
+	Ndk::Application application(argc, argv);
 
-    // Do what you want here
-    
-    return EXIT_SUCCESS;
+	// Do what you want here
+
+	return EXIT_SUCCESS;
 }

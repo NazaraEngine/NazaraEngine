@@ -15,8 +15,12 @@ namespace Nz
 	inline Sprite::Sprite() :
 	m_color(Color::White),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	m_size(64.f, 64.f),
+	m_origin(Nz::Vector3f::Zero())
 	{
+		for (Color& color : m_cornerColor)
+			color = Color::White;
+
 		SetDefaultMaterial();
 	}
 
@@ -25,11 +29,8 @@ namespace Nz
 	*
 	* \param material Reference to a material
 	*/
-
 	inline Sprite::Sprite(MaterialRef material) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetMaterial(std::move(material), true);
 	}
@@ -41,9 +42,7 @@ namespace Nz
 	*/
 
 	inline Sprite::Sprite(Texture* texture) :
-	m_color(Color::White),
-	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	Sprite()
 	{
 		SetTexture(texture, true);
 	}
@@ -59,28 +58,61 @@ namespace Nz
 	m_color(sprite.m_color),
 	m_material(sprite.m_material),
 	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size)
+	m_size(sprite.m_size),
+	m_origin(sprite.m_origin)
 	{
 	}
 
 	/*!
 	* \brief Gets the color of the sprite
+	*
+	* This is the global color of the sprite, independent from corner colors
+	*
 	* \return Current color
+	*
+	* \see GetCornerColor
+	* \see SetColor
 	*/
-
 	inline const Color& Sprite::GetColor() const
 	{
 		return m_color;
 	}
 
 	/*!
+	* \brief Gets the color setup on a corner of the sprite
+	*
+	* \return Current color
+	*
+	* \param corner Corner of the sprite to query
+	*
+	* \see SetCornerColor
+	*/
+	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
+	{
+		NazaraAssert(static_cast<std::size_t>(corner) < m_cornerColor.size(), "Invalid corner");
+
+		return m_cornerColor[corner];
+	}
+
+	/*!
 	* \brief Gets the material of the sprite
 	* \return Current material
 	*/
-
 	inline const MaterialRef& Sprite::GetMaterial() const
 	{
 		return m_material;
+	}
+
+	/*!
+	* \brief Gets the origin of the sprite
+	*
+	* \return Current material
+	*
+	* \see SetOrigin
+	*/
+	inline const Vector3f& Sprite::GetOrigin() const
+	{
+		return m_origin;
 	}
 
 	/*!
@@ -97,21 +129,44 @@ namespace Nz
 	* \brief Gets the texture coordinates of the sprite
 	* \return Current texture coordinates
 	*/
-
 	inline const Rectf& Sprite::GetTextureCoords() const
 	{
 		return m_textureCoords;
 	}
 
 	/*!
-	* \brief Sets the color of the billboard
+	* \brief Sets the global color of the sprite
 	*
-	* \param color Color for the billboard
+	* This is independent from the corner color of the sprite
+	*
+	* \param color Color for the sprite
+	*
+	* \see GetColor
+	* \see SetCornerColor
 	*/
-
 	inline void Sprite::SetColor(const Color& color)
 	{
 		m_color = color;
+
+		InvalidateVertices();
+	}
+
+	/*!
+	* \brief Sets a color for a corner of the sprite
+	*
+	* This is independent from the sprite global color, which gets multiplied by the corner color when rendering the sprite.
+	*
+	* \param corner Corner of the sprite to set
+	* \param color Color for the sprite
+	*
+	* \see GetCornerColor
+	* \see SetColor
+	*/
+	inline void Sprite::SetCornerColor(RectCorner corner, const Color& color)
+	{
+		NazaraAssert(static_cast<std::size_t>(corner) < m_cornerColor.size(), "Invalid corner");
+
+		m_cornerColor[corner] = color;
 
 		InvalidateVertices();
 	}
@@ -123,8 +178,7 @@ namespace Nz
 	inline void Sprite::SetDefaultMaterial()
 	{
 		MaterialRef material = Material::New();
-		material->Enable(RendererParameter_FaceCulling, false);
-		material->EnableLighting(false);
+		material->EnableFaceCulling(false);
 
 		SetMaterial(std::move(material));
 	}
@@ -145,6 +199,24 @@ namespace Nz
 			if (diffuseMap && diffuseMap->IsValid())
 				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
 		}
+	}
+
+	/*!
+	* \brief Sets the origin of the sprite
+	*
+	* The origin is the center of translation/rotation/scaling of the sprite.
+	*
+	* \param origin New origin for the sprite
+	*
+	* \see GetOrigin
+	*/
+	inline void Sprite::SetOrigin(const Vector3f& origin)
+	{
+		m_origin = origin;
+
+		// On invalide la bounding box
+		InvalidateBoundingVolume();
+		InvalidateVertices();
 	}
 
 	/*!
@@ -241,6 +313,7 @@ namespace Nz
 
 		m_color = sprite.m_color;
 		m_material = sprite.m_material;
+		m_origin = sprite.m_origin;
 		m_textureCoords = sprite.m_textureCoords;
 		m_size = sprite.m_size;
 
@@ -278,3 +351,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "Sprite.hpp"

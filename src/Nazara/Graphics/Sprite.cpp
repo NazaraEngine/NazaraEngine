@@ -39,7 +39,9 @@ namespace Nz
 
 	void Sprite::MakeBoundingVolume() const
 	{
-		m_boundingVolume.Set(Vector3f(0.f), m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);
+
+		m_boundingVolume.Set(-origin, m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down() - origin);
 	}
 
 	/*!
@@ -47,7 +49,6 @@ namespace Nz
 	*
 	* \param instanceData Data of the instance
 	*/
-
 	void Sprite::UpdateData(InstanceData* instanceData) const
 	{
 		instanceData->data.resize(4 * sizeof(VertexStruct_XYZ_Color_UV));
@@ -57,25 +58,27 @@ namespace Nz
 		SparsePtr<Vector3f> posPtr(&vertices[0].position, sizeof(VertexStruct_XYZ_Color_UV));
 		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
-		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(Vector3f(0.f));
+		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);
+
+		*colorPtr++ = m_color * m_cornerColor[RectCorner_LeftTop];
+		*posPtr++ = instanceData->transformMatrix.Transform(Vector3f(-origin));
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftTop);
 
-		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right());
+		*colorPtr++ = m_color * m_cornerColor[RectCorner_RightTop];
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightTop);
 
-		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.y*Vector3f::Down());
+		*colorPtr++ = m_color * m_cornerColor[RectCorner_LeftBottom];
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.y*Vector3f::Down() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_LeftBottom);
 
-		*colorPtr++ = m_color;
-		*posPtr++ = instanceData->transformMatrix->Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down());
+		*colorPtr++ = m_color * m_cornerColor[RectCorner_RightBottom];
+		*posPtr++ = instanceData->transformMatrix.Transform(m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down() - origin);
 		*texCoordPtr++ = m_textureCoords.GetCorner(RectCorner_RightBottom);
 	}
 
 	/*!
-	* \brief Initializes the sprite librairies
+	* \brief Initializes the sprite library
 	* \return true If successful
 	*
 	* \remark Produces a NazaraError if the sprite library failed to be initialized
@@ -93,7 +96,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Uninitializes the sprite librairies
+	* \brief Uninitializes the sprite library
 	*/
 
 	void Sprite::Uninitialize()

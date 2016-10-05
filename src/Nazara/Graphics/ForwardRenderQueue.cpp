@@ -18,40 +18,6 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Adds billboard to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	* \param position Position of the billboard
-	* \param size Sizes of the billboard
-	* \param sinCos Rotation of the billboard
-	* \param color Color of the billboard
-	*
-	* \remark Produces a NazaraAssert if material is invalid
-	*/
-
-	void ForwardRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		NazaraAssert(material, "Invalid material");
-
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		auto it = billboards.find(material);
-		if (it == billboards.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		billboardVector.push_back(BillboardData{color, position, size, sinCos});
-	}
-
-	/*!
 	* \brief Adds multiple billboards to the queue
 	*
 	* \param renderOrder Order of rendering
@@ -406,12 +372,11 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-
 	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
 		NazaraAssert(material, "Invalid material");
 
-		if (material->IsEnabled(RendererParameter_Blend))
+		if (material->IsBlendingEnabled())
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
 			auto& transparentModels = currentLayer.transparentModels;
@@ -432,21 +397,33 @@ namespace Nz
 		else
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
-			auto& opaqueModels = currentLayer.opaqueModels;
+			MeshPipelineBatches& opaqueModels = currentLayer.opaqueModels;
 
-			auto it = opaqueModels.find(material);
-			if (it == opaqueModels.end())
+			const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+			auto pipelineIt = opaqueModels.find(materialPipeline);
+			if (pipelineIt == opaqueModels.end())
+			{
+				BatchedMaterialEntry materialEntry;
+				pipelineIt = opaqueModels.insert(MeshPipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			}
+
+			BatchedMaterialEntry& materialEntry = pipelineIt->second;
+			MeshMaterialBatches& materialMap = materialEntry.materialMap;
+
+			auto materialIt = materialMap.find(material);
+			if (materialIt == materialMap.end())
 			{
 				BatchedModelEntry entry;
 				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
 
-				it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
+				materialIt = materialMap.insert(MeshMaterialBatches::value_type(material, std::move(entry))).first;
 			}
 
-			BatchedModelEntry& entry = it->second;
+			BatchedModelEntry& entry = materialIt->second;
 			entry.enabled = true;
 
-			auto& meshMap = entry.meshMap;
+			MeshInstanceContainer& meshMap = entry.meshMap;
 
 			auto it2 = meshMap.find(meshData);
 			if (it2 == meshMap.end())
@@ -465,9 +442,7 @@ namespace Nz
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			// Do we have enough instances to perform instancing ?
-			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-				entry.instancingEnabled = true; // Thus we can activate it
+			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());
 		}
 	}
 
@@ -482,21 +457,34 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-
 	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
 		NazaraAssert(material, "Invalid material");
 
 		Layer& currentLayer = GetLayer(renderOrder);
-		auto& basicSprites = currentLayer.basicSprites;
+		SpritePipelineBatches& basicSprites = currentLayer.basicSprites;
 
-		auto matIt = basicSprites.find(material);
-		if (matIt == basicSprites.end())
+		const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+		auto pipelineIt = basicSprites.find(materialPipeline);
+		if (pipelineIt == basicSprites.end())
+		{
+			BatchedSpritePipelineEntry materialEntry;
+			pipelineIt = basicSprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+		}
+
+		BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
+		pipelineEntry.enabled = true;
+
+		SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
+
+		auto matIt = materialMap.find(material);
+		if (matIt == materialMap.end())
 		{
 			BatchedBasicSpriteEntry entry;
 			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
 
-			matIt = basicSprites.insert(std::make_pair(material, std::move(entry))).first;
+			matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
 		}
 
 		BatchedBasicSpriteEntry& entry = matIt->second;
@@ -539,6 +527,62 @@ namespace Nz
 					layers.erase(it++);
 				else
 				{
+					for (auto& pipelinePair : layer.basicSprites)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.enabled)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									auto& overlayMap = matEntry.overlayMap;
+									for (auto& overlayIt : overlayMap)
+									{
+										const Texture* overlay = overlayIt.first;
+										auto& spriteChainVector = overlayIt.second.spriteChains;
+
+										spriteChainVector.clear();
+									}
+
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.enabled = false;
+						}
+					}
+
+					for (auto& pipelinePair : layer.opaqueModels)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.maxInstanceCount > 0)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								const Material* material = materialPair.first;
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									MeshInstanceContainer& meshInstances = matEntry.meshMap;
+
+									for (auto& meshIt : meshInstances)
+									{
+										auto& meshEntry = meshIt.second;
+
+										meshEntry.instances.clear();
+									}
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.maxInstanceCount = 0;
+						}
+					}
+
 					layer.otherDrawables.clear();
 					layer.transparentModels.clear();
 					layer.transparentModelData.clear();
@@ -575,19 +619,22 @@ namespace Nz
 				return nearPlane.Distance(position1) > nearPlane.Distance(position2);
 			});
 
-			for (auto& pair : layer.billboards)
+			for (auto& pipelinePair : layer.billboards)
 			{
-				const Material* mat = pair.first;
-
-				if (mat->IsDepthSortingEnabled())
+				for (auto& matPair : pipelinePair.second.materialMap)
 				{
-					BatchedBillboardEntry& entry = pair.second;
-					auto& billboardVector = entry.billboards;
+					const Material* mat = matPair.first;
 
-					std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos] (const BillboardData& data1, const BillboardData& data2)
+					if (mat->IsDepthSortingEnabled())
 					{
-						return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
-					});
+						BatchedBillboardEntry& entry = matPair.second;
+						auto& billboardVector = entry.billboards;
+
+						std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos] (const BillboardData& data1, const BillboardData& data2)
+						{
+							return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
+						});
+					}
 				}
 			}
 		}
@@ -605,13 +652,26 @@ namespace Nz
 	{
 		auto& billboards = GetLayer(renderOrder).billboards;
 
-		auto it = billboards.find(material);
-		if (it == billboards.end())
+		const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+		auto pipelineIt = billboards.find(materialPipeline);
+		if (pipelineIt == billboards.end())
+		{
+			BatchedBillboardPipelineEntry pipelineEntry;
+			pipelineIt = billboards.insert(BillboardPipelineBatches::value_type(materialPipeline, std::move(pipelineEntry))).first;
+		}
+		BatchedBillboardPipelineEntry& pipelineEntry = pipelineIt->second;
+		pipelineEntry.enabled = true;
+
+		BatchedBillboardContainer& materialMap = pipelineEntry.materialMap;
+
+		auto it = materialMap.find(material);
+		if (it == materialMap.end())
 		{
 			BatchedBillboardEntry entry;
 			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
 
-			it = billboards.insert(std::make_pair(material, std::move(entry))).first;
+			it = materialMap.insert(BatchedBillboardContainer::value_type(material, std::move(entry))).first;
 		}
 
 		BatchedBillboardEntry& entry = it->second;
@@ -654,16 +714,19 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.indexBuffer == indexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.indexBuffer == indexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
@@ -681,9 +744,14 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			layer.basicSprites.erase(material);
-			layer.billboards.erase(material);
-			layer.opaqueModels.erase(material);
+			for (auto& pipelineEntry : layer.basicSprites)
+				pipelineEntry.second.materialMap.erase(material);
+
+			for (auto& pipelineEntry : layer.billboards)
+				pipelineEntry.second.materialMap.erase(material);
+
+			for (auto& pipelineEntry : layer.opaqueModels)
+				pipelineEntry.second.materialMap.erase(material);
 		}
 	}
 
@@ -698,10 +766,10 @@ namespace Nz
 		for (auto& pair : layers)
 		{
 			Layer& layer = pair.second;
-			for (auto matIt = layer.basicSprites.begin(); matIt != layer.basicSprites.end(); ++matIt)
+			for (auto& pipelineEntry : layer.basicSprites)
 			{
-				auto& overlayMap = matIt->second.overlayMap;
-				overlayMap.erase(texture);
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
+					materialEntry.second.overlayMap.erase(texture);
 			}
 		}
 	}
@@ -717,41 +785,26 @@ namespace Nz
 		for (auto& pair : layers)
 		{
 			Layer& layer = pair.second;
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.vertexBuffer == vertexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.vertexBuffer == vertexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
 	}
 
-	/*!
-	* \brief Functor to compare two batched billboard with material
-	* \return true If first material is "smaller" than the second one
-	*
-	* \param mat1 First material to compare
-	* \param mat2 Second material to compare
-	*/
-
-	bool ForwardRenderQueue::BatchedBillboardComparator::operator()(const Material* mat1, const Material* mat2) const
+	bool ForwardRenderQueue::MaterialComparator::operator()(const Material* mat1, const Material* mat2) const
 	{
-		const UberShader* uberShader1 = mat1->GetShader();
-		const UberShader* uberShader2 = mat2->GetShader();
-		if (uberShader1 != uberShader2)
-			return uberShader1 < uberShader2;
-
-		const Shader* shader1 = mat1->GetShaderInstance(ShaderFlags_Billboard | ShaderFlags_VertexColor)->GetShader();
-		const Shader* shader2 = mat2->GetShaderInstance(ShaderFlags_Billboard | ShaderFlags_VertexColor)->GetShader();
-		if (shader1 != shader2)
-			return shader1 < shader2;
-
 		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
 		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
 		if (diffuseMap1 != diffuseMap2)
@@ -760,60 +813,14 @@ namespace Nz
 		return mat1 < mat2;
 	}
 
-	/*!
-	* \brief Functor to compare two batched model with material
-	* \return true If first material is "smaller" than the second one
-	*
-	* \param mat1 First material to compare
-	* \param mat2 Second material to compare
-	*/
-
-	bool ForwardRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
+	bool ForwardRenderQueue::MaterialPipelineComparator::operator()(const MaterialPipeline* pipeline1, const MaterialPipeline* pipeline2) const
 	{
-		const UberShader* uberShader1 = mat1->GetShader();
-		const UberShader* uberShader2 = mat2->GetShader();
-		if (uberShader1 != uberShader2)
-			return uberShader1 < uberShader2;
-
-		const Shader* shader1 = mat1->GetShaderInstance()->GetShader();
-		const Shader* shader2 = mat2->GetShaderInstance()->GetShader();
+		const Shader* shader1 = pipeline1->GetInstance().renderPipeline.GetInfo().shader;
+		const Shader* shader2 = pipeline2->GetInstance().renderPipeline.GetInfo().shader;
 		if (shader1 != shader2)
 			return shader1 < shader2;
 
-		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
-		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
-		if (diffuseMap1 != diffuseMap2)
-			return diffuseMap1 < diffuseMap2;
-
-		return mat1 < mat2;
-	}
-
-	/*!
-	* \brief Functor to compare two batched sprites with material
-	* \return true If first material is "smaller" than the second one
-	*
-	* \param mat1 First material to compare
-	* \param mat2 Second material to compare
-	*/
-
-	bool ForwardRenderQueue::BatchedSpriteMaterialComparator::operator()(const Material* mat1, const Material* mat2)
-	{
-		const UberShader* uberShader1 = mat1->GetShader();
-		const UberShader* uberShader2 = mat2->GetShader();
-		if (uberShader1 != uberShader2)
-			return uberShader1 < uberShader2;
-
-		const Shader* shader1 = mat1->GetShaderInstance()->GetShader();
-		const Shader* shader2 = mat2->GetShaderInstance()->GetShader();
-		if (shader1 != shader2)
-			return shader1 < shader2;
-
-		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
-		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
-		if (diffuseMap1 != diffuseMap2)
-			return diffuseMap1 < diffuseMap2;
-
-		return mat1 < mat2;
+		return pipeline1 < pipeline2;
 	}
 
 	/*!

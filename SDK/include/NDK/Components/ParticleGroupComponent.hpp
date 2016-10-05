@@ -17,13 +17,19 @@ namespace Ndk
 
 	using ParticleGroupComponentHandle = Nz::ObjectHandle<ParticleGroupComponent>;
 
-	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup
+	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup, public Nz::HandledObject<ParticleGroupComponent>
 	{
 		public:
 			inline ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleLayout layout);
 			inline ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleDeclarationConstRef declaration);
 			ParticleGroupComponent(const ParticleGroupComponent&) = default;
 			~ParticleGroupComponent() = default;
+
+			void AddEmitter(Entity* emitter);
+			using ParticleGroup::AddEmitter;
+
+			void RemoveEmitter(Entity* emitter);
+			using ParticleGroup::RemoveEmitter;
 
 			static ComponentIndex componentIndex;
 	};

@@ -13,9 +13,87 @@
 
 namespace Nz
 {
-	bool OBJParser::Parse(Nz::Stream& stream, std::size_t reservedVertexCount)
+	bool OBJParser::Check(Stream& stream)
 	{
 		m_currentStream = &stream;
+		m_errorCount = 0;
+		m_keepLastLine = false;
+		m_lineCount = 0;
+
+		// Force stream in text mode, reset it at the end
+		Nz::CallOnExit resetTextMode;
+		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		{
+			stream.EnableTextMode(true);
+
+			resetTextMode.Reset([&stream] ()
+			{
+				stream.EnableTextMode(false);
+			});
+		}
+
+		unsigned int failureCount = 0;
+		while (Advance(false))
+		{
+			switch (std::tolower(m_currentLine[0]))
+			{
+				case '#': //< Comment
+					failureCount--;
+					break;
+
+				case 'f': //< Face
+				case 'g': //< Group (inside a mesh)
+				case 'o': //< Object (defines a mesh)
+				case 's': //< Smooth
+				{
+					if (m_currentLine.GetSize() > 1 && m_currentLine[1] == ' ')
+						return true;
+
+					break;
+				}
+
+				case 'm': //< MTLLib
+					if (m_currentLine.GetWord(0).ToLower() == "mtllib")
+						return true;
+
+					break;
+
+				case 'u': //< Usemtl
+					if (m_currentLine.GetWord(0).ToLower() == "usemtl")
+						return true;
+
+					break;
+
+				case 'v': //< Position/Normal/Texcoords
+				{
+					String word = m_currentLine.GetWord(0).ToLower();
+					if (word == 'v')
+						return true;
+					else if (word == "vn")
+						return true;
+					else if (word == "vt")
+						return true;
+
+					break;
+				}
+
+				default:
+					break;
+			}
+
+			if (++failureCount > 20U)
+				return false;
+		}
+
+		return false;
+	}
+
+	bool OBJParser::Parse(Nz::Stream& stream, UInt32 reservedVertexCount)
+	{
+		m_currentStream = &stream;
+		m_errorCount = 0;
+		m_keepLastLine = false;
+		m_lineCount = 0;
 
 		// Force stream in text mode, reset it at the end
 		Nz::CallOnExit resetTextMode;
@@ -31,8 +109,6 @@ namespace Nz
 
 		String matName, meshName;
 		matName = meshName = "default";
-		m_keepLastLine = false;
-		m_lineCount = 0;
 		m_meshes.clear();
 		m_mtlLib.Clear();
 
@@ -49,8 +125,8 @@ namespace Nz
 		using MatPair = std::pair<Mesh, unsigned int>;
 		std::unordered_map<String, std::unordered_map<String, MatPair>> meshesByName;
 
-		std::size_t faceReserve = 0;
-		std::size_t vertexReserve = 0;
+		UInt32 faceReserve = 0;
+		UInt32 vertexReserve = 0;
 		unsigned int matCount = 0;
 		auto GetMaterial = [&] (const String& meshName, const String& matName) -> Mesh*
 		{
@@ -78,16 +154,16 @@ namespace Nz
 			{
 				case '#': //< Comment
 					// Some softwares write comments to gives the number of vertex/faces an importer can expect
-					std::size_t data;
-					if (std::sscanf(m_currentLine.GetConstBuffer(), "# position count: %zu", &data) == 1)
+					unsigned int data;
+					if (std::sscanf(m_currentLine.GetConstBuffer(), "# position count: %u", &data) == 1)
 						m_positions.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# normal count: %zu", &data) == 1)
+					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# normal count: %u", &data) == 1)
 						m_normals.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# texcoords count: %zu", &data) == 1)
+					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# texcoords count: %u", &data) == 1)
 						m_texCoords.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# face count: %zu", &data) == 1)
+					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# face count: %u", &data) == 1)
 						faceReserve = data;
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# vertex count: %zu", &data) == 1)
+					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# vertex count: %u", &data) == 1)
 						vertexReserve = data;
 
 					break;
@@ -117,8 +193,8 @@ namespace Nz
 						currentMesh = GetMaterial(meshName, matName);
 
 					Face face;
-					face.firstVertex = currentMesh->vertices.size();
-					face.vertexCount = vertexCount;
+					face.firstVertex = static_cast<UInt32>(currentMesh->vertices.size());
+					face.vertexCount = static_cast<UInt32>(vertexCount);
 
 					currentMesh->vertices.resize(face.firstVertex + vertexCount, FaceVertex{0, 0, 0});
 
@@ -202,9 +278,9 @@ namespace Nz
 							break;
 						}
 
-						currentMesh->vertices[face.firstVertex + i].normal = static_cast<std::size_t>(n);
-						currentMesh->vertices[face.firstVertex + i].position = static_cast<std::size_t>(p);
-						currentMesh->vertices[face.firstVertex + i].texCoord = static_cast<std::size_t>(t);
+						currentMesh->vertices[face.firstVertex + i].normal = static_cast<UInt32>(n);
+						currentMesh->vertices[face.firstVertex + i].position = static_cast<UInt32>(p);
+						currentMesh->vertices[face.firstVertex + i].texCoord = static_cast<UInt32>(t);
 
 						pos += offset;
 					}
@@ -299,7 +375,7 @@ namespace Nz
 							m_positions.push_back(vertex);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					else if (word == "vn")
@@ -310,7 +386,7 @@ namespace Nz
 							m_normals.push_back(normal);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					else if (word == "vt")
@@ -321,12 +397,12 @@ namespace Nz
 							m_texCoords.push_back(uvw);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else if (!UnrecognizedLine())
-							false;
+							return false;
 						#endif
 					}
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 					else if (!UnrecognizedLine())
-						false;
+						return false;
 					#endif
 
 					break;

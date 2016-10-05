@@ -27,7 +27,7 @@ namespace Ndk
 			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
-			virtual BaseComponent* Clone() const = 0;
+			virtual std::unique_ptr<BaseComponent> Clone() const = 0;
 
 			ComponentIndex GetIndex() const;
 

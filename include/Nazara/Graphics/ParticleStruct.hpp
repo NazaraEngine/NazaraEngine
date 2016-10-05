@@ -17,6 +17,7 @@ namespace Nz
 	struct ParticleStruct_Billboard
 	{
 		Color color;
+		Vector2f size;
 		Vector3f normal;
 		Vector3f position;
 		Vector3f velocity;

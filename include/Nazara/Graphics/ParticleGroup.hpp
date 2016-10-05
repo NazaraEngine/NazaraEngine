@@ -8,7 +8,7 @@
 #define NAZARA_PARTICLEGROUP_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/signal.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
@@ -68,12 +68,22 @@ namespace Nz
 
 		private:
 			void MakeBoundingVolume() const override;
+			void OnEmitterMove(ParticleEmitter* oldEmitter, ParticleEmitter* newEmitter);
+			void OnEmitterRelease(const ParticleEmitter* emitter);
 			void ResizeBuffer();
+
+			struct EmitterEntry
+			{
+				NazaraSlot(ParticleEmitter, OnParticleEmitterMove, moveSlot);
+				NazaraSlot(ParticleEmitter, OnParticleEmitterRelease, releaseSlot);
+
+				ParticleEmitter* emitter;
+			};
 
 			std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
 			mutable std::vector<UInt8> m_buffer;
 			std::vector<ParticleControllerRef> m_controllers;
-			std::vector<ParticleEmitter*> m_emitters;
+			std::vector<EmitterEntry> m_emitters;
 			std::vector<ParticleGeneratorRef> m_generators;
 			ParticleDeclarationConstRef m_declaration;
 			ParticleRendererRef m_renderer;

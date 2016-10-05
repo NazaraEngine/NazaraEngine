@@ -2,6 +2,13 @@
 layout(early_fragment_tests) in;
 #endif
 
+// HACK UNTIL PROPER FIX
+#if GLSL_VERSION < 400
+	#undef SHADOW_MAPPING
+	#define SHADOW_MAPPING 0
+#endif
+// HACK
+
 #define LIGHT_DIRECTIONAL 0
 #define LIGHT_POINT 1
 #define LIGHT_SPOT 2
@@ -61,21 +68,6 @@ uniform vec4 SceneAmbient;
 uniform sampler2D TextureOverlay;
 
 /********************Fonctions********************/
-vec3 FloatToColor(float f)
-{
-	vec3 color;
-
-	f *= 256.0;
-	color.x = floor(f);
-
-	f = (f - color.x) * 256.0;
-	color.y = floor(f);
-
-	color.z = f - color.y;
-	color.xy *= 0.00390625; // *= 1.0/256
-
-	return color;
-}
 
 #define kPI 3.1415926536
 
@@ -132,7 +124,7 @@ void main()
 	vec2 texCoord = vTexCoord;
 #endif
 
-#if LIGHTING && PARALLAX_MAPPING
+#if PARALLAX_MAPPING
 	float height = texture(MaterialHeightMap, texCoord).r;
 	float v = height*ParallaxScale + ParallaxBias;
 
@@ -159,17 +151,16 @@ void main()
 		discard;
 	#endif // ALPHA_TEST
 
-	#if LIGHTING
-		#if NORMAL_MAPPING
+	#if NORMAL_MAPPING
 	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, texCoord)) - 1.0));
-		#else
+	#else
 	vec3 normal = normalize(vNormal);
-		#endif // NORMAL_MAPPING
+	#endif // NORMAL_MAPPING
 
 	vec3 specularColor = MaterialSpecular.rgb;
-		#if SPECULAR_MAPPING
+	#if SPECULAR_MAPPING
 	specularColor *= texture(MaterialSpecularMap, texCoord).rgb;
-		#endif
+	#endif
 
 	/*
 	Texture0: Diffuse Color + Specular
@@ -178,10 +169,7 @@ void main()
 	*/
 	RenderTarget0 = vec4(diffuseColor.rgb, dot(specularColor, vec3(0.3, 0.59, 0.11)));
 	RenderTarget1 = vec4(EncodeNormal(normal));
-	RenderTarget2 = vec4(FloatToColor(gl_FragCoord.z), (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
-	#else // LIGHTING
-	RenderTarget0 = vec4(diffuseColor.rgb, 0.0);
-	#endif
+	RenderTarget2 = vec4(0.0, 0.0, 0.0, (MaterialShininess == 0.0) ? 0.0 : max(log2(MaterialShininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
 #else // FLAG_DEFERRED
 	#if ALPHA_MAPPING
 	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
@@ -192,16 +180,15 @@ void main()
 		discard;
 	#endif
 
-	#if LIGHTING
 	vec3 lightAmbient = vec3(0.0);
 	vec3 lightDiffuse = vec3(0.0);
 	vec3 lightSpecular = vec3(0.0);
 
-		#if NORMAL_MAPPING
+	#if NORMAL_MAPPING
 	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, texCoord)) - 1.0));
-		#else
+	#else
 	vec3 normal = normalize(vNormal);
-		#endif
+	#endif
 
 	if (MaterialShininess > 0.0)
 	{
@@ -459,24 +446,21 @@ void main()
 	}
 	
 	lightSpecular *= MaterialSpecular.rgb;
-		#if SPECULAR_MAPPING
+	#if SPECULAR_MAPPING
 	lightSpecular *= texture(MaterialSpecularMap, texCoord).rgb; // Utiliser l'alpha de MaterialSpecular n'aurait aucun sens
-		#endif
+	#endif
 		
 	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
 	vec4 fragmentColor = vec4(lightColor, 1.0) * diffuseColor;
 
-		#if EMISSIVE_MAPPING
+	#if EMISSIVE_MAPPING
 	float lightIntensity = dot(lightColor, vec3(0.3, 0.59, 0.11));
 
 	vec3 emissionColor = MaterialDiffuse.rgb * texture(MaterialEmissiveMap, texCoord).rgb;
 	RenderTarget0 = vec4(mix(fragmentColor.rgb, emissionColor, clamp(1.0 - 3.0*lightIntensity, 0.0, 1.0)), fragmentColor.a);
-		#else
-	RenderTarget0 = fragmentColor;
-		#endif // EMISSIVE_MAPPING
 	#else
-	RenderTarget0 = diffuseColor;
-	#endif // LIGHTING
+	RenderTarget0 = fragmentColor;
+	#endif // EMISSIVE_MAPPING
 #endif // FLAG_DEFERRED
 }
 

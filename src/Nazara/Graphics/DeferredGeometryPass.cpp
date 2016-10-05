@@ -73,122 +73,125 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		for (auto& pair : m_renderQueue->layers)
+		for (auto& layerPair : m_renderQueue->layers)
 		{
-			DeferredRenderQueue::Layer& layer = pair.second;
-
-			for (auto& matIt : layer.opaqueModels)
+			for (auto& pipelinePair : layerPair.second.opaqueModels)
 			{
-				auto& matEntry = matIt.second;
+				const MaterialPipeline* pipeline = pipelinePair.first;
+				auto& pipelineEntry = pipelinePair.second;
 
-				if (matEntry.enabled)
+				if (pipelineEntry.maxInstanceCount > 0)
 				{
-					DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
+					bool instancing = (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
 
-					if (!meshInstances.empty())
+					UInt32 flags = ShaderFlags_Deferred;
+					if (instancing)
+						flags |= ShaderFlags_Instancing;
+
+					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(flags);
+
+					const Shader* shader = pipelineInstance.uberInstance->GetShader();
+
+					// Uniforms are conserved in our program, there's no point to send them back until they change
+					if (shader != lastShader)
 					{
-						const Material* material = matIt.first;
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
 
-						bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
+						// Ambiant color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-						// We begin by getting the program for materials
-						UInt32 flags = ShaderFlags_Deferred;
-						if (useInstancing)
-							flags |= ShaderFlags_Instancing;
+						lastShader = shader;
+					}
 
-						const Shader* shader = material->Apply(flags);
+					for (auto& materialPair : pipelineEntry.materialMap)
+					{
+						const Material* material = materialPair.first;
+						auto& matEntry = materialPair.second;
 
-						// The uniforms are conserved in our program, there's no point to send them back if they don't change
-						if (shader != lastShader)
+						if (matEntry.enabled)
 						{
-							// Index of uniforms in the shader
-							shaderUniforms = GetShaderUniforms(shader);
+							DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
-							// Ambient color for the scene
-							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-							// Position of the camera
-							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-							lastShader = shader;
-						}
-
-						// Meshes
-						for (auto& meshIt : meshInstances)
-						{
-							const MeshData& meshData = meshIt.first;
-							auto& meshEntry = meshIt.second;
-
-							std::vector<Matrix4f>& instances = meshEntry.instances;
-							if (!instances.empty())
+							if (!meshInstances.empty())
 							{
-								const IndexBuffer* indexBuffer = meshData.indexBuffer;
-								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
+								material->Apply(pipelineInstance);
 
-								// Handle draw call before rendering loop
-								Renderer::DrawCall drawFunc;
-								Renderer::DrawCallInstanced instancedDrawFunc;
-								unsigned int indexCount;
-
-								if (indexBuffer)
+								// Meshes
+								for (auto& meshIt : meshInstances)
 								{
-									drawFunc = Renderer::DrawIndexedPrimitives;
-									instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
-									indexCount = indexBuffer->GetIndexCount();
-								}
-								else
-								{
-									drawFunc = Renderer::DrawPrimitives;
-									instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
-									indexCount = vertexBuffer->GetVertexCount();
-								}
+									const MeshData& meshData = meshIt.first;
+									auto& meshEntry = meshIt.second;
 
-								Renderer::SetIndexBuffer(indexBuffer);
-								Renderer::SetVertexBuffer(vertexBuffer);
-
-								if (useInstancing)
-								{
-									// We get the buffer for instance of Renderer and we configure it to work with matrices
-									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
-
-									const Matrix4f* instanceMatrices = &instances[0];
-									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
-
-									while (instanceCount > 0)
+									std::vector<Matrix4f>& instances = meshEntry.instances;
+									if (!instances.empty())
 									{
-										// We compute the number of instances that we will be able to show this time (Depending on the instance buffer size)
-										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-										instanceCount -= renderedInstanceCount;
+										const IndexBuffer* indexBuffer = meshData.indexBuffer;
+										const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-										// We fill the instancing buffer with our world matrices
-										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
-										instanceMatrices += renderedInstanceCount;
+										// Handle draw call before rendering loop
+										Renderer::DrawCall drawFunc;
+										Renderer::DrawCallInstanced instancedDrawFunc;
+										unsigned int indexCount;
 
-										// And we show
-										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+										if (indexBuffer)
+										{
+											drawFunc = Renderer::DrawIndexedPrimitives;
+											instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+											indexCount = indexBuffer->GetIndexCount();
+										}
+										else
+										{
+											drawFunc = Renderer::DrawPrimitives;
+											instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+											indexCount = vertexBuffer->GetVertexCount();
+										}
+
+										Renderer::SetIndexBuffer(indexBuffer);
+										Renderer::SetVertexBuffer(vertexBuffer);
+
+										if (instancing)
+										{
+											// We get the buffer for instance of Renderer and we configure it to work with matrices
+											VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+											instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
+
+											const Matrix4f* instanceMatrices = &instances[0];
+											unsigned int instanceCount = instances.size();
+											unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
+
+											while (instanceCount > 0)
+											{
+												// We compute the number of instances that we will be able to show this time (Depending on the instance buffer size)
+												unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+												instanceCount -= renderedInstanceCount;
+
+												// We fill the instancing buffer with our world matrices
+												instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+												instanceMatrices += renderedInstanceCount;
+
+												// And we show
+												instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+											}
+										}
+										else
+										{
+											// Without instancing, we must do one draw call for each instance
+											// This may be faster than instancing under a threshold
+											// Due to the time to modify the instancing buffer
+											for (const Matrix4f& matrix : instances)
+											{
+												Renderer::SetMatrix(MatrixType_World, matrix);
+												drawFunc(meshData.primitiveMode, 0, indexCount);
+											}
+										}
 									}
 								}
-								else
-								{
-									// Without instancing, we must do one draw call for each instance
-									// This may be faster than instancing under a threshold
-									// Due to the time to modify the instancing buffer
-									for (const Matrix4f& matrix : instances)
-									{
-										Renderer::SetMatrix(MatrixType_World, matrix);
-										drawFunc(meshData.primitiveMode, 0, indexCount);
-									}
-								}
-
-								instances.clear();
 							}
 						}
 					}
-
-					// Abd we set it back data to zero
-					matEntry.enabled = false;
-					matEntry.instancingEnabled = false;
 				}
 			}
 		}
@@ -222,7 +225,7 @@ namespace Nz
 			unsigned int width = dimensions.x;
 			unsigned int height = dimensions.y;
 
-			m_depthStencilBuffer->Create(PixelFormatType_Depth24Stencil8, width, height);
+			m_depthStencilTexture->Create(ImageType_2D, PixelFormatType_Depth24Stencil8, width, height);
 
 			m_GBuffer[0]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
 			m_GBuffer[1]->Create(ImageType_2D, PixelFormatType_RG16F, width, height); // Texture 1 : Encoded normal
@@ -236,7 +239,7 @@ namespace Nz
 
 			// Texture 3 : Emission map ?
 
-			m_GBufferRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_GBufferRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_GBufferRTT->Unlock();
 
@@ -248,7 +251,7 @@ namespace Nz
 				m_workRTT->AttachTexture(AttachmentPoint_Color, i, m_workTextures[i]);
 			}
 
-			m_workRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_workRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_workRTT->Unlock();
 

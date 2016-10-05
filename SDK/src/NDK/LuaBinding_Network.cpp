@@ -5,6 +5,10 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Network module to Lua
+	*/
+
 	void LuaBinding::BindNetwork()
 	{
 		/*********************************** Nz::AbstractSocket **********************************/
@@ -17,9 +21,9 @@ namespace Ndk
 		abstractSocketClass.BindMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
 
 		/*********************************** Nz::IpAddress **********************************/
-		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* address)
+		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* address, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 9U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 9U);
 
 			int argIndex = 1;
 			switch (argCount)
@@ -131,6 +135,12 @@ namespace Ndk
 			}
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Network classes
+	*/
 
 	void LuaBinding::RegisterNetwork(Nz::LuaInstance& instance)
 	{

@@ -30,22 +30,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Adds billboard to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	* \param position Position of the billboard
-	* \param size Sizes of the billboard
-	* \param sinCos Rotation of the billboard
-	* \param color Color of the billboard
-	*/
-
-	void DeferredRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		m_forwardQueue->AddBillboard(renderOrder, material, position, size, sinCos, color);
-	}
-
-	/*!
 	* \brief Adds multiple billboards to the queue
 	*
 	* \param renderOrder Order of rendering
@@ -207,27 +191,39 @@ namespace Nz
 
 	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
-		if (material->IsEnabled(RendererParameter_Blend))
+		if (material->IsBlendingEnabled())
 			// One transparent material ? I don't like it, go see if I'm in the forward queue
 			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
 		else
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
-			auto& opaqueModels = currentLayer.opaqueModels;
+			MeshPipelineBatches& opaqueModels = currentLayer.opaqueModels;
 
-			auto it = opaqueModels.find(material);
-			if (it == opaqueModels.end())
+			const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+			auto pipelineIt = opaqueModels.find(materialPipeline);
+			if (pipelineIt == opaqueModels.end())
+			{
+				BatchedMaterialEntry materialEntry;
+				pipelineIt = opaqueModels.insert(MeshPipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			}
+
+			BatchedMaterialEntry& materialEntry = pipelineIt->second;
+			MeshMaterialBatches& materialMap = materialEntry.materialMap;
+
+			auto materialIt = materialMap.find(material);
+			if (materialIt == materialMap.end())
 			{
 				BatchedModelEntry entry;
 				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &DeferredRenderQueue::OnMaterialInvalidation);
 
-				it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
+				materialIt = materialMap.insert(MeshMaterialBatches::value_type(material, std::move(entry))).first;
 			}
 
-			BatchedModelEntry& entry = it->second;
+			BatchedModelEntry& entry = materialIt->second;
 			entry.enabled = true;
 
-			auto& meshMap = entry.meshMap;
+			MeshInstanceContainer& meshMap = entry.meshMap;
 
 			auto it2 = meshMap.find(meshData);
 			if (it2 == meshMap.end())
@@ -241,13 +237,10 @@ namespace Nz
 				it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 			}
 
-			// We add matrices to the list of instances of this object
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			// Do we have enough instances to perform instancing ?
-			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-				entry.instancingEnabled = true; // Thus we can activate it
+			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());
 		}
 	}
 
@@ -280,11 +273,43 @@ namespace Nz
 			layers.clear();
 		else
 		{
-			for (auto it = layers.begin(); it != layers.end(); ++it)
+			for (auto it = layers.begin(); it != layers.end();)
 			{
 				Layer& layer = it->second;
 				if (layer.clearCount++ >= 100)
 					it = layers.erase(it);
+				else
+				{
+					for (auto& pipelinePair : layer.opaqueModels)
+					{
+						const MaterialPipeline* pipeline = pipelinePair.first;
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.maxInstanceCount > 0)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									MeshInstanceContainer& meshInstances = matEntry.meshMap;
+
+									for (auto& meshIt : meshInstances)
+									{
+										auto& meshEntry = meshIt.second;
+
+										meshEntry.instances.clear();
+									}
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.maxInstanceCount = 0;
+						}
+					}
+
+					++it;
+				}
 			}
 		}
 
@@ -309,7 +334,7 @@ namespace Nz
 
 		return layer;
 	}
-
+    
 	/*!
 	* \brief Handle the invalidation of an index buffer
 	*
@@ -322,16 +347,19 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.indexBuffer == indexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.indexBuffer == indexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
@@ -349,7 +377,8 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			layer.opaqueModels.erase(material);
+			for (auto& pipelineEntry : layer.opaqueModels)
+				pipelineEntry.second.materialMap.erase(material);
 		}
 	}
 
@@ -364,73 +393,21 @@ namespace Nz
 		for (auto& pair : layers)
 		{
 			Layer& layer = pair.second;
-
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.vertexBuffer == vertexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.vertexBuffer == vertexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
-	}
-
-	/*!
-	* \brief Functor to compare two batched model with material
-	* \return true If first material is "smaller" than the second one
-	*
-	* \param mat1 First material to compare
-	* \param mat2 Second material to compare
-	*/
-
-	bool DeferredRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
-	{
-		const UberShader* uberShader1 = mat1->GetShader();
-		const UberShader* uberShader2 = mat2->GetShader();
-		if (uberShader1 != uberShader2)
-			return uberShader1 < uberShader2;
-
-		const Shader* shader1 = mat1->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
-		const Shader* shader2 = mat2->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
-		if (shader1 != shader2)
-			return shader1 < shader2;
-
-		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
-		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
-		if (diffuseMap1 != diffuseMap2)
-			return diffuseMap1 < diffuseMap2;
-
-		return mat1 < mat2;
-	}
-
-	/*!
-	* \brief Functor to compare two mesh data
-	* \return true If first mesh is "smaller" than the second one
-	*
-	* \param data1 First mesh to compare
-	* \param data2 Second mesh to compare
-	*/
-
-	bool DeferredRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
-	{
-		const Buffer* buffer1;
-		const Buffer* buffer2;
-
-		buffer1 = (data1.indexBuffer) ? data1.indexBuffer->GetBuffer() : nullptr;
-		buffer2 = (data2.indexBuffer) ? data2.indexBuffer->GetBuffer() : nullptr;
-		if (buffer1 != buffer2)
-			return buffer1 < buffer2;
-
-		buffer1 = data1.vertexBuffer->GetBuffer();
-		buffer2 = data2.vertexBuffer->GetBuffer();
-		if (buffer1 != buffer2)
-			return buffer1 < buffer2;
-
-		return data1.primitiveMode < data2.primitiveMode;
 	}
 }

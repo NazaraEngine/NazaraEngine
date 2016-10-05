@@ -44,14 +44,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Reads characters in the stream
+	* \brief Reads a line from the stream
+	*
+	* Reads the stream until a line separator or the end of the stream is found.
+	*
+	* If lineSize does not equal zero, it represents the maximum character count to be read from the stream.
+	* 
+	* \param lineSize Maximum number of characters to read, or zero for no limit
+	*
 	* \return Line containing characters
 	*
-	* \param lineSize Number of characters to read, if lineSize is 0, read as much as possible
-	*
-	* \remark Produces a NazaraWarning if cursor position could not be reset
+	* \remark With the text stream option, "\r\n" is treated as "\n"
+	* \remark The line separator character is not returned as part of the string
 	*/
-
 	String Stream::ReadLine(unsigned int lineSize)
 	{
 		String line;
@@ -71,19 +76,33 @@ namespace Nz
 				if (ptr)
 				{
 					std::ptrdiff_t pos = ptr - buffer;
-
-					if (m_streamOptions & StreamOption_Text && pos > 0 && buffer[pos - 1] == '\r')
-						line.Append(buffer, pos - 1);
-					else
-						line.Append(buffer, pos);
+					if (ptr != buffer)
+					{
+						if (m_streamOptions & StreamOption_Text && buffer[pos - 1] == '\r')
+							line.Append(buffer, pos - 1);
+						else
+							line.Append(buffer, pos);
+					}
 
 					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
-						NazaraWarning("Failed to reset cursos pos");
+						NazaraWarning("Failed to reset cursor pos");
 
-					break;
+					if (!line.IsEmpty())
+						break;
 				}
 				else
-					line.Append(buffer, readSize);
+				{
+					std::size_t length = readSize;
+					if (m_streamOptions & StreamOption_Text && buffer[length - 1] == '\r')
+					{
+						if (!SetCursorPos(GetCursorPos() - 1))
+							NazaraWarning("Failed to reset cursor pos");
+
+						length--;
+					}
+
+					line.Append(buffer, length);
+				}
 			}
 			while (readSize == bufferSize);
 		}

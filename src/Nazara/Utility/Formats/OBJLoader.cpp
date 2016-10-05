@@ -37,10 +37,14 @@ namespace Nz
 			if (parameters.custom.GetBooleanParameter("SkipNativeOBJLoader", &skip) && skip)
 				return Ternary_False;
 
+			OBJParser parser;
+			if (!parser.Check(stream))
+				return Ternary_False;
+
 			return Ternary_Unknown;
 		}
 
-		bool ParseMTL(Mesh* mesh, const String& filePath, const String* materials, const OBJParser::Mesh* meshes, unsigned int meshCount)
+		bool ParseMTL(Mesh* mesh, const String& filePath, const String* materials, const OBJParser::Mesh* meshes, UInt32 meshCount)
 		{
 			File file(filePath);
 			if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
@@ -58,7 +62,7 @@ namespace Nz
 
 			std::unordered_map<String, ParameterList> materialCache;
 			String baseDir = file.GetDirectory();
-			for (unsigned int i = 0; i < meshCount; ++i)
+			for (UInt32 i = 0; i < meshCount; ++i)
 			{
 				const String& matName = materials[meshes[i].material];
 				const MTLParser::Material* mtlMat = materialParser.GetMaterial(matName);
@@ -154,21 +158,21 @@ namespace Nz
 			const Vector3f* texCoords = parser.GetTexCoords();
 
 			const OBJParser::Mesh* meshes = parser.GetMeshes();
-			unsigned int meshCount = parser.GetMeshCount();
+			UInt32 meshCount = parser.GetMeshCount();
 
 			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr &&
 			             texCoords != nullptr && meshes != nullptr && meshCount > 0,
 			             "Invalid OBJParser output");
 
 			// Un conteneur temporaire pour contenir les indices de face avant triangulation
-			std::vector<unsigned int> faceIndices(3); // Comme il y aura au moins trois sommets
-			for (unsigned int i = 0; i < meshCount; ++i)
+			std::vector<UInt32> faceIndices(3); // Comme il y aura au moins trois sommets
+			for (UInt32 i = 0; i < meshCount; ++i)
 			{
-				unsigned int faceCount = meshes[i].faces.size();
+				std::size_t faceCount = meshes[i].faces.size();
 				if (faceCount == 0)
 					continue;
 
-				std::vector<unsigned int> indices;
+				std::vector<UInt32> indices;
 				indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
 
 				// Afin d'utiliser OBJParser::FaceVertex comme clé dans un unordered_map,
@@ -205,10 +209,10 @@ namespace Nz
 				unsigned int vertexCount = 0;
 				for (unsigned int j = 0; j < faceCount; ++j)
 				{
-					unsigned int faceVertexCount = meshes[i].faces[j].vertexCount;
+					UInt32 faceVertexCount = meshes[i].faces[j].vertexCount;
 					faceIndices.resize(faceVertexCount);
 
-					for (unsigned int k = 0; k < faceVertexCount; ++k)
+					for (UInt32 k = 0; k < faceVertexCount; ++k)
 					{
 						const OBJParser::FaceVertex& vertex = meshes[i].vertices[meshes[i].faces[j].firstVertex + k];
 
@@ -220,7 +224,7 @@ namespace Nz
 					}
 
 					// Triangulation
-					for (unsigned int k = 1; k < faceVertexCount-1; ++k)
+					for (UInt32 k = 1; k < faceVertexCount-1; ++k)
 					{
 						indices.push_back(faceIndices[0]);
 						indices.push_back(faceIndices[k]);
@@ -234,7 +238,7 @@ namespace Nz
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
-				for (unsigned int j = 0; j < indices.size(); ++j)
+				for (std::size_t j = 0; j < indices.size(); ++j)
 					indexMapper.Set(j, indices[j]);
 
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer

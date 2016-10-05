@@ -6,10 +6,14 @@
 
 namespace Ndk
 {
+	/*!
+	* \brief Binds Core module to Lua
+	*/
+
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock)
+		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock, std::size_t argumentCount)
 		{
 			int argIndex = 1;
 			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
@@ -40,9 +44,9 @@ namespace Ndk
 		});
 
 		/********************************* Nz::Directory ********************************/
-		directoryClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* directory)
+		directoryClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* directory, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
 			int argIndex = 1;
 			switch (argCount)
@@ -134,9 +138,9 @@ namespace Ndk
 		/*********************************** Nz::File ***********************************/
 		fileClass.Inherit(streamClass);
 
-		fileClass.SetConstructor([](Nz::LuaInstance& lua, Nz::File* file)
+		fileClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::File* file, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
 			int argIndex = 1;
 			switch (argCount)
@@ -253,6 +257,12 @@ namespace Ndk
 			return 1;
 		});
 	}
+
+	/*!
+	* \brief Registers the classes that will be used by the Lua instance
+	*
+	* \param instance Lua instance that will interact with the Core classes
+	*/
 
 	void LuaBinding::RegisterCore(Nz::LuaInstance& instance)
 	{
