@@ -45,5 +45,5 @@ artifacts:
   - path: package/NazaraEngine.7z
     name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
 
-test_script:
+on_success:
   - cd tests && "./NazaraUnitTestsServer.exe"
