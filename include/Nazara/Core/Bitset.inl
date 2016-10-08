@@ -594,10 +594,10 @@ namespace Nz
 			std::size_t lastIndex = m_blocks.size() - 1;
 			std::size_t remaining = bitsPerBlock - div.rem;
 
-			for (std::size_t i = div.quot; i < last; ++i)
+			for (std::size_t i = div.quot; i < lastIndex; ++i)
 				m_blocks[i - div.quot] = (m_blocks[i] >> div.rem) | (m_blocks[i + 1] << remaining);
 
-			m_blocks[last - div.quot] = m_blocks[last] >> div.rem;
+			m_blocks[lastIndex - div.quot] = m_blocks[lastIndex] >> div.rem;
 
 			std::fill_n(m_blocks.begin() + (m_blocks.size() - div.quot), div.quot, Block(0));
 		}
