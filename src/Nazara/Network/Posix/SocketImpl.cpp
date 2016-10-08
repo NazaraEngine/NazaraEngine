@@ -398,7 +398,7 @@ namespace Nz
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
 
-	int SocketImpl::Poll(PollSocket* fdarray, unsigned long nfds, int timeout, SocketError* error)
+	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
 	{
 		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
 
