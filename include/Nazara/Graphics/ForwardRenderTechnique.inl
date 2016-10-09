@@ -38,19 +38,25 @@ namespace Nz
 					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
 					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.direction));
 
-					shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
 					if (light.shadowMap)
 					{
 						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
 						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
 
-						shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
+						if (uniforms.locations.lightViewProjMatrix != -1)
+							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+
+						if (uniforms.locations.directionalSpotLightShadowMap != -1)
+							shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
 					}
-					else
+					else if (uniforms.locations.directionalSpotLightShadowMap != -1)
 						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 
-					shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
+					if (uniforms.locations.directionalSpotLightShadowMap != -1)
+						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 					break;
 				}
 
@@ -63,18 +69,22 @@ namespace Nz
 					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
 					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(0.f, 0.f, 0.f, light.invRadius));
 
-					shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
 					if (light.shadowMap)
 					{
 						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
 						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
 
-						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, availableTextureUnit);
+						if (uniforms.locations.pointLightShadowMap != -1)
+							shader->SendInteger(uniforms.locations.pointLightShadowMap + index, availableTextureUnit);
 					}
-					else
+					else if (uniforms.locations.pointLightShadowMap != -1)
 						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 
-					shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
+					if (uniforms.locations.directionalSpotLightShadowMap != -1)
+						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 					break;
 				}
 
@@ -88,19 +98,25 @@ namespace Nz
 					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(light.direction, light.invRadius));
 					shader->SendVector(uniforms.locations.parameters3 + uniformOffset, Vector2f(light.innerAngleCosine, light.outerAngleCosine));
 
-					shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
 					if (light.shadowMap)
 					{
 						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
 						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
 
-						shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
+						if (uniforms.locations.lightViewProjMatrix != -1)
+							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+
+						if (uniforms.locations.directionalSpotLightShadowMap != -1)
+							shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
 					}
-					else
+					else if (uniforms.locations.directionalSpotLightShadowMap != -1)
 						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 
-					shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
+					if (uniforms.locations.pointLightShadowMap != -1)
+						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 
 					break;
 				}
@@ -108,9 +124,14 @@ namespace Nz
 		}
 		else
 		{
-			shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
-			shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
-			shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
+			if (uniforms.locations.type != -1)
+				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
+			
+			if (uniforms.locations.directionalSpotLightShadowMap != -1)
+				shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
+
+			if (uniforms.locations.pointLightShadowMap != -1)
+				shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
 		}
 	}
 
