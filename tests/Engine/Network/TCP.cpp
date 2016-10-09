@@ -1,10 +1,9 @@
+#include <Nazara/Core/Thread.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Catch/catch.hpp>
-
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-
 #include <random>
 
 SCENARIO("TCP", "[NETWORK][TCP]")
@@ -28,6 +27,8 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
 		REQUIRE(clientIP.IsValid());
+
+		Nz::Thread::Sleep(100);
 
 		Nz::TcpClient serverToClient;
 		REQUIRE(server.AcceptClient(&serverToClient));
