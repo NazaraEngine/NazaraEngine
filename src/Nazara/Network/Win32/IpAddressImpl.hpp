@@ -2,6 +2,11 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#pragma once
+
+#ifndef NAZARA_IPADDRESSIMPL_HPP
+#define NAZARA_IPADDRESSIMPL_HPP
+
 #include <Nazara/Network/IpAddress.hpp>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -17,7 +22,7 @@ namespace Nz
 			~IpAddressImpl() = delete;
 
 			static IpAddress FromAddrinfo(const addrinfo* info);
-			#if NAZARA_CORE_WINDOWS_VISTA
+			#if NAZARA_CORE_WINDOWS_NT6
 			static IpAddress FromAddrinfo(const addrinfoW* info);
 			#endif
 			static IpAddress FromSockAddr(const sockaddr* address);
@@ -33,3 +38,5 @@ namespace Nz
 			static ResolveError TranslateWSAErrorToResolveError(int error);
 	};
 }
+
+#endif // NAZARA_IPADDRESSIMPL_HPP

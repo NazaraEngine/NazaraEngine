@@ -2,6 +2,11 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#pragma once
+
+#ifndef NAZARA_IPADDRESSIMPL_HPP
+#define NAZARA_IPADDRESSIMPL_HPP
+
 #include <Nazara/Network/IpAddress.hpp>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -30,3 +35,5 @@ namespace Nz
 			static ResolveError TranslateEAIErrorToResolveError(int error);
 	};
 }
+
+#endif // NAZARA_IPADDRESSIMPL_HPP

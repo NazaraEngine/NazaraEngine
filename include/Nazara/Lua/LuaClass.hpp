@@ -28,7 +28,7 @@ namespace Nz
 		public:
 			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
 			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance)>;
+			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance, std::size_t argumentCount)>;
 			template<typename P> using ConvertToParent = std::function<P*(T*)>;
 			using FinalizerFunc = std::function<bool(LuaInstance& lua, T& instance)>;
 			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;

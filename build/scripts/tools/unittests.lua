@@ -19,5 +19,6 @@ TOOL.Files = {
 }
 
 TOOL.Libraries = {
+	"NazaraNetwork",
 	"NazaraSDK"
 }

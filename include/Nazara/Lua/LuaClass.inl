@@ -19,9 +19,10 @@ namespace Nz
 	template<class T>
 	inline void LuaClass<T>::BindDefaultConstructor()
 	{
-		SetConstructor([] (Nz::LuaInstance& lua, T* instance)
+		SetConstructor([] (Nz::LuaInstance& lua, T* instance, std::size_t argumentCount)
 		{
 			NazaraUnused(lua);
+			NazaraUnused(argumentCount);
 
 			PlacementNew(instance);
 			return true;
@@ -334,9 +335,11 @@ namespace Nz
 
 		lua.Remove(1); // On enlève l'argument "table" du stack
 
+		std::size_t argCount = lua.GetStackTop();
+
 		T* instance = static_cast<T*>(lua.PushUserdata(sizeof(T)));
 
-		if (!constructor(lua, instance))
+		if (!constructor(lua, instance, argCount))
 		{
 			lua.Error("Constructor failed");
 			return 0; // Normalement jamais exécuté (l'erreur provoquant une exception)
