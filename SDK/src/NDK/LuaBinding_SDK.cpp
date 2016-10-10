@@ -233,6 +233,9 @@ namespace Ndk
 
 				return &m_componentBinding[it->second];
 			}
+
+			default:
+				break;
 		}
 
 		instance.Error("Invalid component index at #" + Nz::String::Number(argIndex));

@@ -1,32 +1,35 @@
+#include <Nazara/Core/Thread.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Catch/catch.hpp>
-
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-
 #include <random>
 
 SCENARIO("TCP", "[NETWORK][TCP]")
 {
 	GIVEN("Two TCP, one client, one server")
 	{
-		// Avoid reusing the same socket
 		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dis(1025, 64245);
+		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
 
-		Nz::UInt16 port = dis(gen);
+		Nz::UInt16 port = dis(rd);
+
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
 		REQUIRE(server.Listen(Nz::NetProtocol_IPv4, port) == Nz::SocketState_Bound);
-		Nz::IpAddress serverIP = server.GetBoundAddress();
+
+		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
+
 		Nz::TcpClient client;
 		REQUIRE(client.Connect(serverIP) == Nz::SocketState_Connecting);
+
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
 		REQUIRE(clientIP.IsValid());
+
+		Nz::Thread::Sleep(100);
 
 		Nz::TcpClient serverToClient;
 		REQUIRE(server.AcceptClient(&serverToClient));

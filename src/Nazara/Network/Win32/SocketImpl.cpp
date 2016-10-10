@@ -7,18 +7,21 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
-#include <Winsock2.h>
-
+#if defined(NAZARA_COMPILER_MINGW) && __GNUC__ < 5
 // Some compilers (olders versions of MinGW) are lacking Mstcpip.h which defines the following struct/#define
-// Define them ourself for now
 struct tcp_keepalive
 {
-    u_long onoff;
-    u_long keepalivetime;
-    u_long keepaliveinterval;
+	u_long onoff;
+	u_long keepalivetime;
+	u_long keepaliveinterval;
 };
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
+#else
+#include <Mstcpip.h>
+#endif
+
+#include <Winsock2.h>
 
 #include <Nazara/Network/Debug.hpp>
 
@@ -412,6 +415,34 @@ namespace Nz
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
 
+	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
+	{
+		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
+
+		#if NAZARA_NETWORK_POLL_SUPPORT
+		static_assert(sizeof(PollSocket) == sizeof(WSAPOLLFD), "PollSocket size must match WSAPOLLFD size");
+
+		int result = WSAPoll(reinterpret_cast<WSAPOLLFD*>(fdarray), static_cast<ULONG>(nfds), timeout);
+		if (result == SOCKET_ERROR)
+		{
+			int errorCode = WSAGetLastError();
+			if (error)
+				*error = TranslateWSAErrorToSocketError(errorCode);
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return result;
+		#else
+		if (error)
+			*error = SocketError_NotSupported;
+
+		return 0;
+		#endif
+	}
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)
 	{

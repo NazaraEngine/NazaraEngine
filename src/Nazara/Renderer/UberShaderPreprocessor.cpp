@@ -76,7 +76,7 @@ namespace Nz
 
 							code << "#define GLSL_VERSION " << glslVersion << "\n\n";
 
-							code << "#define EARLY_FRAGMENT_TEST " << (glslVersion >= 420 || OpenGL::IsSupported(OpenGLExtension_Shader_ImageLoadStore)) << "\n\n";
+							code << "#define EARLY_FRAGMENT_TEST " << ((glslVersion >= 420 || OpenGL::IsSupported(OpenGLExtension_Shader_ImageLoadStore)) ? '1' : '0') << "\n\n";
 
 							for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
 								code << "#define " << it->first << ' ' << ((stageFlags & it->second) ? '1' : '0') << '\n';

@@ -2,8 +2,8 @@
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifndef SIMPLEX_HPP
-#define SIMPLE_HPP
+#ifndef NAZARA_SIMPLEX_HPP
+#define NAZARA_SIMPLEX_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/Config.hpp>
@@ -25,4 +25,4 @@ namespace Nz
 	};
 }
 
-#endif // SIMPLEX_HPP
+#endif // NAZARA_SIMPLEX_HPP

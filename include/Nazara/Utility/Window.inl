@@ -55,14 +55,29 @@ namespace Nz
 		window.m_impl = nullptr;
 	}
 
-	inline Window::~Window()
-	{
-		Destroy();
-	}
-
 	inline void Window::Close()
 	{
 		m_closed = true; // The window will be closed at the next non-const IsOpen() call
+	}
+
+	inline void Window::EnableCloseOnQuit(bool closeOnQuit)
+	{
+		m_closeOnQuit = closeOnQuit;
+	}
+
+	inline void Window::EnableEventPolling(bool enable)
+	{
+		m_eventPolling = enable;
+		if (!m_eventPolling)
+		{
+			while (!m_events.empty())
+				m_events.pop();
+		}
+	}
+
+	inline EventHandler& Nz::Window::GetEventHandler()
+	{
+		return m_eventHandler;
 	}
 
 	inline void Window::EnableCloseOnQuit(bool closeOnQuit)
@@ -146,7 +161,7 @@ namespace Nz
 	{
 		Destroy();
 
-		m_closed        = window.m_closed; 
+		m_closed        = window.m_closed;
 		m_closeOnQuit   = window.m_closeOnQuit;
 		m_eventPolling  = window.m_eventPolling;
 		m_impl          = window.m_impl;
