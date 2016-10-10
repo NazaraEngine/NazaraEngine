@@ -80,26 +80,6 @@ namespace Nz
 		return m_eventHandler;
 	}
 
-	inline void Window::EnableCloseOnQuit(bool closeOnQuit)
-	{
-		m_closeOnQuit = closeOnQuit;
-	}
-
-	inline void Window::EnableEventPolling(bool enable)
-	{
-		m_eventPolling = enable;
-		if (!m_eventPolling)
-		{
-			while (!m_events.empty())
-				m_events.pop();
-		}
-	}
-
-	inline EventHandler& Nz::Window::GetEventHandler()
-	{
-		return m_eventHandler;
-	}
-
 	inline bool Window::IsOpen(bool checkClosed)
 	{
 		if (!m_impl)
