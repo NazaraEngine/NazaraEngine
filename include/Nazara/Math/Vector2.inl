@@ -1057,6 +1057,35 @@ Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec)
 	return Nz::Vector2<T>(scale / vec.x, scale / vec.y);
 }
 
+namespace std
+{
+
+template<class T>
+struct hash<Nz::Vector2<T>>
+{
+	    using argument_type = Nz::Vector2<T>;
+	    using result_type = std::size_t;
+
+	    ///
+	    /// \brief Specialisation of std to hash
+	    /// \return Result of the hash
+	    ///
+	    /// \param v Vector2 to hash
+	    ///
+
+	    result_type operator()(argument_type const& v) const
+	    {
+		result_type seed {};
+
+		Nz::HashCombine(seed, v.x);
+		Nz::HashCombine(seed, v.y);
+
+		return seed;
+	    }
+};
+	
+}
+
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
