@@ -34,6 +34,8 @@ namespace Ndk
 			template<typename T, typename... Args> T& Add(Args&&... args);
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
+			inline void Center();
+
 			void EnableBackground(bool enable);
 
 			//virtual BaseWidget* Clone() const = 0;
