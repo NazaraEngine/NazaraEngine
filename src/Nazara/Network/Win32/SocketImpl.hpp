@@ -2,13 +2,27 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#pragma once
+
+#ifndef NAZARA_SOCKETIMPL_HPP
+#define NAZARA_SOCKETIMPL_HPP
+
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <winsock2.h>
 
+#define NAZARA_NETWORK_POLL_SUPPORT NAZARA_CORE_WINDOWS_NT6
+
 namespace Nz
 {
+	struct PollSocket
+	{
+		SocketHandle fd;
+		short events;
+		short revents;
+	};
+
 	class SocketImpl
 	{
 		public:
@@ -43,6 +57,8 @@ namespace Nz
 			static IpAddress QueryPeerAddress(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
 
+			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
 
@@ -66,3 +82,5 @@ namespace Nz
 			static WSADATA s_WSA;
 	};
 }
+
+#endif // NAZARA_SOCKETIMPL_HPP

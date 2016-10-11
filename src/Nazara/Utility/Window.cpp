@@ -29,6 +29,11 @@ namespace Nz
 		Window* fullscreenWindow = nullptr;
 	}
 
+	Window::~Window()
+	{
+		Destroy();
+	}
+
 	bool Window::Create(VideoMode mode, const String& title, UInt32 style)
 	{
 		// Si la fenêtre est déjà ouverte, nous conservons sa position

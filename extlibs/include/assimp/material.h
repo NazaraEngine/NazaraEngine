@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -103,7 +103,7 @@ enum aiTextureOp
 // ---------------------------------------------------------------------------
 /** @brief Defines how UV coordinates outside the [0...1] range are handled.
  *
- *  Commonly refered to as 'wrapping mode'.
+ *  Commonly referred to as 'wrapping mode'.
  */
 enum aiTextureMapMode
 {

@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -177,6 +177,9 @@ struct aiMetadata
                 case AI_AIVECTOR3D:
                     delete static_cast<aiVector3D*>(data);
                     break;
+#ifndef SWIG
+                case FORCE_32BIT:
+#endif
                 default:
                     assert(false);
                     break;

@@ -20,8 +20,10 @@ namespace Ndk
 			return reinterpret_cast<Nz::InstancedRenderableRef*>(model); //TODO: Make a ObjectRefCast
 		});
 
-		modelClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::ModelRef* model)
+		modelClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::ModelRef* model, std::size_t argumentCount)
 		{
+			NazaraUnused(argumentCount);
+
 			Nz::PlacementNew(model, Nz::Model::New());
 			return true;
 		});
