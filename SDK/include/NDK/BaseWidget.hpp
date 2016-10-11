@@ -31,6 +31,7 @@ namespace Ndk
 			BaseWidget(BaseWidget&&) = default;
 			virtual ~BaseWidget();
 
+			template<typename T, typename... Args> T& Add(Args&&... args);
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
 			void EnableBackground(bool enable);
