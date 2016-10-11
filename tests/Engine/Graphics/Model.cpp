@@ -15,12 +15,12 @@ SCENARIO("Model", "[GRAPHICS][MODEL]")
 				Nz::ModelRef model = Nz::Model::New();
 				REQUIRE(model->LoadFromFile("resources/Engine/Graphics/dragon_recon/dragon_vrip_res4.obj", params));
 
-				REQUIRE(model->GetMaterialCount() == 2);
+				REQUIRE(model->GetMaterialCount() == 1);
 				REQUIRE(model->GetSkin() == 0);
 				REQUIRE(model->GetSkinCount() == 1);
 
 				Nz::Material* material = model->GetMaterial(0);
-				REQUIRE(material->GetAmbientColor() == Nz::Color(128));
+				REQUIRE(material->GetAmbientColor() == Nz::Color::Black);
 			}
 		}
 	}

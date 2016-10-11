@@ -1,14 +1,26 @@
 # Nazara build
 build/config.lua
+
+# Nazara libraries
+lib/*
+
+# Nazara package
+package/*
+
+# Example files
 examples/bin/*.exe
 examples/bin/*.pdb
 examples/bin/*.dll
 examples/bin/*.so
+
+# Unit tests
 tests/*.exe
 tests/*.pdb
 tests/*.dll
 tests/*.so
-lib/*
+
+# Example generated files
+examples/bin/HardwareInfo.txt
 
 # Example generated files
 examples/bin/HardwareInfo.txt
@@ -40,7 +52,8 @@ build/**/*.sln
 build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
-build/**/*.VC.*
+build/**/*.VC.opendb
+build/**/*.VC.db
 
 # Compiled Object files
 build/**/*.slo
@@ -136,3 +149,9 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
+
+
+
+
+
+

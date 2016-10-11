@@ -14,6 +14,16 @@ MODULE.OsFiles.Posix = {
 	"../src/Nazara/Network/Posix/**.cpp"
 }
 
+MODULE.OsFiles.Linux = {
+	"../src/Nazara/Network/Linux/**.hpp",
+	"../src/Nazara/Network/Linux/**.cpp"
+}
+
+MODULE.OsFilesExcluded.Linux = {
+	"../src/Nazara/Network/Posix/SocketPollerImpl.hpp",
+	"../src/Nazara/Network/Posix/SocketPollerImpl.cpp"
+}
+
 MODULE.OsLibraries.Windows = {
 	"ws2_32"
 }

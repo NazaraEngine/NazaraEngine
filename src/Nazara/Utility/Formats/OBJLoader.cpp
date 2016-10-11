@@ -37,6 +37,10 @@ namespace Nz
 			if (parameters.custom.GetBooleanParameter("SkipNativeOBJLoader", &skip) && skip)
 				return Ternary_False;
 
+			OBJParser parser;
+			if (!parser.Check(stream))
+				return Ternary_False;
+
 			return Ternary_Unknown;
 		}
 

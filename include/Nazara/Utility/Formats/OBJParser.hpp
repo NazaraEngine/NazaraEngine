@@ -29,6 +29,8 @@ namespace Nz
 
 			inline void Clear();
 
+			bool Check(Stream& stream);
+
 			inline String* GetMaterials();
 			inline const String* GetMaterials() const;
 			inline UInt32 GetMaterialCount() const;

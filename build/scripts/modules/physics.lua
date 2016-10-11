@@ -2,5 +2,5 @@ MODULE.Name = "Physics"
 
 MODULE.Libraries = {
 	"NazaraCore",
-	"Newton"
+	"Newton" -- Newton Game Dynamics
 }
