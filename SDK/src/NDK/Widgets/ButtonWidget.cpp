@@ -61,7 +61,6 @@ namespace Ndk
 
 	void ButtonWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
-		NazaraDebug(Nz::String::Number(x) + ", " + Nz::String::Number(y));
 	}
 
 	void ButtonWidget::OnMouseExit()
