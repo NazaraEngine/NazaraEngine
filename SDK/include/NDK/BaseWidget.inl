@@ -32,6 +32,15 @@ namespace Ndk
 		m_children.emplace_back(std::move(widget));
 	}
 
+	inline void BaseWidget::Center()
+	{
+		NazaraAssert(m_widgetParent, "Widget has no parent");
+
+		Nz::Vector2f parentSize = m_widgetParent->GetSize();
+		Nz::Vector2f mySize = GetSize();
+		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
+	}
+
 	inline Canvas* BaseWidget::GetCanvas()
 	{
 		return m_canvas;

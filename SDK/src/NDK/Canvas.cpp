@@ -10,7 +10,7 @@
 
 namespace Ndk
 {
-	void Ndk::Canvas::ResizeToContent()
+	void Canvas::ResizeToContent()
 	{
 	}
 

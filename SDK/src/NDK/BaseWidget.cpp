@@ -17,6 +17,7 @@ namespace Ndk
 		NazaraAssert(parent->GetCanvas(), "Parent has no canvas");
 
 		m_canvas = parent->GetCanvas();
+		m_widgetParent = parent;
 		m_world = m_canvas->GetWorld();
 
 		m_canvasIndex = m_canvas->RegisterWidget(this);
