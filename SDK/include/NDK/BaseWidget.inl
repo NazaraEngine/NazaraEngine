@@ -17,6 +17,16 @@ namespace Ndk
 		SetPadding(5.f, 5.f, 5.f, 5.f);
 	}
 
+	template<typename T, typename... Args>
+	inline T& BaseWidget::Add(Args&&... args)
+	{
+		std::unique_ptr<T> widget = std::make_unique<T>(this, std::forward<Args>(args)...);
+		T& widgetRef = *widget;
+		AddChild(std::move(widget));
+
+		return widgetRef;
+	}
+
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
 		m_children.emplace_back(std::move(widget));
