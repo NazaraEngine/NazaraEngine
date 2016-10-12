@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VkQueue.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VkDevice.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -51,7 +52,10 @@ namespace Nz
 		{
 			m_lastErrorCode = m_device->vkQueuePresentKHR(m_handle, &presentInfo);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to present queue: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
+			}
 
 			return true;
 		}
@@ -82,7 +86,10 @@ namespace Nz
 		{
 			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, fence);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to submit queue: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
+			}
 
 			return true;
 		}
@@ -91,7 +98,10 @@ namespace Nz
 		{
 			m_lastErrorCode = m_device->vkQueueWaitIdle(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to wait for queue: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
+			}
 
 			return true;
 		}

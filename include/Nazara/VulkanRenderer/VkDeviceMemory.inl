@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VkDeviceMemory.hpp>
 #include <Nazara/VulkanRenderer/VkPhysicalDevice.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -66,7 +67,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkMapMemory(*m_device, m_handle, offset, size, flags, &m_mappedPtr);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to map device memory");
+				NazaraError("Failed to map device memory: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

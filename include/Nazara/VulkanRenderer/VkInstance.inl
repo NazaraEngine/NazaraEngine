@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VkInstance.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -106,7 +107,7 @@ namespace Nz
 			m_lastErrorCode = vkGetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, imageFormatProperties);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to get physical device image format properties");
+				NazaraError("Failed to get physical device image format properties: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

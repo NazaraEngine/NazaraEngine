@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VkImage.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -14,7 +15,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkBindImageMemory(*m_device, m_handle, memory, offset);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to bind buffer memory");
+				NazaraError("Failed to bind image memory: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/VkInstance.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -153,7 +154,7 @@ namespace Nz
 			m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS || deviceCount == 0)
 			{
-				NazaraError("Failed to query physical device count");
+				NazaraError("Failed to query physical device count: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -162,7 +163,7 @@ namespace Nz
 			m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices->data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to query physical devices");
+				NazaraError("Failed to query physical devices: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

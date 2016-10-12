@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Engine - Vulkan Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VkCommandPool.hpp>
+#include <Nazara/VulkanRenderer/VkDeviceObject.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/VkCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VkDevice.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -40,7 +42,7 @@ namespace Nz
 			m_lastErrorCode = C::CreateHelper(m_device, &createInfo, allocator, &m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to create Vulkan object");
+				NazaraError("Failed to create Vulkan object: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -90,4 +92,3 @@ namespace Nz
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
-#include "VkDeviceObject.hpp"

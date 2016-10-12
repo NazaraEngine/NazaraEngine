@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VkSwapchain.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VkDevice.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -21,7 +22,10 @@ namespace Nz
 					return true;
 
 				default:
+				{
+					NazaraError("Failed to acquire next swapchain image: " + TranslateVulkanError(m_lastErrorCode));
 					return false;
+				}
 			}
 		}
 
@@ -34,7 +38,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, nullptr);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS || imageCount == 0)
 			{
-				NazaraError("Failed to query swapchain image count");
+				NazaraError("Failed to query swapchain image count: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -42,7 +46,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, images.data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to query swapchain images");
+				NazaraError("Failed to query swapchain images: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

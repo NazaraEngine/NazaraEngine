@@ -42,7 +42,7 @@ namespace Nz
 			m_lastErrorCode = m_pool->GetDevice()->vkBeginCommandBuffer(m_handle, &info);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to begin command buffer");
+				NazaraError("Failed to begin command buffer: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -208,7 +208,7 @@ namespace Nz
 			m_lastErrorCode = m_pool->GetDevice()->vkEndCommandBuffer(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to end command buffer");
+				NazaraError("Failed to end command buffer: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VkPipeline.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -68,7 +69,7 @@ namespace Nz
 			m_lastErrorCode = result;
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to create Vulkan object");
+				NazaraError("Failed to create Vulkan object: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
