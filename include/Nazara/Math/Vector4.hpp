@@ -122,7 +122,7 @@ namespace std
 {
 
 template<class T>
-struct hash<Nz::Vector2<T>>;
+struct hash<Nz::Vector4<T>>;
 
 }
 
