@@ -36,6 +36,17 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the aspect ratio of the camera
+	* \return Aspect ratio of the camera
+	*/
+	float CameraComponent::GetAspectRatio() const
+	{
+		EnsureViewportUpdate();
+
+		return m_aspectRatio;
+	}
+
+	/*!
 	* \brief Gets the eye position of the camera
 	*
 	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
@@ -53,12 +64,82 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
 	*/
-
 	Nz::Vector3f CameraComponent::GetForward() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
 
 		return m_entity->GetComponent<NodeComponent>().GetForward();
+	}
+
+	/*!
+	* \brief Gets the frutum of the camera
+	* \return A constant reference to the frustum of the camera
+	*/
+	const Nz::Frustumf& CameraComponent::GetFrustum() const
+	{
+		EnsureFrustumUpdate();
+
+		return m_frustum;
+	}
+
+	/*!
+	* \brief Gets the projection matrix of the camera
+	* \return A constant reference to the projection matrix of the camera
+	*/
+	const Nz::Matrix4f& CameraComponent::GetProjectionMatrix() const
+	{
+		EnsureProjectionMatrixUpdate();
+
+		return m_projectionMatrix;
+	}
+
+	/*!
+	* \brief Gets the target of the camera
+	* \return A constant reference to the render target of the camera
+	*/
+	const Nz::RenderTarget* CameraComponent::GetTarget() const
+	{
+		return m_target;
+	}
+
+	/*!
+	* \brief Gets the view matrix of the camera
+	* \return A constant reference to the view matrix of the camera
+	*/
+	const Nz::Matrix4f& CameraComponent::GetViewMatrix() const
+	{
+		EnsureViewMatrixUpdate();
+
+		return m_viewMatrix;
+	}
+
+	/*!
+	* \brief Gets the view port of the camera
+	* \return A constant reference to the view port of the camera
+	*/
+	const Nz::Recti& CameraComponent::GetViewport() const
+	{
+		EnsureViewportUpdate();
+
+		return m_viewport;
+	}
+
+	/*!
+	* \brief Gets the Z far distance of the camera
+	* \return Z far distance of the camera
+	*/
+	float CameraComponent::GetZFar() const
+	{
+		return m_zFar;
+	}
+
+	/*!
+	* \brief Gets the Z near distance of the camera
+	* \return Z near distance of the camera
+	*/
+	float CameraComponent::GetZNear() const
+	{
+		return m_zNear;
 	}
 
 	/*!

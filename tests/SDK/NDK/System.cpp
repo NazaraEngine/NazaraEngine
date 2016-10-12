@@ -6,8 +6,14 @@ namespace
 	class TestSystem : public Ndk::System<TestSystem>
 	{
 		public:
-			TestSystem()
+			TestSystem(int value) :
+			m_value(value)
 			{
+			}
+
+			int GetValue() const
+			{
+				return m_value;
 			}
 
 			~TestSystem() = default;
@@ -15,6 +21,8 @@ namespace
 			static Ndk::SystemIndex systemIndex;
 
 		private:
+			int m_value;
+
 			void OnUpdate(float elapsedTime) override
 			{
 			}
@@ -27,7 +35,7 @@ SCENARIO("System", "[NDK][SYSTEM]")
 {
 	GIVEN("Our TestSystem")
 	{
-		TestSystem testSystem;
+		TestSystem testSystem(666);
 
 		WHEN("We clone it")
 		{
@@ -35,7 +43,7 @@ SCENARIO("System", "[NDK][SYSTEM]")
 
 			THEN("We should get a copy")
 			{
-				REQUIRE(dynamic_cast<TestSystem*>(clone.get()) != nullptr);
+				REQUIRE(static_cast<TestSystem*>(clone.get())->GetValue() == 666);
 			}
 		}
 	}

@@ -291,6 +291,7 @@ namespace Nz
 			declaration->EnableComponent(ParticleComponent_Normal,   ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Billboard, normal));
 			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Billboard, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Billboard, rotation));
+			declaration->EnableComponent(ParticleComponent_Size,     ComponentType_Float2, NazaraOffsetOf(ParticleStruct_Billboard, size));
 			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Billboard, velocity));
 
 			NazaraAssert(declaration->GetStride() == sizeof(ParticleStruct_Billboard), "Invalid stride for declaration ParticleLayout_Billboard");

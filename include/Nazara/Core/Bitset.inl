@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <cstdlib>
 #include <limits>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -513,11 +515,116 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Shift all the bits toward the left
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see operator<<=
+	*/
+	template<typename Block, class Allocator>
+	void Bitset<Block, Allocator>::ShiftLeft(std::size_t pos)
+	{
+		if (pos == 0)
+			return;
+
+		if (pos >= m_bitCount)
+		{
+			Reset();
+			return;
+		}
+
+		auto div = std::lldiv(pos, bitsPerBlock);
+		if (div.rem != 0)
+		{
+			std::size_t lastIndex = m_blocks.size() - 1;
+			std::size_t remaining = bitsPerBlock - div.rem;
+
+			for (std::size_t i = lastIndex - div.quot; i > 0; --i)
+				m_blocks[i + div.quot] = (m_blocks[i] << div.rem) | (m_blocks[i - 1] >> remaining);
+
+			m_blocks[div.quot] = m_blocks[0] << div.rem;
+
+			std::fill_n(m_blocks.begin(), div.quot, Block(0));
+		}
+		else
+		{
+			for (auto it = m_blocks.rbegin(); it != m_blocks.rend(); ++it)
+			{
+				if (static_cast<std::size_t>(std::distance(m_blocks.rbegin(), it) + div.quot) < m_blocks.size())
+				{
+					auto shiftedIt = it;
+					std::advance(shiftedIt, div.quot);
+
+					*it = *shiftedIt;
+				}
+				else
+					*it = 0U;
+			}
+		}
+
+		ResetExtraBits();
+	}
+
+	/*!
+	* \brief Shift all the bits toward the right
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see operator>>=
+	*/
+	template<typename Block, class Allocator>
+	void Bitset<Block, Allocator>::ShiftRight(std::size_t pos)
+	{
+		if (pos == 0)
+			return;
+
+		if (pos >= m_bitCount)
+		{
+			Reset();
+			return;
+		}
+
+		auto div = std::lldiv(pos, bitsPerBlock);
+		if (div.rem != 0)
+		{
+			std::size_t lastIndex = m_blocks.size() - 1;
+			std::size_t remaining = bitsPerBlock - div.rem;
+
+			for (std::size_t i = div.quot; i < lastIndex; ++i)
+				m_blocks[i - div.quot] = (m_blocks[i] >> div.rem) | (m_blocks[i + 1] << remaining);
+
+			m_blocks[lastIndex - div.quot] = m_blocks[lastIndex] >> div.rem;
+
+			std::fill_n(m_blocks.begin() + (m_blocks.size() - div.quot), div.quot, Block(0));
+		}
+		else
+		{
+			for (auto it = m_blocks.begin(); it != m_blocks.end(); ++it)
+			{
+				if (static_cast<std::size_t>(std::distance(m_blocks.begin(), it) + div.quot) < m_blocks.size())
+				{
+					auto shiftedIt = it;
+					std::advance(shiftedIt, div.quot);
+
+					*it = *shiftedIt;
+				}
+				else
+					*it = 0U;
+			}
+		}
+
+		ResetExtraBits();
+	}
+
+	/*!
 	* \brief Swaps the two bitsets
 	*
 	* \param bitset Other bitset to swap
 	*/
-
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Swap(Bitset& bitset)
 	{
@@ -759,6 +866,80 @@ namespace Nz
 	{
 		Bitset bitset(value);
 		std::swap(*this, bitset);
+
+		return *this;
+	}
+
+	/*!
+	* \brief Shift all the bits toward the left
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \return A copies of the bitset with shifted bits
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see ShiftLeft
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> Bitset<Block, Allocator>::operator<<(std::size_t pos) const
+	{
+		Bitset bitset(*this);
+		return bitset <<= pos;
+	}
+
+	/*!
+	* \brief Shift all the bits toward the left
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \return A reference to this
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see ShiftLeft
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator<<=(std::size_t pos)
+	{
+		ShiftLeft(pos);
+
+		return *this;
+	}
+
+	/*!
+	* \brief Shift all the bits toward the right
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \return A copies of the bitset with shifted bits
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see ShiftRight
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> Bitset<Block, Allocator>::operator>>(std::size_t pos) const
+	{
+		Bitset bitset(*this);
+		return bitset >>= pos;
+	}
+
+	/*!
+	* \brief Shift all the bits toward the right
+	*
+	* \param pos Bit shifting to be applied
+	*
+	* \return A reference to this
+	*
+	* \remark This does not changes the size of the bitset.
+	*
+	* \see ShiftRight
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator>>=(std::size_t pos)
+	{
+		ShiftRight(pos);
 
 		return *this;
 	}

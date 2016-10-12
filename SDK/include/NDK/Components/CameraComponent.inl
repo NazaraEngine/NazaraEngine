@@ -98,37 +98,12 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets the aspect ratio of the camera
-	* \return Aspect ratio of the camera
-	*/
-
-	inline float CameraComponent::GetAspectRatio() const
-	{
-		EnsureViewportUpdate();
-
-		return m_aspectRatio;
-	}
-
-	/*!
 	* \brief Gets the field of view of the camera
 	* \return Field of view of the camera
 	*/
-
-	inline float CameraComponent::GetFOV() const
+	float CameraComponent::GetFOV() const
 	{
 		return m_fov;
-	}
-
-	/*!
-	* \brief Gets the frutum of the camera
-	* \return A constant reference to the frustum of the camera
-	*/
-
-	inline const Nz::Frustumf& CameraComponent::GetFrustum() const
-	{
-		EnsureFrustumUpdate();
-
-		return m_frustum;
 	}
 
 	/*!
@@ -139,18 +114,6 @@ namespace Ndk
 	inline unsigned int CameraComponent::GetLayer() const
 	{
 		return m_layer;
-	}
-
-	/*!
-	* \brief Gets the projection matrix of the camera
-	* \return A constant reference to the projection matrix of the camera
-	*/
-
-	inline const Nz::Matrix4f& CameraComponent::GetProjectionMatrix() const
-	{
-		EnsureProjectionMatrixUpdate();
-
-		return m_projectionMatrix;
 	}
 
 	/*!
@@ -174,16 +137,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets the target of the camera
-	* \return A constant reference to the render target of the camera
-	*/
-
-	inline const Nz::RenderTarget* CameraComponent::GetTarget() const
-	{
-		return m_target;
-	}
-
-	/*!
 	* \brief Gets the target region of the camera
 	* \return A constant reference to the target region of the camera
 	*/
@@ -191,50 +144,6 @@ namespace Ndk
 	inline const Nz::Rectf& CameraComponent::GetTargetRegion() const
 	{
 		return m_targetRegion;
-	}
-
-	/*!
-	* \brief Gets the view matrix of the camera
-	* \return A constant reference to the view matrix of the camera
-	*/
-
-	inline const Nz::Matrix4f& CameraComponent::GetViewMatrix() const
-	{
-		EnsureViewMatrixUpdate();
-
-		return m_viewMatrix;
-	}
-
-	/*!
-	* \brief Gets the view port of the camera
-	* \return A constant reference to the view port of the camera
-	*/
-
-	inline const Nz::Recti& CameraComponent::GetViewport() const
-	{
-		EnsureViewportUpdate();
-
-		return m_viewport;
-	}
-
-	/*!
-	* \brief Gets the Z far distance of the camera
-	* \return Z far distance of the camera
-	*/
-
-	inline float CameraComponent::GetZFar() const
-	{
-		return m_zFar;
-	}
-
-	/*!
-	* \brief Gets the Z near distance of the camera
-	* \return Z near distance of the camera
-	*/
-
-	inline float CameraComponent::GetZNear() const
-	{
-		return m_zNear;
 	}
 
 	/*!

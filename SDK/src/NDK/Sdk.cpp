@@ -59,6 +59,13 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
+			#ifdef NDK_SERVER
+			Nz::ParameterList parameters;
+			parameters.SetParameter("NoWindowSystem", true);
+
+			Nz::Utility::SetParameters(parameters);
+			#endif
+
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics::Initialize();
