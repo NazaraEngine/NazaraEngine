@@ -1107,7 +1107,7 @@ Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
 template<typename T>
 Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 {
-		#if NAZARA_MATH_SAFE
+	#if NAZARA_MATH_SAFE
 	if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
 	{
 		Nz::String error("Division by zero");
