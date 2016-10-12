@@ -216,13 +216,6 @@ namespace Ndk
 				m_forceRenderQueueInvalidation = false;
 			}
 
-			for (const Ndk::EntityHandle& particleGroup : m_particleGroups)
-			{
-				ParticleGroupComponent& groupComponent = particleGroup->GetComponent<ParticleGroupComponent>();
-
-				groupComponent.AddToRenderQueue(renderQueue, Nz::Matrix4f::Identity()); //< ParticleGroup doesn't use Matrix4f
-			}
-
 			camComponent.ApplyView();
 
 			Nz::SceneData sceneData;

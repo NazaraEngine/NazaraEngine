@@ -771,7 +771,6 @@ namespace Nz
 										}
 									}
 								}
-								instances.clear();
 							}
 						}
 					}
