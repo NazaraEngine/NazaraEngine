@@ -146,7 +146,7 @@ namespace std
 {
 
 template<class T>
-struct hash<Nz::Vector2<T>>;
+struct hash<Nz::Vector3<T>>;
 
 }
 
