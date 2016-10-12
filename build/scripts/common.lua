@@ -141,7 +141,6 @@ function NazaraBuild:Execute()
 		configuration("Release*")
 			flags("NoFramePointer")
 			optimize("Speed")
-			rtti("Off")
 			vectorextensions("SSE2")
 
 		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
@@ -228,6 +227,7 @@ function NazaraBuild:Execute()
 				targetdir("../lib/xcode/x64")
 
 			configuration("*Static")
+				defines("NAZARA_STATIC")
 				kind("StaticLib")
 
 			configuration("*Dynamic")
@@ -241,6 +241,9 @@ function NazaraBuild:Execute()
 
 			configuration("DebugDynamic")
 				targetsuffix("-d")
+
+			configuration("Release*")
+				rtti(moduleTable.EnableRTTI and "On" or "Off")
 
 			configuration({})
 
@@ -357,6 +360,12 @@ function NazaraBuild:Execute()
 					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
 				end
 
+			configuration("*Static")
+				defines("NAZARA_STATIC")
+
+			configuration("Release*")
+				rtti(toolTable.EnableRTTI and "On" or "Off")
+
 			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
 				configuration("*Static")
 					kind("StaticLib")
@@ -429,6 +438,9 @@ function NazaraBuild:Execute()
 			flags(exampleTable.Flags)
 			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
+
+			configuration("Release*")
+				rtti(exampleTable.EnableRTTI and "On" or "Off")
 
 			configuration("x32")
 				libdirs(exampleTable.LibraryPaths.x86)
@@ -705,7 +717,7 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 	end
 
 	if (os.is("windows")) then
-		configuration({})
+		configuration("*Dynamic")
 		
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)

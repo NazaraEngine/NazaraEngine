@@ -64,6 +64,9 @@ namespace Nz
 			void Set(std::size_t bit, bool val = true);
 			void SetBlock(std::size_t i, Block block);
 
+			void ShiftLeft(std::size_t pos);
+			void ShiftRight(std::size_t pos);
+
 			void Swap(Bitset& bitset);
 
 			bool Test(std::size_t bit) const;
@@ -87,6 +90,12 @@ namespace Nz
 			Bitset& operator=(const String& bits);
 			template<typename T> Bitset& operator=(T value);
 			Bitset& operator=(Bitset&& bitset) noexcept = default;
+
+			Bitset operator<<(std::size_t pos) const;
+			Bitset& operator<<=(std::size_t pos);
+
+			Bitset operator>>(std::size_t pos) const;
+			Bitset& operator>>=(std::size_t pos);
 
 			Bitset& operator&=(const Bitset& bitset);
 			Bitset& operator|=(const Bitset& bitset);

@@ -68,7 +68,12 @@ namespace Nz
 
 				std::size_t x = tileIndex % m_mapSize.x;
 				std::size_t y = tileIndex / m_mapSize.x;
-				Vector3f tileLeftCorner(x * m_tileSize.x, y * -m_tileSize.y, 0.f);
+
+				Vector3f tileLeftCorner;
+				if (m_isometricModeEnabled)
+					tileLeftCorner.Set(x * m_tileSize.x + m_tileSize.x/2.f * (y % 2), y/2.f * -m_tileSize.y, 0.f);
+				else
+					tileLeftCorner.Set(x * m_tileSize.x, y * -m_tileSize.y, 0.f);
 
 				*colorPtr++ = tile.color;
 				*posPtr++ = instanceData->transformMatrix.Transform(tileLeftCorner);

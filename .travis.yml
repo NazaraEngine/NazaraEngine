@@ -1,0 +1,49 @@
+language:
+  cpp
+
+dist: 
+  trusty
+
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-precise-3.7
+      - ubuntu-toolchain-r-test
+    packages:
+      - clang-3.7
+      - libassimp-dev
+      - libfreetype6-dev
+      - libgl1-mesa-dev
+      - libopenal-dev
+      - libsndfile1-dev
+      - libx11-dev
+      - libxcb-cursor-dev
+      - libxcb-ewmh-dev
+      - libxcb-icccm4-dev
+      - libxcb-keysyms1-dev
+      - libxcb-randr0-dev
+      - mesa-common-dev
+
+sudo:
+  required
+
+notifications:
+  email: true
+
+compiler:
+  - clang
+
+env:
+  - COMPILER=clang++-3.7 CONFIG=debug
+  - COMPILER=clang++-3.7 CONFIG=release
+
+script:
+  - cd build &&
+    ./premake5-linux64 --cc=clang gmake
+  - cd gmake &&
+    make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
+
+after_script:
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+    cd ../../tests &&
+    ./NazaraUnitTestsServer

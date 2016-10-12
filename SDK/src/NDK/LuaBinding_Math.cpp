@@ -14,9 +14,10 @@ namespace Ndk
 	void LuaBinding::BindMath()
 	{
 		/*********************************** Nz::EulerAngles **********************************/
-		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* angles)
+		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* angles, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
+
 			switch (argCount)
 			{
 				case 0:
@@ -154,9 +155,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Rect **********************************/
-		rectClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect)
+		rectClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
+
 			switch (argCount)
 			{
 				case 0:
@@ -309,9 +311,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Quaternion **********************************/
-		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion)
+		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
+
 			switch (argCount)
 			{
 				case 0:
@@ -337,6 +340,9 @@ namespace Ndk
 				case 4:
 					Nz::PlacementNew(quaternion, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3), lua.CheckNumber(4));
 					return true;
+
+				default:
+					break;
 			}
 
 			lua.Error("No matching overload for Quaternion constructor");
@@ -411,9 +417,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector2 **********************************/
-		vector2dClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Vector2d* vector)
+		vector2dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector2d* vector, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+
 			switch (argCount)
 			{
 				case 0:
@@ -533,9 +540,10 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector3 **********************************/
-		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector3d* vector)
+		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector3d* vector, std::size_t argumentCount)
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
+
 			switch (argCount)
 			{
 				case 0:
@@ -546,7 +554,7 @@ namespace Ndk
 				case 1:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.CheckUserdata(1, "Vector2")));
+						Nz::PlacementNew(vector, lua.CheckNumber(1));
 					else if (lua.IsOfType(1, "Vector2"))
 						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Vector3"))
@@ -560,7 +568,7 @@ namespace Ndk
 				case 2:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number))
-						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.CheckUserdata(1, "Vector2")));
+						Nz::PlacementNew(vector, lua.CheckNumber(1), *static_cast<Nz::Vector2d*>(lua.CheckUserdata(2, "Vector2")));
 					else if (lua.IsOfType(1, "Vector2"))
 						Nz::PlacementNew(vector, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)), lua.CheckNumber(2));
 					else
