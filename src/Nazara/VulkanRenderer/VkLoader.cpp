@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VkLoader.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -18,7 +19,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to get instance extension properties count");
+				NazaraError("Failed to get instance extension properties count: " + TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -27,7 +28,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to enumerate instance extension properties");
+				NazaraError("Failed to enumerate instance extension properties: " + TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -43,7 +44,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to get instance layer properties count");
+				NazaraError("Failed to get instance layer properties count: " + TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -52,7 +53,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to enumerate instance layer properties");
+				NazaraError("Failed to enumerate instance layer properties: " + TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 

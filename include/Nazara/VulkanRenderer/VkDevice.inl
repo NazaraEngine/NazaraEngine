@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VkDevice.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VkInstance.hpp>
 #include <Nazara/VulkanRenderer/VkQueue.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -91,7 +92,7 @@ namespace Nz
 			m_lastErrorCode = vkDeviceWaitIdle(m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to wait for device idle");
+				NazaraError("Failed to wait for device idle: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
