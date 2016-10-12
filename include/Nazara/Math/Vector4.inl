@@ -1120,6 +1120,32 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
 
+namespace std
+{
+
+template<class T>
+struct hash<Nz::Vector4<T>>
+{
+    /*!
+    * \brief Specialisation of std to hash
+    * \return Result of the hash
+    *
+    * \param v Vector4 to hash
+    */
+
+    std::size_t operator()(const Nz::Vector4<T>& v) const
+    {
+        std::size_t seed {};
+
+        Nz::HashCombine(seed, v.x);
+        Nz::HashCombine(seed, v.y);
+        Nz::HashCombine(seed, v.z);
+        Nz::HashCombine(seed, v.w);
+
+        return seed;
+    }
+};
+
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
