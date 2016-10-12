@@ -777,15 +777,10 @@ namespace Nz
 			X11::XCBKeySymbolsFree(keysyms);
 		});
 
-		// Stolen from https://github.com/ehntoo/unagi/blob/master/src/key.c
-		// Based on https://cgit.freedesktop.org/xcb/util-keysyms/tree/keysyms/keysyms.c
-		// Mode switch = ctlr ;-) and alt gr = XCB_MOD_MASK_5
-		/* 'col'  (third  parameter)  is  used  to  get  the  proper  KeySym
-		* according  to  modifier (XCB  doesn't  provide  an equivalent  to
-		* XLookupString()).
-		*
-		* If Mode_Switch is ON we look into second group.
-		*/
+		// Based on documentation in https://cgit.freedesktop.org/xcb/util-keysyms/tree/keysyms/keysyms.c
+		// Mode switch = ctlr and alt gr = XCB_MOD_MASK_5
+
+		// The first four elements of the list are split into two groups of KeySyms.
 		if (state & XCB_MOD_MASK_1)
 		{
 			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 2);
@@ -802,44 +797,46 @@ namespace Nz
 			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 1);
 		}
 
-		/* If the second column does not exists use the first one. */
+		// If the second element of the group is NoSymbol, then the group should be treated as if the second element were the same as the first element.
 		if (k1 == XCB_NO_SYMBOL)
 			k1 = k0;
 
-		/* The  numlock modifier is  on and  the second  KeySym is  a keypad
-		* KeySym */
+		/* The numlock modifier is on and the second KeySym is a keypad KeySym
+		The numlock modifier is on and the second KeySym is a keypad KeySym. In
+		this case, if the Shift modifier is on, or if the Lock modifier is on
+		and is interpreted as ShiftLock, then the first KeySym is used,
+		otherwise the second KeySym is used.
+		*/
 		if ((state & XCB_MOD_MASK_2) && xcb_is_keypad_key(k1))
 		{
-			/* The Shift modifier  is on, or if the Lock  modifier is on and
-			* is interpreted as ShiftLock, use the first KeySym */
 			if ((state & XCB_MOD_MASK_SHIFT) ||	(state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 				return k0;
 			else
 				return k1;
 		}
 
-		/* The Shift and Lock modifers are both off, use the first KeySym */
+		/* The Shift and Lock modifiers are both off. In this case, the first
+		KeySym is used.*/
 		else if (!(state & XCB_MOD_MASK_SHIFT) && !(state & XCB_MOD_MASK_LOCK))
 			return k0;
 
-		/* The Shift  modifier is  off and  the Lock modifier  is on  and is
-		* interpreted as CapsLock */
+		/* The Shift modifier is off, and the Lock modifier is on and is
+		interpreted as CapsLock. In this case, the first KeySym is used, but
+		if that KeySym is lowercase alphabetic, then the corresponding
+		uppercase KeySym is used instead. */
 		else if (!(state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
-		/* The  first Keysym  is  used  but if  that  KeySym is  lowercase
-		* alphabetic,  then the  corresponding uppercase  KeySym  is used
-		* instead */
-			return k1;
+			return k0;
 
 		/* The Shift modifier is on, and the Lock modifier is on and is
-		* interpreted as CapsLock */
+		interpreted as CapsLock. In this case, the second KeySym is used, but
+		if that KeySym is lowercase alphabetic, then the corresponding
+		uppercase KeySym is used instead.*/
 		else if ((state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
-		/* The  second Keysym  is used  but  if that  KeySym is  lowercase
-		* alphabetic,  then the  corresponding uppercase  KeySym  is used
-		* instead */
 			return k1;
 
-		/* The  Shift modifer  is on,  or  the Lock  modifier is  on and  is
-		* interpreted as ShiftLock, or both */
+		/* The Shift modifier is on, or the Lock modifier is on and is
+		interpreted as ShiftLock, or both. In this case, the second KeySym is
+		used. */
 		else if ((state & XCB_MOD_MASK_SHIFT) || (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 			return k1;
 
