@@ -768,19 +768,82 @@ namespace Nz
 		if (!keysyms)
 		{
 			NazaraError("Failed to get key symbols");
-			return XCB_NONE;
+			return XCB_NO_SYMBOL;
 		}
 
-		int col = state & XCB_MOD_MASK_SHIFT ? 1 : 0;
-		const int altGrOffset = 4;
-		if (state & XCB_MOD_MASK_5)
-			col += altGrOffset;
-		xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, col);
-		if (keysym == XCB_NO_SYMBOL)
-			keysym = xcb_key_symbols_get_keysym(keysyms, keycode, col ^ 0x1);
-		X11::XCBKeySymbolsFree(keysyms);
+		xcb_keysym_t k0, k1;
 
-		return keysym;
+		CallOnExit onExit([&](){
+			X11::XCBKeySymbolsFree(keysyms);
+		});
+
+		// Stolen from https://github.com/ehntoo/unagi/blob/master/src/key.c
+		// Based on https://cgit.freedesktop.org/xcb/util-keysyms/tree/keysyms/keysyms.c
+		// Mode switch = ctlr ;-) and alt gr = XCB_MOD_MASK_5
+		/* 'col'  (third  parameter)  is  used  to  get  the  proper  KeySym
+		* according  to  modifier (XCB  doesn't  provide  an equivalent  to
+		* XLookupString()).
+		*
+		* If Mode_Switch is ON we look into second group.
+		*/
+		if (state & XCB_MOD_MASK_1)
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 2);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 3);
+		}
+		if (state & XCB_MOD_MASK_5)
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 4);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 5);
+		}
+		else
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 1);
+		}
+
+		/* If the second column does not exists use the first one. */
+		if (k1 == XCB_NO_SYMBOL)
+			k1 = k0;
+
+		/* The  numlock modifier is  on and  the second  KeySym is  a keypad
+		* KeySym */
+		if ((state & XCB_MOD_MASK_2) && xcb_is_keypad_key(k1))
+		{
+			/* The Shift modifier  is on, or if the Lock  modifier is on and
+			* is interpreted as ShiftLock, use the first KeySym */
+			if ((state & XCB_MOD_MASK_SHIFT) ||	(state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+				return k0;
+			else
+				return k1;
+		}
+
+		/* The Shift and Lock modifers are both off, use the first KeySym */
+		else if (!(state & XCB_MOD_MASK_SHIFT) && !(state & XCB_MOD_MASK_LOCK))
+			return k0;
+
+		/* The Shift  modifier is  off and  the Lock modifier  is on  and is
+		* interpreted as CapsLock */
+		else if (!(state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+		/* The  first Keysym  is  used  but if  that  KeySym is  lowercase
+		* alphabetic,  then the  corresponding uppercase  KeySym  is used
+		* instead */
+			return k1;
+
+		/* The Shift modifier is on, and the Lock modifier is on and is
+		* interpreted as CapsLock */
+		else if ((state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+		/* The  second Keysym  is used  but  if that  KeySym is  lowercase
+		* alphabetic,  then the  corresponding uppercase  KeySym  is used
+		* instead */
+			return k1;
+
+		/* The  Shift modifer  is on,  or  the Lock  modifier is  on and  is
+		* interpreted as ShiftLock, or both */
+		else if ((state & XCB_MOD_MASK_SHIFT) || (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+			return k1;
+
+		return XCB_NO_SYMBOL;
 	}
 
 	Keyboard::Key WindowImpl::ConvertVirtualKey(xcb_keysym_t symbol)
@@ -1013,6 +1076,63 @@ namespace Nz
 		xcb_flush(connection);
 	}
 
+	char32_t WindowImpl::GetRepresentation(xcb_keysym_t keysym) const
+	{
+		switch (keysym)
+		{
+			case XK_KP_Space:
+				return ' ';
+			case XK_BackSpace:
+				return '\b';
+			case XK_KP_Tab || XK_Tab:
+				return '\t';
+			case XK_Linefeed:
+				return '\n';
+			case XK_Return:
+				return '\r';
+			// Numpad
+			case XK_KP_Multiply:
+				return '*';
+			case XK_KP_Add:
+				return '+';
+			case XK_KP_Separator:
+				return ','; // In french, it's '.'
+			case XK_KP_Subtract:
+				return '-';
+			case XK_KP_Decimal:
+				return '.'; // In french, it's ','
+			case XK_KP_Divide:
+				return '/';
+			case XK_KP_0:
+				return '0';
+			case XK_KP_1:
+				return '1';
+			case XK_KP_2:
+				return '2';
+			case XK_KP_3:
+				return '3';
+			case XK_KP_4:
+				return '4';
+			case XK_KP_5:
+				return '5';
+			case XK_KP_6:
+				return '6';
+			case XK_KP_7:
+				return '7';
+			case XK_KP_8:
+				return '8';
+			case XK_KP_9:
+				return '9';
+			case XK_KP_Enter:
+				return '\r';
+			default:
+				if (xcb_is_modifier_key(keysym) == true)
+					return '\0';
+				else
+					return keysym;
+		}
+	}
+
 	void WindowImpl::ProcessEvent(xcb_generic_event_t* windowEvent)
 	{
 		if (!m_eventListener)
@@ -1127,7 +1247,7 @@ namespace Nz
 				event.key.system  = keyPressEvent->state & XCB_MOD_MASK_4;
 				m_parent->PushEvent(event);
 
-				char32_t codePoint = static_cast<char32_t>(keysym);
+				char32_t codePoint = GetRepresentation(keysym);
 
 				// WTF if (std::isprint(codePoint, std::locale(""))) + handle combining ?
 				{
