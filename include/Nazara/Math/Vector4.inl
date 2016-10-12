@@ -1107,7 +1107,7 @@ Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
 template<typename T>
 Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 {
-	#if NAZARA_MATH_SAFE
+		#if NAZARA_MATH_SAFE
 	if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
 	{
 		Nz::String error("Division by zero");
@@ -1126,26 +1126,28 @@ namespace std
 template<class T>
 struct hash<Nz::Vector4<T>>
 {
-    /*!
-    * \brief Specialisation of std to hash
-    * \return Result of the hash
-    *
-    * \param v Vector4 to hash
-    */
+	/*!
+	* \brief Specialisation of std to hash
+	* \return Result of the hash
+	*
+	* \param v Vector4 to hash
+	*/
 
-    std::size_t operator()(const Nz::Vector4<T>& v) const
-    {
-        std::size_t seed {};
+	std::size_t operator()(const Nz::Vector4<T>& v) const
+	{
+		std::size_t seed {};
 
-        Nz::HashCombine(seed, v.x);
-        Nz::HashCombine(seed, v.y);
-        Nz::HashCombine(seed, v.z);
-        Nz::HashCombine(seed, v.w);
+		Nz::HashCombine(seed, v.x);
+		Nz::HashCombine(seed, v.y);
+		Nz::HashCombine(seed, v.z);
+		Nz::HashCombine(seed, v.w);
 
-        return seed;
-    }
+		return seed;
+	}
 };
 
+}
+	
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
