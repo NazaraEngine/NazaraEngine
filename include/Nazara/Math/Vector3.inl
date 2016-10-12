@@ -1353,25 +1353,27 @@ namespace std
 template<class T>
 struct hash<Nz::Vector3<T>>
 {
-    /*!
-    * \brief Specialisation of std to hash
-    * \return Result of the hash
-    *
-    * \param v Vector3 to hash
-    */
+	/*!
+	* \brief Specialisation of std to hash
+	* \return Result of the hash
+	*
+	* \param v Vector3 to hash
+	*/
 
-    std::size_t operator()(const Nz::Vector3<T>& v) const
-    {
-        std::size_t seed {};
+	std::size_t operator()(const Nz::Vector3<T>& v) const
+	{
+		std::size_t seed {};
 
-        Nz::HashCombine(seed, v.x);
-        Nz::HashCombine(seed, v.y);
-        Nz::HashCombine(seed, v.z);
+		Nz::HashCombine(seed, v.x);
+		Nz::HashCombine(seed, v.y);
+		Nz::HashCombine(seed, v.z);
 
-        return seed;
-    }
+		return seed;
+	}
 };
 
+}
+	
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
