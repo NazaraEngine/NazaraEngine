@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Physics module
+	Nazara Engine - Physics 3D module
 
 	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 

@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
-#include <Nazara/Physics3D/Physics.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
@@ -68,7 +68,7 @@ namespace Ndk
 
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
-			Nz::Physics::Initialize();
+			Nz::Physics3D::Initialize();
 			Nz::Utility::Initialize();
 
 			#ifndef NDK_SERVER
@@ -161,7 +161,7 @@ namespace Ndk
 		// Shared modules
 		Nz::Lua::Uninitialize();
 		Nz::Noise::Uninitialize();
-		Nz::Physics::Uninitialize();
+		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
 
 		NazaraNotice("Uninitialized: SDK");

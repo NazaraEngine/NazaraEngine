@@ -1,5 +1,5 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -40,7 +40,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API Collider3D : public RefCounted
 	{
 		friend Collider3DLibrary;
-		friend class Physics;
+		friend class Physics3D;
 
 		public:
 			Collider3D() = default;

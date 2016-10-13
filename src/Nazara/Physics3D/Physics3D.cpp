@@ -1,8 +1,8 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics3D/Physics.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -13,12 +13,12 @@
 
 namespace Nz
 {
-	unsigned int Physics::GetMemoryUsed()
+	unsigned int Physics3D::GetMemoryUsed()
 	{
 		return NewtonGetMemoryUsed();
 	}
 
-	bool Physics::Initialize()
+	bool Physics3D::Initialize()
 	{
 		if (s_moduleReferenceCounter > 0)
 		{
@@ -42,16 +42,16 @@ namespace Nz
 			return false;
 		}
 
-		NazaraNotice("Initialized: Physics module");
+		NazaraNotice("Initialized: Physics3D module");
 		return true;
 	}
 
-	bool Physics::IsInitialized()
+	bool Physics3D::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
 	}
 
-	void Physics::Uninitialize()
+	void Physics3D::Uninitialize()
 	{
 		if (s_moduleReferenceCounter != 1)
 		{
@@ -67,11 +67,11 @@ namespace Nz
 
 		s_moduleReferenceCounter = 0;
 
-		NazaraNotice("Uninitialized: Physics module");
+		NazaraNotice("Uninitialized: Physics3D module");
 
 		// Libération des dépendances
 		Core::Uninitialize();
 	}
 
-	unsigned int Physics::s_moduleReferenceCounter = 0;
+	unsigned int Physics3D::s_moduleReferenceCounter = 0;
 }
