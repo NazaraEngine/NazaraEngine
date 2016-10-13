@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class PhysObject;
+	class RigidBody3D;
 }
 
 namespace Ndk
@@ -41,14 +41,14 @@ namespace Ndk
 
 		private:
 			void InitializeStaticBody();
-			Nz::PhysObject* GetStaticBody();
+			Nz::RigidBody3D* GetStaticBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 
-			std::unique_ptr<Nz::PhysObject> m_staticBody;
+			std::unique_ptr<Nz::RigidBody3D> m_staticBody;
 			Nz::Collider3DRef m_geom;
 			bool m_bodyUpdated;
 	};

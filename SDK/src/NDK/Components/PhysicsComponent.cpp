@@ -41,7 +41,7 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::PhysObject(&world, geom, matrix));
+		m_object.reset(new Nz::RigidBody3D(&world, geom, matrix));
 		m_object->SetMass(1.f);
 	}
 

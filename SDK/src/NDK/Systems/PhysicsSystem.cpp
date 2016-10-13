@@ -83,7 +83,7 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			PhysicsComponent& phys = entity->GetComponent<PhysicsComponent>();
 
-			Nz::PhysObject& physObj = phys.GetPhysObject();
+			Nz::RigidBody3D& physObj = phys.GetPhysObject();
 			node.SetRotation(physObj.GetRotation(), Nz::CoordSys_Global);
 			node.SetPosition(physObj.GetPosition(), Nz::CoordSys_Global);
 		}
@@ -94,7 +94,7 @@ namespace Ndk
 			CollisionComponent& collision = entity->GetComponent<CollisionComponent>();
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 
-			Nz::PhysObject* physObj = collision.GetStaticBody();
+			Nz::RigidBody3D* physObj = collision.GetStaticBody();
 
 			Nz::Quaternionf oldRotation = physObj->GetRotation();
 			Nz::Vector3f oldPosition = physObj->GetPosition();
