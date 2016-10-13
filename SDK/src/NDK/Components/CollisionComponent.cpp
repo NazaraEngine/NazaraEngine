@@ -58,7 +58,7 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem>(), "World must have a physics system");
 		Nz::PhysWorld& physWorld = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
 
-		m_staticBody.reset(new Nz::PhysObject(&physWorld, m_geom));
+		m_staticBody.reset(new Nz::RigidBody3D(&physWorld, m_geom));
 		m_staticBody->EnableAutoSleep(false);
 	}
 

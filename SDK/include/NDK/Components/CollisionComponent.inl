@@ -62,7 +62,7 @@ namespace Ndk
 	* \return A pointer to the entity
 	*/
 
-	inline Nz::PhysObject* CollisionComponent::GetStaticBody()
+	inline Nz::RigidBody3D* CollisionComponent::GetStaticBody()
 	{
 		return m_staticBody.get();
 	}

@@ -56,14 +56,14 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
-			Nz::PhysObject& GetPhysObject();
+			Nz::RigidBody3D& GetPhysObject();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 
-			std::unique_ptr<Nz::PhysObject> m_object;
+			std::unique_ptr<Nz::RigidBody3D> m_object;
 	};
 }
 

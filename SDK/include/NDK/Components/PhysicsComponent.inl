@@ -350,7 +350,7 @@ namespace Ndk
 	* \return A reference to the physics object
 	*/
 
-	inline Nz::PhysObject& PhysicsComponent::GetPhysObject()
+	inline Nz::RigidBody3D& PhysicsComponent::GetPhysObject()
 	{
 		return *m_object.get();
 	}
