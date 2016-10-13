@@ -11,6 +11,9 @@ namespace Ndk
 
 	inline Nz::PhysWorld3D& PhysicsSystem3D::GetWorld()
 	{
+		if (!m_world)
+			CreatePhysWorld();
+
 		return *m_world;
 	}
 
@@ -21,6 +24,9 @@ namespace Ndk
 
 	inline const Nz::PhysWorld3D& PhysicsSystem3D::GetWorld() const
 	{
+		if (!m_world)
+			CreatePhysWorld();
+
 		return *m_world;
 	}
 }

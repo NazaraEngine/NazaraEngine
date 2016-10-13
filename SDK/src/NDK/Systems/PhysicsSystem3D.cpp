@@ -41,6 +41,13 @@ namespace Ndk
 	{
 	}
 
+	void PhysicsSystem::CreatePhysWorld() const
+	{
+		NazaraAssert(!m_world, "Physics world should not be created twice");
+
+		m_world = std::make_unique<Nz::PhysWorld>();
+	}
+
 	/*!
 	* \brief Operation to perform when entity is validated for the system
 	*
@@ -62,7 +69,7 @@ namespace Ndk
 		entities.Insert(entity);
 
 		if (!m_world)
-			m_world = std::make_unique<Nz::PhysWorld3D>();
+			CreatePhysWorld();
 	}
 
 	/*!
