@@ -53,7 +53,7 @@ namespace Nz
 		// Si nous n'avons aucune instance, nous en créons une temporaire
 		if (m_handles.empty())
 		{
-			PhysWorld world;
+			PhysWorld3D world;
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
@@ -75,7 +75,7 @@ namespace Nz
 		// Si nous n'avons aucune instance, nous en créons une temporaire
 		if (m_handles.empty())
 		{
-			PhysWorld world;
+			PhysWorld3D world;
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
@@ -100,7 +100,7 @@ namespace Nz
 		// Si nous n'avons aucune instance, nous en créons une temporaire
 		if (m_handles.empty())
 		{
-			PhysWorld world;
+			PhysWorld3D world;
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
@@ -114,7 +114,7 @@ namespace Nz
 		return volume;
 	}
 
-	NewtonCollision* Collider3D::GetHandle(PhysWorld* world) const
+	NewtonCollision* Collider3D::GetHandle(PhysWorld3D* world) const
 	{
 		auto it = m_handles.find(world);
 		if (it == m_handles.end())
@@ -198,7 +198,7 @@ namespace Nz
 		return GeomType_Box;
 	}
 
-	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, m_matrix);
 	}
@@ -232,7 +232,7 @@ namespace Nz
 		return GeomType_Capsule;
 	}
 
-	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
@@ -256,7 +256,7 @@ namespace Nz
 		return GeomType_Compound;
 	}
 
-	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
 
@@ -306,7 +306,7 @@ namespace Nz
 		return GeomType_Cone;
 	}
 
-	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
@@ -340,7 +340,7 @@ namespace Nz
 		return GeomType_Compound;
 	}
 
-	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
 	}
@@ -374,7 +374,7 @@ namespace Nz
 		return GeomType_Cylinder;
 	}
 
-	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
@@ -399,7 +399,7 @@ namespace Nz
 			center->MakeZero();
 	}
 
-	NewtonCollision* NullCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* NullCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateNull(world->GetHandle());
 	}
@@ -441,7 +441,7 @@ namespace Nz
 		return GeomType_Sphere;
 	}
 
-	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld* world) const
+	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
 		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, Matrix4f::Translate(m_position));
 	}

@@ -12,12 +12,12 @@
 
 namespace Nz
 {
-	RigidBody3D::RigidBody3D(PhysWorld* world, const Matrix4f& mat) :
+	RigidBody3D::RigidBody3D(PhysWorld3D* world, const Matrix4f& mat) :
 	RigidBody3D(world, NullCollider3D::New(), mat)
 	{
 	}
 
-	RigidBody3D::RigidBody3D(PhysWorld* world, Collider3DRef geom, const Matrix4f& mat) :
+	RigidBody3D::RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat) :
 	m_geom(std::move(geom)),
 	m_matrix(mat),
 	m_forceAccumulator(Vector3f::Zero()),

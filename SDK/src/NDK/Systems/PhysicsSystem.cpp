@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Systems/PhysicsSystem.hpp>
-#include <Nazara/Physics3D/PhysObject.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent.hpp>
@@ -62,7 +62,7 @@ namespace Ndk
 		entities.Insert(entity);
 
 		if (!m_world)
-			m_world = std::make_unique<Nz::PhysWorld>();
+			m_world = std::make_unique<Nz::PhysWorld3D>();
 	}
 
 	/*!

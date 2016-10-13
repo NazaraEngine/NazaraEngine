@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Components/PhysicsComponent.hpp>
-#include <Nazara/Physics3D/PhysObject.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/CollisionComponent.hpp>
@@ -29,7 +29,7 @@ namespace Ndk
 		World* entityWorld = m_entity->GetWorld();
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem>(), "World must have a physics system");
 
-		Nz::PhysWorld& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
+		Nz::PhysWorld3D& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
 
 		Nz::Collider3DRef geom;
 		if (m_entity->HasComponent<CollisionComponent>())

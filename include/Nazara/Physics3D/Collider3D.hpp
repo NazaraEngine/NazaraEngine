@@ -31,7 +31,7 @@ namespace Nz
 	///TODO: TreeGeom
 
 	class Collider3D;
-	class PhysWorld;
+	class PhysWorld3D;
 
 	using Collider3DConstRef = ObjectRef<const Collider3D>;
 	using Collider3DLibrary = ObjectLibrary<Collider3D>;
@@ -53,7 +53,7 @@ namespace Nz
 			virtual void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const;
 			virtual float ComputeVolume() const;
 
-			NewtonCollision* GetHandle(PhysWorld* world) const;
+			NewtonCollision* GetHandle(PhysWorld3D* world) const;
 			virtual GeomType GetType() const = 0;
 
 			Collider3D& operator=(const Collider3D&) = delete;
@@ -65,12 +65,12 @@ namespace Nz
 			NazaraSignal(OnColliderRelease, const Collider3D* /*collider*/);
 
 		protected:
-			virtual NewtonCollision* CreateHandle(PhysWorld* world) const = 0;
+			virtual NewtonCollision* CreateHandle(PhysWorld3D* world) const = 0;
 
 			static bool Initialize();
 			static void Uninitialize();
 
-			mutable std::unordered_map<PhysWorld*, NewtonCollision*> m_handles;
+			mutable std::unordered_map<PhysWorld3D*, NewtonCollision*> m_handles;
 
 			static Collider3DLibrary::LibraryMap s_library;
 	};
@@ -95,7 +95,7 @@ namespace Nz
 			template<typename... Args> static BoxCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Matrix4f m_matrix;
 			Vector3f m_lengths;
@@ -119,7 +119,7 @@ namespace Nz
 			template<typename... Args> static CapsuleCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Matrix4f m_matrix;
 			float m_length;
@@ -142,7 +142,7 @@ namespace Nz
 			template<typename... Args> static CompoundCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			std::vector<Collider3DRef> m_geoms;
 	};
@@ -165,7 +165,7 @@ namespace Nz
 			template<typename... Args> static ConeCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Matrix4f m_matrix;
 			float m_length;
@@ -188,7 +188,7 @@ namespace Nz
 			template<typename... Args> static ConvexCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			std::vector<Vector3f> m_vertices;
 			Matrix4f m_matrix;
@@ -214,7 +214,7 @@ namespace Nz
 			template<typename... Args> static CylinderCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Matrix4f m_matrix;
 			float m_length;
@@ -238,7 +238,7 @@ namespace Nz
 			template<typename... Args> static NullCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 	};
 
 	class SphereCollider3D;
@@ -261,7 +261,7 @@ namespace Nz
 			template<typename... Args> static SphereCollider3DRef New(Args&&... args);
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld* world) const override;
+			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Vector3f m_position;
 			float m_radius;
