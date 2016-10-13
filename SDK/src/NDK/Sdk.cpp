@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
-#include <Nazara/Physics/Physics.hpp>
+#include <Nazara/Physics3D/Physics.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>

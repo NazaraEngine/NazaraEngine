@@ -24,28 +24,28 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_PHYSICS_HPP
-#define NAZARA_CONFIG_PHYSICS_HPP
+#ifndef NAZARA_CONFIG_PHYSICS3D_HPP
+#define NAZARA_CONFIG_PHYSICS3D_HPP
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
 // Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
-#define NAZARA_PHYSICS_MANAGE_MEMORY 0
+#define NAZARA_PHYSICS3D_MANAGE_MEMORY 0
 
 // Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_PHYSICS_SAFE 1
+#define NAZARA_PHYSICS3D_SAFE 1
 
 /// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Physics/ConfigCheck.hpp>
+#include <Nazara/Physics3D/ConfigCheck.hpp>
 
 #if defined(NAZARA_STATIC)
-	#define NAZARA_PHYSICS_API
+	#define NAZARA_PHYSICS3D_API
 #else
 	#ifdef NAZARA_PHYSICS_BUILD
-		#define NAZARA_PHYSICS_API NAZARA_EXPORT
+		#define NAZARA_PHYSICS3D_API NAZARA_EXPORT
 	#else
-		#define NAZARA_PHYSICS_API NAZARA_IMPORT
+		#define NAZARA_PHYSICS3D_API NAZARA_IMPORT
 	#endif
 #endif
 
-#endif // NAZARA_CONFIG_PHYSICS_HPP
+#endif // NAZARA_CONFIG_PHYSICS3D_HPP

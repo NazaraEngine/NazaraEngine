@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Components/CollisionComponent.hpp>
-#include <Nazara/Physics/PhysObject.hpp>
+#include <Nazara/Physics3D/PhysObject.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/PhysicsComponent.hpp>

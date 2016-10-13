@@ -12,8 +12,8 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics/Config.hpp>
-#include <Nazara/Physics/Geom.hpp>
+#include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/Geom.hpp>
 
 class NewtonBody;
 
@@ -21,7 +21,7 @@ namespace Nz
 {
 	class PhysWorld;
 
-	class NAZARA_PHYSICS_API PhysObject
+	class NAZARA_PHYSICS3D_API PhysObject
 	{
 		public:
 			PhysObject(PhysWorld* world, const Matrix4f& mat = Matrix4f::Identity());

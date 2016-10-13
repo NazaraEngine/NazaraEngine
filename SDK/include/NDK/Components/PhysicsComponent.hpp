@@ -7,7 +7,7 @@
 #ifndef NDK_COMPONENTS_PHYSICSCOMPONENT_HPP
 #define NDK_COMPONENTS_PHYSICSCOMPONENT_HPP
 
-#include <Nazara/Physics/PhysObject.hpp>
+#include <Nazara/Physics3D/PhysObject.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 

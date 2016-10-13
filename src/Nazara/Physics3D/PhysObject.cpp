@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics/PhysObject.hpp>
+#include <Nazara/Physics3D/PhysObject.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include <Nazara/Physics/Config.hpp>
-#include <Nazara/Physics/PhysWorld.hpp>
+#include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/PhysWorld.hpp>
 #include <Newton/Newton.h>
 #include <algorithm>
-#include <Nazara/Physics/Debug.hpp>
+#include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {

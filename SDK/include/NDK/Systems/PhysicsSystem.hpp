@@ -7,7 +7,7 @@
 #ifndef NDK_SYSTEMS_PHYSICSSYSTEM_HPP
 #define NDK_SYSTEMS_PHYSICSSYSTEM_HPP
 
-#include <Nazara/Physics/PhysWorld.hpp>
+#include <Nazara/Physics3D/PhysWorld.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <memory>

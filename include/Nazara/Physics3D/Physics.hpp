@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
-#include <Nazara/Physics/Config.hpp>
+#include <Nazara/Physics3D/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS_API Physics
+	class NAZARA_PHYSICS3D_API Physics
 	{
 		public:
 			Physics() = delete;
