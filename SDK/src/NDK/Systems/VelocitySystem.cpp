@@ -4,7 +4,7 @@
 
 #include <NDK/Systems/VelocitySystem.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 
 namespace Ndk
@@ -15,7 +15,7 @@ namespace Ndk
 	* \brief NDK class that represents the velocity system
 	*
 	* \remark This system is enabled if the entity owns the trait: NodeComponent and VelocityComponent
-	* but it's disabled with the trait: PhysicsComponent
+	* but it's disabled with the trait: PhysicsComponent3D
 	*/
 
 	/*!
@@ -25,7 +25,7 @@ namespace Ndk
 	VelocitySystem::VelocitySystem()
 	{
 		Requires<NodeComponent, VelocityComponent>();
-		Excludes<PhysicsComponent>();
+		Excludes<PhysicsComponent3D>();
 	}
 
 	/*!

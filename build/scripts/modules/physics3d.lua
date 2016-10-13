@@ -1,4 +1,4 @@
-MODULE.Name = "Physics"
+MODULE.Name = "Physics3D"
 
 MODULE.Libraries = {
 	"NazaraCore",
