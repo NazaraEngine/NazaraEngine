@@ -120,10 +120,7 @@ template<typename T> Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec
 
 namespace std
 {
-
-template<class T>
-struct hash<Nz::Vector4<T>>;
-
+	template<class T> struct hash<Nz::Vector4<T>>;
 }
 
 #include <Nazara/Math/Vector4.inl>

@@ -144,10 +144,7 @@ template<typename T> Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec
 
 namespace std
 {
-
-template<class T>
-struct hash<Nz::Vector3<T>>;
-
+	template<class T> struct hash<Nz::Vector3<T>>;
 }
 
 #include <Nazara/Math/Vector3.inl>

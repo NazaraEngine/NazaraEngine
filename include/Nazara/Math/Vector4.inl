@@ -1122,30 +1122,27 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 
 namespace std
 {
-
-template<class T>
-struct hash<Nz::Vector4<T>>
-{
-	/*!
-	* \brief Specialisation of std to hash
-	* \return Result of the hash
-	*
-	* \param v Vector4 to hash
-	*/
-
-	std::size_t operator()(const Nz::Vector4<T>& v) const
+	template<class T>
+	struct hash<Nz::Vector4<T>>
 	{
-		std::size_t seed {};
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param v Vector4 to hash
+		*/
+		std::size_t operator()(const Nz::Vector4<T>& v) const
+		{
+			std::size_t seed {};
 
-		Nz::HashCombine(seed, v.x);
-		Nz::HashCombine(seed, v.y);
-		Nz::HashCombine(seed, v.z);
-		Nz::HashCombine(seed, v.w);
+			Nz::HashCombine(seed, v.x);
+			Nz::HashCombine(seed, v.y);
+			Nz::HashCombine(seed, v.z);
+			Nz::HashCombine(seed, v.w);
 
-		return seed;
-	}
-};
-
+			return seed;
+		}
+	};
 }
 	
 #undef F
