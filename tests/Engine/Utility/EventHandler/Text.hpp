@@ -11,7 +11,7 @@ class Text
 		Text(StateContext& context);
 		~Text();
 
-		void SetContent(const Nz::String& string, unsigned int size = 72);
+		void SetContent(const Nz::String& string, unsigned int size = 36);
 		void SetVisible(bool shouldBeVisible = true);
 
 	private:
