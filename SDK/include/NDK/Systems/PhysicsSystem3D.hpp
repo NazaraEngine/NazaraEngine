@@ -27,6 +27,7 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
+			void CreatePhysWorld() const;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
