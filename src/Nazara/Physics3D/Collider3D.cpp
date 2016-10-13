@@ -35,18 +35,18 @@ namespace Nz
 		}
 	}
 
-	PhysGeom::~PhysGeom()
+	Collider3D::~Collider3D()
 	{
 		for (auto& pair : m_handles)
 			NewtonDestroyCollision(pair.second);
 	}
 
-	Boxf PhysGeom::ComputeAABB(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) const
+	Boxf Collider3D::ComputeAABB(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) const
 	{
 		return ComputeAABB(Matrix4f::Transform(translation, rotation), scale);
 	}
 
-	Boxf PhysGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	Boxf Collider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
 	{
 		Vector3f min, max;
 
@@ -67,7 +67,7 @@ namespace Nz
 		return Boxf(scale * min, scale * max);
 	}
 
-	void PhysGeom::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
+	void Collider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
 	{
 		float inertiaMatrix[3];
 		float origin[3];
@@ -93,7 +93,7 @@ namespace Nz
 			center->Set(origin);
 	}
 
-	float PhysGeom::ComputeVolume() const
+	float Collider3D::ComputeVolume() const
 	{
 		float volume;
 
@@ -114,7 +114,7 @@ namespace Nz
 		return volume;
 	}
 
-	NewtonCollision* PhysGeom::GetHandle(PhysWorld* world) const
+	NewtonCollision* Collider3D::GetHandle(PhysWorld* world) const
 	{
 		auto it = m_handles.find(world);
 		if (it == m_handles.end())
@@ -123,12 +123,12 @@ namespace Nz
 		return it->second;
 	}
 
-	PhysGeomRef PhysGeom::Build(const PrimitiveList& list)
+	PhysGeomRef Collider3D::Build(const PrimitiveList& list)
 	{
 		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
 		{
-			std::vector<PhysGeom*> geoms(primitiveCount);
+			std::vector<Collider3D*> geoms(primitiveCount);
 
 			for (unsigned int i = 0; i < primitiveCount; ++i)
 				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
@@ -141,7 +141,7 @@ namespace Nz
 			return NullGeom::New();
 	}
 
-	bool PhysGeom::Initialize()
+	bool Collider3D::Initialize()
 	{
 		if (!PhysGeomLibrary::Initialize())
 		{
@@ -152,12 +152,12 @@ namespace Nz
 		return true;
 	}
 
-	void PhysGeom::Uninitialize()
+	void Collider3D::Uninitialize()
 	{
 		PhysGeomLibrary::Uninitialize();
 	}
 
-	PhysGeomLibrary::LibraryMap PhysGeom::s_library;
+	PhysGeomLibrary::LibraryMap Collider3D::s_library;
 
 	/********************************** BoxGeom **********************************/
 
@@ -239,7 +239,7 @@ namespace Nz
 
 	/******************************* CompoundGeom ********************************/
 
-	CompoundGeom::CompoundGeom(PhysGeom** geoms, std::size_t geomCount)
+	CompoundGeom::CompoundGeom(Collider3D** geoms, std::size_t geomCount)
 	{
 		m_geoms.reserve(geomCount);
 		for (std::size_t i = 0; i < geomCount; ++i)
