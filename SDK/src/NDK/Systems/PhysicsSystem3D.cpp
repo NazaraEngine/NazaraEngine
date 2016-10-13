@@ -41,11 +41,11 @@ namespace Ndk
 	{
 	}
 
-	void PhysicsSystem::CreatePhysWorld() const
+	void PhysicsSystem3D::CreatePhysWorld() const
 	{
 		NazaraAssert(!m_world, "Physics world should not be created twice");
 
-		m_world = std::make_unique<Nz::PhysWorld>();
+		m_world = std::make_unique<Nz::PhysWorld3D>();
 	}
 
 	/*!
