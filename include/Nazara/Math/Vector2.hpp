@@ -122,10 +122,7 @@ template<typename T> Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec
 
 namespace std
 {
-
-template<class T>
-struct hash<Nz::Vector2<T>>;
-
+	template<class T> struct hash<Nz::Vector2<T>>;
 }
 
 #include <Nazara/Math/Vector2.inl>
