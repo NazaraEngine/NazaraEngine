@@ -1,11 +1,11 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS_HPP
-#define NAZARA_PHYSICS_HPP
+#ifndef NAZARA_PHYSICS3D_HPP
+#define NAZARA_PHYSICS3D_HPP
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Initializer.hpp>
@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_PHYSICS3D_API Physics
+	class NAZARA_PHYSICS3D_API Physics3D
 	{
 		public:
-			Physics() = delete;
-			~Physics() = delete;
+			Physics3D() = delete;
+			~Physics3D() = delete;
 
 			static unsigned int GetMemoryUsed();
 
@@ -32,4 +32,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PHYSICS_HPP
+#endif // NAZARA_PHYSICS3D_HPP
