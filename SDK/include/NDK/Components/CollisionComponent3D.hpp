@@ -20,22 +20,22 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CollisionComponent : public Component<CollisionComponent>
+	class NDK_API CollisionComponent3D : public Component<CollisionComponent3D>
 	{
-		friend class PhysicsSystem;
+		friend class PhysicsSystem3D;
 		friend class StaticCollisionSystem;
 
 		public:
-			CollisionComponent(Nz::Collider3DRef geom = Nz::Collider3DRef());
-			CollisionComponent(const CollisionComponent& collision);
-			~CollisionComponent() = default;
+			CollisionComponent3D(Nz::Collider3DRef geom = Nz::Collider3DRef());
+			CollisionComponent3D(const CollisionComponent3D& collision);
+			~CollisionComponent3D() = default;
 
 			const Nz::Collider3DRef& GetGeom() const;
 
 			void SetGeom(Nz::Collider3DRef geom);
 
-			CollisionComponent& operator=(Nz::Collider3DRef geom);
-			CollisionComponent& operator=(CollisionComponent&& collision) = default;
+			CollisionComponent3D& operator=(Nz::Collider3DRef geom);
+			CollisionComponent3D& operator=(CollisionComponent3D&& collision) = default;
 
 			static ComponentIndex componentIndex;
 
@@ -54,6 +54,6 @@ namespace Ndk
 	};
 }
 
-#include <NDK/Components/CollisionComponent.inl>
+#include <NDK/Components/CollisionComponent3D.inl>
 
 #endif // NDK_COMPONENTS_COLLISIONCOMPONENT_HPP

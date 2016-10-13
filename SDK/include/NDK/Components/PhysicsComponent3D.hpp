@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NDK_COMPONENTS_PHYSICSCOMPONENT_HPP
-#define NDK_COMPONENTS_PHYSICSCOMPONENT_HPP
+#ifndef NDK_COMPONENTS_PHYSICSCOMPONENT3D_HPP
+#define NDK_COMPONENTS_PHYSICSCOMPONENT3D_HPP
 
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Component.hpp>
@@ -15,15 +15,15 @@ namespace Ndk
 {
 	class Entity;
 
-	class NDK_API PhysicsComponent : public Component<PhysicsComponent>
+	class NDK_API PhysicsComponent3D : public Component<PhysicsComponent3D>
 	{
-		friend class CollisionComponent;
-		friend class PhysicsSystem;
+		friend class CollisionComponent3D;
+		friend class PhysicsSystem3D;
 
 		public:
-			PhysicsComponent() = default;
-			PhysicsComponent(const PhysicsComponent& physics);
-			~PhysicsComponent() = default;
+			PhysicsComponent3D() = default;
+			PhysicsComponent3D(const PhysicsComponent3D& physics);
+			~PhysicsComponent3D() = default;
 
 			void AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
@@ -67,6 +67,6 @@ namespace Ndk
 	};
 }
 
-#include <NDK/Components/PhysicsComponent.inl>
+#include <NDK/Components/PhysicsComponent3D.inl>
 
-#endif // NDK_COMPONENTS_PHYSICSCOMPONENT_HPP
+#endif // NDK_COMPONENTS_PHYSICSCOMPONENT3D_HPP

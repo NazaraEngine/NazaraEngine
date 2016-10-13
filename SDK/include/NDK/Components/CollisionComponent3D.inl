@@ -4,30 +4,30 @@
 
 #include <NDK/Entity.hpp>
 #include <NDK/World.hpp>
-#include <NDK/Components/PhysicsComponent.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 
 namespace Ndk
 {
 	/*!
-	* \brief Constructs a CollisionComponent object with a geometry
+	* \brief Constructs a CollisionComponent3D object with a geometry
 	*
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent::CollisionComponent(Nz::Collider3DRef geom) :
+	inline CollisionComponent3D::CollisionComponent3D(Nz::Collider3DRef geom) :
 	m_geom(std::move(geom)),
 	m_bodyUpdated(false)
 	{
 	}
 
 	/*!
-	* \brief Constructs a CollisionComponent object by copy semantic
+	* \brief Constructs a CollisionComponent3D object by copy semantic
 	*
-	* \param collision CollisionComponent to copy
+	* \param collision CollisionComponent3D to copy
 	*/
 
-	inline CollisionComponent::CollisionComponent(const CollisionComponent& collision) :
+	inline CollisionComponent3D::CollisionComponent3D(const CollisionComponent3D& collision) :
 	m_geom(collision.m_geom),
 	m_bodyUpdated(false)
 	{
@@ -38,7 +38,7 @@ namespace Ndk
 	* \return A constant reference to the physics geometry
 	*/
 
-	inline const Nz::Collider3DRef& CollisionComponent::GetGeom() const
+	inline const Nz::Collider3DRef& CollisionComponent3D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -50,7 +50,7 @@ namespace Ndk
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent& CollisionComponent::operator=(Nz::Collider3DRef geom)
+	inline CollisionComponent3D& CollisionComponent3D::operator=(Nz::Collider3DRef geom)
 	{
 		SetGeom(geom);
 
@@ -62,7 +62,7 @@ namespace Ndk
 	* \return A pointer to the entity
 	*/
 
-	inline Nz::RigidBody3D* CollisionComponent::GetStaticBody()
+	inline Nz::RigidBody3D* CollisionComponent3D::GetStaticBody()
 	{
 		return m_staticBody.get();
 	}

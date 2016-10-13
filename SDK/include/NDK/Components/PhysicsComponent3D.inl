@@ -7,12 +7,12 @@
 namespace Ndk
 {
 	/*!
-	* \brief Constructs a PhysicsComponent object by copy semantic
+	* \brief Constructs a PhysicsComponent3D object by copy semantic
 	*
-	* \param physics PhysicsComponent to copy
+	* \param physics PhysicsComponent3D to copy
 	*/
 
-	inline PhysicsComponent::PhysicsComponent(const PhysicsComponent& physics)
+	inline PhysicsComponent3D::PhysicsComponent3D(const PhysicsComponent3D& physics)
 	{
 		// No copy of physical object (because we only create it when attached to an entity)
 		NazaraUnused(physics);
@@ -27,7 +27,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys)
+	inline void PhysicsComponent3D::AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -44,7 +44,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys)
+	inline void PhysicsComponent3D::AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -60,7 +60,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys)
+	inline void PhysicsComponent3D::AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -75,7 +75,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::EnableAutoSleep(bool autoSleep)
+	inline void PhysicsComponent3D::EnableAutoSleep(bool autoSleep)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -89,7 +89,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Boxf PhysicsComponent::GetAABB() const
+	inline Nz::Boxf PhysicsComponent3D::GetAABB() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -103,7 +103,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Vector3f PhysicsComponent::GetAngularVelocity() const
+	inline Nz::Vector3f PhysicsComponent3D::GetAngularVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -117,7 +117,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline float PhysicsComponent::GetGravityFactor() const
+	inline float PhysicsComponent3D::GetGravityFactor() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -131,7 +131,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline float PhysicsComponent::GetMass() const
+	inline float PhysicsComponent3D::GetMass() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -147,7 +147,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Vector3f PhysicsComponent::GetMassCenter(Nz::CoordSys coordSys) const
+	inline Nz::Vector3f PhysicsComponent3D::GetMassCenter(Nz::CoordSys coordSys) const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -161,7 +161,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline const Nz::Matrix4f& PhysicsComponent::GetMatrix() const
+	inline const Nz::Matrix4f& PhysicsComponent3D::GetMatrix() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -175,7 +175,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Vector3f PhysicsComponent::GetPosition() const
+	inline Nz::Vector3f PhysicsComponent3D::GetPosition() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -189,7 +189,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Quaternionf PhysicsComponent::GetRotation() const
+	inline Nz::Quaternionf PhysicsComponent3D::GetRotation() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -203,7 +203,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline Nz::Vector3f PhysicsComponent::GetVelocity() const
+	inline Nz::Vector3f PhysicsComponent3D::GetVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -217,7 +217,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline bool PhysicsComponent::IsAutoSleepEnabled() const
+	inline bool PhysicsComponent3D::IsAutoSleepEnabled() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -231,7 +231,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline bool PhysicsComponent::IsSleeping() const
+	inline bool PhysicsComponent3D::IsSleeping() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -246,7 +246,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetAngularVelocity(const Nz::Vector3f& angularVelocity)
+	inline void PhysicsComponent3D::SetAngularVelocity(const Nz::Vector3f& angularVelocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -261,7 +261,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetGravityFactor(float gravityFactor)
+	inline void PhysicsComponent3D::SetGravityFactor(float gravityFactor)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -277,7 +277,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the mass is negative
 	*/
 
-	inline void PhysicsComponent::SetMass(float mass)
+	inline void PhysicsComponent3D::SetMass(float mass)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 		NazaraAssert(mass > 0.f, "Mass should be positive");
@@ -293,7 +293,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetMassCenter(const Nz::Vector3f& center)
+	inline void PhysicsComponent3D::SetMassCenter(const Nz::Vector3f& center)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -308,7 +308,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetPosition(const Nz::Vector3f& position)
+	inline void PhysicsComponent3D::SetPosition(const Nz::Vector3f& position)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -323,7 +323,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetRotation(const Nz::Quaternionf& rotation)
+	inline void PhysicsComponent3D::SetRotation(const Nz::Quaternionf& rotation)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -338,7 +338,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent::SetVelocity(const Nz::Vector3f& velocity)
+	inline void PhysicsComponent3D::SetVelocity(const Nz::Vector3f& velocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -350,7 +350,7 @@ namespace Ndk
 	* \return A reference to the physics object
 	*/
 
-	inline Nz::RigidBody3D& PhysicsComponent::GetPhysObject()
+	inline Nz::RigidBody3D& PhysicsComponent3D::GetPhysObject()
 	{
 		return *m_object.get();
 	}

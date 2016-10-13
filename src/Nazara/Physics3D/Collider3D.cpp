@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/Collider3D.hpp>
-#include <Nazara/Physics3D/PhysWorld.hpp>
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
 #include <memory>
 #include <Nazara/Physics3D/Debug.hpp>
