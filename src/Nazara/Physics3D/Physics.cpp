@@ -7,7 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <Nazara/Physics3D/Geom.hpp>
+#include <Nazara/Physics3D/Collider3D.hpp>
 #include <Newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 

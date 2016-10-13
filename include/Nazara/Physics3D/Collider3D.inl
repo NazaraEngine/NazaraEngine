@@ -8,72 +8,72 @@
 namespace Nz
 {
 	template<typename... Args>
-	BoxGeomRef BoxGeom::New(Args&&... args)
+	BoxCollider3DRef BoxCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<BoxGeom> object(new BoxGeom(std::forward<Args>(args)...));
+		std::unique_ptr<BoxCollider3D> object(new BoxCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	CapsuleGeomRef CapsuleGeom::New(Args&&... args)
+	CapsuleCollider3DRef CapsuleCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<CapsuleGeom> object(new CapsuleGeom(std::forward<Args>(args)...));
+		std::unique_ptr<CapsuleCollider3D> object(new CapsuleCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	CompoundGeomRef CompoundGeom::New(Args&&... args)
+	CompoundCollider3DRef CompoundCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<CompoundGeom> object(new CompoundGeom(std::forward<Args>(args)...));
+		std::unique_ptr<CompoundCollider3D> object(new CompoundCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	ConeGeomRef ConeGeom::New(Args&&... args)
+	ConeCollider3DRef ConeCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<ConeGeom> object(new ConeGeom(std::forward<Args>(args)...));
+		std::unique_ptr<ConeCollider3D> object(new ConeCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	ConvexHullGeomRef ConvexHullGeom::New(Args&&... args)
+	ConvexCollider3DRef ConvexCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<ConvexHullGeom> object(new ConvexHullGeom(std::forward<Args>(args)...));
+		std::unique_ptr<ConvexCollider3D> object(new ConvexCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	CylinderGeomRef CylinderGeom::New(Args&&... args)
+	CylinderCollider3DRef CylinderCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<CylinderGeom> object(new CylinderGeom(std::forward<Args>(args)...));
+		std::unique_ptr<CylinderCollider3D> object(new CylinderCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	NullGeomRef NullGeom::New(Args&&... args)
+	NullCollider3DRef NullCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<NullGeom> object(new NullGeom(std::forward<Args>(args)...));
+		std::unique_ptr<NullCollider3D> object(new NullCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();
 	}
 
 	template<typename... Args>
-	SphereGeomRef SphereGeom::New(Args&&... args)
+	SphereCollider3DRef SphereCollider3D::New(Args&&... args)
 	{
-		std::unique_ptr<SphereGeom> object(new SphereGeom(std::forward<Args>(args)...));
+		std::unique_ptr<SphereCollider3D> object(new SphereCollider3D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();

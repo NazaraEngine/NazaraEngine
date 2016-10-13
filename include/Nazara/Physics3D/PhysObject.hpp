@@ -13,7 +13,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <Nazara/Physics3D/Geom.hpp>
+#include <Nazara/Physics3D/Collider3D.hpp>
 
 class NewtonBody;
 
@@ -25,7 +25,7 @@ namespace Nz
 	{
 		public:
 			PhysObject(PhysWorld* world, const Matrix4f& mat = Matrix4f::Identity());
-			PhysObject(PhysWorld* world, PhysGeomRef geom, const Matrix4f& mat = Matrix4f::Identity());
+			PhysObject(PhysWorld* world, Collider3DRef geom, const Matrix4f& mat = Matrix4f::Identity());
 			PhysObject(const PhysObject& object);
 			PhysObject(PhysObject&& object);
 			~PhysObject();
@@ -38,7 +38,7 @@ namespace Nz
 
 			Boxf GetAABB() const;
 			Vector3f GetAngularVelocity() const;
-			const PhysGeomRef& GetGeom() const;
+			const Collider3DRef& GetGeom() const;
 			float GetGravityFactor() const;
 			NewtonBody* GetHandle() const;
 			float GetMass() const;
@@ -53,7 +53,7 @@ namespace Nz
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(const Vector3f& angularVelocity);
-			void SetGeom(PhysGeomRef geom);
+			void SetGeom(Collider3DRef geom);
 			void SetGravityFactor(float gravityFactor);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
@@ -70,7 +70,7 @@ namespace Nz
 			static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
 			Matrix4f m_matrix;
-			PhysGeomRef m_geom;
+			Collider3DRef m_geom;
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;
 			NewtonBody* m_body;

@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Physics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics3D/Geom.hpp>
+#include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/PhysWorld.hpp>
 #include <Newton/Newton.h>
 #include <memory>
@@ -12,26 +12,26 @@ namespace Nz
 {
 	namespace
 	{
-		PhysGeomRef CreateGeomFromPrimitive(const Primitive& primitive)
+		Collider3DRef CreateGeomFromPrimitive(const Primitive& primitive)
 		{
 			switch (primitive.type)
 			{
 				case PrimitiveType_Box:
-					return BoxGeom::New(primitive.box.lengths, primitive.matrix);
+					return BoxCollider3D::New(primitive.box.lengths, primitive.matrix);
 
 				case PrimitiveType_Cone:
-					return ConeGeom::New(primitive.cone.length, primitive.cone.radius, primitive.matrix);
+					return ConeCollider3D::New(primitive.cone.length, primitive.cone.radius, primitive.matrix);
 
 				case PrimitiveType_Plane:
-					return BoxGeom::New(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
+					return BoxCollider3D::New(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
 					///TODO: PlaneGeom?
 
 				case PrimitiveType_Sphere:
-					return SphereGeom::New(primitive.sphere.size, primitive.matrix.GetTranslation());
+					return SphereCollider3D::New(primitive.sphere.size, primitive.matrix.GetTranslation());
 			}
 
 			NazaraError("Primitive type not handled (0x" + String::Number(primitive.type, 16) + ')');
-			return PhysGeomRef();
+			return Collider3DRef();
 		}
 	}
 
@@ -123,7 +123,7 @@ namespace Nz
 		return it->second;
 	}
 
-	PhysGeomRef Collider3D::Build(const PrimitiveList& list)
+	Collider3DRef Collider3D::Build(const PrimitiveList& list)
 	{
 		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
@@ -133,17 +133,17 @@ namespace Nz
 			for (unsigned int i = 0; i < primitiveCount; ++i)
 				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
 
-			return CompoundGeom::New(&geoms[0], primitiveCount);
+			return CompoundCollider3D::New(&geoms[0], primitiveCount);
 		}
 		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
-			return NullGeom::New();
+			return NullCollider3D::New();
 	}
 
 	bool Collider3D::Initialize()
 	{
-		if (!PhysGeomLibrary::Initialize())
+		if (!Collider3DLibrary::Initialize())
 		{
 			NazaraError("Failed to initialise library");
 			return false;
@@ -154,25 +154,25 @@ namespace Nz
 
 	void Collider3D::Uninitialize()
 	{
-		PhysGeomLibrary::Uninitialize();
+		Collider3DLibrary::Uninitialize();
 	}
 
-	PhysGeomLibrary::LibraryMap Collider3D::s_library;
+	Collider3DLibrary::LibraryMap Collider3D::s_library;
 
-	/********************************** BoxGeom **********************************/
+	/********************************** BoxCollider3D **********************************/
 
-	BoxGeom::BoxGeom(const Vector3f& lengths, const Matrix4f& transformMatrix) :
+	BoxCollider3D::BoxCollider3D(const Vector3f& lengths, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
 	m_lengths(lengths)
 	{
 	}
 
-	BoxGeom::BoxGeom(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation) :
-	BoxGeom(lengths, Matrix4f::Transform(translation, rotation))
+	BoxCollider3D::BoxCollider3D(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation) :
+	BoxCollider3D(lengths, Matrix4f::Transform(translation, rotation))
 	{
 	}
 
-	Boxf BoxGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	Boxf BoxCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
 	{
 		Vector3f halfLengths(m_lengths * 0.5f);
 
@@ -183,90 +183,90 @@ namespace Nz
 		return aabb;
 	}
 
-	float BoxGeom::ComputeVolume() const
+	float BoxCollider3D::ComputeVolume() const
 	{
 		return m_lengths.x * m_lengths.y * m_lengths.z;
 	}
 
-	Vector3f BoxGeom::GetLengths() const
+	Vector3f BoxCollider3D::GetLengths() const
 	{
 		return m_lengths;
 	}
 
-	GeomType BoxGeom::GetType() const
+	GeomType BoxCollider3D::GetType() const
 	{
 		return GeomType_Box;
 	}
 
-	NewtonCollision* BoxGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, m_matrix);
 	}
 
-	/******************************** CapsuleGeom ********************************/
+	/******************************** CapsuleCollider3D ********************************/
 
-	CapsuleGeom::CapsuleGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	CapsuleCollider3D::CapsuleCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
 	m_length(length),
 	m_radius(radius)
 	{
 	}
 
-	CapsuleGeom::CapsuleGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	CapsuleGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	CapsuleCollider3D::CapsuleCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	CapsuleCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
 	{
 	}
 
-	float CapsuleGeom::GetLength() const
+	float CapsuleCollider3D::GetLength() const
 	{
 		return m_length;
 	}
 
-	float CapsuleGeom::GetRadius() const
+	float CapsuleCollider3D::GetRadius() const
 	{
 		return m_radius;
 	}
 
-	GeomType CapsuleGeom::GetType() const
+	GeomType CapsuleCollider3D::GetType() const
 	{
 		return GeomType_Capsule;
 	}
 
-	NewtonCollision* CapsuleGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
 
-	/******************************* CompoundGeom ********************************/
+	/******************************* CompoundCollider3D ********************************/
 
-	CompoundGeom::CompoundGeom(Collider3D** geoms, std::size_t geomCount)
+	CompoundCollider3D::CompoundCollider3D(Collider3D** geoms, std::size_t geomCount)
 	{
 		m_geoms.reserve(geomCount);
 		for (std::size_t i = 0; i < geomCount; ++i)
 			m_geoms.emplace_back(geoms[i]);
 	}
 
-	const std::vector<PhysGeomRef>& CompoundGeom::GetGeoms() const
+	const std::vector<Collider3DRef>& CompoundCollider3D::GetGeoms() const
 	{
 		return m_geoms;
 	}
 
-	GeomType CompoundGeom::GetType() const
+	GeomType CompoundCollider3D::GetType() const
 	{
 		return GeomType_Compound;
 	}
 
-	NewtonCollision* CompoundGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
 
 		NewtonCompoundCollisionBeginAddRemove(compoundCollision);
-		for (const PhysGeomRef& geom : m_geoms)
+		for (const Collider3DRef& geom : m_geoms)
 		{
 			if (geom->GetType() == GeomType_Compound)
 			{
-				CompoundGeom* compoundGeom = static_cast<CompoundGeom*>(geom.Get());
-				for (const PhysGeomRef& piece : compoundGeom->GetGeoms())
+				CompoundCollider3D* compoundGeom = static_cast<CompoundCollider3D*>(geom.Get());
+				for (const Collider3DRef& piece : compoundGeom->GetGeoms())
 					NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
 			}
 			else
@@ -277,43 +277,43 @@ namespace Nz
 		return compoundCollision;
 	}
 
-	/********************************* ConeGeom **********************************/
+	/********************************* ConeCollider3D **********************************/
 
-	ConeGeom::ConeGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	ConeCollider3D::ConeCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
 	m_length(length),
 	m_radius(radius)
 	{
 	}
 
-	ConeGeom::ConeGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	ConeGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	ConeCollider3D::ConeCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	ConeCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
 	{
 	}
 
-	float ConeGeom::GetLength() const
+	float ConeCollider3D::GetLength() const
 	{
 		return m_length;
 	}
 
-	float ConeGeom::GetRadius() const
+	float ConeCollider3D::GetRadius() const
 	{
 		return m_radius;
 	}
 
-	GeomType ConeGeom::GetType() const
+	GeomType ConeCollider3D::GetType() const
 	{
 		return GeomType_Cone;
 	}
 
-	NewtonCollision* ConeGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
 
-	/****************************** ConvexHullGeom *******************************/
+	/****************************** ConvexCollider3D *******************************/
 
-	ConvexHullGeom::ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Matrix4f& transformMatrix) :
+	ConvexCollider3D::ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
 	m_tolerance(tolerance),
 	m_vertexStride(stride)
@@ -330,67 +330,67 @@ namespace Nz
 			std::memcpy(m_vertices.data(), vertices, vertexCount*sizeof(Vector3f));
 	}
 
-	ConvexHullGeom::ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
-	ConvexHullGeom(vertices, vertexCount, stride, tolerance, Matrix4f::Transform(translation, rotation))
+	ConvexCollider3D::ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
+	ConvexCollider3D(vertices, vertexCount, stride, tolerance, Matrix4f::Transform(translation, rotation))
 	{
 	}
 
-	GeomType ConvexHullGeom::GetType() const
+	GeomType ConvexCollider3D::GetType() const
 	{
 		return GeomType_Compound;
 	}
 
-	NewtonCollision* ConvexHullGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
 	}
 
-	/******************************* CylinderGeom ********************************/
+	/******************************* CylinderCollider3D ********************************/
 
-	CylinderGeom::CylinderGeom(float length, float radius, const Matrix4f& transformMatrix) :
+	CylinderCollider3D::CylinderCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
 	m_length(length),
 	m_radius(radius)
 	{
 	}
 
-	CylinderGeom::CylinderGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	CylinderGeom(length, radius, Matrix4f::Transform(translation, rotation))
+	CylinderCollider3D::CylinderCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	CylinderCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
 	{
 	}
 
-	float CylinderGeom::GetLength() const
+	float CylinderCollider3D::GetLength() const
 	{
 		return m_length;
 	}
 
-	float CylinderGeom::GetRadius() const
+	float CylinderCollider3D::GetRadius() const
 	{
 		return m_radius;
 	}
 
-	GeomType CylinderGeom::GetType() const
+	GeomType CylinderCollider3D::GetType() const
 	{
 		return GeomType_Cylinder;
 	}
 
-	NewtonCollision* CylinderGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_length, 0, m_matrix);
 	}
 
-	/********************************* NullGeom **********************************/
+	/********************************* NullCollider3D **********************************/
 
-	NullGeom::NullGeom()
+	NullCollider3D::NullCollider3D()
 	{
 	}
 
-	GeomType NullGeom::GetType() const
+	GeomType NullCollider3D::GetType() const
 	{
 		return GeomType_Null;
 	}
 
-	void NullGeom::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
+	void NullCollider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
 	{
 		if (inertia)
 			inertia->MakeUnit();
@@ -399,26 +399,26 @@ namespace Nz
 			center->MakeZero();
 	}
 
-	NewtonCollision* NullGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* NullCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateNull(world->GetHandle());
 	}
 
-	/******************************** SphereGeom *********************************/
+	/******************************** SphereCollider3D *********************************/
 
-	SphereGeom::SphereGeom(float radius, const Matrix4f& transformMatrix) :
-	SphereGeom(radius, transformMatrix.GetTranslation())
+	SphereCollider3D::SphereCollider3D(float radius, const Matrix4f& transformMatrix) :
+	SphereCollider3D(radius, transformMatrix.GetTranslation())
 	{
 	}
 
-	SphereGeom::SphereGeom(float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	SphereCollider3D::SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& rotation) :
 	m_position(translation),
 	m_radius(radius)
 	{
 		NazaraUnused(rotation);
 	}
 
-	Boxf SphereGeom::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	Boxf SphereCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
 	{
 		Vector3f size(m_radius * NazaraSuffixMacro(M_SQRT3, f) * scale);
 		Vector3f position(offsetMatrix.GetTranslation());
@@ -426,22 +426,22 @@ namespace Nz
 		return Boxf(position - size, position + size);
 	}
 
-	float SphereGeom::ComputeVolume() const
+	float SphereCollider3D::ComputeVolume() const
 	{
 		return float(M_PI) * m_radius * m_radius * m_radius / 3.f;
 	}
 
-	float SphereGeom::GetRadius() const
+	float SphereCollider3D::GetRadius() const
 	{
 		return m_radius;
 	}
 
-	GeomType SphereGeom::GetType() const
+	GeomType SphereCollider3D::GetType() const
 	{
 		return GeomType_Sphere;
 	}
 
-	NewtonCollision* SphereGeom::CreateHandle(PhysWorld* world) const
+	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld* world) const
 	{
 		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, Matrix4f::Translate(m_position));
 	}
