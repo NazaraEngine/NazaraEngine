@@ -36,7 +36,7 @@ namespace Nz
 		s_moduleReferenceCounter++;
 
 		// Initialisation du module
-		if (!PhysGeom::Initialize())
+		if (!Collider3D::Initialize())
 		{
 			NazaraError("Failed to initialize geoms");
 			return false;
@@ -63,7 +63,7 @@ namespace Nz
 		}
 
 		// Libération du module
-		PhysGeom::Uninitialize();
+		Collider3D::Uninitialize();
 
 		s_moduleReferenceCounter = 0;
 
