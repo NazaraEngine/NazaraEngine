@@ -10,13 +10,13 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics/Config.hpp>
+#include <Nazara/Physics3D/Config.hpp>
 
 class NewtonWorld;
 
 namespace Nz
 {
-	class NAZARA_PHYSICS_API PhysWorld
+	class NAZARA_PHYSICS3D_API PhysWorld
 	{
 		public:
 			PhysWorld();

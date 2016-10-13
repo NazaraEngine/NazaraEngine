@@ -7,7 +7,7 @@
 #ifndef NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
 #define NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
 
-#include <Nazara/Physics/Geom.hpp>
+#include <Nazara/Physics3D/Geom.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 

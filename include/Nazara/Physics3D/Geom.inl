@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <memory>
-#include <Nazara/Physics/Debug.hpp>
+#include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {
@@ -80,4 +80,4 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Physics/DebugOff.hpp>
+#include <Nazara/Physics3D/DebugOff.hpp>

@@ -16,8 +16,8 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics/Config.hpp>
-#include <Nazara/Physics/Enums.hpp>
+#include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
 #include <unordered_map>
 
 class NewtonCollision;
@@ -37,7 +37,7 @@ namespace Nz
 	using PhysGeomLibrary = ObjectLibrary<PhysGeom>;
 	using PhysGeomRef = ObjectRef<PhysGeom>;
 
-	class NAZARA_PHYSICS_API PhysGeom : public RefCounted
+	class NAZARA_PHYSICS3D_API PhysGeom : public RefCounted
 	{
 		friend PhysGeomLibrary;
 		friend class Physics;
@@ -80,7 +80,7 @@ namespace Nz
 	using BoxGeomConstRef = ObjectRef<const BoxGeom>;
 	using BoxGeomRef = ObjectRef<BoxGeom>;
 
-	class NAZARA_PHYSICS_API BoxGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API BoxGeom : public PhysGeom
 	{
 		public:
 			BoxGeom(const Vector3f& lengths, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -106,7 +106,7 @@ namespace Nz
 	using CapsuleGeomConstRef = ObjectRef<const CapsuleGeom>;
 	using CapsuleGeomRef = ObjectRef<CapsuleGeom>;
 
-	class NAZARA_PHYSICS_API CapsuleGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API CapsuleGeom : public PhysGeom
 	{
 		public:
 			CapsuleGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -131,7 +131,7 @@ namespace Nz
 	using CompoundGeomConstRef = ObjectRef<const CompoundGeom>;
 	using CompoundGeomRef = ObjectRef<CompoundGeom>;
 
-	class NAZARA_PHYSICS_API CompoundGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API CompoundGeom : public PhysGeom
 	{
 		public:
 			CompoundGeom(PhysGeom** geoms, std::size_t geomCount);
@@ -152,7 +152,7 @@ namespace Nz
 	using ConeGeomConstRef = ObjectRef<const ConeGeom>;
 	using ConeGeomRef = ObjectRef<ConeGeom>;
 
-	class NAZARA_PHYSICS_API ConeGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API ConeGeom : public PhysGeom
 	{
 		public:
 			ConeGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -177,7 +177,7 @@ namespace Nz
 	using ConvexHullGeomConstRef = ObjectRef<const ConvexHullGeom>;
 	using ConvexHullGeomRef = ObjectRef<ConvexHullGeom>;
 
-	class NAZARA_PHYSICS_API ConvexHullGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API ConvexHullGeom : public PhysGeom
 	{
 		public:
 			ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(Vector3f), float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -201,7 +201,7 @@ namespace Nz
 	using CylinderGeomConstRef = ObjectRef<const CylinderGeom>;
 	using CylinderGeomRef = ObjectRef<CylinderGeom>;
 
-	class NAZARA_PHYSICS_API CylinderGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API CylinderGeom : public PhysGeom
 	{
 		public:
 			CylinderGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -226,7 +226,7 @@ namespace Nz
 	using NullGeomConstRef = ObjectRef<const NullGeom>;
 	using NullGeomRef = ObjectRef<NullGeom>;
 
-	class NAZARA_PHYSICS_API NullGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API NullGeom : public PhysGeom
 	{
 		public:
 			NullGeom();
@@ -246,7 +246,7 @@ namespace Nz
 	using SphereGeomConstRef = ObjectRef<const SphereGeom>;
 	using SphereGeomRef = ObjectRef<SphereGeom>;
 
-	class NAZARA_PHYSICS_API SphereGeom : public PhysGeom
+	class NAZARA_PHYSICS3D_API SphereGeom : public PhysGeom
 	{
 		public:
 			SphereGeom(float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -268,6 +268,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Physics/Geom.inl>
+#include <Nazara/Physics3D/Geom.inl>
 
 #endif // NAZARA_PHYSWORLD_HPP
