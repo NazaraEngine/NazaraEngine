@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NDK_SYSTEMS_PHYSICSSYSTEM_HPP
-#define NDK_SYSTEMS_PHYSICSSYSTEM_HPP
+#ifndef NDK_SYSTEMS_PHYSICSSYSTEM3D_HPP
+#define NDK_SYSTEMS_PHYSICSSYSTEM3D_HPP
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <NDK/EntityList.hpp>
@@ -14,12 +14,12 @@
 
 namespace Ndk
 {
-	class NDK_API PhysicsSystem : public System<PhysicsSystem>
+	class NDK_API PhysicsSystem3D : public System<PhysicsSystem3D>
 	{
 		public:
-			PhysicsSystem();
-			PhysicsSystem(const PhysicsSystem& system);
-			~PhysicsSystem() = default;
+			PhysicsSystem3D();
+			PhysicsSystem3D(const PhysicsSystem3D& system);
+			~PhysicsSystem3D() = default;
 
 			Nz::PhysWorld3D& GetWorld();
 			const Nz::PhysWorld3D& GetWorld() const;
@@ -36,6 +36,6 @@ namespace Ndk
 	};
 }
 
-#include <NDK/Systems/PhysicsSystem.inl>
+#include <NDK/Systems/PhysicsSystem3D.inl>
 
-#endif // NDK_SYSTEMS_PHYSICSSYSTEM_HPP
+#endif // NDK_SYSTEMS_PHYSICSSYSTEM3D_HPP

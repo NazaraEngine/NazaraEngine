@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics3D/PhysWorld.hpp>
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
