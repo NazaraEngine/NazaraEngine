@@ -33,7 +33,7 @@ namespace Ndk
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
-			std::unique_ptr<Nz::PhysWorld3D> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
+			mutable std::unique_ptr<Nz::PhysWorld3D> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
 	};
 }
 
