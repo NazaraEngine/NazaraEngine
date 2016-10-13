@@ -1,5 +1,5 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -10,19 +10,19 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics/Config.hpp>
+#include <Nazara/Physics3D/Config.hpp>
 
 class NewtonWorld;
 
 namespace Nz
 {
-	class NAZARA_PHYSICS_API PhysWorld
+	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
 		public:
-			PhysWorld();
-			PhysWorld(const PhysWorld&) = delete;
-			PhysWorld(PhysWorld&&) = delete; ///TODO
-			~PhysWorld();
+			PhysWorld3D();
+			PhysWorld3D(const PhysWorld3D&) = delete;
+			PhysWorld3D(PhysWorld3D&&) = delete; ///TODO
+			~PhysWorld3D();
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
@@ -34,8 +34,8 @@ namespace Nz
 
 			void Step(float timestep);
 
-			PhysWorld& operator=(const PhysWorld&) = delete;
-			PhysWorld& operator=(PhysWorld&&) = delete; ///TODO
+			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
+			PhysWorld3D& operator=(PhysWorld3D&&) = delete; ///TODO
 
 		private:
 			Vector3f m_gravity;

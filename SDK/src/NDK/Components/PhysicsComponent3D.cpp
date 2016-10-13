@@ -2,19 +2,19 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Components/PhysicsComponent.hpp>
-#include <Nazara/Physics/PhysObject.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent.hpp>
+#include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 
 namespace Ndk
 {
 	/*!
 	* \ingroup NDK
-	* \class Ndk::PhysicsComponent
+	* \class Ndk::PhysicsComponent3D
 	* \brief NDK class that represents the component for physics (meant for dynamic objects)
 	*/
 
@@ -24,16 +24,16 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the world does not have a physics system
 	*/
 
-	void PhysicsComponent::OnAttached()
+	void PhysicsComponent3D::OnAttached()
 	{
 		World* entityWorld = m_entity->GetWorld();
-		NazaraAssert(entityWorld->HasSystem<PhysicsSystem>(), "World must have a physics system");
+		NazaraAssert(entityWorld->HasSystem<PhysicsSystem3D>(), "World must have a physics system");
 
-		Nz::PhysWorld& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
+		Nz::PhysWorld3D& world = entityWorld->GetSystem<PhysicsSystem3D>().GetWorld();
 
-		Nz::PhysGeomRef geom;
-		if (m_entity->HasComponent<CollisionComponent>())
-			geom = m_entity->GetComponent<CollisionComponent>().GetGeom();
+		Nz::Collider3DRef geom;
+		if (m_entity->HasComponent<CollisionComponent3D>())
+			geom = m_entity->GetComponent<CollisionComponent3D>().GetGeom();
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())
@@ -41,7 +41,7 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::PhysObject(&world, geom, matrix));
+		m_object.reset(new Nz::RigidBody3D(&world, geom, matrix));
 		m_object->SetMass(1.f);
 	}
 
@@ -53,12 +53,12 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if physical object is invalid
 	*/
 
-	void PhysicsComponent::OnComponentAttached(BaseComponent& component)
+	void PhysicsComponent3D::OnComponentAttached(BaseComponent& component)
 	{
-		if (IsComponent<CollisionComponent>(component))
+		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(static_cast<CollisionComponent&>(component).GetGeom());
+			m_object->SetGeom(static_cast<CollisionComponent3D&>(component).GetGeom());
 		}
 	}
 
@@ -70,12 +70,12 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if physical object is invalid
 	*/
 
-	void PhysicsComponent::OnComponentDetached(BaseComponent& component)
+	void PhysicsComponent3D::OnComponentDetached(BaseComponent& component)
 	{
-		if (IsComponent<CollisionComponent>(component))
+		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(Nz::NullGeom::New());
+			m_object->SetGeom(Nz::NullCollider3D::New());
 		}
 	}
 
@@ -83,10 +83,10 @@ namespace Ndk
 	* \brief Operation to perform when component is detached from an entity
 	*/
 
-	void PhysicsComponent::OnDetached()
+	void PhysicsComponent3D::OnDetached()
 	{
 		m_object.reset();
 	}
 
-	ComponentIndex PhysicsComponent::componentIndex;
+	ComponentIndex PhysicsComponent3D::componentIndex;
 }

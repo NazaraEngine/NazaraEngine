@@ -7,53 +7,53 @@
 #ifndef NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
 #define NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
 
-#include <Nazara/Physics/Geom.hpp>
+#include <Nazara/Physics3D/Collider3D.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 
 namespace Nz
 {
-	class PhysObject;
+	class RigidBody3D;
 }
 
 namespace Ndk
 {
 	class Entity;
 
-	class NDK_API CollisionComponent : public Component<CollisionComponent>
+	class NDK_API CollisionComponent3D : public Component<CollisionComponent3D>
 	{
-		friend class PhysicsSystem;
+		friend class PhysicsSystem3D;
 		friend class StaticCollisionSystem;
 
 		public:
-			CollisionComponent(Nz::PhysGeomRef geom = Nz::PhysGeomRef());
-			CollisionComponent(const CollisionComponent& collision);
-			~CollisionComponent() = default;
+			CollisionComponent3D(Nz::Collider3DRef geom = Nz::Collider3DRef());
+			CollisionComponent3D(const CollisionComponent3D& collision);
+			~CollisionComponent3D() = default;
 
-			const Nz::PhysGeomRef& GetGeom() const;
+			const Nz::Collider3DRef& GetGeom() const;
 
-			void SetGeom(Nz::PhysGeomRef geom);
+			void SetGeom(Nz::Collider3DRef geom);
 
-			CollisionComponent& operator=(Nz::PhysGeomRef geom);
-			CollisionComponent& operator=(CollisionComponent&& collision) = default;
+			CollisionComponent3D& operator=(Nz::Collider3DRef geom);
+			CollisionComponent3D& operator=(CollisionComponent3D&& collision) = default;
 
 			static ComponentIndex componentIndex;
 
 		private:
 			void InitializeStaticBody();
-			Nz::PhysObject* GetStaticBody();
+			Nz::RigidBody3D* GetStaticBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 
-			std::unique_ptr<Nz::PhysObject> m_staticBody;
-			Nz::PhysGeomRef m_geom;
+			std::unique_ptr<Nz::RigidBody3D> m_staticBody;
+			Nz::Collider3DRef m_geom;
 			bool m_bodyUpdated;
 	};
 }
 
-#include <NDK/Components/CollisionComponent.inl>
+#include <NDK/Components/CollisionComponent3D.inl>
 
 #endif // NDK_COMPONENTS_COLLISIONCOMPONENT_HPP

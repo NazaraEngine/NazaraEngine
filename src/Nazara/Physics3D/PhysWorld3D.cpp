@@ -1,14 +1,14 @@
 // Copyright (C) 2015 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics module"
+// This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics/PhysWorld.hpp>
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
-#include <Nazara/Physics/Debug.hpp>
+#include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {
-	PhysWorld::PhysWorld() :
+	PhysWorld3D::PhysWorld3D() :
 	m_gravity(Vector3f::Zero()),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
@@ -17,42 +17,42 @@ namespace Nz
 		NewtonWorldSetUserData(m_world, this);
 	}
 
-	PhysWorld::~PhysWorld()
+	PhysWorld3D::~PhysWorld3D()
 	{
 		NewtonDestroy(m_world);
 	}
 
-	Vector3f PhysWorld::GetGravity() const
+	Vector3f PhysWorld3D::GetGravity() const
 	{
 		return m_gravity;
 	}
 
-	NewtonWorld* PhysWorld::GetHandle() const
+	NewtonWorld* PhysWorld3D::GetHandle() const
 	{
 		return m_world;
 	}
 
-	float PhysWorld::GetStepSize() const
+	float PhysWorld3D::GetStepSize() const
 	{
 		return m_stepSize;
 	}
 
-	void PhysWorld::SetGravity(const Vector3f& gravity)
+	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_gravity = gravity;
 	}
 
-	void PhysWorld::SetSolverModel(unsigned int model)
+	void PhysWorld3D::SetSolverModel(unsigned int model)
 	{
 		NewtonSetSolverModel(m_world, model);
 	}
 
-	void PhysWorld::SetStepSize(float stepSize)
+	void PhysWorld3D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
 	}
 
-	void PhysWorld::Step(float timestep)
+	void PhysWorld3D::Step(float timestep)
 	{
 		m_timestepAccumulator += timestep;
 

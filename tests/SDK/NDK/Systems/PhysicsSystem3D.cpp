@@ -1,8 +1,8 @@
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent.hpp>
+#include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("PhysicsSystem", "[NDK][PHYSICSSYSTEM]")
@@ -11,12 +11,12 @@ SCENARIO("PhysicsSystem", "[NDK][PHYSICSSYSTEM]")
 	{
 		Ndk::World world;
 		const Ndk::EntityHandle& staticEntity = world.CreateEntity();
-		Ndk::CollisionComponent& collisionComponentStatic = staticEntity->AddComponent<Ndk::CollisionComponent>();
+		Ndk::CollisionComponent3D& collisionComponentStatic = staticEntity->AddComponent<Ndk::CollisionComponent3D>();
 		Ndk::NodeComponent& nodeComponentStatic = staticEntity->AddComponent<Ndk::NodeComponent>();
 
 		const Ndk::EntityHandle& dynamicEntity = world.CreateEntity();
 		Ndk::NodeComponent& nodeComponentDynamic = dynamicEntity->AddComponent<Ndk::NodeComponent>();
-		Ndk::PhysicsComponent& physicsComponentDynamic = dynamicEntity->AddComponent<Ndk::PhysicsComponent>();
+		Ndk::PhysicsComponent3D& physicsComponentDynamic = dynamicEntity->AddComponent<Ndk::PhysicsComponent3D>();
 
 		WHEN("We make collide these two entities")
 		{
