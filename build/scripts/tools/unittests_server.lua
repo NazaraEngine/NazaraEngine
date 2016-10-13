@@ -15,7 +15,9 @@ TOOL.Includes = {
 
 TOOL.Files = {
 	"../tests/main.cpp",
+	"../tests/Engine/**.hpp",
 	"../tests/Engine/**.cpp",
+	"../tests/SDK/**.hpp",
 	"../tests/SDK/**.cpp"
 }
 
