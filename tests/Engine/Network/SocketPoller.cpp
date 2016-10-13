@@ -37,7 +37,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 			{
 				Nz::SocketState state = clientToServer.Connect(serverIP);
 
-				REQUIRE(state != Nz::SocketState_NotConnected);
+				CHECK(state != Nz::SocketState_NotConnected);
 
 				AND_THEN("We wait on our selector, it should return true")
 				{
@@ -65,15 +65,15 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 							REQUIRE(serverPoller.Wait(1000));
 
-							REQUIRE(serverPoller.IsReady(serverToClient));
+							CHECK(serverPoller.IsReady(serverToClient));
 
-							REQUIRE(serverToClient.Read(buffer.data(), buffer.size()) == sent);
+							CHECK(serverToClient.Read(buffer.data(), buffer.size()) == sent);
 
 							AND_THEN("Our selector should report no socket ready")
 							{
-								REQUIRE(!serverPoller.Wait(100));
+								REQUIRE_FALSE(serverPoller.Wait(100));
 
-								REQUIRE(!serverPoller.IsReady(serverToClient));
+								REQUIRE_FALSE(serverPoller.IsReady(serverToClient));
 							}
 						}
 					}
