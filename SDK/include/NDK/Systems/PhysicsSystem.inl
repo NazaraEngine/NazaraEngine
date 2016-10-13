@@ -9,7 +9,7 @@ namespace Ndk
 	* \return A reference to the physical world
 	*/
 
-	inline Nz::PhysWorld& PhysicsSystem::GetWorld()
+	inline Nz::PhysWorld3D& PhysicsSystem::GetWorld()
 	{
 		return *m_world;
 	}
@@ -19,7 +19,7 @@ namespace Ndk
 	* \return A constant reference to the physical world
 	*/
 
-	inline const Nz::PhysWorld& PhysicsSystem::GetWorld() const
+	inline const Nz::PhysWorld3D& PhysicsSystem::GetWorld() const
 	{
 		return *m_world;
 	}

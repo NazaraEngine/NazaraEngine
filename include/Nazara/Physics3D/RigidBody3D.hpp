@@ -19,13 +19,13 @@ class NewtonBody;
 
 namespace Nz
 {
-	class PhysWorld;
+	class PhysWorld3D;
 
 	class NAZARA_PHYSICS3D_API RigidBody3D
 	{
 		public:
-			RigidBody3D(PhysWorld* world, const Matrix4f& mat = Matrix4f::Identity());
-			RigidBody3D(PhysWorld* world, Collider3DRef geom, const Matrix4f& mat = Matrix4f::Identity());
+			RigidBody3D(PhysWorld3D* world, const Matrix4f& mat = Matrix4f::Identity());
+			RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat = Matrix4f::Identity());
 			RigidBody3D(const RigidBody3D& object);
 			RigidBody3D(RigidBody3D&& object);
 			~RigidBody3D();
@@ -74,7 +74,7 @@ namespace Nz
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;
 			NewtonBody* m_body;
-			PhysWorld* m_world;
+			PhysWorld3D* m_world;
 			float m_gravityFactor;
 			float m_mass;
 	};

@@ -7,7 +7,7 @@
 #ifndef NDK_SYSTEMS_PHYSICSSYSTEM_HPP
 #define NDK_SYSTEMS_PHYSICSSYSTEM_HPP
 
-#include <Nazara/Physics3D/PhysWorld.hpp>
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <memory>
@@ -21,8 +21,8 @@ namespace Ndk
 			PhysicsSystem(const PhysicsSystem& system);
 			~PhysicsSystem() = default;
 
-			Nz::PhysWorld& GetWorld();
-			const Nz::PhysWorld& GetWorld() const;
+			Nz::PhysWorld3D& GetWorld();
+			const Nz::PhysWorld3D& GetWorld() const;
 
 			static SystemIndex systemIndex;
 
@@ -32,7 +32,7 @@ namespace Ndk
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
-			std::unique_ptr<Nz::PhysWorld> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
+			std::unique_ptr<Nz::PhysWorld3D> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
 	};
 }
 
