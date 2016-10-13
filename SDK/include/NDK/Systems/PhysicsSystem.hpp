@@ -10,6 +10,7 @@
 #include <Nazara/Physics/PhysWorld.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
+#include <memory>
 
 namespace Ndk
 {
@@ -31,7 +32,7 @@ namespace Ndk
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
-			Nz::PhysWorld m_world;
+			std::unique_ptr<Nz::PhysWorld> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
 	};
 }
 

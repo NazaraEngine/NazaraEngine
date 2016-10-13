@@ -50,16 +50,19 @@ namespace Ndk
 
 	void PhysicsSystem::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		// If entity has not been just added to the system, it is possible that it does not own to the right array
+		// It's possible our entity got revalidated because of the addition/removal of a PhysicsComponent
 		if (!justAdded)
 		{
-			// We take the inverted array from which the entity should belong to
+			// We take the opposite array from which the entity should belong to
 			auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_staticObjects : m_dynamicObjects;
 			entities.Remove(entity);
 		}
 
 		auto& entities = (entity->HasComponent<PhysicsComponent>()) ? m_dynamicObjects : m_staticObjects;
 		entities.Insert(entity);
+
+		if (!m_world)
+			m_world = std::make_unique<Nz::PhysWorld>();
 	}
 
 	/*!
@@ -70,7 +73,10 @@ namespace Ndk
 
 	void PhysicsSystem::OnUpdate(float elapsedTime)
 	{
-		m_world.Step(elapsedTime);
+		if (!m_world)
+			return;
+
+		m_world->Step(elapsedTime);
 
 		for (const Ndk::EntityHandle& entity : m_dynamicObjects)
 		{

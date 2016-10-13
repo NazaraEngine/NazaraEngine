@@ -11,7 +11,7 @@ namespace Ndk
 
 	inline Nz::PhysWorld& PhysicsSystem::GetWorld()
 	{
-		return m_world;
+		return *m_world;
 	}
 
 	/*!
@@ -21,6 +21,6 @@ namespace Ndk
 
 	inline const Nz::PhysWorld& PhysicsSystem::GetWorld() const
 	{
-		return m_world;
+		return *m_world;
 	}
 }
