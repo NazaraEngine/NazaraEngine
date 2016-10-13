@@ -13,11 +13,11 @@
 namespace Nz
 {
 	PhysObject::PhysObject(PhysWorld* world, const Matrix4f& mat) :
-	PhysObject(world, NullGeom::New(), mat)
+	PhysObject(world, NullCollider3D::New(), mat)
 	{
 	}
 
-	PhysObject::PhysObject(PhysWorld* world, PhysGeomRef geom, const Matrix4f& mat) :
+	PhysObject::PhysObject(PhysWorld* world, Collider3DRef geom, const Matrix4f& mat) :
 	m_matrix(mat),
 	m_geom(std::move(geom)),
 	m_forceAccumulator(Vector3f::Zero()),
@@ -29,7 +29,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = NullGeom::New();
+			m_geom = NullCollider3D::New();
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
@@ -143,7 +143,7 @@ namespace Nz
 		return angularVelocity;
 	}
 
-	const PhysGeomRef& PhysObject::GetGeom() const
+	const Collider3DRef& PhysObject::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -224,14 +224,14 @@ namespace Nz
 		NewtonBodySetOmega(m_body, angularVelocity);
 	}
 
-	void PhysObject::SetGeom(PhysGeomRef geom)
+	void PhysObject::SetGeom(Collider3DRef geom)
 	{
 		if (m_geom.Get() != geom)
 		{
 			if (geom)
 				m_geom = geom;
 			else
-				m_geom = NullGeom::New();
+				m_geom = NullCollider3D::New();
 
 			NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
 		}

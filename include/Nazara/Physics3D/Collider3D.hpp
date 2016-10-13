@@ -75,16 +75,16 @@ namespace Nz
 			static Collider3DLibrary::LibraryMap s_library;
 	};
 
-	class BoxGeom;
+	class BoxCollider3D;
 
-	using BoxGeomConstRef = ObjectRef<const BoxGeom>;
-	using BoxGeomRef = ObjectRef<BoxGeom>;
+	using BoxCollider3DConstRef = ObjectRef<const BoxCollider3D>;
+	using BoxCollider3DRef = ObjectRef<BoxCollider3D>;
 
-	class NAZARA_PHYSICS3D_API BoxGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API BoxCollider3D : public Collider3D
 	{
 		public:
-			BoxGeom(const Vector3f& lengths, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			BoxGeom(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			BoxCollider3D(const Vector3f& lengths, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			BoxCollider3D(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const override;
 			float ComputeVolume() const override;
@@ -92,7 +92,7 @@ namespace Nz
 			Vector3f GetLengths() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static BoxGeomRef New(Args&&... args);
+			template<typename... Args> static BoxCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -101,22 +101,22 @@ namespace Nz
 			Vector3f m_lengths;
 	};
 
-	class CapsuleGeom;
+	class CapsuleCollider3D;
 
-	using CapsuleGeomConstRef = ObjectRef<const CapsuleGeom>;
-	using CapsuleGeomRef = ObjectRef<CapsuleGeom>;
+	using CapsuleCollider3DConstRef = ObjectRef<const CapsuleCollider3D>;
+	using CapsuleCollider3DRef = ObjectRef<CapsuleCollider3D>;
 
-	class NAZARA_PHYSICS3D_API CapsuleGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API CapsuleCollider3D : public Collider3D
 	{
 		public:
-			CapsuleGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			CapsuleGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			CapsuleCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			CapsuleCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			float GetLength() const;
 			float GetRadius() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static CapsuleGeomRef New(Args&&... args);
+			template<typename... Args> static CapsuleCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -126,20 +126,20 @@ namespace Nz
 			float m_radius;
 	};
 
-	class CompoundGeom;
+	class CompoundCollider3D;
 
-	using CompoundGeomConstRef = ObjectRef<const CompoundGeom>;
-	using CompoundGeomRef = ObjectRef<CompoundGeom>;
+	using CompoundCollider3DConstRef = ObjectRef<const CompoundCollider3D>;
+	using CompoundCollider3DRef = ObjectRef<CompoundCollider3D>;
 
-	class NAZARA_PHYSICS3D_API CompoundGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API CompoundCollider3D : public Collider3D
 	{
 		public:
-			CompoundGeom(Collider3D** geoms, std::size_t geomCount);
+			CompoundCollider3D(Collider3D** geoms, std::size_t geomCount);
 
 			const std::vector<Collider3DRef>& GetGeoms() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static CompoundGeomRef New(Args&&... args);
+			template<typename... Args> static CompoundCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -147,22 +147,22 @@ namespace Nz
 			std::vector<Collider3DRef> m_geoms;
 	};
 
-	class ConeGeom;
+	class ConeCollider3D;
 
-	using ConeGeomConstRef = ObjectRef<const ConeGeom>;
-	using ConeGeomRef = ObjectRef<ConeGeom>;
+	using ConeCollider3DConstRef = ObjectRef<const ConeCollider3D>;
+	using ConeCollider3DRef = ObjectRef<ConeCollider3D>;
 
-	class NAZARA_PHYSICS3D_API ConeGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API ConeCollider3D : public Collider3D
 	{
 		public:
-			ConeGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			ConeGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			ConeCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			ConeCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			float GetLength() const;
 			float GetRadius() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static ConeGeomRef New(Args&&... args);
+			template<typename... Args> static ConeCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -172,20 +172,20 @@ namespace Nz
 			float m_radius;
 	};
 
-	class ConvexHullGeom;
+	class ConvexCollider3D;
 
-	using ConvexHullGeomConstRef = ObjectRef<const ConvexHullGeom>;
-	using ConvexHullGeomRef = ObjectRef<ConvexHullGeom>;
+	using ConvexCollider3DConstRef = ObjectRef<const ConvexCollider3D>;
+	using ConvexCollider3DRef = ObjectRef<ConvexCollider3D>;
 
-	class NAZARA_PHYSICS3D_API ConvexHullGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API ConvexCollider3D : public Collider3D
 	{
 		public:
-			ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(Vector3f), float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			ConvexHullGeom(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(Vector3f), float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			GeomType GetType() const override;
 
-			template<typename... Args> static ConvexHullGeomRef New(Args&&... args);
+			template<typename... Args> static ConvexCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -196,22 +196,22 @@ namespace Nz
 			unsigned int m_vertexStride;
 	};
 
-	class CylinderGeom;
+	class CylinderCollider3D;
 
-	using CylinderGeomConstRef = ObjectRef<const CylinderGeom>;
-	using CylinderGeomRef = ObjectRef<CylinderGeom>;
+	using CylinderCollider3DConstRef = ObjectRef<const CylinderCollider3D>;
+	using CylinderCollider3DRef = ObjectRef<CylinderCollider3D>;
 
-	class NAZARA_PHYSICS3D_API CylinderGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API CylinderCollider3D : public Collider3D
 	{
 		public:
-			CylinderGeom(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			CylinderGeom(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			CylinderCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			CylinderCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			float GetLength() const;
 			float GetRadius() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static CylinderGeomRef New(Args&&... args);
+			template<typename... Args> static CylinderCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
@@ -221,36 +221,36 @@ namespace Nz
 			float m_radius;
 	};
 
-	class NullGeom;
+	class NullCollider3D;
 
-	using NullGeomConstRef = ObjectRef<const NullGeom>;
-	using NullGeomRef = ObjectRef<NullGeom>;
+	using NullCollider3DConstRef = ObjectRef<const NullCollider3D>;
+	using NullCollider3DRef = ObjectRef<NullCollider3D>;
 
-	class NAZARA_PHYSICS3D_API NullGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API NullCollider3D : public Collider3D
 	{
 		public:
-			NullGeom();
+			NullCollider3D();
 
 			void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const override;
 
 			GeomType GetType() const override;
 
-			template<typename... Args> static NullGeomRef New(Args&&... args);
+			template<typename... Args> static NullCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;
 	};
 
-	class SphereGeom;
+	class SphereCollider3D;
 
-	using SphereGeomConstRef = ObjectRef<const SphereGeom>;
-	using SphereGeomRef = ObjectRef<SphereGeom>;
+	using SphereCollider3DConstRef = ObjectRef<const SphereCollider3D>;
+	using SphereCollider3DRef = ObjectRef<SphereCollider3D>;
 
-	class NAZARA_PHYSICS3D_API SphereGeom : public Collider3D
+	class NAZARA_PHYSICS3D_API SphereCollider3D : public Collider3D
 	{
 		public:
-			SphereGeom(float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			SphereGeom(float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			SphereCollider3D(float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const override;
 			float ComputeVolume() const override;
@@ -258,7 +258,7 @@ namespace Nz
 			float GetRadius() const;
 			GeomType GetType() const override;
 
-			template<typename... Args> static SphereGeomRef New(Args&&... args);
+			template<typename... Args> static SphereCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld* world) const override;

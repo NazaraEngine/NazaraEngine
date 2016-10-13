@@ -31,7 +31,7 @@ namespace Ndk
 
 		Nz::PhysWorld& world = entityWorld->GetSystem<PhysicsSystem>().GetWorld();
 
-		Nz::PhysGeomRef geom;
+		Nz::Collider3DRef geom;
 		if (m_entity->HasComponent<CollisionComponent>())
 			geom = m_entity->GetComponent<CollisionComponent>().GetGeom();
 
@@ -75,7 +75,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(Nz::NullGeom::New());
+			m_object->SetGeom(Nz::NullCollider3D::New());
 		}
 	}
 

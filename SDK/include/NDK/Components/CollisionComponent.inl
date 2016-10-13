@@ -15,7 +15,7 @@ namespace Ndk
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent::CollisionComponent(Nz::PhysGeomRef geom) :
+	inline CollisionComponent::CollisionComponent(Nz::Collider3DRef geom) :
 	m_geom(std::move(geom)),
 	m_bodyUpdated(false)
 	{
@@ -38,7 +38,7 @@ namespace Ndk
 	* \return A constant reference to the physics geometry
 	*/
 
-	inline const Nz::PhysGeomRef& CollisionComponent::GetGeom() const
+	inline const Nz::Collider3DRef& CollisionComponent::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -50,7 +50,7 @@ namespace Ndk
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent& CollisionComponent::operator=(Nz::PhysGeomRef geom)
+	inline CollisionComponent& CollisionComponent::operator=(Nz::Collider3DRef geom)
 	{
 		SetGeom(geom);
 
