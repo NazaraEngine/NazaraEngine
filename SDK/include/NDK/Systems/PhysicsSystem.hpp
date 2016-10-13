@@ -27,12 +27,13 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
+			void CreatePhysWorld() const;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
 			EntityList m_dynamicObjects;
 			EntityList m_staticObjects;
-			std::unique_ptr<Nz::PhysWorld> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
+			mutable std::unique_ptr<Nz::PhysWorld> m_world; ///TODO: std::optional (Should I make a Nz::Optional class?)
 	};
 }
 
