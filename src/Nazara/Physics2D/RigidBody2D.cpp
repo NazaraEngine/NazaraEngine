@@ -20,8 +20,6 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom) :
 	m_geom(),
-	m_forceAccumulator(Vector3f::Zero()),
-	m_torqueAccumulator(Vector3f::Zero()),
 	m_world(world),
 	m_gravityFactor(1.f),
 	m_mass(0.f)
@@ -38,8 +36,6 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
 	m_geom(object.m_geom),
-	m_forceAccumulator(Vector3f::Zero()),
-	m_torqueAccumulator(Vector3f::Zero()),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(0.f)
@@ -57,8 +53,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
 	m_geom(std::move(object.m_geom)),
-	m_forceAccumulator(std::move(object.m_forceAccumulator)),
-	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
+	m_shapes(std::move(object.m_shapes)),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
@@ -69,8 +64,7 @@ namespace Nz
 
 	RigidBody2D::~RigidBody2D()
 	{
-		if (m_handle)
-			cpBodyFree(m_handle);
+		Destroy();
 	}
 
 	void RigidBody2D::AddForce(const Vector2f& force, CoordSys coordSys)
@@ -185,7 +179,10 @@ namespace Nz
 		if (m_geom.Get() != geom)
 		{
 			for (cpShape* shape : m_shapes)
+			{
 				cpBodyRemoveShape(m_handle, shape);
+				cpShapeFree(shape);
+			}
 
 			if (geom)
 				m_geom = geom;
@@ -248,19 +245,26 @@ namespace Nz
 
 	RigidBody2D& RigidBody2D::operator=(RigidBody2D&& object)
 	{
-		if (m_handle)
-			cpBodyFree(m_handle);
+		Destroy();
 
 		m_handle             = object.m_handle;
-		m_forceAccumulator   = std::move(object.m_forceAccumulator);
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
 		m_mass               = object.m_mass;
-		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
+		m_shapes             = std::move(object.m_shapes);
 		m_world              = object.m_world;
 
 		object.m_handle = nullptr;
 
 		return *this;
+	}
+
+	void RigidBody2D::Destroy()
+	{
+		for (cpShape* shape : m_shapes)
+			cpShapeFree(shape);
+
+		if (m_handle)
+			cpBodyFree(m_handle);
 	}
 }

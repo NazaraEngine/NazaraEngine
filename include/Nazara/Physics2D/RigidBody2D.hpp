@@ -62,10 +62,10 @@ namespace Nz
 			RigidBody2D& operator=(RigidBody2D&& object);
 
 		private:
+			void Destroy();
+
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
-			Vector3f m_forceAccumulator;
-			Vector3f m_torqueAccumulator;
 			cpBody* m_handle;
 			PhysWorld2D* m_world;
 			float m_gravityFactor;
