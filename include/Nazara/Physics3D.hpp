@@ -1,5 +1,7 @@
+// This file was automatically generated on 14 Oct 2016 at 18:58:18
+
 /*
-	Nazara Engine - Physics 2D module
+	Nazara Engine - Physics 3D module
 
 	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 
@@ -24,28 +26,14 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_PHYSICS2D_HPP
-#define NAZARA_CONFIG_PHYSICS2D_HPP
+#ifndef NAZARA_GLOBAL_PHYSICS3D_HPP
+#define NAZARA_GLOBAL_PHYSICS3D_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
+#include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/Collider3D.hpp>
 
-// Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
-#define NAZARA_PHYSICS2D_MANAGE_MEMORY 0
-
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_PHYSICS2D_SAFE 1
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Physics2D/ConfigCheck.hpp>
-
-#if defined(NAZARA_STATIC)
-	#define NAZARA_PHYSICS2D_API
-#else
-	#ifdef NAZARA_PHYSICS2D_BUILD
-		#define NAZARA_PHYSICS2D_API NAZARA_EXPORT
-	#else
-		#define NAZARA_PHYSICS2D_API NAZARA_IMPORT
-	#endif
-#endif
-
-#endif // NAZARA_CONFIG_PHYSICS3D_HPP
+#endif // NAZARA_GLOBAL_PHYSICS3D_HPP
