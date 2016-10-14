@@ -174,25 +174,6 @@ namespace Nz
 		cpBodySetAngularVelocity(m_handle, angularVelocity);
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom)
-	{
-		if (m_geom.Get() != geom)
-		{
-			for (cpShape* shape : m_shapes)
-			{
-				cpBodyRemoveShape(m_handle, shape);
-				cpShapeFree(shape);
-			}
-
-			if (geom)
-				m_geom = geom;
-			else
-				m_geom = NullCollider2D::New();
-
-			m_shapes = m_geom->CreateShapes(this);
-		}
-	}
-
 	void RigidBody2D::SetGravityFactor(float gravityFactor)
 	{
 		m_gravityFactor = gravityFactor;
@@ -266,5 +247,15 @@ namespace Nz
 
 		if (m_handle)
 			cpBodyFree(m_handle);
+	}
+
+	void RigidBody2D::SetGeom(Collider2DRef geom)
+	{
+		if (geom)
+			m_geom = geom;
+		else
+			m_geom = NullCollider2D::New();
+
+		m_shapes = m_geom->CreateShapes(this);
 	}
 }
