@@ -26,6 +26,6 @@ TOOL.Libraries = function()
     for k,v in pairs(NazaraBuild.Modules) do
         table.insert(libraries, "Nazara" .. v.Name)
     end
-    
+
     return libraries
 end
