@@ -1081,7 +1081,8 @@ namespace Nz
 				return ' ';
 			case XK_BackSpace:
 				return '\b';
-			case XK_KP_Tab || XK_Tab:
+			case XK_Tab:
+			case XK_KP_Tab:
 				return '\t';
 			case XK_Linefeed:
 				return '\n';
