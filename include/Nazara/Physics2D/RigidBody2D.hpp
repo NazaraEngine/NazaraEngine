@@ -50,7 +50,6 @@ namespace Nz
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(float angularVelocity);
-			void SetGeom(Collider2DRef geom);
 			void SetGravityFactor(float gravityFactor);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
@@ -63,6 +62,7 @@ namespace Nz
 
 		private:
 			void Destroy();
+			void SetGeom(Collider2DRef geom);
 
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
