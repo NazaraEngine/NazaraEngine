@@ -54,7 +54,7 @@ namespace Nz
 			virtual float ComputeVolume() const;
 
 			NewtonCollision* GetHandle(PhysWorld3D* world) const;
-			virtual GeomType GetType() const = 0;
+			virtual ColliderType3D GetType() const = 0;
 
 			Collider3D& operator=(const Collider3D&) = delete;
 			Collider3D& operator=(Collider3D&&) = delete;
@@ -90,7 +90,7 @@ namespace Nz
 			float ComputeVolume() const override;
 
 			Vector3f GetLengths() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static BoxCollider3DRef New(Args&&... args);
 
@@ -114,7 +114,7 @@ namespace Nz
 
 			float GetLength() const;
 			float GetRadius() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static CapsuleCollider3DRef New(Args&&... args);
 
@@ -137,7 +137,7 @@ namespace Nz
 			CompoundCollider3D(Collider3D** geoms, std::size_t geomCount);
 
 			const std::vector<Collider3DRef>& GetGeoms() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static CompoundCollider3DRef New(Args&&... args);
 
@@ -160,7 +160,7 @@ namespace Nz
 
 			float GetLength() const;
 			float GetRadius() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static ConeCollider3DRef New(Args&&... args);
 
@@ -183,7 +183,7 @@ namespace Nz
 			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(Vector3f), float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
 			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static ConvexCollider3DRef New(Args&&... args);
 
@@ -209,7 +209,7 @@ namespace Nz
 
 			float GetLength() const;
 			float GetRadius() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static CylinderCollider3DRef New(Args&&... args);
 
@@ -233,7 +233,7 @@ namespace Nz
 
 			void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const override;
 
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static NullCollider3DRef New(Args&&... args);
 
@@ -256,7 +256,7 @@ namespace Nz
 			float ComputeVolume() const override;
 
 			float GetRadius() const;
-			GeomType GetType() const override;
+			ColliderType3D GetType() const override;
 
 			template<typename... Args> static SphereCollider3DRef New(Args&&... args);
 

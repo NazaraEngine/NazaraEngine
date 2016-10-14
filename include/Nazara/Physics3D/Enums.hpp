@@ -4,24 +4,27 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_PHYSICS_HPP
-#define NAZARA_ENUMS_PHYSICS_HPP
+#ifndef NAZARA_ENUMS_PHYSICS3D_HPP
+#define NAZARA_ENUMS_PHYSICS3D_HPP
 
-enum GeomType
+namespace Nz
 {
-	GeomType_Box,
-	GeomType_Capsule,
-	GeomType_Cone,
-	GeomType_Compound,
-	GeomType_ConvexHull,
-	GeomType_Cylinder,
-	GeomType_Heightfield,
-	GeomType_Null,
-	GeomType_Scene,
-	GeomType_Sphere,
-	GeomType_Tree,
+	enum ColliderType3D
+	{
+		ColliderType3D_Box,
+		ColliderType3D_Capsule,
+		ColliderType3D_Cone,
+		ColliderType3D_Compound,
+		ColliderType3D_ConvexHull,
+		ColliderType3D_Cylinder,
+		ColliderType3D_Heightfield,
+		ColliderType3D_Null,
+		ColliderType3D_Scene,
+		ColliderType3D_Sphere,
+		ColliderType3D_Tree,
 
-	GeomType_Max = GeomType_Tree
+		ColliderType3D_Max = ColliderType3D_Tree
+	};
 };
 
-#endif // NAZARA_ENUMS_PHYSICS_HPP
+#endif // NAZARA_ENUMS_PHYSICS3D_HPP

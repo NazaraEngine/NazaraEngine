@@ -193,9 +193,9 @@ namespace Nz
 		return m_lengths;
 	}
 
-	GeomType BoxCollider3D::GetType() const
+	ColliderType3D BoxCollider3D::GetType() const
 	{
-		return GeomType_Box;
+		return ColliderType3D_Box;
 	}
 
 	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -227,9 +227,9 @@ namespace Nz
 		return m_radius;
 	}
 
-	GeomType CapsuleCollider3D::GetType() const
+	ColliderType3D CapsuleCollider3D::GetType() const
 	{
-		return GeomType_Capsule;
+		return ColliderType3D_Capsule;
 	}
 
 	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -251,9 +251,9 @@ namespace Nz
 		return m_geoms;
 	}
 
-	GeomType CompoundCollider3D::GetType() const
+	ColliderType3D CompoundCollider3D::GetType() const
 	{
-		return GeomType_Compound;
+		return ColliderType3D_Compound;
 	}
 
 	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -263,7 +263,7 @@ namespace Nz
 		NewtonCompoundCollisionBeginAddRemove(compoundCollision);
 		for (const Collider3DRef& geom : m_geoms)
 		{
-			if (geom->GetType() == GeomType_Compound)
+			if (geom->GetType() == ColliderType3D_Compound)
 			{
 				CompoundCollider3D* compoundGeom = static_cast<CompoundCollider3D*>(geom.Get());
 				for (const Collider3DRef& piece : compoundGeom->GetGeoms())
@@ -301,9 +301,9 @@ namespace Nz
 		return m_radius;
 	}
 
-	GeomType ConeCollider3D::GetType() const
+	ColliderType3D ConeCollider3D::GetType() const
 	{
-		return GeomType_Cone;
+		return ColliderType3D_Cone;
 	}
 
 	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -335,9 +335,9 @@ namespace Nz
 	{
 	}
 
-	GeomType ConvexCollider3D::GetType() const
+	ColliderType3D ConvexCollider3D::GetType() const
 	{
-		return GeomType_Compound;
+		return ColliderType3D_Compound;
 	}
 
 	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -369,9 +369,9 @@ namespace Nz
 		return m_radius;
 	}
 
-	GeomType CylinderCollider3D::GetType() const
+	ColliderType3D CylinderCollider3D::GetType() const
 	{
-		return GeomType_Cylinder;
+		return ColliderType3D_Cylinder;
 	}
 
 	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -385,9 +385,9 @@ namespace Nz
 	{
 	}
 
-	GeomType NullCollider3D::GetType() const
+	ColliderType3D NullCollider3D::GetType() const
 	{
-		return GeomType_Null;
+		return ColliderType3D_Null;
 	}
 
 	void NullCollider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
@@ -436,9 +436,9 @@ namespace Nz
 		return m_radius;
 	}
 
-	GeomType SphereCollider3D::GetType() const
+	ColliderType3D SphereCollider3D::GetType() const
 	{
-		return GeomType_Sphere;
+		return ColliderType3D_Sphere;
 	}
 
 	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld3D* world) const
