@@ -65,7 +65,7 @@ namespace Nz
 	* \return true If replication is enabled
 	*/
 
-	bool FileLogger::IsStdReplicationEnabled()
+	bool FileLogger::IsStdReplicationEnabled() const
 	{
 		return m_stdReplicationEnabled;
 	}
@@ -75,7 +75,7 @@ namespace Nz
 	* \return true If logging of the time is enabled
 	*/
 
-	bool FileLogger::IsTimeLoggingEnabled()
+	bool FileLogger::IsTimeLoggingEnabled() const
 	{
 		return m_timeLoggingEnabled;
 	}

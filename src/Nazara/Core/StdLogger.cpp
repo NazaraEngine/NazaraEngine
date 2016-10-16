@@ -47,7 +47,7 @@ namespace Nz
 	* \return Always returns true
 	*/
 
-	bool StdLogger::IsStdReplicationEnabled()
+	bool StdLogger::IsStdReplicationEnabled() const
 	{
 		return true;
 	}
