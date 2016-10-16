@@ -53,22 +53,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the default logger
-	*
-	* \param defaultLogger Default AbstractLogger
-	*/
-
-	void Log::SetDefaultLogger(AbstractLogger* defaultLogger)
-	{
-		if (s_defaultLogger != &s_stdLogger)
-			delete s_defaultLogger;
-
-		s_defaultLogger = defaultLogger;
-		if (!s_defaultLogger)
-			s_defaultLogger = &s_stdLogger;
-	}
-
-	/*!
 	* \brief Sets the logger
 	*
 	* \param logger AbstractLogger to log
@@ -127,7 +111,12 @@ namespace Nz
 
 	bool Log::Initialize()
 	{
-		SetLogger(s_defaultLogger);
+		if (s_logger == s_stdLogger)
+		{
+			s_logger = new FileLogger();
+		}
+
+		SetLogger(s_logger);
 		return true;
 	}
 
@@ -137,14 +126,12 @@ namespace Nz
 
 	void Log::Uninitialize()
 	{
-		SetDefaultLogger(nullptr);
 		SetLogger(nullptr);
 	}
 
 	NazaraStaticSignalImpl(Log, OnLogWrite);
 	NazaraStaticSignalImpl(Log, OnLogWriteError);
 
-	AbstractLogger* Log::s_defaultLogger = &s_stdLogger;
 	AbstractLogger* Log::s_logger = &s_stdLogger;
 	bool Log::s_enabled = true;
 }
