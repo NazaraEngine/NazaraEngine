@@ -22,7 +22,7 @@ namespace Nz
 
 			void EnableStdReplication(bool enable) override;
 
-			bool IsStdReplicationEnabled() override;
+			bool IsStdReplicationEnabled() const override;
 
 			void Write(const String& string) override;
 			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;

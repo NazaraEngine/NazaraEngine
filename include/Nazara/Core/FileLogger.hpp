@@ -25,7 +25,7 @@ namespace Nz
 			void EnableTimeLogging(bool enable);
 			void EnableStdReplication(bool enable) override;
 
-			bool IsStdReplicationEnabled() override;
+			bool IsStdReplicationEnabled() const override;
 			bool IsTimeLoggingEnabled();
 
 			void Write(const String& string) override;

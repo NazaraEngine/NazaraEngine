@@ -65,7 +65,7 @@ namespace Nz
 	* \return true If replication is enabled
 	*/
 
-	bool FileLogger::IsStdReplicationEnabled()
+	bool FileLogger::IsStdReplicationEnabled() const
 	{
 		return m_stdReplicationEnabled;
 	}
