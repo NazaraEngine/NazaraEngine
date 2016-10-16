@@ -41,6 +41,7 @@ namespace Nz
 
 			static bool IsEnabled();
 
+			static void SetDefaultLogger(AbstractLogger* defaultLogger);
 			static void SetLogger(AbstractLogger* logger);
 
 			static void Write(const String& string);
@@ -53,6 +54,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
+			static AbstractLogger* s_defaultLogger;
 			static AbstractLogger* s_logger;
 			static bool s_enabled;
 	};
