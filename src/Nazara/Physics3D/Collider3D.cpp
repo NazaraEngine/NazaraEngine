@@ -313,25 +313,22 @@ namespace Nz
 
 	/****************************** ConvexCollider3D *******************************/
 
-	ConvexCollider3D::ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Matrix4f& transformMatrix) :
+	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Matrix4f& transformMatrix) :
 	m_matrix(transformMatrix),
-	m_tolerance(tolerance),
-	m_vertexStride(stride)
+	m_tolerance(tolerance)
 	{
-		const UInt8* ptr = static_cast<const UInt8*>(vertices);
-
 		m_vertices.resize(vertexCount);
-		if (stride != sizeof(Vector3f))
+		if (vertices.GetStride() != sizeof(Vector3f))
 		{
 			for (unsigned int i = 0; i < vertexCount; ++i)
-				m_vertices[i] = *reinterpret_cast<const Vector3f*>(ptr + stride*i);
+				m_vertices[i] = *vertices++;
 		}
 		else // Fast path
 			std::memcpy(m_vertices.data(), vertices, vertexCount*sizeof(Vector3f));
 	}
 
-	ConvexCollider3D::ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
-	ConvexCollider3D(vertices, vertexCount, stride, tolerance, Matrix4f::Transform(translation, rotation))
+	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
+	ConvexCollider3D(vertices, vertexCount, tolerance, Matrix4f::Transform(translation, rotation))
 	{
 	}
 

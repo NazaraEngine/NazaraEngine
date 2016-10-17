@@ -13,6 +13,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -180,8 +181,8 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API ConvexCollider3D : public Collider3D
 	{
 		public:
-			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride = sizeof(Vector3f), float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			ConvexCollider3D(const void* vertices, unsigned int vertexCount, unsigned int stride, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
 
 			ColliderType3D GetType() const override;
 
@@ -193,7 +194,6 @@ namespace Nz
 			std::vector<Vector3f> m_vertices;
 			Matrix4f m_matrix;
 			float m_tolerance;
-			unsigned int m_vertexStride;
 	};
 
 	class CylinderCollider3D;
