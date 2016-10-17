@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	class ContextParameters;
+	struct ContextParameters;
 
 	class ContextImpl
 	{
