@@ -38,12 +38,12 @@ void MouseMoveState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void MouseMoveState::Leave(Ndk::StateMachine& fsm)
+void MouseMoveState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 }
 
-bool MouseMoveState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool MouseMoveState::Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/)
 {
 	return true;
 }

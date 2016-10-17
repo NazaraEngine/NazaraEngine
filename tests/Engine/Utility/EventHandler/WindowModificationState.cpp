@@ -38,12 +38,12 @@ void WindowModificationState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void WindowModificationState::Leave(Ndk::StateMachine& fsm)
+void WindowModificationState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 }
 
-bool WindowModificationState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool WindowModificationState::Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/)
 {
 	return true;
 }

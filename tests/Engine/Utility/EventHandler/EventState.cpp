@@ -35,12 +35,12 @@ void EventState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void EventState::Leave(Ndk::StateMachine& fsm)
+void EventState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 }
 
-bool EventState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool EventState::Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/)
 {
 	return true;
 }
