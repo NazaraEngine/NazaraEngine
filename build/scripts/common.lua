@@ -312,7 +312,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x86")
+					targetdir("../plugins/lib/" .. makeLibDir .. "/x86")
 				end
 
 			configuration({"codeblocks or codelite or gmake", "x64"})
@@ -321,7 +321,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/" .. makeLibDir .. "/x64")
+					targetdir("../plugins/lib/" .. makeLibDir .. "/x64")
 				end
 
 			configuration({"vs*", "x32"})
@@ -330,7 +330,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/msvc/x86")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x86")
+					targetdir("../plugins/lib/msvc/x86")
 				end
 
 			configuration({"vs*", "x64"})
@@ -339,7 +339,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/msvc/x64")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/msvc/x64")
+					targetdir("../plugins/lib/msvc/x64")
 				end
 
 			configuration({"xcode3 or xcode4", "x32"})
@@ -348,7 +348,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/xcode/x86")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x86")
+					targetdir("../plugins/lib/xcode/x86")
 				end
 
 			configuration({"xcode3 or xcode4", "x64"})
@@ -357,7 +357,7 @@ function NazaraBuild:Execute()
 				if (toolTable.Kind == "library") then
 					targetdir(toolTable.TargetDirectory .. "/xcode/x64")
 				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/" .. toolTable.Name .. "/lib/xcode/x64")
+					targetdir("../plugins/lib/xcode/x64")
 				end
 
 			configuration("*Static")
@@ -403,7 +403,7 @@ function NazaraBuild:Execute()
 
 		for k, exampleTable in ipairs(self.OrderedExamples) do
 			local destPath = "../examples/bin"
-				
+
 			project("Demo" .. exampleTable.Name)
 
 			location(_ACTION .. "/examples")
