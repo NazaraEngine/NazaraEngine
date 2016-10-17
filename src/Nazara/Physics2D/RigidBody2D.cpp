@@ -97,22 +97,17 @@ namespace Nz
 		for (cpShape* shape : m_shapes)
 			bb = cpBBMerge(bb, cpShapeGetBB(shape));
 
-		return Rectf(bb.l, bb.t, bb.r - bb.l, bb.b - bb.t);
+		return Rectf(Rect<cpFloat>(bb.l, bb.t, bb.r - bb.l, bb.b - bb.t));
 	}
 
 	float RigidBody2D::GetAngularVelocity() const
 	{
-		return cpBodyGetAngularVelocity(m_handle);
+		return static_cast<float>(cpBodyGetAngularVelocity(m_handle));
 	}
 
 	const Collider2DRef& RigidBody2D::GetGeom() const
 	{
 		return m_geom;
-	}
-
-	float RigidBody2D::GetGravityFactor() const
-	{
-		return m_gravityFactor;
 	}
 
 	cpBody* RigidBody2D::GetHandle() const
@@ -139,24 +134,24 @@ namespace Nz
 				break; // Nothing to do
 		}
 
-		return Vector2f(cog.x, cog.y);
+		return Vector2f(static_cast<float>(cog.x), static_cast<float>(cog.y));
 	}
 
 	Vector2f RigidBody2D::GetPosition() const
 	{
 		cpVect pos = cpBodyGetPosition(m_handle);
-		return Vector2f(pos.x, pos.y);
+		return Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y));
 	}
 
 	float RigidBody2D::GetRotation() const
 	{
-		return cpBodyGetAngle(m_handle);
+		return static_cast<float>(cpBodyGetAngle(m_handle));
 	}
 
 	Vector2f RigidBody2D::GetVelocity() const
 	{
 		cpVect vel = cpBodyGetVelocity(m_handle);
-		return Vector2f(vel.x, vel.y);
+		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
 	}
 
 	bool RigidBody2D::IsMoveable() const
@@ -172,11 +167,6 @@ namespace Nz
 	void RigidBody2D::SetAngularVelocity(float angularVelocity)
 	{
 		cpBodySetAngularVelocity(m_handle, angularVelocity);
-	}
-
-	void RigidBody2D::SetGravityFactor(float gravityFactor)
-	{
-		m_gravityFactor = gravityFactor;
 	}
 
 	void RigidBody2D::SetMass(float mass)
