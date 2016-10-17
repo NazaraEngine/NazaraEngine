@@ -508,7 +508,6 @@ namespace Nz
 
 					for (auto& matIt : pipelinePair.second.materialMap)
 					{
-						const Material* material = matIt.first;
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 

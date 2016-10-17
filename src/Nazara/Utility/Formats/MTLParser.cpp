@@ -304,7 +304,7 @@ namespace Nz
 			const Material& mat = pair.second;
 
 			Emit("newmtl ");
-			EmitLine(pair.first);
+			EmitLine(matName);
 			EmitLine();
 
 			Emit("Ka ");

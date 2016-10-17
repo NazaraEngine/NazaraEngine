@@ -15,8 +15,8 @@ namespace Ndk
 	*/
 
 	inline BaseSystem::BaseSystem(SystemIndex systemId) :
-	m_updateEnabled(true),
-	m_systemIndex(systemId)
+	m_systemIndex(systemId),
+	m_updateEnabled(true)
 	{
 		SetUpdateRate(30);
 	}

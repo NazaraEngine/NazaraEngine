@@ -52,8 +52,8 @@ namespace Nz
 	}
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
-	m_geom(std::move(object.m_geom)),
 	m_shapes(std::move(object.m_shapes)),
+	m_geom(std::move(object.m_geom)),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),

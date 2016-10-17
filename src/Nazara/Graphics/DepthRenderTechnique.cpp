@@ -431,7 +431,6 @@ namespace Nz
 
 					for (auto& matIt : pipelinePair.second.materialMap)
 					{
-						const Material* material = matIt.first;
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 
@@ -551,9 +550,7 @@ namespace Nz
 							const MeshData& meshData = meshIt.first;
 							auto& meshEntry = meshIt.second;
 
-							const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
 							std::vector<Matrix4f>& instances = meshEntry.instances;
-
 							if (!instances.empty())
 							{
 								const IndexBuffer* indexBuffer = meshData.indexBuffer;

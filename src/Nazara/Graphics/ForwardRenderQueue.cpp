@@ -542,9 +542,7 @@ namespace Nz
 									auto& overlayMap = matEntry.overlayMap;
 									for (auto& overlayIt : overlayMap)
 									{
-										const Texture* overlay = overlayIt.first;
 										auto& spriteChainVector = overlayIt.second.spriteChains;
-
 										spriteChainVector.clear();
 									}
 
@@ -563,9 +561,7 @@ namespace Nz
 						{
 							for (auto& materialPair : pipelineEntry.materialMap)
 							{
-								const Material* material = materialPair.first;
 								auto& matEntry = materialPair.second;
-
 								if (matEntry.enabled)
 								{
 									MeshInstanceContainer& meshInstances = matEntry.meshMap;
@@ -573,7 +569,6 @@ namespace Nz
 									for (auto& meshIt : meshInstances)
 									{
 										auto& meshEntry = meshIt.second;
-
 										meshEntry.instances.clear();
 									}
 									matEntry.enabled = false;

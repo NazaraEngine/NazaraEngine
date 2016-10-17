@@ -131,8 +131,6 @@ namespace Ndk
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "GraphicsComponent requires NodeComponent");
 
-		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
-
 		m_transformMatrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
 		m_transformMatrixUpdated = true;
 	}

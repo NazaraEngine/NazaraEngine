@@ -147,7 +147,6 @@ namespace Ndk
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -217,7 +216,6 @@ namespace Ndk
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -290,7 +288,6 @@ namespace Ndk
 						for (const Ndk::EntityHandle& drawable : m_drawables)
 						{
 							GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-							NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 							graphicsComponent.AddToRenderQueue(renderQueue);
 						}
@@ -318,7 +315,6 @@ namespace Ndk
 					for (const Ndk::EntityHandle& drawable : m_drawables)
 					{
 						GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-						NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 						graphicsComponent.AddToRenderQueue(renderQueue);
 					}
