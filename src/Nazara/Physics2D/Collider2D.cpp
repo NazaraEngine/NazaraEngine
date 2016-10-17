@@ -10,6 +10,37 @@
 namespace Nz
 {
 	Collider2D::~Collider2D() = default;
+	
+	/******************************** BoxCollider2D *********************************/
+
+	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
+	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x / 2.f, size.y / 2.f), radius)
+	{
+	}
+
+	BoxCollider2D::BoxCollider2D(const Rectf& rect, float radius) :
+	m_rect(rect),
+	m_radius(radius)
+	{
+	}
+
+	float BoxCollider2D::ComputeInertialMatrix(float mass) const
+	{
+		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y)));
+	}
+
+	ColliderType2D BoxCollider2D::GetType() const
+	{
+		return ColliderType2D_Box;
+	}
+
+	std::vector<cpShape*> BoxCollider2D::CreateShapes(RigidBody2D* body) const
+	{
+		std::vector<cpShape*> shapes;
+		shapes.push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y), m_radius));
+
+		return shapes;
+	}
 
 	/******************************** CircleCollider2D *********************************/
 
@@ -21,7 +52,7 @@ namespace Nz
 
 	float CircleCollider2D::ComputeInertialMatrix(float mass) const
 	{
-		return cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y));
+		return static_cast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
 	}
 
 	ColliderType2D CircleCollider2D::GetType() const
