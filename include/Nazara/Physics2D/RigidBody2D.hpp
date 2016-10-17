@@ -39,7 +39,6 @@ namespace Nz
 			float GetAngularVelocity() const;
 			Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
 			const Collider2DRef& GetGeom() const;
-			float GetGravityFactor() const;
 			cpBody* GetHandle() const;
 			float GetMass() const;
 			Vector2f GetPosition() const;
@@ -50,7 +49,6 @@ namespace Nz
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(float angularVelocity);
-			void SetGravityFactor(float gravityFactor);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
 			void SetPosition(const Vector2f& position);
