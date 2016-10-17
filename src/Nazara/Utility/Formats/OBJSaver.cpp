@@ -66,6 +66,8 @@ namespace Nz
 
 		bool SaveToStream(const Mesh& mesh, const String& format, Stream& stream, const MeshParams& parameters)
 		{
+			NazaraUnused(parameters);
+
 			if (!mesh.IsValid())
 			{
 				NazaraError("Invalid mesh");

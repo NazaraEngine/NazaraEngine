@@ -23,7 +23,7 @@ namespace
 		private:
 			int m_value;
 
-			void OnUpdate(float elapsedTime) override
+			void OnUpdate(float /*elapsedTime*/) override
 			{
 			}
 	};

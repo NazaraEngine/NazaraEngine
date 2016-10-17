@@ -52,7 +52,7 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		std::array<UInt8, 4> whitePixel = {255, 255, 255, 255};
+		std::array<UInt8, 4> whitePixel = { {255, 255, 255, 255} };
 		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
 		m_whiteTexture.Update(whitePixel.data());
 
