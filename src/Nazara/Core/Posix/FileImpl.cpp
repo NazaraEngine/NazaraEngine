@@ -208,8 +208,9 @@ namespace Nz
 
 	time_t FileImpl::GetCreationTime(const String& filePath)
 	{
-		NazaraWarning("Posix has no creation time information");
+		NazaraUnused(filePath);
 
+		NazaraWarning("Posix has no creation time information");
 		return 0;
 	}
 

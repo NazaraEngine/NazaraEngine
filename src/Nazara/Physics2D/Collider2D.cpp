@@ -44,12 +44,12 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
-	float NullCollider2D::ComputeInertialMatrix(float mass) const
+	float NullCollider2D::ComputeInertialMatrix(float /*mass*/) const
 	{
 		return 0.f;
 	}
 
-	std::vector<cpShape*> NullCollider2D::CreateShapes(RigidBody2D* body) const
+	std::vector<cpShape*> NullCollider2D::CreateShapes(RigidBody2D* /*body*/) const
 	{
 		return std::vector<cpShape*>();
 	}

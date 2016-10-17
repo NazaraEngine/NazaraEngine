@@ -38,7 +38,7 @@ namespace
 			static Ndk::SystemIndex systemIndex;
 
 		private:
-			void OnUpdate(float elapsedTime) override
+			void OnUpdate(float /*elapsedTime*/) override
 			{
 				for (const Ndk::EntityHandle& entity : GetEntities())
 				{

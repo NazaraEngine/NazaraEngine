@@ -13,7 +13,7 @@ namespace Ndk
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock, std::size_t argumentCount)
+		clockClass.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock, std::size_t /*argumentCount*/)
 		{
 			int argIndex = 1;
 			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
