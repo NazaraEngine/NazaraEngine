@@ -412,7 +412,7 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		if (Renderer::HasCapability(RendererCap_Instancing))
+		if (m_instancingEnabled && Renderer::HasCapability(RendererCap_Instancing))
 		{
 			VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 			instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
@@ -592,7 +592,7 @@ namespace Nz
 
 			if (pipelineEntry.maxInstanceCount > 0)
 			{
-				bool instancing = (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
+				bool instancing = m_instancingEnabled && (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
 				const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply((instancing) ? ShaderFlags_Instancing : 0);
 
 				const Shader* shader = pipelineInstance.uberInstance->GetShader();
