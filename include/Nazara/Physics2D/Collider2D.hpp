@@ -11,6 +11,7 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Enums.hpp>
@@ -53,6 +54,32 @@ namespace Nz
 			virtual std::vector<cpShape*> CreateShapes(RigidBody2D* body) const = 0;
 
 			static Collider2DLibrary::LibraryMap s_library;
+	};
+
+	class BoxCollider2D;
+
+	using BoxCollider2DConstRef = ObjectRef<const BoxCollider2D>;
+	using BoxCollider2DRef = ObjectRef<BoxCollider2D>;
+
+	class NAZARA_PHYSICS2D_API BoxCollider2D : public Collider2D
+	{
+		public:
+			BoxCollider2D(const Vector2f& size, float radius = 0.f);
+			BoxCollider2D(const Rectf& rect, float radius = 0.f);
+
+			float ComputeInertialMatrix(float mass) const override;
+
+			inline const Rectf& GetRect() const;
+			inline Vector2f GetSize() const;
+			ColliderType2D GetType() const override;
+
+			template<typename... Args> static BoxCollider2DRef New(Args&&... args);
+
+		private:
+			std::vector<cpShape*> CreateShapes(RigidBody2D* body) const override;
+
+			Rectf m_rect;
+			float m_radius;
 	};
 
 	class CircleCollider2D;

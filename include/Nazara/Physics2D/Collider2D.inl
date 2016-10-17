@@ -7,6 +7,25 @@
 
 namespace Nz
 {
+	inline const Rectf& BoxCollider2D::GetRect() const
+	{
+		return m_rect;
+	}
+
+	inline Vector2f BoxCollider2D::GetSize() const
+	{
+		return m_rect.GetLengths();
+	}
+
+	template<typename... Args>
+	BoxCollider2DRef BoxCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<BoxCollider2D> object(new BoxCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
+
 	inline float CircleCollider2D::GetRadius() const
 	{
 		return m_radius;
