@@ -38,12 +38,12 @@ void FocusState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void FocusState::Leave(Ndk::StateMachine& fsm)
+void FocusState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 }
 
-bool FocusState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool FocusState::Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/)
 {
 	return true;
 }

@@ -185,7 +185,7 @@ namespace Ndk
 	* \param viewer Viewer of the scene
 	*/
 
-	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer)
+	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& /*viewer*/)
 	{
 		if (!m_shadowRT.IsValid())
 			m_shadowRT.Create();

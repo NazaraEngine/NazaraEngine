@@ -110,23 +110,13 @@ namespace Nz
 		return it->first * m_functionScales[functionIndex];
 	}
 
-	float Worley::Get(float x, float y, float z, float scale) const
+	float Worley::Get(float /*x*/, float /*y*/, float /*z*/, float /*scale*/) const
 	{
-		NazaraUnused(x);
-		NazaraUnused(y);
-		NazaraUnused(z);
-		NazaraUnused(scale);
-
 		throw std::runtime_error("Worley 3D not available yet.");
 	}
 
-	float Worley::Get(float x, float y, float z, float w, float scale) const
+	float Worley::Get(float /*x*/, float /*y*/, float /*z*/, float /*w*/, float /*scale*/) const
 	{
-		NazaraUnused(x);
-		NazaraUnused(y);
-		NazaraUnused(z);
-		NazaraUnused(scale);
-
 		throw std::runtime_error("Worley 4D not available yet.");
 	}
 

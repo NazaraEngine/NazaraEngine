@@ -25,7 +25,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Animation* animation, Stream& stream, const AnimationParams& parameters)
+		bool Load(Animation* animation, Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);

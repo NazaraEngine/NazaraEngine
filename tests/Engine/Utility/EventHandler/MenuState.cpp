@@ -14,7 +14,7 @@ m_selectedNextState(-1)
 {
 }
 
-void MenuState::Enter(Ndk::StateMachine& fsm)
+void MenuState::Enter(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(true);
 	DrawMenu();
@@ -29,13 +29,13 @@ void MenuState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void MenuState::Leave(Ndk::StateMachine& fsm)
+void MenuState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 	m_selectedNextState = -1;
 }
 
-bool MenuState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool MenuState::Update(Ndk::StateMachine& fsm, float /*elapsedTime*/)
 {
 	if (m_selectedNextState != -1) {
 		fsm.ChangeState(StateFactory::Get(m_selectedNextState + 1));

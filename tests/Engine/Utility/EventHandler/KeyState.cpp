@@ -31,12 +31,12 @@ void KeyState::Enter(Ndk::StateMachine& fsm)
 	});
 }
 
-void KeyState::Leave(Ndk::StateMachine& fsm)
+void KeyState::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(false);
 }
 
-bool KeyState::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool KeyState::Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/)
 {
 	return true;
 }
