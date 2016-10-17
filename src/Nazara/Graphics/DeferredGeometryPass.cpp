@@ -82,7 +82,7 @@ namespace Nz
 
 				if (pipelineEntry.maxInstanceCount > 0)
 				{
-					bool instancing = (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
+					bool instancing = instancingEnabled && (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
 
 					UInt32 flags = ShaderFlags_Deferred;
 					if (instancing)
