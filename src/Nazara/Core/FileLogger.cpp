@@ -147,14 +147,6 @@ namespace Nz
 
 	void FileLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
-		if (m_forceStdOutput || m_stdReplicationEnabled)
-		{
-			m_stdLogger.WriteError(type, error, line, file, function);
-
-			if (m_forceStdOutput)
-				return;
-		}
-
 		AbstractLogger::WriteError(type, error, line, file, function);
 		m_outputFile.Flush();
 	}
