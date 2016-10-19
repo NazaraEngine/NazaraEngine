@@ -372,13 +372,13 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::NoTestEntry::NoTestEntry() :
-	Entry()
+	Entry<CullTest::NoTest>()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::NoTestEntry::NoTestEntry(CullingList* parent, std::size_t index) :
-	Entry(parent, index)
+	Entry<CullTest::NoTest>(parent, index)
 	{
 	}
 
@@ -386,40 +386,40 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::SphereEntry::SphereEntry() :
-	Entry()
+	Entry<CullTest::Sphere>()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::SphereEntry::SphereEntry(CullingList* parent, std::size_t index) :
-	Entry(parent, index)
+	Entry<CullTest::Sphere>(parent, index)
 	{
 	}
 
 	template<typename T>
 	void CullingList<T>::SphereEntry::UpdateSphere(const Spheref& sphere)
 	{
-		m_parent->NotifySphereUpdate(m_index, sphere);
+		this->m_parent->NotifySphereUpdate(this->m_index, sphere);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	
 	template<typename T>
 	CullingList<T>::VolumeEntry::VolumeEntry() :
-	Entry()
+	Entry<CullTest::Volume>()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::VolumeEntry::VolumeEntry(CullingList* parent, std::size_t index) :
-	Entry(parent, index)
+	Entry<CullTest::Volume>(parent, index)
 	{
 	}
 
 	template<typename T>
-	void Nz::CullingList<T>::VolumeEntry::UpdateVolume(const BoundingVolumef& volume)
+	void CullingList<T>::VolumeEntry::UpdateVolume(const BoundingVolumef& volume)
 	{
-		m_parent->NotifyVolumeUpdate(m_index, volume);
+		this->m_parent->NotifyVolumeUpdate(this->m_index, volume);
 	}
 }
 
