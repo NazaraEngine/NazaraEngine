@@ -22,12 +22,12 @@ namespace Nz
 	class CullingList
 	{
 		public:
-			template<CullTest T> class Entry;
+			template<CullTest> class Entry;
 			class NoTestEntry;
 			class SphereEntry;
 			class VolumeEntry;
 
-			template<CullTest T> friend class Entry;
+			template<CullTest> friend class Entry;
 			friend NoTestEntry;
 			friend SphereEntry;
 			friend VolumeEntry;
@@ -109,7 +109,7 @@ namespace Nz
 	};
 
 	template<typename T>
-	template<typename CullTest Type>
+	template<CullTest Type>
 	class CullingList<T>::Entry
 	{
 		public:
