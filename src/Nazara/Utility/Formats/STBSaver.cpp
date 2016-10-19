@@ -99,7 +99,7 @@ namespace Nz
 		void WriteToStream(void* userdata, void* data, int size)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
-			if (stream->Write(data, size) != size)
+			if (stream->Write(data, size) != static_cast<std::size_t>(size))
 				throw std::runtime_error("Failed to write to stream");
 		}
 
@@ -142,6 +142,8 @@ namespace Nz
 
 		bool SaveBMP(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 			
 			int componentCount = ConvertToIntegerFormat(tempImage);
@@ -159,9 +161,11 @@ namespace Nz
 
 			return true;
 		}
-																	  
+
 		bool SaveHDR(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToFloatFormat(tempImage);
@@ -182,6 +186,8 @@ namespace Nz
 
 		bool SavePNG(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToIntegerFormat(tempImage);
@@ -202,6 +208,8 @@ namespace Nz
 
 		bool SaveTGA(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToIntegerFormat(tempImage);

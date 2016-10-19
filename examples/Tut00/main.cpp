@@ -4,7 +4,8 @@
 #include <Nazara/Lua.hpp>
 #include <Nazara/Network.hpp>
 #include <Nazara/Noise.hpp>
-#include <Nazara/Physics.hpp>
+#include <Nazara/Physics2D.hpp>
+#include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <NDK/Application.hpp>

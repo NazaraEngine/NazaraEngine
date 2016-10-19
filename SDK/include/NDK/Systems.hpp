@@ -7,7 +7,7 @@
 
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 

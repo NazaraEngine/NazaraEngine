@@ -79,12 +79,12 @@ namespace Ndk
 				}
 				
 				Renderable(Renderable&& renderable) noexcept :
-				data(std::move(renderable.data)),
-				renderable(std::move(renderable.renderable)),
-				dataUpdated(renderable.dataUpdated),
 				renderableBoundingVolumeInvalidationSlot(std::move(renderable.renderableBoundingVolumeInvalidationSlot)),
 				renderableDataInvalidationSlot(std::move(renderable.renderableDataInvalidationSlot)),
-				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot))
+				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot)),
+				data(std::move(renderable.data)),
+				renderable(std::move(renderable.renderable)),
+				dataUpdated(renderable.dataUpdated)
 				{
 				}
 

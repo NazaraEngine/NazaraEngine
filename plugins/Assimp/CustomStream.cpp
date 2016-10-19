@@ -40,6 +40,9 @@ aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
 
 		case aiOrigin_SET:
 			return (stream->SetCursorPos(offset)) ? aiReturn_SUCCESS : aiReturn_FAILURE;
+
+		case _AI_ORIGIN_ENFORCE_ENUM_SIZE: // To prevent a warning
+			break;
 	}
 
 	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + String(origin, 16) + ')');

@@ -72,11 +72,11 @@ bool IsSupported(const String& extension)
 	return (aiIsExtensionSupported(dotExt.GetConstBuffer()) == AI_TRUE);
 }
 
-Ternary Check(Stream& stream, const MeshParams& parameters)
+Ternary Check(Stream& /*stream*/, const MeshParams& parameters)
 {
-    bool skip;
-    if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-        return Ternary_False;
+	bool skip;
+	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+		return Ternary_False;
 
 	return Ternary_Unknown;
 }

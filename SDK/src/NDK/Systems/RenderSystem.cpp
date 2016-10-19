@@ -234,7 +234,7 @@ namespace Ndk
 	* \param viewer Viewer of the scene
 	*/
 
-	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer)
+	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& /*viewer*/)
 	{
 		if (!m_shadowRT.IsValid())
 			m_shadowRT.Create();
@@ -265,7 +265,6 @@ namespace Ndk
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -338,7 +337,6 @@ namespace Ndk
 						for (const Ndk::EntityHandle& drawable : m_drawables)
 						{
 							GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-							NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 							graphicsComponent.AddToRenderQueue(renderQueue);
 						}
@@ -366,7 +364,6 @@ namespace Ndk
 					for (const Ndk::EntityHandle& drawable : m_drawables)
 					{
 						GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-						NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 						graphicsComponent.AddToRenderQueue(renderQueue);
 					}

@@ -1347,6 +1347,31 @@ Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 	return Nz::Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 }
 
+namespace std
+{
+	template<class T>
+	struct hash<Nz::Vector3<T>>
+	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param v Vector3 to hash
+		*/
+
+		std::size_t operator()(const Nz::Vector3<T>& v) const
+		{
+			std::size_t seed {};
+
+			Nz::HashCombine(seed, v.x);
+			Nz::HashCombine(seed, v.y);
+			Nz::HashCombine(seed, v.z);
+
+			return seed;
+		}
+	};
+}
+	
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
