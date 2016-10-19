@@ -78,7 +78,6 @@ namespace Nz
 			Color m_color;
 			MaterialRef m_material;
 			Recti m_localBounds;
-			mutable bool m_verticesUpdated;
 			float m_scale;
 
 			static TextSpriteLibrary::LibraryMap s_library;

@@ -56,7 +56,7 @@ namespace Nz
 	*/
 
 	inline IpAddress::IpAddress(const UInt8& a, const UInt8& b, const UInt8& c, const UInt8& d, UInt16 port) :
-	IpAddress(IPv4{a, b, c, d}, port)
+	IpAddress(IPv4{{a, b, c, d}}, port)
 	{
 	}
 
@@ -68,7 +68,7 @@ namespace Nz
 	*/
 
 	inline IpAddress::IpAddress(const UInt16& a, const UInt16& b, const UInt16& c, const UInt16& d, const UInt16& e, const UInt16& f, const UInt16& g, const UInt16& h, UInt16 port) :
-	IpAddress(IPv6{a, b, c, d, e, f, g, h}, port)
+	IpAddress(IPv6{{a, b, c, d, e, f, g, h}}, port)
 	{
 	}
 

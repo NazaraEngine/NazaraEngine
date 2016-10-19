@@ -111,7 +111,9 @@ namespace Nz
 
 	bool Log::Initialize()
 	{
-		SetLogger(new FileLogger());
+		if (s_logger == &s_stdLogger)
+			SetLogger(new FileLogger());
+
 		return true;
 	}
 

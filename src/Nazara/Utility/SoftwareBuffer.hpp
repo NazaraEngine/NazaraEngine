@@ -29,7 +29,6 @@ namespace Nz
 			bool Unmap();
 
 		private:
-			BufferType m_type;
 			UInt8* m_buffer;
 			bool m_mapped;
 	};

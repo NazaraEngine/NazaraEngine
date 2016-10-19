@@ -5,7 +5,7 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
@@ -40,7 +40,7 @@ namespace Ndk
 
 	void World::AddDefaultSystems()
 	{
-		AddSystem<PhysicsSystem>();
+		AddSystem<PhysicsSystem3D>();
 		AddSystem<VelocitySystem>();
 
 		#ifndef NDK_SERVER

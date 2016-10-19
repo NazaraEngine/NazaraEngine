@@ -123,9 +123,8 @@ namespace Nz
 	* \see CountOf
 	*/
 	template<typename T, std::size_t N>
-	constexpr std::size_t CountOf(T(&name)[N]) noexcept
+	constexpr std::size_t CountOf(T(&)[N]) noexcept
 	{
-		// NazaraUnused(name); //< Because "body of function is not a return-statement" >.>
 		return N;
 	}
 
