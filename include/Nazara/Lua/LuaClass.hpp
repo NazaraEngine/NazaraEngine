@@ -34,6 +34,7 @@ namespace Nz
 			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
 			using StaticFunc = std::function<int(LuaInstance& lua)>;
 
+			LuaClass() = default;
 			LuaClass(const String& name);
 
 			void BindDefaultConstructor();
@@ -49,6 +50,9 @@ namespace Nz
 
 			template<class P> void Inherit(LuaClass<P>& parent);
 			template<class P> void Inherit(LuaClass<P>& parent, ConvertToParent<P> convertFunc);
+
+			void Reset();
+			void Reset(const String& name);
 
 			void Register(LuaInstance& lua);
 

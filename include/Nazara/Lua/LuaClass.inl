@@ -10,10 +10,9 @@
 namespace Nz
 {
 	template<class T>
-	LuaClass<T>::LuaClass(const String& name) :
-	m_info(new ClassInfo)
+	LuaClass<T>::LuaClass(const String& name)
 	{
-		m_info->name = name;
+		Reset(name);
 	}
 
 	template<class T>
@@ -56,6 +55,20 @@ namespace Nz
 		{
 			LuaClass<P>::Get(parentInfo, lua, convertFunc(instance));
 		});
+	}
+
+
+	template<class T>
+	void LuaClass<T>::Reset()
+	{
+		m_info.reset();
+	}
+
+	template<class T>
+	void LuaClass<T>::Reset(const String& name)
+	{
+		m_info = std::make_shared<ClassInfo>();
+		m_info->name = name;
 	}
 
 	template<class T>
