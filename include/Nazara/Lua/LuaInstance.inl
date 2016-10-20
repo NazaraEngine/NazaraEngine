@@ -266,7 +266,7 @@ namespace Nz
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
 		static unsigned int Process(const LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
-			return LuaImplQueryArg(instance, argIndex, &std::get<N>(args), std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>());
+			return LuaImplQueryArg(instance, argIndex, &std::get<N>(args), std::get<FirstDefArg + std::tuple_size<DefArgContainer>() - N - 1>(defArgs), TypeTag<ArgType>());
 		}
 	};
 
