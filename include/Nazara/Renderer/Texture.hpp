@@ -53,16 +53,16 @@ namespace Nz
 
 			void EnsureMipmapsUpdate() const;
 
-			unsigned int GetDepth(UInt8 level = 0) const;
-			PixelFormatType GetFormat() const;
-			unsigned int GetHeight(UInt8 level = 0) const;
-			UInt8 GetLevelCount() const;
-			UInt8 GetMaxLevel() const;
-			std::size_t GetMemoryUsage() const;
-			std::size_t GetMemoryUsage(UInt8 level) const;
-			Vector3ui GetSize(UInt8 level = 0) const;
-			ImageType GetType() const;
-			unsigned int GetWidth(UInt8 level = 0) const;
+			unsigned int GetDepth(UInt8 level = 0) const override;
+			PixelFormatType GetFormat() const override;
+			unsigned int GetHeight(UInt8 level = 0) const override;
+			UInt8 GetLevelCount() const override;
+			UInt8 GetMaxLevel() const override;
+			std::size_t GetMemoryUsage() const override;
+			std::size_t GetMemoryUsage(UInt8 level) const override;
+			Vector3ui GetSize(UInt8 level = 0) const override;
+			ImageType GetType() const override;
+			unsigned int GetWidth(UInt8 level = 0) const override;
 
 			bool HasMipmaps() const;
 
@@ -101,9 +101,9 @@ namespace Nz
 			bool Update(const Image& image, UInt8 level = 0);
 			bool Update(const Image& image, const Boxui& box, UInt8 level = 0);
 			bool Update(const Image& image, const Rectui& rect, unsigned int z = 0, UInt8 level = 0);
-			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
-			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
-			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
+			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
+			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 
 			// Fonctions OpenGL
 			unsigned int GetOpenGLID() const;
