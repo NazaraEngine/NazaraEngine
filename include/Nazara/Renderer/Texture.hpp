@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -31,7 +30,7 @@ namespace Nz
 
 	struct TextureImpl;
 
-	class NAZARA_RENDERER_API Texture : public AbstractImage, public RefCounted, public Resource
+	class NAZARA_RENDERER_API Texture : public AbstractImage, public Resource
 	{
 		friend TextureLibrary;
 		friend TextureManager;
