@@ -34,10 +34,10 @@ namespace Nz
 			inline LuaInstance(LuaInstance&& instance) noexcept;
 			~LuaInstance();
 
-			void ArgCheck(bool condition, unsigned int argNum, const char* error);
-			void ArgCheck(bool condition, unsigned int argNum, const String& error);
-			int ArgError(unsigned int argNum, const char* error);
-			int ArgError(unsigned int argNum, const String& error);
+			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
+			void ArgCheck(bool condition, unsigned int argNum, const String& error) const;
+			int ArgError(unsigned int argNum, const char* error) const;
+			int ArgError(unsigned int argNum, const String& error) const;
 
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
