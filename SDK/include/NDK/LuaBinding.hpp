@@ -45,6 +45,7 @@ namespace Ndk
 
 			// Math
 			Nz::LuaClass<Nz::EulerAnglesd> eulerAnglesClass;
+			Nz::LuaClass<Nz::Matrix4d> matrix4dClass;
 			Nz::LuaClass<Nz::Quaterniond> quaternionClass;
 			Nz::LuaClass<Nz::Rectd> rectClass;
 			Nz::LuaClass<Nz::Vector2d> vector2dClass;

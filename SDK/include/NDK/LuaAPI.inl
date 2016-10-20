@@ -149,6 +149,86 @@ namespace Nz
 	*
 	* \param instance Lua instance to interact with
 	* \param index Index type
+	* \param address Resulting IP address
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_String:
+				address->BuildFromAddress(instance.CheckString(index));
+				return 1;
+
+			default:
+				*address = *static_cast<IpAddress*>(instance.CheckUserdata(index, "IpAddress"));
+				return 1;
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Matrix4d* mat, TypeTag<Matrix4d>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_Table:
+			{
+				double values[16];
+				for (std::size_t i = 0; i < 16; ++i)
+				{
+					instance.PushInteger(i + 1);
+					instance.GetTable();
+
+					values[i] = instance.CheckNumber(-1);
+					instance.Pop();
+				}
+
+				mat->Set(values);
+				return 1;
+			}
+
+			default:
+			{
+				if (instance.IsOfType(index, "Matrix4"))
+					mat->Set(*static_cast<Matrix4d*>(instance.ToUserdata(index)));
+
+				return 1;
+			}
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Matrix4f* mat, TypeTag<Matrix4f>)
+	{
+		Matrix4d matDouble;
+		unsigned int ret = LuaImplQueryArg(instance, index, &matDouble, TypeTag<Matrix4d>());
+
+		mat->Set(matDouble);
+		return ret;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
 	* \param params Resulting parameters for a mesh
 	*/
 
@@ -163,6 +243,53 @@ namespace Nz
 		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
 
 		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_Table:
+				quat->Set(instance.CheckField<double>("w", index), instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", index));
+				return 1;
+
+			default:
+			{
+				if (instance.IsOfType(index, "EulerAngles"))
+					quat->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
+				else
+					quat->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
+
+				return 1;
+			}
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaternionf* quat, TypeTag<Quaternionf>)
+	{
+		Quaterniond quatDouble;
+		unsigned int ret = LuaImplQueryArg(instance, index, &quatDouble, TypeTag<Quaterniond>());
+
+		quat->Set(quatDouble);
+		return ret;
 	}
 
 	/*!
@@ -220,76 +347,6 @@ namespace Nz
 
 		rect->Set(rectDouble);
 		return ret;
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param quat Resulting quaternion
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
-	{
-		switch (instance.GetType(index))
-		{
-			case Nz::LuaType_Table:
-				quat->Set(instance.CheckField<double>("w", index), instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", index));
-				return 1;
-
-			default:
-			{
-				if (instance.IsOfType(index, "EulerAngles"))
-					quat->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
-				else
-					quat->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
-
-				return 1;
-			}
-		}
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param quat Resulting quaternion
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaternionf* quat, TypeTag<Quaternionf>)
-	{
-		Quaterniond quatDouble;
-		unsigned int ret = LuaImplQueryArg(instance, index, &quatDouble, TypeTag<Quaterniond>());
-
-		quat->Set(quatDouble);
-		return ret;
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param address Resulting IP address
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
-	{
-		switch (instance.GetType(index))
-		{
-			case Nz::LuaType_String:
-				address->BuildFromAddress(instance.CheckString(index));
-				return 1;
-
-			default:
-				*address = *static_cast<IpAddress*>(instance.CheckUserdata(index, "IpAddress"));
-				return 1;
-		}
 	}
 
 	/*!
@@ -473,6 +530,7 @@ namespace Nz
 			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "InstancedRenderable"));
 		else
 			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "Model"));
+
 		return 1;
 	}
 
@@ -624,6 +682,48 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
+	* \param val Resulting IP address
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
+	{
+		instance.PushInstance<IpAddress>("IpAddress", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Matrix4d&& val, TypeTag<Matrix4d>)
+	{
+		instance.PushInstance<Matrix4d>("Matrix4", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Matrix4f&& val, TypeTag<Matrix4f>)
+	{
+		instance.PushInstance<Matrix4d>("Matrix4", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
 	* \param val Resulting quaternion
 	*/
 
@@ -652,24 +752,10 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
-	* \param val Resulting IP address
-	*/
-
-	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
-	{
-		instance.PushInstance<IpAddress>("IpAddress", val);
-		return 1;
-	}
-
-	/*!
-	* \brief Replies by value for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
 	* \param val Resulting rectangle
 	*/
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Rectd&& val, TypeTag<Rectf>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Rectd&& val, TypeTag<Rectd>)
 	{
 		instance.PushInstance<Rectd>("Rect", val);
 		return 1;
