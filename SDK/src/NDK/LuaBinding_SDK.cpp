@@ -139,6 +139,64 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
+		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent) -> int
+		{
+			/*
+			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
+			*/
+
+			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
+
+			switch (argCount)
+			{
+				case 1:
+				{
+					int argIndex = 1;
+					gfxComponent->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
+					return 0;
+				}
+
+				case 2:
+				{
+					int index = 1;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&index);
+
+					if (lua.IsOfType(index, Nz::LuaType_Number))
+					{
+						int renderOrder = lua.Check<int>(&index);
+
+						gfxComponent->Attach(renderable, renderOrder);
+					}
+					else if (lua.IsOfType(index, "Matrix4"))
+					{
+						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&index);
+						int renderOrder = lua.Check<int>(&index);
+
+						gfxComponent->Attach(renderable, localMatrix, renderOrder);
+					}
+					else
+						break;
+
+					return 0;
+				}
+
+				case 3:
+				{
+					int index = 1;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&index);
+					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&index);
+					int renderOrder = lua.Check<int>(&index);
+
+					gfxComponent->Attach(renderable, localMatrix, renderOrder);
+					return 0;
+				}
+			}
+
+			lua.Error("No matching overload for method GetMemoryUsage");
+			return 0;
+		});
+
 		graphicsComponent.BindMethod("Attach", (void(Ndk::GraphicsComponent::*)(Nz::InstancedRenderableRef, int)) &GraphicsComponent::Attach, 0);
 		#endif
 

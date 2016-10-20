@@ -154,6 +154,64 @@ namespace Ndk
 			return false;
 		});
 
+		
+		/*********************************** Nz::Matrix4 **********************************/
+		matrix4dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Matrix4d* matrix, std::size_t argumentCount)
+		{
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
+
+			switch (argCount)
+			{
+				case 0:
+					Nz::PlacementNew(matrix, Nz::Matrix4d::Zero());
+					return true;
+
+				case 1:
+					if (lua.IsOfType(1, "Matrix4"))
+						Nz::PlacementNew(matrix, *static_cast<Nz::Matrix4d*>(lua.ToUserdata(1)));
+					break;
+
+				case 16:
+				{
+					double values[16];
+					for (std::size_t i = 0; i < 16; ++i)
+						values[i] = lua.CheckNumber(i);
+
+					Nz::PlacementNew(matrix, values);
+
+					return true;
+				}
+			}
+
+			lua.Error("No matching overload for constructor");
+			return false;
+		});
+
+		matrix4dClass.BindMethod("__tostring", &Nz::Matrix4d::ToString);
+
+		matrix4dClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
+		{
+			int argIndex = 1;
+			std::size_t index = lua.Check<std::size_t>(&argIndex);
+			if (index < 1 || index > 16)
+				return false;
+
+			lua.Push(instance[index - 1]);
+			return true;
+		});
+
+		matrix4dClass.SetSetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
+		{
+			int argIndex = 1;
+			std::size_t index = lua.Check<std::size_t>(&argIndex);
+			if (index < 1 || index > 16)
+				return false;
+
+			instance[index - 1] = lua.CheckNumber(argIndex);
+
+			return true;
+		});
+
 		/*********************************** Nz::Rect **********************************/
 		rectClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect, std::size_t argumentCount)
 		{
@@ -694,6 +752,7 @@ namespace Ndk
 	void LuaBinding::RegisterMath(Nz::LuaInstance& instance)
 	{
 		eulerAnglesClass.Register(instance);
+		matrix4dClass.Register(instance);
 		quaternionClass.Register(instance);
 		rectClass.Register(instance);
 		vector2dClass.Register(instance);
