@@ -36,58 +36,58 @@ namespace Ndk
 
 		/*********************************** Ndk::Console **********************************/
 		#ifndef NDK_SERVER
-		consoleClass.Inherit<Nz::Node>(nodeClass, [] (ConsoleHandle* handle) -> Nz::Node*
+		console.Inherit<Nz::Node>(node, [] (ConsoleHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
 		});
 
-		consoleClass.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
-		consoleClass.BindMethod("Clear", &Console::Clear);
-		consoleClass.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
-		consoleClass.BindMethod("GetHistory", &Console::GetHistory);
-		consoleClass.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
-		consoleClass.BindMethod("GetInput", &Console::GetInput);
-		consoleClass.BindMethod("GetInputBackground", &Console::GetInputBackground);
-		consoleClass.BindMethod("GetSize", &Console::GetSize);
-		consoleClass.BindMethod("GetTextFont", &Console::GetTextFont);
+		console.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
+		console.BindMethod("Clear", &Console::Clear);
+		console.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
+		console.BindMethod("GetHistory", &Console::GetHistory);
+		console.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
+		console.BindMethod("GetInput", &Console::GetInput);
+		console.BindMethod("GetInputBackground", &Console::GetInputBackground);
+		console.BindMethod("GetSize", &Console::GetSize);
+		console.BindMethod("GetTextFont", &Console::GetTextFont);
 
-		consoleClass.BindMethod("IsVisible", &Console::IsVisible);
+		console.BindMethod("IsVisible", &Console::IsVisible);
 
-		consoleClass.BindMethod("SendCharacter", &Console::SendCharacter);
+		console.BindMethod("SendCharacter", &Console::SendCharacter);
 		//consoleClass.SetMethod("SendEvent", &Console::SendEvent);
 
-		consoleClass.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
-		consoleClass.BindMethod("SetSize", &Console::SetSize);
-		consoleClass.BindMethod("SetTextFont", &Console::SetTextFont);
+		console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
+		console.BindMethod("SetSize", &Console::SetSize);
+		console.BindMethod("SetTextFont", &Console::SetTextFont);
 		
-		consoleClass.BindMethod("Show", &Console::Show, true);
+		console.BindMethod("Show", &Console::Show, true);
 		#endif
 
 		/*********************************** Ndk::Entity **********************************/
-		entityClass.BindMethod("Enable", &Entity::Enable, true);
-		entityClass.BindMethod("GetId", &Entity::GetId);
-		entityClass.BindMethod("GetWorld", &Entity::GetWorld);
-		entityClass.BindMethod("Kill", &Entity::Kill);
-		entityClass.BindMethod("IsEnabled", &Entity::IsEnabled);
-		entityClass.BindMethod("IsValid", &Entity::IsValid);
-		entityClass.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
-		entityClass.BindMethod("__tostring", &EntityHandle::ToString);
+		entity.BindMethod("Enable", &Entity::Enable, true);
+		entity.BindMethod("GetId", &Entity::GetId);
+		entity.BindMethod("GetWorld", &Entity::GetWorld);
+		entity.BindMethod("Kill", &Entity::Kill);
+		entity.BindMethod("IsEnabled", &Entity::IsEnabled);
+		entity.BindMethod("IsValid", &Entity::IsValid);
+		entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
+		entity.BindMethod("__tostring", &EntityHandle::ToString);
 
-		entityClass.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->adder(instance, handle);
 		});
 
-		entityClass.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->getter(instance, handle->GetComponent(binding->index));
 		});
 
-		entityClass.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
@@ -96,7 +96,7 @@ namespace Ndk
 		});
 
 		/*********************************** Ndk::NodeComponent **********************************/
-		nodeComponent.Inherit<Nz::Node>(nodeClass, [] (NodeComponentHandle* handle) -> Nz::Node*
+		nodeComponent.Inherit<Nz::Node>(node, [] (NodeComponentHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
 		});
@@ -132,9 +132,9 @@ namespace Ndk
 		});
 
 		/*********************************** Ndk::World **********************************/
-		worldClass.BindMethod("CreateEntity", &World::CreateEntity);
-		worldClass.BindMethod("CreateEntities", &World::CreateEntities);
-		worldClass.BindMethod("Clear", &World::Clear);
+		world.BindMethod("CreateEntity", &World::CreateEntity);
+		world.BindMethod("CreateEntities", &World::CreateEntities);
+		world.BindMethod("Clear", &World::Clear);
 
 
 		#ifndef NDK_SERVER
@@ -222,13 +222,13 @@ namespace Ndk
 	{
 		// Classes
 		application.Register(instance);
-		entityClass.Register(instance);
+		entity.Register(instance);
 		nodeComponent.Register(instance);
 		velocityComponent.Register(instance);
-		worldClass.Register(instance);
+		world.Register(instance);
 
 		#ifndef NDK_SERVER
-		consoleClass.Register(instance);
+		console.Register(instance);
 		graphicsComponent.Register(instance);
 		#endif
 

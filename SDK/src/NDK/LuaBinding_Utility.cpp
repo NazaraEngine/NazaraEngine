@@ -93,19 +93,19 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Font **********************************/
-		fontClass.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* font, std::size_t /*argumentCount*/)
+		font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* font, std::size_t /*argumentCount*/)
 		{
 			Nz::PlacementNew(font, Nz::Font::New());
 			return true;
 		});
 
-		fontClass.BindMethod("ClearGlyphCache",    &Nz::Font::ClearGlyphCache);
-		fontClass.BindMethod("ClearKerningCache",  &Nz::Font::ClearKerningCache);
-		fontClass.BindMethod("ClearSizeInfoCache", &Nz::Font::ClearSizeInfoCache);
+		font.BindMethod("ClearGlyphCache",    &Nz::Font::ClearGlyphCache);
+		font.BindMethod("ClearKerningCache",  &Nz::Font::ClearKerningCache);
+		font.BindMethod("ClearSizeInfoCache", &Nz::Font::ClearSizeInfoCache);
 
-		fontClass.BindMethod("Destroy", &Nz::Font::Destroy);
+		font.BindMethod("Destroy", &Nz::Font::Destroy);
 
-		fontClass.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance) -> int
+		font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
 
@@ -130,76 +130,76 @@ namespace Ndk
 			return 0;
 		});
 
-		fontClass.BindMethod("GetFamilyName",      &Nz::Font::GetFamilyName);
-		fontClass.BindMethod("GetKerning",         &Nz::Font::GetKerning);
-		fontClass.BindMethod("GetGlyphBorder",     &Nz::Font::GetGlyphBorder);
-		fontClass.BindMethod("GetMinimumStepSize", &Nz::Font::GetMinimumStepSize);
-		fontClass.BindMethod("GetSizeInfo",        &Nz::Font::GetSizeInfo);
-		fontClass.BindMethod("GetStyleName",       &Nz::Font::GetStyleName);
+		font.BindMethod("GetFamilyName",      &Nz::Font::GetFamilyName);
+		font.BindMethod("GetKerning",         &Nz::Font::GetKerning);
+		font.BindMethod("GetGlyphBorder",     &Nz::Font::GetGlyphBorder);
+		font.BindMethod("GetMinimumStepSize", &Nz::Font::GetMinimumStepSize);
+		font.BindMethod("GetSizeInfo",        &Nz::Font::GetSizeInfo);
+		font.BindMethod("GetStyleName",       &Nz::Font::GetStyleName);
 
-		fontClass.BindMethod("IsValid", &Nz::Font::IsValid);
+		font.BindMethod("IsValid", &Nz::Font::IsValid);
 
-		fontClass.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
+		font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
 
-		fontClass.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
+		font.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
 
-		fontClass.BindMethod("SetGlyphBorder",     &Nz::Font::SetGlyphBorder);
-		fontClass.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
+		font.BindMethod("SetGlyphBorder",     &Nz::Font::SetGlyphBorder);
+		font.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
 
-		fontClass.BindStaticMethod("GetDefault",                &Nz::Font::GetDefault);
-		fontClass.BindStaticMethod("GetDefaultGlyphBorder",     &Nz::Font::GetDefaultGlyphBorder);
-		fontClass.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
+		font.BindStaticMethod("GetDefault",                &Nz::Font::GetDefault);
+		font.BindStaticMethod("GetDefaultGlyphBorder",     &Nz::Font::GetDefaultGlyphBorder);
+		font.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
 
-		fontClass.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
-		fontClass.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
+		font.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
+		font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
 
 		/*********************************** Nz::Node **********************************/
-		nodeClass.BindMethod("GetBackward", &Nz::Node::GetBackward);
+		node.BindMethod("GetBackward", &Nz::Node::GetBackward);
 		//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
-		nodeClass.BindMethod("GetDown", &Nz::Node::GetDown);
-		nodeClass.BindMethod("GetForward", &Nz::Node::GetForward);
-		nodeClass.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
-		nodeClass.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
-		nodeClass.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
-		nodeClass.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
+		node.BindMethod("GetDown", &Nz::Node::GetDown);
+		node.BindMethod("GetForward", &Nz::Node::GetForward);
+		node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
+		node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
+		node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
+		node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
 		//nodeClass.SetMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
-		nodeClass.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
-		nodeClass.BindMethod("GetLeft", &Nz::Node::GetLeft);
-		nodeClass.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
+		node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
+		node.BindMethod("GetLeft", &Nz::Node::GetLeft);
+		node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
 		//nodeClass.SetMethod("GetParent", &Nz::Node::GetParent);
-		nodeClass.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
-		nodeClass.BindMethod("GetRight", &Nz::Node::GetRight);
+		node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
+		node.BindMethod("GetRight", &Nz::Node::GetRight);
 		//nodeClass.SetMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
-		nodeClass.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
+		node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
 		//nodeClass.SetMethod("GetTransformMatrix", &Nz::Node::GetTransformMatrix);
-		nodeClass.BindMethod("GetUp", &Nz::Node::GetUp);
+		node.BindMethod("GetUp", &Nz::Node::GetUp);
 
-		nodeClass.BindMethod("HasChilds", &Nz::Node::HasChilds);
+		node.BindMethod("HasChilds", &Nz::Node::HasChilds);
 
-		nodeClass.BindMethod("GetBackward", &Nz::Node::GetBackward);
-		nodeClass.BindMethod("GetDown", &Nz::Node::GetDown);
-		nodeClass.BindMethod("GetForward", &Nz::Node::GetForward);
-		nodeClass.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
-		nodeClass.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
-		nodeClass.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
-		nodeClass.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
-		nodeClass.BindMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
-		nodeClass.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
-		nodeClass.BindMethod("GetLeft", &Nz::Node::GetLeft);
-		nodeClass.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
-		nodeClass.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
-		nodeClass.BindMethod("GetRight", &Nz::Node::GetRight);
-		nodeClass.BindMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
-		nodeClass.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
-		nodeClass.BindMethod("GetUp", &Nz::Node::GetUp);
+		node.BindMethod("GetBackward", &Nz::Node::GetBackward);
+		node.BindMethod("GetDown", &Nz::Node::GetDown);
+		node.BindMethod("GetForward", &Nz::Node::GetForward);
+		node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
+		node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
+		node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
+		node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
+		node.BindMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
+		node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
+		node.BindMethod("GetLeft", &Nz::Node::GetLeft);
+		node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
+		node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
+		node.BindMethod("GetRight", &Nz::Node::GetRight);
+		node.BindMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
+		node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
+		node.BindMethod("GetUp", &Nz::Node::GetUp);
 
-		nodeClass.BindMethod("SetInitialPosition", (void(Nz::Node::*)(const Nz::Vector3f&)) &Nz::Node::SetInitialPosition);
-		nodeClass.BindMethod("SetInitialRotation", (void(Nz::Node::*)(const Nz::Quaternionf&)) &Nz::Node::SetInitialRotation);
+		node.BindMethod("SetInitialPosition", (void(Nz::Node::*)(const Nz::Vector3f&)) &Nz::Node::SetInitialPosition);
+		node.BindMethod("SetInitialRotation", (void(Nz::Node::*)(const Nz::Quaternionf&)) &Nz::Node::SetInitialRotation);
 
-		nodeClass.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
-		nodeClass.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
+		node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
+		node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-		nodeClass.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
 		{
 			int argIndex = 1;
 
@@ -210,7 +210,7 @@ namespace Ndk
 			return 0;
 		});
 
-		nodeClass.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
 		{
 			int argIndex = 1;
 
@@ -221,7 +221,7 @@ namespace Ndk
 			return 0;
 		});
 
-		nodeClass.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
 
@@ -247,7 +247,7 @@ namespace Ndk
 			return 0;
 		});
 
-		nodeClass.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
 
@@ -284,7 +284,7 @@ namespace Ndk
 			return 0;
 		});
 
-		nodeClass.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
 		{
 			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
 
@@ -321,7 +321,7 @@ namespace Ndk
 	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
 	{
 		abstractImage.Register(instance);
-		fontClass.Register(instance);
-		nodeClass.Register(instance);
+		font.Register(instance);
+		node.Register(instance);
 	}
 }

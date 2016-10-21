@@ -38,52 +38,52 @@ namespace Ndk
 			void RegisterClasses(Nz::LuaInstance& instance);
 
 			// Core
-			Nz::LuaClass<Nz::Clock> clockClass;
-			Nz::LuaClass<Nz::Directory> directoryClass;
-			Nz::LuaClass<Nz::File> fileClass;
-			Nz::LuaClass<Nz::Stream> streamClass;
+			Nz::LuaClass<Nz::Clock> clock;
+			Nz::LuaClass<Nz::Directory> directory;
+			Nz::LuaClass<Nz::File> file;
+			Nz::LuaClass<Nz::Stream> stream;
 
 			// Math
-			Nz::LuaClass<Nz::EulerAnglesd> eulerAnglesClass;
-			Nz::LuaClass<Nz::Matrix4d> matrix4dClass;
-			Nz::LuaClass<Nz::Quaterniond> quaternionClass;
-			Nz::LuaClass<Nz::Rectd> rectClass;
-			Nz::LuaClass<Nz::Vector2d> vector2dClass;
-			Nz::LuaClass<Nz::Vector3d> vector3dClass;
+			Nz::LuaClass<Nz::EulerAnglesd> eulerAngles;
+			Nz::LuaClass<Nz::Matrix4d> matrix4d;
+			Nz::LuaClass<Nz::Quaterniond> quaternion;
+			Nz::LuaClass<Nz::Rectd> rect;
+			Nz::LuaClass<Nz::Vector2d> vector2d;
+			Nz::LuaClass<Nz::Vector3d> vector3d;
 
 			// Network
-			Nz::LuaClass<Nz::AbstractSocket> abstractSocketClass;
-			Nz::LuaClass<Nz::IpAddress> ipAddressClass;
+			Nz::LuaClass<Nz::AbstractSocket> abstractSocket;
+			Nz::LuaClass<Nz::IpAddress> ipAddress;
 
 			// Utility
 			Nz::LuaClass<Nz::AbstractImageRef> abstractImage;
-			Nz::LuaClass<Nz::FontRef> fontClass;
-			Nz::LuaClass<Nz::Node> nodeClass;
+			Nz::LuaClass<Nz::FontRef> font;
+			Nz::LuaClass<Nz::Node> node;
 
 			// SDK
 			Nz::LuaClass<Application*> application;
-			Nz::LuaClass<EntityHandle> entityClass;
+			Nz::LuaClass<EntityHandle> entity;
 			Nz::LuaClass<NodeComponentHandle> nodeComponent;
 			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
-			Nz::LuaClass<WorldHandle> worldClass;
+			Nz::LuaClass<WorldHandle> world;
 
 			#ifndef NDK_SERVER
 			// Audio
-			Nz::LuaClass<Nz::Music> musicClass;
-			Nz::LuaClass<Nz::Sound> soundClass;
+			Nz::LuaClass<Nz::Music> music;
+			Nz::LuaClass<Nz::Sound> sound;
 			Nz::LuaClass<Nz::SoundBufferRef> soundBuffer;
 			Nz::LuaClass<Nz::SoundEmitter> soundEmitter;
 
 			// Graphics
 			Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable;
-			Nz::LuaClass<Nz::ModelRef> modelClass;
-			Nz::LuaClass<Nz::SpriteRef> spriteClass;
+			Nz::LuaClass<Nz::ModelRef> model;
+			Nz::LuaClass<Nz::SpriteRef> sprite;
 
 			// Renderer
 			Nz::LuaClass<Nz::TextureRef> texture;
 
 			// SDK
-			Nz::LuaClass<ConsoleHandle> consoleClass;
+			Nz::LuaClass<ConsoleHandle> console;
 			Nz::LuaClass<GraphicsComponentHandle> graphicsComponent;
 			#endif
 

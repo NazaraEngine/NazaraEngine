@@ -14,7 +14,7 @@ namespace Ndk
 	void LuaBinding::BindMath()
 	{
 		/*********************************** Nz::EulerAngles **********************************/
-		eulerAnglesClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* angles, std::size_t argumentCount)
+		eulerAngles.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* angles, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
@@ -37,9 +37,9 @@ namespace Ndk
 			return false;
 		});
 
-		eulerAnglesClass.BindMethod("__tostring", &Nz::EulerAnglesd::ToString);
+		eulerAngles.BindMethod("__tostring", &Nz::EulerAnglesd::ToString);
 
-		eulerAnglesClass.SetGetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
+		eulerAngles.SetGetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
 		{
 			std::size_t length;
 			const char* ypr = lua.CheckString(1, &length);
@@ -96,7 +96,7 @@ namespace Ndk
 			return false;
 		});
 
-		eulerAnglesClass.SetSetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
+		eulerAngles.SetSetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
 		{
 			std::size_t length;
 			const char* ypr = lua.CheckString(1, &length);
@@ -156,7 +156,7 @@ namespace Ndk
 
 		
 		/*********************************** Nz::Matrix4 **********************************/
-		matrix4dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Matrix4d* matrix, std::size_t argumentCount)
+		matrix4d.SetConstructor([] (Nz::LuaInstance& lua, Nz::Matrix4d* matrix, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
 
@@ -187,9 +187,9 @@ namespace Ndk
 			return false;
 		});
 
-		matrix4dClass.BindMethod("__tostring", &Nz::Matrix4d::ToString);
+		matrix4d.BindMethod("__tostring", &Nz::Matrix4d::ToString);
 
-		matrix4dClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
+		matrix4d.SetGetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
 		{
 			int argIndex = 1;
 			std::size_t index = lua.Check<std::size_t>(&argIndex);
@@ -200,7 +200,7 @@ namespace Ndk
 			return true;
 		});
 
-		matrix4dClass.SetSetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
+		matrix4d.SetSetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
 		{
 			int argIndex = 1;
 			std::size_t index = lua.Check<std::size_t>(&argIndex);
@@ -213,7 +213,7 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Rect **********************************/
-		rectClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect, std::size_t argumentCount)
+		rect.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -261,9 +261,9 @@ namespace Ndk
 			return false;
 		});
 
-		rectClass.BindMethod("__tostring", &Nz::Rectd::ToString);
+		rect.BindMethod("__tostring", &Nz::Rectd::ToString);
 
-		rectClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
+		rect.SetGetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -316,7 +316,7 @@ namespace Ndk
 			return false;
 		});
 
-		rectClass.SetSetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
+		rect.SetSetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -369,7 +369,7 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Quaternion **********************************/
-		quaternionClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion, std::size_t argumentCount)
+		quaternion.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -407,9 +407,9 @@ namespace Ndk
 			return false;
 		});
 
-		quaternionClass.BindMethod("__tostring", &Nz::Quaterniond::ToString);
+		quaternion.BindMethod("__tostring", &Nz::Quaterniond::ToString);
 
-		quaternionClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
+		quaternion.SetGetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
 			std::size_t length;
 			const char* wxyz = lua.CheckString(1, &length);
@@ -439,7 +439,7 @@ namespace Ndk
 			return false;
 		});
 
-		quaternionClass.SetSetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
+		quaternion.SetSetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
 			std::size_t length;
 			const char* wxyz = lua.CheckString(1, &length);
@@ -475,7 +475,7 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector2 **********************************/
-		vector2dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector2d* vector, std::size_t argumentCount)
+		vector2d.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector2d* vector, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -503,9 +503,9 @@ namespace Ndk
 			return false;
 		});
 
-		vector2dClass.BindMethod("__tostring", &Nz::Vector2d::ToString);
+		vector2d.BindMethod("__tostring", &Nz::Vector2d::ToString);
 
-		vector2dClass.SetGetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
+		vector2d.SetGetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -550,7 +550,7 @@ namespace Ndk
 			return false;
 		});
 
-		vector2dClass.SetSetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
+		vector2d.SetSetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -598,7 +598,7 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Vector3 **********************************/
-		vector3dClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector3d* vector, std::size_t argumentCount)
+		vector3d.SetConstructor([] (Nz::LuaInstance& lua, Nz::Vector3d* vector, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
 
@@ -640,9 +640,9 @@ namespace Ndk
 			return false;
 		});
 
-		vector3dClass.BindMethod("__tostring", &Nz::Vector3d::ToString);
+		vector3d.BindMethod("__tostring", &Nz::Vector3d::ToString);
 
-		vector3dClass.SetGetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
+		vector3d.SetGetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -691,7 +691,7 @@ namespace Ndk
 			return false;
 		});
 
-		vector3dClass.SetSetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
+		vector3d.SetSetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
 		{
 			switch (lua.GetType(1))
 			{
@@ -751,11 +751,11 @@ namespace Ndk
 
 	void LuaBinding::RegisterMath(Nz::LuaInstance& instance)
 	{
-		eulerAnglesClass.Register(instance);
-		matrix4dClass.Register(instance);
-		quaternionClass.Register(instance);
-		rectClass.Register(instance);
-		vector2dClass.Register(instance);
-		vector3dClass.Register(instance);
+		eulerAngles.Register(instance);
+		matrix4d.Register(instance);
+		quaternion.Register(instance);
+		rect.Register(instance);
+		vector2d.Register(instance);
+		vector3d.Register(instance);
 	}
 }
