@@ -24,19 +24,6 @@
 #include <NDK/Console.hpp>
 #endif
 
-namespace Ndk
-{
-	/*!
-	* \brief Gets the internal binding for Lua
-	* \return A pointer to the binding
-	*/
-
-	inline LuaBinding* LuaAPI::GetBinding()
-	{
-		return s_binding;
-	}
-}
-
 namespace Nz
 {
 	/*!
