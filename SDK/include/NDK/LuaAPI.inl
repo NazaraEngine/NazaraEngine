@@ -840,20 +840,6 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
-	* \param handle Resulting texture
-	*/
-
-	inline int LuaImplReplyVal(const LuaInstance& instance, TextureRef&& handle, TypeTag<TextureRef>)
-	{
-		instance.PushInstance<TextureRef>("Texture", handle);
-		return 1;
-	}
-
-	/*!
-	* \brief Replies by value for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
 	* \param val Resulting vector2D
 	*/
 
@@ -1038,6 +1024,34 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
+	* \param val Resulting sound buffer
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
+	{
+		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting texture
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, TextureRef&& handle, TypeTag<TextureRef>)
+	{
+		instance.PushInstance<TextureRef>("Texture", handle);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
 	* \param handle Resulting console
 	*/
 
@@ -1060,21 +1074,6 @@ namespace Nz
 		instance.PushInstance<Ndk::GraphicsComponentHandle>("GraphicsComponent", handle);
 		return 1;
 	}
-
-	/*!
-	* \brief Replies by value for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param val Resulting sound buffer
-	*/
-
-	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
-	{
-		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
-		return 1;
-	}
-
 #endif
 
 }
