@@ -10,6 +10,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>

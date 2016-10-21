@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline AbstractImage::AbstractImage(const AbstractImage& image) :
+	inline AbstractImage::AbstractImage(const AbstractImage&) :
 	RefCounted()
 	{
 	}
