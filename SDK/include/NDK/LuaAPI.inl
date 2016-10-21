@@ -631,6 +631,22 @@ namespace Nz
 	*
 	* \param instance Lua instance to interact with
 	* \param index Index type
+	* \param renderable Resulting reference to a sprite
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, SpriteRef* spriteRef, TypeTag<SpriteRef>)
+	{
+		*spriteRef = *static_cast<SpriteRef*>(instance.CheckUserdata(index, "Sprite"));
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
 	* \param fontRef Resulting reference to a font
 	*/
 
@@ -1030,6 +1046,20 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting sprite
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, SpriteRef&& handle, TypeTag<SpriteRef>)
+	{
+		instance.PushInstance<SpriteRef>("Sprite", handle);
 		return 1;
 	}
 
