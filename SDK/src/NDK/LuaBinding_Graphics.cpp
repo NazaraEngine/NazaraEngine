@@ -71,6 +71,14 @@ namespace Ndk
 		sprite.BindMethod("SetTexture", &Nz::Sprite::SetTexture, true);
 		sprite.BindMethod("SetTextureCoords", &Nz::Sprite::SetTextureCoords);
 		sprite.BindMethod("SetTextureRect", &Nz::Sprite::SetTextureRect);
+
+		/*********************************** Nz::SpriteLibrary ***********************************/
+
+		spriteLibrary.BindStaticMethod("Get",        &Nz::SpriteLibrary::Get);
+		spriteLibrary.BindStaticMethod("Has",        &Nz::SpriteLibrary::Has);
+		spriteLibrary.BindStaticMethod("Register",   &Nz::SpriteLibrary::Register);
+		spriteLibrary.BindStaticMethod("Query",      &Nz::SpriteLibrary::Query);
+		spriteLibrary.BindStaticMethod("Unregister", &Nz::SpriteLibrary::Unregister);
 	}
 
 	/*!
@@ -84,5 +92,6 @@ namespace Ndk
 		instancedRenderable.Register(instance);
 		model.Register(instance);
 		sprite.Register(instance);
+		spriteLibrary.Register(instance);
 	}
 }
