@@ -66,6 +66,16 @@ namespace Nz
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:
+			void PushClassInfo(LuaInstance& lua);
+			void SetupConstructor(LuaInstance& lua);
+			void SetupDefaultToString(LuaInstance& lua);
+			void SetupFinalizer(LuaInstance& lua);
+			void SetupGetter(LuaInstance& lua, LuaCFunction proxy);
+			void SetupGlobalTable(LuaInstance& lua);
+			void SetupMetatable(LuaInstance& lua);
+			void SetupMethod(LuaInstance& lua, LuaCFunction proxy, const String& name, std::size_t methodIndex);
+			void SetupSetter(LuaInstance& lua, LuaCFunction proxy);
+		
 			using ParentFunc = std::function<void(LuaInstance& lua, T* instance)>;
 			using InstanceGetter = std::function<T*(LuaInstance& lua)>;
 
