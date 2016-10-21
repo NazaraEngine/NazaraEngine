@@ -22,6 +22,7 @@
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <NDK/Console.hpp>
 #endif
 
