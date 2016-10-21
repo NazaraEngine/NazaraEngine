@@ -249,6 +249,28 @@ namespace Nz
 		lua.SetField("__tostring");
 	}
 
+	template<typename T, bool HasDestructor>
+	struct LuaClassImplFinalizerSetupProxy;
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, true>
+	{
+		static void Setup(LuaInstance& lua)
+		{
+			lua.PushValue(1); // ClassInfo
+			lua.PushCFunction(LuaClass<T>::FinalizerProxy, 1);
+			lua.SetField("__gc");
+		}
+	};
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, false>
+	{
+		static void Setup(LuaInstance&)
+		{
+		}
+	};
+
 	template<class T>
 	void LuaClass<T>::SetupFinalizer(LuaInstance& lua)
 	{
@@ -566,28 +588,6 @@ namespace Nz
 		lua.PushString(info->name);
 		return 1;
 	}
-
-	template<typename T, bool HasDestructor>
-	struct LuaClassImplFinalizerSetupProxy;
-
-	template<typename T>
-	struct LuaClassImplFinalizerSetupProxy<T, true>
-	{
-		static void Setup(LuaInstance& lua)
-		{
-			lua.PushValue(1); // ClassInfo
-			lua.PushCFunction(LuaClass<T>::FinalizerProxy, 1);
-			lua.SetField("__gc");
-		}
-	};
-
-	template<typename T>
-	struct LuaClassImplFinalizerSetupProxy<T, false>
-	{
-		static void Setup(LuaInstance&)
-		{
-		}
-	};
 }
 
 #include <Nazara/Lua/DebugOff.hpp>
