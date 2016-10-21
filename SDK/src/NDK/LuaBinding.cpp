@@ -57,6 +57,7 @@ namespace Ndk
 	// Graphics
 	instancedRenderable("InstancedRenderable"),
 	modelClass("Model"),
+	spriteClass("Sprite"),
 
 	// Renderer
 	texture("Texture"),

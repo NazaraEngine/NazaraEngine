@@ -42,6 +42,35 @@ namespace Ndk
 		//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
 		modelClass.BindMethod("SetSkin", &Nz::Model::SetSkin);
 		modelClass.BindMethod("SetSkinCount", &Nz::Model::SetSkinCount);
+
+		/*********************************** Nz::Sprite ***********************************/
+		spriteClass.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::SpriteRef* sprite) -> Nz::InstancedRenderableRef*
+		{
+			return reinterpret_cast<Nz::InstancedRenderableRef*>(sprite); //TODO: Make a ObjectRefCast
+		});
+
+		spriteClass.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::SpriteRef* sprite, std::size_t /*argumentCount*/)
+		{
+			Nz::PlacementNew(sprite, Nz::Sprite::New());
+			return true;
+		});
+
+		spriteClass.BindMethod("GetColor", &Nz::Sprite::GetColor);
+		spriteClass.BindMethod("GetCornerColor", &Nz::Sprite::GetCornerColor);
+		//spriteClass.BindMethod("GetMaterial", &Nz::Sprite::GetMaterial);
+		spriteClass.BindMethod("GetOrigin", &Nz::Sprite::GetOrigin);
+		spriteClass.BindMethod("GetSize", &Nz::Sprite::GetSize);
+		spriteClass.BindMethod("GetTextureCoords", &Nz::Sprite::GetTextureCoords);
+
+		spriteClass.BindMethod("SetColor", &Nz::Sprite::SetColor);
+		spriteClass.BindMethod("SetCornerColor", &Nz::Sprite::SetCornerColor);
+		spriteClass.BindMethod("SetDefaultMaterial", &Nz::Sprite::SetDefaultMaterial);
+		//spriteClass.BindMethod("SetMaterial", &Nz::Sprite::SetMaterial, true);
+		spriteClass.BindMethod("SetOrigin", &Nz::Sprite::SetOrigin);
+		spriteClass.BindMethod("SetSize", (void(Nz::Sprite::*)(const Nz::Vector2f&)) &Nz::Sprite::SetSize);
+		spriteClass.BindMethod("SetTexture", &Nz::Sprite::SetTexture, true);
+		spriteClass.BindMethod("SetTextureCoords", &Nz::Sprite::SetTextureCoords);
+		spriteClass.BindMethod("SetTextureRect", &Nz::Sprite::SetTextureRect);
 	}
 
 	/*!
@@ -54,5 +83,6 @@ namespace Ndk
 	{
 		instancedRenderable.Register(instance);
 		modelClass.Register(instance);
+		spriteClass.Register(instance);
 	}
 }
