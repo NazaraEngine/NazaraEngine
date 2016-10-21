@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Lua/LuaClass.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <type_traits>
@@ -251,9 +252,7 @@ namespace Nz
 	template<class T>
 	void LuaClass<T>::SetupFinalizer(LuaInstance& lua)
 	{
-			lua.PushValue(1); // ClassInfo
-		lua.PushCFunction(FinalizerProxy, 1);
-		lua.SetField("__gc");
+		LuaClassImplFinalizerSetupProxy<T, std::is_destructible<T>::value>::Setup(lua);
 	}
 
 	template<class T>
@@ -352,6 +351,7 @@ namespace Nz
 
 		lua.SetField("__newindex"); // Setter
 	}
+
 
 	template<class T>
 	int LuaClass<T>::ConstructorProxy(lua_State* state)
@@ -566,7 +566,28 @@ namespace Nz
 		lua.PushString(info->name);
 		return 1;
 	}
+
+	template<typename T, bool HasDestructor>
+	struct LuaClassImplFinalizerSetupProxy;
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, true>
+	{
+		static void Setup(LuaInstance& lua)
+		{
+			lua.PushValue(1); // ClassInfo
+			lua.PushCFunction(LuaClass<T>::FinalizerProxy, 1);
+			lua.SetField("__gc");
+		}
+	};
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, false>
+	{
+		static void Setup(LuaInstance&)
+		{
+		}
+	};
 }
 
 #include <Nazara/Lua/DebugOff.hpp>
-#include "LuaClass.hpp"
