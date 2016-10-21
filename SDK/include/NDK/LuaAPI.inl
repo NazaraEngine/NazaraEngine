@@ -149,6 +149,24 @@ namespace Nz
 	*
 	* \param instance Lua instance to interact with
 	* \param index Index type
+	* \param params Resulting parameters for an image
+	*/
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, ImageParams* params, TypeTag<ImageParams>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		params->levelCount = instance.CheckField<Nz::UInt8>("LevelCount");
+		params->loadFormat = instance.CheckField<Nz::PixelFormatType>("LoadFormat");
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
 	* \param address Resulting IP address
 	*/
 
@@ -614,6 +632,22 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param fontRef Resulting reference to a font
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, TextureRef* textureRef, TypeTag<TextureRef>)
+	{
+		*textureRef = *static_cast<TextureRef*>(instance.CheckUserdata(index, "Texture"));
+
+		return 1;
+	}
+
 #endif
 
 	/*!
@@ -627,6 +661,25 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, EulerAnglesd&& val, TypeTag<EulerAnglesd>)
 	{
 		instance.PushInstance<EulerAnglesd>("EulerAngles", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting color
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Color&& val, TypeTag<Color>)
+	{
+		instance.PushTable();
+		instance.PushField("r", val.r);
+		instance.PushField("g", val.g);
+		instance.PushField("b", val.b);
+		instance.PushField("a", val.a);
+
 		return 1;
 	}
 
@@ -800,6 +853,20 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, Vector2d&& val, TypeTag<Vector2d>)
 	{
 		instance.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting texture
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, TextureRef&& handle, TypeTag<TextureRef>)
+	{
+		instance.PushInstance<TextureRef>("Texture", handle);
 		return 1;
 	}
 

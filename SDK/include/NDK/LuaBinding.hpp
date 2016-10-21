@@ -56,7 +56,7 @@ namespace Ndk
 			Nz::LuaClass<Nz::IpAddress> ipAddressClass;
 
 			// Utility
-			Nz::LuaClass<Nz::AbstractImage*> abstractImage;
+			Nz::LuaClass<Nz::AbstractImageRef> abstractImage;
 			Nz::LuaClass<Nz::FontRef> fontClass;
 			Nz::LuaClass<Nz::Node> nodeClass;
 
@@ -77,6 +77,9 @@ namespace Ndk
 			// Graphics
 			Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable;
 			Nz::LuaClass<Nz::ModelRef> modelClass;
+
+			// Renderer
+			Nz::LuaClass<Nz::TextureRef> texture;
 
 			// SDK
 			Nz::LuaClass<ConsoleHandle> consoleClass;

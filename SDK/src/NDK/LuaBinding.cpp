@@ -58,6 +58,9 @@ namespace Ndk
 	instancedRenderable("InstancedRenderable"),
 	modelClass("Model"),
 
+	// Renderer
+	texture("Texture"),
+
 	// SDK
 	consoleClass("Console"),
 	graphicsComponent("GraphicsComponent")
