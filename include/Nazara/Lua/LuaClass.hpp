@@ -66,7 +66,7 @@ namespace Nz
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:
-			template<typename T, bool HasDestructor>
+			template<typename U, bool HasDestructor>
 			friend struct LuaClassImplFinalizerSetupProxy;
 
 			void PushClassInfo(LuaInstance& lua);
