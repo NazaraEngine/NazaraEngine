@@ -297,6 +297,9 @@ namespace Nz
 	template<class T>
 	void LuaClass<T>::SetupGlobalTable(LuaInstance& lua)
 	{
+		// Create the global table
+		lua.PushTable(); // Class = {}
+
 		// Create a metatable which will be used for our global table
 		lua.PushTable(); // ClassMeta = {}
 
@@ -317,9 +320,7 @@ namespace Nz
 			SetupMethod(lua, StaticMethodProxy, pair.first, methodIndex);
 		}
 
-		// Now let's create the global table
-		lua.PushTable(); // Class = {}
-		lua.SetMetatable(-2); // setmetatable(Class, ClassMeta)
+		lua.SetMetatable(-2); // setmetatable(Class, ClassMeta), pops ClassMeta
 
 		lua.PushValue(-1); // As CreateReference() pops the table, push a copy
 		m_info->globalTableRef = lua.CreateReference();
