@@ -606,6 +606,16 @@ namespace Nz
 		return LuaImplReplyVal(*this, std::move(arg), TypeTag<T>());
 	}
 
+	template<typename T, typename T2, typename... Args>
+	int LuaInstance::Push(T firstArg, T2 secondArg, Args... args) const
+	{
+		int valCount = 0;
+		valCount += Push(std::move(firstArg));
+		valCount += Push(secondArg, std::forward<Args>(args)...);
+
+		return valCount;
+	}
+
 	template<typename T>
 	void LuaInstance::PushField(const char* name, T&& arg, int tableIndex) const
 	{
