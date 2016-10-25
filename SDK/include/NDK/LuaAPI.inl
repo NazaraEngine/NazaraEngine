@@ -551,6 +551,22 @@ namespace Nz
 	*
 	* \param instance Lua instance to interact with
 	* \param index Index type
+	* \param renderable Resulting reference to a material
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MaterialRef* materialRef, TypeTag<MaterialRef>)
+	{
+		*materialRef = *static_cast<MaterialRef*>(instance.CheckUserdata(index, "Material"));
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
 	* \param params Resulting parameters for a material
 	*/
 
@@ -564,6 +580,7 @@ namespace Nz
 		params->loadHeightMap   = instance.CheckField<bool>("LoadHeightMap", params->loadHeightMap);
 		params->loadNormalMap   = instance.CheckField<bool>("LoadNormalMap", params->loadNormalMap);
 		params->loadSpecularMap = instance.CheckField<bool>("LoadSpecularMap", params->loadSpecularMap);
+		params->shaderName      = instance.CheckField<String>("ShaderName", params->shaderName);
 
 		return 1;
 	}
@@ -1034,6 +1051,20 @@ namespace Nz
 	}
 
 #ifndef NDK_SERVER
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting material
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, MaterialRef&& handle, TypeTag<MaterialRef>)
+	{
+		instance.PushInstance<MaterialRef>("Material", handle);
+		return 1;
+	}
 
 	/*!
 	* \brief Replies by value for Lua

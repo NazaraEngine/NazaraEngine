@@ -76,6 +76,7 @@ namespace Ndk
 
 			// Graphics
 			Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable;
+			Nz::LuaClass<Nz::MaterialRef> material;
 			Nz::LuaClass<Nz::ModelRef> model;
 			Nz::LuaClass<Nz::SpriteRef> sprite;
 			Nz::LuaClass<Nz::SpriteLibrary> spriteLibrary;
