@@ -280,16 +280,9 @@ namespace Nz
 	template<class T>
 	void LuaClass<T>::SetupGetter(LuaInstance& lua, LuaCFunction proxy)
 	{
-		if (m_info->getter || !m_info->parentGetters.empty())
-		{
-				lua.PushValue(1);  // ClassInfo
-				lua.PushValue(-2); // Metatable
-			lua.PushCFunction(proxy, 2);
-		}
-		else
-			// Optimize by assigning the metatable instead of a search function
-			// This is only possible if we have no custom getter nor parent
-			lua.PushValue(-1); // Metatable
+			lua.PushValue(1);  // ClassInfo
+			lua.PushValue(-2); // Metatable
+		lua.PushCFunction(proxy, 2);
 
 		lua.SetField("__index"); // Getter
 	}
@@ -306,7 +299,14 @@ namespace Nz
 		if (m_info->constructor)
 			SetupConstructor(lua);
 
-		SetupGetter(lua, StaticGetterProxy);
+		if (m_info->staticGetter)
+			SetupGetter(lua, StaticGetterProxy);
+		else
+		{
+			// Optimize by assigning the metatable instead of a search function
+			lua.PushValue(-1); // Metatable
+			lua.SetField("__index");
+		}
 
 		if (m_info->staticSetter)
 			SetupSetter(lua, StaticSetterProxy);
@@ -335,7 +335,16 @@ namespace Nz
 			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
 		{
 			SetupFinalizer(lua);
-			SetupGetter(lua, GetterProxy);
+			
+			if (m_info->getter || !m_info->parentGetters.empty())
+				SetupGetter(lua, GetterProxy);
+			else
+			{
+				// Optimize by assigning the metatable instead of a search function
+				// This is only possible if we have no custom getter nor parent
+				lua.PushValue(-1); // Metatable
+				lua.SetField("__index");
+			}
 
 			if (m_info->setter)
 				SetupSetter(lua, SetterProxy);
