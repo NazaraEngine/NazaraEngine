@@ -56,6 +56,7 @@ namespace Ndk
 
 	// Graphics
 	instancedRenderable("InstancedRenderable"),
+	material("Material"),
 	model("Model"),
 	sprite("Sprite"),
 	spriteLibrary("SpriteLibrary"),
