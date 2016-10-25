@@ -658,7 +658,7 @@ namespace Nz
 	template<typename T>
 	void LuaInstance::PushInstance(const char* tname, const T& instance) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, instance);
 
 		SetMetatable(tname);
@@ -667,7 +667,7 @@ namespace Nz
 	template<typename T>
 	void LuaInstance::PushInstance(const char* tname, T&& instance) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, std::move(instance));
 
 		SetMetatable(tname);
@@ -676,7 +676,7 @@ namespace Nz
 	template<typename T, typename... Args>
 	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, std::forward<Args>(args)...);
 
 		SetMetatable(tname);
