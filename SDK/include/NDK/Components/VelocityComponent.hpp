@@ -12,7 +12,6 @@
 
 namespace Ndk
 {
-	class Entity;
 	class VelocityComponent;
 
 	using VelocityComponentHandle = Nz::ObjectHandle<VelocityComponent>;
