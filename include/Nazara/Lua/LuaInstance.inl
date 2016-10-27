@@ -413,6 +413,19 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, T& object, T&(P::*func)(Args...)) const
+					{
+						T& r = Apply(object, func, m_args);
+						if (&r == &object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
 						NazaraUnused(instance);
@@ -428,10 +441,21 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, const T&(P::*func)(Args...) const) const
+					{
+						const T& r = Apply(object, func, m_args);
+						if (&r == &object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, void(P::*func)(Args...)) const
 					{
-						NazaraUnused(instance);
-
 						if (!object)
 						{
 							instance.Error("Invalid object");
@@ -455,10 +479,27 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, typename PointedType<T>::type&(P::*func)(Args...) const) const
+					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
+						const typename PointedType<T>::type& r = Apply(*object, func, m_args);
+						if (&r == &*object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
-						NazaraUnused(instance);
-
 						if (!object)
 						{
 							instance.Error("Invalid object");
@@ -479,6 +520,25 @@ namespace Nz
 						}
 
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
+					}
+
+					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, const typename PointedType<T>::type&(P::*func)(Args...) const) const
+					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
+						const typename PointedType<T>::type& r = Apply(*object, func, m_args);
+						if (&r == &*object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
 					}
 
 				private:
