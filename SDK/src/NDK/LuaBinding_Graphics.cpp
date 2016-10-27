@@ -316,6 +316,24 @@ namespace Ndk
 		spriteLibrary.BindStaticMethod("Register",   &Nz::SpriteLibrary::Register);
 		spriteLibrary.BindStaticMethod("Query",      &Nz::SpriteLibrary::Query);
 		spriteLibrary.BindStaticMethod("Unregister", &Nz::SpriteLibrary::Unregister);
+
+		/*********************************** Nz::TextureLibrary ***********************************/
+
+		textureLibrary.BindStaticMethod("Get",        &Nz::TextureLibrary::Get);
+		textureLibrary.BindStaticMethod("Has",        &Nz::TextureLibrary::Has);
+		textureLibrary.BindStaticMethod("Register",   &Nz::TextureLibrary::Register);
+		textureLibrary.BindStaticMethod("Query",      &Nz::TextureLibrary::Query);
+		textureLibrary.BindStaticMethod("Unregister", &Nz::TextureLibrary::Unregister);
+
+		/*********************************** Nz::TextureManager ***********************************/
+
+		textureManager.BindStaticMethod("Clear",                &Nz::TextureManager::Clear);
+		textureManager.BindStaticMethod("Get",                  &Nz::TextureManager::Get);
+		textureManager.BindStaticMethod("GetDefaultParameters", &Nz::TextureManager::GetDefaultParameters);
+		textureManager.BindStaticMethod("Purge",                &Nz::TextureManager::Purge);
+		textureManager.BindStaticMethod("Register",             &Nz::TextureManager::Register);
+		textureManager.BindStaticMethod("SetDefaultParameters", &Nz::TextureManager::SetDefaultParameters);
+		textureManager.BindStaticMethod("Unregister",           &Nz::TextureManager::Unregister);
 	}
 
 	/*!
@@ -331,5 +349,7 @@ namespace Ndk
 		model.Register(instance);
 		sprite.Register(instance);
 		spriteLibrary.Register(instance);
+		textureLibrary.Register(instance);
+		textureManager.Register(instance);
 	}
 }

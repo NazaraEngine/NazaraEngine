@@ -80,6 +80,8 @@ namespace Ndk
 			Nz::LuaClass<Nz::ModelRef> model;
 			Nz::LuaClass<Nz::SpriteRef> sprite;
 			Nz::LuaClass<Nz::SpriteLibrary> spriteLibrary;
+			Nz::LuaClass<Nz::TextureLibrary> textureLibrary;
+			Nz::LuaClass<Nz::TextureManager> textureManager;
 
 			// Renderer
 			Nz::LuaClass<Nz::TextureRef> texture;

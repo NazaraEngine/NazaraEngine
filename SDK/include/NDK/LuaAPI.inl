@@ -761,6 +761,23 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
+	* \param val Resulting ImageParams
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, ImageParams&& val, TypeTag<ImageParams>)
+	{
+		instance.PushTable(0, 2);
+			instance.PushField("LevelCount", val.levelCount);
+			instance.PushField("LoadFormat", val.loadFormat);
+
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
 	* \param val Resulting IP address
 	*/
 
