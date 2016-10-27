@@ -42,7 +42,7 @@ namespace Ndk
 		eulerAngles.SetGetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
 		{
 			std::size_t length;
-			const char* ypr = lua.CheckString(1, &length);
+			const char* ypr = lua.CheckString(2, &length);
 
 			switch (length)
 			{
@@ -99,8 +99,8 @@ namespace Ndk
 		eulerAngles.SetSetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
 		{
 			std::size_t length;
-			const char* ypr = lua.CheckString(1, &length);
-			double value = lua.CheckNumber(2);
+			const char* ypr = lua.CheckString(2, &length);
+			double value = lua.CheckNumber(3);
 
 			switch (length)
 			{
@@ -191,9 +191,9 @@ namespace Ndk
 
 		matrix4d.SetGetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
 		{
-			int argIndex = 1;
-			std::size_t index = lua.Check<std::size_t>(&argIndex);
-			if (index < 1 || index > 16)
+			bool succeeded = false;
+			std::size_t index = static_cast<std::size_t>(lua.ToInteger(2, &succeeded));
+			if (!succeeded || index < 1 || index > 16)
 				return false;
 
 			lua.Push(instance[index - 1]);
@@ -202,12 +202,12 @@ namespace Ndk
 
 		matrix4d.SetSetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
 		{
-			int argIndex = 1;
-			std::size_t index = lua.Check<std::size_t>(&argIndex);
-			if (index < 1 || index > 16)
+			bool succeeded = false;
+			std::size_t index = static_cast<std::size_t>(lua.ToInteger(2, &succeeded));
+			if (!succeeded || index < 1 || index > 16)
 				return false;
 
-			instance[index - 1] = lua.CheckNumber(argIndex);
+			instance[index - 1] = lua.CheckNumber(3);
 
 			return true;
 		});
@@ -265,11 +265,11 @@ namespace Ndk
 
 		rect.SetGetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					auto index = lua.CheckBoundInteger<std::size_t>(1);
+					auto index = lua.CheckBoundInteger<std::size_t>(2);
 					if (index < 1 || index > 4)
 						return false;
 
@@ -280,7 +280,7 @@ namespace Ndk
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xywh = lua.CheckString(1, &length);
+					const char* xywh = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
@@ -318,11 +318,11 @@ namespace Ndk
 
 		rect.SetSetter([] (Nz::LuaInstance& lua, Nz::Rectd& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					auto index = lua.CheckBoundInteger<std::size_t>(1);
+					auto index = lua.CheckBoundInteger<std::size_t>(2);
 					if (index < 1 || index > 4)
 						return false;
 
@@ -333,12 +333,12 @@ namespace Ndk
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xywh = lua.CheckString(1, &length);
+					const char* xywh = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
 
-					double value = lua.CheckNumber(2);
+					double value = lua.CheckNumber(3);
 
 					switch (xywh[0])
 					{
@@ -412,7 +412,7 @@ namespace Ndk
 		quaternion.SetGetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
 			std::size_t length;
-			const char* wxyz = lua.CheckString(1, &length);
+			const char* wxyz = lua.CheckString(2, &length);
 
 			if (length != 1)
 				return false;
@@ -442,12 +442,12 @@ namespace Ndk
 		quaternion.SetSetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
 			std::size_t length;
-			const char* wxyz = lua.CheckString(1, &length);
+			const char* wxyz = lua.CheckString(2, &length);
 
 			if (length != 1)
 				return false;
 
-			double value = lua.CheckNumber(2);
+			double value = lua.CheckNumber(3);
 
 			switch (wxyz[0])
 			{
@@ -507,11 +507,11 @@ namespace Ndk
 
 		vector2d.SetGetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					long long index = lua.CheckInteger(2);
 					if (index < 1 || index > 2)
 						return false;
 
@@ -522,7 +522,7 @@ namespace Ndk
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xy = lua.CheckString(1, &length);
+					const char* xy = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
@@ -552,27 +552,27 @@ namespace Ndk
 
 		vector2d.SetSetter([](Nz::LuaInstance& lua, Nz::Vector2d& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					long long index = lua.CheckInteger(2);
 					if (index < 1 || index > 2)
 						return false;
 
-					instance[index - 1] = lua.CheckNumber(2);
+					instance[index - 1] = lua.CheckNumber(3);
 					return true;
 				}
 
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xy = lua.CheckString(1, &length);
+					const char* xy = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
 
-					double value = lua.CheckNumber(2);
+					double value = lua.CheckNumber(3);
 
 					switch (xy[0])
 					{
@@ -644,11 +644,11 @@ namespace Ndk
 
 		vector3d.SetGetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					long long index = lua.CheckInteger(2);
 					if (index < 1 || index > 3)
 						return false;
 
@@ -659,7 +659,7 @@ namespace Ndk
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xyz = lua.CheckString(1, &length);
+					const char* xyz = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
@@ -693,27 +693,27 @@ namespace Ndk
 
 		vector3d.SetSetter([] (Nz::LuaInstance& lua, Nz::Vector3d& instance)
 		{
-			switch (lua.GetType(1))
+			switch (lua.GetType(2))
 			{
 				case Nz::LuaType_Number:
 				{
-					long long index = lua.CheckInteger(1);
+					long long index = lua.CheckInteger(2);
 					if (index < 1 || index > 3)
 						return false;
 
-					instance[index - 1] = lua.CheckNumber(2);
+					instance[index - 1] = lua.CheckNumber(3);
 					return true;
 				}
 
 				case Nz::LuaType_String:
 				{
 					std::size_t length;
-					const char* xyz = lua.CheckString(1, &length);
+					const char* xyz = lua.CheckString(2, &length);
 
 					if (length != 1)
 						break;
 
-					double value = lua.CheckNumber(2);
+					double value = lua.CheckNumber(3);
 
 					switch (xyz[0])
 					{

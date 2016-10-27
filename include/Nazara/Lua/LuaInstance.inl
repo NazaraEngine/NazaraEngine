@@ -209,6 +209,24 @@ namespace Nz
 		return LuaImplReplyVal(instance, val, TypeTag<T>());
 	}
 
+	template<typename T>
+	std::enable_if_t<!std::is_arithmetic<T>::value && !std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T&>)
+	{
+		return LuaImplReplyVal(instance, std::move(val), TypeTag<T>());
+	}
+
+	template<typename T>
+	std::enable_if_t<!std::is_arithmetic<T>::value && !std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<const T&>)
+	{
+		return LuaImplReplyVal(instance, std::move(val), TypeTag<T>());
+	}
+
+	template<typename T>
+	int LuaImplReplyVal(const LuaInstance& instance, T&& val, TypeTag<T&&>)
+	{
+		return LuaImplReplyVal(instance, std::forward<T>(val), TypeTag<T>());
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string&& val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
@@ -375,7 +393,7 @@ namespace Nz
 
 					void ProcessArgs(const LuaInstance& instance) const
 					{
-						m_index = 1;
+						m_index = 2; //< 1 being the instance
 						ProcessArgs<0, Args...>(instance);
 					}
 

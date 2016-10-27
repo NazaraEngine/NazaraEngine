@@ -25,19 +25,19 @@ namespace Ndk
 
 				case 1:
 				{
-					if (lua.IsOfType(1, "MaterialPipeline"))
+					int argIndex = 1;
+					if (lua.IsOfType(argIndex, "MaterialPipeline"))
 					{
-						Nz::PlacementNew(instance, Nz::Material::New(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(1))));
+						Nz::PlacementNew(instance, Nz::Material::New(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(argIndex))));
 						return true;
 					}
-					else if (lua.IsOfType(1, "Material"))
+					else if (lua.IsOfType(argIndex, "Material"))
 					{
-						Nz::PlacementNew(instance, Nz::Material::New(**static_cast<Nz::MaterialRef*>(lua.ToUserdata(1))));
+						Nz::PlacementNew(instance, Nz::Material::New(**static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex))));
 						return true;
 					}
 					else
 					{
-						int argIndex = 1;
 						Nz::PlacementNew(instance, Nz::Material::New(lua.Check<Nz::String>(&argIndex)));
 						return true;
 					}
@@ -48,16 +48,16 @@ namespace Ndk
 			return false;
 		});
 
-		material.BindMethod("Configure", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("Configure", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "MaterialPipeline"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "MaterialPipeline"))
 			{
-				instance->Configure(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(1)));
+				instance->Configure(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->Configure(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
@@ -146,106 +146,106 @@ namespace Ndk
 
 		material.BindStaticMethod("GetDefault",       &Nz::Material::GetDefault);
 
-		material.BindMethod("SetAlphaMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetAlphaMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetAlphaMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetAlphaMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetDiffuseMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetDiffuseMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetDiffuseMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetDiffuseMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetEmissiveMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetEmissiveMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetEmissiveMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetEmissiveMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetHeightMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetHeightMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetHeightMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetHeightMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetNormalMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetNormalMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetNormalMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetNormalMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetShader", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetShader", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "UberShader"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "UberShader"))
 			{
-				instance->SetShader(*static_cast<Nz::UberShaderRef*>(lua.ToUserdata(1)));
+				instance->SetShader(*static_cast<Nz::UberShaderRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}
 		});
 
-		material.BindMethod("SetSpecularMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance) -> int
+		material.BindMethod("SetSpecularMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			if (lua.IsOfType(1, "Texture"))
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Texture"))
 			{
-				instance->SetSpecularMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(1)));
+				instance->SetSpecularMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
 				return 0;
 			}
 			else
 			{
-				int argIndex = 1;
 				lua.Push(instance->SetSpecularMap(lua.Check<Nz::String>(&argIndex)));
 				return 1;
 			}

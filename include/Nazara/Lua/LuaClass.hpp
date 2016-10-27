@@ -26,7 +26,7 @@ namespace Nz
 		friend class LuaClass;
 
 		public:
-			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
+			using ClassFunc = std::function<int(LuaInstance& lua, T& instance, std::size_t argumentCount)>;
 			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
 			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance, std::size_t argumentCount)>;
 			template<typename P> using ConvertToParent = std::function<P*(T*)>;

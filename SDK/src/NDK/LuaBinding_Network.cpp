@@ -25,7 +25,7 @@ namespace Ndk
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 9U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
@@ -83,7 +83,7 @@ namespace Ndk
 			Nz::String service;
 			Nz::ResolveError error = Nz::ResolveError_Unknown;
 
-			int argIndex = 1;
+			int argIndex = 2;
 			Nz::String hostName = Nz::IpAddress::ResolveAddress(instance.Check<Nz::IpAddress>(&argIndex), &service, &error);
 
 			if (error == Nz::ResolveError_NoError)
@@ -104,7 +104,7 @@ namespace Ndk
 		{
 			Nz::ResolveError error = Nz::ResolveError_Unknown;
 
-			int argIndex = 1;
+			int argIndex = 2;
 			Nz::NetProtocol protocol = instance.Check<Nz::NetProtocol>(&argIndex);
 			Nz::String      hostname = instance.Check<Nz::String>(&argIndex);
 			Nz::String      service  = instance.Check<Nz::String>(&argIndex, "http");

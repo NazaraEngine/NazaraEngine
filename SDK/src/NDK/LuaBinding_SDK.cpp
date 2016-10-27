@@ -25,7 +25,7 @@ namespace Ndk
 		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
 
-		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application) -> int
+		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application, std::size_t /*argumentCount*/) -> int
 		{
 			instance.Push(application->AddWorld().CreateHandle());
 			return 1;
@@ -73,21 +73,21 @@ namespace Ndk
 		entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
 		entity.BindMethod("__tostring", &EntityHandle::ToString);
 
-		entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->adder(instance, handle);
 		});
 
-		entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->getter(instance, handle->GetComponent(binding->index));
 		});
 
-		entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
@@ -105,7 +105,7 @@ namespace Ndk
 		velocityComponent.SetGetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
 		{
 			std::size_t length;
-			const char* member = lua.CheckString(1, &length);
+			const char* member = lua.CheckString(2, &length);
 
 			if (std::strcmp(member, "Linear") == 0)
 			{
@@ -119,9 +119,9 @@ namespace Ndk
 		velocityComponent.SetSetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
 		{
 			std::size_t length;
-			const char* member = lua.CheckString(1, &length);
+			const char* member = lua.CheckString(2, &length);
 
-			int argIndex = 2;
+			int argIndex = 3;
 			if (std::strcmp(member, "Linear") == 0)
 			{
 				instance->linearVelocity = lua.Check<Nz::Vector3f>(&argIndex);
@@ -139,38 +139,38 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent) -> int
+		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent, std::size_t argumentCount) -> int
 		{
 			/*
 			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 			*/
 
-			unsigned int argCount = std::min(lua.GetStackTop(), 3U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
 
 			switch (argCount)
 			{
 				case 1:
 				{
-					int argIndex = 1;
+					int argIndex = 2;
 					gfxComponent->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
 					return 0;
 				}
 
 				case 2:
 				{
-					int index = 1;
-					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&index);
+					int argIndex = 2;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&argIndex);
 
-					if (lua.IsOfType(index, Nz::LuaType_Number))
+					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
 					{
-						int renderOrder = lua.Check<int>(&index);
+						int renderOrder = lua.Check<int>(&argIndex);
 
 						gfxComponent->Attach(renderable, renderOrder);
 					}
-					else if (lua.IsOfType(index, "Matrix4"))
+					else if (lua.IsOfType(argIndex, "Matrix4"))
 					{
-						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&index);
+						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
 
 						gfxComponent->Attach(renderable, localMatrix);
 					}
@@ -182,10 +182,10 @@ namespace Ndk
 
 				case 3:
 				{
-					int index = 1;
-					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&index);
-					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&index);
-					int renderOrder = lua.Check<int>(&index);
+					int argIndex = 2;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&argIndex);
+					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
+					int renderOrder = lua.Check<int>(&argIndex);
 
 					gfxComponent->Attach(renderable, localMatrix, renderOrder);
 					return 0;
