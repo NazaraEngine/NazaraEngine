@@ -11,8 +11,8 @@ SCENARIO("Bitset", "[CORE][BITSET]")
 
 		THEN("Capacity is 3 and size is 3")
 		{
-			REQUIRE(bitset.GetSize() == 3);
-			REQUIRE(bitset.GetCapacity() >= 3);
+			CHECK(bitset.GetSize() == 3);
+			CHECK(bitset.GetCapacity() >= 3);
 		}
 	}
 
@@ -25,11 +25,11 @@ SCENARIO("Bitset", "[CORE][BITSET]")
 		WHEN("We assign 'anotherData'")
 		{
 			defaultByte = anotherDataString;
-			REQUIRE(anotherData == defaultByte);
-			REQUIRE(defaultByte.GetSize() == 4);
-			REQUIRE(defaultByte.GetCapacity() >= 4);
-			REQUIRE(anotherData.GetSize() == 4);
-			REQUIRE(anotherData.GetCapacity() >= 4);
+			CHECK(anotherData == defaultByte);
+			CHECK(defaultByte.GetSize() == 4);
+			CHECK(defaultByte.GetCapacity() >= 4);
+			CHECK(anotherData.GetSize() == 4);
+			CHECK(anotherData.GetCapacity() >= 4);
 		}
 	}
 
@@ -43,17 +43,17 @@ SCENARIO("Bitset", "[CORE][BITSET]")
 
 			THEN("We get a copy")
 			{
-				REQUIRE(copyBitset == originalArray);
+				CHECK(copyBitset == originalArray);
 
 				AND_WHEN("We modify one")
 				{
-					for (auto i = 0; i < copyBitset.GetSize(); ++i)
+					for (std::size_t i = 0; i < copyBitset.GetSize(); ++i)
 						copyBitset[i] = false;
 
 					THEN("They are no more equal")
 					{
-						REQUIRE(copyBitset != originalArray);
-						REQUIRE(copyBitset == Nz::Bitset<>(3, false));
+						CHECK(copyBitset != originalArray);
+						CHECK(copyBitset == Nz::Bitset<>(3, false));
 					}
 				}
 			}

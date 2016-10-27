@@ -85,7 +85,7 @@ namespace Nz
 		}
 
 		m_activeSockets.clear();
-		if (activeSockets > 0U)
+		if (activeSockets > 0)
 		{
 			int socketCount = activeSockets;
 			for (int i = 0; i < socketCount; ++i)

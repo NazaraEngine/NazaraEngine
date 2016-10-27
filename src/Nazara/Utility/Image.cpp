@@ -52,7 +52,7 @@ namespace Nz
 	}
 
 	Image::Image(const Image& image) :
-	RefCounted(),
+	AbstractImage(image),
 	Resource(),
 	m_sharedImage(image.m_sharedImage)
 	{

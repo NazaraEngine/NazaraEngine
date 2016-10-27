@@ -1,6 +1,7 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <NDK/LuaBinding.hpp>
 
 namespace Ndk
@@ -10,6 +11,21 @@ namespace Ndk
 	* \class Ndk::LuaAPI
 	* \brief NDK class that represents the api used for Lua
 	*/
+
+	/*!
+	* \brief Gets the internal binding for Lua
+	* \return A pointer to the binding
+	*/
+	LuaBinding* LuaAPI::GetBinding()
+	{
+		if (!s_binding && !Initialize())
+		{
+			NazaraError("Failed to initialize binding");
+			return nullptr;
+		}
+
+		return s_binding;
+	}
 
 	/*!
 	* \brief Initializes the LuaAPI module
@@ -30,13 +46,8 @@ namespace Ndk
 
 	void LuaAPI::RegisterClasses(Nz::LuaInstance& instance)
 	{
-		if (!s_binding && !Initialize())
-		{
-			NazaraError("Failed to initialize binding");
-			return;
-		}
-
-		s_binding->RegisterClasses(instance);
+		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
+		GetBinding()->RegisterClasses(instance);
 	}
 
 	/*!

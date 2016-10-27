@@ -12,12 +12,13 @@ namespace Nz
 {
 	namespace
 	{
-		static constexpr std::array<float, 4> m_functionScales =
-		{
-			1.f  / float(M_SQRT2),
-			0.5f / float(M_SQRT2),
-			0.5f / float(M_SQRT2),
-			0.5f / float(M_SQRT2)
+		static constexpr std::array<float, 4> m_functionScales = {
+			{
+				1.f  / float(M_SQRT2),
+				0.5f / float(M_SQRT2),
+				0.5f / float(M_SQRT2),
+				0.5f / float(M_SQRT2)
+			}
 		};
 	}
 	Worley::Worley() :
@@ -109,12 +110,12 @@ namespace Nz
 		return it->first * m_functionScales[functionIndex];
 	}
 
-	float Worley::Get(float x, float y, float z, float scale) const
+	float Worley::Get(float /*x*/, float /*y*/, float /*z*/, float /*scale*/) const
 	{
 		throw std::runtime_error("Worley 3D not available yet.");
 	}
 
-	float Worley::Get(float x, float y, float z, float w, float scale) const
+	float Worley::Get(float /*x*/, float /*y*/, float /*z*/, float /*w*/, float /*scale*/) const
 	{
 		throw std::runtime_error("Worley 4D not available yet.");
 	}

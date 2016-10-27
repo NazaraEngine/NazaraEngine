@@ -4,6 +4,9 @@ build/config.lua
 # Nazara libraries
 lib/*
 
+# Nazara plugin libraries
+plugins/lib/*
+
 # Nazara package
 package/*
 

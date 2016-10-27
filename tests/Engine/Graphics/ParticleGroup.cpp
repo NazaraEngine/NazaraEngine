@@ -32,13 +32,13 @@ class TestParticleEmitter : public Nz::ParticleEmitter
 	public:
 		~TestParticleEmitter() override = default;
 
-		void Emit(Nz::ParticleGroup& system, float elapsedTime) const override
+		void Emit(Nz::ParticleGroup& system, float /*elapsedTime*/) const override
 		{
 			system.GenerateParticles(GetEmissionCount());
 		}
 
 	private:
-		void SetupParticles(Nz::ParticleMapper& mapper, unsigned int count) const override
+		void SetupParticles(Nz::ParticleMapper& /*mapper*/, unsigned int /*count*/) const override
 		{
 		}
 };
@@ -49,7 +49,7 @@ class TestParticleGenerator : public Nz::ParticleGenerator
 		~TestParticleGenerator() override = default;
 
 		// Be aware that the interval is [startId, endId] and NOT [startId, endId)
-		void Generate(Nz::ParticleGroup& system, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId) override
+		void Generate(Nz::ParticleGroup& /*system*/, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId) override
 		{
 			Nz::SparsePtr<Nz::Vector3f> positionPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Position);
 			Nz::SparsePtr<Nz::Vector3f> velocityPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Velocity);

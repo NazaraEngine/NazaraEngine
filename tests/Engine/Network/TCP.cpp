@@ -27,7 +27,7 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 		REQUIRE(client.Connect(serverIP) == Nz::SocketState_Connecting);
 
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
-		REQUIRE(clientIP.IsValid());
+		CHECK(clientIP.IsValid());
 
 		Nz::Thread::Sleep(100);
 
@@ -45,9 +45,11 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 			{
 				Nz::NetPacket resultPacket;
 				REQUIRE(serverToClient.ReceivePacket(&resultPacket));
+
 				Nz::Vector3f result;
 				resultPacket >> result;
-				REQUIRE(result == vector123);
+
+				CHECK(result == vector123);
 			}
 		}
 	}

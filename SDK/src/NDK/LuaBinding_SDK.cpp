@@ -25,7 +25,7 @@ namespace Ndk
 		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
 
-		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application) -> int
+		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application, std::size_t /*argumentCount*/) -> int
 		{
 			instance.Push(application->AddWorld().CreateHandle());
 			return 1;
@@ -36,58 +36,58 @@ namespace Ndk
 
 		/*********************************** Ndk::Console **********************************/
 		#ifndef NDK_SERVER
-		consoleClass.Inherit<Nz::Node>(nodeClass, [] (ConsoleHandle* handle) -> Nz::Node*
+		console.Inherit<Nz::Node>(node, [] (ConsoleHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
 		});
 
-		consoleClass.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
-		consoleClass.BindMethod("Clear", &Console::Clear);
-		consoleClass.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
-		consoleClass.BindMethod("GetHistory", &Console::GetHistory);
-		consoleClass.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
-		consoleClass.BindMethod("GetInput", &Console::GetInput);
-		consoleClass.BindMethod("GetInputBackground", &Console::GetInputBackground);
-		consoleClass.BindMethod("GetSize", &Console::GetSize);
-		consoleClass.BindMethod("GetTextFont", &Console::GetTextFont);
+		console.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
+		console.BindMethod("Clear", &Console::Clear);
+		console.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
+		console.BindMethod("GetHistory", &Console::GetHistory);
+		console.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
+		console.BindMethod("GetInput", &Console::GetInput);
+		console.BindMethod("GetInputBackground", &Console::GetInputBackground);
+		console.BindMethod("GetSize", &Console::GetSize);
+		console.BindMethod("GetTextFont", &Console::GetTextFont);
 
-		consoleClass.BindMethod("IsVisible", &Console::IsVisible);
+		console.BindMethod("IsVisible", &Console::IsVisible);
 
-		consoleClass.BindMethod("SendCharacter", &Console::SendCharacter);
+		console.BindMethod("SendCharacter", &Console::SendCharacter);
 		//consoleClass.SetMethod("SendEvent", &Console::SendEvent);
 
-		consoleClass.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
-		consoleClass.BindMethod("SetSize", &Console::SetSize);
-		consoleClass.BindMethod("SetTextFont", &Console::SetTextFont);
+		console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
+		console.BindMethod("SetSize", &Console::SetSize);
+		console.BindMethod("SetTextFont", &Console::SetTextFont);
 		
-		consoleClass.BindMethod("Show", &Console::Show, true);
+		console.BindMethod("Show", &Console::Show, true);
 		#endif
 
 		/*********************************** Ndk::Entity **********************************/
-		entityClass.BindMethod("Enable", &Entity::Enable, true);
-		entityClass.BindMethod("GetId", &Entity::GetId);
-		entityClass.BindMethod("GetWorld", &Entity::GetWorld);
-		entityClass.BindMethod("Kill", &Entity::Kill);
-		entityClass.BindMethod("IsEnabled", &Entity::IsEnabled);
-		entityClass.BindMethod("IsValid", &Entity::IsValid);
-		entityClass.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
-		entityClass.BindMethod("__tostring", &EntityHandle::ToString);
+		entity.BindMethod("Enable", &Entity::Enable, true);
+		entity.BindMethod("GetId", &Entity::GetId);
+		entity.BindMethod("GetWorld", &Entity::GetWorld);
+		entity.BindMethod("Kill", &Entity::Kill);
+		entity.BindMethod("IsEnabled", &Entity::IsEnabled);
+		entity.BindMethod("IsValid", &Entity::IsValid);
+		entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
+		entity.BindMethod("__tostring", &EntityHandle::ToString);
 
-		entityClass.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->adder(instance, handle);
 		});
 
-		entityClass.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
 			return binding->getter(instance, handle->GetComponent(binding->index));
 		});
 
-		entityClass.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle) -> int
+		entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 		{
 			ComponentBinding* binding = QueryComponentIndex(instance);
 
@@ -96,7 +96,7 @@ namespace Ndk
 		});
 
 		/*********************************** Ndk::NodeComponent **********************************/
-		nodeComponent.Inherit<Nz::Node>(nodeClass, [] (NodeComponentHandle* handle) -> Nz::Node*
+		nodeComponent.Inherit<Nz::Node>(node, [] (NodeComponentHandle* handle) -> Nz::Node*
 		{
 			return handle->GetObject();
 		});
@@ -105,7 +105,7 @@ namespace Ndk
 		velocityComponent.SetGetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
 		{
 			std::size_t length;
-			const char* member = lua.CheckString(1, &length);
+			const char* member = lua.CheckString(2, &length);
 
 			if (std::strcmp(member, "Linear") == 0)
 			{
@@ -119,9 +119,9 @@ namespace Ndk
 		velocityComponent.SetSetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
 		{
 			std::size_t length;
-			const char* member = lua.CheckString(1, &length);
+			const char* member = lua.CheckString(2, &length);
 
-			int argIndex = 2;
+			int argIndex = 3;
 			if (std::strcmp(member, "Linear") == 0)
 			{
 				instance->linearVelocity = lua.Check<Nz::Vector3f>(&argIndex);
@@ -132,14 +132,69 @@ namespace Ndk
 		});
 
 		/*********************************** Ndk::World **********************************/
-		worldClass.BindMethod("CreateEntity", &World::CreateEntity);
-		worldClass.BindMethod("CreateEntities", &World::CreateEntities);
-		worldClass.BindMethod("Clear", &World::Clear);
+		world.BindMethod("CreateEntity", &World::CreateEntity);
+		world.BindMethod("CreateEntities", &World::CreateEntities);
+		world.BindMethod("Clear", &World::Clear);
 
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", (void(Ndk::GraphicsComponent::*)(Nz::InstancedRenderableRef, int)) &GraphicsComponent::Attach, 0);
+		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent, std::size_t argumentCount) -> int
+		{
+			/*
+			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
+			*/
+
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
+
+			switch (argCount)
+			{
+				case 1:
+				{
+					int argIndex = 2;
+					gfxComponent->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
+					return 0;
+				}
+
+				case 2:
+				{
+					int argIndex = 2;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&argIndex);
+
+					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+					{
+						int renderOrder = lua.Check<int>(&argIndex);
+
+						gfxComponent->Attach(renderable, renderOrder);
+					}
+					else if (lua.IsOfType(argIndex, "Matrix4"))
+					{
+						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
+
+						gfxComponent->Attach(renderable, localMatrix);
+					}
+					else
+						break;
+
+					return 0;
+				}
+
+				case 3:
+				{
+					int argIndex = 2;
+					Nz::InstancedRenderableRef renderable = lua.Check<Nz::InstancedRenderableRef>(&argIndex);
+					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
+					int renderOrder = lua.Check<int>(&argIndex);
+
+					gfxComponent->Attach(renderable, localMatrix, renderOrder);
+					return 0;
+				}
+			}
+
+			lua.Error("No matching overload for method GetMemoryUsage");
+			return 0;
+		});
 		#endif
 
 
@@ -164,13 +219,13 @@ namespace Ndk
 	{
 		// Classes
 		application.Register(instance);
-		entityClass.Register(instance);
+		entity.Register(instance);
 		nodeComponent.Register(instance);
 		velocityComponent.Register(instance);
-		worldClass.Register(instance);
+		world.Register(instance);
 
 		#ifndef NDK_SERVER
-		consoleClass.Register(instance);
+		console.Register(instance);
 		graphicsComponent.Register(instance);
 		#endif
 

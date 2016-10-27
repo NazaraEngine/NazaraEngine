@@ -13,7 +13,8 @@ EXAMPLE.Libraries = {
     "NazaraLua",
     "NazaraNetwork",
     "NazaraNoise",
-    "NazaraPhysics",
+    "NazaraPhysics2D",
+    "NazaraPhysics3D",
     "NazaraRenderer",
     "NazaraUtility",
     "NazaraSDK"
