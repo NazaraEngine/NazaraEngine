@@ -553,9 +553,9 @@ namespace Nz
 	template<typename T>
 	Vector3<T> Quaternion<T>::operator*(const Vector3<T>& vec) const
 	{
-		Vector3f quatVec(x, y, z);
-		Vector3f uv = quatVec.CrossProduct(vec);
-		Vector3f uuv = quatVec.CrossProduct(uv);
+		Vector3<T> quatVec(x, y, z);
+		Vector3<T> uv = quatVec.CrossProduct(vec);
+		Vector3<T> uuv = quatVec.CrossProduct(uv);
 		uv *= F(2.0) * w;
 		uuv *= F(2.0);
 
