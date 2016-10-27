@@ -155,10 +155,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetDiffuseMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -170,10 +167,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetEmissiveMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -185,10 +179,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetHeightMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -200,10 +191,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetNormalMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -215,10 +203,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetShader", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -230,10 +215,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		material.BindMethod("SetSpecularMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -245,10 +227,7 @@ namespace Ndk
 				return 0;
 			}
 			else
-			{
-				lua.Push(instance->SetSpecularMap(lua.Check<Nz::String>(&argIndex)));
-				return 1;
-			}
+				return lua.Push(instance->SetSpecularMap(lua.Check<Nz::String>(&argIndex)));
 		});
 
 		/*********************************** Nz::Model ***********************************/
