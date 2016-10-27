@@ -85,7 +85,7 @@ namespace Nz
 		// Let's create the metatable which will be associated with every instance.
 		SetupMetatable(lua);
 
-		if (m_info->constructor || m_info->staticGetter || m_info->staticSetter || !m_info->staticMethods.empty())
+		if (m_info->constructor || m_info->staticGetter || m_info->staticSetter || !m_staticMethods.empty())
 			SetupGlobalTable(lua);
 
 		lua.Pop(); // Pop our ClassInfo, which is now referenced by all our functions
@@ -127,7 +127,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -141,7 +141,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -155,7 +155,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -169,7 +169,7 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
 			handler.ProcessArgs(lua);
 
@@ -449,7 +449,7 @@ namespace Nz
 		{
 			// Query from the metatable
 			lua.GetMetatable(info->name); //< Metatable
-			lua.PushValue(1); //< Field
+			lua.PushValue(2); //< Field
 			lua.GetTable(); // Metatable[Field]
 
 			lua.Remove(-2); // Remove Metatable
@@ -476,7 +476,6 @@ namespace Nz
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
 		T* instance = static_cast<T*>(lua.CheckUserdata(1, info->name));
-		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		Get(info, lua, instance);
 		return 1;
@@ -501,8 +500,6 @@ namespace Nz
 					instance = it->second(lua);
 			}
 			lua.Pop(2);
-
-			lua.Remove(1); //< Remove the instance from the Lua stack
 		}
 
 		if (!instance)
@@ -511,9 +508,11 @@ namespace Nz
 			return 0;
 		}
 
+		std::size_t argCount = lua.GetStackTop() - 1U;
+
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 		const ClassFunc& method = info->methods[index];
-		return method(lua, *instance);
+		return method(lua, *instance, argCount);
 	}
 
 	template<class T>
@@ -525,7 +524,6 @@ namespace Nz
 		const ClassIndexFunc& setter = info->setter;
 
 		T& instance = *static_cast<T*>(lua.CheckUserdata(1, info->name));
-		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!setter(lua, instance))
 		{

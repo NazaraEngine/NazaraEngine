@@ -124,7 +124,7 @@ namespace Ndk
 				Nz::String name;
 			};
 
-			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 1);
+			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 2);
 
 			std::vector<ComponentBinding> m_componentBinding;
 			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;

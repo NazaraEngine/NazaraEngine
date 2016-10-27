@@ -25,9 +25,9 @@ namespace Ndk
 		abstractImage.BindMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
 		abstractImage.BindMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
 
-		abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage) -> int
+		abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 1U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 			switch (argCount)
 			{
 				case 0:
@@ -35,8 +35,8 @@ namespace Ndk
 
 				case 1:
 				{
-					int index = 1;
-					Nz::UInt8 level(lua.Check<Nz::UInt8>(&index));
+					int argIndex = 2;
+					Nz::UInt8 level(lua.Check<Nz::UInt8>(&argIndex));
 
 					return lua.Push(abstractImage->GetMemoryUsage(level));
 				}
@@ -46,10 +46,10 @@ namespace Ndk
 			return 0;
 		});
 
-		abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage) -> int
+		abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 6U);
-			int argIndex = 1;
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 6U);
+			int argIndex = 2;
 
 			std::size_t bufferSize = 0;
 			const Nz::UInt8* pixels = reinterpret_cast<const Nz::UInt8*>(lua.CheckString(argIndex++, &bufferSize));
@@ -105,11 +105,11 @@ namespace Ndk
 
 		font.BindMethod("Destroy", &Nz::Font::Destroy);
 
-		font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance) -> int
+		font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
@@ -199,9 +199,9 @@ namespace Ndk
 		node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
 		node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
 		{
-			int argIndex = 1;
+			int argIndex = 2;
 
 			Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
 			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
@@ -210,9 +210,9 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
 		{
-			int argIndex = 1;
+			int argIndex = 2;
 
 			Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
 			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
@@ -221,11 +221,11 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 1:
@@ -247,11 +247,11 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 1:
@@ -284,11 +284,11 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& node) -> int
+		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 4U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 1:

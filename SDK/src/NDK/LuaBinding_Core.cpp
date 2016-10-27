@@ -15,7 +15,7 @@ namespace Ndk
 		/*********************************** Nz::Clock **********************************/
 		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock, std::size_t /*argumentCount*/)
 		{
-			int argIndex = 1;
+			int argIndex = 2;
 			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
 			bool paused = lua.Check<bool>(&argIndex, false);
 
@@ -32,7 +32,7 @@ namespace Ndk
 		clock.BindMethod("Unpause", &Nz::Clock::Unpause);
 
 		// Manual
-		clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock) -> int {
+		clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock, std::size_t /*argumentCount*/) -> int {
 			Nz::StringStream stream("Clock(Elapsed: ");
 			stream << clock.GetSeconds();
 			stream << "s, Paused: ";
@@ -48,7 +48,7 @@ namespace Ndk
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
@@ -85,7 +85,7 @@ namespace Ndk
 		directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
 
 		// Manual
-		directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& directory) -> int {
+		directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& directory, std::size_t /*argumentCount*/) -> int {
 			Nz::StringStream stream("Directory(");
 			stream << directory.GetPath();
 			stream << ')';
@@ -110,8 +110,8 @@ namespace Ndk
 		stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
 		stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-		stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
-			int argIndex = 1;
+		stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			int argIndex = 2;
 
 			std::size_t length = lua.Check<std::size_t>(&argIndex);
 
@@ -122,8 +122,8 @@ namespace Ndk
 			return 1;
 		});
 
-		stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream) -> int {
-			int argIndex = 1;
+		stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			int argIndex = 2;
 
 			std::size_t bufferSize = 0;
 			const char* buffer = lua.CheckString(argIndex, &bufferSize);
@@ -142,7 +142,7 @@ namespace Ndk
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
@@ -201,11 +201,11 @@ namespace Ndk
 		file.BindStaticMethod("Rename", &Nz::File::Rename);
 
 		// Manual
-		file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
+		file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
@@ -224,11 +224,11 @@ namespace Ndk
 			return 0;
 		});
 
-		file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& file) -> int
+		file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t argumentCount) -> int
 		{
-			unsigned int argCount = std::min(lua.GetStackTop(), 2U);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 1:
@@ -246,7 +246,7 @@ namespace Ndk
 			return 0;
 		});
 
-		file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file) -> int {
+		file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t /*argumentCount*/) -> int {
 			Nz::StringStream stream("File(");
 			if (file.IsOpen())
 				stream << "Path: " << file.GetPath();

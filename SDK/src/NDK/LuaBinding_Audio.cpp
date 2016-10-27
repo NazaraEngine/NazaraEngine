@@ -41,7 +41,7 @@ namespace Ndk
 		music.BindMethod("Stop", &Nz::Music::Stop);
 
 		// Manual
-		music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& music) -> int
+		music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& music, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("Music(");
 			stream << music.GetFilePath() << ')';
@@ -65,7 +65,7 @@ namespace Ndk
 		sound.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
 		// Manual
-		sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound) -> int
+		sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("Sound(");
 			if (const Nz::SoundBuffer* buffer = sound.GetBuffer())
@@ -101,9 +101,9 @@ namespace Ndk
 		soundBuffer.BindStaticMethod("IsFormatSupported", &Nz::SoundBuffer::IsFormatSupported);
 
 		// Manual
-		soundBuffer.BindMethod("Create", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("Create", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			int index = 1;
+			int index = 2;
 			Nz::AudioFormat format = lua.Check<Nz::AudioFormat>(&index);
 			unsigned int sampleCount = lua.Check<unsigned int>(&index);
 			unsigned int sampleRate = lua.Check<unsigned int>(&index);
@@ -116,13 +116,13 @@ namespace Ndk
 			return 1;
 		});
 
-		soundBuffer.BindMethod("GetSamples", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("GetSamples", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
 			lua.PushString(reinterpret_cast<const char*>(instance->GetSamples()), instance->GetSampleCount() * sizeof(Nz::Int16));
 			return 1;
 		});
 
-		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("SoundBuffer(");
 			if (instance->IsValid())
