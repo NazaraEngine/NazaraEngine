@@ -242,7 +242,7 @@ namespace Nz
 		}
 		#endif
 
-		T* ptr = (&m11) + column*4;
+		const T* ptr = (&m11) + column*4;
 		return Vector4<T>(ptr);
 	}
 
@@ -636,7 +636,7 @@ namespace Nz
 		}
 		#endif
 
-		T* ptr = &m11;
+		const T* ptr = &m11;
 		return Vector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
 	}
 

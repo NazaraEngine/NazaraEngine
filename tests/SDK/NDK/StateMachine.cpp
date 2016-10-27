@@ -4,7 +4,7 @@
 class TestState : public Ndk::State
 {
 	public:
-		void Enter(Ndk::StateMachine& fsm) override
+		void Enter(Ndk::StateMachine& /*fsm*/) override
 		{
 			m_isUpdated = false;
 		}
@@ -14,11 +14,11 @@ class TestState : public Ndk::State
 			return m_isUpdated;
 		}
 
-		void Leave(Ndk::StateMachine& fsm) override
+		void Leave(Ndk::StateMachine& /*fsm*/) override
 		{
 		}
 
-		bool Update(Ndk::StateMachine& fsm, float elapsedTime) override
+		bool Update(Ndk::StateMachine& /*fsm*/, float /*elapsedTime*/) override
 		{
 			m_isUpdated = true;
 			return true;

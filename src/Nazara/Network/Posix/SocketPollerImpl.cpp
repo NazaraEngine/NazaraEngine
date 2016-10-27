@@ -74,7 +74,7 @@ namespace Nz
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
 
 		m_activeSockets.clear();
-		if (activeSockets > 0U)
+		if (activeSockets > 0)
 		{
 			int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)

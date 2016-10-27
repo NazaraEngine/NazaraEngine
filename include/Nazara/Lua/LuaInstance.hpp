@@ -34,10 +34,10 @@ namespace Nz
 			inline LuaInstance(LuaInstance&& instance) noexcept;
 			~LuaInstance();
 
-			void ArgCheck(bool condition, unsigned int argNum, const char* error);
-			void ArgCheck(bool condition, unsigned int argNum, const String& error);
-			int ArgError(unsigned int argNum, const char* error);
-			int ArgError(unsigned int argNum, const String& error);
+			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
+			void ArgCheck(bool condition, unsigned int argNum, const String& error) const;
+			int ArgError(unsigned int argNum, const char* error) const;
+			int ArgError(unsigned int argNum, const String& error) const;
 
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
@@ -123,6 +123,7 @@ namespace Nz
 			void Pop(unsigned int n = 1U) const;
 
 			template<typename T> int Push(T arg) const;
+			template<typename T, typename T2, typename... Args> int Push(T firstArg, T2 secondArg, Args... args) const;
 			void PushBoolean(bool value) const;
 			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0) const;
 			template<typename T> void PushField(const char* name, T&& arg, int tableIndex = -2) const;

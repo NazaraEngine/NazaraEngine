@@ -26,7 +26,7 @@ namespace Nz
 		friend class LuaClass;
 
 		public:
-			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
+			using ClassFunc = std::function<int(LuaInstance& lua, T& instance, std::size_t argumentCount)>;
 			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
 			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance, std::size_t argumentCount)>;
 			template<typename P> using ConvertToParent = std::function<P*(T*)>;
@@ -34,6 +34,7 @@ namespace Nz
 			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
 			using StaticFunc = std::function<int(LuaInstance& lua)>;
 
+			LuaClass() = default;
 			LuaClass(const String& name);
 
 			void BindDefaultConstructor();
@@ -50,6 +51,9 @@ namespace Nz
 			template<class P> void Inherit(LuaClass<P>& parent);
 			template<class P> void Inherit(LuaClass<P>& parent, ConvertToParent<P> convertFunc);
 
+			void Reset();
+			void Reset(const String& name);
+
 			void Register(LuaInstance& lua);
 
 			void PushGlobalTable(LuaInstance& lua);
@@ -62,6 +66,19 @@ namespace Nz
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:
+			template<typename U, bool HasDestructor>
+			friend struct LuaClassImplFinalizerSetupProxy;
+
+			void PushClassInfo(LuaInstance& lua);
+			void SetupConstructor(LuaInstance& lua);
+			void SetupDefaultToString(LuaInstance& lua);
+			void SetupFinalizer(LuaInstance& lua);
+			void SetupGetter(LuaInstance& lua, LuaCFunction proxy);
+			void SetupGlobalTable(LuaInstance& lua);
+			void SetupMetatable(LuaInstance& lua);
+			void SetupMethod(LuaInstance& lua, LuaCFunction proxy, const String& name, std::size_t methodIndex);
+			void SetupSetter(LuaInstance& lua, LuaCFunction proxy);
+
 			using ParentFunc = std::function<void(LuaInstance& lua, T* instance)>;
 			using InstanceGetter = std::function<T*(LuaInstance& lua)>;
 

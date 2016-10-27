@@ -8,6 +8,7 @@
 #define NAZARA_VECTOR4_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <functional>
 
 namespace Nz
 {
@@ -116,6 +117,11 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vecto
 
 template<typename T> Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec);
 template<typename T> Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec);
+
+namespace std
+{
+	template<class T> struct hash<Nz::Vector4<T>>;
+}
 
 #include <Nazara/Math/Vector4.inl>
 
