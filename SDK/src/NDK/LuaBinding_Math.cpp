@@ -187,7 +187,154 @@ namespace Ndk
 			return false;
 		});
 
+		matrix4d.BindMethod("ApplyRotation",        &Nz::Matrix4d::ApplyRotation);
+		matrix4d.BindMethod("ApplyScale",           &Nz::Matrix4d::ApplyScale);
+		matrix4d.BindMethod("ApplyTranslation",     &Nz::Matrix4d::ApplyTranslation);
+
+		matrix4d.BindMethod("Concatenate",          &Nz::Matrix4d::Concatenate);
+		matrix4d.BindMethod("ConcatenateAffine",    &Nz::Matrix4d::ConcatenateAffine);
+
+		//matrix4d.BindMethod("GetColumn",            &Nz::Matrix4d::GetColumn);
+		matrix4d.BindMethod("GetDeterminant",       &Nz::Matrix4d::GetDeterminant);
+		matrix4d.BindMethod("GetDeterminantAffine", &Nz::Matrix4d::GetDeterminantAffine);
+
+		matrix4d.BindMethod("GetInverse", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			Nz::Matrix4d result;
+			if (instance.GetInverse(&result))
+				return lua.Push(true, result);
+			else
+				return lua.Push(false);
+		});
+
+		matrix4d.BindMethod("GetInverseAffine", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			Nz::Matrix4d result;
+			if (instance.GetInverseAffine(&result))
+				return lua.Push(true, result);
+			else
+				return lua.Push(false);
+		});
+
+		matrix4d.BindMethod("GetRotation", &Nz::Matrix4d::GetRotation);
+
+		//matrix4d.BindMethod("GetRow", &Nz::Matrix4d::GetRow);
+		matrix4d.BindMethod("GetScale", &Nz::Matrix4d::GetScale);
+		matrix4d.BindMethod("GetSquaredScale", &Nz::Matrix4d::GetSquaredScale);
+		matrix4d.BindMethod("GetTranslation", &Nz::Matrix4d::GetTranslation);
+
+		matrix4d.BindMethod("GetTransposed", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			Nz::Matrix4d result;
+			instance.GetTransposed(&result);
+			
+			return lua.Push(result);
+		});
+
+		matrix4d.BindMethod("HasNegativeScale", &Nz::Matrix4d::HasNegativeScale);
+		matrix4d.BindMethod("HasScale", &Nz::Matrix4d::HasScale);
+
+		matrix4d.BindMethod("Inverse", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			bool succeeded;
+			instance.Inverse(&succeeded);
+
+			return lua.Push(succeeded);
+		});
+
+		matrix4d.BindMethod("InverseAffine", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			bool succeeded;
+			instance.InverseAffine(&succeeded);
+
+			return lua.Push(succeeded);
+		});
+
+		matrix4d.BindMethod("IsAffine", &Nz::Matrix4d::IsAffine);
+		matrix4d.BindMethod("IsIdentity", &Nz::Matrix4d::IsIdentity);
+
+		matrix4d.BindMethod("MakeIdentity", &Nz::Matrix4d::MakeIdentity);
+		matrix4d.BindMethod("MakeLookAt", &Nz::Matrix4d::MakeLookAt, Nz::Vector3d::Up());
+		matrix4d.BindMethod("MakeOrtho", &Nz::Matrix4d::MakeOrtho, -1.0, 1.0);
+		matrix4d.BindMethod("MakePerspective", &Nz::Matrix4d::MakePerspective);
+		matrix4d.BindMethod("MakeRotation", &Nz::Matrix4d::MakeRotation);
+		matrix4d.BindMethod("MakeScale", &Nz::Matrix4d::MakeScale);
+		matrix4d.BindMethod("MakeTranslation", &Nz::Matrix4d::MakeTranslation);
+		matrix4d.BindMethod("MakeTransform", (Nz::Matrix4d&(Nz::Matrix4d::*)(const Nz::Vector3d&, const Nz::Quaterniond&, const Nz::Vector3d&)) &Nz::Matrix4d::MakeTransform, Nz::Vector3d::Unit());
+		matrix4d.BindMethod("MakeViewMatrix", &Nz::Matrix4d::MakeViewMatrix);
+		matrix4d.BindMethod("MakeZero", &Nz::Matrix4d::MakeZero);
+
+		matrix4d.BindMethod("Set", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t argumentCount) -> int
+		{
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
+
+			int argIndex = 2;
+			switch (argCount)
+			{
+				case 1:
+					if (lua.IsOfType(argIndex, "Matrix4"))
+						instance.Set(*static_cast<Nz::Matrix4d*>(lua.ToUserdata(argIndex)));
+					break;
+
+				case 16:
+				{
+					double values[16];
+					for (std::size_t i = 0; i < 16; ++i)
+						values[i] = lua.CheckNumber(argIndex++);
+
+					instance.Set(values);
+
+					return 0;
+				}
+			}
+
+			lua.Error("No matching overload for method Set");
+			return 0;
+		});
+
+		matrix4d.BindMethod("SetRotation", &Nz::Matrix4d::SetRotation);
+		matrix4d.BindMethod("SetScale", &Nz::Matrix4d::SetScale);
+		matrix4d.BindMethod("SetTranslation", &Nz::Matrix4d::SetTranslation);
+
+		matrix4d.BindMethod("Transform", [] (Nz::LuaInstance& lua, Nz::Matrix4d& instance, std::size_t /*argumentCount*/) -> int
+		{
+			int argIndex = 2;
+			if (lua.IsOfType(argIndex, "Vector2"))
+			{
+				double z(lua.CheckNumber(argIndex+1, 0.0));
+				double w(lua.CheckNumber(argIndex+2, 1.0));
+
+				return lua.Push(instance.Transform(*static_cast<Nz::Vector2d*>(lua.ToUserdata(argIndex)), z, w));
+			}
+			else if (lua.IsOfType(argIndex, "Vector3"))
+			{
+				double w(lua.CheckNumber(argIndex+1, 1.0));
+
+				return lua.Push(instance.Transform(*static_cast<Nz::Vector3d*>(lua.ToUserdata(argIndex)), w));
+			}
+			//else if (lua.IsOfType(2, "Vector4"))
+			//	return lua.Push(instance.Transform(*static_cast<Nz::Vector4d*>(lua.ToUserdata(1))));
+
+			lua.Error("No matching overload for method Transform");
+			return 0;
+		});
+
+		matrix4d.BindMethod("Transpose", &Nz::Matrix4d::Transpose);
+
 		matrix4d.BindMethod("__tostring", &Nz::Matrix4d::ToString);
+
+		matrix4d.BindStaticMethod("Concatenate",       &Nz::Matrix4d::Concatenate);
+		matrix4d.BindStaticMethod("ConcatenateAffine", &Nz::Matrix4d::ConcatenateAffine);
+		matrix4d.BindStaticMethod("Identity",          &Nz::Matrix4d::Identity);
+		matrix4d.BindStaticMethod("LookAt",            &Nz::Matrix4d::LookAt, Nz::Vector3d::Up());
+		matrix4d.BindStaticMethod("Ortho",             &Nz::Matrix4d::Ortho, -1.0, 1.0);
+		matrix4d.BindStaticMethod("Perspective",       &Nz::Matrix4d::Perspective);
+		matrix4d.BindStaticMethod("Rotate",            &Nz::Matrix4d::Rotate);
+		matrix4d.BindStaticMethod("Scale",             &Nz::Matrix4d::Scale);
+		matrix4d.BindStaticMethod("Translate",         &Nz::Matrix4d::Translate);
+		matrix4d.BindStaticMethod("Transform",         (Nz::Matrix4d(*)(const Nz::Vector3d&, const Nz::Quaterniond&, const Nz::Vector3d&)) &Nz::Matrix4d::Transform, Nz::Vector3d::Unit());
+		matrix4d.BindStaticMethod("ViewMatrix",        &Nz::Matrix4d::ViewMatrix);
+		matrix4d.BindStaticMethod("Zero",              &Nz::Matrix4d::Zero);
 
 		matrix4d.SetGetter([] (Nz::LuaInstance& lua, Nz::Matrix4d& instance)
 		{

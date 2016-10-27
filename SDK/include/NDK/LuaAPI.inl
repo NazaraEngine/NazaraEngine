@@ -243,10 +243,10 @@ namespace Nz
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
 
-		params->animated = instance.CheckField<bool>("Animated", params->animated);
-		params->center = instance.CheckField<bool>("Center", params->center);
-		params->flipUVs = instance.CheckField<bool>("FlipUVs", params->flipUVs);
-		//params->matrix = instance.CheckField<Matrix4f>("Matrix", params->matrix);
+		params->animated             = instance.CheckField<bool>("Animated", params->animated);
+		params->center               = instance.CheckField<bool>("Center", params->center);
+		params->flipUVs              = instance.CheckField<bool>("FlipUVs", params->flipUVs);
+		params->matrix               = instance.CheckField<Matrix4f>("Matrix", params->matrix);
 		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
 
 		return 1;
