@@ -60,6 +60,8 @@ namespace Ndk
 	model("Model"),
 	sprite("Sprite"),
 	spriteLibrary("SpriteLibrary"),
+	textureLibrary("TextureLibrary"),
+	textureManager("TextureManager"),
 
 	// Renderer
 	texture("Texture"),
