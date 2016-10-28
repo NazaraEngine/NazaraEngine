@@ -13,15 +13,15 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <Nazara/VulkanRenderer/VkCommandBuffer.hpp>
-#include <Nazara/VulkanRenderer/VkCommandPool.hpp>
-#include <Nazara/VulkanRenderer/VkDevice.hpp>
-#include <Nazara/VulkanRenderer/VkDeviceMemory.hpp>
-#include <Nazara/VulkanRenderer/VkFramebuffer.hpp>
-#include <Nazara/VulkanRenderer/VkImage.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
-#include <Nazara/VulkanRenderer/VkSurface.hpp>
-#include <Nazara/VulkanRenderer/VkSwapchain.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Framebuffer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Swapchain.hpp>
 #include <vector>
 
 namespace Nz
