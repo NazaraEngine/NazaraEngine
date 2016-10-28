@@ -263,19 +263,21 @@ namespace Nz
 			m_previousCharacter = character;
 
 			bool whitespace = true;
+			int advance = 0;
 			switch (character)
 			{
 				case ' ':
-					m_drawPos.x += sizeInfo.spaceAdvance;
+					advance = sizeInfo.spaceAdvance;
 					break;
 
 				case '\n':
+					advance = 0;
 					m_drawPos.x = 0;
 					m_drawPos.y += sizeInfo.lineHeight;
 					break;
 
 				case '\t':
-					m_drawPos.x += sizeInfo.spaceAdvance * 4;
+					advance = sizeInfo.spaceAdvance * 4;
 					break;
 
 				default:
@@ -283,57 +285,69 @@ namespace Nz
 					break;
 			}
 
-			if (whitespace)
-				continue; // White spaces are blanks and invisible, move the draw position and skip the rest
-
-			const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
-			if (!fontGlyph.valid)
-				continue; // Glyph failed to load, just skip it (can't do much)
-
 			Glyph glyph;
-			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
-			glyph.atlasRect = fontGlyph.atlasRect;
 			glyph.color = m_color;
-			glyph.flipped = fontGlyph.flipped;
 
-			int advance = fontGlyph.advance;
-
-			Rectf bounds(fontGlyph.aabb);
-			bounds.x += m_drawPos.x;
-			bounds.y += m_drawPos.y;
-
-			if (fontGlyph.requireFauxBold)
+			if (!whitespace)
 			{
-				// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
-				Vector2f center = bounds.GetCenter();
+				const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
+				if (!fontGlyph.valid)
+					continue; // Glyph failed to load, just skip it (can't do much)
 
-				// Enlarge by 10%
-				bounds.width *= 1.1f;
-				bounds.height *= 1.1f;
+				advance = fontGlyph.advance;
 
-				// Replace it at the correct height
-				Vector2f offset(bounds.GetCenter() - center);
-				bounds.y -= offset.y;
+				glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+				glyph.atlasRect = fontGlyph.atlasRect;
+				glyph.flipped = fontGlyph.flipped;
 
-				// Adjust advance (+10%)
-				advance += advance / 10;
+				if (fontGlyph.requireFauxBold)
+				{
+					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
+					Vector2f center = glyph.bounds.GetCenter();
+
+					// Enlarge by 10%
+					glyph.bounds.width *= 1.1f;
+					glyph.bounds.height *= 1.1f;
+
+					// Replace it at the correct height
+					Vector2f offset(glyph.bounds.GetCenter() - center);
+					glyph.bounds.y -= offset.y;
+
+					// Adjust advance (+10%)
+					advance += advance / 10;
+				}
+
+				glyph.bounds.Set(fontGlyph.aabb);
+				glyph.bounds.x += m_drawPos.x;
+				glyph.bounds.y += m_drawPos.y;
+
+				// We "lean" the glyph to simulate italics style
+				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+				float italicTop = italic * glyph.bounds.y;
+				float italicBottom = italic * glyph.bounds.GetMaximum().y;
+
+				glyph.corners[0].Set(glyph.bounds.x - italicTop, glyph.bounds.y);
+				glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop, glyph.bounds.y);
+				glyph.corners[2].Set(glyph.bounds.x - italicBottom, glyph.bounds.y + glyph.bounds.height);
+				glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom, glyph.bounds.y + glyph.bounds.height);
+			}
+			else
+			{
+				glyph.atlas = nullptr;
+
+				glyph.bounds.Set(m_drawPos.x - advance, m_drawPos.y - sizeInfo.lineHeight, float(advance), sizeInfo.lineHeight);
+
+				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
+				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
+				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner_LeftBottom));
+				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner_RightBottom));
 			}
 
-			// We "lean" the glyph to simulate italics style
-			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-			float italicTop = italic * bounds.y;
-			float italicBottom = italic * bounds.GetMaximum().y;
-
-			glyph.corners[0].Set(bounds.x - italicTop, bounds.y);
-			glyph.corners[1].Set(bounds.x + bounds.width - italicTop, bounds.y);
-			glyph.corners[2].Set(bounds.x - italicBottom, bounds.y + bounds.height);
-			glyph.corners[3].Set(bounds.x + bounds.width - italicBottom, bounds.y + bounds.height);
 
 			if (!m_workingBounds.IsValid())
-				m_workingBounds.Set(glyph.corners[0]);
-
-			for (unsigned int i = 0; i < 4; ++i)
-				m_workingBounds.ExtendTo(glyph.corners[i]);
+				m_workingBounds.Set(glyph.bounds);
+			else
+				m_workingBounds.ExtendTo(glyph.bounds);
 
 			m_drawPos.x += advance;
 			m_glyphs.push_back(glyph);

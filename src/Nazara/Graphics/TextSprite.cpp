@@ -149,6 +149,8 @@ namespace Nz
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
