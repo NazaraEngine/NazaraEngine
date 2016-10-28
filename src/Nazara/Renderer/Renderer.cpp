@@ -7,6 +7,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -86,6 +87,8 @@ namespace Nz
 
 		NazaraDebug("Using " + s_rendererImpl->QueryAPIString() + " as renderer");
 
+		Buffer::SetBufferFactory(DataStorage_Hardware, CreateHardwareBufferImpl);
+
 		onExit.Reset();
 
 		NazaraNotice("Initialized: Renderer module");
@@ -106,6 +109,8 @@ namespace Nz
 		s_moduleReferenceCounter = 0;
 
 		// Uninitialize module here
+		Buffer::SetBufferFactory(DataStorage_Hardware, nullptr);
+
 		s_rendererImpl.reset();
 		s_rendererLib.Unload();
 
@@ -113,6 +118,11 @@ namespace Nz
 
 		// Free module dependencies
 		Utility::Uninitialize();
+	}
+
+	AbstractBuffer* Renderer::CreateHardwareBufferImpl(Buffer * parent, BufferType type)
+	{
+		return s_rendererImpl->CreateHardwareBufferImpl(parent, type).release();
 	}
 
 	std::unique_ptr<RendererImpl> Renderer::s_rendererImpl;
