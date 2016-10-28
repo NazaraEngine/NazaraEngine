@@ -26,11 +26,14 @@ namespace Nz
 
 			static inline bool IsInitialized();
 
+			static inline void SetParameters(const ParameterList& parameters);
+
 			static void Uninitialize();
 
 		private:
-			static DynLib s_rendererLib;
 			static std::unique_ptr<RendererImpl> s_rendererImpl;
+			static DynLib s_rendererLib;
+			static ParameterList s_initializationParameters;
 			static unsigned int s_moduleReferenceCounter;
 	};
 }
