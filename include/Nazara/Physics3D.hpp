@@ -1,4 +1,4 @@
-// This file was automatically generated on 14 Oct 2016 at 18:58:18
+// This file was automatically generated on 28 Oct 2016 at 17:47:08
 
 /*
 	Nazara Engine - Physics 3D module
@@ -29,11 +29,11 @@
 #ifndef NAZARA_GLOBAL_PHYSICS3D_HPP
 #define NAZARA_GLOBAL_PHYSICS3D_HPP
 
-#include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Nazara/Physics3D/Physics3D.hpp>
-#include <Nazara/Physics3D/RigidBody3D.hpp>
-#include <Nazara/Physics3D/Enums.hpp>
-#include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
 
 #endif // NAZARA_GLOBAL_PHYSICS3D_HPP

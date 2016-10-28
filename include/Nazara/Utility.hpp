@@ -1,4 +1,4 @@
-// This file was automatically generated on 12 Jul 2016 at 17:44:43
+// This file was automatically generated on 28 Oct 2016 at 17:47:08
 
 /*
 	Nazara Engine - Utility module
@@ -42,6 +42,7 @@
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
+#include <Nazara/Utility/EventHandler.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
