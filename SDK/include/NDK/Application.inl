@@ -374,8 +374,8 @@ namespace Ndk
 	}
 
 	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& window) :
-	window(std::move(window)),
-	renderTarget(nullptr)
+	renderTarget(nullptr),
+	window(std::move(window))
 	{
 	}
 	#endif

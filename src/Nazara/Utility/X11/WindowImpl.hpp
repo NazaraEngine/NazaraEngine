@@ -89,6 +89,8 @@ namespace Nz
 			const char* ConvertWindowCursorToXName(WindowCursor cursor);
 			void CommonInitialize();
 
+			char32_t GetRepresentation(xcb_keysym_t keysym) const;
+
 			void ProcessEvent(xcb_generic_event_t* windowEvent);
 
 			void ResetVideoMode();

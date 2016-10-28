@@ -111,8 +111,8 @@ namespace Nz
 		if (content <= PixelFormatContent_Undefined || content > PixelFormatContent_Max)
 			return false;
 
-		std::array<const Nz::Bitset<>*, 4> masks = {&redMask, &greenMask, &blueMask, &alphaMask};
-		std::array<PixelFormatSubType, 4> types = {redType, greenType, blueType, alphaType};
+		std::array<const Nz::Bitset<>*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
+		std::array<PixelFormatSubType, 4> types = { {redType, greenType, blueType, alphaType} };
 
 		for (unsigned int i = 0; i < 4; ++i)
 		{

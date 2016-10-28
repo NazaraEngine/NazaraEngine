@@ -34,8 +34,13 @@ compiler:
   - clang
 
 env:
-  - COMPILER=clang++-3.7 CONFIG=debug
-  - COMPILER=clang++-3.7 CONFIG=release
+  global:
+    - COMPILER=clang++-3.7
+    - CFLAGS="-Wall -Wextra" 
+    - CXXFLAGS="-Wall -Wextra"
+  matrix:
+    - CONFIG=debug
+    - CONFIG=release
 
 script:
   - cd build &&

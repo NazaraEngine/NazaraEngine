@@ -78,7 +78,7 @@ namespace Nz
 		while (it != Type::s_managerMap.end())
 		{
 			const ObjectRef<Type>& ref = it->second;
-			if (ref.GetReferenceCount() == 1) // Are we the only ones to own the resource ?
+			if (ref->GetReferenceCount() == 1) // Are we the only ones to own the resource ?
 			{
 				NazaraDebug("Purging resource from file " + ref->GetFilePath());
 				Type::s_managerMap.erase(it++); // Then we erase it

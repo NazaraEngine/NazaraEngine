@@ -1,4 +1,4 @@
-// This file was automatically generated on 15 Sep 2016 at 00:43:26
+// This file was automatically generated
 
 /*
 	Nazara Engine - Graphics module
@@ -72,7 +72,6 @@
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
-#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>

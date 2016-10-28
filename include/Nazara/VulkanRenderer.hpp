@@ -1,4 +1,4 @@
-// This file was automatically generated on 15 Sep 2016 at 00:43:26
+// This file was automatically generated
 
 /*
 	Nazara Engine - Vulkan
@@ -30,6 +30,7 @@
 #define NAZARA_GLOBAL_VULKANRENDERER_HPP
 
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VkBuffer.hpp>
 #include <Nazara/VulkanRenderer/VkCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VkCommandPool.hpp>

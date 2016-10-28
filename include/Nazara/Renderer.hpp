@@ -1,4 +1,4 @@
-// This file was automatically generated on 15 Sep 2016 at 00:43:26
+// This file was automatically generated
 
 /*
 	Nazara Engine - Renderer module
@@ -34,6 +34,7 @@
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>

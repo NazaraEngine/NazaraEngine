@@ -13,35 +13,35 @@ namespace Ndk
 	void LuaBinding::BindAudio()
 	{
 		/*********************************** Nz::Music **********************************/
-		musicClass.Inherit(soundEmitter);
+		music.Inherit(soundEmitter);
 
-		musicClass.BindDefaultConstructor();
+		music.BindDefaultConstructor();
 
 		//musicClass.SetMethod("Create", &Nz::Music::Create);
 		//musicClass.SetMethod("Destroy", &Nz::Music::Destroy);
 
-		musicClass.BindMethod("EnableLooping", &Nz::Music::EnableLooping);
+		music.BindMethod("EnableLooping", &Nz::Music::EnableLooping);
 
-		musicClass.BindMethod("GetDuration", &Nz::Music::GetDuration);
-		musicClass.BindMethod("GetFormat", &Nz::Music::GetFormat);
-		musicClass.BindMethod("GetPlayingOffset", &Nz::Music::GetPlayingOffset);
-		musicClass.BindMethod("GetSampleCount", &Nz::Music::GetSampleCount);
-		musicClass.BindMethod("GetSampleRate", &Nz::Music::GetSampleRate);
-		musicClass.BindMethod("GetStatus", &Nz::Music::GetStatus);
+		music.BindMethod("GetDuration", &Nz::Music::GetDuration);
+		music.BindMethod("GetFormat", &Nz::Music::GetFormat);
+		music.BindMethod("GetPlayingOffset", &Nz::Music::GetPlayingOffset);
+		music.BindMethod("GetSampleCount", &Nz::Music::GetSampleCount);
+		music.BindMethod("GetSampleRate", &Nz::Music::GetSampleRate);
+		music.BindMethod("GetStatus", &Nz::Music::GetStatus);
 
-		musicClass.BindMethod("IsLooping", &Nz::Music::IsLooping);
+		music.BindMethod("IsLooping", &Nz::Music::IsLooping);
 
-		musicClass.BindMethod("OpenFromFile", &Nz::Music::OpenFromFile, Nz::MusicParams());
+		music.BindMethod("OpenFromFile", &Nz::Music::OpenFromFile, Nz::MusicParams());
 
-		musicClass.BindMethod("Pause", &Nz::Music::Pause);
-		musicClass.BindMethod("Play", &Nz::Music::Play);
+		music.BindMethod("Pause", &Nz::Music::Pause);
+		music.BindMethod("Play", &Nz::Music::Play);
 
-		musicClass.BindMethod("SetPlayingOffset", &Nz::Music::SetPlayingOffset);
+		music.BindMethod("SetPlayingOffset", &Nz::Music::SetPlayingOffset);
 
-		musicClass.BindMethod("Stop", &Nz::Music::Stop);
+		music.BindMethod("Stop", &Nz::Music::Stop);
 
 		// Manual
-		musicClass.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& music) -> int
+		music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& music, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("Music(");
 			stream << music.GetFilePath() << ')';
@@ -51,21 +51,21 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Sound **********************************/
-		soundClass.Inherit(soundEmitter);
+		sound.Inherit(soundEmitter);
 
-		soundClass.BindDefaultConstructor();
+		sound.BindDefaultConstructor();
 
-		soundClass.BindMethod("GetBuffer", &Nz::Sound::GetBuffer);
+		sound.BindMethod("GetBuffer", &Nz::Sound::GetBuffer);
 
-		soundClass.BindMethod("IsPlayable", &Nz::Sound::IsPlayable);
-		soundClass.BindMethod("IsPlaying", &Nz::Sound::IsPlaying);
+		sound.BindMethod("IsPlayable", &Nz::Sound::IsPlayable);
+		sound.BindMethod("IsPlaying", &Nz::Sound::IsPlaying);
 
-		soundClass.BindMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
+		sound.BindMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
 
-		soundClass.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
+		sound.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
 		// Manual
-		soundClass.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound) -> int
+		sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("Sound(");
 			if (const Nz::SoundBuffer* buffer = sound.GetBuffer())
@@ -101,9 +101,9 @@ namespace Ndk
 		soundBuffer.BindStaticMethod("IsFormatSupported", &Nz::SoundBuffer::IsFormatSupported);
 
 		// Manual
-		soundBuffer.BindMethod("Create", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("Create", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			int index = 1;
+			int index = 2;
 			Nz::AudioFormat format = lua.Check<Nz::AudioFormat>(&index);
 			unsigned int sampleCount = lua.Check<unsigned int>(&index);
 			unsigned int sampleRate = lua.Check<unsigned int>(&index);
@@ -116,13 +116,13 @@ namespace Ndk
 			return 1;
 		});
 
-		soundBuffer.BindMethod("GetSamples", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("GetSamples", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
 			lua.PushString(reinterpret_cast<const char*>(instance->GetSamples()), instance->GetSampleCount() * sizeof(Nz::Int16));
 			return 1;
 		});
 
-		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance) -> int
+		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
 			Nz::StringStream stream("SoundBuffer(");
 			if (instance->IsValid())
@@ -177,8 +177,8 @@ namespace Ndk
 
 	void LuaBinding::RegisterAudio(Nz::LuaInstance& instance)
 	{
-		musicClass.Register(instance);
-		soundClass.Register(instance);
+		music.Register(instance);
+		sound.Register(instance);
 		soundBuffer.Register(instance);
 		soundEmitter.Register(instance);
 	}

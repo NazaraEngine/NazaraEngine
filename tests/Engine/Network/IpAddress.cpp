@@ -17,8 +17,8 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 
 			THEN("It's the loop back")
 			{
-				REQUIRE(ipAddressV4.IsLoopback());
-				REQUIRE(ipAddressV6.IsLoopback());
+				CHECK(ipAddressV4.IsLoopback());
+				CHECK(ipAddressV6.IsLoopback());
 			}
 		}
 	}
@@ -31,7 +31,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 
 			THEN("Result is not null")
 			{
-				REQUIRE(!hostnameInfos.empty());
+				CHECK_FALSE(hostnameInfos.empty());
 			}
 		}
 
@@ -40,7 +40,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 			Nz::IpAddress google(8, 8, 8, 8);
 			THEN("Google (DNS) is 8.8.8.8")
 			{
-				REQUIRE(Nz::IpAddress::ResolveAddress(google) == "google-public-dns-a.google.com");
+				CHECK(Nz::IpAddress::ResolveAddress(google) == "google-public-dns-a.google.com");
 			}
 		}
 	}
