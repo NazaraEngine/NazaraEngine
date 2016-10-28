@@ -10,8 +10,12 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/VkDevice.hpp>
 #include <Nazara/VulkanRenderer/VkInstance.hpp>
 #include <Nazara/VulkanRenderer/VkPhysicalDevice.hpp>
+#include <Nazara/VulkanRenderer/VkSurface.hpp>
+#include <list>
+#include <vector>
 
 namespace Nz
 {
@@ -19,7 +23,7 @@ namespace Nz
 	{
 		public:
 			VulkanRenderer() = default;
-			~VulkanRenderer() = default;
+			~VulkanRenderer();
 
 			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() override;
 
@@ -35,10 +39,14 @@ namespace Nz
 			static constexpr UInt32 APIVersion = VK_API_VERSION_1_0;
 
 		private:
-			Vk::Instance m_instance;
+			std::list<Vk::Device> m_devices;
 			std::vector<Vk::PhysicalDevice> m_physDevices;
+			ParameterList m_initializationParameters;
+			Vk::Instance m_instance;
 			UInt32 m_apiVersion;
 	};
 }
+
+#include <Nazara/VulkanRenderer/VulkanRenderer.inl>
 
 #endif // NAZARA_VULKANRENDERER_HPP
