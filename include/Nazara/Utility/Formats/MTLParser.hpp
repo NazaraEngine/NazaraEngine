@@ -71,7 +71,6 @@ namespace Nz
 			mutable StringStream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
-			unsigned int m_streamFlags;
 	};
 }
 

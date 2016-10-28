@@ -10,6 +10,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
@@ -21,21 +22,9 @@
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <NDK/Console.hpp>
 #endif
-
-namespace Ndk
-{
-	/*!
-	* \brief Gets the internal binding for Lua
-	* \return A pointer to the binding
-	*/
-
-	inline LuaBinding* LuaAPI::GetBinding()
-	{
-		return s_binding;
-	}
-}
 
 namespace Nz
 {
@@ -149,6 +138,104 @@ namespace Nz
 	*
 	* \param instance Lua instance to interact with
 	* \param index Index type
+	* \param params Resulting parameters for an image
+	*/
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, ImageParams* params, TypeTag<ImageParams>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+
+		params->levelCount = instance.CheckField<Nz::UInt8>("LevelCount");
+		params->loadFormat = instance.CheckField<Nz::PixelFormatType>("LoadFormat");
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param address Resulting IP address
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_String:
+				address->BuildFromAddress(instance.CheckString(index));
+				return 1;
+
+			default:
+				*address = *static_cast<IpAddress*>(instance.CheckUserdata(index, "IpAddress"));
+				return 1;
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Matrix4d* mat, TypeTag<Matrix4d>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_Table:
+			{
+				double values[16];
+				for (std::size_t i = 0; i < 16; ++i)
+				{
+					instance.PushInteger(i + 1);
+					instance.GetTable();
+
+					values[i] = instance.CheckNumber(-1);
+					instance.Pop();
+				}
+
+				mat->Set(values);
+				return 1;
+			}
+
+			default:
+			{
+				if (instance.IsOfType(index, "Matrix4"))
+					mat->Set(*static_cast<Matrix4d*>(instance.ToUserdata(index)));
+
+				return 1;
+			}
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Matrix4f* mat, TypeTag<Matrix4f>)
+	{
+		Matrix4d matDouble;
+		unsigned int ret = LuaImplQueryArg(instance, index, &matDouble, TypeTag<Matrix4d>());
+
+		mat->Set(matDouble);
+		return ret;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
 	* \param params Resulting parameters for a mesh
 	*/
 
@@ -156,13 +243,60 @@ namespace Nz
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
 
-		params->animated = instance.CheckField<bool>("Animated", params->animated);
-		params->center = instance.CheckField<bool>("Center", params->center);
-		params->flipUVs = instance.CheckField<bool>("FlipUVs", params->flipUVs);
-		//params->matrix = instance.CheckField<Matrix4f>("Matrix", params->matrix);
+		params->animated             = instance.CheckField<bool>("Animated", params->animated);
+		params->center               = instance.CheckField<bool>("Center", params->center);
+		params->flipUVs              = instance.CheckField<bool>("FlipUVs", params->flipUVs);
+		params->matrix               = instance.CheckField<Matrix4f>("Matrix", params->matrix);
 		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
 
 		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
+	{
+		switch (instance.GetType(index))
+		{
+			case Nz::LuaType_Table:
+				quat->Set(instance.CheckField<double>("w", index), instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", index));
+				return 1;
+
+			default:
+			{
+				if (instance.IsOfType(index, "EulerAngles"))
+					quat->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
+				else
+					quat->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
+
+				return 1;
+			}
+		}
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param quat Resulting quaternion
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaternionf* quat, TypeTag<Quaternionf>)
+	{
+		Quaterniond quatDouble;
+		unsigned int ret = LuaImplQueryArg(instance, index, &quatDouble, TypeTag<Quaterniond>());
+
+		quat->Set(quatDouble);
+		return ret;
 	}
 
 	/*!
@@ -220,76 +354,6 @@ namespace Nz
 
 		rect->Set(rectDouble);
 		return ret;
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param quat Resulting quaternion
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaterniond* quat, TypeTag<Quaterniond>)
-	{
-		switch (instance.GetType(index))
-		{
-			case Nz::LuaType_Table:
-				quat->Set(instance.CheckField<double>("w", index), instance.CheckField<double>("x", index), instance.CheckField<double>("y", index), instance.CheckField<double>("z", index));
-				return 1;
-
-			default:
-			{
-				if (instance.IsOfType(index, "EulerAngles"))
-					quat->Set(*static_cast<EulerAnglesd*>(instance.ToUserdata(index)));
-				else
-					quat->Set(*static_cast<Quaterniond*>(instance.CheckUserdata(index, "Quaternion")));
-
-				return 1;
-			}
-		}
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param quat Resulting quaternion
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Quaternionf* quat, TypeTag<Quaternionf>)
-	{
-		Quaterniond quatDouble;
-		unsigned int ret = LuaImplQueryArg(instance, index, &quatDouble, TypeTag<Quaterniond>());
-
-		quat->Set(quatDouble);
-		return ret;
-	}
-
-	/*!
-	* \brief Queries arguments for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param index Index type
-	* \param address Resulting IP address
-	*/
-
-	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, IpAddress* address, TypeTag<IpAddress>)
-	{
-		switch (instance.GetType(index))
-		{
-			case Nz::LuaType_String:
-				address->BuildFromAddress(instance.CheckString(index));
-				return 1;
-
-			default:
-				*address = *static_cast<IpAddress*>(instance.CheckUserdata(index, "IpAddress"));
-				return 1;
-		}
 	}
 
 	/*!
@@ -469,10 +533,31 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, InstancedRenderableRef* renderable, TypeTag<InstancedRenderableRef>)
 	{
-		if (instance.IsOfType(index, "InstancedRenderable"))
-			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "InstancedRenderable"));
+		if (instance.IsOfType(index, "InstancedRenderable") ||
+		    instance.IsOfType(index, "Model") ||
+		    instance.IsOfType(index, "Sprite"))
+		{
+			*renderable = *static_cast<InstancedRenderableRef*>(instance.ToUserdata(index));
+		}
 		else
-			*renderable = *static_cast<InstancedRenderableRef*>(instance.CheckUserdata(index, "Model"));
+			instance.ArgError(index, "is not a InstancedRenderable instance");
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param renderable Resulting reference to a material
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, MaterialRef* materialRef, TypeTag<MaterialRef>)
+	{
+		*materialRef = *static_cast<MaterialRef*>(instance.CheckUserdata(index, "Material"));
+
 		return 1;
 	}
 
@@ -495,6 +580,7 @@ namespace Nz
 		params->loadHeightMap   = instance.CheckField<bool>("LoadHeightMap", params->loadHeightMap);
 		params->loadNormalMap   = instance.CheckField<bool>("LoadNormalMap", params->loadNormalMap);
 		params->loadSpecularMap = instance.CheckField<bool>("LoadSpecularMap", params->loadSpecularMap);
+		params->shaderName      = instance.CheckField<String>("ShaderName", params->shaderName);
 
 		return 1;
 	}
@@ -556,7 +642,58 @@ namespace Nz
 		return 1;
 	}
 
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param renderable Resulting reference to a sprite
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, SpriteRef* spriteRef, TypeTag<SpriteRef>)
+	{
+		*spriteRef = *static_cast<SpriteRef*>(instance.CheckUserdata(index, "Sprite"));
+
+		return 1;
+	}
+
+	/*!
+	* \brief Queries arguments for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param index Index type
+	* \param fontRef Resulting reference to a font
+	*/
+
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, TextureRef* textureRef, TypeTag<TextureRef>)
+	{
+		*textureRef = *static_cast<TextureRef*>(instance.CheckUserdata(index, "Texture"));
+
+		return 1;
+	}
+
 #endif
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting color
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Color&& val, TypeTag<Color>)
+	{
+		instance.PushTable();
+		instance.PushField("r", val.r);
+		instance.PushField("g", val.g);
+		instance.PushField("b", val.b);
+		instance.PushField("a", val.a);
+
+		return 1;
+	}
 
 	/*!
 	* \brief Replies by value for Lua
@@ -624,6 +761,65 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
+	* \param val Resulting ImageParams
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, ImageParams&& val, TypeTag<ImageParams>)
+	{
+		instance.PushTable(0, 2);
+			instance.PushField("LevelCount", val.levelCount);
+			instance.PushField("LoadFormat", val.loadFormat);
+
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting IP address
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
+	{
+		instance.PushInstance<IpAddress>("IpAddress", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Matrix4d&& val, TypeTag<Matrix4d>)
+	{
+		instance.PushInstance<Matrix4d>("Matrix4", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting rectangle
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Matrix4f&& val, TypeTag<Matrix4f>)
+	{
+		instance.PushInstance<Matrix4d>("Matrix4", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
 	* \param val Resulting quaternion
 	*/
 
@@ -652,24 +848,10 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
-	* \param val Resulting IP address
-	*/
-
-	inline int LuaImplReplyVal(const LuaInstance& instance, IpAddress&& val, TypeTag<IpAddress>)
-	{
-		instance.PushInstance<IpAddress>("IpAddress", val);
-		return 1;
-	}
-
-	/*!
-	* \brief Replies by value for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
 	* \param val Resulting rectangle
 	*/
 
-	inline int LuaImplReplyVal(const LuaInstance& instance, Rectd&& val, TypeTag<Rectf>)
+	inline int LuaImplReplyVal(const LuaInstance& instance, Rectd&& val, TypeTag<Rectd>)
 	{
 		instance.PushInstance<Rectd>("Rect", val);
 		return 1;
@@ -892,6 +1074,62 @@ namespace Nz
 	* \return 1 in case of success
 	*
 	* \param instance Lua instance to interact with
+	* \param handle Resulting material
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, MaterialRef&& handle, TypeTag<MaterialRef>)
+	{
+		instance.PushInstance<MaterialRef>("Material", handle);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param val Resulting sound buffer
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
+	{
+		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting sprite
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, SpriteRef&& handle, TypeTag<SpriteRef>)
+	{
+		instance.PushInstance<SpriteRef>("Sprite", handle);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
+	* \param handle Resulting texture
+	*/
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, TextureRef&& handle, TypeTag<TextureRef>)
+	{
+		instance.PushInstance<TextureRef>("Texture", handle);
+		return 1;
+	}
+
+	/*!
+	* \brief Replies by value for Lua
+	* \return 1 in case of success
+	*
+	* \param instance Lua instance to interact with
 	* \param handle Resulting console
 	*/
 
@@ -914,21 +1152,6 @@ namespace Nz
 		instance.PushInstance<Ndk::GraphicsComponentHandle>("GraphicsComponent", handle);
 		return 1;
 	}
-
-	/*!
-	* \brief Replies by value for Lua
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance to interact with
-	* \param val Resulting sound buffer
-	*/
-
-	inline int LuaImplReplyVal(const LuaInstance& instance, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
-	{
-		instance.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
-		return 1;
-	}
-
 #endif
 
 }

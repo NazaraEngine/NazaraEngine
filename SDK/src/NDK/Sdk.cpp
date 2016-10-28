@@ -9,15 +9,15 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
-#include <Nazara/Physics/Physics.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
-#include <NDK/Components/CollisionComponent.hpp>
+#include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
@@ -68,7 +68,7 @@ namespace Ndk
 
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
-			Nz::Physics::Initialize();
+			Nz::Physics3D::Initialize();
 			Nz::Utility::Initialize();
 
 			#ifndef NDK_SERVER
@@ -83,9 +83,9 @@ namespace Ndk
 			BaseComponent::Initialize();
 
 			// Shared components
-			InitializeComponent<CollisionComponent>("NdkColli");
+			InitializeComponent<CollisionComponent3D>("NdkColli");
 			InitializeComponent<NodeComponent>("NdkNode");
-			InitializeComponent<PhysicsComponent>("NdkPhys");
+			InitializeComponent<PhysicsComponent3D>("NdkPhys");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
 
 			#ifndef NDK_SERVER
@@ -103,7 +103,7 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Shared systems
-			InitializeSystem<PhysicsSystem>();
+			InitializeSystem<PhysicsSystem3D>();
 			InitializeSystem<VelocitySystem>();
 
 			#ifndef NDK_SERVER
@@ -161,7 +161,7 @@ namespace Ndk
 		// Shared modules
 		Nz::Lua::Uninitialize();
 		Nz::Noise::Uninitialize();
-		Nz::Physics::Uninitialize();
+		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
 
 		NazaraNotice("Uninitialized: SDK");

@@ -71,6 +71,8 @@ namespace Nz
 	template<typename T>
 	HandledObject<T>& HandledObject<T>::operator=(const HandledObject& object)
 	{
+		NazaraUnused(object);
+
 		// Nothing to do
 		return *this; 
 	}
