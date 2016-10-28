@@ -41,7 +41,7 @@ namespace Nz
 
 	bool Vulkan::Initialize(UInt32 apiVersion, const ParameterList& parameters)
 	{
-		NazaraAssert(!s_instance.IsValid(), "Vulkan is already initialized");
+		NazaraAssert(!IsInitialized(), "Vulkan is already initialized");
 
 		// Initialize module here
 		if (!Vk::Loader::Initialize())
@@ -218,6 +218,11 @@ namespace Nz
 
 		NazaraNotice("Initialized: Vulkan module");
 		return true;
+	}
+
+	bool Vulkan::IsInitialized()
+	{
+		return s_instance.IsValid();
 	}
 
 	Vk::DeviceHandle Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
