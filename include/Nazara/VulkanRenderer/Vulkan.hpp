@@ -33,13 +33,11 @@ namespace Nz
 			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
 			static const Vk::PhysicalDevice& GetPhysicalDeviceInfo(VkPhysicalDevice physDevice);
 			
-			static bool Initialize();
+			static bool Initialize(UInt32 apiVersion, const ParameterList& parameters);
 
 			static bool IsInitialized();
 
 			static Vk::DeviceHandle SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
-
-			static void SetParameters(const ParameterList& parameters);
 
 			static void Uninitialize();
 
@@ -48,7 +46,6 @@ namespace Nz
 			static std::vector<Vk::PhysicalDevice> s_physDevices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;
-			static unsigned int s_moduleReferenceCounter;
 	};	
 }
 

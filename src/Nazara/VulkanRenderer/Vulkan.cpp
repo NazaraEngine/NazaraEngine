@@ -39,24 +39,9 @@ namespace Nz
 		return dummy;
 	}
 
-	bool Vulkan::Initialize()
+	bool Vulkan::Initialize(UInt32 apiVersion, const ParameterList& parameters)
 	{
-		if (s_moduleReferenceCounter > 0)
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialize module dependencies
-		if (!Utility::Initialize())
-		{
-			NazaraError("Failed to initialize utility module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		CallOnExit onExit(Vulkan::Uninitialize);
+		NazaraAssert(!s_instance.IsValid(), "Vulkan is already initialized");
 
 		// Initialize module here
 		if (!Vk::Loader::Initialize())
@@ -65,25 +50,27 @@ namespace Nz
 			return false;
 		}
 
+		CallOnExit onExit(Vulkan::Uninitialize);
+
 		String appName = "Another application made with Nazara Engine";
 		String engineName = "Nazara Engine - Vulkan Renderer";
-		UInt32 apiVersion = VK_MAKE_VERSION(1, 0, 8);
+
 		UInt32 appVersion = VK_MAKE_VERSION(1, 0, 0);
 		UInt32 engineVersion = VK_MAKE_VERSION(1, 0, 0);
 
-		s_initializationParameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);
-		s_initializationParameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);
+		parameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);
+		parameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);
 
 		bool bParam;
 		int iParam;
 
-		if (s_initializationParameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
+		if (parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
 			apiVersion = iParam;
 
-		if (s_initializationParameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion", &iParam))
+		if (parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion", &iParam))
 			appVersion = iParam;
 
-		if (s_initializationParameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion", &iParam))
+		if (parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion", &iParam))
 			engineVersion = iParam;
 
 		VkApplicationInfo appInfo = {
@@ -98,26 +85,26 @@ namespace Nz
 
 		VkInstanceCreateFlags createFlags = 0;
 
-		if (s_initializationParameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags", &iParam))
+		if (parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags", &iParam))
 			createFlags = static_cast<VkInstanceCreateFlags>(iParam);
 
 		std::vector<const char*> enabledLayers;
 		std::vector<const char*> enabledExtensions;
 
-		if (!s_initializationParameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
+		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
 			//< Nazara default layers goes here
 		}
 
 		std::vector<String> additionalLayers; // Just to keep the String alive
-		if (s_initializationParameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
+		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
 		{
 			additionalLayers.reserve(iParam);
 			for (int i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkInstanceInfo_EnabledLayer" + String::Number(i);
 				Nz::String layer;
-				if (s_initializationParameters.GetStringParameter(parameterName, &layer))
+				if (parameters.GetStringParameter(parameterName, &layer))
 				{
 					additionalLayers.emplace_back(std::move(layer));
 					enabledLayers.push_back(additionalLayers.back().GetConstBuffer());
@@ -127,7 +114,7 @@ namespace Nz
 			}
 		}
 
-		if (!s_initializationParameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
+		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
 		{
 			enabledExtensions.push_back("VK_KHR_surface");
 
@@ -157,14 +144,14 @@ namespace Nz
 		}
 
 		std::vector<String> additionalExtensions; // Just to keep the String alive
-		if (s_initializationParameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount", &iParam))
+		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount", &iParam))
 		{
 			additionalExtensions.reserve(iParam);
 			for (int i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkInstanceInfo_EnabledExtension" + String::Number(i);
 				Nz::String extension;
-				if (s_initializationParameters.GetStringParameter(parameterName, &extension))
+				if (parameters.GetStringParameter(parameterName, &extension))
 				{
 					additionalExtensions.emplace_back(std::move(extension));
 					enabledExtensions.push_back(additionalExtensions.back().GetConstBuffer());
@@ -190,7 +177,7 @@ namespace Nz
 			NazaraError("Failed to create instance");
 			return false;
 		}
-
+		
 		std::vector<VkPhysicalDevice> physDevices;
 		if (!s_instance.EnumeratePhysicalDevices(&physDevices))
 		{
@@ -199,7 +186,6 @@ namespace Nz
 		}
 
 		s_physDevices.reserve(physDevices.size());
-
 		for (std::size_t i = 0; i < physDevices.size(); ++i)
 		{
 			VkPhysicalDevice physDevice = physDevices[i];
@@ -207,15 +193,15 @@ namespace Nz
 			Vk::PhysicalDevice deviceInfo;
 			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queues))
 			{
-				NazaraWarning("Failed to query physical device queue family properties");
+				NazaraWarning("Failed to query physical device queue family properties for " + String(deviceInfo.properties.deviceName) + " (0x" + String::Number(deviceInfo.properties.deviceID, 16) + ')');
 				continue;
 			}
 
 			deviceInfo.device = physDevice;
 
-			deviceInfo.features = s_instance.GetPhysicalDeviceFeatures(physDevice);
+			deviceInfo.features         = s_instance.GetPhysicalDeviceFeatures(physDevice);
 			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
-			deviceInfo.properties = s_instance.GetPhysicalDeviceProperties(physDevice);
+			deviceInfo.properties       = s_instance.GetPhysicalDeviceProperties(physDevice);
 
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
@@ -226,15 +212,12 @@ namespace Nz
 			return false;
 		}
 
+		s_initializationParameters = parameters;
+
 		onExit.Reset();
 
 		NazaraNotice("Initialized: Vulkan module");
 		return true;
-	}
-
-	bool Vulkan::IsInitialized()
-	{
-		return s_moduleReferenceCounter != 0;
 	}
 
 	Vk::DeviceHandle Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
@@ -412,40 +395,18 @@ namespace Nz
 		return CreateDevice(gpu, surface, presentableFamilyQueue);
 	}
 
-	void Vulkan::SetParameters(const ParameterList& parameters)
-	{
-		s_initializationParameters = parameters;
-	}
-
 	void Vulkan::Uninitialize()
 	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// Either the module is not initialized, either it was initialized multiple times
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		s_moduleReferenceCounter = 0;
-
 		// Uninitialize module here
 		s_devices.clear();
 		s_instance.Destroy();
 
 		Vk::Loader::Uninitialize();
-
-		NazaraNotice("Uninitialized: Vulkan module");
-
-		// Free module dependencies
-		Utility::Uninitialize();
 	}
 
 	std::list<Vk::Device> Vulkan::s_devices;
 	std::vector<Vk::PhysicalDevice> Vulkan::s_physDevices;
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;
-	unsigned int Vulkan::s_moduleReferenceCounter = 0;	
 }
 
