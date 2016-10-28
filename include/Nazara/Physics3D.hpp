@@ -1,4 +1,4 @@
-// This file was automatically generated on 28 Oct 2016 at 17:47:08
+// This file was automatically generated
 
 /*
 	Nazara Engine - Physics 3D module
