@@ -1,4 +1,4 @@
-// This file was automatically generated on 12 Jul 2016 at 17:44:43
+// This file was automatically generated
 
 /*
 	Nazara Engine - Noise module
