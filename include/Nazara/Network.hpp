@@ -1,4 +1,4 @@
-// This file was automatically generated on 03 Feb 2016 at 00:06:56
+// This file was automatically generated on 28 Oct 2016 at 17:47:08
 
 /*
 	Nazara Engine - Network module
@@ -36,7 +36,10 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Network.hpp>
+#include <Nazara/Network/RUdpConnection.hpp>
+#include <Nazara/Network/RUdpMessage.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
+#include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Nazara/Network/UdpSocket.hpp>

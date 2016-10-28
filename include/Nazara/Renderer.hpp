@@ -1,4 +1,4 @@
-// This file was automatically generated on 24 Jun 2015 at 13:55:50
+// This file was automatically generated on 28 Oct 2016 at 17:47:08
 
 /*
 	Nazara Engine - Renderer module
@@ -38,6 +38,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
