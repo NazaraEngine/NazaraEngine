@@ -1,4 +1,4 @@
-// This file was automatically generated on 27 Oct 2016 at 18:53:37
+// This file was automatically generated on 27 Oct 2016 at 21:39:00
 
 #pragma once
 
@@ -7,5 +7,6 @@
 
 #include <NDK/Widgets/ButtonWidget.hpp>
 #include <NDK/Widgets/LabelWidget.hpp>
+#include <NDK/Widgets/TextAreaWidget.hpp>
 
 #endif // NDK_WIDGETS_GLOBAL_HPP
