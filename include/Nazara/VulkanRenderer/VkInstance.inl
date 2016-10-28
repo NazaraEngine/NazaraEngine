@@ -81,6 +81,11 @@ namespace Nz
 			return m_loadedLayers.count(layerName) > 0;
 		}
 
+		inline bool Instance::IsValid() const
+		{
+			return m_instance != nullptr;
+		}
+
 		inline Instance::operator VkInstance()
 		{
 			return m_instance;
