@@ -102,6 +102,24 @@ namespace Nz
 		return m_glyphs.size();
 	}
 
+	const AbstractTextDrawer::Line& SimpleTextDrawer::GetLine(std::size_t index) const
+	{
+		NazaraAssert(index < m_lines.size(), "Line index out of range");
+
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		return m_lines[index];
+	}
+
+	std::size_t SimpleTextDrawer::GetLineCount() const
+	{
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		return m_lines.size();
+	}
+
 	UInt32 SimpleTextDrawer::GetStyle() const
 	{
 		return m_style;
@@ -217,10 +235,16 @@ namespace Nz
 		m_bounds.MakeZero();
 		m_colorUpdated = true;
 		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
 		m_previousCharacter = 0;
 		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
+
+		if (m_font)
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, m_font->GetSizeInfo(m_characterSize).lineHeight), 0});
+		else
+			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
 
 	void SimpleTextDrawer::ConnectFontSlots()
@@ -271,6 +295,13 @@ namespace Nz
 					break;
 
 				case '\n':
+					if (!m_glyphs.empty())
+					{
+						Glyph& glyph = m_glyphs.back();
+						m_lines.back().bounds.ExtendTo(glyph.bounds);
+					}
+					m_lines.emplace_back(Line{Rectf(0.f, m_drawPos.y, 0.f, sizeInfo.lineHeight), m_glyphs.size()});
+
 					advance = 0;
 					m_drawPos.x = 0;
 					m_drawPos.y += sizeInfo.lineHeight;
@@ -343,6 +374,7 @@ namespace Nz
 				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner_RightBottom));
 			}
 
+			m_lines.back().bounds.ExtendTo(glyph.bounds);
 
 			if (!m_workingBounds.IsValid())
 				m_workingBounds.Set(glyph.bounds);
