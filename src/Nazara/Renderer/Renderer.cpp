@@ -7,6 +7,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Renderer/Debug.hpp>
