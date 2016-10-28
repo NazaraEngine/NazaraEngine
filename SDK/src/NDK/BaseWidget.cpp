@@ -71,6 +71,11 @@ namespace Ndk
 		m_entities.erase(it);
 	}
 
+	void BaseWidget::GrabKeyboard()
+	{
+		m_canvas->SetKeyboardOwner(this);
+	}
+
 	void BaseWidget::Layout()
 	{
 		if (m_canvas)
@@ -110,6 +115,10 @@ namespace Ndk
 	}
 
 	void BaseWidget::OnMouseExit()
+	{
+	}
+
+	void BaseWidget::OnTextEntered(char32_t character, bool repeated)
 	{
 	}
 }

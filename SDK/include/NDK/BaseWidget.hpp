@@ -45,6 +45,8 @@ namespace Ndk
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
+			void GrabKeyboard();
+
 			virtual void ResizeToContent() = 0;
 
 			inline void SetContentSize(const Nz::Vector2f& size);
@@ -73,6 +75,7 @@ namespace Ndk
 			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseExit();
+			virtual void OnTextEntered(char32_t character, bool repeated);
 
 		private:
 			inline BaseWidget();
