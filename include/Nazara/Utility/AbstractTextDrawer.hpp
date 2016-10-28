@@ -22,6 +22,7 @@ namespace Nz
 	{
 		public:
 			struct Glyph;
+			struct Line;
 
 			AbstractTextDrawer() = default;
 			virtual ~AbstractTextDrawer();
@@ -31,14 +32,23 @@ namespace Nz
 			virtual std::size_t GetFontCount() const = 0;
 			virtual const Glyph& GetGlyph(std::size_t index) const = 0;
 			virtual std::size_t GetGlyphCount() const = 0;
+			virtual const Line& GetLine(std::size_t index) const = 0;
+			virtual std::size_t GetLineCount() const = 0;
 
 			struct Glyph
 			{
 				Color color;
+				Rectf bounds;
 				Rectui atlasRect;
 				Vector2f corners[4];
 				AbstractImage* atlas;
 				bool flipped;
+			};
+
+			struct Line
+			{
+				Rectf bounds;
+				std::size_t glyphIndex;
 			};
 	};
 }
