@@ -16,6 +16,11 @@ namespace Nz
 	{
 		return s_moduleReferenceCounter != 0;
 	}
+
+	void Renderer::SetParameters(const ParameterList& parameters)
+	{
+		s_initializationParameters = parameters;
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

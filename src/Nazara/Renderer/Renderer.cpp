@@ -63,7 +63,7 @@ namespace Nz
 			}
 
 			std::unique_ptr<RendererImpl> impl(createRenderer());
-			if (!impl || !impl->Prepare(Nz::ParameterList()))
+			if (!impl || !impl->Prepare(s_initializationParameters))
 			{
 				NazaraError("Failed to create renderer implementation");
 				continue;
@@ -115,7 +115,8 @@ namespace Nz
 		Utility::Uninitialize();
 	}
 
-	DynLib Renderer::s_rendererLib;
 	std::unique_ptr<RendererImpl> Renderer::s_rendererImpl;
+	DynLib Renderer::s_rendererLib;
+	ParameterList Renderer::s_initializationParameters;
 	unsigned int Renderer::s_moduleReferenceCounter = 0;
 }
