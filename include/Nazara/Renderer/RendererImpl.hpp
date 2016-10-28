@@ -13,10 +13,13 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <vector>
 
 namespace Nz
 {
+	class AbstractBuffer;
+	class Buffer;
 	class RendererImpl;
 	class RenderWindowImpl;
 
@@ -28,6 +31,7 @@ namespace Nz
 			RendererImpl() = default;
 			virtual ~RendererImpl();
 
+			virtual std::unique_ptr<AbstractBuffer> CreateHardwareBufferImpl(Buffer* parent, BufferType type) = 0;
 			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() = 0;
 
 			virtual bool IsBetterThan(const RendererImpl* other) const = 0;

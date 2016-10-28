@@ -11,9 +11,13 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
+	class AbstractBuffer;
+	class Buffer;
+
 	class NAZARA_RENDERER_API Renderer
 	{
 		public:
@@ -31,6 +35,8 @@ namespace Nz
 			static void Uninitialize();
 
 		private:
+			static AbstractBuffer* CreateHardwareBufferImpl(Buffer* parent, BufferType type);
+
 			static std::unique_ptr<RendererImpl> s_rendererImpl;
 			static DynLib s_rendererLib;
 			static ParameterList s_initializationParameters;
