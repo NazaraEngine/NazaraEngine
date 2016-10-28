@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/VulkanRenderer/VkLoader.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 
 namespace Nz
 {

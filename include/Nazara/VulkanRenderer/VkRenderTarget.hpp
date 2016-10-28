@@ -10,9 +10,9 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <Nazara/VulkanRenderer/VkFrameBuffer.hpp>
-#include <Nazara/VulkanRenderer/VkRenderPass.hpp>
-#include <Nazara/VulkanRenderer/VkSemaphore.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/FrameBuffer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Semaphore.hpp>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 

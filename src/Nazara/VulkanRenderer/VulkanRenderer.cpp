@@ -4,8 +4,8 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/VulkanRenderer/VkLoader.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

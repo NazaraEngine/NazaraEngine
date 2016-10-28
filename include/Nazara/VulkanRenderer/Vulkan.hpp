@@ -11,10 +11,10 @@
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <Nazara/VulkanRenderer/VkDevice.hpp>
-#include <Nazara/VulkanRenderer/VkInstance.hpp>
-#include <Nazara/VulkanRenderer/VkPhysicalDevice.hpp>
-#include <Nazara/VulkanRenderer/VkSurface.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
 #include <list>
 #include <vector>
 
