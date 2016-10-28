@@ -57,6 +57,9 @@ namespace Ndk
 			if (m_hoveredWidget == &entry)
 				m_hoveredWidget = nullptr;
 
+			if (m_keyboardOwner == entry.widget)
+				m_keyboardOwner = nullptr;
+
 			entry = std::move(lastEntry);
 			entry.widget->UpdateCanvasIndex(index);
 			m_widgetBoxes.pop_back();
@@ -135,5 +138,11 @@ namespace Ndk
 			m_hoveredWidget->widget->OnMouseExit();
 			m_hoveredWidget = nullptr;
 		}
+	}
+
+	void Canvas::OnTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event)
+	{
+		if (m_keyboardOwner)
+			m_keyboardOwner->OnTextEntered(event.character, event.repeated);
 	}
 }

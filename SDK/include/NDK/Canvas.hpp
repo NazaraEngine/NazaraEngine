@@ -36,7 +36,11 @@ namespace Ndk
 			void Layout() override;
 
 			void NotifyWidgetUpdate(std::size_t index);
+			
 			std::size_t RegisterWidget(BaseWidget* widget);
+
+			inline void SetKeyboardOwner(BaseWidget* widget);
+
 			void UnregisterWidget(std::size_t index);
 
 		private:
@@ -44,7 +48,8 @@ namespace Ndk
 			void OnMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
 			void OnMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
 			void OnMouseLeft(const Nz::EventHandler* eventHandler);
-		
+			void OnTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
+
 			struct WidgetBox
 			{
 				BaseWidget* widget;
@@ -55,9 +60,11 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
+			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
 
 			std::vector<WidgetBox> m_widgetBoxes;
 			const WidgetBox* m_hoveredWidget;
+			BaseWidget* m_keyboardOwner;
 			WorldHandle m_world;
 	};
 }
