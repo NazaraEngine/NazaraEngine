@@ -106,6 +106,8 @@ namespace Nz
 		s_moduleReferenceCounter = 0;
 
 		// Uninitialize module here
+		s_rendererImpl.reset();
+		s_rendererLib.Unload();
 
 		NazaraNotice("Uninitialized: Renderer module");
 
