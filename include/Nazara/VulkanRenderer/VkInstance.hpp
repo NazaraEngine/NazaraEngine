@@ -45,6 +45,7 @@ namespace Nz
 
 				inline bool IsExtensionLoaded(const String& extensionName);
 				inline bool IsLayerLoaded(const String& layerName);
+				inline bool IsValid() const;
 
 				Instance& operator=(const Instance&) = delete;
 				Instance& operator=(Instance&&) = delete;
