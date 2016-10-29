@@ -31,33 +31,11 @@
 
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
-#include <Nazara/VulkanRenderer/VkBuffer.hpp>
-#include <Nazara/VulkanRenderer/VkCommandBuffer.hpp>
-#include <Nazara/VulkanRenderer/VkCommandPool.hpp>
-#include <Nazara/VulkanRenderer/VkDescriptorPool.hpp>
-#include <Nazara/VulkanRenderer/VkDescriptorSet.hpp>
-#include <Nazara/VulkanRenderer/VkDescriptorSetLayout.hpp>
-#include <Nazara/VulkanRenderer/VkDevice.hpp>
-#include <Nazara/VulkanRenderer/VkDeviceMemory.hpp>
-#include <Nazara/VulkanRenderer/VkDeviceObject.hpp>
-#include <Nazara/VulkanRenderer/VkFramebuffer.hpp>
-#include <Nazara/VulkanRenderer/VkImage.hpp>
-#include <Nazara/VulkanRenderer/VkImageView.hpp>
-#include <Nazara/VulkanRenderer/VkInstance.hpp>
-#include <Nazara/VulkanRenderer/VkLoader.hpp>
-#include <Nazara/VulkanRenderer/VkPhysicalDevice.hpp>
-#include <Nazara/VulkanRenderer/VkPipeline.hpp>
-#include <Nazara/VulkanRenderer/VkPipelineCache.hpp>
-#include <Nazara/VulkanRenderer/VkPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VkQueue.hpp>
-#include <Nazara/VulkanRenderer/VkRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
-#include <Nazara/VulkanRenderer/VkSemaphore.hpp>
-#include <Nazara/VulkanRenderer/VkShaderModule.hpp>
-#include <Nazara/VulkanRenderer/VkSurface.hpp>
-#include <Nazara/VulkanRenderer/VkSwapchain.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper.hpp>
 
 #endif // NAZARA_GLOBAL_VULKANRENDERER_HPP

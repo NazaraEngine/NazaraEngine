@@ -44,6 +44,15 @@ ACTION.Function = function ()
 	
 	table.insert(paths, {
 		Excludes = {},
+		HeaderGuard = "NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP",
+		Name = "Vulkan wrapper",
+		SearchDir = "../include/Nazara/VulkanRenderer/Wrapper", 
+		TopDir = "Nazara", 
+		Target = "../include/Nazara/VulkanRenderer/Wrapper.hpp"
+	})
+	
+	table.insert(paths, {
+		Excludes = {},
 		HeaderGuard = "NDK_COMPONENTS_GLOBAL_HPP",
 		Name = "NDK Components",
 		SearchDir = "../SDK/include/NDK/Components", 
