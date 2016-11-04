@@ -154,7 +154,7 @@ namespace Nz
 
 		// On attend que la fenêtre soit créée
 		mutex.Lock();
-		m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title.GetWideString().data(), win32Style, x, y, width, height, this, &mutex, &condition);
+		m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, x, y, width, height, this, &mutex, &condition);
 		condition.Wait(&mutex);
 		mutex.Unlock();
 		#else
@@ -1178,10 +1178,10 @@ namespace Nz
 	}
 
 	#if NAZARA_UTILITY_THREADED_WINDOW
-	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
+	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
 	{
 		HWND& winHandle = *handle;
-		winHandle = CreateWindowExW(styleEx, className, title, style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
 
 		mutex->Lock();
 		condition->Signal();
