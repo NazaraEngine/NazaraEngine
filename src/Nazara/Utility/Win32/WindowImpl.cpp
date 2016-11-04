@@ -792,12 +792,17 @@ namespace Nz
 					RECT windowRect;
 					GetWindowRect(m_handle, &windowRect);
 
-					WindowEvent event;
-					event.type = WindowEventType_Moved;
-					event.position.x = windowRect.left;
-					event.position.y = windowRect.top;
-					m_parent->PushEvent(event);
+					Vector2i position(windowRect.left, windowRect.top);
+					if (m_position != position)
+					{
+						m_position = position;
 
+						WindowEvent event;
+						event.type = WindowEventType_Moved;
+						event.position.x = position.x;
+						event.position.y = position.y;
+						m_parent->PushEvent(event);
+					}
 					break;
 				}
 
