@@ -13,13 +13,13 @@ namespace Ndk
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* clock, std::size_t /*argumentCount*/)
+		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* instance, std::size_t /*argumentCount*/)
 		{
 			int argIndex = 2;
 			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
 			bool paused = lua.Check<bool>(&argIndex, false);
 
-			Nz::PlacementNew(clock, startingValue, paused);
+			Nz::PlacementNew(instance, startingValue, paused);
 			return true;
 		});
 
@@ -32,19 +32,19 @@ namespace Ndk
 		clock.BindMethod("Unpause", &Nz::Clock::Unpause);
 
 		// Manual
-		clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& clock, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream stream("Clock(Elapsed: ");
-			stream << clock.GetSeconds();
-			stream << "s, Paused: ";
-			stream << clock.IsPaused();
-			stream << ')';
+		clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& instance, std::size_t /*argumentCount*/) -> int {
+			Nz::StringStream ss("Clock(Elapsed: ");
+			ss << instance.GetSeconds();
+			ss << "s, Paused: ";
+			ss << instance.IsPaused();
+			ss << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 
 		/********************************* Nz::Directory ********************************/
-		directory.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* directory, std::size_t argumentCount)
+		directory.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* instance, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
@@ -52,11 +52,11 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(directory);
+					Nz::PlacementNew(instance);
 					return true;
 
 				case 1:
-					Nz::PlacementNew(directory, lua.Check<Nz::String>(&argIndex));
+					Nz::PlacementNew(instance, lua.Check<Nz::String>(&argIndex));
 					return true;
 			}
 
@@ -85,12 +85,12 @@ namespace Ndk
 		directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
 
 		// Manual
-		directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& directory, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream stream("Directory(");
-			stream << directory.GetPath();
-			stream << ')';
+		directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& instance, std::size_t /*argumentCount*/) -> int {
+			Nz::StringStream ss("Directory(");
+			ss << instance.GetPath();
+			ss << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 
@@ -110,35 +110,35 @@ namespace Ndk
 		stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
 		stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-		stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+		stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 			int argIndex = 2;
 
 			std::size_t length = lua.Check<std::size_t>(&argIndex);
 
 			std::unique_ptr<char[]> buffer(new char[length]);
-			std::size_t readLength = stream.Read(buffer.get(), length);
+			std::size_t readLength = instance.Read(buffer.get(), length);
 
 			lua.PushString(Nz::String(buffer.get(), readLength));
 			return 1;
 		});
 
-		stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+		stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 			int argIndex = 2;
 
 			std::size_t bufferSize = 0;
 			const char* buffer = lua.CheckString(argIndex, &bufferSize);
 
-			if (stream.IsTextModeEnabled())
-				lua.Push(stream.Write(Nz::String(buffer, bufferSize)));
+			if (instance.IsTextModeEnabled())
+				lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
 			else
-				lua.Push(stream.Write(buffer, bufferSize));
+				lua.Push(instance.Write(buffer, bufferSize));
 			return 1;
 		});
 
 		/*********************************** Nz::File ***********************************/
 		file.Inherit(stream);
 
-		file.SetConstructor([] (Nz::LuaInstance& lua, Nz::File* file, std::size_t argumentCount)
+		file.SetConstructor([] (Nz::LuaInstance& lua, Nz::File* instance, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
@@ -146,14 +146,14 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(file);
+					Nz::PlacementNew(instance);
 					return true;
 
 				case 1:
 				{
 					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
 
-					Nz::PlacementNew(file, filePath);
+					Nz::PlacementNew(instance, filePath);
 					return true;
 				}
 
@@ -162,7 +162,7 @@ namespace Ndk
 					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
 					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
 
-					Nz::PlacementNew(file, filePath, openMode);
+					Nz::PlacementNew(instance, filePath, openMode);
 					return true;
 				}
 			}
@@ -201,7 +201,7 @@ namespace Ndk
 		file.BindStaticMethod("Rename", &Nz::File::Rename);
 
 		// Manual
-		file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t argumentCount) -> int
+		file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -210,13 +210,13 @@ namespace Ndk
 			{
 				case 0:
 				case 1:
-					return lua.Push(file.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
+					return lua.Push(instance.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
 
 				case 2:
 				{
 					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
 					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
-					return lua.Push(file.Open(filePath, openMode));
+					return lua.Push(instance.Open(filePath, openMode));
 				}
 			}
 
@@ -224,7 +224,7 @@ namespace Ndk
 			return 0;
 		});
 
-		file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t argumentCount) -> int
+		file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -232,13 +232,13 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 1:
-					return lua.Push(file.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
+					return lua.Push(instance.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
 
 				case 2:
 				{
 					Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
 					Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
-					return lua.Push(file.SetCursorPos(curPos, offset));
+					return lua.Push(instance.SetCursorPos(curPos, offset));
 				}
 			}
 
@@ -246,14 +246,14 @@ namespace Ndk
 			return 0;
 		});
 
-		file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& file, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream stream("File(");
-			if (file.IsOpen())
-				stream << "Path: " << file.GetPath();
+		file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t /*argumentCount*/) -> int {
+			Nz::StringStream ss("File(");
+			if (instance.IsOpen())
+				ss << "Path: " << instance.GetPath();
 
-			stream << ')';
+			ss << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 	}

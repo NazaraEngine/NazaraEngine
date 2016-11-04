@@ -21,15 +21,15 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(instance, Nz::EulerAnglesd::Zero());
+					Nz::PlacementNew(angles, Nz::EulerAnglesd::Zero());
 					return true;
 
 				case 1:
-					Nz::PlacementNew(instance, *static_cast<Nz::EulerAnglesd*>(lua.CheckUserdata(1, "EulerAngles")));
+					Nz::PlacementNew(angles, *static_cast<Nz::EulerAnglesd*>(lua.CheckUserdata(1, "EulerAngles")));
 					return true;
 
 				case 3:
-					Nz::PlacementNew(instance, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3));
+					Nz::PlacementNew(angles, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3));
 					return true;
 			}
 
@@ -360,7 +360,7 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Rect **********************************/
-		rect.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* instance, std::size_t argumentCount)
+		rect.SetConstructor([] (Nz::LuaInstance& lua, Nz::Rectd* rect, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -368,23 +368,23 @@ namespace Ndk
 			{
 				case 0:
 				case 4:
-					PlacementNew(instance, lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0), lua.CheckNumber(4, 0.0));
+					PlacementNew(rect, lua.CheckNumber(1, 0.0), lua.CheckNumber(2, 0.0), lua.CheckNumber(3, 0.0), lua.CheckNumber(4, 0.0));
 					return true;
 
 				case 1:
 				{
 					if (lua.IsOfType(1, "Rect"))
-						PlacementNew(instance, *static_cast<Nz::Rectd*>(lua.ToUserdata(1)));
+						PlacementNew(rect, *static_cast<Nz::Rectd*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, Nz::LuaType_Table))
 					{
 						// TODO => Faire sans avoir à mettre de nom dans la table et prendre les éléments un à un pour créer le Rectd
-						PlacementNew(instance, lua.CheckField<double>("x", 1),
-						                       lua.CheckField<double>("y", 1),
-						                       lua.CheckField<double>("width", 1),
-						                       lua.CheckField<double>("height", 1));
+						PlacementNew(rect, lua.CheckField<double>("x", 1),
+						                   lua.CheckField<double>("y", 1),
+						                   lua.CheckField<double>("width", 1),
+						                   lua.CheckField<double>("height", 1));
 					}
 					else if (lua.IsOfType(1, "Vector2"))
-						PlacementNew(instance, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
+						PlacementNew(rect, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)));
 					else
 						break;
 
@@ -394,9 +394,9 @@ namespace Ndk
 				case 2:
 				{
 					if (lua.IsOfType(1, Nz::LuaType_Number) && lua.IsOfType(2, Nz::LuaType_Number))
-						PlacementNew(instance, lua.CheckNumber(1), lua.CheckNumber(2));
+						PlacementNew(rect, lua.CheckNumber(1), lua.CheckNumber(2));
 					else if (lua.IsOfType(1, "Vector2") && lua.IsOfType(2, "Vector2"))
-						PlacementNew(instance, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)), *static_cast<Nz::Vector2d*>(lua.ToUserdata(2)));
+						PlacementNew(rect, *static_cast<Nz::Vector2d*>(lua.ToUserdata(1)), *static_cast<Nz::Vector2d*>(lua.ToUserdata(2)));
 					else
 						break;
 
@@ -516,22 +516,22 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Quaternion **********************************/
-		quaternion.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* instance, std::size_t argumentCount)
+		quaternion.SetConstructor([] (Nz::LuaInstance& lua, Nz::Quaterniond* quaternion, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(instance, Nz::Quaterniond::Zero());
+					Nz::PlacementNew(quaternion, Nz::Quaterniond::Zero());
 					return true;
 
 				case 1:
 				{
 					if (lua.IsOfType(1, "EulerAngles"))
-						Nz::PlacementNew(instance, *static_cast<Nz::EulerAnglesd*>(lua.ToUserdata(1)));
+						Nz::PlacementNew(quaternion, *static_cast<Nz::EulerAnglesd*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, "Quaternion"))
-						Nz::PlacementNew(instance, *static_cast<Nz::Quaterniond*>(lua.ToUserdata(1)));
+						Nz::PlacementNew(quaternion, *static_cast<Nz::Quaterniond*>(lua.ToUserdata(1)));
 					else
 						break;
 
@@ -539,11 +539,11 @@ namespace Ndk
 				}
 
 				case 2:
-					Nz::PlacementNew(instance, lua.CheckNumber(1), *static_cast<Nz::Vector3d*>(lua.CheckUserdata(2, "Vector3")));
+					Nz::PlacementNew(quaternion, lua.CheckNumber(1), *static_cast<Nz::Vector3d*>(lua.CheckUserdata(2, "Vector3")));
 					return true;
 
 				case 4:
-					Nz::PlacementNew(instance, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3), lua.CheckNumber(4));
+					Nz::PlacementNew(quaternion, lua.CheckNumber(1), lua.CheckNumber(2), lua.CheckNumber(3), lua.CheckNumber(4));
 					return true;
 
 				default:

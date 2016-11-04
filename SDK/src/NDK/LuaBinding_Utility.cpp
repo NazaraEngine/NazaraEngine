@@ -25,20 +25,20 @@ namespace Ndk
 		abstractImage.BindMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
 		abstractImage.BindMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
 
-		abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage, std::size_t argumentCount) -> int
+		abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 			switch (argCount)
 			{
 				case 0:
-					return lua.Push(abstractImage->GetMemoryUsage());
+					return lua.Push(instance->GetMemoryUsage());
 
 				case 1:
 				{
 					int argIndex = 2;
 					Nz::UInt8 level(lua.Check<Nz::UInt8>(&argIndex));
 
-					return lua.Push(abstractImage->GetMemoryUsage(level));
+					return lua.Push(instance->GetMemoryUsage(level));
 				}
 			}
 
@@ -46,7 +46,7 @@ namespace Ndk
 			return 0;
 		});
 
-		abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* abstractImage, std::size_t argumentCount) -> int
+		abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 6U);
 			int argIndex = 2;
@@ -62,7 +62,7 @@ namespace Ndk
 				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
 
 				///TODO: Buffer checks (Nz::ByteBufferView ?)
-				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
+				return lua.Push(instance->Update(pixels, srcWidth, srcHeight, level));
 			}
 			/* Disabled until Box and Rect have been ported
 			else if (lua.IsOfType(2, "Box"))
@@ -93,9 +93,9 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Font **********************************/
-		font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* font, std::size_t /*argumentCount*/)
+		font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* instance, std::size_t /*argumentCount*/)
 		{
-			Nz::PlacementNew(font, Nz::Font::New());
+			Nz::PlacementNew(instance, Nz::Font::New());
 			return true;
 		});
 
@@ -199,29 +199,29 @@ namespace Ndk
 		node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
 		node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
+		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
 		{
 			int argIndex = 2;
 
 			Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
 			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-			node.Move(offset, coordSys);
+			instance.Move(offset, coordSys);
 
 			return 0;
 		});
 
-		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
+		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
 		{
 			int argIndex = 2;
 
 			Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
 			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-			node.Rotate(rotation, coordSys);
+			instance.Rotate(rotation, coordSys);
 
 			return 0;
 		});
 
-		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
+		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -231,15 +231,15 @@ namespace Ndk
 				case 1:
 				{
 					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-						node.Scale(lua.Check<float>(&argIndex));
+						instance.Scale(lua.Check<float>(&argIndex));
 					else
-						node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+						instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 
 					return 0;
 				}
 
 				case 3:
-					node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+					instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 					return 0;
 			}
 
@@ -247,7 +247,7 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
+		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -261,10 +261,10 @@ namespace Ndk
 					{
 						float scale = lua.Check<float>(&argIndex);
 						Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-						node.SetScale(scale, coordSys);
+						instance.SetScale(scale, coordSys);
 					}
 					else
-						node.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
+						instance.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
 
 					return 0;
 				}
@@ -275,7 +275,7 @@ namespace Ndk
 					Nz::Vector3f scale = lua.Check<Nz::Vector3f>(&argIndex);
 					Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
 
-					node.SetScale(scale, coordSys);
+					instance.SetScale(scale, coordSys);
 					return 0;
 				}
 			}
@@ -284,7 +284,7 @@ namespace Ndk
 			return 0;
 		});
 
-		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& node, std::size_t argumentCount) -> int
+		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -294,16 +294,16 @@ namespace Ndk
 				case 1:
 				{
 					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-						node.SetInitialScale(lua.Check<float>(&argIndex));
+						instance.SetInitialScale(lua.Check<float>(&argIndex));
 					else
-						node.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
+						instance.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
 
 					return 0;
 				}
 
 				case 2:
 				case 3:
-					node.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
+					instance.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
 					return 0;
 			}
 

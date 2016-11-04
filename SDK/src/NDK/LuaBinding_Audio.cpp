@@ -41,12 +41,12 @@ namespace Ndk
 		music.BindMethod("Stop", &Nz::Music::Stop);
 
 		// Manual
-		music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& music, std::size_t /*argumentCount*/) -> int
+		music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& instance, std::size_t /*argumentCount*/) -> int
 		{
-			Nz::StringStream stream("Music(");
-			stream << music.GetFilePath() << ')';
+			Nz::StringStream ss("Music(");
+			ss << instance.GetFilePath() << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 
@@ -65,15 +65,15 @@ namespace Ndk
 		sound.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
 		// Manual
-		sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& sound, std::size_t /*argumentCount*/) -> int
+		sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& instance, std::size_t /*argumentCount*/) -> int
 		{
-			Nz::StringStream stream("Sound(");
-			if (const Nz::SoundBuffer* buffer = sound.GetBuffer())
-				stream << buffer;
+			Nz::StringStream ss("Sound(");
+			if (const Nz::SoundBuffer* buffer = instance.GetBuffer())
+				ss << buffer;
 
-			stream << ')';
+			ss << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 
@@ -124,18 +124,18 @@ namespace Ndk
 
 		soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 		{
-			Nz::StringStream stream("SoundBuffer(");
+			Nz::StringStream ss("SoundBuffer(");
 			if (instance->IsValid())
 			{
 				Nz::String filePath = instance->GetFilePath();
 				if (!filePath.IsEmpty())
-					stream << "File: " << filePath << ", ";
+					ss << "File: " << filePath << ", ";
 
-				stream << "Duration: " << instance->GetDuration() / 1000.f << "s";
+				ss << "Duration: " << instance->GetDuration() / 1000.f << "s";
 			}
-			stream << ')';
+			ss << ')';
 
-			lua.PushString(stream);
+			lua.PushString(ss);
 			return 1;
 		});
 

@@ -223,7 +223,7 @@ namespace Nz
 
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Matrix4f* mat, TypeTag<Matrix4f>)
 	{
-		Matrix4d matDouble;
+		Matrix4d matDouble = Matrix4d::Identity();
 		unsigned int ret = LuaImplQueryArg(instance, index, &matDouble, TypeTag<Matrix4d>());
 
 		mat->Set(matDouble);

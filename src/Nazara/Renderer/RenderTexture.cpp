@@ -795,6 +795,7 @@ namespace Nz
 		NazaraAssert(attachmentIndex < m_impl->attachments.size(), "Invalid attachment index");
 		NazaraAssert(!m_impl->attachments[attachmentIndex].isBuffer, "Invalid attachment state");
 		NazaraUnused(texture);
+		NazaraUnused(attachmentIndex);
 
 		InvalidateTargets();
 	}

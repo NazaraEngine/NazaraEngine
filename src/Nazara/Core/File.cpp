@@ -906,5 +906,5 @@ namespace Nz
 		}
 
 		return true;
-	};
+	}
 }

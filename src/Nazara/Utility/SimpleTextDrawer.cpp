@@ -75,6 +75,7 @@ namespace Nz
 	Font* SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
+		NazaraUnused(index);
 
 		return m_font;
 	}
