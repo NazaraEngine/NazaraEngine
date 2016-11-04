@@ -380,7 +380,7 @@ namespace std
 
 			// This is SDBM adapted for IP addresses, tested to generate the least collisions possible
 			// (It doesn't mean it cannot be improved though)
-			std::size_t hash = 0;
+			std::size_t h = 0;
 			switch (ip.GetProtocol())
 			{
 				case Nz::NetProtocol_Any:
@@ -389,20 +389,20 @@ namespace std
 
 				case Nz::NetProtocol_IPv4:
 				{
-					hash = ip.ToUInt32() + (hash << 6) + (hash << 16) - hash;
+					h = ip.ToUInt32() + (h << 6) + (h << 16) - h;
 					break;
 				}
 				case Nz::NetProtocol_IPv6:
 				{
 					Nz::IpAddress::IPv6 v6 = ip.ToIPv6();
 					for (std::size_t i = 0; i < v6.size(); i++)
-						hash = v6[i] + (hash << 6) + (hash << 16) - hash;
+						h = v6[i] + (h << 6) + (h << 16) - h;
 
 					break;
 				}
 			}
 
-			return ip.GetPort() + (hash << 6) + (hash << 16) - hash;
+			return ip.GetPort() + (h << 6) + (h << 16) - h;
 		}
 	};
 }

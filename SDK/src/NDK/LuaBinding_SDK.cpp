@@ -25,9 +25,9 @@ namespace Ndk
 		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
 
-		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application, std::size_t /*argumentCount*/) -> int
+		application.BindMethod("AddWorld", [] (Nz::LuaInstance& lua, Application* instance, std::size_t /*argumentCount*/) -> int
 		{
-			instance.Push(application->AddWorld().CreateHandle());
+			lua.Push(instance->AddWorld().CreateHandle());
 			return 1;
 		});
 
@@ -59,7 +59,7 @@ namespace Ndk
 		console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
 		console.BindMethod("SetSize", &Console::SetSize);
 		console.BindMethod("SetTextFont", &Console::SetTextFont);
-		
+
 		console.BindMethod("Show", &Console::Show, true);
 		#endif
 
@@ -139,7 +139,7 @@ namespace Ndk
 
 		#ifndef NDK_SERVER
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent, std::size_t argumentCount) -> int
+		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
 		{
 			/*
 			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
@@ -153,7 +153,7 @@ namespace Ndk
 				case 1:
 				{
 					int argIndex = 2;
-					gfxComponent->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
+					instance->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
 					return 0;
 				}
 
@@ -166,13 +166,13 @@ namespace Ndk
 					{
 						int renderOrder = lua.Check<int>(&argIndex);
 
-						gfxComponent->Attach(renderable, renderOrder);
+						instance->Attach(renderable, renderOrder);
 					}
 					else if (lua.IsOfType(argIndex, "Matrix4"))
 					{
 						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
 
-						gfxComponent->Attach(renderable, localMatrix);
+						instance->Attach(renderable, localMatrix);
 					}
 					else
 						break;
@@ -187,7 +187,7 @@ namespace Ndk
 					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
 					int renderOrder = lua.Check<int>(&argIndex);
 
-					gfxComponent->Attach(renderable, localMatrix, renderOrder);
+					instance->Attach(renderable, localMatrix, renderOrder);
 					return 0;
 				}
 			}

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/Config.hpp>
-#if NAZARA_PHYSICS_MANAGE_MEMORY
+#if NAZARA_PHYSICS3D_MANAGE_MEMORY
 
 #include <Nazara/Core/MemoryManager.hpp>
 #include <new> // Nécessaire ?

@@ -231,14 +231,14 @@ namespace Ndk
 		});
 
 		/*********************************** Nz::Model ***********************************/
-		model.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::ModelRef* model) -> Nz::InstancedRenderableRef*
+		model.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::ModelRef* modelRef) -> Nz::InstancedRenderableRef*
 		{
-			return reinterpret_cast<Nz::InstancedRenderableRef*>(model); //TODO: Make a ObjectRefCast
+			return reinterpret_cast<Nz::InstancedRenderableRef*>(modelRef); //TODO: Make a ObjectRefCast
 		});
 
-		model.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::ModelRef* model, std::size_t /*argumentCount*/)
+		model.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::ModelRef* instance, std::size_t /*argumentCount*/)
 		{
-			Nz::PlacementNew(model, Nz::Model::New());
+			Nz::PlacementNew(instance, Nz::Model::New());
 			return true;
 		});
 
@@ -260,14 +260,14 @@ namespace Ndk
 		model.BindMethod("SetSkinCount", &Nz::Model::SetSkinCount);
 
 		/*********************************** Nz::Sprite ***********************************/
-		sprite.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::SpriteRef* sprite) -> Nz::InstancedRenderableRef*
+		sprite.Inherit<Nz::InstancedRenderableRef>(instancedRenderable, [] (Nz::SpriteRef* spriteRef) -> Nz::InstancedRenderableRef*
 		{
-			return reinterpret_cast<Nz::InstancedRenderableRef*>(sprite); //TODO: Make a ObjectRefCast
+			return reinterpret_cast<Nz::InstancedRenderableRef*>(spriteRef); //TODO: Make a ObjectRefCast
 		});
 
-		sprite.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::SpriteRef* sprite, std::size_t /*argumentCount*/)
+		sprite.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::SpriteRef* instance, std::size_t /*argumentCount*/)
 		{
-			Nz::PlacementNew(sprite, Nz::Sprite::New());
+			Nz::PlacementNew(instance, Nz::Sprite::New());
 			return true;
 		});
 
