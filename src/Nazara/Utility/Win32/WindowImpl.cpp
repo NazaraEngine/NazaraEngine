@@ -789,6 +789,11 @@ namespace Nz
 
 				case WM_MOVE:
 				{
+					#if !NAZARA_UTILITY_THREADED_WINDOW
+					if (m_sizemove)
+						break;
+					#endif
+
 					RECT windowRect;
 					GetWindowRect(m_handle, &windowRect);
 
