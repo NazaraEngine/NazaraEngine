@@ -32,6 +32,7 @@ build/scripts/features/index.html
 doc
 
 # Codeblocks
+*.save-failed
 build/**/*.cbp
 build/**/*.cbp
 build/**/*.cbTemp
