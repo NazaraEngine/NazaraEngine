@@ -531,8 +531,10 @@ end
 
 function NazaraBuild:MakeInstallCommands(infoTable)
 	if (os.is("windows")) then
-		configuration("*Dynamic")
-		
+		filter("kind:SharedLib")
+
+		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
+
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
 			postbuildcommands({[[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]]})
@@ -541,24 +543,24 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 		for k,fileName in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
 			local paths = {}
 			for k,v in pairs(infoTable.BinaryPaths.x86) do
-				table.insert(paths, {"x32", v .. "/" .. fileName .. ".dll"})
-				table.insert(paths, {"x32", v .. "/lib" .. fileName .. ".dll"})
+				table.insert(paths, {"x86", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x86", v .. "/lib" .. fileName .. ".dll"})
 			end
 
 			for k,v in pairs(infoTable.BinaryPaths.x64) do
-				table.insert(paths, {"x64", v .. "/" .. fileName .. ".dll"})
-				table.insert(paths, {"x64", v .. "/lib" .. fileName .. ".dll"})
+				table.insert(paths, {"x86_64", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x86_64", v .. "/lib" .. fileName .. ".dll"})
 			end
 
 			for k,v in pairs(paths) do
-				local config = v[1]
+				local arch = v[1]
 				local srcPath = v[2]
 				if (os.isfile(srcPath)) then
 					if (infoTable.Kind == "plugin") then
 						srcPath = "../../" .. srcPath
 					end
 
-					configuration(config)
+					filter("architecture:" .. arch)
 					
 					for k,v in pairs(self.ExecutableDir) do
 						local srcPath = path.isabsolute(srcPath) and path.translate(srcPath) or [[%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}]]
@@ -568,6 +570,8 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 				end
 			end
 		end
+
+		filter({})
 	end
 end
 
