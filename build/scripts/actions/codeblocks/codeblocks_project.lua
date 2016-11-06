@@ -102,10 +102,10 @@
 				_p(4,'<Option output="%s" prefix_auto="0" extension_auto="0" />', p.esc(cfg.buildtarget.relpath))
 				
 				if cfg.debugdir then
-					_p(4,'<Option working_dir="%s" />', p.esc(cfg.debugdir))
+					_p(4,'<Option working_dir="%s" />', p.esc(path.getrelative(prj.location, cfg.debugdir)))
 				end
 				
-				_p(4,'<Option object_output="%s" />', p.esc(cfg.objectsdir))
+				_p(4,'<Option object_output="%s" />', p.esc(path.getrelative(prj.location, cfg.objdir)))
 
 				-- identify the type of binary
 				local types = { WindowedApp = 0, ConsoleApp = 1, StaticLib = 2, SharedLib = 3 }
