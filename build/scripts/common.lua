@@ -42,7 +42,6 @@ function NazaraBuild:Execute()
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
 
-	
 	local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
 
 	local platformData
@@ -51,59 +50,6 @@ function NazaraBuild:Execute()
 	else
 		platformData = {"x86", "x64"}
 	end
-
-	flags({
-		"C++14",
-		"MultiProcessorCompile",
-		"NoMinimalRebuild"
-	})
-
-	self:FilterLibDirectory("../extlibs/lib/", libdirs)
-
-	-- Fixes Premake stuff
-	filter({"kind:SharedLib", clangGccActions})
-		implibprefix("lib")
-	filter({"kind:*Lib", clangGccActions, "system:Windows"})
-		implibextension(".a")
-	filter({"kind:StaticLib", clangGccActions})
-		targetextension(".a")
-		targetprefix("lib")
-
-	-- General configuration
-	filter("kind:*Lib")
-		pic("On")
-
-	filter({"kind:*Lib", "configurations:DebugStatic"})
-		targetsuffix("-s-d")
-
-	filter({"kind:*Lib", "configurations:ReleaseStatic"})
-		targetsuffix("-s")
-
-	filter({"kind:*Lib", "configurations:DebugDynamic"})
-		targetsuffix("-d")
-
-	filter("configurations:Debug*")
-		symbols("On")
-
-	-- Setup some optimizations for release
-	filter("configurations:Release*")
-		flags("NoFramePointer")
-		optimize("Speed")
-		rtti("Off")
-		vectorextensions("SSE2")
-
-	filter("configurations:*Static")
-		kind("StaticLib")
-
-	filter("configurations:*Dynamic")
-		kind("SharedLib")
-
-	-- Enable SSE math and vectorization optimizations
-	filter({"configurations:Release*", clangGccActions})
-		buildoptions("-mfpmath=sse")
-		buildoptions("-ftree-vectorize")
-
-	filter({})
 
 	if (self.Actions[_ACTION] == nil) then
 		if (self.Config["BuildDependencies"]) then
@@ -116,6 +62,7 @@ function NazaraBuild:Execute()
 				"ReleaseStatic"
 			})
 
+			self:PrepareGeneric()
 			self:FilterLibDirectory("../extlibs/lib/", targetdir)
 
 			filter(clangGccActions)
@@ -156,29 +103,15 @@ function NazaraBuild:Execute()
 				filter({})
 			end
 		end
-
-		-- General settings
-		filter("architecture:x86_64")
-			defines("NAZARA_PLATFORM_x64")
-
-		filter("configurations:Debug*")
-			defines("NAZARA_DEBUG")
-
-		filter("configurations:*Static")
-			defines("NAZARA_STATIC")
-
-		filter("kind:*Lib")
-			defines("NAZARA_BUILD")
-
-		filter({"system:not Windows", clangGccActions})
-			buildoptions("-fvisibility=hidden")
-
-		-- Add lib/conf/arch to library search path
-		self:FilterLibDirectory("../lib/", libdirs)
-
+		
 		-- Start defining projects
 		workspace("NazaraEngine")
 		platforms(platformData)
+
+		self:PrepareMainWorkspace()
+
+		-- Add lib/conf/arch to library search path
+		self:FilterLibDirectory("../lib/", libdirs)
 
 		configurations({
 		--	"DebugStatic",
@@ -755,6 +688,82 @@ function NazaraBuild:Process(infoTable)
 	end
 	
 	return true
+end
+
+function NazaraBuild:PrepareGeneric()
+	flags({
+		"C++14",
+		"MultiProcessorCompile",
+		"NoMinimalRebuild"
+	})
+
+	self:FilterLibDirectory("../extlibs/lib/", libdirs)
+
+	-- Fixes Premake stuff
+	filter({"kind:SharedLib", clangGccActions})
+		implibprefix("lib")
+	filter({"kind:*Lib", clangGccActions, "system:Windows"})
+		implibextension(".a")
+	filter({"kind:StaticLib", clangGccActions})
+		targetextension(".a")
+		targetprefix("lib")
+
+	-- General configuration
+	filter("kind:*Lib")
+		pic("On")
+
+	filter({"kind:*Lib", "configurations:DebugStatic"})
+		targetsuffix("-s-d")
+
+	filter({"kind:*Lib", "configurations:ReleaseStatic"})
+		targetsuffix("-s")
+
+	filter({"kind:*Lib", "configurations:DebugDynamic"})
+		targetsuffix("-d")
+
+	filter("configurations:Debug*")
+		symbols("On")
+
+	-- Setup some optimizations for release
+	filter("configurations:Release*")
+		flags("NoFramePointer")
+		optimize("Speed")
+		rtti("Off")
+		vectorextensions("SSE2")
+
+	filter("configurations:*Static")
+		kind("StaticLib")
+
+	filter("configurations:*Dynamic")
+		kind("SharedLib")
+
+	-- Enable SSE math and vectorization optimizations
+	filter({"configurations:Release*", clangGccActions})
+		buildoptions("-mfpmath=sse")
+		buildoptions("-ftree-vectorize")
+
+	filter({})
+end
+
+function NazaraBuild:PrepareMainWorkspace()
+	self:PrepareGeneric()
+
+	filter("architecture:x86_64")
+		defines("NAZARA_PLATFORM_x64")
+
+	filter("configurations:Debug*")
+		defines("NAZARA_DEBUG")
+
+	filter("configurations:*Static")
+		defines("NAZARA_STATIC")
+
+	filter("kind:*Lib")
+		defines("NAZARA_BUILD")
+
+	filter({"system:not Windows", clangGccActions})
+		buildoptions("-fvisibility=hidden")
+
+	filter({})
 end
 
 function NazaraBuild:RegisterAction(actionTable)
