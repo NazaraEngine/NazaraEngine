@@ -747,6 +747,9 @@ end
 function NazaraBuild:PrepareMainWorkspace()
 	self:PrepareGeneric()
 
+	filter(clangGccActions)
+		buildoptions("-Wa,-mbig-obj") -- big object
+
 	filter("action:vs*")
 		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
 		defines("_CRT_SECURE_NO_WARNINGS")
