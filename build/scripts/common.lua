@@ -14,6 +14,12 @@ function NazaraBuild:Execute()
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
 
+	if (PremakeVersion >= 50) then
+		filter { "kind:SharedLib", "action:codeblocks or codelite or gmake or xcode3 or xcode4" }
+			implibprefix "lib"
+			implibextension ".a"
+	end
+
 	local platformData
 	if (os.is64bit()) then
 		platformData = {"x64", "x32"}
@@ -721,7 +727,7 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 		
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
-			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "]] .. destPath .. [[\" /E /Y]]})
+			postbuildcommands({[[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]]})
 		end
 
 		for k,fileName in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
@@ -877,39 +883,37 @@ function NazaraBuild:Process(infoTable)
 end
 
 function NazaraBuild:RegisterAction(actionTable)
-	if (actionTable.Name == nil or type(actionTable.Name) ~= "string" or string.len(actionTable.Name) == 0) then
-		return false, "Invalid action name"
+	if (not actionTable.Manual) then
+		if (actionTable.Name == nil or type(actionTable.Name) ~= "string" or string.len(actionTable.Name) == 0) then
+			return false, "Invalid action name"
+		end
+
+		local lowerCaseName = string.lower(actionTable.Name)
+		if (self.Actions[lowerCaseName] ~= nil) then
+			return false, "This action name is already in use"
+		end
+
+		if (actionTable.Description == nil or type(actionTable.Description) ~= "string") then
+			return false, "Action description is invalid"
+		end
+
+		if (string.len(actionTable.Description) == 0) then
+			return false, "Action description is empty"
+		end
+
+		if (actionTable.Function == nil or type(actionTable.Function) ~= "function") then
+			return false, "Action function is invalid"
+		end
+
+		self.Actions[lowerCaseName] = actionTable
+
+		newaction
+		{
+			trigger     = lowerCaseName,
+			description = actionTable.Description,
+			execute     = function () actionTable:Function() end
+		}
 	end
-
-	local lowerCaseName = string.lower(actionTable.Name)
-	if (self.Actions[lowerCaseName] ~= nil) then
-		return false, "This action name is already in use"
-	end
-
-	if (actionTable.Description == nil or type(actionTable.Description) ~= "string") then
-		return false, "Action description is invalid"
-	end
-
-	if (string.len(actionTable.Description) == 0) then
-		return false, "Action description is empty"
-	end
-
-	if (self.Actions[actionTable.name] ~= nil) then
-		return false, "Action name \"" .. actionTable.name .. " is already registred"
-	end
-
-	if (actionTable.Function == nil or type(actionTable.Function) ~= "function") then
-		return false, "Action function is invalid"
-	end
-
-	self.Actions[lowerCaseName] = actionTable
-
-	newaction
-	{
-		trigger     = lowerCaseName,
-		description = actionTable.Description,
-		execute     = function () actionTable:Function() end
-	}
 
 	return true
 end
