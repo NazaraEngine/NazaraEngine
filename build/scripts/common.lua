@@ -124,12 +124,6 @@ function NazaraBuild:Execute()
 		language("C++")
 		location(_ACTION)
 
-		configuration("vs*")
-			buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
-			flags("NoMinimalRebuild")
-			defines("_CRT_SECURE_NO_WARNINGS")
-			defines("_SCL_SECURE_NO_WARNINGS")
-
 		-- Modules
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
@@ -174,11 +168,11 @@ function NazaraBuild:Execute()
 				libdirs(moduleTable.LibraryPaths.x64)
 
 			for k,v in pairs(moduleTable.ConfigurationLibraries) do
-				configuration(k)
+				filter(k)
 				links(v)
 			end
 
-			configuration({})
+			filter({})
 		end
 
 		-- Tools
@@ -752,6 +746,11 @@ end
 
 function NazaraBuild:PrepareMainWorkspace()
 	self:PrepareGeneric()
+
+	filter("action:vs*")
+		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
+		defines("_CRT_SECURE_NO_WARNINGS")
+		defines("_SCL_SECURE_NO_WARNINGS")
 
 	filter("architecture:x86_64")
 		defines("NAZARA_PLATFORM_x64")
