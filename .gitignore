@@ -44,6 +44,9 @@ build/**/*.workspace
 # CodeLite
 build/**/*.project
 
+# GMake
+build/**/*.make
+
 # Visual Studio
 build/**/*.pdb
 build/**/*.filters
