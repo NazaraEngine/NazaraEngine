@@ -1,4 +1,7 @@
-NazaraBuild = {} -- L'équivalent d'un namespace en Lua est une table
+NazaraBuild = {}
+
+-- I wish Premake had a way to know the compiler in advance
+local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
 
 function NazaraBuild:AddExecutablePath(path)
 	self.ExecutableDir[path] = true
@@ -41,8 +44,6 @@ function NazaraBuild:Execute()
 	if (_ACTION == nil) then -- If no action is specified, the user probably only wants to know how all of this works
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
-
-	local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
 
 	local platformData
 	if (os.is64bit()) then
