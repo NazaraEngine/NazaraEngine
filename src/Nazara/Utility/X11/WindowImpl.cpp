@@ -301,7 +301,6 @@ namespace Nz
 
 				xcb_flush(connection);
 			}
-			#endif
 		}
 		else
 			SetEventListener(false);
