@@ -203,17 +203,18 @@ namespace Nz
 		// Set the window's name
 		SetTitle(title);
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		Mutex mutex;
-		ConditionVariable condition;
-		m_threadActive = true;
+		if (m_style & WindowStyle_Threaded)
+		{
+			Mutex mutex;
+			ConditionVariable condition;
+			m_threadActive = true;
 
-		// We wait that thread is well launched
-		mutex.Lock();
-		m_thread = Thread(WindowThread, this, &mutex, &condition);
-		condition.Wait(&mutex);
-		mutex.Unlock();
-		#endif
+			// Wait until the thread is ready
+			mutex.Lock();
+			m_thread = Thread(WindowThread, this, &mutex, &condition);
+			condition.Wait(&mutex);
+			mutex.Unlock();
+		}
 
 		// Set fullscreen video mode and switch to fullscreen if necessary
 		if (fullscreen)
@@ -275,13 +276,15 @@ namespace Nz
 	{
 		if (m_ownsWindow)
 		{
-			#if NAZARA_UTILITY_THREADED_WINDOW
-			if (m_thread.IsJoinable())
+			if (m_style & WindowStyle_Threaded)
 			{
-				m_threadActive = false;
-				m_thread.Join();
+				if (m_thread.IsJoinable())
+				{
+					m_threadActive = false;
+					m_thread.Join();
+				}
 			}
-			#else
+
 			// Destroy the window
 			if (m_window && m_ownsWindow)
 			{
@@ -293,8 +296,7 @@ namespace Nz
 					xcb_destroy_window(
 						connection,
 						m_window
-					))
-				)
+					)))
 					NazaraError("Failed to destroy window");
 
 				xcb_flush(connection);
@@ -1405,7 +1407,7 @@ namespace Nz
 				// Catch reparent events to properly apply fullscreen on
 				// some "strange" window managers (like Awesome) which
 				// seem to make use of temporary parents during mapping
-				if (m_style & Nz::WindowStyle_Fullscreen)
+				if (m_style & WindowStyle_Fullscreen)
 					SwitchToFullscreen();
 
 				break;
@@ -1685,12 +1687,11 @@ namespace Nz
 			));
 	}
 
-	#if NAZARA_UTILITY_THREADED_WINDOW
 	void WindowImpl::WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
 	{
 		mutex->Lock();
 		condition->Signal();
-		mutex->Unlock(); // mutex et condition sont considérés invalides à partir d'ici
+		mutex->Unlock(); // mutex and condition may be destroyed after this line
 
 		if (!window->m_window)
 			return;
@@ -1700,5 +1701,4 @@ namespace Nz
 
 		window->Destroy();
 	}
-	#endif
 }
