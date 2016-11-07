@@ -109,6 +109,7 @@ namespace Nz
 	{
 		Destroy();
 
+		m_asyncWindow = false;
 		m_impl = new WindowImpl(this);
 		if (!m_impl->Create(handle))
 		{
@@ -343,7 +344,7 @@ namespace Nz
 			LockGuard eventLock(m_eventMutex);
 
 			for (const WindowEvent& event : m_pendingEvents)
-				PushEvent(event);
+				HandleEvent(event);
 
 			m_pendingEvents.clear();
 		}
@@ -395,7 +396,6 @@ namespace Nz
 		if (!listener)
 		{
 			// Empty the event queue
-			LockGuard lock(m_eventMutex);
 			while (!m_events.empty())
 				m_events.pop();
 		}

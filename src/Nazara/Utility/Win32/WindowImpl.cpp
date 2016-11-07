@@ -148,6 +148,11 @@ namespace Nz
 
 		m_callback = 0;
 
+		m_eventListener = true;
+		m_ownsWindow = true;
+		m_sizemove = false;
+		m_style = style;
+
 		if (async)
 		{
 			Mutex mutex;
@@ -156,7 +161,7 @@ namespace Nz
 
 			// On attend que la fenêtre soit créée
 			mutex.Lock();
-			m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, x, y, width, height, this, &mutex, &condition);
+			m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, fullscreen, Rectui(x, y, width, height), this, &mutex, &condition);
 			condition.Wait(&mutex);
 			mutex.Unlock();
 		}
@@ -169,24 +174,8 @@ namespace Nz
 			return false;
 		}
 
-		if (fullscreen)
-		{
-			SetForegroundWindow(m_handle);
-			ShowWindow(m_handle, SW_SHOW);
-		}
-
-		m_eventListener = true;
-		m_ownsWindow = true;
-		m_sizemove = false;
-		m_style = style;
-
-		// Récupération de la position/taille de la fenêtre (Après sa création)
-		RECT clientRect, windowRect;
-		GetClientRect(m_handle, &clientRect);
-		GetWindowRect(m_handle, &windowRect);
-
-		m_position.Set(windowRect.left, windowRect.top);
-		m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+		if (!async)
+			PrepareWindow(fullscreen);
 
 		return true;
 	}
@@ -321,11 +310,7 @@ namespace Nz
 		if (m_ownsWindow)
 		{
 			if (block)
-			{
-				NazaraNotice("WaitMessage");
 				WaitMessage();
-				NazaraNotice("~WaitMessage");
-			}
 
 			MSG message;
 			while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
@@ -977,6 +962,23 @@ namespace Nz
 		return false;
 	}
 
+	void WindowImpl::PrepareWindow(bool fullscreen)
+	{
+		if (fullscreen)
+		{
+			SetForegroundWindow(m_handle);
+			ShowWindow(m_handle, SW_SHOW);
+		}
+
+		// Cache window position/size after creation
+		RECT clientRect, windowRect;
+		GetClientRect(m_handle, &clientRect);
+		GetWindowRect(m_handle, &windowRect);
+
+		m_position.Set(windowRect.left, windowRect.top);
+		m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+	}
+
 	bool WindowImpl::Initialize()
 	{
 		// Nous devons faire un type Unicode pour que la fenêtre le soit également
@@ -1191,10 +1193,13 @@ namespace Nz
 		return style;
 	}
 
-	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
+	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
 	{
 		HWND& winHandle = *handle;
-		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, dimensions.x, dimensions.y, dimensions.width, dimensions.height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+
+		if (winHandle)
+			window->PrepareWindow(fullscreen);
 
 		mutex->Lock();
 		condition->Signal();
@@ -1203,10 +1208,8 @@ namespace Nz
 		if (!winHandle)
 			return;
 
-		NazaraNotice("In");
 		while (window->m_threadActive)
 			window->ProcessEvents(true);
-		NazaraNotice("Out");
 
 		DestroyWindow(winHandle);
 	}
