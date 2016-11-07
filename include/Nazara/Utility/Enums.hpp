@@ -432,12 +432,14 @@ namespace Nz
 
 	enum WindowStyleFlags
 	{
-		WindowStyle_None       = 0x0,
-		WindowStyle_Fullscreen = 0x1,
+		WindowStyle_None       = 0x0,  ///< Window has no border nor titlebar.
+		WindowStyle_Fullscreen = 0x1,  ///< At the window creation, the OS tries to set it in fullscreen.
 
-		WindowStyle_Closable   = 0x2,
-		WindowStyle_Resizable  = 0x4,
-		WindowStyle_Titlebar   = 0x8,
+		WindowStyle_Closable   = 0x2,  ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
+		WindowStyle_Resizable  = 0x4,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
+		WindowStyle_Titlebar   = 0x8,  ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
+
+		WindowStyle_Threaded   = 0x10, ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
 
 		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
 		WindowStyle_Max = WindowStyle_Titlebar*2-1

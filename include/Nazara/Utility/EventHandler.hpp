@@ -24,6 +24,9 @@ namespace Nz
 
 			inline void Dispatch(const WindowEvent& event);
 
+			EventHandler& operator=(const EventHandler&) = delete;
+			EventHandler& operator=(EventHandler&&) = default;
+
 			NazaraSignal(OnEvent, const EventHandler* /*eventHandler*/, const WindowEvent& /*event*/);
 			NazaraSignal(OnGainedFocus, const EventHandler* /*eventHandler*/);
 			NazaraSignal(OnLostFocus, const EventHandler* /*eventHandler*/);
