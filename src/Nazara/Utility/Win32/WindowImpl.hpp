@@ -12,6 +12,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
@@ -82,11 +83,12 @@ namespace Nz
 
 		private:
 			bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+			void PrepareWindow(bool fullscreen);
 
 			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			static UInt32 RetrieveStyle(HWND window);
-			static void WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
+			static void WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
 
 			HCURSOR m_cursor;
 			HWND m_handle;
