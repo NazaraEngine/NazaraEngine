@@ -1,4 +1,7 @@
-NazaraBuild = {} -- L'équivalent d'un namespace en Lua est une table
+NazaraBuild = {}
+
+-- I wish Premake had a way to know the compiler in advance
+local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
 
 function NazaraBuild:AddExecutablePath(path)
 	self.ExecutableDir[path] = true
@@ -9,21 +12,47 @@ function NazaraBuild:AddInstallPath(path)
 	self.InstallDir[path] = true
 end
 
+function NazaraBuild:FilterLibDirectory(prefix, func)
+	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:Windows"})
+		func(prefix .. "mingw/x86")
+
+	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:Windows"})
+		func(prefix .. "mingw/x64")
+
+	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:not Windows"})
+		func(prefix .. "gmake/x86")
+
+	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:not Windows"})
+		func(prefix .. "gmake/x64")
+
+	filter({"action:vs*", "architecture:x86"})
+		func(prefix .. "msvc/x86")
+
+	filter({"action:vs*", "architecture:x86_64"})
+		func(prefix .. "msvc/x64")
+
+	filter({"action:xcode3 or xcode4", "architecture:x86"})
+		func(prefix .. "xcode/x86")
+
+	filter({"action:xcode3 or xcode4", "architecture:x86_64"})
+		func(prefix .. "xcode/x64")
+
+	filter({})
+end
+
 function NazaraBuild:Execute()
-	if (_ACTION == nil) then -- Si aucune action n'est spécifiée
+	if (_ACTION == nil) then -- If no action is specified, the user probably only wants to know how all of this works
 		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
 	end
 
 	local platformData
 	if (os.is64bit()) then
-		platformData = {"x64", "x32"}
+		platformData = {"x64", "x86"}
 	else
-		platformData = {"x32", "x64"}
+		platformData = {"x86", "x64"}
 	end
 
 	if (self.Actions[_ACTION] == nil) then
-		local makeLibDir = os.is("windows") and "mingw" or "gmake"
-
 		if (self.Config["BuildDependencies"]) then
 			workspace("NazaraExtlibs")
 			platforms(platformData)
@@ -34,62 +63,18 @@ function NazaraBuild:Execute()
 				"ReleaseStatic"
 			})
 
+			self:PrepareGeneric()
+			self:FilterLibDirectory("../extlibs/lib/", targetdir)
+
+			filter(clangGccActions)
+				buildoptions("-U__STRICT_ANSI__")
+
+			filter({})
+
 			includedirs("../extlibs/include")
 			libdirs("../extlibs/lib/common")
 			location(_ACTION)
 			kind("StaticLib")
-
-			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				targetdir("../extlibs/lib/" .. makeLibDir .. "/x86")
-
-			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
-				targetdir("../extlibs/lib/" .. makeLibDir .. "/x64")
-
-			configuration("vs*")
-				buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
-
-			configuration({"vs*", "x32"})
-				libdirs("../extlibs/lib/msvc/x86")
-				targetdir("../extlibs/lib/msvc/x86")
-
-			configuration({"vs*", "x64"})
-				libdirs("../extlibs/lib/msvc/x64")
-				targetdir("../extlibs/lib/msvc/x64")
-
-			configuration({"xcode3 or xcode4", "x32"})
-				libdirs("../extlibs/lib/xcode/x86")
-				targetdir("../extlibs/lib/xcode/x86")
-
-			configuration({"xcode3 or xcode4", "x64"})
-				libdirs("../extlibs/lib/xcode/x64")
-				targetdir("../extlibs/lib/xcode/x64")
-
-			configuration("Debug*")
-				flags("Symbols")
-
-			configuration("Release*")
-				flags("NoFramePointer")
-				optimize("Speed")
-				rtti("Off")
-				vectorextensions("SSE2")
-
-			configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
-				buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
-				buildoptions("-ftree-vectorize") -- Activation de la vectorisation du code
-
-			configuration("DebugStatic")
-				targetsuffix("-s-d")
-
-			configuration("ReleaseStatic")
-				targetsuffix("-s")
-
-			configuration({"not windows", "codeblocks or codelite or gmake or xcode3 or xcode4"})
-				buildoptions("-fPIC")
-
-			configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-				buildoptions({"-std=c++14", "-U__STRICT_ANSI__"})
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -105,25 +90,30 @@ function NazaraBuild:Execute()
 				includedirs(libTable.Includes)
 				links(libTable.Libraries)
 
-				configuration("x32")
+				filter("architecture:x86")
 					libdirs(libTable.LibraryPaths.x86)
 
-				configuration("x64")
+				filter("architecture:x86_64")
 					libdirs(libTable.LibraryPaths.x64)
 
 				for k,v in pairs(libTable.ConfigurationLibraries) do
-					configuration(k)
-					links(v)
+					filter(k)
+						links(v)
 				end
 
-				configuration({})
+				filter({})
 			end
 		end
-
+		
+		-- Start defining projects
 		workspace("NazaraEngine")
 		platforms(platformData)
 
-		-- Configuration générale
+		self:PrepareMainWorkspace()
+
+		-- Add lib/conf/arch to library search path
+		self:FilterLibDirectory("../lib/", libdirs)
+
 		configurations({
 		--	"DebugStatic",
 		--	"ReleaseStatic",
@@ -134,36 +124,7 @@ function NazaraBuild:Execute()
 		language("C++")
 		location(_ACTION)
 
-		configuration("Debug*")
-			defines("NAZARA_DEBUG")
-			flags("Symbols")
-
-		configuration("Release*")
-			flags("NoFramePointer")
-			optimize("Speed")
-			vectorextensions("SSE2")
-
-		configuration({"Release*", "codeblocks or codelite or gmake or xcode3 or xcode4"})
-			buildoptions("-mfpmath=sse") -- Utilisation du SSE pour les calculs flottants
-			buildoptions("-ftree-vectorize") -- Activation de la vectorisation du code
-
-		configuration("*Static")
-			defines("NAZARA_STATIC")
-
-		configuration("codeblocks or codelite or gmake or xcode3 or xcode4")
-			buildoptions("-std=c++14")
-
-		configuration({"linux or bsd or macosx", "gmake"})
-			buildoptions("-fvisibility=hidden")
-
-		configuration("vs*")
-			buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
-			flags("NoMinimalRebuild")
-			defines("_CRT_SECURE_NO_WARNINGS")
-			defines("_SCL_SECURE_NO_WARNINGS")
-
-
-		-- Spécification des modules
+		-- Modules
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
 		end
@@ -175,77 +136,11 @@ function NazaraBuild:Execute()
 
 			location(_ACTION .. "/modules")
 
-			defines("NAZARA_BUILD")
-
 			includedirs({
 				"../include",
 				"../src/",
 				"../extlibs/include"
 			})
-
-			libdirs("../lib")
-			libdirs("../extlibs/lib/common")
-
-			configuration("x32")
-				libdirs(moduleTable.LibraryPaths.x86)
-
-			configuration("x64")
-				defines("NAZARA_PLATFORM_x64")
-				libdirs(moduleTable.LibraryPaths.x64)
-
-			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				libdirs("../lib/" .. makeLibDir .. "/x86")
-				targetdir("../lib/" .. makeLibDir .. "/x86")
-
-			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
-				libdirs("../lib/" .. makeLibDir .. "/x64")
-				targetdir("../lib/" .. makeLibDir .. "/x64")
-
-			-- Copy the module binaries to the example folder
-			self:MakeInstallCommands(moduleTable)
-
-			configuration({"vs*", "x32"})
-				libdirs("../extlibs/lib/msvc/x86")
-				libdirs("../lib/msvc/x86")
-				targetdir("../lib/msvc/x86")
-
-			configuration({"vs*", "x64"})
-				libdirs("../extlibs/lib/msvc/x64")
-				libdirs("../lib/msvc/x64")
-				targetdir("../lib/msvc/x64")
-
-			configuration({"xcode3 or xcode4", "x32"})
-				libdirs("../extlibs/lib/xcode/x86")
-				libdirs("../lib/xcode/x86")
-				targetdir("../lib/xcode/x86")
-
-			configuration({"xcode3 or xcode4", "x64"})
-				libdirs("../extlibs/lib/xcode/x64")
-				libdirs("../lib/xcode/x64")
-				targetdir("../lib/xcode/x64")
-
-			configuration("*Static")
-				defines("NAZARA_STATIC")
-				kind("StaticLib")
-
-			configuration("*Dynamic")
-				kind("SharedLib")
-
-			configuration("DebugStatic")
-				targetsuffix("-s-d")
-
-			configuration("ReleaseStatic")
-				targetsuffix("-s")
-
-			configuration("DebugDynamic")
-				targetsuffix("-d")
-
-			configuration("Release*")
-				rtti(moduleTable.EnableRTTI and "On" or "Off")
-
-			configuration({})
 
 			files(moduleTable.Files)
 			excludes(moduleTable.FilesExcluded)
@@ -255,12 +150,29 @@ function NazaraBuild:Execute()
 			includedirs(moduleTable.Includes)
 			links(moduleTable.Libraries)
 
+			libdirs({
+				"../extlibs/lib/common",
+				"../lib"
+			})
+
+			-- Output to lib/conf/arch
+			self:FilterLibDirectory("../lib/", targetdir)
+
+			-- Copy the module binaries to the example folder
+			self:MakeInstallCommands(moduleTable)
+
+			filter("architecture:x86")
+				libdirs(moduleTable.LibraryPaths.x86)
+
+			filter("architecture:x86_64")
+				libdirs(moduleTable.LibraryPaths.x64)
+
 			for k,v in pairs(moduleTable.ConfigurationLibraries) do
-				configuration(k)
+				filter(k)
 				links(v)
 			end
 
-			configuration({})
+			filter({})
 		end
 
 		-- Tools
@@ -288,7 +200,7 @@ function NazaraBuild:Execute()
 					kind("WindowedApp")
 				end
 			else
-				assert(false, "Invalid tool Kind")
+				assert(false, "Invalid tool kind")
 			end
 
 			includedirs({
@@ -296,94 +208,10 @@ function NazaraBuild:Execute()
 				"../extlibs/include"
 			})
 
-			libdirs("../lib")
-			libdirs("../extlibs/lib/common")
-
-			configuration("x32")
-				libdirs(toolTable.LibraryPaths.x86)
-
-			configuration("x64")
-				defines("NAZARA_PLATFORM_x64")
-				libdirs(toolTable.LibraryPaths.x64)
-
-			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x86")
-				libdirs("../lib/" .. makeLibDir .. "/x86")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x86")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/" .. makeLibDir .. "/x86")
-				end
-
-			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../extlibs/lib/" .. makeLibDir .. "/x64")
-				libdirs("../lib/" .. makeLibDir .. "/x64")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/" .. makeLibDir .. "/x64")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/" .. makeLibDir .. "/x64")
-				end
-
-			configuration({"vs*", "x32"})
-				libdirs("../extlibs/lib/msvc/x86")
-				libdirs("../lib/msvc/x86")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/msvc/x86")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/msvc/x86")
-				end
-
-			configuration({"vs*", "x64"})
-				libdirs("../extlibs/lib/msvc/x64")
-				libdirs("../lib/msvc/x64")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/msvc/x64")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/msvc/x64")
-				end
-
-			configuration({"xcode3 or xcode4", "x32"})
-				libdirs("../extlibs/lib/xcode/x86")
-				libdirs("../lib/xcode/x86")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/xcode/x86")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/xcode/x86")
-				end
-
-			configuration({"xcode3 or xcode4", "x64"})
-				libdirs("../extlibs/lib/xcode/x64")
-				libdirs("../lib/xcode/x64")
-				if (toolTable.Kind == "library") then
-					targetdir(toolTable.TargetDirectory .. "/xcode/x64")
-				elseif (toolTable.Kind == "plugin") then
-					targetdir("../plugins/lib/xcode/x64")
-				end
-
-			configuration("*Static")
-				defines("NAZARA_STATIC")
-
-			configuration("Release*")
-				rtti(toolTable.EnableRTTI and "On" or "Off")
-
-			if (toolTable.Kind == "library" or toolTable.Kind == "plugin") then
-				configuration("*Static")
-					kind("StaticLib")
-
-				configuration("*Dynamic")
-					kind("SharedLib")
-
-				configuration("DebugStatic")
-					targetsuffix("-s-d")
-
-				configuration("ReleaseStatic")
-					targetsuffix("-s")
-
-				configuration("DebugDynamic")
-					targetsuffix("-d")
-			end
-
-			configuration({})
+			libdirs({
+				"../extlibs/lib/common",
+				"../lib"
+			})
 
 			files(toolTable.Files)
 			excludes(toolTable.FilesExcluded)
@@ -393,12 +221,25 @@ function NazaraBuild:Execute()
 			includedirs(toolTable.Includes)
 			links(toolTable.Libraries)
 
+			-- Output to lib/conf/arch
+			if (toolTable.Kind == "library") then
+				self:FilterLibDirectory(toolTable.TargetDirectory .. "/", targetdir)
+			elseif (toolTable.Kind == "plugin") then
+				self:FilterLibDirectory("../plugins/lib/", targetdir)
+			end
+
+			filter("architecture:x86")
+				libdirs(toolTable.LibraryPaths.x86)
+
+			filter("architecture:x86_64")
+				libdirs(toolTable.LibraryPaths.x64)
+
 			for k,v in pairs(toolTable.ConfigurationLibraries) do
-				configuration(k)
+				filter(k)
 				links(v)
 			end
 
-			configuration({})
+			filter({})
 		end
 
 		for k, exampleTable in ipairs(self.OrderedExamples) do
@@ -429,7 +270,6 @@ function NazaraBuild:Execute()
 				"../extlibs/include"
 			})
 			libdirs("../lib")
-			targetdir(destPath)
 
 			files(exampleTable.Files)
 			excludes(exampleTable.FilesExcluded)
@@ -438,41 +278,14 @@ function NazaraBuild:Execute()
 			flags(exampleTable.Flags)
 			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
-
-			configuration("Release*")
-				rtti(exampleTable.EnableRTTI and "On" or "Off")
-
-			configuration("x32")
-				libdirs(exampleTable.LibraryPaths.x86)
-
-			configuration("x64")
-				defines("NAZARA_PLATFORM_x64")
-				libdirs(exampleTable.LibraryPaths.x64)
-
-			configuration({"codeblocks or codelite or gmake", "x32"})
-				libdirs("../lib/" .. makeLibDir .. "/x86")
-
-			configuration({"codeblocks or codelite or gmake", "x64"})
-				libdirs("../lib/" .. makeLibDir .. "/x64")
-
-			configuration({"vs*", "x32"})
-				libdirs("../lib/msvc/x86")
-
-			configuration({"vs*", "x64"})
-				libdirs("../lib/msvc/x64")
-
-			configuration({"xcode3 or xcode4", "x32"})
-				libdirs("../lib/xcode/x86")
-
-			configuration({"xcode3 or xcode4", "x64"})
-				libdirs("../lib/xcode/x64")
+			targetdir(destPath)
 
 			for k,v in pairs(exampleTable.ConfigurationLibraries) do
-				configuration(k)
+				filter(k)
 				links(v)
 			end
 
-			configuration({})
+			filter({})
 		end
 	end
 end
@@ -712,39 +525,37 @@ function NazaraBuild:LoadConfig()
 end
 
 function NazaraBuild:MakeInstallCommands(infoTable)
-	if (PremakeVersion < 50) then
-		return
-	end
-
 	if (os.is("windows")) then
-		configuration("*Dynamic")
-		
+		filter("kind:SharedLib")
+
+		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
+
 		for k,v in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
-			postbuildcommands({[[xcopy "%{path.translate(cfg.linktarget.relpath):sub(1, -5) .. ".dll"}" "]] .. destPath .. [[\" /E /Y]]})
+			postbuildcommands({[[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]]})
 		end
 
 		for k,fileName in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
 			local paths = {}
 			for k,v in pairs(infoTable.BinaryPaths.x86) do
-				table.insert(paths, {"x32", v .. "/" .. fileName .. ".dll"})
-				table.insert(paths, {"x32", v .. "/lib" .. fileName .. ".dll"})
+				table.insert(paths, {"x86", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x86", v .. "/lib" .. fileName .. ".dll"})
 			end
 
 			for k,v in pairs(infoTable.BinaryPaths.x64) do
-				table.insert(paths, {"x64", v .. "/" .. fileName .. ".dll"})
-				table.insert(paths, {"x64", v .. "/lib" .. fileName .. ".dll"})
+				table.insert(paths, {"x86_64", v .. "/" .. fileName .. ".dll"})
+				table.insert(paths, {"x86_64", v .. "/lib" .. fileName .. ".dll"})
 			end
 
 			for k,v in pairs(paths) do
-				local config = v[1]
+				local arch = v[1]
 				local srcPath = v[2]
 				if (os.isfile(srcPath)) then
 					if (infoTable.Kind == "plugin") then
 						srcPath = "../../" .. srcPath
 					end
 
-					configuration(config)
+					filter("architecture:" .. arch)
 					
 					for k,v in pairs(self.ExecutableDir) do
 						local srcPath = path.isabsolute(srcPath) and path.translate(srcPath) or [[%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}]]
@@ -754,6 +565,8 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 				end
 			end
 		end
+
+		filter({})
 	end
 end
 
@@ -876,40 +689,122 @@ function NazaraBuild:Process(infoTable)
 	return true
 end
 
+function NazaraBuild:PrepareGeneric()
+	flags({
+		"C++14",
+		"MultiProcessorCompile",
+		"NoMinimalRebuild"
+	})
+
+	self:FilterLibDirectory("../extlibs/lib/", libdirs)
+
+	-- Fixes Premake stuff
+	filter({"kind:SharedLib", clangGccActions})
+		implibprefix("lib")
+	filter({"kind:*Lib", clangGccActions, "system:Windows"})
+		implibextension(".a")
+	filter({"kind:StaticLib", clangGccActions})
+		targetextension(".a")
+		targetprefix("lib")
+
+	-- General configuration
+	filter("kind:*Lib")
+		pic("On")
+
+	filter({"kind:*Lib", "configurations:DebugStatic"})
+		targetsuffix("-s-d")
+
+	filter({"kind:*Lib", "configurations:ReleaseStatic"})
+		targetsuffix("-s")
+
+	filter({"kind:*Lib", "configurations:DebugDynamic"})
+		targetsuffix("-d")
+
+	filter("configurations:Debug*")
+		symbols("On")
+
+	-- Setup some optimizations for release
+	filter("configurations:Release*")
+		flags("NoFramePointer")
+		optimize("Speed")
+		rtti("Off")
+		vectorextensions("SSE2")
+
+	filter("configurations:*Static")
+		kind("StaticLib")
+
+	filter("configurations:*Dynamic")
+		kind("SharedLib")
+
+	-- Enable SSE math and vectorization optimizations
+	filter({"configurations:Release*", clangGccActions})
+		buildoptions("-mfpmath=sse")
+		buildoptions("-ftree-vectorize")
+
+	filter({})
+end
+
+function NazaraBuild:PrepareMainWorkspace()
+	self:PrepareGeneric()
+
+	filter("action:vs*")
+		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
+		defines("_CRT_SECURE_NO_WARNINGS")
+		defines("_SCL_SECURE_NO_WARNINGS")
+
+	filter("architecture:x86_64")
+		defines("NAZARA_PLATFORM_x64")
+
+	filter("configurations:Debug*")
+		defines("NAZARA_DEBUG")
+
+	filter("configurations:*Static")
+		defines("NAZARA_STATIC")
+
+	filter("kind:*Lib")
+		defines("NAZARA_BUILD")
+
+	filter({"system:Windows", clangGccActions})
+		buildoptions("-Wa,-mbig-obj") -- big object
+
+	filter({"system:not Windows", clangGccActions})
+		buildoptions("-fvisibility=hidden")
+
+	filter({})
+end
+
 function NazaraBuild:RegisterAction(actionTable)
-	if (actionTable.Name == nil or type(actionTable.Name) ~= "string" or string.len(actionTable.Name) == 0) then
-		return false, "Invalid action name"
+	if (not actionTable.Manual) then
+		if (actionTable.Name == nil or type(actionTable.Name) ~= "string" or string.len(actionTable.Name) == 0) then
+			return false, "Invalid action name"
+		end
+
+		local lowerCaseName = string.lower(actionTable.Name)
+		if (self.Actions[lowerCaseName] ~= nil) then
+			return false, "This action name is already in use"
+		end
+
+		if (actionTable.Description == nil or type(actionTable.Description) ~= "string") then
+			return false, "Action description is invalid"
+		end
+
+		if (string.len(actionTable.Description) == 0) then
+			return false, "Action description is empty"
+		end
+
+		if (actionTable.Function == nil or type(actionTable.Function) ~= "function") then
+			return false, "Action function is invalid"
+		end
+
+		self.Actions[lowerCaseName] = actionTable
+
+		newaction
+		{
+			trigger     = lowerCaseName,
+			description = actionTable.Description,
+			execute     = function () actionTable:Function() end
+		}
 	end
-
-	local lowerCaseName = string.lower(actionTable.Name)
-	if (self.Actions[lowerCaseName] ~= nil) then
-		return false, "This action name is already in use"
-	end
-
-	if (actionTable.Description == nil or type(actionTable.Description) ~= "string") then
-		return false, "Action description is invalid"
-	end
-
-	if (string.len(actionTable.Description) == 0) then
-		return false, "Action description is empty"
-	end
-
-	if (self.Actions[actionTable.name] ~= nil) then
-		return false, "Action name \"" .. actionTable.name .. " is already registred"
-	end
-
-	if (actionTable.Function == nil or type(actionTable.Function) ~= "function") then
-		return false, "Action function is invalid"
-	end
-
-	self.Actions[lowerCaseName] = actionTable
-
-	newaction
-	{
-		trigger     = lowerCaseName,
-		description = actionTable.Description,
-		execute     = function () actionTable:Function() end
-	}
 
 	return true
 end

@@ -89,7 +89,7 @@ namespace Nz
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			static UInt32 RetrieveStyle(HWND window);
 			#if NAZARA_UTILITY_THREADED_WINDOW
-			static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
+			static void WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
 			#endif
 
 			HCURSOR m_cursor;

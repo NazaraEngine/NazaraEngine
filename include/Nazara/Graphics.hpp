@@ -1,4 +1,4 @@
-// This file was automatically generated on 15 Sep 2016 at 00:43:26
+// This file was automatically generated
 
 /*
 	Nazara Engine - Graphics module

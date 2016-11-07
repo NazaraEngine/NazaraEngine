@@ -335,6 +335,7 @@ namespace Nz
 	void Window::ProcessEvents(bool block)
 	{
 		NazaraAssert(m_impl, "Window not created");
+		NazaraUnused(block);
 
 		#if !NAZARA_UTILITY_THREADED_WINDOW
 		m_impl->ProcessEvents(block);

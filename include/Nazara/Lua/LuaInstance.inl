@@ -59,7 +59,7 @@ namespace Nz
 		m_memoryUsage = instance.m_memoryUsage;
 		m_state = instance.m_state;
 		m_timeLimit = instance.m_timeLimit;
-		
+
 		instance.m_state = nullptr;
 
 		return *this;
@@ -209,6 +209,24 @@ namespace Nz
 		return LuaImplReplyVal(instance, val, TypeTag<T>());
 	}
 
+	template<typename T>
+	std::enable_if_t<!std::is_arithmetic<T>::value && !std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T&>)
+	{
+		return LuaImplReplyVal(instance, std::move(val), TypeTag<T>());
+	}
+
+	template<typename T>
+	std::enable_if_t<!std::is_arithmetic<T>::value && !std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<const T&>)
+	{
+		return LuaImplReplyVal(instance, std::move(val), TypeTag<T>());
+	}
+
+	template<typename T>
+	int LuaImplReplyVal(const LuaInstance& instance, T&& val, TypeTag<T&&>)
+	{
+		return LuaImplReplyVal(instance, std::forward<T>(val), TypeTag<T>());
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, std::string&& val, TypeTag<std::string>)
 	{
 		instance.PushString(val.c_str(), val.size());
@@ -266,7 +284,7 @@ namespace Nz
 		template<std::size_t N, std::size_t FirstDefArg, typename ArgType, typename ArgContainer, typename DefArgContainer>
 		static unsigned int Process(const LuaInstance& instance, unsigned int argIndex, ArgContainer& args, DefArgContainer& defArgs)
 		{
-			return LuaImplQueryArg(instance, argIndex, &std::get<N>(args), std::get<std::tuple_size<DefArgContainer>() - N + FirstDefArg - 1>(defArgs), TypeTag<ArgType>());
+			return LuaImplQueryArg(instance, argIndex, &std::get<N>(args), std::get<FirstDefArg + std::tuple_size<DefArgContainer>() - N - 1>(defArgs), TypeTag<ArgType>());
 		}
 	};
 
@@ -302,7 +320,7 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
 						m_index = 1;
 						ProcessArgs<0, Args...>(instance);
@@ -373,9 +391,9 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
-						m_index = 1;
+						m_index = 2; //< 1 being the instance
 						ProcessArgs<0, Args...>(instance);
 					}
 
@@ -395,6 +413,19 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, T& object, T&(P::*func)(Args...)) const
+					{
+						T& r = Apply(object, func, m_args);
+						if (&r == &object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
 						NazaraUnused(instance);
@@ -410,10 +441,21 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, T>::value, int> Invoke(const LuaInstance& instance, const T& object, const T&(P::*func)(Args...) const) const
+					{
+						const T& r = Apply(object, func, m_args);
+						if (&r == &object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, void(P::*func)(Args...)) const
 					{
-						NazaraUnused(instance);
-
 						if (!object)
 						{
 							instance.Error("Invalid object");
@@ -437,10 +479,27 @@ namespace Nz
 					}
 
 					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, T& object, typename PointedType<T>::type&(P::*func)(Args...) const) const
+					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
+						const typename PointedType<T>::type& r = Apply(*object, func, m_args);
+						if (&r == &*object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
+					}
+
+					template<typename T, typename P>
 					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, void(P::*func)(Args...) const) const
 					{
-						NazaraUnused(instance);
-
 						if (!object)
 						{
 							instance.Error("Invalid object");
@@ -461,6 +520,25 @@ namespace Nz
 						}
 
 						return LuaImplReplyVal(instance, std::move(Apply(*object, func, m_args)), TypeTag<decltype(Apply(*object, func, m_args))>());
+					}
+
+					template<typename T, typename P>
+					std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value, int> Invoke(const LuaInstance& instance, const T& object, const typename PointedType<T>::type&(P::*func)(Args...) const) const
+					{
+						if (!object)
+						{
+							instance.Error("Invalid object");
+							return 0;
+						}
+
+						const typename PointedType<T>::type& r = Apply(*object, func, m_args);
+						if (&r == &*object)
+						{
+							instance.PushValue(1); //< Userdata
+							return 1;
+						}
+						else
+							return LuaImplReplyVal(instance, r, TypeTag<T&>());
 					}
 
 				private:
@@ -606,6 +684,16 @@ namespace Nz
 		return LuaImplReplyVal(*this, std::move(arg), TypeTag<T>());
 	}
 
+	template<typename T, typename T2, typename... Args>
+	int LuaInstance::Push(T firstArg, T2 secondArg, Args... args) const
+	{
+		int valCount = 0;
+		valCount += Push(std::move(firstArg));
+		valCount += Push(secondArg, std::forward<Args>(args)...);
+
+		return valCount;
+	}
+
 	template<typename T>
 	void LuaInstance::PushField(const char* name, T&& arg, int tableIndex) const
 	{
@@ -626,7 +714,7 @@ namespace Nz
 
 		PushFunction([func, handler] (LuaInstance& lua) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, func);
 		});
@@ -648,7 +736,7 @@ namespace Nz
 	template<typename T>
 	void LuaInstance::PushInstance(const char* tname, const T& instance) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, instance);
 
 		SetMetatable(tname);
@@ -657,7 +745,7 @@ namespace Nz
 	template<typename T>
 	void LuaInstance::PushInstance(const char* tname, T&& instance) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, std::move(instance));
 
 		SetMetatable(tname);
@@ -666,7 +754,7 @@ namespace Nz
 	template<typename T, typename... Args>
 	void LuaInstance::PushInstance(const char* tname, Args&&... args) const
 	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T*)));
+		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
 		PlacementNew(userdata, std::forward<Args>(args)...);
 
 		SetMetatable(tname);

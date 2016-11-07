@@ -29,7 +29,7 @@ namespace Nz
 	m_isometricModeEnabled(false)
 	{
 		NazaraAssert(m_tiles.size() != 0U, "Invalid map size");
-		NazaraAssert(m_tileSize.x != 0U && m_tileSize.y != 0U, "Invalid tile size");
+		NazaraAssert(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
 		NazaraAssert(m_layers.size() != 0U, "Invalid material count");
 
 		for (Layer& layer : m_layers)
@@ -175,7 +175,7 @@ namespace Nz
 	* \param color The multiplicative color applied to the tile
 	* \param materialIndex The material which will be used for rendering this tile
 	*
-	* \remark The material at [materialIndex] must have a valid diffuse map before using this function, 
+	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
 	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
 	*
 	* \see EnableTiles
@@ -253,7 +253,7 @@ namespace Nz
 		Rectf unnormalizedCoords(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height);
 		EnableTiles(unnormalizedCoords, color, materialIndex);
 	}
-	
+
 	/*!
 	* \brief Enable and sets tileCount tiles at positions contained at tilesPos location, enabling rendering at those locations
 	*
@@ -434,14 +434,14 @@ namespace Nz
 	*
 	* \param TileMap The other TileMap
 	*/
-	inline TileMap& TileMap::operator=(const TileMap& TileMap)
+	inline TileMap& TileMap::operator=(const TileMap& tileMap)
 	{
-		InstancedRenderable::operator=(TileMap);
+		InstancedRenderable::operator=(tileMap);
 
-		m_layers = TileMap.m_layers;
-		m_mapSize = TileMap.m_mapSize;
-		m_tiles = TileMap.m_tiles;
-		m_tileSize = TileMap.m_tileSize;
+		m_layers = tileMap.m_layers;
+		m_mapSize = tileMap.m_mapSize;
+		m_tiles = tileMap.m_tiles;
+		m_tileSize = tileMap.m_tileSize;
 
 		// We do not copy final vertices because it's highly probable that our parameters are modified and they must be regenerated
 		InvalidateBoundingVolume();

@@ -59,7 +59,7 @@ namespace Ndk
 	* \param args Arguments used to create the window
 	*/
 	#ifndef NDK_SERVER
-	template<typename T, typename... Args> 
+	template<typename T, typename... Args>
 	T& Application::AddWindow(Args&&... args)
 	{
 		static_assert(std::is_base_of<Nz::Window, T>::value, "Type must inherit Window");
@@ -82,7 +82,7 @@ namespace Ndk
 	* \param args Arguments used to create the world
 	*/
 
-	template<typename... Args> 
+	template<typename... Args>
 	World& Application::AddWorld(Args&&... args)
 	{
 		m_worlds.emplace_back(std::forward<Args>(args)...);
@@ -373,9 +373,9 @@ namespace Ndk
 	{
 	}
 
-	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& window) :
+	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& windowPtr) :
 	renderTarget(nullptr),
-	window(std::move(window))
+	window(std::move(windowPtr))
 	{
 	}
 	#endif

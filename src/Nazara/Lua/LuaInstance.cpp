@@ -149,22 +149,22 @@ namespace Nz
 			lua_close(m_state);
 	}
 
-	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const char* error)
+	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const char* error) const
 	{
 		luaL_argcheck(m_state, condition, argNum, error);
 	}
 
-	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const String& error)
+	void LuaInstance::ArgCheck(bool condition, unsigned int argNum, const String& error) const
 	{
 		luaL_argcheck(m_state, condition, argNum, error.GetConstBuffer());
 	}
 
-	int LuaInstance::ArgError(unsigned int argNum, const char* error)
+	int LuaInstance::ArgError(unsigned int argNum, const char* error) const
 	{
 		return luaL_argerror(m_state, argNum, error);
 	}
 
-	int LuaInstance::ArgError(unsigned int argNum, const String& error)
+	int LuaInstance::ArgError(unsigned int argNum, const String& error) const
 	{
 		return luaL_argerror(m_state, argNum, error.GetConstBuffer());
 	}

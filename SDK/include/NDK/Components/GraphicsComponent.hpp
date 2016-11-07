@@ -77,21 +77,21 @@ namespace Ndk
 				dataUpdated(false)
 				{
 				}
-				
-				Renderable(Renderable&& renderable) noexcept :
-				renderableBoundingVolumeInvalidationSlot(std::move(renderable.renderableBoundingVolumeInvalidationSlot)),
-				renderableDataInvalidationSlot(std::move(renderable.renderableDataInvalidationSlot)),
-				renderableReleaseSlot(std::move(renderable.renderableReleaseSlot)),
-				data(std::move(renderable.data)),
-				renderable(std::move(renderable.renderable)),
-				dataUpdated(renderable.dataUpdated)
+
+				Renderable(Renderable&& rhs) noexcept :
+				renderableBoundingVolumeInvalidationSlot(std::move(rhs.renderableBoundingVolumeInvalidationSlot)),
+				renderableDataInvalidationSlot(std::move(rhs.renderableDataInvalidationSlot)),
+				renderableReleaseSlot(std::move(rhs.renderableReleaseSlot)),
+				data(std::move(rhs.data)),
+				renderable(std::move(rhs.rhs)),
+				dataUpdated(rhs.dataUpdated)
 				{
 				}
 
 				~Renderable()
 				{
 					// Disconnect release slot before releasing instanced renderable reference
-					renderableReleaseSlot.Disconnect(); 
+					renderableReleaseSlot.Disconnect();
 				}
 
 				Renderable& operator=(Renderable&& r) noexcept

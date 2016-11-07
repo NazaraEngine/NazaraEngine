@@ -24,7 +24,7 @@ namespace Ndk
 			LuaAPI() = delete;
 			~LuaAPI() = delete;
 
-			static inline LuaBinding* GetBinding();
+			static LuaBinding* GetBinding();
 
 			static bool Initialize();
 
