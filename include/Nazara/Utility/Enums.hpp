@@ -442,7 +442,7 @@ namespace Nz
 		WindowStyle_Threaded   = 0x10, ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
 
 		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
-		WindowStyle_Max = WindowStyle_Titlebar*2-1
+		WindowStyle_Max = WindowStyle_Threaded*2-1
 	};
 }
 
