@@ -29,7 +29,7 @@
 
 // Importation/Exportation of the API
 #if defined(NAZARA_STATIC)
-  #define #define NDK_API
+  #define NDK_API
 #else
   #ifdef NDK_BUILD
 	  #define NDK_API NAZARA_EXPORT

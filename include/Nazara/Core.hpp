@@ -1,4 +1,4 @@
-// This file was automatically generated on 09 May 2016 at 17:07:09
+// This file was automatically generated
 
 /*
 	Nazara Engine - Core module

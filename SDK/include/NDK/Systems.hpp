@@ -1,4 +1,4 @@
-// This file was automatically generated on 30 Jul 2016 at 15:29:16
+// This file was automatically generated
 
 #pragma once
 
