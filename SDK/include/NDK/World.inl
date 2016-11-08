@@ -253,9 +253,6 @@ namespace Ndk
 		Update(); //< Update entities
 
 		// And then update systems
-		if (!m_orderedSystemsUpdated)
-			ReorderSystems();
-
 		for (auto& systemPtr : m_orderedSystems)
 			systemPtr->Update(elapsedTime);
 	}
