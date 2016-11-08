@@ -86,7 +86,7 @@ namespace Ndk
 				EntityBlock(EntityBlock&& block) = default;
 
 				Entity entity;
-				unsigned int aliveIndex;
+				std::size_t aliveIndex;
 			};
 
 			std::vector<std::unique_ptr<BaseSystem>> m_systems;
