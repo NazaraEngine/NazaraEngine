@@ -53,6 +53,7 @@ namespace Ndk
 		m_systems[index]->SetWorld(this);
 
 		Invalidate(); // We force an update for every entities
+		InvalidateSystemOrder(); // And regenerate the system update list
 
 		return *m_systems[index].get();
 	}
@@ -206,6 +207,8 @@ namespace Ndk
 	inline void World::RemoveAllSystems()
 	{
 		m_systems.clear();
+
+		InvalidateSystemOrder();
 	}
 
 	/*!
@@ -219,7 +222,11 @@ namespace Ndk
 	inline void World::RemoveSystem(SystemIndex index)
 	{
 		if (HasSystem(index))
+		{
 			m_systems[index].reset();
+
+			InvalidateSystemOrder();
+		}
 	}
 
 	/*!
@@ -246,32 +253,11 @@ namespace Ndk
 		Update(); //< Update entities
 
 		// And then update systems
-		for (auto& systemPtr : m_systems)
-		{
-			if (systemPtr)
-				systemPtr->Update(elapsedTime);
-		}
-	}
+		if (!m_orderedSystemsUpdated)
+			ReorderSystems();
 
-	/*!
-	* \brief Invalidates each entity in the world
-	*/
-
-	inline void World::Invalidate()
-	{
-		m_dirtyEntities.Resize(m_entities.size(), false);
-		m_dirtyEntities.Set(true); // Activation of all bits
-	}
-
-	/*!
-	* \brief Invalidates an entity in the world
-	*
-	* \param id Identifier of the entity
-	*/
-
-	inline void World::Invalidate(EntityId id)
-	{
-		m_dirtyEntities.UnboundedSet(id, true);
+		for (auto& systemPtr : m_orderedSystems)
+			systemPtr->Update(elapsedTime);
 	}
 
 	/*!
@@ -281,10 +267,12 @@ namespace Ndk
 
 	inline World& World::operator=(World&& world) noexcept
 	{
-		m_aliveEntities  = std::move(world.m_aliveEntities);
-		m_dirtyEntities  = std::move(world.m_dirtyEntities);
-		m_freeIdList     = std::move(world.m_freeIdList);
-		m_killedEntities = std::move(world.m_killedEntities);
+		m_aliveEntities         = std::move(world.m_aliveEntities);
+		m_dirtyEntities         = std::move(world.m_dirtyEntities);
+		m_freeIdList            = std::move(world.m_freeIdList);
+		m_killedEntities        = std::move(world.m_killedEntities);
+		m_orderedSystems        = std::move(world.m_orderedSystems);
+		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
@@ -295,5 +283,21 @@ namespace Ndk
 			systemPtr->SetWorld(this);
 
 		return *this;
+	}
+
+	inline void World::Invalidate()
+	{
+		m_dirtyEntities.Resize(m_entities.size(), false);
+		m_dirtyEntities.Set(true); // Activation of all bits
+	}
+
+	inline void World::Invalidate(EntityId id)
+	{
+		m_dirtyEntities.UnboundedSet(id, true);
+	}
+
+	inline void World::InvalidateSystemOrder()
+	{
+		m_orderedSystemsUpdated = false;
 	}
 }

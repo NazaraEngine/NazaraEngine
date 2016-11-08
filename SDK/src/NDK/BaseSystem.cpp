@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/BaseSystem.hpp>
+#include <NDK/World.hpp>
 
 namespace Ndk
 {
@@ -54,6 +55,26 @@ namespace Ndk
 		}
 
 		return true;
+	}
+
+	/*!
+	* \brief Sets the update order of this system
+	*
+	* The system update order is used by the world it belongs to in order to know in which order they should be updated, as some application logic may rely a specific update order.
+	* A system with a greater update order (ex: 1) is guaranteed to be updated after a system with a lesser update order (ex: -1), otherwise the order is unspecified (and is not guaranteed to be stable).
+	*
+	* \param updateOrder The relative update order of the system
+	*
+	* \remark The update order is only used by World::Update(float) and does not have any effect regarding a call to BaseSystem::Update(float)
+	*
+	* \see GetUpdateOrder
+	*/
+	inline void BaseSystem::SetUpdateOrder(int updateOrder)
+	{
+		m_updateOrder = updateOrder;
+
+		if (m_world)
+			m_world->InvalidateSystemOrder();
 	}
 
 	/*!
