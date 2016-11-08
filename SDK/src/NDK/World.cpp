@@ -172,6 +172,9 @@ namespace Ndk
 
 	void World::Update()
 	{
+		if (!m_orderedSystemsUpdated)
+			ReorderSystems();
+
 		// Handle killed entities before last call
 		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
@@ -221,12 +224,8 @@ namespace Ndk
 				entity->DestroyComponent(j);
 			removedComponents.Reset();
 
-			for (auto& system : m_systems)
+			for (auto& system : m_orderedSystems)
 			{
-				// Ignore non-existent systems
-				if (!system)
-					continue;
-
 				// Is our entity already part of this system?
 				bool partOfSystem = system->HasEntity(entity);
 
