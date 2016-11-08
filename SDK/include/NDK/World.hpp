@@ -24,6 +24,7 @@ namespace Ndk
 
 	class NDK_API World : public Nz::HandledObject<World>
 	{
+		friend BaseSystem;
 		friend Entity;
 
 		public:
@@ -72,6 +73,8 @@ namespace Ndk
 		private:
 			inline void Invalidate();
 			inline void Invalidate(EntityId id);
+			inline void InvalidateSystemOrder();
+			void ReorderSystems();
 
 			struct EntityBlock
 			{
@@ -87,11 +90,13 @@ namespace Ndk
 			};
 
 			std::vector<std::unique_ptr<BaseSystem>> m_systems;
+			std::vector<BaseSystem*> m_orderedSystems;
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
 			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
 			Nz::Bitset<Nz::UInt64> m_killedEntities;
+			bool m_orderedSystemsUpdated;
 	};
 }
 

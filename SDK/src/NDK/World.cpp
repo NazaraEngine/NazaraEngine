@@ -249,4 +249,22 @@ namespace Ndk
 		}
 		m_dirtyEntities.Reset();
 	}
+
+	void World::ReorderSystems()
+	{
+		m_orderedSystems.clear();
+
+		for (auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				m_orderedSystems.push_back(systemPtr.get());
+		}
+
+		std::sort(m_orderedSystems.begin(), m_orderedSystems.end(), [] (BaseSystem* first, BaseSystem* second)
+		{
+			return first->GetUpdateOrder() < second->GetUpdateOrder();
+		});
+
+		m_orderedSystemsUpdated = true;
+	}
 }
