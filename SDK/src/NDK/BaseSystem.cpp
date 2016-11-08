@@ -69,7 +69,7 @@ namespace Ndk
 	*
 	* \see GetUpdateOrder
 	*/
-	inline void BaseSystem::SetUpdateOrder(int updateOrder)
+	void BaseSystem::SetUpdateOrder(int updateOrder)
 	{
 		m_updateOrder = updateOrder;
 
