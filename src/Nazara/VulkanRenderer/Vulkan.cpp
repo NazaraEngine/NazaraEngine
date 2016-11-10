@@ -392,7 +392,10 @@ namespace Nz
 				}
 
 				if (presentableQueueFamilyIndex != UINT32_MAX)
+				{
 					*presentableFamilyQueue = presentableQueueFamilyIndex;
+					return device.CreateHandle();
+				}
 			}
 		}
 

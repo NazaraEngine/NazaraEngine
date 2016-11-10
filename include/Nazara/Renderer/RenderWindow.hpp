@@ -11,6 +11,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <Nazara/Utility/Window.hpp>
@@ -52,6 +53,7 @@ namespace Nz
 		private:
 			std::unique_ptr<RenderWindowImpl> m_impl;
 			Clock m_clock;
+			std::unique_ptr<RenderSurface> m_surface;
 			RenderWindowParameters m_parameters;
 			unsigned int m_framerateLimit;
 	};

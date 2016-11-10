@@ -27,11 +27,6 @@ namespace Nz
 		return m_presentableFamilyQueue;
 	}
 
-	inline const Vk::Surface& VkRenderWindow::GetSurface() const
-	{
-		return m_surface;
-	}
-
 	inline const Vk::Swapchain& VkRenderWindow::GetSwapchain() const
 	{
 		return m_swapchain;

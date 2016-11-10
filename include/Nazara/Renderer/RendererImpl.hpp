@@ -21,6 +21,8 @@ namespace Nz
 	class AbstractBuffer;
 	class Buffer;
 	class RendererImpl;
+	class RenderDeviceInstance;
+	class RenderSurface;
 	class RenderWindowImpl;
 
 	using CreateRendererImplFunc = RendererImpl*(*)();
@@ -32,7 +34,10 @@ namespace Nz
 			virtual ~RendererImpl();
 
 			virtual std::unique_ptr<AbstractBuffer> CreateHardwareBufferImpl(Buffer* parent, BufferType type) = 0;
+			virtual std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() = 0;
 			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() = 0;
+
+			virtual std::unique_ptr<RenderDeviceInstance> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
 
 			virtual bool IsBetterThan(const RendererImpl* other) const = 0;
 

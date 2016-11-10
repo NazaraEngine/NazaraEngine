@@ -39,13 +39,12 @@ namespace Nz
 			void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 			void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 
-			bool Create(WindowHandle handle, const Vector2ui& size, const RenderWindowParameters& parameters) override;
+			bool Create(RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 
 			inline const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
 			inline UInt32 GetFramebufferCount() const;
 			inline const Vk::DeviceHandle& GetDevice() const;
 			inline UInt32 GetPresentableFamilyQueue() const;
-			inline const Vk::Surface& GetSurface() const;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
 			void Present(UInt32 imageIndex) override;
@@ -56,7 +55,7 @@ namespace Nz
 		private:
 			bool SetupDepthBuffer(const Vector2ui& size);
 			bool SetupRenderPass(const Vector2ui& size);
-			bool SetupSwapchain(const Vector2ui& size);
+			bool SetupSwapchain(Vk::Surface& surface, const Vector2ui& size);
 
 			Clock m_clock;
 			VkColorSpaceKHR m_colorSpace;
@@ -69,7 +68,6 @@ namespace Nz
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;
 			Vk::Queue m_presentQueue;
-			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
 			UInt32 m_presentableFamilyQueue;
 	};

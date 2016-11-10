@@ -25,7 +25,11 @@ namespace Nz
 			VulkanRenderer() = default;
 			~VulkanRenderer();
 
+			std::unique_ptr<AbstractBuffer> CreateHardwareBufferImpl(Buffer* parent, BufferType type) override;
+			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
 			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() override;
+
+			std::unique_ptr<RenderDeviceInstance> InstanciateRenderDevice(std::size_t deviceIndex) override;
 
 			bool IsBetterThan(const RendererImpl* other) const override;
 
