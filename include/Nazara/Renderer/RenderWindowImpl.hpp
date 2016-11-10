@@ -16,13 +16,15 @@
 
 namespace Nz
 {
+	class RenderSurface;
+
 	class NAZARA_RENDERER_API RenderWindowImpl
 	{
 		public:
 			RenderWindowImpl() = default;
 			virtual ~RenderWindowImpl();
 
-			virtual bool Create(WindowHandle handle, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
+			virtual bool Create(RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
 	};
 }
 

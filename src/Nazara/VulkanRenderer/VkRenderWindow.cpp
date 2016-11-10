@@ -7,6 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <array>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -14,7 +15,6 @@
 namespace Nz
 {
 	VkRenderWindow::VkRenderWindow() :
-	m_surface(Nz::Vulkan::GetInstance()),
 	m_physicalDevice(nullptr),
 	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
 	{
@@ -27,7 +27,6 @@ namespace Nz
 		m_renderPass.Destroy();
 
 		m_swapchain.Destroy();
-		m_surface.Destroy();
 	}
 
 	bool VkRenderWindow::Acquire(UInt32* imageIndex) const
@@ -65,25 +64,13 @@ namespace Nz
 		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
-	bool VkRenderWindow::Create(WindowHandle handle, const Vector2ui& size, const RenderWindowParameters& parameters)
+	bool VkRenderWindow::Create(RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
 	{
-		#if defined(NAZARA_PLATFORM_WINDOWS)
-		HWND winHandle = reinterpret_cast<HWND>(handle);
-		HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
-		bool success = m_surface.Create(instance, winHandle);
-		#else
-		#error This OS is not supported by Vulkan
-		#endif
-
-		if (!success)
-		{
-			NazaraError("Failed to create Vulkan surface");
-			return false;
-		}
-
 		m_physicalDevice = Vulkan::GetPhysicalDevices()[0].device;
 
-		m_device = Vulkan::SelectDevice(m_physicalDevice, m_surface, &m_presentableFamilyQueue);
+		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
+
+		m_device = Vulkan::SelectDevice(m_physicalDevice, vulkanSurface, &m_presentableFamilyQueue);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
@@ -93,7 +80,7 @@ namespace Nz
 		m_presentQueue = m_device->GetQueue(m_presentableFamilyQueue, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!m_surface.GetFormats(m_physicalDevice, &surfaceFormats))
+		if (!vulkanSurface.GetFormats(m_physicalDevice, &surfaceFormats))
 		{
 			NazaraError("Failed to query supported surface formats");
 			return false;
@@ -159,7 +146,7 @@ namespace Nz
 			}
 		}
 
-		if (!SetupSwapchain(size))
+		if (!SetupSwapchain(vulkanSurface, size))
 		{
 			NazaraError("Failed to create swapchain");
 			return false;
@@ -369,10 +356,10 @@ namespace Nz
 		return m_renderPass.Create(m_device, createInfo);
 	}
 
-	bool VkRenderWindow::SetupSwapchain(const Vector2ui& size)
+	bool VkRenderWindow::SetupSwapchain(Vk::Surface& surface, const Vector2ui& size)
 	{
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
-		if (!m_surface.GetCapabilities(m_physicalDevice, &surfaceCapabilities))
+		if (!surface.GetCapabilities(m_physicalDevice, &surfaceCapabilities))
 		{
 			NazaraError("Failed to query surface capabilities");
 			return false;
@@ -392,7 +379,7 @@ namespace Nz
 			extent = surfaceCapabilities.currentExtent;
 
 		std::vector<VkPresentModeKHR> presentModes;
-		if (!m_surface.GetPresentModes(m_physicalDevice, &presentModes))
+		if (!surface.GetPresentModes(m_physicalDevice, &presentModes))
 		{
 			NazaraError("Failed to query supported present modes");
 			return false;
@@ -415,7 +402,7 @@ namespace Nz
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
 			0,
-			m_surface,
+			surface,
 			imageCount,
 			m_colorFormat,
 			m_colorSpace,

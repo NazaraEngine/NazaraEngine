@@ -4,6 +4,9 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Renderer/RenderDeviceInstance.hpp>
+#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -15,9 +18,24 @@ namespace Nz
 		Vulkan::Uninitialize();
 	}
 
+	std::unique_ptr<AbstractBuffer> VulkanRenderer::CreateHardwareBufferImpl(Buffer* parent, BufferType type)
+	{
+		return nullptr; //< TODO
+	}
+
+	std::unique_ptr<RenderSurface> VulkanRenderer::CreateRenderSurfaceImpl()
+	{
+		return std::make_unique<VulkanSurface>();
+	}
+
 	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl()
 	{
 		return std::make_unique<VkRenderWindow>();
+	}
+
+	std::unique_ptr<RenderDeviceInstance> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	{
+		return std::unique_ptr<RenderDeviceInstance>();
 	}
 
 	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
@@ -41,14 +59,14 @@ namespace Nz
 	String VulkanRenderer::QueryAPIString() const
 	{
 		StringStream ss;
-		ss << "Vulkan renderer " << VK_VERSION_MAJOR(m_apiVersion) << '.' << VK_VERSION_MINOR(m_apiVersion) << '.' << VK_VERSION_PATCH(m_apiVersion);
+		ss << "Vulkan renderer " << VK_VERSION_MAJOR(APIVersion) << '.' << VK_VERSION_MINOR(APIVersion) << '.' << VK_VERSION_PATCH(APIVersion);
 
 		return ss;
 	}
 
 	UInt32 VulkanRenderer::QueryAPIVersion() const
 	{
-		return m_apiVersion;
+		return APIVersion;
 	}
 
 	std::vector<RenderDevice> VulkanRenderer::QueryRenderDevices() const
