@@ -205,7 +205,10 @@ namespace Nz
 		else if (mass > 0.f)
 		{
 			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			{
 				cpBodySetType(m_handle, CP_BODY_TYPE_DYNAMIC);
+				cpBodySetMass(m_handle, mass);
+			}
 		}
 
 		m_mass = mass;
