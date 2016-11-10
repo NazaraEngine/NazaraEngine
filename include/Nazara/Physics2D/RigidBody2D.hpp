@@ -60,7 +60,7 @@ namespace Nz
 			RigidBody2D& operator=(RigidBody2D&& object);
 
 		private:
-			void Create(float mass = 0.f, float moment = 0.f);
+			void Create(float mass = 1.f, float moment = 1.f);
 			void Destroy();
 
 			std::vector<cpShape*> m_shapes;
