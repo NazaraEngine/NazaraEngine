@@ -1441,7 +1441,7 @@ namespace Nz
 			SharedImage::PixelContainer levels(m_sharedImage->levels.size());
 			for (unsigned int i = 0; i < levels.size(); ++i)
 			{
-				unsigned int size = GetMemoryUsage(i);
+				std::size_t size = GetMemoryUsage(i);
 				levels[i].reset(new UInt8[size]);
 				std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 			}
