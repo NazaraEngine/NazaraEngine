@@ -174,7 +174,7 @@ namespace Ndk
 				case 16:
 				{
 					double values[16];
-					for (std::size_t i = 0; i < 16; ++i)
+					for (int i = 0; i < 16; ++i)
 						values[i] = lua.CheckNumber(i);
 
 					Nz::PlacementNew(matrix, values);

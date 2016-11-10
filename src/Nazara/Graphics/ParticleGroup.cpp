@@ -142,11 +142,10 @@ namespace Nz
 	* \remark Produces a NazaraAssert if renderQueue is invalid
 	*/
 
-	void ParticleGroup::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const
+	void ParticleGroup::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& /*transformMatrix*/) const
 	{
 		NazaraAssert(m_renderer, "Invalid particle renderer");
 		NazaraAssert(renderQueue, "Invalid renderqueue");
-		NazaraUnused(transformMatrix);
 
 		if (m_particleCount > 0)
 		{
@@ -215,7 +214,7 @@ namespace Nz
 		if (m_particleCount + count > m_maxParticleCount)
 			return nullptr;
 
-		unsigned int particlesIndex = m_particleCount;
+		std::size_t particlesIndex = m_particleCount;
 		m_particleCount += count;
 
 		return &m_buffer[particlesIndex * m_particleSize];
@@ -264,7 +263,7 @@ namespace Nz
 	* \return Current maximum number
 	*/
 
-	unsigned int ParticleGroup::GetMaxParticleCount() const
+	std::size_t ParticleGroup::GetMaxParticleCount() const
 	{
 		return m_maxParticleCount;
 	}
@@ -274,7 +273,7 @@ namespace Nz
 	* \return Current number
 	*/
 
-	unsigned int ParticleGroup::GetParticleCount() const
+	std::size_t ParticleGroup::GetParticleCount() const
 	{
 		return m_particleCount;
 	}
@@ -284,7 +283,7 @@ namespace Nz
 	* \return Current size
 	*/
 
-	unsigned int ParticleGroup::GetParticleSize() const
+	std::size_t ParticleGroup::GetParticleSize() const
 	{
 		return m_particleSize;
 	}
@@ -295,7 +294,7 @@ namespace Nz
 	* \param index Index of the particle
 	*/
 
-	void ParticleGroup::KillParticle(unsigned int index)
+	void ParticleGroup::KillParticle(std::size_t index)
 	{
 		///FIXME: Verify the index
 
@@ -402,10 +401,8 @@ namespace Nz
 	* \param transformMatrix Matrix transformation for our bounding volume
 	*/
 
-	void ParticleGroup::UpdateBoundingVolume(const Matrix4f& transformMatrix)
+	void ParticleGroup::UpdateBoundingVolume(const Matrix4f& /*transformMatrix*/)
 	{
-		NazaraUnused(transformMatrix);
-
 		// Nothing to do here (our bounding volume is global)
 	}
 

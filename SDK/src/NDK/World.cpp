@@ -67,7 +67,7 @@ namespace Ndk
 		else
 		{
 			// We allocate a new entity
-			id = m_entities.size();
+			id = static_cast<Ndk::EntityId>(m_entities.size());
 
 			// We can't use emplace_back due to the scope
 			m_entities.push_back(Entity(this, id));
@@ -221,7 +221,7 @@ namespace Ndk
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
 			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
-				entity->DestroyComponent(j);
+				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
 			removedComponents.Reset();
 
 			for (auto& system : m_orderedSystems)
