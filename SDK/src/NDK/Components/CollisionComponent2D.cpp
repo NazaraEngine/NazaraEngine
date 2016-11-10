@@ -2,19 +2,19 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Components/CollisionComponent3D.hpp>
-#include <Nazara/Physics3D/RigidBody3D.hpp>
+#include <NDK/Components/CollisionComponent2D.hpp>
+#include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
-#include <NDK/Components/PhysicsComponent3D.hpp>
-#include <NDK/Systems/PhysicsSystem3D.hpp>
+#include <NDK/Components/PhysicsComponent2D.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
 
 namespace Ndk
 {
 	/*!
 	* \ingroup NDK
-	* \class Ndk::CollisionComponent3D
-	* \brief NDK class that represents the component for collision (meant for static objects)
+	* \class Ndk::CollisionComponent2D
+	* \brief NDK class that represents a two-dimensional collision geometry
 	*/
 
 	/*!
@@ -25,14 +25,14 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the entity has no physics component and has no static body
 	*/
 
-	void CollisionComponent3D::SetGeom(Nz::Collider3DRef geom)
+	void CollisionComponent2D::SetGeom(Nz::Collider2DRef geom)
 	{
 		m_geom = std::move(geom);
 
-		if (m_entity->HasComponent<PhysicsComponent3D>())
+		if (m_entity->HasComponent<PhysicsComponent2D>())
 		{
-			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent3D
-			PhysicsComponent3D& physComponent = m_entity->GetComponent<PhysicsComponent3D>();
+			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent2D
+			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
 			physComponent.GetRigidBody().SetGeom(m_geom);
 		}
 		else
@@ -49,26 +49,25 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if entity is not linked to a world, or the world has no physics system
 	*/
 
-	void CollisionComponent3D::InitializeStaticBody()
+	void CollisionComponent2D::InitializeStaticBody()
 	{
 		NazaraAssert(m_entity, "Invalid entity");
 		World* entityWorld = m_entity->GetWorld();
 
 		NazaraAssert(entityWorld, "Entity must have world");
-		NazaraAssert(entityWorld->HasSystem<PhysicsSystem3D>(), "World must have a physics system");
-		Nz::PhysWorld3D& physWorld = entityWorld->GetSystem<PhysicsSystem3D>().GetWorld();
+		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
+		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody3D(&physWorld, m_geom));
-		m_staticBody->EnableAutoSleep(false);
+		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, m_geom));
 	}
 
 	/*!
 	* \brief Operation to perform when component is attached to an entity
 	*/
 
-	void CollisionComponent3D::OnAttached()
+	void CollisionComponent2D::OnAttached()
 	{
-		if (!m_entity->HasComponent<PhysicsComponent3D>())
+		if (!m_entity->HasComponent<PhysicsComponent2D>())
 			InitializeStaticBody();
 	}
 
@@ -78,9 +77,9 @@ namespace Ndk
 	* \param component Component being attached
 	*/
 
-	void CollisionComponent3D::OnComponentAttached(BaseComponent& component)
+	void CollisionComponent2D::OnComponentAttached(BaseComponent& component)
 	{
-		if (IsComponent<PhysicsComponent3D>(component))
+		if (IsComponent<PhysicsComponent2D>(component))
 			m_staticBody.reset();
 	}
 
@@ -90,9 +89,9 @@ namespace Ndk
 	* \param component Component being detached
 	*/
 
-	void CollisionComponent3D::OnComponentDetached(BaseComponent& component)
+	void CollisionComponent2D::OnComponentDetached(BaseComponent& component)
 	{
-		if (IsComponent<PhysicsComponent3D>(component))
+		if (IsComponent<PhysicsComponent2D>(component))
 			InitializeStaticBody();
 	}
 
@@ -100,10 +99,10 @@ namespace Ndk
 	* \brief Operation to perform when component is detached from an entity
 	*/
 
-	void CollisionComponent3D::OnDetached()
+	void CollisionComponent2D::OnDetached()
 	{
 		m_staticBody.reset();
 	}
 
-	ComponentIndex CollisionComponent3D::componentIndex;
+	ComponentIndex CollisionComponent2D::componentIndex;
 }

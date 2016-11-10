@@ -5,6 +5,7 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
@@ -40,6 +41,7 @@ namespace Ndk
 
 	void World::AddDefaultSystems()
 	{
+		AddSystem<PhysicsSystem2D>();
 		AddSystem<PhysicsSystem3D>();
 		AddSystem<VelocitySystem>();
 

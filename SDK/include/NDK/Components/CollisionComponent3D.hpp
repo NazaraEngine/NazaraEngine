@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
-#define NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
+#ifndef NDK_COMPONENTS_COLLISIONCOMPONENT3D_HPP
+#define NDK_COMPONENTS_COLLISIONCOMPONENT3D_HPP
 
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <NDK/Component.hpp>
@@ -23,7 +23,6 @@ namespace Ndk
 	class NDK_API CollisionComponent3D : public Component<CollisionComponent3D>
 	{
 		friend class PhysicsSystem3D;
-		friend class StaticCollisionSystem;
 
 		public:
 			CollisionComponent3D(Nz::Collider3DRef geom = Nz::Collider3DRef());
@@ -56,4 +55,4 @@ namespace Ndk
 
 #include <NDK/Components/CollisionComponent3D.inl>
 
-#endif // NDK_COMPONENTS_COLLISIONCOMPONENT_HPP
+#endif // NDK_COMPONENTS_COLLISIONCOMPONENT3D_HPP
