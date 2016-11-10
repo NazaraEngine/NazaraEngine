@@ -26,9 +26,7 @@ namespace Nz
 	{
 		NazaraAssert(m_world, "Invalid world");
 
-		m_handle = cpBodyNew(0.f, 0.f);
-		cpBodySetUserData(m_handle, this);
-		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+		Create();
 
 		SetGeom(geom);
 		SetMass(mass);
@@ -43,9 +41,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		m_handle = cpBodyNew(0.f, 0.f);
-		cpBodySetUserData(m_handle, this);
-		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+		Create();
 
 		SetGeom(object.GetGeom());
 		SetMass(object.GetMass());
@@ -169,6 +165,34 @@ namespace Nz
 		cpBodySetAngularVelocity(m_handle, angularVelocity);
 	}
 
+	void RigidBody2D::SetGeom(Collider2DRef geom)
+	{
+		// We have no public way of getting rid of an existing geom without removing the whole body
+		// So let's save some attributes of the body, destroy it and rebuild it
+		if (m_geom)
+		{
+			cpVect pos = cpBodyGetPosition(m_handle);
+			cpFloat mass = cpBodyGetMass(m_handle);
+			cpFloat moment = cpBodyGetMoment(m_handle);
+			cpFloat rot = cpBodyGetAngle(m_handle);
+			cpVect vel = cpBodyGetVelocity(m_handle);
+
+			Destroy();
+			Create(mass, moment);
+
+			cpBodySetAngle(m_handle, rot);
+			cpBodySetPosition(m_handle, pos);
+			cpBodySetVelocity(m_handle, vel);
+		}
+
+		if (geom)
+			m_geom = geom;
+		else
+			m_geom = NullCollider2D::New();
+
+		m_shapes = m_geom->CreateShapes(this);
+	}
+
 	void RigidBody2D::SetMass(float mass)
 	{
 		if (m_mass > 0.f)
@@ -230,6 +254,13 @@ namespace Nz
 		return *this;
 	}
 
+	void RigidBody2D::Create(float mass, float moment)
+	{
+		m_handle = cpBodyNew(mass, moment);
+		cpBodySetUserData(m_handle, this);
+		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+	}
+
 	void RigidBody2D::Destroy()
 	{
 		for (cpShape* shape : m_shapes)
@@ -237,15 +268,5 @@ namespace Nz
 
 		if (m_handle)
 			cpBodyFree(m_handle);
-	}
-
-	void RigidBody2D::SetGeom(Collider2DRef geom)
-	{
-		if (geom)
-			m_geom = geom;
-		else
-			m_geom = NullCollider2D::New();
-
-		m_shapes = m_geom->CreateShapes(this);
 	}
 }
