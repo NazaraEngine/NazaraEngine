@@ -1248,7 +1248,7 @@ namespace Nz
 
 				char32_t codePoint = GetRepresentation(keysym);
 
-				// WTF if (std::isprint(codePoint, std::locale(""))) + handle combining ?
+				// if (std::isprint(codePoint)) Is not working ? + handle combining ?
 				{
 					WindowEvent event;
 					event.type           = Nz::WindowEventType_TextEntered;
