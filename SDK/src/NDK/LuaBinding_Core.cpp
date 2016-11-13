@@ -13,14 +13,37 @@ namespace Ndk
 	void LuaBinding::BindCore()
 	{
 		/*********************************** Nz::Clock **********************************/
-		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* instance, std::size_t /*argumentCount*/)
+		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* instance, std::size_t argumentCount)
 		{
-			int argIndex = 2;
-			Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
-			bool paused = lua.Check<bool>(&argIndex, false);
+			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-			Nz::PlacementNew(instance, startingValue, paused);
-			return true;
+			int argIndex = 2;
+			switch (argCount)
+			{
+				case 0:
+					Nz::PlacementNew(instance);
+					return true;
+
+				case 1:
+				{
+					Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+
+					Nz::PlacementNew(instance, startingValue);
+					return true;
+				}
+
+				case 2:
+				{
+					Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+					bool paused = lua.Check<bool>(&argIndex, false);
+
+					Nz::PlacementNew(instance, startingValue, paused);
+					return true;
+				}
+			}
+
+			lua.Error("No matching overload for Clock constructor");
+			return false;
 		});
 
 		clock.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
