@@ -122,7 +122,7 @@ namespace Ndk
 		material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);
 		material.BindMethod("IsShadowReceiveEnabled", &Nz::Material::IsShadowReceiveEnabled);
 
-		material.BindMethod("LoadFromFile",           &Nz::Material::LoadFromFile);
+		material.BindMethod("LoadFromFile",           &Nz::Material::LoadFromFile, Nz::MaterialParams());
 
 		material.BindMethod("Reset",                  &Nz::Material::Reset);
 
