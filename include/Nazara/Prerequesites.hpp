@@ -76,8 +76,8 @@
 
 // Nazara version macro
 #define NAZARA_VERSION_MAJOR 0
-#define NAZARA_VERSION_MINOR 1
-#define NAZARA_VERSION_PATCH 1
+#define NAZARA_VERSION_MINOR 2
+#define NAZARA_VERSION_PATCH 0
 
 #include <Nazara/Core/Config.hpp>
 
