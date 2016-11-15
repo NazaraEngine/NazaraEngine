@@ -693,7 +693,10 @@ function NazaraBuild:PrepareGeneric()
 	flags({
 		"C++14",
 		"MultiProcessorCompile",
-		"NoMinimalRebuild"
+		"NoMinimalRebuild",
+		"RelativeLinks",
+		"ShadowedVariables",
+		"UndefinedIdentifiers"
 	})
 
 	self:FilterLibDirectory("../extlibs/lib/", libdirs)
