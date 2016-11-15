@@ -270,6 +270,9 @@ namespace Nz
 			cpShapeFree(shape);
 
 		if (m_handle)
+		{
+			cpSpaceRemoveBody(m_world->GetHandle(), m_handle);
 			cpBodyFree(m_handle);
+		}
 	}
 }
