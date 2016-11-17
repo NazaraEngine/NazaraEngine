@@ -535,27 +535,28 @@ namespace Nz
 			return;
 		}
 
-		auto div = std::lldiv(pos, bitsPerBlock);
-		if (div.rem != 0)
+		std::size_t blockShift = pos / bitsPerBlock;
+		std::size_t remainder = pos % bitsPerBlock;
+		if (remainder != 0)
 		{
 			std::size_t lastIndex = m_blocks.size() - 1;
-			std::size_t remaining = bitsPerBlock - div.rem;
+			std::size_t remaining = bitsPerBlock - remainder;
 
-			for (std::size_t i = lastIndex - div.quot; i > 0; --i)
-				m_blocks[i + div.quot] = (m_blocks[i] << div.rem) | (m_blocks[i - 1] >> remaining);
+			for (std::size_t i = lastIndex - blockShift; i > 0; --i)
+				m_blocks[i + blockShift] = (m_blocks[i] << remainder) | (m_blocks[i - 1] >> remaining);
 
-			m_blocks[div.quot] = m_blocks[0] << div.rem;
+			m_blocks[blockShift] = m_blocks[0] << remainder;
 
-			std::fill_n(m_blocks.begin(), div.quot, Block(0));
+			std::fill_n(m_blocks.begin(), blockShift, Block(0));
 		}
 		else
 		{
 			for (auto it = m_blocks.rbegin(); it != m_blocks.rend(); ++it)
 			{
-				if (static_cast<std::size_t>(std::distance(m_blocks.rbegin(), it) + div.quot) < m_blocks.size())
+				if (static_cast<std::size_t>(std::distance(m_blocks.rbegin(), it) + blockShift) < m_blocks.size())
 				{
 					auto shiftedIt = it;
-					std::advance(shiftedIt, div.quot);
+					std::advance(shiftedIt, blockShift);
 
 					*it = *shiftedIt;
 				}
@@ -588,27 +589,28 @@ namespace Nz
 			return;
 		}
 
-		auto div = std::lldiv(pos, bitsPerBlock);
-		if (div.rem != 0)
+		std::size_t blockShift = pos / bitsPerBlock;
+		std::size_t remainder  = pos % bitsPerBlock;
+		if (remainder != 0)
 		{
 			std::size_t lastIndex = m_blocks.size() - 1;
-			std::size_t remaining = bitsPerBlock - div.rem;
+			std::size_t remaining = bitsPerBlock - remainder;
 
-			for (std::size_t i = div.quot; i < lastIndex; ++i)
-				m_blocks[i - div.quot] = (m_blocks[i] >> div.rem) | (m_blocks[i + 1] << remaining);
+			for (std::size_t i = blockShift; i < lastIndex; ++i)
+				m_blocks[i - blockShift] = (m_blocks[i] >> remainder) | (m_blocks[i + 1] << remaining);
 
-			m_blocks[lastIndex - div.quot] = m_blocks[lastIndex] >> div.rem;
+			m_blocks[lastIndex - blockShift] = m_blocks[lastIndex] >> remainder;
 
-			std::fill_n(m_blocks.begin() + (m_blocks.size() - div.quot), div.quot, Block(0));
+			std::fill_n(m_blocks.begin() + (m_blocks.size() - blockShift), blockShift, Block(0));
 		}
 		else
 		{
 			for (auto it = m_blocks.begin(); it != m_blocks.end(); ++it)
 			{
-				if (static_cast<std::size_t>(std::distance(m_blocks.begin(), it) + div.quot) < m_blocks.size())
+				if (static_cast<std::size_t>(std::distance(m_blocks.begin(), it) + blockShift) < m_blocks.size())
 				{
 					auto shiftedIt = it;
-					std::advance(shiftedIt, div.quot);
+					std::advance(shiftedIt, blockShift);
 
 					*it = *shiftedIt;
 				}
@@ -995,7 +997,6 @@ namespace Nz
 	*
 	* \param blockIndex Index of the block
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindFirstFrom(std::size_t blockIndex) const
 	{
@@ -1124,7 +1125,7 @@ namespace Nz
 	template<typename Block, class Allocator>
 	bool Bitset<Block, Allocator>::Bit::Test() const
 	{
-		return m_block & m_mask;
+		return (m_block & m_mask) != 0;
 	}
 
 	/*!
