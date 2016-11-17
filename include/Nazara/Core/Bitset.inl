@@ -137,6 +137,54 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Appends bits to the bitset
+	*
+	* This function expand the bitset with bits extracted from a number value
+	*
+	* \param bits A number value from where bits will be extracted
+	* \param bitCount Number of bits to extract from the value
+	*
+	* \remark This function does not require bitCount to be lower or equal to the number of bits of T, thus
+	*         reading 32 bits from a UInt8 will work (by extracting the first 8 bits values and appending 24 zeros afterneath).
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	template<typename T>
+	void Bitset<Block, Allocator>::AppendBits(T bits, std::size_t bitCount)
+	{
+		std::size_t bitShift = m_bitCount % bitsPerBlock;
+		m_bitCount += bitCount;
+
+		if (bitShift != 0)
+		{
+			std::size_t remainingBits = bitsPerBlock - bitShift;
+			m_blocks.back() |= Block(bits) << bitShift;
+			bits >>= bitsPerBlock - bitShift;
+
+			bitCount -= std::min(remainingBits, bitCount);
+		}
+
+		if (bitCount > 0)
+		{
+			std::size_t blockCount = ComputeBlockCount(bitCount);
+			for (std::size_t block = 0; block < blockCount - 1; ++block)
+			{
+				m_blocks.push_back(static_cast<Block>(bits));
+				bits >>= std::numeric_limits<Block>::digits;
+				bitCount -= std::numeric_limits<Block>::digits;
+			}
+
+			// For the last iteration, mask out the bits we don't want
+			std::size_t remainingBits = bitCount;
+
+			bits &= ((Block(1U) << remainingBits) - 1U);
+			m_blocks.push_back(static_cast<Block>(bits));
+		}
+	}
+
+	/*!
 	* \brief Clears the content of the bitset, GetSize() is now equals to 0
 	*
 	* \remark The memory allocated is not released
