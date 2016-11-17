@@ -1269,6 +1269,14 @@ namespace Nz
 		return *this;
 	}
 
+
+	template<typename Block, class Allocator>
+	std::ostream& operator<<(std::ostream& out, const Bitset<Block, Allocator>& bitset)
+	{
+		return out << bitset.ToString();
+	}
+
+
 	/*!
 	* \brief Compares two bitsets
 	* \return true if the two bitsets are the same
