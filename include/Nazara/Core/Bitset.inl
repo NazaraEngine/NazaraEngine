@@ -324,6 +324,76 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Read a byte sequence into a bitset
+	*
+	* This function expand the bitset with bits read from a byte sequence
+	*
+	* \param ptr A pointer to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	*
+	* \returns A pointer to the next byte to read along with the next bit index (useful when reading multiple times)
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const void* ptr, std::size_t bitCount)
+	{
+		return Read(PointerSequence(ptr, 0U), bitCount);
+	}
+
+	/*!
+	* \brief Read a byte sequence into a bitset
+	*
+	* This function expand the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
+	*
+	* \param sequence A pointer sequence to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	*
+	* \returns A pointer to the next byte to read along with the next bit index (useful when reading multiple times)
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const PointerSequence& sequence, std::size_t bitCount)
+	{
+		NazaraAssert(sequence.first, "Invalid pointer sequence");
+		NazaraAssert(sequence.second < 8, "Invalid next bit index (must be < 8)");
+
+		std::size_t totalBitCount = sequence.second + bitCount;
+
+		const UInt8* u8Ptr = static_cast<const UInt8*>(sequence.first);
+		const UInt8* endPtr = u8Ptr + ((totalBitCount != 0) ? (totalBitCount - 1) / 8 : 0);
+		const UInt8* nextPtr = endPtr + ((totalBitCount % 8 != 0) ? 0 : 1);
+
+		// Read the first block apart to apply a mask on the first byte if necessary
+		if (sequence.second != 0)
+		{
+			UInt8 mask = ~((1U << sequence.second) - 1U);
+
+			std::size_t readCount = std::min(bitCount, 8 - sequence.second);
+			AppendBits(Block(*u8Ptr++ & mask) >> sequence.second, readCount);
+			bitCount -= readCount;
+		}
+
+		// And then read the remaining bytes
+		while (u8Ptr <= endPtr)
+		{
+			std::size_t bitToRead = std::min<std::size_t>(bitCount, 8);
+			AppendBits(*u8Ptr++, bitToRead);
+			bitCount -= bitToRead;
+		}
+
+		// Returns informations to continue reading
+		return PointerSequence(nextPtr, totalBitCount % 8);
+	}
+
+	/*!
 	* \brief Performs the "AND" operator between two bitsets
 	*
 	* \param a First bitset
@@ -1037,6 +1107,35 @@ namespace Nz
 		PerformsXOR(*this, bitset);
 
 		return *this;
+	}
+
+	/*!
+	* \brief Builds a bitset from a byte sequence
+	*
+	* This function builds a bitset using a byte sequence by reading bitCount bits from it
+	*
+	* \param ptr A pointer to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	* \param sequence Optional data to pass to a next call to Read
+	*
+	* \return The constructed bitset
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> Bitset<Block, Allocator>::FromPointer(const void* ptr, std::size_t bitCount, PointerSequence* sequence)
+	{
+		Bitset bitset;
+
+		if (sequence)
+			*sequence = bitset.Read(ptr, bitCount);
+		else
+			bitset.Read(ptr, bitCount);
+
+		return bitset;
 	}
 
 	/*!

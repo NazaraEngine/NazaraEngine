@@ -10,6 +10,7 @@ template<typename Block> void CheckAppend(const char* title);
 template<typename Block> void CheckBitOps(const char* title);
 template<typename Block> void CheckConstructor(const char* title);
 template<typename Block> void CheckCopyMoveSwap(const char* title);
+template<typename Block> void CheckRead(const char* title);
 
 SCENARIO("Bitset", "[CORE][BITSET]")
 {
@@ -28,6 +29,7 @@ void Check(const char* title)
 	CheckBitOps<Block>(title);
 
 	CheckAppend<Block>(title);
+	CheckRead<Block>(title);
 }
 
 template<typename Block>
@@ -217,3 +219,55 @@ void CheckCopyMoveSwap(const char* title)
 	}
 }
 
+template<typename Block>
+void CheckRead(const char* title)
+{
+	SECTION(title)
+	{
+		GIVEN("An empty bitset filled by reading")
+		{
+			#define BitVal1 10010101
+			#define BitVal2 11010010
+			#define BitVal3 01101010
+			std::array<Nz::UInt8, 3> data = {NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)};
+			const char result[] = NazaraStringifyMacro(BitVal3) NazaraStringifyMacro(BitVal2) NazaraStringifyMacro(BitVal1);
+			std::size_t resultLength = Nz::CountOf(result) - 1;
+			std::size_t bitCount = data.size() * 8;
+			#undef BitVal1
+			#undef BitVal2
+			#undef BitVal3
+
+			std::array<std::pair<const char*, std::size_t>, 8> tests = {
+				{
+					{"We read bits one by one", 1},
+					{"We read bits two by two", 2},
+					{"We read bits three by three", 3},
+					{"We read bits four by four", 4},
+					{"We read bits six by six", 6},
+					{"We read bits byte by byte", 8},
+					{"We read bits twelve by twelve", 12},
+					{"We read bits all at once", 24}
+				}
+			};
+
+			for (auto& pair : tests)
+			{
+				WHEN(pair.first)
+				{
+					Nz::Bitset<Block> bitset;
+
+					auto seq = bitset.Read(data.data(), pair.second);
+					for (std::size_t i = pair.second; i < bitCount; i += pair.second)
+						seq = bitset.Read(seq, pair.second);
+
+					REQUIRE(bitset.GetSize() == bitCount);
+
+					Nz::Bitset<Block> expectedBitset(result);
+
+					CHECK(bitset == expectedBitset);
+					CHECK(bitset.GetBlockCount() == (bitCount / bitset.bitsPerBlock + std::min<std::size_t>(1, bitCount % bitset.bitsPerBlock)));
+				}
+			}
+		}
+	}
+}

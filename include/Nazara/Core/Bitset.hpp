@@ -24,6 +24,7 @@ namespace Nz
 
 		public:
 			class Bit;
+			using PointerSequence = std::pair<const void*, std::size_t>; //< Start pointer, bit offset
 
 			Bitset();
 			explicit Bitset(std::size_t bitCount, bool val);
@@ -48,6 +49,9 @@ namespace Nz
 			std::size_t GetBlockCount() const;
 			std::size_t GetCapacity() const;
 			std::size_t GetSize() const;
+
+			PointerSequence Read(const void* ptr, std::size_t bitCount);
+			PointerSequence Read(const PointerSequence& sequence, std::size_t bitCount);
 
 			void PerformsAND(const Bitset& a, const Bitset& b);
 			void PerformsNOT(const Bitset& a);
@@ -106,6 +110,8 @@ namespace Nz
 			static constexpr Block fullBitMask = std::numeric_limits<Block>::max();
 			static constexpr std::size_t bitsPerBlock = std::numeric_limits<Block>::digits;
 			static constexpr std::size_t npos = std::numeric_limits<std::size_t>::max();
+
+			static Bitset FromPointer(const void* ptr, std::size_t bitCount, PointerSequence* sequence = nullptr);
 
 		private:
 			std::size_t FindFirstFrom(std::size_t blockIndex) const;
