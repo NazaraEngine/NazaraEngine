@@ -155,6 +155,9 @@ namespace Nz
 	};
 
 	template<typename Block, class Allocator>
+	std::ostream& operator<<(std::ostream& out, const Bitset<Block, Allocator>& bitset);
+
+	template<typename Block, class Allocator>
 	bool operator==(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);
 
 	template<typename Block, class Allocator>
