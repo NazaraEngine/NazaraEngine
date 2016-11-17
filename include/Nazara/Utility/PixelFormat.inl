@@ -123,6 +123,9 @@ namespace Nz
 			if (usedBits > bitsPerPixel)
 				return false;
 
+			if (usedBits > 64) //< Currently, formats with over 64 bits per component are not supported
+				return false;
+
 			switch (types[i])
 			{
 				case PixelFormatSubType_Half:
