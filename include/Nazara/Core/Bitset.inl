@@ -139,9 +139,9 @@ namespace Nz
 	/*!
 	* \brief Appends bits to the bitset
 	*
-	* This function expand the bitset with bits extracted from a number value
+	* This function expand the bitset with bits extracted from a numerical value
 	*
-	* \param bits A number value from where bits will be extracted
+	* \param bits A numerical value from where bits will be extracted
 	* \param bitCount Number of bits to extract from the value
 	*
 	* \remark This function does not require bitCount to be lower or equal to the number of bits of T, thus
@@ -185,11 +185,15 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Clears the content of the bitset, GetSize() is now equals to 0
+	* \brief Clears the content of the bitset
 	*
-	* \remark The memory allocated is not released
+	* This function clears the bitset content, resetting its bit and block count at zero.
+	*
+	* \remark This does not changes the bits values to zero but empties the bitset, to reset the bits use the Reset() function
+	* \remark This call does not changes the bitset capacity
+	*
+	* \see Reset()
 	*/
-
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Clear() noexcept
 	{
@@ -199,9 +203,9 @@ namespace Nz
 
 	/*!
 	* \brief Counts the number of bits set to 1
+	*
 	* \return Number of bits set to 1
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::Count() const
 	{
@@ -217,8 +221,9 @@ namespace Nz
 
 	/*!
 	* \brief Flips each bit of the bitset
+	*
+	* This function flips every bit of the bitset, which means every '1' turns into a '0' and conversely.
 	*/
-
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Flip()
 	{
@@ -230,9 +235,9 @@ namespace Nz
 
 	/*!
 	* \brief Finds the first bit set to one in the bitset
-	* \return Index of the first bit
+	*
+	* \return The 0-based index of the first bit enabled
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindFirst() const
 	{
@@ -240,14 +245,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Finds the next bit set to one in the bitset
-	* \return Index of the next bit if exists or npos
+	* \brief Finds the next enabled in the bitset
 	*
-	* \param bit Index of the bit, the search begin with bit + 1
+	* \param bit Index of the last bit found, which will not be treated by this function
 	*
-	* \remark Produce a NazaraAssert if bit is greather than number of bits in bitset
+	* \return Index of the next enabled bit or npos if all the following bits are disabled
+	*
+	* \remark This function is typically used in for-loops to iterate on bits
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindNext(std::size_t bit) const
 	{
