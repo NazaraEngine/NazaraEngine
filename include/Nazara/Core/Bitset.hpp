@@ -35,6 +35,8 @@ namespace Nz
 			Bitset(Bitset&& bitset) noexcept = default;
 			~Bitset() noexcept = default;
 
+			template<typename T> void AppendBits(T bits, std::size_t bitCount);
+
 			void Clear() noexcept;
 			std::size_t Count() const;
 			void Flip();
