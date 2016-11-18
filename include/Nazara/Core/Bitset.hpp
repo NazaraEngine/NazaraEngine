@@ -110,7 +110,7 @@ namespace Nz
 			Bitset& operator^=(const Bitset& bitset);
 
 			static constexpr Block fullBitMask = std::numeric_limits<Block>::max();
-			static constexpr std::size_t bitsPerBlock = std::numeric_limits<Block>::digits;
+			static constexpr std::size_t bitsPerBlock = BitCount<Block>();
 			static constexpr std::size_t npos = std::numeric_limits<std::size_t>::max();
 
 			static Bitset FromPointer(const void* ptr, std::size_t bitCount, PointerSequence* sequence = nullptr);
