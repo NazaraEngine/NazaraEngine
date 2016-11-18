@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq, Arnaud Cadot
+// Copyright (C) 2016 JÃ©rÃ´me Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -138,6 +138,22 @@ namespace Ndk
 
 
 		#ifndef NDK_SERVER
+		/*********************************** Ndk::CameraComponent **********************************/
+		cameraComponent.Inherit<Nz::AbstractViewer>(abstractViewer, [] (CameraComponentHandle* handle) -> Nz::AbstractViewer*
+		{
+			return handle->GetObject();
+		});
+
+		cameraComponent.BindMethod("SetFOV", &Ndk::CameraComponent::SetFOV);
+		cameraComponent.BindMethod("SetLayer", &Ndk::CameraComponent::SetLayer);
+		cameraComponent.BindMethod("SetProjectionType", &Ndk::CameraComponent::SetProjectionType);
+		cameraComponent.BindMethod("SetSize", (void(Ndk::CameraComponent::*)(const Nz::Vector2f&)) &Ndk::CameraComponent::SetSize);
+		//cameraComponent.BindMethod("SetTarget", &Ndk::CameraComponent::SetTarget);
+		cameraComponent.BindMethod("SetTargetRegion", &Ndk::CameraComponent::SetTargetRegion);
+		cameraComponent.BindMethod("SetViewport", &Ndk::CameraComponent::SetViewport);
+		cameraComponent.BindMethod("SetZFar", &Ndk::CameraComponent::SetZFar);
+		cameraComponent.BindMethod("SetZNear", &Ndk::CameraComponent::SetZNear);
+
 		/*********************************** Ndk::GraphicsComponent **********************************/
 		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
 		{
@@ -205,6 +221,7 @@ namespace Ndk
 		BindComponent<VelocityComponent>("Velocity");
 
 		#ifndef NDK_SERVER
+		BindComponent<CameraComponent>("Camera");
 		BindComponent<GraphicsComponent>("Graphics");
 		#endif
 	}
@@ -225,6 +242,7 @@ namespace Ndk
 		world.Register(instance);
 
 		#ifndef NDK_SERVER
+		cameraComponent.Register(instance);
 		console.Register(instance);
 		graphicsComponent.Register(instance);
 		#endif

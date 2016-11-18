@@ -56,6 +56,7 @@ namespace Ndk
 	soundEmitter("SoundEmitter"),
 
 	// Graphics
+	abstractViewer("AbstractViewer"),
 	instancedRenderable("InstancedRenderable"),
 	material("Material"),
 	model("Model"),
@@ -68,6 +69,7 @@ namespace Ndk
 	texture("Texture"),
 
 	// SDK
+	cameraComponent("CameraComponent"),
 	console("Console"),
 	graphicsComponent("GraphicsComponent")
 	#endif
