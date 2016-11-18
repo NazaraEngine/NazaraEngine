@@ -25,8 +25,7 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-// Identification du compilateur
-///TODO: Rajouter des tests d'identification de compilateurs
+// Try to identify the compiler
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
 	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
@@ -63,10 +62,10 @@
 	#pragma warning(disable: 4251)
 #else
 	#define NAZARA_COMPILER_UNKNOWN
+	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt)
-	#define NAZARA_FUNCTION __func__ // __func__ est standard depuis le C++11
+	#define NAZARA_FUNCTION __func__ // __func__ has been standardized in C++ 2011
 
-	/// Cette ligne n'est là que pour prévenir, n'hésitez pas à la commenter si elle vous empêche de compiler
 	#pragma message This compiler is not fully supported
 #endif
 
@@ -81,15 +80,15 @@
 
 #include <Nazara/Core/Config.hpp>
 
-// Identification de la plateforme
+// Try to identify target platform via defines
 #if defined(_WIN32)
 	#define NAZARA_PLATFORM_WINDOWS
 
 	#define NAZARA_EXPORT __declspec(dllexport)
 	#define NAZARA_IMPORT __declspec(dllimport)
 
-	// Des defines pour le header Windows
-	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothèque
+	// Somes defines for windows.h include..
+	#if defined(NAZARA_BUILD)
 		#ifndef WIN32_LEAN_AND_MEAN
 			#define WIN32_LEAN_AND_MEAN
 		#endif
@@ -99,13 +98,12 @@
 		#endif
 
 		#if NAZARA_CORE_WINDOWS_NT6
-			// Version de Windows minimale : Vista
 			#define NAZARA_WINNT 0x0600
 		#else
 			#define NAZARA_WINNT 0x0501
 		#endif
 
-		// Pour ne pas casser le define déjà en place s'il est applicable
+		// Keep the actual define if existing and greater than our requirement
 		#if defined(_WIN32_WINNT)
 			#if _WIN32_WINNT < NAZARA_WINNT
 				#undef _WIN32_WINNT
@@ -128,7 +126,6 @@
 	#define NAZARA_PLATFORM_MACOSX
 	#define NAZARA_PLATFORM_POSIX*/
 #else
-	// À commenter pour tenter quand même une compilation
 	#error This operating system is not fully supported by the Nazara Engine
 
 	#define NAZARA_PLATFORM_UNKNOWN
@@ -141,12 +138,7 @@
 	#define NAZARA_PLATFORM_x64
 #endif
 
-// Définit NDEBUG si NAZARA_DEBUG n'est pas présent
-#if !defined(NAZARA_DEBUG) && !defined(NDEBUG)
-	#define NDEBUG
-#endif
-
-// Macros supplémentaires
+// A bunch of useful macros
 #define NazaraPrefix(a, prefix) prefix ## a
 #define NazaraPrefixMacro(a, prefix) NazaraPrefix(a, prefix)
 #define NazaraSuffix(a, suffix) a ## suffix
