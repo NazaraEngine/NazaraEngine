@@ -6,6 +6,7 @@
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
+#include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 
@@ -58,7 +59,16 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
 		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, m_geom));
+		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, 0.f, m_geom));
+
+		Nz::Matrix4f matrix;
+		if (m_entity->HasComponent<NodeComponent>())
+			matrix = m_entity->GetComponent<NodeComponent>().GetTransformMatrix();
+		else
+			matrix.MakeIdentity();
+
+		m_staticBody->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
+
 	}
 
 	/*!
