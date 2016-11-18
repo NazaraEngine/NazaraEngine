@@ -22,7 +22,7 @@ namespace Nz
 	m_geom(),
 	m_world(world),
 	m_gravityFactor(1.f),
-	m_mass(0.f)
+	m_mass(1.f)
 	{
 		NazaraAssert(m_world, "Invalid world");
 
@@ -191,6 +191,12 @@ namespace Nz
 			m_geom = NullCollider2D::New();
 
 		m_shapes = m_geom->CreateShapes(this);
+
+		cpSpace* space = m_world->GetHandle();
+		for (cpShape* shape : m_shapes)
+			cpSpaceAddShape(space, shape);
+
+		cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
 	}
 
 	void RigidBody2D::SetMass(float mass)
@@ -198,7 +204,10 @@ namespace Nz
 		if (m_mass > 0.f)
 		{
 			if (mass > 0.f)
+			{
 				cpBodySetMass(m_handle, mass);
+				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+			}
 			else
 				cpBodySetType(m_handle, CP_BODY_TYPE_STATIC);
 		}
@@ -208,6 +217,7 @@ namespace Nz
 			{
 				cpBodySetType(m_handle, CP_BODY_TYPE_DYNAMIC);
 				cpBodySetMass(m_handle, mass);
+				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
 			}
 		}
 
@@ -223,6 +233,8 @@ namespace Nz
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));
+		if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			cpSpaceReindexShapesForBody(m_world->GetHandle(), m_handle);
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
@@ -266,12 +278,16 @@ namespace Nz
 
 	void RigidBody2D::Destroy()
 	{
+		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
+		{
+			cpSpaceRemoveShape(space, shape);
 			cpShapeFree(shape);
+		}
 
 		if (m_handle)
 		{
-			cpSpaceRemoveBody(m_world->GetHandle(), m_handle);
+			cpSpaceRemoveBody(space, m_handle);
 			cpBodyFree(m_handle);
 		}
 	}
