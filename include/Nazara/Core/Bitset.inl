@@ -582,6 +582,30 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Reverse the order of bits in a bitset
+	*
+	* Reverse the order of bits in the bitset (first bit swap with the last one, etc.)
+	*/
+	template<typename Block, class Allocator>
+	void Bitset<Block, Allocator>::Reverse()
+	{
+		if (m_bitCount == 0)
+			return;
+
+		std::size_t i = 0;
+		std::size_t j = m_bitCount - 1;
+
+		while (i < j)
+		{
+			bool bit1 = Test(i);
+			bool bit2 = Test(j);
+
+			Set(i++, bit2);
+			Set(j--, bit1);
+		}
+	}
+
+	/*!
 	* \brief Sets the bitset to val
 	*
 	* \param val Value of the bits

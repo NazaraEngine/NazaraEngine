@@ -66,6 +66,8 @@ namespace Nz
 			void Reset();
 			void Reset(std::size_t bit);
 
+			void Reverse();
+
 			void Set(bool val = true);
 			void Set(std::size_t bit, bool val = true);
 			void SetBlock(std::size_t i, Block block);
