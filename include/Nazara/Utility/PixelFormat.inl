@@ -39,18 +39,8 @@ namespace Nz
 	}
 
 	inline PixelFormatInfo::PixelFormatInfo(const String& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
-	redMask(rMask),
-	greenMask(gMask),
-	blueMask(bMask),
-	alphaMask(aMask),
-	content(formatContent),
-	redType(subType),
-	greenType(subType),
-	blueType(subType),
-	alphaType(subType),
-	name(formatName)
+	PixelFormatInfo(formatName, formatContent, subType, rMask, subType, gMask, subType, bMask, subType, aMask)
 	{
-		RecomputeBitsPerPixel();
 	}
 
 	inline PixelFormatInfo::PixelFormatInfo(const String& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
@@ -65,6 +55,11 @@ namespace Nz
 	alphaType(aType),
 	name(formatName)
 	{
+		redMask.Reverse();
+		greenMask.Reverse();
+		blueMask.Reverse();
+		alphaMask.Reverse();
+
 		if (bpp == 0)
 			RecomputeBitsPerPixel();
 	}
