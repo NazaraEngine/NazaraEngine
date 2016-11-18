@@ -82,12 +82,6 @@ namespace Nz
 
 			if (parameters.loadFormat != PixelFormatType_Undefined)
 				image->Convert(parameters.loadFormat);
-			else
-			{
-				// Optimize memory usage if possible
-				if (!image->HasAlpha())
-					image->Convert(PixelFormatType_RGB8);
-			}
 
 			return true;
 		}
