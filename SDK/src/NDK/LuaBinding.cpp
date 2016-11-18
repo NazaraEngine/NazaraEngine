@@ -36,6 +36,7 @@ namespace Ndk
 	// Utility
 	abstractImage("AbstractImage"),
 	font("Font"),
+	keyboard("Keyboard"),
 	node("Node"),
 
 	// SDK

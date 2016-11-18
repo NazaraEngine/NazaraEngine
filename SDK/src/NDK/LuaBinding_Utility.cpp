@@ -153,6 +153,10 @@ namespace Ndk
 		font.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
 		font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
 
+		/*********************************** Nz::Keyboard **********************************/
+		keyboard.BindStaticMethod("GetKeyName",   &Nz::Keyboard::GetKeyName);
+		keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
+
 		/*********************************** Nz::Node **********************************/
 		node.BindMethod("GetBackward", &Nz::Node::GetBackward);
 		//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
@@ -322,6 +326,92 @@ namespace Ndk
 	{
 		abstractImage.Register(instance);
 		font.Register(instance);
+		keyboard.Register(instance);
 		node.Register(instance);
+
+		keyboard.PushGlobalTable(instance);
+		{
+			instance.PushField("Undefined", Nz::Keyboard::Undefined);
+
+			// A-Z
+			for (std::size_t i = 0; i < 26; ++i)
+				instance.PushField(Nz::String('A' + char(i)), Nz::Keyboard::A + i);
+
+			// Numerical
+			for (std::size_t i = 0; i < 10; ++i)
+			{
+				instance.PushField("Num" + Nz::String::Number(i), Nz::Keyboard::Num0 + i);
+				instance.PushField("Numpad" + Nz::String::Number(i), Nz::Keyboard::Numpad0 + i);
+			}
+
+			// F1-F15
+			for (std::size_t i = 0; i < 15; ++i)
+				instance.PushField('F' + Nz::String::Number(i+1), Nz::Keyboard::F1 + i);
+
+			// And all the others...
+			instance.PushField("Down",              Nz::Keyboard::Down);
+			instance.PushField("Left",              Nz::Keyboard::Left);
+			instance.PushField("Right",             Nz::Keyboard::Right);
+			instance.PushField("Up",                Nz::Keyboard::Up);
+
+			instance.PushField("Add",               Nz::Keyboard::Add);
+			instance.PushField("Decimal",           Nz::Keyboard::Decimal);
+			instance.PushField("Divide",            Nz::Keyboard::Divide);
+			instance.PushField("Multiply",          Nz::Keyboard::Multiply);
+			instance.PushField("Subtract",          Nz::Keyboard::Subtract);
+
+			instance.PushField("Backslash",         Nz::Keyboard::Backslash);
+			instance.PushField("Backspace",         Nz::Keyboard::Backspace);
+			instance.PushField("Clear",             Nz::Keyboard::Clear);
+			instance.PushField("Comma",             Nz::Keyboard::Comma);
+			instance.PushField("Dash",              Nz::Keyboard::Dash);
+			instance.PushField("Delete",            Nz::Keyboard::Delete);
+			instance.PushField("End",               Nz::Keyboard::End);
+			instance.PushField("Equal",             Nz::Keyboard::Equal);
+			instance.PushField("Escape",            Nz::Keyboard::Escape);
+			instance.PushField("Home",              Nz::Keyboard::Home);
+			instance.PushField("Insert",            Nz::Keyboard::Insert);
+			instance.PushField("LAlt",              Nz::Keyboard::LAlt);
+			instance.PushField("LBracket",          Nz::Keyboard::LBracket);
+			instance.PushField("LControl",          Nz::Keyboard::LControl);
+			instance.PushField("LShift",            Nz::Keyboard::LShift);
+			instance.PushField("LSystem",           Nz::Keyboard::LSystem);
+			instance.PushField("PageDown",          Nz::Keyboard::PageDown);
+			instance.PushField("PageUp",            Nz::Keyboard::PageUp);
+			instance.PushField("Pause",             Nz::Keyboard::Pause);
+			instance.PushField("Period",            Nz::Keyboard::Period);
+			instance.PushField("Print",             Nz::Keyboard::Print);
+			instance.PushField("PrintScreen",       Nz::Keyboard::PrintScreen);
+			instance.PushField("Quote",             Nz::Keyboard::Quote);
+			instance.PushField("RAlt",              Nz::Keyboard::RAlt);
+			instance.PushField("RBracket",          Nz::Keyboard::RBracket);
+			instance.PushField("RControl",          Nz::Keyboard::RControl);
+			instance.PushField("Return",            Nz::Keyboard::Return);
+			instance.PushField("RShift",            Nz::Keyboard::RShift);
+			instance.PushField("RSystem",           Nz::Keyboard::RSystem);
+			instance.PushField("Semicolon",         Nz::Keyboard::Semicolon);
+			instance.PushField("Slash",             Nz::Keyboard::Slash);
+			instance.PushField("Space",             Nz::Keyboard::Space);
+			instance.PushField("Tab",               Nz::Keyboard::Tab);
+			instance.PushField("Tilde",             Nz::Keyboard::Tilde);
+			instance.PushField("Browser_Back",      Nz::Keyboard::Browser_Back);
+			instance.PushField("Browser_Favorites", Nz::Keyboard::Browser_Favorites);
+			instance.PushField("Browser_Forward",   Nz::Keyboard::Browser_Forward);
+			instance.PushField("Browser_Home",      Nz::Keyboard::Browser_Home);
+			instance.PushField("Browser_Refresh",   Nz::Keyboard::Browser_Refresh);
+			instance.PushField("Browser_Search",    Nz::Keyboard::Browser_Search);
+			instance.PushField("Browser_Stop",      Nz::Keyboard::Browser_Stop);
+			instance.PushField("Media_Next",        Nz::Keyboard::Media_Next);
+			instance.PushField("Media_Play",        Nz::Keyboard::Media_Play);
+			instance.PushField("Media_Previous",    Nz::Keyboard::Media_Previous);
+			instance.PushField("Media_Stop",        Nz::Keyboard::Media_Stop);
+			instance.PushField("Volume_Down",       Nz::Keyboard::Volume_Down);
+			instance.PushField("Volume_Mute",       Nz::Keyboard::Volume_Mute);
+			instance.PushField("Volume_Up",         Nz::Keyboard::Volume_Up);
+			instance.PushField("CapsLock",          Nz::Keyboard::CapsLock);
+			instance.PushField("NumLock",           Nz::Keyboard::NumLock);
+			instance.PushField("ScrollLock",        Nz::Keyboard::ScrollLock);
+		}
+		instance.Pop();
 	}
 }

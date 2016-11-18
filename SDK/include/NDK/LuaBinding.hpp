@@ -58,6 +58,7 @@ namespace Ndk
 			// Utility
 			Nz::LuaClass<Nz::AbstractImageRef> abstractImage;
 			Nz::LuaClass<Nz::FontRef> font;
+			Nz::LuaClass<Nz::Keyboard> keyboard;
 			Nz::LuaClass<Nz::Node> node;
 
 			// SDK
