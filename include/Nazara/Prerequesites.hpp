@@ -155,7 +155,10 @@
 #define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraUnused(a) (void) a
 
+#include <climits>
 #include <cstdint>
+
+static_assert(CHAR_BIT == 8, "CHAR_BIT is expected to be 8");
 
 static_assert(sizeof(int8_t)  == 1, "int8_t is not of the correct size" );
 static_assert(sizeof(int16_t) == 2, "int16_t is not of the correct size");
@@ -169,17 +172,17 @@ static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
 namespace Nz
 {
-    typedef int8_t Int8;
-    typedef uint8_t UInt8;
+	typedef int8_t Int8;
+	typedef uint8_t UInt8;
 
-    typedef int16_t Int16;
-    typedef uint16_t UInt16;
+	typedef int16_t Int16;
+	typedef uint16_t UInt16;
 
-    typedef int32_t Int32;
-    typedef uint32_t UInt32;
+	typedef int32_t Int32;
+	typedef uint32_t UInt32;
 
-    typedef int64_t Int64;
-    typedef uint64_t UInt64;
+	typedef int64_t Int64;
+	typedef uint64_t UInt64;
 }
 
 #endif // NAZARA_PREREQUESITES_HPP
