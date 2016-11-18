@@ -49,6 +49,36 @@ namespace Nz
 		return object.release();
 	}
 
+	SegmentCollider2D::SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness) :
+	m_first(first),
+	m_second(second),
+	m_thickness(thickness)
+	{
+	}
+
+	inline const Vector2f& SegmentCollider2D::GetFirstPoint() const
+	{
+		return m_first;
+	}
+
+	inline float SegmentCollider2D::GetLength() const
+	{
+		return m_first.Distance(m_second);
+	}
+
+	inline const Vector2f& SegmentCollider2D::GetSecondPoint() const
+	{
+		return m_second;
+	}
+
+	template<typename... Args>
+	SegmentCollider2DRef SegmentCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<SegmentCollider2D> object(new SegmentCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
 }
 
 #include <Nazara/Physics2D/DebugOff.hpp>
