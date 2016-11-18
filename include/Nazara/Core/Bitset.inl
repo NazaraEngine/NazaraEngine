@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstdlib>
-#include <limits>
+#include <Nazara/Core/Algorithm.hpp>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
@@ -122,13 +122,13 @@ namespace Nz
 	{
 		if (sizeof(T) <= sizeof(Block))
 		{
-			m_bitCount = std::numeric_limits<T>::digits;
+			m_bitCount = BitCount<T>();
 			m_blocks.push_back(static_cast<Block>(value));
 		}
 		else
 		{
 			// Note: I was kinda tired when I wrote this, there's probably a much easier method than checking bits to write bits
-			for (std::size_t bitPos = 0; bitPos < std::numeric_limits<T>::digits; bitPos++)
+			for (std::size_t bitPos = 0; bitPos < BitCount<T>(); bitPos++)
 			{
 				if (value & (T(1U) << bitPos))
 					UnboundedSet(bitPos, true);
@@ -139,9 +139,9 @@ namespace Nz
 	/*!
 	* \brief Appends bits to the bitset
 	*
-	* This function expand the bitset with bits extracted from a numerical value
+	* This function extends the bitset with bits extracted from an integer value
 	*
-	* \param bits A numerical value from where bits will be extracted
+	* \param bits An integer value from where bits will be extracted
 	* \param bitCount Number of bits to extract from the value
 	*
 	* \remark This function does not require bitCount to be lower or equal to the number of bits of T, thus
@@ -172,8 +172,8 @@ namespace Nz
 			for (std::size_t block = 0; block < blockCount - 1; ++block)
 			{
 				m_blocks.push_back(static_cast<Block>(bits));
-				bits >>= std::numeric_limits<Block>::digits;
-				bitCount -= std::numeric_limits<Block>::digits;
+				bits >>= BitCount<Block>();
+				bitCount -= BitCount<Block>();
 			}
 
 			// For the last iteration, mask out the bits we don't want
@@ -331,7 +331,7 @@ namespace Nz
 	/*!
 	* \brief Read a byte sequence into a bitset
 	*
-	* This function expand the bitset with bits read from a byte sequence
+	* This function extends the bitset with bits read from a byte sequence
 	*
 	* \param ptr A pointer to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -352,7 +352,7 @@ namespace Nz
 	/*!
 	* \brief Read a byte sequence into a bitset
 	*
-	* This function expand the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
+	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
 	*
 	* \param sequence A pointer sequence to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -865,7 +865,7 @@ namespace Nz
 	{
 		static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "T must be a unsigned integral type");
 
-		NazaraAssert(m_bitCount <= std::numeric_limits<T>::digits, "Bit count cannot be greater than T bit count");
+		NazaraAssert(m_bitCount <= BitCount<T>(), "Bit count cannot be greater than T bit count");
 
 		T value = 0;
 		for (std::size_t i = 0; i < m_blocks.size(); ++i)
