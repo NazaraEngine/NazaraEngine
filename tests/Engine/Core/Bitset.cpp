@@ -44,7 +44,7 @@ void CheckAppend(const char* title)
 			#define BitVal1 00110111
 			#define BitVal2 11011110
 			#define BitVal3 01000010
-			std::array<Nz::UInt8, 3> data = {NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)};
+			std::array<Nz::UInt8, 3> data = {{NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)}};
 			const char result[] = NazaraStringifyMacro(BitVal3) NazaraStringifyMacro(BitVal2) NazaraStringifyMacro(BitVal1);
 			std::size_t resultLength = Nz::CountOf(result) - 1;
 			std::size_t bitCount = data.size() * 8;
@@ -232,7 +232,7 @@ void CheckRead(const char* title)
 			#define BitVal1 10010101
 			#define BitVal2 11010010
 			#define BitVal3 01101010
-			std::array<Nz::UInt8, 3> data = {NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)};
+			std::array<Nz::UInt8, 3> data = {{NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)}};
 			const char result[] = NazaraStringifyMacro(BitVal3) NazaraStringifyMacro(BitVal2) NazaraStringifyMacro(BitVal1);
 			std::size_t resultLength = Nz::CountOf(result) - 1;
 			std::size_t bitCount = data.size() * 8;

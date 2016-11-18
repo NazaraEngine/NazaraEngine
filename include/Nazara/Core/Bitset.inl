@@ -172,7 +172,7 @@ namespace Nz
 			for (std::size_t block = 0; block < blockCount - 1; ++block)
 			{
 				m_blocks.push_back(static_cast<Block>(bits));
-				bits >>= BitCount<Block>();
+				bits = (BitCount<Block>() < BitCount<T>()) ? bits >> BitCount<Block>() : 0U;
 				bitCount -= BitCount<Block>();
 			}
 
