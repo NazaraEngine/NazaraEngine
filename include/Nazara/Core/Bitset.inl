@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstdlib>
-#include <Nazara/Core/Algorithm.hpp>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
@@ -412,14 +412,16 @@ namespace Nz
 	{
 		std::pair<std::size_t, std::size_t> minmax = std::minmax(a.GetBlockCount(), b.GetBlockCount());
 
-		// We reinitialise our blocks with zero
-		m_blocks.clear();
-		m_blocks.resize(minmax.second, 0U);
+		m_blocks.resize(minmax.second);
 		m_bitCount = std::max(a.GetSize(), b.GetSize());
 
 		// In case of the "AND", we can stop with the smallest size (because x & 0 = 0)
 		for (std::size_t i = 0; i < minmax.first; ++i)
 			m_blocks[i] = a.GetBlock(i) & b.GetBlock(i);
+
+		// And then reset every other block to zero
+		for (std::size_t i = minmax.first; i < minmax.second; ++i)
+			m_blocks[i] = 0U;
 
 		ResetExtraBits();
 	}
