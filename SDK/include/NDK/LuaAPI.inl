@@ -213,6 +213,15 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Recti* rect, TypeTag<Recti>)
+	{
+		Rectd rectDouble;
+		unsigned int ret = LuaImplQueryArg(instance, index, &rectDouble, TypeTag<Rectd>());
+
+		rect->Set(rectDouble);
+		return ret;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Rectui* rect, TypeTag<Rectui>)
 	{
 		Rectd rectDouble;
@@ -488,6 +497,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaInstance& instance, Recti&& val, TypeTag<Recti>)
+	{
+		instance.PushInstance<Rectd>("Rect", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaInstance& instance, Rectui&& val, TypeTag<Rectui>)
 	{
 		instance.PushInstance<Rectd>("Rect", val);
@@ -594,6 +609,12 @@ namespace Nz
 	inline int LuaImplReplyVal(const LuaInstance& instance, TextureRef&& handle, TypeTag<TextureRef>)
 	{
 		instance.PushInstance<TextureRef>("Texture", handle);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaInstance& instance, Ndk::CameraComponentHandle&& handle, TypeTag<Ndk::CameraComponentHandle>)
+	{
+		instance.PushInstance<Ndk::CameraComponentHandle>("CameraComponent", handle);
 		return 1;
 	}
 

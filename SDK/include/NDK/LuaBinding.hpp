@@ -76,6 +76,7 @@ namespace Ndk
 			Nz::LuaClass<Nz::SoundEmitter> soundEmitter;
 
 			// Graphics
+			Nz::LuaClass<Nz::AbstractViewer> abstractViewer;
 			Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable;
 			Nz::LuaClass<Nz::MaterialRef> material;
 			Nz::LuaClass<Nz::ModelRef> model;
@@ -88,6 +89,7 @@ namespace Ndk
 			Nz::LuaClass<Nz::TextureRef> texture;
 
 			// SDK
+			Nz::LuaClass<CameraComponentHandle> cameraComponent;
 			Nz::LuaClass<ConsoleHandle> console;
 			Nz::LuaClass<GraphicsComponentHandle> graphicsComponent;
 			#endif

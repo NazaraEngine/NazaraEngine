@@ -12,6 +12,18 @@ namespace Ndk
 
 	void LuaBinding::BindGraphics()
 	{
+		/*********************************** Nz::AbstractViewer ***********************************/
+		abstractViewer.BindMethod("GetAspectRatio", &Nz::AbstractViewer::GetAspectRatio);
+		abstractViewer.BindMethod("GetEyePosition", &Nz::AbstractViewer::GetEyePosition);
+		abstractViewer.BindMethod("GetForward", &Nz::AbstractViewer::GetForward);
+		//abstractViewer.BindMethod("GetFrustum", &Nz::AbstractViewer::GetFrustum);
+		abstractViewer.BindMethod("GetProjectionMatrix", &Nz::AbstractViewer::GetProjectionMatrix);
+		//abstractViewer.BindMethod("GetTarget", &Nz::AbstractViewer::GetTarget);
+		abstractViewer.BindMethod("GetViewMatrix", &Nz::AbstractViewer::GetViewMatrix);
+		abstractViewer.BindMethod("GetViewport", &Nz::AbstractViewer::GetViewport);
+		abstractViewer.BindMethod("GetZFar", &Nz::AbstractViewer::GetZFar);
+		abstractViewer.BindMethod("GetZNear", &Nz::AbstractViewer::GetZNear);
+
 		/*********************************** Nz::InstancedRenderable ***********************************/
 
 		/*********************************** Nz::Material ***********************************/
@@ -347,6 +359,7 @@ namespace Ndk
 
 	void LuaBinding::RegisterGraphics(Nz::LuaInstance& instance)
 	{
+		abstractViewer.Register(instance);
 		instancedRenderable.Register(instance);
 		material.Register(instance);
 		model.Register(instance);

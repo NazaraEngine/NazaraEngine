@@ -18,9 +18,12 @@
 
 namespace Ndk
 {
+	class CameraComponent;
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
+	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
+
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer, public Nz::HandledObject<CameraComponent>
 	{
 		public:
 			inline CameraComponent();
