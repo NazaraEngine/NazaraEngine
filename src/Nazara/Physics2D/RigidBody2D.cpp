@@ -73,7 +73,7 @@ namespace Nz
 		switch (coordSys)
 		{
 			case CoordSys_Global:
-				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(force.x, force.y));
+				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 
 			case CoordSys_Local:
