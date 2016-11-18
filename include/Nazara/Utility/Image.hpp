@@ -91,6 +91,8 @@ namespace Nz
 			ImageType GetType() const;
 			unsigned int GetWidth(UInt8 level = 0) const;
 
+			bool HasAlpha() const;
+
 			bool IsValid() const;
 
 			// Load
