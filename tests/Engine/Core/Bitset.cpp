@@ -11,6 +11,7 @@ template<typename Block> void CheckBitOps(const char* title);
 template<typename Block> void CheckConstructor(const char* title);
 template<typename Block> void CheckCopyMoveSwap(const char* title);
 template<typename Block> void CheckRead(const char* title);
+template<typename Block> void CheckReverse(const char* title);
 
 SCENARIO("Bitset", "[CORE][BITSET]")
 {
@@ -30,6 +31,7 @@ void Check(const char* title)
 
 	CheckAppend<Block>(title);
 	CheckRead<Block>(title);
+	CheckReverse<Block>(title);
 }
 
 template<typename Block>
@@ -115,6 +117,7 @@ void CheckBitOps(const char* title)
 		}
 	}
 }
+
 template<typename Block>
 void CheckConstructor(const char* title)
 {
@@ -266,6 +269,39 @@ void CheckRead(const char* title)
 
 					CHECK(bitset == expectedBitset);
 					CHECK(bitset.GetBlockCount() == (bitCount / bitset.bitsPerBlock + std::min<std::size_t>(1, bitCount % bitset.bitsPerBlock)));
+				}
+			}
+		}
+	}
+}
+
+template<typename Block>
+void CheckReverse(const char* title)
+{
+	SECTION(title)
+	{
+		GIVEN("A bitset")
+		{
+			Nz::String bits = "010011100010001101001111";
+			Nz::Bitset<Block> expected(bits);
+
+			WHEN("We reverse the order of bits")
+			{
+				Nz::Bitset<Block> bitset(bits);
+				bitset.Reverse();
+
+				THEN("The order of bits should be reversed")
+				{
+					CHECK(bitset == Nz::Bitset<Block>(bits.Reversed()));
+				}
+				AND_WHEN("We reverse the bit order again")
+				{
+					bitset.Reverse();
+
+					THEN("It should be back to normal")
+					{
+						CHECK(bitset == expected);
+					}
 				}
 			}
 		}
