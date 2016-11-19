@@ -144,6 +144,9 @@ namespace Ndk
 			return handle->GetObject();
 		});
 
+		cameraComponent.BindMethod("GetFOV", &Ndk::CameraComponent::GetFOV);
+		cameraComponent.BindMethod("GetLayer", &Ndk::CameraComponent::GetLayer);
+
 		cameraComponent.BindMethod("SetFOV", &Ndk::CameraComponent::SetFOV);
 		cameraComponent.BindMethod("SetLayer", &Ndk::CameraComponent::SetLayer);
 		cameraComponent.BindMethod("SetProjectionType", &Ndk::CameraComponent::SetProjectionType);
