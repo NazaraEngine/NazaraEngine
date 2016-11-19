@@ -54,7 +54,7 @@ namespace Ndk
 			float GetZNear() const override;
 
 			inline void SetFOV(float fov);
-			inline void SetLayer(unsigned int layer);
+			void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
 			inline void SetSize(const Nz::Vector2f& size);
 			inline void SetSize(float width, float height);
