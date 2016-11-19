@@ -599,11 +599,11 @@ namespace Ndk
 		quaternion.BindStaticMethod("Normalize", [] (Nz::LuaInstance& instance) -> int
 		{
 			int argIndex = 1;
-			Nz::Quaterniond quaternion = instance.Check<Nz::Quaterniond>(&argIndex);
+			Nz::Quaterniond quat = instance.Check<Nz::Quaterniond>(&argIndex);
 
 			double length;
 
-			instance.Push(Nz::Quaterniond::Normalize(quaternion, &length));
+			instance.Push(Nz::Quaterniond::Normalize(quat, &length));
 			instance.Push(length);
 
 			return 2;
