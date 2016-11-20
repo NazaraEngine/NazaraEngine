@@ -24,6 +24,11 @@ namespace Nz
 	width(0)
 	{
 	}
+	
+	VideoMode::VideoMode(unsigned int w, unsigned int h) :
+	VideoMode(w, h, GetDesktopMode().bitsPerPixel)
+	{
+	}
 
 	VideoMode::VideoMode(unsigned int w, unsigned int h, UInt8 bpp) :
 	bitsPerPixel(bpp),

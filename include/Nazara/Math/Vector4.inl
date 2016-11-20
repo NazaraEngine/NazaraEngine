@@ -843,11 +843,11 @@ namespace Nz
 	template<typename T>
 	bool Vector4<T>::operator<(const Vector4& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
+			if (NumberEquals(y, vec.y))
 			{
-				if (z == vec.z)
+				if (NumberEquals(z, vec.z))
 					return w < vec.w;
 				else
 					return z < vec.z;
@@ -869,12 +869,12 @@ namespace Nz
 	template<typename T>
 	bool Vector4<T>::operator<=(const Vector4& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
+			if (NumberEquals(y, vec.y))
 			{
-				if (z == vec.z)
-					return w <= vec.w;
+				if (NumberEquals(z, vec.z))
+					return NumberEquals(w, vec.w) || w < vec.w;
 				else
 					return z < vec.z;
 			}
@@ -1144,7 +1144,7 @@ namespace std
 		}
 	};
 }
-	
+
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>

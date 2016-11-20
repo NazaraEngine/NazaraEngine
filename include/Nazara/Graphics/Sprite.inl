@@ -184,12 +184,11 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the material of the sprite
+	* \brief Changes the material of the sprite
 	*
 	* \param material Material for the sprite
-	* \param resizeSprite Should sprite be resized to the material size (diffuse map)
+	* \param resizeSprite Should the sprite be resized to the texture size?
 	*/
-
 	inline void Sprite::SetMaterial(MaterialRef material, bool resizeSprite)
 	{
 		m_material = std::move(material);
@@ -249,16 +248,19 @@ namespace Nz
 	/*!
 	* \brief Sets the texture of the sprite
 	*
+	* Assign a texture to the sprite material
+	*
 	* \param texture Texture for the sprite
-	* \param resizeSprite Should sprite be resized to the texture size
+	* \param resizeSprite Should the sprite be resized to the texture size?
+	*
+	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
 	*/
-
 	inline void Sprite::SetTexture(TextureRef texture, bool resizeSprite)
 	{
 		if (!m_material)
 			SetDefaultMaterial();
 		else if (m_material->GetReferenceCount() > 1)
-			m_material = Material::New(*m_material); // Copie
+			m_material = Material::New(*m_material); // Copy the material
 
 		if (resizeSprite && texture && texture->IsValid())
 			SetSize(Vector2f(Vector2ui(texture->GetSize())));

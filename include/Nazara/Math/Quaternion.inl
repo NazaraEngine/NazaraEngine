@@ -714,10 +714,10 @@ namespace Nz
 		#endif
 
 		Quaternion interpolated;
-		interpolated.w = Lerp(from.w, to.w, interpolation);
-		interpolated.x = Lerp(from.x, to.x, interpolation);
-		interpolated.y = Lerp(from.y, to.y, interpolation);
-		interpolated.z = Lerp(from.z, to.z, interpolation);
+		interpolated.w = Nz::Lerp(from.w, to.w, interpolation);
+		interpolated.x = Nz::Lerp(from.x, to.x, interpolation);
+		interpolated.y = Nz::Lerp(from.y, to.y, interpolation);
+		interpolated.z = Nz::Lerp(from.z, to.z, interpolation);
 
 		return interpolated;
 	}

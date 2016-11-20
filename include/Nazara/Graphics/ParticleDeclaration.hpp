@@ -36,10 +36,10 @@ namespace Nz
 			~ParticleDeclaration();
 
 			void DisableComponent(ParticleComponent component);
-			void EnableComponent(ParticleComponent component, ComponentType type, unsigned int offset);
+			void EnableComponent(ParticleComponent component, ComponentType type, std::size_t offset);
 
-			void GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const;
-			unsigned int GetStride() const;
+			void GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			std::size_t GetStride() const;
 
 			void SetStride(unsigned int stride);
 
@@ -60,7 +60,7 @@ namespace Nz
 			{
 				ComponentType type;
 				bool enabled = false;
-				unsigned int offset;
+				std::size_t offset;
 
 				/*
 				** -Lynix:
@@ -71,7 +71,7 @@ namespace Nz
 			};
 
 			std::array<Component, ParticleComponent_Max + 1> m_components;
-			unsigned int m_stride;
+			std::size_t m_stride;
 
 			static std::array<ParticleDeclaration, ParticleLayout_Max + 1> s_declarations;
 			static ParticleDeclarationLibrary::LibraryMap s_library;

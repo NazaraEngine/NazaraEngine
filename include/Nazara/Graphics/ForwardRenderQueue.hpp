@@ -87,7 +87,7 @@ namespace Nz
 			struct SpriteChain_XYZ_Color_UV
 			{
 				const VertexStruct_XYZ_Color_UV* vertices;
-				unsigned int spriteCount;
+				std::size_t spriteCount;
 			};
 
 			struct BatchedSpriteEntry
@@ -160,7 +160,7 @@ namespace Nz
 				const Material* material;
 			};
 
-			typedef std::vector<unsigned int> TransparentModelContainer;
+			typedef std::vector<std::size_t> TransparentModelContainer;
 
 			struct Layer
 			{

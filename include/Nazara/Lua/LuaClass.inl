@@ -129,7 +129,7 @@ namespace Nz
 
 		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -143,7 +143,7 @@ namespace Nz
 
 		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -157,7 +157,7 @@ namespace Nz
 
 		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -171,7 +171,7 @@ namespace Nz
 
 		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -203,7 +203,7 @@ namespace Nz
 
 		BindStaticMethod(name, [func, handler] (LuaInstance& lua) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, func);
 		});
@@ -335,7 +335,7 @@ namespace Nz
 			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
 		{
 			SetupFinalizer(lua);
-			
+
 			if (m_info->getter || !m_info->parentGetters.empty())
 				SetupGetter(lua, GetterProxy);
 			else

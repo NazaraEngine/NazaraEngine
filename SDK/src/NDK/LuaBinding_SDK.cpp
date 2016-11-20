@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq, Arnaud Cadot
+// Copyright (C) 2016 JÃ©rÃ´me Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -25,9 +25,9 @@ namespace Ndk
 		application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 		#endif
 
-		application.BindMethod("AddWorld", [] (Nz::LuaInstance& instance, Application* application, std::size_t /*argumentCount*/) -> int
+		application.BindMethod("AddWorld", [] (Nz::LuaInstance& lua, Application* instance, std::size_t /*argumentCount*/) -> int
 		{
-			instance.Push(application->AddWorld().CreateHandle());
+			lua.Push(instance->AddWorld().CreateHandle());
 			return 1;
 		});
 
@@ -59,7 +59,7 @@ namespace Ndk
 		console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
 		console.BindMethod("SetSize", &Console::SetSize);
 		console.BindMethod("SetTextFont", &Console::SetTextFont);
-		
+
 		console.BindMethod("Show", &Console::Show, true);
 		#endif
 
@@ -138,8 +138,27 @@ namespace Ndk
 
 
 		#ifndef NDK_SERVER
+		/*********************************** Ndk::CameraComponent **********************************/
+		cameraComponent.Inherit<Nz::AbstractViewer>(abstractViewer, [] (CameraComponentHandle* handle) -> Nz::AbstractViewer*
+		{
+			return handle->GetObject();
+		});
+
+		cameraComponent.BindMethod("GetFOV", &Ndk::CameraComponent::GetFOV);
+		cameraComponent.BindMethod("GetLayer", &Ndk::CameraComponent::GetLayer);
+
+		cameraComponent.BindMethod("SetFOV", &Ndk::CameraComponent::SetFOV);
+		cameraComponent.BindMethod("SetLayer", &Ndk::CameraComponent::SetLayer);
+		cameraComponent.BindMethod("SetProjectionType", &Ndk::CameraComponent::SetProjectionType);
+		cameraComponent.BindMethod("SetSize", (void(Ndk::CameraComponent::*)(const Nz::Vector2f&)) &Ndk::CameraComponent::SetSize);
+		//cameraComponent.BindMethod("SetTarget", &Ndk::CameraComponent::SetTarget);
+		cameraComponent.BindMethod("SetTargetRegion", &Ndk::CameraComponent::SetTargetRegion);
+		cameraComponent.BindMethod("SetViewport", &Ndk::CameraComponent::SetViewport);
+		cameraComponent.BindMethod("SetZFar", &Ndk::CameraComponent::SetZFar);
+		cameraComponent.BindMethod("SetZNear", &Ndk::CameraComponent::SetZNear);
+
 		/*********************************** Ndk::GraphicsComponent **********************************/
-		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent *gfxComponent, std::size_t argumentCount) -> int
+		graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
 		{
 			/*
 			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
@@ -153,7 +172,7 @@ namespace Ndk
 				case 1:
 				{
 					int argIndex = 2;
-					gfxComponent->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
+					instance->Attach(lua.Check<Nz::InstancedRenderableRef>(&argIndex));
 					return 0;
 				}
 
@@ -166,13 +185,13 @@ namespace Ndk
 					{
 						int renderOrder = lua.Check<int>(&argIndex);
 
-						gfxComponent->Attach(renderable, renderOrder);
+						instance->Attach(renderable, renderOrder);
 					}
 					else if (lua.IsOfType(argIndex, "Matrix4"))
 					{
 						Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
 
-						gfxComponent->Attach(renderable, localMatrix);
+						instance->Attach(renderable, localMatrix);
 					}
 					else
 						break;
@@ -187,7 +206,7 @@ namespace Ndk
 					Nz::Matrix4f localMatrix = lua.Check<Nz::Matrix4f>(&argIndex);
 					int renderOrder = lua.Check<int>(&argIndex);
 
-					gfxComponent->Attach(renderable, localMatrix, renderOrder);
+					instance->Attach(renderable, localMatrix, renderOrder);
 					return 0;
 				}
 			}
@@ -205,6 +224,7 @@ namespace Ndk
 		BindComponent<VelocityComponent>("Velocity");
 
 		#ifndef NDK_SERVER
+		BindComponent<CameraComponent>("Camera");
 		BindComponent<GraphicsComponent>("Graphics");
 		#endif
 	}
@@ -225,6 +245,7 @@ namespace Ndk
 		world.Register(instance);
 
 		#ifndef NDK_SERVER
+		cameraComponent.Register(instance);
 		console.Register(instance);
 		graphicsComponent.Register(instance);
 		#endif

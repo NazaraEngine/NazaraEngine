@@ -59,7 +59,7 @@ namespace Nz
 		m_memoryUsage = instance.m_memoryUsage;
 		m_state = instance.m_state;
 		m_timeLimit = instance.m_timeLimit;
-		
+
 		instance.m_state = nullptr;
 
 		return *this;
@@ -320,7 +320,7 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
 						m_index = 1;
 						ProcessArgs<0, Args...>(instance);
@@ -391,7 +391,7 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
 						m_index = 2; //< 1 being the instance
 						ProcessArgs<0, Args...>(instance);
@@ -714,7 +714,7 @@ namespace Nz
 
 		PushFunction([func, handler] (LuaInstance& lua) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, func);
 		});

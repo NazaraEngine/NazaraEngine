@@ -37,7 +37,7 @@ namespace Nz
 {
 	template<typename T> /*constexpr*/ T Approach(T value, T objective, T increment);
 	template<typename T> constexpr T Clamp(T value, T min, T max);
-	template<typename T> /*constexpr*/ T CountBits(T value);
+	template<typename T> /*constexpr*/ std::size_t CountBits(T value);
 	template<typename T> constexpr T FromDegrees(T degrees);
 	template<typename T> constexpr T FromRadians(T radians);
 	template<typename T> constexpr T DegreeToRadian(T degrees);

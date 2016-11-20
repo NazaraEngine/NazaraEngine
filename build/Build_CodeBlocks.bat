@@ -1,1 +1,1 @@
-premake4 codeblocks
+premake5 codeblocks

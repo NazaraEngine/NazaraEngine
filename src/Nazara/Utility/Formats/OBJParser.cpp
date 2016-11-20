@@ -128,17 +128,17 @@ namespace Nz
 		UInt32 faceReserve = 0;
 		UInt32 vertexReserve = 0;
 		unsigned int matCount = 0;
-		auto GetMaterial = [&] (const String& meshName, const String& matName) -> Mesh*
+		auto GetMaterial = [&] (const String& mesh, const String& mat) -> Mesh*
 		{
-			auto& map = meshesByName[meshName];
-			auto it = map.find(matName);
+			auto& map = meshesByName[mesh];
+			auto it = map.find(mat);
 			if (it == map.end())
-				it = map.insert(std::make_pair(matName, MatPair(Mesh(), matCount++))).first;
+				it = map.insert(std::make_pair(mat, MatPair(Mesh(), matCount++))).first;
 
-			Mesh& mesh = it->second.first;
+			Mesh& meshData = it->second.first;
 
-			mesh.faces.reserve(faceReserve);
-			mesh.vertices.reserve(vertexReserve);
+			meshData.faces.reserve(faceReserve);
+			meshData.vertices.reserve(vertexReserve);
 			faceReserve = 0;
 			vertexReserve = 0;
 
@@ -550,19 +550,19 @@ namespace Nz
 			EmitLine(pair.second.size());
 			EmitLine();
 
-			for (std::size_t meshIndex : pair.second)
+			for (std::size_t index : pair.second)
 			{
-				const Mesh& mesh = m_meshes[meshIndex];
+				const Mesh& mesh = m_meshes[index];
 
 				Emit("g ");
 				EmitLine(mesh.name);
 				EmitLine();
-				
+
 				Emit("# face count: ");
 				EmitLine(mesh.faces.size());
 				Emit("# vertex count: ");
 				EmitLine(mesh.vertices.size());
-				
+
 				for (const Face& face : mesh.faces)
 				{
 					Emit('f');
