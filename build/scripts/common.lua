@@ -730,7 +730,6 @@ function NazaraBuild:PrepareGeneric()
 	filter("configurations:Release*")
 		flags("NoFramePointer")
 		optimize("Speed")
-		rtti("Off")
 		vectorextensions("SSE2")
 
 	filter("configurations:*Static")
