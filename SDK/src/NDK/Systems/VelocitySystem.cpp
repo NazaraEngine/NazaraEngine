@@ -24,8 +24,9 @@ namespace Ndk
 
 	VelocitySystem::VelocitySystem()
 	{
-		Requires<NodeComponent, VelocityComponent>();
 		Excludes<PhysicsComponent3D>();
+		Requires<NodeComponent, VelocityComponent>();
+		SetUpdateOrder(10); //< Since some systems may want to stop us
 	}
 
 	/*!

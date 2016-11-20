@@ -147,10 +147,10 @@ namespace Nz
 
 	template<typename T>
 	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline T CountBits(T value)
+	/*constexpr*/ inline std::size_t CountBits(T value)
 	{
 		// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-		unsigned int count = 0;
+		std::size_t count = 0;
 		while (value)
 		{
 			value &= value - 1;

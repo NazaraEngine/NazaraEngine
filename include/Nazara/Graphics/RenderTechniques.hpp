@@ -29,7 +29,7 @@ namespace Nz
 			static AbstractRenderTechnique* GetByName(const String& name, int* techniqueRanking = nullptr);
 			static AbstractRenderTechnique* GetByRanking(int maxRanking, int* techniqueRanking = nullptr);
 
-			static unsigned int GetCount();
+			static std::size_t GetCount();
 
 			static void Register(const String& name, int ranking, RenderTechniqueFactory factory);
 

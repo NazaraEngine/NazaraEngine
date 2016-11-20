@@ -6,6 +6,7 @@
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 
 namespace Ndk
@@ -27,6 +28,7 @@ namespace Ndk
 	{
 		Requires<NodeComponent>();
 		RequiresAny<CollisionComponent3D, PhysicsComponent3D>();
+		Excludes<PhysicsComponent2D>();
 	}
 
 	/*!
@@ -90,7 +92,7 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			PhysicsComponent3D& phys = entity->GetComponent<PhysicsComponent3D>();
 
-			Nz::RigidBody3D& physObj = phys.GetPhysObject();
+			Nz::RigidBody3D& physObj = phys.GetRigidBody();
 			node.SetRotation(physObj.GetRotation(), Nz::CoordSys_Global);
 			node.SetPosition(physObj.GetPosition(), Nz::CoordSys_Global);
 		}

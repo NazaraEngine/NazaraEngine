@@ -170,7 +170,7 @@ namespace Nz
 	* \return Number of techniques
 	*/
 
-	unsigned int RenderTechniques::GetCount()
+	std::size_t RenderTechniques::GetCount()
 	{
 		return s_renderTechniques.size();
 	}

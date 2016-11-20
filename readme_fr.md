@@ -1,7 +1,7 @@
 ﻿Platforme | Build Status
 ------------ | -------------
 Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/dj5qx7axym4uakmy/branch/master?svg=true)](https://ci.appveyor.com/project/DPSLynix/nazaraengine/branch/master)
-Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine)
+Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg?branch=master)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine)
 
 # Nazara Engine  
 

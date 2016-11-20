@@ -21,7 +21,7 @@ namespace Ndk
 		abstractSocket.BindMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
 
 		/*********************************** Nz::IpAddress **********************************/
-		ipAddress.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* address, std::size_t argumentCount)
+		ipAddress.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* instance, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 9U);
 
@@ -29,11 +29,11 @@ namespace Ndk
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(address);
+					Nz::PlacementNew(instance);
 					return true;
 
 				case 1:
-					Nz::PlacementNew(address, lua.CheckString(argIndex));
+					Nz::PlacementNew(instance, lua.CheckString(argIndex));
 					return true;
 
 				case 4:
@@ -45,7 +45,7 @@ namespace Ndk
 					Nz::UInt8 d = lua.Check<Nz::UInt8>(&argIndex);
 					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
 
-					Nz::PlacementNew(address, a, b, c, d, port);
+					Nz::PlacementNew(instance, a, b, c, d, port);
 					return true;
 				}
 
@@ -62,7 +62,7 @@ namespace Ndk
 					Nz::UInt16 h = lua.Check<Nz::UInt16>(&argIndex);
 					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
 
-					Nz::PlacementNew(address, a, b, c, d, e, f, g, h, port);
+					Nz::PlacementNew(instance, a, b, c, d, e, f, g, h, port);
 					return true;
 				}
 			}
@@ -199,7 +199,7 @@ namespace Ndk
 			instance.PushField("Unknown",              Nz::ResolveError_Unknown);
 		}
 		instance.SetGlobal("ResolveError");
-		
+
 		// Nz::SocketError
 		static_assert(Nz::SocketError_Max + 1 == 15, "Nz::ResolveError has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 15);

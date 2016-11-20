@@ -94,6 +94,7 @@ namespace Nz
 	void InstancedRenderable::UpdateData(InstanceData* instanceData) const
 	{
 		NazaraAssert(instanceData, "Invalid instance data");
+		NazaraUnused(instanceData);
 	}
 
 	InstancedRenderableLibrary::LibraryMap InstancedRenderable::s_library;

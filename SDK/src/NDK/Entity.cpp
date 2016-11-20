@@ -148,9 +148,11 @@ namespace Ndk
 		// We alert each system
 		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
-			if (m_world->HasSystem(index))
+			auto sysIndex = static_cast<Ndk::SystemIndex>(index);
+
+			if (m_world->HasSystem(sysIndex))
 			{
-				BaseSystem& system = m_world->GetSystem(index);
+				BaseSystem& system = m_world->GetSystem(sysIndex);
 				system.RemoveEntity(this);
 			}
 		}

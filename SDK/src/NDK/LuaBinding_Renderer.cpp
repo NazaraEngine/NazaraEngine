@@ -13,14 +13,14 @@ namespace Ndk
 	void LuaBinding::BindRenderer()
 	{
 		/*********************************** Nz::Texture ***********************************/
-		texture.Inherit<Nz::AbstractImageRef>(abstractImage, [] (Nz::TextureRef* texture) -> Nz::AbstractImageRef*
+		texture.Inherit<Nz::AbstractImageRef>(abstractImage, [] (Nz::TextureRef* textureRef) -> Nz::AbstractImageRef*
 		{
-			return reinterpret_cast<Nz::AbstractImageRef*>(texture); //TODO: Make a ObjectRefCast
+			return reinterpret_cast<Nz::AbstractImageRef*>(textureRef); //TODO: Make a ObjectRefCast
 		});
 
-		texture.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::TextureRef* texture, std::size_t /*argumentCount*/)
+		texture.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::TextureRef* instance, std::size_t /*argumentCount*/)
 		{
-			Nz::PlacementNew(texture, Nz::Texture::New());
+			Nz::PlacementNew(instance, Nz::Texture::New());
 			return true;
 		});
 
@@ -28,7 +28,7 @@ namespace Ndk
 		texture.BindMethod("Destroy", &Nz::Texture::Destroy);
 
 		//texture.BindMethod("Download", &Nz::Texture::Download);
-		
+
 		texture.BindMethod("EnableMipmapping", &Nz::Texture::EnableMipmapping);
 		texture.BindMethod("EnsureMipmapsUpdate", &Nz::Texture::EnsureMipmapsUpdate);
 		texture.BindMethod("HasMipmaps", &Nz::Texture::HasMipmaps);

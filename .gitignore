@@ -35,6 +35,7 @@ build/scripts/features/index.html
 doc
 
 # Codeblocks
+*.save-failed
 build/**/*.cbp
 build/**/*.cbp
 build/**/*.cbTemp
@@ -45,6 +46,9 @@ build/**/*.workspace
 
 # CodeLite
 build/**/*.project
+
+# GMake
+build/**/*.make
 
 # Visual Studio
 build/**/*.pdb

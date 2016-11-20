@@ -60,10 +60,10 @@ namespace Nz
 			{
 				struct UserdataValue
 				{
-					UserdataValue(Destructor Destructor, void* value) :
+					UserdataValue(Destructor func, void* ud) :
 					counter(1),
-					destructor(Destructor),
-					ptr(value)
+					destructor(func),
+					ptr(ud)
 					{
 					}
 
