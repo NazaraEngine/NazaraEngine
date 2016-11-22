@@ -35,6 +35,7 @@ namespace Nz
 	struct MusicImpl
 	{
 		ALenum audioFormat;
+		std::pair<UInt32, UInt32> loopPoints;
 		std::unique_ptr<SoundStream> stream;
 		std::vector<Int16> chunkSamples;
 		Mutex bufferLock;
@@ -78,6 +79,7 @@ namespace Nz
 		m_impl->stream.reset(soundStream);
 
 		SetPlayingOffset(0);
+		SetLoopPoints(0U, m_impl->stream->GetDuration());
 
 		return true;
 	}
@@ -139,6 +141,19 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the format of the music
+	* \return Enumeration of type AudioFormat (mono, stereo, ...)
+	*
+	* \remark Music must be valid when calling this function
+	*/
+	std::pair<UInt32, UInt32> Music::GetLoopPoints() const
+	{
+		NazaraAssert(m_impl, "Music not created");
+
+		return m_impl->loopPoints;
+	}
+
+	/*!
 	* \brief Gets the current offset in the music
 	* \return Offset in milliseconds (works with entire seconds)
 	*
@@ -148,7 +163,7 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Music not created");
 
-		// Prevent music thread from enqueing new buffers while we're getting the count
+		// Prevent music thread from queuing new buffers while we're getting the count
 		Nz::LockGuard lock(m_impl->bufferLock);
 
 		ALint samples = 0;
@@ -306,6 +321,22 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the playing offset for the music
+	*
+	* \param offset Offset in the music in milliseconds
+	*
+	* \remark Music must be valid when calling this function
+	*/
+	void Music::SetLoopPoints(UInt32 startOffset, UInt32 endOffset)
+	{
+		NazaraAssert(m_impl, "Music not created");
+
+		Nz::LockGuard lock(m_impl->bufferLock);
+
+		m_impl->loopPoints = std::make_pair(startOffset, endOffset);
+	}
+
+	/*!
 	* \brief Changes the playing offset of the music
 	*
 	* If the music is not playing, this sets the playing offset for the next Play call
@@ -323,7 +354,7 @@ namespace Nz
 		if (isPlaying)
 			Stop();
 
-		m_impl->stream->Seek(offset);
+		m_impl->stream->SetCursorPos(offset);
 		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
 
 		if (isPlaying)
@@ -349,16 +380,24 @@ namespace Nz
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
 	{
 		std::size_t sampleCount = m_impl->chunkSamples.size();
-		std::size_t sampleRead = 0;
 
+		std::size_t sampleLimit = std::numeric_limits<std::size_t>::max();
+		if (m_impl->loop)
+		{
+			UInt64 cursorPos = m_impl->stream->GetCursorPos();
+			if (cursorPos < m_impl->loopPoints.second)
+				sampleLimit = (m_impl->sampleRate * (m_impl->loopPoints.second - cursorPos) / 1000UL) * m_impl->stream->GetFormat();
+		}
+
+		std::size_t sampleRead = 0;
 		// Fill the buffer by reading from the stream
 		for (;;)
 		{
-			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
+			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], std::min(sampleCount - sampleRead, sampleLimit));
 			if (sampleRead < sampleCount && m_impl->loop)
 			{
 				// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
-				m_impl->stream->Seek(0);
+				m_impl->stream->SetCursorPos(m_impl->loopPoints.first);
 				continue;
 			}
 
@@ -369,7 +408,7 @@ namespace Nz
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
 		{
-			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], static_cast<ALsizei>(sampleRead*sizeof(Int16)), static_cast<ALsizei>(m_impl->sampleRate));
+			alBufferData(buffer, m_impl->audioFormat, m_impl->chunkSamples.data(), static_cast<ALsizei>(sampleRead*sizeof(Int16)), static_cast<ALsizei>(m_impl->sampleRate));
 			alSourceQueueBuffers(m_source, 1, &buffer);
 		}
 
@@ -381,11 +420,14 @@ namespace Nz
 		// Allocation of streaming buffers
 		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
-
-		for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
 		{
-			if (FillAndQueueBuffer(buffers[i]))
-				break; // We have reached the end of the stream, there is no use to add new buffers
+			Nz::LockGuard lock(m_impl->bufferLock);
+
+			for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
+			{
+				if (FillAndQueueBuffer(buffers[i]))
+					break; // We have reached the end of the stream, there is no use to add new buffers
+			}
 		}
 
 		alSourcePlay(m_source);

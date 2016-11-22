@@ -83,6 +83,11 @@ namespace Nz
 						sf_close(m_handle);
 				}
 
+				UInt64 GetCursorPos() const override
+				{
+					return m_cursorPos;
+				}
+
 				UInt32 GetDuration() const override
 				{
 					return m_duration;
@@ -154,6 +159,7 @@ namespace Nz
 						return false;
 					}
 
+					m_cursorPos = 0U;
 					m_sampleCount = infos.channels*infos.frames;
 					m_sampleRate = infos.samplerate;
 
@@ -182,6 +188,8 @@ namespace Nz
 
 				UInt64 Read(void* buffer, UInt64 sampleCount) override
 				{
+					m_cursorPos += sampleCount * 1000 / (m_sampleRate * GetFormat());
+
 					// Si la musique a été demandée en mono, nous devons la convertir à la volée lors de la lecture
 					if (m_mixToMono)
 					{
@@ -196,9 +204,10 @@ namespace Nz
 						return sf_read_short(m_handle, static_cast<Int16*>(buffer), sampleCount);
 				}
 
-				void Seek(UInt64 offset) override
+				void SetCursorPos(UInt64 offset) override
 				{
 					sf_seek(m_handle, offset*m_sampleRate / 1000, SEEK_SET);
+					m_cursorPos = offset;
 				}
 
 			private:
@@ -209,6 +218,7 @@ namespace Nz
 				bool m_mixToMono;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
+				UInt64 m_cursorPos;
 				UInt64 m_sampleCount;
 		};
 

@@ -47,6 +47,7 @@ namespace Nz
 
 			UInt32 GetDuration() const;
 			AudioFormat GetFormat() const;
+			std::pair<UInt32, UInt32> GetLoopPoints() const;
 			UInt32 GetPlayingOffset() const;
 			UInt64 GetSampleCount() const;
 			UInt32 GetSampleRate() const;
@@ -61,6 +62,7 @@ namespace Nz
 			void Pause();
 			void Play();
 
+			void SetLoopPoints(UInt32 startOffset, UInt32 endOffset);
 			void SetPlayingOffset(UInt32 offset);
 
 			void Stop();
