@@ -25,6 +25,7 @@ namespace Ndk
 	ListenerSystem::ListenerSystem()
 	{
 		Requires<ListenerComponent, NodeComponent>();
+		SetUpdateOrder(100); //< Update last, after every movement is done
 	}
 
 	/*!
@@ -33,11 +34,9 @@ namespace Ndk
 	* \param elapsedTime Delta time used for the update
 	*/
 
-	void ListenerSystem::OnUpdate(float elapsedTime)
+	void ListenerSystem::OnUpdate(float /*elapsedTime*/)
 	{
-		NazaraUnused(elapsedTime);
-
-		unsigned int activeListenerCount = 0;
+		std::size_t activeListenerCount = 0;
 
 		for (const Ndk::EntityHandle& entity : GetEntities())
 		{

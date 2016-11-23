@@ -22,13 +22,11 @@ namespace Nz
 	m_geom(),
 	m_world(world),
 	m_gravityFactor(1.f),
-	m_mass(0.f)
+	m_mass(1.f)
 	{
 		NazaraAssert(m_world, "Invalid world");
 
-		m_handle = cpBodyNew(0.f, 0.f);
-		cpBodySetUserData(m_handle, this);
-		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+		Create();
 
 		SetGeom(geom);
 		SetMass(mass);
@@ -43,9 +41,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		m_handle = cpBodyNew(0.f, 0.f);
-		cpBodySetUserData(m_handle, this);
-		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+		Create();
 
 		SetGeom(object.GetGeom());
 		SetMass(object.GetMass());
@@ -77,7 +73,7 @@ namespace Nz
 		switch (coordSys)
 		{
 			case CoordSys_Global:
-				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(force.x, force.y));
+				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 
 			case CoordSys_Local:
@@ -169,19 +165,60 @@ namespace Nz
 		cpBodySetAngularVelocity(m_handle, angularVelocity);
 	}
 
+	void RigidBody2D::SetGeom(Collider2DRef geom)
+	{
+		// We have no public way of getting rid of an existing geom without removing the whole body
+		// So let's save some attributes of the body, destroy it and rebuild it
+		if (m_geom)
+		{
+			cpVect pos = cpBodyGetPosition(m_handle);
+			cpFloat mass = cpBodyGetMass(m_handle);
+			cpFloat moment = cpBodyGetMoment(m_handle);
+			cpFloat rot = cpBodyGetAngle(m_handle);
+			cpVect vel = cpBodyGetVelocity(m_handle);
+
+			Destroy();
+			Create(mass, moment);
+
+			cpBodySetAngle(m_handle, rot);
+			cpBodySetPosition(m_handle, pos);
+			cpBodySetVelocity(m_handle, vel);
+		}
+
+		if (geom)
+			m_geom = geom;
+		else
+			m_geom = NullCollider2D::New();
+
+		m_shapes = m_geom->CreateShapes(this);
+
+		cpSpace* space = m_world->GetHandle();
+		for (cpShape* shape : m_shapes)
+			cpSpaceAddShape(space, shape);
+
+		cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+	}
+
 	void RigidBody2D::SetMass(float mass)
 	{
 		if (m_mass > 0.f)
 		{
 			if (mass > 0.f)
+			{
 				cpBodySetMass(m_handle, mass);
+				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+			}
 			else
 				cpBodySetType(m_handle, CP_BODY_TYPE_STATIC);
 		}
 		else if (mass > 0.f)
 		{
 			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			{
 				cpBodySetType(m_handle, CP_BODY_TYPE_DYNAMIC);
+				cpBodySetMass(m_handle, mass);
+				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+			}
 		}
 
 		m_mass = mass;
@@ -196,6 +233,8 @@ namespace Nz
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));
+		if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			cpSpaceReindexShapesForBody(m_world->GetHandle(), m_handle);
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
@@ -230,22 +269,26 @@ namespace Nz
 		return *this;
 	}
 
-	void RigidBody2D::Destroy()
+	void RigidBody2D::Create(float mass, float moment)
 	{
-		for (cpShape* shape : m_shapes)
-			cpShapeFree(shape);
-
-		if (m_handle)
-			cpBodyFree(m_handle);
+		m_handle = cpBodyNew(mass, moment);
+		cpBodySetUserData(m_handle, this);
+		cpSpaceAddBody(m_world->GetHandle(), m_handle);
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom)
+	void RigidBody2D::Destroy()
 	{
-		if (geom)
-			m_geom = geom;
-		else
-			m_geom = NullCollider2D::New();
+		cpSpace* space = m_world->GetHandle();
+		for (cpShape* shape : m_shapes)
+		{
+			cpSpaceRemoveShape(space, shape);
+			cpShapeFree(shape);
+		}
 
-		m_shapes = m_geom->CreateShapes(this);
+		if (m_handle)
+		{
+			cpSpaceRemoveBody(space, m_handle);
+			cpBodyFree(m_handle);
+		}
 	}
 }

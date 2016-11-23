@@ -18,9 +18,12 @@
 
 namespace Ndk
 {
+	class CameraComponent;
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
+	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
+
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer, public Nz::HandledObject<CameraComponent>
 	{
 		public:
 			inline CameraComponent();
@@ -51,7 +54,7 @@ namespace Ndk
 			float GetZNear() const override;
 
 			inline void SetFOV(float fov);
-			inline void SetLayer(unsigned int layer);
+			void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
 			inline void SetSize(const Nz::Vector2f& size);
 			inline void SetSize(float width, float height);

@@ -74,11 +74,11 @@ namespace Nz
 			if (emissionCount >= 1.f)
 			{
 				// We compute the maximum number of particles which can be emitted
-				unsigned int emissionCountInt = static_cast<unsigned int>(emissionCount);
-				unsigned int maxParticleCount = emissionCountInt * m_emissionCount;
+				std::size_t emissionCountInt = static_cast<std::size_t>(emissionCount);
+				std::size_t maxParticleCount = emissionCountInt * m_emissionCount;
 
 				// We get the number of particles that we are able to create (depending on the free space)
-				unsigned int particleCount = std::min(maxParticleCount, system.GetMaxParticleCount() - system.GetParticleCount());
+				std::size_t particleCount = std::min(maxParticleCount, system.GetMaxParticleCount() - system.GetParticleCount());
 				if (particleCount == 0)
 					return;
 
@@ -115,7 +115,7 @@ namespace Nz
 	* \return Current emission count
 	*/
 
-	unsigned int ParticleEmitter::GetEmissionCount() const
+	std::size_t ParticleEmitter::GetEmissionCount() const
 	{
 		return m_emissionCount;
 	}
@@ -146,7 +146,7 @@ namespace Nz
 	* \param count Emission count
 	*/
 
-	void ParticleEmitter::SetEmissionCount(unsigned int count)
+	void ParticleEmitter::SetEmissionCount(std::size_t count)
 	{
 		m_emissionCount = count;
 	}

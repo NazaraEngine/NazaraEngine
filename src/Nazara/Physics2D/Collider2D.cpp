@@ -10,7 +10,7 @@
 namespace Nz
 {
 	Collider2D::~Collider2D() = default;
-	
+
 	/******************************** BoxCollider2D *********************************/
 
 	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
@@ -84,4 +84,25 @@ namespace Nz
 	{
 		return std::vector<cpShape*>();
 	}
+
+	/******************************** SegmentCollider2D *********************************/
+
+	float SegmentCollider2D::ComputeInertialMatrix(float mass) const
+	{
+		return static_cast<float>(cpMomentForSegment(mass, cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
+	}
+
+	ColliderType2D SegmentCollider2D::GetType() const
+	{
+		return ColliderType2D_Segment;
+	}
+
+	std::vector<cpShape*> SegmentCollider2D::CreateShapes(RigidBody2D* body) const
+	{
+		std::vector<cpShape*> shapes;
+		shapes.push_back(cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
+
+		return shapes;
+	}
+
 }

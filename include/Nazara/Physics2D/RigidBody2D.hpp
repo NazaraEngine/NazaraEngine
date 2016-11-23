@@ -49,6 +49,7 @@ namespace Nz
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(float angularVelocity);
+			void SetGeom(Collider2DRef geom);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
 			void SetPosition(const Vector2f& position);
@@ -59,8 +60,8 @@ namespace Nz
 			RigidBody2D& operator=(RigidBody2D&& object);
 
 		private:
+			void Create(float mass = 1.f, float moment = 1.f);
 			void Destroy();
-			void SetGeom(Collider2DRef geom);
 
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;

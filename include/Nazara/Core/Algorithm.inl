@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <climits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -68,6 +69,17 @@ namespace Nz
 		constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Returns the number of bits occupied by the type T
+	* \return Number of bits occupied by the type
+	*/
+	template<typename T>
+	constexpr std::size_t BitCount()
+	{
+		return CHAR_BIT * sizeof(T);
 	}
 
 	/*!

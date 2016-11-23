@@ -23,7 +23,7 @@ namespace Nz
 		// Then the component that are interesting
 		bool enabled;
 		ComponentType type;
-		unsigned int offset;
+		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
 		if (enabled)
@@ -54,7 +54,7 @@ namespace Nz
 		// Then the component that are interesting
 		bool enabled;
 		ComponentType type;
-		unsigned int offset;
+		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
 		if (enabled)
