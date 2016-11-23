@@ -83,7 +83,7 @@ namespace Ndk
 				renderableDataInvalidationSlot(std::move(rhs.renderableDataInvalidationSlot)),
 				renderableReleaseSlot(std::move(rhs.renderableReleaseSlot)),
 				data(std::move(rhs.data)),
-				renderable(std::move(rhs.rhs)),
+				renderable(std::move(rhs.renderable)),
 				dataUpdated(rhs.dataUpdated)
 				{
 				}
