@@ -44,6 +44,8 @@ namespace Nz
 			void* GenerateParticle();
 			void* GenerateParticles(unsigned int count);
 
+			inline void* GetBuffer();
+			inline const void* GetBuffer() const;
 			const ParticleDeclarationConstRef& GetDeclaration() const;
 			std::size_t GetMaxParticleCount() const;
 			std::size_t GetParticleCount() const;
@@ -93,5 +95,7 @@ namespace Nz
 			bool m_processing;
 	};
 }
+
+#include <Nazara/Graphics/ParticleGroup.inl>
 
 #endif // NAZARA_PARTICLEGROUP_HPP

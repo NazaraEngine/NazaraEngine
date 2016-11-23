@@ -21,16 +21,16 @@ namespace Nz
 		Vector3f normal;
 		Vector3f position;
 		Vector3f velocity;
-		UInt32 life;
+		float life;
 		float rotation;
 	};
 
 	struct ParticleStruct_Model
 	{
+		Quaternionf rotation;
 		Vector3f position;
 		Vector3f velocity;
-		UInt32 life;
-		Quaternionf rotation;
+		float life;
 	};
 
 	struct ParticleStruct_Sprite
@@ -38,7 +38,7 @@ namespace Nz
 		Color color;
 		Vector3f position;
 		Vector3f velocity;
-		UInt32 life;
+		float life;
 		float rotation;
 	};
 }
