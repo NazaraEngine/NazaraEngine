@@ -693,7 +693,10 @@ function NazaraBuild:PrepareGeneric()
 	flags({
 		"C++14",
 		"MultiProcessorCompile",
-		"NoMinimalRebuild"
+		"NoMinimalRebuild",
+		"RelativeLinks",
+		"ShadowedVariables",
+		"UndefinedIdentifiers"
 	})
 
 	self:FilterLibDirectory("../extlibs/lib/", libdirs)
@@ -727,7 +730,6 @@ function NazaraBuild:PrepareGeneric()
 	filter("configurations:Release*")
 		flags("NoFramePointer")
 		optimize("Speed")
-		rtti("Off")
 		vectorextensions("SSE2")
 
 	filter("configurations:*Static")

@@ -33,8 +33,8 @@ namespace Nz
 			Vector2f uv;
 		};
 
-		unsigned int s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
-		unsigned int s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		std::size_t s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
+		std::size_t s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 	}
 
 	/*!
@@ -347,13 +347,13 @@ namespace Nz
 							const Texture* overlay = overlayIt.first;
 							auto& spriteChainVector = overlayIt.second.spriteChains;
 
-							unsigned int spriteChainCount = spriteChainVector.size();
+							std::size_t spriteChainCount = spriteChainVector.size();
 							if (spriteChainCount > 0)
 							{
 								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
 
-								unsigned int spriteChain = 0; // Which chain of sprites are we treating
-								unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
+								std::size_t spriteChain = 0; // Which chain of sprites are we treating
+								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
 
 								do
 								{
@@ -361,13 +361,13 @@ namespace Nz
 									BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
 									VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
-									unsigned int spriteCount = 0;
-									unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+									std::size_t spriteCount = 0;
+									std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 									do
 									{
 										ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-										unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
+										std::size_t count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
 
 										std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
 										vertices += count * 4;
@@ -450,17 +450,17 @@ namespace Nz
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 
-						unsigned int billboardCount = billboardVector.size();
+						std::size_t billboardCount = billboardVector.size();
 						if (billboardCount > 0)
 						{
 							// We begin to apply the material (and get the shader activated doing so)
 							material->Apply(pipelineInstance);
 
 							const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-							unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+							std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
 							do
 							{
-								unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+								std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 								billboardCount -= renderedBillboardCount;
 
 								instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
@@ -512,12 +512,12 @@ namespace Nz
 						auto& billboardVector = entry.billboards;
 
 						const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-						unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
+						std::size_t maxBillboardPerDraw = std::min<std::size_t>(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
 
-						unsigned int billboardCount = billboardVector.size();
+						std::size_t billboardCount = billboardVector.size();
 						do
 						{
-							unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+							std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 							billboardCount -= renderedBillboardCount;
 
 							BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
@@ -664,16 +664,16 @@ namespace Nz
 
 									// With instancing, impossible to select the lights for each object
 									// So, it's only activated for directional lights
-									unsigned int lightCount = m_renderQueue.directionalLights.size();
-									unsigned int lightIndex = 0;
+									std::size_t lightCount = m_renderQueue.directionalLights.size();
+									std::size_t lightIndex = 0;
 									RendererComparison oldDepthFunc = Renderer::GetDepthFunc();
 
-									unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-									for (unsigned int pass = 0; pass < passCount; ++pass)
+									std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+									for (std::size_t pass = 0; pass < passCount; ++pass)
 									{
 										if (shaderUniforms->hasLightUniforms)
 										{
-											unsigned int renderedLightCount = std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+											std::size_t renderedLightCount = std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
 											lightCount -= renderedLightCount;
 
 											if (pass == 1)
@@ -688,18 +688,18 @@ namespace Nz
 											}
 
 											// Sends the uniforms
-											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+											for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset * i, freeTextureUnit + i);
 										}
 
 										const Matrix4f* instanceMatrices = &instances[0];
-										unsigned int instanceCount = instances.size();
-										unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
+										std::size_t instanceCount = instances.size();
+										std::size_t maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
 
 										while (instanceCount > 0)
 										{
 											// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-											unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+											std::size_t renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 											instanceCount -= renderedInstanceCount;
 
 											// We fill the instancing buffer with our world matrices
@@ -724,16 +724,16 @@ namespace Nz
 											// Choose the lights depending on an object position and apparent radius
 											ChooseLights(Spheref(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius));
 
-											unsigned int lightCount = m_lights.size();
+											std::size_t lightCount = m_lights.size();
 
 											Renderer::SetMatrix(MatrixType_World, matrix);
-											unsigned int lightIndex = 0;
+											std::size_t lightIndex = 0;
 											RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
-											unsigned int passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-											for (unsigned int pass = 0; pass < passCount; ++pass)
+											std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+											for (std::size_t pass = 0; pass < passCount; ++pass)
 											{
-												lightCount -= std::min(lightCount, NazaraSuffixMacro(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, U));
+												lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
 
 												if (pass == 1)
 												{
@@ -747,7 +747,7 @@ namespace Nz
 												}
 
 												// Sends the light uniforms to the shader
-												for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+												for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 													SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
 
 												// And we draw
@@ -832,7 +832,7 @@ namespace Nz
 				{
 					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
 
-					for (unsigned int i = 0; i < lightCount; ++i)
+					for (std::size_t i = 0; i < lightCount; ++i)
 						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i, freeTextureUnit++);
 				}
 
@@ -871,7 +871,7 @@ namespace Nz
 				float radius = modelData.squaredBoundingSphere.radius;
 				ChooseLights(Spheref(position, radius), false);
 
-				for (unsigned int i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+				for (std::size_t i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset*i, freeTextureUnit++);
 			}
 

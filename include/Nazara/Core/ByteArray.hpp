@@ -88,7 +88,7 @@ namespace Nz
 			inline void ShrinkToFit();
 			inline void Swap(ByteArray& other);
 
-			inline String ToHex() const;
+			String ToHex() const;
 			inline String ToString() const;
 
 			// STL interface

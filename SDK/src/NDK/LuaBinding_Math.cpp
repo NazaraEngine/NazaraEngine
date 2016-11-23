@@ -37,6 +37,9 @@ namespace Ndk
 			return false;
 		});
 
+		eulerAngles.BindMethod("Normalize", &Nz::EulerAnglesd::Normalize);
+		eulerAngles.BindMethod("ToQuaternion", &Nz::EulerAnglesd::ToQuaternion);
+
 		eulerAngles.BindMethod("__tostring", &Nz::EulerAnglesd::ToString);
 
 		eulerAngles.SetGetter([] (Nz::LuaInstance& lua, Nz::EulerAnglesd& instance)
@@ -174,7 +177,7 @@ namespace Ndk
 				case 16:
 				{
 					double values[16];
-					for (std::size_t i = 0; i < 16; ++i)
+					for (int i = 0; i < 16; ++i)
 						values[i] = lua.CheckNumber(i);
 
 					Nz::PlacementNew(matrix, values);
@@ -377,7 +380,7 @@ namespace Ndk
 						PlacementNew(instance, *static_cast<Nz::Rectd*>(lua.ToUserdata(1)));
 					else if (lua.IsOfType(1, Nz::LuaType_Table))
 					{
-						// TODO => Faire sans avoir ‡ mettre de nom dans la table et prendre les ÈlÈments un ‡ un pour crÈer le Rectd
+						// TODO => Faire sans avoir √† mettre de nom dans la table et prendre les √©l√©ments un √† un pour cr√©er le Rectd
 						PlacementNew(instance, lua.CheckField<double>("x", 1),
 						                       lua.CheckField<double>("y", 1),
 						                       lua.CheckField<double>("width", 1),
@@ -554,7 +557,57 @@ namespace Ndk
 			return false;
 		});
 
+		quaternion.BindMethod("ComputeW", &Nz::Quaterniond::ComputeW);
+		quaternion.BindMethod("Conjugate", &Nz::Quaterniond::Conjugate);
+		quaternion.BindMethod("DotProduct", &Nz::Quaterniond::DotProduct);
+		quaternion.BindMethod("GetConjugate", &Nz::Quaterniond::GetConjugate);
+		quaternion.BindMethod("GetInverse", &Nz::Quaterniond::GetInverse);
+
+		quaternion.BindMethod("Inverse", &Nz::Quaterniond::Inverse);
+		quaternion.BindMethod("Magnitude", &Nz::Quaterniond::Magnitude);
+
+		quaternion.BindMethod("SquaredMagnitude", &Nz::Quaterniond::SquaredMagnitude);
+		quaternion.BindMethod("ToEulerAngles", &Nz::Quaterniond::ToEulerAngles);
+
 		quaternion.BindMethod("__tostring", &Nz::Quaterniond::ToString);
+
+		quaternion.BindStaticMethod("Lerp", &Nz::Quaterniond::Lerp);
+		quaternion.BindStaticMethod("RotationBetween", &Nz::Quaterniond::RotationBetween);
+		quaternion.BindStaticMethod("Slerp", &Nz::Quaterniond::Slerp);
+
+		quaternion.BindMethod("GetNormal", [] (Nz::LuaInstance& lua, Nz::Quaterniond& instance, std::size_t /*argumentCount*/) -> int
+		{
+			double length;
+
+			lua.Push(instance.GetNormal(&length));
+			lua.Push(length);
+
+			return 2;
+		});
+
+		quaternion.BindMethod("Normalize", [] (Nz::LuaInstance& lua, Nz::Quaterniond& instance, std::size_t /*argumentCount*/) -> int
+		{
+			double length;
+
+			instance.Normalize(&length);
+			lua.Push(1); //< instance
+			lua.Push(length);
+
+			return 2;
+		});
+
+		quaternion.BindStaticMethod("Normalize", [] (Nz::LuaInstance& instance) -> int
+		{
+			int argIndex = 1;
+			Nz::Quaterniond quat = instance.Check<Nz::Quaterniond>(&argIndex);
+
+			double length;
+
+			instance.Push(Nz::Quaterniond::Normalize(quat, &length));
+			instance.Push(length);
+
+			return 2;
+		});
 
 		quaternion.SetGetter([] (Nz::LuaInstance& lua, Nz::Quaterniond& instance)
 		{
@@ -904,5 +957,12 @@ namespace Ndk
 		rect.Register(instance);
 		vector2d.Register(instance);
 		vector3d.Register(instance);
+
+		quaternion.PushGlobalTable(instance);
+		{
+			instance.PushField("Identity", Nz::Quaterniond::Identity());
+			instance.PushField("Zero", Nz::Quaterniond::Zero());
+		}
+		instance.Pop();
 	}
 }

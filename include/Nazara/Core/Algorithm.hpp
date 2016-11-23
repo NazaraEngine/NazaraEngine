@@ -22,6 +22,7 @@ namespace Nz
 
 	template<typename F, typename Tuple> decltype(auto) Apply(F&& fn, Tuple&& t);
 	template<typename O, typename F, typename Tuple> decltype(auto) Apply(O& object, F&& fn, Tuple&& t);
+	template<typename T> constexpr std::size_t BitCount();
 	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
 	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
 	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;

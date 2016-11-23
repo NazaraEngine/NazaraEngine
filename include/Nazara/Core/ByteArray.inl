@@ -466,22 +466,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gives a string representation in base 16
-	* \return String in base 16
-	*/
-
-	inline String ByteArray::ToHex() const
-	{
-		std::size_t length = m_array.size() * 2;
-
-		String hexOutput(length, '\0');
-		for (std::size_t i = 0; i < m_array.size(); ++i)
-			std::sprintf(&hexOutput[i * 2], "%02x", m_array[i]);
-
-		return hexOutput;
-	}
-
-	/*!
 	* \brief Gives a string representation
 	* \return String where each byte is converted to char
 	*/

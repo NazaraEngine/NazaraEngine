@@ -24,7 +24,7 @@ namespace Nz
 	Vector2f PhysWorld2D::GetGravity() const
 	{
 		cpVect gravity = cpSpaceGetGravity(m_handle);
-		return Vector2f(gravity.x, gravity.y);
+		return Vector2f(Vector2<cpFloat>(gravity.x, gravity.y));
 	}
 
 	cpSpace* PhysWorld2D::GetHandle() const

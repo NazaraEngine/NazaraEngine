@@ -12,6 +12,18 @@ namespace Ndk
 
 	void LuaBinding::BindGraphics()
 	{
+		/*********************************** Nz::AbstractViewer ***********************************/
+		abstractViewer.BindMethod("GetAspectRatio", &Nz::AbstractViewer::GetAspectRatio);
+		abstractViewer.BindMethod("GetEyePosition", &Nz::AbstractViewer::GetEyePosition);
+		abstractViewer.BindMethod("GetForward", &Nz::AbstractViewer::GetForward);
+		//abstractViewer.BindMethod("GetFrustum", &Nz::AbstractViewer::GetFrustum);
+		abstractViewer.BindMethod("GetProjectionMatrix", &Nz::AbstractViewer::GetProjectionMatrix);
+		//abstractViewer.BindMethod("GetTarget", &Nz::AbstractViewer::GetTarget);
+		abstractViewer.BindMethod("GetViewMatrix", &Nz::AbstractViewer::GetViewMatrix);
+		abstractViewer.BindMethod("GetViewport", &Nz::AbstractViewer::GetViewport);
+		abstractViewer.BindMethod("GetZFar", &Nz::AbstractViewer::GetZFar);
+		abstractViewer.BindMethod("GetZNear", &Nz::AbstractViewer::GetZNear);
+
 		/*********************************** Nz::InstancedRenderable ***********************************/
 
 		/*********************************** Nz::Material ***********************************/
@@ -122,7 +134,7 @@ namespace Ndk
 		material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);
 		material.BindMethod("IsShadowReceiveEnabled", &Nz::Material::IsShadowReceiveEnabled);
 
-		material.BindMethod("LoadFromFile",           &Nz::Material::LoadFromFile);
+		material.BindMethod("LoadFromFile",           &Nz::Material::LoadFromFile, Nz::MaterialParams());
 
 		material.BindMethod("Reset",                  &Nz::Material::Reset);
 
@@ -281,12 +293,36 @@ namespace Ndk
 		sprite.BindMethod("SetColor", &Nz::Sprite::SetColor);
 		sprite.BindMethod("SetCornerColor", &Nz::Sprite::SetCornerColor);
 		sprite.BindMethod("SetDefaultMaterial", &Nz::Sprite::SetDefaultMaterial);
-		sprite.BindMethod("SetMaterial", &Nz::Sprite::SetMaterial, true);
 		sprite.BindMethod("SetOrigin", &Nz::Sprite::SetOrigin);
 		sprite.BindMethod("SetSize", (void(Nz::Sprite::*)(const Nz::Vector2f&)) &Nz::Sprite::SetSize);
-		sprite.BindMethod("SetTexture", &Nz::Sprite::SetTexture, true);
 		sprite.BindMethod("SetTextureCoords", &Nz::Sprite::SetTextureCoords);
 		sprite.BindMethod("SetTextureRect", &Nz::Sprite::SetTextureRect);
+
+		sprite.BindMethod("SetMaterial", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
+		{
+			int argIndex = 2;
+			bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+			if (lua.IsOfType(argIndex, "Material"))
+				instance->SetMaterial(*static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex)), resizeSprite);
+			else
+				instance->SetMaterial(lua.Check<Nz::String>(&argIndex), resizeSprite);
+
+			return 0;
+		});
+
+		sprite.BindMethod("SetTexture", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
+		{
+			int argIndex = 2;
+			bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+			if (lua.IsOfType(argIndex, "Texture"))
+				instance->SetTexture(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)), resizeSprite);
+			else
+				instance->SetTexture(lua.Check<Nz::String>(&argIndex), resizeSprite);
+
+			return 0;
+		});
 
 		/*********************************** Nz::SpriteLibrary ***********************************/
 
@@ -323,6 +359,7 @@ namespace Ndk
 
 	void LuaBinding::RegisterGraphics(Nz::LuaInstance& instance)
 	{
+		abstractViewer.Register(instance);
 		instancedRenderable.Register(instance);
 		material.Register(instance);
 		model.Register(instance);

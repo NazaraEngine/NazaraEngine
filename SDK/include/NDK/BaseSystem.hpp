@@ -35,6 +35,7 @@ namespace Ndk
 
 			inline const std::vector<EntityHandle>& GetEntities() const;
 			inline SystemIndex GetIndex() const;
+			inline int GetUpdateOrder() const;
 			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
 
@@ -42,6 +43,7 @@ namespace Ndk
 
 			inline bool HasEntity(const Entity* entity) const;
 
+			void SetUpdateOrder(int updateOrder);
 			inline void SetUpdateRate(float updatePerSecond);
 
 			inline void Update(float elapsedTime);
@@ -93,6 +95,7 @@ namespace Ndk
 			bool m_updateEnabled;
 			float m_updateCounter;
 			float m_updateRate;
+			int m_updateOrder;
 
 			static SystemIndex s_nextIndex;
 	};

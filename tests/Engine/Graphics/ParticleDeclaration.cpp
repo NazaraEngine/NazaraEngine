@@ -11,10 +11,10 @@ SCENARIO("ParticleDeclaration", "[GRAPHICS][PARTICLEDECLARATION]")
 		{
 			bool enabled;
 			Nz::ComponentType type;
-			unsigned int offset;
+			std::size_t offset;
 			particleDeclaration->GetComponent(Nz::ParticleComponent_Position, &enabled, &type, &offset);
 			REQUIRE(enabled);
-			unsigned int oldStride = particleDeclaration->GetStride();
+			std::size_t oldStride = particleDeclaration->GetStride();
 
 			particleDeclaration->DisableComponent(Nz::ParticleComponent_Position);
 			REQUIRE(oldStride != particleDeclaration->GetStride());

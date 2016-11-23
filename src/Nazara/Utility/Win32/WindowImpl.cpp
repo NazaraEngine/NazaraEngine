@@ -83,6 +83,7 @@ namespace Nz
 
 	bool WindowImpl::Create(const VideoMode& mode, const String& title, UInt32 style)
 	{
+		bool async = (style & WindowStyle_Threaded) != 0;
 		bool fullscreen = (style & WindowStyle_Fullscreen) != 0;
 		DWORD win32Style, win32StyleEx;
 		unsigned int x, y;
@@ -147,19 +148,25 @@ namespace Nz
 
 		m_callback = 0;
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		Mutex mutex;
-		ConditionVariable condition;
-		m_threadActive = true;
+		m_eventListener = true;
+		m_ownsWindow = true;
+		m_sizemove = false;
+		m_style = style;
 
-		// On attend que la fenêtre soit créée
-		mutex.Lock();
-		m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, x, y, width, height, this, &mutex, &condition);
-		condition.Wait(&mutex);
-		mutex.Unlock();
-		#else
-		m_handle = CreateWindowExW(win32StyleEx, className, title.GetWideString().data(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
-		#endif
+		if (async)
+		{
+			Mutex mutex;
+			ConditionVariable condition;
+			m_threadActive = true;
+
+			// On attend que la fenêtre soit créée
+			mutex.Lock();
+			m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, fullscreen, Rectui(x, y, width, height), this, &mutex, &condition);
+			condition.Wait(&mutex);
+			mutex.Unlock();
+		}
+		else
+			m_handle = CreateWindowExW(win32StyleEx, className, title.GetWideString().data(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
 
 		if (!m_handle)
 		{
@@ -167,26 +174,8 @@ namespace Nz
 			return false;
 		}
 
-		if (fullscreen)
-		{
-			SetForegroundWindow(m_handle);
-			ShowWindow(m_handle, SW_SHOW);
-		}
-
-		m_eventListener = true;
-		m_ownsWindow = true;
-		#if !NAZARA_UTILITY_THREADED_WINDOW
-		m_sizemove = false;
-		#endif
-		m_style = style;
-
-		// Récupération de la position/taille de la fenêtre (Après sa création)
-		RECT clientRect, windowRect;
-		GetClientRect(m_handle, &clientRect);
-		GetWindowRect(m_handle, &windowRect);
-
-		m_position.Set(windowRect.left, windowRect.top);
-		m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+		if (!async)
+			PrepareWindow(fullscreen);
 
 		return true;
 	}
@@ -203,9 +192,7 @@ namespace Nz
 
 		m_eventListener = false;
 		m_ownsWindow = false;
-		#if !NAZARA_UTILITY_THREADED_WINDOW
 		m_sizemove = false;
-		#endif
 		m_style = RetrieveStyle(m_handle);
 
 		RECT clientRect, windowRect;
@@ -222,18 +209,21 @@ namespace Nz
 	{
 		if (m_ownsWindow)
 		{
-			#if NAZARA_UTILITY_THREADED_WINDOW
-			if (m_thread.IsJoinable())
+			if (m_style & WindowStyle_Threaded)
 			{
-				m_threadActive = false;
-				PostMessageW(m_handle, WM_NULL, 0, 0); // Pour réveiller le thread
+				if (m_thread.IsJoinable())
+				{
+					m_threadActive = false;
+					PostMessageW(m_handle, WM_NULL, 0, 0); // Wake up our thread
 
-				m_thread.Join();
+					m_thread.Join();
+				}
 			}
-			#else
-			if (m_handle)
-				DestroyWindow(m_handle);
-			#endif
+			else
+			{
+				if (m_handle)
+					DestroyWindow(m_handle);
+			}
 		}
 		else
 			SetEventListener(false);
@@ -280,7 +270,7 @@ namespace Nz
 		if (titleSize == 0)
 			return String();
 
-		titleSize++; // Caractère nul
+		titleSize++; // \0
 
 		std::unique_ptr<wchar_t[]> wTitle(new wchar_t[titleSize]);
 		GetWindowTextW(m_handle, wTitle.get(), titleSize);
@@ -525,7 +515,6 @@ namespace Nz
 					return true; // Afin que Windows ne ferme pas la fenêtre automatiquement
 				}
 
-				#if !NAZARA_UTILITY_THREADED_WINDOW
 				case WM_ENTERSIZEMOVE:
 				{
 					m_sizemove = true;
@@ -535,6 +524,10 @@ namespace Nz
 				case WM_EXITSIZEMOVE:
 				{
 					m_sizemove = false;
+
+					// In case of threaded window, size and move events are not blocked
+					if (m_style & WindowStyle_Threaded)
+						break;
 
 					// On vérifie ce qui a changé
 					RECT clientRect, windowRect;
@@ -565,7 +558,6 @@ namespace Nz
 						m_parent->PushEvent(event);
 					}
 				}
-				#endif
 
 				case WM_KEYDOWN:
 				case WM_SYSKEYDOWN:
@@ -789,10 +781,8 @@ namespace Nz
 
 				case WM_MOVE:
 				{
-					#if !NAZARA_UTILITY_THREADED_WINDOW
-					if (m_sizemove)
+					if (m_sizemove && (m_style & WindowStyle_Threaded) == 0)
 						break;
-					#endif
 
 					RECT windowRect;
 					GetWindowRect(m_handle, &windowRect);
@@ -862,27 +852,26 @@ namespace Nz
 
 				case WM_SIZE:
 				{
-					#if NAZARA_UTILITY_THREADED_WINDOW
-					if (wParam != SIZE_MINIMIZED)
-					#else
-					if (!m_sizemove && wParam != SIZE_MINIMIZED)
-					#endif
-					{
-						RECT rect;
-						GetClientRect(m_handle, &rect);
+					if (m_sizemove && (m_style & WindowStyle_Threaded) == 0)
+						break;
 
-						Vector2ui size(rect.right-rect.left, rect.bottom-rect.top); // On récupère uniquement la taille de la zone client
-						if (m_size == size)
-							break;
+					if (wParam == SIZE_MINIMIZED)
+						break;
 
-						m_size = size;
+					RECT rect;
+					GetClientRect(m_handle, &rect);
 
-						WindowEvent event;
-						event.type = WindowEventType_Resized;
-						event.size.width = size.x;
-						event.size.height = size.y;
-						m_parent->PushEvent(event);
-					}
+					Vector2ui size(rect.right-rect.left, rect.bottom-rect.top); // On récupère uniquement la taille de la zone client
+					if (m_size == size)
+						break;
+
+					m_size = size;
+
+					WindowEvent event;
+					event.type = WindowEventType_Resized;
+					event.size.width = size.x;
+					event.size.height = size.y;
+					m_parent->PushEvent(event);
 					break;
 				}
 
@@ -971,6 +960,23 @@ namespace Nz
 		#endif
 
 		return false;
+	}
+
+	void WindowImpl::PrepareWindow(bool fullscreen)
+	{
+		if (fullscreen)
+		{
+			SetForegroundWindow(m_handle);
+			ShowWindow(m_handle, SW_SHOW);
+		}
+
+		// Cache window position/size after creation
+		RECT clientRect, windowRect;
+		GetClientRect(m_handle, &clientRect);
+		GetWindowRect(m_handle, &windowRect);
+
+		m_position.Set(windowRect.left, windowRect.top);
+		m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 	}
 
 	bool WindowImpl::Initialize()
@@ -1187,15 +1193,17 @@ namespace Nz
 		return style;
 	}
 
-	#if NAZARA_UTILITY_THREADED_WINDOW
-	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
+	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
 	{
 		HWND& winHandle = *handle;
-		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, dimensions.x, dimensions.y, dimensions.width, dimensions.height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+
+		if (winHandle)
+			window->PrepareWindow(fullscreen);
 
 		mutex->Lock();
 		condition->Signal();
-		mutex->Unlock(); // mutex et condition sont considérés invalides à partir d'ici
+		mutex->Unlock(); // mutex and condition may be destroyed after this line
 
 		if (!winHandle)
 			return;
@@ -1205,5 +1213,4 @@ namespace Nz
 
 		DestroyWindow(winHandle);
 	}
-#endif
 }
