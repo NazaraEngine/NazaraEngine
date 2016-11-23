@@ -22,6 +22,7 @@ namespace Nz
 
 			template<typename T> SparsePtr<T> GetComponentPtr(ParticleComponent component);
 			template<typename T> SparsePtr<const T> GetComponentPtr(ParticleComponent component) const;
+			inline void* GetPointer();
 
 		private:
 			const ParticleDeclaration* m_declaration;
