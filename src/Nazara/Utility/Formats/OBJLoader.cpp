@@ -265,7 +265,7 @@ namespace Nz
 
 					if (vertexIndices.texCoord > 0)
 					{
-						Vector2f uv = texCoords[vertexIndices.texCoord - 1];
+						Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
 						vertex.uv.Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
 					}
 					else
