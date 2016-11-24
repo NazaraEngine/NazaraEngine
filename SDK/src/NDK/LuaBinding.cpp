@@ -16,49 +16,61 @@ namespace Ndk
 
 	LuaBinding::LuaBinding() :
 	// Core
-	clockClass("Clock"),
-	directoryClass("Directory"),
-	fileClass("File"),
-	streamClass("Stream"),
+	clock("Clock"),
+	directory("Directory"),
+	file("File"),
+	stream("Stream"),
 
 	// Math
-	eulerAnglesClass("EulerAngles"),
-	quaternionClass("Quaternion"),
-	rectClass("Rect"),
-	vector2dClass("Vector2"),
-	vector3dClass("Vector3"),
+	eulerAngles("EulerAngles"),
+	matrix4d("Matrix4"),
+	quaternion("Quaternion"),
+	rect("Rect"),
+	vector2d("Vector2"),
+	vector3d("Vector3"),
 
 	// Network
-	abstractSocketClass("AbstractSocket"),
-	ipAddressClass("IpAddress"),
+	abstractSocket("AbstractSocket"),
+	ipAddress("IpAddress"),
 
 	// Utility
 	abstractImage("AbstractImage"),
-	fontClass("Font"),
-	nodeClass("Node"),
+	font("Font"),
+	keyboard("Keyboard"),
+	node("Node"),
 
 	// SDK
 	application("Application"),
-	entityClass("Entity"),
+	entity("Entity"),
 	nodeComponent("NodeComponent"),
 	velocityComponent("VelocityComponent"),
-	worldClass("World")
+	world("World")
 
 	#ifndef NDK_SERVER
 	,
 
 	// Audio
-	musicClass("Music"),
-	soundClass("Sound"),
+	music("Music"),
+	sound("Sound"),
 	soundBuffer("SoundBuffer"),
 	soundEmitter("SoundEmitter"),
 
 	// Graphics
+	abstractViewer("AbstractViewer"),
 	instancedRenderable("InstancedRenderable"),
-	modelClass("Model"),
+	material("Material"),
+	model("Model"),
+	sprite("Sprite"),
+	spriteLibrary("SpriteLibrary"),
+	textureLibrary("TextureLibrary"),
+	textureManager("TextureManager"),
+
+	// Renderer
+	texture("Texture"),
 
 	// SDK
-	consoleClass("Console"),
+	cameraComponent("CameraComponent"),
+	console("Console"),
 	graphicsComponent("GraphicsComponent")
 	#endif
 	{

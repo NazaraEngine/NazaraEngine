@@ -1,17 +1,19 @@
+#include <Nazara/Core/Thread.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Catch/catch.hpp>
-
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-
 #include <random>
 
 SCENARIO("TCP", "[NETWORK][TCP]")
 {
 	GIVEN("Two TCP, one client, one server")
 	{
-		Nz::UInt16 port = 26456;
+		std::random_device rd;
+		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
+
+		Nz::UInt16 port = dis(rd);
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
@@ -24,7 +26,9 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 		REQUIRE(client.Connect(serverIP) == Nz::SocketState_Connecting);
 
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
-		REQUIRE(clientIP.IsValid());
+		CHECK(clientIP.IsValid());
+
+		Nz::Thread::Sleep(100);
 
 		Nz::TcpClient serverToClient;
 		REQUIRE(server.AcceptClient(&serverToClient));
@@ -40,9 +44,11 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 			{
 				Nz::NetPacket resultPacket;
 				REQUIRE(serverToClient.ReceivePacket(&resultPacket));
+
 				Nz::Vector3f result;
 				resultPacket >> result;
-				REQUIRE(result == vector123);
+
+				CHECK(result == vector123);
 			}
 		}
 	}

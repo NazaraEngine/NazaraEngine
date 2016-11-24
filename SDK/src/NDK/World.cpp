@@ -5,7 +5,8 @@
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
@@ -40,7 +41,8 @@ namespace Ndk
 
 	void World::AddDefaultSystems()
 	{
-		AddSystem<PhysicsSystem>();
+		AddSystem<PhysicsSystem2D>();
+		AddSystem<PhysicsSystem3D>();
 		AddSystem<VelocitySystem>();
 
 		#ifndef NDK_SERVER
@@ -67,7 +69,7 @@ namespace Ndk
 		else
 		{
 			// We allocate a new entity
-			id = m_entities.size();
+			id = static_cast<Ndk::EntityId>(m_entities.size());
 
 			// We can't use emplace_back due to the scope
 			m_entities.push_back(Entity(this, id));
@@ -172,6 +174,9 @@ namespace Ndk
 
 	void World::Update()
 	{
+		if (!m_orderedSystemsUpdated)
+			ReorderSystems();
+
 		// Handle killed entities before last call
 		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
@@ -218,15 +223,11 @@ namespace Ndk
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
 			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
-				entity->DestroyComponent(j);
+				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
 			removedComponents.Reset();
 
-			for (auto& system : m_systems)
+			for (auto& system : m_orderedSystems)
 			{
-				// Ignore non-existent systems
-				if (!system)
-					continue;
-
 				// Is our entity already part of this system?
 				bool partOfSystem = system->HasEntity(entity);
 
@@ -248,5 +249,23 @@ namespace Ndk
 			}
 		}
 		m_dirtyEntities.Reset();
+	}
+
+	void World::ReorderSystems()
+	{
+		m_orderedSystems.clear();
+
+		for (auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				m_orderedSystems.push_back(systemPtr.get());
+		}
+
+		std::sort(m_orderedSystems.begin(), m_orderedSystems.end(), [] (BaseSystem* first, BaseSystem* second)
+		{
+			return first->GetUpdateOrder() < second->GetUpdateOrder();
+		});
+
+		m_orderedSystemsUpdated = true;
 	}
 }

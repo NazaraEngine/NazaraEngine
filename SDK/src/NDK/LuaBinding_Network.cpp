@@ -12,28 +12,28 @@ namespace Ndk
 	void LuaBinding::BindNetwork()
 	{
 		/*********************************** Nz::AbstractSocket **********************************/
-		abstractSocketClass.BindMethod("Close", &Nz::AbstractSocket::Close);
-		abstractSocketClass.BindMethod("EnableBlocking", &Nz::AbstractSocket::EnableBlocking);
-		abstractSocketClass.BindMethod("GetLastError", &Nz::AbstractSocket::GetLastError);
-		abstractSocketClass.BindMethod("GetState", &Nz::AbstractSocket::GetState);
-		abstractSocketClass.BindMethod("GetType", &Nz::AbstractSocket::GetType);
-		abstractSocketClass.BindMethod("IsBlockingEnabled", &Nz::AbstractSocket::IsBlockingEnabled);
-		abstractSocketClass.BindMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
+		abstractSocket.BindMethod("Close", &Nz::AbstractSocket::Close);
+		abstractSocket.BindMethod("EnableBlocking", &Nz::AbstractSocket::EnableBlocking);
+		abstractSocket.BindMethod("GetLastError", &Nz::AbstractSocket::GetLastError);
+		abstractSocket.BindMethod("GetState", &Nz::AbstractSocket::GetState);
+		abstractSocket.BindMethod("GetType", &Nz::AbstractSocket::GetType);
+		abstractSocket.BindMethod("IsBlockingEnabled", &Nz::AbstractSocket::IsBlockingEnabled);
+		abstractSocket.BindMethod("QueryAvailableBytes", &Nz::AbstractSocket::QueryAvailableBytes);
 
 		/*********************************** Nz::IpAddress **********************************/
-		ipAddressClass.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* address, std::size_t argumentCount)
+		ipAddress.SetConstructor([] (Nz::LuaInstance& lua, Nz::IpAddress* instance, std::size_t argumentCount)
 		{
 			std::size_t argCount = std::min<std::size_t>(argumentCount, 9U);
 
-			int argIndex = 1;
+			int argIndex = 2;
 			switch (argCount)
 			{
 				case 0:
-					Nz::PlacementNew(address);
+					Nz::PlacementNew(instance);
 					return true;
 
 				case 1:
-					Nz::PlacementNew(address, lua.CheckString(argIndex));
+					Nz::PlacementNew(instance, lua.CheckString(argIndex));
 					return true;
 
 				case 4:
@@ -45,7 +45,7 @@ namespace Ndk
 					Nz::UInt8 d = lua.Check<Nz::UInt8>(&argIndex);
 					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
 
-					Nz::PlacementNew(address, a, b, c, d, port);
+					Nz::PlacementNew(instance, a, b, c, d, port);
 					return true;
 				}
 
@@ -62,7 +62,7 @@ namespace Ndk
 					Nz::UInt16 h = lua.Check<Nz::UInt16>(&argIndex);
 					Nz::UInt16 port = lua.Check<Nz::UInt16>(&argIndex, 0);
 
-					Nz::PlacementNew(address, a, b, c, d, e, f, g, h, port);
+					Nz::PlacementNew(instance, a, b, c, d, e, f, g, h, port);
 					return true;
 				}
 			}
@@ -71,19 +71,19 @@ namespace Ndk
 			return false;
 		});
 
-		ipAddressClass.BindMethod("GetPort",     &Nz::IpAddress::GetPort);
-		ipAddressClass.BindMethod("GetProtocol", &Nz::IpAddress::GetProtocol);
-		ipAddressClass.BindMethod("IsLoopback",  &Nz::IpAddress::IsLoopback);
-		ipAddressClass.BindMethod("IsValid",     &Nz::IpAddress::IsValid);
-		ipAddressClass.BindMethod("ToUInt32",    &Nz::IpAddress::ToUInt32);
-		ipAddressClass.BindMethod("__tostring",  &Nz::IpAddress::ToString);
+		ipAddress.BindMethod("GetPort",     &Nz::IpAddress::GetPort);
+		ipAddress.BindMethod("GetProtocol", &Nz::IpAddress::GetProtocol);
+		ipAddress.BindMethod("IsLoopback",  &Nz::IpAddress::IsLoopback);
+		ipAddress.BindMethod("IsValid",     &Nz::IpAddress::IsValid);
+		ipAddress.BindMethod("ToUInt32",    &Nz::IpAddress::ToUInt32);
+		ipAddress.BindMethod("__tostring",  &Nz::IpAddress::ToString);
 
-		ipAddressClass.BindStaticMethod("ResolveAddress", [] (Nz::LuaInstance& instance) -> int
+		ipAddress.BindStaticMethod("ResolveAddress", [] (Nz::LuaInstance& instance) -> int
 		{
 			Nz::String service;
 			Nz::ResolveError error = Nz::ResolveError_Unknown;
 
-			int argIndex = 1;
+			int argIndex = 2;
 			Nz::String hostName = Nz::IpAddress::ResolveAddress(instance.Check<Nz::IpAddress>(&argIndex), &service, &error);
 
 			if (error == Nz::ResolveError_NoError)
@@ -100,11 +100,11 @@ namespace Ndk
 			}
 		});
 
-		ipAddressClass.BindStaticMethod("ResolveHostname", [] (Nz::LuaInstance& instance) -> int
+		ipAddress.BindStaticMethod("ResolveHostname", [] (Nz::LuaInstance& instance) -> int
 		{
 			Nz::ResolveError error = Nz::ResolveError_Unknown;
 
-			int argIndex = 1;
+			int argIndex = 2;
 			Nz::NetProtocol protocol = instance.Check<Nz::NetProtocol>(&argIndex);
 			Nz::String      hostname = instance.Check<Nz::String>(&argIndex);
 			Nz::String      service  = instance.Check<Nz::String>(&argIndex, "http");
@@ -145,8 +145,8 @@ namespace Ndk
 	void LuaBinding::RegisterNetwork(Nz::LuaInstance& instance)
 	{
 		// Classes
-		abstractSocketClass.Register(instance);
-		ipAddressClass.Register(instance);
+		abstractSocket.Register(instance);
+		ipAddress.Register(instance);
 
 		// Enums
 
@@ -199,7 +199,7 @@ namespace Ndk
 			instance.PushField("Unknown",              Nz::ResolveError_Unknown);
 		}
 		instance.SetGlobal("ResolveError");
-		
+
 		// Nz::SocketError
 		static_assert(Nz::SocketError_Max + 1 == 15, "Nz::ResolveError has been updated but change was not reflected to Lua binding");
 		instance.PushTable(0, 15);

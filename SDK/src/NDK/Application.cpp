@@ -98,9 +98,7 @@ namespace Ndk
 
 			++it;
 		}
-		#endif
 
-		#ifndef NDK_SERVER
 		if (m_exitOnClosedWindows && !hasAtLeastOneActiveWindow)
 			return false;
 		#endif

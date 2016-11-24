@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -47,7 +46,7 @@ namespace Nz
 	using ImageRef = ObjectRef<Image>;
 	using ImageSaver = ResourceSaver<Image, ImageParams>;
 
-	class NAZARA_UTILITY_API Image : public AbstractImage, public RefCounted, public Resource
+	class NAZARA_UTILITY_API Image : public AbstractImage, public Resource
 	{
 		friend ImageLibrary;
 		friend ImageLoader;
@@ -91,6 +90,8 @@ namespace Nz
 			Vector3ui GetSize(UInt8 level = 0) const;
 			ImageType GetType() const;
 			unsigned int GetWidth(UInt8 level = 0) const;
+
+			bool HasAlpha() const;
 
 			bool IsValid() const;
 

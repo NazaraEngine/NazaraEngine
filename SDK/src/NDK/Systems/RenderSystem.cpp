@@ -35,7 +35,8 @@ namespace Ndk
 	{
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
-		SetUpdateRate(0.f);
+		SetUpdateOrder(100); //< Render last, after every movement is done
+		SetUpdateRate(0.f);  //< We don't want any rate limit
 	}
 
 	/*!
@@ -116,10 +117,8 @@ namespace Ndk
 	* \param elapsedTime Delta time used for the update
 	*/
 
-	void RenderSystem::OnUpdate(float elapsedTime)
+	void RenderSystem::OnUpdate(float /*elapsedTime*/)
 	{
-		NazaraUnused(elapsedTime);
-
 		// Invalidate every renderable if the coordinate system changed
 		if (m_coordinateSystemInvalidated)
 		{
@@ -147,7 +146,6 @@ namespace Ndk
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -186,7 +184,7 @@ namespace Ndk
 	* \param viewer Viewer of the scene
 	*/
 
-	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer)
+	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& /*viewer*/)
 	{
 		if (!m_shadowRT.IsValid())
 			m_shadowRT.Create();
@@ -217,7 +215,6 @@ namespace Ndk
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 				graphicsComponent.AddToRenderQueue(renderQueue);
 			}
@@ -290,7 +287,6 @@ namespace Ndk
 						for (const Ndk::EntityHandle& drawable : m_drawables)
 						{
 							GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-							NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 							graphicsComponent.AddToRenderQueue(renderQueue);
 						}
@@ -318,7 +314,6 @@ namespace Ndk
 					for (const Ndk::EntityHandle& drawable : m_drawables)
 					{
 						GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-						NodeComponent& drawableNode = drawable->GetComponent<NodeComponent>();
 
 						graphicsComponent.AddToRenderQueue(renderQueue);
 					}

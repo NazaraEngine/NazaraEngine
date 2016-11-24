@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <climits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -19,13 +20,13 @@ namespace Nz
 	{
 		// http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
 		template<typename F, typename Tuple, size_t... S>
-		auto ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
+		decltype(auto) ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
 		}
 
 		template<typename O, typename F, typename Tuple, size_t... S>
-		auto ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
+		decltype(auto) ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
 		}
@@ -44,7 +45,7 @@ namespace Nz
 	* \see Apply
 	*/
 	template<typename F, typename Tuple>
-	auto Apply(F&& fn, Tuple&& t)
+	decltype(auto) Apply(F&& fn, Tuple&& t)
 	{
 		constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
@@ -63,11 +64,22 @@ namespace Nz
 	* \see Apply
 	*/
 	template<typename O, typename F, typename Tuple>
-	auto Apply(O& object, F&& fn, Tuple&& t)
+	decltype(auto) Apply(O& object, F&& fn, Tuple&& t)
 	{
 		constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Returns the number of bits occupied by the type T
+	* \return Number of bits occupied by the type
+	*/
+	template<typename T>
+	constexpr std::size_t BitCount()
+	{
+		return CHAR_BIT * sizeof(T);
 	}
 
 	/*!
@@ -123,9 +135,8 @@ namespace Nz
 	* \see CountOf
 	*/
 	template<typename T, std::size_t N>
-	constexpr std::size_t CountOf(T(&name)[N]) noexcept
+	constexpr std::size_t CountOf(T(&)[N]) noexcept
 	{
-		// NazaraUnused(name); //< Because "body of function is not a return-statement" >.>
 		return N;
 	}
 

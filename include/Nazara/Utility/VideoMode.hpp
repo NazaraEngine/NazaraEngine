@@ -19,6 +19,7 @@ namespace Nz
 	{
 		public:
 			VideoMode();
+			VideoMode(unsigned int w, unsigned int h);
 			VideoMode(unsigned int w, unsigned int h, UInt8 bpp);
 
 			bool IsFullscreenValid() const;

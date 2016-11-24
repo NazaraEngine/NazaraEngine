@@ -47,9 +47,11 @@ namespace Nz
 			inline void SetCornerColor(RectCorner corner, const Color& color);
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeSprite = true);
+			bool SetMaterial(String materialName, bool resizeSprite = true);
 			inline void SetOrigin(const Vector3f& origin);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
+			bool SetTexture(String textureName, bool resizeSprite = true);
 			inline void SetTexture(TextureRef texture, bool resizeSprite = true);
 			inline void SetTextureCoords(const Rectf& coords);
 			inline void SetTextureRect(const Rectui& rect);

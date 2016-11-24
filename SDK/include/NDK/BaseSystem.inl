@@ -15,8 +15,10 @@ namespace Ndk
 	*/
 
 	inline BaseSystem::BaseSystem(SystemIndex systemId) :
+	m_systemIndex(systemId),
+	m_world(nullptr),
 	m_updateEnabled(true),
-	m_systemIndex(systemId)
+	m_updateOrder(0)
 	{
 		SetUpdateRate(30);
 	}
@@ -33,7 +35,8 @@ namespace Ndk
 	m_systemIndex(system.m_systemIndex),
 	m_updateEnabled(system.m_updateEnabled),
 	m_updateCounter(0.f),
-	m_updateRate(system.m_updateRate)
+	m_updateRate(system.m_updateRate),
+	m_updateOrder(system.m_updateOrder)
 	{
 	}
 
@@ -69,7 +72,18 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets the rate of update for the system
+	* \brief Gets the update order of the system
+	* \return Update order
+	*
+	* \see SetUpdateOrder
+	*/
+	inline int BaseSystem::GetUpdateOrder() const
+	{
+		return m_updateOrder;
+	}
+
+	/*!
+	* \brief Gets the rate of update of the system
 	* \return Update rate
 	*/
 

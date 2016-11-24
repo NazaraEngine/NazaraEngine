@@ -911,9 +911,9 @@ namespace Nz
 	template<typename T>
 	bool Vector3<T>::operator<(const Vector3& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
+			if (NumberEquals(y, vec.y))
 				return z < vec.z;
 			else
 				return y < vec.y;
@@ -931,10 +931,10 @@ namespace Nz
 	template<typename T>
 	bool Vector3<T>::operator<=(const Vector3& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
-				return z <= vec.z;
+			if (NumberEquals(y, vec.y))
+				return NumberEquals(z, vec.z) || z < vec.z;
 			else
 				return y < vec.y;
 		}
@@ -1345,6 +1345,31 @@ Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 	#endif
 
 	return Nz::Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
+}
+
+namespace std
+{
+	template<class T>
+	struct hash<Nz::Vector3<T>>
+	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param v Vector3 to hash
+		*/
+
+		std::size_t operator()(const Nz::Vector3<T>& v) const
+		{
+			std::size_t seed {};
+
+			Nz::HashCombine(seed, v.x);
+			Nz::HashCombine(seed, v.y);
+			Nz::HashCombine(seed, v.z);
+
+			return seed;
+		}
+	};
 }
 
 #undef F

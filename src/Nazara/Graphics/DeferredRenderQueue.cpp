@@ -282,7 +282,6 @@ namespace Nz
 				{
 					for (auto& pipelinePair : layer.opaqueModels)
 					{
-						const MaterialPipeline* pipeline = pipelinePair.first;
 						auto& pipelineEntry = pipelinePair.second;
 
 						if (pipelineEntry.maxInstanceCount > 0)

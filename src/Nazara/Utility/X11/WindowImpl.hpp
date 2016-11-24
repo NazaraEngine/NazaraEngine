@@ -20,10 +20,8 @@
 
 namespace Nz
 {
-	#if NAZARA_UTILITY_THREADED_WINDOW
 	class ConditionVariable;
 	class Mutex;
-	#endif
 	class Cursor;
 	class Icon;
 	class VideoMode;
@@ -89,6 +87,8 @@ namespace Nz
 			const char* ConvertWindowCursorToXName(WindowCursor cursor);
 			void CommonInitialize();
 
+			char32_t GetRepresentation(xcb_keysym_t keysym) const;
+
 			void ProcessEvent(xcb_generic_event_t* windowEvent);
 
 			void ResetVideoMode();
@@ -101,25 +101,19 @@ namespace Nz
 			bool UpdateNormalHints();
 			void UpdateEventQueue(xcb_generic_event_t* event);
 
-			#if NAZARA_UTILITY_THREADED_WINDOW
 			static void WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
-			#endif
 
 			xcb_window_t                      m_window;
 			xcb_screen_t*                     m_screen;
 			xcb_randr_get_screen_info_reply_t m_oldVideoMode;
 			xcb_size_hints_t m_size_hints;
-			UInt32 m_style;
-			#if NAZARA_UTILITY_THREADED_WINDOW
 			Thread m_thread;
-			#endif
+			UInt32 m_style;
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_ownsWindow;
 			bool m_smoothScrolling;
-			#if NAZARA_UTILITY_THREADED_WINDOW
 			bool m_threadActive;
-			#endif
 			short m_scrolling;
 			Vector2i m_mousePos;
 			bool m_keyRepeat;

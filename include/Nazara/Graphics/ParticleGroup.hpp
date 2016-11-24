@@ -44,12 +44,14 @@ namespace Nz
 			void* GenerateParticle();
 			void* GenerateParticles(unsigned int count);
 
+			inline void* GetBuffer();
+			inline const void* GetBuffer() const;
 			const ParticleDeclarationConstRef& GetDeclaration() const;
-			unsigned int GetMaxParticleCount() const;
-			unsigned int GetParticleCount() const;
-			unsigned int GetParticleSize() const;
+			std::size_t GetMaxParticleCount() const;
+			std::size_t GetParticleCount() const;
+			std::size_t GetParticleSize() const;
 
-			void KillParticle(unsigned int index);
+			void KillParticle(std::size_t index);
 			void KillParticles();
 
 			void RemoveController(ParticleController* controller);
@@ -81,6 +83,9 @@ namespace Nz
 			};
 
 			std::set<unsigned int, std::greater<unsigned int>> m_dyingParticles;
+			std::size_t m_maxParticleCount;
+			std::size_t m_particleCount;
+			std::size_t m_particleSize;
 			mutable std::vector<UInt8> m_buffer;
 			std::vector<ParticleControllerRef> m_controllers;
 			std::vector<EmitterEntry> m_emitters;
@@ -88,10 +93,9 @@ namespace Nz
 			ParticleDeclarationConstRef m_declaration;
 			ParticleRendererRef m_renderer;
 			bool m_processing;
-			unsigned int m_maxParticleCount;
-			unsigned int m_particleCount;
-			unsigned int m_particleSize;
 	};
 }
+
+#include <Nazara/Graphics/ParticleGroup.inl>
 
 #endif // NAZARA_PARTICLEGROUP_HPP

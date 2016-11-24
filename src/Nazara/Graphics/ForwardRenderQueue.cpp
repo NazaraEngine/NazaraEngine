@@ -383,7 +383,7 @@ namespace Nz
 			auto& transparentModelData = currentLayer.transparentModelData;
 
 			// The material is transparent, we must draw this mesh using another way (after the rendering of opages objects while sorting them)
-			unsigned int index = transparentModelData.size();
+			std::size_t index = transparentModelData.size();
 			transparentModelData.resize(index+1);
 
 			TransparentModelData& data = transparentModelData.back();
@@ -542,9 +542,7 @@ namespace Nz
 									auto& overlayMap = matEntry.overlayMap;
 									for (auto& overlayIt : overlayMap)
 									{
-										const Texture* overlay = overlayIt.first;
 										auto& spriteChainVector = overlayIt.second.spriteChains;
-
 										spriteChainVector.clear();
 									}
 
@@ -563,9 +561,7 @@ namespace Nz
 						{
 							for (auto& materialPair : pipelineEntry.materialMap)
 							{
-								const Material* material = materialPair.first;
 								auto& matEntry = materialPair.second;
-
 								if (matEntry.enabled)
 								{
 									MeshInstanceContainer& meshInstances = matEntry.meshMap;
@@ -573,7 +569,6 @@ namespace Nz
 									for (auto& meshIt : meshInstances)
 									{
 										auto& meshEntry = meshIt.second;
-
 										meshEntry.instances.clear();
 									}
 									matEntry.enabled = false;
@@ -608,7 +603,7 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (unsigned int index1, unsigned int index2)
+			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (std::size_t index1, std::size_t index2)
 			{
 				const Spheref& sphere1 = layer.transparentModelData[index1].squaredBoundingSphere;
 				const Spheref& sphere2 = layer.transparentModelData[index2].squaredBoundingSphere;
@@ -677,7 +672,7 @@ namespace Nz
 		BatchedBillboardEntry& entry = it->second;
 
 		auto& billboardVector = entry.billboards;
-		unsigned int prevSize = billboardVector.size();
+		std::size_t prevSize = billboardVector.size();
 		billboardVector.resize(prevSize + count);
 
 		return &billboardVector[prevSize];

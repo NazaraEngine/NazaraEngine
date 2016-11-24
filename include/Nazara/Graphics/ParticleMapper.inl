@@ -23,7 +23,7 @@ namespace Nz
 		// Then the component that are interesting
 		bool enabled;
 		ComponentType type;
-		unsigned int offset;
+		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
 		if (enabled)
@@ -54,7 +54,7 @@ namespace Nz
 		// Then the component that are interesting
 		bool enabled;
 		ComponentType type;
-		unsigned int offset;
+		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
 		if (enabled)
@@ -67,6 +67,18 @@ namespace Nz
 			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<const T>();
 		}
+	}
+
+	/*!
+	* \brief Gets a raw pointer to the particle buffer
+	*
+	* This can be useful when working directly with a struct
+	*
+	* \return Pointer to the buffer
+	*/
+	inline void* ParticleMapper::GetPointer()
+	{
+		return m_ptr;
 	}
 }
 

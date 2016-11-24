@@ -45,7 +45,7 @@ namespace Nz
 
 	bool VertexBuffer::Fill(const void* data, unsigned int startVertex, unsigned int length, bool forceDiscard)
 	{
-		unsigned int stride = m_vertexDeclaration->GetStride();
+		std::size_t stride = m_vertexDeclaration->GetStride();
 		return FillRaw(data, startVertex*stride, length*stride, forceDiscard);
 	}
 

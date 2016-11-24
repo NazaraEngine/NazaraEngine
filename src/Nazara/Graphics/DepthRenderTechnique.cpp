@@ -52,7 +52,7 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		std::array<UInt8, 4> whitePixel = {255, 255, 255, 255};
+		std::array<UInt8, 4> whitePixel = { {255, 255, 255, 255} };
 		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
 		m_whiteTexture.Update(whitePixel.data());
 
@@ -267,13 +267,13 @@ namespace Nz
 							const Texture* overlay = overlayIt.first;
 							auto& spriteChainVector = overlayIt.second.spriteChains;
 
-							unsigned int spriteChainCount = spriteChainVector.size();
+							std::size_t spriteChainCount = spriteChainVector.size();
 							if (spriteChainCount > 0)
 							{
 								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
 
-								unsigned int spriteChain = 0; // Which chain of sprites are we treating
-								unsigned int spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
+								std::size_t spriteChain = 0; // Which chain of sprites are we treating
+								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
 
 								do
 								{
@@ -281,13 +281,13 @@ namespace Nz
 									BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
 									VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
-									unsigned int spriteCount = 0;
-									unsigned int maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+									std::size_t spriteCount = 0;
+									std::size_t maxSpriteCount = std::min(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 									do
 									{
 										ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-										unsigned int count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
+										std::size_t count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
 
 										std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
 										vertices += count * 4;
@@ -373,17 +373,17 @@ namespace Nz
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 
-						unsigned int billboardCount = billboardVector.size();
+						std::size_t billboardCount = billboardVector.size();
 						if (billboardCount > 0)
 						{
 							// We begin to apply the material (and get the shader activated doing so)
 							material->Apply(pipelineInstance);
 
 							const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-							unsigned int maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+							std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
 							do
 							{
-								unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+								std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 								billboardCount -= renderedBillboardCount;
 
 								instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
@@ -431,17 +431,16 @@ namespace Nz
 
 					for (auto& matIt : pipelinePair.second.materialMap)
 					{
-						const Material* material = matIt.first;
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 
 						const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-						unsigned int maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
+						std::size_t maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
 
-						unsigned int billboardCount = billboardVector.size();
+						std::size_t billboardCount = billboardVector.size();
 						do
 						{
-							unsigned int renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
+							std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 							billboardCount -= renderedBillboardCount;
 
 							BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
@@ -551,9 +550,7 @@ namespace Nz
 							const MeshData& meshData = meshIt.first;
 							auto& meshEntry = meshIt.second;
 
-							const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
 							std::vector<Matrix4f>& instances = meshEntry.instances;
-
 							if (!instances.empty())
 							{
 								const IndexBuffer* indexBuffer = meshData.indexBuffer;
@@ -587,13 +584,13 @@ namespace Nz
 									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
 									const Matrix4f* instanceMatrices = &instances[0];
-									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
+									std::size_t instanceCount = instances.size();
+									std::size_t maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
 
 									while (instanceCount > 0)
 									{
 										// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+										std::size_t renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 										instanceCount -= renderedInstanceCount;
 
 										// We fill the instancing buffer with our world matrices

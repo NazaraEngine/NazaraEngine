@@ -51,11 +51,12 @@ namespace Nz
 		d[2] = d[0] + Vector2f(1.f - 2.f * s_UnskewCoeff2D);
 
 		Vector2i offset(skewedCubeOrigin.x & 255, skewedCubeOrigin.y & 255);
-		std::array<std::size_t, 3> gi =
-		{
-			m_permutations[offset.x + m_permutations[offset.y]] & 7,
-			m_permutations[offset.x + off1.x + m_permutations[offset.y + off1.y]] & 7,
-			m_permutations[offset.x + 1 + m_permutations[offset.y + 1]] & 7
+		std::array<std::size_t, 3> gi = {
+			{
+				m_permutations[offset.x + m_permutations[offset.y]] & 7,
+				m_permutations[offset.x + off1.x + m_permutations[offset.y + off1.y]] & 7,
+				m_permutations[offset.x + 1 + m_permutations[offset.y + 1]] & 7
+			}
 		};
 
 		float n = 0.f;

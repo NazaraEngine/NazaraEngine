@@ -45,6 +45,64 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the material of the sprite from a name
+	*
+	* Tries to get a material from the MaterialLibrary and then the MaterialManager (which will treat the name as a path)
+	* Fails if the texture name is not a part of the MaterialLibrary nor the MaterialManager (which fails if it couldn't load the texture from its filepath)
+	*
+	* \param materialName Named texture for the material
+	* \param resizeSprite Should the sprite be resized to the material diffuse map size?
+	*
+	* \return True if the material was found or loaded from its name/path, false if it couldn't
+	*/
+	bool Sprite::SetMaterial(String materialName, bool resizeSprite)
+	{
+		MaterialRef material = MaterialLibrary::Query(materialName);
+		if (!material)
+		{
+			material = MaterialManager::Get(materialName);
+			if (!material)
+			{
+				NazaraError("Failed to get material \"" + materialName + "\"");
+				return false;
+			}
+		}
+
+		SetMaterial(std::move(material), resizeSprite);
+		return true;
+	}
+
+	/*!
+	* \brief Sets the texture of the sprite from a name
+	*
+	* Tries to get a texture from the TextureLibrary and then the TextureManager (which will treat the name as a path)
+	* Fails if the texture name is not a part of the TextureLibrary nor the TextureManager (which fails if it couldn't load the texture from its filepath)
+	*
+	* \param textureName Named texture for the sprite
+	* \param resizeSprite Should the sprite be resized to the texture size?
+	*
+	* \return True if the texture was found or loaded from its name/path, false if it couldn't
+	*
+	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
+	*/
+	bool Sprite::SetTexture(String textureName, bool resizeSprite)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
+		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+			{
+				NazaraError("Failed to get texture \"" + textureName + "\"");
+				return false;
+			}
+		}
+
+		SetTexture(std::move(texture), resizeSprite);
+		return true;
+	}
+
+	/*!
 	* \brief Updates the data of the sprite
 	*
 	* \param instanceData Data of the instance

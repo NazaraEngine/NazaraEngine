@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Lua/LuaClass.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <type_traits>
@@ -10,10 +11,9 @@
 namespace Nz
 {
 	template<class T>
-	LuaClass<T>::LuaClass(const String& name) :
-	m_info(new ClassInfo)
+	LuaClass<T>::LuaClass(const String& name)
 	{
-		m_info->name = name;
+		Reset(name);
 	}
 
 	template<class T>
@@ -58,147 +58,37 @@ namespace Nz
 		});
 	}
 
+
+	template<class T>
+	void LuaClass<T>::Reset()
+	{
+		m_info.reset();
+	}
+
+	template<class T>
+	void LuaClass<T>::Reset(const String& name)
+	{
+		m_info = std::make_shared<ClassInfo>();
+		m_info->name = name;
+
+		m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& instance)
+		{
+			return static_cast<T*>(instance.CheckUserdata(1, info->name));
+		};
+	}
+
 	template<class T>
 	void LuaClass<T>::Register(LuaInstance& lua)
 	{
-		// Le ClassInfo doit rester en vie jusqu'à la fin du script
-		// Obliger l'instance de LuaClass à rester en vie dans cette fin serait contraignant pour l'utilisateur
-		// J'utilise donc une astuce, la stocker dans une UserData associée avec chaque fonction de la metatable du type,
-		// cette UserData disposera d'un finalizer qui libérera le ClassInfo
-		// Ainsi c'est Lua qui va s'occuper de la destruction pour nous :-)
-		// De même, l'utilisation d'un shared_ptr permet de garder la structure en vie même si l'instance est libérée avant le LuaClass
-		std::shared_ptr<ClassInfo>* info = static_cast<std::shared_ptr<ClassInfo>*>(lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>)));
-		PlacementNew(info, m_info);
+		PushClassInfo(lua);
 
-		// On créé la table qui contiendra une méthode (Le finalizer) pour libérer le ClassInfo
-		lua.PushTable(0, 1);
-			lua.PushLightUserdata(info);
-			lua.PushCFunction(InfoDestructor, 1);
-			lua.SetField("__gc");
-		lua.SetMetatable(-2); // La table devient la metatable de l'UserData
+		// Let's create the metatable which will be associated with every instance.
+		SetupMetatable(lua);
 
-		// Maintenant, nous allons associer l'UserData avec chaque fonction, de sorte qu'il reste en vie
-		// aussi longtemps que nécessaire, et que le pointeur soit transmis à chaque méthode
+		if (m_info->constructor || m_info->staticGetter || m_info->staticSetter || !m_staticMethods.empty())
+			SetupGlobalTable(lua);
 
-		if (!lua.NewMetatable(m_info->name))
-			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
-		{
-			// Set the type in a __type field
-			lua.PushString(m_info->name);
-			lua.SetField("__type");
-
-			// In case a __tostring method is missing, add a default implementation returning the type
-			if (m_methods.find("__tostring") == m_methods.end())
-			{
-				// Define the Finalizer
-				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushCFunction(ToStringProxy, 1);
-				lua.SetField("__tostring");
-			}
-
-			// Define the Finalizer
-			lua.PushValue(1);
-			lua.PushCFunction(FinalizerProxy, 1);
-			lua.SetField("__gc");
-
-			if (m_info->getter || !m_info->parentGetters.empty())
-			{
-				lua.PushValue(1);  // shared_ptr on UserData
-				lua.PushValue(-2); // Metatable
-				lua.PushCFunction(GetterProxy, 2);
-			}
-			else
-				// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
-				// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
-				// Ceci n'est possible que si nous n'avons ni getter, ni parent
-				lua.PushValue(-1); // Metatable
-
-			lua.SetField("__index"); // Getter
-
-			if (m_info->setter)
-			{
-				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushCFunction(SetterProxy, 1);
-				lua.SetField("__newindex"); // Setter
-			}
-
-			m_info->methods.reserve(m_methods.size());
-			for (auto& pair : m_methods)
-			{
-				std::size_t methodIndex = m_info->methods.size();
-				m_info->methods.push_back(pair.second);
-
-				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushInteger(methodIndex);
-
-				lua.PushCFunction(MethodProxy, 2);
-				lua.SetField(pair.first); // Method name
-			}
-
-			m_info->instanceGetters[m_info->name] = [info = m_info] (LuaInstance& instance)
-			{
-				return static_cast<T*>(instance.CheckUserdata(1, info->name));
-			};
-		}
-		lua.Pop(); // On pop la metatable
-
-		if (m_info->constructor || m_info->staticGetter || m_info->staticSetter || !m_info->staticMethods.empty())
-		{
-			// Création de l'instance globale
-			lua.PushTable(); // Class = {}
-
-			// Création de la metatable associée à la table globale
-			lua.PushTable(); // ClassMeta = {}
-
-			if (m_info->constructor)
-			{
-				lua.PushValue(1); // ClassInfo
-				lua.PushCFunction(ConstructorProxy, 1);
-				lua.SetField("__call"); // ClassMeta.__call = ConstructorProxy
-			}
-
-			if (m_info->staticGetter)
-			{
-				lua.PushValue(1);  // shared_ptr on UserData
-				lua.PushValue(-2); // ClassMeta
-				lua.PushCFunction(StaticGetterProxy, 2);
-			}
-			else
-				// Optimisation, plutôt que de rediriger vers une fonction C qui ne fera rien d'autre que rechercher
-				// dans la table, nous envoyons directement la table, de sorte que Lua fasse directement la recherche
-				// Ceci n'est possible que si nous n'avons ni getter, ni parent
-				lua.PushValue(-1); // ClassMeta
-
-			lua.SetField("__index"); // ClassMeta.__index = StaticGetterProxy/ClassMeta
-
-			if (m_info->staticSetter)
-			{
-				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushCFunction(StaticSetterProxy, 1);
-				lua.SetField("__newindex"); // ClassMeta.__newindex = StaticSetterProxy
-			}
-
-			m_info->staticMethods.reserve(m_staticMethods.size());
-			for (auto& pair : m_staticMethods)
-			{
-				std::size_t methodIndex = m_info->staticMethods.size();
-				m_info->staticMethods.push_back(pair.second);
-
-				lua.PushValue(1); // shared_ptr on UserData
-				lua.PushInteger(methodIndex);
-
-				lua.PushCFunction(StaticMethodProxy, 2);
-				lua.SetField(pair.first); // ClassMeta.method = StaticMethodProxy
-			}
-
-			lua.SetMetatable(-2); // setmetatable(Class, ClassMeta)
-
-			lua.PushValue(-1); // Copie
-			lua.SetGlobal(m_info->name); // Class
-
-			m_info->globalTableRef = lua.CreateReference();
-		}
-		lua.Pop(); // On pop l'Userdata (contenant nos informations)
+		lua.Pop(); // Pop our ClassInfo, which is now referenced by all our functions
 	}
 
 	template<class T>
@@ -237,9 +127,9 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -251,9 +141,9 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -265,9 +155,9 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -279,9 +169,9 @@ namespace Nz
 	{
 		typename LuaImplMethodProxy<Args...>::template Impl<DefArgs...> handler(std::forward<DefArgs>(defArgs)...);
 
-		BindMethod(name, [func, handler] (LuaInstance& lua, T& object) -> int
+		BindMethod(name, [func, handler] (LuaInstance& lua, T& object, std::size_t /*argumentCount*/) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, object, func);
 		});
@@ -313,7 +203,7 @@ namespace Nz
 
 		BindStaticMethod(name, [func, handler] (LuaInstance& lua) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, func);
 		});
@@ -324,6 +214,176 @@ namespace Nz
 	{
 		m_info->staticSetter = setter;
 	}
+
+	template<class T>
+	void LuaClass<T>::PushClassInfo(LuaInstance& lua)
+	{
+		// Our ClassInfo has to outlive the LuaClass, because we don't want to force the user to keep the LuaClass alive
+		// To do that, each Registration creates a tiny shared_ptr wrapper whose life is directly managed by Lua.
+		// This shared_ptr object gets pushed as a up-value for every proxy function set in the metatable.
+		// This way, there is no way our ClassInfo gets freed before any instance and the global class gets destroyed.
+		std::shared_ptr<ClassInfo>* info = static_cast<std::shared_ptr<ClassInfo>*>(lua.PushUserdata(sizeof(std::shared_ptr<ClassInfo>)));
+		PlacementNew(info, m_info);
+
+		// Setup a tiny metatable to let Lua know how to destroy our ClassInfo
+		lua.PushTable(0, 1);
+			lua.PushLightUserdata(info);
+			lua.PushCFunction(InfoDestructor, 1);
+			lua.SetField("__gc");
+		lua.SetMetatable(-2);
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupConstructor(LuaInstance& lua)
+	{
+			lua.PushValue(1); // ClassInfo
+		lua.PushCFunction(ConstructorProxy, 1);
+		lua.SetField("__call"); // ClassMeta.__call = ConstructorProxy
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupDefaultToString(LuaInstance& lua)
+	{
+			lua.PushValue(1); // shared_ptr on UserData
+		lua.PushCFunction(ToStringProxy, 1);
+		lua.SetField("__tostring");
+	}
+
+	template<typename T, bool HasDestructor>
+	struct LuaClassImplFinalizerSetupProxy;
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, true>
+	{
+		static void Setup(LuaInstance& lua)
+		{
+			lua.PushValue(1); // ClassInfo
+			lua.PushCFunction(LuaClass<T>::FinalizerProxy, 1);
+			lua.SetField("__gc");
+		}
+	};
+
+	template<typename T>
+	struct LuaClassImplFinalizerSetupProxy<T, false>
+	{
+		static void Setup(LuaInstance&)
+		{
+		}
+	};
+
+	template<class T>
+	void LuaClass<T>::SetupFinalizer(LuaInstance& lua)
+	{
+		LuaClassImplFinalizerSetupProxy<T, std::is_destructible<T>::value>::Setup(lua);
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupGetter(LuaInstance& lua, LuaCFunction proxy)
+	{
+			lua.PushValue(1);  // ClassInfo
+			lua.PushValue(-2); // Metatable
+		lua.PushCFunction(proxy, 2);
+
+		lua.SetField("__index"); // Getter
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupGlobalTable(LuaInstance& lua)
+	{
+		// Create the global table
+		lua.PushTable(); // Class = {}
+
+		// Create a metatable which will be used for our global table
+		lua.PushTable(); // ClassMeta = {}
+
+		if (m_info->constructor)
+			SetupConstructor(lua);
+
+		if (m_info->staticGetter)
+			SetupGetter(lua, StaticGetterProxy);
+		else
+		{
+			// Optimize by assigning the metatable instead of a search function
+			lua.PushValue(-1); // Metatable
+			lua.SetField("__index");
+		}
+
+		if (m_info->staticSetter)
+			SetupSetter(lua, StaticSetterProxy);
+
+		m_info->staticMethods.reserve(m_staticMethods.size());
+		for (auto& pair : m_staticMethods)
+		{
+			std::size_t methodIndex = m_info->staticMethods.size();
+			m_info->staticMethods.push_back(pair.second);
+
+			SetupMethod(lua, StaticMethodProxy, pair.first, methodIndex);
+		}
+
+		lua.SetMetatable(-2); // setmetatable(Class, ClassMeta), pops ClassMeta
+
+		lua.PushValue(-1); // As CreateReference() pops the table, push a copy
+		m_info->globalTableRef = lua.CreateReference();
+
+		lua.SetGlobal(m_info->name); // _G["Class"] = Class
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupMetatable(LuaInstance& lua)
+	{
+		if (!lua.NewMetatable(m_info->name))
+			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
+		{
+			SetupFinalizer(lua);
+
+			if (m_info->getter || !m_info->parentGetters.empty())
+				SetupGetter(lua, GetterProxy);
+			else
+			{
+				// Optimize by assigning the metatable instead of a search function
+				// This is only possible if we have no custom getter nor parent
+				lua.PushValue(-1); // Metatable
+				lua.SetField("__index");
+			}
+
+			if (m_info->setter)
+				SetupSetter(lua, SetterProxy);
+
+			// In case a __tostring method is missing, add a default implementation returning the class name
+			if (m_methods.find("__tostring") == m_methods.end())
+				SetupDefaultToString(lua);
+
+			m_info->methods.reserve(m_methods.size());
+			for (auto& pair : m_methods)
+			{
+				std::size_t methodIndex = m_info->methods.size();
+				m_info->methods.push_back(pair.second);
+
+				SetupMethod(lua, MethodProxy, pair.first, methodIndex);
+			}
+		}
+		lua.Pop(); //< Pops the metatable, it won't be collected before it's referenced by the Lua registry.
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupMethod(LuaInstance& lua, LuaCFunction proxy, const String& name, std::size_t methodIndex)
+	{
+			lua.PushValue(1); // ClassInfo
+			lua.PushInteger(methodIndex);
+		lua.PushCFunction(proxy, 2);
+
+		lua.SetField(name); // Method name
+	}
+
+	template<class T>
+	void LuaClass<T>::SetupSetter(LuaInstance& lua, LuaCFunction proxy)
+	{
+			lua.PushValue(1); // ClassInfo
+		lua.PushCFunction(proxy, 1);
+
+		lua.SetField("__newindex"); // Setter
+	}
+
 
 	template<class T>
 	int LuaClass<T>::ConstructorProxy(lua_State* state)
@@ -389,7 +449,7 @@ namespace Nz
 		{
 			// Query from the metatable
 			lua.GetMetatable(info->name); //< Metatable
-			lua.PushValue(1); //< Field
+			lua.PushValue(2); //< Field
 			lua.GetTable(); // Metatable[Field]
 
 			lua.Remove(-2); // Remove Metatable
@@ -416,7 +476,6 @@ namespace Nz
 		std::shared_ptr<ClassInfo>& info = *static_cast<std::shared_ptr<ClassInfo>*>(lua.ToUserdata(lua.GetIndexOfUpValue(1)));
 
 		T* instance = static_cast<T*>(lua.CheckUserdata(1, info->name));
-		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		Get(info, lua, instance);
 		return 1;
@@ -432,7 +491,7 @@ namespace Nz
 		T* instance = nullptr;
 		if (lua.GetMetatable(1))
 		{
-			LuaType type = lua.GetField("__type");
+			LuaType type = lua.GetField("__name");
 			if (type == LuaType_String)
 			{
 				String name = lua.ToString(-1);
@@ -441,8 +500,6 @@ namespace Nz
 					instance = it->second(lua);
 			}
 			lua.Pop(2);
-
-			lua.Remove(1); //< Remove the instance from the Lua stack
 		}
 
 		if (!instance)
@@ -451,9 +508,11 @@ namespace Nz
 			return 0;
 		}
 
+		std::size_t argCount = lua.GetStackTop() - 1U;
+
 		unsigned int index = static_cast<unsigned int>(lua.ToInteger(lua.GetIndexOfUpValue(2)));
 		const ClassFunc& method = info->methods[index];
-		return method(lua, *instance);
+		return method(lua, *instance, argCount);
 	}
 
 	template<class T>
@@ -465,7 +524,6 @@ namespace Nz
 		const ClassIndexFunc& setter = info->setter;
 
 		T& instance = *static_cast<T*>(lua.CheckUserdata(1, info->name));
-		lua.Remove(1); //< Remove the instance from the Lua stack
 
 		if (!setter(lua, instance))
 		{

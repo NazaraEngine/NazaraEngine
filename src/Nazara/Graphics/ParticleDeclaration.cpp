@@ -100,7 +100,7 @@ namespace Nz
 	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if type is not supported
 	*/
 
-	void ParticleDeclaration::EnableComponent(ParticleComponent component, ComponentType type, unsigned int offset)
+	void ParticleDeclaration::EnableComponent(ParticleComponent component, ComponentType type, std::size_t offset)
 	{
 		#ifdef NAZARA_DEBUG
 		if (component > ParticleComponent_Max)
@@ -145,7 +145,7 @@ namespace Nz
 	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if enumeration is equal to ParticleComponent_Unused
 	*/
 
-	void ParticleDeclaration::GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const
+	void ParticleDeclaration::GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const
 	{
 		#ifdef NAZARA_DEBUG
 		if (component > ParticleComponent_Max)
@@ -180,7 +180,7 @@ namespace Nz
 	* \return Stride of the declaration
 	*/
 
-	unsigned int ParticleDeclaration::GetStride() const
+	std::size_t ParticleDeclaration::GetStride() const
 	{
 		return m_stride;
 	}

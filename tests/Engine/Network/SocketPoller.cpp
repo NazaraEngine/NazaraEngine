@@ -1,16 +1,19 @@
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Catch/catch.hpp>
-
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Network/NetPacket.hpp>
+#include <random>
 
 SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 {
 	GIVEN("A TcpServer and a TcpClient in a selector")
 	{
-		Nz::UInt16 port = 25664;
+		std::random_device rd;
+		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
+
+		Nz::UInt16 port = dis(rd);
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
@@ -34,7 +37,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 			{
 				Nz::SocketState state = clientToServer.Connect(serverIP);
 
-				REQUIRE(state != Nz::SocketState_NotConnected);
+				CHECK(state != Nz::SocketState_NotConnected);
 
 				AND_THEN("We wait on our selector, it should return true")
 				{
@@ -62,15 +65,15 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 							REQUIRE(serverPoller.Wait(1000));
 
-							REQUIRE(serverPoller.IsReady(serverToClient));
+							CHECK(serverPoller.IsReady(serverToClient));
 
-							REQUIRE(serverToClient.Read(buffer.data(), buffer.size()) == sent);
+							CHECK(serverToClient.Read(buffer.data(), buffer.size()) == sent);
 
 							AND_THEN("Our selector should report no socket ready")
 							{
-								REQUIRE(!serverPoller.Wait(100));
+								REQUIRE_FALSE(serverPoller.Wait(100));
 
-								REQUIRE(!serverPoller.IsReady(serverToClient));
+								REQUIRE_FALSE(serverPoller.IsReady(serverToClient));
 							}
 						}
 					}

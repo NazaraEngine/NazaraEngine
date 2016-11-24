@@ -54,7 +54,7 @@ namespace Nz
 			byteToInt hostOrder;
 			hostOrder.i = ntohl(addr.s_addr);
 
-			return { hostOrder.b[3], hostOrder.b[2], hostOrder.b[1], hostOrder.b[0] };
+			return { {hostOrder.b[3], hostOrder.b[2], hostOrder.b[1], hostOrder.b[0]} };
 		}
 
 		IpAddress::IPv6 convertSockaddr6ToIPv6(const in6_addr& addr)

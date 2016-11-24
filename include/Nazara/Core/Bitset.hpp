@@ -8,6 +8,7 @@
 #define NAZARA_BITSET_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/String.hpp>
 #include <limits>
 #include <memory>
@@ -24,6 +25,7 @@ namespace Nz
 
 		public:
 			class Bit;
+			using PointerSequence = std::pair<const void*, std::size_t>; //< Start pointer, bit offset
 
 			Bitset();
 			explicit Bitset(std::size_t bitCount, bool val);
@@ -34,6 +36,8 @@ namespace Nz
 			template<typename T> Bitset(T value);
 			Bitset(Bitset&& bitset) noexcept = default;
 			~Bitset() noexcept = default;
+
+			template<typename T> void AppendBits(T bits, std::size_t bitCount);
 
 			void Clear() noexcept;
 			std::size_t Count() const;
@@ -46,6 +50,9 @@ namespace Nz
 			std::size_t GetBlockCount() const;
 			std::size_t GetCapacity() const;
 			std::size_t GetSize() const;
+
+			PointerSequence Read(const void* ptr, std::size_t bitCount);
+			PointerSequence Read(const PointerSequence& sequence, std::size_t bitCount);
 
 			void PerformsAND(const Bitset& a, const Bitset& b);
 			void PerformsNOT(const Bitset& a);
@@ -60,9 +67,14 @@ namespace Nz
 			void Reset();
 			void Reset(std::size_t bit);
 
+			void Reverse();
+
 			void Set(bool val = true);
 			void Set(std::size_t bit, bool val = true);
 			void SetBlock(std::size_t i, Block block);
+
+			void ShiftLeft(std::size_t pos);
+			void ShiftRight(std::size_t pos);
 
 			void Swap(Bitset& bitset);
 
@@ -88,13 +100,21 @@ namespace Nz
 			template<typename T> Bitset& operator=(T value);
 			Bitset& operator=(Bitset&& bitset) noexcept = default;
 
+			Bitset operator<<(std::size_t pos) const;
+			Bitset& operator<<=(std::size_t pos);
+
+			Bitset operator>>(std::size_t pos) const;
+			Bitset& operator>>=(std::size_t pos);
+
 			Bitset& operator&=(const Bitset& bitset);
 			Bitset& operator|=(const Bitset& bitset);
 			Bitset& operator^=(const Bitset& bitset);
 
 			static constexpr Block fullBitMask = std::numeric_limits<Block>::max();
-			static constexpr std::size_t bitsPerBlock = std::numeric_limits<Block>::digits;
+			static constexpr std::size_t bitsPerBlock = BitCount<Block>();
 			static constexpr std::size_t npos = std::numeric_limits<std::size_t>::max();
+
+			static Bitset FromPointer(const void* ptr, std::size_t bitCount, PointerSequence* sequence = nullptr);
 
 		private:
 			std::size_t FindFirstFrom(std::size_t blockIndex) const;
@@ -144,6 +164,9 @@ namespace Nz
 			Block& m_block;
 			Block m_mask;
 	};
+
+	template<typename Block, class Allocator>
+	std::ostream& operator<<(std::ostream& out, const Bitset<Block, Allocator>& bitset);
 
 	template<typename Block, class Allocator>
 	bool operator==(const Bitset<Block, Allocator>& lhs, const Nz::Bitset<Block, Allocator>& rhs);

@@ -52,7 +52,7 @@ namespace Nz
 	}
 
 	Image::Image(const Image& image) :
-	RefCounted(),
+	AbstractImage(image),
 	Resource(),
 	m_sharedImage(image.m_sharedImage)
 	{
@@ -825,6 +825,44 @@ namespace Nz
 		return GetLevelSize(m_sharedImage->width, level);
 	}
 
+	bool Image::HasAlpha() const
+	{
+		NazaraAssert(m_sharedImage != &emptyImage, "Image must be valid");
+
+		if (!PixelFormat::HasAlpha(m_sharedImage->format))
+			return false;
+
+		if (!PixelFormat::IsCompressed(m_sharedImage->format))
+		{
+			const PixelFormatInfo& info = PixelFormat::GetInfo(m_sharedImage->format);
+			const UInt8* pixel = GetConstPixels();
+
+			Bitset<> workingBitset;
+			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth);
+			if (pixelCount == 0)
+				return false;
+
+			auto seq = workingBitset.Read(GetConstPixels(), info.bitsPerPixel);
+			do
+			{
+				workingBitset &= info.alphaMask;
+				if (workingBitset.Count() != info.alphaMask.Count()) //< Means that at least one bit of the alpha mask of this pixel is disabled
+					return true;
+
+				workingBitset.Clear();
+				workingBitset.Read(seq, info.bitsPerPixel);
+			}
+			while (--pixelCount > 0);
+
+			return false;
+		}
+		else
+		{
+			// FIXME: Currently, we assume the pixel format is already the right one
+			return true;
+		}
+	}
+
 	bool Image::IsValid() const
 	{
 		return m_sharedImage != &emptyImage;
@@ -1441,7 +1479,7 @@ namespace Nz
 			SharedImage::PixelContainer levels(m_sharedImage->levels.size());
 			for (unsigned int i = 0; i < levels.size(); ++i)
 			{
-				unsigned int size = GetMemoryUsage(i);
+				std::size_t size = GetMemoryUsage(i);
 				levels[i].reset(new UInt8[size]);
 				std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 			}

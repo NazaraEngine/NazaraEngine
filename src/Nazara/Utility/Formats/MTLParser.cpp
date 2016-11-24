@@ -304,7 +304,7 @@ namespace Nz
 			const Material& mat = pair.second;
 
 			Emit("newmtl ");
-			EmitLine(pair.first);
+			EmitLine(matName);
 			EmitLine();
 
 			Emit("Ka ");
@@ -331,19 +331,19 @@ namespace Nz
 			Emit(mat.specular.b / 255.f);
 			EmitLine();
 
-			if (mat.alpha != 1.f)
+			if (!NumberEquals(mat.alpha, 1.f))
 			{
 				Emit("d ");
 				EmitLine(mat.alpha);
 			}
 
-			if (mat.refractionIndex != 1.f)
+			if (!NumberEquals(mat.refractionIndex, 1.f))
 			{
 				Emit("ni ");
 				EmitLine(mat.refractionIndex);
 			}
 
-			if (mat.shininess != 1.f)
+			if (!NumberEquals(mat.shininess, 1.f))
 			{
 				Emit("ns ");
 				EmitLine(mat.shininess);

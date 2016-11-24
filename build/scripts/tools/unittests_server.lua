@@ -15,7 +15,9 @@ TOOL.Includes = {
 
 TOOL.Files = {
 	"../tests/main.cpp",
+	"../tests/Engine/**.hpp",
 	"../tests/Engine/**.cpp",
+	"../tests/SDK/**.hpp",
 	"../tests/SDK/**.cpp"
 }
 
@@ -23,6 +25,7 @@ TOOL.Files = {
 TOOL.FilesExcluded = {
 	"../tests/Engine/Audio/**",
 	"../tests/Engine/Graphics/**",
+	"../tests/Engine/Utility/**",
 	"../tests/SDK/NDK/Application.cpp",
 	"../tests/SDK/NDK/Systems/ListenerSystem.cpp",
 	"../tests/SDK/NDK/Systems/RenderSystem.cpp"

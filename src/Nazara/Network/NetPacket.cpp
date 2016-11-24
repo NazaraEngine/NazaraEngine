@@ -146,7 +146,7 @@ namespace Nz
 		if (!m_buffer)
 			m_buffer = std::make_unique<ByteArray>();
 
-		m_buffer->Resize(static_cast<std::size_t>(cursorPos));
+		m_buffer->Resize(minCapacity);
 
 		m_memoryStream.SetBuffer(m_buffer.get(), openMode);
 		m_memoryStream.SetCursorPos(cursorPos);

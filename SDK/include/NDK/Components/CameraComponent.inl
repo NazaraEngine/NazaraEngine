@@ -99,7 +99,7 @@ namespace Ndk
 	* \brief Gets the field of view of the camera
 	* \return Field of view of the camera
 	*/
-	float CameraComponent::GetFOV() const
+	inline float CameraComponent::GetFOV() const
 	{
 		return m_fov;
 	}

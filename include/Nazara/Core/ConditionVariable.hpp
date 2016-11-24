@@ -29,7 +29,7 @@ namespace Nz
 			bool Wait(Mutex* mutex, UInt32 timeout);
 
 			ConditionVariable& operator=(const ConditionVariable&) = delete;
-			inline ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
+			ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
 
 		private:
 			ConditionVariableImpl* m_impl;
