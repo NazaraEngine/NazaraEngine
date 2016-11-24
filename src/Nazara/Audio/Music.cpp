@@ -343,6 +343,8 @@ namespace Nz
 		{
 			m_impl->streaming = false;
 			m_impl->thread.Join();
+
+			SetPlayingOffset(0);
 		}
 	}
 
