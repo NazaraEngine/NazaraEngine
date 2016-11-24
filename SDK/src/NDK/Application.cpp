@@ -152,7 +152,7 @@ namespace Ndk
 			windowDimensions.MakeZero();
 
 		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(windowDimensions), overlay->lua);
-		
+
 		Console& consoleRef = *overlay->console;
 
 		// Redirect logs toward the console

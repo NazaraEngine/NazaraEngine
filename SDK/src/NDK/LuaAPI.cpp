@@ -2,7 +2,7 @@
 
 #include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <NDK/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
 
 namespace Ndk
 {

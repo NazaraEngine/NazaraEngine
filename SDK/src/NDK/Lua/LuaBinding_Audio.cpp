@@ -1,6 +1,6 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding_Audio.hpp>
+#include <NDK/Lua/LuaBinding_Audio.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 

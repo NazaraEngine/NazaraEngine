@@ -1,6 +1,6 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
 
 namespace Ndk
 {
