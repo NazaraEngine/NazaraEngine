@@ -73,6 +73,7 @@ namespace Nz
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();
+			void StopThread();
 
 			static MusicLoader::LoaderList s_loaders;
 	};

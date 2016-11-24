@@ -91,7 +91,7 @@ namespace Nz
 	{
 		if (m_impl)
 		{
-			Stop();
+			StopThread();
 
 			delete m_impl;
 			m_impl = nullptr;
@@ -339,13 +339,8 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Music not created");
 
-		if (m_impl->streaming)
-		{
-			m_impl->streaming = false;
-			m_impl->thread.Join();
-
-			SetPlayingOffset(0);
-		}
+		StopThread();
+		SetPlayingOffset(0);
 	}
 
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
@@ -442,6 +437,15 @@ namespace Nz
 			alSourceUnqueueBuffers(m_source, 1, &buffer);
 
 		alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
+	}
+
+	void Music::StopThread()
+	{
+		if (m_impl->streaming)
+		{
+			m_impl->streaming = false;
+			m_impl->thread.Join();
+		}
 	}
 
 	MusicLoader::LoaderList Music::s_loaders;
