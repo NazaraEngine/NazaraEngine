@@ -149,6 +149,7 @@ namespace Nz
 	{
 		m_scale = scale;
 
+		InvalidateBoundingVolume();
 		InvalidateVertices();
 	}
 
