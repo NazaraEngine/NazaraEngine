@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -8,7 +8,7 @@
 #ifndef NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 
-#include <Nazara/Core/Serialization.hpp>
+#include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <NDK/Component.hpp>
 
