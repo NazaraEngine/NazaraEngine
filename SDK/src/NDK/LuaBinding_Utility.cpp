@@ -1,16 +1,18 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/LuaBinding.hpp>
+#include <NDK/LuaBinding_Utility.hpp>
 #include <NDK/LuaAPI.hpp>
 
 namespace Ndk
 {
-	/*!
-	* \brief Binds Utility module to Lua
-	*/
+	std::unique_ptr<LuaBinding_Base> LuaBinding_Base::BindUtility(LuaBinding& binding)
+	{
+		return std::make_unique<LuaBinding_Utility>(binding);
+	}
 
-	void LuaBinding::BindUtility()
+	LuaBinding_Utility::LuaBinding_Utility(LuaBinding& binding) :
+	LuaBinding_Base(binding)
 	{
 		/*********************************** Nz::AbstractImage **********************************/
 		abstractImage.BindMethod("GetBytesPerPixel", &Nz::AbstractImage::GetBytesPerPixel);
@@ -321,8 +323,7 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the Utility classes
 	*/
-
-	void LuaBinding::RegisterUtility(Nz::LuaInstance& instance)
+	void LuaBinding_Utility::Register(Nz::LuaInstance& instance)
 	{
 		abstractImage.Register(instance);
 		font.Register(instance);
