@@ -27,9 +27,9 @@ m_cameraDistance(5)
 
 	m_disabledModel = Nz::Model::New();
 	m_disabledMaterial = Nz::Material::New();
-	m_disabledMaterial->Enable(Nz::RendererParameter_Blend, true);
-	m_disabledMaterial->Enable(Nz::RendererParameter_DepthWrite, false);
-	m_disabledMaterial->Enable(Nz::RendererParameter_FaceCulling, false);
+	m_disabledMaterial->EnableBlending(true);
+	m_disabledMaterial->EnableDepthWrite(false);
+	m_disabledMaterial->EnableFaceCulling(false);
 	m_disabledMaterial->SetDiffuseColor(Nz::Color(128, 128, 128, 50));
 	m_disabledMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
 	m_disabledMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
@@ -191,7 +191,7 @@ Nz::MeshRef ModelWidget::CreateGridMesh(unsigned int size)
 	Nz::VertexMapper vertexMapper(vertexBuffer, Nz::BufferAccess_WriteOnly);
 
 	Nz::SparsePtr<Nz::Vector3f> positionPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent_Position);
-	
+
 	float halfSize = float(size) / 2.f;
 
 	float pos = -halfSize + 0.5f;

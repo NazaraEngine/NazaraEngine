@@ -11,6 +11,8 @@ namespace Ndk
 	QtCanvas::QtCanvas(QWidget* parent) :
 	QWidget(parent)
 	{
+		EnableEventPolling(true);
+
 		// Setup some states to allow direct rendering into the widget
 		setAttribute(Qt::WA_PaintOnScreen);
 		setAttribute(Qt::WA_OpaquePaintEvent);
