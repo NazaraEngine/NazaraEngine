@@ -1,0 +1,17 @@
+# Exported by Nazara Engine
+
+# material count: 2
+newmtl material_0
+
+Ka 0.501961 0.501961 0.501961
+Kd 0.5 0.5 0.5
+Ks 1 1 1
+ns 50
+map_Kd 198.JPG
+
+newmtl material_1
+
+Ka 0.501961 0.501961 0.501961
+Kd 0.37 0.56 1.0
+Ks 0.0 0.0 0.0
+
