@@ -8,6 +8,7 @@
 #define NAZARA_PARAMETERLIST_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/String.hpp>
 #include <atomic>
 #include <unordered_map>
@@ -27,6 +28,7 @@ namespace Nz
 			void Clear();
 
 			bool GetBooleanParameter(const String& name, bool* value) const;
+			bool GetColorParameter(const String& name, Color* value) const;
 			bool GetFloatParameter(const String& name, float* value) const;
 			bool GetIntegerParameter(const String& name, int* value) const;
 			bool GetParameterType(const String& name, ParameterType* type) const;
@@ -39,13 +41,16 @@ namespace Nz
 			void RemoveParameter(const String& name);
 
 			void SetParameter(const String& name);
+			void SetParameter(const String& name, const Color& value);
 			void SetParameter(const String& name, const String& value);
 			void SetParameter(const String& name, const char* value);
-			void SetParameter(const String& name, void* value);
-			void SetParameter(const String& name, void* value, Destructor destructor);
 			void SetParameter(const String& name, bool value);
 			void SetParameter(const String& name, float value);
 			void SetParameter(const String& name, int value);
+			void SetParameter(const String& name, void* value);
+			void SetParameter(const String& name, void* value, Destructor destructor);
+
+			String ToString() const;
 
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
@@ -55,10 +60,10 @@ namespace Nz
 			{
 				struct UserdataValue
 				{
-					UserdataValue(Destructor Destructor, void* value) :
+					UserdataValue(Destructor func, void* ud) :
 					counter(1),
-					destructor(Destructor),
-					ptr(value)
+					destructor(func),
+					ptr(ud)
 					{
 					}
 
@@ -70,7 +75,7 @@ namespace Nz
 				ParameterType type;
 				union Value
 				{
-					// On définit un constructeur/destructeur vide, permettant de mettre des classes dans l'union
+					// We define an empty constructor/destructor, to be able to put classes in the union
 					Value() {}
 					Value(const Value&) {} // Placeholder
 					~Value() {}
@@ -79,6 +84,7 @@ namespace Nz
 					float floatVal;
 					int intVal;
 					void* ptrVal;
+					Color colorVal;
 					String stringVal;
 					UserdataValue* userdataVal;
 				};
@@ -93,5 +99,7 @@ namespace Nz
 			ParameterMap m_parameters;
 	};
 }
+
+std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
 
 #endif // NAZARA_PARAMETERLIST_HPP

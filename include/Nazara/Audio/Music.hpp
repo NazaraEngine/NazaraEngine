@@ -48,7 +48,7 @@ namespace Nz
 			UInt32 GetDuration() const;
 			AudioFormat GetFormat() const;
 			UInt32 GetPlayingOffset() const;
-			UInt32 GetSampleCount() const;
+			UInt64 GetSampleCount() const;
 			UInt32 GetSampleRate() const;
 			SoundStatus GetStatus() const;
 
@@ -73,6 +73,7 @@ namespace Nz
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();
+			void StopThread();
 
 			static MusicLoader::LoaderList s_loaders;
 	};

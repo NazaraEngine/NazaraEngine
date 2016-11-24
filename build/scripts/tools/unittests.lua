@@ -1,7 +1,9 @@
 TOOL.Name = "UnitTests"
 
 TOOL.Directory = "../tests"
-TOOL.Kind = "ConsoleApp"
+TOOL.EnableConsole = true
+TOOL.Kind = "Application"
+TOOL.TargetDirectory = TOOL.Directory
 
 TOOL.Defines = {
 }
@@ -12,16 +14,13 @@ TOOL.Includes = {
 
 TOOL.Files = {
 	"../tests/main.cpp",
-	"../tests/Engine/**.cpp"
+	"../tests/Engine/**.hpp",
+	"../tests/Engine/**.cpp",
+	"../tests/SDK/**.hpp",
+	"../tests/SDK/**.cpp"
 }
 
 TOOL.Libraries = {
-	"NazaraCore",
-	"NazaraAudio",
-	"NazaraLua",
-	"NazaraNoise",
-	"NazaraPhysics",
-	"NazaraUtility",
-	"NazaraRenderer",
-	"NazaraGraphics"
+	"NazaraNetwork",
+	"NazaraSDK"
 }

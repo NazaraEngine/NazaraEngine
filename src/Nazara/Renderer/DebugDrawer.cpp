@@ -67,7 +67,7 @@ namespace Nz
 		}
 
 		BufferMapper<VertexBuffer> mapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, 24);
-		VertexStruct_XYZ* vertex = reinterpret_cast<VertexStruct_XYZ*>(mapper.GetPointer());
+		VertexStruct_XYZ* vertex = static_cast<VertexStruct_XYZ*>(mapper.GetPointer());
 
 		Vector3f max, min;
 		max = box.GetMaximum();
@@ -158,7 +158,7 @@ namespace Nz
 		}
 
 		BufferMapper<VertexBuffer> mapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, 24);
-		VertexStruct_XYZ* vertex = reinterpret_cast<VertexStruct_XYZ*>(mapper.GetPointer());
+		VertexStruct_XYZ* vertex = static_cast<VertexStruct_XYZ*>(mapper.GetPointer());
 
 		vertex->position.Set(frustum.GetCorner(BoxCorner_NearLeftBottom));
 		vertex++;
@@ -240,7 +240,7 @@ namespace Nz
 		}
 
 		BufferMapper<VertexBuffer> mapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, 24);
-		VertexStruct_XYZ* vertex = reinterpret_cast<VertexStruct_XYZ*>(mapper.GetPointer());
+		VertexStruct_XYZ* vertex = static_cast<VertexStruct_XYZ*>(mapper.GetPointer());
 
 		vertex->position.Set(orientedBox.GetCorner(BoxCorner_NearLeftBottom));
 		vertex++;
@@ -329,7 +329,7 @@ namespace Nz
 		}
 
 		BufferMapper<VertexBuffer> mapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, jointCount*2);
-		VertexStruct_XYZ* vertex = reinterpret_cast<VertexStruct_XYZ*>(mapper.GetPointer());
+		VertexStruct_XYZ* vertex = static_cast<VertexStruct_XYZ*>(mapper.GetPointer());
 
 		unsigned int vertexCount = 0;
 		for (unsigned int i = 0; i < jointCount; ++i)
@@ -407,8 +407,8 @@ namespace Nz
 		BufferMapper<VertexBuffer> inputMapper(subMesh->GetVertexBuffer(), BufferAccess_ReadOnly);
 		BufferMapper<VertexBuffer> outputMapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, vertexCount);
 
-		MeshVertex* inputVertex = reinterpret_cast<MeshVertex*>(inputMapper.GetPointer());
-		VertexStruct_XYZ* outputVertex = reinterpret_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
+		MeshVertex* inputVertex = static_cast<MeshVertex*>(inputMapper.GetPointer());
+		VertexStruct_XYZ* outputVertex = static_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
 
 		for (unsigned int i = 0; i < normalCount; ++i)
 		{
@@ -449,7 +449,7 @@ namespace Nz
 		transformMatrix.SetTranslation(origin);
 
 		BufferMapper<VertexBuffer> mapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, 16);
-		VertexStruct_XYZ* vertex = reinterpret_cast<VertexStruct_XYZ*>(mapper.GetPointer());
+		VertexStruct_XYZ* vertex = static_cast<VertexStruct_XYZ*>(mapper.GetPointer());
 
 		// On calcule le reste des points
 		Vector3f base(Vector3f::Forward()*length);
@@ -575,8 +575,8 @@ namespace Nz
 		BufferMapper<VertexBuffer> inputMapper(subMesh->GetVertexBuffer(), BufferAccess_ReadOnly);
 		BufferMapper<VertexBuffer> outputMapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, vertexCount);
 
-		MeshVertex* inputVertex = reinterpret_cast<MeshVertex*>(inputMapper.GetPointer());
-		VertexStruct_XYZ* outputVertex = reinterpret_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
+		MeshVertex* inputVertex = static_cast<MeshVertex*>(inputMapper.GetPointer());
+		VertexStruct_XYZ* outputVertex = static_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
 
 		for (unsigned int i = 0; i < normalCount; ++i)
 		{
@@ -622,8 +622,8 @@ namespace Nz
 		BufferMapper<VertexBuffer> inputMapper(subMesh->GetVertexBuffer(), BufferAccess_ReadOnly);
 		BufferMapper<VertexBuffer> outputMapper(s_vertexBuffer, BufferAccess_DiscardAndWrite, 0, vertexCount);
 
-		MeshVertex* inputVertex = reinterpret_cast<MeshVertex*>(inputMapper.GetPointer());
-		VertexStruct_XYZ* outputVertex = reinterpret_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
+		MeshVertex* inputVertex = static_cast<MeshVertex*>(inputMapper.GetPointer());
+		VertexStruct_XYZ* outputVertex = static_cast<VertexStruct_XYZ*>(outputMapper.GetPointer());
 
 		for (unsigned int i = 0; i < tangentCount; ++i)
 		{
@@ -652,7 +652,7 @@ namespace Nz
 
 	void DebugDrawer::EnableDepthBuffer(bool depthBuffer)
 	{
-		s_renderStates.parameters[RendererParameter_DepthBuffer] = depthBuffer;
+		s_renderStates.depthBuffer = depthBuffer;
 	}
 
 	float DebugDrawer::GetLineWidth()
@@ -698,7 +698,7 @@ namespace Nz
 			}
 
 			s_primaryColor = Color::Red;
-			s_renderStates.parameters[RendererParameter_DepthBuffer] = true;
+			s_renderStates.depthBuffer = true;
 			s_secondaryColor = Color::Green;
 
 			s_initialized = true;
@@ -709,7 +709,7 @@ namespace Nz
 
 	bool DebugDrawer::IsDepthBufferEnabled()
 	{
-		return s_renderStates.parameters[RendererParameter_DepthBuffer];
+		return s_renderStates.depthBuffer;
 	}
 
 	void DebugDrawer::SetLineWidth(float width)

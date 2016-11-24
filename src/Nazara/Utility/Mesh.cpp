@@ -39,9 +39,9 @@ namespace Nz
 			return false;
 		}
 
-		if (scale == Vector3f::Zero())
+		if (matrix == Matrix4f::Zero())
 		{
-			NazaraError("Invalid scale");
+			NazaraError("Invalid matrix");
 			return false;
 		}
 
@@ -52,18 +52,18 @@ namespace Nz
 	{
 		MeshImpl()
 		{
-			materials.resize(1); // Un matériau par défaut
+			materialData.resize(1); // Un matériau par défaut
 		}
 
-		std::unordered_map<String, unsigned int> subMeshMap;
-		std::vector<String> materials;
+		std::unordered_map<String, UInt32> subMeshMap;
+		std::vector<ParameterList> materialData;
 		std::vector<SubMeshRef> subMeshes;
 		AnimationType animationType;
 		Boxf aabb;
 		Skeleton skeleton; // Uniquement pour les meshs squelettiques
 		String animationPath;
 		bool aabbUpdated = false;
-		unsigned int jointCount; // Uniquement pour les meshs squelettiques
+		UInt32 jointCount; // Uniquement pour les meshs squelettiques
 	};
 
 	Mesh::~Mesh()
@@ -75,100 +75,43 @@ namespace Nz
 
 	void Mesh::AddSubMesh(SubMesh* subMesh)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(subMesh, "Invalid submesh");
+		NazaraAssert(subMesh->GetAnimationType() == m_impl->animationType, "Submesh animation type doesn't match mesh animation type");
 
-		if (!subMesh)
-		{
-			NazaraError("Invalid submesh");
-			return;
-		}
-
-		if (subMesh->GetAnimationType() != m_impl->animationType)
-		{
-			NazaraError("Submesh animation type must match mesh animation type");
-			return;
-		}
-		#endif
-
-		m_impl->aabbUpdated = false; // On invalide l'AABB
 		m_impl->subMeshes.push_back(subMesh);
+
+		InvalidateAABB();
 	}
 
 	void Mesh::AddSubMesh(const String& identifier, SubMesh* subMesh)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(!identifier.IsEmpty(), "Identifier is empty");
+		NazaraAssert(m_impl->subMeshMap.find(identifier) == m_impl->subMeshMap.end(), "SubMesh identifier \"" + identifier + "\" is already in use");
+		NazaraAssert(subMesh, "Invalid submesh");
+		NazaraAssert(subMesh->GetAnimationType() == m_impl->animationType, "Submesh animation type doesn't match mesh animation type");
 
-		if (identifier.IsEmpty())
-		{
-			NazaraError("Identifier is empty");
-			return;
-		}
+		UInt32 index = m_impl->subMeshes.size();
 
-		auto it = m_impl->subMeshMap.find(identifier);
-		if (it != m_impl->subMeshMap.end())
-		{
-			NazaraError("SubMesh identifier \"" + identifier + "\" is already used");
-			return;
-		}
-
-		if (!subMesh)
-		{
-			NazaraError("Invalid submesh");
-			return;
-		}
-
-		if (m_impl->animationType != subMesh->GetAnimationType())
-		{
-			NazaraError("Submesh animation type must match mesh animation type");
-			return;
-		}
-		#endif
-
-		int index = m_impl->subMeshes.size();
-
-		m_impl->aabbUpdated = false; // On invalide l'AABB
 		m_impl->subMeshes.push_back(subMesh);
 		m_impl->subMeshMap[identifier] = index;
+
+		InvalidateAABB();
 	}
 
 	SubMesh* Mesh::BuildSubMesh(const Primitive& primitive, const MeshParams& params)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return nullptr;
-		}
-
-		if (m_impl->animationType != AnimationType_Static)
-		{
-			NazaraError("Mesh must be static");
-			return nullptr;
-		}
-
-		if (!params.IsValid())
-		{
-			NazaraError("Parameters must be valid");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Static, "Submesh building only works for static meshes");
+		NazaraAssert(params.IsValid(), "Invalid parameters");
 
 		Boxf aabb;
 		IndexBufferRef indexBuffer;
 		VertexBufferRef vertexBuffer;
 
 		Matrix4f matrix(primitive.matrix);
-		matrix.ApplyScale(params.scale);
+		matrix *= params.matrix;
 
 		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
@@ -333,35 +276,24 @@ namespace Nz
 
 	void Mesh::BuildSubMeshes(const PrimitiveList& list, const MeshParams& params)
 	{
-		unsigned int primitiveCount = list.GetSize();
-
-		#if NAZARA_UTILITY_SAFE
-		if (primitiveCount == 0)
-		{
-			NazaraError("PrimitiveList must have at least one primitive");
-			return;
-		}
-		#endif
-
-		for (unsigned int i = 0; i < primitiveCount; ++i)
+		for (UInt32 i = 0; i < list.GetSize(); ++i)
 			BuildSubMesh(list.GetPrimitive(i), params);
 	}
 
-	bool Mesh::CreateSkeletal(unsigned int jointCount)
+	bool Mesh::CreateSkeletal(UInt32 jointCount)
 	{
 		Destroy();
 
-		m_impl = new MeshImpl;
-		m_impl->animationType = AnimationType_Skeletal;
-		m_impl->jointCount = jointCount;
-		if (!m_impl->skeleton.Create(jointCount))
+		std::unique_ptr<MeshImpl> impl(new MeshImpl);
+		impl->animationType = AnimationType_Skeletal;
+		impl->jointCount = jointCount;
+		if (!impl->skeleton.Create(jointCount))
 		{
-			delete m_impl;
-			m_impl = nullptr;
-
 			NazaraError("Failed to create skeleton");
 			return false;
 		}
+
+		m_impl = impl.release();
 
 		return true;
 	}
@@ -389,13 +321,7 @@ namespace Nz
 
 	void Mesh::GenerateNormals()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		for (SubMesh* subMesh : m_impl->subMeshes)
 			subMesh->GenerateNormals();
@@ -403,13 +329,7 @@ namespace Nz
 
 	void Mesh::GenerateNormalsAndTangents()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		for (SubMesh* subMesh : m_impl->subMeshes)
 			subMesh->GenerateNormalsAndTangents();
@@ -417,13 +337,7 @@ namespace Nz
 
 	void Mesh::GenerateTangents()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		for (SubMesh* subMesh : m_impl->subMeshes)
 			subMesh->GenerateTangents();
@@ -431,23 +345,15 @@ namespace Nz
 
 	const Boxf& Mesh::GetAABB() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-
-			static Boxf dummy;
-			return dummy;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		if (!m_impl->aabbUpdated)
 		{
-			unsigned int subMeshCount = m_impl->subMeshes.size();
+			UInt32 subMeshCount = m_impl->subMeshes.size();
 			if (subMeshCount > 0)
 			{
 				m_impl->aabb.Set(m_impl->subMeshes[0]->GetAABB());
-				for (unsigned int i = 1; i < subMeshCount; ++i)
+				for (UInt32 i = 1; i < subMeshCount; ++i)
 					m_impl->aabb.ExtendTo(m_impl->subMeshes[i]->GetAABB());
 			}
 			else
@@ -461,267 +367,134 @@ namespace Nz
 
 	String Mesh::GetAnimation() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return String();
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return m_impl->animationPath;
 	}
 
 	AnimationType Mesh::GetAnimationType() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return AnimationType_Static;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return m_impl->animationType;
 	}
 
-	unsigned int Mesh::GetJointCount() const
+	UInt32 Mesh::GetJointCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return 0;
-		}
-
-		if (m_impl->animationType != AnimationType_Skeletal)
-		{
-			NazaraError("Mesh's animation type is not skeletal");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Skeletal, "Mesh is not skeletal");
 
 		return m_impl->jointCount;
 	}
 
-	String Mesh::GetMaterial(unsigned int index) const
+	ParameterList& Mesh::GetMaterialData(UInt32 index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return String();
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(index < m_impl->materialData.size(), "Material index out of range");
 
-		if (index >= m_impl->materials.size())
-		{
-			NazaraError("Material index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->materials.size()) + ')');
-			return String();
-		}
-		#endif
-
-		return m_impl->materials[index];
+		return m_impl->materialData[index];
 	}
 
-	unsigned int Mesh::GetMaterialCount() const
+	const ParameterList& Mesh::GetMaterialData(UInt32 index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(index < m_impl->materialData.size(), "Material index out of range");
 
-		return m_impl->materials.size();
+		return m_impl->materialData[index];
+	}
+
+	UInt32 Mesh::GetMaterialCount() const
+	{
+		NazaraAssert(m_impl, "Mesh should be created first");
+
+		return m_impl->materialData.size();
 	}
 
 	Skeleton* Mesh::GetSkeleton()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (m_impl->animationType != AnimationType_Skeletal)
-		{
-			NazaraError("Mesh's animation type is not skeletal");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Skeletal, "Mesh is not skeletal");
 
 		return &m_impl->skeleton;
 	}
 
 	const Skeleton* Mesh::GetSkeleton() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (m_impl->animationType != AnimationType_Skeletal)
-		{
-			NazaraError("Mesh's animation type is not skeletal");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Skeletal, "Mesh is not skeletal");
 
 		return &m_impl->skeleton;
 	}
 
 	SubMesh* Mesh::GetSubMesh(const String& identifier)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		auto it = m_impl->subMeshMap.find(identifier);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->subMeshMap.end())
-		{
-			NazaraError("SubMesh not found");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(it != m_impl->subMeshMap.end(), "SubMesh " + identifier + " not found");
 
 		return m_impl->subMeshes[it->second];
 	}
 
-	SubMesh* Mesh::GetSubMesh(unsigned int index)
+	SubMesh* Mesh::GetSubMesh(UInt32 index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->subMeshes.size())
-		{
-			NazaraError("SubMesh index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->subMeshes.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(index < m_impl->subMeshes.size(), "Submesh index out of range");
 
 		return m_impl->subMeshes[index];
 	}
 
 	const SubMesh* Mesh::GetSubMesh(const String& identifier) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		auto it = m_impl->subMeshMap.find(identifier);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->subMeshMap.end())
-		{
-			NazaraError("SubMesh not found");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(it != m_impl->subMeshMap.end(), "SubMesh " + identifier + " not found");
 
 		return m_impl->subMeshes[it->second];
 	}
 
-	const SubMesh* Mesh::GetSubMesh(unsigned int index) const
+	const SubMesh* Mesh::GetSubMesh(UInt32 index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->subMeshes.size())
-		{
-			NazaraError("SubMesh index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->subMeshes.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(index < m_impl->subMeshes.size(), "Submesh index out of range");
 
 		return m_impl->subMeshes[index];
 	}
 
-	unsigned int Mesh::GetSubMeshCount() const
+	UInt32 Mesh::GetSubMeshCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return m_impl->subMeshes.size();
 	}
 
-	int Mesh::GetSubMeshIndex(const String& identifier) const
+	UInt32 Mesh::GetSubMeshIndex(const String& identifier) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return -1;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		auto it = m_impl->subMeshMap.find(identifier);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->subMeshMap.end())
-		{
-			NazaraError("SubMesh not found");
-			return -1;
-		}
-		#endif
+		NazaraAssert(it != m_impl->subMeshMap.end(), "SubMesh " + identifier + " not found");
 
 		return it->second;
 	}
 
-	unsigned int Mesh::GetTriangleCount() const
+	UInt32 Mesh::GetTriangleCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
-		unsigned int triangleCount = 0;
+		UInt32 triangleCount = 0;
 		for (SubMesh* subMesh : m_impl->subMeshes)
 			triangleCount += subMesh->GetTriangleCount();
 
 		return triangleCount;
 	}
 
-	unsigned int Mesh::GetVertexCount() const
+	UInt32 Mesh::GetVertexCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
-		unsigned int vertexCount = 0;
+		UInt32 vertexCount = 0;
 		for (SubMesh* subMesh : m_impl->subMeshes)
 			vertexCount += subMesh->GetVertexCount();
 
@@ -730,52 +503,28 @@ namespace Nz
 
 	void Mesh::InvalidateAABB() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		m_impl->aabbUpdated = false;
 	}
 
 	bool Mesh::HasSubMesh(const String& identifier) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return m_impl->subMeshMap.find(identifier) != m_impl->subMeshMap.end();
 	}
 
-	bool Mesh::HasSubMesh(unsigned int index) const
+	bool Mesh::HasSubMesh(UInt32 index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return index < m_impl->subMeshes.size();
 	}
 
 	bool Mesh::IsAnimable() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		return m_impl->animationType != AnimationType_Static;
 	}
@@ -802,21 +551,10 @@ namespace Nz
 
 	void Mesh::Recenter()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Static, "Mesh is not static");
 
-		if (m_impl->animationType != AnimationType_Static)
-		{
-			NazaraError("Mesh must be static");
-			return;
-		}
-		#endif
-
-		// Le centre de notre mesh est le centre de l'AABB *globale*
+		// The center of our mesh is the center of our *global* AABB
 		Vector3f center = GetAABB().GetCenter();
 
 		for (SubMesh* subMesh : m_impl->subMeshes)
@@ -826,134 +564,87 @@ namespace Nz
 			BufferMapper<VertexBuffer> mapper(staticMesh->GetVertexBuffer(), BufferAccess_ReadWrite);
 			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
 
-			unsigned int vertexCount = staticMesh->GetVertexCount();
-			for (unsigned int i = 0; i < vertexCount; ++i)
+			UInt32 vertexCount = staticMesh->GetVertexCount();
+			for (UInt32 i = 0; i < vertexCount; ++i)
 			{
 				vertices->position -= center;
 				vertices++;
 			}
 
-			// l'AABB ne change pas de dimensions mais seulement de position, appliquons-lui le même procédé
+			// Our AABB doesn't change shape, only position
 			Boxf aabb = staticMesh->GetAABB();
 			aabb.Translate(-center);
 
 			staticMesh->SetAABB(aabb);
 		}
 
-		// Il ne faut pas oublier d'invalider notre AABB
-		m_impl->aabbUpdated = false;
+		InvalidateAABB();
 	}
 
 	void Mesh::RemoveSubMesh(const String& identifier)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-
-		auto it = m_impl->subMeshMap.find(identifier);
-		if (it == m_impl->subMeshMap.end())
-		{
-			NazaraError("SubMesh not found");
-			return;
-		}
-
-		unsigned int index = it->second;
-		#else
-		unsigned int index = m_impl->subMeshMap[identifier];
-		#endif
+		UInt32 index = GetSubMeshIndex(identifier);
 
 		// On déplace l'itérateur du début d'une distance de x
 		auto it2 = m_impl->subMeshes.begin();
 		std::advance(it2, index);
 		m_impl->subMeshes.erase(it2);
 
-		m_impl->aabbUpdated = false; // On invalide l'AABB
+		InvalidateAABB();
 	}
 
-	void Mesh::RemoveSubMesh(unsigned int index)
+	void Mesh::RemoveSubMesh(UInt32 index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-
-		if (index >= m_impl->subMeshes.size())
-		{
-			NazaraError("SubMesh index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->subMeshes.size()) + ')');
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(index < m_impl->subMeshes.size(), "Submesh index out of range");
 
 		// On déplace l'itérateur du début de x
 		auto it = m_impl->subMeshes.begin();
 		std::advance(it, index);
 		m_impl->subMeshes.erase(it);
 
-		m_impl->aabbUpdated = false; // On invalide l'AABB
+		InvalidateAABB();
+	}
+
+	bool Mesh::SaveToFile(const String& filePath, const MeshParams& params)
+	{
+		return MeshSaver::SaveToFile(*this, filePath, params);
+	}
+
+	bool Mesh::SaveToStream(Stream& stream, const String& format, const MeshParams& params)
+	{
+		return MeshSaver::SaveToStream(*this, stream, format, params);
 	}
 
 	void Mesh::SetAnimation(const String& animationPath)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Mesh should be created first");
 
 		m_impl->animationPath = animationPath;
 	}
 
-	void Mesh::SetMaterial(unsigned int matIndex, const String& materialPath)
+	void Mesh::SetMaterialData(UInt32 matIndex, ParameterList data)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(matIndex < m_impl->materialData.size(), "Material index out of range");
 
-		if (matIndex >= m_impl->materials.size())
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_impl->materials.size()) + ')');
-			return;
-		}
-		#endif
-
-		m_impl->materials[matIndex] = materialPath;
+		m_impl->materialData[matIndex] = std::move(data);
 	}
 
-	void Mesh::SetMaterialCount(unsigned int matCount)
+	void Mesh::SetMaterialCount(UInt32 matCount)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(matCount > 0, "A mesh should have at least a material");
 
-		if (matCount == 0)
-		{
-			NazaraError("A mesh should have at least a material");
-			return;
-		}
-		#endif
-
-		m_impl->materials.resize(matCount);
+		m_impl->materialData.resize(matCount);
 
 		#ifdef NAZARA_DEBUG
 		for (SubMesh* subMesh : m_impl->subMeshes)
 		{
-			unsigned int matIndex = subMesh->GetMaterialIndex();
+			UInt32 matIndex = subMesh->GetMaterialIndex();
 			if (matIndex >= matCount)
 			{
-				subMesh->SetMaterialIndex(0); // Pour empêcher un crash
+				subMesh->SetMaterialIndex(0); // To prevent a crash
 				NazaraWarning("SubMesh " + String::Pointer(subMesh) + " material index is over mesh new material count (" + String::Number(matIndex) + " >= " + String::Number(matCount) + "), setting it to first material");
 			}
 		}
@@ -962,22 +653,8 @@ namespace Nz
 
 	void Mesh::Transform(const Matrix4f& matrix)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Mesh not created");
-			return;
-		}
-
-		if (m_impl->animationType != AnimationType_Static)
-		{
-			NazaraError("Mesh must be static");
-			return;
-		}
-		#endif
-
-		if (matrix.IsIdentity())
-			return;
+		NazaraAssert(m_impl, "Mesh should be created first");
+		NazaraAssert(m_impl->animationType == AnimationType_Static, "Mesh is not static");
 
 		for (SubMesh* subMesh : m_impl->subMeshes)
 		{
@@ -988,8 +665,8 @@ namespace Nz
 
 			Boxf aabb(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);
 
-			unsigned int vertexCount = staticMesh->GetVertexCount();
-			for (unsigned int i = 0; i < vertexCount; ++i)
+			UInt32 vertexCount = staticMesh->GetVertexCount();
+			for (UInt32 i = 0; i < vertexCount; ++i)
 			{
 				vertices->position = matrix.Transform(vertices->position);
 				aabb.ExtendTo(vertices->position);
@@ -1000,8 +677,7 @@ namespace Nz
 			staticMesh->SetAABB(aabb);
 		}
 
-		// Il ne faut pas oublier d'invalider notre AABB
-		m_impl->aabbUpdated = false;
+		InvalidateAABB();
 	}
 
 	bool Mesh::Initialize()
@@ -1031,4 +707,5 @@ namespace Nz
 	MeshLoader::LoaderList Mesh::s_loaders;
 	MeshManager::ManagerMap Mesh::s_managerMap;
 	MeshManager::ManagerParams Mesh::s_managerParameters;
+	MeshSaver::SaverList Mesh::s_savers;
 }

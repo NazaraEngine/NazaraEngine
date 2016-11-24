@@ -82,6 +82,21 @@ SCENARIO("String", "[CORE][STRING]")
 		}
 	}
 
+	GIVEN("One character string")
+	{
+		Nz::String characterString;
+
+		WHEN("We set the string to one character")
+		{
+			characterString.Set('/');
+
+			THEN("The string must contain it")
+			{
+				REQUIRE(characterString == '/');
+			}
+		}
+	}
+
 	/* TODO
 	GIVEN("One unicode string")
 	{
@@ -107,5 +122,25 @@ SCENARIO("String", "[CORE][STRING]")
 			}
 		}
 	}*/
+
+	GIVEN("A string")
+	{
+		Nz::String replaceAny("abapeilomuky");
+		Nz::String replaceAnyWithCase("abapEilOmuky");
+
+		WHEN("We replace any of vowels after character 3")
+		{
+			unsigned int nbrOfChanges = replaceAny.ReplaceAny("aeiouy", '$', 3);
+			unsigned int nbrOfChangesWithCase = replaceAnyWithCase.ReplaceAny("AEIOUY", '$', 3);
+
+			THEN("These results are expected")
+			{
+				REQUIRE(replaceAny == "abap$$l$m$k$");
+				REQUIRE(nbrOfChanges == 5);
+				REQUIRE(replaceAnyWithCase == "abap$il$muky");
+				REQUIRE(nbrOfChangesWithCase == 2);
+			}
+		}
+	}
 }
 

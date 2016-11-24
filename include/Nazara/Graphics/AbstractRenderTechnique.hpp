@@ -28,6 +28,7 @@ namespace Nz
 			AbstractRenderTechnique(AbstractRenderTechnique&&) = default;
 			virtual ~AbstractRenderTechnique();
 
+			virtual void Clear(const SceneData& sceneData) const = 0;
 			virtual bool Draw(const SceneData& sceneData) const = 0;
 
 			virtual void EnableInstancing(bool instancing);

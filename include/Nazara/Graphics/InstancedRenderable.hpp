@@ -54,15 +54,30 @@ namespace Nz
 
 			struct InstanceData
 			{
-				InstanceData(Matrix4f& referenceMatrix) :
-				transformMatrix(referenceMatrix),
+				InstanceData(const Matrix4f& transformationMatrix) :
+				localMatrix(transformationMatrix),
 				flags(0)
 				{
 				}
 
+				InstanceData(InstanceData&& instanceData) noexcept = default;
+
+				InstanceData& operator=(InstanceData&& instanceData) noexcept
+				{
+					data = std::move(instanceData.data);
+					flags = instanceData.flags;
+					renderOrder = instanceData.renderOrder;
+					localMatrix = instanceData.localMatrix;
+					transformMatrix = instanceData.transformMatrix;
+					volume = instanceData.volume;
+
+					return *this;
+				}
+
 				std::vector<UInt8> data;
 				BoundingVolumef volume;
-				Matrix4f& transformMatrix;
+				Matrix4f localMatrix;
+				mutable Matrix4f transformMatrix;
 				UInt32 flags;
 				int renderOrder;
 			};

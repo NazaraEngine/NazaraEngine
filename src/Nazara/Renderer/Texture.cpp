@@ -364,7 +364,7 @@ namespace Nz
 		return Image::GetMaxLevel(m_impl->type, m_impl->width, m_impl->height, m_impl->depth);
 	}
 
-	unsigned int Texture::GetMemoryUsage() const
+	std::size_t Texture::GetMemoryUsage() const
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (!m_impl)
@@ -399,7 +399,7 @@ namespace Nz
 		return size * PixelFormat::GetBytesPerPixel(m_impl->format);
 	}
 
-	unsigned int Texture::GetMemoryUsage(UInt8 level) const
+	std::size_t Texture::GetMemoryUsage(UInt8 level) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -521,7 +521,7 @@ namespace Nz
 		{
 			///TODO: Sélectionner le format le plus adapté selon les composantes présentes dans le premier format
 			PixelFormatType newFormat = (PixelFormat::HasAlpha(format)) ? PixelFormatType_BGRA8 : PixelFormatType_BGR8;
-			NazaraWarning("Format " + PixelFormat::ToString(format) + " not supported, trying to convert it to " + PixelFormat::ToString(newFormat) + "...");
+			NazaraWarning("Format " + PixelFormat::GetName(format) + " not supported, trying to convert it to " + PixelFormat::GetName(newFormat) + "...");
 
 			if (PixelFormat::IsConversionSupported(format, newFormat))
 			{
@@ -581,6 +581,9 @@ namespace Nz
 				}
 			}
 		}
+
+		// Keep resource path info
+		SetFilePath(image.GetFilePath());
 
 		destroyOnExit.Reset();
 
@@ -1019,25 +1022,52 @@ namespace Nz
 		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, srcHeight);
 
 		OpenGL::BindTexture(m_impl->type, m_impl->id);
-		switch (m_impl->type)
+
+		if (PixelFormat::IsCompressed(m_impl->format))
 		{
-			case ImageType_1D:
-				glTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.dataFormat, format.dataType, pixels);
-				break;
+			switch (m_impl->type)
+			{
+				case ImageType_1D:
+					glCompressedTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, 1, 1), pixels);
+					break;
 
-			case ImageType_1D_Array:
-			case ImageType_2D:
-				glTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_1D_Array:
+				case ImageType_2D:
+					glCompressedTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, 1), pixels);
+					break;
 
-			case ImageType_2D_Array:
-			case ImageType_3D:
-				glTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_2D_Array:
+				case ImageType_3D:
+					glCompressedTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, box.depth), pixels);
+					break;
 
-			case ImageType_Cubemap:
-				glTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
-				break;
+				case ImageType_Cubemap:
+					glCompressedTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.internalFormat, PixelFormat::ComputeSize(m_impl->format, box.width, box.height, box.depth), pixels);
+					break;
+			}
+		}
+		else
+		{
+			switch (m_impl->type)
+			{
+				case ImageType_1D:
+					glTexSubImage1D(GL_TEXTURE_1D, level, box.x, box.width, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_1D_Array:
+				case ImageType_2D:
+					glTexSubImage2D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_2D_Array:
+				case ImageType_3D:
+					glTexSubImage3D(OpenGL::TextureTarget[m_impl->type], level, box.x, box.y, box.z, box.width, box.height, box.depth, format.dataFormat, format.dataType, pixels);
+					break;
+
+				case ImageType_Cubemap:
+					glTexSubImage2D(OpenGL::CubemapFace[box.z], level, box.x, box.y, box.width, box.height, format.dataFormat, format.dataType, pixels);
+					break;
+			}
 		}
 
 		return true;
@@ -1170,7 +1200,7 @@ namespace Nz
 		OpenGL::Format openGLFormat;
 		if (!OpenGL::TranslateFormat(m_impl->format, &openGLFormat, OpenGL::FormatType_Texture))
 		{
-			NazaraError("Format " + PixelFormat::ToString(m_impl->format) + " not supported by OpenGL");
+			NazaraError("Format " + PixelFormat::GetName(m_impl->format) + " not supported by OpenGL");
 			return false;
 		}
 
@@ -1277,6 +1307,12 @@ namespace Nz
 			glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, openGLFormat.swizzle[1]);
 			glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, openGLFormat.swizzle[2]);
 			glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, openGLFormat.swizzle[3]);
+		}
+
+		if (!proxy && PixelFormat::GetContent(m_impl->format) == PixelFormatContent_DepthStencil)
+		{
+			glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 		}
 
 		return true;

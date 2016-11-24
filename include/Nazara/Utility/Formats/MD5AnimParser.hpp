@@ -34,12 +34,12 @@ namespace Nz
 
 			struct Joint
 			{
+				Int32 parent;
 				Quaternionf bindOrient;
 				String name;
 				Vector3f bindPos;
-				int parent;
-				unsigned int flags;
-				unsigned int index;
+				UInt32 flags;
+				UInt32 index;
 			};
 
 			MD5AnimParser(Stream& stream);
@@ -47,12 +47,12 @@ namespace Nz
 
 			Ternary Check();
 
-			unsigned int GetAnimatedComponentCount() const;
+			UInt32 GetAnimatedComponentCount() const;
 			const Frame* GetFrames() const;
-			unsigned int GetFrameCount() const;
-			unsigned int GetFrameRate() const;
+			UInt32 GetFrameCount() const;
+			UInt32 GetFrameRate() const;
 			const Joint* GetJoints() const;
-			unsigned int GetJointCount() const;
+			UInt32 GetJointCount() const;
 
 			bool Parse();
 

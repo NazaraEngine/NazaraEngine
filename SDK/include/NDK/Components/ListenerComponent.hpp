@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 #define NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 
@@ -14,14 +15,14 @@ namespace Ndk
 	class NDK_API ListenerComponent : public Component<ListenerComponent>
 	{
 		public:
-			ListenerComponent();
+			inline ListenerComponent();
 			~ListenerComponent() = default;
 
-			bool IsActive() const;
+			inline bool IsActive() const;
 
 			bool Serialize(Nz::SerializationContext& context) const override;
 
-			void SetActive(bool active = true);
+			inline void SetActive(bool active = true);
 
 			bool Unserialize(Nz::SerializationContext& context) override;
 
@@ -35,3 +36,4 @@ namespace Ndk
 #include <NDK/Components/ListenerComponent.inl>
 
 #endif // NDK_COMPONENTS_LISTENERCOMPONENT_HPP
+#endif // NDK_SERVER

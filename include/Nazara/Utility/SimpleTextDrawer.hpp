@@ -28,14 +28,14 @@ namespace Nz
 
 			void Clear();
 
-			const Rectui& GetBounds() const override;
+			const Recti& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;
-			Font* GetFont(unsigned int index) const override;
-			unsigned int GetFontCount() const override;
-			const Glyph& GetGlyph(unsigned int index) const override;
-			unsigned int GetGlyphCount() const override;
+			Font* GetFont(std::size_t index) const override;
+			std::size_t GetFontCount() const override;
+			const Glyph& GetGlyph(std::size_t index) const override;
+			std::size_t GetGlyphCount() const override;
 			UInt32 GetStyle() const;
 			const String& GetText() const;
 
@@ -71,7 +71,7 @@ namespace Nz
 			Color m_color;
 			FontRef m_font;
 			mutable Rectf m_workingBounds;
-			mutable Rectui m_bounds;
+			mutable Recti m_bounds;
 			String m_text;
 			mutable UInt32 m_previousCharacter;
 			UInt32 m_style;

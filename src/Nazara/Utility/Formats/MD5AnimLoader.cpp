@@ -25,7 +25,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Animation* animation, Stream& stream, const AnimationParams& parameters)
+		bool Load(Animation* animation, Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -37,10 +37,10 @@ namespace Nz
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
-			unsigned int frameCount = parser.GetFrameCount();
-			unsigned int frameRate = parser.GetFrameRate();
+			UInt32 frameCount = parser.GetFrameCount();
+			UInt32 frameRate = parser.GetFrameRate();
 			const MD5AnimParser::Joint* joints = parser.GetJoints();
-			unsigned int jointCount = parser.GetJointCount();
+			UInt32 jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
 			animation->CreateSkeletal(frameCount, jointCount);
@@ -57,12 +57,12 @@ namespace Nz
 
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
-										 Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
+			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			for (unsigned int i = 0; i < jointCount; ++i)
+			for (UInt32 i = 0; i < jointCount; ++i)
 			{
 				int parent = joints[i].parent;
-				for (unsigned int j = 0; j < frameCount; ++j)
+				for (UInt32 j = 0; j < frameCount; ++j)
 				{
 					SequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
 

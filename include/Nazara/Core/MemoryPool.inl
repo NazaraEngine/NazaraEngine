@@ -191,7 +191,7 @@ namespace Nz
 	inline T* MemoryPool::New(Args&&... args)
 	{
 		T* object = static_cast<T*>(Allocate(sizeof(T)));
-		PlacementNew<T>(object, std::forward<Args>(args)...);
+		PlacementNew(object, std::forward<Args>(args)...);
 
 		return object;
 	}

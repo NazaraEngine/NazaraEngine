@@ -49,7 +49,7 @@ namespace Nz
 			return true;
 		else
 		{
-			if (errno != ENOENT)
+			if (errno == EBADF || errno == EOVERFLOW)
 				NazaraError("Unable to get next result: " + Error::GetLastSystemError());
 
 			return false;

@@ -31,13 +31,13 @@ namespace Nz
 		public:
 			LuaInstance();
 			LuaInstance(const LuaInstance&) = delete;
-			LuaInstance(LuaInstance&&) = delete; ///TODO
+			inline LuaInstance(LuaInstance&& instance) noexcept;
 			~LuaInstance();
 
-			void ArgCheck(bool condition, unsigned int argNum, const char* error);
-			void ArgCheck(bool condition, unsigned int argNum, const String& error);
-			int ArgError(unsigned int argNum, const char* error);
-			int ArgError(unsigned int argNum, const String& error);
+			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
+			void ArgCheck(bool condition, unsigned int argNum, const String& error) const;
+			int ArgError(unsigned int argNum, const char* error) const;
+			int ArgError(unsigned int argNum, const String& error) const;
 
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
@@ -84,7 +84,7 @@ namespace Nz
 
 			bool Execute(const String& code);
 			bool ExecuteFromFile(const String& filePath);
-			bool ExecuteFromMemory(const void* data, unsigned int size);
+			bool ExecuteFromMemory(const void* data, std::size_t size);
 			bool ExecuteFromStream(Stream& stream);
 
 			int GetAbsIndex(int index) const;
@@ -92,16 +92,16 @@ namespace Nz
 			LuaType GetField(const String& fieldName, int tableIndex = -1) const;
 			LuaType GetGlobal(const char* name) const;
 			LuaType GetGlobal(const String& name) const;
-			lua_State* GetInternalState() const;
-			String GetLastError() const;
-			UInt32 GetMemoryLimit() const;
-			UInt32 GetMemoryUsage() const;
+			inline lua_State* GetInternalState() const;
+			inline String GetLastError() const;
+			inline std::size_t GetMemoryLimit() const;
+			inline std::size_t GetMemoryUsage() const;
 			LuaType GetMetatable(const char* tname) const;
 			LuaType GetMetatable(const String& tname) const;
 			bool GetMetatable(int index) const;
 			unsigned int GetStackTop() const;
 			LuaType GetTable(int index = -2) const;
-			UInt32 GetTimeLimit() const;
+			inline UInt32 GetTimeLimit() const;
 			LuaType GetType(int index) const;
 			const char* GetTypeName(LuaType type) const;
 
@@ -123,11 +123,17 @@ namespace Nz
 			void Pop(unsigned int n = 1U) const;
 
 			template<typename T> int Push(T arg) const;
+			template<typename T, typename T2, typename... Args> int Push(T firstArg, T2 secondArg, Args... args) const;
 			void PushBoolean(bool value) const;
 			void PushCFunction(LuaCFunction func, unsigned int upvalueCount = 0) const;
+			template<typename T> void PushField(const char* name, T&& arg, int tableIndex = -2) const;
+			template<typename T> void PushField(const String& name, T&& arg, int tableIndex = -2) const;
 			void PushFunction(LuaFunction func) const;
 			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const;
-			template<typename T> void PushInstance(const char* tname, T* instance) const;
+			template<typename T> void PushGlobal(const char* name, T&& arg);
+			template<typename T> void PushGlobal(const String& name, T&& arg);
+			template<typename T> void PushInstance(const char* tname, const T& instance) const;
+			template<typename T> void PushInstance(const char* tname, T&& instance) const;
 			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args) const;
 			void PushInteger(long long value) const;
 			void PushLightUserdata(void* value) const;
@@ -137,28 +143,24 @@ namespace Nz
 			void PushNumber(double value) const;
 			void PushReference(int ref) const;
 			void PushString(const char* str) const;
-			void PushString(const char* str, unsigned int size) const;
+			void PushString(const char* str, std::size_t size) const;
 			void PushString(const String& str) const;
-			void PushTable(unsigned int sequenceElementCount = 0, unsigned int arrayElementCount = 0) const;
-			void* PushUserdata(unsigned int size) const;
+			void PushTable(std::size_t sequenceElementCount = 0, std::size_t arrayElementCount = 0) const;
+			void* PushUserdata(std::size_t size) const;
 			void PushValue(int index) const;
 
 			void Remove(int index) const;
 			void Replace(int index) const;
 
-			template<typename T> void SetField(const char* name, T&& arg, int tableIndex = -2);
-			template<typename T> void SetField(const String& name, T&& arg, int tableIndex = -2);
-			void SetField(const char* name, int tableIndex = -2);
-			void SetField(const String& name, int tableIndex = -2);
-			template<typename T> void SetGlobal(const char* name, T&& arg);
-			template<typename T> void SetGlobal(const String& name, T&& arg);
+			void SetField(const char* name, int tableIndex = -2) const;
+			void SetField(const String& name, int tableIndex = -2) const;
 			void SetGlobal(const char* name);
 			void SetGlobal(const String& name);
 			void SetMetatable(const char* tname) const;
 			void SetMetatable(const String& tname) const;
 			void SetMetatable(int index) const;
-			void SetMemoryLimit(UInt32 memoryLimit);
-			void SetTable(int index = -3);
+			void SetMemoryLimit(std::size_t memoryLimit);
+			void SetTable(int index = -3) const;
 			void SetTimeLimit(UInt32 timeLimit);
 
 			bool ToBoolean(int index) const;
@@ -171,7 +173,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaInstance& operator=(const LuaInstance&) = delete;
-			LuaInstance& operator=(LuaInstance&&) = delete; ///TODO
+			inline LuaInstance& operator=(LuaInstance&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance* GetInstance(lua_State* state);
@@ -184,8 +186,8 @@ namespace Nz
 			static int ProxyFunc(lua_State* state);
 			static void TimeLimiter(lua_State* state, lua_Debug* debug);
 
-			UInt32 m_memoryLimit;
-			UInt32 m_memoryUsage;
+			std::size_t m_memoryLimit;
+			std::size_t m_memoryUsage;
 			UInt32 m_timeLimit;
 			Clock m_clock;
 			String m_lastError;

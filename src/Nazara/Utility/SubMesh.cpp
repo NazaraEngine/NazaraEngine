@@ -196,7 +196,7 @@ namespace Nz
 		return 0;
 	}
 
-	unsigned int SubMesh::GetMaterialIndex() const
+	UInt32 SubMesh::GetMaterialIndex() const
 	{
 		return m_matIndex;
 	}
@@ -206,8 +206,8 @@ namespace Nz
 		m_primitiveMode = mode;
 	}
 
-	void SubMesh::SetMaterialIndex(unsigned int matIndex)
+	void SubMesh::SetMaterialIndex(UInt32 matIndex)
 	{
 		m_matIndex = matIndex;
-}
+	}
 }

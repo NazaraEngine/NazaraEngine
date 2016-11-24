@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	template<typename T> void MixToMono(T* input, T* output, unsigned int channelCount, unsigned int frameCount);
+	template<typename T> void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount);
 }
 
 #include <Nazara/Audio/Algorithm.inl>

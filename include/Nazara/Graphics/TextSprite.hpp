@@ -77,8 +77,7 @@ namespace Nz
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
 			MaterialRef m_material;
-			Rectui m_localBounds;
-			mutable bool m_verticesUpdated;
+			Recti m_localBounds;
 			float m_scale;
 
 			static TextSpriteLibrary::LibraryMap s_library;

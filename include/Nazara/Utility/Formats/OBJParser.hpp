@@ -20,60 +20,91 @@ namespace Nz
 	class NAZARA_UTILITY_API OBJParser
 	{
 		public:
-			struct FaceVertex
-			{
-				int normal;
-				int position;
-				int texCoord;
-			};
+			struct Face;
+			struct FaceVertex;
+			struct Mesh;
+
+			OBJParser() = default;
+			~OBJParser() = default;
+
+			inline void Clear();
+
+			bool Check(Stream& stream);
+
+			inline String* GetMaterials();
+			inline const String* GetMaterials() const;
+			inline UInt32 GetMaterialCount() const;
+			inline Mesh* GetMeshes();
+			inline const Mesh* GetMeshes() const;
+			inline UInt32 GetMeshCount() const;
+			inline const String& GetMtlLib() const;
+			inline Vector3f* GetNormals();
+			inline const Vector3f* GetNormals() const;
+			inline UInt32 GetNormalCount() const;
+			inline Vector4f* GetPositions();
+			inline const Vector4f* GetPositions() const;
+			inline UInt32 GetPositionCount() const;
+			inline Vector3f* GetTexCoords();
+			inline const Vector3f* GetTexCoords() const;
+			inline UInt32 GetTexCoordCount() const;
+
+			bool Parse(Stream& stream, UInt32 reservedVertexCount = 100);
+
+			bool Save(Stream& stream) const;
+
+			inline String* SetMaterialCount(UInt32 materialCount);
+			inline Mesh* SetMeshCount(UInt32 meshCount);
+			inline void SetMtlLib(const String& mtlLib);
+			inline Vector3f* SetNormalCount(UInt32 normalCount);
+			inline Vector4f* SetPositionCount(UInt32 positionCount);
+			inline Vector3f* SetTexCoordCount(UInt32 texCoordCount);
 
 			struct Face
 			{
-				std::vector<FaceVertex> vertices;
+				UInt32 firstVertex;
+				UInt32 vertexCount;
+			};
+
+			struct FaceVertex
+			{
+				UInt32 normal;
+				UInt32 position;
+				UInt32 texCoord;
 			};
 
 			struct Mesh
 			{
 				std::vector<Face> faces;
+				std::vector<FaceVertex> vertices;
 				String name;
-				unsigned int material;
+				UInt32 material;
 			};
-
-			OBJParser(Stream& stream$);
-			~OBJParser();
-
-			const String* GetMaterials() const;
-			unsigned int GetMaterialCount() const;
-			const Mesh* GetMeshes() const;
-			unsigned int GetMeshCount() const;
-			const String& GetMtlLib() const;
-			const Vector3f* GetNormals() const;
-			unsigned int GetNormalCount() const;
-			const Vector4f* GetPositions() const;
-			unsigned int GetPositionCount() const;
-			const Vector3f* GetTexCoords() const;
-			unsigned int GetTexCoordCount() const;
-
-			bool Parse(std::size_t reservedVertexCount = 100);
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const String& message);
-			void Warning(const String& message);
-			void UnrecognizedLine(bool error = false);
+			template<typename T> void Emit(const T& text) const;
+			inline void EmitLine() const;
+			template<typename T> void EmitLine(const T& line) const;
+			inline void Error(const String& message);
+			inline void Flush() const;
+			inline void Warning(const String& message);
+			inline bool UnrecognizedLine(bool error = false);
 
 			std::vector<Mesh> m_meshes;
 			std::vector<String> m_materials;
 			std::vector<Vector3f> m_normals;
 			std::vector<Vector4f> m_positions;
 			std::vector<Vector3f> m_texCoords;
-			Stream& m_stream;
+			mutable Stream* m_currentStream;
 			String m_currentLine;
 			String m_mtlLib;
+			mutable StringStream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
-			unsigned int m_streamFlags;
+			unsigned int m_errorCount;
 	};
 }
+
+#include <Nazara/Utility/Formats/OBJParser.inl>
 
 #endif // NAZARA_FORMATS_OBJPARSER_HPP

@@ -11,16 +11,11 @@ uniform vec4 LightDirection;
 uniform sampler2D GBuffer0;
 uniform sampler2D GBuffer1;
 uniform sampler2D GBuffer2;
+uniform sampler2D DepthBuffer;
 
 uniform mat4 InvViewProjMatrix;
 uniform vec2 InvTargetSize;
 uniform vec4 SceneAmbient;
-
-float ColorToFloat(vec3 color)
-{ 	
-	const vec3 byte_to_float = vec3(1.0, 1.0/256, 1.0/(256*256));
-	return dot(color, byte_to_float);
-}
 
 #define kPI 3.1415926536
 
@@ -44,7 +39,7 @@ void main()
 	vec3 diffuseColor = gVec0.xyz;
 	vec3 normal = DecodeNormal(gVec1);
 	float specularMultiplier = gVec0.w;
-	float depth = ColorToFloat(gVec2.xyz);
+	float depth = textureLod(DepthBuffer, texCoord, 0.0).r;
 	float shininess = (gVec2.w == 0.0) ? 0.0 : exp2(gVec2.w*10.5);
 
 	vec3 lightDir = -LightDirection.xyz;

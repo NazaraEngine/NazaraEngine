@@ -49,7 +49,7 @@ namespace Nz
 		ClearGlyphs();
 	}
 
-	const Rectui& SimpleTextDrawer::GetBounds() const
+	const Recti& SimpleTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -72,19 +72,20 @@ namespace Nz
 		return m_font;
 	}
 
-	Font* SimpleTextDrawer::GetFont(unsigned int index) const
+	Font* SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
+		NazaraUnused(index);
 
 		return m_font;
 	}
 
-	unsigned int SimpleTextDrawer::GetFontCount() const
+	std::size_t SimpleTextDrawer::GetFontCount() const
 	{
 		return 1;
 	}
 
-	const AbstractTextDrawer::Glyph& SimpleTextDrawer::GetGlyph(unsigned int index) const
+	const AbstractTextDrawer::Glyph& SimpleTextDrawer::GetGlyph(std::size_t index) const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -94,7 +95,7 @@ namespace Nz
 		return m_glyphs[index];
 	}
 
-	unsigned int SimpleTextDrawer::GetGlyphCount() const
+	std::size_t SimpleTextDrawer::GetGlyphCount() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();

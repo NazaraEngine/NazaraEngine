@@ -20,10 +20,13 @@
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Window.hpp>
+#include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
+#include <Nazara/Utility/Formats/OBJLoader.hpp>
+#include <Nazara/Utility/Formats/OBJSaver.hpp>
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
@@ -99,10 +102,14 @@ namespace Nz
 			return false;
 		}
 
-		if (!Window::Initialize())
+		bool bParam;
+		if (!s_initializationParameters.GetBooleanParameter("NoWindowSystem", &bParam) || !bParam)
 		{
-			NazaraError("Failed to initialize window's system");
-			return false;
+			if (!Window::Initialize())
+			{
+				NazaraError("Failed to initialize window's system");
+				return false;
+			}
 		}
 
 		// On enregistre les loaders pour les extensions
@@ -113,6 +120,7 @@ namespace Nz
 		Loaders::RegisterFreeType();
 
 		// Image
+		Loaders::RegisterDDSLoader(); // DDS Loader (DirectX format)
 		Loaders::RegisterSTBLoader(); // Generic loader (STB)
 		Loaders::RegisterSTBSaver();  // Generic saver (STB)
 
@@ -120,9 +128,14 @@ namespace Nz
 		// Animation
 		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
 
+		// Mesh (text)
+		Loaders::RegisterOBJLoader();
+		Loaders::RegisterOBJSaver();
+
 		// Mesh
 		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
 		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
+		Loaders::RegisterOBJLoader(); // Loader de fichiers .md5mesh (v10)
 
 		// Image
 		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
@@ -136,6 +149,11 @@ namespace Nz
 	bool Utility::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
+	}
+
+	void Utility::SetParameters(const ParameterList& parameters)
+	{
+		s_initializationParameters = parameters;
 	}
 
 	void Utility::Uninitialize()
@@ -156,6 +174,8 @@ namespace Nz
 		Loaders::UnregisterMD2();
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
+		Loaders::UnregisterOBJLoader();
+		Loaders::UnregisterOBJSaver();
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
@@ -216,5 +236,6 @@ namespace Nz
 
 	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
 
+	ParameterList Utility::s_initializationParameters;
 	unsigned int Utility::s_moduleReferenceCounter = 0;
 }

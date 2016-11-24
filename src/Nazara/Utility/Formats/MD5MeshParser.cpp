@@ -58,9 +58,9 @@ namespace Nz
 		return m_joints.data();
 	}
 
-	unsigned int MD5MeshParser::GetJointCount() const
+	UInt32 MD5MeshParser::GetJointCount() const
 	{
-		return m_joints.size();
+		return static_cast<UInt32>(m_joints.size());
 	}
 
 	const MD5MeshParser::Mesh* MD5MeshParser::GetMeshes() const
@@ -68,9 +68,9 @@ namespace Nz
 		return m_meshes.data();
 	}
 
-	unsigned int MD5MeshParser::GetMeshCount() const
+	UInt32 MD5MeshParser::GetMeshCount() const
 	{
-		return m_meshes.size();
+		return static_cast<UInt32>(m_meshes.size());
 	}
 
 	bool MD5MeshParser::Parse()
@@ -194,6 +194,7 @@ namespace Nz
 				m_currentLine = m_stream.ReadLine();
 				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
+				m_currentLine.Trim();
 			}
 			while (m_currentLine.IsEmpty());
 		}
@@ -210,19 +211,19 @@ namespace Nz
 
 	bool MD5MeshParser::ParseJoints()
 	{
-		unsigned int jointCount = m_joints.size();
+		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
 			Error("Joint count is invalid or missing");
 			return false;
 		}
 
-		for (unsigned int i = 0; i < jointCount; ++i)
+		for (std::size_t i = 0; i < jointCount; ++i)
 		{
 			if (!Advance())
 				return false;
 
-			unsigned int pos = m_currentLine.Find(' ');
+			std::size_t pos = m_currentLine.Find(' ');
 			if (pos == String::npos)
 			{
 				UnrecognizedLine(true);
@@ -247,10 +248,10 @@ namespace Nz
 			m_joints[i].name = name;
 			m_joints[i].name.Trim('"');
 
-			int parent = m_joints[i].parent;
+			Int32 parent = m_joints[i].parent;
 			if (parent >= 0)
 			{
-				if (static_cast<unsigned int>(parent) >= jointCount)
+				if (static_cast<std::size_t>(parent) >= jointCount)
 				{
 					Error("Joint's parent is out of bounds (" + String::Number(parent) + " >= " + String::Number(jointCount) + ')');
 					return false;

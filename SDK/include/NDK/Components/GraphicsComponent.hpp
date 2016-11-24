@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
@@ -13,11 +14,17 @@
 
 namespace Ndk
 {
-	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
+	class GraphicsComponent;
+
+	using GraphicsComponentHandle = Nz::ObjectHandle<GraphicsComponent>;
+
+	class NDK_API GraphicsComponent : public Component<GraphicsComponent>, public Nz::HandledObject<GraphicsComponent>
 	{
 		friend class RenderSystem;
 
 		public:
+			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
+
 			GraphicsComponent() = default;
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
@@ -25,13 +32,25 @@ namespace Ndk
 			inline void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			inline void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 
+			inline void Clear();
+
+			inline void Detach(const Nz::InstancedRenderable* renderable);
+
+			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
+
+			inline void GetAttachedRenderables(RenderableList* renderables) const;
+			inline std::size_t GetAttachedRenderableCount() const;
+
+			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
 			static ComponentIndex componentIndex;
 
 		private:
-			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, unsigned int index);
+			inline void InvalidateBoundingVolume();
+			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			inline void InvalidateRenderables();
 			inline void InvalidateTransformMatrix();
 
@@ -41,19 +60,47 @@ namespace Ndk
 			void OnDetached() override;
 			void OnNodeInvalidated(const Nz::Node* node);
 
+			void UpdateBoundingVolume() const;
 			void UpdateTransformMatrix() const;
 
 			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
 
 			struct Renderable
 			{
-				Renderable(Nz::Matrix4f& transformMatrix) :
+				Renderable(const Nz::Matrix4f& transformMatrix) :
 				data(transformMatrix),
 				dataUpdated(false)
 				{
 				}
 
+				Renderable(Renderable&& rhs) noexcept :
+				renderableInvalidationSlot(std::move(rhs.renderableInvalidationSlot)),
+				renderableReleaseSlot(std::move(rhs.renderableReleaseSlot)),
+				data(std::move(rhs.data)),
+				renderable(std::move(rhs.renderable)),
+				dataUpdated(rhs.dataUpdated)
+				{
+				}
+
+				~Renderable()
+				{
+					// Disconnect release slot before releasing instanced renderable reference
+					renderableReleaseSlot.Disconnect();
+				}
+
+				Renderable& operator=(Renderable&& r) noexcept
+				{
+					data = std::move(r.data);
+					dataUpdated = r.dataUpdated;
+					renderable = std::move(r.renderable);
+					renderableInvalidationSlot = std::move(r.renderableInvalidationSlot);
+					renderableReleaseSlot = std::move(r.renderableReleaseSlot);
+
+					return *this;
+				}
+
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableRelease, renderableReleaseSlot);
 
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;
@@ -61,7 +108,9 @@ namespace Ndk
 			};
 
 			std::vector<Renderable> m_renderables;
+			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;
+			mutable bool m_boundingVolumeUpdated;
 			mutable bool m_transformMatrixUpdated;
 	};
 }
@@ -69,3 +118,4 @@ namespace Ndk
 #include <NDK/Components/GraphicsComponent.inl>
 
 #endif // NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
+#endif // NDK_SERVER

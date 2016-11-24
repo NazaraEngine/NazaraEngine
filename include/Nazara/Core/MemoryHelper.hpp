@@ -7,6 +7,27 @@
 #ifndef NAZARA_MEMORYHELPER_HPP
 #define NAZARA_MEMORYHELPER_HPP
 
+#if defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_COMPILER_MINGW)
+
+#include <malloc.h>
+
+#define NAZARA_ALLOCA(size) _alloca(size)
+#define NAZARA_ALLOCA_SUPPORT
+
+#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
+#include <alloca.h>
+
+#define NAZARA_ALLOCA(size) alloca(size)
+#define NAZARA_ALLOCA_SUPPORT
+
+#endif
+
+#ifdef NAZARA_ALLOCA_SUPPORT
+	#define NazaraStackAllocation(size) Nz::StackAllocation(NAZARA_ALLOCA(size))
+#else
+	#define NazaraStackAllocation(size) Nz::StackAllocation(Nz::OperatorNew(size))
+#endif
+
 #include <cstddef>
 
 namespace Nz
@@ -15,7 +36,21 @@ namespace Nz
 	void* OperatorNew(std::size_t size);
 
 	template<typename T, typename... Args>
-	T* PlacementNew(void* ptr, Args&&... args);
+	T* PlacementNew(T* ptr, Args&&... args);
+
+	class StackAllocation
+	{
+		public:
+			explicit StackAllocation(void* stackMemory);
+			~StackAllocation();
+
+			void* GetPtr();
+
+			operator void*();
+
+		private:
+			void* m_ptr;
+	};
 }
 
 #include <Nazara/Core/MemoryHelper.inl>

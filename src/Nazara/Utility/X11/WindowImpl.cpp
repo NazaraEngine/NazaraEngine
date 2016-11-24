@@ -203,17 +203,18 @@ namespace Nz
 		// Set the window's name
 		SetTitle(title);
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		Mutex mutex;
-		ConditionVariable condition;
-		m_threadActive = true;
+		if (m_style & WindowStyle_Threaded)
+		{
+			Mutex mutex;
+			ConditionVariable condition;
+			m_threadActive = true;
 
-		// We wait that thread is well launched
-		mutex.Lock();
-		m_thread = Thread(WindowThread, this, &mutex, &condition);
-		condition.Wait(&mutex);
-		mutex.Unlock();
-		#endif
+			// Wait until the thread is ready
+			mutex.Lock();
+			m_thread = Thread(WindowThread, this, &mutex, &condition);
+			condition.Wait(&mutex);
+			mutex.Unlock();
+		}
 
 		// Set fullscreen video mode and switch to fullscreen if necessary
 		if (fullscreen)
@@ -275,13 +276,15 @@ namespace Nz
 	{
 		if (m_ownsWindow)
 		{
-			#if NAZARA_UTILITY_THREADED_WINDOW
-			if (m_thread.IsJoinable())
+			if (m_style & WindowStyle_Threaded)
 			{
-				m_threadActive = false;
-				m_thread.Join();
+				if (m_thread.IsJoinable())
+				{
+					m_threadActive = false;
+					m_thread.Join();
+				}
 			}
-			#else
+
 			// Destroy the window
 			if (m_window && m_ownsWindow)
 			{
@@ -293,13 +296,11 @@ namespace Nz
 					xcb_destroy_window(
 						connection,
 						m_window
-					))
-				)
+					)))
 					NazaraError("Failed to destroy window");
 
 				xcb_flush(connection);
 			}
-			#endif
 		}
 		else
 			SetEventListener(false);
@@ -768,19 +769,79 @@ namespace Nz
 		if (!keysyms)
 		{
 			NazaraError("Failed to get key symbols");
-			return XCB_NONE;
+			return XCB_NO_SYMBOL;
 		}
 
-		int col = state & XCB_MOD_MASK_SHIFT ? 1 : 0;
-		const int altGrOffset = 4;
-		if (state & XCB_MOD_MASK_5)
-			col += altGrOffset;
-		xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, col);
-		if (keysym == XCB_NO_SYMBOL)
-			keysym = xcb_key_symbols_get_keysym(keysyms, keycode, col ^ 0x1);
-		X11::XCBKeySymbolsFree(keysyms);
+		xcb_keysym_t k0, k1;
 
-		return keysym;
+		CallOnExit onExit([&](){
+			X11::XCBKeySymbolsFree(keysyms);
+		});
+
+		// Based on documentation in https://cgit.freedesktop.org/xcb/util-keysyms/tree/keysyms/keysyms.c
+		// Mode switch = ctlr and alt gr = XCB_MOD_MASK_5
+
+		// The first four elements of the list are split into two groups of KeySyms.
+		if (state & XCB_MOD_MASK_1)
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 2);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 3);
+		}
+		if (state & XCB_MOD_MASK_5)
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 4);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 5);
+		}
+		else
+		{
+			k0 = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
+			k1 = xcb_key_symbols_get_keysym(keysyms, keycode, 1);
+		}
+
+		// If the second element of the group is NoSymbol, then the group should be treated as if the second element were the same as the first element.
+		if (k1 == XCB_NO_SYMBOL)
+			k1 = k0;
+
+		/* The numlock modifier is on and the second KeySym is a keypad KeySym
+		The numlock modifier is on and the second KeySym is a keypad KeySym. In
+		this case, if the Shift modifier is on, or if the Lock modifier is on
+		and is interpreted as ShiftLock, then the first KeySym is used,
+		otherwise the second KeySym is used.
+		*/
+		if ((state & XCB_MOD_MASK_2) && xcb_is_keypad_key(k1))
+		{
+			if ((state & XCB_MOD_MASK_SHIFT) ||	(state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+				return k0;
+			else
+				return k1;
+		}
+
+		/* The Shift and Lock modifiers are both off. In this case, the first
+		KeySym is used.*/
+		else if (!(state & XCB_MOD_MASK_SHIFT) && !(state & XCB_MOD_MASK_LOCK))
+			return k0;
+
+		/* The Shift modifier is off, and the Lock modifier is on and is
+		interpreted as CapsLock. In this case, the first KeySym is used, but
+		if that KeySym is lowercase alphabetic, then the corresponding
+		uppercase KeySym is used instead. */
+		else if (!(state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+			return k0;
+
+		/* The Shift modifier is on, and the Lock modifier is on and is
+		interpreted as CapsLock. In this case, the second KeySym is used, but
+		if that KeySym is lowercase alphabetic, then the corresponding
+		uppercase KeySym is used instead.*/
+		else if ((state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+			return k1;
+
+		/* The Shift modifier is on, or the Lock modifier is on and is
+		interpreted as ShiftLock, or both. In this case, the second KeySym is
+		used. */
+		else if ((state & XCB_MOD_MASK_SHIFT) || (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+			return k1;
+
+		return XCB_NO_SYMBOL;
 	}
 
 	Keyboard::Key WindowImpl::ConvertVirtualKey(xcb_keysym_t symbol)
@@ -1013,6 +1074,64 @@ namespace Nz
 		xcb_flush(connection);
 	}
 
+	char32_t WindowImpl::GetRepresentation(xcb_keysym_t keysym) const
+	{
+		switch (keysym)
+		{
+			case XK_KP_Space:
+				return ' ';
+			case XK_BackSpace:
+				return '\b';
+			case XK_Tab:
+			case XK_KP_Tab:
+				return '\t';
+			case XK_Linefeed:
+				return '\n';
+			case XK_Return:
+				return '\r';
+			// Numpad
+			case XK_KP_Multiply:
+				return '*';
+			case XK_KP_Add:
+				return '+';
+			case XK_KP_Separator:
+				return ','; // In french, it's '.'
+			case XK_KP_Subtract:
+				return '-';
+			case XK_KP_Decimal:
+				return '.'; // In french, it's ','
+			case XK_KP_Divide:
+				return '/';
+			case XK_KP_0:
+				return '0';
+			case XK_KP_1:
+				return '1';
+			case XK_KP_2:
+				return '2';
+			case XK_KP_3:
+				return '3';
+			case XK_KP_4:
+				return '4';
+			case XK_KP_5:
+				return '5';
+			case XK_KP_6:
+				return '6';
+			case XK_KP_7:
+				return '7';
+			case XK_KP_8:
+				return '8';
+			case XK_KP_9:
+				return '9';
+			case XK_KP_Enter:
+				return '\r';
+			default:
+				if (xcb_is_modifier_key(keysym) == true)
+					return '\0';
+				else
+					return keysym;
+		}
+	}
+
 	void WindowImpl::ProcessEvent(xcb_generic_event_t* windowEvent)
 	{
 		if (!m_eventListener)
@@ -1127,9 +1246,9 @@ namespace Nz
 				event.key.system  = keyPressEvent->state & XCB_MOD_MASK_4;
 				m_parent->PushEvent(event);
 
-				char32_t codePoint = static_cast<char32_t>(keysym);
+				char32_t codePoint = GetRepresentation(keysym);
 
-				// WTF if (std::isprint(codePoint, std::locale(""))) + handle combining ?
+				// if (std::isprint(codePoint)) Is not working ? + handle combining ?
 				{
 					WindowEvent event;
 					event.type           = Nz::WindowEventType_TextEntered;
@@ -1287,7 +1406,7 @@ namespace Nz
 				// Catch reparent events to properly apply fullscreen on
 				// some "strange" window managers (like Awesome) which
 				// seem to make use of temporary parents during mapping
-				if (m_style & Nz::WindowStyle_Fullscreen)
+				if (m_style & WindowStyle_Fullscreen)
 					SwitchToFullscreen();
 
 				break;
@@ -1567,12 +1686,11 @@ namespace Nz
 			));
 	}
 
-	#if NAZARA_UTILITY_THREADED_WINDOW
 	void WindowImpl::WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
 	{
 		mutex->Lock();
 		condition->Signal();
-		mutex->Unlock(); // mutex et condition sont considérés invalides à partir d'ici
+		mutex->Unlock(); // mutex and condition may be destroyed after this line
 
 		if (!window->m_window)
 			return;
@@ -1582,5 +1700,4 @@ namespace Nz
 
 		window->Destroy();
 	}
-	#endif
 }

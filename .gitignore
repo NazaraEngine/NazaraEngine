@@ -1,9 +1,29 @@
 # Nazara build
+build/config.lua
+
+# Nazara libraries
+lib/*
+
+# Nazara plugin libraries
+plugins/lib/*
+
+# Nazara package
+package/*
+
+# Example files
 examples/bin/*.exe
 examples/bin/*.pdb
+examples/bin/*.dll
+examples/bin/*.so
+
+# Unit tests
 tests/*.exe
 tests/*.pdb
-lib/*
+tests/*.dll
+tests/*.so
+
+# Example generated files
+examples/bin/HardwareInfo.txt
 
 # Feature page
 build/scripts/features/index.html
@@ -12,6 +32,7 @@ build/scripts/features/index.html
 doc
 
 # Codeblocks
+*.save-failed
 build/**/*.cbp
 build/**/*.cbp
 build/**/*.cbTemp
@@ -23,6 +44,9 @@ build/**/*.workspace
 # CodeLite
 build/**/*.project
 
+# GMake
+build/**/*.make
+
 # Visual Studio
 build/**/*.pdb
 build/**/*.filters
@@ -33,12 +57,14 @@ build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
 build/**/*.VC.opendb
+build/**/*.VC.db
 
 # Compiled Object files
 build/**/*.slo
 build/**/*.lo
 build/**/*.o
 build/**/*.obj
+build/**/*.obj.enc
 
 # Compiled Dynamic libraries
 build/**/*.so

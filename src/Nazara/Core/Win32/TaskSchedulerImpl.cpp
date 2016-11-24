@@ -24,7 +24,7 @@ namespace Nz
 		}
 		#endif
 
-		s_workerCount = workerCount;
+		s_workerCount = static_cast<DWORD>(workerCount);
 		s_doneEvents.reset(new HANDLE[workerCount]);
 		s_workers.reset(new Worker[workerCount]);
 		s_workerThreads.reset(new HANDLE[workerCount]);
@@ -64,7 +64,7 @@ namespace Nz
 		// On s'assure que des tâches ne sont pas déjà en cours
 		WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
 
-		std::ldiv_t div = std::ldiv(count, s_workerCount); // Division et modulo en une opération, y'a pas de petit profit
+		std::lldiv_t div = std::lldiv(count, s_workerCount); // Division et modulo en une opération, y'a pas de petit profit
 		for (std::size_t i = 0; i < s_workerCount; ++i)
 		{
 			// On va maintenant répartir les tâches entre chaque worker et les envoyer dans la queue de chacun
@@ -78,7 +78,7 @@ namespace Nz
 		}
 
 		// On les lance une fois qu'ils sont tous initialisés (pour éviter qu'un worker ne passe en pause détectant une absence de travaux)
-		for (unsigned int i = 0; i < s_workerCount; ++i)
+		for (std::size_t i = 0; i < s_workerCount; ++i)
 		{
 			ResetEvent(s_doneEvents[i]);
 			SetEvent(s_workers[i].wakeEvent);
@@ -195,7 +195,7 @@ namespace Nz
 
 	unsigned int __stdcall TaskSchedulerImpl::WorkerProc(void* userdata)
 	{
-		unsigned int workerID = *reinterpret_cast<unsigned int*>(userdata);
+		unsigned int workerID = *static_cast<unsigned int*>(userdata);
 		SetEvent(s_doneEvents[workerID]);
 
 		Worker& worker = s_workers[workerID];
@@ -244,5 +244,5 @@ namespace Nz
 	std::unique_ptr<HANDLE[]> TaskSchedulerImpl::s_doneEvents; // Doivent être contigus
 	std::unique_ptr<TaskSchedulerImpl::Worker[]> TaskSchedulerImpl::s_workers;
 	std::unique_ptr<HANDLE[]> TaskSchedulerImpl::s_workerThreads; // Doivent être contigus
-	std::size_t TaskSchedulerImpl::s_workerCount;
+	DWORD TaskSchedulerImpl::s_workerCount;
 }

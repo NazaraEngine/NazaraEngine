@@ -27,6 +27,7 @@ namespace Nz
 		friend Type;
 
 		public:
+			using ExtensionGetter = bool (*)(const String& extension);
 			using FormatQuerier = bool (*)(const String& format);
 			using FileSaver = bool (*)(const Type& resource, const String& filePath, const Parameters& parameters);
 			using StreamSaver = bool (*)(const Type& resource, const String& format, Stream& stream, const Parameters& parameters);

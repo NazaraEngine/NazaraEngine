@@ -2,6 +2,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <cctype>
@@ -22,7 +23,7 @@ int main()
 
 	for (;;)
 	{
-		Nz::Directory resourceDirectory("resources/");
+		Nz::Directory resourceDirectory("resources");
 		if (!resourceDirectory.Open())
 		{
 			std::cerr << "Failed to open resource directory" << std::endl;
@@ -68,7 +69,7 @@ int main()
 			break;
 
 		Nz::Mesh mesh;
-		if (!mesh.LoadFromFile("resources/" + models[iChoice-1]))
+		if (!mesh.LoadFromFile(resourceDirectory.GetPath() + '/' + models[iChoice-1]))
 		{
 			std::cout << "Failed to load mesh" << std::endl;
 			std::getchar();
@@ -168,8 +169,13 @@ int main()
 		{
 			for (unsigned int i = 0; i < materialCount; ++i)
 			{
-				std::cout << "\t" << (i+1) << ": " << mesh.GetMaterial(i) << std::endl;
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				const Nz::ParameterList& matData = mesh.GetMaterialData(i);
+
+				Nz::String data;
+				if (!matData.GetStringParameter(Nz::MaterialData::FilePath, &data))
+					data = "<Custom>";
+
+				std::cout << "\t" << (i+1) << ": " << data << std::endl;
 			}
 		}
 

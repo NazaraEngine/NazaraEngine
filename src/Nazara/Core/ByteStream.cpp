@@ -71,7 +71,7 @@ namespace Nz
 	{
 		std::unique_ptr<Stream> stream(new MemoryStream(byteArray, openMode));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}
@@ -89,7 +89,7 @@ namespace Nz
 	{
 		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}
@@ -107,7 +107,7 @@ namespace Nz
 	{
 		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}

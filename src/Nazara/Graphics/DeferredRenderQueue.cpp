@@ -8,88 +8,222 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
-///TODO: Rendre les billboards via Deferred Shading si possible
+///TODO: Render billboards using Deferred Shading if possible
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredRenderQueue
+	* \brief Graphics class that represents the rendering queue for deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredRenderQueue object with the rendering queue of forward rendering
+	*
+	* \param forwardQueue Queue of data to render
+	*/
+
 	DeferredRenderQueue::DeferredRenderQueue(ForwardRenderQueue* forwardQueue) :
 	m_forwardQueue(forwardQueue)
 	{
 	}
 
-	void DeferredRenderQueue::AddBillboard(int renderOrder, const Material* material, const Vector3f& position, const Vector2f& size, const Vector2f& sinCos, const Color& color)
-	{
-		m_forwardQueue->AddBillboard(renderOrder, material, position, size, sinCos, color);
-	}
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param colorPtr Color of the billboards if null, Color::White is used
+	*/
 
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Size of the billboards
+	* \param anglePtr Rotation of the billboards if null, 0.f is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*/
+
 	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
+
+	/*!
+	* \brief Adds drawable to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param drawable Drawable user defined
+	*
+	* \remark Produces a NazaraError if drawable is invalid
+	*/
 
 	void DeferredRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
 		m_forwardQueue->AddDrawable(renderOrder, drawable);
 	}
 
+	/*!
+	* \brief Adds mesh to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the mesh
+	* \param meshData Data of the mesh
+	* \param meshAABB Box of the mesh
+	* \param transformMatrix Matrix of the mesh
+	*/
+
 	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
-		if (material->IsEnabled(RendererParameter_Blend))
-			// Un matériau transparent ? J'aime pas, va voir dans la forward queue si j'y suis
+		if (material->IsBlendingEnabled())
+			// One transparent material ? I don't like it, go see if I'm in the forward queue
 			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
 		else
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
-			auto& opaqueModels = currentLayer.opaqueModels;
+			MeshPipelineBatches& opaqueModels = currentLayer.opaqueModels;
 
-			auto it = opaqueModels.find(material);
-			if (it == opaqueModels.end())
+			const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+			auto pipelineIt = opaqueModels.find(materialPipeline);
+			if (pipelineIt == opaqueModels.end())
+			{
+				BatchedMaterialEntry materialEntry;
+				pipelineIt = opaqueModels.insert(MeshPipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			}
+
+			BatchedMaterialEntry& materialEntry = pipelineIt->second;
+			MeshMaterialBatches& materialMap = materialEntry.materialMap;
+
+			auto materialIt = materialMap.find(material);
+			if (materialIt == materialMap.end())
 			{
 				BatchedModelEntry entry;
 				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &DeferredRenderQueue::OnMaterialInvalidation);
 
-				it = opaqueModels.insert(std::make_pair(material, std::move(entry))).first;
+				materialIt = materialMap.insert(MeshMaterialBatches::value_type(material, std::move(entry))).first;
 			}
 
-			BatchedModelEntry& entry = it->second;
+			BatchedModelEntry& entry = materialIt->second;
 			entry.enabled = true;
 
-			auto& meshMap = entry.meshMap;
+			MeshInstanceContainer& meshMap = entry.meshMap;
 
 			auto it2 = meshMap.find(meshData);
 			if (it2 == meshMap.end())
@@ -103,20 +237,33 @@ namespace Nz
 				it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
 			}
 
-			// On ajoute la matrice à la liste des instances de cet objet
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			// Avons-nous suffisamment d'instances pour que le coût d'utilisation de l'instancing soit payé ?
-			if (instances.size() >= NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT)
-				entry.instancingEnabled = true; // Apparemment oui, activons l'instancing avec ce matériau
+			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());
 		}
 	}
+
+	/*!
+	* \brief Adds sprites to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the sprites
+	* \param vertices Buffer of data for the sprites
+	* \param spriteCount Number of sprites
+	* \param overlay Texture of the sprites
+	*/
 
 	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
 	{
 		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, overlay);
 	}
+
+	/*!
+	* \brief Clears the queue
+	*
+	* \param fully Should everything be cleared or we can keep layers
+	*/
 
 	void DeferredRenderQueue::Clear(bool fully)
 	{
@@ -126,16 +273,54 @@ namespace Nz
 			layers.clear();
 		else
 		{
-			for (auto it = layers.begin(); it != layers.end(); ++it)
+			for (auto it = layers.begin(); it != layers.end();)
 			{
 				Layer& layer = it->second;
 				if (layer.clearCount++ >= 100)
 					it = layers.erase(it);
+				else
+				{
+					for (auto& pipelinePair : layer.opaqueModels)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.maxInstanceCount > 0)
+						{
+							for (auto& materialPair : pipelineEntry.materialMap)
+							{
+								auto& matEntry = materialPair.second;
+
+								if (matEntry.enabled)
+								{
+									MeshInstanceContainer& meshInstances = matEntry.meshMap;
+
+									for (auto& meshIt : meshInstances)
+									{
+										auto& meshEntry = meshIt.second;
+
+										meshEntry.instances.clear();
+									}
+									matEntry.enabled = false;
+								}
+							}
+							pipelineEntry.maxInstanceCount = 0;
+						}
+					}
+
+					++it;
+				}
 			}
 		}
 
 		m_forwardQueue->Clear(fully);
 	}
+
+	/*!
+	* \brief Gets the ith layer
+	* \return Reference to the ith layer for the queue
+	*
+	* \param i Index of the layer
+	*/
 
 	DeferredRenderQueue::Layer& DeferredRenderQueue::GetLayer(unsigned int i)
 	{
@@ -148,6 +333,12 @@ namespace Nz
 
 		return layer;
 	}
+    
+	/*!
+	* \brief Handle the invalidation of an index buffer
+	*
+	* \param indexBuffer Index buffer being invalidated
+	*/
 
 	void DeferredRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
@@ -155,20 +346,29 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.indexBuffer == indexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.indexBuffer == indexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
 	}
+
+	/*!
+	* \brief Handle the invalidation of a material
+	*
+	* \param material Material being invalidated
+	*/
 
 	void DeferredRenderQueue::OnMaterialInvalidation(const Material* material)
 	{
@@ -176,66 +376,37 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			layer.opaqueModels.erase(material);
+			for (auto& pipelineEntry : layer.opaqueModels)
+				pipelineEntry.second.materialMap.erase(material);
 		}
 	}
+
+	/*!
+	* \brief Handle the invalidation of a vertex buffer
+	*
+	* \param vertexBuffer Vertex buffer being invalidated
+	*/
 
 	void DeferredRenderQueue::OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer)
 	{
 		for (auto& pair : layers)
 		{
 			Layer& layer = pair.second;
-
-			for (auto& modelPair : layer.opaqueModels)
+			for (auto& pipelineEntry : layer.opaqueModels)
 			{
-				MeshInstanceContainer& meshes = modelPair.second.meshMap;
-				for (auto it = meshes.begin(); it != meshes.end();)
+				for (auto& materialEntry : pipelineEntry.second.materialMap)
 				{
-					const MeshData& renderData = it->first;
-					if (renderData.vertexBuffer == vertexBuffer)
-						it = meshes.erase(it);
-					else
-						++it;
+					MeshInstanceContainer& meshes = materialEntry.second.meshMap;
+					for (auto it = meshes.begin(); it != meshes.end();)
+					{
+						const MeshData& renderData = it->first;
+						if (renderData.vertexBuffer == vertexBuffer)
+							it = meshes.erase(it);
+						else
+							++it;
+					}
 				}
 			}
 		}
-	}
-
-	bool DeferredRenderQueue::BatchedModelMaterialComparator::operator()(const Material* mat1, const Material* mat2) const
-	{
-		const UberShader* uberShader1 = mat1->GetShader();
-		const UberShader* uberShader2 = mat2->GetShader();
-		if (uberShader1 != uberShader2)
-			return uberShader1 < uberShader2;
-
-		const Shader* shader1 = mat1->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
-		const Shader* shader2 = mat2->GetShaderInstance(ShaderFlags_Deferred)->GetShader();
-		if (shader1 != shader2)
-			return shader1 < shader2;
-
-		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
-		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
-		if (diffuseMap1 != diffuseMap2)
-			return diffuseMap1 < diffuseMap2;
-
-		return mat1 < mat2;
-	}
-
-	bool DeferredRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
-	{
-		const Buffer* buffer1;
-		const Buffer* buffer2;
-
-		buffer1 = (data1.indexBuffer) ? data1.indexBuffer->GetBuffer() : nullptr;
-		buffer2 = (data2.indexBuffer) ? data2.indexBuffer->GetBuffer() : nullptr;
-		if (buffer1 != buffer2)
-			return buffer1 < buffer2;
-
-		buffer1 = data1.vertexBuffer->GetBuffer();
-		buffer2 = data2.vertexBuffer->GetBuffer();
-		if (buffer1 != buffer2)
-			return buffer1 < buffer2;
-
-		return data1.primitiveMode < data2.primitiveMode;
 	}
 }

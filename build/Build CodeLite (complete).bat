@@ -1,1 +1,0 @@
-premake5 --with-extlibs --with-examples codelite

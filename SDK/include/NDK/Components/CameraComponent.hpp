@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_CAMERACOMPONENT_HPP
 #define NDK_COMPONENTS_CAMERACOMPONENT_HPP
 
@@ -17,9 +18,12 @@
 
 namespace Ndk
 {
+	class CameraComponent;
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
+	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
+
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer, public Nz::HandledObject<CameraComponent>
 	{
 		public:
 			inline CameraComponent();
@@ -33,26 +37,26 @@ namespace Ndk
 			inline void EnsureViewMatrixUpdate() const;
 			inline void EnsureViewportUpdate() const;
 
-			inline float GetAspectRatio() const override;
-			inline Nz::Vector3f GetEyePosition() const override;
-			inline Nz::Vector3f GetForward() const override;
+			float GetAspectRatio() const override;
+			Nz::Vector3f GetEyePosition() const override;
+			Nz::Vector3f GetForward() const override;
 			inline float GetFOV() const;
-			inline const Nz::Frustumf& GetFrustum() const override;
+			const Nz::Frustumf& GetFrustum() const override;
 			inline unsigned int GetLayer() const;
-			inline const Nz::Matrix4f& GetProjectionMatrix() const override;
+			const Nz::Matrix4f& GetProjectionMatrix() const override;
 			inline Nz::ProjectionType GetProjectionType() const;
 			inline const Nz::Vector2f& GetSize() const;
-			inline const Nz::RenderTarget* GetTarget() const override;
+			const Nz::RenderTarget* GetTarget() const override;
 			inline const Nz::Rectf& GetTargetRegion() const;
-			inline const Nz::Matrix4f& GetViewMatrix() const override;
-			inline const Nz::Recti& GetViewport() const override;
-			inline float GetZFar() const override;
-			inline float GetZNear() const override;
+			const Nz::Matrix4f& GetViewMatrix() const override;
+			const Nz::Recti& GetViewport() const override;
+			float GetZFar() const override;
+			float GetZNear() const override;
 
 			bool Serialize(Nz::SerializationContext& context) const override;
 
 			inline void SetFOV(float fov);
-			inline void SetLayer(unsigned int layer);
+			void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
 			inline void SetSize(const Nz::Vector2f& size);
 			inline void SetSize(float width, float height);
@@ -112,3 +116,4 @@ namespace Ndk
 #include <NDK/Components/CameraComponent.inl>
 
 #endif // NDK_COMPONENTS_CAMERACOMPONENT_HPP
+#endif // NDK_SERVER

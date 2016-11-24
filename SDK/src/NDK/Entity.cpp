@@ -4,14 +4,25 @@
 
 #include <NDK/Entity.hpp>
 #include <NDK/BaseComponent.hpp>
-#include <NDK/EntityHandle.hpp>
 #include <NDK/World.hpp>
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Entity
+	* \brief NDK class that represents an entity in a world
+	*/
+
+	/*!
+	* \brief Constructs a Entity object by move semantic
+	*
+	* \param entity Entity to move into this
+	*/
+
 	Entity::Entity(Entity&& entity) :
+	HandledObject(std::move(entity)),
 	m_components(std::move(entity.m_components)),
-	m_handles(std::move(entity.m_handles)),
 	m_componentBits(std::move(entity.m_componentBits)),
 	m_systemBits(std::move(entity.m_systemBits)),
 	m_id(entity.m_id),
@@ -19,9 +30,14 @@ namespace Ndk
 	m_enabled(entity.m_enabled),
 	m_valid(entity.m_valid)
 	{
-		for (EntityHandle* handle : m_handles)
-			handle->OnEntityMoved(this);
 	}
+
+	/*!
+	* \brief Constructs a Entity object linked to a world and with an id
+	*
+	* \param world World in which the entity interact
+	* \param id Identifier of the entity
+	*/
 
 	Entity::Entity(World* world, EntityId id) :
 	m_id(id),
@@ -29,10 +45,25 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Destructs the object and calls Destroy
+	*
+	* \see Destroy
+	*/
+
 	Entity::~Entity()
 	{
 		Destroy();
 	}
+
+	/*!
+	* \brief Adds a component to the entity
+	* \return A reference to the newly added component
+	*
+	* \param componentPtr Component to add to the entity
+	*
+	* \remark Produces a NazaraAssert if component is nullptr
+	*/
 
 	BaseComponent& Entity::AddComponent(std::unique_ptr<BaseComponent>&& componentPtr)
 	{
@@ -40,21 +71,22 @@ namespace Ndk
 
 		ComponentIndex index = componentPtr->GetIndex();
 
-		// Nous nous assurons que le vecteur de component est suffisamment grand pour contenir le nouveau component
+		// We ensure that the vector has enough space
 		if (index >= m_components.size())
 			m_components.resize(index + 1);
 
-		// Affectation et retour du component
+		// Affectation and return of the component
 		m_components[index] = std::move(componentPtr);
 		m_componentBits.UnboundedSet(index);
+		m_removedComponentBits.UnboundedReset(index);
 
 		Invalidate();
 
-		// On récupère le component et on informe les composants existants du nouvel arrivant
+		// We get the new component and we alert other existing components of the new one
 		BaseComponent& component = *m_components[index].get();
 		component.SetEntity(this);
 
-		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 		{
 			if (i != index)
 				m_components[i]->OnComponentAttached(component);
@@ -63,42 +95,92 @@ namespace Ndk
 		return component;
 	}
 
-	EntityHandle Entity::CreateHandle()
+	/*!
+	* \brief Clones the entity
+	* \return The clone newly created
+	*
+	* \remark The close is enable by default, even if the original is disabled
+	* \remark Produces a NazaraAssert if the entity is not valid
+	*/
+
+	const EntityHandle& Entity::Clone() const
 	{
-		return EntityHandle(this);
+		NazaraAssert(IsValid(), "Invalid entity");
+
+		return m_world->CloneEntity(m_id);
 	}
+
+	/*!
+	* \brief Kills the entity
+	*/
 
 	void Entity::Kill()
 	{
 		m_world->KillEntity(this);
 	}
 
+	/*!
+	* \brief Invalidates the entity
+	*/
+
 	void Entity::Invalidate()
 	{
-		// On informe le monde que nous avons besoin d'une mise à jour
+		// We alert everyone that we have been updated
 		m_world->Invalidate(m_id);
 	}
 
-	void Entity::RemoveAllComponents()
+	/*!
+	* \brief Creates the entity
+	*/
+
+	void Entity::Create()
 	{
-		for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			RemoveComponent(i);
-
-		NazaraAssert(m_componentBits.TestNone(), "All components should be gone");
-
-		m_components.clear();
-
-		Invalidate();
+		m_enabled = true;
+		m_valid = true;
 	}
 
-	void Entity::RemoveComponent(ComponentIndex index)
+	/*!
+	* \brief Destroys the entity
+	*/
+
+	void Entity::Destroy()
 	{
-		///DOC: N'a aucun effet si le component n'est pas présent
+		// We alert each system
+		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
+		{
+			auto sysIndex = static_cast<Ndk::SystemIndex>(index);
+
+			if (m_world->HasSystem(sysIndex))
+			{
+				BaseSystem& system = m_world->GetSystem(sysIndex);
+				system.RemoveEntity(this);
+			}
+		}
+		m_systemBits.Clear();
+
+		UnregisterAllHandles();
+
+		m_components.clear();
+		m_componentBits.Reset();
+
+		m_valid = false;
+	}
+
+	/*!
+	* \brief Destroys a component by index
+	*
+	* \param index Index of the component
+	*
+	* \remark If component is not available, no action is performed
+	*/
+
+	void Entity::DestroyComponent(ComponentIndex index)
+	{
 		if (HasComponent(index))
 		{
-			// On récupère le component et on informe les composants du détachement
+			// We get the component and we alert existing components of the deleted one
 			BaseComponent& component = *m_components[index].get();
-			for (unsigned int i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 			{
 				if (i != index)
 					m_components[i]->OnComponentDetached(component);
@@ -108,36 +190,7 @@ namespace Ndk
 
 			m_components[index].reset();
 			m_componentBits.Reset(index);
-
-			Invalidate();
 		}
 	}
 
-	void Entity::Create()
-	{
-		m_enabled = true;
-		m_valid = true;
-	}
-
-	void Entity::Destroy()
-	{
-		// On informe chaque système
-		for (SystemIndex index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
-		{
-			if (m_world->HasSystem(index))
-			{
-				BaseSystem& system = m_world->GetSystem(index);
-				system.RemoveEntity(this);
-			}
-		}
-		m_systemBits.Clear();
-
-		// On informe chaque handle de notre destruction pour éviter qu'il ne continue de pointer sur nous
-		for (EntityHandle* handle : m_handles)
-			handle->OnEntityDestroyed();
-
-		m_handles.clear();
-
-		m_valid = false;
-	}
 }

@@ -1,79 +1,74 @@
-// Copyright (C) 2015 Rémi Bèges
+// Copyright (C) 2016 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Noise/Config.hpp>
+#include <numeric>
 #include <Nazara/Noise/Debug.hpp>
 
 namespace Nz
 {
-	NoiseBase::NoiseBase(unsigned int seed)
+	NoiseBase::NoiseBase(unsigned int seed) :
+	m_scale(0.05f)
 	{
-		Ua = 16807;
-		Uc = 0;
-		Um = 2147483647;
-		UcurrentSeed = 0;
-		Uprevious = 0;
+		SetSeed(seed);
 
-		SetNewSeed(seed);
-
-		for(int i(0) ; i < 512 ; i++)
-			perm[i] = i & 255;
-
+		// Fill permutations with initial values
+		std::iota(m_permutations.begin(), m_permutations.begin() + 256, 0);
 	}
 
-	void NoiseBase::SetNewSeed(unsigned int seed)
+	float NoiseBase::GetScale()
 	{
-		Uprevious = seed;
-		UcurrentSeed = seed;
+		return m_scale;
 	}
 
-	unsigned int NoiseBase::GetUniformRandomValue()
+	void NoiseBase::SetScale(float scale)
 	{
-		Ulast = Ua*Uprevious + Uc%Um;
-		Uprevious = Ulast;
-		return Ulast;
+		m_scale = scale;
 	}
 
-	void NoiseBase::ShufflePermutationTable()
+	void NoiseBase::SetSeed(unsigned int seed)
 	{
-		int xchanger;
-		unsigned int ncase;
-
-		for(unsigned int i(0) ; i < 256 ; i++)
-			perm[i] = i;
-
-		for(unsigned int j(0) ; j < 20 ; ++j)
-			for (unsigned int i(0); i < 256 ; ++i)
-			{
-				ncase = this->GetUniformRandomValue() & 255;
-				xchanger = perm[i];
-				perm[i] = perm[ncase];
-				perm[ncase] = xchanger;
-			}
-
-		for(unsigned int i(256) ; i < 512; ++i)
-			perm[i] = perm[i & 255];
+		m_randomEngine.seed(seed);
 	}
 
-	int NoiseBase::fastfloor(float n)
+	void NoiseBase::Shuffle()
 	{
-		return (n >= 0) ? static_cast<int>(n) : static_cast<int>(n-1);
+		std::shuffle(m_permutations.begin(), m_permutations.begin() + 256, m_randomEngine);
+
+		for(std::size_t i = 1; i < (m_permutations.size() / 256); ++i)
+			std::copy(m_permutations.begin(), m_permutations.begin() + 256, m_permutations.begin() + 256 * i);
 	}
 
-	int NoiseBase::JenkinsHash(int a, int b, int c)
+	std::array<Vector2f, 2 * 2 * 2> NoiseBase::s_gradients2 =
 	{
-		a = a-b;  a = a - c;  a = a^(static_cast<unsigned int>(c) >> 13);
-		b = b-c;  b = b - a;  b = b^(a << 8);
-		c = c-a;  c = c - b;  c = c^(static_cast<unsigned int>(b) >> 13);
-		a = a-b;  a = a - c;  a = a^(static_cast<unsigned int>(c) >> 12);
-		b = b-c;  b = b - a;  b = b^(a << 16);
-		c = c-a;  c = c - b;  c = c^(static_cast<unsigned int>(b) >> 5);
-		a = a-b;  a = a - c;  a = a^(static_cast<unsigned int>(c) >> 3);
-		b = b-c;  b = b - a;  b = b^(a << 10);
-		c = c-a;  c = c - b;  c = c^(static_cast<unsigned int>(b) >> 15);
-		return c;
-	}
+		{
+			{1.f, 1.f}, {-1.f, 1.f}, {1.f, -1.f}, {-1.f, -1.f},
+			{1.f, 0.f}, {-1.f, 0.f}, {0.f,  1.f}, { 0.f, -1.f}
+		}
+	};
+
+	std::array<Vector3f, 2 * 2 * 2 * 2> NoiseBase::s_gradients3 =
+	{
+		{
+			{1.f,1.f,0.f}, {-1.f,  1.f, 0.f}, {1.f, -1.f,  0.f}, {-1.f, -1.f,  0.f},
+			{1.f,0.f,1.f}, {-1.f,  0.f, 1.f}, {1.f,  0.f, -1.f}, {-1.f,  0.f, -1.f},
+			{0.f,1.f,1.f}, { 0.f, -1.f, 1.f}, {0.f,  1.f, -1.f}, {0.f,  -1.f, -1.f},
+			{1.f,1.f,0.f}, {-1.f,  1.f, 0.f}, {0.f, -1.f,  1.f}, {0.f,  -1.f, -1.f}
+		}
+	};
+
+	std::array<Vector4f, 2 * 2 * 2 * 2 * 2> NoiseBase::s_gradients4 =
+	{
+		{
+			{0,1,1,1}, {0,1,1,-1}, {0,1,-1,1}, {0,1,-1,-1},
+			{0,-1,1,1},{0,-1,1,-1},{0,-1,-1,1},{0,-1,-1,-1},
+			{1,0,1,1}, {1,0,1,-1}, {1,0,-1,1}, {1,0,-1,-1},
+			{-1,0,1,1},{-1,0,1,-1},{-1,0,-1,1},{-1,0,-1,-1},
+			{1,1,0,1}, {1,1,0,-1}, {1,-1,0,1}, {1,-1,0,-1},
+			{-1,1,0,1},{-1,1,0,-1},{-1,-1,0,1},{-1,-1,0,-1},
+			{1,1,1,0}, {1,1,-1,0}, {1,-1,1,0}, {1,-1,-1,0},
+			{-1,1,1,0},{-1,1,-1,0},{-1,-1,1,0},{-1,-1,-1,0}
+		}
+	};
 }

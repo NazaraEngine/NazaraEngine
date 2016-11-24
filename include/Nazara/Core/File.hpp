@@ -65,6 +65,7 @@ namespace Nz
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
 			bool SetCursorPos(UInt64 offset) override;
 			bool SetFile(const String& filePath);
+			bool SetSize(UInt64 size);
 
 			File& operator=(const String& filePath);
 			File& operator=(const File&) = delete;

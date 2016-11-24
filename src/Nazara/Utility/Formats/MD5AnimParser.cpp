@@ -48,9 +48,9 @@ namespace Nz
 		return Ternary_False;
 	}
 
-	unsigned int MD5AnimParser::GetAnimatedComponentCount() const
+	UInt32 MD5AnimParser::GetAnimatedComponentCount() const
 	{
-		return m_animatedComponents.size();
+		return static_cast<UInt32>(m_animatedComponents.size());
 	}
 
 	const MD5AnimParser::Frame* MD5AnimParser::GetFrames() const
@@ -58,12 +58,12 @@ namespace Nz
 		return m_frames.data();
 	}
 
-	unsigned int MD5AnimParser::GetFrameCount() const
+	UInt32 MD5AnimParser::GetFrameCount() const
 	{
-		return m_frames.size();
+		return static_cast<UInt32>(m_frames.size());
 	}
 
-	unsigned int MD5AnimParser::GetFrameRate() const
+	UInt32 MD5AnimParser::GetFrameRate() const
 	{
 		return m_frameRate;
 	}
@@ -73,9 +73,9 @@ namespace Nz
 		return m_joints.data();
 	}
 
-	unsigned int MD5AnimParser::GetJointCount() const
+	UInt32 MD5AnimParser::GetJointCount() const
 	{
-		return m_joints.size();
+		return static_cast<UInt32>(m_joints.size());
 	}
 
 	bool MD5AnimParser::Parse()
@@ -209,14 +209,14 @@ namespace Nz
 			}
 		}
 
-		unsigned int frameCount = m_frames.size();
+		std::size_t frameCount = m_frames.size();
 		if (frameCount == 0)
 		{
 			NazaraError("Frame count is invalid or missing");
 			return false;
 		}
 
-		unsigned int jointCount = m_joints.size();
+		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
 			NazaraError("Joint count is invalid or missing");
@@ -273,20 +273,21 @@ namespace Nz
 
 	bool MD5AnimParser::ParseBaseframe()
 	{
-		unsigned int jointCount = m_joints.size();
+		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
 			Error("Joint count is invalid or missing");
 			return false;
 		}
 
-		for (unsigned int i = 0; i < jointCount; ++i)
+		for (std::size_t i = 0; i < jointCount; ++i)
 		{
 			if (!Advance())
 				return false;
 
-			if (std::sscanf(&m_currentLine[0], "( %f %f %f ) ( %f %f %f )", &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
-																			&m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 6)
+			// Space is important for the buffer of \n
+			if (std::sscanf(&m_currentLine[0], " ( %f %f %f ) ( %f %f %f )", &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
+			                                                                 &m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 6)
 			{
 				UnrecognizedLine(true);
 				return false;
@@ -311,20 +312,21 @@ namespace Nz
 
 	bool MD5AnimParser::ParseBounds()
 	{
-		unsigned int frameCount = m_frames.size();
+		std::size_t frameCount = m_frames.size();
 		if (frameCount == 0)
 		{
 			Error("Frame count is invalid or missing");
 			return false;
 		}
 
-		for (unsigned int i = 0; i < frameCount; ++i)
+		for (std::size_t i = 0; i < frameCount; ++i)
 		{
 			if (!Advance())
 				return false;
 
 			Vector3f min, max;
-			if (std::sscanf(&m_currentLine[0], "( %f %f %f ) ( %f %f %f )", &min.x, &min.y, &min.z, &max.x, &max.y, &max.z) != 6)
+			// Space is important for the buffer of \n
+			if (std::sscanf(&m_currentLine[0], " ( %f %f %f ) ( %f %f %f )", &min.x, &min.y, &min.z, &max.x, &max.y, &max.z) != 6)
 			{
 				UnrecognizedLine(true);
 				return false;
@@ -351,14 +353,14 @@ namespace Nz
 
 	bool MD5AnimParser::ParseFrame()
 	{
-		unsigned int animatedComponentsCount = m_animatedComponents.size();
+		std::size_t animatedComponentsCount = m_animatedComponents.size();
 		if (animatedComponentsCount == 0)
 		{
 			Error("Animated components count is missing or invalid");
 			return false;
 		}
 
-		unsigned int jointCount = m_joints.size();
+		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
 			Error("Joint count is invalid or missing");
@@ -367,14 +369,14 @@ namespace Nz
 
 		String line;
 
-		unsigned int count = 0;
+		std::size_t count = 0;
 		do
 		{
 			if (!Advance())
 				return false;
 
-			unsigned int index = 0;
-			unsigned int size = m_currentLine.GetSize();
+			std::size_t index = 0;
+			std::size_t size = m_currentLine.GetSize();
 			do
 			{
 				float f;
@@ -397,11 +399,11 @@ namespace Nz
 
 		m_frames[m_frameIndex].joints.resize(jointCount);
 
-		for (unsigned int i = 0; i < jointCount; ++i)
+		for (std::size_t i = 0; i < jointCount; ++i)
 		{
 			Quaternionf jointOrient = m_joints[i].bindOrient;
 			Vector3f jointPos = m_joints[i].bindPos;
-			unsigned int j = 0;
+			UInt32 j = 0;
 
 			if (m_joints[i].flags & 1) // Px
 				jointPos.x = m_animatedComponents[m_joints[i].index + j++];
@@ -445,19 +447,19 @@ namespace Nz
 
 	bool MD5AnimParser::ParseHierarchy()
 	{
-		unsigned int jointCount = m_joints.size();
+		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
 			Error("Joint count is invalid or missing");
 			return false;
 		}
 
-		for (unsigned int i = 0; i < jointCount; ++i)
+		for (std::size_t i = 0; i < jointCount; ++i)
 		{
 			if (!Advance())
 				return false;
 
-			unsigned int pos = m_currentLine.Find(' ');
+			std::size_t pos = m_currentLine.Find(' ');
 			if (pos == String::npos)
 			{
 				UnrecognizedLine(true);
@@ -480,10 +482,10 @@ namespace Nz
 			m_joints[i].name = name;
 			m_joints[i].name.Trim('"');
 
-			int parent = m_joints[i].parent;
+			Int32 parent = m_joints[i].parent;
 			if (parent >= 0)
 			{
-				if (static_cast<unsigned int>(parent) >= jointCount)
+				if (static_cast<UInt32>(parent) >= jointCount)
 				{
 					Error("Joint's parent is out of bounds (" + String::Number(parent) + " >= " + String::Number(jointCount) + ')');
 					return false;

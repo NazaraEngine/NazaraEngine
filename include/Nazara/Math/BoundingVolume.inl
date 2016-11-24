@@ -124,6 +124,52 @@ namespace Nz
 		Set(volume);
 	}
 
+
+	/*!
+	* \brief Extends the bounding volume to contain another bounding volume
+	* \return A reference to the the bounding volume
+	*
+	* \param volume Other volume to contain
+	*
+	* \remark Extending to a null bounding volume has no effect while extending to a infinite bounding volume will set it as infinite
+	*/
+	template<typename T>
+	BoundingVolume<T>& BoundingVolume<T>::ExtendTo(const BoundingVolume& volume)
+	{
+		switch (extend)
+		{
+			case Extend_Finite:
+			{
+				switch (volume.extend)
+				{
+					case Extend_Finite:
+					{
+						// Extend the OBB local box
+						obb.localBox.ExtendTo(volume.obb.localBox);
+						break;
+					}
+
+					case Extend_Infinite:
+						MakeInfinite();
+						break;
+
+					case Extend_Null:
+						break;
+				}
+				break;
+			}
+
+			case Extend_Infinite:
+				break; //< We already contain the bounding volume
+
+			case Extend_Null:
+				Set(volume);
+				break;
+		}
+
+		return *this;
+	}
+
 	/*!
 	* \brief Checks whether the volume is finite
 	* \return true if extend is Extend_Finite
@@ -590,7 +636,7 @@ namespace Nz
 		if (extend > Extend_Max)
 			return false;
 
-		boundingVolume->extend = extend;
+		boundingVolume->extend = static_cast<Extend>(extend);
 
 		if (!Unserialize(context, &boundingVolume->aabb))
 			return false;

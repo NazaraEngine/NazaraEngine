@@ -12,9 +12,11 @@
 
 namespace Ndk
 {
-	class Entity;
+	class VelocityComponent;
 
-	class NDK_API VelocityComponent : public Component<VelocityComponent>
+	using VelocityComponentHandle = Nz::ObjectHandle<VelocityComponent>;
+
+	class NDK_API VelocityComponent : public Component<VelocityComponent>, public Nz::HandledObject<VelocityComponent>
 	{
 		public:
 			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/FileImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Win32/Time.hpp>
 #include <memory>
@@ -64,7 +65,7 @@ namespace Nz
 		{
 			access |= GENERIC_READ;
 
-			if ((mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode_MustExit || (mode & OpenMode_WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
 		
@@ -77,6 +78,8 @@ namespace Nz
 
 			if (mode & OpenMode_Truncate)
 				openMode |= CREATE_ALWAYS;
+			else if (mode & OpenMode_MustExit)
+				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
@@ -93,7 +96,7 @@ namespace Nz
 		//UInt64 oldCursorPos = GetCursorPos();
 
 		DWORD read = 0;
-		if (ReadFile(m_handle, buffer, size, &read, nullptr))
+		if (ReadFile(m_handle, buffer, static_cast<DWORD>(size), &read, nullptr))
 		{
 			m_endOfFile = (read != size);
 			m_endOfFileUpdated = true;
@@ -156,6 +159,31 @@ namespace Nz
 		return SetFilePointerEx(m_handle, distance, nullptr, moveMethod) != 0;
 	}
 
+	bool FileImpl::SetSize(UInt64 size)
+	{
+		UInt64 cursorPos = GetCursorPos();
+
+		CallOnExit resetCursor([this, cursorPos] ()
+		{
+			if (!SetCursorPos(CursorPosition_AtBegin, cursorPos))
+				NazaraWarning("Failed to reset cursor position to previous position: " + Error::GetLastSystemError());
+		});
+
+		if (!SetCursorPos(CursorPosition_AtBegin, size))
+		{
+			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		if (!SetEndOfFile(m_handle))
+		{
+			NazaraError("Failed to set file size: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		return true;
+	}
+
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
 		DWORD written = 0;
@@ -163,9 +191,9 @@ namespace Nz
 		LARGE_INTEGER cursorPos;
 		cursorPos.QuadPart = GetCursorPos();
 
-		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
-		WriteFile(m_handle, buffer, size, &written, nullptr);
-		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, size, 0);
+		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
+		WriteFile(m_handle, buffer, static_cast<DWORD>(size), &written, nullptr);
+		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 
 		m_endOfFileUpdated = false;
 

@@ -13,15 +13,22 @@ namespace Nz
 {
 	class Mutex;
 
-	class NAZARA_CORE_API LockGuard
+	class LockGuard
 	{
 		public:
-			LockGuard(Mutex& mutex);
-			~LockGuard();
+			inline LockGuard(Mutex& mutex, bool lock = true);
+			inline ~LockGuard();
+
+			inline void Lock();
+			inline bool TryLock();
+			inline void Unlock();
 
 		private:
 			Mutex& m_mutex;
+			bool m_locked;
 	};
 }
+
+#include <Nazara/Core/LockGuard.inl>
 
 #endif // NAZARA_LOCKGUARD_HPP

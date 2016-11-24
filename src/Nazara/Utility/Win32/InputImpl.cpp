@@ -213,7 +213,7 @@ namespace Nz
 
 	Vector2i EventImpl::GetMousePosition(const Window& relativeTo)
 	{
-		HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
+		HWND handle = static_cast<HWND>(relativeTo.GetHandle());
 		if (handle)
 		{
 			POINT pos;
@@ -283,7 +283,7 @@ namespace Nz
 
 	void EventImpl::SetMousePosition(int x, int y, const Window& relativeTo)
 	{
-		HWND handle = reinterpret_cast<HWND>(relativeTo.GetHandle());
+		HWND handle = static_cast<HWND>(relativeTo.GetHandle());
 		if (handle)
 		{
 			POINT pos = {x, y};

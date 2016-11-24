@@ -13,8 +13,8 @@ namespace Nz
 {
 	namespace Loaders
 	{
-		void RegisterDDS();
-		void UnregisterDDS();
+		void RegisterDDSLoader();
+		void UnregisterDDSLoader();
 	}
 }
 

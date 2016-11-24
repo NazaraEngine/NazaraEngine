@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 
@@ -32,3 +33,4 @@ namespace Ndk
 #include <NDK/Components/LightComponent.inl>
 
 #endif // NDK_COMPONENTS_LIGHTCOMPONENT_HPP
+#endif // NDK_SERVER

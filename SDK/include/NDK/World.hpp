@@ -8,8 +8,8 @@
 #define NDK_WORLD_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <NDK/Entity.hpp>
-#include <NDK/EntityHandle.hpp>
 #include <NDK/System.hpp>
 #include <algorithm>
 #include <memory>
@@ -18,8 +18,13 @@
 
 namespace Ndk
 {
-	class NDK_API World
+	class World;
+
+	using WorldHandle = Nz::ObjectHandle<World>;
+
+	class NDK_API World : public Nz::HandledObject<World>
 	{
+		friend BaseSystem;
 		friend Entity;
 
 		public:
@@ -39,6 +44,7 @@ namespace Ndk
 			inline EntityList CreateEntities(unsigned int count);
 
 			void Clear() noexcept;
+			const EntityHandle& CloneEntity(EntityId id);
 
 			const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities();
@@ -67,6 +73,8 @@ namespace Ndk
 		private:
 			inline void Invalidate();
 			inline void Invalidate(EntityId id);
+			inline void InvalidateSystemOrder();
+			void ReorderSystems();
 
 			struct EntityBlock
 			{
@@ -78,15 +86,17 @@ namespace Ndk
 				EntityBlock(EntityBlock&& block) = default;
 
 				Entity entity;
-				unsigned int aliveIndex;
+				std::size_t aliveIndex;
 			};
 
 			std::vector<std::unique_ptr<BaseSystem>> m_systems;
+			std::vector<BaseSystem*> m_orderedSystems;
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
 			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
 			Nz::Bitset<Nz::UInt64> m_killedEntities;
+			bool m_orderedSystemsUpdated;
 	};
 }
 

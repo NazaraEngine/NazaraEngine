@@ -32,11 +32,12 @@ namespace Nz
 			DeferredRenderTechnique();
 			~DeferredRenderTechnique();
 
+			void Clear(const SceneData& sceneData) const override;
 			bool Draw(const SceneData& sceneData) const override;
 
 			void EnablePass(RenderPassType renderPass, int position, bool enable);
 
-			RenderBuffer* GetDepthStencilBuffer() const;
+			Texture* GetDepthStencilTexture() const;
 			Texture* GetGBuffer(unsigned int i) const;
 			RenderTexture* GetGBufferRTT() const;
 			const ForwardRenderTechnique* GetForwardTechnique() const;
@@ -66,16 +67,16 @@ namespace Nz
 			};
 
 			std::map<RenderPassType, std::map<int, std::unique_ptr<DeferredRenderPass>>, RenderPassComparator> m_passes;
-			ForwardRenderTechnique m_forwardTechnique; // Doit être initialisé avant la RenderQueue
+			ForwardRenderTechnique m_forwardTechnique; // Must be initialized before the RenderQueue
 			DeferredRenderQueue m_renderQueue;
-			mutable RenderBufferRef m_depthStencilBuffer;
+			mutable TextureRef m_depthStencilTexture;
 			mutable RenderTexture m_GBufferRTT;
 			mutable RenderTexture m_workRTT;
 			mutable TextureRef m_GBuffer[4];
 			mutable TextureRef m_workTextures[2];
 			mutable Vector2ui m_GBufferSize;
 			const RenderTarget* m_viewerTarget;
-};
+	};
 }
 
 #endif // NAZARA_FORWARDRENDERTECHNIQUE_HPP

@@ -23,10 +23,10 @@ namespace Nz
 	/*!
 	* \brief Constructs a ByteArray object with a raw memory and a size
 	*
-	* \param ptr Pointer to raw memory
+	* \param buffer Pointer to raw memory
 	* \param n Size that can be accessed
 	*
-	* \remark If preallocated space of ptr is less than the size, the behaviour is undefined
+	* \remark If preallocated space of buffer is less than the size, the behaviour is undefined
 	*/
 
 	inline ByteArray::ByteArray(const void* buffer, size_type n) :
@@ -62,10 +62,10 @@ namespace Nz
 	/*!
 	* \brief Appends the content of raw memory
 	*
-	* \param ptr Constant pointer to raw memory
+	* \param buffer Constant pointer to raw memory
 	* \param n Size that can be read
 	*
-	* \remark If preallocated space of ptr is less than the size, the behaviour is undefined
+	* \remark If preallocated space of buffer is less than the size, the behaviour is undefined
 	*
 	* \see Insert
 	*/
@@ -298,11 +298,11 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Inserts n times the same value at the iterator position
+	* \brief Inserts n times the same byte at the iterator position
 	*
 	* \param pos Iterator to the position
 	* \param n Number of repetitions
-	* \param value Value to repeat
+	* \param byte Value to repeat
 	*/
 
 	inline ByteArray::iterator ByteArray::Insert(const_iterator pos, size_type n, value_type byte)
@@ -359,10 +359,10 @@ namespace Nz
 	/*!
 	* \brief Prepends the content of raw memory
 	*
-	* \param ptr Constant pointer to raw memory
+	* \param buffer Constant pointer to raw memory
 	* \param n Size that can be read
 	*
-	* \remark If preallocated space of ptr is less than the size, the behaviour is undefined
+	* \remark If preallocated space of buffer is less than the size, the behaviour is undefined
 	*
 	* \see Insert
 	*/
@@ -463,22 +463,6 @@ namespace Nz
 	inline void ByteArray::Swap(ByteArray& other)
 	{
 		m_array.swap(other.m_array);
-	}
-
-	/*!
-	* \brief Gives a string representation in base 16
-	* \return String in base 16
-	*/
-
-	inline String ByteArray::ToHex() const
-	{
-		std::size_t length = m_array.size() * 2;
-
-		String hexOutput(length, '\0');
-		for (std::size_t i = 0; i < m_array.size(); ++i)
-			std::sprintf(&hexOutput[i * 2], "%02x", m_array[i]);
-
-		return hexOutput;
 	}
 
 	/*!
@@ -682,8 +666,7 @@ namespace Nz
 	* \brief Checks whether the first byte array is equal to the second byte array
 	* \return true if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator==(const ByteArray& rhs) const
@@ -695,8 +678,7 @@ namespace Nz
 	* \brief Checks whether the first byte array is equal to the second byte array
 	* \return false if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator!=(const ByteArray& rhs) const
@@ -708,8 +690,7 @@ namespace Nz
 	* \brief Checks whether the first byte array is less than the second byte array
 	* \return true if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator<(const ByteArray& rhs) const
@@ -721,8 +702,7 @@ namespace Nz
 	* \brief Checks whether the first byte array is less or equal than the second byte array
 	* \return true if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator<=(const ByteArray& rhs) const
@@ -731,11 +711,10 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the first byte array is greather than the second byte array
+	* \brief Checks whether the first byte array is greater than the second byte array
 	* \return true if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator>(const ByteArray& rhs) const
@@ -744,11 +723,10 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the first byte array is greather or equal than the second byte array
+	* \brief Checks whether the first byte array is greater or equal than the second byte array
 	* \return true if it is the case
 	*
-	* \param first ByteArray to compare in left hand side
-	* \param second ByteArray to compare in right hand side
+	* \param rhs ByteArray to compare with
 	*/
 
 	inline bool ByteArray::operator>=(const ByteArray& rhs) const

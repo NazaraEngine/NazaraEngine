@@ -3,9 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -14,6 +16,39 @@ namespace Nz
 {
 	namespace
 	{
+		void LoadMaterials(Model* model, const ModelParameters& parameters)
+		{
+			unsigned int matCount = model->GetMaterialCount();
+
+			for (unsigned int i = 0; i < matCount; ++i)
+			{
+				const ParameterList& matData = model->GetMesh()->GetMaterialData(i);
+
+				String filePath;
+				if (matData.GetStringParameter(MaterialData::FilePath, &filePath))
+				{
+					if (!File::Exists(filePath))
+					{
+						NazaraWarning("Shader name does not refer to an existing file, \".tga\" is used by default");
+						filePath += ".tga";
+					}
+
+					MaterialRef material = Material::New();
+					if (material->LoadFromFile(filePath, parameters.material))
+						model->SetMaterial(i, std::move(material));
+					else
+						NazaraWarning("Failed to load material from file " + String::Number(i));
+				}
+				else
+				{
+					MaterialRef material = Material::New();
+					material->BuildFromParameters(matData, parameters.material);
+
+					model->SetMaterial(i, std::move(material));
+				}
+			}
+		}
+
 		Ternary CheckStatic(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
@@ -46,22 +81,7 @@ namespace Nz
 			model->SetMesh(mesh);
 
 			if (parameters.loadMaterials)
-			{
-				unsigned int matCount = model->GetMaterialCount();
-
-				for (unsigned int i = 0; i < matCount; ++i)
-				{
-					String mat = mesh->GetMaterial(i);
-					if (!mat.IsEmpty())
-					{
-						MaterialRef material = Material::New();
-						if (material->LoadFromFile(mat, parameters.material))
-							model->SetMaterial(i, material);
-						else
-							NazaraWarning("Failed to load material #" + String::Number(i));
-					}
-				}
-			}
+				LoadMaterials(model, parameters);
 
 			return true;
 		}
@@ -98,22 +118,7 @@ namespace Nz
 			model->SetMesh(mesh);
 
 			if (parameters.loadMaterials)
-			{
-				unsigned int matCount = model->GetMaterialCount();
-
-				for (unsigned int i = 0; i < matCount; ++i)
-				{
-					String mat = mesh->GetMaterial(i);
-					if (!mat.IsEmpty())
-					{
-						MaterialRef material = Material::New();
-						if (material->LoadFromFile(mat, parameters.material))
-							model->SetMaterial(i, material);
-						else
-							NazaraWarning("Failed to load material #" + String::Number(i));
-					}
-				}
-			}
+				LoadMaterials(model, parameters);
 
 			return true;
 		}

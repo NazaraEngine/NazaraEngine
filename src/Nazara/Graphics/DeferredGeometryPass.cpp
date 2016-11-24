@@ -18,20 +18,39 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredGeometryPass
+	* \brief Graphics class that represents the pass for geometries in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredGeometryPass object by default
+	*/
+
 	DeferredGeometryPass::DeferredGeometryPass()
 	{
 		m_clearShader = ShaderLibrary::Get("DeferredGBufferClear");
-		m_clearStates.parameters[RendererParameter_DepthBuffer] = true;
-		m_clearStates.parameters[RendererParameter_FaceCulling] = true;
-		m_clearStates.parameters[RendererParameter_StencilTest] = true;
+		m_clearStates.depthBuffer = true;
+		m_clearStates.faceCulling = true;
+		m_clearStates.stencilTest = true;
 		m_clearStates.depthFunc = RendererComparison_Always;
-		m_clearStates.frontFace.stencilCompare = RendererComparison_Always;
-		m_clearStates.frontFace.stencilPass = StencilOperation_Zero;
+		m_clearStates.stencilCompare.front = RendererComparison_Always;
+		m_clearStates.stencilPass.front = StencilOperation_Zero;
 	}
 
 	DeferredGeometryPass::~DeferredGeometryPass() = default;
 
-	bool DeferredGeometryPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return false
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredGeometryPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 		NazaraUnused(firstWorkTexture);
@@ -54,128 +73,138 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
-		for (auto& pair : m_renderQueue->layers)
+		for (auto& layerPair : m_renderQueue->layers)
 		{
-			DeferredRenderQueue::Layer& layer = pair.second;
-
-			for (auto& matIt : layer.opaqueModels)
+			for (auto& pipelinePair : layerPair.second.opaqueModels)
 			{
-				auto& matEntry = matIt.second;
+				const MaterialPipeline* pipeline = pipelinePair.first;
+				auto& pipelineEntry = pipelinePair.second;
 
-				if (matEntry.enabled)
+				if (pipelineEntry.maxInstanceCount > 0)
 				{
-					DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
+					bool instancing = instancingEnabled && (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
 
-					if (!meshInstances.empty())
+					UInt32 flags = ShaderFlags_Deferred;
+					if (instancing)
+						flags |= ShaderFlags_Instancing;
+
+					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(flags);
+
+					const Shader* shader = pipelineInstance.uberInstance->GetShader();
+
+					// Uniforms are conserved in our program, there's no point to send them back until they change
+					if (shader != lastShader)
 					{
-						const Material* material = matIt.first;
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
 
-						bool useInstancing = instancingEnabled && matEntry.instancingEnabled;
+						// Ambiant color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-						// On commence par récupérer le programme du matériau
-						UInt32 flags = ShaderFlags_Deferred;
-						if (useInstancing)
-							flags |= ShaderFlags_Instancing;
+						lastShader = shader;
+					}
 
-						const Shader* shader = material->Apply(flags);
+					for (auto& materialPair : pipelineEntry.materialMap)
+					{
+						const Material* material = materialPair.first;
+						auto& matEntry = materialPair.second;
 
-						// Les uniformes sont conservées au sein d'un programme, inutile de les renvoyer tant qu'il ne change pas
-						if (shader != lastShader)
+						if (matEntry.enabled)
 						{
-							// Index des uniformes dans le shader
-							shaderUniforms = GetShaderUniforms(shader);
+							DeferredRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
-							// Couleur ambiante de la scène
-							shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-							// Position de la caméra
-							shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-							lastShader = shader;
-						}
-
-						// Meshes
-						for (auto& meshIt : meshInstances)
-						{
-							const MeshData& meshData = meshIt.first;
-							auto& meshEntry = meshIt.second;
-
-							std::vector<Matrix4f>& instances = meshEntry.instances;
-							if (!instances.empty())
+							if (!meshInstances.empty())
 							{
-								const IndexBuffer* indexBuffer = meshData.indexBuffer;
-								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
+								material->Apply(pipelineInstance);
 
-								// Gestion du draw call avant la boucle de rendu
-								Renderer::DrawCall drawFunc;
-								Renderer::DrawCallInstanced instancedDrawFunc;
-								unsigned int indexCount;
-
-								if (indexBuffer)
+								// Meshes
+								for (auto& meshIt : meshInstances)
 								{
-									drawFunc = Renderer::DrawIndexedPrimitives;
-									instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
-									indexCount = indexBuffer->GetIndexCount();
-								}
-								else
-								{
-									drawFunc = Renderer::DrawPrimitives;
-									instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
-									indexCount = vertexBuffer->GetVertexCount();
-								}
+									const MeshData& meshData = meshIt.first;
+									auto& meshEntry = meshIt.second;
 
-								Renderer::SetIndexBuffer(indexBuffer);
-								Renderer::SetVertexBuffer(vertexBuffer);
-
-								if (useInstancing)
-								{
-									// On récupère le buffer d'instancing du Renderer et on le configure pour fonctionner avec des matrices
-									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
-
-									const Matrix4f* instanceMatrices = &instances[0];
-									unsigned int instanceCount = instances.size();
-									unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // Le nombre de matrices que peut contenir le buffer
-
-									while (instanceCount > 0)
+									std::vector<Matrix4f>& instances = meshEntry.instances;
+									if (!instances.empty())
 									{
-										// On calcule le nombre d'instances que l'on pourra afficher cette fois-ci (Selon la taille du buffer d'instancing)
-										unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-										instanceCount -= renderedInstanceCount;
+										const IndexBuffer* indexBuffer = meshData.indexBuffer;
+										const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
 
-										// On remplit l'instancing buffer avec nos matrices world
-										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
-										instanceMatrices += renderedInstanceCount;
+										// Handle draw call before rendering loop
+										Renderer::DrawCall drawFunc;
+										Renderer::DrawCallInstanced instancedDrawFunc;
+										unsigned int indexCount;
 
-										// Et on affiche
-										instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+										if (indexBuffer)
+										{
+											drawFunc = Renderer::DrawIndexedPrimitives;
+											instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+											indexCount = indexBuffer->GetIndexCount();
+										}
+										else
+										{
+											drawFunc = Renderer::DrawPrimitives;
+											instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+											indexCount = vertexBuffer->GetVertexCount();
+										}
+
+										Renderer::SetIndexBuffer(indexBuffer);
+										Renderer::SetVertexBuffer(vertexBuffer);
+
+										if (instancing)
+										{
+											// We get the buffer for instance of Renderer and we configure it to work with matrices
+											VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+											instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
+
+											const Matrix4f* instanceMatrices = &instances[0];
+											std::size_t instanceCount = instances.size();
+											std::size_t maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
+
+											while (instanceCount > 0)
+											{
+												// We compute the number of instances that we will be able to show this time (Depending on the instance buffer size)
+												std::size_t renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+												instanceCount -= renderedInstanceCount;
+
+												// We fill the instancing buffer with our world matrices
+												instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+												instanceMatrices += renderedInstanceCount;
+
+												// And we show
+												instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
+											}
+										}
+										else
+										{
+											// Without instancing, we must do one draw call for each instance
+											// This may be faster than instancing under a threshold
+											// Due to the time to modify the instancing buffer
+											for (const Matrix4f& matrix : instances)
+											{
+												Renderer::SetMatrix(MatrixType_World, matrix);
+												drawFunc(meshData.primitiveMode, 0, indexCount);
+											}
+										}
 									}
 								}
-								else
-								{
-									// Sans instancing, on doit effectuer un draw call pour chaque instance
-									// Cela reste néanmoins plus rapide que l'instancing en dessous d'un certain nombre d'instances
-									// À cause du temps de modification du buffer d'instancing
-									for (const Matrix4f& matrix : instances)
-									{
-										Renderer::SetMatrix(MatrixType_World, matrix);
-										drawFunc(meshData.primitiveMode, 0, indexCount);
-									}
-								}
-
-								instances.clear();
 							}
 						}
 					}
-
-					// Et on remet à zéro les données
-					matEntry.enabled = false;
-					matEntry.instancingEnabled = false;
 				}
 			}
 		}
 
-		return false; // On ne fait que remplir le G-Buffer, les work texture ne sont pas affectées
+		return false; // We only fill the G-Buffer, the work texture are unchanged
 	}
+
+	/*!
+	* \brief Resizes the texture sizes
+	* \return true If successful
+	*
+	* \param dimensions Dimensions for the compute texture
+	*/
 
 	bool DeferredGeometryPass::Resize(const Vector2ui& dimensions)
 	{
@@ -196,7 +225,7 @@ namespace Nz
 			unsigned int width = dimensions.x;
 			unsigned int height = dimensions.y;
 
-			m_depthStencilBuffer->Create(PixelFormatType_Depth24Stencil8, width, height);
+			m_depthStencilTexture->Create(ImageType_2D, PixelFormatType_Depth24Stencil8, width, height);
 
 			m_GBuffer[0]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
 			m_GBuffer[1]->Create(ImageType_2D, PixelFormatType_RG16F, width, height); // Texture 1 : Encoded normal
@@ -210,7 +239,7 @@ namespace Nz
 
 			// Texture 3 : Emission map ?
 
-			m_GBufferRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_GBufferRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_GBufferRTT->Unlock();
 
@@ -222,7 +251,7 @@ namespace Nz
 				m_workRTT->AttachTexture(AttachmentPoint_Color, i, m_workTextures[i]);
 			}
 
-			m_workRTT->AttachBuffer(AttachmentPoint_DepthStencil, 0, m_depthStencilBuffer);
+			m_workRTT->AttachTexture(AttachmentPoint_DepthStencil, 0, m_depthStencilTexture);
 
 			m_workRTT->Unlock();
 
@@ -240,6 +269,13 @@ namespace Nz
 			return false;
 		}
 	}
+
+	/*!
+	* \brief Gets the uniforms of a shader
+	* \return Uniforms of the shader
+	*
+	* \param shader Shader to get uniforms from
+	*/
 
 	const DeferredGeometryPass::ShaderUniforms* DeferredGeometryPass::GetShaderUniforms(const Shader* shader) const
 	{
@@ -259,6 +295,12 @@ namespace Nz
 
 		return &it->second;
 	}
+
+	/*!
+	* \brief Handle the invalidation of a shader
+	*
+	* \param shader Shader being invalidated
+	*/
 
 	void DeferredGeometryPass::OnShaderInvalidated(const Shader* shader) const
 	{

@@ -4,16 +4,37 @@
 
 #include <NDK/Systems/VelocitySystem.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent.hpp>
+#include <NDK/Components/PhysicsComponent2D.hpp>
+#include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::VelocitySystem
+	* \brief NDK class that represents the velocity system
+	*
+	* \remark This system is enabled if the entity owns the traits NodeComponent and VelocityComponent
+	* but it's disabled with the traits: PhysicsComponent2D, PhysicsComponent3D
+	*/
+
+	/*!
+	* \brief Constructs an VelocitySystem object by default
+	*/
+
 	VelocitySystem::VelocitySystem()
 	{
+		Excludes<PhysicsComponent2D, PhysicsComponent3D>();
 		Requires<NodeComponent, VelocityComponent>();
-		Excludes<PhysicsComponent>();
+		SetUpdateOrder(10); //< Since some systems may want to stop us
 	}
+
+	/*!
+	* \brief Operation to perform when system is updated
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
 
 	void VelocitySystem::OnUpdate(float elapsedTime)
 	{
@@ -22,7 +43,7 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
 
-			node.Move(velocity.linearVelocity * elapsedTime);
+			node.Move(velocity.linearVelocity * elapsedTime, Nz::CoordSys_Global);
 		}
 	}
 

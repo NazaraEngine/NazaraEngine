@@ -8,7 +8,7 @@
 #define NDK_BASESYSTEM_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 #include <vector>
 
 namespace Ndk
@@ -27,17 +27,23 @@ namespace Ndk
 			BaseSystem(BaseSystem&&) noexcept = default;
 			virtual ~BaseSystem();
 
-			virtual BaseSystem* Clone() const = 0;
+			inline void Enable(bool enable = true);
+
+			virtual std::unique_ptr<BaseSystem> Clone() const = 0;
 
 			bool Filters(const Entity* entity) const;
 
 			inline const std::vector<EntityHandle>& GetEntities() const;
 			inline SystemIndex GetIndex() const;
+			inline int GetUpdateOrder() const;
 			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
 
+			inline bool IsEnabled() const;
+
 			inline bool HasEntity(const Entity* entity) const;
 
+			void SetUpdateOrder(int updateOrder);
 			inline void SetUpdateRate(float updatePerSecond);
 
 			inline void Update(float elapsedTime);
@@ -86,8 +92,10 @@ namespace Ndk
 			Nz::Bitset<> m_requiredComponents;
 			SystemIndex m_systemIndex;
 			World* m_world;
+			bool m_updateEnabled;
 			float m_updateCounter;
 			float m_updateRate;
+			int m_updateOrder;
 
 			static SystemIndex s_nextIndex;
 	};

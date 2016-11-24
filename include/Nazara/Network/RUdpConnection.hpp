@@ -46,8 +46,8 @@ namespace Nz
 			inline UInt16 GetBoundPort() const;
 			inline SocketError GetLastError() const;
 
-			inline bool Listen(NetProtocol protocol, UInt16 port = 64266, unsigned int queueSize = 10);
-			bool Listen(const IpAddress& address, unsigned int queueSize = 10);
+			inline bool Listen(NetProtocol protocol, UInt16 port = 64266);
+			bool Listen(const IpAddress& address);
 
 			bool PollMessage(RUdpMessage* message);
 
@@ -55,6 +55,8 @@ namespace Nz
 
 			inline void SetProtocolId(UInt32 protocolId);
 			inline void SetTimeBeforeAck(UInt32 ms);
+
+			inline void SimulateNetwork(double packetLoss);
 
 			void Update();
 
@@ -119,6 +121,10 @@ namespace Nz
 
 			struct PeerData //TODO: Move this to RUdpClient
 			{
+				PeerData() = default;
+				PeerData(PeerData&& other) = default;
+				PeerData& operator=(PeerData&& other) = default;
+
 				std::array<std::vector<PendingPacket>, PacketPriority_Max + 1> pendingPackets;
 				std::deque<PendingAckPacket> pendingAckQueue;
 				std::set<UInt16> receivedQueue;
@@ -133,9 +139,10 @@ namespace Nz
 				UInt64 stateData1;
 			};
 
-			std::unordered_map<IpAddress, std::size_t> m_peerByIP;
+			std::bernoulli_distribution m_packetLossProbability;
 			std::queue<RUdpMessage> m_receivedMessages;
 			std::size_t m_peerIterator;
+			std::unordered_map<IpAddress, std::size_t> m_peerByIP;
 			std::vector<PeerData> m_peers;
 			Bitset<UInt64> m_activeClients;
 			Clock m_clock;
@@ -147,12 +154,13 @@ namespace Nz
 			UInt32 m_timeBeforePing;
 			UInt32 m_timeBeforeTimeOut;
 			UInt64 m_currentTime;
+			bool m_isSimulationEnabled;
 			bool m_shouldAcceptConnections;
 
 			static std::mt19937_64 s_randomGenerator;
 	};
 }
 
-#include <Nazara/Network/RudpConnection.inl>
+#include <Nazara/Network/RUdpConnection.inl>
 
 #endif // NAZARA_RUDPSERVER_HPP

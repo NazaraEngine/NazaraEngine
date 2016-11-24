@@ -19,7 +19,22 @@ namespace Ndk
 		constexpr std::size_t s_inputPrefixSize = Nz::CountOf(s_inputPrefix) - 1;
 	}
 
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Console
+	* \brief NDK class that represents a console to help development with Lua scripting
+	*/
+
+	/*!
+	* \brief Constructs a Console object with a world to interact with
+	*
+	* \param world World to interact with
+	* \param size (Width, Height) of the console
+	* \param instance Lua instance that will interact with the world
+	*/
+
 	Console::Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance) :
+	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
 	m_instance(instance),
 	m_size(size),
@@ -27,8 +42,8 @@ namespace Ndk
 	m_characterSize(24)
 	{
 		Nz::MaterialRef backgroundMaterial = Nz::Material::New();
-		backgroundMaterial->Enable(Nz::RendererParameter_Blend, true);
-		backgroundMaterial->Enable(Nz::RendererParameter_DepthBuffer, false);
+		backgroundMaterial->EnableBlending(true);
+		backgroundMaterial->EnableDepthBuffer(false);
 		backgroundMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
 		backgroundMaterial->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
@@ -81,15 +96,38 @@ namespace Ndk
 
 		Ndk::NodeComponent& inputNode = m_input->AddComponent<Ndk::NodeComponent>();
 		inputNode.SetParent(this);
-		
+
 		Layout();
 	}
-	
+
+	/*!
+	* \brief Adds a line to the console
+	*
+	* \param text New line of text
+	* \param color Color for the text
+	*/
+
 	void Console::AddLine(const Nz::String& text, const Nz::Color& color)
 	{
 		AddLineInternal(text, color);
 		RefreshHistory();
 	}
+
+	/*!
+	* \brief Clears the console
+	*/
+
+	void Console::Clear()
+	{
+		m_historyLines.clear();
+		RefreshHistory();
+	}
+
+	/*!
+	* \brief Sends a character to the console
+	*
+	* \param character Character that will be added to the console
+	*/
 
 	void Console::SendCharacter(char32_t character)
 	{
@@ -124,11 +162,77 @@ namespace Ndk
 		m_inputTextSprite->Update(m_inputDrawer);
 	}
 
+	/*!
+	* \brief Sends an event to the console
+	*
+	* \param event Event to be takin into consideration by the console
+	*/
+
+	void Console::SendEvent(const Nz::WindowEvent& event)
+	{
+		switch (event.type)
+		{
+			case Nz::WindowEventType_TextEntered:
+				SendCharacter(event.text.character);
+				break;
+
+			case Nz::WindowEventType_KeyPressed:
+			{
+				switch (event.key.code)
+				{
+					case Nz::Keyboard::Down:
+					case Nz::Keyboard::Up:
+					{
+						if (event.key.code == Nz::Keyboard::Up)
+							m_historyPosition = std::min<std::size_t>(m_commandHistory.size(), m_historyPosition + 1);
+						else
+						{
+							if (m_historyPosition > 1)
+								m_historyPosition--;
+							else if (m_historyPosition == 0)
+								m_historyPosition = 1;
+						}
+
+						Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
+						m_inputDrawer.SetText(s_inputPrefix + text);
+						m_inputTextSprite->Update(m_inputDrawer);
+						break;
+					}
+
+					default:
+						break;
+				}
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
+	/*!
+	* \brief Sets the character size
+	*
+	* \param size Size of the font
+	*/
+
 	void Console::SetCharacterSize(unsigned int size)
 	{
 		m_characterSize = size;
+
+		m_historyDrawer.SetCharacterSize(m_characterSize);
+		m_historyTextSprite->Update(m_historyDrawer);
+		m_inputDrawer.SetCharacterSize(m_characterSize);
+		m_inputTextSprite->Update(m_inputDrawer);
+
 		Layout();
 	}
+
+	/*!
+	* \brief Sets the console size
+	*
+	* \param size (Width, Height) of the console
+	*/
 
 	void Console::SetSize(const Nz::Vector2f& size)
 	{
@@ -137,10 +241,30 @@ namespace Ndk
 		Layout();
 	}
 
+	/*!
+	* \brief Sets the text font
+	*
+	* \param font Reference to a valid font
+	*
+	* \remark Produces a NazaraAssert if font is invalid or null
+	*/
+
 	void Console::SetTextFont(Nz::FontRef font)
 	{
+		NazaraAssert(font && font->IsValid(), "Invalid font");
+
+		m_defaultFont = std::move(font);
+		m_historyDrawer.SetFont(m_defaultFont);
+		m_inputDrawer.SetFont(m_defaultFont);
+
 		Layout();
 	}
+
+	/*!
+	* \brief Shows the console
+	*
+	* \param show Should the console be showed
+	*/
 
 	void Console::Show(bool show)
 	{
@@ -155,23 +279,44 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Adds a line to the history of the console
+	*
+	* \param text New line of text
+	* \param color Color for the text
+	*/
+
 	void Console::AddLineInternal(const Nz::String& text, const Nz::Color& color)
 	{
 		m_historyLines.emplace_back(Line{color, text});
 	}
 
+	/*!
+	* \brief Performs this action when an input is added to the console
+	*/
+
 	void Console::ExecuteInput()
 	{
-		Nz::String input = m_inputDrawer.GetText().SubString(s_inputPrefixSize);
+		Nz::String input = m_inputDrawer.GetText();
+		Nz::String inputCmd = input.SubString(s_inputPrefixSize);;
 		m_inputDrawer.SetText(s_inputPrefix);
 
-		AddLineInternal(input);
+		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)
+			m_commandHistory.push_back(inputCmd);
 
-		if (!m_instance.Execute(input))
+		m_historyPosition = 0;
+
+		AddLineInternal(input); //< With the input prefix
+
+		if (!m_instance.Execute(inputCmd))
 			AddLineInternal(m_instance.GetLastError(), Nz::Color::Red);
 
 		RefreshHistory();
 	}
+
+	/*!
+	* \brief Places the console according to its layout
+	*/
 
 	void Console::Layout()
 	{
@@ -194,6 +339,10 @@ namespace Ndk
 		m_inputBackgroundSprite->SetSize(m_size.x, m_size.y - historyHeight);
 	}
 
+	/*!
+	* \brief Refreshes the history of the console
+	*/
+
 	void Console::RefreshHistory()
 	{
 		m_historyDrawer.Clear();
@@ -210,7 +359,7 @@ namespace Ndk
 				m_historyDrawer.AppendText(it->text);
 				++it;
 			}
-			
+
 			m_historyDrawer.AppendText(Nz::String('\n'));
 		}
 

@@ -17,6 +17,22 @@ namespace Nz
 		AnimationType_Max = AnimationType_Static
 	};
 
+	enum BlendFunc
+	{
+		BlendFunc_DestAlpha,
+		BlendFunc_DestColor,
+		BlendFunc_SrcAlpha,
+		BlendFunc_SrcColor,
+		BlendFunc_InvDestAlpha,
+		BlendFunc_InvDestColor,
+		BlendFunc_InvSrcAlpha,
+		BlendFunc_InvSrcColor,
+		BlendFunc_One,
+		BlendFunc_Zero,
+
+		BlendFunc_Max = BlendFunc_Zero
+	};
+
 	enum BufferAccess
 	{
 		BufferAccess_DiscardAndWrite,
@@ -87,6 +103,24 @@ namespace Nz
 		DataStorage_Max = DataStorage_Software*2-1
 	};
 
+	enum FaceFilling
+	{
+		FaceFilling_Fill,
+		FaceFilling_Line,
+		FaceFilling_Point,
+
+		FaceFilling_Max = FaceFilling_Point
+	};
+
+	enum FaceSide
+	{
+		FaceSide_Back,
+		FaceSide_Front,
+		FaceSide_FrontAndBack,
+
+		FaceSide_Max = FaceSide_FrontAndBack
+	};
+
 	enum ImageType
 	{
 		ImageType_1D,
@@ -106,6 +140,17 @@ namespace Nz
 		NodeType_Skeletal, ///TODO
 
 		NodeType_Max = NodeType_Skeletal
+	};
+
+	enum PixelFormatContent
+	{
+		PixelFormatContent_Undefined = -1,
+
+		PixelFormatContent_ColorRGBA,
+		PixelFormatContent_DepthStencil,
+		PixelFormatContent_Stencil,
+
+		PixelFormatContent_Max = PixelFormatContent_Stencil
 	};
 
 	enum PixelFormatType
@@ -168,16 +213,16 @@ namespace Nz
 		PixelFormatType_Max = PixelFormatType_Stencil16
 	};
 
-	enum PixelFormatTypeType
+	enum PixelFormatSubType
 	{
-		PixelFormatTypeType_Undefined = -1,
+		PixelFormatSubType_Compressed, // Opaque
+		PixelFormatSubType_Double,     // F64
+		PixelFormatSubType_Float,      // F32
+		PixelFormatSubType_Half,       // F16
+		PixelFormatSubType_Int,        //   Signed integer
+		PixelFormatSubType_Unsigned,   // Unsigned integer
 
-		PixelFormatTypeType_Color,
-		PixelFormatTypeType_Depth,
-		PixelFormatTypeType_DepthStencil,
-		PixelFormatTypeType_Stencil,
-
-		PixelFormatTypeType_Max = PixelFormatTypeType_Stencil
+		PixelFormatSubType_Max = PixelFormatSubType_Unsigned
 	};
 
 	enum PixelFlipping
@@ -198,6 +243,73 @@ namespace Nz
 		PrimitiveMode_TriangleFan,
 
 		PrimitiveMode_Max = PrimitiveMode_TriangleFan
+	};
+
+	enum RendererComparison
+	{
+		RendererComparison_Always,
+		RendererComparison_Equal,
+		RendererComparison_Greater,
+		RendererComparison_GreaterOrEqual,
+		RendererComparison_Less,
+		RendererComparison_LessOrEqual,
+		RendererComparison_Never,
+		RendererComparison_NotEqual,
+
+		RendererComparison_Max = RendererComparison_NotEqual
+	};
+
+	enum RendererParameter
+	{
+		RendererParameter_Blend,
+		RendererParameter_ColorWrite,
+		RendererParameter_DepthBuffer,
+		RendererParameter_DepthWrite,
+		RendererParameter_FaceCulling,
+		RendererParameter_ScissorTest,
+		RendererParameter_StencilTest,
+
+		RendererParameter_Max = RendererParameter_StencilTest
+	};
+
+	enum SamplerFilter
+	{
+		SamplerFilter_Unknown = -1,
+
+		SamplerFilter_Bilinear,
+		SamplerFilter_Nearest,
+		SamplerFilter_Trilinear,
+
+		SamplerFilter_Default,
+
+		SamplerFilter_Max = SamplerFilter_Default
+	};
+
+	enum SamplerWrap
+	{
+		SamplerWrap_Unknown = -1,
+
+		SamplerWrap_Clamp,
+		SamplerWrap_MirroredRepeat,
+		SamplerWrap_Repeat,
+
+		SamplerWrap_Default,
+
+		SamplerWrap_Max = SamplerWrap_Repeat
+	};
+
+	enum StencilOperation
+	{
+		StencilOperation_Decrement,
+		StencilOperation_DecrementNoClamp,
+		StencilOperation_Increment,
+		StencilOperation_IncrementNoClamp,
+		StencilOperation_Invert,
+		StencilOperation_Keep,
+		StencilOperation_Replace,
+		StencilOperation_Zero,
+
+		StencilOperation_Max = StencilOperation_Zero
 	};
 
 	enum TextAlign
@@ -320,15 +432,17 @@ namespace Nz
 
 	enum WindowStyleFlags
 	{
-		WindowStyle_None       = 0x0,
-		WindowStyle_Fullscreen = 0x1,
+		WindowStyle_None       = 0x0,  ///< Window has no border nor titlebar.
+		WindowStyle_Fullscreen = 0x1,  ///< At the window creation, the OS tries to set it in fullscreen.
 
-		WindowStyle_Closable   = 0x2,
-		WindowStyle_Resizable  = 0x4,
-		WindowStyle_Titlebar   = 0x8,
+		WindowStyle_Closable   = 0x2,  ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
+		WindowStyle_Resizable  = 0x4,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
+		WindowStyle_Titlebar   = 0x8,  ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
+
+		WindowStyle_Threaded   = 0x10, ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
 
 		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
-		WindowStyle_Max = WindowStyle_Titlebar*2-1
+		WindowStyle_Max = WindowStyle_Threaded*2-1
 	};
 }
 

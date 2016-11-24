@@ -1,7 +1,8 @@
 TOOL.Name = "SDKServer"
 
-TOOL.Directory = "../SDK/lib"
+TOOL.Directory = "../SDK"
 TOOL.Kind = "Library"
+TOOL.TargetDirectory = "../lib"
 
 TOOL.Defines = {
 	"NDK_BUILD",
@@ -9,7 +10,8 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../SDK/include"
+	"../SDK/include",
+	"../SDK/src"
 }
 
 TOOL.Files = {
@@ -20,24 +22,28 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
--- Exlude client-only files
-TOOL.FilesExclusion = {
+-- Excludes client-only files
+TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
 	"../SDK/**/Console.*",
 	"../SDK/**/GraphicsComponent.*",
 	"../SDK/**/LightComponent.*",
 	"../SDK/**/ListenerComponent.*",
 	"../SDK/**/ListenerSystem.*",
+	"../SDK/**/Particle*Component.*",
+	"../SDK/**/ParticleSystem.*",
 	"../SDK/**/RenderSystem.*",
-	"../SDK/**/LuaAPI_Audio.*",
-	"../SDK/**/LuaAPI_Graphics.*",
-	"../SDK/**/LuaAPI_Renderer.*",
+	"../SDK/**/LuaBinding_Audio.*",
+	"../SDK/**/LuaBinding_Graphics.*",
+	"../SDK/**/LuaBinding_Renderer.*"
 }
 
 TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraLua",
+	"NazaraNetwork",
 	"NazaraNoise",
-	"NazaraPhysics",
+	"NazaraPhysics2D",
+	"NazaraPhysics3D",
 	"NazaraUtility"
 }

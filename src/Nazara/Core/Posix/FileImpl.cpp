@@ -54,11 +54,11 @@ namespace Nz
 		int flags;
 		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
-		if (mode & OpenMode_ReadWrite)
+		if ((mode & OpenMode_ReadWrite) == OpenMode_ReadWrite)
 			flags = O_CREAT | O_RDWR;
-		else if (mode & OpenMode_ReadOnly)
+		else if ((mode & OpenMode_ReadOnly) == OpenMode_ReadOnly)
 			flags = O_RDONLY;
-		else if (mode & OpenMode_WriteOnly)
+		else if ((mode & OpenMode_WriteOnly) == OpenMode_WriteOnly)
 			flags = O_CREAT | O_WRONLY;
 		else
 			return false;
@@ -118,6 +118,11 @@ namespace Nz
 		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
 	}
 
+	bool FileImpl::SetSize(UInt64 size)
+	{
+		return ftruncate64(m_fileDescriptor, size) != 0;
+	}
+
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
 		lockf64(m_fileDescriptor, F_LOCK, size);
@@ -138,7 +143,18 @@ namespace Nz
 			return false;
 		}
 
-		mode_t permissions; // TODO : get permission from first file
+		mode_t permissions;
+		struct stat sb;
+		if (fstat(fd1, &sb) == -1) // get permission from first file
+		{
+			NazaraWarning("Could not get permissions of source file");
+			permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+		}
+		else
+		{
+			permissions = sb.st_mode & ~S_IFMT; // S_IFMT: bit mask for the file type bit field -> ~S_IFMT: general permissions
+		}
+
 		int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
 		if (fd2 == -1)
 		{
@@ -192,8 +208,9 @@ namespace Nz
 
 	time_t FileImpl::GetCreationTime(const String& filePath)
 	{
-		NazaraWarning("Posix has no creation time information");
+		NazaraUnused(filePath);
 
+		NazaraWarning("Posix has no creation time information");
 		return 0;
 	}
 

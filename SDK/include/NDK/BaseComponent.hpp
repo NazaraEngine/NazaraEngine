@@ -7,7 +7,7 @@
 #ifndef NDK_BASECOMPONENT_HPP
 #define NDK_BASECOMPONENT_HPP
 
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -27,12 +27,14 @@ namespace Ndk
 			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
-			virtual BaseComponent* Clone() const = 0;
+			virtual std::unique_ptr<BaseComponent> Clone() const = 0;
 
 			ComponentIndex GetIndex() const;
 
 			virtual bool Serialize(Nz::SerializationContext& context) const;
 			virtual bool Unserialize(Nz::SerializationContext& context);
+
+			inline static ComponentIndex GetMaxComponentIndex();
 
 			BaseComponent& operator=(const BaseComponent&) = default;
 			BaseComponent& operator=(BaseComponent&&) = default;
