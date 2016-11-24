@@ -2,10 +2,10 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/LuaBinding_Renderer.hpp>
+#include <NDK/Lua/LuaBinding_Renderer.hpp>
 #include <NDK/LuaAPI.hpp>
-#include <NDK/LuaBinding.hpp>
-#include <NDK/LuaBinding_Utility.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding_Utility.hpp>
 
 namespace Ndk
 {
