@@ -14,76 +14,18 @@ namespace Ndk
 	* \brief Binds modules to Lua
 	*/
 
-	LuaBinding::LuaBinding() :
-	// Core
-	clock("Clock"),
-	directory("Directory"),
-	file("File"),
-	stream("Stream"),
-
-	// Math
-	eulerAngles("EulerAngles"),
-	matrix4d("Matrix4"),
-	quaternion("Quaternion"),
-	rect("Rect"),
-	vector2d("Vector2"),
-	vector3d("Vector3"),
-
-	// Network
-	abstractSocket("AbstractSocket"),
-	ipAddress("IpAddress"),
-
-	// Utility
-	abstractImage("AbstractImage"),
-	font("Font"),
-	keyboard("Keyboard"),
-	node("Node"),
-
-	// SDK
-	application("Application"),
-	entity("Entity"),
-	nodeComponent("NodeComponent"),
-	velocityComponent("VelocityComponent"),
-	world("World")
-
-	#ifndef NDK_SERVER
-	,
-
-	// Audio
-	music("Music"),
-	sound("Sound"),
-	soundBuffer("SoundBuffer"),
-	soundEmitter("SoundEmitter"),
-
-	// Graphics
-	abstractViewer("AbstractViewer"),
-	instancedRenderable("InstancedRenderable"),
-	material("Material"),
-	model("Model"),
-	sprite("Sprite"),
-	spriteLibrary("SpriteLibrary"),
-	textureLibrary("TextureLibrary"),
-	textureManager("TextureManager"),
-
-	// Renderer
-	texture("Texture"),
-
-	// SDK
-	cameraComponent("CameraComponent"),
-	console("Console"),
-	graphicsComponent("GraphicsComponent")
-	#endif
+	LuaBinding::LuaBinding()
 	{
-		BindCore();
-		BindMath();
-		BindNetwork();
-		BindSDK();
-		BindUtility();
+		core    = LuaBinding_Base::BindCore(*this);
+		math    = LuaBinding_Base::BindMath(*this);
+		network = LuaBinding_Base::BindNetwork(*this);
+		sdk     = LuaBinding_Base::BindSDK(*this);
+		utility = LuaBinding_Base::BindUtility(*this);
 
 		#ifndef NDK_SERVER
-		BindAudio();
-		BindGraphics();
-		BindRenderer();
+		audio = LuaBinding_Base::BindAudio(*this);
+		graphics = LuaBinding_Base::BindGraphics(*this);
+		renderer = LuaBinding_Base::BindRenderer(*this);
 		#endif
 	}
 
@@ -95,16 +37,29 @@ namespace Ndk
 
 	void LuaBinding::RegisterClasses(Nz::LuaInstance& instance)
 	{
-		RegisterCore(instance);
-		RegisterMath(instance);
-		RegisterNetwork(instance);
-		RegisterSDK(instance);
-		RegisterUtility(instance);
+		core->Register(instance);
+		math->Register(instance);
+		network->Register(instance);
+		sdk->Register(instance);
+		utility->Register(instance);
 
 		#ifndef NDK_SERVER
-		RegisterAudio(instance);
-		RegisterGraphics(instance);
-		RegisterRenderer(instance);
+		audio->Register(instance);
+		graphics->Register(instance);
+		renderer->Register(instance);
 		#endif
+
+		// ComponentType (fake enumeration to expose component indexes)
+		instance.PushTable(0, m_componentBinding.size());
+		{
+			for (const ComponentBinding& entry : m_componentBinding)
+			{
+				if (entry.name.IsEmpty())
+					continue;
+
+				instance.PushField(entry.name, entry.index);
+			}
+		}
+		instance.SetGlobal("ComponentType");
 	}
 }

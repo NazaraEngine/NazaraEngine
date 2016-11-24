@@ -1,284 +1,298 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding.hpp>
+#include <NDK/LuaBinding_Core.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
 namespace Ndk
 {
-	/*!
-	* \brief Binds Core module to Lua
-	*/
+	std::unique_ptr<LuaBinding_Base> LuaBinding_Base::BindCore(LuaBinding& binding)
+	{
+		return std::make_unique<LuaBinding_Core>(binding);
+	}
 
-	void LuaBinding::BindCore()
+	LuaBinding_Core::LuaBinding_Core(LuaBinding& binding) :
+	LuaBinding_Base(binding)
 	{
 		/*********************************** Nz::Clock **********************************/
-		clock.SetConstructor([](Nz::LuaInstance& lua, Nz::Clock* instance, std::size_t argumentCount)
+		clock.Reset("Clock");
 		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
-
-			int argIndex = 2;
-			switch (argCount)
+			clock.SetConstructor([] (Nz::LuaInstance& lua, Nz::Clock* instance, std::size_t argumentCount)
 			{
-				case 0:
-					Nz::PlacementNew(instance);
-					return true;
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-				case 1:
+				int argIndex = 2;
+				switch (argCount)
 				{
-					Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+					case 0:
+						Nz::PlacementNew(instance);
+						return true;
 
-					Nz::PlacementNew(instance, startingValue);
-					return true;
+					case 1:
+					{
+						Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+
+						Nz::PlacementNew(instance, startingValue);
+						return true;
+					}
+
+					case 2:
+					{
+						Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
+						bool paused = lua.Check<bool>(&argIndex, false);
+
+						Nz::PlacementNew(instance, startingValue, paused);
+						return true;
+					}
 				}
 
-				case 2:
-				{
-					Nz::Int64 startingValue = lua.Check<Nz::Int64>(&argIndex, 0);
-					bool paused = lua.Check<bool>(&argIndex, false);
+				lua.Error("No matching overload for Clock constructor");
+				return false;
+			});
 
-					Nz::PlacementNew(instance, startingValue, paused);
-					return true;
-				}
-			}
+			clock.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
+			clock.BindMethod("GetMilliseconds", &Nz::Clock::GetMilliseconds);
+			clock.BindMethod("GetSeconds", &Nz::Clock::GetSeconds);
+			clock.BindMethod("IsPaused", &Nz::Clock::IsPaused);
+			clock.BindMethod("Pause", &Nz::Clock::Pause);
+			clock.BindMethod("Restart", &Nz::Clock::Restart);
+			clock.BindMethod("Unpause", &Nz::Clock::Unpause);
 
-			lua.Error("No matching overload for Clock constructor");
-			return false;
-		});
+			// Manual
+			clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& instance, std::size_t /*argumentCount*/) -> int {
+				Nz::StringStream ss("Clock(Elapsed: ");
+				ss << instance.GetSeconds();
+				ss << "s, Paused: ";
+				ss << instance.IsPaused();
+				ss << ')';
 
-		clock.BindMethod("GetMicroseconds", &Nz::Clock::GetMicroseconds);
-		clock.BindMethod("GetMilliseconds", &Nz::Clock::GetMilliseconds);
-		clock.BindMethod("GetSeconds", &Nz::Clock::GetSeconds);
-		clock.BindMethod("IsPaused", &Nz::Clock::IsPaused);
-		clock.BindMethod("Pause", &Nz::Clock::Pause);
-		clock.BindMethod("Restart", &Nz::Clock::Restart);
-		clock.BindMethod("Unpause", &Nz::Clock::Unpause);
-
-		// Manual
-		clock.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Clock& instance, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream ss("Clock(Elapsed: ");
-			ss << instance.GetSeconds();
-			ss << "s, Paused: ";
-			ss << instance.IsPaused();
-			ss << ')';
-
-			lua.PushString(ss);
-			return 1;
-		});
+				lua.PushString(ss);
+				return 1;
+			});
+		}
 
 		/********************************* Nz::Directory ********************************/
-		directory.SetConstructor([](Nz::LuaInstance& lua, Nz::Directory* instance, std::size_t argumentCount)
+		directory.Reset("Directory");
 		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
-
-			int argIndex = 2;
-			switch (argCount)
+			directory.SetConstructor([] (Nz::LuaInstance& lua, Nz::Directory* instance, std::size_t argumentCount)
 			{
-				case 0:
-					Nz::PlacementNew(instance);
-					return true;
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
-				case 1:
-					Nz::PlacementNew(instance, lua.Check<Nz::String>(&argIndex));
-					return true;
-			}
+				int argIndex = 2;
+				switch (argCount)
+				{
+					case 0:
+						Nz::PlacementNew(instance);
+						return true;
 
-			return false;
-		});
+					case 1:
+						Nz::PlacementNew(instance, lua.Check<Nz::String>(&argIndex));
+						return true;
+				}
 
-		directory.BindMethod("Close", &Nz::Directory::Close);
-		directory.BindMethod("Exists", &Nz::Directory::Exists);
-		directory.BindMethod("GetPath", &Nz::Directory::GetPath);
-		directory.BindMethod("GetPattern", &Nz::Directory::GetPattern);
-		directory.BindMethod("GetResultName", &Nz::Directory::GetResultName);
-		directory.BindMethod("GetResultPath", &Nz::Directory::GetResultPath);
-		directory.BindMethod("GetResultSize", &Nz::Directory::GetResultSize);
-		directory.BindMethod("IsOpen",  &Nz::Directory::IsOpen);
-		directory.BindMethod("IsResultDirectory",  &Nz::Directory::IsResultDirectory);
-		directory.BindMethod("NextResult", &Nz::Directory::NextResult, true);
-		directory.BindMethod("Open", &Nz::Directory::Open);
-		directory.BindMethod("SetPath", &Nz::Directory::SetPath);
-		directory.BindMethod("SetPattern", &Nz::Directory::SetPattern);
+				return false;
+			});
 
-		directory.BindStaticMethod("Copy", Nz::Directory::Copy);
-		directory.BindStaticMethod("Create", Nz::Directory::Create);
-		directory.BindStaticMethod("Exists", Nz::Directory::Exists);
-		directory.BindStaticMethod("GetCurrent", Nz::Directory::GetCurrent);
-		directory.BindStaticMethod("Remove", Nz::Directory::Remove);
-		directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
+			directory.BindMethod("Close", &Nz::Directory::Close);
+			directory.BindMethod("Exists", &Nz::Directory::Exists);
+			directory.BindMethod("GetPath", &Nz::Directory::GetPath);
+			directory.BindMethod("GetPattern", &Nz::Directory::GetPattern);
+			directory.BindMethod("GetResultName", &Nz::Directory::GetResultName);
+			directory.BindMethod("GetResultPath", &Nz::Directory::GetResultPath);
+			directory.BindMethod("GetResultSize", &Nz::Directory::GetResultSize);
+			directory.BindMethod("IsOpen", &Nz::Directory::IsOpen);
+			directory.BindMethod("IsResultDirectory", &Nz::Directory::IsResultDirectory);
+			directory.BindMethod("NextResult", &Nz::Directory::NextResult, true);
+			directory.BindMethod("Open", &Nz::Directory::Open);
+			directory.BindMethod("SetPath", &Nz::Directory::SetPath);
+			directory.BindMethod("SetPattern", &Nz::Directory::SetPattern);
 
-		// Manual
-		directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& instance, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream ss("Directory(");
-			ss << instance.GetPath();
-			ss << ')';
+			directory.BindStaticMethod("Copy", Nz::Directory::Copy);
+			directory.BindStaticMethod("Create", Nz::Directory::Create);
+			directory.BindStaticMethod("Exists", Nz::Directory::Exists);
+			directory.BindStaticMethod("GetCurrent", Nz::Directory::GetCurrent);
+			directory.BindStaticMethod("Remove", Nz::Directory::Remove);
+			directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
 
-			lua.PushString(ss);
-			return 1;
-		});
+			// Manual
+			directory.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Directory& instance, std::size_t /*argumentCount*/) -> int {
+				Nz::StringStream ss("Directory(");
+				ss << instance.GetPath();
+				ss << ')';
 
-		/*********************************** Nz::Stream ***********************************/
-		stream.BindMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
-		stream.BindMethod("Flush", &Nz::Stream::Flush);
-		stream.BindMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
-		stream.BindMethod("GetDirectory", &Nz::Stream::GetDirectory);
-		stream.BindMethod("GetPath", &Nz::Stream::GetPath);
-		stream.BindMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
-		stream.BindMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
-		stream.BindMethod("GetSize", &Nz::Stream::GetSize);
-		stream.BindMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
-		stream.BindMethod("IsReadable", &Nz::Stream::IsReadable);
-		stream.BindMethod("IsSequential", &Nz::Stream::IsSequential);
-		stream.BindMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
-		stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
-		stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
-
-		stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
-			int argIndex = 2;
-
-			std::size_t length = lua.Check<std::size_t>(&argIndex);
-
-			std::unique_ptr<char[]> buffer(new char[length]);
-			std::size_t readLength = instance.Read(buffer.get(), length);
-
-			lua.PushString(Nz::String(buffer.get(), readLength));
-			return 1;
-		});
-
-		stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
-			int argIndex = 2;
-
-			std::size_t bufferSize = 0;
-			const char* buffer = lua.CheckString(argIndex, &bufferSize);
-
-			if (instance.IsTextModeEnabled())
-				lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
-			else
-				lua.Push(instance.Write(buffer, bufferSize));
-			return 1;
-		});
+				lua.PushString(ss);
+				return 1;
+			});
+		}
 
 		/*********************************** Nz::File ***********************************/
-		file.Inherit(stream);
-
-		file.SetConstructor([] (Nz::LuaInstance& lua, Nz::File* instance, std::size_t argumentCount)
+		file.Reset("Stream");
 		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
+			file.Inherit(stream);
 
-			int argIndex = 2;
-			switch (argCount)
+			file.SetConstructor([] (Nz::LuaInstance& lua, Nz::File* instance, std::size_t argumentCount)
 			{
-				case 0:
-					Nz::PlacementNew(instance);
-					return true;
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 
-				case 1:
+				int argIndex = 2;
+				switch (argCount)
 				{
-					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+					case 0:
+						Nz::PlacementNew(instance);
+						return true;
 
-					Nz::PlacementNew(instance, filePath);
-					return true;
+					case 1:
+					{
+						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+
+						Nz::PlacementNew(instance, filePath);
+						return true;
+					}
+
+					case 2:
+					{
+						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+						Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
+
+						Nz::PlacementNew(instance, filePath, openMode);
+						return true;
+					}
 				}
 
-				case 2:
+				lua.Error("No matching overload for File constructor");
+				return false;
+			});
+
+			file.BindMethod("Close", &Nz::File::Close);
+			file.BindMethod("Copy", &Nz::File::Copy);
+			file.BindMethod("Delete", &Nz::File::Delete);
+			file.BindMethod("EndOfFile", &Nz::File::EndOfFile);
+			file.BindMethod("Exists", &Nz::File::Exists);
+			file.BindMethod("GetCreationTime", &Nz::File::GetCreationTime);
+			file.BindMethod("GetFileName", &Nz::File::GetFileName);
+			file.BindMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
+			file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
+			file.BindMethod("IsOpen", &Nz::File::IsOpen);
+			file.BindMethod("Rename", &Nz::File::GetLastWriteTime);
+			file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
+			file.BindMethod("SetFile", &Nz::File::GetLastWriteTime);
+
+			file.BindStaticMethod("AbsolutePath", &Nz::File::AbsolutePath);
+			file.BindStaticMethod("ComputeHash", (Nz::ByteArray(*)(Nz::HashType, const Nz::String&)) &Nz::File::ComputeHash);
+			file.BindStaticMethod("Copy", &Nz::File::Copy);
+			file.BindStaticMethod("Delete", &Nz::File::Delete);
+			file.BindStaticMethod("Exists", &Nz::File::Exists);
+			//fileClass.SetStaticMethod("GetCreationTime", &Nz::File::GetCreationTime);
+			file.BindStaticMethod("GetDirectory", &Nz::File::GetDirectory);
+			//fileClass.SetStaticMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
+			//fileClass.SetStaticMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
+			file.BindStaticMethod("GetSize", &Nz::File::GetSize);
+			file.BindStaticMethod("IsAbsolute", &Nz::File::IsAbsolute);
+			file.BindStaticMethod("NormalizePath", &Nz::File::NormalizePath);
+			file.BindStaticMethod("NormalizeSeparators", &Nz::File::NormalizeSeparators);
+			file.BindStaticMethod("Rename", &Nz::File::Rename);
+
+			// Manual
+			file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+
+				int argIndex = 2;
+				switch (argCount)
 				{
-					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
-					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
+					case 0:
+					case 1:
+						return lua.Push(instance.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
 
-					Nz::PlacementNew(instance, filePath, openMode);
-					return true;
+					case 2:
+					{
+						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+						Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
+						return lua.Push(instance.Open(filePath, openMode));
+					}
 				}
-			}
 
-			lua.Error("No matching overload for File constructor");
-			return false;
-		});
+				lua.Error("No matching overload for method Open");
+				return 0;
+			});
 
-		file.BindMethod("Close", &Nz::File::Close);
-		file.BindMethod("Copy", &Nz::File::Copy);
-		file.BindMethod("Delete", &Nz::File::Delete);
-		file.BindMethod("EndOfFile", &Nz::File::EndOfFile);
-		file.BindMethod("Exists", &Nz::File::Exists);
-		file.BindMethod("GetCreationTime", &Nz::File::GetCreationTime);
-		file.BindMethod("GetFileName", &Nz::File::GetFileName);
-		file.BindMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
-		file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		file.BindMethod("IsOpen", &Nz::File::IsOpen);
-		file.BindMethod("Rename", &Nz::File::GetLastWriteTime);
-		file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		file.BindMethod("SetFile", &Nz::File::GetLastWriteTime);
+			file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
-		file.BindStaticMethod("AbsolutePath", &Nz::File::AbsolutePath);
-		file.BindStaticMethod("ComputeHash", (Nz::ByteArray (*)(Nz::HashType, const Nz::String&)) &Nz::File::ComputeHash);
-		file.BindStaticMethod("Copy", &Nz::File::Copy);
-		file.BindStaticMethod("Delete", &Nz::File::Delete);
-		file.BindStaticMethod("Exists", &Nz::File::Exists);
-		//fileClass.SetStaticMethod("GetCreationTime", &Nz::File::GetCreationTime);
-		file.BindStaticMethod("GetDirectory", &Nz::File::GetDirectory);
-		//fileClass.SetStaticMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
-		//fileClass.SetStaticMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-		file.BindStaticMethod("GetSize", &Nz::File::GetSize);
-		file.BindStaticMethod("IsAbsolute", &Nz::File::IsAbsolute);
-		file.BindStaticMethod("NormalizePath", &Nz::File::NormalizePath);
-		file.BindStaticMethod("NormalizeSeparators", &Nz::File::NormalizeSeparators);
-		file.BindStaticMethod("Rename", &Nz::File::Rename);
+				int argIndex = 2;
+				switch (argCount)
+				{
+					case 1:
+						return lua.Push(instance.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
 
-		// Manual
-		file.BindMethod("Open", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
+					case 2:
+					{
+						Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
+						Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
+						return lua.Push(instance.SetCursorPos(curPos, offset));
+					}
+				}
+
+				lua.Error("No matching overload for method SetCursorPos");
+				return 0;
+			});
+
+			file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t /*argumentCount*/) -> int {
+				Nz::StringStream ss("File(");
+				if (instance.IsOpen())
+					ss << "Path: " << instance.GetPath();
+
+				ss << ')';
+
+				lua.PushString(ss);
+				return 1;
+			});
+		}
+
+		/*********************************** Nz::Stream ***********************************/
+		stream.Reset("Stream");
 		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+			stream.BindMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
+			stream.BindMethod("Flush", &Nz::Stream::Flush);
+			stream.BindMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
+			stream.BindMethod("GetDirectory", &Nz::Stream::GetDirectory);
+			stream.BindMethod("GetPath", &Nz::Stream::GetPath);
+			stream.BindMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
+			stream.BindMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
+			stream.BindMethod("GetSize", &Nz::Stream::GetSize);
+			stream.BindMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
+			stream.BindMethod("IsReadable", &Nz::Stream::IsReadable);
+			stream.BindMethod("IsSequential", &Nz::Stream::IsSequential);
+			stream.BindMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
+			stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
+			stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-			int argIndex = 2;
-			switch (argCount)
-			{
-				case 0:
-				case 1:
-					return lua.Push(instance.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
+			stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
+				int argIndex = 2;
 
-				case 2:
-				{
-					Nz::String filePath = lua.Check<Nz::String>(&argIndex);
-					Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
-					return lua.Push(instance.Open(filePath, openMode));
-				}
-			}
+				std::size_t length = lua.Check<std::size_t>(&argIndex);
 
-			lua.Error("No matching overload for method Open");
-			return 0;
-		});
+				std::unique_ptr<char[]> buffer(new char[length]);
+				std::size_t readLength = instance.Read(buffer.get(), length);
 
-		file.BindMethod("SetCursorPos", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+				lua.PushString(Nz::String(buffer.get(), readLength));
+				return 1;
+			});
 
-			int argIndex = 2;
-			switch (argCount)
-			{
-				case 1:
-					return lua.Push(instance.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
+			stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
+				int argIndex = 2;
 
-				case 2:
-				{
-					Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
-					Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
-					return lua.Push(instance.SetCursorPos(curPos, offset));
-				}
-			}
+				std::size_t bufferSize = 0;
+				const char* buffer = lua.CheckString(argIndex, &bufferSize);
 
-			lua.Error("No matching overload for method SetCursorPos");
-			return 0;
-		});
-
-		file.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::File& instance, std::size_t /*argumentCount*/) -> int {
-			Nz::StringStream ss("File(");
-			if (instance.IsOpen())
-				ss << "Path: " << instance.GetPath();
-
-			ss << ')';
-
-			lua.PushString(ss);
-			return 1;
-		});
+				if (instance.IsTextModeEnabled())
+					lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
+				else
+					lua.Push(instance.Write(buffer, bufferSize));
+				return 1;
+			});
+		}
 	}
 
 	/*!
@@ -286,8 +300,7 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the Core classes
 	*/
-
-	void LuaBinding::RegisterCore(Nz::LuaInstance& instance)
+	void LuaBinding_Core::Register(Nz::LuaInstance& instance)
 	{
 		// Classes
 		clock.Register(instance);
