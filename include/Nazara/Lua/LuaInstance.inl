@@ -4,6 +4,7 @@
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
@@ -99,17 +100,38 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		Flags<T> flags;
+		return LuaImplQueryArg(instance, index, &flags, TypeTag<decltype(flags)>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		Flags<T> flags;
+		return LuaImplQueryArg(instance, index, &flags, Flags<T>(defValue), TypeTag<decltype(flags)>());
+	}
+
+	template<typename E>
+	unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Flags<E>* arg, TypeTag<Flags<E>>)
+	{
+		*arg = Flags<E>(instance.CheckBoundInteger<UInt32>(index));
+		return 1;
 	}
 
 	template<typename T>
@@ -184,10 +206,24 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		using EnumT = typename std::underlying_type<T>::type;
 		return LuaImplReplyVal(instance, static_cast<EnumT>(val), TypeTag<EnumT>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
+	{
+		Flags<T> flags(val);
+		return LuaImplReplyVal(instance, flags, TypeTag<decltype(flags)>());
+	}
+
+	template<typename E>
+	int LuaImplReplyVal(const LuaInstance& instance, Flags<E> val, TypeTag<Flags<E>>)
+	{
+		UInt32 bitField(val);
+		return LuaImplReplyVal(instance, bitField, TypeTag<decltype(bitField)>());
 	}
 
 	template<typename T>

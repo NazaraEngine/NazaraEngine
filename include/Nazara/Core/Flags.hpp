@@ -22,6 +22,7 @@ namespace Nz
 			constexpr Flags(E enumVal);
 
 			explicit constexpr operator bool() const;
+			explicit constexpr operator UInt32() const;
 
 			constexpr Flags operator~() const;
 			constexpr Flags operator&(Flags rhs) const;
