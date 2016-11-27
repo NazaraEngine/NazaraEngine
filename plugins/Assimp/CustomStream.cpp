@@ -89,7 +89,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		{
 			openModeEnum |= OpenMode_ReadOnly;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExit;
+				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExist;
 		}
 		else if (std::strchr(openMode, 'w'))
 		{

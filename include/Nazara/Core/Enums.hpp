@@ -81,7 +81,7 @@ namespace Nz
 
 		OpenMode_Append,    // Disable writing on existing parts and put the cursor at the end
 		OpenMode_Lock,      // Disable modifying the file before it is open
-		OpenMode_MustExit,  // Fail if the file doesn't exists, even if opened in write mode
+		OpenMode_MustExist, // Fail if the file doesn't exists, even if opened in write mode
 		OpenMode_ReadOnly,  // Open in read only
 		OpenMode_Text,      // Open in text mod
 		OpenMode_Truncate,  // Create the file if it doesn't exist and empty it if it exists
