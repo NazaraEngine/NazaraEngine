@@ -344,6 +344,8 @@ namespace Ndk
 
 		keyboard.PushGlobalTable(instance);
 		{
+			static_assert(Nz::Keyboard::Count == 121, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
+
 			instance.PushField("Undefined", Nz::Keyboard::Undefined);
 
 			// A-Z
@@ -426,5 +428,19 @@ namespace Ndk
 			instance.PushField("ScrollLock",        Nz::Keyboard::ScrollLock);
 		}
 		instance.Pop();
+
+		static_assert(Nz::WindowStyle_Max + 1 == 6, "Nz::WindowStyle has been updated but change was not reflected to Lua binding");
+		instance.PushTable(0, Nz::WindowStyle_Max + 1);
+		{
+			instance.PushField("None",       Nz::WindowStyle_None);
+			instance.PushField("Fullscreen", Nz::WindowStyle_Fullscreen);
+			instance.PushField("Closable",   Nz::WindowStyle_Closable);
+			instance.PushField("Resizable",  Nz::WindowStyle_Resizable);
+			instance.PushField("Titlebar",   Nz::WindowStyle_Titlebar);
+			instance.PushField("Threaded",   Nz::WindowStyle_Threaded);
+		}
+		instance.SetGlobal("WindowStyle");
+
+
 	}
 }
