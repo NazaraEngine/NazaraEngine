@@ -34,6 +34,12 @@ namespace Nz
 	}
 
 	template<typename E>
+	constexpr Flags<E>::operator UInt32() const
+	{
+		return m_value;
+	}
+
+	template<typename E>
 	constexpr Flags<E> Flags<E>::operator~() const
 	{
 		return Flags(~m_value);
