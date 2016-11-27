@@ -15,307 +15,319 @@ namespace Ndk
 	LuaBinding_Base(binding)
 	{
 		/*********************************** Nz::AbstractImage **********************************/
-		abstractImage.BindMethod("GetBytesPerPixel", &Nz::AbstractImage::GetBytesPerPixel);
-		abstractImage.BindMethod("GetDepth", &Nz::AbstractImage::GetDepth, static_cast<Nz::UInt8>(0));
-		abstractImage.BindMethod("GetFormat", &Nz::AbstractImage::GetFormat);
-		abstractImage.BindMethod("GetHeight", &Nz::AbstractImage::GetHeight, static_cast<Nz::UInt8>(0));
-		abstractImage.BindMethod("GetLevelCount", &Nz::AbstractImage::GetLevelCount);
-		abstractImage.BindMethod("GetMaxLevel", &Nz::AbstractImage::GetMaxLevel);
-		abstractImage.BindMethod("GetSize", &Nz::AbstractImage::GetSize, static_cast<Nz::UInt8>(0));
-		abstractImage.BindMethod("GetType", &Nz::AbstractImage::GetType);
-		abstractImage.BindMethod("GetWidth", &Nz::AbstractImage::GetWidth, static_cast<Nz::UInt8>(0));
-		abstractImage.BindMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
-		abstractImage.BindMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
-
-		abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
+		abstractImage.Reset("AbstractImage");
 		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
-			switch (argCount)
-			{
-				case 0:
-					return lua.Push(instance->GetMemoryUsage());
+			abstractImage.BindMethod("GetBytesPerPixel", &Nz::AbstractImage::GetBytesPerPixel);
+			abstractImage.BindMethod("GetDepth", &Nz::AbstractImage::GetDepth, static_cast<Nz::UInt8>(0));
+			abstractImage.BindMethod("GetFormat", &Nz::AbstractImage::GetFormat);
+			abstractImage.BindMethod("GetHeight", &Nz::AbstractImage::GetHeight, static_cast<Nz::UInt8>(0));
+			abstractImage.BindMethod("GetLevelCount", &Nz::AbstractImage::GetLevelCount);
+			abstractImage.BindMethod("GetMaxLevel", &Nz::AbstractImage::GetMaxLevel);
+			abstractImage.BindMethod("GetSize", &Nz::AbstractImage::GetSize, static_cast<Nz::UInt8>(0));
+			abstractImage.BindMethod("GetType", &Nz::AbstractImage::GetType);
+			abstractImage.BindMethod("GetWidth", &Nz::AbstractImage::GetWidth, static_cast<Nz::UInt8>(0));
+			abstractImage.BindMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
+			abstractImage.BindMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
 
-				case 1:
+			abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
+				switch (argCount)
 				{
-					int argIndex = 2;
-					Nz::UInt8 level(lua.Check<Nz::UInt8>(&argIndex));
+					case 0:
+						return lua.Push(instance->GetMemoryUsage());
 
-					return lua.Push(instance->GetMemoryUsage(level));
+					case 1:
+					{
+						int argIndex = 2;
+						Nz::UInt8 level(lua.Check<Nz::UInt8>(&argIndex));
+
+						return lua.Push(instance->GetMemoryUsage(level));
+					}
 				}
-			}
 
-			lua.Error("No matching overload for method GetMemoryUsage");
-			return 0;
-		});
+				lua.Error("No matching overload for method GetMemoryUsage");
+				return 0;
+			});
 
-		abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 6U);
-			int argIndex = 2;
-
-			std::size_t bufferSize = 0;
-			const Nz::UInt8* pixels = reinterpret_cast<const Nz::UInt8*>(lua.CheckString(argIndex++, &bufferSize));
-
-			if (argCount < 2 || lua.IsOfType(2, Nz::LuaType_Number))
+			abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
 			{
-				// bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
-				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
-				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
-				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 6U);
+				int argIndex = 2;
 
-				///TODO: Buffer checks (Nz::ByteBufferView ?)
-				return lua.Push(instance->Update(pixels, srcWidth, srcHeight, level));
-			}
-			/* Disabled until Box and Rect have been ported
-			else if (lua.IsOfType(2, "Box"))
-			{
-				// bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
-				Nz::Boxui box = lua.Check<Nz::Boxui>(&argIndex);
-				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
-				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
-				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
+				std::size_t bufferSize = 0;
+				const Nz::UInt8* pixels = reinterpret_cast<const Nz::UInt8*>(lua.CheckString(argIndex++, &bufferSize));
 
-				///TODO: Buffer checks (Nz::ByteBufferView ?)
-				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
-			}
-			else if (lua.IsOfType(2, "Rect"))
-			{
-				// bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
-				Nz::Rectui box = lua.Check<Nz::Rectui>(&argIndex);
-				unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
-				unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
-				Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
+				if (argCount < 2 || lua.IsOfType(2, Nz::LuaType_Number))
+				{
+					// bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+					unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+					unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+					Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
 
-				///TODO: Buffer checks (Nz::ByteBufferView ?)
-				return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
-			}*/
+					///TODO: Buffer checks (Nz::ByteBufferView ?)
+					return lua.Push(instance->Update(pixels, srcWidth, srcHeight, level));
+				}
+				/* Disabled until Box and Rect have been ported
+				else if (lua.IsOfType(2, "Box"))
+				{
+					// bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+					Nz::Boxui box = lua.Check<Nz::Boxui>(&argIndex);
+					unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+					unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+					Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
 
-			lua.Error("No matching overload for method Update");
-			return 0;
-		});
+					///TODO: Buffer checks (Nz::ByteBufferView ?)
+					return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
+				}
+				else if (lua.IsOfType(2, "Rect"))
+				{
+					// bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0)
+					Nz::Rectui box = lua.Check<Nz::Rectui>(&argIndex);
+					unsigned int srcWidth = lua.Check<unsigned int>(&argIndex, 0);
+					unsigned int srcHeight = lua.Check<unsigned int>(&argIndex, 0);
+					Nz::UInt8 level = lua.Check<Nz::UInt8>(&argIndex, 0);
+
+					///TODO: Buffer checks (Nz::ByteBufferView ?)
+					return lua.Push(abstractImage->Update(pixels, srcWidth, srcHeight, level));
+				}*/
+
+				lua.Error("No matching overload for method Update");
+				return 0;
+			});
+		}
 
 		/*********************************** Nz::Font **********************************/
-		font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* instance, std::size_t /*argumentCount*/)
+		font.Reset("Font");
 		{
-			Nz::PlacementNew(instance, Nz::Font::New());
-			return true;
-		});
-
-		font.BindMethod("ClearGlyphCache",    &Nz::Font::ClearGlyphCache);
-		font.BindMethod("ClearKerningCache",  &Nz::Font::ClearKerningCache);
-		font.BindMethod("ClearSizeInfoCache", &Nz::Font::ClearSizeInfoCache);
-
-		font.BindMethod("Destroy", &Nz::Font::Destroy);
-
-		font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
-
-			int argIndex = 2;
-			switch (argCount)
+			font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* instance, std::size_t /*argumentCount*/)
 			{
-				case 0:
-					lua.Push(instance->GetCachedGlyphCount());
-					return 1;
+				Nz::PlacementNew(instance, Nz::Font::New());
+				return true;
+			});
 
-				case 2:
+			font.BindMethod("ClearGlyphCache", &Nz::Font::ClearGlyphCache);
+			font.BindMethod("ClearKerningCache", &Nz::Font::ClearKerningCache);
+			font.BindMethod("ClearSizeInfoCache", &Nz::Font::ClearSizeInfoCache);
+
+			font.BindMethod("Destroy", &Nz::Font::Destroy);
+
+			font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+
+				int argIndex = 2;
+				switch (argCount)
 				{
-					unsigned int characterSize = lua.Check<unsigned int>(&argIndex);
-					Nz::UInt32 style = lua.Check<Nz::UInt32>(&argIndex);
+					case 0:
+						lua.Push(instance->GetCachedGlyphCount());
+						return 1;
 
-					lua.Push(instance->GetCachedGlyphCount(characterSize, style));
-					return 1;
+					case 2:
+					{
+						unsigned int characterSize = lua.Check<unsigned int>(&argIndex);
+						Nz::UInt32 style = lua.Check<Nz::UInt32>(&argIndex);
+
+						lua.Push(instance->GetCachedGlyphCount(characterSize, style));
+						return 1;
+					}
 				}
-			}
 
-			lua.Error("No matching overload for method GetCachedGlyphCount");
-			return 0;
-		});
+				lua.Error("No matching overload for method GetCachedGlyphCount");
+				return 0;
+			});
 
-		font.BindMethod("GetFamilyName",      &Nz::Font::GetFamilyName);
-		font.BindMethod("GetKerning",         &Nz::Font::GetKerning);
-		font.BindMethod("GetGlyphBorder",     &Nz::Font::GetGlyphBorder);
-		font.BindMethod("GetMinimumStepSize", &Nz::Font::GetMinimumStepSize);
-		font.BindMethod("GetSizeInfo",        &Nz::Font::GetSizeInfo);
-		font.BindMethod("GetStyleName",       &Nz::Font::GetStyleName);
+			font.BindMethod("GetFamilyName", &Nz::Font::GetFamilyName);
+			font.BindMethod("GetKerning", &Nz::Font::GetKerning);
+			font.BindMethod("GetGlyphBorder", &Nz::Font::GetGlyphBorder);
+			font.BindMethod("GetMinimumStepSize", &Nz::Font::GetMinimumStepSize);
+			font.BindMethod("GetSizeInfo", &Nz::Font::GetSizeInfo);
+			font.BindMethod("GetStyleName", &Nz::Font::GetStyleName);
 
-		font.BindMethod("IsValid", &Nz::Font::IsValid);
+			font.BindMethod("IsValid", &Nz::Font::IsValid);
 
-		font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
+			font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
 
-		font.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
+			font.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
 
-		font.BindMethod("SetGlyphBorder",     &Nz::Font::SetGlyphBorder);
-		font.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
+			font.BindMethod("SetGlyphBorder", &Nz::Font::SetGlyphBorder);
+			font.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
 
-		font.BindStaticMethod("GetDefault",                &Nz::Font::GetDefault);
-		font.BindStaticMethod("GetDefaultGlyphBorder",     &Nz::Font::GetDefaultGlyphBorder);
-		font.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
+			font.BindStaticMethod("GetDefault", &Nz::Font::GetDefault);
+			font.BindStaticMethod("GetDefaultGlyphBorder", &Nz::Font::GetDefaultGlyphBorder);
+			font.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
 
-		font.BindStaticMethod("SetDefaultGlyphBorder",     &Nz::Font::SetDefaultGlyphBorder);
-		font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
+			font.BindStaticMethod("SetDefaultGlyphBorder", &Nz::Font::SetDefaultGlyphBorder);
+			font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
+		}
 
 		/*********************************** Nz::Keyboard **********************************/
-		keyboard.BindStaticMethod("GetKeyName",   &Nz::Keyboard::GetKeyName);
-		keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
+		keyboard.Reset("Keyboard");
+		{
+			keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
+			keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
+		}
 
 		/*********************************** Nz::Node **********************************/
-		node.BindMethod("GetBackward", &Nz::Node::GetBackward);
-		//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
-		node.BindMethod("GetDown", &Nz::Node::GetDown);
-		node.BindMethod("GetForward", &Nz::Node::GetForward);
-		node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
-		node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
-		node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
-		node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
-		//nodeClass.SetMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
-		node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
-		node.BindMethod("GetLeft", &Nz::Node::GetLeft);
-		node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
-		//nodeClass.SetMethod("GetParent", &Nz::Node::GetParent);
-		node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
-		node.BindMethod("GetRight", &Nz::Node::GetRight);
-		//nodeClass.SetMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
-		node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
-		//nodeClass.SetMethod("GetTransformMatrix", &Nz::Node::GetTransformMatrix);
-		node.BindMethod("GetUp", &Nz::Node::GetUp);
-
-		node.BindMethod("HasChilds", &Nz::Node::HasChilds);
-
-		node.BindMethod("GetBackward", &Nz::Node::GetBackward);
-		node.BindMethod("GetDown", &Nz::Node::GetDown);
-		node.BindMethod("GetForward", &Nz::Node::GetForward);
-		node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
-		node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
-		node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
-		node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
-		node.BindMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
-		node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
-		node.BindMethod("GetLeft", &Nz::Node::GetLeft);
-		node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
-		node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
-		node.BindMethod("GetRight", &Nz::Node::GetRight);
-		node.BindMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
-		node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
-		node.BindMethod("GetUp", &Nz::Node::GetUp);
-
-		node.BindMethod("SetInitialPosition", (void(Nz::Node::*)(const Nz::Vector3f&)) &Nz::Node::SetInitialPosition);
-		node.BindMethod("SetInitialRotation", (void(Nz::Node::*)(const Nz::Quaternionf&)) &Nz::Node::SetInitialRotation);
-
-		node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
-		node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
-
-		node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
+		node.Reset("Node");
 		{
-			int argIndex = 2;
+			node.BindMethod("GetBackward", &Nz::Node::GetBackward);
+					//nodeClass.SetMethod("GetChilds", &Nz::Node::GetChilds);
+			node.BindMethod("GetDown", &Nz::Node::GetDown);
+			node.BindMethod("GetForward", &Nz::Node::GetForward);
+			node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
+			node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
+			node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
+			node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
+			//nodeClass.SetMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
+			node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
+			node.BindMethod("GetLeft", &Nz::Node::GetLeft);
+			node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
+			//nodeClass.SetMethod("GetParent", &Nz::Node::GetParent);
+			node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
+			node.BindMethod("GetRight", &Nz::Node::GetRight);
+			//nodeClass.SetMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
+			node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
+			//nodeClass.SetMethod("GetTransformMatrix", &Nz::Node::GetTransformMatrix);
+			node.BindMethod("GetUp", &Nz::Node::GetUp);
 
-			Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
-			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-			instance.Move(offset, coordSys);
+			node.BindMethod("HasChilds", &Nz::Node::HasChilds);
 
-			return 0;
-		});
+			node.BindMethod("GetBackward", &Nz::Node::GetBackward);
+			node.BindMethod("GetDown", &Nz::Node::GetDown);
+			node.BindMethod("GetForward", &Nz::Node::GetForward);
+			node.BindMethod("GetInheritPosition", &Nz::Node::GetInheritPosition);
+			node.BindMethod("GetInheritRotation", &Nz::Node::GetInheritRotation);
+			node.BindMethod("GetInheritScale", &Nz::Node::GetInheritScale);
+			node.BindMethod("GetInitialPosition", &Nz::Node::GetInitialPosition);
+			node.BindMethod("GetInitialRotation", &Nz::Node::GetInitialRotation);
+			node.BindMethod("GetInitialScale", &Nz::Node::GetInitialScale);
+			node.BindMethod("GetLeft", &Nz::Node::GetLeft);
+			node.BindMethod("GetNodeType", &Nz::Node::GetNodeType);
+			node.BindMethod("GetPosition", &Nz::Node::GetPosition, Nz::CoordSys_Global);
+			node.BindMethod("GetRight", &Nz::Node::GetRight);
+			node.BindMethod("GetRotation", &Nz::Node::GetRotation, Nz::CoordSys_Global);
+			node.BindMethod("GetScale", &Nz::Node::GetScale, Nz::CoordSys_Global);
+			node.BindMethod("GetUp", &Nz::Node::GetUp);
 
-		node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
-		{
-			int argIndex = 2;
+			node.BindMethod("SetInitialPosition", (void(Nz::Node::*)(const Nz::Vector3f&)) &Nz::Node::SetInitialPosition);
+			node.BindMethod("SetInitialRotation", (void(Nz::Node::*)(const Nz::Quaternionf&)) &Nz::Node::SetInitialRotation);
 
-			Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
-			Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-			instance.Rotate(rotation, coordSys);
+			node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
+			node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-			return 0;
-		});
-
-		node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
-
-			int argIndex = 2;
-			switch (argCount)
+			node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
 			{
-				case 1:
-				{
-					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-						instance.Scale(lua.Check<float>(&argIndex));
-					else
-						instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+				int argIndex = 2;
 
-					return 0;
-				}
+				Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
+				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+				instance.Move(offset, coordSys);
 
-				case 3:
-					instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
-					return 0;
-			}
+				return 0;
+			});
 
-			lua.Error("No matching overload for method Scale");
-			return 0;
-		});
-
-		node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
-
-			int argIndex = 2;
-			switch (argCount)
+			node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
 			{
-				case 1:
-				case 2:
+				int argIndex = 2;
+
+				Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
+				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+				instance.Rotate(rotation, coordSys);
+
+				return 0;
+			});
+
+			node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
+
+				int argIndex = 2;
+				switch (argCount)
 				{
-					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+					case 1:
 					{
-						float scale = lua.Check<float>(&argIndex);
-						Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-						instance.SetScale(scale, coordSys);
+						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+							instance.Scale(lua.Check<float>(&argIndex));
+						else
+							instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+
+						return 0;
 					}
-					else
-						instance.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
 
-					return 0;
+					case 3:
+						instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+						return 0;
 				}
 
-				case 3:
-				case 4:
-				{
-					Nz::Vector3f scale = lua.Check<Nz::Vector3f>(&argIndex);
-					Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+				lua.Error("No matching overload for method Scale");
+				return 0;
+			});
 
-					instance.SetScale(scale, coordSys);
-					return 0;
-				}
-			}
-
-			lua.Error("No matching overload for method SetScale");
-			return 0;
-		});
-
-		node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
-		{
-			std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
-
-			int argIndex = 2;
-			switch (argCount)
+			node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
 			{
-				case 1:
-				{
-					if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-						instance.SetInitialScale(lua.Check<float>(&argIndex));
-					else
-						instance.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
-					return 0;
+				int argIndex = 2;
+				switch (argCount)
+				{
+					case 1:
+					case 2:
+					{
+						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+						{
+							float scale = lua.Check<float>(&argIndex);
+							Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+							instance.SetScale(scale, coordSys);
+						}
+						else
+							instance.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
+
+						return 0;
+					}
+
+					case 3:
+					case 4:
+					{
+						Nz::Vector3f scale = lua.Check<Nz::Vector3f>(&argIndex);
+						Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+
+						instance.SetScale(scale, coordSys);
+						return 0;
+					}
 				}
 
-				case 2:
-				case 3:
-					instance.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
-					return 0;
-			}
+				lua.Error("No matching overload for method SetScale");
+				return 0;
+			});
 
-			lua.Error("No matching overload for method SetInitialScale");
-			return 0;
-		});
+			node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
+
+				int argIndex = 2;
+				switch (argCount)
+				{
+					case 1:
+					{
+						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+							instance.SetInitialScale(lua.Check<float>(&argIndex));
+						else
+							instance.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
+
+						return 0;
+					}
+
+					case 2:
+					case 3:
+						instance.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
+						return 0;
+				}
+
+				lua.Error("No matching overload for method SetInitialScale");
+				return 0;
+			});
+		}
 	}
 
 	/*!
