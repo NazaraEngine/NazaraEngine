@@ -116,15 +116,25 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
 	{
-		Flags<T> flags;
-		return LuaImplQueryArg(instance, index, &flags, TypeTag<decltype(flags)>());
+		using UnderlyingT = std::underlying_type_t<T>;
+
+		UnderlyingT pot2Val;
+		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, TypeTag<UnderlyingT>());
+
+		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
+		return 1;
 	}
 
 	template<typename T>
 	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
-		Flags<T> flags;
-		return LuaImplQueryArg(instance, index, &flags, Flags<T>(defValue), TypeTag<decltype(flags)>());
+		using UnderlyingT = std::underlying_type_t<T>;
+
+		UnderlyingT pot2Val;
+		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, 1U << static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
+
+		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
+		return 1;
 	}
 
 	template<typename E>
