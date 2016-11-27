@@ -34,7 +34,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Window::Create(VideoMode mode, const String& title, UInt32 style)
+	bool Window::Create(VideoMode mode, const String& title, WindowStyleFlags style)
 	{
 		// Si la fenêtre est déjà ouverte, nous conservons sa position
 		bool opened = IsOpen();
@@ -228,7 +228,7 @@ namespace Nz
 		return m_impl->GetSize();
 	}
 
-	UInt32 Window::GetStyle() const
+	WindowStyleFlags Window::GetStyle() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
