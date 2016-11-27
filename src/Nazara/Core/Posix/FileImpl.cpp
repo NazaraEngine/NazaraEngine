@@ -66,6 +66,9 @@ namespace Nz
 		if (mode & OpenMode_Append)
 			flags |= O_APPEND;
 
+		if (mode & OpenMode_MustExist)
+			flags &= ~O_CREAT;
+
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
