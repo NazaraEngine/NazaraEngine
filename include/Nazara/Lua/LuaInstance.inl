@@ -122,7 +122,7 @@ namespace Nz
 		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, TypeTag<UnderlyingT>());
 
 		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
-		return 1;
+		return ret;
 	}
 
 	template<typename T>
@@ -134,7 +134,7 @@ namespace Nz
 		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, 1U << static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
 
 		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
-		return 1;
+		return ret;
 	}
 
 	template<typename E>
@@ -232,8 +232,8 @@ namespace Nz
 	template<typename E>
 	int LuaImplReplyVal(const LuaInstance& instance, Flags<E> val, TypeTag<Flags<E>>)
 	{
-		UInt32 bitField(val);
-		return LuaImplReplyVal(instance, bitField, TypeTag<decltype(bitField)>());
+		instance.PushInteger(UInt32(val));
+		return 1;
 	}
 
 	template<typename T>
