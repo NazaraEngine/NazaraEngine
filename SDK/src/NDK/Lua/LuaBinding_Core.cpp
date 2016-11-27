@@ -337,16 +337,16 @@ namespace Ndk
 		instance.SetGlobal("HashType");
 
 		// Nz::OpenMode
-		static_assert(Nz::OpenMode_Max + 1 == 2 * (64), "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
-		instance.PushTable(0, 8);
+		static_assert(Nz::OpenMode_Max + 1 == 8, "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
+		instance.PushTable(0, Nz::OpenMode_Max + 1);
 		{
-			instance.PushField("Append", Nz::OpenMode_Append);
-			instance.PushField("NotOpen", Nz::OpenMode_NotOpen);
-			instance.PushField("Lock", Nz::OpenMode_Lock);
-			instance.PushField("ReadOnly", Nz::OpenMode_ReadOnly);
+			instance.PushField("Append",    Nz::OpenMode_Append);
+			instance.PushField("NotOpen",   Nz::OpenMode_NotOpen);
+			instance.PushField("Lock",      Nz::OpenMode_Lock);
+			instance.PushField("ReadOnly",  Nz::OpenMode_ReadOnly);
 			instance.PushField("ReadWrite", Nz::OpenMode_ReadWrite);
-			instance.PushField("Text", Nz::OpenMode_Text);
-			instance.PushField("Truncate", Nz::OpenMode_Truncate);
+			instance.PushField("Text",      Nz::OpenMode_Text);
+			instance.PushField("Truncate",  Nz::OpenMode_Truncate);
 			instance.PushField("WriteOnly", Nz::OpenMode_WriteOnly);
 		}
 		instance.SetGlobal("OpenMode");

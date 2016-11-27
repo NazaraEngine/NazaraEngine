@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			inline ByteStream(Stream* stream = nullptr);
-			ByteStream(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
+			ByteStream(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 			ByteStream(void* ptr, Nz::UInt64 size);
 			ByteStream(const void* ptr, Nz::UInt64 size);
 			ByteStream(const ByteStream&) = delete;
@@ -36,7 +36,7 @@ namespace Nz
 
 			inline void SetDataEndianness(Endianness endiannes);
 			inline void SetStream(Stream* stream);
-			void SetStream(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
+			void SetStream(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 			void SetStream(void* ptr, Nz::UInt64 size);
 			void SetStream(const void* ptr, Nz::UInt64 size);
 
