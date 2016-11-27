@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_CORE_HPP
 #define NAZARA_ENUMS_CORE_HPP
 
+#include <Nazara/Core/Flags.hpp>
+
 namespace Nz
 {
 	enum CoordSys
@@ -73,22 +75,30 @@ namespace Nz
 		HashType_Max = HashType_Whirlpool
 	};
 
-	enum OpenModeFlags
+	enum OpenMode
 	{
-		OpenMode_NotOpen   = 0x00, // Use the current mod of opening
+		OpenMode_NotOpen,   // Use the current mod of opening
 
-		OpenMode_Append    = 0x01, // Disable writing on existing parts and put the cursor at the end
-		OpenMode_Lock      = 0x02, // Disable modifying the file before it is open
-		OpenMode_MustExit  = 0x04, // Fail if the file doesn't exists, even if opened in write mode
-		OpenMode_ReadOnly  = 0x08, // Open in read only
-		OpenMode_Text      = 0x10, // Open in text mod
-		OpenMode_Truncate  = 0x20, // Create the file if it doesn't exist and empty it if it exists
-		OpenMode_WriteOnly = 0x40, // Open in write only, create the file if it doesn't exist
+		OpenMode_Append,    // Disable writing on existing parts and put the cursor at the end
+		OpenMode_Lock,      // Disable modifying the file before it is open
+		OpenMode_MustExit,  // Fail if the file doesn't exists, even if opened in write mode
+		OpenMode_ReadOnly,  // Open in read only
+		OpenMode_Text,      // Open in text mod
+		OpenMode_Truncate,  // Create the file if it doesn't exist and empty it if it exists
+		OpenMode_WriteOnly, // Open in write only, create the file if it doesn't exist
 
-		OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly, // Open in read and write
-
-		OpenMode_Max = OpenMode_WriteOnly * 2 - 1
+		OpenMode_Max = OpenMode_WriteOnly
 	};
+
+	template<>
+	struct EnableFlagsOperators<OpenMode>
+	{
+		static constexpr bool value = true;
+	};
+
+	using OpenModeFlags = Flags<OpenMode>;
+
+	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly;
 
 	enum ParameterType
 	{
@@ -173,15 +183,23 @@ namespace Nz
 		SphereType_Max = SphereType_UV
 	};
 
-	enum StreamOptionFlags
+	enum StreamOption
 	{
-		StreamOption_None = 0,
+		StreamOption_None,
 
-		StreamOption_Sequential = 0x1,
-		StreamOption_Text       = 0x2,
+		StreamOption_Sequential,
+		StreamOption_Text,
 
-		StreamOption_Max = StreamOption_Text * 2 - 1
+		StreamOption_Max = StreamOption_Text
 	};
+
+	template<>
+	struct EnableFlagsOperators<StreamOption>
+	{
+		static constexpr bool value = true;
+	};
+
+	using StreamOptionFlags = Flags<StreamOption>;
 
 	enum Ternary
 	{

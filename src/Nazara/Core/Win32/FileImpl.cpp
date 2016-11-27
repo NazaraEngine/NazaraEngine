@@ -55,12 +55,12 @@ namespace Nz
 		return position.QuadPart;
 	}
 
-	bool FileImpl::Open(const String& filePath, UInt32 mode)
+	bool FileImpl::Open(const String& filePath, OpenModeFlags mode)
 	{
 		DWORD access = 0;
 		DWORD shareMode = FILE_SHARE_READ;
 		DWORD openMode = 0;
-		
+
 		if (mode & OpenMode_ReadOnly)
 		{
 			access |= GENERIC_READ;
@@ -68,7 +68,7 @@ namespace Nz
 			if (mode & OpenMode_MustExit || (mode & OpenMode_WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
-		
+
 		if (mode & OpenMode_WriteOnly)
 		{
 			if (mode & OpenMode_Append)

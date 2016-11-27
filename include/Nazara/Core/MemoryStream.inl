@@ -24,7 +24,7 @@ namespace Nz
 	* \param byteArray Bytes to stream
 	* \param openMode Reading/writing mode for the stream
 	*/
-	inline MemoryStream::MemoryStream(ByteArray* byteArray, UInt32 openMode) :
+	inline MemoryStream::MemoryStream(ByteArray* byteArray, OpenModeFlags openMode) :
 	MemoryStream()
 	{
 		SetBuffer(byteArray, openMode);
