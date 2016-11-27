@@ -295,7 +295,7 @@ int main()
 					float sensitivity = 0.3f; // Sensibilité de la souris
 
 					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.roll = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
+					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
 					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
