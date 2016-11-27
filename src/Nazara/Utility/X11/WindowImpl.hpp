@@ -108,13 +108,12 @@ namespace Nz
 			xcb_randr_get_screen_info_reply_t m_oldVideoMode;
 			xcb_size_hints_t m_size_hints;
 			Thread m_thread;
-			UInt32 m_style;
+			WindowStyleFlags m_style;
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_ownsWindow;
 			bool m_smoothScrolling;
 			bool m_threadActive;
-			short m_scrolling;
 			Vector2i m_mousePos;
 			bool m_keyRepeat;
 
