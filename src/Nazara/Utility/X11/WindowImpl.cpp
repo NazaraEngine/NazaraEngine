@@ -113,7 +113,7 @@ namespace Nz
 		UpdateEventQueue(nullptr);
 	}
 
-	bool WindowImpl::Create(const VideoMode& mode, const String& title, UInt32 style)
+	bool WindowImpl::Create(const VideoMode& mode, const String& title, WindowStyleFlags style)
 	{
 		bool fullscreen = (style & Nz::WindowStyle_Fullscreen) != 0;
 		m_eventListener = true;
@@ -336,7 +336,7 @@ namespace Nz
 		return Vector2ui(m_size_hints.width, m_size_hints.height);
 	}
 
-	UInt32 WindowImpl::GetStyle() const
+	WindowStyleFlags WindowImpl::GetStyle() const
 	{
 		return m_style;
 	}

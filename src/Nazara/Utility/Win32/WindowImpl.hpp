@@ -37,7 +37,7 @@ namespace Nz
 			WindowImpl(WindowImpl&&) = delete; ///TODO?
 			~WindowImpl() = default;
 
-			bool Create(const VideoMode& mode, const String& title, UInt32 style);
+			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
 			bool Create(WindowHandle handle);
 
 			void Destroy();
@@ -49,7 +49,7 @@ namespace Nz
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
-			UInt32 GetStyle() const;
+			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
 			unsigned int GetWidth() const;
 
@@ -93,7 +93,7 @@ namespace Nz
 			HCURSOR m_cursor;
 			HWND m_handle;
 			LONG_PTR m_callback;
-			UInt32 m_style;
+			WindowStyleFlags m_style;
 			Vector2i m_maxSize;
 			Vector2i m_minSize;
 			Vector2i m_mousePos;

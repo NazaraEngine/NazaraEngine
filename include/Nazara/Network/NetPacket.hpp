@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -56,7 +56,7 @@ namespace Nz
 			void OnEmptyStream() override;
 
 			void FreeStream();
-			void InitStream(std::size_t minCapacity, UInt64 cursorPos, UInt32 openMode);
+			void InitStream(std::size_t minCapacity, UInt64 cursorPos, OpenModeFlags openMode);
 
 			static bool Initialize();
 			static void Uninitialize();
