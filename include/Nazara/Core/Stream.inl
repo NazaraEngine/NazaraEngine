@@ -15,7 +15,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	inline Stream::Stream(UInt32 streamOptions, UInt32 openMode) :
+	inline Stream::Stream(StreamOptionFlags streamOptions, OpenModeFlags openMode) :
 	m_openMode(openMode),
 	m_streamOptions(streamOptions)
 	{
@@ -53,7 +53,7 @@ namespace Nz
 	* \return Reading/writing mode for the stream
 	*/
 
-	inline UInt32 Stream::GetOpenMode() const
+	inline OpenModeFlags Stream::GetOpenMode() const
 	{
 		return m_openMode;
 	}
@@ -63,7 +63,7 @@ namespace Nz
 	* \return Options of the stream
 	*/
 
-	inline UInt32 Stream::GetStreamOptions() const
+	inline StreamOptionFlags Stream::GetStreamOptions() const
 	{
 		return m_streamOptions;
 	}
@@ -116,7 +116,7 @@ namespace Nz
 	* \param size Size meant to be read
 	*
 	* \remark Produces a NazaraAssert if stream is not readable
-	* \remark If preallocated space of buffer is less than the size, the behaviour is undefined
+	* \remark If preallocated space of buffer is less than the size, the behavior is undefined
 	*/
 
 	inline std::size_t Stream::Read(void* buffer, std::size_t size)
@@ -134,7 +134,7 @@ namespace Nz
 	* \param size Size meant to be written
 	*
 	* \remark Produces a NazaraAssert if stream is not writable
-	* \remark If preallocated space of buffer is less than the size, the behaviour is undefined
+	* \remark If preallocated space of buffer is less than the size, the behavior is undefined
 	*/
 
 	inline std::size_t Stream::Write(const void* buffer, std::size_t size)

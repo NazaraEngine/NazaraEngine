@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2015 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,7 +18,7 @@ namespace Nz
 	{
 		public:
 			inline MemoryStream();
-			inline MemoryStream(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
+			inline MemoryStream(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 			MemoryStream(const MemoryStream&) = default;
 			MemoryStream(MemoryStream&&) = default;
 			~MemoryStream() = default;
@@ -32,7 +32,7 @@ namespace Nz
 			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
-			void SetBuffer(ByteArray* byteArray, UInt32 openMode = OpenMode_ReadWrite);
+			void SetBuffer(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 			bool SetCursorPos(UInt64 offset) override;
 
 			MemoryStream& operator=(const MemoryStream&) = default;

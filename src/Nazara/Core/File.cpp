@@ -64,7 +64,7 @@ namespace Nz
 	* \param openMode Flag of the file
 	*/
 
-	File::File(const String& filePath, UInt32 openMode) :
+	File::File(const String& filePath, OpenModeFlags openMode) :
 	File()
 	{
 		Open(filePath, openMode);
@@ -311,7 +311,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(unsigned int openMode)
+	bool File::Open(OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 
@@ -352,7 +352,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(const String& filePath, unsigned int openMode)
+	bool File::Open(const String& filePath, OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 

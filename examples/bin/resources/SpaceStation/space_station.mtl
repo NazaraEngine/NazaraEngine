@@ -1,0 +1,12 @@
+# Exported by Nazara Engine
+
+# material count: 1
+newmtl material_0
+
+Ka 0 0 0
+Kd 0.6 0.6 0.6
+Ks 1 1 1
+ns 50
+map_Kd space_station_4_color.png
+map_Ks space_station_4_specular.png
+

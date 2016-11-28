@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_CONSOLE_HPP
 #define NDK_CONSOLE_HPP
 
@@ -99,3 +100,4 @@ namespace Ndk
 #include <NDK/Console.inl>
 
 #endif // NDK_CONSOLE_HPP
+#endif // NDK_SERVER

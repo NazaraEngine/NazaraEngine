@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	RenderWindow::RenderWindow(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters) :
+	RenderWindow::RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters) :
 	RenderTarget(), Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -121,7 +121,7 @@ namespace Nz
 		return true;
 	}
 
-	bool RenderWindow::Create(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters)
+	bool RenderWindow::Create(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters)
 	{
 		m_parameters = parameters;
 		return Window::Create(mode, title, style);

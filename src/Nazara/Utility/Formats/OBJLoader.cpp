@@ -265,8 +265,8 @@ namespace Nz
 
 					if (vertexIndices.texCoord > 0)
 					{
-						const Vector3f& uvw = texCoords[vertexIndices.texCoord-1];
-						vertex.uv.Set(uvw.x, (parameters.flipUVs) ? 1.f - uvw.y : uvw.y); // Inversion des UVs si demandé
+						Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
+						vertex.uv.Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
 					}
 					else
 						hasTexCoords = false;
