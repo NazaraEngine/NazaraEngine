@@ -135,7 +135,7 @@ namespace Nz
 	};
 
 	template<typename T>
-	class CullingList<T>::NoTestEntry : public CullingList::Entry<CullTest::NoTest>
+	class CullingList<T>::NoTestEntry : public CullingList::template Entry<CullTest::NoTest>
 	{
 		friend CullingList;
 
@@ -147,13 +147,13 @@ namespace Nz
 	};
 
 	template<typename T>
-	class CullingList<T>::SphereEntry : public CullingList::Entry<CullTest::Sphere>
+	class CullingList<T>::SphereEntry : public CullingList::template Entry<CullTest::Sphere>
 	{
 		friend CullingList;
 
 		public:
 			SphereEntry();
-		
+
 			void UpdateSphere(const Spheref& sphere);
 
 		private:
@@ -161,7 +161,7 @@ namespace Nz
 	};
 
 	template<typename T>
-	class CullingList<T>::VolumeEntry : public CullingList::Entry<CullTest::Volume>
+	class CullingList<T>::VolumeEntry : public CullingList::template Entry<CullTest::Volume>
 	{
 		friend CullingList;
 
