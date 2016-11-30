@@ -24,7 +24,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	ByteStream::ByteStream(ByteArray* byteArray, UInt32 openMode) :
+	ByteStream::ByteStream(ByteArray* byteArray, OpenModeFlags openMode) :
 	ByteStream()
 	{
 		SetStream(byteArray, openMode);
@@ -67,7 +67,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	void ByteStream::SetStream(ByteArray* byteArray, UInt32 openMode)
+	void ByteStream::SetStream(ByteArray* byteArray, OpenModeFlags openMode)
 	{
 		std::unique_ptr<Stream> stream(new MemoryStream(byteArray, openMode));
 

@@ -12,6 +12,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
@@ -22,10 +23,8 @@
 
 namespace Nz
 {
-	#if NAZARA_UTILITY_THREADED_WINDOW
 	class ConditionVariable;
 	class Mutex;
-	#endif
 	class Window;
 
 	#undef IsMinimized // Conflit avec la méthode du même nom
@@ -38,7 +37,7 @@ namespace Nz
 			WindowImpl(WindowImpl&&) = delete; ///TODO?
 			~WindowImpl() = default;
 
-			bool Create(const VideoMode& mode, const String& title, UInt32 style);
+			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
 			bool Create(WindowHandle handle);
 
 			void Destroy();
@@ -50,7 +49,7 @@ namespace Nz
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
-			UInt32 GetStyle() const;
+			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
 			unsigned int GetWidth() const;
 
@@ -84,38 +83,31 @@ namespace Nz
 
 		private:
 			bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+			void PrepareWindow(bool fullscreen);
 
 			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			static UInt32 RetrieveStyle(HWND window);
-			#if NAZARA_UTILITY_THREADED_WINDOW
-			static void WindowThread(HWND* handle, DWORD styleEx, const wchar_t* title, DWORD style, unsigned int x, unsigned int y, unsigned int width, unsigned int height, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
-			#endif
+			static void WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
 
 			HCURSOR m_cursor;
 			HWND m_handle;
 			LONG_PTR m_callback;
-			UInt32 m_style;
+			WindowStyleFlags m_style;
 			Vector2i m_maxSize;
 			Vector2i m_minSize;
 			Vector2i m_mousePos;
 			Vector2i m_position;
 			Vector2ui m_size;
-			#if NAZARA_UTILITY_THREADED_WINDOW
 			Thread m_thread;
-			#endif
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_keyRepeat;
 			bool m_mouseInside;
 			bool m_ownsWindow;
-			#if !NAZARA_UTILITY_THREADED_WINDOW
 			bool m_sizemove;
-			#endif
 			bool m_smoothScrolling;
-			#if NAZARA_UTILITY_THREADED_WINDOW
 			bool m_threadActive;
-			#endif
 			short m_scrolling;
 	};
 }

@@ -25,11 +25,16 @@
 #ifndef NDK_PREREQUESITES_HPP
 #define NDK_PREREQUESITES_HPP
 
+/*!
+* \defgroup NDK (NazaraSDK) Nazara Development Kit
+*  A library grouping every modules of Nazara into multiple higher-level features suchs as scene management (handled by an ECS), application, lua binding, etc.
+*/
+
 #include <Nazara/Prerequesites.hpp>
 
 // Importation/Exportation of the API
 #if defined(NAZARA_STATIC)
-  #define #define NDK_API
+  #define NDK_API
 #else
   #ifdef NDK_BUILD
 	  #define NDK_API NAZARA_EXPORT

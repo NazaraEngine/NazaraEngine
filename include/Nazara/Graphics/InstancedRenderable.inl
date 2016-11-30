@@ -5,11 +5,18 @@
 namespace Nz
 {
 	/*!
+	* \brief Constructs a InstancedRenderable object by default
+	*/
+	inline InstancedRenderable::InstancedRenderable() :
+	m_boundingVolumeUpdated(false)
+	{
+	}
+
+	/*!
 	* \brief Constructs a InstancedRenderable object by assignation
 	*
 	* \param renderable InstancedRenderable to copy into this
 	*/
-
 	inline InstancedRenderable::InstancedRenderable(const InstancedRenderable& renderable) :
 	RefCounted(),
 	m_boundingVolume(renderable.m_boundingVolume),
@@ -34,6 +41,8 @@ namespace Nz
 	inline void InstancedRenderable::InvalidateBoundingVolume()
 	{
 		m_boundingVolumeUpdated = false;
+
+		OnInstancedRenderableInvalidateBoundingVolume(this);
 	}
 
 	/*!
@@ -69,6 +78,7 @@ namespace Nz
 	inline void InstancedRenderable::UpdateBoundingVolume() const
 	{
 		MakeBoundingVolume();
+
 		m_boundingVolumeUpdated = true;
 	}
 }

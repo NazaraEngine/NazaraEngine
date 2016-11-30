@@ -10,8 +10,8 @@
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
 // On force la valeur de MANAGE_MEMORY en mode debug
-#if defined(NAZARA_DEBUG) && !NAZARA_PHYSICS_MANAGE_MEMORY
-	#undef NAZARA_PHYSICS_MANAGE_MEMORY
+#if defined(NAZARA_DEBUG) && !NAZARA_PHYSICS3D_MANAGE_MEMORY
+	#undef NAZARA_PHYSICS3D_MANAGE_MEMORY
 	#define NAZARA_PHYSICS3D_MANAGE_MEMORY 0
 #endif
 

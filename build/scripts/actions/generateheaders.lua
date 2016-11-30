@@ -76,7 +76,7 @@ ACTION.Function = function ()
 			error("Failed to create header file (" .. v.Target .. "): " .. err)
 		end
 
-		header:write("// This file was automatically generated on " .. os.date("%d %b %Y at %X") .. "\n\n")
+		header:write("// This file was automatically generated\n\n")
 		if (v.Header) then
 			header:write(v.Header)
 		end

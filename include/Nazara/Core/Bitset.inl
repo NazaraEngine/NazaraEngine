@@ -6,7 +6,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstdlib>
-#include <limits>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
 
@@ -122,13 +121,13 @@ namespace Nz
 	{
 		if (sizeof(T) <= sizeof(Block))
 		{
-			m_bitCount = std::numeric_limits<T>::digits;
+			m_bitCount = BitCount<T>();
 			m_blocks.push_back(static_cast<Block>(value));
 		}
 		else
 		{
 			// Note: I was kinda tired when I wrote this, there's probably a much easier method than checking bits to write bits
-			for (std::size_t bitPos = 0; bitPos < std::numeric_limits<T>::digits; bitPos++)
+			for (std::size_t bitPos = 0; bitPos < BitCount<T>(); bitPos++)
 			{
 				if (value & (T(1U) << bitPos))
 					UnboundedSet(bitPos, true);
@@ -137,11 +136,63 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Clears the content of the bitset, GetSize() is now equals to 0
+	* \brief Appends bits to the bitset
 	*
-	* \remark The memory allocated is not released
+	* This function extends the bitset with bits extracted from an integer value
+	*
+	* \param bits An integer value from where bits will be extracted
+	* \param bitCount Number of bits to extract from the value
+	*
+	* \remark This function does not require bitCount to be lower or equal to the number of bits of T, thus
+	*         reading 32 bits from a UInt8 will work (by extracting the first 8 bits values and appending 24 zeros afterneath).
+	*
+	* \see AppendBits
+	* \see Read
 	*/
+	template<typename Block, class Allocator>
+	template<typename T>
+	void Bitset<Block, Allocator>::AppendBits(T bits, std::size_t bitCount)
+	{
+		std::size_t bitShift = m_bitCount % bitsPerBlock;
+		m_bitCount += bitCount;
 
+		if (bitShift != 0)
+		{
+			std::size_t remainingBits = bitsPerBlock - bitShift;
+			m_blocks.back() |= Block(bits) << bitShift;
+			bits >>= bitsPerBlock - bitShift;
+
+			bitCount -= std::min(remainingBits, bitCount);
+		}
+
+		if (bitCount > 0)
+		{
+			std::size_t blockCount = ComputeBlockCount(bitCount);
+			for (std::size_t block = 0; block < blockCount - 1; ++block)
+			{
+				m_blocks.push_back(static_cast<Block>(bits));
+				bits = (BitCount<Block>() < BitCount<T>()) ? bits >> BitCount<Block>() : 0U;
+				bitCount -= BitCount<Block>();
+			}
+
+			// For the last iteration, mask out the bits we don't want
+			std::size_t remainingBits = bitCount;
+
+			bits &= ((Block(1U) << remainingBits) - 1U);
+			m_blocks.push_back(static_cast<Block>(bits));
+		}
+	}
+
+	/*!
+	* \brief Clears the content of the bitset
+	*
+	* This function clears the bitset content, resetting its bit and block count at zero.
+	*
+	* \remark This does not changes the bits values to zero but empties the bitset, to reset the bits use the Reset() function
+	* \remark This call does not changes the bitset capacity
+	*
+	* \see Reset()
+	*/
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Clear() noexcept
 	{
@@ -151,9 +202,9 @@ namespace Nz
 
 	/*!
 	* \brief Counts the number of bits set to 1
+	*
 	* \return Number of bits set to 1
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::Count() const
 	{
@@ -169,8 +220,9 @@ namespace Nz
 
 	/*!
 	* \brief Flips each bit of the bitset
+	*
+	* This function flips every bit of the bitset, which means every '1' turns into a '0' and conversely.
 	*/
-
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Flip()
 	{
@@ -182,9 +234,9 @@ namespace Nz
 
 	/*!
 	* \brief Finds the first bit set to one in the bitset
-	* \return Index of the first bit
+	*
+	* \return The 0-based index of the first bit enabled
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindFirst() const
 	{
@@ -192,14 +244,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Finds the next bit set to one in the bitset
-	* \return Index of the next bit if exists or npos
+	* \brief Finds the next enabled in the bitset
 	*
-	* \param bit Index of the bit, the search begin with bit + 1
+	* \param bit Index of the last bit found, which will not be treated by this function
 	*
-	* \remark Produce a NazaraAssert if bit is greather than number of bits in bitset
+	* \return Index of the next enabled bit or npos if all the following bits are disabled
+	*
+	* \remark This function is typically used in for-loops to iterate on bits
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindNext(std::size_t bit) const
 	{
@@ -276,6 +328,76 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Read a byte sequence into a bitset
+	*
+	* This function extends the bitset with bits read from a byte sequence
+	*
+	* \param ptr A pointer to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	*
+	* \returns A pointer to the next byte to read along with the next bit index (useful when reading multiple times)
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const void* ptr, std::size_t bitCount)
+	{
+		return Read(PointerSequence(ptr, 0U), bitCount);
+	}
+
+	/*!
+	* \brief Read a byte sequence into a bitset
+	*
+	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
+	*
+	* \param sequence A pointer sequence to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	*
+	* \returns A pointer to the next byte to read along with the next bit index (useful when reading multiple times)
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const PointerSequence& sequence, std::size_t bitCount)
+	{
+		NazaraAssert(sequence.first, "Invalid pointer sequence");
+		NazaraAssert(sequence.second < 8, "Invalid next bit index (must be < 8)");
+
+		std::size_t totalBitCount = sequence.second + bitCount;
+
+		const UInt8* u8Ptr = static_cast<const UInt8*>(sequence.first);
+		const UInt8* endPtr = u8Ptr + ((totalBitCount != 0) ? (totalBitCount - 1) / 8 : 0);
+		const UInt8* nextPtr = endPtr + ((totalBitCount % 8 != 0) ? 0 : 1);
+
+		// Read the first block apart to apply a mask on the first byte if necessary
+		if (sequence.second != 0)
+		{
+			UInt8 mask = ~((1U << sequence.second) - 1U);
+
+			std::size_t readCount = std::min(bitCount, 8 - sequence.second);
+			AppendBits(Block(*u8Ptr++ & mask) >> sequence.second, readCount);
+			bitCount -= readCount;
+		}
+
+		// And then read the remaining bytes
+		while (u8Ptr <= endPtr)
+		{
+			std::size_t bitToRead = std::min<std::size_t>(bitCount, 8);
+			AppendBits(*u8Ptr++, bitToRead);
+			bitCount -= bitToRead;
+		}
+
+		// Returns informations to continue reading
+		return PointerSequence(nextPtr, totalBitCount % 8);
+	}
+
+	/*!
 	* \brief Performs the "AND" operator between two bitsets
 	*
 	* \param a First bitset
@@ -289,14 +411,16 @@ namespace Nz
 	{
 		std::pair<std::size_t, std::size_t> minmax = std::minmax(a.GetBlockCount(), b.GetBlockCount());
 
-		// We reinitialise our blocks with zero
-		m_blocks.clear();
-		m_blocks.resize(minmax.second, 0U);
+		m_blocks.resize(minmax.second);
 		m_bitCount = std::max(a.GetSize(), b.GetSize());
 
 		// In case of the "AND", we can stop with the smallest size (because x & 0 = 0)
 		for (std::size_t i = 0; i < minmax.first; ++i)
 			m_blocks[i] = a.GetBlock(i) & b.GetBlock(i);
+
+		// And then reset every other block to zero
+		for (std::size_t i = minmax.first; i < minmax.second; ++i)
+			m_blocks[i] = 0U;
 
 		ResetExtraBits();
 	}
@@ -459,6 +583,30 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Reverse the order of bits in a bitset
+	*
+	* Reverse the order of bits in the bitset (first bit swap with the last one, etc.)
+	*/
+	template<typename Block, class Allocator>
+	void Bitset<Block, Allocator>::Reverse()
+	{
+		if (m_bitCount == 0)
+			return;
+
+		std::size_t i = 0;
+		std::size_t j = m_bitCount - 1;
+
+		while (i < j)
+		{
+			bool bit1 = Test(i);
+			bool bit2 = Test(j);
+
+			Set(i++, bit2);
+			Set(j--, bit1);
+		}
+	}
+
+	/*!
 	* \brief Sets the bitset to val
 	*
 	* \param val Value of the bits
@@ -535,27 +683,28 @@ namespace Nz
 			return;
 		}
 
-		auto div = std::lldiv(pos, bitsPerBlock);
-		if (div.rem != 0)
+		std::size_t blockShift = pos / bitsPerBlock;
+		std::size_t remainder = pos % bitsPerBlock;
+		if (remainder != 0)
 		{
 			std::size_t lastIndex = m_blocks.size() - 1;
-			std::size_t remaining = bitsPerBlock - div.rem;
+			std::size_t remaining = bitsPerBlock - remainder;
 
-			for (std::size_t i = lastIndex - div.quot; i > 0; --i)
-				m_blocks[i + div.quot] = (m_blocks[i] << div.rem) | (m_blocks[i - 1] >> remaining);
+			for (std::size_t i = lastIndex - blockShift; i > 0; --i)
+				m_blocks[i + blockShift] = (m_blocks[i] << remainder) | (m_blocks[i - 1] >> remaining);
 
-			m_blocks[div.quot] = m_blocks[0] << div.rem;
+			m_blocks[blockShift] = m_blocks[0] << remainder;
 
-			std::fill_n(m_blocks.begin(), div.quot, Block(0));
+			std::fill_n(m_blocks.begin(), blockShift, Block(0));
 		}
 		else
 		{
 			for (auto it = m_blocks.rbegin(); it != m_blocks.rend(); ++it)
 			{
-				if (static_cast<std::size_t>(std::distance(m_blocks.rbegin(), it) + div.quot) < m_blocks.size())
+				if (static_cast<std::size_t>(std::distance(m_blocks.rbegin(), it) + blockShift) < m_blocks.size())
 				{
 					auto shiftedIt = it;
-					std::advance(shiftedIt, div.quot);
+					std::advance(shiftedIt, blockShift);
 
 					*it = *shiftedIt;
 				}
@@ -588,27 +737,28 @@ namespace Nz
 			return;
 		}
 
-		auto div = std::lldiv(pos, bitsPerBlock);
-		if (div.rem != 0)
+		std::size_t blockShift = pos / bitsPerBlock;
+		std::size_t remainder  = pos % bitsPerBlock;
+		if (remainder != 0)
 		{
 			std::size_t lastIndex = m_blocks.size() - 1;
-			std::size_t remaining = bitsPerBlock - div.rem;
+			std::size_t remaining = bitsPerBlock - remainder;
 
-			for (std::size_t i = div.quot; i < lastIndex; ++i)
-				m_blocks[i - div.quot] = (m_blocks[i] >> div.rem) | (m_blocks[i + 1] << remaining);
+			for (std::size_t i = blockShift; i < lastIndex; ++i)
+				m_blocks[i - blockShift] = (m_blocks[i] >> remainder) | (m_blocks[i + 1] << remaining);
 
-			m_blocks[lastIndex - div.quot] = m_blocks[lastIndex] >> div.rem;
+			m_blocks[lastIndex - blockShift] = m_blocks[lastIndex] >> remainder;
 
-			std::fill_n(m_blocks.begin() + (m_blocks.size() - div.quot), div.quot, Block(0));
+			std::fill_n(m_blocks.begin() + (m_blocks.size() - blockShift), blockShift, Block(0));
 		}
 		else
 		{
 			for (auto it = m_blocks.begin(); it != m_blocks.end(); ++it)
 			{
-				if (static_cast<std::size_t>(std::distance(m_blocks.begin(), it) + div.quot) < m_blocks.size())
+				if (static_cast<std::size_t>(std::distance(m_blocks.begin(), it) + blockShift) < m_blocks.size())
 				{
 					auto shiftedIt = it;
-					std::advance(shiftedIt, div.quot);
+					std::advance(shiftedIt, blockShift);
 
 					*it = *shiftedIt;
 				}
@@ -716,7 +866,7 @@ namespace Nz
 	{
 		static_assert(std::is_integral<T>() && std::is_unsigned<T>(), "T must be a unsigned integral type");
 
-		NazaraAssert(m_bitCount <= std::numeric_limits<T>::digits, "Bit count cannot be greater than T bit count");
+		NazaraAssert(m_bitCount <= BitCount<T>(), "Bit count cannot be greater than T bit count");
 
 		T value = 0;
 		for (std::size_t i = 0; i < m_blocks.size(); ++i)
@@ -990,12 +1140,40 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Builds a bitset from a byte sequence
+	*
+	* This function builds a bitset using a byte sequence by reading bitCount bits from it
+	*
+	* \param ptr A pointer to the start of the byte sequence
+	* \param bitCount Number of bits to read from the byte sequence
+	* \param sequence Optional data to pass to a next call to Read
+	*
+	* \return The constructed bitset
+	*
+	* \remark For technical reasons, ceil(bitCount / 8) bytes from the sequence will always be read (even with non-multiple-of-8 bitCount)
+	*
+	* \see AppendBits
+	* \see Read
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator> Bitset<Block, Allocator>::FromPointer(const void* ptr, std::size_t bitCount, PointerSequence* sequence)
+	{
+		Bitset bitset;
+
+		if (sequence)
+			*sequence = bitset.Read(ptr, bitCount);
+		else
+			bitset.Read(ptr, bitCount);
+
+		return bitset;
+	}
+
+	/*!
 	* \brief Finds the position of the first bit set to true after the blockIndex
 	* \return The position of the bit
 	*
 	* \param blockIndex Index of the block
 	*/
-
 	template<typename Block, class Allocator>
 	std::size_t Bitset<Block, Allocator>::FindFirstFrom(std::size_t blockIndex) const
 	{
@@ -1124,7 +1302,7 @@ namespace Nz
 	template<typename Block, class Allocator>
 	bool Bitset<Block, Allocator>::Bit::Test() const
 	{
-		return m_block & m_mask;
+		return (m_block & m_mask) != 0;
 	}
 
 	/*!
@@ -1268,6 +1446,14 @@ namespace Nz
 
 		return *this;
 	}
+
+
+	template<typename Block, class Allocator>
+	std::ostream& operator<<(std::ostream& out, const Bitset<Block, Allocator>& bitset)
+	{
+		return out << bitset.ToString();
+	}
+
 
 	/*!
 	* \brief Compares two bitsets

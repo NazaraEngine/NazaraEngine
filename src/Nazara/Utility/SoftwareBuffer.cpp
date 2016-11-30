@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	SoftwareBuffer::SoftwareBuffer(Buffer* /*parent*/, BufferType type)
+	SoftwareBuffer::SoftwareBuffer(Buffer* /*parent*/, BufferType /*type*/)
 	{
 	}
 

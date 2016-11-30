@@ -125,6 +125,33 @@ namespace Nz
 		private:
 			std::vector<cpShape*> CreateShapes(RigidBody2D* body) const override;
 	};
+
+	class SegmentCollider2D;
+
+	using SegmentCollider2DConstRef = ObjectRef<const SegmentCollider2D>;
+	using SegmentCollider2DRef = ObjectRef<SegmentCollider2D>;
+
+	class NAZARA_PHYSICS2D_API SegmentCollider2D : public Collider2D
+	{
+		public:
+			inline SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness = 1.f);
+
+			float ComputeInertialMatrix(float mass) const override;
+
+			inline const Vector2f& GetFirstPoint() const;
+			inline float GetLength() const;
+			inline const Vector2f& GetSecondPoint() const;
+			ColliderType2D GetType() const override;
+
+			template<typename... Args> static SegmentCollider2DRef New(Args&&... args);
+
+		private:
+			std::vector<cpShape*> CreateShapes(RigidBody2D* body) const override;
+
+			Vector2f m_first;
+			Vector2f m_second;
+			float m_thickness;
+	};
 }
 
 #include <Nazara/Physics2D/Collider2D.inl>

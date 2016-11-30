@@ -10,6 +10,8 @@
 #define NAZARA_WINDOW_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ConditionVariable.hpp>
+#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -18,11 +20,6 @@
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <queue>
-
-#if NAZARA_UTILITY_THREADED_WINDOW
-#include <Nazara/Core/ConditionVariable.hpp>
-#include <Nazara/Core/Mutex.hpp>
-#endif
 
 namespace Nz
 {
@@ -39,7 +36,7 @@ namespace Nz
 
 		public:
 			inline Window();
-			inline Window(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline Window(WindowHandle handle);
 			Window(const Window&) = delete;
 			inline Window(Window&& window) noexcept;
@@ -47,7 +44,7 @@ namespace Nz
 
 			inline void Close();
 
-			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			bool Create(WindowHandle handle);
 
 			void Destroy();
@@ -65,7 +62,7 @@ namespace Nz
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
-			UInt32 GetStyle() const;
+			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
 			unsigned int GetWidth() const;
 
@@ -114,23 +111,24 @@ namespace Nz
 
 		private:
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
+			inline void HandleEvent(const WindowEvent& event);
 			inline void PushEvent(const WindowEvent& event);
 
 			static bool Initialize();
 			static void Uninitialize();
 
 			std::queue<WindowEvent> m_events;
-			#if NAZARA_UTILITY_THREADED_WINDOW
+			std::vector<WindowEvent> m_pendingEvents;
 			ConditionVariable m_eventCondition;
+			EventHandler m_eventHandler;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;
-			bool m_waitForEvent;
-			#endif
-			EventHandler m_eventHandler;
+			bool m_asyncWindow;
 			bool m_closed;
 			bool m_closeOnQuit;
 			bool m_eventPolling;
 			bool m_ownsWindow;
+			bool m_waitForEvent;
 	};
 }
 
