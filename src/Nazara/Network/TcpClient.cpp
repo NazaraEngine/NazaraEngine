@@ -385,7 +385,7 @@ namespace Nz
 	* \remark Produces a NazaraError because it is a special stream
 	*/
 
-	bool TcpClient::SetCursorPos(UInt64 offset)
+	bool TcpClient::SetCursorPos(UInt64 /*offset*/)
 	{
 		NazaraError("SetCursorPos() cannot be used on sequential streams");
 		return false;

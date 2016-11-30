@@ -25,6 +25,6 @@ namespace Nz
 
 		ColliderType3D_Max = ColliderType3D_Tree
 	};
-};
+}
 
 #endif // NAZARA_ENUMS_PHYSICS3D_HPP

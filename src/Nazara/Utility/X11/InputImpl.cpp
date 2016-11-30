@@ -23,32 +23,32 @@ namespace Nz
 			switch (key)
 			{
 				// Lettres
-				case Keyboard::A: keysym = XK_A; break;
-				case Keyboard::B: keysym = XK_B; break;
-				case Keyboard::C: keysym = XK_C; break;
-				case Keyboard::D: keysym = XK_D; break;
-				case Keyboard::E: keysym = XK_E; break;
-				case Keyboard::F: keysym = XK_F; break;
-				case Keyboard::G: keysym = XK_G; break;
-				case Keyboard::H: keysym = XK_H; break;
-				case Keyboard::I: keysym = XK_I; break;
-				case Keyboard::J: keysym = XK_J; break;
-				case Keyboard::K: keysym = XK_K; break;
-				case Keyboard::L: keysym = XK_L; break;
-				case Keyboard::M: keysym = XK_M; break;
-				case Keyboard::N: keysym = XK_N; break;
-				case Keyboard::O: keysym = XK_O; break;
-				case Keyboard::P: keysym = XK_P; break;
-				case Keyboard::Q: keysym = XK_Q; break;
-				case Keyboard::R: keysym = XK_R; break;
-				case Keyboard::S: keysym = XK_S; break;
-				case Keyboard::T: keysym = XK_T; break;
-				case Keyboard::U: keysym = XK_U; break;
-				case Keyboard::V: keysym = XK_V; break;
-				case Keyboard::W: keysym = XK_W; break;
-				case Keyboard::X: keysym = XK_X; break;
-				case Keyboard::Y: keysym = XK_Y; break;
-				case Keyboard::Z: keysym = XK_Z; break;
+				case Keyboard::A: keysym = XK_a; break;
+				case Keyboard::B: keysym = XK_b; break;
+				case Keyboard::C: keysym = XK_c; break;
+				case Keyboard::D: keysym = XK_d; break;
+				case Keyboard::E: keysym = XK_e; break;
+				case Keyboard::F: keysym = XK_f; break;
+				case Keyboard::G: keysym = XK_g; break;
+				case Keyboard::H: keysym = XK_h; break;
+				case Keyboard::I: keysym = XK_i; break;
+				case Keyboard::J: keysym = XK_j; break;
+				case Keyboard::K: keysym = XK_k; break;
+				case Keyboard::L: keysym = XK_l; break;
+				case Keyboard::M: keysym = XK_m; break;
+				case Keyboard::N: keysym = XK_n; break;
+				case Keyboard::O: keysym = XK_o; break;
+				case Keyboard::P: keysym = XK_p; break;
+				case Keyboard::Q: keysym = XK_q; break;
+				case Keyboard::R: keysym = XK_r; break;
+				case Keyboard::S: keysym = XK_s; break;
+				case Keyboard::T: keysym = XK_t; break;
+				case Keyboard::U: keysym = XK_u; break;
+				case Keyboard::V: keysym = XK_v; break;
+				case Keyboard::W: keysym = XK_w; break;
+				case Keyboard::X: keysym = XK_x; break;
+				case Keyboard::Y: keysym = XK_y; break;
+				case Keyboard::Z: keysym = XK_z; break;
 
 				// Touches de fonction
 				case Keyboard::F1: keysym = XK_F1; break;
@@ -248,6 +248,8 @@ namespace Nz
 
 		xcb_keysym_t keySym = GetKeySym(key);
 
+		xcb_keycode_t realKeyCode = XCB_NO_SYMBOL;
+
 		xcb_key_symbols_t* keySymbols = X11::XCBKeySymbolsAlloc(connection);
 		if (!keySymbols)
 		{
@@ -261,6 +263,20 @@ namespace Nz
 			NazaraError("Failed to get key code");
 			return false;
 		}
+
+		// One keysym is associated with multiple key codes, we have to find the matching one ...
+		int i = 0;
+		while (keyCode.get()[i] != XCB_NO_SYMBOL)
+		{
+			xcb_keycode_t toTry = keyCode.get()[i];
+			if (keySym == xcb_key_symbols_get_keysym(keySymbols, toTry, 0))
+			{
+				realKeyCode = toTry;
+				break;
+			}
+			++i;
+		}
+
 		X11::XCBKeySymbolsFree(keySymbols);
 
 		ScopedXCB<xcb_generic_error_t> error(nullptr);
@@ -281,7 +297,7 @@ namespace Nz
 		}
 
 		// Check our keycode
-		return (keymap->keys[*keyCode.get() / 8] & (1 << (*keyCode.get() % 8))) != 0;
+		return (keymap->keys[realKeyCode / 8] & (1 << (realKeyCode % 8))) != 0;
 	}
 
 	bool EventImpl::IsMouseButtonPressed(Mouse::Button button)

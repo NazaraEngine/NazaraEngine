@@ -159,13 +159,13 @@ namespace Nz
 											instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
 
 											const Matrix4f* instanceMatrices = &instances[0];
-											unsigned int instanceCount = instances.size();
-											unsigned int maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
+											std::size_t instanceCount = instances.size();
+											std::size_t maxInstanceCount = instanceBuffer->GetVertexCount(); // The number of matrices that can be hold in the buffer
 
 											while (instanceCount > 0)
 											{
 												// We compute the number of instances that we will be able to show this time (Depending on the instance buffer size)
-												unsigned int renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
+												std::size_t renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
 												instanceCount -= renderedInstanceCount;
 
 												// We fill the instancing buffer with our world matrices

@@ -4,6 +4,7 @@
 
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <limits>
@@ -59,7 +60,7 @@ namespace Nz
 		m_memoryUsage = instance.m_memoryUsage;
 		m_state = instance.m_state;
 		m_timeLimit = instance.m_timeLimit;
-		
+
 		instance.m_state = nullptr;
 
 		return *this;
@@ -99,17 +100,48 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, TypeTag<T>)
+	{
+		using UnderlyingT = std::underlying_type_t<T>;
+
+		UnderlyingT pot2Val;
+		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, TypeTag<UnderlyingT>());
+
+		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
+		return ret;
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, unsigned int> LuaImplQueryArg(const LuaInstance& instance, int index, T* arg, T defValue, TypeTag<T>)
+	{
+		using UnderlyingT = std::underlying_type_t<T>;
+
+		UnderlyingT pot2Val;
+		unsigned int ret = LuaImplQueryArg(instance, index, &pot2Val, 1U << static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
+
+		*arg = static_cast<T>(IntegralLog2Pot(pot2Val));
+		return ret;
+	}
+
+	template<typename E>
+	unsigned int LuaImplQueryArg(const LuaInstance& instance, int index, Flags<E>* arg, TypeTag<Flags<E>>)
+	{
+		*arg = Flags<E>(instance.CheckBoundInteger<UInt32>(index));
+		return 1;
 	}
 
 	template<typename T>
@@ -184,10 +216,24 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !EnableFlagsOperators<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
 	{
 		using EnumT = typename std::underlying_type<T>::type;
 		return LuaImplReplyVal(instance, static_cast<EnumT>(val), TypeTag<EnumT>());
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_enum<T>::value && EnableFlagsOperators<T>::value, int> LuaImplReplyVal(const LuaInstance& instance, T val, TypeTag<T>)
+	{
+		Flags<T> flags(val);
+		return LuaImplReplyVal(instance, flags, TypeTag<decltype(flags)>());
+	}
+
+	template<typename E>
+	int LuaImplReplyVal(const LuaInstance& instance, Flags<E> val, TypeTag<Flags<E>>)
+	{
+		instance.PushInteger(UInt32(val));
+		return 1;
 	}
 
 	template<typename T>
@@ -320,7 +366,7 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
 						m_index = 1;
 						ProcessArgs<0, Args...>(instance);
@@ -391,7 +437,7 @@ namespace Nz
 					{
 					}
 
-					void ProcessArgs(const LuaInstance& instance) const
+					void ProcessArguments(const LuaInstance& instance) const
 					{
 						m_index = 2; //< 1 being the instance
 						ProcessArgs<0, Args...>(instance);
@@ -714,7 +760,7 @@ namespace Nz
 
 		PushFunction([func, handler] (LuaInstance& lua) -> int
 		{
-			handler.ProcessArgs(lua);
+			handler.ProcessArguments(lua);
 
 			return handler.Invoke(lua, func);
 		});

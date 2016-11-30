@@ -34,7 +34,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Window::Create(VideoMode mode, const String& title, UInt32 style)
+	bool Window::Create(VideoMode mode, const String& title, WindowStyleFlags style)
 	{
 		// Si la fenêtre est déjà ouverte, nous conservons sa position
 		bool opened = IsOpen();
@@ -65,6 +65,8 @@ namespace Nz
 		}
 		else if (style & WindowStyle_Closable || style & WindowStyle_Resizable)
 			style |= WindowStyle_Titlebar;
+
+		m_asyncWindow = (style & WindowStyle_Threaded) != 0;
 
 		std::unique_ptr<WindowImpl> impl = std::make_unique<WindowImpl>(this);
 		if (!impl->Create(mode, title, style))
@@ -107,6 +109,7 @@ namespace Nz
 	{
 		Destroy();
 
+		m_asyncWindow = false;
 		m_impl = new WindowImpl(this);
 		if (!m_impl->Create(handle))
 		{
@@ -225,7 +228,7 @@ namespace Nz
 		return m_impl->GetSize();
 	}
 
-	UInt32 Window::GetStyle() const
+	WindowStyleFlags Window::GetStyle() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -313,11 +316,8 @@ namespace Nz
 		}
 		#endif
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		LockGuard lock(m_eventMutex);
-		#else
-		m_impl->ProcessEvents(false);
-		#endif
+		if (!m_asyncWindow)
+			m_impl->ProcessEvents(false);
 
 		if (!m_events.empty())
 		{
@@ -335,10 +335,19 @@ namespace Nz
 	void Window::ProcessEvents(bool block)
 	{
 		NazaraAssert(m_impl, "Window not created");
+		NazaraUnused(block);
 
-		#if !NAZARA_UTILITY_THREADED_WINDOW
-		m_impl->ProcessEvents(block);
-		#endif
+		if (!m_asyncWindow)
+			m_impl->ProcessEvents(block);
+		else
+		{
+			LockGuard eventLock(m_eventMutex);
+
+			for (const WindowEvent& event : m_pendingEvents)
+				HandleEvent(event);
+
+			m_pendingEvents.clear();
+		}
 	}
 
 	void Window::SetCursor(WindowCursor cursor)
@@ -383,25 +392,13 @@ namespace Nz
 		}
 		#endif
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
 		m_impl->SetEventListener(listener);
 		if (!listener)
 		{
-			// On vide la pile des évènements
-			LockGuard lock(m_eventMutex);
+			// Empty the event queue
 			while (!m_events.empty())
 				m_events.pop();
 		}
-		#else
-		if (m_ownsWindow)
-		{
-			// Inutile de transmettre l'ordre dans ce cas-là
-			if (!listener)
-				NazaraError("A non-threaded window needs to listen to events");
-		}
-		else
-			m_impl->SetEventListener(listener);
-		#endif
 	}
 
 	void Window::SetFocus()
@@ -589,22 +586,11 @@ namespace Nz
 		}
 		#endif
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		LockGuard lock(m_eventMutex);
-
-		if (m_events.empty())
+		if (!m_asyncWindow)
 		{
-			m_waitForEvent = true;
-			m_eventConditionMutex.Lock();
-			m_eventMutex.Unlock();
-			m_eventCondition.Wait(&m_eventConditionMutex);
-			m_eventMutex.Lock();
-			m_eventConditionMutex.Unlock();
-			m_waitForEvent = false;
-		}
+			while (m_events.empty())
+				m_impl->ProcessEvents(true);
 
-		if (!m_events.empty())
-		{
 			if (event)
 				*event = m_events.front();
 
@@ -612,19 +598,33 @@ namespace Nz
 
 			return true;
 		}
+		else
+		{
+			LockGuard lock(m_eventMutex);
 
-		return false;
-		#else
-		while (m_events.empty())
-			m_impl->ProcessEvents(true);
+			if (m_events.empty())
+			{
+				m_waitForEvent = true;
+				m_eventConditionMutex.Lock();
+				m_eventMutex.Unlock();
+				m_eventCondition.Wait(&m_eventConditionMutex);
+				m_eventMutex.Lock();
+				m_eventConditionMutex.Unlock();
+				m_waitForEvent = false;
+			}
 
-		if (event)
-			*event = m_events.front();
+			if (!m_events.empty())
+			{
+				if (event)
+					*event = m_events.front();
 
-		m_events.pop();
+				m_events.pop();
 
-		return true;
-		#endif
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	bool Window::OnWindowCreated()

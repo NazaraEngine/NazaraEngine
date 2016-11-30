@@ -18,9 +18,12 @@
 
 namespace Ndk
 {
+	class CameraComponent;
 	class Entity;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
+	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
+
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer, public Nz::HandledObject<CameraComponent>
 	{
 		public:
 			inline CameraComponent();
@@ -51,7 +54,7 @@ namespace Ndk
 			float GetZNear() const override;
 
 			inline void SetFOV(float fov);
-			inline void SetLayer(unsigned int layer);
+			void SetLayer(unsigned int layer);
 			inline void SetProjectionType(Nz::ProjectionType projection);
 			inline void SetSize(const Nz::Vector2f& size);
 			inline void SetSize(float width, float height);
@@ -60,6 +63,8 @@ namespace Ndk
 			inline void SetViewport(const Nz::Recti& viewport);
 			inline void SetZFar(float zFar);
 			inline void SetZNear(float zNear);
+
+			inline bool UpdateVisibility(std::size_t visibilityHash);
 
 			static ComponentIndex componentIndex;
 
@@ -86,6 +91,7 @@ namespace Ndk
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
+			std::size_t m_visibilityHash;
 			Nz::ProjectionType m_projectionType;
 			mutable Nz::Frustumf m_frustum;
 			mutable Nz::Matrix4f m_projectionMatrix;

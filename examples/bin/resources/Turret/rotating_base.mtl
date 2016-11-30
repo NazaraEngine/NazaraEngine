@@ -1,0 +1,35 @@
+# Exported by Nazara Engine
+
+# material count: 5
+newmtl material_0
+
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+
+newmtl material_1
+
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+
+newmtl material_2
+
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+
+newmtl material_3
+
+Ka 1 1 1
+Kd 0.639216 0.639216 0.639216
+Ks 0.498039 0.498039 0.498039
+ns 96.0784
+
+newmtl material_4
+
+Ka 1 1 1
+Kd 0.639216 0.0 0.0
+Ks 0.0 0.0 0.0
+ns 96.0784
+

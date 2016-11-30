@@ -437,6 +437,10 @@ namespace Nz
 
 		return result;
 		#else
+		NazaraUnused(fdarray);
+		NazaraUnused(nfds);
+		NazaraUnused(timeout);
+
 		if (error)
 			*error = SocketError_NotSupported;
 

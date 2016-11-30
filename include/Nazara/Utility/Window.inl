@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Window.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -13,15 +14,14 @@ namespace Nz
 	*/
 	inline Window::Window() :
 	m_impl(nullptr),
-	#if NAZARA_UTILITY_THREADED_WINDOW
-	m_waitForEvent(false),
-	#endif
+	m_asyncWindow(false),
 	m_closeOnQuit(true),
-	m_eventPolling(false)
+	m_eventPolling(false),
+	m_waitForEvent(false)
 	{
 	}
 
-	inline Window::Window(VideoMode mode, const String& title, UInt32 style) :
+	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
 	Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -41,16 +41,16 @@ namespace Nz
 	inline Window::Window(Window&& window) noexcept :
 	m_impl(window.m_impl),
 	m_events(std::move(window.m_events)),
-	#if NAZARA_UTILITY_THREADED_WINDOW
+	m_pendingEvents(std::move(window.m_pendingEvents)),
 	m_eventCondition(std::move(window.m_eventCondition)),
+	m_eventHandler(std::move(window.m_eventHandler)),
 	m_eventMutex(std::move(window.m_eventMutex)),
 	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
-	m_waitForEvent(window.m_waitForEvent),
-	#endif
 	m_closed(window.m_closed),
 	m_closeOnQuit(window.m_closeOnQuit),
 	m_eventPolling(window.m_eventPolling),
-	m_ownsWindow(window.m_ownsWindow)
+	m_ownsWindow(window.m_ownsWindow),
+	m_waitForEvent(window.m_waitForEvent)
 	{
 		window.m_impl = nullptr;
 	}
@@ -104,12 +104,8 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	inline void Window::PushEvent(const WindowEvent& event)
+	inline void Window::HandleEvent(const WindowEvent& event)
 	{
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		m_eventMutex.Lock();
-		#endif
-
 		if (m_eventPolling)
 			m_events.push(event);
 
@@ -120,17 +116,27 @@ namespace Nz
 
 		if (event.type == WindowEventType_Quit && m_closeOnQuit)
 			Close();
+	}
 
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		m_eventMutex.Unlock();
-
-		if (m_waitForEvent)
+	inline void Window::PushEvent(const WindowEvent& event)
+	{
+		if (!m_asyncWindow)
+			HandleEvent(event);
+		else
 		{
-			m_eventConditionMutex.Lock();
-			m_eventCondition.Signal();
-			m_eventConditionMutex.Unlock();
+			{
+				LockGuard eventLock(m_eventMutex);
+
+				m_pendingEvents.push_back(event);
+			}
+
+			if (m_waitForEvent)
+			{
+				m_eventConditionMutex.Lock();
+				m_eventCondition.Signal();
+				m_eventConditionMutex.Unlock();
+			}
 		}
-		#endif
 	}
 
 	/*!
@@ -141,21 +147,20 @@ namespace Nz
 	{
 		Destroy();
 
-		m_closed        = window.m_closed;
-		m_closeOnQuit   = window.m_closeOnQuit;
-		m_eventPolling  = window.m_eventPolling;
-		m_impl          = window.m_impl;
-		m_events        = std::move(window.m_events);
-		m_ownsWindow    = window.m_ownsWindow;
+		m_closed              = window.m_closed;
+		m_closeOnQuit         = window.m_closeOnQuit;
+		m_eventCondition      = std::move(window.m_eventCondition);
+		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
+		m_eventHandler        = std::move(window.m_eventHandler);
+		m_eventMutex          = std::move(window.m_eventMutex);
+		m_eventPolling        = window.m_eventPolling;
+		m_impl                = window.m_impl;
+		m_events              = std::move(window.m_events);
+		m_pendingEvents       = std::move(window.m_pendingEvents);
+		m_ownsWindow          = window.m_ownsWindow;
+		m_waitForEvent        = window.m_waitForEvent;
 
 		window.m_impl = nullptr;
-
-		#if NAZARA_UTILITY_THREADED_WINDOW
-		m_eventCondition      = std::move(window.m_eventCondition);
-		m_eventMutex          = std::move(window.m_eventMutex);
-		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
-		m_waitForEvent        = window.m_waitForEvent;
-		#endif
 
 		return *this;
 	}

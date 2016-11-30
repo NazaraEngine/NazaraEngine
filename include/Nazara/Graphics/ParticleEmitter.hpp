@@ -28,12 +28,12 @@ namespace Nz
 
 			void EnableLagCompensation(bool enable);
 
-			unsigned int GetEmissionCount() const;
+			std::size_t GetEmissionCount() const;
 			float GetEmissionRate() const;
 
 			bool IsLagCompensationEnabled() const;
 
-			void SetEmissionCount(unsigned int count);
+			void SetEmissionCount(std::size_t count);
 			void SetEmissionRate(float rate);
 
 			ParticleEmitter& operator=(const ParticleEmitter& emitter) = default;
@@ -49,7 +49,7 @@ namespace Nz
 			bool m_lagCompensationEnabled;
 			mutable float m_emissionAccumulator;
 			float m_emissionRate;
-			unsigned int m_emissionCount;
+			std::size_t m_emissionCount;
 	};
 }
 

@@ -141,6 +141,7 @@ namespace Ndk
 	{
 		return m_zNear;
 	}
+
 	/*!
 	* \brief Sets the layer of the camera in case of multiples fields
 	*
