@@ -54,8 +54,7 @@ namespace Ndk
 					break;
 			}
 
-			std::size_t upperLimit = (line != lineCount - 1) ? m_drawer.GetLine(line + 1).glyphIndex : glyphCount;
-			upperLimit = std::min(upperLimit, glyphCount);
+			std::size_t upperLimit = (line != lineCount - 1) ? m_drawer.GetLine(line + 1).glyphIndex : glyphCount + 1;
 
 			std::size_t i = m_drawer.GetLine(line).glyphIndex;
 			for (; i < upperLimit - 1; ++i)
@@ -95,8 +94,21 @@ namespace Ndk
 			line = i;
 		}
 
-		Nz::Rectf bounds = m_drawer.GetGlyph(m_cursorPosition).bounds;
-		m_cursorEntity->GetComponent<Ndk::NodeComponent>().SetPosition(bounds.x, m_drawer.GetLine(line).bounds.y);
+		const auto& lineInfo = m_drawer.GetLine(line);
+
+		std::size_t glyphCount = m_drawer.GetGlyphCount();
+		float position;
+		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorPosition)
+		{
+			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorPosition, glyphCount - 1));
+			position = glyph.bounds.x;
+			if (m_cursorPosition >= glyphCount)
+				position += glyph.bounds.width;
+		}
+		else
+			position = 0.f;
+
+		m_cursorEntity->GetComponent<Ndk::NodeComponent>().SetPosition(position, lineInfo.bounds.y);
 	}
 
 	void TextAreaWidget::OnMouseEnter()
