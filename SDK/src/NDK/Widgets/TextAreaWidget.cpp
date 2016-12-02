@@ -115,6 +115,22 @@ namespace Ndk
 	{
 		switch (key.code)
 		{
+			case Nz::Keyboard::Delete:
+			{
+				const Nz::String& text = m_drawer.GetText();
+
+				Nz::String newText;
+				if (m_cursorPosition > 0)
+					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorPosition) - 1));
+
+				if (m_cursorPosition < m_drawer.GetGlyphCount())
+					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorPosition + 1)));
+
+				m_drawer.SetText(newText);
+				m_textSprite->Update(m_drawer);
+				break;
+			}
+
 			case Nz::Keyboard::Left:
 				if (m_cursorPosition > 0)
 					m_cursorPosition--;
@@ -169,12 +185,22 @@ namespace Ndk
 		{
 			case '\b':
 			{
-				Nz::String text = m_drawer.GetText();
+				const Nz::String& text = m_drawer.GetText();
 
-				text.Resize(-1, Nz::String::HandleUtf8);
-				m_drawer.SetText(text);
+				Nz::String newText;
+				if (m_cursorPosition > 1)
+					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorPosition - 1) - 1));
 
+				if (m_cursorPosition < m_drawer.GetGlyphCount())
+					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorPosition)));
+
+				m_drawer.SetText(newText);
 				m_textSprite->Update(m_drawer);
+
+				if (m_cursorPosition > 0)
+					m_cursorPosition--;
+
+				RefreshCursor();
 				break;
 			}
 
