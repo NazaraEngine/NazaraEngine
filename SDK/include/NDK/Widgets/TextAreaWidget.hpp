@@ -40,6 +40,8 @@ namespace Ndk
 		private:
 			void RefreshCursor();
 
+			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
+			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnMouseEnter() override;
 			void OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button) override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;

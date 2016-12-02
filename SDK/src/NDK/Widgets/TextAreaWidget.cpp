@@ -111,6 +111,33 @@ namespace Ndk
 		m_cursorEntity->GetComponent<Ndk::NodeComponent>().SetPosition(position, lineInfo.bounds.y);
 	}
 
+	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	{
+		switch (key.code)
+		{
+			case Nz::Keyboard::Left:
+				if (m_cursorPosition > 0)
+					m_cursorPosition--;
+
+				RefreshCursor();
+				break;
+
+			case Nz::Keyboard::Right:
+			{
+				std::size_t glyphCount = m_drawer.GetGlyphCount();
+				if (m_cursorPosition < glyphCount)
+					m_cursorPosition++;
+
+				RefreshCursor();
+				break;
+			}
+		}
+	}
+
+	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	{
+	}
+
 	void TextAreaWidget::OnMouseEnter()
 	{
 		m_cursorEntity->Enable(true);
