@@ -66,7 +66,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -77,7 +77,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseButtonRelease(const Nz::EventHandler * eventHandler, const Nz::WindowEvent::MouseButtonEvent & event)
+	void Canvas::OnMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -88,7 +88,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
@@ -131,7 +131,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseLeft(const Nz::EventHandler* eventHandler)
+	void Canvas::OnMouseLeft(const Nz::EventHandler* /*eventHandler*/)
 	{
 		if (m_hoveredWidget)
 		{
@@ -140,7 +140,19 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event)
+	void Canvas::OnKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	{
+		if (m_keyboardOwner)
+			m_keyboardOwner->OnKeyPressed(event);
+	}
+
+	void Canvas::OnKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	{
+		if (m_keyboardOwner)
+			m_keyboardOwner->OnKeyReleased(event);
+	}
+
+	void Canvas::OnTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
 	{
 		if (m_keyboardOwner)
 			m_keyboardOwner->OnTextEntered(event.character, event.repeated);
