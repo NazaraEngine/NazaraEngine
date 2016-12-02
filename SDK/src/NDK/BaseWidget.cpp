@@ -98,6 +98,14 @@ namespace Ndk
 			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
 	}
 
+	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	{
+	}
+
+	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	{
+	}
+
 	void BaseWidget::OnMouseEnter()
 	{
 	}
