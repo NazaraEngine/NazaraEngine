@@ -170,7 +170,7 @@ namespace Ndk
 		}
 
 		/*********************************** Nz::File ***********************************/
-		file.Reset("Stream");
+		file.Reset("File");
 		{
 			file.Inherit(stream);
 
