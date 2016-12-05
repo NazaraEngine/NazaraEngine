@@ -230,7 +230,7 @@ namespace Ndk
 		else
 		{
 			Nz::String currentText = m_drawer.GetText();
-			currentText.Insert(m_cursorPosition, text);
+			currentText.Insert(currentText.GetCharacterPosition(m_cursorPosition), text);
 			SetText(currentText);
 
 			m_cursorPosition += text.GetLength();
