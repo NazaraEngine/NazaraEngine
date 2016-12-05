@@ -30,13 +30,17 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
+			inline std::size_t GetCursorPosition() const;
 			inline std::size_t GetLineCount() const;
 			inline const Nz::String& GetText() const;
 
 			std::size_t GetHoveredGlyph(float x, float y) const;
 
+			inline void MoveCursor(int offset);
+
 			void ResizeToContent() override;
 
+			inline void SetCursorPosition(std::size_t cursorPosition);
 			void SetText(const Nz::String& text);
 
 			void Write(const Nz::String& text);
