@@ -26,6 +26,8 @@ namespace Ndk
 
 			void AppendText(const Nz::String& text);
 
+			inline void Clear();
+
 			//virtual TextAreaWidget* Clone() const = 0;
 
 			std::size_t GetHoveredGlyph(float x, float y) const;

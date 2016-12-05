@@ -6,4 +6,12 @@
 
 namespace Ndk
 {
+	inline void TextAreaWidget::Clear()
+	{
+		m_cursorPosition = 0;
+		m_drawer.Clear();
+		m_textSprite->Update(m_drawer);
+
+		RefreshCursor();
+	}
 }
