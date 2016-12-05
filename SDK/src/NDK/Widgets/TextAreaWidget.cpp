@@ -82,6 +82,25 @@ namespace Ndk
 		m_textSprite->Update(m_drawer);
 	}
 
+	void TextAreaWidget::Write(const Nz::String& text)
+	{
+		if (m_cursorPosition >= m_drawer.GetGlyphCount())
+		{
+			AppendText(text);
+			m_cursorPosition = m_drawer.GetGlyphCount();
+		}
+		else
+		{
+			Nz::String currentText = m_drawer.GetText();
+			currentText.Insert(currentText.GetCharacterPosition(m_cursorPosition), text);
+			SetText(currentText);
+
+			m_cursorPosition += text.GetLength();
+		}
+
+		RefreshCursor();
+	}
+
 	void TextAreaWidget::RefreshCursor()
 	{
 		std::size_t lineCount = m_drawer.GetLineCount();
@@ -218,24 +237,5 @@ namespace Ndk
 				break;
 			}
 		}
-	}
-
-	void TextAreaWidget::Write(const Nz::String& text)
-	{
-		if (m_cursorPosition >= m_drawer.GetGlyphCount())
-		{
-			AppendText(text);
-			m_cursorPosition = m_drawer.GetGlyphCount();
-		}
-		else
-		{
-			Nz::String currentText = m_drawer.GetText();
-			currentText.Insert(currentText.GetCharacterPosition(m_cursorPosition), text);
-			SetText(currentText);
-
-			m_cursorPosition += text.GetLength();
-		}
-
-		RefreshCursor();
 	}
 }
