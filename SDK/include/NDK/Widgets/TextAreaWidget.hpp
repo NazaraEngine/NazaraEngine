@@ -39,6 +39,8 @@ namespace Ndk
 
 			void SetText(const Nz::String& text);
 
+			void Write(const Nz::String& text);
+
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
@@ -52,8 +54,6 @@ namespace Ndk
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnMouseExit() override;
 			void OnTextEntered(char32_t character, bool repeated) override;
-
-			void Write(const Nz::String& text);
 
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
