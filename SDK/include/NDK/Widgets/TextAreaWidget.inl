@@ -14,4 +14,14 @@ namespace Ndk
 
 		RefreshCursor();
 	}
+
+	inline std::size_t TextAreaWidget::GetLineCount() const
+	{
+		return m_drawer.GetLineCount();
+	}
+
+	inline const Nz::String& TextAreaWidget::GetText() const
+	{
+		return m_drawer.GetText();
+	}
 }
