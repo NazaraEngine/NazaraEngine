@@ -30,6 +30,9 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
+			inline std::size_t GetLineCount() const;
+			inline const Nz::String& GetText() const;
+
 			std::size_t GetHoveredGlyph(float x, float y) const;
 
 			void ResizeToContent() override;
