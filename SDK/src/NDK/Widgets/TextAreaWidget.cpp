@@ -233,7 +233,7 @@ namespace Ndk
 			currentText.Insert(m_cursorPosition, text);
 			SetText(currentText);
 
-			m_cursorPosition += text.GetSize();
+			m_cursorPosition += text.GetLength();
 		}
 
 		RefreshCursor();
