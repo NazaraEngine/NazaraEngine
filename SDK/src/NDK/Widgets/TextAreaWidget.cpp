@@ -60,7 +60,7 @@ namespace Ndk
 			for (; i < upperLimit - 1; ++i)
 			{
 				Nz::Rectf bounds = m_drawer.GetGlyph(i).bounds;
-				if (x < bounds.x + bounds.width)
+				if (x < bounds.x + bounds.width * 0.75f)
 					break;
 			}
 
