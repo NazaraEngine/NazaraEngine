@@ -30,6 +30,11 @@ namespace Ndk
 		return m_drawer.GetText();
 	}
 
+	inline bool TextAreaWidget::IsReadOnly() const
+	{
+		return m_readOnly;
+	}
+
 	inline void TextAreaWidget::MoveCursor(int offset)
 	{
 		if (offset >= 0)
@@ -49,5 +54,12 @@ namespace Ndk
 		m_cursorPosition = std::min(cursorPosition, m_drawer.GetGlyphCount());
 
 		RefreshCursor();
+	}
+
+	inline void TextAreaWidget::SetReadOnly(bool readOnly)
+	{
+		m_readOnly = readOnly;
+
+		m_cursorEntity->Enable(!m_readOnly);
 	}
 }

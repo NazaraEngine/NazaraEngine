@@ -36,11 +36,14 @@ namespace Ndk
 
 			std::size_t GetHoveredGlyph(float x, float y) const;
 
+			inline bool IsReadOnly() const;
+
 			inline void MoveCursor(int offset);
 
 			void ResizeToContent() override;
 
 			inline void SetCursorPosition(std::size_t cursorPosition);
+			inline void SetReadOnly(bool readOnly = true);
 			void SetText(const Nz::String& text);
 
 			void Write(const Nz::String& text);
@@ -65,6 +68,7 @@ namespace Ndk
 			Nz::SpriteRef m_cursorSprite;
 			Nz::TextSpriteRef m_textSprite;
 			std::size_t m_cursorPosition;
+			bool m_readOnly;
 	};
 }
 
