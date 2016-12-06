@@ -156,9 +156,10 @@ namespace Nz
 
 		params->animated             = instance.CheckField<bool>("Animated", params->animated);
 		params->center               = instance.CheckField<bool>("Center", params->center);
-		params->flipUVs              = instance.CheckField<bool>("FlipUVs", params->flipUVs);
 		params->matrix               = instance.CheckField<Matrix4f>("Matrix", params->matrix);
 		params->optimizeIndexBuffers = instance.CheckField<bool>("OptimizeIndexBuffers", params->optimizeIndexBuffers);
+		params->texCoordOffset       = instance.CheckField<Vector2f>("TexCoordOffset", params->texCoordOffset);
+		params->texCoordScale        = instance.CheckField<Vector2f>("TexCoordScale", params->texCoordScale);
 
 		return 1;
 	}
@@ -403,7 +404,6 @@ namespace Nz
 
 		return 1;
 	}
-
 #endif
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Color&& val, TypeTag<Color>)

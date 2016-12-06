@@ -14,6 +14,7 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
 
 		Nz::UInt16 port = dis(rd);
+
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 

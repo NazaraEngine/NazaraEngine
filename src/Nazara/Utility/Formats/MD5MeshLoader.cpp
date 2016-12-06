@@ -184,7 +184,7 @@ namespace Nz
 						}
 
 						vertices->position = finalPos;
-						vertices->uv.Set(vertex.uv.x, (parameters.flipUVs) ? 1.f - vertex.uv.y : vertex.uv.y); // Inversion des UV si demandé
+						vertices->uv.Set(parameters.texCoordOffset + vertex.uv * parameters.texCoordScale);
 						vertices++;
 					}
 
@@ -254,7 +254,7 @@ namespace Nz
 					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
 					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
-					MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());
+					MeshVertex* vertices = static_cast<MeshVertex*>(vertexMapper.GetPointer());
 					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 					{
 						// Skinning MD5 (Formule d'Id Tech)
@@ -268,9 +268,9 @@ namespace Nz
 						}
 
 						// On retourne le modèle dans le bon sens
-						vertex->position = matrix * finalPos;
-						vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
-						vertex++;
+						vertices->position = matrix * finalPos;
+						vertices->uv.Set(parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale);
+						vertices++;
 					}
 
 					vertexMapper.Unmap();

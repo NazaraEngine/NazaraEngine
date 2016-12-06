@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
 
 namespace Ndk
 {
@@ -32,18 +32,8 @@ namespace Ndk
 		m_componentBindingByName[name] = T::componentIndex;
 	}
 
-	/*!
-	* \brief Adds a component to an entity
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance that will interact with the component
-	* \param handle Entity which component will be added to
-	*
-	* \remark T must be a subtype of BaseComponent
-	*/
-
 	template<typename T>
-	int AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle)
+	int LuaBinding::AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle)
 	{
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 
@@ -52,18 +42,8 @@ namespace Ndk
 		return 1;
 	}
 
-	/*!
-	* \brief Pushes a component
-	* \return 1 in case of success
-	*
-	* \param instance Lua instance that will interact with the component
-	* \param component Component that will be pushed
-	*
-	* \remark T must be a subtype of BaseComponent
-	*/
-
 	template<typename T>
-	int PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component)
+	int LuaBinding::PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component)
 	{
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 

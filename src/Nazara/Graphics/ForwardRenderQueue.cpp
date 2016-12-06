@@ -527,6 +527,24 @@ namespace Nz
 					layers.erase(it++);
 				else
 				{
+					for (auto& pipelinePair : layer.billboards)
+					{
+						auto& pipelineEntry = pipelinePair.second;
+
+						if (pipelineEntry.enabled)
+						{
+							for (auto& matIt : pipelinePair.second.materialMap)
+							{
+								auto& entry = matIt.second;
+								auto& billboardVector = entry.billboards;
+
+								billboardVector.clear();
+							}
+						}
+
+						pipelineEntry.enabled = false;
+					}
+
 					for (auto& pipelinePair : layer.basicSprites)
 					{
 						auto& pipelineEntry = pipelinePair.second;

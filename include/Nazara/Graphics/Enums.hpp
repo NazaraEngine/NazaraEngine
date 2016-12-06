@@ -19,6 +19,13 @@ namespace Nz
 		BackgroundType_Max = BackgroundType_User
 	};
 
+	enum class CullTest
+	{
+		NoTest,
+		Sphere,
+		Volume
+	};
+
 	enum ProjectionType
 	{
 		ProjectionType_Orthogonal,

@@ -21,7 +21,7 @@ namespace Nz
 	{
 	}
 
-	inline Window::Window(VideoMode mode, const String& title, UInt32 style) :
+	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
 	Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);

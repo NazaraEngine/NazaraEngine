@@ -23,13 +23,14 @@ namespace Nz
 	{
 		public:
 			inline RenderWindow();
-			inline RenderWindow(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline RenderWindow(WindowHandle handle, const RenderWindowParameters& parameters = RenderWindowParameters());
+
 			RenderWindow(const RenderWindow&) = delete;
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();
 
-			inline bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline bool Create(WindowHandle handle, const RenderWindowParameters& parameters = RenderWindowParameters());
 
 			void Display();

@@ -16,6 +16,62 @@ namespace Ndk
 	*/
 
 	/*!
+	* \brief Adds the renderable elements to the render queue
+	*
+	* \param renderQueue Queue to be added
+	*/
+	void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
+	{
+		EnsureTransformMatrixUpdate();
+
+		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
+
+		for (const Renderable& object : m_renderables)
+		{
+			if (!object.dataUpdated)
+			{
+				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
+				object.renderable->UpdateData(&object.data);
+				object.dataUpdated = true;
+			}
+
+			object.renderable->AddToRenderQueue(renderQueue, object.data);
+		}
+	}
+
+	/*!
+	* \brief Attaches a renderable to the entity
+	*
+	* \param renderable Reference to a renderable element
+	* \param renderOrder Render order of the element
+	*/
+	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
+	{
+		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
+	}
+
+	/*!
+	* \brief Attaches a renderable to the entity with a specific matrix
+	*
+	* \param renderable Reference to a renderable element
+	* \param localMatrix Local matrix that will be applied to the instanced renderable
+	* \param renderOrder Render order of the element
+	*/
+	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
+	{
+		m_renderables.emplace_back(m_transformMatrix);
+		Renderable& r = m_renderables.back();
+		r.data.localMatrix = localMatrix;
+		r.data.renderOrder = renderOrder;
+		r.renderable = std::move(renderable);
+		r.renderableBoundingVolumeInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateBoundingVolume, [this] (const Nz::InstancedRenderable*) { InvalidateBoundingVolume(); });
+		r.renderableDataInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
+		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+
+		InvalidateBoundingVolume();
+	}
+
+	/*!
 	* \brief Invalidates the data for renderable
 	*
 	* \param renderable Renderable to invalidate
@@ -33,6 +89,9 @@ namespace Ndk
 		Renderable& r = m_renderables[index];
 		r.dataUpdated = false;
 		r.renderable->InvalidateData(&r.data, flags);
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation();
 	}
 
 	/*!
@@ -102,7 +161,11 @@ namespace Ndk
 		NazaraUnused(node);
 
 		// Our view matrix depends on NodeComponent position/rotation
+		InvalidateBoundingVolume();
 		InvalidateTransformMatrix();
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
 	}
 
 	/*!
@@ -115,10 +178,29 @@ namespace Ndk
 
 		m_boundingVolume.MakeNull();
 		for (const Renderable& r : m_renderables)
-			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
+		{
+			Nz::BoundingVolumef boundingVolume = r.renderable->GetBoundingVolume();
 
-		m_boundingVolume.Update(m_transformMatrix);
+			// Adjust renderable bounding volume by local matrix
+			if (boundingVolume.IsFinite())
+			{
+				Nz::Boxf localBox = boundingVolume.obb.localBox;
+				Nz::Vector3f newPos = r.data.localMatrix * localBox.GetPosition();
+				Nz::Vector3f newLengths = r.data.localMatrix * localBox.GetLengths();
+
+				boundingVolume.Set(Nz::Boxf(newPos.x, newPos.y, newPos.z, newLengths.x, newLengths.y, newLengths.z));
+			}
+
+			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
+		}
+
+		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
+
+		m_boundingVolume.Update(Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_transformMatrix));
 		m_boundingVolumeUpdated = true;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.UpdateVolume(m_boundingVolume);
 	}
 
 	/*!
