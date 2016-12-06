@@ -82,6 +82,7 @@ namespace Nz
 
 			char* GetBuffer();
 			std::size_t GetCapacity() const;
+			std::size_t GetCharacterPosition(std::size_t characterIndex) const;
 			const char* GetConstBuffer() const;
 			std::size_t GetLength() const;
 			std::size_t GetSize() const;

@@ -25,6 +25,7 @@ TOOL.Files = {
 -- Excludes client-only files
 TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
+	"../SDK/**/Canvas.*",
 	"../SDK/**/Console.*",
 	"../SDK/**/GraphicsComponent.*",
 	"../SDK/**/LightComponent.*",
@@ -33,6 +34,7 @@ TOOL.FilesExcluded = {
 	"../SDK/**/Particle*Component.*",
 	"../SDK/**/ParticleSystem.*",
 	"../SDK/**/RenderSystem.*",
+	"../SDK/**/*Widget*.*",
 	"../SDK/**/LuaBinding_Audio.*",
 	"../SDK/**/LuaBinding_Graphics.*",
 	"../SDK/**/LuaBinding_Renderer.*"

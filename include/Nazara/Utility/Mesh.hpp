@@ -28,25 +28,15 @@ namespace Nz
 {
 	struct NAZARA_UTILITY_API MeshParams : ResourceParameters
 	{
-		MeshParams(); // Vérifie que le storage par défaut est supporté (software autrement)
+		MeshParams();
 
-		// La transformation appliquée à tous les sommets du mesh
-		Matrix4f matrix = Matrix4f::Identity();
-
-		// Si ceci sera le stockage utilisé par les buffers
-		UInt32 storage = DataStorage_Hardware;
-
-		// Charger une version animée du mesh si possible ?
-		bool animated = true;
-
-		// Faut-il centrer le mesh autour de l'origine ?
-		bool center = false;
-
-		// Faut-il retourner les UV ?
-		bool flipUVs = false;
-
-		// Faut-il optimiser les index buffers ? (Rendu plus rapide, mais le chargement dure plus longtemps)
-		bool optimizeIndexBuffers = true;
+		Matrix4f matrix = Matrix4f::Identity(); ///< A matrix which will transform every vertex position
+		UInt32 storage = DataStorage_Hardware;  ///< The place where the buffers will be allocated
+		Vector2f texCoordOffset = {0.f, 0.f};   ///< Offset to apply on the texture coordinates (not scaled)
+		Vector2f texCoordScale  = {1.f, 1.f};   ///< Scale to apply on the texture coordinates
+		bool animated = true;                   ///< If true, will load an animated version of the model if possible
+		bool center = false;                    ///< If true, will center the mesh vertices around the origin
+		bool optimizeIndexBuffers = true;       ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
 
 		bool IsValid() const;
 	};

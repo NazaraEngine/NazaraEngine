@@ -36,6 +36,7 @@
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Graphics/DeferredDOFPass.hpp>
 #include <Nazara/Graphics/DeferredFinalPass.hpp>

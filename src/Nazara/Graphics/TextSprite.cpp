@@ -108,6 +108,8 @@ namespace Nz
 		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -149,6 +151,8 @@ namespace Nz
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -200,8 +204,8 @@ namespace Nz
 	void TextSprite::MakeBoundingVolume() const
 	{
 		Rectf bounds(m_localBounds);
-		Vector2f max = bounds.GetMaximum();
-		Vector2f min = bounds.GetMinimum();
+		Vector2f max = m_scale * bounds.GetMaximum();
+		Vector2f min = m_scale * bounds.GetMinimum();
 
 		m_boundingVolume.Set(min.x * Vector3f::Right() + min.y * Vector3f::Down(), max.x * Vector3f::Right() + max.y * Vector3f::Down());
 	}

@@ -97,16 +97,13 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	unsigned int postProcess = aiProcess_CalcTangentSpace     | aiProcess_JoinIdenticalVertices
 	                         | aiProcess_MakeLeftHanded       | aiProcess_Triangulate
 	                         | aiProcess_RemoveComponent      | aiProcess_GenSmoothNormals
-	                         | aiProcess_SplitLargeMeshes     | aiProcess_LimitBoneWeights 
-	                         | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials 
-	                         | aiProcess_FixInfacingNormals   | aiProcess_SortByPType 
-	                         | aiProcess_FindInvalidData      | aiProcess_GenUVCoords 
-	                         | aiProcess_TransformUVCoords    | aiProcess_OptimizeMeshes 
-	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder 
+	                         | aiProcess_SplitLargeMeshes     | aiProcess_LimitBoneWeights
+	                         | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials
+	                         | aiProcess_FixInfacingNormals   | aiProcess_SortByPType
+	                         | aiProcess_FindInvalidData      | aiProcess_GenUVCoords
+	                         | aiProcess_TransformUVCoords    | aiProcess_OptimizeMeshes
+	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder
 	                         | aiProcess_Debone;
-
-	if (parameters.flipUVs)
-		postProcess |= aiProcess_FlipUVs;
 
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
@@ -157,7 +154,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	if (animatedMesh)
 	{
 		mesh->CreateSkeletal(joints.size());
-	
+
 		Skeleton* skeleton = mesh->GetSkeleton();
 
 		// First, assign names
@@ -172,9 +169,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	else
 	{
 		mesh->CreateStatic();
-	
+
 		// aiMaterial index in scene => Material index and data in Mesh
-		std::unordered_map<unsigned int, std::pair<unsigned int, ParameterList>> materials;
+		std::unordered_map<unsigned int, std::pair<std::size_t, ParameterList>> materials;
 
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
@@ -219,7 +216,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
 					vertex->normal.Set(normal.x, normal.y, normal.z);
 					vertex->tangent.Set(tangent.x, tangent.y, tangent.z);
-					vertex->uv.Set(uv.x, uv.y);
+					vertex->uv.Set(parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale);
 					vertex++;
 				}
 
@@ -311,7 +308,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				mesh->AddSubMesh(subMesh);
 			}
 
-			mesh->SetMaterialCount(std::max<unsigned int>(materials.size(), 1));
+			mesh->SetMaterialCount(std::max<UInt32>(materials.size(), 1));
 			for (const auto& pair : materials)
 				mesh->SetMaterialData(pair.second.first, pair.second.second);
 		}

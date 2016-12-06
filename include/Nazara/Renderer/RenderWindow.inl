@@ -12,7 +12,7 @@ namespace Nz
 	{
 	}
 
-	inline RenderWindow::RenderWindow(VideoMode mode, const String& title, UInt32 style, const RenderWindowParameters& parameters) :
+	inline RenderWindow::RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style, const RenderWindowParameters& parameters) :
 	RenderWindow()
 	{
 		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
@@ -27,7 +27,7 @@ namespace Nz
 		Create(handle, parameters);
 	}
 
-	inline bool RenderWindow::Create(VideoMode mode, const String& title, UInt32 style, const RenderWindowParameters& parameters)
+	inline bool RenderWindow::Create(VideoMode mode, const String& title, WindowStyleFlags style, const RenderWindowParameters& parameters)
 	{
 		m_parameters = parameters;
 

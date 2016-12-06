@@ -68,6 +68,18 @@ namespace Nz
 			return SparsePtr<const T>();
 		}
 	}
+
+	/*!
+	* \brief Gets a raw pointer to the particle buffer
+	*
+	* This can be useful when working directly with a struct
+	*
+	* \return Pointer to the buffer
+	*/
+	inline void* ParticleMapper::GetPointer()
+	{
+		return m_ptr;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

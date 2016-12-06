@@ -35,7 +35,7 @@ namespace Nz
 			WindowImpl(WindowImpl&&) = delete; ///TODO?
 			~WindowImpl();
 
-			bool Create(const VideoMode& mode, const String& title, UInt32 style);
+			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
 			bool Create(WindowHandle handle);
 
 			void Destroy();
@@ -47,7 +47,7 @@ namespace Nz
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
-			UInt32 GetStyle() const;
+			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
 			unsigned int GetWidth() const;
 
@@ -108,7 +108,7 @@ namespace Nz
 			xcb_randr_get_screen_info_reply_t m_oldVideoMode;
 			xcb_size_hints_t m_size_hints;
 			Thread m_thread;
-			UInt32 m_style;
+			WindowStyleFlags m_style;
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_ownsWindow;

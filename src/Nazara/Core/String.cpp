@@ -2095,6 +2095,43 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the index where a character begin
+	*
+	* Iterate through the string to find the starting position of a specific character index
+	* This is useful because non-ASCII characters may be encoded using multiple bytes.
+	*
+	* \param characterIndex Index of the character to search for
+	*
+	* \return Starting index
+	*/
+	std::size_t String::GetCharacterPosition(std::size_t characterIndex) const
+	{
+		const char* ptr = m_sharedString->string.get();
+		const char* end = &m_sharedString->string[m_sharedString->size];
+
+		try
+		{
+			utf8::advance(ptr, characterIndex, end);
+
+			return ptr - m_sharedString->string.get();
+		}
+		catch (utf8::not_enough_room& e)
+		{
+			// Returns npos
+		}
+		catch (utf8::exception& e)
+		{
+			NazaraError("UTF-8 error: " + String(e.what()));
+		}
+		catch (std::exception& e)
+		{
+			NazaraError(e.what());
+		}
+
+		return npos;
+	}
+
+	/*!
 	* \brief Gets the raw buffer
 	* \return Raw buffer
 	*/
@@ -5948,7 +5985,7 @@ namespace std
 
 		char c;
 
-		for (;;) 
+		for (;;)
 		{
 			is.get(c);
 			if (c != delim && c != '\0')

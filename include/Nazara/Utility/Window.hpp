@@ -36,7 +36,7 @@ namespace Nz
 
 		public:
 			inline Window();
-			inline Window(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline Window(WindowHandle handle);
 			Window(const Window&) = delete;
 			inline Window(Window&& window) noexcept;
@@ -44,7 +44,7 @@ namespace Nz
 
 			inline void Close();
 
-			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default);
+			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			bool Create(WindowHandle handle);
 
 			void Destroy();
@@ -62,7 +62,7 @@ namespace Nz
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
-			UInt32 GetStyle() const;
+			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
 			unsigned int GetWidth() const;
 

@@ -31,7 +31,7 @@ namespace Nz
 		public:
 			File();
 			File(const String& filePath);
-			File(const String& filePath, UInt32 openMode);
+			File(const String& filePath, OpenModeFlags openMode);
 			File(const File&) = delete;
 			File(File&& file) noexcept;
 			~File();
@@ -57,8 +57,8 @@ namespace Nz
 
 			bool IsOpen() const;
 
-			bool Open(unsigned int openMode = OpenMode_NotOpen);
-			bool Open(const String& filePath, unsigned int openMode = OpenMode_NotOpen);
+			bool Open(OpenModeFlags openMode = OpenMode_NotOpen);
+			bool Open(const String& filePath, OpenModeFlags openMode = OpenMode_NotOpen);
 
 			bool Rename(const String& newFilePath);
 

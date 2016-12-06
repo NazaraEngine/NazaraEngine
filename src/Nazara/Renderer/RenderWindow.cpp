@@ -10,12 +10,6 @@
 
 namespace Nz
 {
-	RenderWindow::~RenderWindow()
-	{
-		// Nécessaire si Window::Destroy est appelé par son destructeur
-		OnWindowDestroy();
-	}
-
 	void RenderWindow::Display()
 	{
 		if (m_framerateLimit > 0)
