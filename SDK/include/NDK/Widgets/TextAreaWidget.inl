@@ -15,6 +15,11 @@ namespace Ndk
 		RefreshCursor();
 	}
 
+	inline void TextAreaWidget::EnableMultiline(bool enable)
+	{
+		m_multiLineEnabled = enable;
+	}
+
 	inline std::size_t TextAreaWidget::GetCursorPosition() const
 	{
 		return m_cursorPosition;
@@ -28,6 +33,11 @@ namespace Ndk
 	inline const Nz::String& TextAreaWidget::GetText() const
 	{
 		return m_drawer.GetText();
+	}
+
+	inline bool Ndk::TextAreaWidget::IsMultilineEnabled() const
+	{
+		return m_multiLineEnabled;
 	}
 
 	inline bool TextAreaWidget::IsReadOnly() const

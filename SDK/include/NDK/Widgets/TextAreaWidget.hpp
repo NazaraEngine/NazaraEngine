@@ -30,12 +30,15 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
+			inline void EnableMultiline(bool enable = true);
+
 			inline std::size_t GetCursorPosition() const;
 			inline std::size_t GetLineCount() const;
 			inline const Nz::String& GetText() const;
 
 			std::size_t GetHoveredGlyph(float x, float y) const;
 
+			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
 
 			inline void MoveCursor(int offset);
@@ -68,6 +71,7 @@ namespace Ndk
 			Nz::SpriteRef m_cursorSprite;
 			Nz::TextSpriteRef m_textSprite;
 			std::size_t m_cursorPosition;
+			bool m_multiLineEnabled;
 			bool m_readOnly;
 	};
 }

@@ -14,6 +14,7 @@ namespace Ndk
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
 	m_cursorPosition(0U),
+	m_multiLineEnabled(false),
 	m_readOnly(false)
 	{
 		m_cursorSprite = Nz::Sprite::New();
@@ -174,7 +175,7 @@ namespace Ndk
 		{
 			GrabKeyboard();
 
-			SetCursorPosition(GetHoveredGlyph(x, y));
+			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
 		}
 	}
 
@@ -212,6 +213,9 @@ namespace Ndk
 
 			case '\r':
 			case '\n':
+				if (!m_multiLineEnabled)
+					break;
+
 				Write(Nz::String('\n'));
 				break;
 
