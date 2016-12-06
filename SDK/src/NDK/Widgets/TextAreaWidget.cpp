@@ -13,11 +13,12 @@ namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
-	m_cursorPosition(0U)
+	m_cursorPosition(0U),
+	m_readOnly(false)
 	{
 		m_cursorSprite = Nz::Sprite::New();
 		m_cursorSprite->SetColor(Nz::Color(192, 192, 192));
-		m_cursorSprite->SetSize(1.f, m_drawer.GetFont()->GetSizeInfo(m_drawer.GetCharacterSize()).lineHeight);
+		m_cursorSprite->SetSize(1.f, float(m_drawer.GetFont()->GetSizeInfo(m_drawer.GetCharacterSize()).lineHeight));
 
 		m_cursorEntity = CreateEntity();
 		m_cursorEntity->AddComponent<GraphicsComponent>().Attach(m_cursorSprite, 10);
@@ -188,6 +189,9 @@ namespace Ndk
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
 	{
+		if (m_readOnly)
+			return;
+
 		switch (character)
 		{
 			case '\b':
