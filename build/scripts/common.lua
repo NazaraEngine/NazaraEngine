@@ -104,7 +104,7 @@ function NazaraBuild:Execute()
 				filter({})
 			end
 		end
-		
+
 		-- Start defining projects
 		workspace("NazaraEngine")
 		platforms(platformData)
@@ -169,7 +169,7 @@ function NazaraBuild:Execute()
 
 			for k,v in pairs(moduleTable.ConfigurationLibraries) do
 				filter(k)
-				links(v)
+					links(v)
 			end
 
 			filter({})
@@ -236,7 +236,7 @@ function NazaraBuild:Execute()
 
 			for k,v in pairs(toolTable.ConfigurationLibraries) do
 				filter(k)
-				links(v)
+					links(v)
 			end
 
 			filter({})
@@ -282,7 +282,7 @@ function NazaraBuild:Execute()
 
 			for k,v in pairs(exampleTable.ConfigurationLibraries) do
 				filter(k)
-				links(v)
+					links(v)
 			end
 
 			filter({})
@@ -511,15 +511,26 @@ function NazaraBuild:LoadConfig()
 		description = "Setup additionnals install directories (library binaries will be copied there)"
 	})
 
-	self.Config["InstallDir"] = self.Config["InstallDir"] or ""
-	if (_OPTIONS["install-path"] ~= nil) then
-		self.Config["InstallDir"] = self.Config["InstallDir"] .. ";" .. _OPTIONS["install-path"]
+		configTable["Configurations"] = configs
 	end
 
-	local paths = string.explode(self.Config["InstallDir"], ";")
-	for k,v in pairs(paths) do
-		if (#v > 0) then
-			self:AddInstallPath(v)
+	-- InstallDir
+	do
+		newoption({
+			trigger     = "install-path",
+			description = "Setup additionnals install directories (library binaries will be copied there), separated by commas"
+		})
+
+		configTable["InstallDir"] = configTable["InstallDir"] or ""
+		if (_OPTIONS["install-path"] ~= nil) then
+			configTable["InstallDir"] = configTable["InstallDir"] .. ";" .. _OPTIONS["install-path"]
+		end
+
+		local paths = string.explode(configTable["InstallDir"], ";")
+		for k,v in pairs(paths) do
+			if (#v > 0) then
+				self:AddInstallPath(v)
+			end
 		end
 	end
 end
