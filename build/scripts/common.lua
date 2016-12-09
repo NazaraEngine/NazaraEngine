@@ -114,12 +114,17 @@ function NazaraBuild:Execute()
 		-- Add lib/conf/arch to library search path
 		self:FilterLibDirectory("../lib/", libdirs)
 
-		configurations({
-		--	"DebugStatic",
-		--	"ReleaseStatic",
-			"DebugDynamic",
-			"ReleaseDynamic"
-		})
+		do
+			local linkTypes = {"Dynamic"} -- {"Static", "Dynamic"}
+			local configs = {}
+			for k,linkType in pairs(linkTypes) do
+				for k,config in pairs(self.Config["Configurations"]) do
+					table.insert(configs, config .. linkType)
+				end
+			end
+
+			configurations(configs)
+		end
 
 		language("C++")
 		location(_ACTION)
@@ -505,11 +510,35 @@ function NazaraBuild:LoadConfig()
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
 
-	-- InstallDir
-	newoption({
-		trigger     = "install-path",
-		description = "Setup additionnals install directories (library binaries will be copied there)"
-	})
+	-- Configurations
+	do
+		newoption({
+			trigger     = "configurations",
+			description = "Override configurations target by a new set, separated by commas."
+		})
+
+		configTable["Configurations"] = configTable["Configurations"] or ""
+		if (_OPTIONS["configurations"] ~= nil) then
+			configTable["Configurations"] = _OPTIONS["configurations"]
+		end
+
+		local configs = {}
+		local validConfigs = {"Debug", "Release", "ReleaseWithDebug"}
+		local paths = string.explode(configTable["Configurations"], ",")
+		for k,v in pairs(paths) do
+			v = v:match("^%s*(.-)%s*$") -- Trim
+			if (#v > 0) then
+				if (table.contains(validConfigs, v)) then
+					table.insert(configs, v)
+				else
+					error("Invalid entry for configurations option: \"" .. v .. "\"")
+				end
+			end
+		end
+
+		if (#configs == 0) then
+			error("Invalid entry for configurations option: no option")
+		end
 
 		configTable["Configurations"] = configs
 	end
@@ -609,16 +638,20 @@ function NazaraBuild:Process(infoTable)
 				if (not self.Config["UniteModules"] or infoTable.Type ~= "Module") then
 					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
 					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
 					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
 					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
+					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library)
 				end
 			elseif (libraryTable.Type == "ExternLib") then
 				library = libraryTable.Name
 
 				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
 				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library .. "-s")
 			elseif (libraryTable.Type == "Tool") then
 				library = "Nazara" .. libraryTable.Name
 
@@ -640,8 +673,10 @@ function NazaraBuild:Process(infoTable)
 
 				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
 				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
 				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
+				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library)
 			else
 				infoTable.Excluded = true
 				infoTable.ExcludeReason = "dependency " .. library .. " has invalid type \"" .. libraryTable.Type .. "\""
@@ -734,12 +769,14 @@ function NazaraBuild:PrepareGeneric()
 	filter({"kind:*Lib", "configurations:DebugDynamic"})
 		targetsuffix("-d")
 
-	filter("configurations:Debug*")
+	filter("configurations:*Debug*")
 		symbols("On")
+
+	filter("configurations:not *Debug*")
+		flags("NoFramePointer")
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
-		flags("NoFramePointer")
 		optimize("Speed")
 		vectorextensions("SSE2")
 
@@ -961,8 +998,10 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.ConfigurationLibraries = {}
 	infoTable.ConfigurationLibraries.DebugStatic = {}
 	infoTable.ConfigurationLibraries.ReleaseStatic = {}
+	infoTable.ConfigurationLibraries.ReleaseWithDebugStatic = {}
 	infoTable.ConfigurationLibraries.DebugDynamic = {}
 	infoTable.ConfigurationLibraries.ReleaseDynamic = {}
+	infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic = {}
 	infoTable.Excludable = true
 	infoTable.LibraryPaths = {}
 	infoTable.LibraryPaths.x86 = {}
