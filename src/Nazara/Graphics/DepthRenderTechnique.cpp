@@ -141,7 +141,7 @@ namespace Nz
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, BufferUsage_Static);
+			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, 0);
 
 			BufferMapper<IndexBuffer> mapper(s_quadIndexBuffer, BufferAccess_WriteOnly);
 			UInt16* indices = static_cast<UInt16*>(mapper.GetPointer());
@@ -161,7 +161,7 @@ namespace Nz
 
 			// Quad buffer (utilisé pour l'instancing de billboard et de sprites)
 			//Note: Les UV sont calculés dans le shader
-			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, BufferUsage_Static);
+			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, 0);
 
 			float vertices[2 * 4] = {
 			   -0.5f, -0.5f,
@@ -202,7 +202,7 @@ namespace Nz
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
-	
+
 	/*!
 	* \brief Draws basic sprites
 	*
@@ -327,7 +327,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	* \param layer Layer of the rendering
 	*/
-	
+
 	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
@@ -386,7 +386,7 @@ namespace Nz
 								std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
 								billboardCount -= renderedBillboardCount;
 
-								instanceBuffer->Fill(data, 0, renderedBillboardCount, true);
+								instanceBuffer->Fill(data, 0, renderedBillboardCount);
 								data += renderedBillboardCount;
 
 								Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
@@ -498,7 +498,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	* \param layer Layer of the rendering
 	*/
-	
+
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
@@ -594,7 +594,7 @@ namespace Nz
 										instanceCount -= renderedInstanceCount;
 
 										// We fill the instancing buffer with our world matrices
-										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+										instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount);
 										instanceMatrices += renderedInstanceCount;
 
 										// And we draw

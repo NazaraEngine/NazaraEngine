@@ -13,25 +13,26 @@
 
 namespace Nz
 {
+	class Buffer;
+
 	class HardwareBuffer : public AbstractBuffer
 	{
 		public:
 			HardwareBuffer(Buffer* parent, BufferType type);
 			~HardwareBuffer();
 
-			bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static);
-			void Destroy();
+			bool Fill(const void* data, UInt32 offset, UInt32 size) override;
 
-			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
+			bool Initialize(unsigned int size, BufferUsageFlags usage) override;
 
-			bool IsHardware() const;
+			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-			bool Unmap();
+			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) override;
+			bool Unmap() override;
 
 			// Fonctions OpenGL
 			void Bind() const;
-			unsigned int GetOpenGLID() const;
+			GLuint GetOpenGLID() const;
 
 		private:
 			GLuint m_buffer;

@@ -7,7 +7,8 @@
 #ifndef NAZARA_ABSTRACTBUFFER_HPP
 #define NAZARA_ABSTRACTBUFFER_HPP
 
-#include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
@@ -17,14 +18,13 @@ namespace Nz
 			AbstractBuffer() = default;
 			virtual ~AbstractBuffer();
 
-			virtual bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static) = 0;
-			virtual void Destroy() = 0;
+			virtual bool Fill(const void* data, UInt32 offset, UInt32 size) = 0;
 
-			virtual bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false) = 0;
+			virtual bool Initialize(UInt32 size, BufferUsageFlags usage) = 0;
 
-			virtual bool IsHardware() const = 0;
+			virtual DataStorage GetStorage() const = 0;
 
-			virtual void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) = 0;
+			virtual void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) = 0;
 			virtual bool Unmap() = 0;
 	};
 }
