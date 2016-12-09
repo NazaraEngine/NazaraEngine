@@ -162,11 +162,11 @@ namespace Nz
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
 			// Index buffer
-			IndexBufferRef indexBuffer = IndexBuffer::New(false, 36, DataStorage_Hardware, BufferUsage_Static);
+			IndexBufferRef indexBuffer = IndexBuffer::New(false, 36, DataStorage_Hardware, 0);
 			indexBuffer->Fill(indices, 0, 36);
 
 			// Vertex buffer
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ), 8, DataStorage_Hardware, BufferUsage_Static);
+			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ), 8, DataStorage_Hardware, 0);
 			vertexBuffer->Fill(vertices, 0, 8);
 
 			// Shader

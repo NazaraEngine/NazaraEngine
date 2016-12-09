@@ -69,7 +69,7 @@ namespace Nz
 		{
 			Font* font = drawer.GetFont(i);
 			const AbstractAtlas* atlas = font->GetAtlas().get();
-			NazaraAssert(atlas->GetStorage() & DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
+			NazaraAssert(atlas->GetStorage() == DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
 			auto it = m_atlases.find(atlas);
 			if (it == m_atlases.end())

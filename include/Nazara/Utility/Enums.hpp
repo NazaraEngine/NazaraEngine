@@ -56,10 +56,18 @@ namespace Nz
 	enum BufferUsage
 	{
 		BufferUsage_Dynamic,
-		BufferUsage_Static,
+		BufferUsage_FastRead,
 
-		BufferUsage_Max = BufferUsage_Static
+		BufferUsage_Max = BufferUsage_FastRead
 	};
+
+	template<>
+	struct EnableFlagsOperators<BufferUsage>
+	{
+		static constexpr bool value = true;
+	};
+
+	using BufferUsageFlags = Flags<BufferUsage>;
 
 	enum ComponentType
 	{
@@ -95,14 +103,12 @@ namespace Nz
 		CubemapFace_Max = CubemapFace_NegativeZ
 	};
 
-	enum DataStorageFlags
+	enum DataStorage
 	{
-		DataStorage_Hardware = 0x1,
-		DataStorage_Software = 0x2,
+		DataStorage_Hardware,
+		DataStorage_Software,
 
-		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
-
-		DataStorage_Max = DataStorage_Software*2-1
+		DataStorage_Max = DataStorage_Software
 	};
 
 	enum FaceFilling
