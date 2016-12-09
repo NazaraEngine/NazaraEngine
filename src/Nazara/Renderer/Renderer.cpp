@@ -656,7 +656,7 @@ namespace Nz
 		s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 		s_vertexBuffer = nullptr;
 
-		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, BufferUsage_Static);
+		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, 0);
 
 		float vertices[4 * 2 * 2] =
 		{
@@ -939,14 +939,6 @@ namespace Nz
 
 	void Renderer::SetIndexBuffer(const IndexBuffer* indexBuffer)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (indexBuffer && !indexBuffer->IsHardware())
-		{
-			NazaraError("Buffer must be hardware");
-			return;
-		}
-		#endif
-
 		if (s_indexBuffer != indexBuffer)
 		{
 			s_indexBuffer = indexBuffer;
@@ -1349,15 +1341,7 @@ namespace Nz
 
 	void Renderer::SetVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (vertexBuffer && !vertexBuffer->IsHardware())
-		{
-			NazaraError("Buffer must be hardware");
-			return;
-		}
-		#endif
-
-		if (vertexBuffer && s_vertexBuffer != vertexBuffer)
+		if (s_vertexBuffer != vertexBuffer)
 		{
 			s_vertexBuffer = vertexBuffer;
 			s_updateFlags |= Update_VAO;
@@ -1540,13 +1524,17 @@ namespace Nz
 
 			if (s_updateFlags & Update_VAO)
 			{
-				#if NAZARA_RENDERER_SAFE
-				if (!s_vertexBuffer)
+				if (!s_vertexBuffer || !s_vertexBuffer->IsValid())
 				{
-					NazaraError("No vertex buffer");
+					NazaraError("Invalid vertex buffer");
 					return false;
 				}
-				#endif
+
+				if (s_vertexBuffer->GetBuffer()->GetStorage() != DataStorage_Hardware)
+				{
+					NazaraError("Vertex buffer storage is not hardware");
+					return false;
+				}
 
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
 				const Context* context = Context::GetCurrent();
@@ -1712,6 +1700,18 @@ namespace Nz
 					// Et on active l'index buffer (Un seul index buffer par VAO)
 					if (s_indexBuffer)
 					{
+						if (!s_indexBuffer->IsValid())
+						{
+							NazaraError("Invalid index buffer");
+							return false;
+						}
+
+						if (s_vertexBuffer->GetBuffer()->GetStorage() != DataStorage_Hardware)
+						{
+							NazaraError("Index buffer storage is not hardware");
+							return false;
+						}
+
 						HardwareBuffer* indexBufferImpl = static_cast<HardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
 						glBindBuffer(OpenGL::BufferTarget[BufferType_Index], indexBufferImpl->GetOpenGLID());
 					}

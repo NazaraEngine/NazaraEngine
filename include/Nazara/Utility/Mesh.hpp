@@ -30,13 +30,13 @@ namespace Nz
 	{
 		MeshParams();
 
-		Matrix4f matrix = Matrix4f::Identity(); ///< A matrix which will transform every vertex position
-		UInt32 storage = DataStorage_Hardware;  ///< The place where the buffers will be allocated
-		Vector2f texCoordOffset = {0.f, 0.f};   ///< Offset to apply on the texture coordinates (not scaled)
-		Vector2f texCoordScale  = {1.f, 1.f};   ///< Scale to apply on the texture coordinates
-		bool animated = true;                   ///< If true, will load an animated version of the model if possible
-		bool center = false;                    ///< If true, will center the mesh vertices around the origin
-		bool optimizeIndexBuffers = true;       ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+		Matrix4f matrix = Matrix4f::Identity();     ///< A matrix which will transform every vertex position
+		DataStorage storage = DataStorage_Hardware; ///< The place where the buffers will be allocated
+		Vector2f texCoordOffset = {0.f, 0.f};       ///< Offset to apply on the texture coordinates (not scaled)
+		Vector2f texCoordScale  = {1.f, 1.f};       ///< Scale to apply on the texture coordinates
+		bool animated = true;                       ///< If true, will load an animated version of the model if possible
+		bool center = false;                        ///< If true, will center the mesh vertices around the origin
+		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
 
 		bool IsValid() const;
 	};

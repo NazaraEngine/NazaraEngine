@@ -1906,16 +1906,6 @@ namespace Nz
 
 	static_assert(BufferType_Max + 1 == 2, "Buffer target binding array is incomplete");
 
-	GLenum OpenGL::BufferUsage[] =
-	{
-		// D'après la documentation, GL_STREAM_DRAW semble être plus adapté à notre cas (ratio modification/rendu 1:2-3)
-		// Source: http://www.opengl.org/sdk/docs/man/html/glBufferData.xhtml
-		GL_STREAM_DRAW, // BufferUsage_Dynamic
-		GL_STATIC_DRAW  // BufferUsage_Static
-	};
-
-	static_assert(BufferUsage_Max + 1 == 2, "Buffer usage array is incomplete");
-
 	GLenum OpenGL::ComponentType[] =
 	{
 		GL_UNSIGNED_BYTE, // ComponentType_Color

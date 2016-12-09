@@ -9,27 +9,29 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
+#include <vector>
 
 namespace Nz
 {
+	class Buffer;
+
 	class SoftwareBuffer : public AbstractBuffer
 	{
 		public:
 			SoftwareBuffer(Buffer* parent, BufferType type);
 			~SoftwareBuffer();
 
-			bool Create(unsigned int size, BufferUsage usage = BufferUsage_Static);
-			void Destroy();
+			bool Fill(const void* data, UInt32 offset, UInt32 size) override;
 
-			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard);
+			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
 
-			bool IsHardware() const;
+			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-			bool Unmap();
+			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) override;
+			bool Unmap() override;
 
 		private:
-			UInt8* m_buffer;
+			std::vector<UInt8> m_buffer;
 			bool m_mapped;
 	};
 }
