@@ -15,7 +15,7 @@ namespace Nz
 {
 	class Buffer;
 
-	class SoftwareBuffer : public AbstractBuffer
+	class NAZARA_UTILITY_API SoftwareBuffer : public AbstractBuffer
 	{
 		public:
 			SoftwareBuffer(Buffer* parent, BufferType type);
