@@ -9,7 +9,7 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 
 namespace Ndk
 {

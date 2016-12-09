@@ -11,7 +11,7 @@
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 
 namespace Ndk
 {

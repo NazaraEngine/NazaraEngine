@@ -11,7 +11,7 @@
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Node.hpp>
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 
 namespace Ndk
 {

@@ -143,6 +143,16 @@ namespace Ndk
 		return m_zNear;
 	}
 
+	/*!
+	* \brief Serialize the CameraComponent
+	*
+	* Saves the current CameraComponent states to a stream (given by the serialization context).
+	* This operation does not changes any of the component state.
+	*
+	* \param context Serialization context giving all required data for the operation to succeed
+	*
+	* \return true if the component got successfully serialized
+	*/
 	bool CameraComponent::Serialize(Nz::SerializationContext& context) const
 	{
 		if (!Nz::Serialize(context, static_cast<Nz::UInt32>(m_projectionType)))
@@ -181,6 +191,16 @@ namespace Ndk
 		m_entity->Invalidate(); // Invalidate the entity to make it passes through RenderSystem validation
 	}
 
+	/*!
+	* \brief Unserializes the CameraComponent
+	*
+	* Restores a previously serialized state from a stream (given by the serialization context).
+	* This operation overrides all of the component states.
+	*
+	* \param context Serialization context giving all required data for the operation to succeed
+	*
+	* \return true if the component got successfully serialized
+	*/
 	bool CameraComponent::Unserialize(Nz::SerializationContext& context)
 	{
 		Nz::UInt32 projectionType;

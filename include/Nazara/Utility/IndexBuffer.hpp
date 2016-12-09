@@ -23,46 +23,46 @@ namespace Nz
 	{
 		public:
 			IndexBuffer() = default;
-			IndexBuffer(bool largeIndices, Buffer* buffer);
-			IndexBuffer(bool largeIndices, Buffer* buffer, unsigned int startOffset, unsigned int endOffset);
-			IndexBuffer(bool largeIndices, unsigned int length, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			IndexBuffer(bool largeIndices, BufferRef buffer);
+			IndexBuffer(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size);
+			IndexBuffer(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage);
 			IndexBuffer(const IndexBuffer& indexBuffer);
+			IndexBuffer(IndexBuffer&&) = delete;
 			~IndexBuffer();
 
 			unsigned int ComputeCacheMissCount() const;
 
-			bool Fill(const void* data, unsigned int startIndex, unsigned int length, bool forceDiscard = false);
-			bool FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
+			bool Fill(const void* data, UInt32 startIndex, UInt32 length);
+			bool FillRaw(const void* data, UInt32 offset, UInt32 size);
 
-			Buffer* GetBuffer() const;
-			unsigned int GetEndOffset() const;
-			unsigned int GetIndexCount() const;
-			unsigned int GetStride() const;
-			unsigned int GetStartOffset() const;
+			inline const BufferRef& GetBuffer() const;
+			inline UInt32 GetEndOffset() const;
+			inline UInt32 GetIndexCount() const;
+			inline DataStorage GetStorage() const;
+			inline UInt32 GetStride() const;
+			inline UInt32 GetStartOffset() const;
 
-			bool HasLargeIndices() const;
+			inline bool HasLargeIndices() const;
 
-			bool IsHardware() const;
-			bool IsValid() const;
+			inline bool IsValid() const;
 
-			void* Map(BufferAccess access, unsigned int startVertex = 0, unsigned int length = 0);
-			void* Map(BufferAccess access, unsigned int startVertex = 0, unsigned int length = 0) const;
-			void* MapRaw(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-			void* MapRaw(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
+			inline void* Map(BufferAccess access, UInt32 startVertex = 0, UInt32 length = 0);
+			inline void* Map(BufferAccess access, UInt32 startVertex = 0, UInt32 length = 0) const;
+			void* MapRaw(BufferAccess access, UInt32 offset = 0, UInt32 size = 0);
+			void* MapRaw(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) const;
 
 			void Optimize();
 
 			void Reset();
-			void Reset(bool largeIndices, Buffer* buffer);
-			void Reset(bool largeIndices, Buffer* buffer, unsigned int startOffset, unsigned int endOffset);
-			void Reset(bool largeIndices, unsigned int length, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			void Reset(bool largeIndices, BufferRef buffer);
+			void Reset(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size);
+			void Reset(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage);
 			void Reset(const IndexBuffer& indexBuffer);
-
-			bool SetStorage(UInt32 storage);
 
 			void Unmap() const;
 
 			IndexBuffer& operator=(const IndexBuffer& indexBuffer);
+			IndexBuffer& operator=(IndexBuffer&&) = delete;
 
 			template<typename... Args> static IndexBufferRef New(Args&&... args);
 
@@ -71,10 +71,10 @@ namespace Nz
 
 		private:
 			BufferRef m_buffer;
+			UInt32 m_endOffset;
+			UInt32 m_indexCount;
+			UInt32 m_startOffset;
 			bool m_largeIndices;
-			unsigned int m_endOffset;
-			unsigned int m_indexCount;
-			unsigned int m_startOffset;
 	};
 }
 

@@ -81,7 +81,7 @@ namespace Nz
 	{
 	}
 
-	bool WindowImpl::Create(const VideoMode& mode, const String& title, UInt32 style)
+	bool WindowImpl::Create(const VideoMode& mode, const String& title, WindowStyleFlags style)
 	{
 		bool async = (style & WindowStyle_Threaded) != 0;
 		bool fullscreen = (style & WindowStyle_Fullscreen) != 0;
@@ -259,7 +259,7 @@ namespace Nz
 		return m_size;
 	}
 
-	UInt32 WindowImpl::GetStyle() const
+	WindowStyleFlags WindowImpl::GetStyle() const
 	{
 		return m_style;
 	}

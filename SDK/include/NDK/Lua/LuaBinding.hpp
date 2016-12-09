@@ -9,7 +9,7 @@
 
 #include <NDK/BaseComponent.hpp>
 #include <NDK/Entity.hpp>
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 #include <memory>
 
 namespace Ndk
@@ -63,6 +63,6 @@ namespace Ndk
 	};
 }
 
-#include <NDK/LuaBinding.inl>
+#include <NDK/Lua/LuaBinding.inl>
 
 #endif // NDK_LUABINDING_HPP

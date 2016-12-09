@@ -11,7 +11,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 
 namespace Ndk
 {

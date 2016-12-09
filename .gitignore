@@ -25,6 +25,9 @@ tests/*.so
 # Example generated files
 examples/bin/HardwareInfo.txt
 
+# Example generated files
+examples/bin/HardwareInfo.txt
+
 # Feature page
 build/scripts/features/index.html
 

@@ -49,7 +49,7 @@ namespace Nz
 		return static_cast<UInt64>(position);
 	}
 
-	bool FileImpl::Open(const String& filePath, UInt32 mode)
+	bool FileImpl::Open(const String& filePath, OpenModeFlags mode)
 	{
 		int flags;
 		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
@@ -65,6 +65,9 @@ namespace Nz
 
 		if (mode & OpenMode_Append)
 			flags |= O_APPEND;
+
+		if (mode & OpenMode_MustExist)
+			flags &= ~O_CREAT;
 
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;

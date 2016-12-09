@@ -1,6 +1,6 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding_Core.hpp>
+#include <NDK/Lua/LuaBinding_Core.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
@@ -14,6 +14,50 @@ namespace Ndk
 	LuaBinding_Core::LuaBinding_Core(LuaBinding& binding) :
 	LuaBinding_Base(binding)
 	{
+		/*********************************** Nz::Stream ***********************************/
+		stream.Reset("Stream");
+		{
+			stream.BindMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
+			stream.BindMethod("Flush", &Nz::Stream::Flush);
+			stream.BindMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
+			stream.BindMethod("GetDirectory", &Nz::Stream::GetDirectory);
+			stream.BindMethod("GetPath", &Nz::Stream::GetPath);
+			stream.BindMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
+			stream.BindMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
+			stream.BindMethod("GetSize", &Nz::Stream::GetSize);
+			stream.BindMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
+			stream.BindMethod("IsReadable", &Nz::Stream::IsReadable);
+			stream.BindMethod("IsSequential", &Nz::Stream::IsSequential);
+			stream.BindMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
+			stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
+			stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
+
+			stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
+				int argIndex = 2;
+
+				std::size_t length = lua.Check<std::size_t>(&argIndex);
+
+				std::unique_ptr<char[]> buffer(new char[length]);
+				std::size_t readLength = instance.Read(buffer.get(), length);
+
+				lua.PushString(Nz::String(buffer.get(), readLength));
+				return 1;
+			});
+
+			stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
+				int argIndex = 2;
+
+				std::size_t bufferSize = 0;
+				const char* buffer = lua.CheckString(argIndex, &bufferSize);
+
+				if (instance.IsTextModeEnabled())
+					lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
+				else
+					lua.Push(instance.Write(buffer, bufferSize));
+				return 1;
+			});
+		}
+
 		/*********************************** Nz::Clock **********************************/
 		clock.Reset("Clock");
 		{
@@ -126,7 +170,7 @@ namespace Ndk
 		}
 
 		/*********************************** Nz::File ***********************************/
-		file.Reset("Stream");
+		file.Reset("File");
 		{
 			file.Inherit(stream);
 
@@ -249,50 +293,6 @@ namespace Ndk
 				return 1;
 			});
 		}
-
-		/*********************************** Nz::Stream ***********************************/
-		stream.Reset("Stream");
-		{
-			stream.BindMethod("EnableTextMode", &Nz::Stream::EnableTextMode);
-			stream.BindMethod("Flush", &Nz::Stream::Flush);
-			stream.BindMethod("GetCursorPos", &Nz::Stream::GetCursorPos);
-			stream.BindMethod("GetDirectory", &Nz::Stream::GetDirectory);
-			stream.BindMethod("GetPath", &Nz::Stream::GetPath);
-			stream.BindMethod("GetOpenMode", &Nz::Stream::GetOpenMode);
-			stream.BindMethod("GetStreamOptions", &Nz::Stream::GetStreamOptions);
-			stream.BindMethod("GetSize", &Nz::Stream::GetSize);
-			stream.BindMethod("ReadLine", &Nz::Stream::ReadLine, 0U);
-			stream.BindMethod("IsReadable", &Nz::Stream::IsReadable);
-			stream.BindMethod("IsSequential", &Nz::Stream::IsSequential);
-			stream.BindMethod("IsTextModeEnabled", &Nz::Stream::IsTextModeEnabled);
-			stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
-			stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
-
-			stream.BindMethod("Read", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
-				int argIndex = 2;
-
-				std::size_t length = lua.Check<std::size_t>(&argIndex);
-
-				std::unique_ptr<char[]> buffer(new char[length]);
-				std::size_t readLength = instance.Read(buffer.get(), length);
-
-				lua.PushString(Nz::String(buffer.get(), readLength));
-				return 1;
-			});
-
-			stream.BindMethod("Write", [] (Nz::LuaInstance& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
-				int argIndex = 2;
-
-				std::size_t bufferSize = 0;
-				const char* buffer = lua.CheckString(argIndex, &bufferSize);
-
-				if (instance.IsTextModeEnabled())
-					lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
-				else
-					lua.Push(instance.Write(buffer, bufferSize));
-				return 1;
-			});
-		}
 	}
 
 	/*!
@@ -337,16 +337,16 @@ namespace Ndk
 		instance.SetGlobal("HashType");
 
 		// Nz::OpenMode
-		static_assert(Nz::OpenMode_Max + 1 == 2 * (64), "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
-		instance.PushTable(0, 8);
+		static_assert(Nz::OpenMode_Max + 1 == 8, "Nz::OpenModeFlags has been updated but change was not reflected to Lua binding");
+		instance.PushTable(0, Nz::OpenMode_Max + 1);
 		{
-			instance.PushField("Append", Nz::OpenMode_Append);
-			instance.PushField("NotOpen", Nz::OpenMode_NotOpen);
-			instance.PushField("Lock", Nz::OpenMode_Lock);
-			instance.PushField("ReadOnly", Nz::OpenMode_ReadOnly);
+			instance.PushField("Append",    Nz::OpenMode_Append);
+			instance.PushField("NotOpen",   Nz::OpenMode_NotOpen);
+			instance.PushField("Lock",      Nz::OpenMode_Lock);
+			instance.PushField("ReadOnly",  Nz::OpenMode_ReadOnly);
 			instance.PushField("ReadWrite", Nz::OpenMode_ReadWrite);
-			instance.PushField("Text", Nz::OpenMode_Text);
-			instance.PushField("Truncate", Nz::OpenMode_Truncate);
+			instance.PushField("Text",      Nz::OpenMode_Text);
+			instance.PushField("Truncate",  Nz::OpenMode_Truncate);
 			instance.PushField("WriteOnly", Nz::OpenMode_WriteOnly);
 		}
 		instance.SetGlobal("OpenMode");

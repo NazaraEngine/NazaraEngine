@@ -7,7 +7,7 @@
 #ifndef NDK_LUABINDING_SDK_HPP
 #define NDK_LUABINDING_SDK_HPP
 
-#include <NDK/LuaBinding_Base.hpp>
+#include <NDK/Lua/LuaBinding_Base.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Console.hpp>
 #include <NDK/Entity.hpp>

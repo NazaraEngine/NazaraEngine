@@ -404,7 +404,6 @@ namespace Nz
 
 		return 1;
 	}
-
 #endif
 
 	inline int LuaImplReplyVal(const LuaInstance& instance, Color&& val, TypeTag<Color>)

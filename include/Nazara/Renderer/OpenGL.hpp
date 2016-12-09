@@ -131,7 +131,6 @@ namespace Nz
 			static GLenum BufferLockRange[BufferAccess_Max+1];
 			static GLenum BufferTarget[BufferType_Max+1];
 			static GLenum BufferTargetBinding[BufferType_Max+1];
-			static GLenum BufferUsage[BufferUsage_Max+1];
 			static GLenum ComponentType[ComponentType_Max+1];
 			static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 			static GLenum FaceFilling[FaceFilling_Max+1];

@@ -1,6 +1,6 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
 
 namespace Ndk
 {
@@ -19,14 +19,15 @@ namespace Ndk
 		core    = LuaBinding_Base::BindCore(*this);
 		math    = LuaBinding_Base::BindMath(*this);
 		network = LuaBinding_Base::BindNetwork(*this);
-		sdk     = LuaBinding_Base::BindSDK(*this);
 		utility = LuaBinding_Base::BindUtility(*this);
 
 		#ifndef NDK_SERVER
 		audio = LuaBinding_Base::BindAudio(*this);
-		graphics = LuaBinding_Base::BindGraphics(*this);
 		renderer = LuaBinding_Base::BindRenderer(*this);
+		graphics = LuaBinding_Base::BindGraphics(*this);
 		#endif
+
+		sdk     = LuaBinding_Base::BindSDK(*this);
 	}
 
 	/*!

@@ -194,7 +194,7 @@ namespace Nz
 
 		// Free of atlas if it is ours
 		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
-		if (defaultAtlas && defaultAtlas->GetStorage() & DataStorage_Hardware)
+		if (defaultAtlas && defaultAtlas->GetStorage() == DataStorage_Hardware)
 		{
 			Font::SetDefaultAtlas(nullptr);
 
@@ -235,7 +235,7 @@ namespace Nz
 		DepthRenderTechnique::Uninitialize();
 		ForwardRenderTechnique::Uninitialize();
 		SkinningManager::Uninitialize();
-		
+
 		// Materials
 		Material::Uninitialize();
 		MaterialPipeline::Uninitialize();

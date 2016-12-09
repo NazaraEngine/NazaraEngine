@@ -68,6 +68,8 @@ namespace Ndk
 
 			bool Unserialize(Nz::SerializationContext& context) override;
 
+			inline bool UpdateVisibility(std::size_t visibilityHash);
+
 			static ComponentIndex componentIndex;
 
 		private:
@@ -93,6 +95,7 @@ namespace Ndk
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
+			std::size_t m_visibilityHash;
 			Nz::ProjectionType m_projectionType;
 			mutable Nz::Frustumf m_frustum;
 			mutable Nz::Matrix4f m_projectionMatrix;

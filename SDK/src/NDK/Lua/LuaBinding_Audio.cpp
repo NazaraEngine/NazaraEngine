@@ -1,6 +1,6 @@
 // This file was automatically generated on 26 May 2014 at 01:05:31
 
-#include <NDK/LuaBinding_Audio.hpp>
+#include <NDK/Lua/LuaBinding_Audio.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <NDK/LuaAPI.hpp>
 
@@ -14,6 +14,38 @@ namespace Ndk
 	LuaBinding_Audio::LuaBinding_Audio(LuaBinding& binding) :
 	LuaBinding_Base(binding)
 	{
+		/*********************************** Nz::SoundEmitter **********************************/
+		soundEmitter.Reset("SoundEmitter");
+		{
+			soundEmitter.BindMethod("EnableLooping", &Nz::SoundEmitter::EnableLooping);
+			soundEmitter.BindMethod("EnableSpatialization", &Nz::SoundEmitter::EnableSpatialization);
+
+			soundEmitter.BindMethod("GetAttenuation", &Nz::SoundEmitter::GetAttenuation);
+			soundEmitter.BindMethod("GetDuration", &Nz::SoundEmitter::GetDuration);
+			soundEmitter.BindMethod("GetMinDistance", &Nz::SoundEmitter::GetMinDistance);
+			soundEmitter.BindMethod("GetPitch", &Nz::SoundEmitter::GetPitch);
+			soundEmitter.BindMethod("GetPlayingOffset", &Nz::SoundEmitter::GetPlayingOffset);
+			soundEmitter.BindMethod("GetPosition", &Nz::Sound::GetPosition);
+			soundEmitter.BindMethod("GetStatus", &Nz::SoundEmitter::GetStatus);
+			soundEmitter.BindMethod("GetVelocity", &Nz::Sound::GetVelocity);
+			soundEmitter.BindMethod("GetVolume", &Nz::SoundEmitter::GetVolume);
+
+			soundEmitter.BindMethod("IsLooping", &Nz::SoundEmitter::IsLooping);
+			soundEmitter.BindMethod("IsSpatialized", &Nz::SoundEmitter::IsSpatialized);
+
+			soundEmitter.BindMethod("Pause", &Nz::SoundEmitter::Pause);
+			soundEmitter.BindMethod("Play", &Nz::SoundEmitter::Play);
+
+			soundEmitter.BindMethod("SetAttenuation", &Nz::SoundEmitter::SetAttenuation);
+			soundEmitter.BindMethod("SetMinDistance", &Nz::SoundEmitter::SetMinDistance);
+			soundEmitter.BindMethod("SetPitch", &Nz::SoundEmitter::SetPitch);
+			soundEmitter.BindMethod("SetPosition", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetPosition);
+			soundEmitter.BindMethod("SetVelocity", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetVelocity);
+			soundEmitter.BindMethod("SetVolume", &Nz::SoundEmitter::SetVolume);
+
+			soundEmitter.BindMethod("Stop", &Nz::SoundEmitter::Stop);
+		}
+
 		/*********************************** Nz::Music **********************************/
 		music.Reset("Music");
 		{
@@ -148,38 +180,6 @@ namespace Ndk
 				lua.PushString(ss);
 				return 1;
 			});
-		}
-
-		/*********************************** Nz::SoundEmitter **********************************/
-		soundEmitter.Reset("SoundEmitter");
-		{
-			soundEmitter.BindMethod("EnableLooping", &Nz::SoundEmitter::EnableLooping);
-			soundEmitter.BindMethod("EnableSpatialization", &Nz::SoundEmitter::EnableSpatialization);
-
-			soundEmitter.BindMethod("GetAttenuation", &Nz::SoundEmitter::GetAttenuation);
-			soundEmitter.BindMethod("GetDuration", &Nz::SoundEmitter::GetDuration);
-			soundEmitter.BindMethod("GetMinDistance", &Nz::SoundEmitter::GetMinDistance);
-			soundEmitter.BindMethod("GetPitch", &Nz::SoundEmitter::GetPitch);
-			soundEmitter.BindMethod("GetPlayingOffset", &Nz::SoundEmitter::GetPlayingOffset);
-			soundEmitter.BindMethod("GetPosition", &Nz::Sound::GetPosition);
-			soundEmitter.BindMethod("GetStatus", &Nz::SoundEmitter::GetStatus);
-			soundEmitter.BindMethod("GetVelocity", &Nz::Sound::GetVelocity);
-			soundEmitter.BindMethod("GetVolume", &Nz::SoundEmitter::GetVolume);
-
-			soundEmitter.BindMethod("IsLooping", &Nz::SoundEmitter::IsLooping);
-			soundEmitter.BindMethod("IsSpatialized", &Nz::SoundEmitter::IsSpatialized);
-
-			soundEmitter.BindMethod("Pause", &Nz::SoundEmitter::Pause);
-			soundEmitter.BindMethod("Play", &Nz::SoundEmitter::Play);
-
-			soundEmitter.BindMethod("SetAttenuation", &Nz::SoundEmitter::SetAttenuation);
-			soundEmitter.BindMethod("SetMinDistance", &Nz::SoundEmitter::SetMinDistance);
-			soundEmitter.BindMethod("SetPitch", &Nz::SoundEmitter::SetPitch);
-			soundEmitter.BindMethod("SetPosition", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetPosition);
-			soundEmitter.BindMethod("SetVelocity", (void(Nz::SoundEmitter::*)(const Nz::Vector3f&)) &Nz::SoundEmitter::SetVelocity);
-			soundEmitter.BindMethod("SetVolume", &Nz::SoundEmitter::SetVolume);
-
-			soundEmitter.BindMethod("Stop", &Nz::SoundEmitter::Stop);
 		}
 	}
 

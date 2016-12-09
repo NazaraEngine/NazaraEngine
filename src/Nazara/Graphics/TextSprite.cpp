@@ -69,7 +69,7 @@ namespace Nz
 		{
 			Font* font = drawer.GetFont(i);
 			const AbstractAtlas* atlas = font->GetAtlas().get();
-			NazaraAssert(atlas->GetStorage() & DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
+			NazaraAssert(atlas->GetStorage() == DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
 			auto it = m_atlases.find(atlas);
 			if (it == m_atlases.end())
@@ -108,6 +108,8 @@ namespace Nz
 		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -149,6 +151,8 @@ namespace Nz
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)

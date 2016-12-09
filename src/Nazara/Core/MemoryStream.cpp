@@ -65,7 +65,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if byteArray is nullptr
 	*/
 
-	void MemoryStream::SetBuffer(ByteArray* byteArray, UInt32 openMode)
+	void MemoryStream::SetBuffer(ByteArray* byteArray, OpenModeFlags openMode)
 	{
 		NazaraAssert(byteArray, "Invalid ByteArray");
 

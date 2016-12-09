@@ -7,6 +7,41 @@
 
 namespace Nz
 {
+	inline const BufferRef& VertexBuffer::GetBuffer() const
+	{
+		return m_buffer;
+	}
+
+	inline UInt32 VertexBuffer::GetEndOffset() const
+	{
+		return m_endOffset;
+	}
+
+	inline UInt32 VertexBuffer::GetStride() const
+	{
+		return static_cast<UInt32>(m_vertexDeclaration->GetStride());
+	}
+
+	inline UInt32 VertexBuffer::GetStartOffset() const
+	{
+		return m_startOffset;
+	}
+
+	inline UInt32 VertexBuffer::GetVertexCount() const
+	{
+		return m_vertexCount;
+	}
+
+	inline const VertexDeclarationConstRef& VertexBuffer::GetVertexDeclaration() const
+	{
+		return m_vertexDeclaration;
+	}
+
+	inline bool VertexBuffer::IsValid() const
+	{
+		return m_buffer && m_vertexDeclaration;
+	}
+
 	template<typename... Args>
 	VertexBufferRef VertexBuffer::New(Args&&... args)
 	{

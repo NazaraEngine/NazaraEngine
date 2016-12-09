@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_UTILITY_HPP
 #define NAZARA_ENUMS_UTILITY_HPP
 
+#include <Nazara/Core/Flags.hpp>
+
 namespace Nz
 {
 	enum AnimationType
@@ -54,10 +56,18 @@ namespace Nz
 	enum BufferUsage
 	{
 		BufferUsage_Dynamic,
-		BufferUsage_Static,
+		BufferUsage_FastRead,
 
-		BufferUsage_Max = BufferUsage_Static
+		BufferUsage_Max = BufferUsage_FastRead
 	};
+
+	template<>
+	struct EnableFlagsOperators<BufferUsage>
+	{
+		static constexpr bool value = true;
+	};
+
+	using BufferUsageFlags = Flags<BufferUsage>;
 
 	enum ComponentType
 	{
@@ -93,14 +103,12 @@ namespace Nz
 		CubemapFace_Max = CubemapFace_NegativeZ
 	};
 
-	enum DataStorageFlags
+	enum DataStorage
 	{
-		DataStorage_Hardware = 0x1,
-		DataStorage_Software = 0x2,
+		DataStorage_Hardware,
+		DataStorage_Software,
 
-		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
-
-		DataStorage_Max = DataStorage_Software*2-1
+		DataStorage_Max = DataStorage_Software
 	};
 
 	enum FaceFilling
@@ -430,20 +438,29 @@ namespace Nz
 		WindowEventType_Max = WindowEventType_TextEntered
 	};
 
-	enum WindowStyleFlags
+	enum WindowStyle
 	{
-		WindowStyle_None       = 0x0,  ///< Window has no border nor titlebar.
-		WindowStyle_Fullscreen = 0x1,  ///< At the window creation, the OS tries to set it in fullscreen.
+		WindowStyle_None,       ///< Window has no border nor titlebar.
+		WindowStyle_Fullscreen, ///< At the window creation, the OS tries to set it in fullscreen.
 
-		WindowStyle_Closable   = 0x2,  ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
-		WindowStyle_Resizable  = 0x4,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
-		WindowStyle_Titlebar   = 0x8,  ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
+		WindowStyle_Closable,   ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
+		WindowStyle_Resizable,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
+		WindowStyle_Titlebar,   ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
 
-		WindowStyle_Threaded   = 0x10, ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
+		WindowStyle_Threaded,   ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
 
-		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
-		WindowStyle_Max = WindowStyle_Threaded*2-1
+		WindowStyle_Max = WindowStyle_Threaded
 	};
+
+	template<>
+	struct EnableFlagsOperators<WindowStyle>
+	{
+		static constexpr bool value = true;
+	};
+
+	using WindowStyleFlags = Flags<WindowStyle>;
+
+	constexpr WindowStyleFlags WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar;
 }
 
 #endif // NAZARA_ENUMS_UTILITY_HPP
