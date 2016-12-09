@@ -4,7 +4,6 @@
 
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/Config.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
@@ -19,14 +18,20 @@ namespace Nz
 	{
 	}
 
-	bool SoftwareBuffer::Create(unsigned int size, BufferUsage usage)
+	bool SoftwareBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
 	{
-		NazaraUnused(usage);
+		NazaraAssert(!m_mapped, "Buffer is already mapped");
 
+		std::memcpy(&m_buffer[offset], data, size);
+		return true;
+	}
+
+	bool SoftwareBuffer::Initialize(UInt32 size, BufferUsageFlags /*usage*/)
+	{
 		// Protect the allocation to prevent a memory exception to escape the function
 		try
 		{
-			m_buffer = new UInt8[size];
+			m_buffer.resize(size);
 		}
 		catch (const std::exception& e)
 		{
@@ -39,25 +44,12 @@ namespace Nz
 		return true;
 	}
 
-	void SoftwareBuffer::Destroy()
+	DataStorage SoftwareBuffer::GetStorage() const
 	{
-		delete[] m_buffer;
+		return DataStorage_Software;
 	}
 
-	bool SoftwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool /*forceDiscard*/)
-	{
-		NazaraAssert(!m_mapped, "Buffer is already mapped");
-
-		std::memcpy(&m_buffer[offset], data, size);
-		return true;
-	}
-
-	bool SoftwareBuffer::IsHardware() const
-	{
-		return false;
-	}
-
-	void* SoftwareBuffer::Map(BufferAccess /*access*/, unsigned int offset, unsigned int /*size*/)
+	void* SoftwareBuffer::Map(BufferAccess /*access*/, UInt32 offset, UInt32 /*size*/)
 	{
 		NazaraAssert(!m_mapped, "Buffer is already mapped");
 

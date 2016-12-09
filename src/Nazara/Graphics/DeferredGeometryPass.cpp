@@ -169,7 +169,7 @@ namespace Nz
 												instanceCount -= renderedInstanceCount;
 
 												// We fill the instancing buffer with our world matrices
-												instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount, true);
+												instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount);
 												instanceMatrices += renderedInstanceCount;
 
 												// And we show

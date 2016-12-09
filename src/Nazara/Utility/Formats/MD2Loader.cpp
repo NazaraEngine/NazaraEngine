@@ -108,7 +108,7 @@ namespace Nz
 				}
 			}
 
-			IndexBufferRef indexBuffer = IndexBuffer::New(false, header.num_tris*3, parameters.storage, BufferUsage_Static);
+			IndexBufferRef indexBuffer = IndexBuffer::New(false, header.num_tris*3, parameters.storage, 0);
 
 			// Extract triangles data
 			std::vector<MD2_Triangle> triangles(header.num_tris);
@@ -159,7 +159,7 @@ namespace Nz
 			}
 			#endif
 
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, BufferUsage_Static);
+			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, 0);
 			StaticMeshRef subMesh = StaticMesh::New(mesh);
 			if (!subMesh->Create(vertexBuffer))
 			{
