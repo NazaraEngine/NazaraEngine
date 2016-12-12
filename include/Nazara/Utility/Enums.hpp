@@ -62,7 +62,7 @@ namespace Nz
 	};
 
 	template<>
-	struct EnableFlagsOperators<BufferUsage>
+	struct EnumAsFlags<BufferUsage>
 	{
 		static constexpr bool value = true;
 	};
@@ -453,7 +453,7 @@ namespace Nz
 	};
 
 	template<>
-	struct EnableFlagsOperators<WindowStyle>
+	struct EnumAsFlags<WindowStyle>
 	{
 		static constexpr bool value = true;
 	};
