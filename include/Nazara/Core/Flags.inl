@@ -21,7 +21,7 @@ namespace Nz
 	* Uses a bitfield to builds the flag value. (e.g. if bit 0 is active, then Enum value 0 will be set as active).
     */
 	template<typename E>
-	constexpr Flags<E>::Flags(UInt32 value) :
+	constexpr Flags<E>::Flags(BitField value) :
 	m_value(value)
 	{
 	}
@@ -58,7 +58,7 @@ namespace Nz
 	* This will convert to a bitfield value.
 	*/
 	template<typename E>
-	constexpr Flags<E>::operator UInt32() const
+	constexpr Flags<E>::operator BitField() const
 	{
 		return m_value;
 	}
@@ -72,7 +72,7 @@ namespace Nz
 	template<typename E>
 	constexpr Flags<E> Flags<E>::operator~() const
 	{
-		return Flags(~m_value);
+		return Flags((~m_value) & ValueMask);
 	}
 
 	/*!
@@ -115,7 +115,7 @@ namespace Nz
 	template<typename E>
 	constexpr Flags<E> Flags<E>::operator^(Flags rhs) const
 	{
-		return Flags(m_value ^ rhs.m_value);
+		return Flags((m_value ^ rhs.m_value) & ValueMask);
 	}
 
 	/*!
@@ -191,6 +191,7 @@ namespace Nz
 	/*constexpr*/ Flags<E>& Flags<E>::operator^=(Flags rhs)
 	{
 		m_value ^= rhs.m_value;
+		m_value &= ValueMask;
 
 		return *this;
 	}

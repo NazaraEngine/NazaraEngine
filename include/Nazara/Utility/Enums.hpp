@@ -65,6 +65,7 @@ namespace Nz
 	struct EnumAsFlags<BufferUsage>
 	{
 		static constexpr bool value = true;
+		static constexpr int  max   = BufferUsage_Max;
 	};
 
 	using BufferUsageFlags = Flags<BufferUsage>;
@@ -456,6 +457,7 @@ namespace Nz
 	struct EnumAsFlags<WindowStyle>
 	{
 		static constexpr bool value = true;
+		static constexpr int  max   = WindowStyle_Max;
 	};
 
 	using WindowStyleFlags = Flags<WindowStyle>;
