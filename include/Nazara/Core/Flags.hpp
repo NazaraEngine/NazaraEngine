@@ -17,6 +17,7 @@ namespace Nz
 	struct EnumAsFlags
 	{
 		static constexpr bool value = false;
+		static constexpr int  max   = 0;
 	};
 
 	template<typename E>
@@ -47,7 +48,10 @@ namespace Nz
 
 		private:
 			UInt32 m_value;
+			static constexpr UInt32 ValueMask = ((UInt32(1) << (EnumAsFlags<E>::max + 1)) - 1);
 
+		private:
+			BitField m_value;
 	};
 
 	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
