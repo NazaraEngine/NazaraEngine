@@ -1,7 +1,7 @@
-﻿Platforme | Build Status
------------- | -------------
-Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/dj5qx7axym4uakmy/branch/master?svg=true)](https://ci.appveyor.com/project/DPSLynix/nazaraengine/branch/master)
-Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg?branch=master)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine)
+﻿Platforme | Build Status | Nightlies
+------------ | ------------- | -------------
+Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/dj5qx7axym4uakmy/branch/master?svg=true)](https://ci.appveyor.com/project/DPSLynix/nazaraengine/branch/master) | MSVC14:  [x86](https://ci.appveyor.com/api/projects/DPSLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20Win32)   [x86_64](https://ci.appveyor.com/api/projects/DPSLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20x64)
+Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg?branch=master)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine) | Non
 
 # Nazara Engine  
 
