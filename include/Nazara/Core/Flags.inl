@@ -84,7 +84,7 @@ namespace Nz
 	* This will returns a copy of the Flags object with only enabled flags in common with the parameter
 	*/
 	template<typename E>
-	constexpr Flags<E> Flags<E>::operator&(Flags rhs) const
+	constexpr Flags<E> Flags<E>::operator&(const Flags& rhs) const
 	{
 		return Flags(m_value & rhs.m_value);
 	}
@@ -98,7 +98,7 @@ namespace Nz
 	* \param rhs Flags to combine with.
 	*/
 	template<typename E>
-	constexpr Flags<E> Flags<E>::operator|(Flags rhs) const
+	constexpr Flags<E> Flags<E>::operator|(const Flags& rhs) const
 	{
 		return Flags(m_value | rhs.m_value);
 	}
@@ -113,7 +113,7 @@ namespace Nz
 	* This will returns a copy of the object with disabled common flags and enabled unique ones.
 	*/
 	template<typename E>
-	constexpr Flags<E> Flags<E>::operator^(Flags rhs) const
+	constexpr Flags<E> Flags<E>::operator^(const Flags& rhs) const
 	{
 		return Flags((m_value ^ rhs.m_value) & ValueMask);
 	}
@@ -127,7 +127,7 @@ namespace Nz
 	* Compare two Flags object and returns true if the flag states are identical.
 	*/
 	template<typename E>
-	constexpr bool Flags<E>::operator==(Flags rhs) const
+	constexpr bool Flags<E>::operator==(const Flags& rhs) const
 	{
 		return m_value == rhs.m_value;
 	}
@@ -141,7 +141,7 @@ namespace Nz
 	* Compare two Flags object and returns true if the flag states are identical.
 	*/
 	template<typename E>
-	constexpr bool Flags<E>::operator!=(Flags rhs) const
+	constexpr bool Flags<E>::operator!=(const Flags& rhs) const
 	{
 		return !operator==(rhs);
 	}
@@ -155,7 +155,7 @@ namespace Nz
 	* This will enable flags which are enabled in parameter object and not in Flag object.
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator|=(Flags rhs)
+	/*constexpr*/ Flags<E>& Flags<E>::operator|=(const Flags& rhs)
 	{
 		m_value |= rhs.m_value;
 
@@ -171,7 +171,7 @@ namespace Nz
 	* This will disable flags which are disabled in parameter object and enabled in Flag object (and vice-versa).
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator&=(Flags rhs)
+	/*constexpr*/ Flags<E>& Flags<E>::operator&=(const Flags& rhs)
 	{
 		m_value &= rhs.m_value;
 
@@ -188,7 +188,7 @@ namespace Nz
 	* This will disable flags enabled in both Flags objects and enable those enabled in only one of the Flags objects.
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator^=(Flags rhs)
+	/*constexpr*/ Flags<E>& Flags<E>::operator^=(const Flags& rhs)
 	{
 		m_value ^= rhs.m_value;
 		m_value &= ValueMask;
@@ -205,9 +205,9 @@ namespace Nz
 	* Internally, every enum option is turned into a bit, this function allows to get a bitfield with only the bit of the enumeration value enabled.
 	*/
 	template<typename E>
-	constexpr UInt32 Flags<E>::GetFlagValue(E enumValue)
+	constexpr typename Flags<E>::BitField Flags<E>::GetFlagValue(E enumValue)
 	{
-		return 1U << static_cast<UInt32>(enumValue);
+		return 1U << static_cast<BitField>(enumValue);
 	}
 
 

@@ -26,29 +26,29 @@ namespace Nz
 		static_assert(std::is_enum<E>::value, "Type must be an enumeration");
 
 		public:
-			constexpr Flags(UInt32 value);
+			using BitField = typename std::conditional<(EnumAsFlags<E>::max > 32), UInt64, UInt32>::type;
+
+			constexpr Flags(BitField value);
 			constexpr Flags(E enumVal);
 
 			explicit constexpr operator bool() const;
-			explicit constexpr operator UInt32() const;
+			explicit constexpr operator BitField() const;
 
 			constexpr Flags operator~() const;
-			constexpr Flags operator&(Flags rhs) const;
-			constexpr Flags operator|(Flags rhs) const;
-			constexpr Flags operator^(Flags rhs) const;
+			constexpr Flags operator&(const Flags& rhs) const;
+			constexpr Flags operator|(const Flags& rhs) const;
+			constexpr Flags operator^(const Flags& rhs) const;
 
-			constexpr bool operator==(Flags rhs) const;
-			constexpr bool operator!=(Flags rhs) const;
+			constexpr bool operator==(const Flags& rhs) const;
+			constexpr bool operator!=(const Flags& rhs) const;
 
-			/*constexpr*/ Flags& operator|=(Flags rhs);
-			/*constexpr*/ Flags& operator&=(Flags rhs);
-			/*constexpr*/ Flags& operator^=(Flags rhs);
+			/*constexpr*/ Flags& operator|=(const Flags& rhs);
+			/*constexpr*/ Flags& operator&=(const Flags& rhs);
+			/*constexpr*/ Flags& operator^=(const Flags& rhs);
 
-			static constexpr UInt32 GetFlagValue(E enumValue);
+			static constexpr BitField GetFlagValue(E enumValue);
 
-		private:
-			UInt32 m_value;
-			static constexpr UInt32 ValueMask = ((UInt32(1) << (EnumAsFlags<E>::max + 1)) - 1);
+			static constexpr BitField ValueMask = ((BitField(1) << (EnumAsFlags<E>::max + 1)) - 1);
 
 		private:
 			BitField m_value;
