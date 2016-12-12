@@ -12,6 +12,13 @@
 
 namespace Nz
 {
+	// From: https://www.justsoftwaresolutions.co.uk/cplusplus/using-enum-classes-as-bitfields.html
+	template<typename E>
+	struct EnumAsFlags
+	{
+		static constexpr bool value = false;
+	};
+
 	template<typename E>
 	class Flags
 	{
@@ -40,19 +47,13 @@ namespace Nz
 
 		private:
 			UInt32 m_value;
+
 	};
 
-	// From: https://www.justsoftwaresolutions.co.uk/cplusplus/using-enum-classes-as-bitfields.html
-	template<typename E>
-	struct EnableFlagsOperators
-	{
-		static constexpr bool value = false;
-	};
-
-	template<typename E> constexpr std::enable_if_t<EnableFlagsOperators<E>::value, Flags<E>> operator~(E lhs);
-	template<typename E> constexpr std::enable_if_t<EnableFlagsOperators<E>::value, Flags<E>> operator|(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnableFlagsOperators<E>::value, Flags<E>> operator&(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnableFlagsOperators<E>::value, Flags<E>> operator^(E lhs, E rhs);
+	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
+	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
+	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs);
+	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
 }
 
 #include <Nazara/Core/Flags.inl>
