@@ -91,9 +91,10 @@ namespace Nz
 	};
 
 	template<>
-	struct EnableFlagsOperators<OpenMode>
+	struct EnumAsFlags<OpenMode>
 	{
 		static constexpr bool value = true;
+		static constexpr int  max   = OpenMode_Max;
 	};
 
 	using OpenModeFlags = Flags<OpenMode>;
@@ -194,9 +195,10 @@ namespace Nz
 	};
 
 	template<>
-	struct EnableFlagsOperators<StreamOption>
+	struct EnumAsFlags<StreamOption>
 	{
 		static constexpr bool value = true;
+		static constexpr int  max = StreamOption_Max;
 	};
 
 	using StreamOptionFlags = Flags<StreamOption>;
