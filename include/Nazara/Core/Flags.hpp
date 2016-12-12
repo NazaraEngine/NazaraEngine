@@ -24,6 +24,7 @@ namespace Nz
 	class Flags
 	{
 		static_assert(std::is_enum<E>::value, "Type must be an enumeration");
+		static_assert(EnumAsFlags<E>::value, "Enum has not been enabled as flags by an EnumAsFlags specialization");
 
 		public:
 			using BitField = typename std::conditional<(EnumAsFlags<E>::max > 32), UInt64, UInt32>::type;
