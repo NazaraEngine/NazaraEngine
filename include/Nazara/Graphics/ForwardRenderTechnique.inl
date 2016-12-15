@@ -126,7 +126,7 @@ namespace Nz
 		{
 			if (uniforms.locations.type != -1)
 				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
-			
+
 			if (uniforms.locations.directionalSpotLightShadowMap != -1)
 				shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
 
@@ -163,7 +163,7 @@ namespace Nz
 	inline float ForwardRenderTechnique::ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity
-		return object.SquaredDistance(light.position);
+		return object.GetPosition().SquaredDistance(light.position);
 	}
 
 	/*!
@@ -177,7 +177,7 @@ namespace Nz
 	inline float ForwardRenderTechnique::ComputeSpotLightScore(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity and spot direction
-		return object.SquaredDistance(light.position);
+		return object.GetPosition().SquaredDistance(light.position);
 	}
 
 	/*!
@@ -199,29 +199,29 @@ namespace Nz
 
 	/*!
 	* \brief Checks whether the point light is suitable for the computations
-	* \return true if light is enoughly close
+	* \return true if light is close enough
 	*
-	* \param object Sphere symbolising the object
+	* \param object Sphere symbolizing the object
 	* \param light Light to compute
 	*/
 
 	inline bool ForwardRenderTechnique::IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		// If the object is too far away from this point light, there is not way it could light it
-		return object.SquaredDistance(light.position) <= light.radius * light.radius;
+		return object.Contains(light.position);
 	}
 
 	/*!
 	* \brief Checks whether the spot light is suitable for the computations
-	* \return true if light is enoughly close
+	* \return true if light is close enough
 	*
-	* \param object Sphere symbolising the object
+	* \param object Sphere symbolizing the object
 	* \param light Light to compute
 	*/
 
 	inline bool ForwardRenderTechnique::IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Exclude spot lights based on their direction and outer angle?
-		return object.SquaredDistance(light.position) <= light.radius * light.radius;
+		return object.Contains(light.position);
 	}
 }

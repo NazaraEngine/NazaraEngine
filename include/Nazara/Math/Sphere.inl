@@ -94,7 +94,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(T X, T Y, T Z) const
 	{
-		return SquaredDistance(X, Y, Z) <= radius * radius;
+		return Contains(Vector3<T>(X, Y, Z));
 	}
 
 	/*!
@@ -109,11 +109,8 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(const Box<T>& box) const
 	{
-		if (box.GetMinimum().SquaredDistance(GetPosition()) <= radius * radius)
-		{
-			if (box.GetMaximum().SquaredDistance(GetPosition()) <= radius * radius)
-				return true;
-		}
+		if (Contains(box.GetMinimum()) && Contains(box.GetMaximum()))
+			return true;
 
 		return false;
 	}
@@ -128,7 +125,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(const Vector3<T>& point) const
 	{
-		return Contains(point.x, point.y, point.z);
+		return GetPosition().SquaredDistance(point) <= radius * radius;
 	}
 
 	/*!
@@ -138,8 +135,6 @@ namespace Nz
 	* \param X X position of the point
 	* \param Y Y position of the point
 	* \param Z Z position of the point
-	*
-	* \see SquaredDistance
 	*/
 
 	template<typename T>
@@ -153,8 +148,6 @@ namespace Nz
 	* \return Distance to the point
 	*
 	* \param point Position of the point
-	*
-	* \see SquaredDistance
 	*/
 
 	template<typename T>
@@ -177,9 +170,7 @@ namespace Nz
 	template<typename T>
 	Sphere<T>& Sphere<T>::ExtendTo(T X, T Y, T Z)
 	{
-		T distance = SquaredDistance(X, Y, Z);
-		if (distance > radius*radius)
-			radius = std::sqrt(distance);
+		radius = std::max(radius, Distance(X, Y, Z));
 
 		return *this;
 	}
@@ -304,7 +295,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Intersect(const Sphere& sphere) const
 	{
-		return SquaredDistance(sphere.x, sphere.y, sphere.z) <= sphere.radius * sphere.radius;
+		return GetPosition().SquaredDistance(sphere.x, sphere.y, sphere.z) <= IntegralPow(radius + sphere.radius, 2);
 	}
 
 	/*!
@@ -456,36 +447,6 @@ namespace Nz
 		radius = F(sphere.radius);
 
 		return *this;
-	}
-
-	/*!
-	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
-	* \return Squared distance to the point
-	*
-	* \param X X position of the point
-	* \param Y Y position of the point
-	* \param Z Z position of the point
-	*
-	* \see Distance
-	*/
-	template<typename T>
-	T Sphere<T>::SquaredDistance(T X, T Y, T Z) const
-	{
-		return SquaredDistance({X, Y, Z});
-	}
-
-	/*!
-	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
-	* \return Squared distance to the point
-	*
-	* \param point Position of the point
-	*
-	* \see Distance
-	*/
-	template<typename T>
-	T Sphere<T>::SquaredDistance(const Vector3<T>& point) const
-	{
-		return Vector3f::SquaredDistance(GetPosition(), point) - radius * radius;
 	}
 
 	/*!
