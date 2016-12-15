@@ -295,7 +295,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Intersect(const Sphere& sphere) const
 	{
-		return GetPosition().SquaredDistance(sphere.x, sphere.y, sphere.z) <= IntegralPow(radius + sphere.radius, 2);
+		return GetPosition().SquaredDistance(Vector3<T>(sphere.x, sphere.y, sphere.z)) <= IntegralPow(radius + sphere.radius, 2);
 	}
 
 	/*!
