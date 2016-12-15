@@ -436,9 +436,10 @@ namespace Nz
 	*/
 
 	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline unsigned int IntegralPow(unsigned int base, unsigned int exponent)
+	template<typename T>
+	/*constexpr*/ T IntegralPow(T base, unsigned int exponent)
 	{
-		unsigned int r = 1;
+		T r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
 			r *= base;
 
