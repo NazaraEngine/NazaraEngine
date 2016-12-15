@@ -627,6 +627,7 @@ namespace Nz
 			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &DepthRenderTechnique::OnShaderInvalidated);
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
 
+			uniforms.sceneAmbient   = shader->GetUniformLocation("SceneAmbient");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
 			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
