@@ -170,7 +170,7 @@ namespace Nz
 	template<typename T>
 	Sphere<T>& Sphere<T>::ExtendTo(T X, T Y, T Z)
 	{
-		radius = std::max(radius, Distance(X, Y, Z));
+		radius = std::max(radius, radius + Distance(X, Y, Z));
 
 		return *this;
 	}
