@@ -212,8 +212,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -240,8 +238,6 @@ namespace Nz
 
 					// Ambiant color of the scene
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -330,8 +326,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -361,8 +355,6 @@ namespace Nz
 
 						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -423,8 +415,6 @@ namespace Nz
 
 						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -501,8 +491,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -526,8 +514,6 @@ namespace Nz
 
 					// Ambiant color of the scene
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -641,7 +627,6 @@ namespace Nz
 			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &DepthRenderTechnique::OnShaderInvalidated);
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
 
-			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
 			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;

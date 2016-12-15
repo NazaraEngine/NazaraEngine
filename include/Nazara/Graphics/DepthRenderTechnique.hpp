@@ -55,7 +55,6 @@ namespace Nz
 				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
 
 				// Autre uniformes
-				int eyePosition;
 				int sceneAmbient;
 				int textureOverlay;
 			};
