@@ -208,7 +208,7 @@ namespace Nz
 	inline bool ForwardRenderTechnique::IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		// If the object is too far away from this point light, there is not way it could light it
-		return object.Contains(light.position);
+		return object.Intersect(Spheref(light.position, light.radius));
 	}
 
 	/*!
@@ -222,6 +222,6 @@ namespace Nz
 	inline bool ForwardRenderTechnique::IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Exclude spot lights based on their direction and outer angle?
-		return object.Contains(light.position);
+		return object.Intersect(Spheref(light.position, light.radius));
 	}
 }
