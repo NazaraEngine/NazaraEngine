@@ -485,7 +485,7 @@ namespace Nz
 	template<typename T>
 	T Sphere<T>::SquaredDistance(const Vector3<T>& point) const
 	{
-		return Vector3f::SquaredDistance(point, GetPosition() + (point - GetPosition()).Normalize() * radius);
+		return Vector3f::SquaredDistance(GetPosition(), point) - radius * radius;
 	}
 
 	/*!
