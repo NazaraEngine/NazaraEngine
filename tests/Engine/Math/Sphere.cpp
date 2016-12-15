@@ -84,7 +84,7 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 			THEN("Sphere must contain it and distance should be good")
 			{
 				CHECK(firstCenterAndUnit.Contains(point));
-				CHECK(firstCenterAndUnit.Distance(point) == Approx(1.f));
+				CHECK(firstCenterAndUnit.Distance(point) == Approx(0.f));
 			}
 		}
 
