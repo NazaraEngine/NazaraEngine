@@ -20,6 +20,23 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param ... Format arguments
+	*/
+	String String::Format(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		String result = FormatVA(format, args);
+		va_end(args);
+
+		return result;
+	}
+
+	/*!
 	* \brief Releases the content to the string
 	*/
 

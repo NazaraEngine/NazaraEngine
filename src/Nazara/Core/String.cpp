@@ -5079,7 +5079,7 @@ namespace Nz
 	* \return The expected result
 	*
 	* \param first First string to use for comparison
-	* \parma second Second string to use for comparison
+	* \param second Second string to use for comparison
 	*/
 
 	int String::Compare(const String& first, const String& second)
@@ -5091,6 +5091,23 @@ namespace Nz
 			return 1;
 
 		return std::strcmp(first.GetConstBuffer(), second.GetConstBuffer());
+	}
+
+	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param args Format arguments
+	*/
+	String String::FormatVA(const char* format, va_list args)
+	{
+		std::size_t length = std::vsnprintf(nullptr, 0, format, args);
+
+		auto str = std::make_shared<SharedString>(length);
+		std::vsnprintf(str->string.get(), length + 1, format, args);
+
+		return String(std::move(str));
 	}
 
 	/*!
