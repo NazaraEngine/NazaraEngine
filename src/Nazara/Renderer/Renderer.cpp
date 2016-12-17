@@ -8,6 +8,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
@@ -1775,6 +1776,92 @@ namespace Nz
 		if (!s_shader->Validate())
 		{
 			NazaraError(Error::GetLastError());
+
+			GLuint program = s_shader->GetOpenGLID();
+
+			StringStream dump;
+
+			GLint count;
+			glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+			dump << "Active uniforms: " << count << '\n';
+
+			GLint maxLength;
+			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+			maxLength++;
+
+			StackAllocation stackAlloc = NazaraStackAllocation((maxLength + 1) * sizeof(GLchar));
+			GLchar* nameBuffer = static_cast<GLchar*>(stackAlloc.GetPtr());
+
+			for (GLint i = 0; i < count; i++)
+			{
+				GLint size;
+				GLenum type;
+
+				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer);
+
+				dump << "Uniform #" << i << ": " << nameBuffer << "(Type: 0x" << String::Number(type, 16);
+
+				GLint location = glGetUniformLocation(program, nameBuffer);
+				switch (type)
+				{
+					case GL_FLOAT:
+					{
+						GLfloat value;
+						glGetUniformfv(program, location, &value);
+
+						dump << ", Value = " << value << ')';
+						break;
+					}
+					case GL_FLOAT_VEC2:
+					{
+						GLfloat values[2];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec2(" << values[0] << ',' << values[1] << ')';
+						break;
+					}
+					case GL_FLOAT_VEC3:
+					{
+						GLfloat values[3];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec4(" << values[0] << ',' << values[1] << ',' << values[2] << ')';
+						break;
+					}
+					case GL_FLOAT_VEC4:
+					{
+						GLfloat values[4];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec4(" << values[0] << ',' << values[1] << ',' << values[2] << ',' << values[3] << ')';
+						break;
+					}
+					case GL_INT:
+					{
+						GLint value;
+						glGetUniformiv(program, location, &value);
+
+						dump << ", Value = " << value;
+						break;
+					}
+					case GL_SAMPLER_2D:
+					case GL_SAMPLER_2D_SHADOW:
+					case GL_SAMPLER_CUBE:
+					case GL_SAMPLER_CUBE_SHADOW:
+					{
+						GLint value;
+						glGetUniformiv(program, location, &value);
+
+						dump << ", Unit = " << value;
+						break;
+					}
+				}
+
+				dump << ")\n";
+			}
+
+			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString());
+
 			return false;
 		}
 		#endif

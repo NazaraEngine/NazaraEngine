@@ -969,6 +969,8 @@ namespace Nz
 			glGetTexLevelParameteriv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERIVPROC>(LoadEntry("glGetTexLevelParameteriv"));
 			glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(LoadEntry("glGetTexParameterfv"));
 			glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(LoadEntry("glGetTexParameteriv"));
+			glGetUniformfv = reinterpret_cast<PFNGLGETUNIFORMFVPROC>(LoadEntry("glGetUniformfv"));
+			glGetUniformiv = reinterpret_cast<PFNGLGETUNIFORMIVPROC>(LoadEntry("glGetUniformiv"));
 			glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
 			glIsEnabled = reinterpret_cast<PFNGLISENABLEDPROC>(LoadEntry("glIsEnabled"));
 			glLineWidth = reinterpret_cast<PFNGLLINEWIDTHPROC>(LoadEntry("glLineWidth"));
@@ -2203,6 +2205,8 @@ PFNGLGETTEXLEVELPARAMETERFVPROC   glGetTexLevelParameterfv   = nullptr;
 PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv   = nullptr;
 PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv        = nullptr;
 PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv        = nullptr;
+PFNGLGETUNIFORMFVPROC             glGetUniformfv             = nullptr;
+PFNGLGETUNIFORMIVPROC             glGetUniformiv             = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation       = nullptr;
 PFNGLINVALIDATEBUFFERDATAPROC     glInvalidateBufferData     = nullptr;
 PFNGLISENABLEDPROC                glIsEnabled                = nullptr;
