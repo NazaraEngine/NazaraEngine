@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <algorithm>
 #include <memory>
@@ -85,7 +86,18 @@ namespace Nz
 							code << shaderStage.source;
 
 							stage.SetSource(code);
-							stage.Compile();
+
+							try
+							{
+								stage.Compile();
+							}
+							catch (const std::exception&)
+							{
+								ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled);
+
+								NazaraError("Shader code failed to compile:\n" + code);
+								throw;
+							}
 
 							stageIt = shaderStage.cache.emplace(flags, std::move(stage)).first;
 						}
