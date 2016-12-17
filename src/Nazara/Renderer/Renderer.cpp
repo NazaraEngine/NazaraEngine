@@ -1294,7 +1294,7 @@ namespace Nz
 		return true;
 	}
 
-	void Renderer::SetTexture(UInt8 unit, const Texture* texture)
+	void Renderer::SetTexture(unsigned int unit, const Texture* texture)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (unit >= s_maxTextureUnit)
@@ -1319,7 +1319,7 @@ namespace Nz
 		}
 	}
 
-	void Renderer::SetTextureSampler(UInt8 unit, const TextureSampler& sampler)
+	void Renderer::SetTextureSampler(unsigned int unit, const TextureSampler& sampler)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (unit >= s_maxTextureUnit)
