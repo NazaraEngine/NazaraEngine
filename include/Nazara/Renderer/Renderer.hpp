@@ -102,8 +102,8 @@ namespace Nz
 			static void SetStencilReferenceValue(unsigned int refValue, FaceSide faceSide = FaceSide_FrontAndBack);
 			static void SetStencilZFailOperation(StencilOperation zfailOperation, FaceSide faceSide = FaceSide_FrontAndBack);
 			static bool SetTarget(const RenderTarget* target);
-			static void SetTexture(UInt8 unit, const Texture* texture);
-			static void SetTextureSampler(UInt8 textureUnit, const TextureSampler& sampler);
+			static void SetTexture(unsigned int unit, const Texture* texture);
+			static void SetTextureSampler(unsigned int textureUnit, const TextureSampler& sampler);
 			static void SetVertexBuffer(const VertexBuffer* vertexBuffer);
 			static void SetViewport(const Recti& viewport);
 
