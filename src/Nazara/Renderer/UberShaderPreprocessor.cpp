@@ -95,7 +95,7 @@ namespace Nz
 							{
 								ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled);
 
-								NazaraError("Shader code failed to compile:\n" + code);
+								NazaraError("Shader code failed to compile (" + stage.GetLog() + ")\n" + code.ToString());
 								throw;
 							}
 
