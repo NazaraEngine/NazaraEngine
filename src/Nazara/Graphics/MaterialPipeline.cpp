@@ -3,12 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/MaterialPipeline.hpp>
-
-#ifndef NAZARA_RENDERER_OPENGL
-#define NAZARA_RENDERER_OPENGL // Mandatory to include the OpenGL headers
-#endif
-
-#include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -106,6 +101,25 @@ namespace Nz
 		CacheUniform(SpecularMap);
 
 		#undef CacheUniform
+
+		// Send texture units (those never changes)
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap], Material::GetTextureUnit(TextureMap_Alpha));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap], Material::GetTextureUnit(TextureMap_Diffuse));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_EmissiveMap], Material::GetTextureUnit(TextureMap_Emissive));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap], Material::GetTextureUnit(TextureMap_Height));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap], Material::GetTextureUnit(TextureMap_Normal));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_SpecularMap], Material::GetTextureUnit(TextureMap_Specular));
+
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("ReflectionMap"), Material::GetTextureUnit(TextureMap_ReflectionCube));
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("TextureOverlay"), Material::GetTextureUnit(TextureMap_Overlay));
+
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("DirectionalSpotLightShadowMap[0]"), Material::GetTextureUnit(TextureMap_Shadow2D_1));
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("DirectionalSpotLightShadowMap[1]"), Material::GetTextureUnit(TextureMap_Shadow2D_2));
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("DirectionalSpotLightShadowMap[2]"), Material::GetTextureUnit(TextureMap_Shadow2D_3));
+
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("PointLightShadowMap[0]"), Material::GetTextureUnit(TextureMap_ShadowCube_1));
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("PointLightShadowMap[1]"), Material::GetTextureUnit(TextureMap_ShadowCube_2));
+		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("PointLightShadowMap[2]"), Material::GetTextureUnit(TextureMap_ShadowCube_3));
 	}
 
 	bool MaterialPipeline::Initialize()

@@ -148,6 +148,26 @@ namespace Nz
 
 		ShaderFlags_Max = ShaderFlags_VertexColor * 2 - 1
 	};
+
+	enum TextureMap
+	{
+		TextureMap_Alpha,
+		TextureMap_Diffuse,
+		TextureMap_Emissive,
+		TextureMap_Height,
+		TextureMap_ReflectionCube,
+		TextureMap_Normal,
+		TextureMap_Overlay,
+		TextureMap_Shadow2D_1,
+		TextureMap_Shadow2D_2,
+		TextureMap_Shadow2D_3,
+		TextureMap_ShadowCube_1,
+		TextureMap_ShadowCube_2,
+		TextureMap_ShadowCube_3,
+		TextureMap_Specular,
+
+		TextureMap_Max = TextureMap_Specular
+	};
 }
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

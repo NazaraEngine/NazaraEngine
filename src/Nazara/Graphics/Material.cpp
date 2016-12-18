@@ -36,7 +36,7 @@ namespace Nz
 	* \param textureUnit Unit for the texture GL_TEXTURE"i"
 	* \param lastUsedUnit Optional argument to get the last texture unit
 	*/
-	void Material::Apply(const MaterialPipeline::Instance& instance, UInt8 textureUnit, UInt8* lastUsedUnit) const
+	void Material::Apply(const MaterialPipeline::Instance& instance) const
 	{
 		const Shader* shader = instance.renderPipeline.GetInfo().shader;
 
@@ -57,54 +57,51 @@ namespace Nz
 
 		if (m_alphaMap && instance.uniforms[MaterialUniform_AlphaMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Alpha];
+
 			Renderer::SetTexture(textureUnit, m_alphaMap);
 			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap], textureUnit);
-			textureUnit++;
 		}
 
 		if (m_diffuseMap && instance.uniforms[MaterialUniform_DiffuseMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Diffuse];
+
 			Renderer::SetTexture(textureUnit, m_diffuseMap);
 			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap], textureUnit);
-			textureUnit++;
 		}
 
 		if (m_emissiveMap && instance.uniforms[MaterialUniform_EmissiveMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Emissive];
+
 			Renderer::SetTexture(textureUnit, m_emissiveMap);
 			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_EmissiveMap], textureUnit);
-			textureUnit++;
 		}
 
 		if (m_heightMap && instance.uniforms[MaterialUniform_HeightMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Height];
+
 			Renderer::SetTexture(textureUnit, m_heightMap);
 			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap], textureUnit);
-			textureUnit++;
 		}
 
 		if (m_normalMap && instance.uniforms[MaterialUniform_NormalMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Normal];
+
 			Renderer::SetTexture(textureUnit, m_normalMap);
 			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap], textureUnit);
-			textureUnit++;
 		}
 
 		if (m_specularMap && instance.uniforms[MaterialUniform_SpecularMap] != -1)
 		{
+			unsigned int textureUnit = s_textureUnits[TextureMap_Specular];
+
 			Renderer::SetTexture(textureUnit, m_specularMap);
 			Renderer::SetTextureSampler(textureUnit, m_specularSampler);
-			shader->SendInteger(instance.uniforms[MaterialUniform_SpecularMap], textureUnit);
-			textureUnit++;
 		}
-
-		if (lastUsedUnit)
-			*lastUsedUnit = textureUnit;
 	}
 
 	/*!
@@ -459,6 +456,23 @@ namespace Nz
 		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
 		MaterialLibrary::Register("Default", s_defaultMaterial);
 
+		unsigned int textureUnit = 0;
+
+		s_textureUnits[TextureMap_Diffuse]        = textureUnit++;
+		s_textureUnits[TextureMap_Alpha]          = textureUnit++;
+		s_textureUnits[TextureMap_Specular]       = textureUnit++;
+		s_textureUnits[TextureMap_Normal]         = textureUnit++;
+		s_textureUnits[TextureMap_Emissive]       = textureUnit++;
+		s_textureUnits[TextureMap_Overlay]        = textureUnit++;
+		s_textureUnits[TextureMap_ReflectionCube] = textureUnit++;
+		s_textureUnits[TextureMap_Height]         = textureUnit++;
+		s_textureUnits[TextureMap_Shadow2D_1]     = textureUnit++;
+		s_textureUnits[TextureMap_ShadowCube_1]   = textureUnit++;
+		s_textureUnits[TextureMap_Shadow2D_2]     = textureUnit++;
+		s_textureUnits[TextureMap_ShadowCube_2]   = textureUnit++;
+		s_textureUnits[TextureMap_Shadow2D_3]     = textureUnit++;
+		s_textureUnits[TextureMap_ShadowCube_3]   = textureUnit++;
+
 		return true;
 	}
 
@@ -473,6 +487,7 @@ namespace Nz
 		MaterialLibrary::Uninitialize();
 	}
 
+	std::array<int, TextureMap_Max + 1> Material::s_textureUnits;
 	MaterialLibrary::LibraryMap Material::s_library;
 	MaterialLoader::LoaderList Material::s_loaders;
 	MaterialManager::ManagerMap Material::s_managerMap;

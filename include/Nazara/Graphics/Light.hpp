@@ -102,13 +102,11 @@ namespace Nz
 		{
 			int type;
 			int color;
-			int directionalSpotLightShadowMap;
 			int factors;
 			int lightViewProjMatrix;
 			int parameters1;
 			int parameters2;
 			int parameters3;
-			int pointLightShadowMap;
 			int shadowMapping;
 		};
 

@@ -249,13 +249,12 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 overlayUnit;
-						material->Apply(pipelineInstance, 0, &overlayUnit);
-						overlayUnit++;
+						unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+						material->Apply(pipelineInstance);
 
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
 
-						Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+						Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
 
 						auto& overlayMap = matEntry.overlayMap;
 						for (auto& overlayIt : overlayMap)
@@ -266,7 +265,7 @@ namespace Nz
 							std::size_t spriteChainCount = spriteChainVector.size();
 							if (spriteChainCount > 0)
 							{
-								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
+								Renderer::SetTexture(overlayTextureUnit, (overlay) ? overlay : &m_whiteTexture);
 
 								std::size_t spriteChain = 0; // Which chain of sprites are we treating
 								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
@@ -525,8 +524,7 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 freeTextureUnit;
-						material->Apply(pipelineInstance, 0, &freeTextureUnit);
+						material->Apply(pipelineInstance);
 
 						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
