@@ -1356,6 +1356,11 @@ namespace Nz
 		return s_defaultMaterial;
 	}
 
+	inline int Material::GetTextureUnit(TextureMap textureMap)
+	{
+		return s_textureUnits[textureMap];
+	}
+
 	inline void Material::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;

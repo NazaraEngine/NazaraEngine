@@ -64,7 +64,7 @@ namespace Nz
 			inline Material(const Material& material);
 			inline ~Material();
 
-			void Apply(const MaterialPipeline::Instance& instance, UInt8 textureUnit = 0, UInt8* lastUsedUnit = nullptr) const;
+			void Apply(const MaterialPipeline::Instance& instance) const;
 
 			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
 
@@ -174,6 +174,7 @@ namespace Nz
 			inline Material& operator=(const Material& material);
 
 			inline static MaterialRef GetDefault();
+			inline static int GetTextureUnit(TextureMap textureMap);
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
@@ -207,6 +208,7 @@ namespace Nz
 			float m_alphaThreshold;
 			float m_shininess;
 
+			static std::array<int, TextureMap_Max + 1> s_textureUnits;
 			static MaterialLibrary::LibraryMap s_library;
 			static MaterialLoader::LoaderList s_loaders;
 			static MaterialManager::ManagerMap s_managerMap;

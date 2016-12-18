@@ -318,7 +318,7 @@ namespace Nz
 					// Index of uniforms in the shader
 					shaderUniforms = GetShaderUniforms(shader);
 
-					// Ambiant color of the scene
+					// Ambient color of the scene
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 					// Position of the camera
 					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
@@ -333,13 +333,13 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 overlayUnit;
-						material->Apply(pipelineInstance, 0, &overlayUnit);
-						overlayUnit++;
+						material->Apply(pipelineInstance);
 
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+						unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 
-						Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+
+						Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
 
 						auto& overlayMap = matEntry.overlayMap;
 						for (auto& overlayIt : overlayMap)
@@ -350,7 +350,7 @@ namespace Nz
 							std::size_t spriteChainCount = spriteChainVector.size();
 							if (spriteChainCount > 0)
 							{
-								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
+								Renderer::SetTexture(overlayTextureUnit, (overlay) ? overlay : &m_whiteTexture);
 
 								std::size_t spriteChain = 0; // Which chain of sprites are we treating
 								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
@@ -616,8 +616,7 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 freeTextureUnit;
-						material->Apply(pipelineInstance, 0, &freeTextureUnit);
+						material->Apply(pipelineInstance);
 
 						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
@@ -688,8 +687,8 @@ namespace Nz
 											}
 
 											// Sends the uniforms
-											for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-												SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset * i, freeTextureUnit + i);
+											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+												SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset * i);
 										}
 
 										const Matrix4f* instanceMatrices = &instances[0];
@@ -747,8 +746,8 @@ namespace Nz
 												}
 
 												// Sends the light uniforms to the shader
-												for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-													SendLightUniforms(shader, shaderUniforms->lightUniforms, lightIndex++, shaderUniforms->lightOffset*i, freeTextureUnit + i);
+												for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+													SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
 
 												// And we draw
 												drawFunc(meshData.primitiveMode, 0, indexCount);
@@ -812,8 +811,7 @@ namespace Nz
 			}
 
 			// We begin to apply the material
-			UInt8 freeTextureUnit;
-			material->Apply(*pipelineInstance, 0, &freeTextureUnit);
+			material->Apply(*pipelineInstance);
 
 			// Uniforms are conserved in our program, there's no point to send them back until they change
 			const Shader* shader = pipelineInstance->uberInstance->GetShader();
@@ -833,7 +831,7 @@ namespace Nz
 					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
 
 					for (std::size_t i = 0; i < lightCount; ++i)
-						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset * i, freeTextureUnit++);
+						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, i, shaderUniforms->lightOffset * i);
 				}
 
 				lastShader = shader;
@@ -872,7 +870,7 @@ namespace Nz
 				ChooseLights(Spheref(position, radius), false);
 
 				for (std::size_t i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, shaderUniforms->lightOffset*i, freeTextureUnit++);
+					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, i, shaderUniforms->lightOffset*i);
 			}
 
 			Renderer::SetMatrix(MatrixType_World, matrix);
@@ -915,9 +913,7 @@ namespace Nz
 				uniforms.lightUniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
 				uniforms.lightUniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
 				uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
-				uniforms.lightUniforms.locations.pointLightShadowMap = shader->GetUniformLocation("PointLightShadowMap[0]");
 				uniforms.lightUniforms.locations.shadowMapping = shader->GetUniformLocation("Lights[0].shadowMapping");
-				uniforms.lightUniforms.locations.directionalSpotLightShadowMap = shader->GetUniformLocation("DirectionalSpotLightShadowMap[0]");
 			}
 			else
 				uniforms.hasLightUniforms = false;
@@ -937,6 +933,107 @@ namespace Nz
 	void ForwardRenderTechnique::OnShaderInvalidated(const Shader* shader) const
 	{
 		m_shaderUniforms.erase(shader);
+	}
+
+	/*!
+	* \brief Sends the uniforms for light
+	*
+	* \param shader Shader to send uniforms to
+	* \param uniforms Uniforms to send
+	* \param index Index of the light
+	* \param uniformOffset Offset for the uniform
+	* \param availableTextureUnit Unit texture available
+	*/
+	void ForwardRenderTechnique::SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const
+	{
+		if (lightIndex < m_lights.size())
+		{
+			const LightIndex& lightInfo = m_lights[lightIndex];
+
+			shader->SendInteger(uniforms.locations.type + uniformOffset, lightInfo.type); //< Sends the light type
+
+			switch (lightInfo.type)
+			{
+				case LightType_Directional:
+				{
+					const auto& light = m_renderQueue.directionalLights[lightInfo.index];
+
+					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
+					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
+					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.direction));
+
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
+					if (light.shadowMap)
+					{
+						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+						Renderer::SetTexture(textureUnit2D, light.shadowMap);
+						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+						if (uniforms.locations.lightViewProjMatrix != -1)
+							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+					}
+					break;
+				}
+
+				case LightType_Point:
+				{
+					const auto& light = m_renderQueue.pointLights[lightInfo.index];
+
+					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
+					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
+					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
+					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(0.f, 0.f, 0.f, light.invRadius));
+
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
+					unsigned int textureUnit = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
+					if (light.shadowMap)
+					{
+						unsigned int textureUnitCube = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
+
+						Renderer::SetTexture(textureUnitCube, light.shadowMap);
+						Renderer::SetTextureSampler(textureUnitCube, s_shadowSampler);
+					}
+					break;
+				}
+
+				case LightType_Spot:
+				{
+					const auto& light = m_renderQueue.spotLights[lightInfo.index];
+
+					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
+					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
+					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
+					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(light.direction, light.invRadius));
+					shader->SendVector(uniforms.locations.parameters3 + uniformOffset, Vector2f(light.innerAngleCosine, light.outerAngleCosine));
+
+					if (uniforms.locations.shadowMapping != -1)
+						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
+
+					unsigned int textureUnit = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+					if (light.shadowMap)
+					{
+						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+						Renderer::SetTexture(textureUnit2D, light.shadowMap);
+						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+						if (uniforms.locations.lightViewProjMatrix != -1)
+							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+					}
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (uniforms.locations.type != -1)
+				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
+		}
 	}
 
 	IndexBuffer ForwardRenderTechnique::s_quadIndexBuffer;
