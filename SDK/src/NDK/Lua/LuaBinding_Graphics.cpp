@@ -92,6 +92,7 @@ namespace Ndk
 			material.BindMethod("EnableDepthSorting", &Nz::Material::EnableDepthSorting);
 			material.BindMethod("EnableDepthWrite", &Nz::Material::EnableDepthWrite);
 			material.BindMethod("EnableFaceCulling", &Nz::Material::EnableFaceCulling);
+			material.BindMethod("EnableReflectionMapping", &Nz::Material::EnableReflectionMapping);
 			material.BindMethod("EnableScissorTest", &Nz::Material::EnableScissorTest);
 			material.BindMethod("EnableShadowCasting", &Nz::Material::EnableShadowCasting);
 			material.BindMethod("EnableShadowReceive", &Nz::Material::EnableShadowReceive);
@@ -139,6 +140,7 @@ namespace Ndk
 			material.BindMethod("IsDepthSortingEnabled", &Nz::Material::IsDepthSortingEnabled);
 			material.BindMethod("IsDepthWriteEnabled", &Nz::Material::IsDepthWriteEnabled);
 			material.BindMethod("IsFaceCullingEnabled", &Nz::Material::IsFaceCullingEnabled);
+			material.BindMethod("IsReflectionMappingEnabled", &Nz::Material::IsReflectionMappingEnabled);
 			material.BindMethod("IsScissorTestEnabled", &Nz::Material::IsScissorTestEnabled);
 			material.BindMethod("IsStencilTestEnabled", &Nz::Material::IsStencilTestEnabled);
 			material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);

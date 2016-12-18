@@ -76,6 +76,7 @@ namespace Nz
 
 				// Other uniforms
 				int eyePosition;
+				int reflectionMap;
 				int sceneAmbient;
 				int textureOverlay;
 			};
@@ -90,6 +91,8 @@ namespace Nz
 			unsigned int m_maxLightPassPerObject;
 
 			static IndexBuffer s_quadIndexBuffer;
+			static Texture s_dummyReflection;
+			static TextureSampler s_reflectionSampler;
 			static TextureSampler s_shadowSampler;
 			static VertexBuffer s_quadVertexBuffer;
 			static VertexDeclaration s_billboardInstanceDeclaration;

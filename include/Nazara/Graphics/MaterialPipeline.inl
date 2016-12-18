@@ -72,6 +72,7 @@ namespace Nz
 		NazaraPipelineBoolMember(hasHeightMap);
 		NazaraPipelineBoolMember(hasNormalMap);
 		NazaraPipelineBoolMember(hasSpecularMap);
+		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
 		NazaraPipelineMember(uberShader);
@@ -127,6 +128,7 @@ namespace std
 			NazaraPipelineBoolMember(hasHeightMap);
 			NazaraPipelineBoolMember(hasNormalMap);
 			NazaraPipelineBoolMember(hasSpecularMap);
+			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
 			NazaraPipelineMember(uberShader);

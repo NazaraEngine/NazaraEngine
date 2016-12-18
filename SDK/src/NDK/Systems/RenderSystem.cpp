@@ -4,6 +4,7 @@
 
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
@@ -181,7 +182,7 @@ namespace Ndk
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 				graphicsComponent.EnsureBoundingVolumeUpdate();
 			}
-			
+
 			bool forceInvalidation = false;
 
 			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
@@ -220,7 +221,11 @@ namespace Ndk
 			Nz::SceneData sceneData;
 			sceneData.ambientColor = Nz::Color(25, 25, 25);
 			sceneData.background = m_background;
+			sceneData.globalReflectionTexture = nullptr;
 			sceneData.viewer = &camComponent;
+
+			if (m_background && m_background->GetBackgroundType() == Nz::BackgroundType_Skybox)
+				sceneData.globalReflectionTexture = static_cast<Nz::SkyboxBackground*>(m_background.Get())->GetTexture();
 
 			m_renderTechnique->Clear(sceneData);
 			m_renderTechnique->Draw(sceneData);
