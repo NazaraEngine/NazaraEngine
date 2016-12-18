@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Core/File.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -26,6 +28,25 @@ namespace Nz
 		const UInt8 r_phongLightingVertexShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
 		};
+
+		void OverrideShader(const String& path, String* source)
+		{
+			File shaderFile(path, Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
+			if (shaderFile.IsOpen())
+			{
+				StringStream shaderSource;
+
+				while (!shaderFile.EndOfFile())
+				{
+					shaderSource << shaderFile.ReadLine();
+					shaderSource << '\n';
+				}
+
+				*source = shaderSource;
+
+				NazaraNotice(path + " will be used to override built-in shader");
+			}
+		}
 	}
 
 	/*!
@@ -103,11 +124,11 @@ namespace Nz
 		#undef CacheUniform
 
 		// Send texture units (those never changes)
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap], Material::GetTextureUnit(TextureMap_Alpha));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap], Material::GetTextureUnit(TextureMap_Diffuse));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap],    Material::GetTextureUnit(TextureMap_Alpha));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap],  Material::GetTextureUnit(TextureMap_Diffuse));
 		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_EmissiveMap], Material::GetTextureUnit(TextureMap_Emissive));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap], Material::GetTextureUnit(TextureMap_Height));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap], Material::GetTextureUnit(TextureMap_Normal));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap],   Material::GetTextureUnit(TextureMap_Height));
+		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap],   Material::GetTextureUnit(TextureMap_Normal));
 		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_SpecularMap], Material::GetTextureUnit(TextureMap_Specular));
 
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("ReflectionMap"), Material::GetTextureUnit(TextureMap_ReflectionCube));
@@ -131,6 +152,11 @@ namespace Nz
 			String fragmentShader(reinterpret_cast<const char*>(r_basicFragmentShader), sizeof(r_basicFragmentShader));
 			String vertexShader(reinterpret_cast<const char*>(r_basicVertexShader), sizeof(r_basicVertexShader));
 
+			#ifdef NAZARA_DEBUG
+			OverrideShader("Shaders/Basic/core.frag", &fragmentShader);
+			OverrideShader("Shaders/Basic/core.vert", &vertexShader);
+			#endif
+
 			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
 			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
@@ -143,6 +169,11 @@ namespace Nz
 
 			String fragmentShader(reinterpret_cast<const char*>(r_phongLightingFragmentShader), sizeof(r_phongLightingFragmentShader));
 			String vertexShader(reinterpret_cast<const char*>(r_phongLightingVertexShader), sizeof(r_phongLightingVertexShader));
+
+			#ifdef NAZARA_DEBUG
+			OverrideShader("Shaders/PhongLighting/core.frag", &fragmentShader);
+			OverrideShader("Shaders/PhongLighting/core.vert", &vertexShader);
+			#endif
 
 			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING NORMAL_MAPPING PARALLAX_MAPPING SHADOW_MAPPING SPECULAR_MAPPING");
 			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX PARALLAX_MAPPING SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
