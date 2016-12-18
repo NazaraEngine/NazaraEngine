@@ -77,19 +77,20 @@ namespace Nz
 		NazaraAssert(m_pipelineInfo.uberShader, "Material pipeline has no uber shader");
 
 		ParameterList list;
-		list.SetParameter("ALPHA_MAPPING",     m_pipelineInfo.hasAlphaMap);
-		list.SetParameter("ALPHA_TEST",        m_pipelineInfo.alphaTest);
-		list.SetParameter("COMPUTE_TBNMATRIX", m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap);
-		list.SetParameter("DIFFUSE_MAPPING",   m_pipelineInfo.hasDiffuseMap);
-		list.SetParameter("EMISSIVE_MAPPING",  m_pipelineInfo.hasEmissiveMap);
-		list.SetParameter("NORMAL_MAPPING",    m_pipelineInfo.hasNormalMap);
-		list.SetParameter("PARALLAX_MAPPING",  m_pipelineInfo.hasHeightMap);
-		list.SetParameter("SHADOW_MAPPING",    m_pipelineInfo.shadowReceive);
-		list.SetParameter("SPECULAR_MAPPING",  m_pipelineInfo.hasSpecularMap);
-		list.SetParameter("TEXTURE_MAPPING",   m_pipelineInfo.hasAlphaMap  || m_pipelineInfo.hasDiffuseMap || m_pipelineInfo.hasEmissiveMap ||
-		                                       m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap  || m_pipelineInfo.hasSpecularMap ||
-		                                       flags & ShaderFlags_TextureOverlay);
-		list.SetParameter("TRANSFORM",         true);
+		list.SetParameter("ALPHA_MAPPING",      m_pipelineInfo.hasAlphaMap);
+		list.SetParameter("ALPHA_TEST",         m_pipelineInfo.alphaTest);
+		list.SetParameter("COMPUTE_TBNMATRIX",  m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap);
+		list.SetParameter("DIFFUSE_MAPPING",    m_pipelineInfo.hasDiffuseMap);
+		list.SetParameter("EMISSIVE_MAPPING",   m_pipelineInfo.hasEmissiveMap);
+		list.SetParameter("NORMAL_MAPPING",     m_pipelineInfo.hasNormalMap);
+		list.SetParameter("PARALLAX_MAPPING",   m_pipelineInfo.hasHeightMap);
+		list.SetParameter("REFLECTION_MAPPING", m_pipelineInfo.reflectionMapping);
+		list.SetParameter("SHADOW_MAPPING",     m_pipelineInfo.shadowReceive);
+		list.SetParameter("SPECULAR_MAPPING",   m_pipelineInfo.hasSpecularMap);
+		list.SetParameter("TEXTURE_MAPPING",    m_pipelineInfo.hasAlphaMap  || m_pipelineInfo.hasDiffuseMap || m_pipelineInfo.hasEmissiveMap ||
+		                                        m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap  || m_pipelineInfo.hasSpecularMap ||
+		                                        m_pipelineInfo.reflectionMapping || flags & ShaderFlags_TextureOverlay);
+		list.SetParameter("TRANSFORM",          true);
 
 		list.SetParameter("FLAG_BILLBOARD",      static_cast<bool>((flags & ShaderFlags_Billboard) != 0));
 		list.SetParameter("FLAG_DEFERRED",       static_cast<bool>((flags & ShaderFlags_Deferred) != 0));
@@ -175,7 +176,7 @@ namespace Nz
 			OverrideShader("Shaders/PhongLighting/core.vert", &vertexShader);
 			#endif
 
-			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING NORMAL_MAPPING PARALLAX_MAPPING SHADOW_MAPPING SPECULAR_MAPPING");
+			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING NORMAL_MAPPING PARALLAX_MAPPING REFLECTION_MAPPING SHADOW_MAPPING SPECULAR_MAPPING");
 			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX PARALLAX_MAPPING SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 			UberShaderLibrary::Register("PhongLighting", uberShader);

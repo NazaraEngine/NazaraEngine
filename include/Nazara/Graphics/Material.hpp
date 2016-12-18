@@ -79,6 +79,7 @@ namespace Nz
 			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableReflectionMapping(bool reflection);
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableShadowCasting(bool castShadows);
 			inline void EnableShadowReceive(bool receiveShadows);
@@ -128,6 +129,7 @@ namespace Nz
 			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
+			inline bool IsReflectionMappingEnabled() const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
 			inline bool IsShadowCastingEnabled() const;

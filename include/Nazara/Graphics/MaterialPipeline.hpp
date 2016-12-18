@@ -20,15 +20,16 @@ namespace Nz
 {
 	struct MaterialPipelineInfo : RenderStates
 	{
-		bool alphaTest      = false;
-		bool depthSorting   = false;
-		bool hasAlphaMap    = false;
-		bool hasDiffuseMap  = false;
-		bool hasEmissiveMap = false;
-		bool hasHeightMap   = false;
-		bool hasNormalMap   = false;
-		bool hasSpecularMap = false;
-		bool shadowReceive  = true;
+		bool alphaTest         = false;
+		bool depthSorting      = false;
+		bool hasAlphaMap       = false;
+		bool hasDiffuseMap     = false;
+		bool hasEmissiveMap    = false;
+		bool hasHeightMap      = false;
+		bool hasNormalMap      = false;
+		bool hasSpecularMap    = false;
+		bool reflectionMapping = false;
+		bool shadowReceive     = true;
 
 		UberShaderConstRef uberShader;
 	};
