@@ -20,7 +20,7 @@ namespace Ndk
 		{
 			eulerAngles.SetConstructor([] (Nz::LuaInstance& lua, Nz::EulerAnglesd* instance, std::size_t argumentCount)
 			{
-				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
 
 				switch (argCount)
 				{
