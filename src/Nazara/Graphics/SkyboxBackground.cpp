@@ -154,7 +154,7 @@ namespace Nz
 		"{\n"
 		"    vec4 WVPVertex = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
 		"    gl_Position = WVPVertex.xyww;\n"
-		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = VertexPosition;\n"
 		"}\n";
 
 		try
