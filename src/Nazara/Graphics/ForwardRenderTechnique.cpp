@@ -634,7 +634,6 @@ namespace Nz
 						{
 							unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
 
-							shader->SendInteger(shaderUniforms->reflectionMap, textureUnit);
 							Renderer::SetTexture(textureUnit, reflectionMap);
 							Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
 						}
