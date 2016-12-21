@@ -31,6 +31,8 @@ namespace Nz
 
 		void OverrideShader(const String& path, String* source)
 		{
+			ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+
 			File shaderFile(path, Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
 			if (shaderFile.IsOpen())
 			{
