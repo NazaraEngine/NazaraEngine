@@ -97,7 +97,7 @@ namespace Nz
 		{
 			if (frustum.Contains(entry.sphere))
 			{
-				BoundingVolumef sphereVolume(Box(entry.sphere.GetPosition() - Vector3f(entry.sphere.radius), Vector3f(entry.sphere.radius * 2.f)));
+				BoundingVolumef sphereVolume(Boxf(entry.sphere.GetPosition() - Vector3f(entry.sphere.radius), Vector3f(entry.sphere.radius * 2.f)));
 
 				globalVolume->ExtendTo(sphereVolume);
 
