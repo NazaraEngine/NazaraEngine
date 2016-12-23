@@ -71,6 +71,71 @@ namespace Nz
 	}
 
 	template<typename T>
+	std::size_t CullingList<T>::Cull(const Frustumf& frustum, bool* forceInvalidation, BoundingVolumef* globalVolume)
+	{
+		NazaraAssert(globalVolume, "Invalid global volume");
+
+		m_results.clear();
+
+		bool forcedInvalidation = false;
+
+		std::size_t visibleHash = 0U;
+
+		for (NoTestVisibilityEntry& entry : m_noTestList)
+		{
+			m_results.push_back(entry.renderable);
+			Nz::HashCombine(visibleHash, entry.renderable);
+
+			if (entry.forceInvalidation)
+			{
+				forcedInvalidation = true;
+				entry.forceInvalidation = false;
+			}
+		}
+
+		for (SphereVisibilityEntry& entry : m_sphereTestList)
+		{
+			if (frustum.Contains(entry.sphere))
+			{
+				BoundingVolumef sphereVolume(Box(entry.sphere.GetPosition() - Vector3f(entry.sphere.radius), Vector3f(entry.sphere.radius * 2.f)));
+
+				globalVolume->ExtendTo(sphereVolume);
+
+				m_results.push_back(entry.renderable);
+				Nz::HashCombine(visibleHash, entry.renderable);
+
+				if (entry.forceInvalidation)
+				{
+					forcedInvalidation = true;
+					entry.forceInvalidation = false;
+				}
+			}
+		}
+
+		for (VolumeVisibilityEntry& entry : m_volumeTestList)
+		{
+			if (frustum.Contains(entry.volume))
+			{
+				globalVolume->ExtendTo(entry.volume);
+
+				m_results.push_back(entry.renderable);
+				Nz::HashCombine(visibleHash, entry.renderable);
+
+				if (entry.forceInvalidation)
+				{
+					forcedInvalidation = true;
+					entry.forceInvalidation = false;
+				}
+			}
+		}
+
+		if (forceInvalidation)
+			*forceInvalidation = forcedInvalidation;
+
+		return visibleHash;
+	}
+
+	template<typename T>
 	typename CullingList<T>::NoTestEntry CullingList<T>::RegisterNoTest(const T* renderable)
 	{
 		NoTestEntry entry(this, m_noTestList.size());

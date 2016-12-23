@@ -40,6 +40,7 @@ namespace Nz
 			~CullingList();
 
 			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation = nullptr);
+			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation, BoundingVolumef* globalVolume);
 
 			NoTestEntry RegisterNoTest(const T* renderable);
 			SphereEntry RegisterSphereTest(const T* renderable);
