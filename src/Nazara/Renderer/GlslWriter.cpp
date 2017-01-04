@@ -25,15 +25,20 @@ namespace Nz
 
 		node->Register(*this);
 
-		for (const auto& pair : state.m_uniforms)
+		// Uniforms
+		if (state.m_uniforms.empty())
 		{
-			Append(pair.first);
-			Append(" ");
-			Append(pair.second);
-			AppendLine(";");
-		}
+			for (const auto& pair : state.m_uniforms)
+			{
+				Append("uniform ");
+				Append(pair.first);
+				Append(" ");
+				Append(pair.second);
+				AppendLine(";");
+			}
 
-		AppendLine();
+			AppendLine();
+		}
 
 		Function entryPoint;
 		entryPoint.name = "main"; //< GLSL has only one entry point name possible
@@ -56,12 +61,52 @@ namespace Nz
 		m_functions[name] = std::move(func);
 	}
 
-	void GlslWriter::RegisterVariable(const String& name, ShaderAst::ExpressionType type)
+	void GlslWriter::RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type)
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		if (m_currentFunction)
-			m_currentFunction->variables.insert(std::make_pair(type, name));
+		switch (kind)
+		{
+			case ShaderAst::VariableType::Parameter:
+			{
+				if (m_currentFunction)
+				{
+					bool found = false;
+					for (const auto& varPtr : m_currentFunction->parameters)
+					{
+						if (varPtr->name == name)
+						{
+							found = true;
+							if (varPtr->type != type)
+							{
+								//TODO: AstParseError
+								throw std::runtime_error("Function uses parameter \"" + name + "\" with a different type than specified in the function arguments");
+							}
+
+							break;
+						}
+					}
+
+					if (!found)
+						//TODO: AstParseError
+						throw std::runtime_error("Function has no parameter \"" + name + "\"");
+				}
+
+				break;
+			}
+
+			case ShaderAst::VariableType::Uniform:
+				m_currentState->m_uniforms.insert(std::make_pair(type, name));
+				break;
+
+			case ShaderAst::VariableType::Variable:
+			{
+				if (m_currentFunction)
+					m_currentFunction->variables.insert(std::make_pair(type, name));
+
+				break;
+			}
+		}
 	}
 
 	void GlslWriter::Write(const ShaderAst::NodePtr& node)

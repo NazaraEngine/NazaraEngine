@@ -24,7 +24,7 @@ namespace Nz
 			virtual Nz::String Generate(const ShaderAst::StatementPtr& node) = 0;
 
 			virtual void RegisterFunction(const String& name, ShaderAst::StatementPtr node, std::initializer_list<ShaderAst::VariablePtr> parameters, ShaderAst::ExpressionType ret) = 0;
-			virtual void RegisterVariable(const String& name, ShaderAst::ExpressionType type) = 0;
+			virtual void RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type) = 0;
 
 			virtual void Write(const ShaderAst::AssignOp& node) = 0;
 			virtual void Write(const ShaderAst::Branch& node) = 0;
