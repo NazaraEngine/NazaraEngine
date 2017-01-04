@@ -10,7 +10,8 @@ namespace Nz
 {
 	GlslWriter::GlslWriter() :
 	m_currentFunction(nullptr),
-	m_currentState(nullptr)
+	m_currentState(nullptr),
+	m_glslVersion(110)
 	{
 	}
 
@@ -24,6 +25,11 @@ namespace Nz
 		});
 
 		node->Register(*this);
+
+		// Header
+		Append("#version ");
+		AppendLine(String::Number(m_glslVersion));
+		AppendLine();
 
 		// Uniforms
 		if (state.m_uniforms.empty())
@@ -107,6 +113,11 @@ namespace Nz
 				break;
 			}
 		}
+	}
+
+	void GlslWriter::SetGlslVersion(unsigned int version)
+	{
+		m_glslVersion = version;
 	}
 
 	void GlslWriter::Write(const ShaderAst::NodePtr& node)
