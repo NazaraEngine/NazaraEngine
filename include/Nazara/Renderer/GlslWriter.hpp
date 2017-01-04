@@ -46,6 +46,7 @@ namespace Nz
 
 			void Append(ShaderAst::ExpressionType type);
 			void Append(const String& txt);
+			void AppendCommentSection(const String& section);
 			void AppendFunction(Function& func);
 			void AppendLine(const Nz::String& txt = Nz::String());
 
