@@ -28,7 +28,7 @@ namespace Nz
 			Nz::String Generate(const ShaderAst::StatementPtr& node) override;
 
 			void RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::VariablePtr> parameters, ShaderAst::ExpressionType ret) override;
-			void RegisterVariable(const String& name, ShaderAst::ExpressionType type) override;
+			void RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type) override;
 
 			void Write(const ShaderAst::AssignOp& node) override;
 			void Write(const ShaderAst::Branch& node) override;
