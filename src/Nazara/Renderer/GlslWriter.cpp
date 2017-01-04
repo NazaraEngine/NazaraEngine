@@ -9,6 +9,7 @@
 namespace Nz
 {
 	GlslWriter::GlslWriter() :
+	m_currentFunction(nullptr),
 	m_currentState(nullptr)
 	{
 	}
@@ -24,7 +25,7 @@ namespace Nz
 
 		node->Register(*this);
 
-		for (const auto& pair : state.m_variables)
+		for (const auto& pair : state.m_uniforms)
 		{
 			Append(pair.first);
 			Append(" ");
@@ -59,7 +60,8 @@ namespace Nz
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		m_currentState->m_variables.insert(std::make_pair(type, name));
+		if (m_currentFunction)
+			m_currentFunction->variables.insert(std::make_pair(type, name));
 	}
 
 	void GlslWriter::Write(const ShaderAst::NodePtr& node)
@@ -200,9 +202,18 @@ namespace Nz
 		m_currentState->stream << txt;
 	}
 
-	void GlslWriter::AppendFunction(const Function& func)
+	void GlslWriter::AppendFunction(Function& func)
 	{
+		NazaraAssert(!m_currentFunction, "A function is already being processed");
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
+
+		m_currentFunction = &func;
+		CallOnExit onExit([this] ()
+		{
+			m_currentFunction = nullptr;
+		});
+
+		func.node->Register(*this);
 
 		Append(func.retType);
 
@@ -222,7 +233,19 @@ namespace Nz
 		m_currentState->stream << ")\n";
 
 		EnterScope();
+		{
+			for (const auto& pair : func.variables)
+			{
+				Append(pair.first);
+				Append(" ");
+				Append(pair.second);
+				AppendLine(";");
+			}
+
+			AppendLine();
+
 			Write(func.node);
+		}
 		LeaveScope();
 	}
 
