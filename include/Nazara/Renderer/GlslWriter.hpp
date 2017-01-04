@@ -30,6 +30,8 @@ namespace Nz
 			void RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::VariablePtr> parameters, ShaderAst::ExpressionType ret) override;
 			void RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type) override;
 
+			void SetGlslVersion(unsigned int version);
+
 			void Write(const ShaderAst::AssignOp& node) override;
 			void Write(const ShaderAst::Branch& node) override;
 			void Write(const ShaderAst::BinaryOp& node) override;
@@ -69,6 +71,7 @@ namespace Nz
 			std::unordered_map<String, Function> m_functions;
 			Function* m_currentFunction;
 			State* m_currentState;
+			unsigned int m_glslVersion;
 	};
 }
 
