@@ -34,6 +34,9 @@ namespace Nz
 		// Uniforms
 		if (!state.m_uniforms.empty())
 		{
+			AppendCommentSection("Uniforms");
+			AppendLine();
+
 			for (const auto& pair : state.m_uniforms)
 			{
 				Append("uniform ");
@@ -256,6 +259,15 @@ namespace Nz
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
 		m_currentState->stream << txt;
+	}
+
+	void GlslWriter::AppendCommentSection(const String& section)
+	{
+		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
+
+		String stars((section.GetSize() < 33) ? (36 - section.GetSize()) / 2 : 3, '*');
+		m_currentState->stream << "/*" << stars << ' ' << section << ' ' << stars << "*/";
+		AppendLine();
 	}
 
 	void GlslWriter::AppendFunction(Function& func)
