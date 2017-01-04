@@ -33,7 +33,7 @@ namespace Nz { namespace ShaderAst
 
 	void Variable::Register(ShaderWriter& visitor)
 	{
-		visitor.RegisterVariable(name, type);
+		visitor.RegisterVariable(kind, name, type);
 	}
 
 	void Variable::Visit(ShaderWriter& visitor)
