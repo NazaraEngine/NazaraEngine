@@ -32,7 +32,7 @@ namespace Nz
 		AppendLine();
 
 		// Uniforms
-		if (state.m_uniforms.empty())
+		if (!state.m_uniforms.empty())
 		{
 			for (const auto& pair : state.m_uniforms)
 			{
