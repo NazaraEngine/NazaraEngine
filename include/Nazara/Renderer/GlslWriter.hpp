@@ -44,7 +44,7 @@ namespace Nz
 
 			void Append(ShaderAst::ExpressionType type);
 			void Append(const String& txt);
-			void AppendFunction(const Function& func);
+			void AppendFunction(Function& func);
 			void AppendLine(const Nz::String& txt = Nz::String());
 
 			void EnterScope();
@@ -52,6 +52,7 @@ namespace Nz
 
 			struct Function
 			{
+				std::set<std::pair<ShaderAst::ExpressionType, String>> variables;
 				std::vector<ShaderAst::VariablePtr> parameters;
 				ShaderAst::ExpressionType retType;
 				ShaderAst::StatementPtr node;
@@ -60,12 +61,13 @@ namespace Nz
 
 			struct State
 			{
-				std::set<std::pair<ShaderAst::ExpressionType, String>> m_variables;
+				std::set<std::pair<ShaderAst::ExpressionType, String>> m_uniforms;
 				StringStream stream;
 				unsigned int indentLevel = 0;
 			};
 
 			std::unordered_map<String, Function> m_functions;
+			Function* m_currentFunction;
 			State* m_currentState;
 	};
 }
