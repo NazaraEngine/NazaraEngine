@@ -36,6 +36,7 @@ namespace Nz
 			void Write(const ShaderAst::Branch& node) override;
 			void Write(const ShaderAst::BinaryOp& node) override;
 			void Write(const ShaderAst::BuiltinVariable& node) override;
+			void Write(const ShaderAst::Cast& node) override;
 			void Write(const ShaderAst::Constant& node) override;
 			void Write(const ShaderAst::ExpressionStatement& node) override;
 			void Write(const ShaderAst::NamedVariable& node) override;
