@@ -50,6 +50,8 @@ namespace Nz { namespace ShaderBuilder
 	constexpr GenBuilder<ShaderAst::Branch> Branch;
 	constexpr GenBuilder<ShaderAst::Constant> Constant;
 	constexpr GenBuilder<ShaderAst::ExpressionStatement> ExprStatement;
+	constexpr VarBuilder<ShaderAst::VariableType::Input> Input;
+	constexpr VarBuilder<ShaderAst::VariableType::Output> Output;
 	constexpr VarBuilder<ShaderAst::VariableType::Parameter> Parameter;
 	constexpr VarBuilder<ShaderAst::VariableType::Uniform> Uniform;
 	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;

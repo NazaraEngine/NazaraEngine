@@ -55,9 +55,11 @@ namespace Nz
 		enum class VariableType
 		{
 			Builtin,
+			Input,
+			Output,
 			Parameter,
-			Variable,
-			Uniform
+			Uniform,
+			Variable
 		};
 
 		//////////////////////////////////////////////////////////////////////////

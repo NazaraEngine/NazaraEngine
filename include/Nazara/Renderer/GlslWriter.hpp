@@ -44,20 +44,24 @@ namespace Nz
 
 		private:
 			struct Function;
+			using VariableContainer = std::set<std::pair<ShaderAst::ExpressionType, String>>;
 
 			void Append(ShaderAst::Builtin builtin);
 			void Append(ShaderAst::ExpressionType type);
 			void Append(const String& txt);
 			void AppendCommentSection(const String& section);
 			void AppendFunction(Function& func);
-			void AppendLine(const Nz::String& txt = Nz::String());
+			void AppendLine(const String& txt = String());
+
+			void DeclareVariables(const VariableContainer& variables, const String& keyword = String(), const String& section = String());
 
 			void EnterScope();
 			void LeaveScope();
 
+
 			struct Function
 			{
-				std::set<std::pair<ShaderAst::ExpressionType, String>> variables;
+				VariableContainer variables;
 				std::vector<ShaderAst::NamedVariablePtr> parameters;
 				ShaderAst::ExpressionType retType;
 				ShaderAst::StatementPtr node;
@@ -66,7 +70,9 @@ namespace Nz
 
 			struct State
 			{
-				std::set<std::pair<ShaderAst::ExpressionType, String>> m_uniforms;
+				VariableContainer inputs;
+				VariableContainer outputs;
+				VariableContainer uniforms;
 				StringStream stream;
 				unsigned int indentLevel = 0;
 			};
