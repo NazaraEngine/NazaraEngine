@@ -31,23 +31,10 @@ namespace Nz
 		AppendLine(String::Number(m_glslVersion));
 		AppendLine();
 
-		// Uniforms
-		if (!state.m_uniforms.empty())
-		{
-			AppendCommentSection("Uniforms");
-			AppendLine();
-
-			for (const auto& pair : state.m_uniforms)
-			{
-				Append("uniform ");
-				Append(pair.first);
-				Append(" ");
-				Append(pair.second);
-				AppendLine(";");
-			}
-
-			AppendLine();
-		}
+		// Global variables (uniforms, input and outputs)
+		DeclareVariables(state.uniforms, "uniform", "Uniforms");
+		DeclareVariables(state.inputs,   "in",      "Inputs");
+		DeclareVariables(state.outputs,  "out",     "Outputs");
 
 		Function entryPoint;
 		entryPoint.name = "main"; //< GLSL has only one entry point name possible
@@ -73,9 +60,18 @@ namespace Nz
 	void GlslWriter::RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type)
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
+		NazaraAssert(kind != ShaderAst::VariableType::Builtin, "Builtin variables should not be registered");
 
 		switch (kind)
 		{
+			case ShaderAst::VariableType::Input:
+				m_currentState->inputs.insert(std::make_pair(type, name));
+				break;
+
+			case ShaderAst::VariableType::Output:
+				m_currentState->outputs.insert(std::make_pair(type, name));
+				break;
+
 			case ShaderAst::VariableType::Parameter:
 			{
 				if (m_currentFunction)
@@ -105,7 +101,7 @@ namespace Nz
 			}
 
 			case ShaderAst::VariableType::Uniform:
-				m_currentState->m_uniforms.insert(std::make_pair(type, name));
+				m_currentState->uniforms.insert(std::make_pair(type, name));
 				break;
 
 			case ShaderAst::VariableType::Variable:
@@ -320,15 +316,7 @@ namespace Nz
 
 		EnterScope();
 		{
-			for (const auto& pair : func.variables)
-			{
-				Append(pair.first);
-				Append(" ");
-				Append(pair.second);
-				AppendLine(";");
-			}
-
-			AppendLine();
+			DeclareVariables(func.variables);
 
 			Write(func.node);
 		}
@@ -340,6 +328,34 @@ namespace Nz
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
 		m_currentState->stream << txt << '\n' << String(m_currentState->indentLevel, '\t');
+	}
+
+	void GlslWriter::DeclareVariables(const VariableContainer& variables, const String& keyword, const String& section)
+	{
+		if (!variables.empty())
+		{
+			if (!section.IsEmpty())
+			{
+				AppendCommentSection("Uniforms");
+				AppendLine();
+			}
+
+			for (const auto& pair : variables)
+			{
+				if (!keyword.IsEmpty())
+				{
+					Append(keyword);
+					Append(" ");
+				}
+
+				Append(pair.first);
+				Append(" ");
+				Append(pair.second);
+				AppendLine(";");
+			}
+
+			AppendLine();
+		}
 	}
 
 	void GlslWriter::EnterScope()
