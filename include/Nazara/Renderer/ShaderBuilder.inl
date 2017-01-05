@@ -48,6 +48,12 @@ namespace Nz { namespace ShaderBuilder
 	{
 		return std::make_shared<ShaderAst::NamedVariable>(type, std::forward<Args>(args)...);
 	}
+
+	template<ShaderAst::ExpressionType Type, typename... Args>
+	std::shared_ptr<ShaderAst::Cast> Cast(Args&&... args)
+	{
+		return std::make_shared<ShaderAst::Cast>(Type, std::forward<Args>(args)...);
+	}
 } }
 
 #include <Nazara/Renderer/DebugOff.hpp>

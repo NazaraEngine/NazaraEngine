@@ -14,6 +14,7 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <array>
 #include <memory>
 
 namespace Nz
@@ -76,6 +77,9 @@ namespace Nz
 
 				virtual void Register(ShaderWriter& visitor) = 0;
 				virtual void Visit(ShaderWriter& visitor) = 0;
+
+				static inline unsigned int GetComponentCount(ExpressionType type);
+				static inline ExpressionType GetComponentType(ExpressionType type);
 		};
 
 		class Statement;
@@ -207,6 +211,19 @@ namespace Nz
 
 				std::vector<ConditionalStatement> condStatements;
 				StatementPtr elseStatement;
+		};
+
+		class NAZARA_RENDERER_API Cast : public Expression
+		{
+			public:
+				inline Cast(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second = nullptr, ExpressionPtr third = nullptr, ExpressionPtr fourth = nullptr);
+
+				ExpressionType GetExpressionType() const override;
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				ExpressionType exprType;
+				std::array<ExpressionPtr, 4> expressions;
 		};
 
 		class NAZARA_RENDERER_API Constant : public Expression
