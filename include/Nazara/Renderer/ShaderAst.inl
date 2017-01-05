@@ -21,6 +21,7 @@ namespace Nz
 					return 3;
 
 				case ExpressionType::Float4:
+				case ExpressionType::Mat4x4:
 					return 4;
 
 				default:
@@ -35,6 +36,7 @@ namespace Nz
 				case ExpressionType::Float2:
 				case ExpressionType::Float3:
 				case ExpressionType::Float4:
+				case ExpressionType::Mat4x4:
 					return ExpressionType::Float1;
 
 				default:
