@@ -31,12 +31,22 @@ namespace Nz { namespace ShaderAst
 	}
 
 
-	void Variable::Register(ShaderWriter& visitor)
+	void NamedVariable::Register(ShaderWriter& visitor)
 	{
 		visitor.RegisterVariable(kind, name, type);
 	}
 
-	void Variable::Visit(ShaderWriter& visitor)
+	void NamedVariable::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
+
+
+	void BuiltinVariable::Register(ShaderWriter& visitor)
+	{
+	}
+
+	void BuiltinVariable::Visit(ShaderWriter& visitor)
 	{
 		visitor.Write(*this);
 	}
