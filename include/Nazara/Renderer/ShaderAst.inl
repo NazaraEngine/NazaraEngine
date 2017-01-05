@@ -10,6 +10,38 @@ namespace Nz
 {
 	namespace ShaderAst
 	{
+		inline unsigned int Node::GetComponentCount(ExpressionType type)
+		{
+			switch (type)
+			{
+				case ExpressionType::Float2:
+					return 2;
+
+				case ExpressionType::Float3:
+					return 3;
+
+				case ExpressionType::Float4:
+					return 4;
+
+				default:
+					return 1;
+			}
+		}
+
+		inline ExpressionType Node::GetComponentType(ExpressionType type)
+		{
+			switch (type)
+			{
+				case ExpressionType::Float2:
+				case ExpressionType::Float3:
+				case ExpressionType::Float4:
+					return ExpressionType::Float1;
+
+				default:
+					return type;
+			}
+		}
+
 		inline ExpressionStatement::ExpressionStatement(ExpressionPtr expr) :
 		expression(std::move(expr))
 		{
@@ -60,6 +92,25 @@ namespace Nz
 		{
 			condStatements.emplace_back(ConditionalStatement{ std::move(condition), std::move(trueStatement) });
 			elseStatement = std::move(falseStatement);
+		}
+
+		inline Cast::Cast(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth) :
+		exprType(castTo),
+		expressions({first, second, third, fourth})
+		{
+			unsigned int componentCount = 0;
+			unsigned int requiredComponents = GetComponentCount(exprType);
+			for (const auto& exprPtr : expressions)
+			{
+				if (!exprPtr)
+					break;
+
+				componentCount += GetComponentCount(exprPtr->GetExpressionType());
+			}
+
+			//TODO: AstParseError
+			if (componentCount != requiredComponents)
+				throw std::runtime_error("Component count doesn't match required component count");
 		}
 
 		inline Constant::Constant(float value) :
