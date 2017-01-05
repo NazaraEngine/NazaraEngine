@@ -45,14 +45,17 @@ namespace Nz { namespace ShaderBuilder
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Add> Add;
 	constexpr AssignOpBuilder<ShaderAst::AssignType::Simple> Assign;
 	constexpr BuiltinBuilder Builtin;
-	constexpr BinOpBuilder<ShaderAst::BinaryType::Equality> Equal;
 	constexpr GenBuilder<ShaderAst::StatementBlock> Block;
 	constexpr GenBuilder<ShaderAst::Branch> Branch;
 	constexpr GenBuilder<ShaderAst::Constant> Constant;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Divide> Divide;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Equality> Equal;
 	constexpr GenBuilder<ShaderAst::ExpressionStatement> ExprStatement;
 	constexpr VarBuilder<ShaderAst::VariableType::Input> Input;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Multiply> Multiply;
 	constexpr VarBuilder<ShaderAst::VariableType::Output> Output;
 	constexpr VarBuilder<ShaderAst::VariableType::Parameter> Parameter;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Substract> Substract;
 	constexpr VarBuilder<ShaderAst::VariableType::Uniform> Uniform;
 	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;
 } }
