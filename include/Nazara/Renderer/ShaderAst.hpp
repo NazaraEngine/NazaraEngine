@@ -36,18 +36,25 @@ namespace Nz
 			Equality   //< ==
 		};
 
+		enum class Builtin
+		{
+			VertexPosition, // gl_Position
+		};
+
 		enum class ExpressionType
 		{
 			Float1, // float
 			Float2, // vec2
 			Float3, // vec3
 			Float4, // vec4
+			Mat4x4, // mat4
 
 			None    // void
 		};
 
 		enum class VariableType
 		{
+			Builtin,
 			Parameter,
 			Variable,
 			Uniform
@@ -115,14 +122,36 @@ namespace Nz
 		class NAZARA_RENDERER_API Variable : public Expression
 		{
 			public:
-				inline Variable(VariableType varKind, const Nz::String& varName, ExpressionType varType);
+				inline Variable(VariableType varKind, ExpressionType varType);
+
+				ExpressionType type;
+				VariableType   kind;
+		};
+
+		class NamedVariable;
+
+		using NamedVariablePtr = std::shared_ptr<NamedVariable>;
+
+		class NAZARA_RENDERER_API NamedVariable : public Variable
+		{
+			public:
+				inline NamedVariable(VariableType varKind, const Nz::String& varName, ExpressionType varType);
 
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
-				ExpressionType type;
-				VariableType   kind;
-				Nz::String     name;
+				Nz::String name;
+		};
+
+		class NAZARA_RENDERER_API BuiltinVariable : public Variable
+		{
+			public:
+				inline BuiltinVariable(Builtin variable, ExpressionType varType);
+
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				Builtin var;
 		};
 
 		//////////////////////////////////////////////////////////////////////////
