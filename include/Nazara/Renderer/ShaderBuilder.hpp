@@ -51,7 +51,7 @@ namespace Nz { namespace ShaderBuilder
 			template<typename... Args>
 			std::shared_ptr<Nz::ShaderAst::Variable> operator()(Args&&... args) const
 			{
-				return std::make_shared<Nz::ShaderAst::Variable>(type, std::forward<Args>(args)...);
+				return std::make_shared<Nz::ShaderAst::NamedVariable>(type, std::forward<Args>(args)...);
 			}
 	};
 

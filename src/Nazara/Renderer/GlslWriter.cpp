@@ -59,7 +59,7 @@ namespace Nz
 		return state.stream;
 	}
 
-	void GlslWriter::RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::VariablePtr> parameters, ShaderAst::ExpressionType retType)
+	void GlslWriter::RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::NamedVariablePtr> parameters, ShaderAst::ExpressionType retType)
 	{
 		Function func;
 		func.retType = retType;
@@ -197,6 +197,11 @@ namespace Nz
 		Write(node.right);
 	}
 
+	void GlslWriter::Write(const ShaderAst::BuiltinVariable& node)
+	{
+		Append(node.var);
+	}
+
 	void GlslWriter::Write(const ShaderAst::Constant& node)
 	{
 		switch (node.exprType)
@@ -213,6 +218,11 @@ namespace Nz
 		Append(";");
 	}
 
+	void GlslWriter::Write(const ShaderAst::NamedVariable& node)
+	{
+		Append(node.name);
+	}
+
 	void GlslWriter::Write(const ShaderAst::StatementBlock& node)
 	{
 		bool first = true;
@@ -227,9 +237,14 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Write(const ShaderAst::Variable& node)
+	void GlslWriter::Append(ShaderAst::Builtin builtin)
 	{
-		Append(node.name);
+		switch (builtin)
+		{
+			case ShaderAst::Builtin::VertexPosition:
+				Append("gl_Position");
+				break;
+		}
 	}
 
 	void GlslWriter::Append(ShaderAst::ExpressionType type)
@@ -247,6 +262,9 @@ namespace Nz
 				break;
 			case ShaderAst::ExpressionType::Float4:
 				Append("vec4");
+				break;
+			case ShaderAst::ExpressionType::Mat4x4:
+				Append("mat4");
 				break;
 			case ShaderAst::ExpressionType::None:
 				Append("void");

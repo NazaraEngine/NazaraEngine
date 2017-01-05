@@ -27,7 +27,7 @@ namespace Nz
 
 			Nz::String Generate(const ShaderAst::StatementPtr& node) override;
 
-			void RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::VariablePtr> parameters, ShaderAst::ExpressionType ret) override;
+			void RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::NamedVariablePtr> parameters, ShaderAst::ExpressionType ret) override;
 			void RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type) override;
 
 			void SetGlslVersion(unsigned int version);
@@ -35,15 +35,17 @@ namespace Nz
 			void Write(const ShaderAst::AssignOp& node) override;
 			void Write(const ShaderAst::Branch& node) override;
 			void Write(const ShaderAst::BinaryOp& node) override;
+			void Write(const ShaderAst::BuiltinVariable& node) override;
 			void Write(const ShaderAst::Constant& node) override;
 			void Write(const ShaderAst::ExpressionStatement& node) override;
+			void Write(const ShaderAst::NamedVariable& node) override;
 			void Write(const ShaderAst::NodePtr& node) override;
 			void Write(const ShaderAst::StatementBlock& node) override;
-			void Write(const ShaderAst::Variable& node) override;
 
 		private:
 			struct Function;
 
+			void Append(ShaderAst::Builtin builtin);
 			void Append(ShaderAst::ExpressionType type);
 			void Append(const String& txt);
 			void AppendCommentSection(const String& section);
@@ -56,7 +58,7 @@ namespace Nz
 			struct Function
 			{
 				std::set<std::pair<ShaderAst::ExpressionType, String>> variables;
-				std::vector<ShaderAst::VariablePtr> parameters;
+				std::vector<ShaderAst::NamedVariablePtr> parameters;
 				ShaderAst::ExpressionType retType;
 				ShaderAst::StatementPtr node;
 				String name;
