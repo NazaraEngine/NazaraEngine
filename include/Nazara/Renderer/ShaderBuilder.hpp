@@ -58,6 +58,8 @@ namespace Nz { namespace ShaderBuilder
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Substract> Substract;
 	constexpr VarBuilder<ShaderAst::VariableType::Uniform> Uniform;
 	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;
+
+	template<ShaderAst::ExpressionType Type, typename... Args> std::shared_ptr<ShaderAst::Cast> Cast(Args&&... args);
 } }
 
 #include <Nazara/Renderer/ShaderBuilder.inl>

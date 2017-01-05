@@ -139,5 +139,29 @@ namespace Nz { namespace ShaderAst
 	{
 		visitor.Write(*this);
 	}
+
+	ExpressionType Cast::GetExpressionType() const
+	{
+		return exprType;
+	}
+
+	void Cast::Register(ShaderWriter& visitor)
+	{
+		auto it = expressions.begin();
+		(*it)->Register(visitor);
+
+		for (; it != expressions.end(); ++it)
+		{
+			if (!*it)
+				break;
+
+			(*it)->Register(visitor);
+		}
+	}
+
+	void Cast::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
 }
 }

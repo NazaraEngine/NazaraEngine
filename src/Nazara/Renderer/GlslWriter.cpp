@@ -198,6 +198,28 @@ namespace Nz
 		Append(node.var);
 	}
 
+	void GlslWriter::Write(const ShaderAst::Cast& node)
+	{
+		Append(node.exprType);
+		Append("(");
+
+		unsigned int i = 0;
+		unsigned int requiredComponents = ShaderAst::Node::GetComponentCount(node.exprType);
+		while (requiredComponents > 0)
+		{
+			if (i != 0)
+				m_currentState->stream << ", ";
+
+			const auto& exprPtr = node.expressions[i++];
+			NazaraAssert(exprPtr, "Invalid expression");
+
+			Write(exprPtr);
+			requiredComponents -= ShaderAst::Node::GetComponentCount(exprPtr->GetExpressionType());
+		}
+
+		Append(")");
+	}
+
 	void GlslWriter::Write(const ShaderAst::Constant& node)
 	{
 		switch (node.exprType)
