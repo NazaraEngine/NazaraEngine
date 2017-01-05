@@ -31,6 +31,11 @@ namespace Nz { namespace ShaderAst
 	}
 
 
+	ExpressionType Variable::GetExpressionType() const
+	{
+		return type;
+	}
+
 	void NamedVariable::Register(ShaderWriter& visitor)
 	{
 		visitor.RegisterVariable(kind, name, type);
@@ -52,6 +57,11 @@ namespace Nz { namespace ShaderAst
 	}
 
 
+	ExpressionType AssignOp::GetExpressionType() const
+	{
+		return variable->GetExpressionType();
+	}
+
 	void AssignOp::Register(ShaderWriter& visitor)
 	{
 		variable->Register(visitor);
@@ -63,6 +73,28 @@ namespace Nz { namespace ShaderAst
 		visitor.Write(*this);
 	}
 
+
+	ExpressionType BinaryOp::GetExpressionType() const
+	{
+		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
+
+		switch (op)
+		{
+			case ShaderAst::BinaryType::Add:
+			case ShaderAst::BinaryType::Divide:
+			case ShaderAst::BinaryType::Multiply:
+			case ShaderAst::BinaryType::Substract:
+				exprType = left->GetExpressionType();
+				break;
+
+			case ShaderAst::BinaryType::Equality:
+				exprType = ExpressionType::Boolean;
+		}
+
+		NazaraAssert(exprType != ShaderAst::ExpressionType::None, "Unhandled builtin");
+
+		return exprType;
+	}
 
 	void BinaryOp::Register(ShaderWriter& visitor)
 	{
@@ -93,6 +125,11 @@ namespace Nz { namespace ShaderAst
 		visitor.Write(*this);
 	}
 
+
+	ExpressionType Constant::GetExpressionType() const
+	{
+		return exprType;
+	}
 
 	void Constant::Register(ShaderWriter&)
 	{

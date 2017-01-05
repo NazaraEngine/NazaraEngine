@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -50,6 +51,9 @@ namespace Nz
 		left(std::move(Left)),
 		right(std::move(Right))
 		{
+			//TODO: AstParseError
+			if (left->GetExpressionType() != right->GetExpressionType())
+				throw std::runtime_error("Left expression type must match right expression type");
 		}
 
 		inline Branch::Branch(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement)

@@ -43,13 +43,14 @@ namespace Nz
 
 		enum class ExpressionType
 		{
-			Float1, // float
-			Float2, // vec2
-			Float3, // vec3
-			Float4, // vec4
-			Mat4x4, // mat4
+			Boolean, // bool
+			Float1,  // float
+			Float2,  // vec2
+			Float3,  // vec3
+			Float4,  // vec4
+			Mat4x4,  // mat4
 
-			None    // void
+			None     // void
 		};
 
 		enum class VariableType
@@ -91,6 +92,8 @@ namespace Nz
 
 		class NAZARA_RENDERER_API Expression : public Node
 		{
+			public:
+				virtual ExpressionType GetExpressionType() const = 0;
 		};
 
 		class NAZARA_RENDERER_API ExpressionStatement : public Statement
@@ -125,6 +128,8 @@ namespace Nz
 		{
 			public:
 				inline Variable(VariableType varKind, ExpressionType varType);
+
+				ExpressionType GetExpressionType() const override;
 
 				ExpressionType type;
 				VariableType   kind;
@@ -163,6 +168,7 @@ namespace Nz
 			public:
 				inline AssignOp(AssignType Op, VariablePtr Var, ExpressionPtr Right);
 
+				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
@@ -176,6 +182,7 @@ namespace Nz
 			public:
 				inline BinaryOp(BinaryType Op, ExpressionPtr Left, ExpressionPtr Right);
 
+				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
@@ -207,6 +214,7 @@ namespace Nz
 			public:
 				inline explicit Constant(float value);
 
+				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
