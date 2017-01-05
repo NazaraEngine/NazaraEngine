@@ -44,6 +44,26 @@ namespace Nz { namespace ShaderBuilder
 			}
 	};
 
+	class BuiltinBuilder
+	{
+		public:
+			std::shared_ptr<Nz::ShaderAst::Variable> operator()(Nz::ShaderAst::Builtin builtin) const
+			{
+				ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
+
+				switch (builtin)
+				{
+					case ShaderAst::Builtin::VertexPosition:
+						exprType = ShaderAst::ExpressionType::Float4;
+						break;
+				}
+
+				NazaraAssert(exprType != ShaderAst::ExpressionType::None, "Unhandled builtin");
+
+				return std::make_shared<Nz::ShaderAst::BuiltinVariable>(builtin, exprType);
+			}
+	};
+
 	template<Nz::ShaderAst::VariableType type>
 	class VarBuilder
 	{
@@ -57,6 +77,7 @@ namespace Nz { namespace ShaderBuilder
 
 	constexpr BinOpBuilder<Nz::ShaderAst::BinaryType::Add> Add;
 	constexpr AssignOpBuilder<Nz::ShaderAst::AssignType::Simple> Assign;
+	constexpr BuiltinBuilder Builtin;
 	constexpr BinOpBuilder<Nz::ShaderAst::BinaryType::Equality> Equal;
 	constexpr GenBuilder<Nz::ShaderAst::StatementBlock> Block;
 	constexpr GenBuilder<Nz::ShaderAst::Branch> Branch;
