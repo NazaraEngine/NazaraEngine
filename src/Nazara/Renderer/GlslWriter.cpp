@@ -335,10 +335,7 @@ namespace Nz
 		if (!variables.empty())
 		{
 			if (!section.IsEmpty())
-			{
-				AppendCommentSection("Uniforms");
-				AppendLine();
-			}
+				AppendCommentSection(section);
 
 			for (const auto& pair : variables)
 			{
