@@ -13,79 +13,46 @@
 
 namespace Nz { namespace ShaderBuilder
 {
+	template<ShaderAst::AssignType op>
+	struct AssignOpBuilder
+	{
+		std::shared_ptr<ShaderAst::AssignOp> operator()(const ShaderAst::VariablePtr& left, const ShaderAst::ExpressionPtr& right) const;
+	};
+
+	template<ShaderAst::BinaryType op>
+	struct BinOpBuilder
+	{
+		std::shared_ptr<ShaderAst::BinaryOp> operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const;
+	};
+
+	struct BuiltinBuilder
+	{
+		std::shared_ptr<ShaderAst::Variable> operator()(ShaderAst::Builtin builtin) const;
+	};
+
 	template<typename T>
-	class GenBuilder
+	struct GenBuilder
 	{
-		public:
-			template<typename... Args>
-			std::shared_ptr<T> operator()(Args&&... args) const
-			{
-				return std::make_shared<T>(std::forward<Args>(args)...);
-			}
+		template<typename... Args> std::shared_ptr<T> operator()(Args&&... args) const;
 	};
 
-	template<Nz::ShaderAst::AssignType op>
-	class AssignOpBuilder
+	template<ShaderAst::VariableType type>
+	struct VarBuilder
 	{
-		public:
-			std::shared_ptr<Nz::ShaderAst::AssignOp> operator()(const Nz::ShaderAst::VariablePtr& left, const Nz::ShaderAst::ExpressionPtr& right) const
-			{
-				return std::make_shared<Nz::ShaderAst::AssignOp>(op, left, right);
-			}
+		template<typename... Args> std::shared_ptr<ShaderAst::Variable> operator()(Args&&... args) const;
 	};
 
-	template<Nz::ShaderAst::BinaryType op>
-	class BinOpBuilder
-	{
-		public:
-			std::shared_ptr<Nz::ShaderAst::BinaryOp> operator()(const Nz::ShaderAst::ExpressionPtr& left, const Nz::ShaderAst::ExpressionPtr& right) const
-			{
-				return std::make_shared<Nz::ShaderAst::BinaryOp>(op, left, right);
-			}
-	};
-
-	class BuiltinBuilder
-	{
-		public:
-			std::shared_ptr<Nz::ShaderAst::Variable> operator()(Nz::ShaderAst::Builtin builtin) const
-			{
-				ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
-
-				switch (builtin)
-				{
-					case ShaderAst::Builtin::VertexPosition:
-						exprType = ShaderAst::ExpressionType::Float4;
-						break;
-				}
-
-				NazaraAssert(exprType != ShaderAst::ExpressionType::None, "Unhandled builtin");
-
-				return std::make_shared<Nz::ShaderAst::BuiltinVariable>(builtin, exprType);
-			}
-	};
-
-	template<Nz::ShaderAst::VariableType type>
-	class VarBuilder
-	{
-		public:
-			template<typename... Args>
-			std::shared_ptr<Nz::ShaderAst::Variable> operator()(Args&&... args) const
-			{
-				return std::make_shared<Nz::ShaderAst::NamedVariable>(type, std::forward<Args>(args)...);
-			}
-	};
-
-	constexpr BinOpBuilder<Nz::ShaderAst::BinaryType::Add> Add;
-	constexpr AssignOpBuilder<Nz::ShaderAst::AssignType::Simple> Assign;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Add> Add;
+	constexpr AssignOpBuilder<ShaderAst::AssignType::Simple> Assign;
 	constexpr BuiltinBuilder Builtin;
-	constexpr BinOpBuilder<Nz::ShaderAst::BinaryType::Equality> Equal;
-	constexpr GenBuilder<Nz::ShaderAst::StatementBlock> Block;
-	constexpr GenBuilder<Nz::ShaderAst::Branch> Branch;
-	constexpr GenBuilder<Nz::ShaderAst::Constant> Constant;
-	constexpr GenBuilder<Nz::ShaderAst::ExpressionStatement> ExprStatement;
-	constexpr VarBuilder<Nz::ShaderAst::VariableType::Parameter> Parameter;
-	constexpr VarBuilder<Nz::ShaderAst::VariableType::Uniform> Uniform;
-	constexpr VarBuilder<Nz::ShaderAst::VariableType::Variable> Variable;
+	constexpr BinOpBuilder<ShaderAst::BinaryType::Equality> Equal;
+	constexpr GenBuilder<ShaderAst::StatementBlock> Block;
+	constexpr GenBuilder<ShaderAst::Branch> Branch;
+	constexpr GenBuilder<ShaderAst::Constant> Constant;
+	constexpr GenBuilder<ShaderAst::ExpressionStatement> ExprStatement;
+	constexpr VarBuilder<ShaderAst::VariableType::Parameter> Parameter;
+	constexpr VarBuilder<ShaderAst::VariableType::Uniform> Uniform;
+	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;
 } }
 
 #include <Nazara/Renderer/ShaderBuilder.inl>
