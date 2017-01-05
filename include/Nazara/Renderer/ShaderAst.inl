@@ -20,10 +20,21 @@ namespace Nz
 		{
 		}
 
-		inline Variable::Variable(VariableType varKind, const Nz::String& varName, ExpressionType varType) :
+		inline Variable::Variable(VariableType varKind, ExpressionType varType) :
 		kind(varKind),
-		name(varName),
 		type(varType)
+		{
+		}
+
+		inline NamedVariable::NamedVariable(VariableType varKind, const Nz::String& varName, ExpressionType varType) :
+		Variable(varKind, varType),
+		name(varName)
+		{
+		}
+
+		inline BuiltinVariable::BuiltinVariable(Builtin variable, ExpressionType varType) :
+		Variable(VariableType::Builtin, varType),
+		var(variable)
 		{
 		}
 
