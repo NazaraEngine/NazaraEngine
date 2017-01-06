@@ -229,7 +229,11 @@ namespace Nz
 		class NAZARA_RENDERER_API Constant : public Expression
 		{
 			public:
+				inline explicit Constant(bool value);
 				inline explicit Constant(float value);
+				inline explicit Constant(const Vector2f& value);
+				inline explicit Constant(const Vector3f& value);
+				inline explicit Constant(const Vector4f& value);
 
 				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
@@ -239,10 +243,11 @@ namespace Nz
 
 				union
 				{
+					bool bool1;
 					float vec1;
-					Nz::Vector2f vec2;
-					Nz::Vector3f vec3;
-					Nz::Vector4f vec4;
+					Vector2f vec2;
+					Vector3f vec3;
+					Vector4f vec4;
 				} values;
 		};
 	}
