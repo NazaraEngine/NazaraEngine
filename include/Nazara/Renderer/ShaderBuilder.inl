@@ -26,13 +26,13 @@ namespace Nz { namespace ShaderBuilder
 		return std::make_shared<ShaderAst::BinaryOp>(op, left, right);
 	}
 
-	std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::Builtin builtin) const
+	std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::BuiltinEntry builtin) const
 	{
 		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
 
 		switch (builtin)
 		{
-			case ShaderAst::Builtin::VertexPosition:
+			case ShaderAst::BuiltinEntry::VertexPosition:
 				exprType = ShaderAst::ExpressionType::Float4;
 				break;
 		}

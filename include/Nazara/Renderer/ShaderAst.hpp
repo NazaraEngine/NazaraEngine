@@ -37,7 +37,7 @@ namespace Nz
 			Equality   //< ==
 		};
 
-		enum class Builtin
+		enum class BuiltinEntry
 		{
 			VertexPosition, // gl_Position
 		};
@@ -157,12 +157,12 @@ namespace Nz
 		class NAZARA_RENDERER_API BuiltinVariable : public Variable
 		{
 			public:
-				inline BuiltinVariable(Builtin variable, ExpressionType varType);
+				inline BuiltinVariable(BuiltinEntry variable, ExpressionType varType);
 
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
-				Builtin var;
+				BuiltinEntry var;
 		};
 
 		//////////////////////////////////////////////////////////////////////////
