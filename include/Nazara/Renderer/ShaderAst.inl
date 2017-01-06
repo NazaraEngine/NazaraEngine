@@ -58,8 +58,8 @@ namespace Nz
 		}
 
 		inline Variable::Variable(VariableType varKind, ExpressionType varType) :
-		kind(varKind),
-		type(varType)
+		type(varType),
+		kind(varKind)
 		{
 		}
 

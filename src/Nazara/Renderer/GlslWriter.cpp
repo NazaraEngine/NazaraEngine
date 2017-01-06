@@ -64,6 +64,9 @@ namespace Nz
 
 		switch (kind)
 		{
+			case ShaderAst::VariableType::Builtin: //< Only there to make compiler happy
+				break;
+
 			case ShaderAst::VariableType::Input:
 				m_currentState->inputs.insert(std::make_pair(type, name));
 				break;
@@ -288,6 +291,9 @@ namespace Nz
 	{
 		switch (type)
 		{
+			case ShaderAst::ExpressionType::Boolean:
+				Append("bool");
+				break;
 			case ShaderAst::ExpressionType::Float1:
 				Append("float");
 				break;
