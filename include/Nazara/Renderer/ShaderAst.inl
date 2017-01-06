@@ -21,8 +21,10 @@ namespace Nz
 					return 3;
 
 				case ExpressionType::Float4:
-				case ExpressionType::Mat4x4:
 					return 4;
+
+				case ExpressionType::Mat4x4:
+					return 16;
 
 				default:
 					return 1;
@@ -85,9 +87,49 @@ namespace Nz
 		left(std::move(Left)),
 		right(std::move(Right))
 		{
-			//TODO: AstParseError
-			if (left->GetExpressionType() != right->GetExpressionType())
-				throw std::runtime_error("Left expression type must match right expression type");
+			ExpressionType leftType = left->GetExpressionType();
+			ExpressionType rightType = right->GetExpressionType();
+
+			if (leftType != rightType)
+			{
+				switch (op)
+				{
+					case BinaryType::Add:
+					case BinaryType::Divide:
+					case BinaryType::Equality:
+					case BinaryType::Substract:
+					{
+						//TODO: AstParseError
+						throw std::runtime_error("Left expression type must match right expression type");
+					}
+
+					case BinaryType::Multiply:
+					{
+						switch (leftType)
+						{
+							case ExpressionType::Mat4x4:
+							{
+								switch (rightType)
+								{
+									case ExpressionType::Float4:
+									case ExpressionType::Mat4x4:
+										break;
+
+									//TODO: AstParseError
+									default:
+										throw std::runtime_error("Left expression type is not compatible with right expression type");
+								}
+
+								break;
+							}
+
+							default:
+								//TODO: AstParseError
+								throw std::runtime_error("Left expression type must match right expression type");
+						}
+					}
+				}
+			}
 		}
 
 		inline Branch::Branch(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement)
