@@ -76,7 +76,7 @@ namespace Nz { namespace ShaderAst
 
 	ExpressionType BinaryOp::GetExpressionType() const
 	{
-		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
+		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::Void;
 
 		switch (op)
 		{
@@ -91,7 +91,7 @@ namespace Nz { namespace ShaderAst
 				exprType = ExpressionType::Boolean;
 		}
 
-		NazaraAssert(exprType != ShaderAst::ExpressionType::None, "Unhandled builtin");
+		NazaraAssert(exprType != ShaderAst::ExpressionType::Void, "Unhandled builtin");
 
 		return exprType;
 	}

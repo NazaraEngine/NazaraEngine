@@ -39,7 +39,7 @@ namespace Nz
 		Function entryPoint;
 		entryPoint.name = "main"; //< GLSL has only one entry point name possible
 		entryPoint.node = node;
-		entryPoint.retType = ShaderAst::ExpressionType::None;
+		entryPoint.retType = ShaderAst::ExpressionType::Void;
 
 		AppendFunction(entryPoint);
 
@@ -309,7 +309,7 @@ namespace Nz
 			case ShaderAst::ExpressionType::Mat4x4:
 				Append("mat4");
 				break;
-			case ShaderAst::ExpressionType::None:
+			case ShaderAst::ExpressionType::Void:
 				Append("void");
 				break;
 		}
