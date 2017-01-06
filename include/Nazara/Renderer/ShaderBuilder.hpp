@@ -16,29 +16,39 @@ namespace Nz { namespace ShaderBuilder
 	template<ShaderAst::AssignType op>
 	struct AssignOpBuilder
 	{
+		constexpr AssignOpBuilder() = default;
+
 		std::shared_ptr<ShaderAst::AssignOp> operator()(const ShaderAst::VariablePtr& left, const ShaderAst::ExpressionPtr& right) const;
 	};
 
 	template<ShaderAst::BinaryType op>
 	struct BinOpBuilder
 	{
+		constexpr BinOpBuilder() = default;
+
 		std::shared_ptr<ShaderAst::BinaryOp> operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const;
 	};
 
 	struct BuiltinBuilder
 	{
+		constexpr BuiltinBuilder() = default;
+
 		std::shared_ptr<ShaderAst::Variable> operator()(ShaderAst::BuiltinEntry builtin) const;
 	};
 
 	template<typename T>
 	struct GenBuilder
 	{
+		constexpr GenBuilder() = default;
+
 		template<typename... Args> std::shared_ptr<T> operator()(Args&&... args) const;
 	};
 
 	template<ShaderAst::VariableType type>
 	struct VarBuilder
 	{
+		constexpr VarBuilder() = default;
+
 		template<typename... Args> std::shared_ptr<ShaderAst::Variable> operator()(Args&&... args) const;
 	};
 
