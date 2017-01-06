@@ -44,7 +44,7 @@ namespace Nz { namespace ShaderBuilder
 
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Add> Add;
 	constexpr AssignOpBuilder<ShaderAst::AssignType::Simple> Assign;
-	constexpr BuiltinBuilder Builtin;
+	constexpr BuiltinBuilder BuiltinVariable;
 	constexpr GenBuilder<ShaderAst::StatementBlock> Block;
 	constexpr GenBuilder<ShaderAst::Branch> Branch;
 	constexpr GenBuilder<ShaderAst::Constant> Constant;
