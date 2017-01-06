@@ -112,6 +112,7 @@ namespace Nz
 		private:
 			static void EnableInstancing(bool instancing);
 			static bool EnsureStateUpdate();
+			static bool GenerateDebugShader();
 			static void OnContextRelease(const Context* context);
 			static void OnIndexBufferRelease(const IndexBuffer* indexBuffer);
 			static void OnShaderReleased(const Shader* shader);
