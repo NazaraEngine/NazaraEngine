@@ -274,11 +274,11 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Append(ShaderAst::Builtin builtin)
+	void GlslWriter::Append(ShaderAst::BuiltinEntry builtin)
 	{
 		switch (builtin)
 		{
-			case ShaderAst::Builtin::VertexPosition:
+			case ShaderAst::BuiltinEntry::VertexPosition:
 				Append("gl_Position");
 				break;
 		}

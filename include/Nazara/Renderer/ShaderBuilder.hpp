@@ -27,7 +27,7 @@ namespace Nz { namespace ShaderBuilder
 
 	struct BuiltinBuilder
 	{
-		std::shared_ptr<ShaderAst::Variable> operator()(ShaderAst::Builtin builtin) const;
+		std::shared_ptr<ShaderAst::Variable> operator()(ShaderAst::BuiltinEntry builtin) const;
 	};
 
 	template<typename T>

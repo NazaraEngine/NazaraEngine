@@ -47,7 +47,7 @@ namespace Nz
 			struct Function;
 			using VariableContainer = std::set<std::pair<ShaderAst::ExpressionType, String>>;
 
-			void Append(ShaderAst::Builtin builtin);
+			void Append(ShaderAst::BuiltinEntry builtin);
 			void Append(ShaderAst::ExpressionType type);
 			void Append(const String& txt);
 			void AppendCommentSection(const String& section);
