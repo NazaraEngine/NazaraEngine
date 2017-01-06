@@ -243,9 +243,10 @@ namespace Nz
 			case ShaderAst::ExpressionType::Float4:
 				Append(String::Format("vec4(%F, %F, %F, %F)", node.values.vec4.x, node.values.vec4.y, node.values.vec4.z, node.values.vec4.w));
 				break;
-		}
 
-		throw std::runtime_error("Unhandled expression type");
+			default:
+				throw std::runtime_error("Unhandled expression type");
+		}
 	}
 
 	void GlslWriter::Write(const ShaderAst::ExpressionStatement& node)
