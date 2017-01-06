@@ -69,7 +69,7 @@ namespace Nz
 		{
 		}
 
-		inline BuiltinVariable::BuiltinVariable(Builtin variable, ExpressionType varType) :
+		inline BuiltinVariable::BuiltinVariable(BuiltinEntry variable, ExpressionType varType) :
 		Variable(VariableType::Builtin, varType),
 		var(variable)
 		{
