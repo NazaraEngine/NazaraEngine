@@ -16,7 +16,7 @@ namespace Nz { namespace ShaderBuilder
 	template<ShaderAst::AssignType op>
 	struct AssignOpBuilder
 	{
-		constexpr AssignOpBuilder() = default;
+		constexpr AssignOpBuilder() {}
 
 		std::shared_ptr<ShaderAst::AssignOp> operator()(const ShaderAst::VariablePtr& left, const ShaderAst::ExpressionPtr& right) const;
 	};
@@ -24,14 +24,14 @@ namespace Nz { namespace ShaderBuilder
 	template<ShaderAst::BinaryType op>
 	struct BinOpBuilder
 	{
-		constexpr BinOpBuilder() = default;
+		constexpr BinOpBuilder() {}
 
 		std::shared_ptr<ShaderAst::BinaryOp> operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const;
 	};
 
 	struct BuiltinBuilder
 	{
-		constexpr BuiltinBuilder() = default;
+		constexpr BuiltinBuilder() {}
 
 		std::shared_ptr<ShaderAst::Variable> operator()(ShaderAst::BuiltinEntry builtin) const;
 	};
@@ -39,7 +39,7 @@ namespace Nz { namespace ShaderBuilder
 	template<typename T>
 	struct GenBuilder
 	{
-		constexpr GenBuilder() = default;
+		constexpr GenBuilder() {}
 
 		template<typename... Args> std::shared_ptr<T> operator()(Args&&... args) const;
 	};
@@ -47,7 +47,7 @@ namespace Nz { namespace ShaderBuilder
 	template<ShaderAst::VariableType type>
 	struct VarBuilder
 	{
-		constexpr VarBuilder() = default;
+		constexpr VarBuilder() {}
 
 		template<typename... Args> std::shared_ptr<ShaderAst::Variable> operator()(Args&&... args) const;
 	};
