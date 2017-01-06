@@ -224,10 +224,28 @@ namespace Nz
 	{
 		switch (node.exprType)
 		{
+			case ShaderAst::ExpressionType::Boolean:
+				Append((node.values.bool1) ? "true" : "false");
+				break;
+
 			case ShaderAst::ExpressionType::Float1:
 				Append(String::Format("%F", node.values.vec1));
 				break;
+
+			case ShaderAst::ExpressionType::Float2:
+				Append(String::Format("vec2(%F, %F)", node.values.vec2.x, node.values.vec2.y));
+				break;
+
+			case ShaderAst::ExpressionType::Float3:
+				Append(String::Format("vec3(%F, %F, %F)", node.values.vec3.x, node.values.vec3.y, node.values.vec3.z));
+				break;
+
+			case ShaderAst::ExpressionType::Float4:
+				Append(String::Format("vec4(%F, %F, %F, %F)", node.values.vec4.x, node.values.vec4.y, node.values.vec4.z, node.values.vec4.w));
+				break;
 		}
+
+		throw std::runtime_error("Unhandled expression type");
 	}
 
 	void GlslWriter::Write(const ShaderAst::ExpressionStatement& node)
