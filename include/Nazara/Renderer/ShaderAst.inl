@@ -157,10 +157,34 @@ namespace Nz
 				throw std::runtime_error("Component count doesn't match required component count");
 		}
 
+		inline Constant::Constant(bool value) :
+		exprType(ExpressionType::Boolean)
+		{
+			values.bool1 = value;
+		}
+
 		inline Constant::Constant(float value) :
 		exprType(ExpressionType::Float1)
 		{
 			values.vec1 = value;
+		}
+
+		inline Constant::Constant(const Vector2f& value) :
+		exprType(ExpressionType::Float2)
+		{
+			values.vec2 = value;
+		}
+
+		inline Constant::Constant(const Vector3f& value) :
+		exprType(ExpressionType::Float3)
+		{
+			values.vec3 = value;
+		}
+
+		inline Constant::Constant(const Vector4f& value) :
+		exprType(ExpressionType::Float4)
+		{
+			values.vec4 = value;
 		}
 	}
 }
