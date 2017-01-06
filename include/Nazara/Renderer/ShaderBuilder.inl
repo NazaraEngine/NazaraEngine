@@ -28,7 +28,7 @@ namespace Nz { namespace ShaderBuilder
 
 	std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::BuiltinEntry builtin) const
 	{
-		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::None;
+		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::Void;
 
 		switch (builtin)
 		{
@@ -37,7 +37,7 @@ namespace Nz { namespace ShaderBuilder
 				break;
 		}
 
-		NazaraAssert(exprType != ShaderAst::ExpressionType::None, "Unhandled builtin");
+		NazaraAssert(exprType != ShaderAst::ExpressionType::Void, "Unhandled builtin");
 
 		return std::make_shared<ShaderAst::BuiltinVariable>(builtin, exprType);
 	}
