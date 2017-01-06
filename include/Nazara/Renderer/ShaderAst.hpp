@@ -51,7 +51,7 @@ namespace Nz
 			Float4,  // vec4
 			Mat4x4,  // mat4
 
-			None     // void
+			Void     // void
 		};
 
 		enum class VariableType
