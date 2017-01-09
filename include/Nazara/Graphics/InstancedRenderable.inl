@@ -230,7 +230,13 @@ namespace Nz
 		NazaraAssert(matIndex < m_materials.size(), "Material index out of bounds");
 		NazaraAssert(material.IsValid(), "Material must be valid");
 
-		m_materials[m_matCount * skinIndex + matIndex] = std::move(material);
+		MaterialRef& matEntry = m_materials[m_matCount * skinIndex + matIndex];
+		if (matEntry != material)
+		{
+			OnInstancedRenderableInvalidateMaterial(this, skinIndex, matIndex, material);
+
+			matEntry = std::move(material);
+		}
 	}
 
 	/*!
