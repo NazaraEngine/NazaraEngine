@@ -19,6 +19,8 @@ namespace Nz
 	m_size(64.f, 64.f),
 	m_origin(Nz::Vector3f::Zero())
 	{
+		ResetMaterials(1);
+
 		for (Color& color : m_cornerColor)
 			color = Color::White;
 
