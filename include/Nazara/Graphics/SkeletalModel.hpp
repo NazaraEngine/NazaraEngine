@@ -61,8 +61,6 @@ namespace Nz
 			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
 
-			void Reset();
-
 			bool SetAnimation(Animation* animation);
 			void SetMesh(Mesh* mesh) override;
 			bool SetSequence(const String& sequenceName);

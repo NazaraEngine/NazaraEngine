@@ -77,7 +77,6 @@ namespace Nz
 				return false;
 			}
 
-			model->Reset();
 			model->SetMesh(mesh);
 
 			if (parameters.loadMaterials)
@@ -114,7 +113,6 @@ namespace Nz
 				return false;
 			}
 
-			model->Reset();
 			model->SetMesh(mesh);
 
 			if (parameters.loadMaterials)

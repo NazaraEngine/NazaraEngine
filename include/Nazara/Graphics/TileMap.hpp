@@ -50,8 +50,6 @@ namespace Nz
 			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
 			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color = Color::White, std::size_t materialIndex = 0U);
 
-			inline const MaterialRef& GetMaterial(std::size_t index) const;
-			inline std::size_t GetMaterialCount() const;
 			inline const Vector2ui& GetMapSize() const;
 			inline Vector2f GetSize() const;
 			inline const Tile& GetTile(const Vector2ui& tilePos) const;
@@ -59,7 +57,7 @@ namespace Nz
 
 			inline bool IsIsometricModeEnabled() const;
 
-			inline void SetMaterial(std::size_t index, MaterialRef material);
+			using InstancedRenderable::SetMaterial;
 
 			inline TileMap& operator=(const TileMap& TileMap);
 			TileMap& operator=(TileMap&& TileMap) = delete;
@@ -83,7 +81,6 @@ namespace Nz
 
 			struct Layer
 			{
-				MaterialRef material;
 				std::set<std::size_t> tiles;
 			};
 

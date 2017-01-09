@@ -8,6 +8,14 @@
 namespace Nz
 {
 	/*!
+	* \brief Constructs a Model object by default
+	*/
+	Model::Model()
+	{
+		ResetMaterials(0);
+	}
+
+	/*!
 	* \brief Adds this model to a render queue, using user-specified transform matrix and render order
 	*
 	* This can be useful when drawing particles

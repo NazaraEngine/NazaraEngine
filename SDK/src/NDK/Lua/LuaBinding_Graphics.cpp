@@ -32,6 +32,40 @@ namespace Ndk
 		/*********************************** Nz::InstancedRenderable ***********************************/
 		instancedRenderable.Reset("InstancedRenderable");
 		{
+			instancedRenderable.BindMethod("GetMaterial", [] (Nz::LuaInstance& lua, Nz::InstancedRenderable* instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
+				switch (argCount)
+				{
+					case 0:
+					case 1:
+					{
+						int argIndex = 2;
+						std::size_t matIndex(lua.Check<std::size_t>(&argIndex, 0));
+
+						return lua.Push(instance->GetMaterial(matIndex));
+					}
+
+					case 2:
+					{
+						int argIndex = 2;
+						std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
+						std::size_t matIndex(lua.Check<std::size_t>(&argIndex));
+
+						return lua.Push(instance->GetMaterial(skinIndex, matIndex));
+					}
+				}
+
+				lua.Error("No matching overload for method GetMaterial");
+				return 0;
+			});
+
+			instancedRenderable.BindMethod("GetMaterialCount", &Nz::InstancedRenderable::GetMaterialCount);
+			instancedRenderable.BindMethod("GetSkin", &Nz::InstancedRenderable::GetSkin);
+			instancedRenderable.BindMethod("GetSkinCount", &Nz::InstancedRenderable::GetSkinCount);
+
+			instancedRenderable.BindMethod("SetSkin", &Nz::InstancedRenderable::SetSkin);
+			instancedRenderable.BindMethod("SetSkinCount", &Nz::InstancedRenderable::SetSkinCount);
 		}
 
 		/*********************************** Nz::Material ***********************************/
@@ -269,22 +303,72 @@ namespace Ndk
 				return true;
 			});
 
-			//model.BindMethod("GetMaterial", &Nz::Model::GetMaterial);
-			model.BindMethod("GetMaterialCount", &Nz::Model::GetMaterialCount);
 			//modelClass.SetMethod("GetMesh", &Nz::Model::GetMesh);
-			model.BindMethod("GetSkin", &Nz::Model::GetSkin);
-			model.BindMethod("GetSkinCount", &Nz::Model::GetSkinCount);
 
 			model.BindMethod("IsAnimated", &Nz::Model::IsAnimated);
 			model.BindMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
 
-			model.BindMethod("Reset", &Nz::Model::Reset);
 
-			//model.BindMethod("SetMaterial", &Nz::Model::SetMaterial);
+			model.BindMethod("SetMaterial", [] (Nz::LuaInstance& lua, Nz::Model* instance, std::size_t argumentCount) -> int
+			{
+				std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
+				switch (argCount)
+				{
+					case 2:
+					{
+						int argIndex = 2;
+						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+						{
+							std::size_t matIndex(lua.Check<std::size_t>(&argIndex));
+							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+
+							instance->SetMaterial(matIndex, std::move(material));
+							return 0;
+						}
+						else if (lua.IsOfType(argIndex, Nz::LuaType_String))
+						{
+							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
+							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+
+							instance->SetMaterial(subMesh, std::move(material));
+							return 0;
+						}
+
+						break;
+					}
+
+					case 3:
+					{
+						int argIndex = 2;
+						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+						{
+							std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
+							std::size_t matIndex(lua.Check<std::size_t>(&argIndex));
+							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+
+							instance->SetMaterial(skinIndex, matIndex, std::move(material));
+							return 0;
+						}
+						else if (lua.IsOfType(argIndex, Nz::LuaType_String))
+						{
+							std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
+							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
+							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+
+							instance->SetMaterial(skinIndex, subMesh, std::move(material));
+							return 0;
+						}
+
+						break;
+					}
+				}
+
+				lua.Error("No matching overload for method SetMaterial");
+				return 0;
+			});
+
 			//modelClass.SetMethod("SetMesh", &Nz::Model::SetMesh);
 			//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
-			model.BindMethod("SetSkin", &Nz::Model::SetSkin);
-			model.BindMethod("SetSkinCount", &Nz::Model::SetSkinCount);
 		}
 
 		/*********************************** Nz::Sprite ***********************************/
@@ -303,7 +387,6 @@ namespace Ndk
 
 			sprite.BindMethod("GetColor", &Nz::Sprite::GetColor);
 			sprite.BindMethod("GetCornerColor", &Nz::Sprite::GetCornerColor);
-			sprite.BindMethod("GetMaterial", &Nz::Sprite::GetMaterial);
 			sprite.BindMethod("GetOrigin", &Nz::Sprite::GetOrigin);
 			sprite.BindMethod("GetSize", &Nz::Sprite::GetSize);
 			sprite.BindMethod("GetTextureCoords", &Nz::Sprite::GetTextureCoords);
@@ -319,12 +402,28 @@ namespace Ndk
 			sprite.BindMethod("SetMaterial", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
-				bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
-
 				if (lua.IsOfType(argIndex, "Material"))
+				{
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
 					instance->SetMaterial(*static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex)), resizeSprite);
-				else
-					instance->SetMaterial(lua.Check<Nz::String>(&argIndex), resizeSprite);
+				}
+				else if (lua.IsOfType(argIndex, Nz::LuaType_String))
+				{
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+					instance->SetMaterial(lua.ToString(argIndex), resizeSprite);
+				}
+				else if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+				{
+					std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+					if (lua.IsOfType(argIndex, "Material"))
+						instance->SetMaterial(skinIndex, *static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex)), resizeSprite);
+					else
+						instance->SetMaterial(skinIndex, lua.Check<Nz::String>(&argIndex), resizeSprite);
+				}
 
 				return 0;
 			});
@@ -332,12 +431,28 @@ namespace Ndk
 			sprite.BindMethod("SetTexture", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
-				bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
-
 				if (lua.IsOfType(argIndex, "Texture"))
+				{
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
 					instance->SetTexture(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)), resizeSprite);
-				else
-					instance->SetTexture(lua.Check<Nz::String>(&argIndex), resizeSprite);
+				}
+				else if (lua.IsOfType(argIndex, Nz::LuaType_String))
+				{
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+					instance->SetTexture(lua.ToString(argIndex), resizeSprite);
+				}
+				else if (lua.IsOfType(argIndex, Nz::LuaType_Number))
+				{
+					std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
+					bool resizeSprite = lua.CheckBoolean(argIndex + 1, true);
+
+					if (lua.IsOfType(argIndex, "Texture"))
+						instance->SetTexture(skinIndex, *static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)), resizeSprite);
+					else
+						instance->SetTexture(skinIndex, lua.Check<Nz::String>(&argIndex), resizeSprite);
+				}
 
 				return 0;
 			});
