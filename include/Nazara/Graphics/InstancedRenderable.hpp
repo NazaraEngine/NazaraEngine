@@ -66,6 +66,7 @@ namespace Nz
 			// Signals:
 			NazaraSignal(OnInstancedRenderableInvalidateBoundingVolume, const InstancedRenderable* /*instancedRenderable*/);
 			NazaraSignal(OnInstancedRenderableInvalidateData, const InstancedRenderable* /*instancedRenderable*/, UInt32 /*flags*/);
+			NazaraSignal(OnInstancedRenderableInvalidateMaterial, const InstancedRenderable* /*instancedRenderable*/, std::size_t /*skinIndex*/, std::size_t /*matIndex*/, MaterialRef /*newMat*/);
 			NazaraSignal(OnInstancedRenderableRelease, const InstancedRenderable* /*instancedRenderable*/);
 
 			struct InstanceData
