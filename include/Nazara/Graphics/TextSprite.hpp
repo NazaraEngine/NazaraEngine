@@ -37,12 +37,12 @@ namespace Nz
 			inline void Clear();
 
 			inline const Color& GetColor() const;
-			inline const MaterialRef& GetMaterial() const;
 			inline float GetScale() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material);
+			inline void SetMaterial(std::size_t skinIndex, MaterialRef material);
 			inline void SetScale(float scale);
 
 			void Update(const AbstractTextDrawer& drawer);
@@ -76,7 +76,6 @@ namespace Nz
 			mutable std::unordered_map<Texture*, RenderIndices> m_renderInfos;
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
-			MaterialRef m_material;
 			Recti m_localBounds;
 			float m_scale;
 

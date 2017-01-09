@@ -29,11 +29,11 @@ namespace Nz
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 
+		std::size_t matCount = 0;
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			if (layer.material)
-				renderQueue->AddSprites(instanceData.renderOrder, layer.material, &vertices[spriteCount], layer.tiles.size());
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size());
 
 			spriteCount += layer.tiles.size();
 		}

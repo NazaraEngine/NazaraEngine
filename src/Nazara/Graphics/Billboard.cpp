@@ -27,11 +27,8 @@ namespace Nz
 
 	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
-		if (!m_material)
-			return;
-
 		Nz::Vector3f position = instanceData.transformMatrix.GetTranslation();
-		renderQueue->AddBillboards(instanceData.renderOrder, m_material, 1, &position, &m_size, &m_sinCos, &m_color);
+		renderQueue->AddBillboards(instanceData.renderOrder, GetMaterial(), 1, &position, &m_size, &m_sinCos, &m_color);
 	}
 
 	/*
