@@ -18,13 +18,13 @@ namespace Ndk
 	}
 
 	template<typename T, typename... Args>
-	inline T& BaseWidget::Add(Args&&... args)
+	inline T* BaseWidget::Add(Args&&... args)
 	{
 		std::unique_ptr<T> widget = std::make_unique<T>(this, std::forward<Args>(args)...);
-		T& widgetRef = *widget;
+		T* widgetPtr = widget.get();
 		AddChild(std::move(widget));
 
-		return widgetRef;
+		return widgetPtr;
 	}
 
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
