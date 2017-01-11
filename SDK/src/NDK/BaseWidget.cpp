@@ -7,6 +7,7 @@
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/World.hpp>
+#include <algorithm>
 
 namespace Ndk
 {
@@ -29,7 +30,14 @@ namespace Ndk
 			m_canvas->UnregisterWidget(m_canvasIndex);
 	}
 
-	inline void BaseWidget::EnableBackground(bool enable)
+	void BaseWidget::Destroy()
+	{
+		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
+
+		m_widgetParent->DestroyChild(this); //< This does delete us
+	}
+
+	void BaseWidget::EnableBackground(bool enable)
 	{
 		if (m_backgroundEntity.IsValid() == enable)
 			return;
@@ -133,5 +141,17 @@ namespace Ndk
 
 	void BaseWidget::OnTextEntered(char32_t character, bool repeated)
 	{
+	}
+
+	void BaseWidget::DestroyChild(BaseWidget* widget)
+	{
+		auto it = std::find_if(m_children.begin(), m_children.end(), [widget] (const std::unique_ptr<BaseWidget>& widgetPtr) -> bool
+		{
+			return widgetPtr.get() == widget;
+		});
+
+		NazaraAssert(it != m_children.end(), "Child widget not found in parent");
+
+		m_children.erase(it);
 	}
 }
