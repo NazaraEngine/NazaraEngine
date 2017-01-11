@@ -5,10 +5,12 @@
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <limits>
 
 namespace Ndk
 {
 	inline BaseWidget::BaseWidget() :
+	m_canvasIndex(std::numeric_limits<std::size_t>::max()),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
 	m_contentSize(50.f, 50.f),
