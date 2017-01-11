@@ -32,7 +32,7 @@ namespace Ndk
 			BaseWidget(BaseWidget&&) = default;
 			virtual ~BaseWidget();
 
-			template<typename T, typename... Args> T& Add(Args&&... args);
+			template<typename T, typename... Args> T* Add(Args&&... args);
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
 			inline void Center();
