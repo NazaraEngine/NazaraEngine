@@ -78,11 +78,13 @@ namespace Ndk
 			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseExit();
+			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
 
 		private:
 			inline BaseWidget();
 
+			inline void NotifyParentResized(const Nz::Vector2f& newSize);
 			inline void UpdateCanvasIndex(std::size_t index);
 
 			std::size_t m_canvasIndex;

@@ -63,8 +63,9 @@ namespace Ndk
 
 	inline void BaseWidget::SetContentSize(const Nz::Vector2f& size)
 	{
+		NotifyParentResized(size);
 		m_contentSize = size;
-		
+
 		Layout();
 	}
 
@@ -76,6 +77,12 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline void BaseWidget::NotifyParentResized(const Nz::Vector2f& newSize)
+	{
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->OnParentResized(newSize);
 	}
 
 	inline void BaseWidget::UpdateCanvasIndex(std::size_t index)

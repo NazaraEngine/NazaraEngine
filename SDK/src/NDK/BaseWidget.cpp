@@ -126,6 +126,10 @@ namespace Ndk
 	{
 	}
 
+	void BaseWidget::OnParentResized(const Nz::Vector2f& newSize)
+	{
+	}
+
 	void BaseWidget::OnTextEntered(char32_t character, bool repeated)
 	{
 	}
