@@ -25,7 +25,8 @@ namespace Ndk
 
 	BaseWidget::~BaseWidget()
 	{
-		m_canvas->UnregisterWidget(m_canvasIndex);
+		if (m_canvasIndex != std::numeric_limits<std::size_t>::max())
+			m_canvas->UnregisterWidget(m_canvasIndex);
 	}
 
 	inline void BaseWidget::EnableBackground(bool enable)
