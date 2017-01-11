@@ -37,6 +37,8 @@ namespace Ndk
 
 			inline void Center();
 
+			inline void Destroy();
+
 			void EnableBackground(bool enable);
 
 			//virtual BaseWidget* Clone() const = 0;
@@ -84,6 +86,7 @@ namespace Ndk
 		private:
 			inline BaseWidget();
 
+			inline void DestroyChild(BaseWidget* widget);
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
 			inline void UpdateCanvasIndex(std::size_t index);
 
