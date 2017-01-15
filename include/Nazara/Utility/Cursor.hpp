@@ -22,18 +22,32 @@ namespace Nz
 
 		public:
 			inline Cursor();
+			inline Cursor(SystemCursor systemCursor); //< implicit conversion intended
+			Cursor(const Cursor&) = delete;
+			inline Cursor(Cursor&& cursor) noexcept;
 			inline ~Cursor();
 
-			bool Create(const Image& cursor, int hotSpotX = 0, int hotSpotY = 0);
 			bool Create(const Image& cursor, const Vector2i& hotSpot);
+			bool Create(SystemCursor cursor);
+
 			void Destroy();
 
 			inline const Image& GetImage() const;
+			inline SystemCursor GetSystemCursor() const;
+
 			inline bool IsValid() const;
 
+			Cursor& operator=(const Cursor&) = delete;
+			inline Cursor& operator=(Cursor&& cursor);
+
 		private:
+			static bool Initialize();
+			static void Uninitialize();
+
 			Image m_cursorImage;
+			SystemCursor m_systemCursor;
 			CursorImpl* m_impl;
+			bool m_usesSystemCursor;
 	};
 }
 

@@ -50,45 +50,7 @@ namespace Nz
 								   XCB_EVENT_MASK_KEY_RELEASE    | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
 								   XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW;
 
-		xcb_cursor_t hiddenCursor = 0;
-
 		xcb_connection_t* connection = nullptr;
-
-		void CreateHiddenCursor()
-		{
-			XCBPixmap cursorPixmap(connection);
-
-			xcb_window_t window = X11::XCBDefaultRootWindow(connection);
-
-			if (!cursorPixmap.Create(
-				1,
-				window,
-				1,
-				1
-				))
-			{
-				NazaraError("Failed to create pixmap for hidden cursor");
-				return;
-			}
-
-			hiddenCursor = xcb_generate_id(connection);
-
-			// Create the cursor, using the pixmap as both the shape and the mask of the cursor
-			if (!X11::CheckCookie(
-				connection,
-				xcb_create_cursor(
-					connection,
-					hiddenCursor,
-					cursorPixmap,
-					cursorPixmap,
-					0, 0, 0, // Foreground RGB color
-					0, 0, 0, // Background RGB color
-					0,       // X
-					0        // Y
-				))
-			)
-				NazaraError("Failed to create hidden cursor");
-		}
 	}
 
 	WindowImpl::WindowImpl(Window* parent) :
@@ -452,34 +414,13 @@ namespace Nz
 		}
 	}
 
-	void WindowImpl::SetCursor(Nz::WindowCursor windowCursor)
-	{
-		if (windowCursor == Nz::WindowCursor_None)
-			SetCursor(hiddenCursor);
-		else
-		{
-			const char* name = ConvertWindowCursorToXName(windowCursor);
-
-			xcb_cursor_context_t* ctx;
-			if (xcb_cursor_context_new(connection, m_screen, &ctx) >= 0)
-			{
-				xcb_cursor_t cursor = xcb_cursor_load_cursor(ctx, name);
-				SetCursor(cursor);
-				xcb_free_cursor(connection, cursor);
-				xcb_cursor_context_free(ctx);
-			}
-		}
-	}
-
 	void WindowImpl::SetCursor(const Cursor& cursor)
 	{
-		if (!cursor.IsValid())
-		{
-			NazaraError("Cursor is not valid");
-			return;
-		}
+		xcb_cursor_t cursorImpl = cursor.m_impl->GetCursor();
+		if (!X11::CheckCookie(connection, xcb_change_window_attributes(connection, m_window, XCB_CW_CURSOR, &cursor)))
+			NazaraError("Failed to change mouse cursor");
 
-		SetCursor(cursor.m_impl->GetCursor());
+		xcb_flush(connection);
 	}
 
 	void WindowImpl::SetEventListener(bool listener)
@@ -998,7 +939,7 @@ namespace Nz
 		}
 	}
 
-	const char* WindowImpl::ConvertWindowCursorToXName(Nz::WindowCursor cursor)
+	const char* WindowImpl::ConvertWindowCursorToXName(SystemCursor cursor)
 	{
 		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
 		switch (cursor)
@@ -1442,22 +1383,6 @@ namespace Nz
 			// Reset the fullscreen window
 			fullscreenWindow = nullptr;
 		}
-	}
-
-	void WindowImpl::SetCursor(xcb_cursor_t cursor)
-	{
-		if (!X11::CheckCookie(
-			connection,
-			xcb_change_window_attributes(
-				connection,
-				m_window,
-				XCB_CW_CURSOR,
-				&cursor
-			))
-		)
-			NazaraError("Failed to change mouse cursor");
-
-		xcb_flush(connection);
 	}
 
 	void WindowImpl::SetMotifHints()
