@@ -49,6 +49,8 @@ namespace Ndk
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
+			inline bool IsVisible() const;
+
 			void GrabKeyboard();
 
 			virtual void ResizeToContent() = 0;
@@ -57,6 +59,8 @@ namespace Ndk
 			inline void SetContentSize(const Nz::Vector2f& size);
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
+
+			void Show(bool show = true);
 
 			BaseWidget& operator=(const BaseWidget&) = delete;
 			BaseWidget& operator=(BaseWidget&&) = default;
@@ -104,6 +108,7 @@ namespace Ndk
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::Vector2f m_contentSize;
 			BaseWidget* m_widgetParent;
+			bool m_visible;
 	};
 }
 

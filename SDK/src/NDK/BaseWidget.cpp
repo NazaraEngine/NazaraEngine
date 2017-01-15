@@ -48,7 +48,7 @@ namespace Ndk
 			m_backgroundSprite->SetColor(m_backgroundColor);
 			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D"));
 
-			m_backgroundEntity = m_world->CreateEntity();
+			m_backgroundEntity = CreateEntity();
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
 			m_backgroundEntity->AddComponent<NodeComponent>().SetParent(this);
 
@@ -59,6 +59,11 @@ namespace Ndk
 			m_backgroundEntity->Kill();
 			m_backgroundSprite.Reset();
 		}
+	}
+
+	void BaseWidget::GrabKeyboard()
+	{
+		m_canvas->SetKeyboardOwner(this);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -77,10 +82,27 @@ namespace Ndk
 		SetContentSize({std::max(size.x - m_padding.left - m_padding.right, 0.f), std::max(size.y - m_padding.top - m_padding.bottom, 0.f)});
 	}
 
+	void BaseWidget::Show(bool show)
+	{
+		if (m_visible != show)
+		{
+			m_visible = show;
+
+			for (const EntityHandle& entity : m_entities)
+				entity->Enable(show);
+
+			for (const auto& widgetPtr : m_children)
+				widgetPtr->Show(show);
+		}
+	}
+
 	EntityHandle BaseWidget::CreateEntity()
 	{
-		m_entities.emplace_back(m_world->CreateEntity());
-		return m_entities.back();
+		EntityHandle newEntity = m_world->CreateEntity();
+		newEntity->Enable(m_visible);
+
+		m_entities.emplace_back(newEntity);
+		return newEntity;
 	}
 
 	void BaseWidget::DestroyEntity(Entity* entity)
@@ -89,11 +111,6 @@ namespace Ndk
 		NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
 
 		m_entities.erase(it);
-	}
-
-	void BaseWidget::GrabKeyboard()
-	{
-		m_canvas->SetKeyboardOwner(this);
 	}
 
 	void BaseWidget::Layout()
