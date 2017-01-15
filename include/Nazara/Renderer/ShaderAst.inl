@@ -95,7 +95,6 @@ namespace Nz
 				switch (op)
 				{
 					case BinaryType::Add:
-					case BinaryType::Divide:
 					case BinaryType::Equality:
 					case BinaryType::Substract:
 					{
@@ -104,13 +103,25 @@ namespace Nz
 					}
 
 					case BinaryType::Multiply:
+					case BinaryType::Divide:
 					{
 						switch (leftType)
 						{
+							case ExpressionType::Float2:
+							case ExpressionType::Float3:
+							case ExpressionType::Float4:
+							{
+								if (rightType != ExpressionType::Float1)
+									throw std::runtime_error("Left expression type is not compatible with right expression type");
+
+								break;
+							}
+
 							case ExpressionType::Mat4x4:
 							{
 								switch (rightType)
 								{
+									case ExpressionType::Float1:
 									case ExpressionType::Float4:
 									case ExpressionType::Mat4x4:
 										break;
