@@ -43,6 +43,11 @@ namespace Ndk
 		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
 	}
 
+	inline const Nz::Color& BaseWidget::GetBackgroundColor() const
+	{
+		return m_backgroundColor;
+	}
+
 	inline Canvas* BaseWidget::GetCanvas()
 	{
 		return m_canvas;

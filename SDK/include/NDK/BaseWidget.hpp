@@ -43,6 +43,7 @@ namespace Ndk
 
 			//virtual BaseWidget* Clone() const = 0;
 
+			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline const Padding& GetPadding() const;
 			inline const Nz::Vector2f& GetContentSize() const;
@@ -52,6 +53,7 @@ namespace Ndk
 
 			virtual void ResizeToContent() = 0;
 
+			void SetBackgroundColor(const Nz::Color& color);
 			inline void SetContentSize(const Nz::Vector2f& size);
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
