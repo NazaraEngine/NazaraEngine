@@ -23,7 +23,7 @@ namespace Ndk
 			inline Canvas(WorldHandle world, Nz::EventHandler& eventHandler);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
-			~Canvas() = default;
+			inline ~Canvas();
 
 			inline const WorldHandle& GetWorld() const;
 
