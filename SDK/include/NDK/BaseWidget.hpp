@@ -89,6 +89,7 @@ namespace Ndk
 			inline BaseWidget();
 
 			inline void DestroyChild(BaseWidget* widget);
+			void DestroyChildren();
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
 			inline void UpdateCanvasIndex(std::size_t index);
 

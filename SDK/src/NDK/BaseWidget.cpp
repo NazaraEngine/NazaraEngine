@@ -165,4 +165,9 @@ namespace Ndk
 
 		m_children.erase(it);
 	}
+
+	void BaseWidget::DestroyChildren()
+	{
+		m_children.clear();
+	}
 }
