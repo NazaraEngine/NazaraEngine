@@ -77,13 +77,6 @@ namespace Ndk
 		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 
-	void TextAreaWidget::SetText(const Nz::String& text)
-	{
-		m_drawer.SetText(text);
-
-		m_textSprite->Update(m_drawer);
-	}
-
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
 		if (m_cursorPosition >= m_drawer.GetGlyphCount())
