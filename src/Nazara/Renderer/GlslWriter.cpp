@@ -24,6 +24,7 @@ namespace Nz
 			m_currentState = nullptr;
 		});
 
+		// Register global variables (uniforms, varying, ..)
 		node->Register(*this);
 
 		// Header
