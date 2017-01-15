@@ -16,16 +16,6 @@
 
 namespace Nz
 {
-	Cursor::Cursor() :
-	m_impl(nullptr)
-	{
-	}
-
-	Cursor::~Cursor()
-	{
-		Destroy();
-	}
-
 	bool Cursor::Create(const Image& cursor, int hotSpotX, int hotSpotY)
 	{
 		Destroy();
@@ -39,6 +29,8 @@ namespace Nz
 
 			return false;
 		}
+
+		m_cursorImage = cursor;
 
 		return true;
 	}
@@ -57,10 +49,5 @@ namespace Nz
 			delete m_impl;
 			m_impl = nullptr;
 		}
-	}
-
-	bool Cursor::IsValid() const
-	{
-		return m_impl != nullptr;
 	}
 }
