@@ -61,6 +61,17 @@ namespace Ndk
 		}
 	}
 
+	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
+	{
+		m_backgroundColor = color;
+
+		if (m_backgroundSprite)
+		{
+			m_backgroundSprite->SetColor(color);
+			m_backgroundSprite->GetMaterial()->Configure((color.IsOpaque()) ? "Basic2D" : "Translucent2D"); //< Our sprite has its own material (see EnableBackground)
+		}
+	}
+
 	void BaseWidget::SetSize(const Nz::Vector2f& size)
 	{
 		SetContentSize({std::max(size.x - m_padding.left - m_padding.right, 0.f), std::max(size.y - m_padding.top - m_padding.bottom, 0.f)});
