@@ -278,6 +278,34 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Write(const ShaderAst::SwizzleOp& node)
+	{
+		Write(node.expression);
+		Append(".");
+
+		for (std::size_t i = 0; i < node.componentCount; ++i)
+		{
+			switch (node.components[i])
+			{
+				case ShaderAst::SwizzleComponent::First:
+					Append("x");
+					break;
+
+				case ShaderAst::SwizzleComponent::Second:
+					Append("y");
+					break;
+
+				case ShaderAst::SwizzleComponent::Third:
+					Append("z");
+					break;
+
+				case ShaderAst::SwizzleComponent::Fourth:
+					Append("w");
+					break;
+			}
+		}
+	}
+
 	void GlslWriter::Append(ShaderAst::BuiltinEntry builtin)
 	{
 		switch (builtin)

@@ -42,6 +42,7 @@ namespace Nz
 			void Write(const ShaderAst::NamedVariable& node) override;
 			void Write(const ShaderAst::NodePtr& node) override;
 			void Write(const ShaderAst::StatementBlock& node) override;
+			void Write(const ShaderAst::SwizzleOp& node) override;
 
 		private:
 			struct Function;
