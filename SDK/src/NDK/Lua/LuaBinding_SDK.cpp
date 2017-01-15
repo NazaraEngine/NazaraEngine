@@ -62,23 +62,12 @@ namespace Ndk
 			console.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
 			console.BindMethod("Clear", &Console::Clear);
 			console.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
-			console.BindMethod("GetHistory", &Console::GetHistory);
-			console.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
-			console.BindMethod("GetInput", &Console::GetInput);
-			console.BindMethod("GetInputBackground", &Console::GetInputBackground);
-			console.BindMethod("GetSize", &Console::GetSize);
+			//console.BindMethod("GetHistory", &Console::GetHistory);
+			//console.BindMethod("GetInput", &Console::GetInput);
 			console.BindMethod("GetTextFont", &Console::GetTextFont);
 
-			console.BindMethod("IsVisible", &Console::IsVisible);
-
-			console.BindMethod("SendCharacter", &Console::SendCharacter);
-			//consoleClass.SetMethod("SendEvent", &Console::SendEvent);
-
 			console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
-			console.BindMethod("SetSize", &Console::SetSize);
 			console.BindMethod("SetTextFont", &Console::SetTextFont);
-
-			console.BindMethod("Show", &Console::Show, true);
 		}
 		#endif
 

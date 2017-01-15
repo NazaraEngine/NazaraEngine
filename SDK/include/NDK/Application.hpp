@@ -17,6 +17,7 @@
 #include <vector>
 
 #ifndef NDK_SERVER
+#include <NDK/Canvas.hpp>
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
@@ -83,7 +84,7 @@ namespace Ndk
 			#ifndef NDK_SERVER
 			struct ConsoleOverlay
 			{
-				std::unique_ptr<Console> console;
+				Console* console;
 				Nz::LuaInstance lua;
 
 				NazaraSlot(Nz::EventHandler, OnEvent, eventSlot);
@@ -116,10 +117,11 @@ namespace Ndk
 				Nz::RenderTarget* renderTarget;
 				std::unique_ptr<Nz::Window> window;
 				std::unique_ptr<ConsoleOverlay> console;
+				std::unique_ptr<Canvas> canvas;
 				std::unique_ptr<FPSCounterOverlay> fpsCounter;
 				std::unique_ptr<World> overlayWorld;
 			};
-			
+
 			void SetupConsole(WindowInfo& info);
 			void SetupFPSCounter(WindowInfo& info);
 			void SetupOverlay(WindowInfo& info);
