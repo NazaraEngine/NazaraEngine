@@ -35,6 +35,11 @@ namespace Ndk
 		return m_drawer.GetText();
 	}
 
+	inline const Nz::Color& TextAreaWidget::GetTextColor() const
+	{
+		return m_drawer.GetColor();
+	}
+
 	inline bool Ndk::TextAreaWidget::IsMultilineEnabled() const
 	{
 		return m_multiLineEnabled;
@@ -71,5 +76,19 @@ namespace Ndk
 		m_readOnly = readOnly;
 
 		m_cursorEntity->Enable(!m_readOnly);
+	}
+
+	inline void TextAreaWidget::SetText(const Nz::String& text)
+	{
+		m_drawer.SetText(text);
+
+		m_textSprite->Update(m_drawer);
+	}
+
+	inline void TextAreaWidget::SetTextColor(const Nz::Color& text)
+	{
+		m_drawer.SetColor(text);
+
+		m_textSprite->Update(m_drawer);
 	}
 }
