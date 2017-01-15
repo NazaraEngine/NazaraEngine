@@ -54,6 +54,14 @@ namespace Nz
 			Void     // void
 		};
 
+		enum class SwizzleComponent
+		{
+			First,
+			Second,
+			Third,
+			Fourth
+		};
+
 		enum class VariableType
 		{
 			Builtin,
@@ -139,6 +147,19 @@ namespace Nz
 				VariableType   kind;
 		};
 
+
+		class NAZARA_RENDERER_API BuiltinVariable : public Variable
+		{
+			public:
+				inline BuiltinVariable(BuiltinEntry variable, ExpressionType varType);
+
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				BuiltinEntry var;
+		};
+
+
 		class NamedVariable;
 
 		using NamedVariablePtr = std::shared_ptr<NamedVariable>;
@@ -152,17 +173,6 @@ namespace Nz
 				void Visit(ShaderWriter& visitor) override;
 
 				Nz::String name;
-		};
-
-		class NAZARA_RENDERER_API BuiltinVariable : public Variable
-		{
-			public:
-				inline BuiltinVariable(BuiltinEntry variable, ExpressionType varType);
-
-				void Register(ShaderWriter& visitor) override;
-				void Visit(ShaderWriter& visitor) override;
-
-				BuiltinEntry var;
 		};
 
 		//////////////////////////////////////////////////////////////////////////
@@ -249,6 +259,20 @@ namespace Nz
 					Vector3f vec3;
 					Vector4f vec4;
 				} values;
+		};
+
+		class NAZARA_RENDERER_API SwizzleOp : public Expression
+		{
+			public:
+				inline SwizzleOp(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents);
+
+				ExpressionType GetExpressionType() const override;
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				std::array<SwizzleComponent, 4> components;
+				std::size_t componentCount;
+				ExpressionPtr expression;
 		};
 	}
 }

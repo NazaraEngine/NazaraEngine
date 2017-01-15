@@ -65,6 +65,7 @@ namespace Nz { namespace ShaderBuilder
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Multiply> Multiply;
 	constexpr VarBuilder<ShaderAst::VariableType::Output> Output;
 	constexpr VarBuilder<ShaderAst::VariableType::Parameter> Parameter;
+	constexpr GenBuilder<ShaderAst::SwizzleOp> Swizzle;
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Substract> Substract;
 	constexpr VarBuilder<ShaderAst::VariableType::Uniform> Uniform;
 	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;

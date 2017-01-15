@@ -36,6 +36,7 @@ namespace Nz
 			virtual void Write(const ShaderAst::NamedVariable& node) = 0;
 			virtual void Write(const ShaderAst::NodePtr& node) = 0;
 			virtual void Write(const ShaderAst::StatementBlock& node) = 0;
+			virtual void Write(const ShaderAst::SwizzleOp& node) = 0;
 	};
 }
 

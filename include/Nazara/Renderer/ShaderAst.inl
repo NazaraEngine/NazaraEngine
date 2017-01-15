@@ -24,7 +24,7 @@ namespace Nz
 					return 4;
 
 				case ExpressionType::Mat4x4:
-					return 16;
+					return 4;
 
 				default:
 					return 1;
@@ -38,8 +38,10 @@ namespace Nz
 				case ExpressionType::Float2:
 				case ExpressionType::Float3:
 				case ExpressionType::Float4:
-				case ExpressionType::Mat4x4:
 					return ExpressionType::Float1;
+
+				case ExpressionType::Mat4x4:
+					return ExpressionType::Float4;
 
 				default:
 					return type;
@@ -63,15 +65,15 @@ namespace Nz
 		{
 		}
 
-		inline NamedVariable::NamedVariable(VariableType varKind, const Nz::String& varName, ExpressionType varType) :
-		Variable(varKind, varType),
-		name(varName)
-		{
-		}
-
 		inline BuiltinVariable::BuiltinVariable(BuiltinEntry variable, ExpressionType varType) :
 		Variable(VariableType::Builtin, varType),
 		var(variable)
+		{
+		}
+
+		inline NamedVariable::NamedVariable(VariableType varKind, const Nz::String& varName, ExpressionType varType) :
+		Variable(varKind, varType),
+		name(varName)
 		{
 		}
 
@@ -196,6 +198,28 @@ namespace Nz
 		exprType(ExpressionType::Float4)
 		{
 			values.vec4 = value;
+		}
+
+		inline SwizzleOp::SwizzleOp(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents) :
+		componentCount(swizzleComponents.size()),
+		expression(expressionPtr)
+		{
+			if (componentCount > 4)
+				throw std::runtime_error("Cannot swizzle more than four elements");
+
+			switch (expressionPtr->GetExpressionType())
+			{
+				case ExpressionType::Float1:
+				case ExpressionType::Float2:
+				case ExpressionType::Float3:
+				case ExpressionType::Float4:
+					break;
+
+				default:
+					throw std::runtime_error("Cannot swizzle this type");
+			}
+
+			std::copy(swizzleComponents.begin(), swizzleComponents.end(), components.begin());
 		}
 	}
 }
