@@ -18,6 +18,7 @@ namespace Nz
 
 	class NAZARA_UTILITY_API Cursor
 	{
+		friend class Utility;
 		friend class WindowImpl;
 
 		public:
