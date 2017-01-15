@@ -33,7 +33,7 @@ namespace Nz
 
 			Signal();
 			Signal(const Signal&) = delete;
-			Signal(Signal&& signal);
+			Signal(Signal&& signal) noexcept;
 			~Signal() = default;
 
 			void Clear();
@@ -48,7 +48,7 @@ namespace Nz
 			void operator()(Args... args) const;
 
 			Signal& operator=(const Signal&) = delete;
-			Signal& operator=(Signal&& signal);
+			Signal& operator=(Signal&& signal) noexcept;
 
 		private:
 			struct Slot;

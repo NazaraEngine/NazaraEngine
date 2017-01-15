@@ -22,6 +22,12 @@ namespace Ndk
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnTextEntered);
 	}
 
+	inline Canvas::~Canvas()
+	{
+		// Destroy children explicitly because they signal us when getting destroyed, and that can't happend after our own destruction
+		DestroyChildren();
+	}
+
 	inline const WorldHandle& Canvas::GetWorld() const
 	{
 		return m_world;

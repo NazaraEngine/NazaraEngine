@@ -32,7 +32,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>::Signal(Signal&& signal)
+	Signal<Args...>::Signal(Signal&& signal) noexcept
 	{
 		operator=(std::move(signal));
 	}
@@ -182,7 +182,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal)
+	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal) noexcept
 	{
 		m_slots = std::move(signal.m_slots);
 		m_slotIterator = signal.m_slotIterator;

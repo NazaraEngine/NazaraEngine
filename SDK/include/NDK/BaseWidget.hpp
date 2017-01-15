@@ -32,27 +32,35 @@ namespace Ndk
 			BaseWidget(BaseWidget&&) = default;
 			virtual ~BaseWidget();
 
-			template<typename T, typename... Args> T& Add(Args&&... args);
+			template<typename T, typename... Args> T* Add(Args&&... args);
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
 			inline void Center();
+
+			inline void Destroy();
 
 			void EnableBackground(bool enable);
 
 			//virtual BaseWidget* Clone() const = 0;
 
+			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline const Padding& GetPadding() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
+			inline bool IsVisible() const;
+
 			void GrabKeyboard();
 
 			virtual void ResizeToContent() = 0;
 
+			void SetBackgroundColor(const Nz::Color& color);
 			inline void SetContentSize(const Nz::Vector2f& size);
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
+
+			void Show(bool show = true);
 
 			BaseWidget& operator=(const BaseWidget&) = delete;
 			BaseWidget& operator=(BaseWidget&&) = default;
@@ -78,11 +86,15 @@ namespace Ndk
 			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseExit();
+			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
 
 		private:
 			inline BaseWidget();
 
+			inline void DestroyChild(BaseWidget* widget);
+			void DestroyChildren();
+			inline void NotifyParentResized(const Nz::Vector2f& newSize);
 			inline void UpdateCanvasIndex(std::size_t index);
 
 			std::size_t m_canvasIndex;
@@ -96,6 +108,7 @@ namespace Ndk
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::Vector2f m_contentSize;
 			BaseWidget* m_widgetParent;
+			bool m_visible;
 	};
 }
 

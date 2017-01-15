@@ -35,6 +35,7 @@ namespace Ndk
 			inline std::size_t GetCursorPosition() const;
 			inline std::size_t GetLineCount() const;
 			inline const Nz::String& GetText() const;
+			inline const Nz::Color& GetTextColor() const;
 
 			std::size_t GetHoveredGlyph(float x, float y) const;
 
@@ -47,7 +48,8 @@ namespace Ndk
 
 			inline void SetCursorPosition(std::size_t cursorPosition);
 			inline void SetReadOnly(bool readOnly = true);
-			void SetText(const Nz::String& text);
+			inline void SetText(const Nz::String& text);
+			inline void SetTextColor(const Nz::Color& text);
 
 			void Write(const Nz::String& text);
 

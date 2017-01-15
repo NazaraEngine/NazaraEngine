@@ -49,21 +49,23 @@ namespace Ndk
 
 	void Canvas::UnregisterWidget(std::size_t index)
 	{
+		WidgetBox& entry = m_widgetBoxes[index];
+
+		if (m_hoveredWidget == &entry)
+			m_hoveredWidget = nullptr;
+
+		if (m_keyboardOwner == entry.widget)
+			m_keyboardOwner = nullptr;
+
 		if (m_widgetBoxes.size() > 1U)
 		{
-			WidgetBox& entry = m_widgetBoxes[index];
 			WidgetBox& lastEntry = m_widgetBoxes.back();
-
-			if (m_hoveredWidget == &entry)
-				m_hoveredWidget = nullptr;
-
-			if (m_keyboardOwner == entry.widget)
-				m_keyboardOwner = nullptr;
 
 			entry = std::move(lastEntry);
 			entry.widget->UpdateCanvasIndex(index);
-			m_widgetBoxes.pop_back();
 		}
+
+		m_widgetBoxes.pop_back();
 	}
 
 	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
