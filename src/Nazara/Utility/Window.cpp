@@ -90,7 +90,7 @@ namespace Nz
 		// Paramètres par défaut
 		m_impl->EnableKeyRepeat(true);
 		m_impl->EnableSmoothScrolling(false);
-		m_impl->SetCursor(WindowCursor_Default);
+		m_impl->SetCursor(SystemCursor_Default);
 		m_impl->SetMaximumSize(-1, -1);
 		m_impl->SetMinimumSize(-1, -1);
 		m_impl->SetVisible(true);
@@ -350,34 +350,10 @@ namespace Nz
 		}
 	}
 
-	void Window::SetCursor(WindowCursor cursor)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-		#endif
-
-		m_impl->SetCursor(cursor);
-	}
-
 	void Window::SetCursor(const Cursor& cursor)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-
-		if (!cursor.IsValid())
-		{
-			NazaraError("Cursor is not valid");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Window not created");
+		NazaraAssert(cursor.IsValid(), "Invalid cursor");
 
 		m_impl->SetCursor(cursor);
 	}

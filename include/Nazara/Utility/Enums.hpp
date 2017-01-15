@@ -307,6 +307,31 @@ namespace Nz
 		SamplerWrap_Max = SamplerWrap_Repeat
 	};
 
+	enum SystemCursor
+	{
+		SystemCursor_None,
+		SystemCursor_Default,
+
+		SystemCursor_Crosshair,
+		SystemCursor_Hand,
+		SystemCursor_Help,
+		SystemCursor_Move,
+		SystemCursor_Pointer,
+		SystemCursor_Progress,
+		SystemCursor_ResizeE,
+		SystemCursor_ResizeN,
+		SystemCursor_ResizeNE,
+		SystemCursor_ResizeNW,
+		SystemCursor_ResizeS,
+		SystemCursor_ResizeSE,
+		SystemCursor_ResizeSW,
+		SystemCursor_ResizeW,
+		SystemCursor_Text,
+		SystemCursor_Wait,
+
+		SystemCursor_Max = SystemCursor_Wait
+	};
+
 	enum StencilOperation
 	{
 		StencilOperation_Decrement,
@@ -391,31 +416,6 @@ namespace Nz
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4
-	};
-
-	enum WindowCursor
-	{
-		WindowCursor_None,
-		WindowCursor_Default,
-
-		WindowCursor_Crosshair,
-		WindowCursor_Hand,
-		WindowCursor_Help,
-		WindowCursor_Move,
-		WindowCursor_Pointer,
-		WindowCursor_Progress,
-		WindowCursor_ResizeE,
-		WindowCursor_ResizeN,
-		WindowCursor_ResizeNE,
-		WindowCursor_ResizeNW,
-		WindowCursor_ResizeS,
-		WindowCursor_ResizeSE,
-		WindowCursor_ResizeSW,
-		WindowCursor_ResizeW,
-		WindowCursor_Text,
-		WindowCursor_Wait,
-
-		WindowCursor_Max = WindowCursor_Wait
 	};
 
 	enum WindowEventType

@@ -251,7 +251,7 @@ int main()
 	}
 
 	// On fait disparaître le curseur de la souris
-	window.SetCursor(Nz::WindowCursor_None);
+	window.SetCursor(Nz::SystemCursor_None);
 
 	// On lie la caméra à la fenêtre
 	cameraComp.SetTarget(&window);

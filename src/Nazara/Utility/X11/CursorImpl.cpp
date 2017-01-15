@@ -159,16 +159,96 @@ namespace Nz
 		return true;
 	}
 
+	bool CursorImpl::Create(SystemCursor cursor)
+	{
+		ScopedXCBConnection connection;
+
+		if (xcb_cursor_context_new(connection, m_screen, &m_cursorContext) >= 0)
+			m_cursor = xcb_cursor_load_cursor(ctx, s_systemCursorIds[cursor]);
+
+		return true;
+	}
+
 	void CursorImpl::Destroy()
 	{
 		ScopedXCBConnection connection;
 
 		xcb_free_cursor(connection, m_cursor);
-		m_cursor = 0;
+		if (m_cursorContext)
+			xcb_cursor_context_free(m_cursorContext);
 	}
 
 	xcb_cursor_t CursorImpl::GetCursor()
 	{
 		return m_cursor;
 	}
+
+	bool CursorImpl::Initialize()
+	{
+		ScopedXCBConnection connection;
+		XCBPixmap cursorPixmap(connection);
+
+		xcb_window_t window = X11::XCBDefaultRootWindow(connection);
+
+		if (!cursorPixmap.Create(1, window, 1, 1))
+		{
+			NazaraError("Failed to create pixmap for hidden cursor");
+			return false;
+		}
+
+		hiddenCursor = xcb_generate_id(connection);
+
+		// Create the cursor, using the pixmap as both the shape and the mask of the cursor
+		if (!X11::CheckCookie(
+			connection, xcb_create_cursor(connection,
+			                              hiddenCursor,
+			                              cursorPixmap,
+			                              cursorPixmap,
+			                              0, 0, 0, // Foreground RGB color
+			                              0, 0, 0, // Background RGB color
+			                              0,       // X
+			                              0        // Y
+			                              )))
+		{
+			NazaraError("Failed to create hidden cursor");
+			return false;
+		}
+
+		return true;
+	}
+
+	void CursorImpl::Uninitialize()
+	{
+		if (s_hiddenCursor)
+		{
+			ScopedXCBConnection connection;
+			xcb_free_cursor(connection, s_hiddenCursor);
+			s_hiddenCursor = 0;
+		}
+	}
+	
+	std::array<const char*, SystemCursor_Max + 1> CursorImpl::s_systemCursorIds =
+	{
+		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
+		"crosshair",           // SystemCursor_Crosshair
+		"left_ptr",            // SystemCursor_Default
+		"hand",                // SystemCursor_Hand
+		"help",                // SystemCursor_Help
+		"fleur",               // SystemCursor_Move
+		nullptr,               // SystemCursor_None
+		"hand",                // SystemCursor_Pointer
+		"watch",               // SystemCursor_Progress
+		"right_side",          // SystemCursor_ResizeE
+		"top_side",            // SystemCursor_ResizeN
+		"top_right_corner",    // SystemCursor_ResizeNE
+		"top_left_corner",     // SystemCursor_ResizeNW
+		"bottom_side",         // SystemCursor_ResizeS
+		"bottom_right_corner", // SystemCursor_ResizeSE
+		"bottom_left_corner",  // SystemCursor_ResizeSW
+		"left_side",           // SystemCursor_ResizeW
+		"xterm",               // SystemCursor_Text
+		"watch"                // SystemCursor_Wait
+	};
+
+	static_assert(SystemCursor_Max + 1 == 18, "System cursor array is incomplete");
 }
