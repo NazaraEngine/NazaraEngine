@@ -163,5 +163,21 @@ namespace Nz { namespace ShaderAst
 	{
 		visitor.Write(*this);
 	}
+
+
+	ExpressionType ShaderAst::SwizzleOp::GetExpressionType() const
+	{
+		return GetComponentType(expression->GetExpressionType());
+	}
+
+	void SwizzleOp::Register(ShaderWriter& visitor)
+	{
+		expression->Register(visitor);
+	}
+
+	void SwizzleOp::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
 }
 }
