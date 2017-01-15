@@ -14,7 +14,8 @@ namespace Ndk
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
 	m_contentSize(50.f, 50.f),
-	m_widgetParent(nullptr)
+	m_widgetParent(nullptr),
+	m_visible(true)
 	{
 		SetPadding(5.f, 5.f, 5.f, 5.f);
 	}
@@ -31,6 +32,7 @@ namespace Ndk
 
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
+		widget->Show(m_visible);
 		m_children.emplace_back(std::move(widget));
 	}
 
@@ -66,6 +68,11 @@ namespace Ndk
 	inline Nz::Vector2f BaseWidget::GetSize() const
 	{
 		return Nz::Vector2f(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
+	}
+
+	inline bool BaseWidget::IsVisible() const
+	{
+		return m_visible;
 	}
 
 	inline void BaseWidget::SetContentSize(const Nz::Vector2f& size)
