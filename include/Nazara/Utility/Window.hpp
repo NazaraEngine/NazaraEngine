@@ -79,7 +79,6 @@ namespace Nz
 
 			void ProcessEvents(bool block = false);
 
-			void SetCursor(WindowCursor cursor);
 			void SetCursor(const Cursor& cursor);
 			void SetEventListener(bool listener);
 			void SetFocus();

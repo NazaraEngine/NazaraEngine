@@ -16,36 +16,39 @@
 
 namespace Nz
 {
-	Cursor::Cursor() :
-	m_impl(nullptr)
-	{
-	}
-
-	Cursor::~Cursor()
-	{
-		Destroy();
-	}
-
-	bool Cursor::Create(const Image& cursor, int hotSpotX, int hotSpotY)
+	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot)
 	{
 		Destroy();
 
-		m_impl = new CursorImpl;
-		if (!m_impl->Create(cursor, hotSpotX, hotSpotY))
+		std::unique_ptr<CursorImpl> impl(new CursorImpl);
+		if (!impl->Create(cursor, hotSpot.x, hotSpot.y))
 		{
 			NazaraError("Failed to create cursor implementation");
-			delete m_impl;
-			m_impl = nullptr;
-
 			return false;
 		}
+
+		m_cursorImage = cursor;
+		m_impl = impl.release();
 
 		return true;
 	}
 
-	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot)
+	inline bool Cursor::Create(SystemCursor cursor)
 	{
-		return Create(cursor, hotSpot.x, hotSpot.y);
+		Destroy();
+
+		std::unique_ptr<CursorImpl> impl(new CursorImpl);
+		if (!impl->Create(cursor))
+		{
+			NazaraError("Failed to create cursor implementation");
+			return false;
+		}
+
+		m_impl = impl.release();
+		m_systemCursor = cursor;
+		m_usesSystemCursor = true;
+
+		return true;
 	}
 
 	void Cursor::Destroy()
@@ -57,10 +60,17 @@ namespace Nz
 			delete m_impl;
 			m_impl = nullptr;
 		}
+
+		m_usesSystemCursor = false;
 	}
 
-	bool Cursor::IsValid() const
+	bool Cursor::Initialize()
 	{
-		return m_impl != nullptr;
+		return CursorImpl::Initialize();
+	}
+
+	void Cursor::Uninitialize()
+	{
+		CursorImpl::Uninitialize();
 	}
 }
