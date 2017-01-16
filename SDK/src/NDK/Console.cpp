@@ -192,9 +192,12 @@ namespace Ndk
 								m_historyPosition = 1;
 						}
 
-						Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
-						m_inputDrawer.SetText(s_inputPrefix + text);
-						m_inputTextSprite->Update(m_inputDrawer);
+						if (!m_commandHistory.empty())
+						{
+							Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
+							m_inputDrawer.SetText(s_inputPrefix + text);
+							m_inputTextSprite->Update(m_inputDrawer);
+						}
 						break;
 					}
 
