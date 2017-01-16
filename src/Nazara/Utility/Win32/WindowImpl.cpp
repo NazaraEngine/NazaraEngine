@@ -4,8 +4,6 @@
 
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
-#define OEMRESOURCE
-
 #include <Nazara/Utility/Win32/WindowImpl.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -38,30 +36,6 @@ namespace Nz
 {
 	namespace
 	{
-		LPTSTR windowsCursors[] =
-		{
-			IDC_CROSS,       // WindowCursor_Crosshair
-			IDC_ARROW,       // WindowCursor_Default
-			IDC_HAND,        // WindowCursor_Hand
-			IDC_HAND,        // WindowCursor_Pointer
-			IDC_HELP,        // WindowCursor_Help
-			IDC_SIZEALL,     // WindowCursor_Move
-			nullptr,         // WindowCursor_None
-			IDC_APPSTARTING, // WindowCursor_Progress
-			IDC_SIZENS,      // WindowCursor_ResizeN
-			IDC_SIZENS,      // WindowCursor_ResizeS
-			IDC_SIZENWSE,    // WindowCursor_ResizeNW
-			IDC_SIZENWSE,    // WindowCursor_ResizeSE
-			IDC_SIZENESW,    // WindowCursor_ResizeNE
-			IDC_SIZENESW,    // WindowCursor_ResizeSW
-			IDC_SIZEWE,      // WindowCursor_ResizeE
-			IDC_SIZEWE,      // WindowCursor_ResizeW
-			IDC_IBEAM,       // WindowCursor_Text
-			IDC_WAIT         // WindowCursor_Wait
-		};
-
-		static_assert(sizeof(windowsCursors)/sizeof(LPTSTR) == WindowCursor_Max+1, "Cursor type array is incomplete");
-
 		const wchar_t* className = L"Nazara Window";
 		WindowImpl* fullscreenWindow = nullptr;
 	}
@@ -319,26 +293,6 @@ namespace Nz
 				DispatchMessageW(&message);
 			}
 		}
-	}
-
-	void WindowImpl::SetCursor(WindowCursor cursor)
-	{
-		#ifdef NAZARA_DEBUG
-		if (cursor > WindowCursor_Max)
-		{
-			NazaraError("Window cursor out of enum");
-			return;
-		}
-		#endif
-
-		if (cursor != WindowCursor_None)
-			m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, windowsCursors[cursor], IMAGE_CURSOR, 0, 0, LR_SHARED));
-		else
-			m_cursor = nullptr;
-
-		// Pas besoin de libérer le curseur par la suite s'il est partagé
-		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648045(v=vs.85).aspx
-		::SetCursor(m_cursor);
 	}
 
 	void WindowImpl::SetCursor(const Cursor& cursor)

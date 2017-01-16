@@ -8,6 +8,7 @@
 #define NAZARA_CURSORIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <xcb/xcb_cursor.h>
 
 namespace Nz
@@ -16,14 +17,24 @@ namespace Nz
 
 	class CursorImpl
 	{
+		friend class Cursor;
+
 		public:
 			bool Create(const Image& image, int hotSpotX, int hotSpotY);
+			bool Create(SystemCursor cursor);
+			
 			void Destroy();
 
 			xcb_cursor_t GetCursor();
 
 		private:
-			xcb_cursor_t m_cursor;
+			static bool Initialize();
+			static void Uninitialize();
+
+			xcb_cursor_t m_cursor = 0;
+			xcb_cursor_context_t* m_cursorContext = nullptr;
+			
+			static std::array<const char*, SystemCursor_Max + 1> s_systemCursorIds;
 	};
 }
 

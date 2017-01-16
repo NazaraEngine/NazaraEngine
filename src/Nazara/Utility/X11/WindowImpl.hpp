@@ -60,7 +60,6 @@ namespace Nz
 
 			void ProcessEvents(bool block);
 
-			void SetCursor(WindowCursor cursor);
 			void SetCursor(const Cursor& cursor);
 			void SetEventListener(bool listener);
 			void SetFocus();
@@ -84,7 +83,7 @@ namespace Nz
 			void CleanUp();
 			xcb_keysym_t ConvertKeyCodeToKeySym(xcb_keycode_t keycode, uint16_t state);
 			Keyboard::Key ConvertVirtualKey(xcb_keysym_t symbol);
-			const char* ConvertWindowCursorToXName(WindowCursor cursor);
+			const char* ConvertWindowCursorToXName(SystemCursor cursor);
 			void CommonInitialize();
 
 			char32_t GetRepresentation(xcb_keysym_t keysym) const;
@@ -93,7 +92,6 @@ namespace Nz
 
 			void ResetVideoMode();
 
-			void SetCursor(xcb_cursor_t cursor);
 			void SetMotifHints();
 			void SetVideoMode(const VideoMode& mode);
 			void SwitchToFullscreen();

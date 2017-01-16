@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -110,6 +111,13 @@ namespace Nz
 				NazaraError("Failed to initialize window's system");
 				return false;
 			}
+
+			// Must be initialized after Window
+			if (!Cursor::Initialize())
+			{
+				NazaraError("Failed to initialize cursors");
+				return false;
+			}
 		}
 
 		// On enregistre les loaders pour les extensions
@@ -180,7 +188,9 @@ namespace Nz
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
 
+		Cursor::Uninitialize(); //< Must be done before Window
 		Window::Uninitialize();
+
 		VertexDeclaration::Uninitialize();
 		Skeleton::Uninitialize();
 		PixelFormat::Uninitialize();
