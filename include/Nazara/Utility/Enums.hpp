@@ -309,13 +309,12 @@ namespace Nz
 
 	enum SystemCursor
 	{
-		SystemCursor_None,
-		SystemCursor_Default,
-
 		SystemCursor_Crosshair,
+		SystemCursor_Default,
 		SystemCursor_Hand,
 		SystemCursor_Help,
 		SystemCursor_Move,
+		SystemCursor_None,
 		SystemCursor_Pointer,
 		SystemCursor_Progress,
 		SystemCursor_ResizeE,
