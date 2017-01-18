@@ -84,11 +84,12 @@ namespace Ndk
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
+		Nz::Vector3f mousePos(float(event.x), float(event.y), 0.f);
 		for (const WidgetBox& entry : m_widgetBoxes)
 		{
 			const Nz::Boxf& box = entry.box;
 
-			if (box.Contains(Nz::Vector3f(event.x, event.y, 0.f)))
+			if (box.Contains(mousePos))
 			{
 				float area = box.width * box.height;
 				if (area < bestEntryArea)
