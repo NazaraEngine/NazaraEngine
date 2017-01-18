@@ -57,7 +57,7 @@ namespace Ndk
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
 		private:
-			void RefreshCursor();
+			void Layout() override;
 
 			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
@@ -66,6 +66,8 @@ namespace Ndk
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnMouseExit() override;
 			void OnTextEntered(char32_t character, bool repeated) override;
+
+			void RefreshCursor();
 
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;

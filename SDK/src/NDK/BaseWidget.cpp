@@ -119,12 +119,7 @@ namespace Ndk
 			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
 
 		if (m_backgroundEntity)
-		{
-			NodeComponent& node = m_backgroundEntity->GetComponent<NodeComponent>();
-			node.SetPosition(-m_padding.left, -m_padding.top);
-
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
-		}
 	}
 
 	void BaseWidget::InvalidateNode()
