@@ -46,6 +46,7 @@ namespace Ndk
 			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline const Padding& GetPadding() const;
+			inline Nz::Vector2f GetContentOrigin() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 

@@ -60,6 +60,11 @@ namespace Ndk
 		return m_padding;
 	}
 
+	inline Nz::Vector2f BaseWidget::GetContentOrigin() const
+	{
+		return { m_padding.left, m_padding.top };
+	}
+
 	inline const Nz::Vector2f& BaseWidget::GetContentSize() const
 	{
 		return m_contentSize;

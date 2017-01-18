@@ -94,33 +94,10 @@ namespace Ndk
 		}
 	}
 
-	void TextAreaWidget::RefreshCursor()
 	{
-		std::size_t lineCount = m_drawer.GetLineCount();
-		std::size_t line = 0U;
-		for (std::size_t i = line + 1; i < lineCount; ++i)
-		{
-			if (m_drawer.GetLine(i).glyphIndex > m_cursorPosition)
-				break;
+		BaseWidget::Layout();
 
-			line = i;
-		}
 
-		const auto& lineInfo = m_drawer.GetLine(line);
-
-		std::size_t glyphCount = m_drawer.GetGlyphCount();
-		float position;
-		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorPosition)
-		{
-			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorPosition, glyphCount - 1));
-			position = glyph.bounds.x;
-			if (m_cursorPosition >= glyphCount)
-				position += glyph.bounds.width;
-		}
-		else
-			position = 0.f;
-
-		m_cursorEntity->GetComponent<Ndk::NodeComponent>().SetPosition(position, lineInfo.bounds.y);
 	}
 
 	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
@@ -221,5 +198,36 @@ namespace Ndk
 				break;
 			}
 		}
+	}
+
+	void TextAreaWidget::RefreshCursor()
+	{
+		std::size_t lineCount = m_drawer.GetLineCount();
+		std::size_t line = 0U;
+		for (std::size_t i = line + 1; i < lineCount; ++i)
+		{
+			if (m_drawer.GetLine(i).glyphIndex > m_cursorPosition)
+				break;
+
+			line = i;
+		}
+
+		const auto& lineInfo = m_drawer.GetLine(line);
+
+		std::size_t glyphCount = m_drawer.GetGlyphCount();
+		float position;
+		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorPosition)
+		{
+			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorPosition, glyphCount - 1));
+			position = glyph.bounds.x;
+			if (m_cursorPosition >= glyphCount)
+				position += glyph.bounds.width;
+		}
+		else
+			position = 0.f;
+
+		Nz::Vector2f contentOrigin = GetContentOrigin();
+
+		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(contentOrigin.x + position, contentOrigin.y + lineInfo.bounds.y);
 	}
 }

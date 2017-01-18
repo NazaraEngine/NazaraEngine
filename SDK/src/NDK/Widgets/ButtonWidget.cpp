@@ -40,12 +40,14 @@ namespace Ndk
 	{
 		BaseWidget::Layout();
 
+		Nz::Vector2f origin = GetContentOrigin();
 		const Nz::Vector2f& contentSize = GetContentSize();
 
+		m_gradientEntity->GetComponent<NodeComponent>().SetPosition(origin);
 		m_gradientSprite->SetSize(contentSize);
 
 		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().aabb;
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(contentSize.x / 2 - textBox.width / 2, contentSize.y / 2 - textBox.height / 2);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + contentSize.x / 2 - textBox.width / 2, origin.y + contentSize.y / 2 - textBox.height / 2);
 	}
 
 	void ButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button button)
