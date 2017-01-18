@@ -107,11 +107,10 @@ namespace Nz
 			sharedConnection = xcb_connect(nullptr, &screen_nbr);
 
 			// Opening display failed: The best we can do at the moment is to output a meaningful error message
-			// and cause an abnormal program termination
 			if (!sharedConnection || xcb_connection_has_error(sharedConnection))
 			{
 				NazaraError("Failed to open xcb connection");
-				std::abort();
+				return false;
 			}
 
 			OpenConnection();
