@@ -162,9 +162,10 @@ namespace Nz
 	bool CursorImpl::Create(SystemCursor cursor)
 	{
 		ScopedXCBConnection connection;
+		xcb_screen_t* screen = X11::XCBDefaultScreen(connection);
 
-		if (xcb_cursor_context_new(connection, m_screen, &m_cursorContext) >= 0)
-			m_cursor = xcb_cursor_load_cursor(ctx, s_systemCursorIds[cursor]);
+		if (xcb_cursor_context_new(connection, screen, &m_cursorContext) >= 0)
+			m_cursor = xcb_cursor_load_cursor(m_cursorContext, s_systemCursorIds[cursor]);
 
 		return true;
 	}
@@ -196,12 +197,12 @@ namespace Nz
 			return false;
 		}
 
-		hiddenCursor = xcb_generate_id(connection);
+		s_hiddenCursor = xcb_generate_id(connection);
 
 		// Create the cursor, using the pixmap as both the shape and the mask of the cursor
 		if (!X11::CheckCookie(
 			connection, xcb_create_cursor(connection,
-			                              hiddenCursor,
+			                              s_hiddenCursor,
 			                              cursorPixmap,
 			                              cursorPixmap,
 			                              0, 0, 0, // Foreground RGB color
@@ -226,7 +227,9 @@ namespace Nz
 			s_hiddenCursor = 0;
 		}
 	}
-	
+
+	xcb_cursor_t CursorImpl::s_hiddenCursor = 0;
+
 	std::array<const char*, SystemCursor_Max + 1> CursorImpl::s_systemCursorIds =
 	{
 		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
