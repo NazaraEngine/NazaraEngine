@@ -251,7 +251,7 @@ namespace Nz
 			if (m_window && m_ownsWindow)
 			{
 				// Unhide the mouse cursor (in case it was hidden)
-				SetCursor(Nz::WindowCursor_Default);
+				SetCursor(SystemCursor_Default);
 
 				if (!X11::CheckCookie(
 					connection,
@@ -417,7 +417,7 @@ namespace Nz
 	void WindowImpl::SetCursor(const Cursor& cursor)
 	{
 		xcb_cursor_t cursorImpl = cursor.m_impl->GetCursor();
-		if (!X11::CheckCookie(connection, xcb_change_window_attributes(connection, m_window, XCB_CW_CURSOR, &cursor)))
+		if (!X11::CheckCookie(connection, xcb_change_window_attributes(connection, m_window, XCB_CW_CURSOR, &cursorImpl)))
 			NazaraError("Failed to change mouse cursor");
 
 		xcb_flush(connection);
