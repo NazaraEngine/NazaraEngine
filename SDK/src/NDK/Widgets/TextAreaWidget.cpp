@@ -123,13 +123,53 @@ namespace Ndk
 				break;
 			}
 
+			case Nz::Keyboard::Down:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyDown(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					break;
+
+				//TODO
+				break;
+			}
+
 			case Nz::Keyboard::Left:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyLeft(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					break;
+
 				MoveCursor(-1);
 				break;
+			}
 
 			case Nz::Keyboard::Right:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyRight(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					break;
+
 				MoveCursor(1);
 				break;
+			}
+
+			case Nz::Keyboard::Up:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyUp(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					break;
+
+				//TODO
+				break;
+			}
 		}
 	}
 
@@ -170,6 +210,12 @@ namespace Ndk
 		{
 			case '\b':
 			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					break;
+
 				const Nz::String& text = m_drawer.GetText();
 
 				Nz::String newText;
@@ -179,18 +225,23 @@ namespace Ndk
 				if (m_cursorPosition < m_drawer.GetGlyphCount())
 					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorPosition)));
 
-				SetText(newText);
 				MoveCursor(-1);
+				SetText(newText);
 				break;
 			}
 
 			case '\r':
 			case '\n':
-				if (!m_multiLineEnabled)
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction || !m_multiLineEnabled)
 					break;
 
 				Write(Nz::String('\n'));
 				break;
+			}
 
 			default:
 			{

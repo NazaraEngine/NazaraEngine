@@ -56,6 +56,14 @@ namespace Ndk
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
+			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, std::size_t* /*newCursorPosition*/);
+			NazaraSignal(OnTextAreaKeyBackspace, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyDown, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyLeft, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyReturn, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyRight, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyUp, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+
 		private:
 			void Layout() override;
 
