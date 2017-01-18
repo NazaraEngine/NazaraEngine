@@ -95,8 +95,10 @@ namespace Ndk
 
 			inline void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
+			void RegisterToCanvas();
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
 			inline void UpdateCanvasIndex(std::size_t index);
+			void UnregisterFromCanvas();
 
 			std::size_t m_canvasIndex;
 			std::vector<EntityOwner> m_entities;

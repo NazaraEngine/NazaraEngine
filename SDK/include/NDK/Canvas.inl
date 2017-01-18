@@ -12,6 +12,10 @@ namespace Ndk
 	m_world(std::move(world))
 	{
 		m_canvas = this;
+		m_widgetParent = nullptr;
+
+		// Widgetception
+		m_canvasIndex = m_canvas->RegisterWidget(this);
 
 		m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, this, &Canvas::OnKeyPressed);
 		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnKeyReleased);
@@ -20,12 +24,17 @@ namespace Ndk
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnMouseMoved);
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnMouseLeft);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnTextEntered);
+
+		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	inline Canvas::~Canvas()
 	{
-		// Destroy children explicitly because they signal us when getting destroyed, and that can't happend after our own destruction
+		// Destroy children explicitly because they signal us when getting destroyed, and that can't happen after our own destruction
 		DestroyChildren();
+
+		// Prevent our parent from trying to call us
+		m_canvasIndex = std::numeric_limits<std::size_t>::max();
 	}
 
 	inline const WorldHandle& Canvas::GetWorld() const

@@ -21,13 +21,12 @@ namespace Ndk
 		m_widgetParent = parent;
 		m_world = m_canvas->GetWorld();
 
-		m_canvasIndex = m_canvas->RegisterWidget(this);
+		RegisterToCanvas();
 	}
 
 	BaseWidget::~BaseWidget()
 	{
-		if (m_canvasIndex != std::numeric_limits<std::size_t>::max())
-			m_canvas->UnregisterWidget(m_canvasIndex);
+		UnregisterFromCanvas();
 	}
 
 	void BaseWidget::Destroy()
@@ -87,6 +86,11 @@ namespace Ndk
 		if (m_visible != show)
 		{
 			m_visible = show;
+
+			if (m_visible)
+				RegisterToCanvas();
+			else
+				UnregisterFromCanvas();
 
 			for (const EntityHandle& entity : m_entities)
 				entity->Enable(show);
@@ -181,5 +185,21 @@ namespace Ndk
 	void BaseWidget::DestroyChildren()
 	{
 		m_children.clear();
+	}
+
+	void BaseWidget::RegisterToCanvas()
+	{
+		NazaraAssert(m_canvasIndex == std::numeric_limits<std::size_t>::max(), "Widget is already registered to canvas");
+
+		m_canvasIndex = m_canvas->RegisterWidget(this);
+	}
+
+	void BaseWidget::UnregisterFromCanvas()
+	{
+		if (m_canvasIndex != std::numeric_limits<std::size_t>::max())
+		{
+			m_canvas->UnregisterWidget(m_canvasIndex);
+			m_canvasIndex = std::numeric_limits<std::size_t>::max();
+		}
 	}
 }

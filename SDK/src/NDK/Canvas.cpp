@@ -14,14 +14,6 @@ namespace Ndk
 	{
 	}
 
-	void Canvas::Layout()
-	{
-		if (m_backgroundEntity)
-		{
-			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
-		}
-	}
-
 	void Canvas::NotifyWidgetUpdate(std::size_t index)
 	{
 		WidgetBox& entry = m_widgetBoxes[index];
