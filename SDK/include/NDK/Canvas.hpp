@@ -33,8 +33,6 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
-			void Layout() override;
-
 			void NotifyWidgetUpdate(std::size_t index);
 
 			std::size_t RegisterWidget(BaseWidget* widget);
