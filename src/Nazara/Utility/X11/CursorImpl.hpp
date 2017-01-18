@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <xcb/xcb_cursor.h>
+#include <array>
 
 namespace Nz
 {
@@ -22,7 +23,7 @@ namespace Nz
 		public:
 			bool Create(const Image& image, int hotSpotX, int hotSpotY);
 			bool Create(SystemCursor cursor);
-			
+
 			void Destroy();
 
 			xcb_cursor_t GetCursor();
@@ -33,7 +34,8 @@ namespace Nz
 
 			xcb_cursor_t m_cursor = 0;
 			xcb_cursor_context_t* m_cursorContext = nullptr;
-			
+
+			static xcb_cursor_t s_hiddenCursor;
 			static std::array<const char*, SystemCursor_Max + 1> s_systemCursorIds;
 	};
 }
