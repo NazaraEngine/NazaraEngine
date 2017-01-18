@@ -678,21 +678,11 @@ namespace Nz
 
 		connection = X11::OpenConnection();
 
-		// Create the hidden cursor
-		CreateHiddenCursor();
-
 		return true;
 	}
 
 	void WindowImpl::Uninitialize()
 	{
-		// Destroy the cursor
-		if (hiddenCursor)
-		{
-			xcb_free_cursor(connection, hiddenCursor);
-			hiddenCursor = 0;
-		}
-
 		X11::CloseConnection(connection);
 
 		X11::Uninitialize();
@@ -937,53 +927,6 @@ namespace Nz
 			default:
 				return Keyboard::Undefined;
 		}
-	}
-
-	const char* WindowImpl::ConvertWindowCursorToXName(SystemCursor cursor)
-	{
-		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
-		switch (cursor)
-		{
-			case Nz::WindowCursor_Crosshair:
-				return "crosshair";
-			case Nz::WindowCursor_Default:
-				return "left_ptr";
-			case Nz::WindowCursor_Hand:
-				return "hand";
-			case Nz::WindowCursor_Help:
-				return "help";
-			case Nz::WindowCursor_Move:
-				return "fleur";
-			case Nz::WindowCursor_None:
-				return "none"; // Handled in set cursor
-			case Nz::WindowCursor_Pointer:
-				return "hand";
-			case Nz::WindowCursor_Progress:
-				return "watch";
-			case Nz::WindowCursor_ResizeE:
-				return "right_side";
-			case Nz::WindowCursor_ResizeN:
-				return "top_side";
-			case Nz::WindowCursor_ResizeNE:
-				return "top_right_corner";
-			case Nz::WindowCursor_ResizeNW:
-				return "top_left_corner";
-			case Nz::WindowCursor_ResizeS:
-				return "bottom_side";
-			case Nz::WindowCursor_ResizeSE:
-				return "bottom_right_corner";
-			case Nz::WindowCursor_ResizeSW:
-				return "bottom_left_corner";
-			case Nz::WindowCursor_ResizeW:
-				return "left_side";
-			case Nz::WindowCursor_Text:
-				return "xterm";
-			case Nz::WindowCursor_Wait:
-				return "watch";
-		}
-
-		NazaraError("Cursor is not handled by enumeration");
-		return "X_cursor";
 	}
 
 	void WindowImpl::CommonInitialize()
