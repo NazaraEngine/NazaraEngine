@@ -94,10 +94,13 @@ namespace Ndk
 		}
 	}
 
+	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
 
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
 
+		RefreshCursor();
 	}
 
 	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
