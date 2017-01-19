@@ -8,6 +8,7 @@
 #define NAZARA_ICON_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 
@@ -16,22 +17,29 @@ namespace Nz
 	class Image;
 	class IconImpl;
 
-	class NAZARA_UTILITY_API Icon
+	class Icon;
+
+	using IconRef = ObjectRef<Icon>;
+
+	class NAZARA_UTILITY_API Icon : public RefCounted
 	{
 		friend class WindowImpl;
 
 		public:
-			Icon();
-			~Icon();
+			inline Icon();
+			inline explicit Icon(const Image& icon);
+			inline ~Icon();
 
 			bool Create(const Image& icon);
 			void Destroy();
 
-			bool IsValid() const;
+			inline bool IsValid() const;
 
 		private:
 			IconImpl* m_impl;
 	};
 }
+
+#include <Nazara/Utility/Icon.inl>
 
 #endif // NAZARA_ICON_HPP

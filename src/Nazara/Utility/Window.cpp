@@ -408,23 +408,13 @@ namespace Nz
 		m_impl->SetFocus();
 	}
 
-	void Window::SetIcon(const Icon& icon)
+	void Window::SetIcon(IconRef icon)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Window not created");
+		NazaraAssert(icon && icon.IsValid(), "Invalid icon");
 
-		if (!icon.IsValid())
-		{
-			NazaraError("Icon is not valid");
-			return;
-		}
-		#endif
-
-		m_impl->SetIcon(icon);
+		m_icon = std::move(icon);
+		m_impl->SetIcon(*m_icon);
 	}
 
 	void Window::SetMaximumSize(const Vector2i& maxSize)
