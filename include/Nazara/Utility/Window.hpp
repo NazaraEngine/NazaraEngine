@@ -15,18 +15,18 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <queue>
 
 namespace Nz
 {
-	class Cursor;
 	class Image;
-	class Icon;
 	class WindowImpl;
 
 	class NAZARA_UTILITY_API Window
@@ -86,7 +86,7 @@ namespace Nz
 			inline void SetCursor(SystemCursor systemCursor);
 			void SetEventListener(bool listener);
 			void SetFocus();
-			void SetIcon(const Icon& icon);
+			void SetIcon(IconRef icon);
 			void SetMaximumSize(const Vector2i& maxSize);
 			void SetMaximumSize(int width, int height);
 			void SetMinimumSize(const Vector2i& minSize);
@@ -126,6 +126,7 @@ namespace Nz
 			CursorController m_cursorController;
 			CursorRef m_cursor;
 			EventHandler m_eventHandler;
+			IconRef m_icon;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;
 			bool m_asyncWindow;
