@@ -15,6 +15,7 @@
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <limits>
 
 namespace Ndk
 {
@@ -95,10 +96,13 @@ namespace Ndk
 
 			inline void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
-			void RegisterToCanvas();
+			inline bool IsRegisteredToCanvas() const;
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
+			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
+
+			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 
 			std::size_t m_canvasIndex;
 			std::vector<EntityOwner> m_entities;
