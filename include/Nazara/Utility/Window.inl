@@ -12,14 +12,6 @@ namespace Nz
 	/*!
 	* \class Nz::Window
 	*/
-	inline Window::Window() :
-	m_impl(nullptr),
-	m_asyncWindow(false),
-	m_closeOnQuit(true),
-	m_eventPolling(false),
-	m_waitForEvent(false)
-	{
-	}
 
 	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
 	Window()
@@ -73,6 +65,11 @@ namespace Nz
 			while (!m_events.empty())
 				m_events.pop();
 		}
+	}
+
+	inline CursorController& Nz::Window::GetCursorController()
+	{
+		return m_cursorController;
 	}
 
 	inline EventHandler& Nz::Window::GetEventHandler()
