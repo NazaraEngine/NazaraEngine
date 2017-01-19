@@ -14,9 +14,10 @@ namespace Ndk
 		m_canvas = this;
 		m_widgetParent = nullptr;
 
-		// Widgetception
-		m_canvasIndex = m_canvas->RegisterWidget(this);
+		// Register ourselves as a widget to handle cursor change
+		RegisterToCanvas();
 
+		// Connect to every meaningful event
 		m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, this, &Canvas::OnKeyPressed);
 		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnKeyReleased);
 		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnMouseButtonPressed);
@@ -25,6 +26,7 @@ namespace Ndk
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnMouseLeft);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnTextEntered);
 
+		// Disable padding by default
 		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
