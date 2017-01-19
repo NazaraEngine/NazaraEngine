@@ -18,7 +18,7 @@ namespace Nz
 {
 	class EventHandler;
 
-	using EventHandlerHandle = Nz::ObjectRef<EventHandler>;
+	using EventHandlerHandle = ObjectHandle<EventHandler>;
 
 	class EventHandler : public HandledObject<EventHandler>
 	{
