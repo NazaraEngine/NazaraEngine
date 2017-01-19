@@ -8,6 +8,8 @@
 #define NAZARA_EVENTHANDLER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Event.hpp>
