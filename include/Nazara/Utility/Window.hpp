@@ -15,6 +15,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/EventHandler.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
@@ -35,7 +36,7 @@ namespace Nz
 		friend class Utility;
 
 		public:
-			inline Window();
+			Window();
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline Window(WindowHandle handle);
 			Window(const Window&) = delete;
@@ -57,7 +58,8 @@ namespace Nz
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
-			EventHandler& GetEventHandler();
+			inline CursorController& GetCursorController();
+			inline EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
@@ -119,6 +121,7 @@ namespace Nz
 			std::queue<WindowEvent> m_events;
 			std::vector<WindowEvent> m_pendingEvents;
 			ConditionVariable m_eventCondition;
+			CursorController m_cursorController;
 			EventHandler m_eventHandler;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;

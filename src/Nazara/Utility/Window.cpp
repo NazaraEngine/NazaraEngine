@@ -29,6 +29,20 @@ namespace Nz
 		Window* fullscreenWindow = nullptr;
 	}
 
+	Window::Window() :
+	m_impl(nullptr),
+	m_asyncWindow(false),
+	m_closeOnQuit(true),
+	m_eventPolling(false),
+	m_waitForEvent(false)
+	{
+		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const Cursor& cursor)
+		{
+			if (IsValid())
+				SetCursor(cursor);
+		});
+	}
+
 	Window::~Window()
 	{
 		Destroy();
