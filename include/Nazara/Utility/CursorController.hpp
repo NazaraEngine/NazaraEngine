@@ -28,12 +28,12 @@ namespace Nz
 			CursorController(CursorController&&) = default;
 			~CursorController() = default;
 
-			inline void UpdateCursor(const Cursor& cursor);
+			inline void UpdateCursor(const CursorRef& cursor);
 
 			CursorController& operator=(const CursorController&) = delete;
 			CursorController& operator=(CursorController&&) = default;
 
-			NazaraSignal(OnCursorUpdated, const CursorController* /*cursorController*/, const Cursor& /*cursor*/);
+			NazaraSignal(OnCursorUpdated, const CursorController* /*cursorController*/, const CursorRef& /*cursor*/);
 	};
 }
 

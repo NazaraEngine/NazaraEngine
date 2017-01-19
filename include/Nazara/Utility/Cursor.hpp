@@ -8,28 +8,34 @@
 #define NAZARA_CURSOR_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <array>
 
 namespace Nz
 {
 	class CursorImpl;
 
-	class NAZARA_UTILITY_API Cursor
+	class Cursor;
+
+	using CursorConstRef = ObjectRef<const Cursor>;
+	using CursorRef = ObjectRef<Cursor>;
+
+	class NAZARA_UTILITY_API Cursor : public RefCounted
 	{
 		friend class Utility;
 		friend class WindowImpl;
 
 		public:
 			inline Cursor();
-			inline Cursor(SystemCursor systemCursor); //< implicit conversion intended
+			inline Cursor(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder);
 			Cursor(const Cursor&) = delete;
-			inline Cursor(Cursor&& cursor) noexcept;
+			Cursor(Cursor&&) = delete;
 			inline ~Cursor();
 
-			bool Create(const Image& cursor, const Vector2i& hotSpot);
-			bool Create(SystemCursor cursor);
+			bool Create(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder);
 
 			void Destroy();
 
@@ -39,16 +45,24 @@ namespace Nz
 			inline bool IsValid() const;
 
 			Cursor& operator=(const Cursor&) = delete;
-			inline Cursor& operator=(Cursor&& cursor);
+			Cursor& operator=(Cursor&&) = delete;
+
+			static inline Cursor* Get(SystemCursor cursor);
+			template<typename... Args> static CursorRef New(Args&&... args);
 
 		private:
+			inline explicit Cursor(SystemCursor systemCursor);
+
+			bool Create(SystemCursor cursor);
+
 			static bool Initialize();
 			static void Uninitialize();
 
 			Image m_cursorImage;
 			SystemCursor m_systemCursor;
 			CursorImpl* m_impl;
-			bool m_usesSystemCursor;
+
+			static std::array<Cursor, SystemCursor_Max + 1> s_systemCursors;
 	};
 }
 

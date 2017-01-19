@@ -36,7 +36,7 @@ namespace Nz
 	m_eventPolling(false),
 	m_waitForEvent(false)
 	{
-		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const Cursor& cursor)
+		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const CursorRef& cursor)
 		{
 			if (IsValid())
 				SetCursor(cursor);
@@ -104,10 +104,11 @@ namespace Nz
 		// Paramètres par défaut
 		m_impl->EnableKeyRepeat(true);
 		m_impl->EnableSmoothScrolling(false);
-		m_impl->SetCursor(SystemCursor_Default);
 		m_impl->SetMaximumSize(-1, -1);
 		m_impl->SetMinimumSize(-1, -1);
 		m_impl->SetVisible(true);
+
+		SetCursor(Cursor::Get(SystemCursor_Default));
 
 		if (opened)
 			m_impl->SetPosition(position.x, position.y);
@@ -151,6 +152,8 @@ namespace Nz
 
 	void Window::Destroy()
 	{
+		m_cursor.Reset();
+
 		if (m_impl)
 		{
 			OnWindowDestroy();
@@ -364,12 +367,13 @@ namespace Nz
 		}
 	}
 
-	void Window::SetCursor(const Cursor& cursor)
+	void Window::SetCursor(CursorRef cursor)
 	{
 		NazaraAssert(m_impl, "Window not created");
-		NazaraAssert(cursor.IsValid(), "Invalid cursor");
+		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
 
-		m_impl->SetCursor(cursor);
+		m_cursor = std::move(cursor);
+		m_impl->SetCursor(*m_cursor);
 	}
 
 	void Window::SetEventListener(bool listener)
