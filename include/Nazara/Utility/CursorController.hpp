@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -18,7 +18,7 @@ namespace Nz
 {
 	class CursorController;
 
-	using CursorControllerHandle = Nz::ObjectRef<CursorController>;
+	using CursorControllerHandle = ObjectHandle<CursorController>;
 
 	class CursorController : public HandledObject<CursorController>
 	{
