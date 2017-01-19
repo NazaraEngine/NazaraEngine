@@ -9,9 +9,19 @@
 namespace Nz
 {
 	inline Cursor::Cursor() :
-	m_impl(nullptr),
-	m_usesSystemCursor(false)
+	m_impl(nullptr)
 	{
+	}
+
+	inline Cursor::Cursor(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder)
+	{
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		Create(cursor, hotSpot, placeholder);
+	}
+
+	inline Cursor* Cursor::Get(SystemCursor cursor)
+	{
+		return &s_systemCursors[cursor];
 	}
 
 	inline Cursor::Cursor(SystemCursor systemCursor) :
@@ -19,12 +29,6 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 		Create(systemCursor);
-	}
-
-	inline Cursor::Cursor(Cursor&& cursor) noexcept :
-	Cursor()
-	{
-		operator=(std::move(cursor));
 	}
 
 	inline Cursor::~Cursor()
@@ -35,7 +39,7 @@ namespace Nz
 	inline const Image& Cursor::GetImage() const
 	{
 		NazaraAssert(IsValid(), "Invalid cursor");
-		NazaraAssert(!m_usesSystemCursor, "System cursors have no image");
+		NazaraAssert(m_cursorImage.IsValid(), "System cursors have no image");
 
 		return m_cursorImage;
 	}
@@ -43,7 +47,6 @@ namespace Nz
 	inline SystemCursor Cursor::GetSystemCursor() const
 	{
 		NazaraAssert(IsValid(), "Invalid cursor");
-		NazaraAssert(m_usesSystemCursor, "Custom cursor uses an image");
 
 		return m_systemCursor;
 	}
@@ -53,16 +56,13 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	inline Cursor& Cursor::operator=(Cursor&& cursor)
+	template<typename... Args>
+	CursorRef Cursor::New(Args&&... args)
 	{
-		m_cursorImage = std::move(cursor.m_cursorImage);
-		m_systemCursor = cursor.m_systemCursor;
-		m_impl = cursor.m_impl;
-		m_usesSystemCursor = cursor.m_usesSystemCursor;
+		std::unique_ptr<Cursor> object(new Cursor(std::forward<Args>(args)...));
+		object->SetPersistent(false);
 
-		cursor.m_impl = nullptr;
-
-		return *this;
+		return object.release();
 	}
 }
 

@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline void CursorController::UpdateCursor(const Cursor& cursor)
+	inline void CursorController::UpdateCursor(const CursorRef& cursor)
 	{
 		OnCursorUpdated(this, cursor);
 	}

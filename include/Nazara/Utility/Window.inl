@@ -67,6 +67,11 @@ namespace Nz
 		}
 	}
 
+	inline const CursorRef& Window::GetCursor() const
+	{
+		return m_cursor;
+	}
+
 	inline CursorController& Nz::Window::GetCursorController()
 	{
 		return m_cursorController;
@@ -99,6 +104,11 @@ namespace Nz
 	inline bool Window::IsValid() const
 	{
 		return m_impl != nullptr;
+	}
+
+	inline void Window::SetCursor(SystemCursor systemCursor)
+	{
+		SetCursor(Cursor::Get(systemCursor));
 	}
 
 	inline void Window::HandleEvent(const WindowEvent& event)

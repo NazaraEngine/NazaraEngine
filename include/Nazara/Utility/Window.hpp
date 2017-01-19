@@ -58,6 +58,7 @@ namespace Nz
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
+			inline const CursorRef& GetCursor() const;
 			inline CursorController& GetCursorController();
 			inline EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
@@ -81,7 +82,8 @@ namespace Nz
 
 			void ProcessEvents(bool block = false);
 
-			void SetCursor(const Cursor& cursor);
+			void SetCursor(CursorRef cursor);
+			inline void SetCursor(SystemCursor systemCursor);
 			void SetEventListener(bool listener);
 			void SetFocus();
 			void SetIcon(const Icon& icon);
@@ -122,6 +124,7 @@ namespace Nz
 			std::vector<WindowEvent> m_pendingEvents;
 			ConditionVariable m_eventCondition;
 			CursorController m_cursorController;
+			CursorRef m_cursor;
 			EventHandler m_eventHandler;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;
