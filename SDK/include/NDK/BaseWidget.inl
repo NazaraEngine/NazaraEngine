@@ -5,12 +5,11 @@
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include <limits>
 
 namespace Ndk
 {
 	inline BaseWidget::BaseWidget() :
-	m_canvasIndex(std::numeric_limits<std::size_t>::max()),
+	m_canvasIndex(InvalidCanvasIndex),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
 	m_contentSize(50.f, 50.f),
@@ -96,6 +95,11 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline bool BaseWidget::IsRegisteredToCanvas() const
+	{
+		return m_canvas && m_canvasIndex != InvalidCanvasIndex;
 	}
 
 	inline void BaseWidget::NotifyParentResized(const Nz::Vector2f& newSize)

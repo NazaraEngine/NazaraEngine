@@ -36,7 +36,7 @@ namespace Ndk
 		DestroyChildren();
 
 		// Prevent our parent from trying to call us
-		m_canvasIndex = std::numeric_limits<std::size_t>::max();
+		m_canvasIndex = InvalidCanvasIndex;
 	}
 
 	inline const WorldHandle& Canvas::GetWorld() const
