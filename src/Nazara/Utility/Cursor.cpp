@@ -33,7 +33,7 @@ namespace Nz
 		return true;
 	}
 
-	inline bool Cursor::Create(SystemCursor cursor)
+	bool Cursor::Create(SystemCursor cursor)
 	{
 		Destroy();
 
