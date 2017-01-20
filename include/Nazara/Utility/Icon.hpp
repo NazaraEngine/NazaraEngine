@@ -35,6 +35,8 @@ namespace Nz
 
 			inline bool IsValid() const;
 
+			template<typename... Args> static IconRef New(Args&&... args);
+
 		private:
 			IconImpl* m_impl;
 	};
