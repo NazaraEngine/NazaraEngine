@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -33,8 +33,6 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
-			void Layout() override;
-
 			void NotifyWidgetUpdate(std::size_t index);
 
 			std::size_t RegisterWidget(BaseWidget* widget);

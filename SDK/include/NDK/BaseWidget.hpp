@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -15,6 +15,7 @@
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <limits>
 
 namespace Ndk
 {
@@ -46,6 +47,7 @@ namespace Ndk
 			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline const Padding& GetPadding() const;
+			inline Nz::Vector2f GetContentOrigin() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
@@ -94,8 +96,13 @@ namespace Ndk
 
 			inline void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
+			inline bool IsRegisteredToCanvas() const;
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
+			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
+			void UnregisterFromCanvas();
+
+			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 
 			std::size_t m_canvasIndex;
 			std::vector<EntityOwner> m_entities;
