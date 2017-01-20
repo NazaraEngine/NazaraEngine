@@ -57,8 +57,7 @@ namespace Ndk
 			Console& operator=(Console&& console) = default;
 
 		private:
-			void AddLineInternal(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
-			void ExecuteInput();
+			void ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction);
 			void Layout() override;
 
 			struct Line
