@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -12,9 +12,11 @@
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <limits>
 
 namespace Ndk
 {
@@ -45,7 +47,9 @@ namespace Ndk
 
 			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
+			inline Nz::SystemCursor GetCursor() const;
 			inline const Padding& GetPadding() const;
+			inline Nz::Vector2f GetContentOrigin() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
@@ -56,6 +60,7 @@ namespace Ndk
 			virtual void ResizeToContent() = 0;
 
 			void SetBackgroundColor(const Nz::Color& color);
+			void SetCursor(Nz::SystemCursor systemCursor);
 			inline void SetContentSize(const Nz::Vector2f& size);
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
@@ -94,8 +99,13 @@ namespace Ndk
 
 			inline void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
+			inline bool IsRegisteredToCanvas() const;
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
+			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
+			void UnregisterFromCanvas();
+
+			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 
 			std::size_t m_canvasIndex;
 			std::vector<EntityOwner> m_entities;
@@ -106,6 +116,7 @@ namespace Ndk
 			WorldHandle m_world;
 			Nz::Color m_backgroundColor;
 			Nz::SpriteRef m_backgroundSprite;
+			Nz::SystemCursor m_cursor;
 			Nz::Vector2f m_contentSize;
 			BaseWidget* m_widgetParent;
 			bool m_visible;

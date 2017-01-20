@@ -1,18 +1,18 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include <limits>
 
 namespace Ndk
 {
 	inline BaseWidget::BaseWidget() :
-	m_canvasIndex(std::numeric_limits<std::size_t>::max()),
+	m_canvasIndex(InvalidCanvasIndex),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
+	m_cursor(Nz::SystemCursor_Default),
 	m_contentSize(50.f, 50.f),
 	m_widgetParent(nullptr),
 	m_visible(true)
@@ -55,9 +55,19 @@ namespace Ndk
 		return m_canvas;
 	}
 
+	inline Nz::SystemCursor BaseWidget::GetCursor() const
+	{
+		return m_cursor;
+	}
+
 	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
 	{
 		return m_padding;
+	}
+
+	inline Nz::Vector2f BaseWidget::GetContentOrigin() const
+	{
+		return { m_padding.left, m_padding.top };
 	}
 
 	inline const Nz::Vector2f& BaseWidget::GetContentSize() const
@@ -91,6 +101,11 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline bool BaseWidget::IsRegisteredToCanvas() const
+	{
+		return m_canvas && m_canvasIndex != InvalidCanvasIndex;
 	}
 
 	inline void BaseWidget::NotifyParentResized(const Nz::Vector2f& newSize)

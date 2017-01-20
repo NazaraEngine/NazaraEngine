@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -56,8 +56,16 @@ namespace Ndk
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
+			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, std::size_t* /*newCursorPosition*/);
+			NazaraSignal(OnTextAreaKeyBackspace, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyDown, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyLeft, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyReturn, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyRight, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyUp, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+
 		private:
-			void RefreshCursor();
+			void Layout() override;
 
 			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
@@ -66,6 +74,8 @@ namespace Ndk
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnMouseExit() override;
 			void OnTextEntered(char32_t character, bool repeated) override;
+
+			void RefreshCursor();
 
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;

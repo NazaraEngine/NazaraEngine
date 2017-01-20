@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -66,6 +66,8 @@ namespace Ndk
 
 	inline void TextAreaWidget::SetCursorPosition(std::size_t cursorPosition)
 	{
+		OnTextAreaCursorMove(this, &cursorPosition);
+
 		m_cursorPosition = std::min(cursorPosition, m_drawer.GetGlyphCount());
 
 		RefreshCursor();
@@ -83,6 +85,8 @@ namespace Ndk
 		m_drawer.SetText(text);
 
 		m_textSprite->Update(m_drawer);
+
+		SetCursorPosition(m_cursorPosition); //< Refresh cursor position (prevent it from being outside of the text)
 	}
 
 	inline void TextAreaWidget::SetTextColor(const Nz::Color& text)

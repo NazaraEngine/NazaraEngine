@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -16,40 +16,28 @@
 
 namespace Nz
 {
-	Cursor::Cursor() :
-	m_impl(nullptr)
-	{
-	}
-
-	Cursor::~Cursor()
-	{
-		Destroy();
-	}
-
-	bool Cursor::Create(const Image& cursor, int hotSpotX, int hotSpotY)
+	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder)
 	{
 		Destroy();
 
-		m_impl = new CursorImpl;
-		if (!m_impl->Create(cursor, hotSpotX, hotSpotY))
+		std::unique_ptr<CursorImpl> impl(new CursorImpl);
+		if (!impl->Create(cursor, hotSpot.x, hotSpot.y))
 		{
 			NazaraError("Failed to create cursor implementation");
-			delete m_impl;
-			m_impl = nullptr;
-
 			return false;
 		}
+
+		m_cursorImage = cursor;
+		m_impl = impl.release();
+		m_systemCursor = placeholder;
 
 		return true;
 	}
 
-	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot)
-	{
-		return Create(cursor, hotSpot.x, hotSpot.y);
-	}
-
 	void Cursor::Destroy()
 	{
+		m_cursorImage.Destroy();
+
 		if (m_impl)
 		{
 			m_impl->Destroy();
@@ -59,8 +47,41 @@ namespace Nz
 		}
 	}
 
-	bool Cursor::IsValid() const
+	bool Cursor::Create(SystemCursor cursor)
 	{
-		return m_impl != nullptr;
+		Destroy();
+
+		std::unique_ptr<CursorImpl> impl(new CursorImpl);
+		if (!impl->Create(cursor))
+		{
+			NazaraError("Failed to create cursor implementation");
+			return false;
+		}
+
+		m_impl = impl.release();
+		m_systemCursor = cursor;
+
+		return true;
 	}
+
+	bool Cursor::Initialize()
+	{
+		if (!CursorImpl::Initialize())
+			return false;
+
+		for (std::size_t i = 0; i <= SystemCursor_Max; ++i)
+			s_systemCursors[i].Create(static_cast<SystemCursor>(i));
+
+		return true;
+	}
+
+	void Cursor::Uninitialize()
+	{
+		for (Cursor& cursor : s_systemCursors)
+			cursor.Destroy();
+
+		CursorImpl::Uninitialize();
+	}
+
+	std::array<Cursor, SystemCursor_Max + 1> Cursor::s_systemCursors;
 }

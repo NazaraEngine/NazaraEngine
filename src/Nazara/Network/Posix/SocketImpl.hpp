@@ -55,6 +55,8 @@ namespace Nz
 			static bool QueryNoDelay(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QueryPeerAddress(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QueryReceiveBufferSize(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
 			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
 
@@ -68,6 +70,8 @@ namespace Nz
 			static bool SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
 			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
+			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
+			static bool SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 
 			static SocketError TranslateErrnoToResolveError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
