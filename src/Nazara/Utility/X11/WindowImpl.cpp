@@ -251,7 +251,7 @@ namespace Nz
 			if (m_window && m_ownsWindow)
 			{
 				// Unhide the mouse cursor (in case it was hidden)
-				SetCursor(SystemCursor_Default);
+				SetCursor(*Cursor::Get(SystemCursor_Default));
 
 				if (!X11::CheckCookie(
 					connection,
