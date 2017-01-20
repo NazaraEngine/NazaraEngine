@@ -12,6 +12,7 @@ namespace Ndk
 	m_canvasIndex(InvalidCanvasIndex),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
+	m_cursor(Nz::SystemCursor_Default),
 	m_contentSize(50.f, 50.f),
 	m_widgetParent(nullptr),
 	m_visible(true)
@@ -52,6 +53,11 @@ namespace Ndk
 	inline Canvas* BaseWidget::GetCanvas()
 	{
 		return m_canvas;
+	}
+
+	inline Nz::SystemCursor BaseWidget::GetCursor() const
+	{
+		return m_cursor;
 	}
 
 	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
