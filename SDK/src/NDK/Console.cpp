@@ -46,12 +46,17 @@ namespace Ndk
 		m_history->EnableBackground(true);
 		m_history->SetReadOnly(true);
 		m_history->SetBackgroundColor(Nz::Color(80, 80, 160, 128));
+		m_history->SetPadding(0.f, 0.f, 0.f, 4.f);
 
 		// Input
 		m_input = Add<TextAreaWidget>();
 		m_input->EnableBackground(true);
 		m_input->SetText(s_inputPrefix);
 		m_input->SetTextColor(Nz::Color::Black);
+		m_input->SetPadding(0.f, 2.f, 0.f, 2.f);
+
+		// General
+		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	/*!
@@ -63,8 +68,8 @@ namespace Ndk
 
 	void Console::AddLine(const Nz::String& text, const Nz::Color& color)
 	{
-		AddLineInternal(text, color);
-		RefreshHistory();
+		m_historyLines.emplace_back(Line{ color, text });
+		m_history->AppendText(text + '\n');
 	}
 
 	/*!
@@ -74,7 +79,8 @@ namespace Ndk
 	void Console::Clear()
 	{
 		m_historyLines.clear();
-		RefreshHistory();
+		m_history->Clear();
+		m_input->SetText(s_inputPrefix);
 	}
 
 	void Console::ResizeToContent()
@@ -119,18 +125,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Adds a line to the history of the console
-	*
-	* \param text New line of text
-	* \param color Color for the text
-	*/
-
-	void Console::AddLineInternal(const Nz::String& text, const Nz::Color& color)
-	{
-		m_historyLines.emplace_back(Line{color, text});
-	}
-
-	/*!
 	* \brief Performs this action when an input is added to the console
 	*/
 
@@ -145,12 +139,10 @@ namespace Ndk
 
 		m_historyPosition = 0;
 
-		AddLineInternal(input); //< With the input prefix
+		AddLine(input); //< With the input prefix
 
 		if (!m_instance.Execute(inputCmd))
-			AddLineInternal(m_instance.GetLastError(), Nz::Color::Red);
-
-		RefreshHistory();*/
+			AddLine(m_instance.GetLastError(), Nz::Color::Red);
 	}
 
 	/*!
@@ -159,43 +151,19 @@ namespace Ndk
 
 	void Console::Layout()
 	{
+		Nz::Vector2f origin = GetContentOrigin();
 		const Nz::Vector2f& size = GetContentSize();
 
 		unsigned int lineHeight = m_defaultFont->GetSizeInfo(m_characterSize).lineHeight;
-		float historyHeight = size.y - lineHeight - 5.f - 2.f;
+		float historyHeight = size.y - lineHeight;
 
 		m_maxHistoryLines = static_cast<unsigned int>(std::ceil(historyHeight / lineHeight));
+		float diff = historyHeight - m_maxHistoryLines * lineHeight;
 
-		m_history->SetSize({size.x, historyHeight});
-		m_history->SetPosition(0.f, historyHeight - m_maxHistoryLines * lineHeight);
+		m_history->SetPosition(origin.x, origin.y + diff);
+		m_history->SetSize({size.x, historyHeight - diff - 4.f});
 
-		m_input->SetPosition(0.f, historyHeight + 2.f);
-		m_input->SetSize({size.x, size.y - historyHeight});
-	}
-
-	/*!
-	* \brief Refreshes the history of the console
-	*/
-
-	void Console::RefreshHistory()
-	{
-		m_history->Clear();
-
-		auto it = m_historyLines.end();
-		if (m_historyLines.size() > m_maxHistoryLines)
-			it -= m_maxHistoryLines;
-		else
-			it = m_historyLines.begin();
-
-		for (unsigned int i = 0; i < m_maxHistoryLines; ++i)
-		{
-			if (m_maxHistoryLines - i <= m_historyLines.size() && it != m_historyLines.end())
-			{
-				m_history->AppendText(it->text);
-				++it;
-			}
-
-			m_history->AppendText(Nz::String('\n'));
-		}
+		m_input->SetContentSize({size.x, size.y - historyHeight});
+		m_input->SetPosition(origin.x, origin.y + historyHeight);
 	}
 }
