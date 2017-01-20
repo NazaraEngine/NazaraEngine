@@ -236,7 +236,7 @@ namespace Ndk
 		info.overlayWorld = std::make_unique<World>(false); //< No default system
 
 		if (info.window->IsValid())
-			info.canvas = std::make_unique<Canvas>(info.overlayWorld->CreateHandle(), info.window->GetEventHandler());
+			info.canvas = std::make_unique<Canvas>(info.overlayWorld->CreateHandle(), info.window->GetEventHandler(), info.window->GetCursorController().CreateHandle());
 
 		RenderSystem& renderSystem = info.overlayWorld->AddSystem<RenderSystem>();
 		renderSystem.ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
