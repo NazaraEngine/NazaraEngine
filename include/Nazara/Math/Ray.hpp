@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
+// Copyright (C) 2017 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 

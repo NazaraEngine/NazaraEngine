@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,17 +15,18 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/VideoMode.hpp>
 #include <Nazara/Utility/WindowHandle.hpp>
 #include <queue>
 
 namespace Nz
 {
-	class Cursor;
 	class Image;
-	class Icon;
 	class WindowImpl;
 
 	class NAZARA_UTILITY_API Window
@@ -35,7 +36,7 @@ namespace Nz
 		friend class Utility;
 
 		public:
-			inline Window();
+			Window();
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline Window(WindowHandle handle);
 			Window(const Window&) = delete;
@@ -57,7 +58,9 @@ namespace Nz
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
-			EventHandler& GetEventHandler();
+			inline const CursorRef& GetCursor() const;
+			inline CursorController& GetCursorController();
+			inline EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
@@ -79,10 +82,11 @@ namespace Nz
 
 			void ProcessEvents(bool block = false);
 
-			void SetCursor(const Cursor& cursor);
+			void SetCursor(CursorRef cursor);
+			inline void SetCursor(SystemCursor systemCursor);
 			void SetEventListener(bool listener);
 			void SetFocus();
-			void SetIcon(const Icon& icon);
+			void SetIcon(IconRef icon);
 			void SetMaximumSize(const Vector2i& maxSize);
 			void SetMaximumSize(int width, int height);
 			void SetMinimumSize(const Vector2i& minSize);
@@ -119,7 +123,10 @@ namespace Nz
 			std::queue<WindowEvent> m_events;
 			std::vector<WindowEvent> m_pendingEvents;
 			ConditionVariable m_eventCondition;
+			CursorController m_cursorController;
+			CursorRef m_cursor;
 			EventHandler m_eventHandler;
+			IconRef m_icon;
 			Mutex m_eventMutex;
 			Mutex m_eventConditionMutex;
 			bool m_asyncWindow;

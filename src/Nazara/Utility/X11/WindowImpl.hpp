@@ -83,7 +83,6 @@ namespace Nz
 			void CleanUp();
 			xcb_keysym_t ConvertKeyCodeToKeySym(xcb_keycode_t keycode, uint16_t state);
 			Keyboard::Key ConvertVirtualKey(xcb_keysym_t symbol);
-			const char* ConvertWindowCursorToXName(SystemCursor cursor);
 			void CommonInitialize();
 
 			char32_t GetRepresentation(xcb_keysym_t keysym) const;

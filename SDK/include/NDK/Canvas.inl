@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -12,7 +12,12 @@ namespace Ndk
 	m_world(std::move(world))
 	{
 		m_canvas = this;
+		m_widgetParent = nullptr;
 
+		// Register ourselves as a widget to handle cursor change
+		RegisterToCanvas();
+
+		// Connect to every meaningful event
 		m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, this, &Canvas::OnKeyPressed);
 		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnKeyReleased);
 		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnMouseButtonPressed);
@@ -20,12 +25,18 @@ namespace Ndk
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnMouseMoved);
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnMouseLeft);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnTextEntered);
+
+		// Disable padding by default
+		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	inline Canvas::~Canvas()
 	{
-		// Destroy children explicitly because they signal us when getting destroyed, and that can't happend after our own destruction
+		// Destroy children explicitly because they signal us when getting destroyed, and that can't happen after our own destruction
 		DestroyChildren();
+
+		// Prevent our parent from trying to call us
+		m_canvasIndex = InvalidCanvasIndex;
 	}
 
 	inline const WorldHandle& Canvas::GetWorld() const

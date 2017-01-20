@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -12,17 +12,6 @@ namespace Ndk
 {
 	void Canvas::ResizeToContent()
 	{
-	}
-
-	void Canvas::Layout()
-	{
-		if (m_backgroundEntity)
-		{
-			NodeComponent& node = m_backgroundEntity->GetComponent<NodeComponent>();
-			node.SetPosition(-m_padding.left, -m_padding.top);
-
-			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
-		}
 	}
 
 	void Canvas::NotifyWidgetUpdate(std::size_t index)
@@ -95,11 +84,12 @@ namespace Ndk
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
+		Nz::Vector3f mousePos(float(event.x), float(event.y), 0.f);
 		for (const WidgetBox& entry : m_widgetBoxes)
 		{
 			const Nz::Boxf& box = entry.box;
 
-			if (box.Contains(Nz::Vector3f(event.x, event.y, 0.f)))
+			if (box.Contains(mousePos))
 			{
 				float area = box.width * box.height;
 				if (area < bestEntryArea)
