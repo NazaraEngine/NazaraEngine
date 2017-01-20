@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -331,7 +331,7 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
-		unsigned int code;
+		DWORD code;
 		int codeLength = sizeof(code);
 
 		if (getsockopt(handle, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
@@ -339,7 +339,7 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return -1;
+			return 0;
 		}
 
 		if (error)
@@ -365,6 +365,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return code == TRUE;
+	}
+
+	std::size_t SocketImpl::QueryReceiveBufferSize(SocketHandle handle, SocketError* error)
+	{
+		DWORD code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
 	}
 
 	IpAddress SocketImpl::QueryPeerAddress(SocketHandle handle, SocketError* error)
@@ -413,6 +432,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
+	}
+
+	std::size_t SocketImpl::QuerySendBufferSize(SocketHandle handle, SocketError* error)
+	{
+		DWORD code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
 	}
 
 	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
@@ -664,6 +702,44 @@ namespace Nz
 
 		BOOL option = nodelay;
 		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = size;
+		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = size;
+		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
