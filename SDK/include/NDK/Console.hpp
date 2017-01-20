@@ -60,7 +60,6 @@ namespace Ndk
 			void AddLineInternal(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
 			void ExecuteInput();
 			void Layout() override;
-			void RefreshHistory();
 
 			struct Line
 			{
