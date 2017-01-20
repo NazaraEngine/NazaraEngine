@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -21,13 +21,12 @@ namespace Ndk
 		m_widgetParent = parent;
 		m_world = m_canvas->GetWorld();
 
-		m_canvasIndex = m_canvas->RegisterWidget(this);
+		RegisterToCanvas();
 	}
 
 	BaseWidget::~BaseWidget()
 	{
-		if (m_canvasIndex != std::numeric_limits<std::size_t>::max())
-			m_canvas->UnregisterWidget(m_canvasIndex);
+		UnregisterFromCanvas();
 	}
 
 	void BaseWidget::Destroy()
@@ -77,6 +76,14 @@ namespace Ndk
 		}
 	}
 
+	void BaseWidget::SetCursor(Nz::SystemCursor systemCursor)
+	{
+		m_cursor = systemCursor;
+
+		if (IsRegisteredToCanvas())
+			m_canvas->NotifyWidgetCursorUpdate(m_canvasIndex);
+	}
+
 	void BaseWidget::SetSize(const Nz::Vector2f& size)
 	{
 		SetContentSize({std::max(size.x - m_padding.left - m_padding.right, 0.f), std::max(size.y - m_padding.top - m_padding.bottom, 0.f)});
@@ -87,6 +94,11 @@ namespace Ndk
 		if (m_visible != show)
 		{
 			m_visible = show;
+
+			if (m_visible)
+				RegisterToCanvas();
+			else
+				UnregisterFromCanvas();
 
 			for (const EntityHandle& entity : m_entities)
 				entity->Enable(show);
@@ -115,24 +127,19 @@ namespace Ndk
 
 	void BaseWidget::Layout()
 	{
-		if (m_canvas)
-			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
+		if (IsRegisteredToCanvas())
+			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
 		if (m_backgroundEntity)
-		{
-			NodeComponent& node = m_backgroundEntity->GetComponent<NodeComponent>();
-			node.SetPosition(-m_padding.left, -m_padding.top);
-
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
-		}
 	}
 
 	void BaseWidget::InvalidateNode()
 	{
 		Node::InvalidateNode();
 
-		if (m_canvas)
-			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
+		if (IsRegisteredToCanvas())
+			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 	}
 
 	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
@@ -186,5 +193,21 @@ namespace Ndk
 	void BaseWidget::DestroyChildren()
 	{
 		m_children.clear();
+	}
+
+	void BaseWidget::RegisterToCanvas()
+	{
+		NazaraAssert(!IsRegisteredToCanvas(), "Widget is already registered to canvas");
+
+		m_canvasIndex = m_canvas->RegisterWidget(this);
+	}
+
+	void BaseWidget::UnregisterFromCanvas()
+	{
+		if (IsRegisteredToCanvas())
+		{
+			m_canvas->UnregisterWidget(m_canvasIndex);
+			m_canvasIndex = InvalidCanvasIndex;
+		}
 	}
 }

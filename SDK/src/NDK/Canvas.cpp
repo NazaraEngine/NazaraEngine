@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -14,36 +14,16 @@ namespace Ndk
 	{
 	}
 
-	void Canvas::Layout()
-	{
-		if (m_backgroundEntity)
-		{
-			NodeComponent& node = m_backgroundEntity->GetComponent<NodeComponent>();
-			node.SetPosition(-m_padding.left, -m_padding.top);
-
-			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
-		}
-	}
-
-	void Canvas::NotifyWidgetUpdate(std::size_t index)
-	{
-		WidgetBox& entry = m_widgetBoxes[index];
-
-		Nz::Vector3f pos  = entry.widget->GetPosition();
-		Nz::Vector2f size = entry.widget->GetContentSize();
-
-		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
-	}
-
 	std::size_t Canvas::RegisterWidget(BaseWidget* widget)
 	{
 		WidgetBox box;
+		box.cursor = widget->GetCursor();
 		box.widget = widget;
 
 		std::size_t index = m_widgetBoxes.size();
 		m_widgetBoxes.emplace_back(box);
 
-		NotifyWidgetUpdate(index);
+		NotifyWidgetBoxUpdate(index);
 		return index;
 	}
 
@@ -95,11 +75,12 @@ namespace Ndk
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
+		Nz::Vector3f mousePos(float(event.x), float(event.y), 0.f);
 		for (const WidgetBox& entry : m_widgetBoxes)
 		{
 			const Nz::Boxf& box = entry.box;
 
-			if (box.Contains(Nz::Vector3f(event.x, event.y, 0.f)))
+			if (box.Contains(mousePos))
 			{
 				float area = box.width * box.height;
 				if (area < bestEntryArea)
@@ -119,6 +100,9 @@ namespace Ndk
 
 				m_hoveredWidget = bestEntry;
 				m_hoveredWidget->widget->OnMouseEnter();
+
+				if (m_cursorController)
+					m_cursorController->UpdateCursor(Nz::Cursor::Get(m_hoveredWidget->cursor));
 			}
 
 			int x = static_cast<int>(std::round(event.x - m_hoveredWidget->box.x));
@@ -130,6 +114,9 @@ namespace Ndk
 		{
 			m_hoveredWidget->widget->OnMouseExit();
 			m_hoveredWidget = nullptr;
+
+			if (m_cursorController)
+				m_cursorController->UpdateCursor(Nz::Cursor::Get(Nz::SystemCursor_Default));
 		}
 	}
 

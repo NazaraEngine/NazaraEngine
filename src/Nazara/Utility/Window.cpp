@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,6 +27,20 @@ namespace Nz
 	namespace
 	{
 		Window* fullscreenWindow = nullptr;
+	}
+
+	Window::Window() :
+	m_impl(nullptr),
+	m_asyncWindow(false),
+	m_closeOnQuit(true),
+	m_eventPolling(false),
+	m_waitForEvent(false)
+	{
+		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const CursorRef& cursor)
+		{
+			if (IsValid())
+				SetCursor(cursor);
+		});
 	}
 
 	Window::~Window()
@@ -90,10 +104,11 @@ namespace Nz
 		// Paramètres par défaut
 		m_impl->EnableKeyRepeat(true);
 		m_impl->EnableSmoothScrolling(false);
-		m_impl->SetCursor(WindowCursor_Default);
 		m_impl->SetMaximumSize(-1, -1);
 		m_impl->SetMinimumSize(-1, -1);
 		m_impl->SetVisible(true);
+
+		SetCursor(Cursor::Get(SystemCursor_Default));
 
 		if (opened)
 			m_impl->SetPosition(position.x, position.y);
@@ -137,6 +152,8 @@ namespace Nz
 
 	void Window::Destroy()
 	{
+		m_cursor.Reset();
+
 		if (m_impl)
 		{
 			OnWindowDestroy();
@@ -350,36 +367,13 @@ namespace Nz
 		}
 	}
 
-	void Window::SetCursor(WindowCursor cursor)
+	void Window::SetCursor(CursorRef cursor)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Window not created");
+		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
 
-		m_impl->SetCursor(cursor);
-	}
-
-	void Window::SetCursor(const Cursor& cursor)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-
-		if (!cursor.IsValid())
-		{
-			NazaraError("Cursor is not valid");
-			return;
-		}
-		#endif
-
-		m_impl->SetCursor(cursor);
+		m_cursor = std::move(cursor);
+		m_impl->SetCursor(*m_cursor);
 	}
 
 	void Window::SetEventListener(bool listener)
@@ -414,23 +408,13 @@ namespace Nz
 		m_impl->SetFocus();
 	}
 
-	void Window::SetIcon(const Icon& icon)
+	void Window::SetIcon(IconRef icon)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Window not created");
+		NazaraAssert(icon && icon.IsValid(), "Invalid icon");
 
-		if (!icon.IsValid())
-		{
-			NazaraError("Icon is not valid");
-			return;
-		}
-		#endif
-
-		m_impl->SetIcon(icon);
+		m_icon = std::move(icon);
+		m_impl->SetIcon(*m_icon);
 	}
 
 	void Window::SetMaximumSize(const Vector2i& maxSize)

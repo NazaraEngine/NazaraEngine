@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -192,9 +192,12 @@ namespace Ndk
 								m_historyPosition = 1;
 						}
 
-						Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
-						m_inputDrawer.SetText(s_inputPrefix + text);
-						m_inputTextSprite->Update(m_inputDrawer);
+						if (!m_commandHistory.empty())
+						{
+							Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
+							m_inputDrawer.SetText(s_inputPrefix + text);
+							m_inputTextSprite->Update(m_inputDrawer);
+						}
 						break;
 					}
 
