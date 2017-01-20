@@ -32,6 +32,8 @@ namespace Ndk
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
+		SetCursor(Nz::SystemCursor_Text);
+
 		Layout();
 	}
 
