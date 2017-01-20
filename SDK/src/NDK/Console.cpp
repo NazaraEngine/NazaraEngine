@@ -55,6 +55,20 @@ namespace Ndk
 		m_input->SetTextColor(Nz::Color::Black);
 		m_input->SetPadding(0.f, 2.f, 0.f, 2.f);
 
+		m_input->OnTextAreaKeyReturn.Connect(this, &Console::ExecuteInput);
+
+		// Protect input prefix from erasure/selection
+		m_input->OnTextAreaCursorMove.Connect([](const TextAreaWidget* textArea, std::size_t* newCursorPos)
+		{
+			*newCursorPos = std::max(*newCursorPos, s_inputPrefixSize);
+		});
+
+		m_input->OnTextAreaKeyBackspace.Connect([](const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		{
+			if (textArea->GetCursorPosition() <= s_inputPrefixSize)
+				*ignoreDefaultAction = true;
+		});
+
 		// General
 		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
@@ -128,11 +142,13 @@ namespace Ndk
 	* \brief Performs this action when an input is added to the console
 	*/
 
-	void Console::ExecuteInput()
+	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction)
 	{
-		/*Nz::String input = m_inputDrawer.GetText();
-		Nz::String inputCmd = input.SubString(s_inputPrefixSize);;
-		m_inputDrawer.SetText(s_inputPrefix);
+		NazaraAssert(textArea == m_input, "Unexpected signal from an other text area");
+
+		Nz::String input = m_input->GetText();
+		Nz::String inputCmd = input.SubString(s_inputPrefixSize);
+		m_input->SetText(s_inputPrefix);
 
 		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)
 			m_commandHistory.push_back(inputCmd);
