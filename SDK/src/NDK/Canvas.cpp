@@ -14,25 +14,16 @@ namespace Ndk
 	{
 	}
 
-	void Canvas::NotifyWidgetUpdate(std::size_t index)
-	{
-		WidgetBox& entry = m_widgetBoxes[index];
-
-		Nz::Vector3f pos  = entry.widget->GetPosition();
-		Nz::Vector2f size = entry.widget->GetContentSize();
-
-		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
-	}
-
 	std::size_t Canvas::RegisterWidget(BaseWidget* widget)
 	{
 		WidgetBox box;
+		box.cursor = widget->GetCursor();
 		box.widget = widget;
 
 		std::size_t index = m_widgetBoxes.size();
 		m_widgetBoxes.emplace_back(box);
 
-		NotifyWidgetUpdate(index);
+		NotifyWidgetBoxUpdate(index);
 		return index;
 	}
 
@@ -109,6 +100,9 @@ namespace Ndk
 
 				m_hoveredWidget = bestEntry;
 				m_hoveredWidget->widget->OnMouseEnter();
+
+				if (m_cursorController)
+					m_cursorController->UpdateCursor(Nz::Cursor::Get(m_hoveredWidget->cursor));
 			}
 
 			int x = static_cast<int>(std::round(event.x - m_hoveredWidget->box.x));
@@ -120,6 +114,9 @@ namespace Ndk
 		{
 			m_hoveredWidget->widget->OnMouseExit();
 			m_hoveredWidget = nullptr;
+
+			if (m_cursorController)
+				m_cursorController->UpdateCursor(Nz::Cursor::Get(Nz::SystemCursor_Default));
 		}
 	}
 
