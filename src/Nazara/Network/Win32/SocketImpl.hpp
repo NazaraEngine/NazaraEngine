@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -54,8 +54,10 @@ namespace Nz
 			static bool QueryKeepAlive(SocketHandle handle, SocketError* error = nullptr);
 			static std::size_t QueryMaxDatagramSize(SocketHandle handle, SocketError* error = nullptr);
 			static bool QueryNoDelay(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QueryReceiveBufferSize(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QueryPeerAddress(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
 			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
 
@@ -69,6 +71,8 @@ namespace Nz
 			static bool SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
 			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
+			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
+			static bool SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 
 			static SocketError TranslateWSAErrorToSocketError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
