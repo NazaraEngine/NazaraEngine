@@ -18,7 +18,7 @@ namespace Ndk
 	m_readOnly(false)
 	{
 		m_cursorSprite = Nz::Sprite::New();
-		m_cursorSprite->SetColor(Nz::Color(192, 192, 192));
+		m_cursorSprite->SetColor(Nz::Color::Black);
 		m_cursorSprite->SetSize(1.f, float(m_drawer.GetFont()->GetSizeInfo(m_drawer.GetCharacterSize()).lineHeight));
 
 		m_cursorEntity = CreateEntity();
