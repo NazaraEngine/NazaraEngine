@@ -76,14 +76,6 @@ namespace Ndk
 		}
 	}
 
-	void BaseWidget::SetCursor(Nz::SystemCursor systemCursor)
-	{
-		m_cursor = systemCursor;
-
-		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetCursorUpdate(m_canvasIndex);
-	}
-
 	void BaseWidget::SetSize(const Nz::Vector2f& size)
 	{
 		SetContentSize({std::max(size.x - m_padding.left - m_padding.right, 0.f), std::max(size.y - m_padding.top - m_padding.bottom, 0.f)});
@@ -128,7 +120,7 @@ namespace Ndk
 	void BaseWidget::Layout()
 	{
 		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
 
 		if (m_backgroundEntity)
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
@@ -139,7 +131,7 @@ namespace Ndk
 		Node::InvalidateNode();
 
 		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+			m_canvas->NotifyWidgetUpdate(m_canvasIndex);
 	}
 
 	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
