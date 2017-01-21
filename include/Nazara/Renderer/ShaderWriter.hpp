@@ -8,8 +8,10 @@
 #define NAZARA_SHADERWRITER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
+#include <unordered_set>
 
 namespace Nz
 {
@@ -20,6 +22,10 @@ namespace Nz
 			ShaderWriter(const ShaderWriter&) = delete;
 			ShaderWriter(ShaderWriter&&) = delete;
 			virtual ~ShaderWriter();
+
+			void EnableCondition(const String& name, bool cond);
+
+			bool IsConditionEnabled(const String& name) const;
 
 			virtual Nz::String Generate(const ShaderAst::StatementPtr& node) = 0;
 
@@ -37,6 +43,9 @@ namespace Nz
 			virtual void Write(const ShaderAst::NodePtr& node) = 0;
 			virtual void Write(const ShaderAst::StatementBlock& node) = 0;
 			virtual void Write(const ShaderAst::SwizzleOp& node) = 0;
+
+		private:
+			std::unordered_set<String> m_conditions;
 	};
 }
 

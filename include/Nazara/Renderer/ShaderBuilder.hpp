@@ -57,6 +57,7 @@ namespace Nz { namespace ShaderBuilder
 	constexpr BuiltinBuilder Builtin;
 	constexpr GenBuilder<ShaderAst::StatementBlock> Block;
 	constexpr GenBuilder<ShaderAst::Branch> Branch;
+	constexpr GenBuilder<ShaderAst::ConditionalStatement> ConditionalStatement;
 	constexpr GenBuilder<ShaderAst::Constant> Constant;
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Divide> Divide;
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Equality> Equal;

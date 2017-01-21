@@ -19,6 +19,19 @@ namespace Nz { namespace ShaderAst
 	}
 
 
+	void ConditionalStatement::Register(ShaderWriter& visitor)
+	{
+		if (visitor.IsConditionEnabled(conditionName))
+			statement->Register(visitor);
+	}
+
+	void ConditionalStatement::Visit(ShaderWriter& visitor)
+	{
+		if (visitor.IsConditionEnabled(conditionName))
+			statement->Visit(visitor);
+	}
+
+
 	void StatementBlock::Register(ShaderWriter& visitor)
 	{
 		for (auto& statementPtr : statements)
