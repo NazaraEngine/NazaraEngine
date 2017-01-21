@@ -53,6 +53,12 @@ namespace Nz
 		{
 		}
 
+		inline ConditionalStatement::ConditionalStatement(const String& condition, StatementPtr statementPtr) :
+		conditionName(condition),
+		statement(std::move(statementPtr))
+		{
+		}
+
 		template<typename... Args>
 		StatementBlock::StatementBlock(Args&& ...args) :
 		statements({std::forward<Args>(args)...})
