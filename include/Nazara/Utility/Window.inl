@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,14 +12,6 @@ namespace Nz
 	/*!
 	* \class Nz::Window
 	*/
-	inline Window::Window() :
-	m_impl(nullptr),
-	m_asyncWindow(false),
-	m_closeOnQuit(true),
-	m_eventPolling(false),
-	m_waitForEvent(false)
-	{
-	}
 
 	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
 	Window()
@@ -75,6 +67,16 @@ namespace Nz
 		}
 	}
 
+	inline const CursorRef& Window::GetCursor() const
+	{
+		return m_cursor;
+	}
+
+	inline CursorController& Nz::Window::GetCursorController()
+	{
+		return m_cursorController;
+	}
+
 	inline EventHandler& Nz::Window::GetEventHandler()
 	{
 		return m_eventHandler;
@@ -102,6 +104,11 @@ namespace Nz
 	inline bool Window::IsValid() const
 	{
 		return m_impl != nullptr;
+	}
+
+	inline void Window::SetCursor(SystemCursor systemCursor)
+	{
+		SetCursor(Cursor::Get(systemCursor));
 	}
 
 	inline void Window::HandleEvent(const WindowEvent& event)
