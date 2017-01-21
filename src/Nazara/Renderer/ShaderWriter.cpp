@@ -8,4 +8,17 @@
 namespace Nz
 {
 	ShaderWriter::~ShaderWriter() = default;
+
+	void ShaderWriter::EnableCondition(const String& name, bool cond)
+	{
+		if (cond)
+			m_conditions.insert(name);
+		else
+			m_conditions.erase(name);
+	}
+
+	bool ShaderWriter::IsConditionEnabled(const String & name) const
+	{
+		return m_conditions.count(name) != 0;
+	}
 }
