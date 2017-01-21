@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+ï»¿// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -34,6 +34,11 @@ namespace Nz
 			inline bool IsBlockingEnabled() const;
 
 			std::size_t QueryAvailableBytes() const;
+			std::size_t QueryReceiveBufferSize() const;
+			std::size_t QuerySendBufferSize() const;
+
+			void SetReceiveBufferSize(std::size_t size);
+			void SetSendBufferSize(std::size_t size);
 
 			AbstractSocket& operator=(const AbstractSocket&) = delete;
 			AbstractSocket& operator=(AbstractSocket&& abstractSocket);

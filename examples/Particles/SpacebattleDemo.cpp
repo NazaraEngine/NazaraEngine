@@ -644,7 +644,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretReloadSound.LoadFromFile("resources/turretReload.wav");
 
 	//m_onMouseMoved.Connect(m_shared.target->GetEventHandler().OnMouseMoved, this, &SpacebattleExample::OnMouseMoved);
-	//m_shared.target->SetCursor(Nz::WindowCursor_None);
+	//m_shared.target->SetCursor(Nz::SystemCursor_None);
 
 	//////////////////////////////////////////////////////////////////////////
 
