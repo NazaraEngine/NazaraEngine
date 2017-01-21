@@ -121,6 +121,18 @@ namespace Nz
 
 		//////////////////////////////////////////////////////////////////////////
 
+		class NAZARA_RENDERER_API ConditionalStatement : public Statement
+		{
+			public:
+				inline ConditionalStatement(const String& condition, StatementPtr statementPtr);
+
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				String conditionName;
+				StatementPtr statement;
+		};
+
 		class NAZARA_RENDERER_API StatementBlock : public Statement
 		{
 			public:
