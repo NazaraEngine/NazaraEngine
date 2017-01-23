@@ -9,6 +9,7 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
+#include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/EventHandler.hpp>
 
 namespace Ndk
@@ -20,7 +21,7 @@ namespace Ndk
 		public:
 			struct Padding;
 
-			inline Canvas(WorldHandle world, Nz::EventHandler& eventHandler);
+			inline Canvas(WorldHandle world, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
@@ -33,7 +34,8 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
-			void NotifyWidgetUpdate(std::size_t index);
+			inline void NotifyWidgetBoxUpdate(std::size_t index);
+			inline void NotifyWidgetCursorUpdate(std::size_t index);
 
 			std::size_t RegisterWidget(BaseWidget* widget);
 
@@ -54,6 +56,7 @@ namespace Ndk
 			{
 				BaseWidget* widget;
 				Nz::Boxf box;
+				Nz::SystemCursor cursor;
 			};
 
 			NazaraSlot(Nz::EventHandler, OnKeyPressed, m_keyPressedSlot);
@@ -65,6 +68,7 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
 
 			std::vector<WidgetBox> m_widgetBoxes;
+			Nz::CursorControllerHandle m_cursorController;
 			const WidgetBox* m_hoveredWidget;
 			BaseWidget* m_keyboardOwner;
 			WorldHandle m_world;
