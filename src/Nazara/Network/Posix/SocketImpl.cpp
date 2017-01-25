@@ -465,6 +465,7 @@ namespace Nz
 			int errorCode = GetLastErrorCode();
 			switch (errorCode)
 			{
+				case EAGAIN:
 				case EWOULDBLOCK:
 				{
 					// If we have no data and are not blocking, return true with 0 byte read
