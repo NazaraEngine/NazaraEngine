@@ -16,7 +16,7 @@ namespace Nz
 		return value;
 		#endif
 	}
-	
+
 	/// Temporary
 	template<typename T>
 	T NetToHost(T value)
@@ -26,31 +26,6 @@ namespace Nz
 		#else
 		return value;
 		#endif
-	}
-
-	namespace
-	{
-		static std::size_t commandSizes[ENetProtocolCommand_Count] =
-		{
-			0,
-			sizeof(ENetProtocolAcknowledge),
-			sizeof(ENetProtocolConnect),
-			sizeof(ENetProtocolVerifyConnect),
-			sizeof(ENetProtocolDisconnect),
-			sizeof(ENetProtocolPing),
-			sizeof(ENetProtocolSendReliable),
-			sizeof(ENetProtocolSendUnreliable),
-			sizeof(ENetProtocolSendFragment),
-			sizeof(ENetProtocolSendUnsequenced),
-			sizeof(ENetProtocolBandwidthLimit),
-			sizeof(ENetProtocolThrottleConfigure),
-			sizeof(ENetProtocolSendFragment)
-		};
-
-		std::size_t enet_protocol_command_size(UInt8 commandNumber)
-		{
-			return commandSizes[commandNumber & ENetProtocolCommand_Mask];
-		}
 	}
 
 	ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
@@ -505,8 +480,8 @@ namespace Nz
 		}
 	}
 
-	ENetProtocolCommand ENetPeer::RemoveSentReliableCommands(UInt16 reliableSequenceNumber, UInt8 channelId)
-	{		
+	ENetProtocolCommand ENetPeer::RemoveSentReliableCommand(UInt16 reliableSequenceNumber, UInt8 channelId)
+	{
 		std::list<OutgoingCommand>* commandList = nullptr;
 
 		bool found = true;
@@ -595,16 +570,16 @@ namespace Nz
 		m_channels.clear();
 	}
 
-	bool ENetPeer::QueueAcknowledgement(ENetProtocol& command, UInt16 sentTime)
+	bool ENetPeer::QueueAcknowledgement(ENetProtocol*command, UInt16 sentTime)
 	{
-		if (command.header.channelID < m_channels.size())
+		if (command->header.channelID < m_channels.size())
 		{
-			Channel& channel = m_channels[command.header.channelID];
+			Channel& channel = m_channels[command->header.channelID];
 
-			UInt16 reliableWindow = command.header.reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+			UInt16 reliableWindow = command->header.reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 			UInt16 currentWindow  = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
-			if (command.header.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
+			if (command->header.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
 				reliableWindow += ENetConstants::ENetPeer_ReliableWindows;
 
 			if (reliableWindow >= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows - 1 && reliableWindow <= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows)
