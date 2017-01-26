@@ -74,15 +74,15 @@ namespace Nz
 			void OnConnect();
 			void OnDisconnect();
 
-			ENetProtocolCommand RemoveSentReliableCommands(UInt16 reliableSequenceNumber, UInt8 channelId);
+			ENetProtocolCommand RemoveSentReliableCommand(UInt16 reliableSequenceNumber, UInt8 channelId);
 			void RemoveSentUnreliableCommands();
 
 			void ResetQueues();
-			
-			bool QueueAcknowledgement(ENetProtocol& command, UInt16 sentTime);
+
+			bool QueueAcknowledgement(ENetProtocol* command, UInt16 sentTime);
 			IncomingCommmand* QueueIncomingCommand(ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount);
 			void QueueOutgoingCommand(ENetProtocol& command, ENetPacketRef packet, UInt32 offset, UInt16 length);
-			
+
 			void SetupOutgoingCommand(OutgoingCommand& outgoingCommand);
 
 			int Throttle(UInt32 rtt);
