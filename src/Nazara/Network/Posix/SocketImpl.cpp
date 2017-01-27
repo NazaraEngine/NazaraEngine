@@ -577,6 +577,57 @@ namespace Nz
 		return true;
 	}
 
+	bool SocketImpl::SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+
+		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(iovec));
+		iovec* sysBuffers = static_cast<iovec*>(memory.GetPtr());
+		for (std::size_t i = 0; i < bufferCount; ++i)
+		{
+			sysBuffers[i].iov_base = buffers[i].data;
+			sysBuffers[i].iov_len = buffers[i].dataLength;
+		}
+
+		struct msghdr header;
+		std::memset(&header, 0, sizeof(header);
+
+		IpAddressImpl::SockAddrBuffer nameBuffer;
+		header.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
+		header.msg_name = nameBuffer.data();
+		msgHdr.msg_iov = sysBuffers;
+		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
+
+		int sentLength = sendmsg (socket, &msgHdr, MSG_NOSIGNAL);
+		if (byteSent == SOCKET_ERROR)
+		{
+			int errorCode = GetLastErrorCode();
+			switch (errorCode)
+			{
+				case EWOULDBLOCK:
+					byteSent = 0;
+					break;
+					
+				default:
+				{
+					if (error)
+						*error = TranslateErrnoToResolveError(errorCode);
+
+					return false; //< Error
+				}
+			}
+		}
+
+		if (sent)
+			*sent = static_cast<int>(byteSent);
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
 	bool SocketImpl::SendTo(SocketHandle handle, const void* buffer, int length, const IpAddress& to, int* sent, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
