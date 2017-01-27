@@ -612,7 +612,7 @@ namespace Nz
 		}
 
 		struct msghdr msgHdr;
-		std::memset(&msgHdr, 0, sizeof(header));
+		std::memset(&msgHdr, 0, sizeof(msgHdr));
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		msgHdr.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
@@ -620,7 +620,7 @@ namespace Nz
 		msgHdr.msg_iov = sysBuffers;
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
-		int sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+		int byteSent = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
