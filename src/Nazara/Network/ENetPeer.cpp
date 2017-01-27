@@ -30,11 +30,11 @@ namespace Nz
 	}
 
 	ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
-	m_packetPool(sizeof(ENetPacket)),
 	m_host(host),
-	m_incomingPeerID(peerId),
+	m_packetPool(sizeof(ENetPacket)),
 	m_incomingSessionID(0xFF),
-	m_outgoingSessionID(0xFF)
+	m_outgoingSessionID(0xFF),
+	m_incomingPeerID(peerId)
 	{
 		Reset();
 	}
