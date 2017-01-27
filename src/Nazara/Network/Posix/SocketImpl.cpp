@@ -9,6 +9,7 @@
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 #include <poll.h>
 #include <unistd.h>
 #include <cstring>
@@ -465,7 +466,6 @@ namespace Nz
 			int errorCode = GetLastErrorCode();
 			switch (errorCode)
 			{
-				case EAGAIN:
 				case EWOULDBLOCK:
 				{
 					// If we have no data and are not blocking, return true with 0 byte read
