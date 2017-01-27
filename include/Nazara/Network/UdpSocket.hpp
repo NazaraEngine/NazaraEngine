@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 
 namespace Nz
 {
@@ -29,7 +30,7 @@ namespace Nz
 			inline bool Create(NetProtocol protocol);
 
 			void EnableBroadcasting(bool broadcasting);
-				
+
 			inline IpAddress GetBoundAddress() const;
 			inline UInt16 GetBoundPort() const;
 			inline SocketState GetState() const;
@@ -42,6 +43,7 @@ namespace Nz
 			bool ReceivePacket(NetPacket* packet, IpAddress* from);
 
 			bool Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendMultiple(const IpAddress& to, const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const IpAddress& to, const NetPacket& packet);
 
 		private:

@@ -93,7 +93,18 @@ namespace Nz
 
 		int read;
 		if (!SocketImpl::ReceiveFrom(m_handle, buffer, static_cast<int>(size), from, &read, &m_lastError))
-			return false;
+		{
+			switch (m_lastError)
+			{
+				case SocketError_ConnectionClosed:
+					m_lastError = SocketError_NoError;
+					read = 0;
+					break;
+
+				default:
+					return false;
+			}
+		}
 
 		if (received)
 			*received = read;
@@ -171,6 +182,31 @@ namespace Nz
 
 		int byteSent;
 		if (!SocketImpl::SendTo(m_handle, buffer, static_cast<int>(size), to, &byteSent, &m_lastError))
+			return false;
+
+		if (sent)
+			*sent = byteSent;
+
+		return true;
+	}
+
+	/*!
+	* \brief Sends multiple buffers as one datagram
+	* \return true If data were sent
+	*
+	* \param to Destination IpAddress (must match socket protocol)
+	* \param buffers A pointer to an array of NetBuffer containing buffers and size data
+	* \param size Number of NetBuffer to send
+	* \param sent Optional argument to get the number of bytes sent
+	*/
+	bool UdpSocket::SendMultiple(const IpAddress& to, const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent)
+	{
+		NazaraAssert(to.IsValid(), "Invalid ip address");
+		NazaraAssert(to.GetProtocol() == m_protocol, "IP Address has a different protocol than the socket");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+
+		int byteSent;
+		if (!SocketImpl::SendMultiple(m_handle, buffers, bufferCount, to, &byteSent, &m_lastError))
 			return false;
 
 		if (sent)
