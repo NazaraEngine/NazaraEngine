@@ -620,7 +620,7 @@ namespace Nz
 		msgHdr.msg_iov = sysBuffers;
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
-		int byteSent = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+		int byteSent = sendmsg(handle, &msgHdr, MSG_NOSIGNAL);
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
