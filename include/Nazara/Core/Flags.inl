@@ -13,13 +13,13 @@ namespace Nz
 	* \brief Core class used to combine enumeration values into flags bitfield
 	*/
 
-    /*!
-    * \brief Constructs a Flags object using a bitfield
-    *
-    * \param value Bitfield to be used
+	/*!
+	* \brief Constructs a Flags object using a bitfield
+	*
+	* \param value Bitfield to be used
 	*
 	* Uses a bitfield to builds the flag value. (e.g. if bit 0 is active, then Enum value 0 will be set as active).
-    */
+	*/
 	template<typename E>
 	constexpr Flags<E>::Flags(BitField value) :
 	m_value(value)
