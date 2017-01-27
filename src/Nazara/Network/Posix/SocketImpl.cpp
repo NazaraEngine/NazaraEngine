@@ -464,6 +464,9 @@ namespace Nz
 		if (byteRead == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
+
 			switch (errorCode)
 			{
 				case EWOULDBLOCK:
@@ -513,6 +516,9 @@ namespace Nz
 		if (byteRead == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
+
 			switch (errorCode)
 			{
 				case EWOULDBLOCK:
@@ -563,6 +569,8 @@ namespace Nz
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
 
 			switch (errorCode)
 			{
@@ -595,7 +603,7 @@ namespace Nz
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
 		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(iovec));
-		iovec* sysBuffers = static_cast<iovec*>(memory.GetPtr());
+		struct iovec* sysBuffers = static_cast<struct iovec*>(memory.GetPtr());
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			sysBuffers[i].iov_base = buffers[i].data;
@@ -611,16 +619,19 @@ namespace Nz
 		msgHdr.msg_iov = sysBuffers;
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
-		int sentLength = sendmsg (socket, &msgHdr, MSG_NOSIGNAL);
+		int sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
+
 			switch (errorCode)
 			{
 				case EWOULDBLOCK:
 					byteSent = 0;
 					break;
-					
+
 				default:
 				{
 					if (error)
@@ -652,6 +663,8 @@ namespace Nz
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
 
 			switch (errorCode)
 			{
