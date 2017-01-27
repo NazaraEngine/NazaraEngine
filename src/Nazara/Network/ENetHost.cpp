@@ -4,7 +4,6 @@
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <iostream>
 #include <Nazara/Network/Debug.hpp>
 
 #define ENET_TIME_OVERFLOW 86400000
@@ -145,7 +144,7 @@ namespace Nz
 	{
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())
-			return false;
+			return nullptr;
 
 		IpAddress hostnameAddress;
 		for (const HostnameInfo& result : results)
@@ -558,7 +557,7 @@ namespace Nz
 		return true;
 	}
 
-	ENetPeer* ENetHost::HandleConnect(ENetProtocolHeader* header, ENetProtocol* command)
+	ENetPeer* ENetHost::HandleConnect(ENetProtocolHeader* /*header*/, ENetProtocol* command)
 	{
 		UInt32 channelCount = NetToHost(command->connect.channelCount);
 
@@ -853,7 +852,7 @@ namespace Nz
 		return commandError();
 	}
 
-	bool ENetHost::HandlePing(ENetPeer* peer, const ENetProtocol* command)
+	bool ENetHost::HandlePing(ENetPeer* peer, const ENetProtocol* /*command*/)
 	{
 		if (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
 			return false;
@@ -1071,7 +1070,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendUnsequenced(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
 			return false;
 
 		std::size_t dataLength = NetToHost(command->sendUnsequenced.dataLength);
@@ -1230,8 +1229,6 @@ namespace Nz
 
 	void ENetHost::SendAcknowledgements(ENetPeer* peer)
 	{
-		std::cout << "SendAcknowledgements " << peer->m_acknowledgements.size() << std::endl;
-
 		auto currentAcknowledgement = peer->m_acknowledgements.begin();
 		while (currentAcknowledgement != peer->m_acknowledgements.end())
 		{
