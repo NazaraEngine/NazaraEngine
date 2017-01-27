@@ -93,7 +93,18 @@ namespace Nz
 
 		int read;
 		if (!SocketImpl::ReceiveFrom(m_handle, buffer, static_cast<int>(size), from, &read, &m_lastError))
-			return false;
+		{
+			switch (m_lastError)
+			{
+				case SocketError_ConnectionClosed:
+					m_lastError = SocketError_NoError;
+					read = 0;
+					break;
+
+				default:
+					return false;
+			}
+		}
 
 		if (received)
 			*received = read;
