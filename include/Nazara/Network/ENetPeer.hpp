@@ -16,11 +16,9 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
-#include <deque>
-#include <queue>
-#include <random>
-#include <set>
-#include <unordered_map>
+#include <array>
+#include <list>
+#include <vector>
 
 namespace Nz
 {
