@@ -1,11 +1,11 @@
-﻿#include <Nazara/Network/ENetPacket.hpp>
+#include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
 	/// Temporary
-	void ENetPacketRef::Reset(ENetPacket* packet = nullptr)
+	void ENetPacketRef::Reset(ENetPacket* packet)
 	{
 		if (m_packet)
 		{

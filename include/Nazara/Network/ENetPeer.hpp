@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,6 +32,7 @@ namespace Nz
 		friend struct PacketRef;
 
 		public:
+			ENetPeer(ENetHost* host, UInt16 peerId);
 			ENetPeer(const ENetPeer&) = delete;
 			ENetPeer(ENetPeer&&) = default;
 			~ENetPeer() = default;
@@ -39,6 +40,8 @@ namespace Nz
 			void Disconnect(UInt32 data);
 			void DisconnectLater(UInt32 data);
 			void DisconnectNow(UInt32 data);
+
+			inline const IpAddress& GetAddress() const;
 
 			void Ping();
 
@@ -54,8 +57,6 @@ namespace Nz
 			ENetPeer& operator=(ENetPeer&&) = default;
 
 		private:
-			ENetPeer(ENetHost* host, UInt16 peerId);
-
 			void InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand);
 			void InitOutgoing(std::size_t channelCount, const IpAddress& address, UInt32 connectId, UInt32 windowSize);
 
@@ -66,7 +67,7 @@ namespace Nz
 
 			// Protocol functions
 			inline void ChangeState(ENetPeerState state);
-			inline void DispatchState(ENetPeerState state);
+			void DispatchState(ENetPeerState state);
 
 			void DispatchIncomingReliableCommands(Channel& channel);
 			void DispatchIncomingUnreliableCommands(Channel& channel);
@@ -80,7 +81,7 @@ namespace Nz
 			void ResetQueues();
 
 			bool QueueAcknowledgement(ENetProtocol* command, UInt16 sentTime);
-			IncomingCommmand* QueueIncomingCommand(ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount);
+			IncomingCommmand* QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount);
 			void QueueOutgoingCommand(ENetProtocol& command, ENetPacketRef packet, UInt32 offset, UInt16 length);
 
 			void SetupOutgoingCommand(OutgoingCommand& outgoingCommand);
@@ -139,64 +140,66 @@ namespace Nz
 				UInt32        sentTime;
 			};
 
-			ENetHost*                   m_host;
-			IpAddress                   m_address; /**< Internet address of the peer */
-			std::vector<Channel>        m_channels;
-			std::list<Acknowledgement>  m_acknowledgements;
-			std::list<IncomingCommmand> m_dispatchedCommands;
-			std::list<OutgoingCommand>  m_outgoingReliableCommands;
-			std::list<OutgoingCommand>  m_outgoingUnreliableCommands;
-			std::list<OutgoingCommand>  m_sentReliableCommands;
-			std::list<OutgoingCommand>  m_sentUnreliableCommands;
-			MemoryPool                  m_packetPool;
-			//ENetListNode              m_dispatchList;
-			ENetPeerState               m_state;
-			UInt8                       m_incomingSessionID;
-			UInt8                       m_outgoingSessionID;
-			UInt16                      m_incomingPeerID;
-			UInt16                      m_incomingUnsequencedGroup;
-			UInt16                      m_outgoingPeerID;
-			UInt16                      m_outgoingReliableSequenceNumber;
-			UInt16                      m_outgoingUnsequencedGroup;
-			UInt32                      m_connectID;
-			UInt32                      m_earliestTimeout;
-			UInt32                      m_eventData;
-			UInt32                      m_highestRoundTripTimeVariance;
-			UInt32                      m_incomingBandwidth;  /**< Downstream bandwidth of the client in bytes/second */
-			UInt32                      m_incomingBandwidthThrottleEpoch;
-			UInt32                      m_incomingDataTotal;
-			UInt32                      m_lastReceiveTime;
-			UInt32                      m_lastRoundTripTime;
-			UInt32                      m_lastRoundTripTimeVariance;
-			UInt32                      m_lastSendTime;
-			UInt32                      m_lowestRoundTripTime;
-			UInt32                      m_mtu;
-			UInt32                      m_nextTimeout;
-			UInt32                      m_outgoingBandwidth;  /**< Upstream bandwidth of the client in bytes/second */
-			UInt32                      m_outgoingBandwidthThrottleEpoch;
-			UInt32                      m_outgoingDataTotal;
-			UInt32                      m_packetLoss;          /**< mean packet loss of reliable packets as a ratio with respect to the constant ENET_PEER_PACKET_LOSS_SCALE */
-			UInt32                      m_packetLossEpoch;
-			UInt32                      m_packetLossVariance;
-			UInt32                      m_packetThrottle;
-			UInt32                      m_packetThrottleAcceleration;
-			UInt32                      m_packetThrottleCounter;
-			UInt32                      m_packetThrottleDeceleration;
-			UInt32                      m_packetThrottleEpoch;
-			UInt32                      m_packetThrottleInterval;
-			UInt32                      m_packetThrottleLimit;
-			UInt32                      m_packetsLost;
-			UInt32                      m_packetsSent;
-			UInt32                      m_pingInterval;
-			UInt32                      m_reliableDataInTransit;
-			UInt32                      m_roundTripTime;            /**< mean round trip time (RTT), in milliseconds, between sending a reliable packet and receiving its acknowledgment */
-			UInt32                      m_roundTripTimeVariance;
-			UInt32                      m_timeoutLimit;
-			UInt32                      m_timeoutMaximum;
-			UInt32                      m_timeoutMinimum;
-			UInt32                      m_unsequencedWindow[ENetPeer_ReliableWindowSize / 32];
-			UInt32                      m_windowSize;
-			std::size_t                 m_totalWaitingData;
+			static constexpr std::size_t unsequencedWindow = ENetPeer_ReliableWindowSize / 32;
+
+			ENetHost*                             m_host;
+			IpAddress                             m_address; /**< Internet address of the peer */
+			std::array<UInt32, unsequencedWindow> m_unsequencedWindow;
+			std::list<Acknowledgement>            m_acknowledgements;
+			std::list<IncomingCommmand>           m_dispatchedCommands;
+			std::list<OutgoingCommand>            m_outgoingReliableCommands;
+			std::list<OutgoingCommand>            m_outgoingUnreliableCommands;
+			std::list<OutgoingCommand>            m_sentReliableCommands;
+			std::list<OutgoingCommand>            m_sentUnreliableCommands;
+			std::size_t                           m_totalWaitingData;
+			std::vector<Channel>                  m_channels;
+			MemoryPool                            m_packetPool;
+			//ENetListNode                        m_dispatchList;
+			ENetPeerState                         m_state;
+			UInt8                                 m_incomingSessionID;
+			UInt8                                 m_outgoingSessionID;
+			UInt16                                m_incomingPeerID;
+			UInt16                                m_incomingUnsequencedGroup;
+			UInt16                                m_outgoingPeerID;
+			UInt16                                m_outgoingReliableSequenceNumber;
+			UInt16                                m_outgoingUnsequencedGroup;
+			UInt32                                m_connectID;
+			UInt32                                m_earliestTimeout;
+			UInt32                                m_eventData;
+			UInt32                                m_highestRoundTripTimeVariance;
+			UInt32                                m_incomingBandwidth;  /**< Downstream bandwidth of the client in bytes/second */
+			UInt32                                m_incomingBandwidthThrottleEpoch;
+			UInt32                                m_incomingDataTotal;
+			UInt32                                m_lastReceiveTime;
+			UInt32                                m_lastRoundTripTime;
+			UInt32                                m_lastRoundTripTimeVariance;
+			UInt32                                m_lastSendTime;
+			UInt32                                m_lowestRoundTripTime;
+			UInt32                                m_mtu;
+			UInt32                                m_nextTimeout;
+			UInt32                                m_outgoingBandwidth;  /**< Upstream bandwidth of the client in bytes/second */
+			UInt32                                m_outgoingBandwidthThrottleEpoch;
+			UInt32                                m_outgoingDataTotal;
+			UInt32                                m_packetLoss;          /**< mean packet loss of reliable packets as a ratio with respect to the constant ENET_PEER_PACKET_LOSS_SCALE */
+			UInt32                                m_packetLossEpoch;
+			UInt32                                m_packetLossVariance;
+			UInt32                                m_packetThrottle;
+			UInt32                                m_packetThrottleAcceleration;
+			UInt32                                m_packetThrottleCounter;
+			UInt32                                m_packetThrottleDeceleration;
+			UInt32                                m_packetThrottleEpoch;
+			UInt32                                m_packetThrottleInterval;
+			UInt32                                m_packetThrottleLimit;
+			UInt32                                m_packetsLost;
+			UInt32                                m_packetsSent;
+			UInt32                                m_pingInterval;
+			UInt32                                m_reliableDataInTransit;
+			UInt32                                m_roundTripTime;            /**< mean round trip time (RTT), in milliseconds, between sending a reliable packet and receiving its acknowledgment */
+			UInt32                                m_roundTripTimeVariance;
+			UInt32                                m_timeoutLimit;
+			UInt32                                m_timeoutMaximum;
+			UInt32                                m_timeoutMinimum;
+			UInt32                                m_windowSize;
 	};
 }
 

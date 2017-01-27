@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,6 +14,7 @@
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
@@ -40,8 +41,10 @@ namespace Nz
 
 			void Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
 
-			bool Connect(const IpAddress& remoteAddress, std::size_t channelCount = 0, UInt32 data = 0);
-			bool Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
+			bool CheckEvents(ENetEvent* event);
+
+			ENetPeer* Connect(const IpAddress& remoteAddress, std::size_t channelCount = 0, UInt32 data = 0);
+			ENetPeer* Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
 
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
 			bool Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount = 0);
@@ -58,8 +61,10 @@ namespace Nz
 		private:
 			bool InitSocket(const IpAddress& address);
 
-			inline void AddToDispatchQueue(ENetPeer* peer);
-			inline void RemoveFromDispatchQueue(ENetPeer* peer);
+			void AddToDispatchQueue(ENetPeer* peer);
+			void RemoveFromDispatchQueue(ENetPeer* peer);
+
+			bool CheckTimeouts(ENetPeer* peer, ENetEvent* event);
 
 			bool DispatchIncomingCommands(ENetEvent* event);
 
@@ -69,7 +74,11 @@ namespace Nz
 			bool HandleDisconnect(ENetPeer* peer, const ENetProtocol* command);
 			bool HandleIncomingCommands(ENetEvent* event);
 			bool HandlePing(ENetPeer* peer, const ENetProtocol* command);
+			bool HandleSendFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
 			bool HandleSendReliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
+			bool HandleSendUnreliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
+			bool HandleSendUnreliableFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
+			bool HandleSendUnsequenced(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
 			bool HandleThrottleConfigure(ENetPeer* peer, const ENetProtocol* command);
 			bool HandleVerifyConnect(ENetEvent* event, ENetPeer* peer, ENetProtocol* command);
 
@@ -78,12 +87,19 @@ namespace Nz
 			void NotifyConnect(ENetPeer* peer, ENetEvent* event);
 			void NotifyDisconnect(ENetPeer*, ENetEvent* event);
 
+			void SendAcknowledgements(ENetPeer* peer);
+			bool SendReliableOutgoingCommands(ENetPeer* peer);
+			int SendOutgoingCommands(ENetEvent* event, bool checkForTimeouts);
+			void SendUnreliableOutgoingCommands(ENetPeer* peer);
+
 			void ThrottleBandwidth();
 
+			static std::size_t GetCommandSize(UInt8 commandNumber);
 			static bool Initialize();
 			static void Uninitialize();
 
 			std::array<ENetProtocol, ENetConstants::ENetProtocol_MaximumPacketCommands> m_commands;
+			std::array<NetBuffer, ENetConstants::ENetProtocol_MaximumPacketCommands * 2 + 1> m_buffers;
 			std::array<UInt8, ENetConstants::ENetProtocol_MaximumMTU> m_packetData[2];
 			std::bernoulli_distribution m_packetLossProbability;
 			std::size_t m_bandwidthLimitedPeers;
@@ -93,6 +109,8 @@ namespace Nz
 			std::size_t m_duplicatePeers;
 			std::size_t m_maximumPacketSize;
 			std::size_t m_maximumWaitingData;
+			std::size_t m_packetSize;
+			std::size_t m_peerCount;
 			std::size_t m_receivedDataLength;
 			std::vector<ENetPeer> m_peers;
 			Bitset<UInt64> m_dispatchQueue;
@@ -101,6 +119,7 @@ namespace Nz
 			IpAddress m_receivedAddress;
 			SocketPoller m_poller;
 			UdpSocket m_socket;
+			UInt16 m_headerFlags;
 			UInt32 m_bandwidthThrottleEpoch;
 			UInt32 m_connectedPeers;
 			UInt32 m_mtu;
@@ -113,6 +132,7 @@ namespace Nz
 			UInt32 m_totalReceivedData;
 			UInt32 m_totalReceivedPackets;
 			UInt8* m_receivedData;
+			bool m_continueSending;
 			bool m_isSimulationEnabled;
 			bool m_shouldAcceptConnections;
 			bool m_recalculateBandwidthLimits;
