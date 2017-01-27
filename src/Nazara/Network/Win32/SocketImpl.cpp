@@ -594,10 +594,23 @@ namespace Nz
 		int byteSent = send(handle, reinterpret_cast<const char*>(buffer), length, 0);
 		if (byteSent == SOCKET_ERROR)
 		{
-			if (error)
-				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAEWOULDBLOCK:
+				{
+					byteSent = 0;
+					break;
+				}
 
-			return false; //< Error
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
 		}
 
 		if (sent)
@@ -667,10 +680,23 @@ namespace Nz
 		int byteSent = sendto(handle, reinterpret_cast<const char*>(buffer), length, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength);
 		if (byteSent == SOCKET_ERROR)
 		{
-			if (error)
-				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAEWOULDBLOCK:
+				{
+					byteSent = 0;
+					break;
+				}
 
-			return false; //< Error
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
 		}
 
 		if (sent)
