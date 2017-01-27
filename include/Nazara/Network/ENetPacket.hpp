@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -40,13 +40,25 @@ namespace Nz
 		std::size_t referenceCount = 0;
 	};
 
-	struct ENetPacketRef
+	struct NAZARA_NETWORK_API ENetPacketRef
 	{
 		ENetPacketRef() = default;
 
 		ENetPacketRef(ENetPacket* packet)
 		{
 			Reset(packet);
+		}
+
+		ENetPacketRef(const ENetPacketRef& packet) :
+		ENetPacketRef()
+		{
+			Reset(packet);
+		}
+
+		ENetPacketRef(ENetPacketRef&& packet) :
+		m_packet(packet.m_packet)
+		{
+			packet.m_packet = nullptr;
 		}
 
 		~ENetPacketRef()
@@ -69,6 +81,23 @@ namespace Nz
 		ENetPacketRef& operator=(ENetPacket* packet)
 		{
 			Reset(packet);
+
+			return *this;
+		}
+
+		ENetPacketRef& operator=(const ENetPacketRef& packet)
+		{
+			Reset(packet);
+
+			return *this;
+		}
+
+		ENetPacketRef& operator=(ENetPacketRef&& packet)
+		{
+			m_packet = packet.m_packet;
+			packet.m_packet = nullptr;
+
+			return *this;
 		}
 
 		ENetPacket* m_packet = nullptr;

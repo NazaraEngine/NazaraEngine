@@ -1,9 +1,10 @@
-﻿#include <Nazara/Network/ENetHost.hpp>
+#include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
+#include <iostream>
 #include <Nazara/Network/Debug.hpp>
 
 #define ENET_TIME_OVERFLOW 86400000
@@ -57,11 +58,6 @@ namespace Nz
 			sizeof(ENetProtocolThrottleConfigure),
 			sizeof(ENetProtocolSendFragment)
 		};
-
-		std::size_t enet_protocol_command_size(UInt8 commandNumber)
-		{
-			return s_commandSizes[commandNumber & ENetProtocolCommand_Mask];
-		}
 	}
 
 
@@ -81,7 +77,19 @@ namespace Nz
 		}
 	}
 
-	bool ENetHost::Connect(const IpAddress& remoteAddress, std::size_t channelCount, UInt32 data)
+	bool ENetHost::CheckEvents(ENetEvent* event)
+	{
+		if (!event)
+			return false;
+
+		event->type = ENetEventType::None;
+		event->peer = nullptr;
+		event->packet.Reset();
+
+		return DispatchIncomingCommands(event);
+	}
+
+	ENetPeer* ENetHost::Connect(const IpAddress& remoteAddress, std::size_t channelCount, UInt32 data)
 	{
 		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
 		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
@@ -96,7 +104,7 @@ namespace Nz
 		if (peerId >= m_peers.size())
 		{
 			NazaraError("Insufficient peers");
-			return false;
+			return nullptr;
 		}
 
 		m_channelLimit = Clamp<std::size_t>(channelCount, ENetConstants::ENetProtocol_MinimumChannelCount, ENetConstants::ENetProtocol_MaximumChannelCount);
@@ -130,10 +138,10 @@ namespace Nz
 
 		peer.QueueOutgoingCommand(command, nullptr, 0, 0);
 
-		return true;
+		return &peer;
 	}
 
-	bool ENetHost::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error, std::size_t channelCount, UInt32 data)
+	ENetPeer* ENetHost::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error, std::size_t channelCount, UInt32 data)
 	{
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())
@@ -173,7 +181,9 @@ namespace Nz
 		if (!InitSocket(address))
 			return false;
 
-		m_peers.resize(peerCount);
+		m_peers.reserve(peerCount);
+		for (std::size_t i = 0; i < peerCount; ++i)
+			m_peers.emplace_back(this, UInt16(i));
 
 		m_address = address;
 		m_randomSeed = *reinterpret_cast<UInt32*>(this);
@@ -187,6 +197,7 @@ namespace Nz
 		m_mtu = ENetConstants::ENetHost_DefaultMTU;
 		m_commandCount = 0;
 		m_bufferCount = 0;
+		m_peerCount = peerCount;
 		m_receivedAddress = IpAddress::AnyIpV4;
 		m_receivedData = nullptr;
 		m_receivedDataLength = 0;
@@ -214,8 +225,6 @@ namespace Nz
 
 	int ENetHost::Service(ENetEvent* event, UInt32 timeout)
 	{
-		UInt32 waitCondition;
-
 		if (event)
 		{
 			event->type = ENetEventType::None;
@@ -265,7 +274,7 @@ namespace Nz
 				break;
 			}
 
-			switch (SendOutgoingCommands(event, 1))
+			switch (SendOutgoingCommands(event, true))
 			{
 			case 1:
 				return 1;
@@ -283,21 +292,8 @@ namespace Nz
 
 			if (event)
 			{
-				switch (DispatchIncomingCommands(event))
-				{
-					case 1:
-						return 1;
-
-					case -1:
-	#ifdef ENET_DEBUG
-						perror("Error dispatching incoming packets");
-	#endif
-
-						return -1;
-
-					default:
-						break;
-				}
+				if (DispatchIncomingCommands(event))
+					return 1;
 			}
 
 			if (ENET_TIME_GREATER_EQUAL(m_serviceTime, timeout))
@@ -310,12 +306,8 @@ namespace Nz
 				if (ENET_TIME_GREATER_EQUAL(m_serviceTime, timeout))
 					return 0;
 
-				SocketError error;
-				if (m_poller.Wait(ENET_TIME_DIFFERENCE(timeout, m_serviceTime), &error))
+				if (m_poller.Wait(ENET_TIME_DIFFERENCE(timeout, m_serviceTime)))
 					break;
-
-				if (error != SocketError_NoError)
-					return -1;
 			}
 
 			m_serviceTime = GetElapsedMilliseconds();
@@ -347,6 +339,62 @@ namespace Nz
 		m_poller.RegisterSocket(m_socket);
 
 		return true;
+	}
+
+	void ENetHost::AddToDispatchQueue(ENetPeer* peer)
+	{
+		m_dispatchQueue.UnboundedSet(peer->m_incomingPeerID);
+	}
+
+	void ENetHost::RemoveFromDispatchQueue(ENetPeer* peer)
+	{
+		m_dispatchQueue.UnboundedReset(peer->m_incomingPeerID);
+	}
+
+	bool ENetHost::CheckTimeouts(ENetPeer* peer, ENetEvent* event)
+	{
+		auto currentCommand = peer->m_sentReliableCommands.begin();
+
+		while (currentCommand != peer->m_sentReliableCommands.end())
+		{
+			auto outgoingCommand = currentCommand;
+
+			++currentCommand;
+
+			if (ENET_TIME_DIFFERENCE(m_serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
+				continue;
+
+			if (peer->m_earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, peer->m_earliestTimeout))
+				peer->m_earliestTimeout = outgoingCommand->sentTime;
+
+			if (peer->m_earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_earliestTimeout) >= peer->m_timeoutMaximum ||
+				(outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_earliestTimeout) >= peer->m_timeoutMinimum)))
+			{
+				NotifyDisconnect(peer, event);
+				return true;
+			}
+
+			if (outgoingCommand->packet)
+				peer->m_reliableDataInTransit -= outgoingCommand->fragmentLength;
+
+			++peer->m_packetsLost;
+
+			outgoingCommand->roundTripTimeout *= 2;
+
+			peer->m_outgoingReliableCommands.emplace_front(std::move(*outgoingCommand));
+			peer->m_sentReliableCommands.erase(outgoingCommand);
+
+			// Okay this should just never procs, I don't see how it would be possible
+			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
+				!enet_list_empty(&peer->sentReliableCommands))
+			{
+				outgoingCommand = (ENetOutgoingCommand *) currentCommand;
+
+				peer->nextTimeout = outgoingCommand->sentTime + outgoingCommand->roundTripTimeout;
+			}*/
+		}
+
+		return false;
 	}
 
 	bool ENetHost::DispatchIncomingCommands(ENetEvent* event)
@@ -391,6 +439,9 @@ namespace Nz
 						AddToDispatchQueue(&peer);
 
 					return true;
+
+				default:
+					break;
 			}
 		}
 
@@ -436,7 +487,7 @@ namespace Nz
 		if (peer->m_roundTripTimeVariance > peer->m_highestRoundTripTimeVariance)
 			peer->m_highestRoundTripTimeVariance = peer->m_roundTripTimeVariance;
 
-		if (peer->m_packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_packetThrottleEpoch) >= peer->packetThrottleInterval)
+		if (peer->m_packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_packetThrottleEpoch) >= peer->m_packetThrottleInterval)
 		{
 			peer->m_lastRoundTripTime = peer->m_lowestRoundTripTime;
 			peer->m_lastRoundTripTimeVariance = peer->m_highestRoundTripTimeVariance;
@@ -770,7 +821,7 @@ namespace Nz
 					return commandError();
 			}
 
-			if (peer && (command->header.command & ENetProtocolCommand_Acknowledge) != 0)
+			if (peer && (command->header.command & ENetProtocolFlag_Acknowledge) != 0)
 			{
 				UInt16 sentTime;
 
@@ -810,6 +861,90 @@ namespace Nz
 		return true;
 	}
 
+	bool ENetHost::HandleSendFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
+	{
+		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+			return false;
+
+		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
+		*currentData += fragmentLength;
+		if (fragmentLength >= m_maximumPacketSize || *currentData < m_receivedData || *currentData > &m_receivedData[m_receivedDataLength])
+			return false;
+
+		ENetPeer::Channel& channel = peer->m_channels[command->header.channelID];
+		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
+		UInt16 startWindow = startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+
+		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
+			startWindow += ENetConstants::ENetPeer_ReliableWindows;
+
+		if (startWindow < currentWindow || startWindow >= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows - 1)
+			return true;
+
+		UInt32 fragmentNumber = NetToHost(command->sendFragment.fragmentNumber);
+		UInt32 fragmentCount  = NetToHost(command->sendFragment.fragmentCount);
+		UInt32 fragmentOffset = NetToHost(command->sendFragment.fragmentOffset);
+		UInt32 totalLength    = NetToHost(command->sendFragment.totalLength);
+
+		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_maximumPacketSize ||
+			fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+			return false;
+
+		ENetPeer::IncomingCommmand* startCommand = nullptr;
+		for (auto currentCommand = channel.incomingReliableCommands.rbegin(); currentCommand != channel.incomingReliableCommands.rend(); ++currentCommand)
+		{
+			ENetPeer::IncomingCommmand& incomingCommand = *currentCommand;
+
+			if (startSequenceNumber >= channel.incomingReliableSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
+					continue;
+			}
+			else if (incomingCommand.reliableSequenceNumber >= channel.incomingReliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber <= startSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < startSequenceNumber)
+					break;
+
+				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.size())
+					return false;
+
+				startCommand = &incomingCommand;
+				break;
+			}
+		}
+
+		if (startCommand)
+		{
+			ENetProtocol hostCommand = *command;
+			hostCommand.header.reliableSequenceNumber = startSequenceNumber;
+
+			if (!peer->QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount))
+				return false;
+		}
+
+		if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0)
+		{
+			--startCommand->fragmentsRemaining;
+
+			startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
+				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+
+			std::memcpy(startCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+
+			if (startCommand->fragmentsRemaining <= 0)
+				peer->DispatchIncomingReliableCommands(channel);
+		}
+
+		return false;
+	}
+
 	bool ENetHost::HandleSendReliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
 		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
@@ -822,6 +957,152 @@ namespace Nz
 
 		if (!peer->QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendReliable), dataLength, ENetPacketFlag_Reliable, 0))
 			return false;
+
+		return true;
+	}
+
+	bool ENetHost::HandleSendUnreliable(ENetPeer * peer, const ENetProtocol * command, UInt8 ** currentData)
+	{
+		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+			return false;
+
+		UInt16 dataLength = NetToHost(command->sendUnreliable.dataLength);
+		*currentData += dataLength;
+		if (dataLength >= m_maximumPacketSize || *currentData < m_receivedData || *currentData > &m_receivedData[m_receivedDataLength])
+			return false;
+
+		if (!peer->QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnreliable), dataLength, 0, 0))
+			return false;
+
+		return true;
+	}
+
+	bool ENetHost::HandleSendUnreliableFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
+	{
+		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+			return false;
+
+		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
+		*currentData += fragmentLength;
+		if (fragmentLength >= m_maximumPacketSize || *currentData < m_receivedData || *currentData > &m_receivedData[m_receivedDataLength])
+			return false;
+
+		ENetPeer::Channel& channel = peer->m_channels[command->header.channelID];
+		UInt32 reliableSequenceNumber = command->header.reliableSequenceNumber;
+		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
+
+		UInt16 reliableWindow = reliableSequenceNumber                 / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 currentWindow  = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+
+		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
+			reliableWindow += ENetConstants::ENetPeer_ReliableWindows;
+
+		if (reliableWindow < currentWindow || reliableWindow >= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows - 1)
+			return true;
+
+		if (reliableSequenceNumber == channel.incomingReliableSequenceNumber && startSequenceNumber <= channel.incomingUnreliableSequenceNumber)
+			return true;
+
+		UInt32 fragmentNumber = NetToHost(command->sendFragment.fragmentNumber);
+		UInt32 fragmentCount  = NetToHost(command->sendFragment.fragmentCount);
+		UInt32 fragmentOffset = NetToHost(command->sendFragment.fragmentOffset);
+		UInt32 totalLength    = NetToHost(command->sendFragment.totalLength);
+
+		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_maximumPacketSize ||
+			fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+			return false;
+
+		ENetPeer::IncomingCommmand* startCommand = nullptr;
+		for (auto currentCommand = channel.incomingUnreliableCommands.rbegin(); currentCommand != channel.incomingUnreliableCommands.rend(); ++currentCommand)
+		{
+			ENetPeer::IncomingCommmand& incomingCommand = *currentCommand;
+
+			if (startSequenceNumber >= channel.incomingReliableSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
+					continue;
+			}
+			else if (incomingCommand.reliableSequenceNumber >= channel.incomingReliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber < reliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber > reliableSequenceNumber)
+				continue;
+
+			if (incomingCommand.unreliableSequenceNumber <= startSequenceNumber)
+			{
+				if (incomingCommand.unreliableSequenceNumber < startSequenceNumber)
+					break;
+
+				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.size())
+					return false;
+
+				startCommand = &incomingCommand;
+				break;
+			}
+		}
+
+		if (startCommand)
+		{
+			if (!peer->QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount))
+				return false;
+		}
+
+		if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0)
+		{
+			--startCommand->fragmentsRemaining;
+
+			startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
+				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+
+			std::memcpy(startCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+
+			if (startCommand->fragmentsRemaining <= 0)
+				peer->DispatchIncomingUnreliableCommands(channel);
+		}
+
+		return true;
+	}
+
+	bool ENetHost::HandleSendUnsequenced(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
+	{
+		if (command->header.channelID >= peer->m_channels.size() || peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+			return false;
+
+		std::size_t dataLength = NetToHost(command->sendUnsequenced.dataLength);
+		*currentData += dataLength;
+		if (dataLength >= m_maximumPacketSize || *currentData < m_receivedData || *currentData > &m_receivedData[m_receivedDataLength])
+			return false;
+
+		UInt32 unsequencedGroup = NetToHost(command->sendUnsequenced.unsequencedGroup);
+		UInt32 index = unsequencedGroup % ENetConstants::ENetPeer_UnsequencedWindowSize;
+
+		if (unsequencedGroup < peer->m_incomingUnsequencedGroup)
+			unsequencedGroup += 0x10000;
+
+		if (unsequencedGroup >= static_cast<UInt32>(peer->m_incomingUnsequencedGroup) + ENetConstants::ENetPeer_UnsequencedWindows * ENetConstants::ENetPeer_UnsequencedWindowSize)
+			return true;
+
+		unsequencedGroup &= 0xFFFF;
+
+		if (unsequencedGroup - index != peer->m_incomingUnsequencedGroup)
+		{
+			peer->m_incomingUnsequencedGroup = unsequencedGroup - index;
+
+			peer->m_unsequencedWindow.fill(0);
+		}
+		else if (peer->m_unsequencedWindow[index / 32] & (1 << (index % 32)))
+			return true;
+
+		if (!peer->QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnsequenced), dataLength, ENetPacketFlag_Unsequenced, 0))
+			return false;
+
+		peer->m_unsequencedWindow[index / 32] |= 1 << (index % 32);
 
 		return true;
 	}
@@ -901,17 +1182,8 @@ namespace Nz
 
 			// Intercept
 
-			switch (HandleIncomingCommands(event))
-			{
-				case 1:
-					return 1;
-
-				case -1:
-					return -1;
-
-				default:
-					break;
-			}
+			if (HandleIncomingCommands(event))
+				return 1;
 		}
 
 		return -1;
@@ -954,6 +1226,346 @@ namespace Nz
 
 			peer->DispatchState(ENetPeerState::Zombie);
 		}
+	}
+
+	void ENetHost::SendAcknowledgements(ENetPeer* peer)
+	{
+		std::cout << "SendAcknowledgements " << peer->m_acknowledgements.size() << std::endl;
+
+		auto currentAcknowledgement = peer->m_acknowledgements.begin();
+		while (currentAcknowledgement != peer->m_acknowledgements.end())
+		{
+			if (m_commandCount >= m_commands.size() || m_bufferCount >= m_buffers.size() || peer->m_mtu - m_packetSize < sizeof(ENetProtocolAcknowledge))
+			{
+				m_continueSending = true;
+				break;
+			}
+
+			ENetPeer::Acknowledgement& acknowledgement = *currentAcknowledgement;
+
+			ENetProtocol& command = m_commands[m_commandCount];
+			NetBuffer& buffer = m_buffers[m_bufferCount];
+
+			buffer.data = &command;
+			buffer.dataLength = sizeof(ENetProtocolAcknowledge);
+
+			m_packetSize += buffer.dataLength;
+
+			UInt16 reliableSequenceNumber = HostToNet(acknowledgement.command.header.reliableSequenceNumber);
+
+			command.header.command = ENetProtocolCommand_Acknowledge;
+			command.header.channelID = acknowledgement.command.header.channelID;
+			command.header.reliableSequenceNumber = reliableSequenceNumber;
+			command.acknowledge.receivedReliableSequenceNumber = reliableSequenceNumber;
+			command.acknowledge.receivedSentTime = HostToNet(acknowledgement.sentTime);
+
+			if ((acknowledgement.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
+				peer->DispatchState(ENetPeerState::Zombie);
+
+			currentAcknowledgement = peer->m_acknowledgements.erase(currentAcknowledgement);
+
+			++m_bufferCount;
+			++m_commandCount;
+		}
+	}
+
+	bool ENetHost::SendReliableOutgoingCommands(ENetPeer* peer)
+	{
+		bool canPing = true;
+		bool windowExceeded = false;
+		bool windowWrap = false;
+
+		auto currentCommand = peer->m_outgoingReliableCommands.begin();
+		while (currentCommand != peer->m_outgoingReliableCommands.end())
+		{
+			auto outgoingCommand = currentCommand;
+
+			UInt16 reliableWindow = outgoingCommand->reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+			ENetPeer::Channel* channel = (outgoingCommand->command.header.channelID < peer->m_channels.size()) ? &peer->m_channels[outgoingCommand->command.header.channelID] : nullptr;
+			if (channel)
+			{
+				if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENetPeer_ReliableWindowSize) &&
+					((channel->reliableWindows[(reliableWindow + ENetPeer_ReliableWindows - 1) % ENetPeer_ReliableWindows] >= ENetPeer_ReliableWindowSize) ||
+					channel->usedReliableWindows & ((((1 << ENetPeer_ReliableWindows) - 1) << reliableWindow) |
+					(((1 << ENetPeer_FreeReliableWindows) - 1) >> (ENetPeer_ReliableWindows - reliableWindow)))))
+					windowWrap = true;
+
+				if (windowWrap)
+				{
+					++currentCommand;
+					continue;
+				}
+			}
+
+			if (outgoingCommand->packet)
+			{
+				if (!windowExceeded)
+				{
+					UInt32 windowSize = (peer->m_packetThrottle * peer->m_windowSize) / ENetPeer_PacketThrottleScale;
+
+					if (peer->m_reliableDataInTransit + outgoingCommand->fragmentLength > std::max(windowSize, peer->m_mtu))
+						windowExceeded = true;
+				}
+
+				if (windowExceeded)
+				{
+					++currentCommand;
+					continue;
+				}
+			}
+
+			canPing = false;
+
+			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
+				(outgoingCommand->packet && UInt16(peer->m_mtu - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
+			{
+				m_continueSending = true;
+				break;
+			}
+
+			++currentCommand;
+
+			if (channel && outgoingCommand->sendAttempts < 1)
+			{
+				channel->usedReliableWindows |= 1 << reliableWindow;
+				++channel->reliableWindows[reliableWindow];
+			}
+
+			++outgoingCommand->sendAttempts;
+
+			if (outgoingCommand->roundTripTimeout == 0)
+			{
+				outgoingCommand->roundTripTimeout = peer->m_roundTripTime + 4 * peer->m_roundTripTimeVariance;
+				outgoingCommand->roundTripTimeoutLimit = peer->m_timeoutLimit * outgoingCommand->roundTripTimeout;
+			}
+
+			if (peer->m_sentReliableCommands.empty())
+				peer->m_nextTimeout = m_serviceTime + outgoingCommand->roundTripTimeout;
+
+			peer->m_sentReliableCommands.emplace_back(std::move(*outgoingCommand));
+			peer->m_outgoingReliableCommands.erase(outgoingCommand);
+
+			outgoingCommand = peer->m_sentReliableCommands.end();
+			--outgoingCommand;
+
+			outgoingCommand->sentTime = m_serviceTime;
+
+			ENetProtocol& command = m_commands[m_commandCount];
+			NetBuffer& buffer = m_buffers[m_bufferCount];
+
+			buffer.data = &command;
+			buffer.dataLength = commandSize;
+
+			m_packetSize += buffer.dataLength;
+			m_headerFlags |= ENetProtocolHeaderFlag_SentTime;
+
+			command = outgoingCommand->command;
+
+			if (outgoingCommand->packet)
+			{
+				++m_bufferCount;
+
+				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
+				packetBuffer.data = outgoingCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.dataLength = outgoingCommand->fragmentLength;
+
+				m_packetSize += packetBuffer.dataLength;
+
+				peer->m_reliableDataInTransit += outgoingCommand->fragmentLength;
+			}
+
+			++peer->m_packetsSent;
+			++m_bufferCount;
+			++m_commandCount;
+		}
+
+		return canPing;
+	}
+
+	int ENetHost::SendOutgoingCommands(ENetEvent* event, bool checkForTimeouts)
+	{
+		std::array<UInt8, sizeof(ENetProtocolHeader) + sizeof(UInt32)> headerData;
+		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(headerData.data());
+
+		m_continueSending = true;
+
+		while (m_continueSending)
+		{
+			m_continueSending = false;
+
+			for (std::size_t peer = 0; peer < m_peerCount; ++peer)
+			{
+				ENetPeer* currentPeer = &m_peers[peer];
+				if (currentPeer->m_state == ENetPeerState::Disconnected || currentPeer->m_state == ENetPeerState::Zombie)
+					continue;
+
+				m_headerFlags = 0;
+				m_commandCount = 0;
+				m_bufferCount = 1;
+				m_packetSize = sizeof(ENetProtocolHeader);
+
+				if (!currentPeer->m_acknowledgements.empty())
+					SendAcknowledgements(currentPeer);
+
+				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENET_TIME_GREATER_EQUAL(m_serviceTime, currentPeer->m_nextTimeout) &&
+					CheckTimeouts(currentPeer, event))
+				{
+					if (event && event->type != ENetEventType::None)
+						return 1;
+					else
+						continue;
+				}
+
+				if ((currentPeer->m_outgoingReliableCommands.empty() || SendReliableOutgoingCommands(currentPeer)) && currentPeer->m_sentReliableCommands.empty() &&
+					ENET_TIME_DIFFERENCE(m_serviceTime, currentPeer->m_lastReceiveTime) >= currentPeer->m_pingInterval && currentPeer->m_mtu - m_packetSize >= sizeof(ENetProtocolPing))
+				{
+					currentPeer->Ping();
+					SendReliableOutgoingCommands(currentPeer);
+				}
+
+				if (!currentPeer->m_outgoingUnreliableCommands.empty())
+					SendUnreliableOutgoingCommands(currentPeer);
+
+				if (m_commandCount == 0)
+					continue;
+
+				if (currentPeer->m_packetLossEpoch == 0)
+					currentPeer->m_packetLossEpoch = m_serviceTime;
+				else if (ENET_TIME_DIFFERENCE(m_serviceTime, currentPeer->m_packetLossEpoch) >= ENetPeer_PacketLossInterval && currentPeer->m_packetsSent > 0)
+				{
+					UInt32 packetLoss = currentPeer->m_packetsLost * ENetPeer_PacketLossScale / currentPeer->m_packetsSent;
+
+					#ifdef ENET_DEBUG
+					printf("peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u/%u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID, currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance, currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE, enet_list_size(&currentPeer->outgoingReliableCommands), enet_list_size(&currentPeer->outgoingUnreliableCommands), currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0, currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0);
+					#endif
+
+					currentPeer->m_packetLossVariance -= currentPeer->m_packetLossVariance / 4;
+
+					if (packetLoss >= currentPeer->m_packetLoss)
+					{
+						currentPeer->m_packetLoss += (packetLoss - currentPeer->m_packetLoss) / 8;
+						currentPeer->m_packetLossVariance += (packetLoss - currentPeer->m_packetLoss) / 4;
+					}
+					else
+					{
+						currentPeer->m_packetLoss -= (currentPeer->m_packetLoss - packetLoss) / 8;
+						currentPeer->m_packetLossVariance += (currentPeer->m_packetLoss - packetLoss) / 4;
+					}
+
+					currentPeer->m_packetLossEpoch = m_serviceTime;
+					currentPeer->m_packetsSent = 0;
+					currentPeer->m_packetsLost = 0;
+				}
+
+
+				m_buffers[0].data = headerData.data();
+				if (m_headerFlags & ENetProtocolHeaderFlag_SentTime)
+				{
+					header->sentTime = HostToNet(static_cast<UInt16>(m_serviceTime));
+
+					m_buffers[0].dataLength = sizeof(ENetProtocolHeader);
+				}
+				else
+					m_buffers[0].dataLength = NazaraOffsetOf(ENetProtocolHeader, sentTime);
+
+				if (currentPeer->m_outgoingPeerID < ENetConstants::ENetProtocol_MaximumPeerId)
+					m_headerFlags |= currentPeer->m_outgoingSessionID << ENetProtocolHeaderSessionShift;
+
+				header->peerID = HostToNet(static_cast<UInt16>(currentPeer->m_outgoingPeerID | m_headerFlags));
+
+				currentPeer->m_lastSendTime = m_serviceTime;
+
+				std::size_t sentLength;
+				if (!m_socket.SendMultiple(currentPeer->m_address, m_buffers.data(), m_bufferCount, &sentLength))
+					return -1;
+
+				currentPeer->RemoveSentUnreliableCommands();
+
+				m_totalSentData += sentLength;
+				m_totalSentPackets++;
+			}
+		}
+
+		return 0;
+	}
+
+	void ENetHost::SendUnreliableOutgoingCommands(ENetPeer* peer)
+	{
+		auto currentCommand = peer->m_outgoingUnreliableCommands.begin();
+		while (currentCommand != peer->m_outgoingUnreliableCommands.end())
+		{
+			auto outgoingCommand = currentCommand;
+
+			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+
+			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
+			    (outgoingCommand->packet && peer->m_mtu - m_packetSize < commandSize + outgoingCommand->fragmentLength))
+			{
+				m_continueSending = true;
+				break;
+			}
+
+			++currentCommand;
+
+			if (outgoingCommand->packet && outgoingCommand->fragmentOffset == 0)
+			{
+				peer->m_packetThrottleCounter += ENetConstants::ENetPeer_PacketThrottleCounter;
+				peer->m_packetThrottleCounter %= ENetConstants::ENetPeer_PacketThrottleScale;
+
+				if (peer->m_packetThrottleCounter > peer->m_packetThrottle)
+				{
+					UInt16 reliableSequenceNumber = outgoingCommand->reliableSequenceNumber;
+					UInt16 unreliableSequenceNumber = outgoingCommand->unreliableSequenceNumber;
+
+					for (;;)
+					{
+						peer->m_outgoingUnreliableCommands.erase(outgoingCommand);
+
+						if (currentCommand == peer->m_outgoingUnreliableCommands.end())
+							break;
+
+						outgoingCommand = currentCommand;
+						if (outgoingCommand->reliableSequenceNumber != reliableSequenceNumber || outgoingCommand->unreliableSequenceNumber != unreliableSequenceNumber)
+							break;
+
+						++currentCommand;
+					}
+
+					continue;
+				}
+			}
+
+			ENetProtocol& command = m_commands[m_commandCount];
+			NetBuffer& buffer = m_buffers[m_bufferCount];
+
+			buffer.data = &command;
+			buffer.dataLength = commandSize;
+
+			command = outgoingCommand->command;
+
+			if (outgoingCommand->packet)
+			{
+				++m_bufferCount;
+
+				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
+				packetBuffer.data = outgoingCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.dataLength = outgoingCommand->fragmentLength;
+
+				m_packetSize += packetBuffer.dataLength;
+
+				peer->m_sentUnreliableCommands.emplace_back(std::move(*outgoingCommand));
+			}
+
+			peer->m_outgoingUnreliableCommands.erase(outgoingCommand);
+
+			++m_bufferCount;
+			++m_commandCount;
+		}
+
+		if (peer->m_state == ENetPeerState::DisconnectLater && peer->m_outgoingReliableCommands.empty() &&
+		    peer->m_outgoingUnreliableCommands.empty() && peer->m_sentReliableCommands.empty())
+			peer->Disconnect(peer->m_eventData);
 	}
 
 	void ENetHost::ThrottleBandwidth()
@@ -1106,6 +1718,11 @@ namespace Nz
 				peer.QueueOutgoingCommand(command, nullptr, 0, 0);
 			}
 		}
+	}
+
+	std::size_t ENetHost::GetCommandSize(UInt8 commandNumber)
+	{
+		return s_commandSizes[commandNumber & ENetProtocolCommand_Mask];
 	}
 
 	bool ENetHost::Initialize()

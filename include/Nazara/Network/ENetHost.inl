@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,16 +49,6 @@ namespace Nz
 		m_poller.Clear();
 		m_peers.clear();
 		m_socket.Close();
-	}
-
-	inline void ENetHost::AddToDispatchQueue(ENetPeer* peer)
-	{
-		m_dispatchQueue.UnboundedSet(peer->m_incomingPeerID);
-	}
-
-	inline void ENetHost::RemoveFromDispatchQueue(ENetPeer* peer)
-	{
-		m_dispatchQueue.UnboundedReset(peer->m_incomingPeerID);
 	}
 }
 

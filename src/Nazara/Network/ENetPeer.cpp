@@ -1,7 +1,8 @@
-﻿#include <Nazara/Network/ENetPeer.hpp>
+#include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/NetPacket.hpp>
+#include <iostream>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -129,7 +130,7 @@ namespace Nz
 
 		IncomingCommmand& incomingCommand = m_dispatchedCommands.front();
 
-		m_totalWaitingData -= incomingCommand.packet->data.GetSize();
+		m_totalWaitingData -= incomingCommand.packet->data.GetDataSize();
 
 		if (packet)
 			*packet = std::move(incomingCommand.packet);
@@ -192,7 +193,7 @@ namespace Nz
 		m_eventData = 0;
 		m_totalWaitingData = 0;
 
-		std::memset(m_unsequencedWindow, 0, sizeof(m_unsequencedWindow));
+		m_unsequencedWindow.fill(0);
 
 		ResetQueues();
 	}
@@ -209,7 +210,7 @@ namespace Nz
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketRef packetRef)
 	{
-		if (m_state != ENetPeerState::Connected || channelId >= m_channels.size() || packetRef->data.GetSize() > m_host->m_maximumPacketSize)
+		if (m_state != ENetPeerState::Connected || channelId >= m_channels.size() || packetRef->data.GetDataSize() > m_host->m_maximumPacketSize)
 			return false;
 
 		Channel& channel = m_channels[channelId];
@@ -218,7 +219,7 @@ namespace Nz
 		//if (m_host->m_checksum != nullptr)
 		//	fragmentLength -= sizeof(UInt32);
 
-		UInt32 packetSize = static_cast<UInt32>(packetRef->data.GetSize());
+		UInt32 packetSize = static_cast<UInt32>(packetRef->data.GetDataSize());
 		if (packetSize > fragmentLength)
 		{
 			UInt32 fragmentCount = (packetSize + fragmentLength - 1) / fragmentLength;
@@ -254,7 +255,7 @@ namespace Nz
 
 				OutgoingCommand outgoingCommand;
 				outgoingCommand.fragmentOffset = fragmentOffset;
-				outgoingCommand.fragmentLength = fragmentLength;
+				outgoingCommand.fragmentLength = static_cast<UInt16>(fragmentLength);
 				outgoingCommand.packet = packetRef;
 				outgoingCommand.command.header.command = commandNumber;
 				outgoingCommand.command.header.channelID = channelId;
@@ -275,11 +276,20 @@ namespace Nz
 		command.header.channelID = channelId;
 
 		if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_Unsequenced)) == ENetPacketFlag_Unsequenced)
+		{
 			command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
+			command.sendUnsequenced.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+		}
 		else if (packetRef->flags & ENetPacketFlag_Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
+		{
 			command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
+			command.sendReliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+		}
 		else
+		{
 			command.header.command = ENetProtocolCommand_SendUnreliable;
+			command.sendUnreliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+		}
 
 		QueueOutgoingCommand(command, packetRef, 0, packetSize);
 
@@ -354,6 +364,13 @@ namespace Nz
 		m_windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
 	}
 
+	void ENetPeer::DispatchState(ENetPeerState state)
+	{
+		ChangeState(state);
+
+		m_host->AddToDispatchQueue(this);
+	}
+
 	void ENetPeer::DispatchIncomingReliableCommands(Channel& channel)
 	{
 		auto currentCommand = channel.incomingReliableCommands.begin();
@@ -375,7 +392,7 @@ namespace Nz
 
 		channel.incomingUnreliableSequenceNumber = 0;
 
-		m_dispatchedCommands.splice(m_dispatchedCommands.end(), m_dispatchedCommands, channel.incomingReliableCommands.begin(), currentCommand);
+		m_dispatchedCommands.splice(m_dispatchedCommands.end(), channel.incomingReliableCommands, channel.incomingReliableCommands.begin(), currentCommand);
 
 		m_host->AddToDispatchQueue(this);
 
@@ -408,7 +425,7 @@ namespace Nz
 
 				if (startCommand != currentCommand)
 				{
-					m_dispatchedCommands.splice(m_dispatchedCommands.end(), m_dispatchedCommands, startCommand, currentCommand);
+					m_dispatchedCommands.splice(m_dispatchedCommands.end(), channel.incomingUnreliableCommands, startCommand, currentCommand);
 
 					m_host->AddToDispatchQueue(this);
 
@@ -436,7 +453,7 @@ namespace Nz
 
 				if (startCommand != currentCommand)
 				{
-					m_dispatchedCommands.splice(m_dispatchedCommands.end(), m_dispatchedCommands, startCommand, currentCommand);
+					m_dispatchedCommands.splice(m_dispatchedCommands.end(), channel.incomingUnreliableCommands, startCommand, currentCommand);
 
 					m_host->AddToDispatchQueue(this);
 				}
@@ -448,7 +465,7 @@ namespace Nz
 
 		if (startCommand != currentCommand)
 		{
-			m_dispatchedCommands.splice(m_dispatchedCommands.end(), m_dispatchedCommands, startCommand, currentCommand);
+			m_dispatchedCommands.splice(m_dispatchedCommands.end(), channel.incomingUnreliableCommands, startCommand, currentCommand);
 
 			m_host->AddToDispatchQueue(this);
 
@@ -587,7 +604,7 @@ namespace Nz
 		}
 
 		Acknowledgement acknowledgment;
-		acknowledgment.command = command;
+		acknowledgment.command = *command;
 		acknowledgment.sentTime = sentTime;
 
 		m_outgoingDataTotal += sizeof(Acknowledgement);
@@ -597,7 +614,7 @@ namespace Nz
 		return true;
 	}
 
-	ENetPeer::IncomingCommmand* ENetPeer::QueueIncomingCommand(ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount)
+	ENetPeer::IncomingCommmand* ENetPeer::QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount)
 	{
 		static IncomingCommmand dummyCommand;
 
@@ -740,6 +757,9 @@ namespace Nz
 		incomingCommand.fragments.resize(fragmentCount, 0);
 		incomingCommand.fragmentsRemaining = fragmentCount;
 
+		if (packet)
+			m_totalWaitingData += packet->data.GetDataSize();
+
 		auto it = commandList->insert(currentCommand.base(), incomingCommand);
 
 		switch (command.header.command & ENetProtocolCommand_Mask)
@@ -762,7 +782,7 @@ namespace Nz
 		OutgoingCommand outgoingCommand;
 		outgoingCommand.command = command;
 		outgoingCommand.fragmentLength = length;
-		outgoingCommand.fragmentOffset = length;
+		outgoingCommand.fragmentOffset = offset;
 		outgoingCommand.packet = packet;
 
 		SetupOutgoingCommand(outgoingCommand);
@@ -770,7 +790,7 @@ namespace Nz
 
 	void ENetPeer::SetupOutgoingCommand(OutgoingCommand& outgoingCommand)
 	{
-		m_outgoingDataTotal += enet_protocol_command_size(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength;
+		m_outgoingDataTotal += ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength;
 
 		if (outgoingCommand.command.header.channelID == 0xFF)
 		{
@@ -827,7 +847,7 @@ namespace Nz
 				break;
 		}
 
-		if (outgoingCommand.command.header.command & ENetProtocolCommand_Acknowledge)
+		if (outgoingCommand.command.header.command & ENetProtocolFlag_Acknowledge)
 			m_outgoingReliableCommands.emplace_back(outgoingCommand);
 		else
 			m_outgoingUnreliableCommands.emplace_back(outgoingCommand);

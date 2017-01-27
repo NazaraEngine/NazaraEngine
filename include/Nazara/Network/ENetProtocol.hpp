@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	class ENetPeer;
+
 	// Constants for the ENet implementation and protocol
 	enum ENetConstants
 	{
@@ -140,27 +142,38 @@ namespace Nz
 		ENetPacketRef packet;
 	};
 
-	struct ENetProtocolHeader
+
+	#ifdef _MSC_VER
+	#pragma pack(push, 1)
+	#define NAZARA_PACKED
+	#elif defined(__GNUC__) || defined(__clang__)
+	#define NAZARA_PACKED __attribute__ ((packed))
+	#else
+	#define NAZARA_PACKED
+	#endif
+
+
+	struct NAZARA_PACKED ENetProtocolHeader
 	{
 		UInt16 peerID;
 		UInt16 sentTime;
 	};
 
-	struct ENetProtocolCommandHeader
+	struct NAZARA_PACKED ENetProtocolCommandHeader
 	{
 		UInt8  command;
 		UInt8  channelID;
 		UInt16 reliableSequenceNumber;
 	};
 
-	struct ENetProtocolAcknowledge
+	struct NAZARA_PACKED ENetProtocolAcknowledge
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 receivedReliableSequenceNumber;
 		UInt16 receivedSentTime;
 	};
 
-	struct ENetProtocolConnect
+	struct NAZARA_PACKED ENetProtocolConnect
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 outgoingPeerID;
@@ -178,25 +191,25 @@ namespace Nz
 		UInt32 data;
 	};
 
-	struct ENetProtocolBandwidthLimit
+	struct NAZARA_PACKED ENetProtocolBandwidthLimit
 	{
 		ENetProtocolCommandHeader header;
 		UInt32 incomingBandwidth;
 		UInt32 outgoingBandwidth;
 	};
 
-	struct ENetProtocolDisconnect
+	struct NAZARA_PACKED ENetProtocolDisconnect
 	{
 		ENetProtocolCommandHeader header;
 		UInt32 data;
 	};
 
-	struct ENetProtocolPing
+	struct NAZARA_PACKED ENetProtocolPing
 	{
 		ENetProtocolCommandHeader header;
 	};
 
-	struct ENetProtocolSendFragment
+	struct NAZARA_PACKED ENetProtocolSendFragment
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 startSequenceNumber;
@@ -207,27 +220,27 @@ namespace Nz
 		UInt32 fragmentOffset;
 	};
 
-	struct ENetProtocolSendReliable
+	struct NAZARA_PACKED ENetProtocolSendReliable
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 dataLength;
 	};
 
-	struct ENetProtocolSendUnreliable
+	struct NAZARA_PACKED ENetProtocolSendUnreliable
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 unreliableSequenceNumber;
 		UInt16 dataLength;
 	};
 
-	struct ENetProtocolSendUnsequenced
+	struct NAZARA_PACKED ENetProtocolSendUnsequenced
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 unsequencedGroup;
 		UInt16 dataLength;
 	};
 
-	struct ENetProtocolThrottleConfigure
+	struct NAZARA_PACKED ENetProtocolThrottleConfigure
 	{
 		ENetProtocolCommandHeader header;
 		UInt32 packetThrottleInterval;
@@ -235,7 +248,7 @@ namespace Nz
 		UInt32 packetThrottleDeceleration;
 	};
 
-	struct ENetProtocolVerifyConnect
+	struct NAZARA_PACKED ENetProtocolVerifyConnect
 	{
 		ENetProtocolCommandHeader header;
 		UInt16 outgoingPeerID;
@@ -252,7 +265,7 @@ namespace Nz
 		UInt32 connectID;
 	};
 
-	union ENetProtocol
+	union NAZARA_PACKED ENetProtocol
 	{
 		ENetProtocolCommandHeader header;
 		ENetProtocolAcknowledge acknowledge;
@@ -267,6 +280,10 @@ namespace Nz
 		ENetProtocolThrottleConfigure throttleConfigure;
 		ENetProtocolVerifyConnect verifyConnect;
 	};
+
+	#ifdef _MSC_VER
+	#pragma pack(pop)
+	#endif
 }
 
 #endif // NAZARA_ENETPROTOCOL_HPP
