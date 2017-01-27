@@ -5,7 +5,7 @@
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryManager.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
@@ -611,16 +611,16 @@ namespace Nz
 			sysBuffers[i].iov_len = buffers[i].dataLength;
 		}
 
-		struct msghdr header;
-		std::memset(&header, 0, sizeof(header);
+		struct msghdr msgHdr;
+		std::memset(&msgHdr, 0, sizeof(msgHdr));
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		header.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
-		header.msg_name = nameBuffer.data();
+		msgHdr.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
+		msgHdr.msg_name = nameBuffer.data();
 		msgHdr.msg_iov = sysBuffers;
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
-		int sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
+		int byteSent = sendmsg(handle, &msgHdr, MSG_NOSIGNAL);
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
