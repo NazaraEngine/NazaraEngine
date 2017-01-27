@@ -611,12 +611,12 @@ namespace Nz
 			sysBuffers[i].iov_len = buffers[i].dataLength;
 		}
 
-		struct msghdr header;
-		std::memset(&header, 0, sizeof(header);
+		struct msghdr msgHdr;
+		std::memset(&msgHdr, 0, sizeof(header));
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		header.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
-		header.msg_name = nameBuffer.data();
+		msgHdr.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
+		msgHdr.msg_name = nameBuffer.data();
 		msgHdr.msg_iov = sysBuffers;
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
