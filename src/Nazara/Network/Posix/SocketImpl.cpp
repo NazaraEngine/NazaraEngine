@@ -5,7 +5,7 @@
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryManager.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
