@@ -29,7 +29,7 @@ namespace Nz
 		public:
 			using BitField = typename std::conditional<(EnumAsFlags<E>::max > 32), UInt64, UInt32>::type;
 
-			constexpr Flags(BitField value);
+			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
 
 			explicit constexpr operator bool() const;
