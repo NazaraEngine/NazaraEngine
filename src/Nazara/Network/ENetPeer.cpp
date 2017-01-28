@@ -336,7 +336,9 @@ namespace Nz
 
 			++m_packetsLost;
 
-			outgoingCommand->roundTripTimeout *= 2;
+			// http://lists.cubik.org/pipermail/enet-discuss/2014-May/002308.html
+			outgoingCommand->roundTripTimeout = m_roundTripTime + 4 * m_roundTripTimeVariance;
+			outgoingCommand->roundTripTimeoutLimit = m_timeoutLimit * outgoingCommand->roundTripTimeout;
 
 			m_outgoingReliableCommands.emplace_front(std::move(*outgoingCommand));
 			m_sentReliableCommands.erase(outgoingCommand);
