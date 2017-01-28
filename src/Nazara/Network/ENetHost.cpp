@@ -117,10 +117,7 @@ namespace Nz
 		ENetPeer& peer = m_peers[peerId];
 		peer.InitOutgoing(channelCount, remoteAddress, ++m_randomSeed, windowSize);
 
-		ENetProtocol command;
-		command.header.command = ENetProtocolCommand_Connect | ENetProtocolFlag_Acknowledge;
-		command.header.channelID = 0xFF;
-
+		ENetProtocol command(ENetProtocolCommand_Connect | ENetProtocolFlag_Acknowledge, 0xFF);
 		command.connect.channelCount = HostToNet(static_cast<UInt32>(channelCount));
 		command.connect.connectID = peer.m_connectID;
 		command.connect.data = HostToNet(data);
@@ -134,8 +131,7 @@ namespace Nz
 		command.connect.packetThrottleDeceleration = HostToNet(peer.m_packetThrottleDeceleration);
 		command.connect.packetThrottleInterval = HostToNet(peer.m_packetThrottleInterval);
 		command.connect.windowSize = HostToNet(peer.m_windowSize);
-
-		peer.QueueOutgoingCommand(command, nullptr, 0, 0);
+		peer.QueueOutgoingCommand(command);
 
 		return &peer;
 	}
@@ -350,52 +346,6 @@ namespace Nz
 		m_dispatchQueue.UnboundedReset(peer->m_incomingPeerID);
 	}
 
-	bool ENetHost::CheckTimeouts(ENetPeer* peer, ENetEvent* event)
-	{
-		auto currentCommand = peer->m_sentReliableCommands.begin();
-
-		while (currentCommand != peer->m_sentReliableCommands.end())
-		{
-			auto outgoingCommand = currentCommand;
-
-			++currentCommand;
-
-			if (ENET_TIME_DIFFERENCE(m_serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
-				continue;
-
-			if (peer->m_earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, peer->m_earliestTimeout))
-				peer->m_earliestTimeout = outgoingCommand->sentTime;
-
-			if (peer->m_earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_earliestTimeout) >= peer->m_timeoutMaximum ||
-				(outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENET_TIME_DIFFERENCE(m_serviceTime, peer->m_earliestTimeout) >= peer->m_timeoutMinimum)))
-			{
-				NotifyDisconnect(peer, event);
-				return true;
-			}
-
-			if (outgoingCommand->packet)
-				peer->m_reliableDataInTransit -= outgoingCommand->fragmentLength;
-
-			++peer->m_packetsLost;
-
-			outgoingCommand->roundTripTimeout *= 2;
-
-			peer->m_outgoingReliableCommands.emplace_front(std::move(*outgoingCommand));
-			peer->m_sentReliableCommands.erase(outgoingCommand);
-
-			// Okay this should just never procs, I don't see how it would be possible
-			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
-				!enet_list_empty(&peer->sentReliableCommands))
-			{
-				outgoingCommand = (ENetOutgoingCommand *) currentCommand;
-
-				peer->nextTimeout = outgoingCommand->sentTime + outgoingCommand->roundTripTimeout;
-			}*/
-		}
-
-		return false;
-	}
-
 	bool ENetHost::DispatchIncomingCommands(ENetEvent* event)
 	{
 		for (std::size_t bit = m_dispatchQueue.FindFirst(); bit != m_dispatchQueue.npos; bit = m_dispatchQueue.FindNext(bit))
@@ -608,9 +558,7 @@ namespace Nz
 		windowSize = std::max(windowSize, NetToHost(command->connect.windowSize));
 		windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
 
-		ENetProtocol verifyCommand;
-		verifyCommand.header.command                           = ENetProtocolCommand_VerifyConnect | ENetProtocolFlag_Acknowledge;
-		verifyCommand.header.channelID                         = 0xFF;
+		ENetProtocol verifyCommand(ENetProtocolCommand_VerifyConnect | ENetProtocolFlag_Acknowledge, 0xFF);
 		verifyCommand.verifyConnect.outgoingPeerID             = HostToNet(peer->m_incomingPeerID);
 		verifyCommand.verifyConnect.incomingSessionID          = peer->m_outgoingSessionID;
 		verifyCommand.verifyConnect.outgoingSessionID          = peer->m_incomingSessionID;
@@ -623,8 +571,7 @@ namespace Nz
 		verifyCommand.verifyConnect.packetThrottleAcceleration = HostToNet(peer->m_packetThrottleAcceleration);
 		verifyCommand.verifyConnect.packetThrottleDeceleration = HostToNet(peer->m_packetThrottleDeceleration);
 		verifyCommand.verifyConnect.connectID = peer->m_connectID;
-
-		peer->QueueOutgoingCommand(verifyCommand, nullptr, 0, 0);
+		peer->QueueOutgoingCommand(verifyCommand);
 
 		return peer;
 	}
@@ -930,7 +877,7 @@ namespace Nz
 		{
 			--startCommand->fragmentsRemaining;
 
-			startCommand->fragments.Set(fragmentNumber);
+			startCommand->fragments.Set(fragmentNumber, true);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
 				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
@@ -1036,7 +983,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.size())
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -1054,7 +1001,7 @@ namespace Nz
 		{
 			--startCommand->fragmentsRemaining;
 
-			startCommand->fragments.Set(fragmentNumber);
+			startCommand->fragments.Set(fragmentNumber, true);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
 				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
@@ -1405,8 +1352,7 @@ namespace Nz
 				if (!currentPeer->m_acknowledgements.empty())
 					SendAcknowledgements(currentPeer);
 
-				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENET_TIME_GREATER_EQUAL(m_serviceTime, currentPeer->m_nextTimeout) &&
-					CheckTimeouts(currentPeer, event))
+				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENET_TIME_GREATER_EQUAL(m_serviceTime, currentPeer->m_nextTimeout) && currentPeer->CheckTimeouts(event))
 				{
 					if (event && event->type != ENetEventType::None)
 						return 1;
@@ -1617,14 +1563,7 @@ namespace Nz
 				if ((throttle * peer.m_outgoingDataTotal) / ENetConstants::ENetPeer_PacketThrottleScale <= peerBandwidth)
 					continue;
 
-				peer.m_packetThrottleLimit = (peerBandwidth * ENetConstants::ENetPeer_PacketThrottleScale) / peer.m_outgoingDataTotal;
-
-				if (peer.m_packetThrottleLimit == 0)
-					peer.m_packetThrottleLimit = 1;
-
-				if (peer.m_packetThrottle > peer.m_packetThrottleLimit)
-					peer.m_packetThrottle = peer.m_packetThrottleLimit;
-
+				peer.m_packetThrottleLimit = Clamp<UInt32>((peerBandwidth * ENetConstants::ENetPeer_PacketThrottleScale) / peer.m_outgoingDataTotal, 0, peer.m_packetThrottleLimit);
 				peer.m_outgoingBandwidthThrottleEpoch = currentTime;
 
 				peer.m_incomingDataTotal = 0;
@@ -1650,9 +1589,7 @@ namespace Nz
 					continue;
 
 				peer.m_packetThrottleLimit = throttle;
-
-				if (peer.m_packetThrottle > peer.m_packetThrottleLimit)
-					peer.m_packetThrottle = peer.m_packetThrottleLimit;
+				peer.m_packetThrottle = std::min(peer.m_packetThrottle, peer.m_packetThrottleLimit);
 
 				peer.m_incomingDataTotal = 0;
 				peer.m_outgoingDataTotal = 0;
@@ -1698,9 +1635,7 @@ namespace Nz
 				if (!peer.IsConnected())
 					continue;
 
-				ENetProtocol command;
-				command.header.command = ENetProtocolCommand_BandwidthLimit | ENetProtocolFlag_Acknowledge;
-				command.header.channelID = 0xFF;
+				ENetProtocol command(ENetProtocolCommand_BandwidthLimit | ENetProtocolFlag_Acknowledge, 0xFF);
 				command.bandwidthLimit.outgoingBandwidth = HostToNet(m_outgoingBandwidth);
 
 				if (peer.m_incomingBandwidthThrottleEpoch == currentTime)
@@ -1708,7 +1643,7 @@ namespace Nz
 				else
 					command.bandwidthLimit.incomingBandwidth = HostToNet(bandwidthLimit);
 
-				peer.QueueOutgoingCommand(command, nullptr, 0, 0);
+				peer.QueueOutgoingCommand(command);
 			}
 		}
 	}

@@ -64,8 +64,6 @@ namespace Nz
 			void AddToDispatchQueue(ENetPeer* peer);
 			void RemoveFromDispatchQueue(ENetPeer* peer);
 
-			bool CheckTimeouts(ENetPeer* peer, ENetEvent* event);
-
 			bool DispatchIncomingCommands(ENetEvent* event);
 
 			bool HandleAcknowledge(ENetEvent* event, ENetPeer* peer, const ENetProtocol* command);

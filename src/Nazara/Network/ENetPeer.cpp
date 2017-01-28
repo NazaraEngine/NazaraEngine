@@ -5,6 +5,15 @@
 #include <iostream>
 #include <Nazara/Network/Debug.hpp>
 
+#define ENET_TIME_OVERFLOW 86400000
+
+#define ENET_TIME_LESS(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW)
+#define ENET_TIME_GREATER(a, b) ((b) - (a) >= ENET_TIME_OVERFLOW)
+#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER (a, b))
+#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS (a, b))
+
+#define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
+
 namespace Nz
 {
 	/// Temporary
@@ -49,9 +58,7 @@ namespace Nz
 
 		ResetQueues();
 
-		ENetProtocol command;
-		command.header.command = ENetProtocolCommand_Disconnect;
-		command.header.channelID = 0xFF;
+		ENetProtocol command(ENetProtocolCommand_Disconnect, 0xFF);
 		command.disconnect.data = HostToNet(data);
 
 		if (IsConnected())
@@ -59,7 +66,7 @@ namespace Nz
 		else
 			command.header.command |= ENetProtocolFlag_Unsequenced;
 
-		QueueOutgoingCommand(command, nullptr, 0, 0);
+		QueueOutgoingCommand(command);
 
 		if (IsConnected())
 		{
@@ -95,12 +102,9 @@ namespace Nz
 		{
 			ResetQueues();
 
-			ENetProtocol command;
-			command.header.command = ENetProtocolCommand_Disconnect | ENetProtocolFlag_Unsequenced;
-			command.header.channelID = 0xFF;
+			ENetProtocol command(ENetProtocolCommand_Disconnect | ENetProtocolFlag_Unsequenced, 0xFF);
 			command.disconnect.data = HostToNet(data);
-
-			QueueOutgoingCommand(command, nullptr, 0, 0);
+			QueueOutgoingCommand(command);
 
 			m_host->Flush();
 		}
@@ -116,8 +120,7 @@ namespace Nz
 		ENetProtocol command;
 		command.header.command = ENetProtocolCommand_Ping | ENetProtocolFlag_Acknowledge;
 		command.header.channelID = 0xFF;
-
-		QueueOutgoingCommand(command, nullptr, 0, 0);
+		QueueOutgoingCommand(command);
 	}
 
 	bool ENetPeer::Receive(ENetPacketRef* packet, UInt8* channelId)
@@ -299,66 +302,56 @@ namespace Nz
 		m_packetThrottleAcceleration = acceleration;
 		m_packetThrottleDeceleration = deceleration;
 
-		ENetProtocol command;
-		command.header.command   = ENetProtocolCommand_ThrottleConfigure | ENetProtocolFlag_Acknowledge;
-		command.header.channelID = 0xFF;
-
+		ENetProtocol command(ENetProtocolCommand_ThrottleConfigure | ENetProtocolFlag_Acknowledge, 0xFF);
 		command.throttleConfigure.packetThrottleInterval = HostToNet(interval);
 		command.throttleConfigure.packetThrottleAcceleration = HostToNet(acceleration);
 		command.throttleConfigure.packetThrottleDeceleration = HostToNet(deceleration);
-
-		QueueOutgoingCommand(command, nullptr, 0, 0);
+		QueueOutgoingCommand(command);
 	}
 
-	void ENetPeer::InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand)
+	bool ENetPeer::CheckTimeouts(ENetEvent* event)
 	{
-		m_channels.resize(channelCount);
-		m_address = address;
+		auto currentCommand = m_sentReliableCommands.begin();
+		while (currentCommand != m_sentReliableCommands.end())
+		{
+			auto outgoingCommand = currentCommand;
 
-		m_connectID = incomingCommand.connectID;
-		m_eventData = NetToHost(incomingCommand.data);
-		m_incomingBandwidth = NetToHost(incomingCommand.incomingBandwidth);
-		m_outgoingBandwidth = NetToHost(incomingCommand.outgoingBandwidth);
-		m_packetThrottleInterval = NetToHost(incomingCommand.packetThrottleInterval);
-		m_packetThrottleAcceleration = NetToHost(incomingCommand.packetThrottleAcceleration);
-		m_packetThrottleDeceleration = NetToHost(incomingCommand.packetThrottleDeceleration);
-		m_outgoingPeerID = NetToHost(incomingCommand.outgoingPeerID);
-		m_state = ENetPeerState::AcknowledgingConnect;
+			++currentCommand;
 
-		UInt8 incomingSessionId, outgoingSessionId;
+			if (ENET_TIME_DIFFERENCE(m_host->m_serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
+				continue;
 
-		incomingSessionId = incomingCommand.incomingSessionID == 0xFF ? m_outgoingSessionID : incomingCommand.incomingSessionID;
-		incomingSessionId = (incomingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
-		if (incomingSessionId == m_outgoingSessionID)
-			incomingSessionId = (incomingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
-		m_outgoingSessionID = incomingSessionId;
+			if (m_earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, m_earliestTimeout))
+				m_earliestTimeout = outgoingCommand->sentTime;
 
-		outgoingSessionId = incomingCommand.outgoingSessionID == 0xFF ? m_incomingSessionID : incomingCommand.outgoingSessionID;
-		outgoingSessionId = (outgoingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
-		if (outgoingSessionId == m_incomingSessionID)
-			outgoingSessionId = (outgoingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
-		m_incomingSessionID = outgoingSessionId;
+			if (m_earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(m_host->m_serviceTime, m_earliestTimeout) >= m_timeoutMaximum ||
+				(outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENET_TIME_DIFFERENCE(m_host->m_serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
+			{
+				m_host->NotifyDisconnect(this, event);
+				return true;
+			}
 
-		m_mtu = Clamp<UInt32>(NetToHost(incomingCommand.mtu), ENetConstants::ENetProtocol_MinimumMTU, ENetConstants::ENetProtocol_MaximumMTU);
+			if (outgoingCommand->packet)
+				m_reliableDataInTransit -= outgoingCommand->fragmentLength;
 
-		if (m_host->m_outgoingBandwidth == 0 && m_incomingBandwidth == 0)
-			m_windowSize = ENetConstants::ENetProtocol_MaximumWindowSize;
-		else if (m_host->m_outgoingBandwidth == 0 || m_incomingBandwidth == 0)
-			m_windowSize = (std::max(m_host->m_outgoingBandwidth, m_incomingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
-		else
-			m_windowSize = (std::min(m_host->m_outgoingBandwidth, m_incomingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
+			++m_packetsLost;
 
-		m_windowSize = Clamp<UInt32>(m_windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
-	}
+			outgoingCommand->roundTripTimeout *= 2;
 
-	void ENetPeer::InitOutgoing(std::size_t channelCount, const IpAddress& address, UInt32 connectId, UInt32 windowSize)
-	{
-		m_channels.resize(channelCount);
+			m_outgoingReliableCommands.emplace_front(std::move(*outgoingCommand));
+			m_sentReliableCommands.erase(outgoingCommand);
 
-		m_address = address;
-		m_connectID = connectId;
-		m_state = ENetPeerState::Connecting;
-		m_windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+			// Okay this should just never procs, I don't see how it would be possible
+			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
+			!enet_list_empty(&peer->sentReliableCommands))
+			{
+			outgoingCommand = (ENetOutgoingCommand *) currentCommand;
+
+			peer->nextTimeout = outgoingCommand->sentTime + outgoingCommand->roundTripTimeout;
+			}*/
+		}
+
+		return false;
 	}
 
 	void ENetPeer::DispatchState(ENetPeerState state)
@@ -472,6 +465,57 @@ namespace Nz
 		channel.incomingUnreliableCommands.erase(channel.incomingUnreliableCommands.begin(), droppedCommand);
 	}
 
+	void ENetPeer::InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand)
+	{
+		m_channels.resize(channelCount);
+		m_address = address;
+
+		m_connectID = incomingCommand.connectID;
+		m_eventData = NetToHost(incomingCommand.data);
+		m_incomingBandwidth = NetToHost(incomingCommand.incomingBandwidth);
+		m_outgoingBandwidth = NetToHost(incomingCommand.outgoingBandwidth);
+		m_packetThrottleInterval = NetToHost(incomingCommand.packetThrottleInterval);
+		m_packetThrottleAcceleration = NetToHost(incomingCommand.packetThrottleAcceleration);
+		m_packetThrottleDeceleration = NetToHost(incomingCommand.packetThrottleDeceleration);
+		m_outgoingPeerID = NetToHost(incomingCommand.outgoingPeerID);
+		m_state = ENetPeerState::AcknowledgingConnect;
+
+		UInt8 incomingSessionId, outgoingSessionId;
+
+		incomingSessionId = incomingCommand.incomingSessionID == 0xFF ? m_outgoingSessionID : incomingCommand.incomingSessionID;
+		incomingSessionId = (incomingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
+		if (incomingSessionId == m_outgoingSessionID)
+			incomingSessionId = (incomingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
+		m_outgoingSessionID = incomingSessionId;
+
+		outgoingSessionId = incomingCommand.outgoingSessionID == 0xFF ? m_incomingSessionID : incomingCommand.outgoingSessionID;
+		outgoingSessionId = (outgoingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
+		if (outgoingSessionId == m_incomingSessionID)
+			outgoingSessionId = (outgoingSessionId + 1) & (ENetProtocolHeaderSessionMask >> ENetProtocolHeaderSessionShift);
+		m_incomingSessionID = outgoingSessionId;
+
+		m_mtu = Clamp<UInt32>(NetToHost(incomingCommand.mtu), ENetConstants::ENetProtocol_MinimumMTU, ENetConstants::ENetProtocol_MaximumMTU);
+
+		if (m_host->m_outgoingBandwidth == 0 && m_incomingBandwidth == 0)
+			m_windowSize = ENetConstants::ENetProtocol_MaximumWindowSize;
+		else if (m_host->m_outgoingBandwidth == 0 || m_incomingBandwidth == 0)
+			m_windowSize = (std::max(m_host->m_outgoingBandwidth, m_incomingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
+		else
+			m_windowSize = (std::min(m_host->m_outgoingBandwidth, m_incomingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
+
+		m_windowSize = Clamp<UInt32>(m_windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+	}
+
+	void ENetPeer::InitOutgoing(std::size_t channelCount, const IpAddress& address, UInt32 connectId, UInt32 windowSize)
+	{
+		m_channels.resize(channelCount);
+
+		m_address = address;
+		m_connectID = connectId;
+		m_state = ENetPeerState::Connecting;
+		m_windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+	}
+
 	void ENetPeer::OnConnect()
 	{
 		if (!IsConnected())
@@ -498,7 +542,7 @@ namespace Nz
 	{
 		std::list<OutgoingCommand>* commandList = nullptr;
 
-		bool found = true;
+		bool found = false;
 		auto currentCommand = m_sentReliableCommands.begin();
 		commandList = &m_sentReliableCommands;
 		for (; currentCommand != m_sentReliableCommands.end(); ++currentCommand)
