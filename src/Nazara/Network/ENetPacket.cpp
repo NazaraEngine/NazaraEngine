@@ -10,10 +10,7 @@ namespace Nz
 		if (m_packet)
 		{
 			if (--m_packet->referenceCount == 0)
-			{
 				m_packet->owner->Delete(m_packet);
-				return;
-			}
 		}
 
 		m_packet = packet;
