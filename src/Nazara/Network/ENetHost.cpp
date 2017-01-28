@@ -1320,6 +1320,7 @@ namespace Nz
 			}
 
 			++peer->m_packetsSent;
+			++peer->m_totalPacketSent;
 			++m_bufferCount;
 			++m_commandCount;
 		}

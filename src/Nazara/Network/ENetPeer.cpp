@@ -191,6 +191,8 @@ namespace Nz
 		m_incomingUnsequencedGroup = 0;
 		m_outgoingUnsequencedGroup = 0;
 		m_eventData = 0;
+		m_totalPacketLost = 0;
+		m_totalPacketSent = 0;
 		m_totalWaitingData = 0;
 
 		m_unsequencedWindow.fill(0);
@@ -335,6 +337,7 @@ namespace Nz
 				m_reliableDataInTransit -= outgoingCommand->fragmentLength;
 
 			++m_packetsLost;
+			++m_totalPacketLost;
 
 			// http://lists.cubik.org/pipermail/enet-discuss/2014-May/002308.html
 			outgoingCommand->roundTripTimeout = m_roundTripTime + 4 * m_roundTripTimeVariance;

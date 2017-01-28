@@ -205,6 +205,8 @@ namespace Nz
 			UInt32                                m_timeoutMaximum;
 			UInt32                                m_timeoutMinimum;
 			UInt32                                m_windowSize;
+			UInt64                                m_totalPacketLost;
+			UInt64                                m_totalPacketSent;
 	};
 }
 
