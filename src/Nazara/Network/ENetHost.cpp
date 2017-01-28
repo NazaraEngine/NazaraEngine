@@ -983,7 +983,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -1068,7 +1068,7 @@ namespace Nz
 	bool ENetHost::HandleVerifyConnect(ENetEvent* event, ENetPeer* peer, ENetProtocol* command)
 	{
 		if (peer->GetState() != ENetPeerState::Connecting)
-			return false;
+			return true;
 
 		UInt32 channelCount = NetToHost(command->verifyConnect.channelCount);
 
@@ -1082,7 +1082,7 @@ namespace Nz
 
 			peer->DispatchState(ENetPeerState::Zombie);
 
-			return true;
+			return false;
 		}
 
 		peer->RemoveSentReliableCommand(1, 0xFF);
