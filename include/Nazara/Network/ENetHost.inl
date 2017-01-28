@@ -9,7 +9,8 @@
 namespace Nz
 {
 	inline ENetHost::ENetHost() :
-	m_packetPool(sizeof(ENetPacket))
+	m_packetPool(sizeof(ENetPacket)),
+	m_isSimulationEnabled(false)
 	{
 	}
 

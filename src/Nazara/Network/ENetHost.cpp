@@ -312,6 +312,20 @@ namespace Nz
 		return 0;
 	}
 
+	void ENetHost::SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay)
+	{
+		NazaraAssert(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
+
+		if (packetLossProbability <= 0.0 && minDelay == 0 && maxDelay == 0)
+			m_isSimulationEnabled = false;
+		else
+		{
+			m_isSimulationEnabled = true;
+			m_packetDelayDistribution = std::uniform_int_distribution<UInt16>(minDelay, maxDelay);
+			m_packetLossProbability = std::bernoulli_distribution(packetLossProbability);
+		}
+	}
+
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
 		if (!m_socket.Create(address.GetProtocol()))
@@ -1111,14 +1125,58 @@ namespace Nz
 	{
 		for (unsigned int i = 0; i < 256; ++i)
 		{
-			NetPacket packet;
-
+			bool shouldReceive = true;
 			std::size_t receivedLength;
-			if (!m_socket.Receive(m_packetData[0].data(), m_packetData[0].size(), &m_receivedAddress, &receivedLength))
-				return -1; //< Error
 
-			if (receivedLength == 0)
-				return 0;
+			if (m_isSimulationEnabled)
+			{
+				for (auto it = m_pendingPackets.begin(); it != m_pendingPackets.end(); ++it)
+				{
+					if (m_serviceTime >= it->deliveryTime)
+					{
+						shouldReceive = false;
+
+						m_receivedAddress = it->from;
+						receivedLength = it->data.GetDataSize();
+						std::memcpy(m_packetData[0].data(), it->data.GetConstData() + NetPacket::HeaderSize, receivedLength);
+
+						m_pendingPackets.erase(it);
+						break;
+					}
+				}
+			}
+
+			if (shouldReceive)
+			{
+				if (!m_socket.Receive(m_packetData[0].data(), m_packetData[0].size(), &m_receivedAddress, &receivedLength))
+					return -1; //< Error
+
+				if (receivedLength == 0)
+					return 0;
+
+				if (m_isSimulationEnabled)
+				{
+					if (m_packetLossProbability(s_randomGenerator))
+						continue;
+
+					UInt16 delay = m_packetDelayDistribution(s_randomGenerator);
+					if (delay > 0)
+					{
+						PendingPacket pendingPacket;
+						pendingPacket.deliveryTime = m_serviceTime + delay;
+						pendingPacket.from = m_receivedAddress;
+						pendingPacket.data.Reset(0, m_packetData[0].data(), receivedLength);
+
+						auto it = std::upper_bound(m_pendingPackets.begin(), m_pendingPackets.end(), pendingPacket, [] (const PendingPacket& first, const PendingPacket& second)
+						{
+							return first.deliveryTime < second.deliveryTime;
+						});
+
+						m_pendingPackets.emplace(it, std::move(pendingPacket));
+						continue;
+					}
+				}
+			}
 
 			m_receivedData = m_packetData[0].data();
 			m_receivedDataLength = receivedLength;
