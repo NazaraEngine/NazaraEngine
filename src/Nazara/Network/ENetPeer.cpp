@@ -54,14 +54,14 @@ namespace Nz
 		command.header.channelID = 0xFF;
 		command.disconnect.data = HostToNet(data);
 
-		if (m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater)
+		if (IsConnected())
 			command.header.command |= ENetProtocolFlag_Acknowledge;
 		else
 			command.header.command |= ENetProtocolFlag_Unsequenced;
 
 		QueueOutgoingCommand(command, nullptr, 0, 0);
 
-		if (m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater)
+		if (IsConnected())
 		{
 			OnDisconnect();
 
@@ -77,10 +77,7 @@ namespace Nz
 
 	void ENetPeer::DisconnectLater(UInt32 data)
 	{
-		if ((m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater) &&
-			!m_outgoingReliableCommands.empty() &&
-			!m_outgoingUnreliableCommands.empty() &&
-			!m_sentReliableCommands.empty())
+		if (IsConnected() && !m_outgoingReliableCommands.empty() && !m_outgoingUnreliableCommands.empty() && !m_sentReliableCommands.empty())
 		{
 			m_state = ENetPeerState::DisconnectLater;
 			m_eventData = data;
@@ -383,8 +380,8 @@ namespace Nz
 
 			channel.incomingReliableSequenceNumber = incomingCommand.reliableSequenceNumber;
 
-			if (!incomingCommand.fragments.empty())
-				channel.incomingReliableSequenceNumber += incomingCommand.fragments.size() - 1;
+			if (incomingCommand.fragments.GetSize() == 0)
+				channel.incomingReliableSequenceNumber += incomingCommand.fragments.GetSize() - 1;
 		}
 
 		if (currentCommand == channel.incomingReliableCommands.begin())
@@ -477,7 +474,7 @@ namespace Nz
 
 	void ENetPeer::OnConnect()
 	{
-		if (m_state != ENetPeerState::Connected && m_state != ENetPeerState::DisconnectLater)
+		if (!IsConnected())
 		{
 			if (m_incomingBandwidth != 0)
 				++m_host->m_bandwidthLimitedPeers;
@@ -488,7 +485,7 @@ namespace Nz
 
 	void ENetPeer::OnDisconnect()
 	{
-		if (m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater)
+		if (IsConnected())
 		{
 			if (m_incomingBandwidth != 0)
 				--m_host->m_bandwidthLimitedPeers;
@@ -754,7 +751,7 @@ namespace Nz
 		incomingCommand.unreliableSequenceNumber = unreliableSequenceNumber & 0xFFFF;
 		incomingCommand.command = command;
 		incomingCommand.packet = packet;
-		incomingCommand.fragments.resize(fragmentCount, 0);
+		incomingCommand.fragments.Resize(fragmentCount);
 		incomingCommand.fragmentsRemaining = fragmentCount;
 
 		if (packet)

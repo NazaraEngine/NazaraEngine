@@ -69,7 +69,7 @@ namespace Nz
 
 		for (ENetPeer& peer : m_peers)
 		{
-			if (peer.m_state != ENetPeerState::Connected)
+			if (peer.GetState() != ENetPeerState::Connected)
 				continue;
 
 			peer.Send(channelId, enetPacket);
@@ -96,7 +96,7 @@ namespace Nz
 		std::size_t peerId;
 		for (peerId = 0; peerId < m_peers.size(); ++peerId)
 		{
-			if (m_peers[peerId].m_state == ENetPeerState::Disconnected)
+			if (m_peers[peerId].GetState() == ENetPeerState::Disconnected)
 				break;
 		}
 
@@ -403,7 +403,7 @@ namespace Nz
 			m_dispatchQueue.Reset(bit);
 
 			ENetPeer& peer = m_peers[bit];
-			switch (peer.m_state)
+			switch (peer.GetState())
 			{
 				case ENetPeerState::ConnectionPending:
 				case ENetPeerState::ConnectionSucceeded:
@@ -449,7 +449,7 @@ namespace Nz
 
 	bool ENetHost::HandleAcknowledge(ENetEvent* event, ENetPeer* peer, const ENetProtocol* command)
 	{
-		if (peer->m_state == ENetPeerState::Disconnected || peer->m_state == ENetPeerState::Zombie)
+		if (peer->GetState() == ENetPeerState::Disconnected || peer->GetState() == ENetPeerState::Zombie)
 			return true;
 
 		UInt32 receivedSentTime = NetToHost(command->acknowledge.receivedSentTime);
@@ -499,7 +499,7 @@ namespace Nz
 
 		ENetProtocolCommand commandNumber = peer->RemoveSentReliableCommand(receivedReliableSequenceNumber, command->header.channelID);
 
-		switch (peer->m_state)
+		switch (peer->GetState())
 		{
 			case ENetPeerState::AcknowledgingConnect:
 				if (commandNumber != ENetProtocolCommand_VerifyConnect)
@@ -516,7 +516,7 @@ namespace Nz
 				break;
 
 			case ENetPeerState::DisconnectLater:
-				if (peer->m_outgoingReliableCommands.empty() && peer->m_outgoingUnreliableCommands.empty() && peer->m_sentReliableCommands.empty())
+				if (!peer->HasPendingCommands())
 					peer->Disconnect(peer->m_eventData);
 
 				break;
@@ -530,7 +530,7 @@ namespace Nz
 
 	bool ENetHost::HandleBandwidthLimit(ENetPeer* peer, const ENetProtocol* command)
 	{
-		if (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+		if (!peer->IsConnected())
 			return false;
 
 		if (peer->m_incomingBandwidth != 0)
@@ -568,12 +568,12 @@ namespace Nz
 		ENetPeer* peer = nullptr;
 		for (ENetPeer& currentPeer : m_peers)
 		{
-			if (currentPeer.m_state == ENetPeerState::Disconnected)
+			if (currentPeer.GetState() == ENetPeerState::Disconnected)
 			{
 				if (!peer)
 					peer = &currentPeer;
 			}
-			else if (currentPeer.m_state != ENetPeerState::Connecting)
+			else if (currentPeer.GetState() != ENetPeerState::Connecting)
 			{
 				// Compare users without comparing their port
 				IpAddress first(currentPeer.m_address);
@@ -631,18 +631,18 @@ namespace Nz
 
 	bool ENetHost::HandleDisconnect(ENetPeer* peer, const ENetProtocol * command)
 	{
-		if (peer->m_state == ENetPeerState::Disconnected || peer->m_state == ENetPeerState::Zombie || peer->m_state == ENetPeerState::AcknowledgingDisconnect)
+		if (peer->GetState() == ENetPeerState::Disconnected || peer->GetState() == ENetPeerState::Zombie || peer->GetState() == ENetPeerState::AcknowledgingDisconnect)
 			return true;
 
 		peer->ResetQueues();
 
-		if (peer->m_state == ENetPeerState::ConnectionSucceeded || peer->m_state == ENetPeerState::Disconnecting || peer->m_state == ENetPeerState::Connecting)
+		if (peer->GetState() == ENetPeerState::ConnectionSucceeded || peer->GetState() == ENetPeerState::Disconnecting || peer->GetState() == ENetPeerState::Connecting)
 			peer->DispatchState(ENetPeerState::Zombie);
 		else
 		{
-			if (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+			if (!peer->IsConnected())
 			{
-				if (peer->m_state == ENetPeerState::ConnectionPending)
+				if (peer->GetState() == ENetPeerState::ConnectionPending)
 					m_recalculateBandwidthLimits = true;
 
 				peer->Reset();
@@ -654,7 +654,7 @@ namespace Nz
 					peer->DispatchState(ENetPeerState::Zombie);
 		}
 
-		if (peer->m_state != ENetPeerState::Disconnected)
+		if (peer->GetState() != ENetPeerState::Disconnected)
 			peer->m_eventData = NetToHost(command->disconnect.data);
 
 		return true;
@@ -685,7 +685,7 @@ namespace Nz
 			{
 				peer = &m_peers[peerID];
 
-				if (peer->m_state == ENetPeerState::Disconnected || peer->m_state == ENetPeerState::Zombie)
+				if (peer->GetState() == ENetPeerState::Disconnected || peer->GetState() == ENetPeerState::Zombie)
 					return false;
 
 				if (m_receivedAddress != peer->m_address && peer->m_address != IpAddress::BroadcastIpV4)
@@ -829,7 +829,7 @@ namespace Nz
 
 				sentTime = NetToHost(header->sentTime);
 
-				switch (peer->m_state)
+				switch (peer->GetState())
 				{
 					case ENetPeerState::Disconnecting:
 					case ENetPeerState::AcknowledgingConnect:
@@ -854,7 +854,7 @@ namespace Nz
 
 	bool ENetHost::HandlePing(ENetPeer* peer, const ENetProtocol* /*command*/)
 	{
-		if (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+		if (!peer->IsConnected())
 			return false;
 
 		return true;
@@ -862,7 +862,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+		if (command->header.channelID >= peer->m_channels.size() || !peer->IsConnected())
 			return false;
 
 		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
@@ -909,7 +909,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.size())
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -926,11 +926,11 @@ namespace Nz
 				return false;
 		}
 
-		if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0)
+		if (!startCommand->fragments.Test(fragmentNumber))
 		{
 			--startCommand->fragmentsRemaining;
 
-			startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+			startCommand->fragments.Set(fragmentNumber);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
 				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
@@ -946,7 +946,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendReliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+		if (command->header.channelID >= peer->m_channels.size() || !peer->IsConnected())
 			return false;
 
 		UInt16 dataLength = NetToHost(command->sendReliable.dataLength);
@@ -962,7 +962,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendUnreliable(ENetPeer * peer, const ENetProtocol * command, UInt8 ** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+		if (command->header.channelID >= peer->m_channels.size() || !peer->IsConnected())
 			return false;
 
 		UInt16 dataLength = NetToHost(command->sendUnreliable.dataLength);
@@ -978,7 +978,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendUnreliableFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+		if (command->header.channelID >= peer->m_channels.size() || !peer->IsConnected())
 			return false;
 
 		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
@@ -1050,11 +1050,11 @@ namespace Nz
 				return false;
 		}
 
-		if ((startCommand->fragments[fragmentNumber / 32] & (1 << (fragmentNumber % 32))) == 0)
+		if (!startCommand->fragments.Test(fragmentNumber))
 		{
 			--startCommand->fragmentsRemaining;
 
-			startCommand->fragments[fragmentNumber / 32] |= (1 << (fragmentNumber % 32));
+			startCommand->fragments.Set(fragmentNumber);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
 				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
@@ -1070,7 +1070,7 @@ namespace Nz
 
 	bool ENetHost::HandleSendUnsequenced(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData)
 	{
-		if (command->header.channelID >= peer->m_channels.size() || (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater))
+		if (command->header.channelID >= peer->m_channels.size() || !peer->IsConnected())
 			return false;
 
 		std::size_t dataLength = NetToHost(command->sendUnsequenced.dataLength);
@@ -1108,7 +1108,7 @@ namespace Nz
 
 	bool ENetHost::HandleThrottleConfigure(ENetPeer* peer, const ENetProtocol* command)
 	{
-		if (peer->m_state != ENetPeerState::Connected && peer->m_state != ENetPeerState::DisconnectLater)
+		if (!peer->IsConnected())
 			return false;
 
 		peer->m_packetThrottleInterval     = NetToHost(command->throttleConfigure.packetThrottleInterval);
@@ -1120,7 +1120,7 @@ namespace Nz
 
 	bool ENetHost::HandleVerifyConnect(ENetEvent* event, ENetPeer* peer, ENetProtocol* command)
 	{
-		if (peer->m_state != ENetPeerState::Connecting)
+		if (peer->GetState() != ENetPeerState::Connecting)
 			return false;
 
 		UInt32 channelCount = NetToHost(command->verifyConnect.channelCount);
@@ -1201,15 +1201,15 @@ namespace Nz
 			event->data = peer->m_eventData;
 		}
 		else
-			peer->DispatchState(peer->m_state == ENetPeerState::Connecting ? ENetPeerState::ConnectionSucceeded : ENetPeerState::ConnectionPending);
+			peer->DispatchState(peer->GetState() == ENetPeerState::Connecting ? ENetPeerState::ConnectionSucceeded : ENetPeerState::ConnectionPending);
 	}
 
 	void ENetHost::NotifyDisconnect(ENetPeer* peer, ENetEvent* event)
 	{
-		if (peer->m_state >= ENetPeerState::ConnectionPending)
+		if (peer->GetState() >= ENetPeerState::ConnectionPending)
 			m_recalculateBandwidthLimits = true;
 
-		if (peer->m_state != ENetPeerState::Connecting && (peer->m_state < ENetPeerState::ConnectionSucceeded))
+		if (peer->GetState() != ENetPeerState::Connecting && (peer->GetState() < ENetPeerState::ConnectionSucceeded))
 			peer->Reset();
 		else if (event)
 		{
@@ -1394,7 +1394,7 @@ namespace Nz
 			for (std::size_t peer = 0; peer < m_peerCount; ++peer)
 			{
 				ENetPeer* currentPeer = &m_peers[peer];
-				if (currentPeer->m_state == ENetPeerState::Disconnected || currentPeer->m_state == ENetPeerState::Zombie)
+				if (currentPeer->GetState() == ENetPeerState::Disconnected || currentPeer->GetState() == ENetPeerState::Zombie)
 					continue;
 
 				m_headerFlags = 0;
@@ -1560,8 +1560,7 @@ namespace Nz
 			++m_commandCount;
 		}
 
-		if (peer->m_state == ENetPeerState::DisconnectLater && peer->m_outgoingReliableCommands.empty() &&
-		    peer->m_outgoingUnreliableCommands.empty() && peer->m_sentReliableCommands.empty())
+		if (peer->GetState() == ENetPeerState::DisconnectLater && !peer->HasPendingCommands())
 			peer->Disconnect(peer->m_eventData);
 	}
 
@@ -1588,7 +1587,7 @@ namespace Nz
 			dataTotal = 0;
 			for (ENetPeer& peer : m_peers)
 			{
-				if (peer.m_state != ENetPeerState::Connected && peer.m_state != ENetPeerState::DisconnectLater)
+				if (peer.IsConnected())
 					continue;
 
 				dataTotal += peer.m_outgoingDataTotal;
@@ -1611,8 +1610,7 @@ namespace Nz
 
 			for (ENetPeer& peer : m_peers)
 			{
-				if ((peer.m_state != ENetPeerState::Connected && peer.m_state != ENetPeerState::DisconnectLater) ||
-					peer.m_incomingBandwidth == 0 || peer.m_outgoingBandwidthThrottleEpoch == currentTime)
+				if (!peer.IsConnected() || peer.m_incomingBandwidth == 0 || peer.m_outgoingBandwidthThrottleEpoch == currentTime)
 					continue;
 
 				UInt32 peerBandwidth = (peer.m_incomingBandwidth * elapsedTime) / 1000;
@@ -1648,8 +1646,7 @@ namespace Nz
 
 			for (ENetPeer& peer : m_peers)
 			{
-				if ((peer.m_state != ENetPeerState::Connected && peer.m_state != ENetPeerState::DisconnectLater) ||
-					peer.m_outgoingBandwidthThrottleEpoch == currentTime)
+				if (!peer.IsConnected() || peer.m_outgoingBandwidthThrottleEpoch == currentTime)
 					continue;
 
 				peer.m_packetThrottleLimit = throttle;
@@ -1681,8 +1678,7 @@ namespace Nz
 
 					for (ENetPeer& peer : m_peers)
 					{
-						if ((peer.m_state != ENetPeerState::Connected && peer.m_state != ENetPeerState::DisconnectLater) ||
-							peer.m_incomingBandwidthThrottleEpoch == currentTime)
+						if (!peer.IsConnected() || peer.m_incomingBandwidthThrottleEpoch == currentTime)
 							continue;
 
 						if (peer.m_outgoingBandwidth > 0 && peer.m_outgoingBandwidth >= bandwidthLimit)
@@ -1699,7 +1695,7 @@ namespace Nz
 
 			for (ENetPeer& peer : m_peers)
 			{
-				if (peer.m_state != ENetPeerState::Connected && peer.m_state != ENetPeerState::DisconnectLater)
+				if (!peer.IsConnected())
 					continue;
 
 				ENetProtocol command;
