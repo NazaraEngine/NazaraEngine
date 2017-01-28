@@ -13,6 +13,21 @@ namespace Nz
 		return m_address;
 	}
 
+	inline ENetPeerState ENetPeer::GetState() const
+	{
+		return m_state;
+	}
+
+	inline bool ENetPeer::HasPendingCommands()
+	{
+		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty();
+	}
+
+	inline bool ENetPeer::IsConnected() const
+	{
+		return m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater;
+	}
+
 	inline void ENetPeer::ChangeState(ENetPeerState state)
 	{
 		if (state == ENetPeerState::Connected || state == ENetPeerState::DisconnectLater)

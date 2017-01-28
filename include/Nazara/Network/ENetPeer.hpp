@@ -40,6 +40,11 @@ namespace Nz
 			void DisconnectNow(UInt32 data);
 
 			inline const IpAddress& GetAddress() const;
+			inline ENetPeerState GetState() const;
+
+			inline bool HasPendingCommands();
+
+			inline bool IsConnected() const;
 
 			void Ping();
 
@@ -116,12 +121,12 @@ namespace Nz
 
 			struct IncomingCommmand
 			{
-				ENetProtocol        command;
-				UInt16              reliableSequenceNumber;
-				UInt16              unreliableSequenceNumber;
-				UInt32              fragmentsRemaining;
-				std::vector<UInt32> fragments;
-				ENetPacketRef       packet;
+				ENetProtocol  command;
+				Bitset<>      fragments;
+				ENetPacketRef packet;
+				UInt16        reliableSequenceNumber;
+				UInt16        unreliableSequenceNumber;
+				UInt32        fragmentsRemaining;
 			};
 
 			struct OutgoingCommand
@@ -152,7 +157,6 @@ namespace Nz
 			std::size_t                           m_totalWaitingData;
 			std::vector<Channel>                  m_channels;
 			MemoryPool                            m_packetPool;
-			//ENetListNode                        m_dispatchList;
 			ENetPeerState                         m_state;
 			UInt8                                 m_incomingSessionID;
 			UInt8                                 m_outgoingSessionID;
