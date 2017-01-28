@@ -55,6 +55,8 @@ namespace Nz
 
 			int Service(ENetEvent* event, UInt32 timeout);
 
+			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);
+
 			ENetHost& operator=(const ENetHost&) = delete;
 			ENetHost& operator=(ENetHost&&) = default;
 
@@ -96,6 +98,13 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
+			struct PendingPacket
+			{
+				IpAddress from;
+				NetPacket data;
+				UInt32 deliveryTime;
+			};
+
 			std::array<ENetProtocol, ENetConstants::ENetProtocol_MaximumPacketCommands> m_commands;
 			std::array<NetBuffer, ENetConstants::ENetProtocol_MaximumPacketCommands * 2 + 1> m_buffers;
 			std::array<UInt8, ENetConstants::ENetProtocol_MaximumMTU> m_packetData[2];
@@ -110,7 +119,10 @@ namespace Nz
 			std::size_t m_packetSize;
 			std::size_t m_peerCount;
 			std::size_t m_receivedDataLength;
+			std::uniform_int_distribution<UInt16> m_packetDelayDistribution;
 			std::vector<ENetPeer> m_peers;
+			std::vector<PendingPacket> m_pendingPackets;
+			UInt8* m_receivedData;
 			Bitset<UInt64> m_dispatchQueue;
 			MemoryPool m_packetPool;
 			IpAddress m_address;
@@ -129,10 +141,8 @@ namespace Nz
 			UInt32 m_totalSentPackets;
 			UInt32 m_totalReceivedData;
 			UInt32 m_totalReceivedPackets;
-			UInt8* m_receivedData;
 			bool m_continueSending;
 			bool m_isSimulationEnabled;
-			bool m_shouldAcceptConnections;
 			bool m_recalculateBandwidthLimits;
 
 			static std::mt19937 s_randomGenerator;

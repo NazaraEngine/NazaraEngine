@@ -2,7 +2,6 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <iostream>
 #include <Nazara/Network/Debug.hpp>
 
 #define ENET_TIME_OVERFLOW 86400000
