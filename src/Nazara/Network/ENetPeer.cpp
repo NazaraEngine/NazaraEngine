@@ -375,7 +375,7 @@ namespace Nz
 
 			channel.incomingReliableSequenceNumber = incomingCommand.reliableSequenceNumber;
 
-			if (incomingCommand.fragments.GetSize() == 0)
+			if (incomingCommand.fragments.GetSize() > 0)
 				channel.incomingReliableSequenceNumber += incomingCommand.fragments.GetSize() - 1;
 		}
 

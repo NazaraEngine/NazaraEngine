@@ -1082,7 +1082,7 @@ namespace Nz
 
 			peer->DispatchState(ENetPeerState::Zombie);
 
-			return false;
+			return true;
 		}
 
 		peer->RemoveSentReliableCommand(1, 0xFF);
@@ -1201,7 +1201,7 @@ namespace Nz
 			command.header.channelID = acknowledgement.command.header.channelID;
 			command.header.reliableSequenceNumber = reliableSequenceNumber;
 			command.acknowledge.receivedReliableSequenceNumber = reliableSequenceNumber;
-			command.acknowledge.receivedSentTime = HostToNet(acknowledgement.sentTime);
+			command.acknowledge.receivedSentTime = HostToNet<UInt16>(acknowledgement.sentTime);
 
 			if ((acknowledgement.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
 				peer->DispatchState(ENetPeerState::Zombie);
