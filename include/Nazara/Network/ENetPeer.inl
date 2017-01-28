@@ -37,6 +37,11 @@ namespace Nz
 
 		m_state = state;
 	}
+
+	inline void ENetPeer::QueueOutgoingCommand(ENetProtocol& command)
+	{
+		QueueOutgoingCommand(command, ENetPacketRef(), 0, 0);
+	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>

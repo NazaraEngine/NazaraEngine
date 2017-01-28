@@ -68,8 +68,10 @@ namespace Nz
 			struct IncomingCommmand;
 			struct OutgoingCommand;
 
-			// Protocol functions
 			inline void ChangeState(ENetPeerState state);
+
+			bool CheckTimeouts(ENetEvent* event);
+
 			void DispatchState(ENetPeerState state);
 
 			void DispatchIncomingReliableCommands(Channel& channel);
@@ -85,6 +87,7 @@ namespace Nz
 
 			bool QueueAcknowledgement(ENetProtocol* command, UInt16 sentTime);
 			IncomingCommmand* QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount);
+			inline void QueueOutgoingCommand(ENetProtocol& command);
 			void QueueOutgoingCommand(ENetProtocol& command, ENetPacketRef packet, UInt32 offset, UInt16 length);
 
 			void SetupOutgoingCommand(OutgoingCommand& outgoingCommand);

@@ -267,6 +267,14 @@ namespace Nz
 
 	union NAZARA_PACKED ENetProtocol
 	{
+		ENetProtocol() = default;
+
+		ENetProtocol(UInt8 command, UInt8 channel)
+		{
+			header.command = command;
+			header.channelID = channel;
+		}
+
 		ENetProtocolCommandHeader header;
 		ENetProtocolAcknowledge acknowledge;
 		ENetProtocolBandwidthLimit bandwidthLimit;
