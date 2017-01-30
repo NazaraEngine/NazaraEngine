@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -68,19 +68,8 @@ namespace Nz
 
 			bool DispatchIncomingCommands(ENetEvent* event);
 
-			bool HandleAcknowledge(ENetEvent* event, ENetPeer* peer, const ENetProtocol* command);
-			bool HandleBandwidthLimit(ENetPeer* peer, const ENetProtocol* command);
 			ENetPeer* HandleConnect(ENetProtocolHeader* header, ENetProtocol* command);
-			bool HandleDisconnect(ENetPeer* peer, const ENetProtocol* command);
 			bool HandleIncomingCommands(ENetEvent* event);
-			bool HandlePing(ENetPeer* peer, const ENetProtocol* command);
-			bool HandleSendFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
-			bool HandleSendReliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
-			bool HandleSendUnreliable(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
-			bool HandleSendUnreliableFragment(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
-			bool HandleSendUnsequenced(ENetPeer* peer, const ENetProtocol* command, UInt8** currentData);
-			bool HandleThrottleConfigure(ENetPeer* peer, const ENetProtocol* command);
-			bool HandleVerifyConnect(ENetEvent* event, ENetPeer* peer, ENetProtocol* command);
 
 			int ReceiveIncomingCommands(ENetEvent* event);
 
