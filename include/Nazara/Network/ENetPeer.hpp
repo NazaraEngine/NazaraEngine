@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,6 +12,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
+#include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
@@ -76,6 +77,18 @@ namespace Nz
 
 			void DispatchIncomingReliableCommands(Channel& channel);
 			void DispatchIncomingUnreliableCommands(Channel& channel);
+
+			bool HandleAcknowledge(const ENetProtocol* command, ENetEvent* event);
+			bool HandleBandwidthLimit(const ENetProtocol* command);
+			bool HandleDisconnect(const ENetProtocol* command);
+			bool HandlePing(const ENetProtocol* command);
+			bool HandleSendFragment(const ENetProtocol* command, UInt8** data);
+			bool HandleSendReliable(const ENetProtocol* command, UInt8** data);
+			bool HandleSendUnreliable(const ENetProtocol* command, UInt8** data);
+			bool HandleSendUnreliableFragment(const ENetProtocol* command, UInt8** data);
+			bool HandleSendUnsequenced(const ENetProtocol* command, UInt8** data);
+			bool HandleThrottleConfigure(const ENetProtocol* command);
+			bool HandleVerifyConnect(const ENetProtocol* command, ENetEvent* event);
 
 			void OnConnect();
 			void OnDisconnect();

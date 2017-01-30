@@ -1,4 +1,4 @@
-#include <Nazara/Network/ENetPeer.hpp>
+﻿#include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/NetPacket.hpp>
@@ -467,6 +467,453 @@ namespace Nz
 		}
 
 		channel.incomingUnreliableCommands.erase(channel.incomingUnreliableCommands.begin(), droppedCommand);
+	}
+
+	bool ENetPeer::HandleAcknowledge(const ENetProtocol* command, ENetEvent* event)
+	{
+		if (m_state == ENetPeerState::Disconnected || m_state == ENetPeerState::Zombie)
+			return true;
+
+		UInt32 serviceTime = m_host->m_serviceTime;
+		UInt32 receivedSentTime = NetToHost(command->acknowledge.receivedSentTime);
+		receivedSentTime |= serviceTime & 0xFFFF0000;
+		if ((receivedSentTime & 0x8000) > (serviceTime & 0x8000))
+			receivedSentTime -= 0x10000;
+
+		if (ENET_TIME_LESS(serviceTime, receivedSentTime))
+			return true;
+
+		m_lastReceiveTime = serviceTime;
+		m_earliestTimeout = 0;
+
+		UInt32 roundTripTime = ENET_TIME_DIFFERENCE(serviceTime, receivedSentTime);
+
+		Throttle(roundTripTime);
+
+		m_roundTripTimeVariance -= m_roundTripTimeVariance / 4;
+
+		if (roundTripTime >= m_roundTripTime)
+		{
+			m_roundTripTime += (roundTripTime - m_roundTripTime) / 8;
+			m_roundTripTimeVariance += (roundTripTime - m_roundTripTime) / 4;
+		}
+		else
+		{
+			m_roundTripTime -= (m_roundTripTime - roundTripTime) / 8;
+			m_roundTripTimeVariance += (m_roundTripTime - roundTripTime) / 4;
+		}
+
+		m_lowestRoundTripTime = std::min(m_lowestRoundTripTime, m_roundTripTime);
+		m_highestRoundTripTimeVariance = std::max(m_highestRoundTripTimeVariance, m_roundTripTimeVariance);
+
+		if (m_packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(serviceTime, m_packetThrottleEpoch) >= m_packetThrottleInterval)
+		{
+			m_lastRoundTripTime = m_lowestRoundTripTime;
+			m_lastRoundTripTimeVariance = m_highestRoundTripTimeVariance;
+			m_lowestRoundTripTime = m_roundTripTime;
+			m_highestRoundTripTimeVariance = m_roundTripTimeVariance;
+			m_packetThrottleEpoch = serviceTime;
+		}
+
+		UInt16 receivedReliableSequenceNumber = NetToHost(command->acknowledge.receivedReliableSequenceNumber);
+
+		ENetProtocolCommand commandNumber = RemoveSentReliableCommand(receivedReliableSequenceNumber, command->header.channelID);
+
+		switch (m_state)
+		{
+			case ENetPeerState::AcknowledgingConnect:
+				if (commandNumber != ENetProtocolCommand_VerifyConnect)
+					return false;
+
+				m_host->NotifyConnect(this, event);
+				break;
+
+			case ENetPeerState::Disconnecting:
+				if (commandNumber != ENetProtocolCommand_Disconnect)
+					return false;
+
+				m_host->NotifyDisconnect(this, event);
+				break;
+
+			case ENetPeerState::DisconnectLater:
+				if (!HasPendingCommands())
+					Disconnect(m_eventData);
+
+				break;
+
+			default:
+				break;
+		}
+
+		return true;
+	}
+
+	bool ENetPeer::HandleBandwidthLimit(const ENetProtocol* command)
+	{
+		if (!IsConnected())
+			return false;
+
+		if (m_incomingBandwidth != 0)
+			--m_host->m_bandwidthLimitedPeers;
+
+		m_incomingBandwidth = NetToHost(command->bandwidthLimit.incomingBandwidth);
+		m_outgoingBandwidth = NetToHost(command->bandwidthLimit.outgoingBandwidth);
+
+		if (m_incomingBandwidth != 0)
+			++m_host->m_bandwidthLimitedPeers;
+
+		if (m_incomingBandwidth == 0 && m_host->m_outgoingBandwidth == 0)
+			m_windowSize = ENetConstants::ENetProtocol_MaximumWindowSize;
+		else
+		{
+			if (m_incomingBandwidth == 0 || m_host->m_outgoingBandwidth == 0)
+				m_windowSize = (std::max(m_incomingBandwidth, m_host->m_outgoingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
+			else
+				m_windowSize = (std::min(m_incomingBandwidth, m_host->m_outgoingBandwidth) / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
+
+			m_windowSize = Clamp<UInt32>(m_windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+		}
+
+		return true;
+	}
+
+	bool ENetPeer::HandleDisconnect(const ENetProtocol* command)
+	{
+		if (m_state == ENetPeerState::Disconnected || m_state == ENetPeerState::Zombie || m_state == ENetPeerState::AcknowledgingDisconnect)
+			return true;
+
+		ResetQueues();
+
+		if (m_state == ENetPeerState::ConnectionSucceeded || m_state == ENetPeerState::Disconnecting || m_state == ENetPeerState::Connecting)
+			DispatchState(ENetPeerState::Zombie);
+		else
+		{
+			if (!IsConnected())
+			{
+				if (m_state == ENetPeerState::ConnectionPending)
+					m_host->m_recalculateBandwidthLimits = true;
+
+				Reset();
+			}
+			else
+				if (command->header.command & ENetProtocolFlag_Acknowledge)
+					ChangeState(ENetPeerState::AcknowledgingDisconnect);
+				else
+					DispatchState(ENetPeerState::Zombie);
+		}
+
+		if (m_state != ENetPeerState::Disconnected)
+			m_eventData = NetToHost(command->disconnect.data);
+
+		return true;
+	}
+
+	bool ENetPeer::HandlePing(const ENetProtocol* /*command*/)
+	{
+		if (!IsConnected())
+			return false;
+
+		return true;
+	}
+
+	bool ENetPeer::HandleSendFragment(const ENetProtocol* command, UInt8** data)
+	{
+		if (command->header.channelID >= m_channels.size() || !IsConnected())
+			return false;
+
+		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
+		*data += fragmentLength;
+		if (fragmentLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
+			return false;
+
+		ENetPeer::Channel& channel = m_channels[command->header.channelID];
+		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
+		UInt16 startWindow = startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+
+		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
+			startWindow += ENetConstants::ENetPeer_ReliableWindows;
+
+		if (startWindow < currentWindow || startWindow >= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows - 1)
+			return true;
+
+		UInt32 fragmentNumber = NetToHost(command->sendFragment.fragmentNumber);
+		UInt32 fragmentCount = NetToHost(command->sendFragment.fragmentCount);
+		UInt32 fragmentOffset = NetToHost(command->sendFragment.fragmentOffset);
+		UInt32 totalLength = NetToHost(command->sendFragment.totalLength);
+
+		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_host->m_maximumPacketSize ||
+			fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+			return false;
+
+		ENetPeer::IncomingCommmand* startCommand = nullptr;
+		for (auto currentCommand = channel.incomingReliableCommands.rbegin(); currentCommand != channel.incomingReliableCommands.rend(); ++currentCommand)
+		{
+			ENetPeer::IncomingCommmand& incomingCommand = *currentCommand;
+
+			if (startSequenceNumber >= channel.incomingReliableSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
+					continue;
+			}
+			else if (incomingCommand.reliableSequenceNumber >= channel.incomingReliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber <= startSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < startSequenceNumber)
+					break;
+
+				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+					return false;
+
+				startCommand = &incomingCommand;
+				break;
+			}
+		}
+
+		if (startCommand)
+		{
+			ENetProtocol hostCommand = *command;
+			hostCommand.header.reliableSequenceNumber = startSequenceNumber;
+
+			if (!QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount))
+				return false;
+		}
+
+		if (!startCommand->fragments.Test(fragmentNumber))
+		{
+			--startCommand->fragmentsRemaining;
+
+			startCommand->fragments.Set(fragmentNumber, true);
+
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
+				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+
+			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+
+			if (startCommand->fragmentsRemaining <= 0)
+				DispatchIncomingReliableCommands(channel);
+		}
+
+		return false;
+	}
+
+	bool ENetPeer::HandleSendReliable(const ENetProtocol* command, UInt8** data)
+	{
+		if (command->header.channelID >= m_channels.size() || !IsConnected())
+			return false;
+
+		UInt16 dataLength = NetToHost(command->sendReliable.dataLength);
+		*data += dataLength;
+		if (dataLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
+			return false;
+
+		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendReliable), dataLength, ENetPacketFlag_Reliable, 0))
+			return false;
+
+		return true;
+	}
+
+	bool ENetPeer::HandleSendUnreliable(const ENetProtocol* command, UInt8** data)
+	{
+		if (command->header.channelID >= m_channels.size() || !IsConnected())
+			return false;
+
+		UInt16 dataLength = NetToHost(command->sendUnreliable.dataLength);
+		*data += dataLength;
+		if (dataLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
+			return false;
+
+		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnreliable), dataLength, 0, 0))
+			return false;
+
+		return true;
+	}
+
+	bool ENetPeer::HandleSendUnreliableFragment(const ENetProtocol* command, UInt8** data)
+	{
+		if (command->header.channelID >= m_channels.size() || !IsConnected())
+			return false;
+
+		UInt16 fragmentLength = NetToHost(command->sendFragment.dataLength);
+		*data += fragmentLength;
+		if (fragmentLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
+			return false;
+
+		ENetPeer::Channel& channel = m_channels[command->header.channelID];
+		UInt32 reliableSequenceNumber = command->header.reliableSequenceNumber;
+		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
+
+		UInt16 reliableWindow = reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+
+		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
+			reliableWindow += ENetConstants::ENetPeer_ReliableWindows;
+
+		if (reliableWindow < currentWindow || reliableWindow >= currentWindow + ENetConstants::ENetPeer_FreeReliableWindows - 1)
+			return true;
+
+		if (reliableSequenceNumber == channel.incomingReliableSequenceNumber && startSequenceNumber <= channel.incomingUnreliableSequenceNumber)
+			return true;
+
+		UInt32 fragmentNumber = NetToHost(command->sendFragment.fragmentNumber);
+		UInt32 fragmentCount = NetToHost(command->sendFragment.fragmentCount);
+		UInt32 fragmentOffset = NetToHost(command->sendFragment.fragmentOffset);
+		UInt32 totalLength = NetToHost(command->sendFragment.totalLength);
+
+		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_host->m_maximumPacketSize ||
+		    fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+			return false;
+
+		ENetPeer::IncomingCommmand* startCommand = nullptr;
+		for (auto currentCommand = channel.incomingUnreliableCommands.rbegin(); currentCommand != channel.incomingUnreliableCommands.rend(); ++currentCommand)
+		{
+			ENetPeer::IncomingCommmand& incomingCommand = *currentCommand;
+
+			if (startSequenceNumber >= channel.incomingReliableSequenceNumber)
+			{
+				if (incomingCommand.reliableSequenceNumber < channel.incomingReliableSequenceNumber)
+					continue;
+			}
+			else if (incomingCommand.reliableSequenceNumber >= channel.incomingReliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber < reliableSequenceNumber)
+				break;
+
+			if (incomingCommand.reliableSequenceNumber > reliableSequenceNumber)
+				continue;
+
+			if (incomingCommand.unreliableSequenceNumber <= startSequenceNumber)
+			{
+				if (incomingCommand.unreliableSequenceNumber < startSequenceNumber)
+					break;
+
+				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
+					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+					return false;
+
+				startCommand = &incomingCommand;
+				break;
+			}
+		}
+
+		if (startCommand)
+		{
+			if (!QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount))
+				return false;
+		}
+
+		if (!startCommand->fragments.Test(fragmentNumber))
+		{
+			--startCommand->fragmentsRemaining;
+
+			startCommand->fragments.Set(fragmentNumber, true);
+
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
+				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+
+			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+
+			if (startCommand->fragmentsRemaining <= 0)
+				DispatchIncomingUnreliableCommands(channel);
+		}
+
+		return true;
+	}
+
+	bool ENetPeer::HandleSendUnsequenced(const ENetProtocol* command, UInt8** data)
+	{
+		if (command->header.channelID >= m_channels.size() || !IsConnected())
+			return false;
+
+		std::size_t dataLength = NetToHost(command->sendUnsequenced.dataLength);
+		*data += dataLength;
+		if (dataLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
+			return false;
+
+		UInt32 unsequencedGroup = NetToHost(command->sendUnsequenced.unsequencedGroup);
+		UInt32 index = unsequencedGroup % ENetConstants::ENetPeer_UnsequencedWindowSize;
+
+		if (unsequencedGroup < m_incomingUnsequencedGroup)
+			unsequencedGroup += 0x10000;
+
+		if (unsequencedGroup >= static_cast<UInt32>(m_incomingUnsequencedGroup) + ENetConstants::ENetPeer_UnsequencedWindows * ENetConstants::ENetPeer_UnsequencedWindowSize)
+			return true;
+
+		unsequencedGroup &= 0xFFFF;
+
+		if (unsequencedGroup - index != m_incomingUnsequencedGroup)
+		{
+			m_incomingUnsequencedGroup = unsequencedGroup - index;
+
+			m_unsequencedWindow.fill(0);
+		}
+		else if (m_unsequencedWindow[index / 32] & (1 << (index % 32)))
+			return true;
+
+		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnsequenced), dataLength, ENetPacketFlag_Unsequenced, 0))
+			return false;
+
+		m_unsequencedWindow[index / 32] |= 1 << (index % 32);
+
+		return true;
+	}
+
+	bool ENetPeer::HandleThrottleConfigure(const ENetProtocol* command)
+	{
+		if (!IsConnected())
+			return false;
+
+		m_packetThrottleInterval = NetToHost(command->throttleConfigure.packetThrottleInterval);
+		m_packetThrottleAcceleration = NetToHost(command->throttleConfigure.packetThrottleAcceleration);
+		m_packetThrottleDeceleration = NetToHost(command->throttleConfigure.packetThrottleDeceleration);
+
+		return true;
+	}
+
+	bool ENetPeer::HandleVerifyConnect(const ENetProtocol* command, ENetEvent* event)
+	{
+		if (m_state != ENetPeerState::Connecting)
+			return true;
+
+		UInt32 channelCount = NetToHost(command->verifyConnect.channelCount);
+
+		if (channelCount < ENetConstants::ENetProtocol_MinimumChannelCount || channelCount > ENetConstants::ENetProtocol_MaximumChannelCount ||
+		    NetToHost(command->verifyConnect.packetThrottleInterval) != m_packetThrottleInterval ||
+		    NetToHost(command->verifyConnect.packetThrottleAcceleration) != m_packetThrottleAcceleration ||
+		    NetToHost(command->verifyConnect.packetThrottleDeceleration) != m_packetThrottleDeceleration ||
+			command->verifyConnect.connectID != m_connectID)
+		{
+			m_eventData = 0;
+
+			DispatchState(ENetPeerState::Zombie);
+
+			return false;
+		}
+
+		RemoveSentReliableCommand(1, 0xFF);
+
+		if (channelCount < m_channels.size())
+			m_channels.resize(channelCount);
+
+		m_outgoingPeerID = NetToHost(command->verifyConnect.outgoingPeerID);
+		m_incomingSessionID = command->verifyConnect.incomingSessionID;
+		m_outgoingSessionID = command->verifyConnect.outgoingSessionID;
+
+		UInt32 mtu = Clamp<UInt32>(NetToHost(command->verifyConnect.mtu), ENetConstants::ENetProtocol_MinimumMTU, ENetConstants::ENetProtocol_MaximumMTU);
+		m_mtu = std::min(m_mtu, mtu);
+
+		UInt32 windowSize = Clamp<UInt32>(NetToHost(command->verifyConnect.windowSize), ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+		m_windowSize = std::min(m_windowSize, windowSize);
+
+		m_incomingBandwidth = NetToHost(command->verifyConnect.incomingBandwidth);
+		m_outgoingBandwidth = NetToHost(command->verifyConnect.outgoingBandwidth);
+
+		m_host->NotifyConnect(this, event);
+		return true;
 	}
 
 	void ENetPeer::InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand)
