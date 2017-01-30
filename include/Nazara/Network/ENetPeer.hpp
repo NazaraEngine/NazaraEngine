@@ -41,6 +41,7 @@ namespace Nz
 			void DisconnectNow(UInt32 data);
 
 			inline const IpAddress& GetAddress() const;
+			inline UInt16 GetPeerId() const;
 			inline ENetPeerState GetState() const;
 
 			inline bool HasPendingCommands();

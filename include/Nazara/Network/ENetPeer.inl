@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,11 @@ namespace Nz
 	inline const IpAddress& ENetPeer::GetAddress() const
 	{
 		return m_address;
+	}
+
+	inline UInt16 ENetPeer::GetPeerId() const
+	{
+		return m_incomingPeerID;
 	}
 
 	inline ENetPeerState ENetPeer::GetState() const
