@@ -83,7 +83,7 @@ namespace Nz
 
 	void ENetPeer::DisconnectLater(UInt32 data)
 	{
-		if (IsConnected() && !m_outgoingReliableCommands.empty() && !m_outgoingUnreliableCommands.empty() && !m_sentReliableCommands.empty())
+		if (IsConnected() && HasPendingCommands())
 		{
 			m_state = ENetPeerState::DisconnectLater;
 			m_eventData = data;
@@ -596,10 +596,12 @@ namespace Nz
 				Reset();
 			}
 			else
+			{
 				if (command->header.command & ENetProtocolFlag_Acknowledge)
 					ChangeState(ENetPeerState::AcknowledgingDisconnect);
 				else
 					DispatchState(ENetPeerState::Zombie);
+			}
 		}
 
 		if (m_state != ENetPeerState::Disconnected)
