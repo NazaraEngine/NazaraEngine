@@ -1,33 +1,11 @@
 ﻿#include <Nazara/Network/ENetPeer.hpp>
-#include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
-	/// Temporary
-	template<typename T>
-	T HostToNet(T value)
-	{
-		#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-		#else
-		return value;
-		#endif
-	}
-
-	/// Temporary
-	template<typename T>
-	T NetToHost(T value)
-	{
-		#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-		#else
-		return value;
-		#endif
-	}
-
 	ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
 	m_host(host),
 	m_packetPool(sizeof(ENetPacket)),
@@ -683,7 +661,7 @@ namespace Nz
 			startCommand->fragments.Set(fragmentNumber, true);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
-				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetDataSize() - fragmentOffset);
 
 			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
 

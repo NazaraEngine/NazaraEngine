@@ -1,35 +1,13 @@
 ﻿#include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
-	/// Temporary
-	template<typename T>
-	T HostToNet(T value)
-	{
-		#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-		#else
-		return value;
-		#endif
-	}
-
-	/// Temporary
-	template<typename T>
-	T NetToHost(T value)
-	{
-		#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-		#else
-		return value;
-		#endif
-	}
-
 	namespace
 	{
 		static std::size_t s_commandSizes[ENetProtocolCommand_Count] =
