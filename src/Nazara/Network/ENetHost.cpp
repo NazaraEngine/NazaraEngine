@@ -6,15 +6,6 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Debug.hpp>
 
-#define ENET_TIME_OVERFLOW 86400000
-
-#define ENET_TIME_LESS(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_GREATER(a, b) ((b) - (a) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER (a, b))
-#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS (a, b))
-
-#define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
-
 namespace Nz
 {
 	/// Temporary
@@ -235,7 +226,7 @@ namespace Nz
 
 		do
 		{
-			if (ENET_TIME_DIFFERENCE(m_serviceTime, m_bandwidthThrottleEpoch) >= ENetConstants::ENetHost_BandwidthThrottleInterval)
+			if (ENetTimeDifference(m_serviceTime, m_bandwidthThrottleEpoch) >= ENetConstants::ENetHost_BandwidthThrottleInterval)
 				ThrottleBandwidth();
 
 			switch (SendOutgoingCommands(event, true))
@@ -291,17 +282,17 @@ namespace Nz
 					return 1;
 			}
 
-			if (ENET_TIME_GREATER_EQUAL(m_serviceTime, timeout))
+			if (ENetTimeGreaterEqual(m_serviceTime, timeout))
 				return 0;
 
 			for (;;)
 			{
 				m_serviceTime = GetElapsedMilliseconds();
 
-				if (ENET_TIME_GREATER_EQUAL(m_serviceTime, timeout))
+				if (ENetTimeGreaterEqual(m_serviceTime, timeout))
 					return 0;
 
-				if (m_poller.Wait(ENET_TIME_DIFFERENCE(timeout, m_serviceTime)))
+				if (m_poller.Wait(ENetTimeDifference(timeout, m_serviceTime)))
 					break;
 			}
 
@@ -962,7 +953,7 @@ namespace Nz
 				if (!currentPeer->m_acknowledgements.empty())
 					SendAcknowledgements(currentPeer);
 
-				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENET_TIME_GREATER_EQUAL(m_serviceTime, currentPeer->m_nextTimeout) && currentPeer->CheckTimeouts(event))
+				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENetTimeGreaterEqual(m_serviceTime, currentPeer->m_nextTimeout) && currentPeer->CheckTimeouts(event))
 				{
 					if (event && event->type != ENetEventType::None)
 						return 1;
@@ -971,7 +962,7 @@ namespace Nz
 				}
 
 				if ((currentPeer->m_outgoingReliableCommands.empty() || SendReliableOutgoingCommands(currentPeer)) && currentPeer->m_sentReliableCommands.empty() &&
-					ENET_TIME_DIFFERENCE(m_serviceTime, currentPeer->m_lastReceiveTime) >= currentPeer->m_pingInterval && currentPeer->m_mtu - m_packetSize >= sizeof(ENetProtocolPing))
+				    ENetTimeDifference(m_serviceTime, currentPeer->m_lastReceiveTime) >= currentPeer->m_pingInterval && currentPeer->m_mtu - m_packetSize >= sizeof(ENetProtocolPing))
 				{
 					currentPeer->Ping();
 					SendReliableOutgoingCommands(currentPeer);
@@ -985,7 +976,7 @@ namespace Nz
 
 				if (currentPeer->m_packetLossEpoch == 0)
 					currentPeer->m_packetLossEpoch = m_serviceTime;
-				else if (ENET_TIME_DIFFERENCE(m_serviceTime, currentPeer->m_packetLossEpoch) >= ENetPeer_PacketLossInterval && currentPeer->m_packetsSent > 0)
+				else if (ENetTimeDifference(m_serviceTime, currentPeer->m_packetLossEpoch) >= ENetPeer_PacketLossInterval && currentPeer->m_packetsSent > 0)
 				{
 					UInt32 packetLoss = currentPeer->m_packetsLost * ENetPeer_PacketLossScale / currentPeer->m_packetsSent;
 

@@ -13,6 +13,14 @@
 
 namespace Nz
 {
+	constexpr UInt32 ENetTimeOverflow = 24 * 60 * 60 * 1000;
+
+	inline UInt32 ENetTimeDifference(UInt32 a, UInt32 b);
+	inline bool ENetTimeLess(UInt32 a, UInt32 b);
+	inline bool ENetTimeLessEqual(UInt32 a, UInt32 b);
+	inline bool ENetTimeGreater(UInt32 a, UInt32 b);
+	inline bool ENetTimeGreaterEqual(UInt32 a, UInt32 b);
+
 	class ENetPeer;
 
 	// Constants for the ENet implementation and protocol
@@ -293,5 +301,7 @@ namespace Nz
 	#pragma pack(pop)
 	#endif
 }
+
+#include <Nazara/Network/ENetProtocol.inl>
 
 #endif // NAZARA_ENETPROTOCOL_HPP

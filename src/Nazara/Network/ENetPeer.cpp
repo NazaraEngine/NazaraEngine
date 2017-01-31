@@ -319,14 +319,14 @@ namespace Nz
 
 			++currentCommand;
 
-			if (ENET_TIME_DIFFERENCE(m_host->m_serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
+			if (ENetTimeDifference(serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
 				continue;
 
-			if (m_earliestTimeout == 0 || ENET_TIME_LESS(outgoingCommand->sentTime, m_earliestTimeout))
+			if (m_earliestTimeout == 0 || ENetTimeLess(outgoingCommand->sentTime, m_earliestTimeout))
 				m_earliestTimeout = outgoingCommand->sentTime;
 
-			if (m_earliestTimeout != 0 && (ENET_TIME_DIFFERENCE(m_host->m_serviceTime, m_earliestTimeout) >= m_timeoutMaximum ||
-				(outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENET_TIME_DIFFERENCE(m_host->m_serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
+			if (m_earliestTimeout != 0 && (ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMaximum ||
+			    (outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
 			{
 				m_host->NotifyDisconnect(this, event);
 				return true;
@@ -481,13 +481,13 @@ namespace Nz
 		if ((receivedSentTime & 0x8000) > (serviceTime & 0x8000))
 			receivedSentTime -= 0x10000;
 
-		if (ENET_TIME_LESS(serviceTime, receivedSentTime))
+		if (ENetTimeLess(serviceTime, receivedSentTime))
 			return true;
 
 		m_lastReceiveTime = serviceTime;
 		m_earliestTimeout = 0;
 
-		UInt32 roundTripTime = ENET_TIME_DIFFERENCE(serviceTime, receivedSentTime);
+		UInt32 roundTripTime = ENetTimeDifference(serviceTime, receivedSentTime);
 
 		Throttle(roundTripTime);
 
@@ -507,7 +507,7 @@ namespace Nz
 		m_lowestRoundTripTime = std::min(m_lowestRoundTripTime, m_roundTripTime);
 		m_highestRoundTripTimeVariance = std::max(m_highestRoundTripTimeVariance, m_roundTripTimeVariance);
 
-		if (m_packetThrottleEpoch == 0 || ENET_TIME_DIFFERENCE(serviceTime, m_packetThrottleEpoch) >= m_packetThrottleInterval)
+		if (m_packetThrottleEpoch == 0 || ENetTimeDifference(serviceTime, m_packetThrottleEpoch) >= m_packetThrottleInterval)
 		{
 			m_lastRoundTripTime = m_lowestRoundTripTime;
 			m_lastRoundTripTimeVariance = m_highestRoundTripTimeVariance;
