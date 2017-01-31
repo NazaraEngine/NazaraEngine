@@ -51,6 +51,11 @@ namespace Nz
 		m_peers.clear();
 		m_socket.Close();
 	}
+
+	inline UInt32 Nz::ENetHost::GetServiceTime() const
+	{
+		return m_serviceTime;
+	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>

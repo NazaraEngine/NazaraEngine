@@ -53,6 +53,8 @@ namespace Nz
 
 			void Flush();
 
+			inline UInt32 GetServiceTime() const;
+
 			int Service(ENetEvent* event, UInt32 timeout);
 
 			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);

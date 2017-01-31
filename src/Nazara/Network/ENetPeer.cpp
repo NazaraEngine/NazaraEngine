@@ -474,7 +474,8 @@ namespace Nz
 		if (m_state == ENetPeerState::Disconnected || m_state == ENetPeerState::Zombie)
 			return true;
 
-		UInt32 serviceTime = m_host->m_serviceTime;
+		UInt32 serviceTime = m_host->GetServiceTime();
+
 		UInt32 receivedSentTime = NetToHost(command->acknowledge.receivedSentTime);
 		receivedSentTime |= serviceTime & 0xFFFF0000;
 		if ((receivedSentTime & 0x8000) > (serviceTime & 0x8000))
