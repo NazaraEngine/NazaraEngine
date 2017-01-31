@@ -4,15 +4,6 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Debug.hpp>
 
-#define ENET_TIME_OVERFLOW 86400000
-
-#define ENET_TIME_LESS(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_GREATER(a, b) ((b) - (a) >= ENET_TIME_OVERFLOW)
-#define ENET_TIME_LESS_EQUAL(a, b) (! ENET_TIME_GREATER (a, b))
-#define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS (a, b))
-
-#define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
-
 namespace Nz
 {
 	/// Temporary
@@ -216,9 +207,7 @@ namespace Nz
 
 		Channel& channel = m_channels[channelId];
 
-		std::size_t fragmentLength = m_mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
-		//if (m_host->m_checksum != nullptr)
-		//	fragmentLength -= sizeof(UInt32);
+		UInt16 fragmentLength = static_cast<UInt16>(m_mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment));
 
 		UInt32 packetSize = static_cast<UInt32>(packetRef->data.GetDataSize());
 		if (packetSize > fragmentLength)
@@ -252,11 +241,11 @@ namespace Nz
 				fragmentOffset += fragmentLength)
 			{
 				if (packetSize - fragmentOffset < fragmentLength)
-					fragmentLength = packetSize - fragmentOffset;
+					fragmentLength = UInt16(packetSize - fragmentOffset);
 
 				OutgoingCommand outgoingCommand;
 				outgoingCommand.fragmentOffset = fragmentOffset;
-				outgoingCommand.fragmentLength = static_cast<UInt16>(fragmentLength);
+				outgoingCommand.fragmentLength = fragmentLength;
 				outgoingCommand.packet = packetRef;
 				outgoingCommand.command.header.command = commandNumber;
 				outgoingCommand.command.header.channelID = channelId;
@@ -312,6 +301,8 @@ namespace Nz
 
 	bool ENetPeer::CheckTimeouts(ENetEvent* event)
 	{
+		UInt32 serviceTime = m_host->GetServiceTime();
+
 		auto currentCommand = m_sentReliableCommands.begin();
 		while (currentCommand != m_sentReliableCommands.end())
 		{
@@ -816,7 +807,7 @@ namespace Nz
 			startCommand->fragments.Set(fragmentNumber, true);
 
 			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
-				fragmentLength = startCommand->packet->data.GetDataSize() - fragmentOffset;
+				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetDataSize() - fragmentOffset);
 
 			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
 
@@ -1285,7 +1276,7 @@ namespace Nz
 
 	void ENetPeer::SetupOutgoingCommand(OutgoingCommand& outgoingCommand)
 	{
-		m_outgoingDataTotal += ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength;
+		m_outgoingDataTotal += static_cast<UInt32>(ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength);
 
 		if (outgoingCommand.command.header.channelID == 0xFF)
 		{

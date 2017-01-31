@@ -440,7 +440,7 @@ namespace Nz
 		if (!peer || duplicatePeers >= m_duplicatePeers)
 			return nullptr;
 
-		channelCount = std::min<UInt32>(channelCount, m_channelLimit);
+		channelCount = std::min(channelCount, UInt32(m_channelLimit));
 
 		peer->InitIncoming(channelCount, m_receivedAddress, command->connect);
 
@@ -514,7 +514,7 @@ namespace Nz
 		if (peer)
 		{
 			peer->m_address = m_receivedAddress;
-			peer->m_incomingDataTotal += m_receivedDataLength;
+			peer->m_incomingDataTotal += UInt32(m_receivedDataLength);
 		}
 
 		auto commandError = [&]() -> bool

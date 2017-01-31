@@ -128,10 +128,10 @@ namespace Nz
 			UInt32 m_incomingBandwidth;
 			UInt32 m_outgoingBandwidth;
 			UInt32 m_serviceTime;
-			UInt32 m_totalSentData;
 			UInt32 m_totalSentPackets;
-			UInt32 m_totalReceivedData;
 			UInt32 m_totalReceivedPackets;
+			UInt64 m_totalSentData;
+			UInt64 m_totalReceivedData;
 			bool m_continueSending;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;
