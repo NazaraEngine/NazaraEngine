@@ -21,7 +21,7 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
-#include <Nazara/Network/ENetHost.hpp>
+#include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
@@ -36,8 +36,6 @@
 
 namespace Nz
 {
-	class ENetPeer;
-
 	class NAZARA_NETWORK_API ENetHost
 	{
 		friend ENetPeer;
@@ -153,4 +151,4 @@ namespace Nz
 
 #include <Nazara/Network/ENetHost.inl>
 
-#endif // NAZARA_RUDPSERVER_HPP
+#endif // NAZARA_ENETHOST_HPP

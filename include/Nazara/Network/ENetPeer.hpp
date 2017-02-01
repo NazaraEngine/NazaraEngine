@@ -22,7 +22,6 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
-#include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
