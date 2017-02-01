@@ -45,7 +45,7 @@ namespace Nz
 
 	void ENetHost::Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
 	{
-		ENetPacket* enetPacket = m_packetPool.New<ENetPacket>();
+		ENetPacketRef enetPacket = m_packetPool.New<ENetPacket>();
 		enetPacket->flags = flags;
 		enetPacket->data = std::move(packet);
 		enetPacket->owner = &m_packetPool;
