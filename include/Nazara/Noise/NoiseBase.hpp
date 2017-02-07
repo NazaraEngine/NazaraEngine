@@ -40,7 +40,7 @@ namespace Nz
 			static std::array<Vector4f, 2 * 2 * 2 * 2 * 2> s_gradients4;
 
 		private:
-			std::default_random_engine m_randomEngine;
+			std::mt19937 m_randomEngine;
 	};
 }
 
