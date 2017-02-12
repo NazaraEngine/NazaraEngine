@@ -18,6 +18,12 @@
 namespace Nz
 {
 	/*!
+	* \ingroup network
+	* \class Nz::UdpSocket
+	* \brief Network class that represents a UDP socket, allowing for sending/receiving datagrams.
+	*/
+
+	/*!
 	* \brief Binds a specific IpAddress
 	* \return State of the socket
 	*
