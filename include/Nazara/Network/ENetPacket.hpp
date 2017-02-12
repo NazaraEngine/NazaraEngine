@@ -14,18 +14,16 @@ namespace Nz
 {
 	enum ENetPacketFlag
 	{
-		ENetPacketFlag_NoAllocate,
 		ENetPacketFlag_Reliable,
 		ENetPacketFlag_Unsequenced,
-		ENetPacketFlag_UnreliableFragment,
-		ENetPacketFlag_Sent
+		ENetPacketFlag_UnreliableFragment
 	};
 
 	template<>
 	struct EnumAsFlags<ENetPacketFlag>
 	{
 		static constexpr bool value = true;
-		static constexpr int  max = ENetPacketFlag_Sent;
+		static constexpr int  max = ENetPacketFlag_UnreliableFragment;
 	};
 
 	using ENetPacketFlags = Flags<ENetPacketFlag>;
