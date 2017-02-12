@@ -28,6 +28,8 @@ namespace Nz
 
 	using ENetPacketFlags = Flags<ENetPacketFlag>;
 
+	constexpr ENetPacketFlags ENetPacketFlag_Unreliable = 0;
+
 	class MemoryPool;
 
 	struct ENetPacket
