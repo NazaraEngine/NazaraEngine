@@ -205,32 +205,24 @@ namespace Nz
 		if (packetSize > fragmentLength)
 		{
 			UInt32 fragmentCount = (packetSize + fragmentLength - 1) / fragmentLength;
-			UInt32 fragmentNumber;
-			UInt32 fragmentOffset;
-
-			UInt8 commandNumber;
-			UInt16 startSequenceNumber;
-
 			if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount)
 				return false;
 
+			UInt8 commandNumber;
+			UInt16 startSequenceNumber;
 			if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_UnreliableFragment)) == ENetPacketFlag_UnreliableFragment &&
 				channel.outgoingUnreliableSequenceNumber < 0xFFFF)
 			{
 				commandNumber = ENetProtocolCommand_SendUnreliable;
-				startSequenceNumber = HostToNet(channel.outgoingUnreliableSequenceNumber + 1);
+				startSequenceNumber = HostToNet<UInt16>(channel.outgoingUnreliableSequenceNumber + 1);
 			}
 			else
 			{
 				commandNumber = ENetProtocolCommand_SendFragment | ENetProtocolFlag_Acknowledge;
-				startSequenceNumber = HostToNet(channel.outgoingReliableSequenceNumber + 1);
+				startSequenceNumber = HostToNet<UInt16>(channel.outgoingReliableSequenceNumber + 1);
 			}
 
-			for (fragmentNumber = 0,
-				fragmentOffset = 0;
-				fragmentOffset < packetSize;
-				++fragmentNumber,
-				fragmentOffset += fragmentLength)
+			for (UInt32 fragmentNumber = 0, fragmentOffset = 0; fragmentOffset < packetSize; ++fragmentNumber, fragmentOffset += fragmentLength)
 			{
 				if (packetSize - fragmentOffset < fragmentLength)
 					fragmentLength = UInt16(packetSize - fragmentOffset);
