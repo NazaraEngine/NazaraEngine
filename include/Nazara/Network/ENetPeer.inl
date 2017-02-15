@@ -13,6 +13,26 @@ namespace Nz
 		return m_address;
 	}
 
+	inline UInt32 ENetPeer::GetMtu() const
+	{
+		return m_mtu;
+	}
+
+	inline UInt32 ENetPeer::GetPacketThrottleAcceleration() const
+	{
+		return m_packetThrottleAcceleration;
+	}
+
+	inline UInt32 ENetPeer::GetPacketThrottleDeceleration() const
+	{
+		return m_packetThrottleDeceleration;
+	}
+
+	inline UInt32 ENetPeer::GetPacketThrottleInterval() const
+	{
+		return m_packetThrottleInterval;
+	}
+
 	inline UInt16 ENetPeer::GetPeerId() const
 	{
 		return m_incomingPeerID;
