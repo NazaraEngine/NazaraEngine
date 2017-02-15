@@ -770,8 +770,8 @@ namespace Nz
 
 	void ENetHost::SendAcknowledgements(ENetPeer* peer)
 	{
-		auto currentAcknowledgement = peer->m_acknowledgements.begin();
-		while (currentAcknowledgement != peer->m_acknowledgements.end())
+		auto it = peer->m_acknowledgements.begin();
+		for (; it != peer->m_acknowledgements.end(); ++it)
 		{
 			if (m_commandCount >= m_commands.size() || m_bufferCount >= m_buffers.size() || peer->GetMtu() - m_packetSize < sizeof(ENetProtocolAcknowledge))
 			{
@@ -779,7 +779,7 @@ namespace Nz
 				break;
 			}
 
-			ENetPeer::Acknowledgement& acknowledgement = *currentAcknowledgement;
+			ENetPeer::Acknowledgement& acknowledgement = *it;
 
 			ENetProtocol& command = m_commands[m_commandCount];
 			NetBuffer& buffer = m_buffers[m_bufferCount];
@@ -800,11 +800,11 @@ namespace Nz
 			if ((acknowledgement.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
 				peer->DispatchState(ENetPeerState::Zombie);
 
-			currentAcknowledgement = peer->m_acknowledgements.erase(currentAcknowledgement);
-
 			++m_bufferCount;
 			++m_commandCount;
 		}
+
+		peer->m_acknowledgements.erase(peer->m_acknowledgements.begin(), it);
 	}
 
 	bool ENetHost::SendReliableOutgoingCommands(ENetPeer* peer)
