@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,9 +7,10 @@
 #ifndef NAZARA_SOCKETIMPL_HPP
 #define NAZARA_SOCKETIMPL_HPP
 
-#include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
+#include <Nazara/Network/SocketHandle.hpp>
 #include <winsock2.h>
 
 #define NAZARA_NETWORK_POLL_SUPPORT NAZARA_CORE_WINDOWS_NT6
@@ -34,7 +35,7 @@ namespace Nz
 			static SocketState Bind(SocketHandle handle, const IpAddress& address, SocketError* error);
 
 			static SocketHandle Create(NetProtocol protocol, SocketType type, SocketError* error);
-			
+
 			static void ClearErrorCode(SocketHandle handle);
 			static void Close(SocketHandle handle);
 
@@ -65,6 +66,7 @@ namespace Nz
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
 
 			static bool Send(SocketHandle handle, const void* buffer, int length, int* sent, SocketError* error);
+			static bool SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error);
 			static bool SendTo(SocketHandle handle, const void* buffer, int length, const IpAddress& to, int* sent, SocketError* error);
 
 			static bool SetBlocking(SocketHandle handle, bool blocking, SocketError* error = nullptr);

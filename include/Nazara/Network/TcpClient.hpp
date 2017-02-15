@@ -13,6 +13,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 
 namespace Nz
 {
@@ -49,6 +50,7 @@ namespace Nz
 			bool ReceivePacket(NetPacket* packet);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const NetPacket& packet);
 
 			bool SetCursorPos(UInt64 offset) override;
