@@ -1843,11 +1843,11 @@ namespace Nz
 
 	bool Renderer::GenerateDebugShader()
 	{
-		Nz::GlslWriter writer;
-		writer.SetGlslVersion(140);
+		GlslWriter writer;
+		writer.SetGlslVersion(OpenGL::GetGLSLVersion());
 
-		Nz::String fragmentShader;
-		Nz::String vertexShader;
+		String fragmentShader;
+		String vertexShader;
 
 		try
 		{
