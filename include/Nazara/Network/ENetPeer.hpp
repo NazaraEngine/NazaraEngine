@@ -178,13 +178,13 @@ namespace Nz
 			ENetHost*                             m_host;
 			IpAddress                             m_address; /**< Internet address of the peer */
 			std::array<UInt32, unsequencedWindow> m_unsequencedWindow;
-			std::list<Acknowledgement>            m_acknowledgements;
 			std::list<IncomingCommmand>           m_dispatchedCommands;
 			std::list<OutgoingCommand>            m_outgoingReliableCommands;
 			std::list<OutgoingCommand>            m_outgoingUnreliableCommands;
 			std::list<OutgoingCommand>            m_sentReliableCommands;
 			std::list<OutgoingCommand>            m_sentUnreliableCommands;
 			std::size_t                           m_totalWaitingData;
+			std::vector<Acknowledgement>          m_acknowledgements;
 			std::vector<Channel>                  m_channels;
 			MemoryPool                            m_packetPool;
 			ENetPeerState                         m_state;
