@@ -5102,10 +5102,14 @@ namespace Nz
 	*/
 	String String::FormatVA(const char* format, va_list args)
 	{
+		// Copy va_list to use it twice
+		va_list args2;
+		va_copy(args2, args);
+
 		std::size_t length = std::vsnprintf(nullptr, 0, format, args);
 
 		auto str = std::make_shared<SharedString>(length);
-		std::vsnprintf(str->string.get(), length + 1, format, args);
+		std::vsnprintf(str->string.get(), length + 1, format, args2);
 
 		return String(std::move(str));
 	}
