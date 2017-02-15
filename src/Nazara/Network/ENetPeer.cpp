@@ -845,7 +845,7 @@ namespace Nz
 		if (!IsConnected())
 			return false;
 
-		m_packetThrottleInterval = NetToHost(command->throttleConfigure.packetThrottleInterval);
+		m_packetThrottleInterval     = NetToHost(command->throttleConfigure.packetThrottleInterval);
 		m_packetThrottleAcceleration = NetToHost(command->throttleConfigure.packetThrottleAcceleration);
 		m_packetThrottleDeceleration = NetToHost(command->throttleConfigure.packetThrottleDeceleration);
 

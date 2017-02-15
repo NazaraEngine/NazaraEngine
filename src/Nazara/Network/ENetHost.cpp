@@ -335,12 +335,12 @@ namespace Nz
 
 	void ENetHost::AddToDispatchQueue(ENetPeer* peer)
 	{
-		m_dispatchQueue.UnboundedSet(peer->m_incomingPeerID);
+		m_dispatchQueue.UnboundedSet(peer->GetPeerId());
 	}
 
 	void ENetHost::RemoveFromDispatchQueue(ENetPeer* peer)
 	{
-		m_dispatchQueue.UnboundedReset(peer->m_incomingPeerID);
+		m_dispatchQueue.UnboundedReset(peer->GetPeerId());
 	}
 
 	bool ENetHost::DispatchIncomingCommands(ENetEvent* event)
@@ -446,18 +446,20 @@ namespace Nz
 		windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
 
 		ENetProtocol verifyCommand(ENetProtocolCommand_VerifyConnect | ENetProtocolFlag_Acknowledge, 0xFF);
-		verifyCommand.verifyConnect.outgoingPeerID             = HostToNet(peer->m_incomingPeerID);
+		verifyCommand.verifyConnect.connectID                  = peer->m_connectID;
 		verifyCommand.verifyConnect.incomingSessionID          = peer->m_outgoingSessionID;
 		verifyCommand.verifyConnect.outgoingSessionID          = peer->m_incomingSessionID;
-		verifyCommand.verifyConnect.mtu                        = HostToNet(peer->m_mtu);
-		verifyCommand.verifyConnect.windowSize                 = HostToNet(windowSize);
+
 		verifyCommand.verifyConnect.channelCount               = HostToNet(channelCount);
 		verifyCommand.verifyConnect.incomingBandwidth          = HostToNet(m_incomingBandwidth);
+		verifyCommand.verifyConnect.mtu                        = HostToNet(peer->GetMtu());
 		verifyCommand.verifyConnect.outgoingBandwidth          = HostToNet(m_outgoingBandwidth);
-		verifyCommand.verifyConnect.packetThrottleInterval     = HostToNet(peer->m_packetThrottleInterval);
-		verifyCommand.verifyConnect.packetThrottleAcceleration = HostToNet(peer->m_packetThrottleAcceleration);
-		verifyCommand.verifyConnect.packetThrottleDeceleration = HostToNet(peer->m_packetThrottleDeceleration);
-		verifyCommand.verifyConnect.connectID = peer->m_connectID;
+		verifyCommand.verifyConnect.outgoingPeerID             = HostToNet(peer->GetPeerId());
+		verifyCommand.verifyConnect.packetThrottleAcceleration = HostToNet(peer->GetPacketThrottleAcceleration());
+		verifyCommand.verifyConnect.packetThrottleDeceleration = HostToNet(peer->GetPacketThrottleDeceleration());
+		verifyCommand.verifyConnect.packetThrottleInterval     = HostToNet(peer->GetPacketThrottleInterval());
+		verifyCommand.verifyConnect.windowSize                 = HostToNet(windowSize);
+
 		peer->QueueOutgoingCommand(verifyCommand);
 
 		return peer;
@@ -475,7 +477,7 @@ namespace Nz
 		UInt16 flags = peerID & ENetProtocolHeaderFlag_Mask;
 		peerID &= ~(ENetProtocolHeaderFlag_Mask | ENetProtocolHeaderSessionMask);
 
-		std::size_t headerSize = (flags & ENetProtocolHeaderFlag_SentTime ? sizeof(ENetProtocolHeader) : (size_t) & ((ENetProtocolHeader *)0)->sentTime);
+		std::size_t headerSize = (flags & ENetProtocolHeaderFlag_SentTime) ? sizeof(ENetProtocolHeader) : NazaraOffsetOf(ENetProtocolHeader, sentTime);
 
 		ENetPeer* peer;
 		if (peerID == ENetConstants::ENetProtocol_MaximumPeerId)
@@ -491,7 +493,7 @@ namespace Nz
 				if (peer->GetState() == ENetPeerState::Disconnected || peer->GetState() == ENetPeerState::Zombie)
 					return false;
 
-				if (m_receivedAddress != peer->m_address && peer->m_address != IpAddress::BroadcastIpV4)
+				if (m_receivedAddress != peer->GetAddress() && peer->GetAddress() != IpAddress::BroadcastIpV4)
 					return false;
 
 				if (peer->m_outgoingPeerID < ENetConstants::ENetProtocol_MaximumPeerId && sessionID != peer->m_incomingSessionID)
@@ -771,7 +773,7 @@ namespace Nz
 		auto currentAcknowledgement = peer->m_acknowledgements.begin();
 		while (currentAcknowledgement != peer->m_acknowledgements.end())
 		{
-			if (m_commandCount >= m_commands.size() || m_bufferCount >= m_buffers.size() || peer->m_mtu - m_packetSize < sizeof(ENetProtocolAcknowledge))
+			if (m_commandCount >= m_commands.size() || m_bufferCount >= m_buffers.size() || peer->GetMtu() - m_packetSize < sizeof(ENetProtocolAcknowledge))
 			{
 				m_continueSending = true;
 				break;
@@ -1013,7 +1015,7 @@ namespace Nz
 				currentPeer->m_lastSendTime = m_serviceTime;
 
 				std::size_t sentLength;
-				if (!m_socket.SendMultiple(currentPeer->m_address, m_buffers.data(), m_bufferCount, &sentLength))
+				if (!m_socket.SendMultiple(currentPeer->GetAddress(), m_buffers.data(), m_bufferCount, &sentLength))
 					return -1;
 
 				currentPeer->RemoveSentUnreliableCommands();
