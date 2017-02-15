@@ -158,10 +158,15 @@ namespace Ndk
 		}
 		m_systemBits.Clear();
 
-		UnregisterAllHandles();
+		// We properly destroy each component
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			m_components[i]->SetEntity(nullptr);
 
 		m_components.clear();
 		m_componentBits.Reset();
+
+		// And then free every handle
+		UnregisterAllHandles();
 
 		m_valid = false;
 	}

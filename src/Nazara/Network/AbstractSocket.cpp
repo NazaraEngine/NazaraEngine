@@ -117,8 +117,7 @@ namespace Nz
 	*/
 	std::size_t AbstractSocket::QueryReceiveBufferSize() const
 	{
-		if (m_handle == SocketImpl::InvalidHandle)
-			return 0;
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
 
 		return SocketImpl::QueryReceiveBufferSize(m_handle);
 	}
@@ -129,8 +128,7 @@ namespace Nz
 	*/
 	std::size_t AbstractSocket::QuerySendBufferSize() const
 	{
-		if (m_handle == SocketImpl::InvalidHandle)
-			return 0;
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
 
 		return SocketImpl::QuerySendBufferSize(m_handle);
 	}
@@ -142,8 +140,9 @@ namespace Nz
 	*/
 	void AbstractSocket::SetReceiveBufferSize(std::size_t size)
 	{
-		if (m_handle != SocketImpl::InvalidHandle)
-			SocketImpl::SetReceiveBufferSize(m_handle, size);
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+		
+		SocketImpl::SetReceiveBufferSize(m_handle, size);
 	}
 
 	/*!
@@ -153,8 +152,9 @@ namespace Nz
 	*/
 	void AbstractSocket::SetSendBufferSize(std::size_t size)
 	{
-		if (m_handle != SocketImpl::InvalidHandle)
-			SocketImpl::SetSendBufferSize(m_handle, size);
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+		
+		SocketImpl::SetSendBufferSize(m_handle, size);
 	}
 
 	/*!
