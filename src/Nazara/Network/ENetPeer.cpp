@@ -20,16 +20,6 @@
 
 namespace Nz
 {
-	ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
-	m_host(host),
-	m_packetPool(sizeof(ENetPacket)),
-	m_incomingSessionID(0xFF),
-	m_outgoingSessionID(0xFF),
-	m_incomingPeerID(peerId)
-	{
-		Reset();
-	}
-
 	void ENetPeer::Disconnect(UInt32 data)
 	{
 		if (m_state == ENetPeerState::Disconnecting ||
@@ -184,12 +174,7 @@ namespace Nz
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
 	{
-		ENetPacket* enetPacket = m_packetPool.New<ENetPacket>();
-		enetPacket->flags = flags;
-		enetPacket->data = std::move(packet);
-		enetPacket->owner = &m_packetPool;
-
-		return Send(channelId, enetPacket);
+		return Send(channelId, m_host->AllocatePacket(flags, std::move(packet));
 	}
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketRef packetRef)
@@ -1214,10 +1199,8 @@ namespace Nz
 		if (m_totalWaitingData >= m_host->m_maximumWaitingData)
 			return nullptr;
 
-		ENetPacket* packet = m_packetPool.New<ENetPacket>();
-		packet->flags = flags;
+		ENetPacketRef packet = m_host->AllocatePacket(flags);
 		packet->data.Reset(0, data, dataLength);
-		packet->owner = &m_packetPool;
 
 		IncomingCommmand incomingCommand;
 		incomingCommand.reliableSequenceNumber = command.header.reliableSequenceNumber;

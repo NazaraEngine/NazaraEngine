@@ -56,6 +56,14 @@ namespace Nz
 	{
 		return m_serviceTime;
 	}
+
+	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
+	{
+		ENetPacketRef ref = AllocatePacket(flags);
+		ref->data = std::move(data);
+
+		return ref;
+	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>

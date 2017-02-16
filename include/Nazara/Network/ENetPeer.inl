@@ -8,6 +8,15 @@
 
 namespace Nz
 {
+	inline ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
+	m_host(host),
+	m_incomingSessionID(0xFF),
+	m_outgoingSessionID(0xFF),
+	m_incomingPeerID(peerId)
+	{
+		Reset();
+	}
+
 	inline const IpAddress& ENetPeer::GetAddress() const
 	{
 		return m_address;

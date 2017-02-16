@@ -20,7 +20,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -40,7 +39,7 @@ namespace Nz
 		friend struct PacketRef;
 
 		public:
-			ENetPeer(ENetHost* host, UInt16 peerId);
+			inline ENetPeer(ENetHost* host, UInt16 peerId);
 			ENetPeer(const ENetPeer&) = delete;
 			ENetPeer(ENetPeer&&) = default;
 			~ENetPeer() = default;
@@ -186,7 +185,6 @@ namespace Nz
 			std::size_t                           m_totalWaitingData;
 			std::vector<Acknowledgement>          m_acknowledgements;
 			std::vector<Channel>                  m_channels;
-			MemoryPool                            m_packetPool;
 			ENetPeerState                         m_state;
 			UInt8                                 m_incomingSessionID;
 			UInt8                                 m_outgoingSessionID;
