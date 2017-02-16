@@ -35,10 +35,10 @@ namespace Nz
 	IndexBuffer::IndexBuffer(const IndexBuffer& indexBuffer) :
 	RefCounted(),
 	m_buffer(indexBuffer.m_buffer),
-	m_largeIndices(indexBuffer.m_largeIndices),
 	m_endOffset(indexBuffer.m_endOffset),
 	m_indexCount(indexBuffer.m_indexCount),
-	m_startOffset(indexBuffer.m_startOffset)
+	m_startOffset(indexBuffer.m_startOffset),
+	m_largeIndices(indexBuffer.m_largeIndices)
 	{
 	}
 
