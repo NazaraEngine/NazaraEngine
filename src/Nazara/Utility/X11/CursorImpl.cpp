@@ -164,8 +164,19 @@ namespace Nz
 		ScopedXCBConnection connection;
 		xcb_screen_t* screen = X11::XCBDefaultScreen(connection);
 
-		if (xcb_cursor_context_new(connection, screen, &m_cursorContext) >= 0)
-			m_cursor = xcb_cursor_load_cursor(m_cursorContext, s_systemCursorIds[cursor]);
+		const char* cursorName = s_systemCursorIds[cursor];
+		if (cursorName)
+		{
+			if (xcb_cursor_context_new(connection, screen, &m_cursorContext) >= 0)
+				m_cursor = xcb_cursor_load_cursor(m_cursorContext, cursorName);
+			else
+			{
+				NazaraError("Failed to create cursor context");
+				return false;
+			}
+		}
+		else
+			m_cursor = s_hiddenCursor;
 
 		return true;
 	}
