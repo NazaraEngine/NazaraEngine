@@ -45,10 +45,7 @@ namespace Nz
 
 	void ENetHost::Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
 	{
-		ENetPacketRef enetPacket = m_packetPool.New<ENetPacket>();
-		enetPacket->flags = flags;
-		enetPacket->data = std::move(packet);
-		enetPacket->owner = &m_packetPool;
+		ENetPacketRef enetPacket = AllocatePacket(flags, std::move(packet));
 
 		for (ENetPeer& peer : m_peers)
 		{
@@ -307,6 +304,15 @@ namespace Nz
 			m_packetDelayDistribution = std::uniform_int_distribution<UInt16>(minDelay, maxDelay);
 			m_packetLossProbability = std::bernoulli_distribution(packetLossProbability);
 		}
+	}
+
+	ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags)
+	{
+		ENetPacketRef enetPacket = m_packetPool.New<ENetPacket>();
+		enetPacket->flags = flags;
+		enetPacket->owner = &m_packetPool;
+
+		return enetPacket;
 	}
 
 	bool ENetHost::InitSocket(const IpAddress& address)
@@ -841,7 +847,7 @@ namespace Nz
 				{
 					UInt32 windowSize = (peer->m_packetThrottle * peer->m_windowSize) / ENetPeer_PacketThrottleScale;
 
-					if (peer->m_reliableDataInTransit + outgoingCommand->fragmentLength > std::max(windowSize, peer->m_mtu))
+					if (peer->m_reliableDataInTransit + outgoingCommand->fragmentLength > std::max(windowSize, peer->GetMtu()))
 						windowExceeded = true;
 				}
 
@@ -855,8 +861,8 @@ namespace Nz
 			canPing = false;
 
 			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
-			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
-				(outgoingCommand->packet && UInt16(peer->m_mtu - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
+			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->GetMtu() - m_packetSize < commandSize ||
+			    (outgoingCommand->packet && UInt16(peer->GetMtu() - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
 			{
 				m_continueSending = true;
 				break;
@@ -1092,6 +1098,7 @@ namespace Nz
 
 				m_packetSize += packetBuffer.dataLength;
 
+				// In order to keep the packet buffer alive until we send it, place it into a temporary queue
 				peer->m_sentUnreliableCommands.emplace_back(std::move(*outgoingCommand));
 			}
 

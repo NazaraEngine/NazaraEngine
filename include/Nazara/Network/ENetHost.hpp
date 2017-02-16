@@ -71,6 +71,9 @@ namespace Nz
 			ENetHost& operator=(ENetHost&&) = default;
 
 		private:
+			ENetPacketRef AllocatePacket(ENetPacketFlags flags);
+			inline ENetPacketRef AllocatePacket(ENetPacketFlags flags, NetPacket&& data);
+
 			bool InitSocket(const IpAddress& address);
 
 			void AddToDispatchQueue(ENetPeer* peer);
