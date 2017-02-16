@@ -232,25 +232,27 @@ namespace Nz
 
 	std::array<const char*, SystemCursor_Max + 1> CursorImpl::s_systemCursorIds =
 	{
-		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
-		"crosshair",           // SystemCursor_Crosshair
-		"left_ptr",            // SystemCursor_Default
-		"hand",                // SystemCursor_Hand
-		"help",                // SystemCursor_Help
-		"fleur",               // SystemCursor_Move
-		nullptr,               // SystemCursor_None
-		"hand",                // SystemCursor_Pointer
-		"watch",               // SystemCursor_Progress
-		"right_side",          // SystemCursor_ResizeE
-		"top_side",            // SystemCursor_ResizeN
-		"top_right_corner",    // SystemCursor_ResizeNE
-		"top_left_corner",     // SystemCursor_ResizeNW
-		"bottom_side",         // SystemCursor_ResizeS
-		"bottom_right_corner", // SystemCursor_ResizeSE
-		"bottom_left_corner",  // SystemCursor_ResizeSW
-		"left_side",           // SystemCursor_ResizeW
-		"xterm",               // SystemCursor_Text
-		"watch"                // SystemCursor_Wait
+		{
+			// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
+			"crosshair",           // SystemCursor_Crosshair
+			"left_ptr",            // SystemCursor_Default
+			"hand",                // SystemCursor_Hand
+			"help",                // SystemCursor_Help
+			"fleur",               // SystemCursor_Move
+			nullptr,               // SystemCursor_None
+			"hand",                // SystemCursor_Pointer
+			"watch",               // SystemCursor_Progress
+			"right_side",          // SystemCursor_ResizeE
+			"top_side",            // SystemCursor_ResizeN
+			"top_right_corner",    // SystemCursor_ResizeNE
+			"top_left_corner",     // SystemCursor_ResizeNW
+			"bottom_side",         // SystemCursor_ResizeS
+			"bottom_right_corner", // SystemCursor_ResizeSE
+			"bottom_left_corner",  // SystemCursor_ResizeSW
+			"left_side",           // SystemCursor_ResizeW
+			"xterm",               // SystemCursor_Text
+			"watch"                // SystemCursor_Wait
+		}
 	};
 
 	static_assert(SystemCursor_Max + 1 == 18, "System cursor array is incomplete");
