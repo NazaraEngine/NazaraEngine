@@ -58,7 +58,6 @@ namespace Nz
 	m_style(0),
 	m_parent(parent),
 	m_smoothScrolling(false),
-	m_scrolling(0),
 	m_mousePos(0, 0),
 	m_keyRepeat(true)
 	{
@@ -1134,7 +1133,6 @@ namespace Nz
 
 				// if (std::isprint(codePoint)) Is not working ? + handle combining ?
 				{
-					WindowEvent event;
 					event.type           = Nz::WindowEventType_TextEntered;
 					event.text.character = codePoint;
 					event.text.repeated  = false;
@@ -1396,7 +1394,7 @@ namespace Nz
 				hints.functions   |= MWM_FUNC_CLOSE;
 			}
 
-			ScopedXCB<xcb_generic_error_t> error(xcb_request_check(
+			ScopedXCB<xcb_generic_error_t> propertyError(xcb_request_check(
 				connection,
 				xcb_change_property_checked(
 					connection,
@@ -1410,7 +1408,7 @@ namespace Nz
 				)
 			));
 
-			if (error)
+			if (propertyError)
 				NazaraError("xcb_change_property failed, could not set window hints");
 		}
 		else
