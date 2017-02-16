@@ -271,39 +271,38 @@ namespace Nz
 	bool ENetPeer::CheckTimeouts(ENetEvent* event)
 	{
 		UInt32 serviceTime = m_host->GetServiceTime();
+		bool timedOut = false;
 
-		auto currentCommand = m_sentReliableCommands.begin();
-		while (currentCommand != m_sentReliableCommands.end())
+		auto it = m_sentReliableCommands.begin();
+		for (; it != m_sentReliableCommands.end(); ++it)
 		{
-			auto outgoingCommand = currentCommand;
+			OutgoingCommand& command = *it;
 
-			++currentCommand;
-
-			if (ENetTimeDifference(serviceTime, outgoingCommand->sentTime) < outgoingCommand->roundTripTimeout)
+			if (ENetTimeDifference(serviceTime, command.sentTime) < command.roundTripTimeout)
 				continue;
 
-			if (m_earliestTimeout == 0 || ENetTimeLess(outgoingCommand->sentTime, m_earliestTimeout))
-				m_earliestTimeout = outgoingCommand->sentTime;
+			if (m_earliestTimeout == 0 || ENetTimeLess(command.sentTime, m_earliestTimeout))
+				m_earliestTimeout = command.sentTime;
 
 			if (m_earliestTimeout != 0 && (ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMaximum ||
-			    (outgoingCommand->roundTripTimeout >= outgoingCommand->roundTripTimeoutLimit && ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
+			    (command.roundTripTimeout >= command.roundTripTimeoutLimit && ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
 			{
 				m_host->NotifyDisconnect(this, event);
-				return true;
+				timedOut = true;
+				break;
 			}
 
-			if (outgoingCommand->packet)
-				m_reliableDataInTransit -= outgoingCommand->fragmentLength;
+			if (command.packet)
+				m_reliableDataInTransit -= command.fragmentLength;
 
 			++m_packetsLost;
 			++m_totalPacketLost;
 
 			// http://lists.cubik.org/pipermail/enet-discuss/2014-May/002308.html
-			outgoingCommand->roundTripTimeout = m_roundTripTime + 4 * m_roundTripTimeVariance;
-			outgoingCommand->roundTripTimeoutLimit = m_timeoutLimit * outgoingCommand->roundTripTimeout;
+			command.roundTripTimeout = m_roundTripTime + 4 * m_roundTripTimeVariance;
+			command.roundTripTimeoutLimit = m_timeoutLimit * command.roundTripTimeout;
 
-			m_outgoingReliableCommands.emplace_front(std::move(*outgoingCommand));
-			m_sentReliableCommands.erase(outgoingCommand);
+			m_outgoingReliableCommands.emplace_front(std::move(command));
 
 			// Okay this should just never procs, I don't see how it would be possible
 			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
@@ -315,7 +314,9 @@ namespace Nz
 			}*/
 		}
 
-		return false;
+		m_sentReliableCommands.erase(m_sentReliableCommands.begin(), it);
+
+		return timedOut;
 	}
 
 	void ENetPeer::DispatchState(ENetPeerState state)
