@@ -174,7 +174,7 @@ namespace Nz
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
 	{
-		return Send(channelId, m_host->AllocatePacket(flags, std::move(packet));
+		return Send(channelId, m_host->AllocatePacket(flags, std::move(packet)));
 	}
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketRef packetRef)
