@@ -637,12 +637,13 @@ namespace Nz
 			}
 		}
 
-		if (startCommand)
+		if (!startCommand)
 		{
 			ENetProtocol hostCommand = *command;
 			hostCommand.header.reliableSequenceNumber = startSequenceNumber;
 
-			if (!QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount))
+			startCommand = QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount);
+			if (!startCommand)
 				return false;
 		}
 
