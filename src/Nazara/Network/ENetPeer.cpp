@@ -271,7 +271,6 @@ namespace Nz
 	bool ENetPeer::CheckTimeouts(ENetEvent* event)
 	{
 		UInt32 serviceTime = m_host->GetServiceTime();
-		bool timedOut = false;
 
 		auto it = m_sentReliableCommands.begin();
 		for (; it != m_sentReliableCommands.end(); ++it)
@@ -288,8 +287,7 @@ namespace Nz
 			    (command.roundTripTimeout >= command.roundTripTimeoutLimit && ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
 			{
 				m_host->NotifyDisconnect(this, event);
-				timedOut = true;
-				break;
+				return true;
 			}
 
 			if (command.packet)
@@ -316,7 +314,7 @@ namespace Nz
 
 		m_sentReliableCommands.erase(m_sentReliableCommands.begin(), it);
 
-		return timedOut;
+		return false;
 	}
 
 	void ENetPeer::DispatchState(ENetPeerState state)
