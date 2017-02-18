@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq - 2009 Cruden BV
+// Copyright (C) 2017 Jérôme Leclercq - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 

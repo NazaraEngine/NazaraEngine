@@ -277,7 +277,7 @@ namespace Nz
 	bool SocketImpl::QueryBroadcasting(SocketHandle handle, SocketError* error)
 	{
 		bool code;
-		unsigned int codeLength = sizeof(code);
+		socklen_t codeLength = sizeof(code);
 
 		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, &code, &codeLength) == SOCKET_ERROR)
 		{
@@ -296,7 +296,7 @@ namespace Nz
 	bool SocketImpl::QueryKeepAlive(SocketHandle handle, SocketError* error)
 	{
 		bool code;
-		unsigned int codeLength = sizeof(code);
+		socklen_t codeLength = sizeof(code);
 
 		if (getsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &code, &codeLength) == SOCKET_ERROR)
 		{
@@ -315,14 +315,14 @@ namespace Nz
 	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
 		unsigned int code;
-		unsigned int codeLength = sizeof(code);
+		socklen_t codeLength = sizeof(code);
 
 		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
 
-			return -1;
+			return 0;
 		}
 
 		if (error)
@@ -334,7 +334,7 @@ namespace Nz
 	bool SocketImpl::QueryNoDelay(SocketHandle handle, SocketError* error)
 	{
 		bool code;
-		unsigned int codeLength = sizeof(code);
+		socklen_t codeLength = sizeof(code);
 
 		if (getsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &code, &codeLength) == SOCKET_ERROR)
 		{
@@ -342,6 +342,25 @@ namespace Nz
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
 
 			return false;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
+	}
+
+	std::size_t SocketImpl::QueryReceiveBufferSize(SocketHandle handle, SocketError* error)
+	{
+		unsigned int code;
+		socklen_t codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return 0;
 		}
 
 		if (error)
@@ -369,6 +388,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
+	}
+
+	std::size_t SocketImpl::QuerySendBufferSize(SocketHandle handle, SocketError* error)
+	{
+		unsigned int code;
+		socklen_t codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
 	}
 
 	IpAddress SocketImpl::QuerySocketAddress(SocketHandle handle, SocketError* error)
@@ -646,6 +684,44 @@ namespace Nz
 
 		int option = nodelay ? 1 : 0;
 		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &option, sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		int option = static_cast<int>(size);
+		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		int option = static_cast<int>(size);
+		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
