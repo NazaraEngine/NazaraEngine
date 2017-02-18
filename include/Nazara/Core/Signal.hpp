@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -33,7 +33,7 @@ namespace Nz
 
 			Signal();
 			Signal(const Signal&) = delete;
-			Signal(Signal&& signal);
+			Signal(Signal&& signal) noexcept;
 			~Signal() = default;
 
 			void Clear();
@@ -48,7 +48,7 @@ namespace Nz
 			void operator()(Args... args) const;
 
 			Signal& operator=(const Signal&) = delete;
-			Signal& operator=(Signal&& signal);
+			Signal& operator=(Signal&& signal) noexcept;
 
 		private:
 			struct Slot;

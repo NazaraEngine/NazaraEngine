@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,7 +32,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>::Signal(Signal&& signal)
+	Signal<Args...>::Signal(Signal&& signal) noexcept
 	{
 		operator=(std::move(signal));
 	}
@@ -182,7 +182,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal)
+	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal) noexcept
 	{
 		m_slots = std::move(signal.m_slots);
 		m_slotIterator = signal.m_slotIterator;
