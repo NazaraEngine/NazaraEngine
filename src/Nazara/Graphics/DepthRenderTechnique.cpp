@@ -68,7 +68,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
+	void DepthRenderTechnique::Clear(const SceneData& /*sceneData*/) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);

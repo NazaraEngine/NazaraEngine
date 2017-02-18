@@ -111,7 +111,6 @@ namespace Nz
 			bool m_ownsWindow;
 			bool m_smoothScrolling;
 			bool m_threadActive;
-			short m_scrolling;
 			Vector2i m_mousePos;
 			bool m_keyRepeat;
 
