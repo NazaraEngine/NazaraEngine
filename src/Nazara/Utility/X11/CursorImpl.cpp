@@ -164,8 +164,19 @@ namespace Nz
 		ScopedXCBConnection connection;
 		xcb_screen_t* screen = X11::XCBDefaultScreen(connection);
 
-		if (xcb_cursor_context_new(connection, screen, &m_cursorContext) >= 0)
-			m_cursor = xcb_cursor_load_cursor(m_cursorContext, s_systemCursorIds[cursor]);
+		const char* cursorName = s_systemCursorIds[cursor];
+		if (cursorName)
+		{
+			if (xcb_cursor_context_new(connection, screen, &m_cursorContext) >= 0)
+				m_cursor = xcb_cursor_load_cursor(m_cursorContext, cursorName);
+			else
+			{
+				NazaraError("Failed to create cursor context");
+				return false;
+			}
+		}
+		else
+			m_cursor = s_hiddenCursor;
 
 		return true;
 	}
@@ -232,25 +243,27 @@ namespace Nz
 
 	std::array<const char*, SystemCursor_Max + 1> CursorImpl::s_systemCursorIds =
 	{
-		// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
-		"crosshair",           // SystemCursor_Crosshair
-		"left_ptr",            // SystemCursor_Default
-		"hand",                // SystemCursor_Hand
-		"help",                // SystemCursor_Help
-		"fleur",               // SystemCursor_Move
-		nullptr,               // SystemCursor_None
-		"hand",                // SystemCursor_Pointer
-		"watch",               // SystemCursor_Progress
-		"right_side",          // SystemCursor_ResizeE
-		"top_side",            // SystemCursor_ResizeN
-		"top_right_corner",    // SystemCursor_ResizeNE
-		"top_left_corner",     // SystemCursor_ResizeNW
-		"bottom_side",         // SystemCursor_ResizeS
-		"bottom_right_corner", // SystemCursor_ResizeSE
-		"bottom_left_corner",  // SystemCursor_ResizeSW
-		"left_side",           // SystemCursor_ResizeW
-		"xterm",               // SystemCursor_Text
-		"watch"                // SystemCursor_Wait
+		{
+			// http://gnome-look.org/content/preview.php?preview=1&id=128170&file1=128170-1.png&file2=&file3=&name=Dummy+X11+cursors&PHPSESSID=6
+			"crosshair",           // SystemCursor_Crosshair
+			"left_ptr",            // SystemCursor_Default
+			"hand",                // SystemCursor_Hand
+			"help",                // SystemCursor_Help
+			"fleur",               // SystemCursor_Move
+			nullptr,               // SystemCursor_None
+			"hand",                // SystemCursor_Pointer
+			"watch",               // SystemCursor_Progress
+			"right_side",          // SystemCursor_ResizeE
+			"top_side",            // SystemCursor_ResizeN
+			"top_right_corner",    // SystemCursor_ResizeNE
+			"top_left_corner",     // SystemCursor_ResizeNW
+			"bottom_side",         // SystemCursor_ResizeS
+			"bottom_right_corner", // SystemCursor_ResizeSE
+			"bottom_left_corner",  // SystemCursor_ResizeSW
+			"left_side",           // SystemCursor_ResizeW
+			"xterm",               // SystemCursor_Text
+			"watch"                // SystemCursor_Wait
+		}
 	};
 
 	static_assert(SystemCursor_Max + 1 == 18, "System cursor array is incomplete");

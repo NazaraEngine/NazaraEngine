@@ -1011,7 +1011,6 @@ namespace Nz
 					if (uniforms.locations.shadowMapping != -1)
 						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
 
-					unsigned int textureUnit = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
 					if (light.shadowMap)
 					{
 						unsigned int textureUnitCube = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
@@ -1035,7 +1034,6 @@ namespace Nz
 					if (uniforms.locations.shadowMapping != -1)
 						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
 
-					unsigned int textureUnit = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
 					if (light.shadowMap)
 					{
 						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));

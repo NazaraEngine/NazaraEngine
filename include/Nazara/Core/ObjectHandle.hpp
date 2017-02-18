@@ -69,7 +69,7 @@ namespace Nz
 	template<typename T> bool operator<(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<(const ObjectHandle<T>& lhs, const T& rhs);
 
-	template<typename T> bool operator<=(const ObjectHandle<T>, const ObjectHandle<T>& rhs);
+	template<typename T> bool operator<=(const ObjectHandle<T>&, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const ObjectHandle<T>& lhs, const T& rhs);
 
