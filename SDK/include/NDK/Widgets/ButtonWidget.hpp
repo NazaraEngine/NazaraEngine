@@ -27,7 +27,7 @@ namespace Ndk
 
 			//virtual ButtonWidget* Clone() const = 0;
 
-			void ResizeToContent();
+			void ResizeToContent() override;
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
