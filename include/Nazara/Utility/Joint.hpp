@@ -35,7 +35,7 @@ namespace Nz
 			void SetName(const String& name);
 
 		private:
-			void InvalidateNode();
+			void InvalidateNode() override;
 			void UpdateSkinningMatrix() const;
 
 			Matrix4f m_inverseBindMatrix;

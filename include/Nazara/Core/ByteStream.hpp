@@ -24,7 +24,7 @@ namespace Nz
 			ByteStream(const void* ptr, Nz::UInt64 size);
 			ByteStream(const ByteStream&) = delete;
 			inline ByteStream(ByteStream&& stream);
-			~ByteStream();
+			virtual ~ByteStream();
 
 			inline Endianness GetDataEndianness() const;
 			inline Nz::UInt64 GetSize() const;
