@@ -141,12 +141,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	{
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
-			aiMesh* mesh = scene->mMeshes[i];
-			if (mesh->HasBones()) // Inline functions can be safely called
+			aiMesh* currentMesh = scene->mMeshes[i];
+			if (currentMesh->HasBones()) // Inline functions can be safely called
 			{
 				animatedMesh = true;
-				for (unsigned int j = 0; j < mesh->mNumBones; ++j)
-					joints.insert(mesh->mBones[j]->mName.C_Str());
+				for (unsigned int j = 0; j < currentMesh->mNumBones; ++j)
+					joints.insert(currentMesh->mBones[j]->mName.C_Str());
 			}
 		}
 	}
