@@ -12,7 +12,8 @@ namespace Nz
 	m_host(host),
 	m_incomingSessionID(0xFF),
 	m_outgoingSessionID(0xFF),
-	m_incomingPeerID(peerId)
+	m_incomingPeerID(peerId),
+	m_isSimulationEnabled(false)
 	{
 		Reset();
 	}
@@ -60,6 +61,11 @@ namespace Nz
 	inline bool ENetPeer::IsConnected() const
 	{
 		return m_state == ENetPeerState::Connected || m_state == ENetPeerState::DisconnectLater;
+	}
+
+	inline bool ENetPeer::IsSimulationEnabled() const
+	{
+		return m_isSimulationEnabled;
 	}
 
 	inline void ENetPeer::ChangeState(ENetPeerState state)

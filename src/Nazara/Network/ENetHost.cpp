@@ -672,7 +672,7 @@ namespace Nz
 
 			if (m_isSimulationEnabled)
 			{
-				for (auto it = m_pendingPackets.begin(); it != m_pendingPackets.end(); ++it)
+				for (auto it = m_pendingIncomingPackets.begin(); it != m_pendingIncomingPackets.end(); ++it)
 				{
 					if (m_serviceTime >= it->deliveryTime)
 					{
@@ -682,7 +682,7 @@ namespace Nz
 						receivedLength = it->data.GetDataSize();
 						std::memcpy(m_packetData[0].data(), it->data.GetConstData() + NetPacket::HeaderSize, receivedLength);
 
-						m_pendingPackets.erase(it);
+						m_pendingIncomingPackets.erase(it);
 						break;
 					}
 				}
@@ -704,17 +704,17 @@ namespace Nz
 					UInt16 delay = m_packetDelayDistribution(s_randomGenerator);
 					if (delay > 0)
 					{
-						PendingPacket pendingPacket;
+						PendingIncomingPacket pendingPacket;
 						pendingPacket.deliveryTime = m_serviceTime + delay;
 						pendingPacket.from = m_receivedAddress;
 						pendingPacket.data.Reset(0, m_packetData[0].data(), receivedLength);
 
-						auto it = std::upper_bound(m_pendingPackets.begin(), m_pendingPackets.end(), pendingPacket, [] (const PendingPacket& first, const PendingPacket& second)
+						auto it = std::upper_bound(m_pendingIncomingPackets.begin(), m_pendingIncomingPackets.end(), pendingPacket, [] (const PendingIncomingPacket& first, const PendingIncomingPacket& second)
 						{
 							return first.deliveryTime < second.deliveryTime;
 						});
 
-						m_pendingPackets.emplace(it, std::move(pendingPacket));
+						m_pendingIncomingPackets.emplace(it, std::move(pendingPacket));
 						continue;
 					}
 				}
@@ -1020,15 +1020,70 @@ namespace Nz
 
 				currentPeer->m_lastSendTime = m_serviceTime;
 
-				std::size_t sentLength;
-				if (!m_socket.SendMultiple(currentPeer->GetAddress(), m_buffers.data(), m_bufferCount, &sentLength))
-					return -1;
+				// Simulate network by adding delay to packet sending and losing some packets
+				bool sendNow = true;
+				if (!currentPeer->IsSimulationEnabled())
+				{
+					sendNow = false;
+					if (!currentPeer->m_packetLossProbability(s_randomGenerator))
+					{
+						Nz::UInt16 delay = currentPeer->m_packetDelayDistribution(s_randomGenerator);
+						if (delay == 0)
+							sendNow = true;
+						else
+						{
+							PendingOutgoingPacket outgoingPacket;
+							outgoingPacket.deliveryTime = m_serviceTime + delay;
+							outgoingPacket.to = currentPeer->GetAddress();
+
+							// Accumulate every temporary buffer into a datagram
+							for (std::size_t i = 0; i < m_bufferCount; ++i)
+							{
+								NetBuffer& buffer = m_buffers[i];
+								outgoingPacket.data.Write(buffer.data, buffer.dataLength);
+							}
+
+							m_totalSentData += outgoingPacket.data.GetDataSize();
+
+							// Add it to the right place
+							auto it = std::upper_bound(m_pendingOutgoingPackets.begin(), m_pendingOutgoingPackets.end(), outgoingPacket, [](const PendingOutgoingPacket& first, const PendingOutgoingPacket& second)
+							{
+								return first.deliveryTime < second.deliveryTime;
+							});
+
+							m_pendingOutgoingPackets.emplace(it, std::move(outgoingPacket));
+						}
+					}
+				}
+
+				if (sendNow)
+				{
+					std::size_t sentLength = 0;
+
+					if (!m_socket.SendMultiple(currentPeer->GetAddress(), m_buffers.data(), m_bufferCount, &sentLength))
+						return -1;
+
+					m_totalSentData += sentLength;
+				}
 
 				currentPeer->RemoveSentUnreliableCommands();
-
-				m_totalSentData += sentLength;
 				m_totalSentPackets++;
 			}
+		}
+
+		if (!m_pendingOutgoingPackets.empty())
+		{
+			auto it = m_pendingOutgoingPackets.begin();
+			for (; it != m_pendingOutgoingPackets.end(); ++it)
+			{
+				if (m_serviceTime < it->deliveryTime)
+					break;
+
+				if (!m_socket.Send(it->to, it->data.GetConstData() + NetPacket::HeaderSize, it->data.GetDataSize(), nullptr))
+					return -1;
+			}
+
+			m_pendingOutgoingPackets.erase(m_pendingOutgoingPackets.begin(), it);
 		}
 
 		return 0;
