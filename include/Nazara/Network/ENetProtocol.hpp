@@ -28,7 +28,7 @@ namespace Nz
 	{
 		ENetHost_BandwidthThrottleInterval = 1000,
 		ENetHost_DefaultMaximumPacketSize  = 32 * 1024 * 1024,
-		ENetHost_DefaultMaximumWaitingData  = 32 * 1024 * 1024,
+		ENetHost_DefaultMaximumWaitingData = 32 * 1024 * 1024,
 		ENetHost_DefaultMTU                = 1400,
 		ENetHost_ReceiveBufferSize         = 256 * 1024,
 		ENetHost_SendBufferSize            = 256 * 1024,

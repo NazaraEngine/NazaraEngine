@@ -27,6 +27,7 @@
 #include <Nazara/Network/UdpSocket.hpp>
 #include <array>
 #include <list>
+#include <random>
 #include <vector>
 
 namespace Nz
@@ -59,6 +60,7 @@ namespace Nz
 			inline bool HasPendingCommands();
 
 			inline bool IsConnected() const;
+			inline bool IsSimulationEnabled() const;
 
 			void Ping();
 
@@ -67,6 +69,8 @@ namespace Nz
 
 			bool Send(UInt8 channelId, ENetPacketRef packetRef);
 			bool Send(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
+
+			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);
 
 			void ThrottleConfigure(UInt32 interval, UInt32 acceleration, UInt32 deceleration);
 
@@ -177,12 +181,14 @@ namespace Nz
 			ENetHost*                             m_host;
 			IpAddress                             m_address; /**< Internet address of the peer */
 			std::array<UInt32, unsequencedWindow> m_unsequencedWindow;
+			std::bernoulli_distribution           m_packetLossProbability;
 			std::list<IncomingCommmand>           m_dispatchedCommands;
 			std::list<OutgoingCommand>            m_outgoingReliableCommands;
 			std::list<OutgoingCommand>            m_outgoingUnreliableCommands;
 			std::list<OutgoingCommand>            m_sentReliableCommands;
 			std::list<OutgoingCommand>            m_sentUnreliableCommands;
 			std::size_t                           m_totalWaitingData;
+			std::uniform_int_distribution<UInt16> m_packetDelayDistribution;
 			std::vector<Acknowledgement>          m_acknowledgements;
 			std::vector<Channel>                  m_channels;
 			ENetPeerState                         m_state;
@@ -232,6 +238,7 @@ namespace Nz
 			UInt32                                m_windowSize;
 			UInt64                                m_totalPacketLost;
 			UInt64                                m_totalPacketSent;
+			bool                                  m_isSimulationEnabled;
 	};
 }
 

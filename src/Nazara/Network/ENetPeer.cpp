@@ -177,6 +177,20 @@ namespace Nz
 		return Send(channelId, m_host->AllocatePacket(flags, std::move(packet)));
 	}
 
+	void ENetPeer::SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay)
+	{
+		NazaraAssert(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
+
+		if (packetLossProbability <= 0.0 && minDelay == 0 && maxDelay == 0)
+			m_isSimulationEnabled = false;
+		else
+		{
+			m_isSimulationEnabled = true;
+			m_packetDelayDistribution = std::uniform_int_distribution<UInt16>(minDelay, maxDelay);
+			m_packetLossProbability = std::bernoulli_distribution(packetLossProbability);
+		}
+	}
+
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketRef packetRef)
 	{
 		if (m_state != ENetPeerState::Connected || channelId >= m_channels.size() || packetRef->data.GetDataSize() > m_host->m_maximumPacketSize)

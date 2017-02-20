@@ -100,9 +100,16 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			struct PendingPacket
+			struct PendingIncomingPacket
 			{
 				IpAddress from;
+				NetPacket data;
+				UInt32 deliveryTime;
+			};
+
+			struct PendingOutgoingPacket
+			{
+				IpAddress to;
 				NetPacket data;
 				UInt32 deliveryTime;
 			};
@@ -123,7 +130,8 @@ namespace Nz
 			std::size_t m_receivedDataLength;
 			std::uniform_int_distribution<UInt16> m_packetDelayDistribution;
 			std::vector<ENetPeer> m_peers;
-			std::vector<PendingPacket> m_pendingPackets;
+			std::vector<PendingIncomingPacket> m_pendingIncomingPackets;
+			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;
 			UInt8* m_receivedData;
 			Bitset<UInt64> m_dispatchQueue;
 			MemoryPool m_packetPool;
