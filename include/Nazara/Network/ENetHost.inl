@@ -52,6 +52,11 @@ namespace Nz
 		m_socket.Close();
 	}
 
+	inline Nz::IpAddress ENetHost::GetBoundAddress() const
+	{
+		return m_address;
+	}
+
 	inline UInt32 Nz::ENetHost::GetServiceTime() const
 	{
 		return m_serviceTime;
