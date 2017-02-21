@@ -1022,7 +1022,7 @@ namespace Nz
 
 				// Simulate network by adding delay to packet sending and losing some packets
 				bool sendNow = true;
-				if (!currentPeer->IsSimulationEnabled())
+				if (currentPeer->IsSimulationEnabled())
 				{
 					sendNow = false;
 					if (!currentPeer->m_packetLossProbability(s_randomGenerator))
