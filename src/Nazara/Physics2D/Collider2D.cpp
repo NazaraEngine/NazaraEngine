@@ -11,6 +11,18 @@ namespace Nz
 {
 	Collider2D::~Collider2D() = default;
 
+	std::vector<cpShape*> Collider2D::GenerateShapes(RigidBody2D* body) const
+	{
+		std::vector<cpShape*> shapes = CreateShapes(body);
+		for (cpShape* shape : shapes)
+		{
+			cpShapeSetCollisionType(shape, m_collisionId);
+			cpShapeSetSensor(shape, (m_trigger) ? cpTrue : cpFalse);
+		}
+
+		return shapes;
+	}
+
 	/******************************** BoxCollider2D *********************************/
 
 	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
