@@ -61,6 +61,7 @@ namespace Nz
 
 			void Flush();
 
+			inline Nz::IpAddress GetBoundAddress() const;
 			inline UInt32 GetServiceTime() const;
 
 			int Service(ENetEvent* event, UInt32 timeout);
