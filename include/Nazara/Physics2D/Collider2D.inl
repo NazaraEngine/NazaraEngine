@@ -7,6 +7,12 @@
 
 namespace Nz
 {
+	inline Collider2D::Collider2D() :
+	m_collisionId(0),
+	m_trigger(false)
+	{
+	}
+
 	inline unsigned int Collider2D::GetCollisionId() const
 	{
 		return m_collisionId;
