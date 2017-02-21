@@ -23,8 +23,8 @@ namespace Nz
 			DeferredDOFPass();
 			virtual ~DeferredDOFPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
-			bool Resize(const Vector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
+			bool Resize(const Vector2ui& dimensions) override;
 
 		protected:
 			RenderTexture m_dofRTT;

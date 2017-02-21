@@ -21,8 +21,8 @@ namespace Nz
 			DeferredGeometryPass();
 			virtual ~DeferredGeometryPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
-			bool Resize(const Vector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
+			bool Resize(const Vector2ui& dimensions) override;
 
 		protected:
 			struct ShaderUniforms;
