@@ -46,7 +46,7 @@ void KeyState::DrawMenu()
 	m_text.SetContent("Clic on a key, this text should change !\nN for alternating event\nM for Menu");
 }
 
-void KeyState::ManageInput(KeyStatus isKeyPressed, const Nz::WindowEvent::KeyEvent& key, Ndk::StateMachine& fsm)
+void KeyState::ManageInput(KeyStatus /*isKeyPressed*/, const Nz::WindowEvent::KeyEvent& key, Ndk::StateMachine& fsm)
 {
 	if (key.code == Nz::Keyboard::Key::M && key.shift)
 		fsm.ChangeState(StateFactory::Get(EventStatus::Menu));

@@ -53,9 +53,9 @@ void EventState::AddEvent(const Nz::WindowEvent& event)
 	m_events.push_back(Nz::String::Number(m_count) + " - " + ToString(event));
 
 	Nz::String content;
-	for (auto&& event : m_events)
+	for (auto&& currentEvent : m_events)
 	{
-		content += event + "\n";
+		content += currentEvent + "\n";
 	}
 	content += "\nM for Menu";
 	m_text.SetContent(content, 36);
