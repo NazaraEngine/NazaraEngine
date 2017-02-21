@@ -42,7 +42,14 @@ namespace Nz
 
 			virtual float ComputeInertialMatrix(float mass) const = 0;
 
+			inline unsigned int GetCollisionId() const;
+
 			virtual ColliderType2D GetType() const = 0;
+
+			inline bool IsTrigger() const;
+
+			inline void SetCollisionId(unsigned long typeId);
+			inline void SetTrigger(bool trigger);
 
 			Collider2D& operator=(const Collider2D&) = delete;
 			Collider2D& operator=(Collider2D&&) = delete;
@@ -52,6 +59,12 @@ namespace Nz
 
 		protected:
 			virtual std::vector<cpShape*> CreateShapes(RigidBody2D* body) const = 0;
+
+			bool m_trigger;
+			unsigned int m_collisionId;
+
+		private:
+			virtual std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const;
 
 			static Collider2DLibrary::LibraryMap s_library;
 	};
