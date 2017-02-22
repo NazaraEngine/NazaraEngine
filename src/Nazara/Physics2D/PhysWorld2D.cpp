@@ -72,7 +72,7 @@ namespace Nz
 	{
 		auto it = m_callbacks.emplace(handler, std::make_unique<Callback>(callbacks)).first;
 
-		handler->userData = &it->second;
+		handler->userData = it->second.get();
 
 		if (callbacks.startCallback)
 		{
