@@ -39,6 +39,7 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	AbstractViewer(camera),
+	HandledObject(camera),
 	m_visibilityHash(camera.m_visibilityHash),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),

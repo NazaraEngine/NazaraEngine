@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			NoiseBase(unsigned int seed = 0);
-			~NoiseBase() = default;
+			virtual ~NoiseBase() = default;
 
 			virtual float Get(float x, float y, float scale) const = 0;
 			virtual float Get(float x, float y, float z, float scale) const = 0;
@@ -40,7 +40,7 @@ namespace Nz
 			static std::array<Vector4f, 2 * 2 * 2 * 2 * 2> s_gradients4;
 
 		private:
-			std::default_random_engine m_randomEngine;
+			std::mt19937 m_randomEngine;
 	};
 }
 

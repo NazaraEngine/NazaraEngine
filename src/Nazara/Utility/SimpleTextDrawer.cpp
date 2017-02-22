@@ -365,12 +365,14 @@ namespace Nz
 				{
 					case '\n':
 					{
+						// Extend the line bounding rect to the last glyph it contains, thus extending upon all glyphs of the line
 						if (!m_glyphs.empty())
 						{
-							Glyph& glyph = m_glyphs.back();
-							m_lines.back().bounds.ExtendTo(glyph.bounds);
+							Glyph& lastGlyph = m_glyphs.back();
+							m_lines.back().bounds.ExtendTo(lastGlyph.bounds);
 						}
 
+						// Reset cursor
 						advance = 0;
 						m_drawPos.x = 0;
 						m_drawPos.y += sizeInfo.lineHeight;

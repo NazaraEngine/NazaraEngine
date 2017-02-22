@@ -20,6 +20,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom) :
 	m_geom(),
+	m_userData(nullptr),
 	m_world(world),
 	m_gravityFactor(1.f),
 	m_mass(1.f)
@@ -34,6 +35,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
 	m_geom(object.m_geom),
+	m_userData(object.m_userData),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(0.f)
@@ -48,18 +50,27 @@ namespace Nz
 	}
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
+	OnRigidBody2DMove(std::move(object.OnRigidBody2DMove)),
+	OnRigidBody2DRelease(std::move(object.OnRigidBody2DRelease)),
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
+	m_userData(object.m_userData),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
+		cpBodySetUserData(m_handle, this);
+
 		object.m_handle = nullptr;
+
+		OnRigidBody2DMove(&object, this);
 	}
 
 	RigidBody2D::~RigidBody2D()
 	{
+		OnRigidBody2DRelease(this);
+
 		Destroy();
 	}
 
@@ -144,6 +155,11 @@ namespace Nz
 		return static_cast<float>(cpBodyGetAngle(m_handle));
 	}
 
+	void* RigidBody2D::GetUserdata() const
+	{
+		return m_userData;
+	}
+
 	Vector2f RigidBody2D::GetVelocity() const
 	{
 		cpVect vel = cpBodyGetVelocity(m_handle);
@@ -190,7 +206,7 @@ namespace Nz
 		else
 			m_geom = NullCollider2D::New();
 
-		m_shapes = m_geom->CreateShapes(this);
+		m_shapes = m_geom->GenerateShapes(this);
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
@@ -242,6 +258,11 @@ namespace Nz
 		cpBodySetAngle(m_handle, rotation);
 	}
 
+	void RigidBody2D::SetUserdata(void* ud)
+	{
+		m_userData = ud;
+	}
+
 	void RigidBody2D::SetVelocity(const Vector2f& velocity)
 	{
 		cpBodySetVelocity(m_handle, cpv(velocity.x, velocity.y));
@@ -257,14 +278,22 @@ namespace Nz
 	{
 		Destroy();
 
+		OnRigidBody2DMove    = std::move(object.OnRigidBody2DMove);
+		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
+
 		m_handle             = object.m_handle;
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
 		m_mass               = object.m_mass;
 		m_shapes             = std::move(object.m_shapes);
+		m_userData           = object.m_userData;
 		m_world              = object.m_world;
 
+		cpBodySetUserData(m_handle, this);
+
 		object.m_handle = nullptr;
+
+		OnRigidBody2DMove(&object, this);
 
 		return *this;
 	}

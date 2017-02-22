@@ -312,9 +312,9 @@ namespace Nz
 		while (!remainingRects.empty())
 		{
 			// Stores the penalty score of the best rectangle placement - bigger=worse, smaller=better.
-			bool bestFlipped;
-			std::size_t bestFreeRect;
-			std::size_t bestRect;
+			bool bestFlipped = false;
+			std::size_t bestFreeRect = m_freeRectangles.size();
+			std::size_t bestRect = std::numeric_limits<int>::min();
 			int bestScore = std::numeric_limits<int>::max();
 
 			for (std::size_t i = 0; i < m_freeRectangles.size(); ++i)

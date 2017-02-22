@@ -93,7 +93,7 @@ namespace Nz
 							}
 							catch (const std::exception&)
 							{
-								ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled);
+								ErrorFlags errFlags2(ErrorFlag_ThrowExceptionDisabled);
 
 								NazaraError("Shader code failed to compile (" + stage.GetLog() + ")\n" + code.ToString());
 								throw;

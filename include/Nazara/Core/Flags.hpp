@@ -29,7 +29,7 @@ namespace Nz
 		public:
 			using BitField = typename std::conditional<(EnumAsFlags<E>::max > 32), UInt64, UInt32>::type;
 
-			constexpr Flags(BitField value);
+			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
 
 			explicit constexpr operator bool() const;
@@ -54,12 +54,12 @@ namespace Nz
 		private:
 			BitField m_value;
 	};
-
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
 }
+
+template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator~(E lhs);
+template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator|(E lhs, E rhs);
+template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator&(E lhs, E rhs);
+template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator^(E lhs, E rhs);
 
 #include <Nazara/Core/Flags.inl>
 

@@ -7,6 +7,32 @@
 
 namespace Nz
 {
+	inline Collider2D::Collider2D() :
+	m_collisionId(0),
+	m_trigger(false)
+	{
+	}
+
+	inline unsigned int Collider2D::GetCollisionId() const
+	{
+		return m_collisionId;
+	}
+
+	inline bool Collider2D::IsTrigger() const
+	{
+		return m_trigger;
+	}
+
+	inline void Collider2D::SetCollisionId(unsigned long typeId)
+	{
+		m_collisionId = typeId;
+	}
+
+	inline void Collider2D::SetTrigger(bool trigger)
+	{
+		m_trigger = trigger;
+	}
+
 	inline const Rectf& BoxCollider2D::GetRect() const
 	{
 		return m_rect;
@@ -82,3 +108,4 @@ namespace Nz
 }
 
 #include <Nazara/Physics2D/DebugOff.hpp>
+#include "Collider2D.hpp"
