@@ -50,6 +50,8 @@ namespace Nz
 	}
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
+	OnRigidBody2DMove(std::move(object.OnRigidBody2DMove)),
+	OnRigidBody2DRelease(std::move(object.OnRigidBody2DRelease)),
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
 	m_userData(object.m_userData),
@@ -61,10 +63,14 @@ namespace Nz
 		cpBodySetUserData(m_handle, this);
 
 		object.m_handle = nullptr;
+
+		OnRigidBody2DMove(&object, this);
 	}
 
 	RigidBody2D::~RigidBody2D()
 	{
+		OnRigidBody2DRelease(this);
+
 		Destroy();
 	}
 
@@ -272,6 +278,9 @@ namespace Nz
 	{
 		Destroy();
 
+		OnRigidBody2DMove    = std::move(object.OnRigidBody2DMove);
+		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
+
 		m_handle             = object.m_handle;
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
@@ -283,6 +292,8 @@ namespace Nz
 		cpBodySetUserData(m_handle, this);
 
 		object.m_handle = nullptr;
+
+		OnRigidBody2DMove(&object, this);
 
 		return *this;
 	}
