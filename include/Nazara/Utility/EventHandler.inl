@@ -8,7 +8,8 @@
 
 namespace Nz
 {
-	inline EventHandler::EventHandler(const EventHandler&)
+	inline EventHandler::EventHandler(const EventHandler& other) :
+	HandledObject(other)
 	{
 	}
 

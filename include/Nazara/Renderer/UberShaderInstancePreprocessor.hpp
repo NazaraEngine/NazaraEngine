@@ -18,7 +18,7 @@ namespace Nz
 			UberShaderInstancePreprocessor(const Shader* shader);
 			virtual ~UberShaderInstancePreprocessor();
 
-			bool Activate() const;
+			bool Activate() const override;
 	};
 }
 

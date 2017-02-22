@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_NETWORK_HPP
 #define NAZARA_ENUMS_NETWORK_HPP
 
+#include <Nazara/Prerequesites.hpp>
+
 namespace Nz
 {
 	enum NetCode : UInt16

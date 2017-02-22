@@ -21,7 +21,7 @@ namespace Nz
 			DeferredFXAAPass();
 			virtual ~DeferredFXAAPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
 
 		protected:
 			RenderStates m_states;

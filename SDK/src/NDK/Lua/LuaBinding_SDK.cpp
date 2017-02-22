@@ -85,23 +85,23 @@ namespace Ndk
 
 			entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
 
-				return binding->adder(instance, handle);
+				return bindingComponent->adder(instance, handle);
 			});
 
 			entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
 
-				return binding->getter(instance, handle->GetComponent(binding->index));
+				return bindingComponent->getter(instance, handle->GetComponent(bindingComponent->index));
 			});
 
 			entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
 
-				handle->RemoveComponent(binding->index);
+				handle->RemoveComponent(bindingComponent->index);
 				return 0;
 			});
 		}

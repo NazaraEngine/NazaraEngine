@@ -27,7 +27,7 @@ namespace Ndk
 
 			//virtual ButtonWidget* Clone() const = 0;
 
-			void ResizeToContent();
+			void ResizeToContent() override;
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
@@ -40,7 +40,6 @@ namespace Ndk
 			void Layout() override;
 
 			void OnMouseEnter() override;
-			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			void OnMouseExit() override;
 

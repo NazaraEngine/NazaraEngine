@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -62,6 +62,17 @@ namespace Nz
 	T* PlacementNew(T* ptr, Args&&... args)
 	{
 		return new (ptr) T(std::forward<Args>(args)...);
+	}
+
+	/*!
+	* \brief Calls the object destructor explicitly
+	*
+	* \param ptr Pointer to a previously constructed pointer on raw memory
+	*/
+	template<typename T>
+	void PlacementDestroy(T* ptr)
+	{
+		ptr->~T();
 	}
 
 	/*!

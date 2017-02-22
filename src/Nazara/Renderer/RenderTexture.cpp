@@ -36,7 +36,7 @@ namespace Nz
 			unsigned int width;
 		};
 
-		unsigned int attachmentIndex[AttachmentPoint_Max+1] =
+		unsigned int s_attachmentIndex[AttachmentPoint_Max+1] =
 		{
 			3, // AttachmentPoint_Color
 			0, // AttachmentPoint_Depth
@@ -117,7 +117,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depthStencilIndex = attachmentIndex[AttachmentPoint_DepthStencil];
+		unsigned int depthStencilIndex = s_attachmentIndex[AttachmentPoint_DepthStencil];
 		if (m_impl->attachments.size() > depthStencilIndex && m_impl->attachments[depthStencilIndex].isUsed)
 		{
 			if (attachmentPoint == AttachmentPoint_Depth)
@@ -154,7 +154,7 @@ namespace Nz
 
 		Unlock();
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			m_impl->attachments.resize(attachIndex+1);
 
@@ -223,7 +223,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depthStencilIndex = attachmentIndex[AttachmentPoint_DepthStencil];
+		unsigned int depthStencilIndex = s_attachmentIndex[AttachmentPoint_DepthStencil];
 		if (attachmentPoint == AttachmentPoint_Depth && m_impl->attachments.size() > depthStencilIndex &&
 			m_impl->attachments[depthStencilIndex].isUsed)
 		{
@@ -288,7 +288,7 @@ namespace Nz
 
 		Unlock();
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			m_impl->attachments.resize(attachIndex+1);
 
@@ -394,7 +394,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			return;
 
@@ -575,7 +575,7 @@ namespace Nz
 		#if NAZARA_RENDERER_SAFE
 		for (unsigned int i = 0; i < targetCount; ++i)
 		{
-			unsigned int index = attachmentIndex[AttachmentPoint_Color] + targets[i];
+			unsigned int index = s_attachmentIndex[AttachmentPoint_Color] + targets[i];
 			if (index >= m_impl->attachments.size() || !m_impl->attachments[index].isUsed)
 			{
 				NazaraError("Target " + String::Number(targets[i]) + " not attached");
@@ -598,7 +598,7 @@ namespace Nz
 		#if NAZARA_RENDERER_SAFE
 		for (UInt8 target : targets)
 		{
-			unsigned int index = attachmentIndex[AttachmentPoint_Color] + target;
+			unsigned int index = s_attachmentIndex[AttachmentPoint_Color] + target;
 			if (index >= m_impl->attachments.size() || !m_impl->attachments[index].isUsed)
 			{
 				NazaraError("Target " + String::Number(target) + " not attached");
@@ -752,7 +752,7 @@ namespace Nz
 
 		for (UInt8 index : m_impl->colorTargets)
 		{
-			Attachment& attachment = m_impl->attachments[attachmentIndex[AttachmentPoint_Color] + index];
+			Attachment& attachment = m_impl->attachments[s_attachmentIndex[AttachmentPoint_Color] + index];
 			if (!attachment.isBuffer)
 				attachment.texture->InvalidateMipmaps();
 		}
@@ -833,7 +833,7 @@ namespace Nz
 			m_impl->colorTargets.clear();
 
 			unsigned int colorIndex = 0;
-			for (unsigned int index = attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
+			for (unsigned int index = s_attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
 				m_impl->colorTargets.push_back(colorIndex++);
 		}
 
