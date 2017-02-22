@@ -35,7 +35,7 @@ namespace Nz
 		friend RigidBody2D;
 
 		public:
-			Collider2D() = default;
+			inline Collider2D();
 			Collider2D(const Collider2D&) = delete;
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
