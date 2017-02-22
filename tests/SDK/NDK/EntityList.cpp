@@ -16,8 +16,8 @@ SCENARIO("EntityList", "[NDK][ENTITYLIST]")
 			THEN("These results are expected")
 			{
 				REQUIRE(entityList.Has(entity->GetId()));
-				const Ndk::EntityHandle& entity = world.CreateEntity();
-				REQUIRE(!entityList.Has(entity->GetId()));
+				const Ndk::EntityHandle& newEntity = world.CreateEntity();
+				REQUIRE(!entityList.Has(newEntity->GetId()));
 			}
 		}
 

@@ -10,8 +10,8 @@ namespace Ndk
 {
 	inline BaseWidget::BaseWidget() :
 	m_canvasIndex(InvalidCanvasIndex),
-	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_canvas(nullptr),
+	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_cursor(Nz::SystemCursor_Default),
 	m_contentSize(50.f, 50.f),
 	m_widgetParent(nullptr),

@@ -39,9 +39,9 @@ namespace Nz
 	*/
 
 	ParticleGroup::ParticleGroup(unsigned int maxParticleCount, ParticleDeclarationConstRef declaration) :
-	m_declaration(std::move(declaration)),
 	m_maxParticleCount(maxParticleCount),
 	m_particleCount(0),
+	m_declaration(std::move(declaration)),
 	m_processing(false)
 	{
 		// In case of error, the constructor can only throw an exception
@@ -60,13 +60,13 @@ namespace Nz
 
 	ParticleGroup::ParticleGroup(const ParticleGroup& system) :
 	Renderable(system),
+	m_maxParticleCount(system.m_maxParticleCount),
+	m_particleCount(system.m_particleCount),
+	m_particleSize(system.m_particleSize),
 	m_controllers(system.m_controllers),
 	m_generators(system.m_generators),
 	m_declaration(system.m_declaration),
 	m_renderer(system.m_renderer),
-	m_maxParticleCount(system.m_maxParticleCount),
-	m_particleCount(system.m_particleCount),
-	m_particleSize(system.m_particleSize),
 	m_processing(false)
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);

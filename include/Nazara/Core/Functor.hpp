@@ -25,7 +25,7 @@ namespace Nz
 	{
 		FunctorWithoutArgs(F func);
 
-		void Run();
+		void Run() override;
 
 		private:
 			F m_func;
@@ -36,7 +36,7 @@ namespace Nz
 	{
 		FunctorWithArgs(F func, Args&&... args);
 
-		void Run();
+		void Run() override;
 
 		private:
 			F m_func;
@@ -48,7 +48,7 @@ namespace Nz
 	{
 		MemberWithoutArgs(void (C::*func)(), C* object);
 
-		void Run();
+		void Run() override;
 
 		private:
 			void (C::*m_func)();
