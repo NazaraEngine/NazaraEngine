@@ -300,7 +300,7 @@ namespace Ndk
 	void Console::ExecuteInput()
 	{
 		Nz::String input = m_inputDrawer.GetText();
-		Nz::String inputCmd = input.SubString(s_inputPrefixSize);;
+		Nz::String inputCmd = input.SubString(s_inputPrefixSize);
 		m_inputDrawer.SetText(s_inputPrefix);
 
 		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)

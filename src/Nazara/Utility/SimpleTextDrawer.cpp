@@ -369,7 +369,7 @@ namespace Nz
 						if (!m_glyphs.empty())
 						{
 							Glyph& lastGlyph = m_glyphs.back();
-							m_lines.back().bounds.ExtendTo(glyph.bounds);
+							m_lines.back().bounds.ExtendTo(lastGlyph.bounds);
 						}
 
 						// Reset cursor
