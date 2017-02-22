@@ -31,7 +31,7 @@ namespace Nz
 	namespace
 	{
 		//FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
-		thread_local std::string currentPath(DirectoryImpl::GetCurrent());
+		std::string currentPath(DirectoryImpl::GetCurrent());
 	}
 
 	/*!

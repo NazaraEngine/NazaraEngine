@@ -8,6 +8,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/World.hpp>
 #include <limits>
+#include <iostream>
 
 namespace Ndk
 {
@@ -99,6 +100,7 @@ namespace Ndk
 	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
+		m_drawer.SetSize(GetSize());
 
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
 
@@ -190,6 +192,11 @@ namespace Ndk
 		{
 			GrabKeyboard();
 
+			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
+		}
+
+        if (button == Nz::Mouse::Right)
+		{
 			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
 		}
 	}
