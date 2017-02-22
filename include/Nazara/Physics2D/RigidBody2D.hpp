@@ -43,6 +43,7 @@ namespace Nz
 			float GetMass() const;
 			Vector2f GetPosition() const;
 			float GetRotation() const;
+			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
 
 			bool IsMoveable() const;
@@ -54,6 +55,7 @@ namespace Nz
 			void SetMassCenter(const Vector2f& center);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
+			void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
 
 			RigidBody2D& operator=(const RigidBody2D& object);
@@ -66,6 +68,7 @@ namespace Nz
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
 			cpBody* m_handle;
+			void* m_userData;
 			PhysWorld2D* m_world;
 			float m_gravityFactor;
 			float m_mass;

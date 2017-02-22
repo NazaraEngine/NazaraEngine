@@ -20,6 +20,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom) :
 	m_geom(),
+	m_userData(nullptr),
 	m_world(world),
 	m_gravityFactor(1.f),
 	m_mass(1.f)
@@ -34,6 +35,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
 	m_geom(object.m_geom),
+	m_userData(object.m_userData),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(0.f)
@@ -50,11 +52,14 @@ namespace Nz
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
+	m_userData(object.m_userData),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
+		cpBodySetUserData(m_handle, this);
+
 		object.m_handle = nullptr;
 	}
 
@@ -142,6 +147,11 @@ namespace Nz
 	float RigidBody2D::GetRotation() const
 	{
 		return static_cast<float>(cpBodyGetAngle(m_handle));
+	}
+
+	void* RigidBody2D::GetUserdata() const
+	{
+		return m_userData;
 	}
 
 	Vector2f RigidBody2D::GetVelocity() const
@@ -242,6 +252,11 @@ namespace Nz
 		cpBodySetAngle(m_handle, rotation);
 	}
 
+	void RigidBody2D::SetUserdata(void* ud)
+	{
+		m_userData = ud;
+	}
+
 	void RigidBody2D::SetVelocity(const Vector2f& velocity)
 	{
 		cpBodySetVelocity(m_handle, cpv(velocity.x, velocity.y));
@@ -262,7 +277,10 @@ namespace Nz
 		m_gravityFactor      = object.m_gravityFactor;
 		m_mass               = object.m_mass;
 		m_shapes             = std::move(object.m_shapes);
+		m_userData           = object.m_userData;
 		m_world              = object.m_world;
+
+		cpBodySetUserData(m_handle, this);
 
 		object.m_handle = nullptr;
 
