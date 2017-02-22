@@ -8,10 +8,10 @@
 
 namespace Nz
 {
-	// Version majeure d'OpenGL, initialisé par OpenGL::Initialize()
+	// Major version of OpenGL, initialised by OpenGL::Initialize()
 	UInt8 ContextParameters::defaultMajorVersion;
 
-	 // Version majeure d'OpenGL, initialisé par OpenGL::Initialize()
+	 // Minor version of OpenGL, initialised by OpenGL::Initialize()
 	UInt8 ContextParameters::defaultMinorVersion;
 
 	// Contexte de partage par défaut, initialisé par OpenGL::Initialize()
