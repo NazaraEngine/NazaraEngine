@@ -986,7 +986,7 @@ namespace Nz
 		if (currentCommand == m_sentReliableCommands.end())
 		{
 			currentCommand = m_outgoingReliableCommands.begin();
-			commandList = &m_sentReliableCommands;
+			commandList = &m_outgoingReliableCommands;
 			for (; currentCommand != m_outgoingReliableCommands.end(); ++currentCommand)
 			{
 				found = true;
