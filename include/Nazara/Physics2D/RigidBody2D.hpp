@@ -34,6 +34,8 @@ namespace Nz
 
 			void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys_Global);
 			void AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
+			void AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys_Global);
+			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
 			void AddTorque(float torque);
 
 			Rectf GetAABB() const;

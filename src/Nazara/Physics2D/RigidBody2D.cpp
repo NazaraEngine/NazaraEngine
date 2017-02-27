@@ -93,6 +93,25 @@ namespace Nz
 		}
 	}
 
+	void RigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
+	{
+		return AddImpulse(impulse, GetCenterOfGravity(coordSys), coordSys);
+	}
+
+	void RigidBody2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				cpBodyApplyImpulseAtWorldPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
+				break;
+
+			case CoordSys_Local:
+				cpBodyApplyImpulseAtLocalPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
+				break;
+		}
+	}
+
 	void RigidBody2D::AddTorque(float torque)
 	{
 		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + torque);
