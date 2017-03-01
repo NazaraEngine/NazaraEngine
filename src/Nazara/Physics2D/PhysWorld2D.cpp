@@ -37,6 +37,35 @@ namespace Nz
 		return m_stepSize;
 	}
 
+	bool PhysWorld2D::NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
+	{
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+
+		if (result)
+		{
+			cpPointQueryInfo queryInfo;
+
+			if (cpShape* shape = cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
+			{
+				result->closestPoint.Set(queryInfo.point.x, queryInfo.point.y);
+				result->distance = queryInfo.distance;
+				result->fraction.Set(queryInfo.gradient.x, queryInfo.gradient.y);
+				result->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+
+				return true;
+			}
+			else
+				return false;
+		}
+		else
+		{
+			if (cpShape* shape = cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, nullptr))
+				return true;
+			else
+				return false;
+		}
+	}
+
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
 	{
 		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), callbacks);
@@ -63,7 +92,12 @@ namespace Nz
 
 		while (m_timestepAccumulator >= m_stepSize)
 		{
+			OnPhysWorld2DPreStep(this);
+
 			cpSpaceStep(m_handle, m_stepSize);
+
+			OnPhysWorld2DPostStep(this);
+
 			m_timestepAccumulator -= m_stepSize;
 		}
 	}

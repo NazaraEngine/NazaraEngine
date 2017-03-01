@@ -229,7 +229,10 @@ namespace Nz
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
+		{
+			cpShapeSetUserData(shape, this);
 			cpSpaceAddShape(space, shape);
+		}
 
 		cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
 	}
