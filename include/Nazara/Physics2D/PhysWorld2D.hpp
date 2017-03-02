@@ -41,7 +41,7 @@ namespace Nz
 			cpSpace* GetHandle() const;
 			float GetStepSize() const;
 
-			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D* nearestBody);
+			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody);
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
