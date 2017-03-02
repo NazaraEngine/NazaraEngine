@@ -61,6 +61,8 @@ namespace Nz
 	m_mass(object.m_mass)
 	{
 		cpBodySetUserData(m_handle, this);
+		for (cpShape* shape : m_shapes)
+			cpShapeSetUserData(shape, this);
 
 		object.m_handle = nullptr;
 
@@ -312,6 +314,8 @@ namespace Nz
 		m_world              = object.m_world;
 
 		cpBodySetUserData(m_handle, this);
+		for (cpShape* shape : m_shapes)
+			cpShapeSetUserData(shape, this);
 
 		object.m_handle = nullptr;
 
@@ -324,6 +328,7 @@ namespace Nz
 	{
 		m_handle = cpBodyNew(mass, moment);
 		cpBodySetUserData(m_handle, this);
+
 		cpSpaceAddBody(m_world->GetHandle(), m_handle);
 	}
 
