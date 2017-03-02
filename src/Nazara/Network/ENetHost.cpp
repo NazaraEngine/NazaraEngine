@@ -224,9 +224,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-	#ifdef ENET_DEBUG
-					perror("Error sending outgoing packets");
-	#endif
+					NazaraError("Error sending outgoing packets");
 					return -1;
 
 				default:
@@ -235,34 +233,29 @@ namespace Nz
 
 			switch (ReceiveIncomingCommands(event))
 			{
-			case 1:
-				return 1;
+				case 1:
+					return 1;
 
-			case -1:
-#ifdef ENET_DEBUG
-				perror("Error receiving incoming packets");
-#endif
+				case -1:
+					NazaraError("Error receiving incoming packets");
+					return -1;
 
-				return -1;
-
-			default:
-				break;
+				default:
+					break;
 			}
 
 			switch (SendOutgoingCommands(event, true))
 			{
-			case 1:
-				return 1;
+				case 1:
+					return 1;
 
-			case -1:
-#ifdef ENET_DEBUG
-				perror("Error sending outgoing packets");
-#endif
+				case -1:
+					NazaraError("Error sending outgoing packets");
 
-				return -1;
+					return -1;
 
-			default:
-				break;
+				default:
+					break;
 			}
 
 			if (event)
