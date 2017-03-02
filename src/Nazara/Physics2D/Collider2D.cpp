@@ -13,9 +13,12 @@ namespace Nz
 
 	std::vector<cpShape*> Collider2D::GenerateShapes(RigidBody2D* body) const
 	{
+		cpShapeFilter filter = cpShapeFilterNew(m_collisionGroup, m_categoryMask, m_collisionMask);
+
 		std::vector<cpShape*> shapes = CreateShapes(body);
 		for (cpShape* shape : shapes)
 		{
+			cpShapeSetFilter(shape, filter);
 			cpShapeSetCollisionType(shape, m_collisionId);
 			cpShapeSetSensor(shape, (m_trigger) ? cpTrue : cpFalse);
 		}
