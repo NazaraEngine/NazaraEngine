@@ -8,6 +8,7 @@
 #define NAZARA_PHYSWORLD2D_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <memory>
@@ -29,6 +30,7 @@ namespace Nz
 
 		public:
 			struct Callback;
+			struct NearestQueryResult;
 
 			PhysWorld2D();
 			PhysWorld2D(const PhysWorld2D&) = delete;
@@ -38,6 +40,8 @@ namespace Nz
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
 			float GetStepSize() const;
+
+			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
@@ -58,6 +62,17 @@ namespace Nz
 				ContactStartCallback startCallback;
 				void* userdata;
 			};
+
+			struct NearestQueryResult
+			{
+				Nz::RigidBody2D* nearestBody;
+				Nz::Vector2f closestPoint;
+				Nz::Vector2f fraction;
+				float distance;
+			};
+
+			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/);
+			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/);
 
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
