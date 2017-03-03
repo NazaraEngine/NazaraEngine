@@ -145,6 +145,13 @@ namespace Ndk
 
 	void Entity::Destroy()
 	{
+		OnEntityDestruction(this);
+		OnEntityDestruction.Clear();
+
+		// We prepare components for entity destruction (some components needs this to handle some final callbacks while the entity is still valid)
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			m_components[i]->OnEntityDestruction();
+
 		// We alert each system
 		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
