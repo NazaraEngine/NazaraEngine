@@ -505,10 +505,24 @@ function NazaraBuild:LoadConfig()
 		end
 	end
 
+	local AddStringOption = function (option, name, description)
+		newoption({
+			trigger     = name,
+			description = description
+		})
+
+		local str = _OPTIONS[name]
+		if (str) then
+			configTable[option] = str
+		end
+	end
+
+
 	AddBoolOption("BuildDependencies", "with-extlibs", "Builds the extern libraries")
 	AddBoolOption("BuildExamples", "with-examples", "Builds the examples")
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
+	AddStringOption("AdditionalCompilationFlags", "compile-flags", "Specify additionnal compilation flags to be added to every generated project")
 
 	-- Configurations
 	do
