@@ -522,7 +522,29 @@ function NazaraBuild:LoadConfig()
 	AddBoolOption("BuildExamples", "with-examples", "Builds the examples")
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
-	AddStringOption("AdditionalCompilationFlags", "compile-flags", "Specify additionnal compilation flags to be added to every generated project")
+
+	-- AdditionalCompilationOptions
+	do
+		newoption({
+			trigger     = "compile-options",
+			description = "Specify additionnal compilation options to be added to every generated project."
+		})
+
+		configTable["AdditionalCompilationOptions"] = configTable["AdditionalCompilationOptions"] or ""
+		if (_OPTIONS["compile-options"] ~= nil) then
+			configTable["AdditionalCompilationOptions"] = configTable["AdditionalCompilationOptions"] .. ";" .. _OPTIONS["compile-options"]
+		end
+
+		local configs = {}
+		local paths = string.explode(configTable["AdditionalCompilationOptions"], ";")
+		for k,v in pairs(paths) do
+			if (#v > 0) then
+				table.insert(configs, v)
+			end
+		end
+
+		configTable["Configurations"] = configs
+	end
 
 	-- Configurations
 	do
@@ -806,6 +828,8 @@ function NazaraBuild:PrepareGeneric()
 		buildoptions("-ftree-vectorize")
 
 	filter({})
+	
+	buildoptions(self.Config["AdditionalCompilationOptions"])
 end
 
 function NazaraBuild:PrepareMainWorkspace()

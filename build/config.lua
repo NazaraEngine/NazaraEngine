@@ -1,8 +1,8 @@
 -- This file contains special configurations values, such as directories to extern libraries (Qt)
 -- Editing this file is not required to use/compile the engine, as default values should be enough
 
--- Additionnal compilation flags
---AdditionalCompilationFlags = -fsanitize=address -- Enable ASan
+-- Additionnal compilation options
+--AdditionalCompilationOptions = "-fsanitize=address" -- Enable ASan
 
 -- Builds Nazara extern libraries (such as lua/STB)
 BuildDependencies = true
