@@ -31,6 +31,7 @@ namespace Nz
 		public:
 			struct Callback;
 			struct NearestQueryResult;
+			struct RaycastHit;
 
 			PhysWorld2D();
 			PhysWorld2D(const PhysWorld2D&) = delete;
@@ -43,6 +44,9 @@ namespace Nz
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
+
+			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
+			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
@@ -70,6 +74,14 @@ namespace Nz
 				Nz::Vector2f closestPoint;
 				Nz::Vector2f fraction;
 				float distance;
+			};
+
+			struct RaycastHit
+			{
+				Nz::RigidBody2D* nearestBody;
+				Nz::Vector2f hitPos;
+				Nz::Vector2f hitNormal;
+				float fraction;
 			};
 
 			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/);
