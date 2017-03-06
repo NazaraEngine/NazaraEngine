@@ -81,6 +81,58 @@ namespace Nz
 		}
 	}
 
+	bool PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
+	{
+		auto callback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
+		{
+			std::vector<RaycastHit>* results = reinterpret_cast<std::vector<RaycastHit>*>(data);
+
+			RaycastHit hitInfo;
+			hitInfo.fraction = alpha;
+			hitInfo.hitNormal.Set(normal.x, normal.y);
+			hitInfo.hitPos.Set(point.x, point.y);
+			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+
+			results->emplace_back(std::move(hitInfo));
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+
+		std::size_t previousSize = hitInfos->size();
+		cpSpaceSegmentQuery(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, callback, hitInfos);
+
+		return hitInfos->size() != previousSize;
+	}
+
+	bool PhysWorld2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
+	{
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+
+		if (hitInfo)
+		{
+			cpSegmentQueryInfo queryInfo;
+
+			if (cpShape* shape = cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
+			{
+				hitInfo->fraction = queryInfo.alpha;
+				hitInfo->hitNormal.Set(queryInfo.normal.x, queryInfo.normal.y);
+				hitInfo->hitPos.Set(queryInfo.point.x, queryInfo.point.y);
+				hitInfo->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
+
+				return true;
+			}
+			else
+				return false;
+		}
+		else
+		{
+			if (cpShape* shape = cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, nullptr))
+				return true;
+			else
+				return false;
+		}
+	}
+
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
 	{
 		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), callbacks);
