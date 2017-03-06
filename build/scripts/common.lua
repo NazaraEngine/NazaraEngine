@@ -543,7 +543,7 @@ function NazaraBuild:LoadConfig()
 			end
 		end
 
-		configTable["Configurations"] = configs
+		configTable["AdditionalCompilationOptions"] = configs
 	end
 
 	-- Configurations
