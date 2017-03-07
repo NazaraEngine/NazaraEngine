@@ -11,6 +11,7 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
+#include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -19,10 +20,10 @@ struct cpSpace;
 
 namespace Nz
 {
-	class RigidBody2D;
-
 	class NAZARA_PHYSICS2D_API PhysWorld2D
 	{
+		friend RigidBody2D;
+
 		using ContactEndCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
 		using ContactPreSolveCallback = bool(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
 		using ContactPostSolveCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
@@ -90,7 +91,23 @@ namespace Nz
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
 
+			using PostStep = std::function<void()>;
+
+			void OnRigidBodyMoved(RigidBody2D* oldPointer, RigidBody2D* newPointer);
+			void OnRigidBodyRelease(RigidBody2D* rigidBody);
+
+			void RegisterPostStep(RigidBody2D* rigidBody, PostStep&& func);
+
+			struct PostStepContainer
+			{
+				NazaraSlot(RigidBody2D, OnRigidBody2DMove, onMovedSlot);
+				NazaraSlot(RigidBody2D, OnRigidBody2DRelease, onReleaseSlot);
+
+				std::vector<PostStep> funcs;
+			};
+
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
+			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;
 			float m_stepSize;
 			float m_timestepAccumulator;
