@@ -164,6 +164,16 @@ namespace Nz
 			cpSpaceStep(m_handle, m_stepSize);
 
 			OnPhysWorld2DPostStep(this);
+			if (!m_rigidPostSteps.empty())
+			{
+				for (const auto& pair : m_rigidPostSteps)
+				{
+					for (const auto& step : pair.second.funcs)
+						step();
+				}
+
+				m_rigidPostSteps.clear();
+			}
 
 			m_timestepAccumulator -= m_stepSize;
 		}
@@ -262,5 +272,42 @@ namespace Nz
 				cpArbiterCallWildcardPostSolveB(arb, space);
 			};
 		}
+	}
+
+	void PhysWorld2D::OnRigidBodyMoved(RigidBody2D* oldPointer, RigidBody2D* newPointer)
+	{
+		auto it = m_rigidPostSteps.find(oldPointer);
+		if (it == m_rigidPostSteps.end())
+			return; //< Shouldn't happen
+
+		m_rigidPostSteps.emplace(std::make_pair(newPointer, std::move(it->second)));
+		m_rigidPostSteps.erase(oldPointer);
+	}
+
+	void PhysWorld2D::OnRigidBodyRelease(RigidBody2D* rigidBody)
+	{
+		m_rigidPostSteps.erase(rigidBody);
+	}
+
+	void PhysWorld2D::RegisterPostStep(RigidBody2D* rigidBody, PostStep&& func)
+	{
+		// If space isn't locked, no need to wait
+		if (!cpSpaceIsLocked(m_handle))
+		{
+			func();
+			return;
+		}
+
+		auto it = m_rigidPostSteps.find(rigidBody);
+		if (it == m_rigidPostSteps.end())
+		{
+			PostStepContainer postStep;
+			postStep.onMovedSlot.Connect(rigidBody->OnRigidBody2DMove, this, &PhysWorld2D::OnRigidBodyMoved);
+			postStep.onReleaseSlot.Connect(rigidBody->OnRigidBody2DRelease, this, &PhysWorld2D::OnRigidBodyRelease);
+
+			it = m_rigidPostSteps.insert(std::make_pair(rigidBody, std::move(postStep))).first;
+		}
+
+		it->second.funcs.emplace_back(std::move(func));
 	}
 }
