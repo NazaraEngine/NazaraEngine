@@ -30,6 +30,7 @@ namespace Ndk
 	m_enabled(entity.m_enabled),
 	m_valid(entity.m_valid)
 	{
+		entity.m_world = nullptr;
 	}
 
 	/*!
@@ -53,7 +54,8 @@ namespace Ndk
 
 	Entity::~Entity()
 	{
-		Destroy();
+		if (m_world)
+			Destroy();
 	}
 
 	/*!
