@@ -156,10 +156,6 @@ namespace Nz
 		if (!InitSocket(address))
 			return false;
 
-		m_peers.reserve(peerCount);
-		for (std::size_t i = 0; i < peerCount; ++i)
-			m_peers.emplace_back(this, UInt16(i));
-
 		m_address = address;
 		m_randomSeed = *reinterpret_cast<UInt32*>(this);
 		m_randomSeed += s_randomGenerator();
@@ -187,6 +183,10 @@ namespace Nz
 		m_duplicatePeers = ENetConstants::ENetProtocol_MaximumPeerId;
 		m_maximumPacketSize = ENetConstants::ENetHost_DefaultMaximumPacketSize;
 		m_maximumWaitingData = ENetConstants::ENetHost_DefaultMaximumWaitingData;
+
+		m_peers.reserve(peerCount);
+		for (std::size_t i = 0; i < peerCount; ++i)
+			m_peers.emplace_back(this, UInt16(i));
 
 		return true;
 	}
