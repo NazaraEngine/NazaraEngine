@@ -674,7 +674,7 @@ namespace Nz
 				DispatchIncomingReliableCommands(channel);
 		}
 
-		return false;
+		return true;
 	}
 
 	bool ENetPeer::HandleSendReliable(const ENetProtocol* command, UInt8** data)
