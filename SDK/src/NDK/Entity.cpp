@@ -152,6 +152,10 @@ namespace Ndk
 		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
 			m_components[i]->OnEntityDestruction();
 
+		// Detach components while they're still attached to systems
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			m_components[i]->SetEntity(nullptr);
+
 		// We alert each system
 		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
@@ -165,10 +169,7 @@ namespace Ndk
 		}
 		m_systemBits.Clear();
 
-		// We properly destroy each component
-		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			m_components[i]->SetEntity(nullptr);
-
+		// Destroy components
 		m_components.clear();
 		m_componentBits.Reset();
 
