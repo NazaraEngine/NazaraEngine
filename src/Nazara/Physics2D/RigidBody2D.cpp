@@ -245,23 +245,26 @@ namespace Nz
 		{
 			if (mass > 0.f)
 			{
-				cpBodySetMass(m_handle, mass);
-				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+				m_world->RegisterPostStep(this, [this, mass]()
+				{
+					cpBodySetMass(m_handle, mass);
+					cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+				});
 			}
 			else
 				m_world->RegisterPostStep(this, [this]() { cpBodySetType(m_handle, CP_BODY_TYPE_STATIC); } );
 		}
 		else if (mass > 0.f)
 		{
-			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			m_world->RegisterPostStep(this, [this, mass]()
 			{
-				m_world->RegisterPostStep(this, [this, mass]()
+				if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
 				{
 					cpBodySetType(m_handle, CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(m_handle, mass);
 					cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
-				});
-			}
+				}
+			});
 		}
 
 		m_mass = mass;
