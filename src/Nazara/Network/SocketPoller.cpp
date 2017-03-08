@@ -142,12 +142,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Wait until any registered socket switches to a ready state
+	* \brief Wait until any registered socket switches to a ready state.
 	*
 	* Waits a specific/undetermined amount of time until at least one socket part of the SocketPoller becomes ready.
 	* To query the ready state of the registered socket, use the IsReady function.
 	*
 	* \param msTimeout Maximum time to wait in milliseconds, 0 for infinity
+	*
+	* \return True if at least one socket registered to the poller is ready.
 	*
 	* \remark It is an error to try to unregister a non-registered socket from a SocketPoller.
 	*
