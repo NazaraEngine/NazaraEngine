@@ -185,11 +185,11 @@ namespace Ndk
 
 			NazaraAssert(entity.IsValid(), "Entity must be valid");
 
-			// Send back the identifier of the entity to the free queue
-			m_freeIdList.push_back(entity.GetId());
-
 			// Destruction of the entity (invalidation of handle by the same way)
 			entity.Destroy();
+
+			// Send back the identifier of the entity to the free queue
+			m_freeIdList.push_back(entity.GetId());
 
 			// We take out the handle from the list of alive entities
 			// With the idiom swap and pop
