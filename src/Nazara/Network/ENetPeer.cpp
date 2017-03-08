@@ -287,12 +287,15 @@ namespace Nz
 		UInt32 serviceTime = m_host->GetServiceTime();
 
 		auto it = m_sentReliableCommands.begin();
-		for (; it != m_sentReliableCommands.end(); ++it)
+		for (; it != m_sentReliableCommands.end();)
 		{
 			OutgoingCommand& command = *it;
 
 			if (ENetTimeDifference(serviceTime, command.sentTime) < command.roundTripTimeout)
+			{
+				++it;
 				continue;
+			}
 
 			if (m_earliestTimeout == 0 || ENetTimeLess(command.sentTime, m_earliestTimeout))
 				m_earliestTimeout = command.sentTime;
@@ -315,6 +318,7 @@ namespace Nz
 			command.roundTripTimeoutLimit = m_timeoutLimit * command.roundTripTimeout;
 
 			m_outgoingReliableCommands.emplace_front(std::move(command));
+			it = m_sentReliableCommands.erase(it);
 
 			// Okay this should just never procs, I don't see how it would be possible
 			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
@@ -325,8 +329,6 @@ namespace Nz
 			peer->nextTimeout = outgoingCommand->sentTime + outgoingCommand->roundTripTimeout;
 			}*/
 		}
-
-		m_sentReliableCommands.erase(m_sentReliableCommands.begin(), it);
 
 		return false;
 	}
