@@ -91,7 +91,7 @@ namespace Nz
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
 
-			using PostStep = std::function<void()>;
+			using PostStep = std::function<void(Nz::RigidBody2D* body)>;
 
 			void OnRigidBodyMoved(RigidBody2D* oldPointer, RigidBody2D* newPointer);
 			void OnRigidBodyRelease(RigidBody2D* rigidBody);
