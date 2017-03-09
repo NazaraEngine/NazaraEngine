@@ -169,7 +169,7 @@ namespace Nz
 				for (const auto& pair : m_rigidPostSteps)
 				{
 					for (const auto& step : pair.second.funcs)
-						step();
+						step(pair.first);
 				}
 
 				m_rigidPostSteps.clear();
