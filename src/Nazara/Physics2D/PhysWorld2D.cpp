@@ -294,7 +294,7 @@ namespace Nz
 		// If space isn't locked, no need to wait
 		if (!cpSpaceIsLocked(m_handle))
 		{
-			func();
+			func(rigidBody);
 			return;
 		}
 
