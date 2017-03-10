@@ -205,7 +205,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::Disconnect(const SlotPtr& slot)
+	void Signal<Args...>::Disconnect(const SlotPtr& slot) noexcept
 	{
 		NazaraAssert(slot, "Invalid slot pointer");
 		NazaraAssert(slot->index < m_slots.size(), "Invalid slot index");
@@ -277,7 +277,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::Connection::Disconnect()
+	void Signal<Args...>::Connection::Disconnect() noexcept
 	{
 		if (SlotPtr ptr = m_ptr.lock())
 			ptr->signal->Disconnect(ptr);
@@ -353,7 +353,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::ConnectionGuard::Disconnect()
+	void Signal<Args...>::ConnectionGuard::Disconnect() noexcept
 	{
 		m_connection.Disconnect();
 	}
@@ -420,7 +420,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection)
+	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection) noexcept
 	{
 		m_connection.Disconnect();
 		m_connection = std::move(connection.m_connection);
