@@ -84,7 +84,7 @@ namespace Nz
 		public:
 			Connection() = default;
 			Connection(const Connection& connection) = default;
-			Connection(Connection&& connection) noexcept = default;
+			Connection(Connection&& connection) noexcept;
 			~Connection() = default;
 
 			template<typename... ConnectArgs>
@@ -94,7 +94,7 @@ namespace Nz
 			bool IsConnected() const;
 
 			Connection& operator=(const Connection& connection) = default;
-			Connection& operator=(Connection&& connection) noexcept = default;
+			Connection& operator=(Connection&& connection) noexcept;
 
 		private:
 			Connection(const SlotPtr& slot);
