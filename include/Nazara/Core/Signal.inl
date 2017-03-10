@@ -247,6 +247,18 @@ namespace Nz
 	*/
 
 	/*!
+	* \brief Constructs a Signal::Connection object with by move semantic
+	*
+	* \param connection Connection object to move
+	*/
+	template<typename... Args>
+	Signal<Args...>::Connection::Connection(Connection&& connection) noexcept :
+	m_ptr(std::move(connection.m_ptr))
+	{
+		connection.m_ptr.reset(); //< Fuck you GCC 4.9
+	}
+	
+	/*!
 	* \brief Constructs a Signal::Connection object with a slot
 	*
 	* \param slot Slot of the listener
@@ -294,6 +306,18 @@ namespace Nz
 		return !m_ptr.expired();
 	}
 
+	/*!
+	* \brief Constructs a Signal::ConnectionGuard object by move semantic
+	*
+	* \param connection Connection to move
+	*/
+	template<typename... Args>
+	typename Signal<Args...>::Connection& Signal<Args...>::Connection::operator=(Connection&& connection) noexcept
+	{
+		m_ptr = std::move(connection.m_ptr);
+		connection.m_ptr.reset(); //< Fuck you GCC 4.9
+	}
+	
 	/*!
 	* \class Nz::Signal::ConnectionGuard
 	* \brief Core class that represents a RAII for a connection attached to a signal
@@ -406,8 +430,11 @@ namespace Nz
 	template<typename... Args>
 	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(Connection&& connection)
 	{
-		m_connection.Disconnect();
-		m_connection = std::move(connection);
+		if (&connection != this)
+		{
+			m_connection.Disconnect();
+			m_connection = std::move(connection);
+		}
 
 		return *this;
 	}
@@ -422,8 +449,11 @@ namespace Nz
 	template<typename... Args>
 	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection) noexcept
 	{
-		m_connection.Disconnect();
-		m_connection = std::move(connection.m_connection);
+		if (&connection != this)
+		{
+			m_connection.Disconnect();
+			m_connection = std::move(connection.m_connection);
+		}
 
 		return *this;
 	}
