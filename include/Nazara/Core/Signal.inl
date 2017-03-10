@@ -316,6 +316,8 @@ namespace Nz
 	{
 		m_ptr = std::move(connection.m_ptr);
 		connection.m_ptr.reset(); //< Fuck you GCC 4.9
+
+		return *this;
 	}
 	
 	/*!
