@@ -106,6 +106,8 @@ namespace Nz
 				std::vector<PostStep> funcs;
 			};
 
+			static_assert(std::is_nothrow_move_constructible<PostStepContainer>::value, "PostStepContainer should be noexcept MoveConstructible");
+
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;
