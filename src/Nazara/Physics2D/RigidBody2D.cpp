@@ -61,6 +61,8 @@ namespace Nz
 	m_mass(object.m_mass)
 	{
 		cpBodySetUserData(m_handle, this);
+		for (cpShape* shape : m_shapes)
+			cpShapeSetUserData(shape, this);
 
 		object.m_handle = nullptr;
 
@@ -89,6 +91,25 @@ namespace Nz
 
 			case CoordSys_Local:
 				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
+				break;
+		}
+	}
+
+	void RigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
+	{
+		return AddImpulse(impulse, GetCenterOfGravity(coordSys), coordSys);
+	}
+
+	void RigidBody2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				cpBodyApplyImpulseAtWorldPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
+				break;
+
+			case CoordSys_Local:
+				cpBodyApplyImpulseAtLocalPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
 				break;
 		}
 	}
@@ -210,7 +231,10 @@ namespace Nz
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
+		{
+			cpShapeSetUserData(shape, this);
 			cpSpaceAddShape(space, shape);
+		}
 
 		cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
 	}
@@ -221,20 +245,26 @@ namespace Nz
 		{
 			if (mass > 0.f)
 			{
-				cpBodySetMass(m_handle, mass);
-				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+				m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
+				{
+					cpBodySetMass(body->GetHandle(), mass);
+					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeInertialMatrix(mass));
+				});
 			}
 			else
-				cpBodySetType(m_handle, CP_BODY_TYPE_STATIC);
+				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), CP_BODY_TYPE_STATIC); } );
 		}
 		else if (mass > 0.f)
 		{
-			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
+			m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
 			{
-				cpBodySetType(m_handle, CP_BODY_TYPE_DYNAMIC);
-				cpBodySetMass(m_handle, mass);
-				cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
-			}
+				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_STATIC)
+				{
+					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
+					cpBodySetMass(body->GetHandle(), mass);
+					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeInertialMatrix(mass));
+				}
+			});
 		}
 
 		m_mass = mass;
@@ -290,6 +320,8 @@ namespace Nz
 		m_world              = object.m_world;
 
 		cpBodySetUserData(m_handle, this);
+		for (cpShape* shape : m_shapes)
+			cpShapeSetUserData(shape, this);
 
 		object.m_handle = nullptr;
 
@@ -302,6 +334,7 @@ namespace Nz
 	{
 		m_handle = cpBodyNew(mass, moment);
 		cpBodySetUserData(m_handle, this);
+
 		cpSpaceAddBody(m_world->GetHandle(), m_handle);
 	}
 

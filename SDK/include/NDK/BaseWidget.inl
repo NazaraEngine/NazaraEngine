@@ -33,6 +33,7 @@ namespace Ndk
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
 		widget->Show(m_visible);
+		widget->SetParent(this);
 		m_children.emplace_back(std::move(widget));
 	}
 
