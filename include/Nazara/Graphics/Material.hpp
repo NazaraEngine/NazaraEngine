@@ -106,6 +106,7 @@ namespace Nz
 			inline const MaterialPipeline* GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
+			inline ReflectionMode GetReflectionMode() const;
 			inline const UberShader* GetShader() const;
 			inline float GetShininess() const;
 			inline Color GetSpecularColor() const;
@@ -164,6 +165,7 @@ namespace Nz
 			inline bool SetNormalMap(const String& textureName);
 			inline void SetNormalMap(TextureRef textureName);
 			inline void SetPointSize(float pointSize);
+			inline void SetReflectionMode(ReflectionMode reflectionMode);
 			inline void SetShader(UberShaderConstRef uberShader);
 			inline bool SetShader(const String& uberShaderName);
 			inline void SetShininess(float shininess);
@@ -180,6 +182,7 @@ namespace Nz
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
+			NazaraSignal(OnMaterialReflectionChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
@@ -197,6 +200,7 @@ namespace Nz
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;
+			ReflectionMode m_reflectionMode;
 			TextureSampler m_diffuseSampler;
 			TextureSampler m_specularSampler;
 			TextureRef m_alphaMap;
