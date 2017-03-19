@@ -619,6 +619,18 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the reflection mode of the material
+	*
+	* \return Current reflection mode
+	*
+	* \see SetReflectionMode
+	*/
+	inline ReflectionMode Material::GetReflectionMode() const
+	{
+		return m_reflectionMode;
+	}
+
+	/*!
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
@@ -1241,6 +1253,34 @@ namespace Nz
 		m_pipelineInfo.pointSize = pointSize;
 
 		InvalidatePipeline();
+	}
+
+	/*!
+	* \brief Changes reflection mode of the material
+	*
+	* When reflections are enable, the material will render reflections from the object environment according to the reflection mode.
+	* This function does change the reflection mode used by the material.
+	*
+	* Skyboxes reflections are the cheapest but are static and thus can't reflect other objects.
+	* Probes reflections are cheap, depending on probes reflection mode, but require regular probe finding from objects using it.
+	* Real-time reflections are expensive but provide the most accurate reflection map (and can reflect other objects around).
+	*
+	* \param reflectionMode The new reflection mode this material should use
+	*
+	* \remark May invalidates the pipeline
+	*
+	* \see EnableReflectionMapping
+	* \see IsReflectionMappingEnabled
+	* \see SetReflectionSize
+	*/
+	inline void Material::SetReflectionMode(ReflectionMode reflectionMode)
+	{
+		if (m_reflectionMode != reflectionMode)
+		{
+			OnMaterialReflectionChange(this, reflectionMode);
+
+			m_reflectionMode = reflectionMode;
+		}
 	}
 
 	/*!
