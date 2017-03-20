@@ -29,6 +29,7 @@ namespace Ndk
 
 			virtual std::unique_ptr<BaseComponent> Clone() const = 0;
 
+			inline const EntityHandle& GetEntity() const;
 			ComponentIndex GetIndex() const;
 
 			inline static ComponentIndex GetMaxComponentIndex();
