@@ -124,10 +124,15 @@ namespace Nz
 	{
 		NazaraAssert(skinIndex < m_skinCount, "Skin index out of bounds");
 
-		m_skin = skinIndex;
+		if (m_skin != skinIndex)
+		{
+			OnInstancedRenderableSkinChange(this, skinIndex);
 
-		// Force render queue invalidation
-		InvalidateInstanceData(0);
+			m_skin = skinIndex;
+
+			// Force render queue invalidation
+			InvalidateInstanceData(0);
+		}
 	}
 
 	/*!
@@ -185,6 +190,8 @@ namespace Nz
 	inline void InstancedRenderable::ResetMaterials(std::size_t matCount, std::size_t skinCount)
 	{
 		NazaraAssert(skinCount != 0, "Invalid skin count (cannot be zero)");
+
+		OnInstancedRenderableResetMaterials(this, matCount);
 
 		m_materials.clear();
 		m_materials.resize(matCount * skinCount, Material::GetDefault());

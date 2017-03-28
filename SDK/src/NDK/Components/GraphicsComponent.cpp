@@ -40,17 +40,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Attaches a renderable to the entity
-	*
-	* \param renderable Reference to a renderable element
-	* \param renderOrder Render order of the element
-	*/
-	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
-	{
-		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
-	}
-
-	/*!
 	* \brief Attaches a renderable to the entity with a specific matrix
 	*
 	* \param renderable Reference to a renderable element
@@ -60,26 +49,29 @@ namespace Ndk
 	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
 	{
 		m_renderables.emplace_back(m_transformMatrix);
-		Renderable& r = m_renderables.back();
-		r.data.localMatrix = localMatrix;
-		r.data.renderOrder = renderOrder;
-		r.renderable = std::move(renderable);
-		r.renderableBoundingVolumeInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateBoundingVolume, [this] (const Nz::InstancedRenderable*) { InvalidateBoundingVolume(); });
-		r.renderableDataInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
-		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+		Renderable& entry = m_renderables.back();
+		entry.data.localMatrix = localMatrix;
+		entry.data.renderOrder = renderOrder;
+		entry.renderable = std::move(renderable);
+
+		ConnectInstancedRenderableSignals(entry);
+
+		std::size_t materialCount = entry.renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			RegisterMaterial(entry.renderable->GetMaterial(i));
 
 		InvalidateBoundingVolume();
 	}
 
-	/*!
-	* \brief Invalidates the data for renderable
-	*
-	* \param renderable Renderable to invalidate
-	* \param flags Flags for the instance
-	* \param index Index of the renderable to invalidate
-	*
-	* \remark Produces a NazaraAssert if index is out of bound
-	*/
+	void GraphicsComponent::ConnectInstancedRenderableSignals(Renderable& entry)
+	{
+		entry.renderableBoundingVolumeInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateBoundingVolume, [this](const Nz::InstancedRenderable*) { InvalidateBoundingVolume(); });
+		entry.renderableDataInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
+		entry.renderableMaterialInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateMaterial, this, &GraphicsComponent::InvalidateRenderableMaterial);
+		entry.renderableReleaseSlot.Connect(entry.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+		entry.renderableResetMaterialsSlot.Connect(entry.renderable->OnInstancedRenderableResetMaterials, this, &GraphicsComponent::OnInstancedRenderableResetMaterials);
+		entry.renderableSkinChangeSlot.Connect(entry.renderable->OnInstancedRenderableSkinChange, this, &GraphicsComponent::OnInstancedRenderableSkinChange);
+	}
 
 	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable , Nz::UInt32 flags, std::size_t index)
 	{
@@ -92,6 +84,38 @@ namespace Ndk
 
 		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
 			entry.listEntry.ForceInvalidation();
+	}
+
+	void GraphicsComponent::InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat)
+	{
+		if (renderable->GetSkin() != skinIndex)
+			return;
+
+		RegisterMaterial(newMat);
+
+		const Nz::MaterialRef& oldMat = renderable->GetMaterial(skinIndex, matIndex);
+		UnregisterMaterial(oldMat);
+	}
+
+	void GraphicsComponent::RegisterMaterial(Nz::Material* material, std::size_t count)
+	{
+		auto it = m_materialEntries.find(material);
+		if (it == m_materialEntries.end())
+		{
+			MaterialEntry matEntry;
+			matEntry.reflectionModelChangeSlot.Connect(material->OnMaterialReflectionChange, this, &GraphicsComponent::OnMaterialReflectionChange);
+			matEntry.renderableCounter = count;
+
+			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+			{
+				if (m_reflectiveMaterialCount++ == 0)
+					m_entity->Invalidate();
+			}
+
+			m_materialEntries.emplace(material, std::move(matEntry));
+		}
+		else
+			it->second.renderableCounter += count;
 	}
 
 	/*!
@@ -150,11 +174,39 @@ namespace Ndk
 		InvalidateTransformMatrix();
 	}
 
-	/*!
-	* \brief Operation to perform when the node is invalidated
-	*
-	* \param node Pointer to the node
-	*/
+	void GraphicsComponent::OnInstancedRenderableResetMaterials(const Nz::InstancedRenderable* renderable, std::size_t newMaterialCount)
+	{
+		RegisterMaterial(Nz::Material::GetDefault(), newMaterialCount);
+
+		std::size_t materialCount = renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			UnregisterMaterial(renderable->GetMaterial(i));
+	}
+
+	void GraphicsComponent::OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex)
+	{
+		std::size_t materialCount = renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			RegisterMaterial(renderable->GetMaterial(newSkinIndex, i));
+
+		for (std::size_t i = 0; i < materialCount; ++i)
+			UnregisterMaterial(renderable->GetMaterial(i));
+	}
+
+	void GraphicsComponent::OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode)
+	{
+		// Since this signal is only called when the new reflection mode is different from the current one, no need to compare both
+		if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+		{
+			if (--m_reflectiveMaterialCount == 0)
+				m_entity->Invalidate();
+		}
+		else if (reflectionMode == Nz::ReflectionMode_RealTime)
+		{
+			if (m_reflectiveMaterialCount++ == 0)
+				m_entity->Invalidate();
+		}
+	}
 
 	void GraphicsComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
@@ -166,6 +218,24 @@ namespace Ndk
 
 		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
 			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
+	}
+
+	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)
+	{
+		auto it = m_materialEntries.find(material);
+		NazaraAssert(it != m_materialEntries.end(), "Material not registered");
+
+		MaterialEntry& matEntry = it->second;
+		if (--matEntry.renderableCounter == 0)
+		{
+			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+			{
+				if (--m_reflectiveMaterialCount == 0)
+					m_entity->Invalidate();
+			}
+
+			m_materialEntries.erase(it);
+		}
 	}
 
 	/*!
