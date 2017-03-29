@@ -42,6 +42,8 @@ namespace Ndk
 
 			inline void Detach(const Nz::InstancedRenderable* renderable);
 
+			inline bool DoesRequireRealTimeReflections() const;
+
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
