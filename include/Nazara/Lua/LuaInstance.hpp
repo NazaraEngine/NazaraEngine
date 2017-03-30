@@ -31,7 +31,7 @@ namespace Nz
 		public:
 			LuaInstance();
 			LuaInstance(const LuaInstance&) = delete;
-			inline LuaInstance(LuaInstance&& instance) noexcept;
+			LuaInstance(LuaInstance&& instance) noexcept;
 			~LuaInstance();
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -173,7 +173,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaInstance& operator=(const LuaInstance&) = delete;
-			inline LuaInstance& operator=(LuaInstance&& instance) noexcept;
+			LuaInstance& operator=(LuaInstance&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance* GetInstance(lua_State* state);
