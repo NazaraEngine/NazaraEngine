@@ -143,6 +143,20 @@ namespace Nz
 		luaL_openlibs(m_state);
 	}
 
+	LuaInstance::LuaInstance(LuaInstance&& instance) noexcept :
+	m_memoryLimit(instance.m_memoryLimit),
+	m_memoryUsage(instance.m_memoryUsage),
+	m_timeLimit(instance.m_timeLimit),
+	m_clock(std::move(instance.m_clock)),
+	m_lastError(std::move(instance.m_lastError)),
+	m_state(instance.m_state),
+	m_level(instance.m_level)
+	{
+		instance.m_state = nullptr;
+
+		lua_setallocf(m_state, MemoryAllocator, this);
+	}
+
 	LuaInstance::~LuaInstance()
 	{
 		if (m_state)
@@ -799,6 +813,24 @@ namespace Nz
 	void* LuaInstance::ToUserdata(int index, const String& tname) const
 	{
 		return luaL_testudata(m_state, index, tname.GetConstBuffer());
+	}
+
+	LuaInstance& LuaInstance::operator=(LuaInstance&& instance) noexcept
+	{
+		m_clock = std::move(instance.m_clock);
+		m_lastError = std::move(instance.m_lastError);
+		m_level = instance.m_level;
+		m_memoryLimit = instance.m_memoryLimit;
+		m_memoryUsage = instance.m_memoryUsage;
+		m_state = instance.m_state;
+		m_timeLimit = instance.m_timeLimit;
+
+		instance.m_state = nullptr;
+
+		// Update allocator pointer
+		lua_setallocf(m_state, MemoryAllocator, this);
+
+		return *this;
 	}
 
 	int LuaInstance::GetIndexOfUpValue(int upValue)
