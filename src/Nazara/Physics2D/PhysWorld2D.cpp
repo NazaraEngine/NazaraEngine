@@ -83,9 +83,11 @@ namespace Nz
 
 	bool PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
+		using ResultType = decltype(hitInfos);
+
 		auto callback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
 		{
-			std::vector<RaycastHit>* results = reinterpret_cast<std::vector<RaycastHit>*>(data);
+			ResultType results = static_cast<ResultType>(data);
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = alpha;
@@ -131,6 +133,20 @@ namespace Nz
 			else
 				return false;
 		}
+	}
+
+	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies)
+	{
+		using ResultType = decltype(bodies);
+
+		auto callback = [] (cpShape* shape, void* data)
+		{
+			ResultType results = static_cast<ResultType>(data);
+			results->push_back(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y + boundingBox.height, boundingBox.x + boundingBox.width, boundingBox.y), filter, callback, bodies);
 	}
 
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
