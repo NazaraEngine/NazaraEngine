@@ -7,6 +7,7 @@
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <limits>
 #include <string>
 #include <vector>
