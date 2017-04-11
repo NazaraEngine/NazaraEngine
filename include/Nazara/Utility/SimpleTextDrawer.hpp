@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <vector>
+#include <deque>
 
 namespace Nz
 {
@@ -46,6 +47,7 @@ namespace Nz
 			void SetFont(Font* font);
 			void SetStyle(UInt32 style);
 			void SetText(const String& str);
+			void SetSize(const Vector2f&);
 
 			SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
 			SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
@@ -57,7 +59,7 @@ namespace Nz
 			void ClearGlyphs() const;
 			void ConnectFontSlots();
 			void DisconnectFontSlots();
-			void GenerateGlyphs(const String& text) const;
+			void GenerateGlyphs(const String& text, size_t index = 0) const;
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
@@ -82,6 +84,7 @@ namespace Nz
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
 			unsigned int m_characterSize;
+			Vector2f m_size;
 	};
 }
 

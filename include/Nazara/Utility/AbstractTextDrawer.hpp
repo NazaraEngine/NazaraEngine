@@ -49,6 +49,7 @@ namespace Nz
 			{
 				Rectf bounds;
 				std::size_t glyphIndex;
+				std::size_t glyphCount;
 			};
 	};
 }

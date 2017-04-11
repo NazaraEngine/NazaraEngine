@@ -5,6 +5,7 @@
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
+#include <iostream>
 
 namespace Nz
 {
@@ -13,7 +14,8 @@ namespace Nz
 	m_style(TextStyle_Regular),
 	m_colorUpdated(true),
 	m_glyphUpdated(true),
-	m_characterSize(24)
+	m_characterSize(24),
+	m_size({0.f, 0.f})
 	{
 		SetFont(Font::GetDefault());
 	}
@@ -174,6 +176,11 @@ namespace Nz
 		m_glyphUpdated = false;
 	}
 
+	void SimpleTextDrawer::SetSize(const Vector2f& vec)
+	{
+		m_size = vec;
+	}
+
 	SimpleTextDrawer& SimpleTextDrawer::operator=(const SimpleTextDrawer& drawer)
 	{
 		m_characterSize = drawer.m_characterSize;
@@ -264,10 +271,9 @@ namespace Nz
 		m_glyphCacheClearedSlot.Disconnect();
 	}
 
-	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
+	void SimpleTextDrawer::GenerateGlyphs(const String& text, size_t index) const
 	{
-		if (text.IsEmpty())
-			return;
+		if (text.IsEmpty()) return;
 
 		///TODO: Allow iteration on Unicode characters without allocating any buffer
 		std::u32string characters = text.GetUtf32String();
@@ -278,10 +284,14 @@ namespace Nz
 		}
 
 		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
+		bool reupdate = false;
 
 		m_glyphs.reserve(m_glyphs.size() + characters.size());
-		for (char32_t character : characters)
+		for (size_t i = index; i < characters.size(); i++)
 		{
+		    m_lines.back().glyphCount++;
+
+		    char32_t character = characters.at(i);
 			if (m_previousCharacter != 0)
 				m_drawPos.x += m_font->GetKerning(m_characterSize, m_previousCharacter, character);
 
@@ -361,29 +371,30 @@ namespace Nz
 				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner_LeftBottom));
 				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner_RightBottom));
 
+
 				switch (character)
 				{
 					case '\n':
 					{
-						// Extend the line bounding rect to the last glyph it contains, thus extending upon all glyphs of the line
-						if (!m_glyphs.empty())
-						{
-							Glyph& lastGlyph = m_glyphs.back();
-							m_lines.back().bounds.ExtendTo(lastGlyph.bounds);
-						}
+                        // Extend the line bounding rect to the last glyph it contains, thus extending upon all glyphs of the line
+                        if (!m_glyphs.empty())
+                        {
+                            Glyph& lastGlyph = m_glyphs.back();
+                            m_lines.back().bounds.ExtendTo(lastGlyph.bounds);
+                        }
 
-						// Reset cursor
-						advance = 0;
-						m_drawPos.x = 0;
-						m_drawPos.y += sizeInfo.lineHeight;
+                        // Reset cursor
+                        advance = 0;
+                        m_drawPos.x = 0;
+                        m_drawPos.y += sizeInfo.lineHeight;
 
-						m_lines.emplace_back(Line{Rectf(0.f, sizeInfo.lineHeight * m_lines.size(), 0.f, sizeInfo.lineHeight), m_glyphs.size() + 1});
+                        m_lines.emplace_back(Line{Rectf(0.f, sizeInfo.lineHeight * m_lines.size(), 0.f, sizeInfo.lineHeight), m_glyphs.size() + 1, 0});
 						break;
 					}
 				}
 			}
 
-			m_lines.back().bounds.ExtendTo(glyph.bounds);
+            m_lines.back().bounds.ExtendTo(glyph.bounds);
 
 			if (!m_workingBounds.IsValid())
 				m_workingBounds.Set(glyph.bounds);
@@ -392,10 +403,34 @@ namespace Nz
 
 			m_drawPos.x += advance;
 			m_glyphs.push_back(glyph);
+
+            // text width > drawer width
+            if (m_lines.back().bounds.width + GetCharacterSize() >= m_size.x)
+            {
+                advance = 0;
+                m_drawPos.x = 0;
+                m_drawPos.y += sizeInfo.lineHeight;
+                m_lines.emplace_back(Line{Rectf(0.f, sizeInfo.lineHeight * m_lines.size(), 0.f, sizeInfo.lineHeight), m_glyphs.size(), 0});
+            }
+
+            // lines height > drawer height
+            if (m_lines.size() * sizeInfo.lineHeight >= m_size.y)
+            {
+                reupdate = true;
+                break;
+            }
 		}
-		m_lines.back().bounds.ExtendTo(m_glyphs.back().bounds);
 
 		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+
+
+        if (reupdate)
+        {
+            index += m_lines.front().glyphCount;
+            ClearGlyphs();
+            GenerateGlyphs(m_text, index);
+            std::cout << "\nREUPDATE : " << index;
+        }
 	}
 
 	void SimpleTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)
