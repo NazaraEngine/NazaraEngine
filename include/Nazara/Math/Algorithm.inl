@@ -97,6 +97,29 @@ namespace Nz
 
 			return 0;
 		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<!std::is_signed<T>::value || !std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			T diff = a - b;
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			if ((b < 0) && (a > std::numeric_limits<T>::max() + b))
+				return false;
+
+			if ((b > 0) && (a < std::numeric_limits<T>::min() + b))
+				return false;
+
+			return std::abs(a - b) <= maxDifference;
+		}
 	}
 
 	/*!
@@ -565,11 +588,7 @@ namespace Nz
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
 	{
-		if (b > a)
-			std::swap(a, b);
-
-		T diff = a - b;
-		return diff <= maxDifference;
+		return Detail::NumberEquals(a, b, maxDifference);
 	}
 
 	/*!

@@ -128,6 +128,9 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(ObjectHandle&& handle) noexcept
 	{
+		if (this == &handle)
+			return;
+
 		if (m_object)
 			m_object->UnregisterHandle(this);
 
