@@ -88,6 +88,7 @@ namespace Ndk
 
 	void GraphicsComponent::InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat)
 	{
+		// Don't listen to dormant materials
 		if (renderable->GetSkin() != skinIndex)
 			return;
 
@@ -97,19 +98,39 @@ namespace Ndk
 		UnregisterMaterial(oldMat);
 	}
 
+	void Ndk::GraphicsComponent::InvalidateReflectionMap()
+	{
+		m_entity->Invalidate();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			if (!m_reflectionMap)
+			{
+				m_reflectionMap = Nz::Texture::New();
+				if (!m_reflectionMap->Create(Nz::ImageType_Cubemap, Nz::PixelFormatType_RGB8, m_reflectionMapSize, m_reflectionMapSize))
+				{
+					NazaraWarning("Failed to create reflection map, reflections will be disabled for this entity");
+					return;
+				}
+			}
+		}
+		else
+			m_reflectionMap.Reset();
+	}
+
 	void GraphicsComponent::RegisterMaterial(Nz::Material* material, std::size_t count)
 	{
 		auto it = m_materialEntries.find(material);
 		if (it == m_materialEntries.end())
 		{
 			MaterialEntry matEntry;
-			matEntry.reflectionModelChangeSlot.Connect(material->OnMaterialReflectionChange, this, &GraphicsComponent::OnMaterialReflectionChange);
+			matEntry.reflectionModelChangeSlot.Connect(material->OnMaterialReflectionModeChange, this, &GraphicsComponent::OnMaterialReflectionChange);
 			matEntry.renderableCounter = count;
 
 			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
 			{
 				if (m_reflectiveMaterialCount++ == 0)
-					m_entity->Invalidate();
+					InvalidateReflectionMap();
 			}
 
 			m_materialEntries.emplace(material, std::move(matEntry));
@@ -199,12 +220,12 @@ namespace Ndk
 		if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
 		{
 			if (--m_reflectiveMaterialCount == 0)
-				m_entity->Invalidate();
+				InvalidateReflectionMap();
 		}
 		else if (reflectionMode == Nz::ReflectionMode_RealTime)
 		{
 			if (m_reflectiveMaterialCount++ == 0)
-				m_entity->Invalidate();
+				InvalidateReflectionMap();
 		}
 	}
 
@@ -231,7 +252,7 @@ namespace Ndk
 			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
 			{
 				if (--m_reflectiveMaterialCount == 0)
-					m_entity->Invalidate();
+					InvalidateReflectionMap();
 			}
 
 			m_materialEntries.erase(it);

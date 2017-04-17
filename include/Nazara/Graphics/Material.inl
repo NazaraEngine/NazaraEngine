@@ -1277,7 +1277,7 @@ namespace Nz
 	{
 		if (m_reflectionMode != reflectionMode)
 		{
-			OnMaterialReflectionChange(this, reflectionMode);
+			OnMaterialReflectionModeChange(this, reflectionMode);
 
 			m_reflectionMode = reflectionMode;
 		}
