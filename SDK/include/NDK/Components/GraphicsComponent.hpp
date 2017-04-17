@@ -89,7 +89,7 @@ namespace Ndk
 
 			struct MaterialEntry
 			{
-				NazaraSlot(Nz::Material, OnMaterialReflectionChange, reflectionModelChangeSlot);
+				NazaraSlot(Nz::Material, OnMaterialReflectionModeChange, reflectionModelChangeSlot);
 
 				std::size_t renderableCounter;
 			};
