@@ -1,4 +1,4 @@
-// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
+// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel:-%5B02%5D-Gestion-des-événements
 
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
@@ -16,11 +16,11 @@ int main(int argc, char* argv[])
 	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
 	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");
 
+	mainWindow.EnableCloseOnQuit(false);
 
 	Ndk::World& world = application.AddWorld();
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(117, 122, 214)));
-
 
 	Ndk::EntityHandle viewEntity = world.CreateEntity();
 	viewEntity->AddComponent<Ndk::NodeComponent>();
@@ -30,17 +30,16 @@ int main(int argc, char* argv[])
 	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
 
 
-	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
-	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
+	Nz::EventHandler& eventHandler = mainWindow.GetEventHandler();
+	eventHandler.OnKeyPressed.Connect([](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& e)
+	{
+		std::cout << Nz::Keyboard::GetKeyName(e.code) << std::endl;
 
-	Ndk::EntityHandle text = world.CreateEntity();
-	Ndk::NodeComponent& nodeComponent = text->AddComponent<Ndk::NodeComponent>();
+		// Profitons-en aussi pour nous donner un moyen de quitter le programme
+		if (e.code == Nz::Keyboard::Escape)
+			Ndk::Application::Instance()->Quit(); // Cette ligne casse la boucle Run() de l'application
+	});
 
-	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
-	graphicsComponent.Attach(textSprite);
-
-	Nz::Boxf textBox = graphicsComponent.GetBoundingVolume().aabb;
-	nodeComponent.SetPosition(mainWindow.GetWidth() / 2 - textBox.width / 2, mainWindow.GetHeight() / 2 - textBox.height / 2);
 
 	while (application.Run())
 	{

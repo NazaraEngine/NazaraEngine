@@ -7,6 +7,7 @@
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <limits>
 #include <string>
 #include <vector>
@@ -14,18 +15,6 @@
 
 namespace Nz
 {
-	inline LuaInstance::LuaInstance(LuaInstance&& instance) noexcept :
-	m_memoryLimit(instance.m_memoryLimit),
-	m_memoryUsage(instance.m_memoryUsage),
-	m_timeLimit(instance.m_timeLimit),
-	m_clock(std::move(instance.m_clock)),
-	m_lastError(std::move(instance.m_lastError)),
-	m_state(instance.m_state),
-	m_level(instance.m_level)
-	{
-		instance.m_state = nullptr;
-	}
-
 	inline lua_State* LuaInstance::GetInternalState() const
 	{
 		return m_state;
@@ -49,21 +38,6 @@ namespace Nz
 	inline UInt32 LuaInstance::GetTimeLimit() const
 	{
 		return m_timeLimit;
-	}
-
-	inline LuaInstance& LuaInstance::operator=(LuaInstance&& instance) noexcept
-	{
-		m_clock = std::move(instance.m_clock);
-		m_lastError = std::move(instance.m_lastError);
-		m_level = instance.m_level;
-		m_memoryLimit = instance.m_memoryLimit;
-		m_memoryUsage = instance.m_memoryUsage;
-		m_state = instance.m_state;
-		m_timeLimit = instance.m_timeLimit;
-
-		instance.m_state = nullptr;
-
-		return *this;
 	}
 
 	// Functions args
