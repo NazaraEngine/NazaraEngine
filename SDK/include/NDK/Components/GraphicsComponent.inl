@@ -93,7 +93,7 @@ namespace Ndk
 	*/
 	inline bool GraphicsComponent::DoesRequireRealTimeReflections() const
 	{
-		return m_reflectiveMaterialCount != 0;
+		return m_reflectiveMaterialCount != 0 && m_reflectionMap;
 	}
 
 	/*!

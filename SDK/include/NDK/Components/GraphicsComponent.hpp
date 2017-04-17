@@ -65,6 +65,7 @@ namespace Ndk
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			void InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat);
 			inline void InvalidateRenderables();
+			void InvalidateReflectionMap();
 			inline void InvalidateTransformMatrix();
 
 			void RegisterMaterial(Nz::Material* material, std::size_t count = 1);
@@ -140,9 +141,10 @@ namespace Ndk
 			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
 			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;
+			Nz::TextureRef m_reflectionMap;
 			mutable bool m_boundingVolumeUpdated;
-			bool m_shouldRenderReflectionMap;
 			mutable bool m_transformMatrixUpdated;
+			unsigned int m_reflectionMapSize;
 	};
 }
 

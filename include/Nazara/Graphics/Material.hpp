@@ -182,7 +182,7 @@ namespace Nz
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
-			NazaraSignal(OnMaterialReflectionChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
+			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
@@ -213,6 +213,7 @@ namespace Nz
 			bool m_shadowCastingEnabled;
 			float m_alphaThreshold;
 			float m_shininess;
+			unsigned int  m_reflectionSize;
 
 			static std::array<int, TextureMap_Max + 1> s_textureUnits;
 			static MaterialLibrary::LibraryMap s_library;
