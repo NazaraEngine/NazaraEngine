@@ -23,10 +23,9 @@ namespace Ndk
 	*/
 
 	inline StateMachine::StateMachine(std::shared_ptr<State> originalState) :
-	m_states()
 	{
 		NazaraAssert(originalState, "StateMachine must have a state to begin with");
-		PushState(originalState);
+		PushState(std::move(originalState));
 	}
 
 	/*!
@@ -52,7 +51,7 @@ namespace Ndk
 		if (state)
 		{
 			PopState();
-			PushState(state);
+			PushState(std::move(state));
 		}
 	}
 
@@ -128,16 +127,14 @@ namespace Ndk
 	*
 	* \param state Next state to represent if it is nullptr, it performs no action
 	*
-	* \remark Produces a NazaraAssert if the state is pushed two times on the stack with NAZARA_DEBUG defined
+	* \remark Produces a NazaraAssert if the same state is pushed two times on the stack
 	*/
 
 	inline void StateMachine::PushState(std::shared_ptr<State> state)
 	{
 		if (state)
 		{
-			#ifdef NAZARA_DEBUG
 			NazaraAssert(std::find(m_states.begin(), m_states.end(), state) == m_states.end(), "The same state was pushed two times");
-			#endif
 
 			m_states.push_back(state);
 			m_states.back()->Enter(*this);
@@ -157,7 +154,7 @@ namespace Ndk
 			while (!m_states.empty())
 				PopState();
 
-			PushState(state);
+			PushState(std::move(state));
 		}
 	}
 
