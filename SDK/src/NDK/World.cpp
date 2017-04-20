@@ -73,7 +73,7 @@ namespace Ndk
 		else
 		{
 			// We allocate a new entity
-			id = static_cast<Ndk::EntityId>(m_entities.size());
+			id = static_cast<Ndk::EntityId>(m_entityBlocks.size());
 
 			if (m_entities.capacity() > m_entities.size())
 			{
@@ -205,6 +205,10 @@ namespace Ndk
 				m_entities.push_back(std::move(*blockPtr));
 
 			m_waitingEntities.clear();
+
+			// Update entity blocks pointers
+			for (std::size_t i = 0; i < m_entities.size(); ++i)
+				m_entityBlocks[i] = &m_entities[i];
 		}
 
 		// Handle killed entities before last call
