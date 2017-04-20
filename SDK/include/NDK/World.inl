@@ -82,9 +82,9 @@ namespace Ndk
 	* \param count Number of entities to create
 	*/
 
-	inline World::EntityList World::CreateEntities(unsigned int count)
+	inline World::EntityVector World::CreateEntities(unsigned int count)
 	{
-		EntityList list;
+		EntityVector list;
 		list.reserve(count);
 
 		for (unsigned int i = 0; i < count; ++i)
@@ -98,7 +98,7 @@ namespace Ndk
 	* \return A constant reference to the entities
 	*/
 
-	inline const World::EntityList& World::GetEntities()
+	inline const EntityList& World::GetEntities() const
 	{
 		return m_aliveEntities;
 	}
@@ -170,7 +170,7 @@ namespace Ndk
 	* \param list Set of entities to kill
 	*/
 
-	inline void World::KillEntities(const EntityList& list)
+	inline void World::KillEntities(const EntityVector& list)
 	{
 		for (const EntityHandle& entity : list)
 			KillEntity(entity);
@@ -197,7 +197,7 @@ namespace Ndk
 
 	inline bool World::IsEntityIdValid(EntityId id) const
 	{
-		return id < m_entities.size() && m_entities[id].entity.IsValid();
+		return id < m_entityBlocks.size() && m_entityBlocks[id]->entity.IsValid();
 	}
 
 	/*!
@@ -270,6 +270,7 @@ namespace Ndk
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
+		m_waitingEntities       = std::move(world.m_waitingEntities);
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)

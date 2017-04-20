@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/EntityList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
+#include "EntityList.hpp"
 
 namespace Ndk
 {
@@ -16,22 +18,34 @@ namespace Ndk
 	/*!
 	* \brief Clears the set from every entities
 	*/
-
-	inline void EntityList::Clear()
+	inline EntityList::EntityList() :
+	m_world(nullptr)
 	{
-		m_entities.clear();
-		m_entityBits.Clear();
 	}
 
 	/*!
-	* \brief Checks whether or not the set contains the entity
+	* \brief Clears the set from every entities
+	*
+	* \remark This resets the implicit world member, allowing you to insert entities from a different world than previously
+	*/
+	inline void EntityList::Clear()
+	{
+		m_entityBits.Clear();
+		m_world = nullptr;
+	}
+
+	/*!
+	* \brief Checks whether or not the EntityList contains the entity
 	* \return true If it is the case
 	*
 	* \param entity Pointer to the entity
+	*
+	* \remark If the Insert function was called since the EntityList construction (or last call to Clear), the entity passed by parameter must belong to the same world as the previously inserted entities.
 	*/
-
-	inline bool EntityList::Has(const Entity* entity)
+	inline bool EntityList::Has(const Entity* entity) const
 	{
+		NazaraAssert(!m_world || !entity || entity->GetWorld() == m_world, "Incompatible world");
+
 		return entity && entity->IsValid() && Has(entity->GetId());
 	}
 
@@ -41,8 +55,7 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*/
-
-	inline bool EntityList::Has(EntityId entity)
+	inline bool EntityList::Has(EntityId entity) const
 	{
 		return m_entityBits.UnboundedTest(entity);
 	}
@@ -50,18 +63,18 @@ namespace Ndk
 	/*!
 	* \brief Inserts the entity into the set
 	*
-	* \param entity Pointer to the entity
+	* \param entity Valid pointer to an entity
 	*
 	* \remark If entity is already contained, no action is performed
+	* \remark If any entity has been inserted since construction (or last Clear call), the entity must belong to the same world as the previously inserted entities
 	*/
-
 	inline void EntityList::Insert(Entity* entity)
 	{
-		if (!Has(entity))
-		{
-			m_entities.emplace_back(entity);
-			m_entityBits.UnboundedSet(entity->GetId(), true);
-		}
+		NazaraAssert(entity, "Invalid entity");
+		NazaraAssert(!m_world || entity->GetWorld() == m_world, "Incompatible world");
+
+		m_entityBits.UnboundedSet(entity->GetId(), true);
+		m_world = entity->GetWorld();
 	}
 
 	/*!
@@ -70,89 +83,101 @@ namespace Ndk
 	* \param entity Pointer to the entity
 	*
 	* \remark If entity is not contained, no action is performed
+	* \remark This function never resets the implicit world member, even if it empties the list. Use the Clear method if you want to reset it.
+	*
+	* \see Clear
 	*/
-
 	inline void EntityList::Remove(Entity* entity)
 	{
-		if (Has(entity))
-		{
-			auto it = std::find(m_entities.begin(), m_entities.end(), *entity);
-			NazaraAssert(it != m_entities.end(), "Entity should be part of the vector");
-
-			std::swap(*it, m_entities.back());
-			m_entities.pop_back(); // We get it out of the vector
-			m_entityBits.UnboundedSet(entity->GetId(), false);
-		}
+		m_entityBits.UnboundedSet(entity->GetId(), false);
 	}
 
-	// Nz::Interface STD
-	inline EntityList::Container::iterator EntityList::begin()
+	// STL Interface
+	inline EntityList::iterator EntityList::begin()
 	{
-		return m_entities.begin();
-	}
-
-	inline EntityList::Container::const_iterator EntityList::begin() const
-	{
-		return m_entities.begin();
-	}
-
-	inline EntityList::Container::const_iterator EntityList::cbegin() const
-	{
-		return m_entities.cbegin();
-	}
-
-	inline EntityList::Container::const_iterator EntityList::cend() const
-	{
-		return m_entities.cend();
-	}
-
-	inline EntityList::Container::const_reverse_iterator EntityList::crbegin() const
-	{
-		return m_entities.crbegin();
-	}
-
-	inline EntityList::Container::const_reverse_iterator EntityList::crend() const
-	{
-		return m_entities.crend();
+		return EntityList::iterator(this, m_entityBits.FindFirst());
 	}
 
 	inline bool EntityList::empty() const
 	{
-		return m_entities.empty();
+		return m_entityBits.TestAny();
 	}
 
-	inline EntityList::Container::iterator EntityList::end()
+	inline EntityList::iterator EntityList::end()
 	{
-		return m_entities.end();
+		return EntityList::iterator(this, m_entityBits.npos);
 	}
 
-	inline EntityList::Container::const_iterator EntityList::end() const
+	inline EntityList::size_type EntityList::size() const
 	{
-		return m_entities.end();
+		return m_entityBits.Count();
 	}
 
-	inline EntityList::Container::reverse_iterator EntityList::rbegin()
+	inline std::size_t EntityList::FindNext(std::size_t currentId) const
 	{
-		return m_entities.rbegin();
+		return m_entityBits.FindNext(currentId);
 	}
 
-	inline EntityList::Container::const_reverse_iterator EntityList::rbegin() const
+	inline World* EntityList::GetWorld() const
 	{
-		return m_entities.rbegin();
+		return m_world;
 	}
 
-	inline EntityList::Container::reverse_iterator EntityList::rend()
+
+	inline EntityList::iterator::iterator(const EntityList* list, std::size_t nextId) :
+	m_nextEntityId(nextId),
+	m_list(list)
 	{
-		return m_entities.rend();
 	}
 
-	inline EntityList::Container::const_reverse_iterator EntityList::rend() const
+	inline EntityList::iterator::iterator(const iterator& iterator) :
+	m_nextEntityId(iterator.m_nextEntityId),
+	m_list(iterator.m_list)
 	{
-		return m_entities.rend();
 	}
 
-	inline EntityList::Container::size_type EntityList::size() const
+	inline EntityList::iterator& EntityList::iterator::operator=(const iterator& iterator)
 	{
-		return m_entities.size();
+		m_nextEntityId = iterator.m_nextEntityId;
+		m_list = iterator.m_list;
+
+		return *this;
+	}
+
+	inline EntityList::iterator& EntityList::iterator::operator++()
+	{
+		m_nextEntityId = m_list->FindNext(m_nextEntityId);
+
+		return *this;
+	}
+
+	inline EntityList::iterator EntityList::iterator::operator++(int)
+	{
+		std::size_t previousId = m_nextEntityId;
+
+		m_nextEntityId = m_list->FindNext(m_nextEntityId);
+
+		return iterator(m_list, previousId);
+	}
+
+	inline bool operator==(const EntityList::iterator& lhs, const EntityList::iterator& rhs)
+	{
+		NazaraAssert(lhs.m_list == rhs.m_list, "Cannot compare iterator coming from different lists");
+
+		return lhs.m_nextEntityId == rhs.m_nextEntityId;
+	}
+
+	inline bool operator!=(const EntityList::iterator& lhs, const EntityList::iterator& rhs)
+	{
+		return !operator==(lhs, rhs);
+	}
+
+	inline void swap(EntityList::iterator& lhs, EntityList::iterator& rhs)
+	{
+		NazaraAssert(lhs.m_list == rhs.m_list, "Cannot compare iterator coming from different lists");
+
+		using std::swap;
+
+		std::swap(lhs.m_nextEntityId, rhs.m_nextEntityId);
 	}
 }
