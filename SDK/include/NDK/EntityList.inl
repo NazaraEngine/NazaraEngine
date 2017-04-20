@@ -16,12 +16,31 @@ namespace Ndk
 	*/
 
 	/*!
-	* \brief Clears the set from every entities
+	* \brief Construct a new entity list
 	*/
 	inline EntityList::EntityList() :
 	m_world(nullptr)
 	{
 	}
+
+	/*!
+	* \brief Construct a new entity list by copying another one
+	*/
+	inline EntityList::EntityList(const EntityList& entityList) :
+	m_entityBits(entityList.m_entityBits),
+	m_world(entityList.m_world)
+	{
+	}
+
+	/*!
+	* \brief Construct a new entity list by moving a list into this one
+	*/
+	inline EntityList::EntityList(EntityList&& entityList) noexcept :
+	m_entityBits(std::move(entityList.m_entityBits)),
+	m_world(entityList.m_world)
+	{
+	}
+
 
 	/*!
 	* \brief Clears the set from every entities
@@ -93,7 +112,7 @@ namespace Ndk
 	}
 
 	// STL Interface
-	inline EntityList::iterator EntityList::begin()
+	inline EntityList::iterator EntityList::begin() const
 	{
 		return EntityList::iterator(this, m_entityBits.FindFirst());
 	}
@@ -103,7 +122,7 @@ namespace Ndk
 		return m_entityBits.TestAny();
 	}
 
-	inline EntityList::iterator EntityList::end()
+	inline EntityList::iterator EntityList::end() const
 	{
 		return EntityList::iterator(this, m_entityBits.npos);
 	}
@@ -111,6 +130,22 @@ namespace Ndk
 	inline EntityList::size_type EntityList::size() const
 	{
 		return m_entityBits.Count();
+	}
+
+	inline EntityList& EntityList::operator=(const EntityList& entityList)
+	{
+		m_entityBits = entityList.m_entityBits;
+		m_world = entityList.m_world;
+
+		return *this;
+	}
+
+	inline EntityList& EntityList::operator=(EntityList && entityList) noexcept
+	{
+		m_entityBits = std::move(entityList.m_entityBits);
+		m_world = entityList.m_world;
+
+		return *this;
 	}
 
 	inline std::size_t EntityList::FindNext(std::size_t currentId) const
