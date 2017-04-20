@@ -60,29 +60,47 @@ namespace Ndk
 	const EntityHandle& World::CreateEntity()
 	{
 		EntityId id;
+		EntityBlock* entBlock;
 		if (!m_freeIdList.empty())
 		{
 			// We get an identifier
 			id = m_freeIdList.back();
 			m_freeIdList.pop_back();
+
+			entBlock = &m_entities[id];
+			m_entityBlocks[id] = entBlock;
 		}
 		else
 		{
 			// We allocate a new entity
 			id = static_cast<Ndk::EntityId>(m_entities.size());
 
-			// We can't use emplace_back due to the scope
-			m_entities.push_back(Entity(this, id));
+			if (m_entities.capacity() > m_entities.size())
+			{
+				m_entities.push_back(Entity(this, id)); //< We can't use emplace_back due to the scope
+				entBlock = &m_entities.back();
+			}
+			else
+			{
+				// Pushing to entities would reallocate vector and thus, invalidate EntityHandles (which we don't want until world update)
+				// To prevent this, allocate them into a separate vector and move them at update
+				// For now, we are counting on m_entities grow strategy to prevent
+				m_waitingEntities.emplace_back(std::make_unique<EntityBlock>(Entity(this, id)));
+				entBlock = m_waitingEntities.back().get();
+			}
+
+			if (id >= m_entityBlocks.size())
+				m_entityBlocks.resize(id + 1);
+
+			m_entityBlocks[id] = entBlock;
 		}
 
-		// We initialise the entity and we add it to the list of alive entities
-		Entity& entity = m_entities[id].entity;
-		entity.Create();
+		// We initialize the entity and we add it to the list of alive entities
+		entBlock->entity.Create();
 
-		m_aliveEntities.emplace_back(&entity);
-		m_entities[id].aliveIndex = m_aliveEntities.size() - 1;
+		m_aliveEntities.Insert(&entBlock->entity);
 
-		return m_aliveEntities.back();
+		return entBlock->handle;
 	}
 
 	/*!
@@ -97,7 +115,7 @@ namespace Ndk
 		// This is made to avoid that handle warn uselessly entities before their destruction
 		m_entities.clear();
 
-		m_aliveEntities.clear();
+		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
 		m_killedEntities.Clear();
 	}
@@ -158,7 +176,7 @@ namespace Ndk
 	const EntityHandle& World::GetEntity(EntityId id)
 	{
 		if (IsEntityIdValid(id))
-			return m_aliveEntities[m_entities[id].aliveIndex];
+			return m_entities[id].handle;
 		else
 		{
 			NazaraError("Invalid ID");
@@ -177,45 +195,39 @@ namespace Ndk
 		if (!m_orderedSystemsUpdated)
 			ReorderSystems();
 
+		// Move waiting entities to entity list
+		if (!m_waitingEntities.empty())
+		{
+			constexpr std::size_t MinEntityCapacity = 10; //< We want to be able to grow entity count by at least ten entities per update without going to the waiting list
+
+			m_entities.reserve(m_entities.size() + m_waitingEntities.size() + MinEntityCapacity);
+			for (auto& blockPtr : m_waitingEntities)
+				m_entities.push_back(std::move(*blockPtr));
+
+			m_waitingEntities.clear();
+		}
+
 		// Handle killed entities before last call
 		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
 		{
-			EntityBlock& block = m_entities[i];
-			Entity& entity = block.entity;
+			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
-			NazaraAssert(entity.IsValid(), "Entity must be valid");
+			Entity* entity = &m_entityBlocks[i]->entity;
 
 			// Destruction of the entity (invalidation of handle by the same way)
-			entity.Destroy();
+			entity->Destroy();
 
 			// Send back the identifier of the entity to the free queue
-			m_freeIdList.push_back(entity.GetId());
-
-			// We take out the handle from the list of alive entities
-			// With the idiom swap and pop
-
-			NazaraAssert(block.aliveIndex < m_aliveEntities.size(), "Alive index out of range");
-
-			if (block.aliveIndex < m_aliveEntities.size() - 1) // If it's not the last handle
-			{
-				EntityHandle& lastHandle = m_aliveEntities.back();
-				EntityHandle& myHandle = m_aliveEntities[block.aliveIndex];
-
-				myHandle = std::move(lastHandle);
-
-				// We don't forget to update the index associated to the entity
-				m_entities[myHandle->GetId()].aliveIndex = block.aliveIndex;
-			}
-			m_aliveEntities.pop_back();
+			m_freeIdList.push_back(entity->GetId());
 		}
 		m_killedEntities.Reset();
 
 		// Handle of entities which need an update from the systems
 		for (std::size_t i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
 		{
-			NazaraAssert(i < m_entities.size(), "Entity index out of range");
+			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
-			Entity* entity = &m_entities[i].entity;
+			Entity* entity = &m_entityBlocks[i]->entity;
 
 			// Check entity validity (as it could have been reported as dirty and killed during the same iteration)
 			if (!entity->IsValid())
@@ -242,7 +254,7 @@ namespace Ndk
 				}
 				else
 				{
-					// No, it shouldn't, remove it if it's part of the system
+					// No it shouldn't, remove it if it's part of the system
 					if (partOfSystem)
 						system->RemoveEntity(entity);
 				}

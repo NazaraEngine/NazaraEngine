@@ -10,6 +10,7 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <NDK/Entity.hpp>
+#include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <algorithm>
 #include <memory>
@@ -28,7 +29,7 @@ namespace Ndk
 		friend Entity;
 
 		public:
-			using EntityList = std::vector<EntityHandle>;
+			using EntityVector = std::vector<EntityHandle>;
 
 			inline World(bool addDefaultSystems = true);
 			World(const World&) = delete;
@@ -41,13 +42,13 @@ namespace Ndk
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);
 
 			const EntityHandle& CreateEntity();
-			inline EntityList CreateEntities(unsigned int count);
+			inline EntityVector CreateEntities(unsigned int count);
 
 			void Clear() noexcept;
 			const EntityHandle& CloneEntity(EntityId id);
 
 			const EntityHandle& GetEntity(EntityId id);
-			inline const EntityList& GetEntities();
+			inline const EntityList& GetEntities() const;
 			inline BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
 
@@ -55,7 +56,7 @@ namespace Ndk
 			template<typename SystemType> bool HasSystem() const;
 
 			void KillEntity(Entity* entity);
-			inline void KillEntities(const EntityList& list);
+			inline void KillEntities(const EntityVector& list);
 
 			inline bool IsEntityValid(const Entity* entity) const;
 			inline bool IsEntityIdValid(EntityId id) const;
@@ -79,19 +80,22 @@ namespace Ndk
 			struct EntityBlock
 			{
 				EntityBlock(Entity&& e) :
-				entity(std::move(e))
+				entity(std::move(e)),
+				handle(&entity)
 				{
 				}
 
 				EntityBlock(EntityBlock&& block) = default;
 
 				Entity entity;
-				std::size_t aliveIndex;
+				EntityHandle handle;
 			};
 
 			std::vector<std::unique_ptr<BaseSystem>> m_systems;
 			std::vector<BaseSystem*> m_orderedSystems;
 			std::vector<EntityBlock> m_entities;
+			std::vector<EntityBlock*> m_entityBlocks;
+			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
 			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
 			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
