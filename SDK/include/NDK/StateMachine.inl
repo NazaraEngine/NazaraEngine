@@ -22,7 +22,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if nullptr is given
 	*/
 
-	inline StateMachine::StateMachine(std::shared_ptr<State> originalState) :
+	inline StateMachine::StateMachine(std::shared_ptr<State> originalState)
 	{
 		NazaraAssert(originalState, "StateMachine must have a state to begin with");
 		PushState(std::move(originalState));
@@ -136,7 +136,7 @@ namespace Ndk
 		{
 			NazaraAssert(std::find(m_states.begin(), m_states.end(), state) == m_states.end(), "The same state was pushed two times");
 
-			m_states.push_back(state);
+			m_states.push_back(std::move(state));
 			m_states.back()->Enter(*this);
 		}
 	}
