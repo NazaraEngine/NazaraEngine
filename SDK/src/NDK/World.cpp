@@ -68,6 +68,8 @@ namespace Ndk
 			m_freeIdList.pop_back();
 
 			entBlock = &m_entities[id];
+			entBlock->handle.Reset(&entBlock->entity); //< Reset handle (as it was reset when entity got destroyed)
+
 			m_entityBlocks[id] = entBlock;
 		}
 		else
@@ -114,6 +116,7 @@ namespace Ndk
 		// First, destruction of entities, then handles
 		// This is made to avoid that handle warn uselessly entities before their destruction
 		m_entities.clear();
+		m_entityBlocks.clear();
 
 		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();

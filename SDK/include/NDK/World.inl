@@ -266,6 +266,7 @@ namespace Ndk
 	{
 		m_aliveEntities         = std::move(world.m_aliveEntities);
 		m_dirtyEntities         = std::move(world.m_dirtyEntities);
+		m_entityBlocks          = std::move(world.m_entityBlocks);
 		m_freeIdList            = std::move(world.m_freeIdList);
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
@@ -285,7 +286,7 @@ namespace Ndk
 
 	inline void World::Invalidate()
 	{
-		m_dirtyEntities.Resize(m_entities.size(), false);
+		m_dirtyEntities.Resize(m_entityBlocks.size(), false);
 		m_dirtyEntities.Set(true); // Activation of all bits
 	}
 
