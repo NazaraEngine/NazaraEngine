@@ -119,7 +119,7 @@ namespace Ndk
 
 	inline bool EntityList::empty() const
 	{
-		return m_entityBits.TestAny();
+		return !m_entityBits.TestAny();
 	}
 
 	inline EntityList::iterator EntityList::end() const
