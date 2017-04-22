@@ -215,7 +215,7 @@ namespace Nz
 			cpVect vel = cpBodyGetVelocity(m_handle);
 
 			Destroy();
-			Create(mass, moment);
+			Create(float(mass), float(moment));
 
 			cpBodySetAngle(m_handle, rot);
 			cpBodySetPosition(m_handle, pos);

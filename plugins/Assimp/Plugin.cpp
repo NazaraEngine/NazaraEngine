@@ -153,7 +153,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	if (animatedMesh)
 	{
-		mesh->CreateSkeletal(joints.size());
+		mesh->CreateSkeletal(UInt32(joints.size()));
 
 		Skeleton* skeleton = mesh->GetSkeleton();
 
@@ -171,7 +171,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		mesh->CreateStatic();
 
 		// aiMaterial index in scene => Material index and data in Mesh
-		std::unordered_map<unsigned int, std::pair<std::size_t, ParameterList>> materials;
+		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
@@ -300,7 +300,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
 						matData.SetParameter(MaterialData::FaceCulling, !iValue);
 
-					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(materials.size(), std::move(matData)))).first;
+					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(UInt32(materials.size()), std::move(matData)))).first;
 				}
 
 				subMesh->SetMaterialIndex(matIt->first);
@@ -308,7 +308,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				mesh->AddSubMesh(subMesh);
 			}
 
-			mesh->SetMaterialCount(std::max<UInt32>(materials.size(), 1));
+			mesh->SetMaterialCount(std::max<UInt32>(UInt32(materials.size()), 1));
 			for (const auto& pair : materials)
 				mesh->SetMaterialData(pair.second.first, pair.second.second);
 		}
