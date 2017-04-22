@@ -47,7 +47,7 @@ namespace Ndk
 			void Clear() noexcept;
 			const EntityHandle& CloneEntity(EntityId id);
 
-			const EntityHandle& GetEntity(EntityId id);
+			inline const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities() const;
 			inline BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
@@ -55,7 +55,7 @@ namespace Ndk
 			inline bool HasSystem(SystemIndex index) const;
 			template<typename SystemType> bool HasSystem() const;
 
-			void KillEntity(Entity* entity);
+			inline void KillEntity(Entity* entity);
 			inline void KillEntities(const EntityVector& list);
 
 			inline bool IsEntityValid(const Entity* entity) const;
