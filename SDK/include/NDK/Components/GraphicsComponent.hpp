@@ -51,6 +51,9 @@ namespace Ndk
 
 			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
 
+			inline void UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix);
+			inline void UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder);
+
 			static ComponentIndex componentIndex;
 
 		private:
