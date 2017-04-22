@@ -104,7 +104,7 @@ namespace Nz
 			if (!layer.depthSortedMeshes.empty())
 				DrawTransparentModels(sceneData, layer);
 
-			if (!layer.basicSprites.empty())
+			if (!layer.opaqueSprites.empty())
 				DrawBasicSprites(sceneData, layer);
 
 			if (!layer.billboards.empty())
@@ -301,7 +301,7 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		for (auto& pipelinePair : layer.basicSprites)
+		for (auto& pipelinePair : layer.opaqueSprites)
 		{
 			const MaterialPipeline* pipeline = pipelinePair.first;
 			auto& pipelineEntry = pipelinePair.second;
