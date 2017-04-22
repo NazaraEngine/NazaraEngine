@@ -101,7 +101,7 @@ namespace Nz
 			if (!layer.opaqueModels.empty())
 				DrawOpaqueModels(sceneData, layer);
 
-			if (!layer.transparentModels.empty())
+			if (!layer.depthSortedMeshes.empty())
 				DrawTransparentModels(sceneData, layer);
 
 			if (!layer.basicSprites.empty())
@@ -796,9 +796,9 @@ namespace Nz
 		const ShaderUniforms* shaderUniforms = nullptr;
 		unsigned int lightCount = 0;
 
-		for (unsigned int index : layer.transparentModels)
+		for (unsigned int index : layer.depthSortedMeshes)
 		{
-			const ForwardRenderQueue::TransparentModelData& modelData = layer.transparentModelData[index];
+			const ForwardRenderQueue::TransparentModelData& modelData = layer.depthSortedMeshData[index];
 
 			// Material
 			const Material* material = modelData.material;
@@ -865,8 +865,8 @@ namespace Nz
 			if (shaderUniforms->hasLightUniforms && lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS)
 			{
 				// Compute the closest lights
-				Vector3f position = matrix.GetTranslation() + modelData.squaredBoundingSphere.GetPosition();
-				float radius = modelData.squaredBoundingSphere.radius;
+				Vector3f position = matrix.GetTranslation() + modelData.obbSphere.GetPosition();
+				float radius = modelData.obbSphere.radius;
 				ChooseLights(Spheref(position, radius), false);
 
 				for (std::size_t i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
