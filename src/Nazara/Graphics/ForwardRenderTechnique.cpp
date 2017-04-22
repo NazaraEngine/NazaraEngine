@@ -33,8 +33,8 @@ namespace Nz
 			Vector2f uv;
 		};
 
-		std::size_t s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
-		std::size_t s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		UInt32 s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
+		UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 	}
 
 	/*!

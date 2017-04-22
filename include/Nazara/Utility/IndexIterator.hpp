@@ -26,15 +26,15 @@ namespace Nz
 
 			Reference operator*() const;
 
-			Reference operator[](unsigned int index) const;
+			Reference operator[](std::size_t index) const;
 
 			IndexIterator& operator=(const IndexIterator& iterator);
 
-			IndexIterator operator+(unsigned int indexCount) const;
-			IndexIterator operator-(unsigned int indexCount) const;
+			IndexIterator operator+(std::size_t indexCount) const;
+			IndexIterator operator-(std::size_t indexCount) const;
 
-			IndexIterator& operator+=(unsigned int indexCount);
-			IndexIterator& operator-=(unsigned int indexCount);
+			IndexIterator& operator+=(std::size_t indexCount);
+			IndexIterator& operator-=(std::size_t indexCount);
 
 			IndexIterator& operator++();
 			IndexIterator operator++(int);
@@ -50,10 +50,10 @@ namespace Nz
 			friend bool operator>=(const IndexIterator& lhs, const IndexIterator& rhs);
 
 		private:
-			IndexIterator(IndexMapper* mapper, unsigned int index);
+			IndexIterator(IndexMapper* mapper, std::size_t index);
 
 			IndexMapper* m_mapper;
-			unsigned int m_index;
+			std::size_t m_index;
 	};
 
 	class IndexIterator::Reference
@@ -70,10 +70,10 @@ namespace Nz
 			operator UInt32() const;
 
 		private:
-			Reference(IndexMapper* mapper, unsigned int index);
+			Reference(IndexMapper* mapper, std::size_t index);
 
 			IndexMapper* m_mapper;
-			unsigned int m_index;
+			std::size_t m_index;
 	};
 }
 
