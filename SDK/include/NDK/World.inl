@@ -165,15 +165,50 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Marks an entity for deletion
+	*
+	* \param Pointer to the entity
+	*
+	* \remark If the entity pointer is invalid, nothing is done
+	* \remark For safety, entities are not killed until the next world update
+	*/
+	inline void World::KillEntity(Entity* entity)
+	{
+		if (IsEntityValid(entity))
+			m_killedEntities.UnboundedSet(entity->GetId(), true);
+	}
+
+	/*!
 	* \brief Kills a set of entities
+	*
+	* This function has the same effect as calling KillEntity for every entity contained in the vector
 	*
 	* \param list Set of entities to kill
 	*/
-
 	inline void World::KillEntities(const EntityVector& list)
 	{
 		for (const EntityHandle& entity : list)
 			KillEntity(entity);
+	}
+
+	/*!
+	* \brief Gets an entity
+	* \return A constant reference to a handle of the entity
+	*
+	* \param id Identifier of the entity
+	*
+	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a reference to a handle from a world update to another
+	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
+	*/
+	inline const EntityHandle& World::GetEntity(EntityId id)
+	{
+		if (IsEntityIdValid(id))
+			return m_entityBlocks[id]->handle;
+		else
+		{
+			NazaraError("Invalid ID");
+			return EntityHandle::InvalidHandle;
+		}
 	}
 
 	/*!
