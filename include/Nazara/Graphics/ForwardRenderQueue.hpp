@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Plane.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -41,7 +42,7 @@ namespace Nz
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
 			void AddDrawable(int renderOrder, const Drawable* drawable) override;
 			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
-			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) override;
+			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) override;
 
 			void Clear(bool fully = false) override;
 
@@ -156,7 +157,7 @@ namespace Nz
 			{
 				Matrix4f transformMatrix;
 				MeshData meshData;
-				Spheref squaredBoundingSphere;
+				Spheref obbSphere;
 				const Material* material;
 			};
 
@@ -165,10 +166,11 @@ namespace Nz
 			struct Layer
 			{
 				BillboardPipelineBatches billboards;
-				SpritePipelineBatches basicSprites;
+				SpritePipelineBatches opaqueSprites;
+				SpritePipelineBatches depthSortedSprites;
 				MeshPipelineBatches opaqueModels;
-				TransparentModelContainer transparentModels;
-				std::vector<TransparentModelData> transparentModelData;
+				TransparentModelContainer depthSortedMeshes;
+				std::vector<TransparentModelData> depthSortedMeshData;
 				std::vector<const Drawable*> otherDrawables;
 				unsigned int clearCount = 0;
 			};
@@ -178,6 +180,10 @@ namespace Nz
 		private:
 			BillboardData* GetBillboardData(int renderOrder, const Material* material, unsigned int count);
 			Layer& GetLayer(int i); ///TODO: Inline
+
+			void SortBillboards(Layer& layer, const Planef& nearPlane);
+			void SortForOrthographic(const AbstractViewer* viewer);
+			void SortForPerspective(const AbstractViewer* viewer);
 
 			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
 			void OnMaterialInvalidation(const Material* material);

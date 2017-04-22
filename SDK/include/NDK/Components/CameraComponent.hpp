@@ -44,7 +44,7 @@ namespace Ndk
 			const Nz::Frustumf& GetFrustum() const override;
 			inline unsigned int GetLayer() const;
 			const Nz::Matrix4f& GetProjectionMatrix() const override;
-			inline Nz::ProjectionType GetProjectionType() const;
+			Nz::ProjectionType GetProjectionType() const override;
 			inline const Nz::Vector2f& GetSize() const;
 			const Nz::RenderTarget* GetTarget() const override;
 			inline const Nz::Rectf& GetTargetRegion() const;
