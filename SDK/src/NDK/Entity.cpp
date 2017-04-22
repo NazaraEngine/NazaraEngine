@@ -24,6 +24,7 @@ namespace Ndk
 	HandledObject(std::move(entity)),
 	m_components(std::move(entity.m_components)),
 	m_componentBits(std::move(entity.m_componentBits)),
+	m_removedComponentBits(std::move(entity.m_removedComponentBits)),
 	m_systemBits(std::move(entity.m_systemBits)),
 	m_id(entity.m_id),
 	m_world(entity.m_world),
