@@ -24,6 +24,14 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 				world.Update(1.f);
 				REQUIRE(!entity.IsValid());
 			}
+
+			THEN("Moving an entity owner works")
+			{
+				Ndk::EntityOwner entityOwner2(std::move(entityOwner));
+				entityOwner2.Reset();
+				world.Update(1.f);
+				REQUIRE(!entity.IsValid());
+			}
 		}
 	}
 }
