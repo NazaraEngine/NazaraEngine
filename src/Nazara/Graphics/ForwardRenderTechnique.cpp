@@ -107,6 +107,9 @@ namespace Nz
 			if (!layer.opaqueSprites.empty())
 				DrawBasicSprites(sceneData, layer);
 
+			if (!layer.depthSortedSprites.empty())
+				DrawOrderedSprites(sceneData, layer);
+
 			if (!layer.billboards.empty())
 				DrawBillboards(sceneData, layer);
 
@@ -301,6 +304,9 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
+		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+
 		for (auto& pipelinePair : layer.opaqueSprites)
 		{
 			const MaterialPipeline* pipeline = pipelinePair.first;
@@ -323,6 +329,9 @@ namespace Nz
 					// Position of the camera
 					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
+					// Overlay texture unit
+					shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+
 					lastShader = shader;
 				}
 
@@ -334,10 +343,6 @@ namespace Nz
 					if (matEntry.enabled)
 					{
 						material->Apply(pipelineInstance);
-
-						unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
-
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
 
 						Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
 
@@ -362,7 +367,6 @@ namespace Nz
 									VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
 
 									std::size_t spriteCount = 0;
-									std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 									do
 									{
@@ -777,6 +781,142 @@ namespace Nz
 		}
 	}
 
+	void ForwardRenderTechnique::DrawOrderedSprites(const SceneData & sceneData, ForwardRenderQueue::Layer & layer) const
+	{
+		NazaraAssert(sceneData.viewer, "Invalid viewer");
+
+		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
+		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		Renderer::SetVertexBuffer(&m_spriteBuffer);
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const Texture* lastOverlay = nullptr;
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+
+		bool updateVertexBuffer = true;
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+
+		std::size_t alreadyDrawnCount = 0;
+		std::size_t spriteIndex = 0;
+		std::size_t spriteChainOffset = 0;
+		auto splitChainIt = layer.depthSortedSprites.end();
+
+		for (auto it = layer.depthSortedSprites.begin(); it != layer.depthSortedSprites.end();)
+		{
+			if (updateVertexBuffer)
+			{
+				// We open the buffer in writing mode
+				BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+				VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+				std::size_t availableSpriteSpace = maxSpriteCount;
+				bool split = false;
+				for (auto it2 = it; it2 != layer.depthSortedSprites.end(); ++it2)
+				{
+					const ForwardRenderQueue::UnbatchedSpriteData& spriteData = layer.depthSortedSpriteData[*it2];
+
+					std::size_t count = std::min(availableSpriteSpace, spriteData.spriteCount - spriteChainOffset);
+
+					std::memcpy(vertices, spriteData.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
+					vertices += count * 4;
+
+					availableSpriteSpace -= count;
+
+					// Have we treated the entire chain ?
+					if (count != spriteData.spriteCount)
+					{
+						// Oops, not enough space to store current chain
+						spriteChainOffset += count;
+						splitChainIt = it2;
+						split = true;
+						break;
+					}
+
+					// Switch to next sprite chain, if any
+					spriteChainOffset = 0;
+				}
+
+				spriteIndex = 0;
+				updateVertexBuffer = false;
+
+				if (!split)
+					splitChainIt = layer.depthSortedSprites.end();
+			}
+
+			std::size_t index = *it;
+
+			const ForwardRenderQueue::UnbatchedSpriteData& spriteData = layer.depthSortedSpriteData[index];
+
+			const Material* material = spriteData.material;
+			if (material != lastMaterial)
+			{
+				const MaterialPipeline* pipeline = material->GetPipeline();
+				if (pipeline != lastPipeline)
+				{
+					pipelineInstance = &pipeline->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+
+					// Uniforms are conserved in our program, there's no point to send them back until they change
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						const ShaderUniforms* shaderUniforms = GetShaderUniforms(shader);
+
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+						// Overlay texture unit
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				material->Apply(*pipelineInstance);
+
+				Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
+
+				lastMaterial = material;
+			}
+
+			const Texture* overlay = (spriteData.overlay) ? spriteData.overlay : &m_whiteTexture;
+			if (overlay != lastOverlay)
+			{
+				Renderer::SetTexture(overlayTextureUnit, overlay);
+				lastOverlay = overlay;
+			}
+
+			std::size_t spriteCount;
+			if (it != splitChainIt)
+			{
+				spriteCount = spriteData.spriteCount - alreadyDrawnCount;
+				alreadyDrawnCount = 0;
+
+				++it;
+			}
+			else
+			{
+				spriteCount = spriteChainOffset;
+
+				alreadyDrawnCount = spriteCount;
+				updateVertexBuffer = true;
+
+				// Restart at current iterator next time
+			}
+
+			Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, spriteIndex * 6, spriteCount * 6);
+			spriteIndex += spriteCount;
+		}
+	}
+
 	/*!
 	* \brief Draws transparent models
 	*
@@ -796,9 +936,9 @@ namespace Nz
 		const ShaderUniforms* shaderUniforms = nullptr;
 		unsigned int lightCount = 0;
 
-		for (unsigned int index : layer.depthSortedMeshes)
+		for (std::size_t index : layer.depthSortedMeshes)
 		{
-			const ForwardRenderQueue::TransparentModelData& modelData = layer.depthSortedMeshData[index];
+			const ForwardRenderQueue::UnbatchedModelData& modelData = layer.depthSortedMeshData[index];
 
 			// Material
 			const Material* material = modelData.material;

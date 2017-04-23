@@ -43,6 +43,7 @@ namespace Nz
 			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawOrderedSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;

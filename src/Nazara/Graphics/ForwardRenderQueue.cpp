@@ -386,7 +386,7 @@ namespace Nz
 			std::size_t index = transparentData.size();
 			transparentData.resize(index+1);
 
-			TransparentModelData& data = transparentData.back();
+			UnbatchedModelData& data = transparentData.back();
 			data.material = material;
 			data.meshData = meshData;
 			data.obbSphere = Spheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
@@ -462,48 +462,69 @@ namespace Nz
 		NazaraAssert(material, "Invalid material");
 
 		Layer& currentLayer = GetLayer(renderOrder);
-		SpritePipelineBatches& basicSprites = currentLayer.opaqueSprites;
 
-		const MaterialPipeline* materialPipeline = material->GetPipeline();
-
-		auto pipelineIt = basicSprites.find(materialPipeline);
-		if (pipelineIt == basicSprites.end())
+		if (material->IsDepthSortingEnabled())
 		{
-			BatchedSpritePipelineEntry materialEntry;
-			pipelineIt = basicSprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			auto& transparentSprites = currentLayer.depthSortedSprites;
+			auto& transparentData = currentLayer.depthSortedSpriteData;
+
+			// The material is marked for depth sorting, we must draw this mesh using another way (after the rendering of opaques objects while sorting them)
+			std::size_t index = transparentData.size();
+			transparentData.resize(index + 1);
+
+			UnbatchedSpriteData& data = transparentData.back();
+			data.material = material;
+			data.overlay = overlay;
+			data.spriteCount = spriteCount;
+			data.vertices = vertices;
+
+			transparentSprites.push_back(index);
 		}
-
-		BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
-		pipelineEntry.enabled = true;
-
-		SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
-
-		auto matIt = materialMap.find(material);
-		if (matIt == materialMap.end())
+		else
 		{
-			BatchedBasicSpriteEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
+			SpritePipelineBatches& sprites = currentLayer.opaqueSprites;
 
-			matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
+			const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+			auto pipelineIt = sprites.find(materialPipeline);
+			if (pipelineIt == sprites.end())
+			{
+				BatchedSpritePipelineEntry materialEntry;
+				pipelineIt = sprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			}
+
+			BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
+			pipelineEntry.enabled = true;
+
+			SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
+
+			auto matIt = materialMap.find(material);
+			if (matIt == materialMap.end())
+			{
+				BatchedBasicSpriteEntry entry;
+				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
+
+				matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
+			}
+
+			BatchedBasicSpriteEntry& entry = matIt->second;
+			entry.enabled = true;
+
+			auto& overlayMap = entry.overlayMap;
+
+			auto overlayIt = overlayMap.find(overlay);
+			if (overlayIt == overlayMap.end())
+			{
+				BatchedSpriteEntry overlayEntry;
+				if (overlay)
+					overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &ForwardRenderQueue::OnTextureInvalidation);
+
+				overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
+			}
+
+			auto& spriteVector = overlayIt->second.spriteChains;
+			spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 		}
-
-		BatchedBasicSpriteEntry& entry = matIt->second;
-		entry.enabled = true;
-
-		auto& overlayMap = entry.overlayMap;
-
-		auto overlayIt = overlayMap.find(overlay);
-		if (overlayIt == overlayMap.end())
-		{
-			BatchedSpriteEntry overlayEntry;
-			if (overlay)
-				overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &ForwardRenderQueue::OnTextureInvalidation);
-
-			overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
-		}
-
-		auto& spriteVector = overlayIt->second.spriteChains;
-		spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 	}
 
 	/*!
@@ -596,9 +617,11 @@ namespace Nz
 						}
 					}
 
-					layer.otherDrawables.clear();
 					layer.depthSortedMeshes.clear();
 					layer.depthSortedMeshData.clear();
+					layer.depthSortedSpriteData.clear();
+					layer.depthSortedSprites.clear();
+					layer.otherDrawables.clear();
 					++it;
 				}
 			}
@@ -717,7 +740,15 @@ namespace Nz
 				const Spheref& sphere1 = layer.depthSortedMeshData[index1].obbSphere;
 				const Spheref& sphere2 = layer.depthSortedMeshData[index2].obbSphere;
 
-				return nearPlane.Distance(sphere1.GetPosition()) > nearPlane.Distance(sphere2.GetPosition());
+				return nearPlane.Distance(sphere1.GetPosition()) < nearPlane.Distance(sphere2.GetPosition());
+			});
+
+			std::sort(layer.depthSortedSprites.begin(), layer.depthSortedSprites.end(), [&layer, &nearPlane] (std::size_t index1, std::size_t index2)
+			{
+				const Vector3f& pos1 = layer.depthSortedSpriteData[index1].vertices[0].position;
+				const Vector3f& pos2 = layer.depthSortedSpriteData[index2].vertices[0].position;
+
+				return nearPlane.Distance(pos1) < nearPlane.Distance(pos2);
 			});
 
 			SortBillboards(layer, nearPlane);
@@ -739,6 +770,14 @@ namespace Nz
 				const Spheref& sphere2 = layer.depthSortedMeshData[index2].obbSphere;
 
 				return viewerPos.SquaredDistance(sphere1.GetPosition()) > viewerPos.SquaredDistance(sphere2.GetPosition());
+			});
+
+			std::sort(layer.depthSortedSprites.begin(), layer.depthSortedSprites.end(), [&layer, &viewerPos] (std::size_t index1, std::size_t index2)
+			{
+				const Vector3f& pos1 = layer.depthSortedSpriteData[index1].vertices[0].position;
+				const Vector3f& pos2 = layer.depthSortedSpriteData[index2].vertices[0].position;
+
+				return viewerPos.SquaredDistance(pos1) > viewerPos.SquaredDistance(pos2);
 			});
 
 			SortBillboards(layer, nearPlane);

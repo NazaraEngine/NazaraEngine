@@ -153,7 +153,7 @@ namespace Nz
 
 			using MeshPipelineBatches = std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator>;
 
-			struct TransparentModelData
+			struct UnbatchedModelData
 			{
 				Matrix4f transformMatrix;
 				MeshData meshData;
@@ -161,16 +161,23 @@ namespace Nz
 				const Material* material;
 			};
 
-			using TransparentModelContainer = std::vector<std::size_t>;
+			struct UnbatchedSpriteData
+			{
+				std::size_t spriteCount;
+				const Material* material;
+				const Texture* overlay;
+				const VertexStruct_XYZ_Color_UV* vertices;
+			};
 
 			struct Layer
 			{
 				BillboardPipelineBatches billboards;
 				SpritePipelineBatches opaqueSprites;
-				SpritePipelineBatches depthSortedSprites;
 				MeshPipelineBatches opaqueModels;
-				TransparentModelContainer depthSortedMeshes;
-				std::vector<TransparentModelData> depthSortedMeshData;
+				std::vector<std::size_t> depthSortedMeshes;
+				std::vector<std::size_t> depthSortedSprites;
+				std::vector<UnbatchedModelData> depthSortedMeshData;
+				std::vector<UnbatchedSpriteData> depthSortedSpriteData;
 				std::vector<const Drawable*> otherDrawables;
 				unsigned int clearCount = 0;
 			};
