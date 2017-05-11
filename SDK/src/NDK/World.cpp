@@ -79,6 +79,8 @@ namespace Ndk
 
 			if (m_entities.capacity() > m_entities.size())
 			{
+				NazaraAssert(m_waitingEntities.empty(), "There should be no waiting entities if space is available in main container");
+
 				m_entities.push_back(Entity(this, id)); //< We can't use emplace_back due to the scope
 				entBlock = &m_entities.back();
 			}
@@ -86,7 +88,7 @@ namespace Ndk
 			{
 				// Pushing to entities would reallocate vector and thus, invalidate EntityHandles (which we don't want until world update)
 				// To prevent this, allocate them into a separate vector and move them at update
-				// For now, we are counting on m_entities grow strategy to prevent
+				// For now, we are counting on m_entities grow strategy to keep allocation frequency low
 				m_waitingEntities.emplace_back(std::make_unique<EntityBlock>(Entity(this, id)));
 				entBlock = m_waitingEntities.back().get();
 			}
@@ -167,7 +169,7 @@ namespace Ndk
 		// Move waiting entities to entity list
 		if (!m_waitingEntities.empty())
 		{
-			constexpr std::size_t MinEntityCapacity = 10; //< We want to be able to grow entity count by at least ten entities per update without going to the waiting list
+			constexpr std::size_t MinEntityCapacity = 10; //< We want to be able to grow maximum entity count by at least ten without going to the waiting list
 
 			m_entities.reserve(m_entities.size() + m_waitingEntities.size() + MinEntityCapacity);
 			for (auto& blockPtr : m_waitingEntities)
