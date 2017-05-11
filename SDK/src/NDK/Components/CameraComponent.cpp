@@ -93,6 +93,17 @@ namespace Ndk
 		return m_projectionMatrix;
 	}
 
+
+	/*!
+	* \brief Gets the projection type of the camera
+	* \return Projection type of the camera
+	*/
+	Nz::ProjectionType CameraComponent::GetProjectionType() const
+	{
+		return m_projectionType;
+	}
+
+
 	/*!
 	* \brief Gets the target of the camera
 	* \return A constant reference to the render target of the camera

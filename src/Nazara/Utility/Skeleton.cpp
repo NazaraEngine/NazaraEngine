@@ -72,12 +72,12 @@ namespace Nz
 
 		if (!m_impl->aabbUpdated)
 		{
-			UInt32 jointCount = m_impl->joints.size();
+			std::size_t jointCount = m_impl->joints.size();
 			if (jointCount > 0)
 			{
 				Vector3f pos = m_impl->joints[0].GetPosition();
 				m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
-				for (UInt32 i = 1; i < jointCount; ++i)
+				for (std::size_t i = 1; i < jointCount; ++i)
 					m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 			}
 			else
@@ -219,7 +219,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_impl->joints.size();
+		return static_cast<UInt32>(m_impl->joints.size());
 	}
 
 	int Skeleton::GetJointIndex(const String& jointName) const
@@ -411,16 +411,9 @@ namespace Nz
 			String name = m_impl->joints[i].GetName();
 			if (!name.IsEmpty())
 			{
-				#if NAZARA_UTILITY_SAFE
-				auto it = m_impl->jointMap.find(name);
-				if (it != m_impl->jointMap.end())
-				{
-					NazaraWarning("Joint name \"" + name + "\" is already present in joint map for joint #" + String::Number(it->second));
-					continue;
-				}
-				#endif
+				NazaraAssert(m_impl->jointMap.find(name) == m_impl->jointMap.end(), "Joint name \"" + name + "\" is already present in joint map");
 
-				m_impl->jointMap[name] = i;
+				m_impl->jointMap[name] = static_cast<UInt32>(i);
 			}
 		}
 

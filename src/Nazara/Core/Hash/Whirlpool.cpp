@@ -75,8 +75,8 @@ namespace Nz
 {
 	struct HashWhirlpool_state
 	{
-		int bufferBits;		 // current number of bits on the buffer */
-		int bufferPos;		 // current (possibly incomplete) byte slot on the buffer */
+		std::size_t bufferBits;		 // current number of bits on the buffer */
+		std::size_t bufferPos;		 // current (possibly incomplete) byte slot on the buffer */
 		UInt8 bitLength[32]; // global number of hashed bits (256-bit counter) */
 		UInt8 buffer[64];	 // buffer of data to hash */
 		UInt64 hash[8];		 // the hashing state */
@@ -877,8 +877,8 @@ namespace Nz
 		UInt32 b;
 		UInt8* buffer = m_state->buffer;
 		UInt8* bitLength = m_state->bitLength;
-		int bufferBits = m_state->bufferBits;
-		int bufferPos = m_state->bufferPos;
+		std::size_t bufferBits = m_state->bufferBits;
+		std::size_t bufferPos = m_state->bufferPos;
 
 		// tally the length of the added data
 		UInt64 value = len;
@@ -968,8 +968,8 @@ namespace Nz
 
 		UInt8 *buffer = m_state->buffer;
 		UInt8 *bitLength = m_state->bitLength;
-		int bufferBits = m_state->bufferBits;
-		int bufferPos = m_state->bufferPos;
+		std::size_t bufferBits = m_state->bufferBits;
+		std::size_t bufferPos = m_state->bufferPos;
 		UInt8 *digest = result;
 
 		// append a '1'-bit
