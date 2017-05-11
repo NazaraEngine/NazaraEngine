@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -10,6 +10,7 @@
 #include <NDK/Prerequesites.hpp>
 #include <NDK/State.hpp>
 #include <memory>
+#include <vector>
 
 namespace Ndk
 {
@@ -25,14 +26,21 @@ namespace Ndk
 
 			inline const std::shared_ptr<State>& GetCurrentState() const;
 
+			inline bool IsTopState(const State* state) const;
+
+			inline std::shared_ptr<State> PopState();
+			inline bool PopStatesUntil(std::shared_ptr<State> state);
+			inline void PushState(std::shared_ptr<State> state);
+
+			inline void SetState(std::shared_ptr<State> state);
+
 			inline bool Update(float elapsedTime);
 
 			inline StateMachine& operator=(StateMachine&& fsm) = default;
 			StateMachine& operator=(const StateMachine&) = delete;
 
 		private:
-			std::shared_ptr<State> m_currentState;
-			std::shared_ptr<State> m_nextState;
+			std::vector<std::shared_ptr<State>> m_states;
 	};
 }
 

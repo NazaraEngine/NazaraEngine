@@ -21,6 +21,8 @@ namespace Ndk
 			using size_type = std::size_t;
 
 			inline EntityList();
+			inline EntityList(const EntityList& entityList);
+			inline EntityList(EntityList&& entityList) noexcept;
 			~EntityList() = default;
 
 			inline void Clear();
@@ -33,10 +35,13 @@ namespace Ndk
 			inline void Remove(Entity* entity);
 
 			// STL API
-			inline iterator begin();
+			inline iterator begin() const;
 			inline bool empty() const;
-			inline iterator end();
+			inline iterator end() const;
 			inline size_type size() const;
+
+			inline EntityList& operator=(const EntityList& entityList);
+			inline EntityList& operator=(EntityList&& entityList) noexcept;
 
 		private:
 			inline std::size_t FindNext(std::size_t currentId) const;
@@ -46,7 +51,7 @@ namespace Ndk
 			World* m_world;
 	};
 
-	class EntityList::iterator : public std::iterator<std::forward_iterator_tag, const EntityHandle>
+	class NDK_API EntityList::iterator : public std::iterator<std::forward_iterator_tag, const EntityHandle>
 	{
 		friend EntityList;
 
