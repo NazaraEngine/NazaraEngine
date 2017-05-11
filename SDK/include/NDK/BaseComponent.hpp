@@ -23,7 +23,6 @@ namespace Ndk
 			using Factory = std::function<BaseComponent*()>;
 
 			BaseComponent(ComponentIndex componentIndex);
-			BaseComponent(const BaseComponent&) = default;
 			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
@@ -34,7 +33,7 @@ namespace Ndk
 
 			inline static ComponentIndex GetMaxComponentIndex();
 
-			BaseComponent& operator=(const BaseComponent&) = default;
+			BaseComponent& operator=(const BaseComponent&) = delete;
 			BaseComponent& operator=(BaseComponent&&) = default;
 
 		protected:
@@ -44,6 +43,8 @@ namespace Ndk
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
+			BaseComponent(const BaseComponent&) = default;
+
 			virtual void OnAttached();
 			virtual void OnComponentAttached(BaseComponent& component);
 			virtual void OnComponentDetached(BaseComponent& component);
