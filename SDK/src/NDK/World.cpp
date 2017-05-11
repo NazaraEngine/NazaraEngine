@@ -68,12 +68,14 @@ namespace Ndk
 			m_freeIdList.pop_back();
 
 			entBlock = &m_entities[id];
+			entBlock->handle.Reset(&entBlock->entity); //< Reset handle (as it was reset when entity got destroyed)
+
 			m_entityBlocks[id] = entBlock;
 		}
 		else
 		{
 			// We allocate a new entity
-			id = static_cast<Ndk::EntityId>(m_entities.size());
+			id = static_cast<Ndk::EntityId>(m_entityBlocks.size());
 
 			if (m_entities.capacity() > m_entities.size())
 			{
@@ -114,6 +116,7 @@ namespace Ndk
 		// First, destruction of entities, then handles
 		// This is made to avoid that handle warn uselessly entities before their destruction
 		m_entities.clear();
+		m_entityBlocks.clear();
 
 		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
@@ -138,7 +141,7 @@ namespace Ndk
 			return EntityHandle::InvalidHandle;
 		}
 
-		EntityHandle clone = CreateEntity();
+		const EntityHandle& clone = CreateEntity();
 
 		const Nz::Bitset<>& componentBits = original->GetComponentBits();
 		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
@@ -148,40 +151,6 @@ namespace Ndk
 		}
 
 		return GetEntity(clone->GetId());
-	}
-
-	/*!
-	* \brief Kills an entity
-	*
-	* \param Pointer to the entity
-	*
-	* \remark No change is done if entity is invalid
-	*/
-
-	void World::KillEntity(Entity* entity)
-	{
-		if (IsEntityValid(entity))
-			m_killedEntities.UnboundedSet(entity->GetId(), true);
-	}
-
-	/*!
-	* \brief Gets an entity
-	* \return A constant reference to the modified entity
-	*
-	* \param id Identifier of the entity
-	*
-	* \remark Produces a NazaraError if entity identifier is not valid
-	*/
-
-	const EntityHandle& World::GetEntity(EntityId id)
-	{
-		if (IsEntityIdValid(id))
-			return m_entities[id].handle;
-		else
-		{
-			NazaraError("Invalid ID");
-			return EntityHandle::InvalidHandle;
-		}
 	}
 
 	/*!
@@ -205,6 +174,10 @@ namespace Ndk
 				m_entities.push_back(std::move(*blockPtr));
 
 			m_waitingEntities.clear();
+
+			// Update entity blocks pointers
+			for (std::size_t i = 0; i < m_entities.size(); ++i)
+				m_entityBlocks[i] = &m_entities[i];
 		}
 
 		// Handle killed entities before last call

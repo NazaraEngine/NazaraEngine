@@ -73,7 +73,7 @@ namespace Nz
 				std::vector<BillboardData> billboards;
 			};
 
-			typedef std::map<const Material*, BatchedBillboardEntry, MaterialComparator> BatchedBillboardContainer;
+			using BatchedBillboardContainer = std::map<const Material*, BatchedBillboardEntry, MaterialComparator>;
 
 			struct BatchedBillboardPipelineEntry
 			{
@@ -81,7 +81,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedBillboardPipelineEntry, MaterialPipelineComparator> BillboardPipelineBatches;
+			using BillboardPipelineBatches = std::map<const MaterialPipeline*, BatchedBillboardPipelineEntry, MaterialPipelineComparator>;
 
 			/// Sprites
 			struct SpriteChain_XYZ_Color_UV
@@ -97,7 +97,7 @@ namespace Nz
 				std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
 			};
 
-			typedef std::map<const Texture*, BatchedSpriteEntry> SpriteOverlayBatches;
+			using SpriteOverlayBatches = std::map<const Texture*, BatchedSpriteEntry>;
 
 			struct BatchedBasicSpriteEntry
 			{
@@ -107,7 +107,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedBasicSpriteEntry, MaterialComparator> SpriteMaterialBatches;
+			using SpriteMaterialBatches = std::map<const Material*, BatchedBasicSpriteEntry, MaterialComparator>;
 
 			struct BatchedSpritePipelineEntry
 			{
@@ -115,7 +115,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedSpritePipelineEntry, MaterialPipelineComparator> SpritePipelineBatches;
+			using SpritePipelineBatches = std::map<const MaterialPipeline*, BatchedSpritePipelineEntry, MaterialPipelineComparator>;
 
 			/// Meshes
 			struct MeshDataComparator
@@ -132,7 +132,7 @@ namespace Nz
 				Spheref squaredBoundingSphere;
 			};
 
-			typedef std::map<MeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
+			using MeshInstanceContainer = std::map<MeshData, MeshInstanceEntry, MeshDataComparator>;
 
 			struct BatchedModelEntry
 			{
@@ -142,7 +142,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedModelEntry, MaterialComparator> MeshMaterialBatches;
+			using MeshMaterialBatches = std::map<const Material*, BatchedModelEntry, MaterialComparator>;
 
 			struct BatchedMaterialEntry
 			{
@@ -150,7 +150,7 @@ namespace Nz
 				MeshMaterialBatches materialMap;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator> MeshPipelineBatches;
+			using MeshPipelineBatches = std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator>;
 
 			struct TransparentModelData
 			{
@@ -160,7 +160,7 @@ namespace Nz
 				const Material* material;
 			};
 
-			typedef std::vector<std::size_t> TransparentModelContainer;
+			using TransparentModelContainer = std::vector<std::size_t>;
 
 			struct Layer
 			{
