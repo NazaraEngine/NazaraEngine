@@ -152,7 +152,7 @@ namespace Ndk
 			clone->AddComponent(std::move(component));
 		}
 
-		return GetEntity(clone->GetId());
+		return clone;
 	}
 
 	/*!
