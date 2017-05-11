@@ -7,7 +7,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 	GIVEN("A world & an entity")
 	{
 		Ndk::World world;
-		const Ndk::EntityHandle& entity = world.CreateEntity();
+		Ndk::EntityHandle entity = world.CreateEntity();
 
 		WHEN("We set the ownership of the entity to our owner")
 		{
@@ -15,14 +15,14 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 
 			THEN("Entity is still valid")
 			{
-				REQUIRE(entity.IsValid());
+				CHECK(entity.IsValid());
 			}
 
 			THEN("Resetting or getting out of scope is no more valid")
 			{
 				entityOwner.Reset();
 				world.Update(1.f);
-				REQUIRE(!entity.IsValid());
+				CHECK(!entity.IsValid());
 			}
 
 			THEN("Moving an entity owner works")
