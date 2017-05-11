@@ -63,10 +63,13 @@ namespace Ndk
 	/*!
 	* \brief Inserts the entity into the set
 	*
+	* Marks an entity as present in this entity list, it must belongs to the same world as others entities contained in this list.
+	*
 	* \param entity Valid pointer to an entity
 	*
 	* \remark If entity is already contained, no action is performed
 	* \remark If any entity has been inserted since construction (or last Clear call), the entity must belong to the same world as the previously inserted entities
+	* \remark It's up to the programmer to remove an entity from this list before its deletion
 	*/
 	inline void EntityList::Insert(Entity* entity)
 	{
