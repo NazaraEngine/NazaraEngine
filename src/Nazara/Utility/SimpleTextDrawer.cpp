@@ -243,7 +243,7 @@ namespace Nz
 		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 
 		if (m_font)
-			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, m_font->GetSizeInfo(m_characterSize).lineHeight), 0});
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, float(m_font->GetSizeInfo(m_characterSize).lineHeight)), 0});
 		else
 			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
@@ -354,7 +354,7 @@ namespace Nz
 			{
 				glyph.atlas = nullptr;
 
-				glyph.bounds.Set(m_drawPos.x, m_drawPos.y, float(advance), sizeInfo.lineHeight);
+				glyph.bounds.Set(float(m_drawPos.x), float(m_drawPos.y), float(advance), float(sizeInfo.lineHeight));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -377,7 +377,7 @@ namespace Nz
 						m_drawPos.x = 0;
 						m_drawPos.y += sizeInfo.lineHeight;
 
-						m_lines.emplace_back(Line{Rectf(0.f, sizeInfo.lineHeight * m_lines.size(), 0.f, sizeInfo.lineHeight), m_glyphs.size() + 1});
+						m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
 						break;
 					}
 				}

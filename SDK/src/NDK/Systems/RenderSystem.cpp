@@ -49,7 +49,15 @@ namespace Ndk
 	{
 		m_forceRenderQueueInvalidation = true; //< Hackfix until lights and particles are handled by culling list
 
-		m_cameras.Remove(entity);
+		for (auto it = m_cameras.begin(); it != m_cameras.end(); ++it)
+		{
+			if (it->GetObject() == entity)
+			{
+				m_cameras.erase(it);
+				break;
+			}
+		}
+
 		m_directionalLights.Remove(entity);
 		m_drawables.Remove(entity);
 		m_lights.Remove(entity);
@@ -75,14 +83,23 @@ namespace Ndk
 
 		if (entity->HasComponent<CameraComponent>() && entity->HasComponent<NodeComponent>())
 		{
-			m_cameras.Insert(entity);
+			m_cameras.emplace_back(entity);
 			std::sort(m_cameras.begin(), m_cameras.end(), [](const EntityHandle& handle1, const EntityHandle& handle2)
 			{
 				return handle1->GetComponent<CameraComponent>().GetLayer() < handle2->GetComponent<CameraComponent>().GetLayer();
 			});
 		}
 		else
-			m_cameras.Remove(entity);
+		{
+			for (auto it = m_cameras.begin(); it != m_cameras.end(); ++it)
+			{
+				if (it->GetObject() == entity)
+				{
+					m_cameras.erase(it);
+					break;
+				}
+			}
+		}
 
 		if (entity->HasComponent<GraphicsComponent>() && entity->HasComponent<NodeComponent>())
 		{

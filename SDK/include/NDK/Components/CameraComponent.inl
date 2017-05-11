@@ -118,16 +118,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets the projection type of the camera
-	* \return Projection type of the camera
-	*/
-
-	inline Nz::ProjectionType CameraComponent::GetProjectionType() const
-	{
-		return m_projectionType;
-	}
-
-	/*!
 	* \brief Gets the size of the camera
 	* \return Size of the camera
 	*/

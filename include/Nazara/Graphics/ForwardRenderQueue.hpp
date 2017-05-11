@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Plane.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -41,7 +42,7 @@ namespace Nz
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
 			void AddDrawable(int renderOrder, const Drawable* drawable) override;
 			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
-			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) override;
+			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) override;
 
 			void Clear(bool fully = false) override;
 
@@ -73,7 +74,7 @@ namespace Nz
 				std::vector<BillboardData> billboards;
 			};
 
-			typedef std::map<const Material*, BatchedBillboardEntry, MaterialComparator> BatchedBillboardContainer;
+			using BatchedBillboardContainer = std::map<const Material*, BatchedBillboardEntry, MaterialComparator>;
 
 			struct BatchedBillboardPipelineEntry
 			{
@@ -81,7 +82,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedBillboardPipelineEntry, MaterialPipelineComparator> BillboardPipelineBatches;
+			using BillboardPipelineBatches = std::map<const MaterialPipeline*, BatchedBillboardPipelineEntry, MaterialPipelineComparator>;
 
 			/// Sprites
 			struct SpriteChain_XYZ_Color_UV
@@ -97,7 +98,7 @@ namespace Nz
 				std::vector<SpriteChain_XYZ_Color_UV> spriteChains;
 			};
 
-			typedef std::map<const Texture*, BatchedSpriteEntry> SpriteOverlayBatches;
+			using SpriteOverlayBatches = std::map<const Texture*, BatchedSpriteEntry>;
 
 			struct BatchedBasicSpriteEntry
 			{
@@ -107,7 +108,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedBasicSpriteEntry, MaterialComparator> SpriteMaterialBatches;
+			using SpriteMaterialBatches = std::map<const Material*, BatchedBasicSpriteEntry, MaterialComparator>;
 
 			struct BatchedSpritePipelineEntry
 			{
@@ -115,7 +116,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedSpritePipelineEntry, MaterialPipelineComparator> SpritePipelineBatches;
+			using SpritePipelineBatches = std::map<const MaterialPipeline*, BatchedSpritePipelineEntry, MaterialPipelineComparator>;
 
 			/// Meshes
 			struct MeshDataComparator
@@ -132,7 +133,7 @@ namespace Nz
 				Spheref squaredBoundingSphere;
 			};
 
-			typedef std::map<MeshData, MeshInstanceEntry, MeshDataComparator> MeshInstanceContainer;
+			using MeshInstanceContainer = std::map<MeshData, MeshInstanceEntry, MeshDataComparator>;
 
 			struct BatchedModelEntry
 			{
@@ -142,7 +143,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedModelEntry, MaterialComparator> MeshMaterialBatches;
+			using MeshMaterialBatches = std::map<const Material*, BatchedModelEntry, MaterialComparator>;
 
 			struct BatchedMaterialEntry
 			{
@@ -150,25 +151,33 @@ namespace Nz
 				MeshMaterialBatches materialMap;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator> MeshPipelineBatches;
+			using MeshPipelineBatches = std::map<const MaterialPipeline*, BatchedMaterialEntry, MaterialPipelineComparator>;
 
-			struct TransparentModelData
+			struct UnbatchedModelData
 			{
 				Matrix4f transformMatrix;
 				MeshData meshData;
-				Spheref squaredBoundingSphere;
+				Spheref obbSphere;
 				const Material* material;
 			};
 
-			typedef std::vector<std::size_t> TransparentModelContainer;
+			struct UnbatchedSpriteData
+			{
+				std::size_t spriteCount;
+				const Material* material;
+				const Texture* overlay;
+				const VertexStruct_XYZ_Color_UV* vertices;
+			};
 
 			struct Layer
 			{
 				BillboardPipelineBatches billboards;
-				SpritePipelineBatches basicSprites;
+				SpritePipelineBatches opaqueSprites;
 				MeshPipelineBatches opaqueModels;
-				TransparentModelContainer transparentModels;
-				std::vector<TransparentModelData> transparentModelData;
+				std::vector<std::size_t> depthSortedMeshes;
+				std::vector<std::size_t> depthSortedSprites;
+				std::vector<UnbatchedModelData> depthSortedMeshData;
+				std::vector<UnbatchedSpriteData> depthSortedSpriteData;
 				std::vector<const Drawable*> otherDrawables;
 				unsigned int clearCount = 0;
 			};
@@ -178,6 +187,10 @@ namespace Nz
 		private:
 			BillboardData* GetBillboardData(int renderOrder, const Material* material, unsigned int count);
 			Layer& GetLayer(int i); ///TODO: Inline
+
+			void SortBillboards(Layer& layer, const Planef& nearPlane);
+			void SortForOrthographic(const AbstractViewer* viewer);
+			void SortForPerspective(const AbstractViewer* viewer);
 
 			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
 			void OnMaterialInvalidation(const Material* material);

@@ -79,7 +79,7 @@ SCENARIO("World", "[NDK][WORLD]")
 		AND_WHEN("We update our world with our entity")
 		{
 			REQUIRE(&world.GetSystem(UpdateSystem::systemIndex) == &world.GetSystem<UpdateSystem>());
-			const Ndk::EntityHandle& entity = world.CreateEntity();
+			Ndk::EntityHandle entity = world.CreateEntity();
 			UpdatableComponent& component = entity->AddComponent<UpdatableComponent>();
 
 			THEN("Our entity component must be updated")

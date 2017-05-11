@@ -60,8 +60,8 @@ namespace Nz
 
 			String ToString() const;
 
-			T& operator[](unsigned int i);
-			T operator[](unsigned int i) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Sphere operator*(T scalar) const;
 			Sphere& operator=(const Sphere& other) = default;
