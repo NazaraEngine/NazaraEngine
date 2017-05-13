@@ -37,14 +37,14 @@ namespace Ndk
 			BaseComponent& operator=(BaseComponent&&) = default;
 
 		protected:
+			BaseComponent(const BaseComponent&) = default;
+
 			ComponentIndex m_componentIndex;
 			EntityHandle m_entity;
 
 			static ComponentIndex RegisterComponent(ComponentId id, Factory factoryFunc);
 
 		private:
-			BaseComponent(const BaseComponent&) = default;
-
 			virtual void OnAttached();
 			virtual void OnComponentAttached(BaseComponent& component);
 			virtual void OnComponentDetached(BaseComponent& component);
