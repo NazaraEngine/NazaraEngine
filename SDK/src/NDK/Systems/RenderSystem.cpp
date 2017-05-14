@@ -57,12 +57,6 @@ namespace Ndk
 			}
 		}
 
-		m_directionalLights.Remove(entity);
-		m_drawables.Remove(entity);
-		m_lights.Remove(entity);
-		m_particleGroups.Remove(entity);
-		m_pointSpotLights.Remove(entity);
-
 		if (entity->HasComponent<GraphicsComponent>())
 		{
 			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
