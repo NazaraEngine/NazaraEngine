@@ -23,7 +23,9 @@ namespace Ndk
 	Entity::Entity(Entity&& entity) :
 	HandledObject(std::move(entity)),
 	m_components(std::move(entity.m_components)),
+	m_containedInLists(std::move(entity.m_containedInLists)),
 	m_componentBits(std::move(entity.m_componentBits)),
+	m_removedComponentBits(std::move(entity.m_removedComponentBits)),
 	m_systemBits(std::move(entity.m_systemBits)),
 	m_id(entity.m_id),
 	m_world(entity.m_world),
@@ -175,8 +177,14 @@ namespace Ndk
 		m_components.clear();
 		m_componentBits.Reset();
 
-		// And then free every handle
+		// Free every handle
 		UnregisterAllHandles();
+
+		// Remove from every list
+		for (EntityList* list : m_containedInLists)
+			list->NotifyEntityDestruction(this);
+
+		m_containedInLists.clear();
 
 		m_valid = false;
 	}

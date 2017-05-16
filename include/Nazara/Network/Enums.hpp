@@ -7,7 +7,7 @@
 #ifndef NAZARA_ENUMS_NETWORK_HPP
 #define NAZARA_ENUMS_NETWORK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Flags.hpp>
 
 namespace Nz
 {
@@ -90,6 +90,23 @@ namespace Nz
 
 		SocketError_Max = SocketError_UnreachableHost
 	};
+
+	enum SocketPollEvent
+	{
+		SocketPollEvent_Read,  //< One or more sockets is ready for a read operation
+		SocketPollEvent_Write, //< One or more sockets is ready for a write operation
+
+		SocketPollEvent_Max = SocketPollEvent_Write
+	};
+
+	template<>
+	struct EnumAsFlags<SocketPollEvent>
+	{
+		static constexpr bool value = true;
+		static constexpr int  max = SocketPollEvent_Max;
+	};
+
+	using SocketPollEventFlags = Flags<SocketPollEvent>;
 
 	enum SocketState
 	{
