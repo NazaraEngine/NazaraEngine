@@ -23,7 +23,6 @@ namespace Ndk
 			using Factory = std::function<BaseComponent*()>;
 
 			BaseComponent(ComponentIndex componentIndex);
-			BaseComponent(const BaseComponent&) = default;
 			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
@@ -34,10 +33,12 @@ namespace Ndk
 
 			inline static ComponentIndex GetMaxComponentIndex();
 
-			BaseComponent& operator=(const BaseComponent&) = default;
+			BaseComponent& operator=(const BaseComponent&) = delete;
 			BaseComponent& operator=(BaseComponent&&) = default;
 
 		protected:
+			BaseComponent(const BaseComponent&) = default;
+
 			ComponentIndex m_componentIndex;
 			EntityHandle m_entity;
 

@@ -56,7 +56,7 @@ namespace Ndk
 	* \return A constant reference to the list of entities
 	*/
 
-	inline const std::vector<EntityHandle>& BaseSystem::GetEntities() const
+	inline const EntityList& BaseSystem::GetEntities() const
 	{
 		return m_entities;
 	}
@@ -121,10 +121,7 @@ namespace Ndk
 
 	inline bool BaseSystem::HasEntity(const Entity* entity) const
 	{
-		if (!entity)
-			return false;
-
-		return m_entityBits.UnboundedTest(entity->GetId());
+		return m_entities.Has(entity);
 	}
 
 	/*!
@@ -288,9 +285,7 @@ namespace Ndk
 	{
 		NazaraAssert(entity, "Invalid entity");
 
-		m_entities.emplace_back(entity);
-		m_entityBits.UnboundedSet(entity->GetId(), true);
-
+		m_entities.Insert(entity);
 		entity->RegisterSystem(m_systemIndex);
 
 		OnEntityAdded(entity);
@@ -308,14 +303,7 @@ namespace Ndk
 	{
 		NazaraAssert(entity, "Invalid entity");
 
-		auto it = std::find(m_entities.begin(), m_entities.end(), *entity);
-		NazaraAssert(it != m_entities.end(), "Entity is not part of this system");
-
-		// To avoid moving a lot of handles, we swap and pop
-		std::swap(*it, m_entities.back());
-		m_entities.pop_back(); // We get it out of the vector
-
-		m_entityBits.Reset(entity->GetId());
+		m_entities.Remove(entity);
 		entity->UnregisterSystem(m_systemIndex);
 
 		OnEntityRemoved(entity); // And we alert our callback
@@ -360,7 +348,7 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Uninitializes the BaseSystem
+	* \brief Uninitialize the BaseSystem
 	*/
 
 	inline void BaseSystem::Uninitialize()

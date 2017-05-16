@@ -64,10 +64,10 @@ namespace Nz
 
 			struct Callback
 			{
-				ContactEndCallback endCallback;
-				ContactPreSolveCallback preSolveCallback;
-				ContactPostSolveCallback postSolveCallback;
-				ContactStartCallback startCallback;
+				ContactEndCallback endCallback = nullptr;
+				ContactPreSolveCallback preSolveCallback = nullptr;
+				ContactPostSolveCallback postSolveCallback = nullptr;
+				ContactStartCallback startCallback = nullptr;
 				void* userdata;
 			};
 
