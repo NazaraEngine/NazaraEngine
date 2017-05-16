@@ -82,7 +82,7 @@ namespace Nz
 		#else
 		for (std::size_t i = 0; i < 2; ++i)
 		{
-			if (eventFlags & ((i == 0) ? SocketPollEvent_Read : SocketPollEvent_Write) == 0)
+			if ((eventFlags & ((i == 0) ? SocketPollEvent_Read : SocketPollEvent_Write)) == 0)
 				continue;
 
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
@@ -135,8 +135,6 @@ namespace Nz
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
-		x
-
 		#else
 		m_readyToReadSockets = m_readSockets;
 		m_readyToWriteSockets = m_writeSockets;
