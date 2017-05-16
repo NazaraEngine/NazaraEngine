@@ -24,10 +24,11 @@ namespace Nz
 
 			void Clear();
 
-			bool IsReady(const AbstractSocket& socket) const;
+			bool IsReadyToRead(const AbstractSocket& socket) const;
+			bool IsReadyToWrite(const AbstractSocket& socket) const;
 			bool IsRegistered(const AbstractSocket& socket) const;
 
-			bool RegisterSocket(AbstractSocket& socket);
+			bool RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(AbstractSocket& socket);
 
 			bool Wait(UInt64 msTimeout);
