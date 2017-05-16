@@ -57,12 +57,13 @@ namespace Nz
 	/*!
 	* \brief Checks if a specific socket is ready to read data
 	*
-	* This function allows you to read the results of the last Wait operation and if a specific socket is ready.
+	* This function allows you to read the results of the last Wait operation and if a specific socket is ready to read (has incoming data).
 	*
-	* A socket in the ready state (with the exception of TcpServer) has incoming data and can be read without blocking.
+	* A socket in the ready to read state (with the exception of TcpServer) has incoming data and can be read without blocking.
 	*
-	* \remark When used on a TcpServer socket, this function returns true if the server is ready to accept a new client.
-	* \remark You must call Wait before using this function in order to refresh the state.
+	* \remark You must call Wait before using this function in order to refresh the read state.
+	* \remark A socket must be registered with SocketPollerEvent_Read event flag for its read state to be watched
+	* \remark A TcpServer socket becomes ready to read when it is ready to accept a new client.
 	*
 	* \param socket Reference to the socket to check
 	*
@@ -70,11 +71,32 @@ namespace Nz
 	*
 	* \see Wait
 	*/
-	bool SocketPoller::IsReady(const AbstractSocket& socket) const
+	bool SocketPoller::IsReadyToRead(const AbstractSocket& socket) const
 	{
 		NazaraAssert(IsRegistered(socket), "Socket is not registered in the poller");
 
-		return m_impl->IsReady(socket.GetNativeHandle());
+		return m_impl->IsReadyToRead(socket.GetNativeHandle());
+	}
+
+	/*!
+	* \brief Checks if a specific socket is ready to write data
+	*
+	* This function allows you to read the results of the last Wait operation and if a specific socket is ready to write (can be written to without blocking).
+	*
+	* \remark You must call Wait before using this function in order to refresh the read state.
+	* \remark A socket must be registered with SocketPollerEvent_Write event flag for its read state to be watched
+	*
+	* \param socket Reference to the socket to check
+	*
+	* \return True if the socket is available for writing without blocking, false otherwise
+	*
+	* \see Wait
+	*/
+	bool SocketPoller::IsReadyToWrite(const AbstractSocket& socket) const
+	{
+		NazaraAssert(IsRegistered(socket), "Socket is not registered in the poller");
+
+		return m_impl->IsReadyToWrite(socket.GetNativeHandle());
 	}
 
 	/*!
@@ -97,7 +119,7 @@ namespace Nz
 	/*!
 	* \brief Register a socket in the SocketPoller
 	*
-	* A registered socket is part of the SocketPoller and will be checked by the next Wait operations.
+	* A registered socket is part of the SocketPoller and will be checked by the next Wait operations according to the event flags passed when registered.
 	*
 	* The SocketPoller keeps a reference to the internal handle of registered socket, which should not be freed while it is registered in the SocketPooler.
 	*
@@ -107,17 +129,18 @@ namespace Nz
 	* \remark The socket should not be freed while it is registered in the SocketPooler.
 	*
 	* \param socket Reference to the socket to register
+	* \param eventFlags Socket events to watch
 	*
 	* \return True if the socket is registered, false otherwise
 	*
 	* \see IsRegistered
 	* \see UnregisterSocket
 	*/
-	bool SocketPoller::RegisterSocket(AbstractSocket& socket)
+	bool SocketPoller::RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags)
 	{
 		NazaraAssert(!IsRegistered(socket), "This socket is already registered in this SocketPoller");
 
-		return m_impl->RegisterSocket(socket.GetNativeHandle());
+		return m_impl->RegisterSocket(socket.GetNativeHandle(), eventFlags);
 	}
 
 	/*!
@@ -145,7 +168,7 @@ namespace Nz
 	* \brief Wait until any registered socket switches to a ready state.
 	*
 	* Waits a specific/undetermined amount of time until at least one socket part of the SocketPoller becomes ready.
-	* To query the ready state of the registered socket, use the IsReady function.
+	* To query the ready state of the registered socket, use the IsReadyToRead or IsReadyToWrite functions.
 	*
 	* \param msTimeout Maximum time to wait in milliseconds, 0 for infinity
 	*
