@@ -136,14 +136,26 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
 		#else
-		m_readyToReadSockets = m_readSockets;
-		m_readyToWriteSockets = m_writeSockets;
+		fd_set* readSet = nullptr;
+		fd_set* writeSet = nullptr;
+
+		if (m_readSockets.fd_count > 0)
+		{
+			m_readyToReadSockets = m_readSockets;
+			readSet = &m_readyToReadSockets;
+		}
+
+		if (m_writeSockets.fd_count > 0)
+		{
+			m_readyToWriteSockets = m_writeSockets;
+			readSet = &m_readyToWriteSockets;
+		}
 
 		timeval tv;
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		activeSockets = ::select(0xDEADBEEF, &m_readyToReadSockets, &m_readyToWriteSockets, nullptr, (msTimeout > 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout > 0) ? &tv : nullptr); //< The first argument is ignored on Windows
 		if (activeSockets == SOCKET_ERROR)
 		{
 			if (error)
