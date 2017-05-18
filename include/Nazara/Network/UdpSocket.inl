@@ -104,16 +104,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the state of the socket
-	* \return State of the socket
-	*/
-
-	inline SocketState UdpSocket::GetState() const
-	{
-		return m_state;
-	}
-
-	/*!
 	* \brief Checks whether the broadcasting is enabled
 	* \return true If it is the case
 	*/
