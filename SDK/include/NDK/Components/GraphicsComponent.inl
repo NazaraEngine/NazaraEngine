@@ -142,6 +142,32 @@ namespace Ndk
 		}
 	}
 
+	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.localMatrix = localMatrix;
+
+				InvalidateBoundingVolume();
+				break;
+			}
+		}
+	}
+
+	inline void GraphicsComponent::UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.renderOrder = renderOrder;
+				break;
+			}
+		}
+	}
+
 	/*!
 	* \brief Invalidates the bounding volume
 	*/

@@ -466,24 +466,15 @@ namespace Nz
 	* \brief Returns the ith element of the sphere
 	* \return A reference to the ith element of the sphere
 	*
-	* \remark Access to index greather than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 4 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 4 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 
 	template<typename T>
-	T& Sphere<T>::operator[](unsigned int i)
+	T& Sphere<T>::operator[](std::size_t i)
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 4)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 4)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 4, "Index out of range");
 
 		return *(&x+i);
 	}
@@ -492,24 +483,15 @@ namespace Nz
 	* \brief Returns the ith element of the sphere
 	* \return A value to the ith element of the sphere
 	*
-	* \remark Access to index greather than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 4 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 4 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 
 	template<typename T>
-	T Sphere<T>::operator[](unsigned int i) const
+	T Sphere<T>::operator[](std::size_t i) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 4)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 4)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 4, "Index out of range");
 
 		return *(&x+i);
 	}

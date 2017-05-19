@@ -25,22 +25,26 @@ namespace Nz
 
 			void Clear();
 
-			bool IsReady(SocketHandle socket) const;
+			bool IsReadyToRead(SocketHandle socket) const;
+			bool IsReadyToWrite(SocketHandle socket) const;
 			bool IsRegistered(SocketHandle socket) const;
 
-			bool RegisterSocket(SocketHandle socket);
+			bool RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(SocketHandle socket);
 
 			int Wait(UInt64 msTimeout, SocketError* error);
 
 		private:
 			#if NAZARA_NETWORK_POLL_SUPPORT
-			std::unordered_set<SocketHandle> m_activeSockets;
+			std::unordered_set<SocketHandle> m_readyToReadSockets;
+			std::unordered_set<SocketHandle> m_readyToWriteSockets;
 			std::unordered_map<SocketHandle, std::size_t> m_allSockets;
 			std::vector<PollSocket> m_sockets;
 			#else
-			fd_set m_sockets;
-			fd_set m_activeSockets;
+			fd_set m_readSockets;
+			fd_set m_readyToReadSockets;
+			fd_set m_readyToWriteSockets;
+			fd_set m_writeSockets;
 			#endif
 	};
 }

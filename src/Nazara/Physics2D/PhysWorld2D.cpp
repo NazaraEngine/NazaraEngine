@@ -62,9 +62,9 @@ namespace Nz
 
 			if (cpShape* shape = cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
 			{
-				result->closestPoint.Set(queryInfo.point.x, queryInfo.point.y);
-				result->distance = queryInfo.distance;
-				result->fraction.Set(queryInfo.gradient.x, queryInfo.gradient.y);
+				result->closestPoint.Set(Nz::Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
+				result->distance = float(queryInfo.distance);
+				result->fraction.Set(Nz::Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
 				result->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
 
 				return true;
@@ -90,9 +90,9 @@ namespace Nz
 			ResultType results = static_cast<ResultType>(data);
 
 			RaycastHit hitInfo;
-			hitInfo.fraction = alpha;
-			hitInfo.hitNormal.Set(normal.x, normal.y);
-			hitInfo.hitPos.Set(point.x, point.y);
+			hitInfo.fraction = float(alpha);
+			hitInfo.hitNormal.Set(Nz::Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos.Set(Nz::Vector2<cpFloat>(point.x, point.y));
 			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
 
 			results->emplace_back(std::move(hitInfo));
@@ -116,9 +116,9 @@ namespace Nz
 
 			if (cpShape* shape = cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
 			{
-				hitInfo->fraction = queryInfo.alpha;
-				hitInfo->hitNormal.Set(queryInfo.normal.x, queryInfo.normal.y);
-				hitInfo->hitPos.Set(queryInfo.point.x, queryInfo.point.y);
+				hitInfo->fraction = float(queryInfo.alpha);
+				hitInfo->hitNormal.Set(Nz::Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
+				hitInfo->hitPos.Set(Nz::Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
 				hitInfo->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;
