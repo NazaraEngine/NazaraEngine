@@ -11,7 +11,7 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 	GIVEN("A world and an entity with listener & node components")
 	{
 		Ndk::World world;
-		const Ndk::EntityHandle& entity = world.CreateEntity();
+		Ndk::EntityHandle entity = world.CreateEntity();
 		Ndk::ListenerComponent& listenerComponent = entity->AddComponent<Ndk::ListenerComponent>();
 		Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
 

@@ -376,23 +376,23 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
-		if (material->IsBlendingEnabled())
+		if (material->IsDepthSortingEnabled())
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
-			auto& transparentModels = currentLayer.transparentModels;
-			auto& transparentModelData = currentLayer.transparentModelData;
+			auto& transparentMeshes = currentLayer.depthSortedMeshes;
+			auto& transparentData = currentLayer.depthSortedMeshData;
 
-			// The material is transparent, we must draw this mesh using another way (after the rendering of opages objects while sorting them)
-			std::size_t index = transparentModelData.size();
-			transparentModelData.resize(index+1);
+			// The material is marked for depth sorting, we must draw this mesh using another way (after the rendering of opaques objects while sorting them)
+			std::size_t index = transparentData.size();
+			transparentData.resize(index+1);
 
-			TransparentModelData& data = transparentModelData.back();
+			UnbatchedModelData& data = transparentData.back();
 			data.material = material;
 			data.meshData = meshData;
-			data.squaredBoundingSphere = Spheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
+			data.obbSphere = Spheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
 			data.transformMatrix = transformMatrix;
 
-			transparentModels.push_back(index);
+			transparentMeshes.push_back(index);
 		}
 		else
 		{
@@ -457,53 +457,74 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
+	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
 	{
 		NazaraAssert(material, "Invalid material");
 
 		Layer& currentLayer = GetLayer(renderOrder);
-		SpritePipelineBatches& basicSprites = currentLayer.basicSprites;
 
-		const MaterialPipeline* materialPipeline = material->GetPipeline();
-
-		auto pipelineIt = basicSprites.find(materialPipeline);
-		if (pipelineIt == basicSprites.end())
+		if (material->IsDepthSortingEnabled())
 		{
-			BatchedSpritePipelineEntry materialEntry;
-			pipelineIt = basicSprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			auto& transparentSprites = currentLayer.depthSortedSprites;
+			auto& transparentData = currentLayer.depthSortedSpriteData;
+
+			// The material is marked for depth sorting, we must draw this mesh using another way (after the rendering of opaques objects while sorting them)
+			std::size_t index = transparentData.size();
+			transparentData.resize(index + 1);
+
+			UnbatchedSpriteData& data = transparentData.back();
+			data.material = material;
+			data.overlay = overlay;
+			data.spriteCount = spriteCount;
+			data.vertices = vertices;
+
+			transparentSprites.push_back(index);
 		}
-
-		BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
-		pipelineEntry.enabled = true;
-
-		SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
-
-		auto matIt = materialMap.find(material);
-		if (matIt == materialMap.end())
+		else
 		{
-			BatchedBasicSpriteEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
+			SpritePipelineBatches& sprites = currentLayer.opaqueSprites;
 
-			matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
+			const MaterialPipeline* materialPipeline = material->GetPipeline();
+
+			auto pipelineIt = sprites.find(materialPipeline);
+			if (pipelineIt == sprites.end())
+			{
+				BatchedSpritePipelineEntry materialEntry;
+				pipelineIt = sprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
+			}
+
+			BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
+			pipelineEntry.enabled = true;
+
+			SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
+
+			auto matIt = materialMap.find(material);
+			if (matIt == materialMap.end())
+			{
+				BatchedBasicSpriteEntry entry;
+				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
+
+				matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
+			}
+
+			BatchedBasicSpriteEntry& entry = matIt->second;
+			entry.enabled = true;
+
+			auto& overlayMap = entry.overlayMap;
+
+			auto overlayIt = overlayMap.find(overlay);
+			if (overlayIt == overlayMap.end())
+			{
+				BatchedSpriteEntry overlayEntry;
+				if (overlay)
+					overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &ForwardRenderQueue::OnTextureInvalidation);
+
+				overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
+			}
+
+			auto& spriteVector = overlayIt->second.spriteChains;
+			spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 		}
-
-		BatchedBasicSpriteEntry& entry = matIt->second;
-		entry.enabled = true;
-
-		auto& overlayMap = entry.overlayMap;
-
-		auto overlayIt = overlayMap.find(overlay);
-		if (overlayIt == overlayMap.end())
-		{
-			BatchedSpriteEntry overlayEntry;
-			if (overlay)
-				overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &ForwardRenderQueue::OnTextureInvalidation);
-
-			overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
-		}
-
-		auto& spriteVector = overlayIt->second.spriteChains;
-		spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
 	}
 
 	/*!
@@ -545,7 +566,7 @@ namespace Nz
 						pipelineEntry.enabled = false;
 					}
 
-					for (auto& pipelinePair : layer.basicSprites)
+					for (auto& pipelinePair : layer.opaqueSprites)
 					{
 						auto& pipelineEntry = pipelinePair.second;
 
@@ -596,9 +617,11 @@ namespace Nz
 						}
 					}
 
+					layer.depthSortedMeshes.clear();
+					layer.depthSortedMeshData.clear();
+					layer.depthSortedSpriteData.clear();
+					layer.depthSortedSprites.clear();
 					layer.otherDrawables.clear();
-					layer.transparentModels.clear();
-					layer.transparentModelData.clear();
 					++it;
 				}
 			}
@@ -613,44 +636,10 @@ namespace Nz
 
 	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
 	{
-		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
-		Vector3f viewerPos = viewer->GetEyePosition();
-		Vector3f viewerNormal = viewer->GetForward();
-
-		for (auto& pair : layers)
-		{
-			Layer& layer = pair.second;
-
-			std::sort(layer.transparentModels.begin(), layer.transparentModels.end(), [&layer, &nearPlane, &viewerNormal] (std::size_t index1, std::size_t index2)
-			{
-				const Spheref& sphere1 = layer.transparentModelData[index1].squaredBoundingSphere;
-				const Spheref& sphere2 = layer.transparentModelData[index2].squaredBoundingSphere;
-
-				Vector3f position1 = sphere1.GetNegativeVertex(viewerNormal);
-				Vector3f position2 = sphere2.GetNegativeVertex(viewerNormal);
-
-				return nearPlane.Distance(position1) > nearPlane.Distance(position2);
-			});
-
-			for (auto& pipelinePair : layer.billboards)
-			{
-				for (auto& matPair : pipelinePair.second.materialMap)
-				{
-					const Material* mat = matPair.first;
-
-					if (mat->IsDepthSortingEnabled())
-					{
-						BatchedBillboardEntry& entry = matPair.second;
-						auto& billboardVector = entry.billboards;
-
-						std::sort(billboardVector.begin(), billboardVector.end(), [&viewerPos] (const BillboardData& data1, const BillboardData& data2)
-						{
-							return viewerPos.SquaredDistance(data1.center) > viewerPos.SquaredDistance(data2.center);
-						});
-					}
-				}
-			}
-		}
+		if (viewer->GetProjectionType() == ProjectionType_Orthogonal)
+			SortForOrthographic(viewer);
+		else
+			SortForPerspective(viewer);
 	}
 
 	/*!
@@ -715,12 +704,91 @@ namespace Nz
 		return layer;
 	}
 
+	void ForwardRenderQueue::SortBillboards(Layer& layer, const Planef& nearPlane)
+	{
+		for (auto& pipelinePair : layer.billboards)
+		{
+			for (auto& matPair : pipelinePair.second.materialMap)
+			{
+				const Material* mat = matPair.first;
+
+				if (mat->IsDepthSortingEnabled())
+				{
+					BatchedBillboardEntry& entry = matPair.second;
+					auto& billboardVector = entry.billboards;
+
+					std::sort(billboardVector.begin(), billboardVector.end(), [&nearPlane] (const BillboardData& data1, const BillboardData& data2)
+					{
+						return nearPlane.Distance(data1.center) > nearPlane.Distance(data2.center);
+					});
+				}
+			}
+		}
+	}
+
+	void ForwardRenderQueue::SortForOrthographic(const AbstractViewer * viewer)
+	{
+		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
+		Vector3f viewerPos = viewer->GetEyePosition();
+
+		for (auto& pair : layers)
+		{
+			Layer& layer = pair.second;
+
+			std::sort(layer.depthSortedMeshes.begin(), layer.depthSortedMeshes.end(), [&layer, &nearPlane] (std::size_t index1, std::size_t index2)
+			{
+				const Spheref& sphere1 = layer.depthSortedMeshData[index1].obbSphere;
+				const Spheref& sphere2 = layer.depthSortedMeshData[index2].obbSphere;
+
+				return nearPlane.Distance(sphere1.GetPosition()) < nearPlane.Distance(sphere2.GetPosition());
+			});
+
+			std::sort(layer.depthSortedSprites.begin(), layer.depthSortedSprites.end(), [&layer, &nearPlane] (std::size_t index1, std::size_t index2)
+			{
+				const Vector3f& pos1 = layer.depthSortedSpriteData[index1].vertices[0].position;
+				const Vector3f& pos2 = layer.depthSortedSpriteData[index2].vertices[0].position;
+
+				return nearPlane.Distance(pos1) < nearPlane.Distance(pos2);
+			});
+
+			SortBillboards(layer, nearPlane);
+		}
+	}
+
+	void ForwardRenderQueue::SortForPerspective(const AbstractViewer* viewer)
+	{
+		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
+		Vector3f viewerPos = viewer->GetEyePosition();
+
+		for (auto& pair : layers)
+		{
+			Layer& layer = pair.second;
+
+			std::sort(layer.depthSortedMeshes.begin(), layer.depthSortedMeshes.end(), [&layer, &viewerPos] (std::size_t index1, std::size_t index2)
+			{
+				const Spheref& sphere1 = layer.depthSortedMeshData[index1].obbSphere;
+				const Spheref& sphere2 = layer.depthSortedMeshData[index2].obbSphere;
+
+				return viewerPos.SquaredDistance(sphere1.GetPosition()) > viewerPos.SquaredDistance(sphere2.GetPosition());
+			});
+
+			std::sort(layer.depthSortedSprites.begin(), layer.depthSortedSprites.end(), [&layer, &viewerPos] (std::size_t index1, std::size_t index2)
+			{
+				const Vector3f& pos1 = layer.depthSortedSpriteData[index1].vertices[0].position;
+				const Vector3f& pos2 = layer.depthSortedSpriteData[index2].vertices[0].position;
+
+				return viewerPos.SquaredDistance(pos1) > viewerPos.SquaredDistance(pos2);
+			});
+
+			SortBillboards(layer, nearPlane);
+		}
+	}
+
 	/*!
 	* \brief Handle the invalidation of an index buffer
 	*
 	* \param indexBuffer Index buffer being invalidated
 	*/
-
 	void ForwardRenderQueue::OnIndexBufferInvalidation(const IndexBuffer* indexBuffer)
 	{
 		for (auto& pair : layers)
@@ -757,7 +825,7 @@ namespace Nz
 		{
 			Layer& layer = pair.second;
 
-			for (auto& pipelineEntry : layer.basicSprites)
+			for (auto& pipelineEntry : layer.opaqueSprites)
 				pipelineEntry.second.materialMap.erase(material);
 
 			for (auto& pipelineEntry : layer.billboards)
@@ -779,7 +847,7 @@ namespace Nz
 		for (auto& pair : layers)
 		{
 			Layer& layer = pair.second;
-			for (auto& pipelineEntry : layer.basicSprites)
+			for (auto& pipelineEntry : layer.opaqueSprites)
 			{
 				for (auto& materialEntry : pipelineEntry.second.materialMap)
 					materialEntry.second.overlayMap.erase(texture);

@@ -191,8 +191,8 @@ namespace Nz
 
 	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
 	{
-		if (material->IsBlendingEnabled())
-			// One transparent material ? I don't like it, go see if I'm in the forward queue
+		if (material->IsBlendingEnabled() || material->IsDepthSortingEnabled()) //< Fixme: Deferred Shading should be able to handle depth sorting
+			// Deferred Shading cannot handle blended objects, put them in the forward list
 			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
 		else
 		{
@@ -254,7 +254,7 @@ namespace Nz
 	* \param overlay Texture of the sprites
 	*/
 
-	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay)
+	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
 	{
 		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, overlay);
 	}

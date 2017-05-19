@@ -38,7 +38,7 @@ namespace Nz
 			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
 			void AddPointLight(const PointLight& light) override;
 			void AddSpotLight(const SpotLight& light) override;
-			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) override;
+			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) override;
 
 		private:
 			inline bool IsMaterialSuitable(const Material* material) const;

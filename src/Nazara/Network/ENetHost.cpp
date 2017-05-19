@@ -280,7 +280,7 @@ namespace Nz
 
 			m_serviceTime = GetElapsedMilliseconds();
 		}
-		while (m_poller.IsReady(m_socket));
+		while (m_poller.IsReadyToRead(m_socket));
 
 		return 0;
 	}
@@ -327,7 +327,7 @@ namespace Nz
 			}
 		}
 
-		m_poller.RegisterSocket(m_socket);
+		m_poller.RegisterSocket(m_socket, SocketPollEvent_Read);
 
 		return true;
 	}

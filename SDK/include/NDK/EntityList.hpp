@@ -15,46 +15,68 @@ namespace Ndk
 {
 	class NDK_API EntityList
 	{
-		public:
-			using Container = std::vector<EntityHandle>;
+		friend Entity;
 
-			EntityList() = default;
-			~EntityList() = default;
+		public:
+			class iterator;
+			friend iterator;
+			using size_type = std::size_t;
+
+			inline EntityList();
+			inline EntityList(const EntityList& entityList);
+			inline EntityList(EntityList&& entityList) noexcept;
+			inline ~EntityList();
 
 			inline void Clear();
 
-			inline bool Has(const Entity* entity);
-			inline bool Has(EntityId entity);
+			inline bool Has(const Entity* entity) const;
+			inline bool Has(EntityId entity) const;
 
 			inline void Insert(Entity* entity);
 
 			inline void Remove(Entity* entity);
 
 			// STL API
-			inline Container::iterator begin();
-			inline Container::const_iterator begin() const;
-
-			inline Container::const_iterator cbegin() const;
-			inline Container::const_iterator cend() const;
-			inline Container::const_reverse_iterator crbegin() const;
-			inline Container::const_reverse_iterator crend() const;
-
+			inline iterator begin() const;
 			inline bool empty() const;
+			inline iterator end() const;
+			inline size_type size() const;
 
-			inline Container::iterator end();
-			inline Container::const_iterator end() const;
-
-			inline Container::reverse_iterator rbegin();
-			inline Container::const_reverse_iterator rbegin() const;
-
-			inline Container::reverse_iterator rend();
-			inline Container::const_reverse_iterator rend() const;
-
-			inline Container::size_type size() const;
+			inline EntityList& operator=(const EntityList& entityList);
+			inline EntityList& operator=(EntityList&& entityList) noexcept;
 
 		private:
-			std::vector<EntityHandle> m_entities;
+			inline std::size_t FindNext(std::size_t currentId) const;
+			inline World* GetWorld() const;
+			inline void NotifyEntityDestruction(const Entity* entity);
+
 			Nz::Bitset<Nz::UInt64> m_entityBits;
+			World* m_world;
+	};
+
+	class NDK_API EntityList::iterator : public std::iterator<std::forward_iterator_tag, const EntityHandle>
+	{
+		friend EntityList;
+
+		public:
+			inline iterator(const iterator& iterator);
+
+			const EntityHandle& operator*() const;
+
+			inline iterator& operator=(const iterator& iterator);
+			inline iterator& operator++();
+			inline iterator operator++(int);
+
+			friend inline bool operator==(const iterator& lhs, const iterator& rhs);
+			friend inline bool operator!=(const iterator& lhs, const iterator& rhs);
+
+			friend inline void swap(iterator& lhs, iterator& rhs);
+
+		private:
+			inline iterator(const EntityList* world, std::size_t nextId);
+
+			std::size_t m_nextEntityId;
+			const EntityList* m_list;
 	};
 }
 

@@ -23,13 +23,19 @@ namespace Nz
 
 	void SocketPollerImpl::Clear()
 	{
-		m_activeSockets.clear();
+		m_readyToReadSockets.clear();
+		m_readyToWriteSockets.clear();
 		m_sockets.clear();
 	}
 
-	bool SocketPollerImpl::IsReady(SocketHandle socket) const
+	bool SocketPollerImpl::IsReadyToRead(SocketHandle socket) const
 	{
-		return m_activeSockets.count(socket) != 0;
+		return m_readyToReadSockets.count(socket) != 0;
+	}
+
+	bool SocketPollerImpl::IsReadyToWrite(SocketHandle socket) const
+	{
+		return m_readyToWriteSockets.count(socket) != 0;
 	}
 
 	bool SocketPollerImpl::IsRegistered(SocketHandle socket) const
@@ -37,15 +43,21 @@ namespace Nz
 		return m_sockets.count(socket) != 0;
 	}
 
-	bool SocketPollerImpl::RegisterSocket(SocketHandle socket)
+	bool SocketPollerImpl::RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags)
 	{
 		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
 
-		epoll_event event;
-		event.events = EPOLLIN;
-		event.data.fd = socket;
+		epoll_event entry;
+		entry.events = 0;
+		entry.data.fd = socket;
 
-		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &event) != 0)
+		if (eventFlags & SocketPollEvent_Read)
+			entry.events |= EPOLLIN;
+
+		if (eventFlags & SocketPollEvent_Write)
+			entry.events |= EPOLLOUT;
+
+		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &entry) != 0)
 		{
 			NazaraError("Failed to add socket to epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 			return false;
@@ -60,7 +72,8 @@ namespace Nz
 	{
 		NazaraAssert(IsRegistered(socket), "Socket is not registered");
 
-		m_activeSockets.erase(socket);
+		m_readyToReadSockets.erase(socket);
+		m_readyToWriteSockets.erase(socket);
 		m_sockets.erase(socket);
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_DEL, socket, nullptr) != 0)
@@ -84,21 +97,27 @@ namespace Nz
 			return 0;
 		}
 
-		m_activeSockets.clear();
+		m_readyToReadSockets.clear();
+		m_readyToWriteSockets.clear();
 		if (activeSockets > 0)
 		{
 			int socketCount = activeSockets;
 			for (int i = 0; i < socketCount; ++i)
 			{
-				if (m_events[i].events & (EPOLLIN | EPOLLHUP | EPOLLERR))
+				if (m_events[i].events & (EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLERR))
 				{
-					m_activeSockets.insert(m_events[i].data.fd);
+					if (m_events[i].events & (EPOLLIN | EPOLLHUP | EPOLLERR))
+						m_readyToReadSockets.insert(m_events[i].data.fd);
+
+					if (m_events[i].events & (EPOLLOUT | EPOLLERR))
+						m_readyToWriteSockets.insert(m_events[i].data.fd);
+
 					if (m_events[i].events & EPOLLERR)
 						NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll with EPOLLERR status");
 				}
 				else
 				{
-					NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll without EPOLLIN (events: 0x" + String::Number(m_events[i].events, 16) + ')');
+					NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll without EPOLLIN nor EPOLLOUT flags (events: 0x" + String::Number(m_events[i].events, 16) + ')');
 					activeSockets--;
 				}
 			}

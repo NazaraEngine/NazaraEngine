@@ -121,9 +121,7 @@ namespace Nz
 					break;
 
 				default:
-					// Peut être rajouté par une extension
-					ss << "Unknown";
-					break;
+					return; //< Block NVidia buffer usage hint for now
 			}
 			ss << '\n';
 
