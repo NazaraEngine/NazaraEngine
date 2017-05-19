@@ -32,7 +32,7 @@ namespace Ndk
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 9U);
 
-				int argIndex = 2;
+				int argIndex = 1;
 				switch (argCount)
 				{
 					case 0:
@@ -142,6 +142,63 @@ namespace Ndk
 				}
 			});
 		}
+
+		udpSocket.Reset("UdpSocket");
+		{
+			udpSocket.Inherit<Nz::AbstractSocket>(abstractSocket);
+
+			udpSocket.BindDefaultConstructor();
+
+			udpSocket.BindMethod("Create", &Nz::UdpSocket::Create);
+			udpSocket.BindMethod("EnableBroadcasting", &Nz::UdpSocket::EnableBroadcasting);
+			udpSocket.BindMethod("GetBoundAddress", &Nz::UdpSocket::GetBoundAddress);
+			udpSocket.BindMethod("GetBoundPort", &Nz::UdpSocket::GetBoundPort);
+			udpSocket.BindMethod("IsBroadcastingEnabled", &Nz::UdpSocket::IsBroadcastingEnabled);
+			udpSocket.BindMethod("QueryMaxDatagramSize", &Nz::UdpSocket::QueryMaxDatagramSize);
+
+			udpSocket.BindMethod("Bind", [](Nz::LuaInstance& lua, Nz::UdpSocket& instance, std::size_t /*argumentCount*/) -> int
+			{
+				int argIndex = 2;
+				if (lua.IsOfType(argIndex, "IpAddress"))
+					return lua.Push(instance.Bind(*static_cast<Nz::IpAddress*>(lua.ToUserdata(argIndex))));
+				else
+					return lua.Push(instance.Bind(lua.Check<Nz::UInt16>(&argIndex)));
+			});
+
+			udpSocket.BindMethod("Receive", [](Nz::LuaInstance& lua, Nz::UdpSocket& instance, std::size_t /*argumentCount*/) -> int
+			{
+				Nz::IpAddress from;
+
+				std::array<char, 0xFFFF> buffer;
+				std::size_t received;
+				if (instance.Receive(buffer.data(), buffer.size(), &from, &received))
+				{
+					lua.PushBoolean(true);
+					lua.PushString(from.ToString());
+					lua.PushString(buffer.data(), received);
+					return 3;
+				}
+
+				lua.PushBoolean(false);
+				return 1;
+			});
+
+			udpSocket.BindMethod("Send", [](Nz::LuaInstance& lua, Nz::UdpSocket& instance, std::size_t /*argumentCount*/) -> int
+			{
+				int argIndex = 2;
+				Nz::String to = lua.Check<Nz::String>(&argIndex);
+
+				std::size_t bufferLength;
+				const char* buffer = lua.CheckString(argIndex, &bufferLength);
+
+				std::size_t sent;
+				bool ret;
+				if ((ret = instance.Send(Nz::IpAddress(to), buffer, bufferLength, &sent)) != true)
+					sent = 0;
+
+				return lua.Push(std::make_pair(ret, sent));
+			});
+		}
 	}
 
 	/*!
@@ -154,6 +211,7 @@ namespace Ndk
 		// Classes
 		abstractSocket.Register(instance);
 		ipAddress.Register(instance);
+		udpSocket.Register(instance);
 
 		// Enums
 
