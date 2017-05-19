@@ -9,6 +9,7 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/UdpSocket.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
 
 namespace Ndk
@@ -23,6 +24,7 @@ namespace Ndk
 
 			Nz::LuaClass<Nz::AbstractSocket> abstractSocket;
 			Nz::LuaClass<Nz::IpAddress> ipAddress;
+			Nz::LuaClass<Nz::UdpSocket> udpSocket;
 	};
 }
 

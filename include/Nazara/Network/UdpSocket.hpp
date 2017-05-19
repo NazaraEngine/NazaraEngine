@@ -33,7 +33,6 @@ namespace Nz
 
 			inline IpAddress GetBoundAddress() const;
 			inline UInt16 GetBoundPort() const;
-			inline SocketState GetState() const;
 
 			inline bool IsBroadcastingEnabled() const;
 
