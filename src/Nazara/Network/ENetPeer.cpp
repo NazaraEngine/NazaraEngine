@@ -501,7 +501,7 @@ namespace Nz
 				if (commandNumber != ENetProtocolCommand_VerifyConnect)
 					return false;
 
-				m_host->NotifyConnect(this, event);
+				m_host->NotifyConnect(this, event, true);
 				break;
 
 			case ENetPeerState::Disconnecting:
@@ -864,7 +864,7 @@ namespace Nz
 		    NetToHost(command->verifyConnect.packetThrottleInterval) != m_packetThrottleInterval ||
 		    NetToHost(command->verifyConnect.packetThrottleAcceleration) != m_packetThrottleAcceleration ||
 		    NetToHost(command->verifyConnect.packetThrottleDeceleration) != m_packetThrottleDeceleration ||
-			command->verifyConnect.connectID != m_connectID)
+		    command->verifyConnect.connectID != m_connectID)
 		{
 			m_eventData = 0;
 
@@ -891,7 +891,7 @@ namespace Nz
 		m_incomingBandwidth = NetToHost(command->verifyConnect.incomingBandwidth);
 		m_outgoingBandwidth = NetToHost(command->verifyConnect.outgoingBandwidth);
 
-		m_host->NotifyConnect(this, event);
+		m_host->NotifyConnect(this, event, false);
 		return true;
 	}
 

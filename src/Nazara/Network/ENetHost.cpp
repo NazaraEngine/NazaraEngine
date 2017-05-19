@@ -352,10 +352,17 @@ namespace Nz
 			switch (peer.GetState())
 			{
 				case ENetPeerState::ConnectionPending:
+					peer.ChangeState(ENetPeerState::Connected);
+
+					event->type = ENetEventType::IncomingConnect;
+					event->peer = &peer;
+					event->data = peer.m_eventData;
+					return true;
+
 				case ENetPeerState::ConnectionSucceeded:
 					peer.ChangeState(ENetPeerState::Connected);
 
-					event->type = ENetEventType::Connect;
+					event->type = ENetEventType::OutgoingConnect;
 					event->peer = &peer;
 					event->data = peer.m_eventData;
 					return true;
@@ -728,7 +735,7 @@ namespace Nz
 		return -1;
 	}
 
-	void ENetHost::NotifyConnect(ENetPeer* peer, ENetEvent* event)
+	void ENetHost::NotifyConnect(ENetPeer* peer, ENetEvent* event, bool incoming)
 	{
 		m_recalculateBandwidthLimits = true;
 
@@ -736,12 +743,12 @@ namespace Nz
 		{
 			peer->ChangeState(ENetPeerState::Connected);
 
-			event->type = ENetEventType::Connect;
+			event->type = (incoming) ? ENetEventType::IncomingConnect : ENetEventType::OutgoingConnect;
 			event->peer = peer;
 			event->data = peer->m_eventData;
 		}
 		else
-			peer->DispatchState(peer->GetState() == ENetPeerState::Connecting ? ENetPeerState::ConnectionSucceeded : ENetPeerState::ConnectionPending);
+			peer->DispatchState((peer->GetState() == ENetPeerState::Connecting) ? ENetPeerState::ConnectionSucceeded : ENetPeerState::ConnectionPending);
 	}
 
 	void ENetHost::NotifyDisconnect(ENetPeer* peer, ENetEvent* event)
