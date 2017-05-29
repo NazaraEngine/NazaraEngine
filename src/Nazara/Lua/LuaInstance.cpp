@@ -503,6 +503,11 @@ namespace Nz
 		return FromLuaType(lua_gettable(m_state, index));
 	}
 
+	LuaType LuaInstance::GetTableRaw(int index) const
+	{
+		return FromLuaType(lua_rawget(m_state, index));
+	}
+
 	LuaType LuaInstance::GetType(int index) const
 	{
 		return FromLuaType(lua_type(m_state, index));
@@ -584,6 +589,11 @@ namespace Nz
 	long long LuaInstance::Length(int index) const
 	{
 		return luaL_len(m_state, index);
+	}
+
+	std::size_t LuaInstance::LengthRaw(int index) const
+	{
+		return lua_rawlen(m_state, index);
 	}
 
 	void LuaInstance::MoveTo(LuaInstance* instance, int n) const
@@ -748,6 +758,11 @@ namespace Nz
 	void LuaInstance::SetTable(int index) const
 	{
 		lua_settable(m_state, index);
+	}
+
+	void LuaInstance::SetTableRaw(int index) const
+	{
+		lua_rawset(m_state, index);
 	}
 
 	void LuaInstance::SetTimeLimit(UInt32 timeLimit)
