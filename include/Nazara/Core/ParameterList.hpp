@@ -27,6 +27,9 @@ namespace Nz
 
 			void Clear();
 
+			inline void ForEach(const std::function<bool(const ParameterList& list, const String& name)>& callback);
+			inline void ForEach(const std::function<void(const ParameterList& list, const String& name)>& callback) const;
+
 			bool GetBooleanParameter(const String& name, bool* value) const;
 			bool GetColorParameter(const String& name, Color* value) const;
 			bool GetFloatParameter(const String& name, float* value) const;
@@ -101,5 +104,7 @@ namespace Nz
 }
 
 std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
+
+#include <Nazara/Core/ParameterList.inl>
 
 #endif // NAZARA_PARAMETERLIST_HPP
