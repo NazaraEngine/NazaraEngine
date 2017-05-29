@@ -101,6 +101,7 @@ namespace Nz
 			bool GetMetatable(int index) const;
 			unsigned int GetStackTop() const;
 			LuaType GetTable(int index = -2) const;
+			LuaType GetTableRaw(int index = -2) const;
 			inline UInt32 GetTimeLimit() const;
 			LuaType GetType(int index) const;
 			const char* GetTypeName(LuaType type) const;
@@ -113,6 +114,7 @@ namespace Nz
 			bool IsValid(int index) const;
 
 			long long Length(int index) const;
+			std::size_t LengthRaw(int index) const;
 
 			void MoveTo(LuaInstance* instance, int n) const;
 
@@ -161,6 +163,7 @@ namespace Nz
 			void SetMetatable(int index) const;
 			void SetMemoryLimit(std::size_t memoryLimit);
 			void SetTable(int index = -3) const;
+			void SetTableRaw(int index = -3) const;
 			void SetTimeLimit(UInt32 timeLimit);
 
 			bool ToBoolean(int index) const;
