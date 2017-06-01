@@ -207,16 +207,16 @@ namespace Ndk
 	{
 	}
 
-	inline EntityList::iterator::iterator(const iterator& iterator) :
-	m_nextEntityId(iterator.m_nextEntityId),
-	m_list(iterator.m_list)
+	inline EntityList::iterator::iterator(const iterator& it) :
+	m_nextEntityId(it.m_nextEntityId),
+	m_list(it.m_list)
 	{
 	}
 
-	inline EntityList::iterator& EntityList::iterator::operator=(const iterator& iterator)
+	inline EntityList::iterator& EntityList::iterator::operator=(const iterator& it)
 	{
-		m_nextEntityId = iterator.m_nextEntityId;
-		m_list = iterator.m_list;
+		m_nextEntityId = it.m_nextEntityId;
+		m_list = it.m_list;
 
 		return *this;
 	}
