@@ -117,8 +117,8 @@ namespace Nz
 	template<typename T>
 	bool Rect<T>::Contains(T X, T Y) const
 	{
-		return X >= x && X <= (x + width) &&
-		       Y >= y && Y <= (y + height);
+		return X >= x && X < (x + width) &&
+		       Y >= y && Y < (y + height);
 	}
 
 	/*!
