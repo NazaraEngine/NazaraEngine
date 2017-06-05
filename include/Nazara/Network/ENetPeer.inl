@@ -48,6 +48,11 @@ namespace Nz
 		return m_incomingPeerID;
 	}
 
+	inline UInt32 ENetPeer::GetRoundTripTime() const
+	{
+		return m_roundTripTime;
+	}
+
 	inline ENetPeerState ENetPeer::GetState() const
 	{
 		return m_state;
