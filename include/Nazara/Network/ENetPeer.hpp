@@ -55,6 +55,7 @@ namespace Nz
 			inline UInt32 GetPacketThrottleDeceleration() const;
 			inline UInt32 GetPacketThrottleInterval() const;
 			inline UInt16 GetPeerId() const;
+			inline UInt32 GetRoundTripTime() const;
 			inline ENetPeerState GetState() const;
 
 			inline bool HasPendingCommands();
