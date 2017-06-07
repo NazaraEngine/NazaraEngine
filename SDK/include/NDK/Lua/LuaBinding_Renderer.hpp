@@ -18,7 +18,7 @@ namespace Ndk
 			LuaBinding_Renderer(LuaBinding& binding);
 			~LuaBinding_Renderer() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::TextureRef> texture;
 			Nz::LuaClass<Nz::TextureLibrary> textureLibrary;

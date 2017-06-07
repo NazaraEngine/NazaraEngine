@@ -22,7 +22,7 @@ namespace Ndk
 			LuaBinding_SDK(LuaBinding& binding);
 			~LuaBinding_SDK() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Application*> application;
 			Nz::LuaClass<EntityHandle> entity;
