@@ -20,7 +20,7 @@ namespace Ndk
 			LuaBinding_Network(LuaBinding& binding);
 			~LuaBinding_Network() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::AbstractSocket> abstractSocket;
 			Nz::LuaClass<Nz::IpAddress> ipAddress;

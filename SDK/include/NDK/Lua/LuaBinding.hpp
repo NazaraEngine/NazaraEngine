@@ -24,7 +24,7 @@ namespace Ndk
 
 			template<typename T> void BindComponent(const Nz::String& name);
 
-			void RegisterClasses(Nz::LuaInstance& instance);
+			void RegisterClasses(Nz::LuaState& state);
 
 			std::unique_ptr<LuaBinding_Base> core;
 			std::unique_ptr<LuaBinding_Base> math;
@@ -40,13 +40,13 @@ namespace Ndk
 
 		private:
 			template<typename T>
-			static int AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle);
+			static int AddComponentOfType(Nz::LuaState& lua, EntityHandle& handle);
 
 			template<typename T>
-			static int PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component);
+			static int PushComponentOfType(Nz::LuaState& lua, BaseComponent& component);
 
-			using AddComponentFunc = int(*)(Nz::LuaInstance&, EntityHandle&);
-			using GetComponentFunc = int(*)(Nz::LuaInstance&, BaseComponent&);
+			using AddComponentFunc = int(*)(Nz::LuaState&, EntityHandle&);
+			using GetComponentFunc = int(*)(Nz::LuaState&, BaseComponent&);
 
 			struct ComponentBinding
 			{
@@ -56,7 +56,7 @@ namespace Ndk
 				Nz::String name;
 			};
 
-			ComponentBinding* QueryComponentIndex(Nz::LuaInstance& lua, int argIndex = 2);
+			ComponentBinding* QueryComponentIndex(Nz::LuaState& lua, int argIndex = 2);
 
 			std::vector<ComponentBinding> m_componentBinding;
 			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;
