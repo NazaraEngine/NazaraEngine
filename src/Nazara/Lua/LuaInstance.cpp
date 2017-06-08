@@ -30,7 +30,7 @@ namespace Nz
 	}
 
 	LuaInstance::LuaInstance() :
-	LuaState(this, lua_newstate(MemoryAllocator, this)),
+	LuaState(nullptr),
 	m_memoryLimit(0),
 	m_memoryUsage(0),
 	m_timeLimit(1000),
