@@ -40,7 +40,7 @@ namespace Ndk
 			application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 			#endif
 
-			application.BindMethod("AddWorld", [] (Nz::LuaInstance& lua, Application* instance, std::size_t /*argumentCount*/) -> int
+			application.BindMethod("AddWorld", [] (Nz::LuaState& lua, Application* instance, std::size_t /*argumentCount*/) -> int
 			{
 				lua.Push(instance->AddWorld().CreateHandle());
 				return 1;
@@ -94,23 +94,23 @@ namespace Ndk
 			entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
 			entity.BindMethod("__tostring", &EntityHandle::ToString);
 
-			entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("AddComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
-				return bindingComponent->adder(instance, handle);
+				return bindingComponent->adder(state, handle);
 			});
 
-			entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("GetComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
-				return bindingComponent->getter(instance, handle->GetComponent(bindingComponent->index));
+				return bindingComponent->getter(state, handle->GetComponent(bindingComponent->index));
 			});
 
-			entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("RemoveComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
 				handle->RemoveComponent(bindingComponent->index);
 				return 0;
@@ -129,7 +129,7 @@ namespace Ndk
 		/*********************************** Ndk::VelocityComponent **********************************/
 		velocityComponent.Reset("VelocityComponent");
 		{
-			velocityComponent.SetGetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+			velocityComponent.SetGetter([] (Nz::LuaState& lua, VelocityComponentHandle& instance)
 			{
 				std::size_t length;
 				const char* member = lua.CheckString(2, &length);
@@ -143,7 +143,7 @@ namespace Ndk
 				return false;
 			});
 
-			velocityComponent.SetSetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+			velocityComponent.SetSetter([] (Nz::LuaState& lua, VelocityComponentHandle& instance)
 			{
 				std::size_t length;
 				const char* member = lua.CheckString(2, &length);
@@ -193,7 +193,7 @@ namespace Ndk
 		/*********************************** Ndk::GraphicsComponent **********************************/
 		graphicsComponent.Reset("GraphicsComponent");
 		{
-			graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
+			graphicsComponent.BindMethod("Attach", [] (Nz::LuaState& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
 			{
 				/*
 				void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
@@ -267,19 +267,19 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the SDK classes
 	*/
-	void LuaBinding_SDK::Register(Nz::LuaInstance& instance)
+	void LuaBinding_SDK::Register(Nz::LuaState& state)
 	{
 		// Classes
-		application.Register(instance);
-		entity.Register(instance);
-		nodeComponent.Register(instance);
-		velocityComponent.Register(instance);
-		world.Register(instance);
+		application.Register(state);
+		entity.Register(state);
+		nodeComponent.Register(state);
+		velocityComponent.Register(state);
+		world.Register(state);
 
 		#ifndef NDK_SERVER
-		cameraComponent.Register(instance);
-		console.Register(instance);
-		graphicsComponent.Register(instance);
+		cameraComponent.Register(state);
+		console.Register(state);
+		graphicsComponent.Register(state);
 		#endif
 
 		// Enums
@@ -292,23 +292,23 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the component
 	* \param argIndex Index of the component
 	*/
-	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaInstance& instance, int argIndex)
+	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaState& state, int argIndex)
 	{
-		switch (instance.GetType(argIndex))
+		switch (state.GetType(argIndex))
 		{
 			case Nz::LuaType_Number:
 			{
-				ComponentIndex componentIndex = instance.Check<ComponentIndex>(&argIndex);
+				ComponentIndex componentIndex = state.Check<ComponentIndex>(&argIndex);
 				if (componentIndex > m_componentBinding.size())
 				{
-					instance.Error("Invalid component index");
+					state.Error("Invalid component index");
 					return nullptr;
 				}
 
 				ComponentBinding& binding = m_componentBinding[componentIndex];
 				if (binding.name.IsEmpty())
 				{
-					instance.Error("Invalid component index");
+					state.Error("Invalid component index");
 					return nullptr;
 				}
 
@@ -317,11 +317,11 @@ namespace Ndk
 
 			case Nz::LuaType_String:
 			{
-				const char* key = instance.CheckString(argIndex);
+				const char* key = state.CheckString(argIndex);
 				auto it = m_componentBindingByName.find(key);
 				if (it == m_componentBindingByName.end())
 				{
-					instance.Error("Invalid component name");
+					state.Error("Invalid component name");
 					return nullptr;
 				}
 
@@ -332,7 +332,7 @@ namespace Ndk
 				break;
 		}
 
-		instance.Error("Invalid component index at #" + Nz::String::Number(argIndex));
+		state.Error("Invalid component index at #" + Nz::String::Number(argIndex));
 		return nullptr;
 	}
 }
