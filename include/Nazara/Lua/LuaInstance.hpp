@@ -16,6 +16,7 @@ namespace Nz
 {
 	class NAZARA_LUA_API LuaInstance : public LuaState
 	{
+		friend class LuaCoroutine;
 		friend class LuaState;
 
 		public:

@@ -12,6 +12,7 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Lua/LuaCoroutine.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <cstdlib>
 #include <stdexcept>
@@ -127,7 +128,6 @@ namespace Nz
 
 	LuaState::LuaState(LuaState&& state) noexcept :
 	m_lastError(state.m_lastError),
-	m_instance(state.m_instance),
 	m_state(state.m_state)
 	{
 	}
@@ -570,6 +570,14 @@ namespace Nz
 		lua_xmove(m_state, instance->m_state, n);
 	}
 
+	LuaCoroutine LuaState::NewCoroutine()
+	{
+		lua_State* thread = lua_newthread(m_state);
+		int ref = luaL_ref(m_state, LUA_REGISTRYINDEX);
+
+		return LuaCoroutine(thread, ref);
+	}
+
 	bool LuaState::NewMetatable(const char* str)
 	{
 		return luaL_newmetatable(m_state, str) != 0;
@@ -783,7 +791,6 @@ namespace Nz
 
 	LuaState& LuaState::operator=(LuaState&& state) noexcept
 	{
-		m_instance = state.m_instance;
 		m_lastError = std::move(state.m_lastError);
 		m_state = state.m_state;
 
@@ -792,12 +799,14 @@ namespace Nz
 
 	bool LuaState::Run(int argCount, int resultCount)
 	{
-		if (m_instance->m_level++ == 0)
-			m_instance->m_clock.Restart();
+		LuaInstance& instance = GetInstance(m_state);
+
+		if (instance.m_level++ == 0)
+			instance.m_clock.Restart();
 
 		int status = lua_pcall(m_state, argCount, resultCount, 0);
 
-		m_instance->m_level--;
+		instance.m_level--;
 
 		if (status != 0)
 		{
@@ -815,12 +824,12 @@ namespace Nz
 		return lua_upvalueindex(upValue);
 	}
 
-	LuaState LuaState::GetState(lua_State* internalState)
+	LuaInstance& LuaState::GetInstance(lua_State* internalState)
 	{
 		LuaInstance* instance;
 		lua_getallocf(internalState, reinterpret_cast<void**>(&instance));
 
-		return LuaState(instance, internalState);
+		return *instance;
 	}
 
 	int LuaState::ProxyFunc(lua_State* internalState)

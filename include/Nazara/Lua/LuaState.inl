@@ -15,8 +15,7 @@
 
 namespace Nz
 {
-	inline LuaState::LuaState(LuaInstance* instance, lua_State* internalState) :
-	m_instance(instance),
+	inline LuaState::LuaState(lua_State* internalState) :
 	m_state(internalState)
 	{
 	}
@@ -784,5 +783,10 @@ namespace Nz
 		}
 
 		return static_cast<T>(value);
+	}
+
+	inline LuaState LuaState::GetState(lua_State* internalState)
+	{
+		return LuaState(internalState);
 	}
 }

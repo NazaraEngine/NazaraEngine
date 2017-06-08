@@ -21,6 +21,7 @@ struct lua_State;
 
 namespace Nz
 {
+	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
 
@@ -115,6 +116,7 @@ namespace Nz
 
 			void MoveTo(LuaState* instance, int n) const;
 
+			LuaCoroutine NewCoroutine();
 			bool NewMetatable(const char* str);
 			bool NewMetatable(const String& str);
 			bool Next(int index = -2) const;
@@ -158,10 +160,8 @@ namespace Nz
 			void SetMetatable(const char* tname) const;
 			void SetMetatable(const String& tname) const;
 			void SetMetatable(int index) const;
-			void SetMemoryLimit(std::size_t memoryLimit);
 			void SetTable(int index = -3) const;
 			void SetTableRaw(int index = -3) const;
-			void SetTimeLimit(UInt32 timeLimit);
 
 			bool ToBoolean(int index) const;
 			long long ToInteger(int index, bool* succeeded = nullptr) const;
@@ -176,18 +176,18 @@ namespace Nz
 			LuaState& operator=(LuaState&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
-			static LuaState GetState(lua_State* internalState);
+			static LuaInstance& GetInstance(lua_State* internalState);
+			static inline LuaState GetState(lua_State* internalState);
 
 		protected:
-			LuaState(LuaInstance* instance, lua_State* internalState);
+			LuaState(lua_State* internalState);
 
 			template<typename T> T CheckBounds(int index, long long value) const;
-			bool Run(int argCount, int resultCount);
+			virtual bool Run(int argCount, int resultCount);
 
 			static int ProxyFunc(lua_State* internalState);
 
 			String m_lastError;
-			LuaInstance* m_instance;
 			lua_State* m_state;
 	};
 }
