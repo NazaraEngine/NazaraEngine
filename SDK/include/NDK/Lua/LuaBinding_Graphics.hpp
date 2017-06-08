@@ -22,7 +22,7 @@ namespace Ndk
 			LuaBinding_Graphics(LuaBinding& binding);
 			~LuaBinding_Graphics() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::AbstractViewer> abstractViewer;
 			Nz::LuaClass<Nz::InstancedRenderableRef> instancedRenderable;

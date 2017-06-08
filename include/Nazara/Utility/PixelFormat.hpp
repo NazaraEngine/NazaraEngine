@@ -65,7 +65,7 @@ namespace Nz
 			static inline bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* src, void* dst);
 			static inline bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* start, const void* end, void* dst);
 
-			static inline bool Flip(PixelFlipping flipping, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
+			static bool Flip(PixelFlipping flipping, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
 			static inline UInt8 GetBitsPerPixel(PixelFormatType format);
 			static inline PixelFormatContent GetContent(PixelFormatType format);
