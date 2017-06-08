@@ -39,6 +39,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Lua/LuaInstance.inl>
+#include <Nazara/Lua/LuaCoroutine.inl>
 
 #endif // NAZARA_LUACOROUTINE_HPP
