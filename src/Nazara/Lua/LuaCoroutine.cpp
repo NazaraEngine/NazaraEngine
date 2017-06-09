@@ -6,6 +6,7 @@
 #include <Lua/lauxlib.h>
 #include <Lua/lua.h>
 #include <Lua/lualib.h>
+#include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
