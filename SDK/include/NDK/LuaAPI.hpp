@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	class LuaInstance;
+	class LuaState;
 }
 
 namespace Ndk
@@ -28,7 +28,7 @@ namespace Ndk
 
 			static bool Initialize();
 
-			static void RegisterClasses(Nz::LuaInstance& instance);
+			static void RegisterClasses(Nz::LuaState& state);
 
 			static void Uninitialize();
 

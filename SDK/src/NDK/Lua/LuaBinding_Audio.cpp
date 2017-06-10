@@ -77,7 +77,7 @@ namespace Ndk
 			music.BindMethod("Stop", &Nz::Music::Stop);
 
 			// Manual
-			music.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Music& instance, std::size_t /*argumentCount*/) -> int
+			music.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Music& instance, std::size_t /*argumentCount*/) -> int
 			{
 				Nz::StringStream ss("Music(");
 				ss << instance.GetFilePath() << ')';
@@ -104,7 +104,7 @@ namespace Ndk
 			sound.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 
 			// Manual
-			sound.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::Sound& instance, std::size_t /*argumentCount*/) -> int
+			sound.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Sound& instance, std::size_t /*argumentCount*/) -> int
 			{
 				Nz::StringStream ss("Sound(");
 				if (const Nz::SoundBuffer* buffer = instance.GetBuffer())
@@ -120,7 +120,7 @@ namespace Ndk
 		/*********************************** Nz::SoundBuffer **********************************/
 		soundBuffer.Reset("SoundBuffer");
 		{
-			soundBuffer.SetConstructor([] (Nz::LuaInstance& lua, Nz::SoundBufferRef* instance, std::size_t argumentCount)
+			soundBuffer.SetConstructor([] (Nz::LuaState& lua, Nz::SoundBufferRef* instance, std::size_t argumentCount)
 			{
 				NazaraUnused(lua);
 				NazaraUnused(argumentCount);
@@ -143,7 +143,7 @@ namespace Ndk
 			soundBuffer.BindStaticMethod("IsFormatSupported", &Nz::SoundBuffer::IsFormatSupported);
 
 			// Manual
-			soundBuffer.BindMethod("Create", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
+			soundBuffer.BindMethod("Create", [] (Nz::LuaState& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int index = 2;
 				Nz::AudioFormat format = lua.Check<Nz::AudioFormat>(&index);
@@ -158,13 +158,13 @@ namespace Ndk
 				return 1;
 			});
 
-			soundBuffer.BindMethod("GetSamples", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
+			soundBuffer.BindMethod("GetSamples", [] (Nz::LuaState& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				lua.PushString(reinterpret_cast<const char*>(instance->GetSamples()), instance->GetSampleCount() * sizeof(Nz::Int16));
 				return 1;
 			});
 
-			soundBuffer.BindMethod("__tostring", [] (Nz::LuaInstance& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
+			soundBuffer.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::SoundBufferRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				Nz::StringStream ss("SoundBuffer(");
 				if (instance->IsValid())
@@ -188,11 +188,11 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the Audio classes
 	*/
-	void LuaBinding_Audio::Register(Nz::LuaInstance& instance)
+	void LuaBinding_Audio::Register(Nz::LuaState& state)
 	{
-		music.Register(instance);
-		sound.Register(instance);
-		soundBuffer.Register(instance);
-		soundEmitter.Register(instance);
+		music.Register(state);
+		sound.Register(state);
+		soundBuffer.Register(state);
+		soundEmitter.Register(state);
 	}
 }

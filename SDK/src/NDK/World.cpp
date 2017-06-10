@@ -119,6 +119,7 @@ namespace Ndk
 		// This is made to avoid that handle warn uselessly entities before their destruction
 		m_entities.clear();
 		m_entityBlocks.clear();
+		m_waitingEntities.clear();
 
 		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
@@ -152,7 +153,7 @@ namespace Ndk
 			clone->AddComponent(std::move(component));
 		}
 
-		return GetEntity(clone->GetId());
+		return clone;
 	}
 
 	/*!

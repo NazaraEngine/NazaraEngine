@@ -33,10 +33,10 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the world
 	*/
 
-	Console::Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance) :
+	Console::Console(World& world, const Nz::Vector2f& size, Nz::LuaState& state) :
 	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
-	m_instance(instance),
+	m_state(state),
 	m_size(size),
 	m_opened(false),
 	m_characterSize(24)
@@ -310,8 +310,8 @@ namespace Ndk
 
 		AddLineInternal(input); //< With the input prefix
 
-		if (!m_instance.Execute(inputCmd))
-			AddLineInternal(m_instance.GetLastError(), Nz::Color::Red);
+		if (!m_state.Execute(inputCmd))
+			AddLineInternal(m_state.GetLastError(), Nz::Color::Red);
 
 		RefreshHistory();
 	}

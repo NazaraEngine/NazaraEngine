@@ -24,13 +24,13 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 		WHEN("We add Float '3.f'")
 		{
-			float fl = 3.f;
-			parameterList.SetParameter("float", fl);
+			double fl = 3.f;
+			parameterList.SetParameter("double", fl);
 
 			THEN("We can get it back")
 			{
-				float newFl;
-				REQUIRE(parameterList.GetFloatParameter("float", &newFl));
+				double newFl;
+				REQUIRE(parameterList.GetDoubleParameter("double", &newFl));
 				REQUIRE(newFl == fl);
 			}
 		}

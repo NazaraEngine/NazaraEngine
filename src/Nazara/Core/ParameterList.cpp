@@ -95,7 +95,7 @@ namespace Nz
 			}
 
 			case ParameterType_Color:
-			case ParameterType_Float:
+			case ParameterType_Double:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -137,9 +137,9 @@ namespace Nz
 				return true;
 
 			case ParameterType_Boolean:
+			case ParameterType_Double:
 			case ParameterType_Integer:
 			case ParameterType_String:
-			case ParameterType_Float:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -151,19 +151,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a parameter as a float
-	* \return true if the parameter could be represented as a float
+	* \brief Gets a parameter as a double
+	* \return true if the parameter could be represented as a double
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a float to hold the retrieved value
+	* \param value Pointer to a double to hold the retrieved value
 	*
 	* \remark value must be a valid pointer
 	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a float, a conversion will be performed, compatibles types are:
-	          Integer: The integer value is converted to its float representation
+	* \remark If the parameter is not a double, a conversion will be performed, compatibles types are:
+	          Integer: The integer value is converted to its double representation
 	          String:  Conversion obeys the rule as described by String::ToDouble
 	*/
-	bool ParameterList::GetFloatParameter(const String& name, float* value) const
+	bool ParameterList::GetDoubleParameter(const String& name, double* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -178,12 +178,12 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Float:
-				*value = it->second.value.floatVal;
+			case ParameterType_Double:
+				*value = it->second.value.doubleVal;
 				return true;
 
 			case ParameterType_Integer:
-				*value = static_cast<float>(it->second.value.intVal);
+				*value = static_cast<double>(it->second.value.intVal);
 				return true;
 
 			case ParameterType_String:
@@ -191,7 +191,7 @@ namespace Nz
 					double converted;
 					if (it->second.value.stringVal.ToDouble(&converted))
 					{
-						*value = static_cast<float>(converted);
+						*value = converted;
 						return true;
 					}
 
@@ -206,7 +206,7 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a float");
+		NazaraError("Parameter value is not representable as a double");
 		return false;
 	}
 
@@ -219,12 +219,12 @@ namespace Nz
 	*
 	* \remark value must be a valid pointer
 	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a float, a conversion will be performed, compatibles types are:
+	* \remark If the parameter is not an integer, a conversion will be performed, compatibles types are:
 	          Boolean: The boolean is represented as 1 if true and 0 if false
-	          Float:   The floating-point value is truncated and converted to a integer
-	          String:  Conversion obeys the rule as described by String::ToInteger but fails if the value could not be represented as a int
+	          Double:  The floating-point value is truncated and converted to a integer
+	          String:  Conversion obeys the rule as described by String::ToInteger
 	*/
-	bool ParameterList::GetIntegerParameter(const String& name, int* value) const
+	bool ParameterList::GetIntegerParameter(const String& name, long long* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -243,8 +243,8 @@ namespace Nz
 				*value = (it->second.value.boolVal) ? 1 : 0;
 				return true;
 
-			case ParameterType_Float:
-				*value = static_cast<int>(it->second.value.floatVal);
+			case ParameterType_Double:
+				*value = static_cast<long long>(it->second.value.doubleVal);
 				return true;
 
 			case ParameterType_Integer:
@@ -256,11 +256,8 @@ namespace Nz
 					long long converted;
 					if (it->second.value.stringVal.ToInteger(&converted))
 					{
-						if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
-						{
-							*value = static_cast<int>(converted);
-							return true;
-						}
+						*value = converted;
+						return true;
 					}
 					break;
 				}
@@ -335,7 +332,7 @@ namespace Nz
 
 			case ParameterType_Boolean:
 			case ParameterType_Color:
-			case ParameterType_Float:
+			case ParameterType_Double:
 			case ParameterType_Integer:
 			case ParameterType_None:
 			case ParameterType_String:
@@ -358,7 +355,7 @@ namespace Nz
 	* \remark If the parameter is not a string, a conversion will be performed, all types are compatibles:
 	          Boolean:  Conversion obeys the rules of String::Boolean
 	          Color:    Conversion obeys the rules of Color::ToString
-	          Float:    Conversion obeys the rules of String::Number
+	          Double:   Conversion obeys the rules of String::Number
 	          Integer:  Conversion obeys the rules of String::Number
 	          None:     An empty string is returned
 	          Pointer:  Conversion obeys the rules of String::Pointer
@@ -387,8 +384,8 @@ namespace Nz
 				*value = it->second.value.colorVal.ToString();
 				return true;
 
-			case ParameterType_Float:
-				*value = String::Number(it->second.value.floatVal);
+			case ParameterType_Double:
+				*value = String::Number(it->second.value.doubleVal);
 				return true;
 
 			case ParameterType_Integer:
@@ -560,18 +557,18 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets a float parameter named `name`
+	* \brief Sets a double parameter named `name`
 	*
 	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value The float value
+	* \param value The double value
 	*/
-	void ParameterList::SetParameter(const String& name, float value)
+	void ParameterList::SetParameter(const String& name, double value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Float;
-		parameter.value.floatVal = value;
+		parameter.type = ParameterType_Double;
+		parameter.value.doubleVal = value;
 	}
 
 	/*!
@@ -582,7 +579,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The integer value
 	*/
-	void ParameterList::SetParameter(const String& name, int value)
+	void ParameterList::SetParameter(const String& name, long long value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Integer;
@@ -627,8 +624,8 @@ namespace Nz
 				case ParameterType_Color:
 					ss << "Color(" << it->second.value.colorVal.ToString() << ")";
 					break;
-				case ParameterType_Float:
-					ss << "Float(" << it->second.value.floatVal << ")";
+				case ParameterType_Double:
+					ss << "Double(" << it->second.value.doubleVal << ")";
 					break;
 				case ParameterType_Integer:
 					ss << "Integer(" << it->second.value.intVal << ")";
@@ -692,7 +689,7 @@ namespace Nz
 			{
 				case ParameterType_Boolean:
 				case ParameterType_Color:
-				case ParameterType_Float:
+				case ParameterType_Double:
 				case ParameterType_Integer:
 				case ParameterType_Pointer:
 					std::memcpy(&parameter, &it->second, sizeof(Parameter));
@@ -764,7 +761,7 @@ namespace Nz
 
 			case ParameterType_Boolean:
 			case ParameterType_Color:
-			case ParameterType_Float:
+			case ParameterType_Double:
 			case ParameterType_Integer:
 			case ParameterType_None:
 			case ParameterType_Pointer:

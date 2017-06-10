@@ -17,14 +17,17 @@
 namespace Ndk
 {
 	class BaseComponent;
+	class BaseSystem;
 	class Entity;
+	class EntityList;
 	class World;
 
 	using EntityHandle = Nz::ObjectHandle<Entity>;
 
 	class NDK_API Entity : public Nz::HandledObject<Entity>
 	{
-		friend class BaseSystem;
+		friend BaseSystem;
+		friend EntityList;
 		friend World;
 
 		public:
@@ -78,13 +81,16 @@ namespace Ndk
 
 			inline Nz::Bitset<>& GetRemovedComponentBits();
 
+			inline void RegisterEntityList(EntityList* list);
 			inline void RegisterSystem(SystemIndex index);
 
 			inline void SetWorld(World* world) noexcept;
 
+			inline void UnregisterEntityList(EntityList* list);
 			inline void UnregisterSystem(SystemIndex index);
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
+			std::vector<EntityList*> m_containedInLists;
 			Nz::Bitset<> m_componentBits;
 			Nz::Bitset<> m_removedComponentBits;
 			Nz::Bitset<> m_systemBits;

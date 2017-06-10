@@ -155,7 +155,9 @@ namespace Nz
 	{
 		InitStream(HeaderSize + size, HeaderSize, OpenMode_ReadOnly);
 		m_buffer->Resize(HeaderSize + size);
-		std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
+
+		if (ptr)
+			std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
 
 		m_netCode = netCode;
 	}

@@ -21,7 +21,7 @@ namespace Ndk
 			LuaBinding_Audio(LuaBinding& binding);
 			~LuaBinding_Audio() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::Music> music;
 			Nz::LuaClass<Nz::Sound> sound;

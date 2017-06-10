@@ -21,7 +21,7 @@ namespace Ndk
 			LuaBinding_Utility(LuaBinding& binding);
 			~LuaBinding_Utility() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			// Utility
 			Nz::LuaClass<Nz::AbstractImageRef> abstractImage;
