@@ -84,7 +84,7 @@ namespace Ndk
 		}
 
 		/*********************************** Nz::TextureManager ***********************************/
-		textureManager.Reset("textureManager");
+		textureManager.Reset("TextureManager");
 		{
 			textureManager.BindStaticMethod("Clear", &Nz::TextureManager::Clear);
 			textureManager.BindStaticMethod("Get", &Nz::TextureManager::Get);
