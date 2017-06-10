@@ -12,6 +12,7 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/StringStream.hpp>
+#include <cassert>
 #include <cstdlib>
 #include <stdexcept>
 #include <unordered_map>
@@ -48,15 +49,22 @@ namespace Nz
 			lua_close(m_state);
 	}
 
+	inline void LuaInstance::SetMemoryUsage(std::size_t memoryUsage)
+	{
+		m_memoryUsage = memoryUsage;
+	}
+
 	void* LuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std::size_t nsize)
 	{
 		LuaInstance* instance = static_cast<LuaInstance*>(ud);
-		std::size_t& memoryLimit = instance->m_memoryLimit;
-		std::size_t& memoryUsage = instance->m_memoryUsage;
+		std::size_t memoryLimit = instance->GetMemoryLimit();
+		std::size_t memoryUsage = instance->GetMemoryUsage();
 
 		if (nsize == 0)
 		{
-			memoryUsage -= osize;
+			assert(memoryUsage >= osize);
+
+			instance->SetMemoryUsage(memoryUsage - osize);
 			std::free(ptr);
 
 			return nullptr;
@@ -73,7 +81,7 @@ namespace Nz
 				return nullptr;
 			}
 
-			memoryUsage = usage;
+			instance->SetMemoryUsage(usage);
 
 			return std::realloc(ptr, nsize);
 		}
@@ -86,7 +94,7 @@ namespace Nz
 		LuaInstance* instance;
 		lua_getallocf(internalState, reinterpret_cast<void**>(&instance));
 
-		if (instance->m_clock.GetMilliseconds() > instance->m_timeLimit)
+		if (instance->m_clock.GetMilliseconds() > instance->GetTimeLimit())
 			luaL_error(internalState, "maximum execution time exceeded");
 	}
 }
