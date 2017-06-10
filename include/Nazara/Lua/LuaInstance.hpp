@@ -25,10 +25,19 @@ namespace Nz
 			LuaInstance(LuaInstance&& instance) = default;
 			~LuaInstance();
 
+			inline std::size_t GetMemoryLimit() const;
+			inline std::size_t GetMemoryUsage() const;
+			inline UInt32 GetTimeLimit() const;
+
+			inline void SetMemoryLimit(std::size_t memoryLimit);
+			inline void SetTimeLimit(UInt32 limit);
+
 			LuaInstance& operator=(const LuaInstance&) = delete;
 			LuaInstance& operator=(LuaInstance&& instance) = default;
 
 		private:
+			inline void SetMemoryUsage(std::size_t memoryUsage);
+
 			static void* MemoryAllocator(void *ud, void *ptr, std::size_t osize, std::size_t nsize);
 			static void TimeLimiter(lua_State* internalState, lua_Debug* debug);
 
