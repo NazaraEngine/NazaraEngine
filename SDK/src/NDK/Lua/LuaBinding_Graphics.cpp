@@ -32,7 +32,7 @@ namespace Ndk
 		/*********************************** Nz::InstancedRenderable ***********************************/
 		instancedRenderable.Reset("InstancedRenderable");
 		{
-			instancedRenderable.BindMethod("GetMaterial", [] (Nz::LuaInstance& lua, Nz::InstancedRenderable* instance, std::size_t argumentCount) -> int
+			instancedRenderable.BindMethod("GetMaterial", [] (Nz::LuaState& lua, Nz::InstancedRenderable* instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 				switch (argCount)
@@ -309,7 +309,7 @@ namespace Ndk
 			model.BindMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
 
 
-			model.BindMethod("SetMaterial", [] (Nz::LuaInstance& lua, Nz::Model* instance, std::size_t argumentCount) -> int
+			model.BindMethod("SetMaterial", [] (Nz::LuaState& lua, Nz::Model* instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 3U);
 				switch (argCount)
