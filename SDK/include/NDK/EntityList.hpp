@@ -59,11 +59,11 @@ namespace Ndk
 		friend EntityList;
 
 		public:
-			inline iterator(const iterator& iterator);
+			inline iterator(const iterator& it);
 
 			const EntityHandle& operator*() const;
 
-			inline iterator& operator=(const iterator& iterator);
+			inline iterator& operator=(const iterator& it);
 			inline iterator& operator++();
 			inline iterator operator++(int);
 
