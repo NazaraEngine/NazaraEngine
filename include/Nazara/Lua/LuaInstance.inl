@@ -3,16 +3,34 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Lua/LuaInstance.hpp>
-#include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/Flags.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
-#include <Nazara/Core/StringStream.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <limits>
-#include <string>
-#include <vector>
-#include <type_traits>
+#include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
 {
+	inline std::size_t LuaInstance::GetMemoryLimit() const
+	{
+		return m_memoryLimit;
+	}
+
+	inline std::size_t LuaInstance::GetMemoryUsage() const
+	{
+		return m_memoryUsage;
+	}
+
+	inline UInt32 LuaInstance::GetTimeLimit() const
+	{
+		return m_timeLimit;
+	}
+
+	inline void LuaInstance::SetMemoryLimit(std::size_t memoryLimit)
+	{
+		m_memoryLimit = m_memoryLimit;
+	}
+
+	inline void LuaInstance::SetTimeLimit(UInt32 limit)
+	{
+		m_timeLimit = limit;
+	}
 }
+
+#include <Nazara/Lua/DebugOff.hpp>
