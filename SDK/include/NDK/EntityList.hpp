@@ -15,6 +15,8 @@ namespace Ndk
 {
 	class NDK_API EntityList
 	{
+		friend Entity;
+
 		public:
 			class iterator;
 			friend iterator;
@@ -23,7 +25,7 @@ namespace Ndk
 			inline EntityList();
 			inline EntityList(const EntityList& entityList);
 			inline EntityList(EntityList&& entityList) noexcept;
-			~EntityList() = default;
+			inline ~EntityList();
 
 			inline void Clear();
 
@@ -46,6 +48,7 @@ namespace Ndk
 		private:
 			inline std::size_t FindNext(std::size_t currentId) const;
 			inline World* GetWorld() const;
+			inline void NotifyEntityDestruction(const Entity* entity);
 
 			Nz::Bitset<Nz::UInt64> m_entityBits;
 			World* m_world;
@@ -56,11 +59,11 @@ namespace Ndk
 		friend EntityList;
 
 		public:
-			inline iterator(const iterator& iterator);
+			inline iterator(const iterator& it);
 
 			const EntityHandle& operator*() const;
 
-			inline iterator& operator=(const iterator& iterator);
+			inline iterator& operator=(const iterator& it);
 			inline iterator& operator++();
 			inline iterator operator++(int);
 

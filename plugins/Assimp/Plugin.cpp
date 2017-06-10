@@ -108,21 +108,21 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
 
-	float smoothingAngle = 80.f;
-	parameters.custom.GetFloatParameter("AssimpLoader_SmoothingAngle", &smoothingAngle);
+	double smoothingAngle = 80.f;
+	parameters.custom.GetDoubleParameter("AssimpLoader_SmoothingAngle", &smoothingAngle);
 
-	int triangleLimit = 1'000'000;
+	long long triangleLimit = 1'000'000;
 	parameters.custom.GetIntegerParameter("AssimpLoader_TriangleLimit", &triangleLimit);
 
-	int vertexLimit   = 1'000'000;
+	long long vertexLimit   = 1'000'000;
 	parameters.custom.GetIntegerParameter("AssimpLoader_VertexLimit", &vertexLimit);
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
-	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, smoothingAngle);
+	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      triangleLimit);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        vertexLimit);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      int(triangleLimit));
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        int(vertexLimit));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               aiComponent_COLORS);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
@@ -276,7 +276,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 										break;
 								}
 
-								matData.SetParameter(wrapKey, static_cast<int>(wrap));
+								matData.SetParameter(wrapKey, static_cast<long long>(wrap));
 							}
 						}
 					};

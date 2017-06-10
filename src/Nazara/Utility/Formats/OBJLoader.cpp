@@ -124,8 +124,8 @@ namespace Nz
 						// Some default settings
 						data.SetParameter(MaterialData::Blending, true);
 						data.SetParameter(MaterialData::DepthWrite, true);
-						data.SetParameter(MaterialData::DstBlend, static_cast<int>(BlendFunc_InvSrcAlpha));
-						data.SetParameter(MaterialData::SrcBlend, static_cast<int>(BlendFunc_SrcAlpha));
+						data.SetParameter(MaterialData::DstBlend, static_cast<long long>(BlendFunc_InvSrcAlpha));
+						data.SetParameter(MaterialData::SrcBlend, static_cast<long long>(BlendFunc_SrcAlpha));
 					}
 
 					it = materialCache.emplace(matName, std::move(data)).first;
@@ -139,7 +139,7 @@ namespace Nz
 
 		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		{
-			int reservedVertexCount;
+			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
 				reservedVertexCount = 100;
 

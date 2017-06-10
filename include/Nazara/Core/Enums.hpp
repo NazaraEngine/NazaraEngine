@@ -105,7 +105,7 @@ namespace Nz
 	{
 		ParameterType_Boolean,
 		ParameterType_Color,
-		ParameterType_Float,
+		ParameterType_Double,
 		ParameterType_Integer,
 		ParameterType_None,
 		ParameterType_Pointer,

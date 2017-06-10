@@ -5,7 +5,6 @@
 #include <NDK/EntityList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
-#include "EntityList.hpp"
 
 namespace Ndk
 {
@@ -30,6 +29,8 @@ namespace Ndk
 	m_entityBits(entityList.m_entityBits),
 	m_world(entityList.m_world)
 	{
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->RegisterEntityList(this);
 	}
 
 	/*!
@@ -39,6 +40,17 @@ namespace Ndk
 	m_entityBits(std::move(entityList.m_entityBits)),
 	m_world(entityList.m_world)
 	{
+		for (const Ndk::EntityHandle& entity : *this)
+		{
+			entity->UnregisterEntityList(&entityList);
+			entity->RegisterEntityList(this);
+		}
+	}
+
+	inline EntityList::~EntityList()
+	{
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
 	}
 
 
@@ -49,6 +61,9 @@ namespace Ndk
 	*/
 	inline void EntityList::Clear()
 	{
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
+
 		m_entityBits.Clear();
 		m_world = nullptr;
 	}
@@ -88,15 +103,18 @@ namespace Ndk
 	*
 	* \remark If entity is already contained, no action is performed
 	* \remark If any entity has been inserted since construction (or last Clear call), the entity must belong to the same world as the previously inserted entities
-	* \remark It's up to the programmer to remove an entity from this list before its deletion
 	*/
 	inline void EntityList::Insert(Entity* entity)
 	{
 		NazaraAssert(entity, "Invalid entity");
-		NazaraAssert(!m_world || entity->GetWorld() == m_world, "Incompatible world");
 
-		m_entityBits.UnboundedSet(entity->GetId(), true);
-		m_world = entity->GetWorld();
+		if (!Has(entity))
+		{
+			entity->RegisterEntityList(this);
+
+			m_entityBits.UnboundedSet(entity->GetId(), true);
+			m_world = entity->GetWorld();
+		}
 	}
 
 	/*!
@@ -111,7 +129,12 @@ namespace Ndk
 	*/
 	inline void EntityList::Remove(Entity* entity)
 	{
-		m_entityBits.UnboundedSet(entity->GetId(), false);
+		if (Has(entity))
+		{
+			m_entityBits.Reset(entity->GetId());
+
+			entity->UnregisterEntityList(this);
+		}
 	}
 
 	// STL Interface
@@ -140,13 +163,22 @@ namespace Ndk
 		m_entityBits = entityList.m_entityBits;
 		m_world = entityList.m_world;
 
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->RegisterEntityList(this);
+
 		return *this;
 	}
 
-	inline EntityList& EntityList::operator=(EntityList && entityList) noexcept
+	inline EntityList& EntityList::operator=(EntityList&& entityList) noexcept
 	{
 		m_entityBits = std::move(entityList.m_entityBits);
 		m_world = entityList.m_world;
+
+		for (const Ndk::EntityHandle& entity : *this)
+		{
+			entity->UnregisterEntityList(&entityList);
+			entity->RegisterEntityList(this);
+		}
 
 		return *this;
 	}
@@ -161,6 +193,13 @@ namespace Ndk
 		return m_world;
 	}
 
+	inline void EntityList::NotifyEntityDestruction(const Entity* entity)
+	{
+		assert(Has(entity));
+
+		m_entityBits.Reset(entity->GetId());
+	}
+
 
 	inline EntityList::iterator::iterator(const EntityList* list, std::size_t nextId) :
 	m_nextEntityId(nextId),
@@ -168,16 +207,16 @@ namespace Ndk
 	{
 	}
 
-	inline EntityList::iterator::iterator(const iterator& iterator) :
-	m_nextEntityId(iterator.m_nextEntityId),
-	m_list(iterator.m_list)
+	inline EntityList::iterator::iterator(const iterator& it) :
+	m_nextEntityId(it.m_nextEntityId),
+	m_list(it.m_list)
 	{
 	}
 
-	inline EntityList::iterator& EntityList::iterator::operator=(const iterator& iterator)
+	inline EntityList::iterator& EntityList::iterator::operator=(const iterator& it)
 	{
-		m_nextEntityId = iterator.m_nextEntityId;
-		m_list = iterator.m_list;
+		m_nextEntityId = it.m_nextEntityId;
+		m_list = it.m_list;
 
 		return *this;
 	}
@@ -216,6 +255,6 @@ namespace Ndk
 
 		using std::swap;
 
-		std::swap(lhs.m_nextEntityId, rhs.m_nextEntityId);
+		swap(lhs.m_nextEntityId, rhs.m_nextEntityId);
 	}
 }

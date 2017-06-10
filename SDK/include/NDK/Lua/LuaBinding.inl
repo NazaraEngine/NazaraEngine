@@ -33,7 +33,7 @@ namespace Ndk
 	}
 
 	template<typename T>
-	int LuaBinding::AddComponentOfType(Nz::LuaInstance& lua, EntityHandle& handle)
+	int LuaBinding::AddComponentOfType(Nz::LuaState& lua, EntityHandle& handle)
 	{
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 
@@ -43,7 +43,7 @@ namespace Ndk
 	}
 
 	template<typename T>
-	int LuaBinding::PushComponentOfType(Nz::LuaInstance& lua, BaseComponent& component)
+	int LuaBinding::PushComponentOfType(Nz::LuaState& lua, BaseComponent& component)
 	{
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 

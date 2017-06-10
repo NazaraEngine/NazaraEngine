@@ -34,6 +34,7 @@
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Network.hpp>
 #include <Nazara/Network/RUdpConnection.hpp>

@@ -71,7 +71,7 @@ namespace Ndk
 		/*********************************** Nz::Material ***********************************/
 		material.Reset("Material");
 		{
-			material.SetConstructor([] (Nz::LuaInstance& lua, Nz::MaterialRef* instance, std::size_t argumentCount)
+			material.SetConstructor([] (Nz::LuaState& lua, Nz::MaterialRef* instance, std::size_t argumentCount)
 			{
 				switch (argumentCount)
 				{
@@ -104,7 +104,7 @@ namespace Ndk
 				return false;
 			});
 
-			material.BindMethod("Configure", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("Configure", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "MaterialPipeline"))
@@ -204,7 +204,7 @@ namespace Ndk
 
 			material.BindStaticMethod("GetDefault", &Nz::Material::GetDefault);
 
-			material.BindMethod("SetAlphaMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetAlphaMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -216,7 +216,7 @@ namespace Ndk
 					return lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetDiffuseMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetDiffuseMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -228,7 +228,7 @@ namespace Ndk
 					return lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetEmissiveMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetEmissiveMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -240,7 +240,7 @@ namespace Ndk
 					return lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetHeightMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetHeightMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -252,7 +252,7 @@ namespace Ndk
 					return lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetNormalMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetNormalMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -264,7 +264,7 @@ namespace Ndk
 					return lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetShader", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetShader", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "UberShader"))
@@ -276,7 +276,7 @@ namespace Ndk
 					return lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
 			});
 
-			material.BindMethod("SetSpecularMap", [] (Nz::LuaInstance& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
+			material.BindMethod("SetSpecularMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -297,7 +297,7 @@ namespace Ndk
 				return reinterpret_cast<Nz::InstancedRenderableRef*>(modelRef); //TODO: Make a ObjectRefCast
 			});
 
-			model.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::ModelRef* instance, std::size_t /*argumentCount*/)
+			model.SetConstructor([] (Nz::LuaState& /*lua*/, Nz::ModelRef* instance, std::size_t /*argumentCount*/)
 			{
 				Nz::PlacementNew(instance, Nz::Model::New());
 				return true;
@@ -379,7 +379,7 @@ namespace Ndk
 				return reinterpret_cast<Nz::InstancedRenderableRef*>(spriteRef); //TODO: Make a ObjectRefCast
 			});
 
-			sprite.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::SpriteRef* instance, std::size_t /*argumentCount*/)
+			sprite.SetConstructor([] (Nz::LuaState& /*lua*/, Nz::SpriteRef* instance, std::size_t /*argumentCount*/)
 			{
 				Nz::PlacementNew(instance, Nz::Sprite::New());
 				return true;
@@ -399,7 +399,7 @@ namespace Ndk
 			sprite.BindMethod("SetTextureCoords", &Nz::Sprite::SetTextureCoords);
 			sprite.BindMethod("SetTextureRect", &Nz::Sprite::SetTextureRect);
 
-			sprite.BindMethod("SetMaterial", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
+			sprite.BindMethod("SetMaterial", [] (Nz::LuaState& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Material"))
@@ -428,7 +428,7 @@ namespace Ndk
 				return 0;
 			});
 
-			sprite.BindMethod("SetTexture", [] (Nz::LuaInstance& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
+			sprite.BindMethod("SetTexture", [] (Nz::LuaState& lua, Nz::SpriteRef& instance, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 				if (lua.IsOfType(argIndex, "Texture"))
@@ -475,13 +475,13 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the Graphics classes
 	*/
 
-	void LuaBinding_Graphics::Register(Nz::LuaInstance& instance)
+	void LuaBinding_Graphics::Register(Nz::LuaState& state)
 	{
-		abstractViewer.Register(instance);
-		instancedRenderable.Register(instance);
-		material.Register(instance);
-		model.Register(instance);
-		sprite.Register(instance);
-		spriteLibrary.Register(instance);
+		abstractViewer.Register(state);
+		instancedRenderable.Register(state);
+		material.Register(state);
+		model.Register(state);
+		sprite.Register(state);
+		spriteLibrary.Register(state);
 	}
 }
