@@ -771,10 +771,25 @@ namespace Nz
 	}
 
 	template<typename T>
-	T LuaState::CheckBounds(int index, long long value) const
+	std::enable_if_t<std::is_signed<T>::value, T> LuaState::CheckBounds(int index, long long value) const
 	{
 		constexpr long long minBounds = std::numeric_limits<T>::min();
 		constexpr long long maxBounds = std::numeric_limits<T>::max();
+		if (value < minBounds || value > maxBounds)
+		{
+			Nz::StringStream stream;
+			stream << "Argument #" << index << " is outside value range [" << minBounds << ", " << maxBounds << "] (" << value << ')';
+			Error(stream);
+		}
+
+		return static_cast<T>(value);
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_unsigned<T>::value, T> LuaState::CheckBounds(int index, long long value) const
+	{
+		constexpr unsigned long long minBounds = 0;
+		constexpr unsigned long long maxBounds = std::numeric_limits<T>::max();
 		if (value < minBounds || value > maxBounds)
 		{
 			Nz::StringStream stream;
