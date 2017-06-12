@@ -15,6 +15,7 @@
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
 #include <functional>
+#include <type_traits>
 
 struct lua_Debug;
 struct lua_State;
@@ -182,7 +183,8 @@ namespace Nz
 		protected:
 			LuaState(lua_State* internalState);
 
-			template<typename T> T CheckBounds(int index, long long value) const;
+			template<typename T> std::enable_if_t<std::is_signed<T>::value, T> CheckBounds(int index, long long value) const;
+			template<typename T> std::enable_if_t<std::is_unsigned<T>::value, T> CheckBounds(int index, long long value) const;
 			virtual bool Run(int argCount, int resultCount);
 
 			static int ProxyFunc(lua_State* internalState);
