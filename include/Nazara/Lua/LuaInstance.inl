@@ -24,7 +24,7 @@ namespace Nz
 
 	inline void LuaInstance::SetMemoryLimit(std::size_t memoryLimit)
 	{
-		m_memoryLimit = m_memoryLimit;
+		m_memoryLimit = memoryLimit;
 	}
 
 	inline void LuaInstance::SetTimeLimit(UInt32 limit)
