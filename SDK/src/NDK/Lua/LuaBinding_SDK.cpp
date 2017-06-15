@@ -103,6 +103,14 @@ namespace Ndk
 				return bindingComponent->adder(state, handle);
 			});
 
+			entity.BindMethod("HasComponent", [this](Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			{
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
+
+				state.PushBoolean(handle->HasComponent(bindingComponent->index));
+				return 1;
+			});
+
 			entity.BindMethod("GetComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
 				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
