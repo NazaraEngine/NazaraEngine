@@ -26,9 +26,12 @@ namespace Nz
 
 	ThreadImpl::ThreadImpl(Functor* functor)
 	{
-		m_handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &ThreadImpl::ThreadProc, functor, 0, &m_threadId));
+		unsigned int threadId;
+		m_handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &ThreadImpl::ThreadProc, functor, 0, &threadId));
 		if (!m_handle)
 			NazaraInternalError("Failed to create thread: " + Error::GetLastSystemError());
+
+		m_threadId = threadId;
 	}
 
 	void ThreadImpl::Detach()
