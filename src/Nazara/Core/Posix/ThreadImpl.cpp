@@ -29,13 +29,22 @@ namespace Nz
 		pthread_join(m_handle, nullptr);
 	}
 
-	void* ThreadImpl::ThreadProc(void* userdata)
+	void ThreadImpl::SetName(const Nz::String& name)
 	{
-		Functor* func = static_cast<Functor*>(userdata);
-		func->Run();
-		delete func;
+#ifdef __GNUC__
+		pthread_setname_np(m_handle, name.GetConstBuffer());
+#else
+		NazaraWarning("Setting thread name is not supported on this platform");
+#endif
+	}
 
-		return nullptr;
+	void ThreadImpl::SetCurrentName(const Nz::String& name)
+	{
+#ifdef __GNUC__
+		pthread_setname_np(pthread_self(), name.GetConstBuffer());
+#else
+		NazaraWarning("Setting current thread name is not supported on this platform");
+#endif
 	}
 
 	void ThreadImpl::Sleep(UInt32 time)
@@ -55,5 +64,14 @@ namespace Nz
 			}
 			while (r == -1 && errno == EINTR);
 		}
+	}
+
+	void* ThreadImpl::ThreadProc(void* userdata)
+	{
+		Functor* func = static_cast<Functor*>(userdata);
+		func->Run();
+		delete func;
+
+		return nullptr;
 	}
 }
