@@ -124,8 +124,9 @@ namespace Nz
 		if (m_shapes.empty())
 			return Rectf::Zero();
 
-		cpBB bb = cpShapeGetBB(*m_shapes.begin());
-		for (auto it = ++m_shapes.begin(); it != m_shapes.end(); ++it)
+		auto it = m_shapes.begin();
+		cpBB bb = cpShapeGetBB(*it++);
+		for (; it != m_shapes.end(); ++it)
 			bb = cpBBMerge(bb, cpShapeGetBB(*it));
 
 		return Rectf(Rect<cpFloat>(bb.l, bb.b, bb.r - bb.l, bb.t - bb.b));
