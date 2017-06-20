@@ -326,7 +326,7 @@ namespace Nz
 			});
 		}
 
-		while (totalByteSent < size)
+		while (totalByteSent < size || !IsBlockingEnabled())
 		{
 			int sendSize = static_cast<int>(std::min<std::size_t>(size - totalByteSent, std::numeric_limits<int>::max())); //< Handle very large send
 			int sentSize;
