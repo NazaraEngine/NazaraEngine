@@ -24,7 +24,7 @@ namespace Nz
 			bool IsInitialized() const;
 			void Uninitialize();
 
-			operator bool() const;
+			explicit operator bool() const;
 
 			Initializer& operator=(const Initializer&) = delete;
 			Initializer& operator=(Initializer&&) = delete; ///TODO
