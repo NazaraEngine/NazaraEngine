@@ -32,11 +32,13 @@ namespace Nz
 			Id GetId() const;
 			bool IsJoinable() const;
 			void Join();
+			void SetName(const String& name);
 
 			Thread& operator=(const Thread&) = delete;
 			Thread& operator=(Thread&& thread);
 
 			static unsigned int HardwareConcurrency();
+			static void SetCurrentThreadName(const String& name);
 			static void Sleep(UInt32 milliseconds);
 
 		private:

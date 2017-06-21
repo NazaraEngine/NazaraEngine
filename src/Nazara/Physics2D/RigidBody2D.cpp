@@ -121,11 +121,15 @@ namespace Nz
 
 	Rectf RigidBody2D::GetAABB() const
 	{
-		cpBB bb = cpBBNew(0.f, 0.f, 0.f, 0.f);
-		for (cpShape* shape : m_shapes)
-			bb = cpBBMerge(bb, cpShapeGetBB(shape));
+		if (m_shapes.empty())
+			return Rectf::Zero();
 
-		return Rectf(Rect<cpFloat>(bb.l, bb.t, bb.r - bb.l, bb.b - bb.t));
+		auto it = m_shapes.begin();
+		cpBB bb = cpShapeGetBB(*it++);
+		for (; it != m_shapes.end(); ++it)
+			bb = cpBBMerge(bb, cpShapeGetBB(*it));
+
+		return Rectf(Rect<cpFloat>(bb.l, bb.b, bb.r - bb.l, bb.t - bb.b));
 	}
 
 	float RigidBody2D::GetAngularVelocity() const

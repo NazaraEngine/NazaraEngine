@@ -73,7 +73,7 @@
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 
 // Optimize the Windows implementation with technologies of Windows NT 6.0 (and greater) (Break the compatibility with Windows XP)
-#define NAZARA_CORE_WINDOWS_NT6 0
+#define NAZARA_CORE_WINDOWS_NT6 1
 
 
 /*
