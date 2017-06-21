@@ -135,6 +135,30 @@ namespace Nz
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
+
+		m_readyToReadSockets.clear();
+		m_readyToWriteSockets.clear();
+		if (activeSockets > 0U)
+		{
+			int socketRemaining = activeSockets;
+			for (PollSocket& entry : m_sockets)
+			{
+				if (entry.revents != 0)
+				{
+					if (entry.revents & POLLRDNORM)
+						m_readyToReadSockets.insert(entry.fd);
+
+					if (entry.revents & POLLWRNORM)
+						m_readyToWriteSockets.insert(entry.fd);
+
+					entry.revents = 0;
+
+					if (--socketRemaining == 0)
+						break;
+				}
+			}
+		}
+
 		#else
 		fd_set* readSet = nullptr;
 		fd_set* writeSet = nullptr;
