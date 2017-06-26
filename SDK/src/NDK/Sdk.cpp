@@ -6,12 +6,13 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
-#include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
@@ -63,18 +64,10 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
-			#ifdef NDK_SERVER
-			Nz::ParameterList parameters;
-			parameters.SetParameter("NoWindowSystem", true);
-
-			Nz::Utility::SetParameters(parameters);
-			#endif
-
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics2D::Initialize();
 			Nz::Physics3D::Initialize();
-			Nz::Utility::Initialize();
 
 			#ifndef NDK_SERVER
 			// Client modules
@@ -171,7 +164,6 @@ namespace Ndk
 		Nz::Noise::Uninitialize();
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
-		Nz::Utility::Uninitialize();
 
 		NazaraNotice("Uninitialized: SDK");
 	}

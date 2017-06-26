@@ -9,8 +9,8 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/CursorController.hpp>
-#include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Platform/CursorController.hpp>
+#include <Nazara/Platform/EventHandler.hpp>
 
 namespace Ndk
 {

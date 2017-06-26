@@ -9,8 +9,8 @@
 
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
-#include <Nazara/Utility/VideoMode.hpp>
-#include <Nazara/Utility/WindowHandle.hpp>
+#include <Nazara/Platform/VideoMode.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 
 namespace Nz
 {

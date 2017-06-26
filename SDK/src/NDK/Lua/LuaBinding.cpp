@@ -25,6 +25,7 @@ namespace Ndk
 		audio    = LuaBinding_Base::BindAudio(*this);
 		renderer = LuaBinding_Base::BindRenderer(*this);
 		graphics = LuaBinding_Base::BindGraphics(*this);
+		platform = LuaBinding_Base::BindPlatform(*this);
 		#endif
 
 		sdk     = LuaBinding_Base::BindSDK(*this);
@@ -48,6 +49,7 @@ namespace Ndk
 		audio->Register(state);
 		graphics->Register(state);
 		renderer->Register(state);
+		platform->Register(state);
 		#endif
 
 		// ComponentType (fake enumeration to expose component indexes)
