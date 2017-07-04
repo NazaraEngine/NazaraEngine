@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -128,7 +128,7 @@ namespace Nz
 				else
 				{
 					Color colorVal;
-					float fValue;
+					double dValue;
 
 					if (matData.GetColorParameter(MaterialData::AmbientColor, &colorVal))
 						material->ambient = colorVal;
@@ -139,8 +139,8 @@ namespace Nz
 					if (matData.GetColorParameter(MaterialData::SpecularColor, &colorVal))
 						material->specular = colorVal;
 
-					if (matData.GetFloatParameter(MaterialData::Shininess, &fValue))
-						material->shininess = fValue;
+					if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
+						material->shininess = float(dValue);
 
 					if (matData.GetStringParameter(MaterialData::AlphaTexturePath, &strVal))
 						material->alphaMap = strVal;
@@ -176,7 +176,7 @@ namespace Nz
 
 					UInt32 faceIndex = 0;
 					TriangleIterator triangle(staticMesh);
-					do 
+					do
 					{
 						OBJParser::Face& face = meshes[i].faces[faceIndex];
 						face.firstVertex = faceIndex * 3;

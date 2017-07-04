@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -68,7 +68,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
+	void DepthRenderTechnique::Clear(const SceneData& /*sceneData*/) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
@@ -95,7 +95,7 @@ namespace Nz
 			if (!layer.opaqueModels.empty())
 				DrawOpaqueModels(sceneData, layer);
 
-			if (!layer.basicSprites.empty())
+			if (!layer.opaqueSprites.empty())
 				DrawBasicSprites(sceneData, layer);
 
 			if (!layer.billboards.empty())
@@ -212,8 +212,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -221,7 +219,7 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		for (auto& pipelinePair : layer.basicSprites)
+		for (auto& pipelinePair : layer.opaqueSprites)
 		{
 			const MaterialPipeline* pipeline = pipelinePair.first;
 			auto& pipelineEntry = pipelinePair.second;
@@ -240,8 +238,6 @@ namespace Nz
 
 					// Ambiant color of the scene
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -253,13 +249,12 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 overlayUnit;
-						material->Apply(pipelineInstance, 0, &overlayUnit);
-						overlayUnit++;
+						unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+						material->Apply(pipelineInstance);
 
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayUnit);
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
 
-						Renderer::SetTextureSampler(overlayUnit, material->GetDiffuseSampler());
+						Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
 
 						auto& overlayMap = matEntry.overlayMap;
 						for (auto& overlayIt : overlayMap)
@@ -270,7 +265,7 @@ namespace Nz
 							std::size_t spriteChainCount = spriteChainVector.size();
 							if (spriteChainCount > 0)
 							{
-								Renderer::SetTexture(overlayUnit, (overlay) ? overlay : &m_whiteTexture);
+								Renderer::SetTexture(overlayTextureUnit, (overlay) ? overlay : &m_whiteTexture);
 
 								std::size_t spriteChain = 0; // Which chain of sprites are we treating
 								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
@@ -330,8 +325,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -361,8 +354,6 @@ namespace Nz
 
 						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -423,8 +414,6 @@ namespace Nz
 
 						// Ambiant color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						lastShader = shader;
 					}
@@ -501,8 +490,6 @@ namespace Nz
 
 	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
@@ -526,8 +513,6 @@ namespace Nz
 
 					// Ambiant color of the scene
 					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 					lastShader = shader;
 				}
@@ -539,8 +524,7 @@ namespace Nz
 
 					if (matEntry.enabled)
 					{
-						UInt8 freeTextureUnit;
-						material->Apply(pipelineInstance, 0, &freeTextureUnit);
+						material->Apply(pipelineInstance);
 
 						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
@@ -641,7 +625,7 @@ namespace Nz
 			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &DepthRenderTechnique::OnShaderInvalidated);
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
 
-			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+			uniforms.sceneAmbient   = shader->GetUniformLocation("SceneAmbient");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
 			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;

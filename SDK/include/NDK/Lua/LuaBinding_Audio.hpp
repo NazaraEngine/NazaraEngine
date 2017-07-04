@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -21,7 +21,7 @@ namespace Ndk
 			LuaBinding_Audio(LuaBinding& binding);
 			~LuaBinding_Audio() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::Music> music;
 			Nz::LuaClass<Nz::Sound> sound;

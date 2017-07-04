@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -51,7 +51,7 @@ namespace Nz
 			virtual void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) = 0;
 			virtual void AddPointLight(const PointLight& light);
 			virtual void AddSpotLight(const SpotLight& light);
-			virtual void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, unsigned int spriteCount, const Texture* overlay = nullptr) = 0;
+			virtual void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) = 0;
 
 			virtual void Clear(bool fully = false);
 

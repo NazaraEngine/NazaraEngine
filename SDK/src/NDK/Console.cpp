@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -33,10 +33,10 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the world
 	*/
 
-	Console::Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance) :
+	Console::Console(World& world, const Nz::Vector2f& size, Nz::LuaState& state) :
 	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
-	m_instance(instance),
+	m_state(state),
 	m_size(size),
 	m_opened(false),
 	m_characterSize(24)
@@ -192,9 +192,12 @@ namespace Ndk
 								m_historyPosition = 1;
 						}
 
-						Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
-						m_inputDrawer.SetText(s_inputPrefix + text);
-						m_inputTextSprite->Update(m_inputDrawer);
+						if (!m_commandHistory.empty())
+						{
+							Nz::String text = m_commandHistory[m_commandHistory.size() - m_historyPosition];
+							m_inputDrawer.SetText(s_inputPrefix + text);
+							m_inputTextSprite->Update(m_inputDrawer);
+						}
 						break;
 					}
 
@@ -297,7 +300,7 @@ namespace Ndk
 	void Console::ExecuteInput()
 	{
 		Nz::String input = m_inputDrawer.GetText();
-		Nz::String inputCmd = input.SubString(s_inputPrefixSize);;
+		Nz::String inputCmd = input.SubString(s_inputPrefixSize);
 		m_inputDrawer.SetText(s_inputPrefix);
 
 		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)
@@ -307,8 +310,8 @@ namespace Ndk
 
 		AddLineInternal(input); //< With the input prefix
 
-		if (!m_instance.Execute(inputCmd))
-			AddLineInternal(m_instance.GetLastError(), Nz::Color::Red);
+		if (!m_state.Execute(inputCmd))
+			AddLineInternal(m_state.GetLastError(), Nz::Color::Red);
 
 		RefreshHistory();
 	}

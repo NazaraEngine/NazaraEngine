@@ -107,11 +107,10 @@ namespace Nz
 			sharedConnection = xcb_connect(nullptr, &screen_nbr);
 
 			// Opening display failed: The best we can do at the moment is to output a meaningful error message
-			// and cause an abnormal program termination
 			if (!sharedConnection || xcb_connection_has_error(sharedConnection))
 			{
 				NazaraError("Failed to open xcb connection");
-				std::abort();
+				return false;
 			}
 
 			OpenConnection();
@@ -230,14 +229,14 @@ namespace Nz
 		return screen_nbr;
 	}
 
-	xcb_screen_t* X11::XCBScreenOfDisplay(xcb_connection_t* connection, int screen_nbr)
+	xcb_screen_t* X11::XCBScreenOfDisplay(xcb_connection_t* connection, int screenIndex)
 	{
 		NazaraAssert(connection == sharedConnection, "The model is meant for one connection to X11 server");
 		xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
 
-		for (; iter.rem; --screen_nbr, xcb_screen_next (&iter))
+		for (; iter.rem; --screenIndex, xcb_screen_next (&iter))
 		{
-			if (screen_nbr == 0)
+			if (screenIndex == 0)
 				return iter.data;
 		}
 

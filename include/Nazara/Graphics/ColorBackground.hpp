@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,9 +26,9 @@ namespace Nz
 			ColorBackground(const ColorBackground&) = default;
 			ColorBackground(ColorBackground&&) = delete;
 
-			void Draw(const AbstractViewer* viewer) const;
+			void Draw(const AbstractViewer* viewer) const override;
 
-			BackgroundType GetBackgroundType() const;
+			BackgroundType GetBackgroundType() const override;
 			Color GetColor() const;
 
 			void SetColor(const Color& color);

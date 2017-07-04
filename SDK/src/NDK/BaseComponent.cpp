@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -51,6 +51,15 @@ namespace Ndk
 	*/
 
 	void BaseComponent::OnDetached()
+	{
+	}
+
+	/*!
+	* \brief Operation to perform when the entity is destroyed and we're still attached to it
+	*
+	* \remark This is always called before the entity proper destruction, and thus its components.
+	*/
+	void BaseComponent::OnEntityDestruction()
 	{
 	}
 

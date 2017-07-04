@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -326,7 +326,7 @@ namespace Nz
 			});
 		}
 
-		while (totalByteSent < size)
+		while (totalByteSent < size || !IsBlockingEnabled())
 		{
 			int sendSize = static_cast<int>(std::min<std::size_t>(size - totalByteSent, std::numeric_limits<int>::max())); //< Handle very large send
 			int sentSize;
@@ -348,6 +348,45 @@ namespace Nz
 
 			totalByteSent += sentSize;
 		}
+
+		UpdateState(SocketState_Connected);
+		return true;
+	}
+
+	/*!
+	* \brief Sends multiple buffers at once
+	* \return true If data were sent
+	*
+	* \param buffers A pointer to an array of NetBuffer containing buffers and size data
+	* \param size Number of NetBuffer to send
+	* \param sent Optional argument to get the number of bytes sent
+	*/
+	bool TcpClient::SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent)
+	{
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+
+		int byteSent;
+		if (!SocketImpl::SendMultiple(m_handle, buffers, bufferCount, m_peerAddress, &byteSent, &m_lastError))
+		{
+			switch (m_lastError)
+			{
+				case SocketError_ConnectionClosed:
+				case SocketError_ConnectionRefused:
+					UpdateState(SocketState_NotConnected);
+					break;
+
+				default:
+					break;
+			}
+
+			if (sent)
+				*sent = byteSent;
+
+			return false;
+		}
+
+		if (sent)
+			*sent = byteSent;
 
 		UpdateState(SocketState_Connected);
 		return true;

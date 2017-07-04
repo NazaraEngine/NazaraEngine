@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,10 +31,10 @@ namespace Nz
 	VertexBuffer::VertexBuffer(const VertexBuffer& vertexBuffer) :
 	RefCounted(),
 	m_buffer(vertexBuffer.m_buffer),
-	m_vertexDeclaration(vertexBuffer.m_vertexDeclaration),
 	m_endOffset(vertexBuffer.m_endOffset),
 	m_startOffset(vertexBuffer.m_startOffset),
-	m_vertexCount(vertexBuffer.m_vertexCount)
+	m_vertexCount(vertexBuffer.m_vertexCount),
+	m_vertexDeclaration(vertexBuffer.m_vertexDeclaration)
 	{
 	}
 

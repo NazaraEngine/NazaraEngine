@@ -11,7 +11,7 @@ Text::Text(StateContext& stateContext) :
 m_context(stateContext)
 {
 	m_text = m_context.world.CreateEntity();
-	Ndk::NodeComponent& nodeComponent = m_text->AddComponent<Ndk::NodeComponent>();
+	m_text->AddComponent<Ndk::NodeComponent>();
 	Ndk::GraphicsComponent& graphicsComponent = m_text->AddComponent<Ndk::GraphicsComponent>();
 
 	m_textSprite = Nz::TextSprite::New();

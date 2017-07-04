@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,38 +12,38 @@ namespace Nz
 {
 	namespace
 	{
-		UInt32 GetterSequential(const void* buffer, unsigned int i)
+		UInt32 GetterSequential(const void* buffer, std::size_t i)
 		{
 			NazaraUnused(buffer);
 
-			return i;
+			return static_cast<UInt32>(i);
 		}
 
-		UInt32 Getter16(const void* buffer, unsigned int i)
+		UInt32 Getter16(const void* buffer, std::size_t i)
 		{
 			const UInt16* ptr = static_cast<const UInt16*>(buffer);
 			return ptr[i];
 		}
 
-		UInt32 Getter32(const void* buffer, unsigned int i)
+		UInt32 Getter32(const void* buffer, std::size_t i)
 		{
 			const UInt32* ptr = static_cast<const UInt32*>(buffer);
 			return ptr[i];
 		}
 
-		void Setter16(void* buffer, unsigned int i, UInt32 value)
+		void Setter16(void* buffer, std::size_t i, UInt32 value)
 		{
 			UInt16* ptr = static_cast<UInt16*>(buffer);
 			ptr[i] = static_cast<UInt16>(value);
 		}
 
-		void Setter32(void* buffer, unsigned int i, UInt32 value)
+		void Setter32(void* buffer, std::size_t i, UInt32 value)
 		{
 			UInt32* ptr = static_cast<UInt32*>(buffer);
 			ptr[i] = value;
 		}
 
-		void SetterError(void*, unsigned int, UInt32)
+		void SetterError(void*, std::size_t, UInt32)
 		{
 			NazaraError("Index buffer opened with read-only access");
 		}
@@ -113,15 +113,9 @@ namespace Nz
 	{
 	}
 
-	UInt32 IndexMapper::Get(unsigned int i) const
+	UInt32 IndexMapper::Get(std::size_t i) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (i >= m_indexCount)
-		{
-			NazaraError("Index out of range (" + String::Number(i) + " >= " + String::Number(m_indexCount) + ')');
-			return 0;
-		}
-		#endif
+		NazaraAssert(i < m_indexCount, "Index out of range");
 
 		return m_getter(m_mapper.GetPointer(), i);
 	}
@@ -131,20 +125,14 @@ namespace Nz
 		return m_mapper.GetBuffer();
 	}
 
-	unsigned int IndexMapper::GetIndexCount() const
+	std::size_t IndexMapper::GetIndexCount() const
 	{
 		return m_indexCount;
 	}
 
-	void IndexMapper::Set(unsigned int i, UInt32 value)
+	void IndexMapper::Set(std::size_t i, UInt32 value)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (i >= m_indexCount)
-		{
-			NazaraError("Index out of range (" + String::Number(i) + " >= " + String::Number(m_indexCount) + ')');
-			return;
-		}
-		#endif
+		NazaraAssert(i < m_indexCount, "Index out of range");
 
 		m_setter(m_mapper.GetPointer(), i, value);
 	}

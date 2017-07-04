@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -45,7 +45,7 @@ namespace Nz
 
 	inline bool IndexBuffer::IsValid() const
 	{
-		return m_buffer;
+		return m_buffer.IsValid();
 	}
 
 	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length)

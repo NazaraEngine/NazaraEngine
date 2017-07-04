@@ -18,6 +18,9 @@ int main(int argc, char* argv[])
 	Ndk::Application application(argc, argv);
 
 	// Do what you want here
+	Nz::LuaInstance lua;
+	std::cout << lua.Execute("return {key = 42}") << std::endl;
+	std::cout << lua.DumpStack() << std::endl;
 
 	return EXIT_SUCCESS;
 }

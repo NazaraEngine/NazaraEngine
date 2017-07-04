@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -74,8 +74,8 @@ namespace Nz
 			Box& Transform(const Matrix4<T>& matrix, bool applyTranslation = true);
 			Box& Translate(const Vector3<T>& translation);
 
-			T& operator[](unsigned int i);
-			T operator[](unsigned int i) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Box operator*(T scalar) const;
 			Box operator*(const Vector3<T>& vec) const;

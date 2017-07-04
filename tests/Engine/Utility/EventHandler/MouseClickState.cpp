@@ -58,7 +58,7 @@ void MouseClickState::DrawMenu()
 	m_text.SetContent("Click in the windows, this text should change !\nM for Menu");
 }
 
-void MouseClickState::ManageInput(MouseStatus mouseStatus, const Nz::WindowEvent::MouseButtonEvent& mouse, Ndk::StateMachine& fsm)
+void MouseClickState::ManageInput(MouseStatus mouseStatus, const Nz::WindowEvent::MouseButtonEvent& mouse, Ndk::StateMachine& /*fsm*/)
 {
 	Nz::String content;
 	if (mouseStatus == MouseStatus::Pressed)

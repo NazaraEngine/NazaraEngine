@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -30,7 +30,7 @@ namespace Ndk
 			LuaBinding_Base(LuaBinding& binding);
 			virtual ~LuaBinding_Base();
 
-			virtual void Register(Nz::LuaInstance& instance) = 0;
+			virtual void Register(Nz::LuaState& state) = 0;
 
 			// Implementation lies in the respective .cpp files (still searching for a cleaner way..)
 			static std::unique_ptr<LuaBinding_Base> BindCore(LuaBinding& binding);

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -35,7 +35,7 @@ namespace Nz
 			void SetName(const String& name);
 
 		private:
-			void InvalidateNode();
+			void InvalidateNode() override;
 			void UpdateSkinningMatrix() const;
 
 			Matrix4f m_inverseBindMatrix;

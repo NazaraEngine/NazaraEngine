@@ -40,6 +40,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/EventHandler.hpp>
@@ -65,6 +66,7 @@
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -137,6 +137,32 @@ namespace Ndk
 					*it = std::move(m_volumeCullingEntries.back());
 
 				m_volumeCullingEntries.pop_back();
+				break;
+			}
+		}
+	}
+
+	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.localMatrix = localMatrix;
+
+				InvalidateBoundingVolume();
+				break;
+			}
+		}
+	}
+
+	inline void GraphicsComponent::UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.renderOrder = renderOrder;
 				break;
 			}
 		}

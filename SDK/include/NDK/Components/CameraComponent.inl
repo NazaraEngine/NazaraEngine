@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -39,6 +39,7 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	AbstractViewer(camera),
+	HandledObject(camera),
 	m_visibilityHash(camera.m_visibilityHash),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -114,16 +115,6 @@ namespace Ndk
 	inline unsigned int CameraComponent::GetLayer() const
 	{
 		return m_layer;
-	}
-
-	/*!
-	* \brief Gets the projection type of the camera
-	* \return Projection type of the camera
-	*/
-
-	inline Nz::ProjectionType CameraComponent::GetProjectionType() const
-	{
-		return m_projectionType;
 	}
 
 	/*!

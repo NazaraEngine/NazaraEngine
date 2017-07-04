@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,7 +29,7 @@ namespace Nz
 		public:
 			using BitField = typename std::conditional<(EnumAsFlags<E>::max > 32), UInt64, UInt32>::type;
 
-			constexpr Flags(BitField value);
+			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
 
 			explicit constexpr operator bool() const;
@@ -55,11 +55,19 @@ namespace Nz
 			BitField m_value;
 	};
 
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs);
-	template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
+	// Little hack to have them in both Nz and global scope
+	namespace FlagsOperators
+	{
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
+	}
+
+	using namespace FlagsOperators;
 }
+
+using namespace Nz::FlagsOperators;
 
 #include <Nazara/Core/Flags.inl>
 

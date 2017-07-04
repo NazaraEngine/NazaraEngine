@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -128,6 +128,9 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(ObjectHandle&& handle) noexcept
 	{
+		if (this == &handle)
+			return;
+
 		if (m_object)
 			m_object->UnregisterHandle(this);
 

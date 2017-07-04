@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -79,7 +79,7 @@ namespace Nz
 		NazaraAssert(subMesh, "Invalid submesh");
 		NazaraAssert(subMesh->GetAnimationType() == m_impl->animationType, "Submesh animation type doesn't match mesh animation type");
 
-		m_impl->subMeshes.push_back(subMesh);
+		m_impl->subMeshes.emplace_back(subMesh);
 
 		InvalidateAABB();
 	}
@@ -92,10 +92,10 @@ namespace Nz
 		NazaraAssert(subMesh, "Invalid submesh");
 		NazaraAssert(subMesh->GetAnimationType() == m_impl->animationType, "Submesh animation type doesn't match mesh animation type");
 
-		UInt32 index = m_impl->subMeshes.size();
+		std::size_t index = m_impl->subMeshes.size();
 
-		m_impl->subMeshes.push_back(subMesh);
-		m_impl->subMeshMap[identifier] = index;
+		m_impl->subMeshes.emplace_back(subMesh);
+		m_impl->subMeshMap[identifier] = static_cast<UInt32>(index);
 
 		InvalidateAABB();
 	}
@@ -349,11 +349,11 @@ namespace Nz
 
 		if (!m_impl->aabbUpdated)
 		{
-			UInt32 subMeshCount = m_impl->subMeshes.size();
+			std::size_t subMeshCount = m_impl->subMeshes.size();
 			if (subMeshCount > 0)
 			{
 				m_impl->aabb.Set(m_impl->subMeshes[0]->GetAABB());
-				for (UInt32 i = 1; i < subMeshCount; ++i)
+				for (std::size_t i = 1; i < subMeshCount; ++i)
 					m_impl->aabb.ExtendTo(m_impl->subMeshes[i]->GetAABB());
 			}
 			else
@@ -407,7 +407,7 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Mesh should be created first");
 
-		return m_impl->materialData.size();
+		return static_cast<UInt32>(m_impl->materialData.size());
 	}
 
 	Skeleton* Mesh::GetSkeleton()
@@ -466,7 +466,7 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Mesh should be created first");
 
-		return m_impl->subMeshes.size();
+		return static_cast<UInt32>(m_impl->subMeshes.size());
 	}
 
 	UInt32 Mesh::GetSubMeshIndex(const String& identifier) const

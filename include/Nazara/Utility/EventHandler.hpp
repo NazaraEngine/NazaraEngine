@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,13 +8,19 @@
 #define NAZARA_EVENTHANDLER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Event.hpp>
 
 namespace Nz
 {
-	class EventHandler
+	class EventHandler;
+
+	using EventHandlerHandle = ObjectHandle<EventHandler>;
+
+	class EventHandler : public HandledObject<EventHandler>
 	{
 		public:
 			EventHandler() = default;

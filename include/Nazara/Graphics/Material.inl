@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -1354,6 +1354,11 @@ namespace Nz
 	inline MaterialRef Material::GetDefault()
 	{
 		return s_defaultMaterial;
+	}
+
+	inline int Material::GetTextureUnit(TextureMap textureMap)
+	{
+		return s_textureUnits[textureMap];
 	}
 
 	inline void Material::InvalidatePipeline()

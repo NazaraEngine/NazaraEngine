@@ -27,7 +27,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 		WHEN("We register the server socket to the poller")
 		{
-			REQUIRE(serverPoller.RegisterSocket(server));
+			REQUIRE(serverPoller.RegisterSocket(server, Nz::SocketPollEvent_Read));
 
 			THEN("The poller should have registered our socket")
 			{
@@ -48,7 +48,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 					WHEN("We register the client socket to the poller")
 					{
-						REQUIRE(serverPoller.RegisterSocket(serverToClient));
+						REQUIRE(serverPoller.RegisterSocket(serverToClient, Nz::SocketPollEvent_Read));
 
 						THEN("The poller should have registered our socket")
 						{
@@ -65,7 +65,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 							REQUIRE(serverPoller.Wait(1000));
 
-							CHECK(serverPoller.IsReady(serverToClient));
+							CHECK(serverPoller.IsReadyToRead(serverToClient));
 
 							CHECK(serverToClient.Read(buffer.data(), buffer.size()) == sent);
 
@@ -73,7 +73,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 							{
 								REQUIRE_FALSE(serverPoller.Wait(100));
 
-								REQUIRE_FALSE(serverPoller.IsReady(serverToClient));
+								REQUIRE_FALSE(serverPoller.IsReadyToRead(serverToClient));
 							}
 						}
 					}

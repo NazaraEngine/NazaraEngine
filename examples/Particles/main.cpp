@@ -17,8 +17,6 @@
 
 int main()
 {
-	Nz::ContextParameters::defaultCompatibilityProfile = true;
-
 	Ndk::Application app;
 
 	// Mix all sounds in mono (in order to give them 3D position)

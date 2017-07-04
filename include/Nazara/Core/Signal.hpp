@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -33,7 +33,7 @@ namespace Nz
 
 			Signal();
 			Signal(const Signal&) = delete;
-			Signal(Signal&& signal);
+			Signal(Signal&& signal) noexcept;
 			~Signal() = default;
 
 			void Clear();
@@ -48,7 +48,7 @@ namespace Nz
 			void operator()(Args... args) const;
 
 			Signal& operator=(const Signal&) = delete;
-			Signal& operator=(Signal&& signal);
+			Signal& operator=(Signal&& signal) noexcept;
 
 		private:
 			struct Slot;
@@ -69,7 +69,7 @@ namespace Nz
 				SlotListIndex index;
 			};
 
-			void Disconnect(const SlotPtr& slot);
+			void Disconnect(const SlotPtr& slot) noexcept;
 
 			SlotList m_slots;
 			mutable SlotListIndex m_slotIterator;
@@ -84,17 +84,17 @@ namespace Nz
 		public:
 			Connection() = default;
 			Connection(const Connection& connection) = default;
-			Connection(Connection&& connection) = default;
+			Connection(Connection&& connection) noexcept;
 			~Connection() = default;
 
 			template<typename... ConnectArgs>
 			void Connect(BaseClass& signal, ConnectArgs&&... args);
-			void Disconnect();
+			void Disconnect() noexcept;
 
 			bool IsConnected() const;
 
 			Connection& operator=(const Connection& connection) = default;
-			Connection& operator=(Connection&& connection) = default;
+			Connection& operator=(Connection&& connection) noexcept;
 
 		private:
 			Connection(const SlotPtr& slot);
@@ -113,12 +113,12 @@ namespace Nz
 			ConnectionGuard(const Connection& connection);
 			ConnectionGuard(const ConnectionGuard& connection) = delete;
 			ConnectionGuard(Connection&& connection);
-			ConnectionGuard(ConnectionGuard&& connection) = default;
+			ConnectionGuard(ConnectionGuard&& connection) noexcept = default;
 			~ConnectionGuard();
 
 			template<typename... ConnectArgs>
 			void Connect(BaseClass& signal, ConnectArgs&&... args);
-			void Disconnect();
+			void Disconnect() noexcept;
 
 			Connection& GetConnection();
 
@@ -127,7 +127,7 @@ namespace Nz
 			ConnectionGuard& operator=(const Connection& connection);
 			ConnectionGuard& operator=(const ConnectionGuard& connection) = delete;
 			ConnectionGuard& operator=(Connection&& connection);
-			ConnectionGuard& operator=(ConnectionGuard&& connection);
+			ConnectionGuard& operator=(ConnectionGuard&& connection) noexcept;
 
 		private:
 			Connection m_connection;

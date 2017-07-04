@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -9,6 +9,7 @@
 
 #include <Nazara/Core/Bitset.hpp>
 #include <NDK/Entity.hpp>
+#include <NDK/EntityList.hpp>
 #include <vector>
 
 namespace Ndk
@@ -33,7 +34,7 @@ namespace Ndk
 
 			bool Filters(const Entity* entity) const;
 
-			inline const std::vector<EntityHandle>& GetEntities() const;
+			inline const EntityList& GetEntities() const;
 			inline SystemIndex GetIndex() const;
 			inline int GetUpdateOrder() const;
 			inline float GetUpdateRate() const;
@@ -84,12 +85,11 @@ namespace Ndk
 			static inline bool Initialize();
 			static inline void Uninitialize();
 
-			std::vector<EntityHandle> m_entities;
-			Nz::Bitset<Nz::UInt64> m_entityBits;
 			Nz::Bitset<> m_excludedComponents;
 			mutable Nz::Bitset<> m_filterResult;
 			Nz::Bitset<> m_requiredAnyComponents;
 			Nz::Bitset<> m_requiredComponents;
+			EntityList m_entities;
 			SystemIndex m_systemIndex;
 			World* m_world;
 			bool m_updateEnabled;

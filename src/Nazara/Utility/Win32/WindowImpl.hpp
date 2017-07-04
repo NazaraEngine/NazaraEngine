@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,7 +27,7 @@ namespace Nz
 	class Mutex;
 	class Window;
 
-	#undef IsMinimized // Conflit avec la méthode du même nom
+	#undef IsMinimized // Conflits with windows.h redefinition
 
 	class WindowImpl
 	{
@@ -62,7 +62,6 @@ namespace Nz
 
 			void ProcessEvents(bool block);
 
-			void SetCursor(WindowCursor cursor);
 			void SetCursor(const Cursor& cursor);
 			void SetEventListener(bool listener);
 			void SetFocus();

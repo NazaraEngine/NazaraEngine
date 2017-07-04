@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -145,7 +145,7 @@ namespace Nz
 			template<bool BadCall = true>
 			void* operator&() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 			Bit& operator=(bool val);
 			Bit& operator=(const Bit& bit);
 
