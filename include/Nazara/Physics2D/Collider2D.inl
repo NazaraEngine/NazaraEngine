@@ -1,12 +1,72 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Physics2D/Collider2D.hpp>
 #include <memory>
 #include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {
+	inline Collider2D::Collider2D() :
+	m_trigger(false),
+	m_categoryMask(0xFFFFFFFF),
+	m_collisionGroup(0),
+	m_collisionId(0),
+	m_collisionMask(0xFFFFFFFF)
+	{
+	}
+
+	inline Nz::UInt32 Collider2D::GetCategoryMask() const
+	{
+		return m_categoryMask;
+	}
+
+	inline Nz::UInt32 Collider2D::GetCollisionGroup() const
+	{
+		return m_collisionGroup;
+	}
+
+	inline unsigned int Collider2D::GetCollisionId() const
+	{
+		return m_collisionId;
+	}
+
+	inline Nz::UInt32 Collider2D::GetCollisionMask() const
+	{
+		return m_collisionMask;
+	}
+
+	inline bool Collider2D::IsTrigger() const
+	{
+		return m_trigger;
+	}
+
+	inline void Collider2D::SetCategoryMask(Nz::UInt32 categoryMask)
+	{
+		m_categoryMask = categoryMask;
+	}
+
+	inline void Collider2D::SetCollisionGroup(Nz::UInt32 groupId)
+	{
+		m_collisionGroup = groupId;
+	}
+
+	inline void Collider2D::SetCollisionId(unsigned int typeId)
+	{
+		m_collisionId = typeId;
+	}
+
+	inline void Collider2D::SetCollisionMask(Nz::UInt32 mask)
+	{
+		m_collisionMask = mask;
+	}
+
+	inline void Collider2D::SetTrigger(bool trigger)
+	{
+		m_trigger = trigger;
+	}
+
 	inline const Rectf& BoxCollider2D::GetRect() const
 	{
 		return m_rect;

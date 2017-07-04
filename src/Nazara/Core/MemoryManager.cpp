@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -413,9 +413,9 @@ namespace Nz
 			while (ptr != &s_list)
 			{
 				if (ptr->file)
-					std::fprintf(log, "-0x%p -> %zu bytes allocated at %s:%u\n", reinterpret_cast<UInt8*>(ptr) + sizeof(Block), ptr->size, ptr->file, ptr->line);
+					std::fprintf(log, "-0x%s -> %zu bytes allocated at %s:%u\n", reinterpret_cast<UInt8*>(ptr) + sizeof(Block), ptr->size, ptr->file, ptr->line);
 				else
-					std::fprintf(log, "-0x%p -> %zu bytes allocated at unknown position\n", reinterpret_cast<UInt8*>(ptr) + sizeof(Block), ptr->size);
+					std::fprintf(log, "-0x%s -> %zu bytes allocated at unknown position\n", reinterpret_cast<UInt8*>(ptr) + sizeof(Block), ptr->size);
 
 				void* pointer = ptr;
 				ptr = ptr->next;

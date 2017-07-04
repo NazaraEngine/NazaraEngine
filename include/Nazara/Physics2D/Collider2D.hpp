@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -35,14 +35,27 @@ namespace Nz
 		friend RigidBody2D;
 
 		public:
-			Collider2D() = default;
+			inline Collider2D();
 			Collider2D(const Collider2D&) = delete;
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
 
 			virtual float ComputeInertialMatrix(float mass) const = 0;
 
+			inline Nz::UInt32 GetCategoryMask() const;
+			inline Nz::UInt32 GetCollisionGroup() const;
+			inline unsigned int GetCollisionId() const;
+			inline Nz::UInt32 GetCollisionMask() const;
+
 			virtual ColliderType2D GetType() const = 0;
+
+			inline bool IsTrigger() const;
+
+			inline void SetCategoryMask(Nz::UInt32 categoryMask);
+			inline void SetCollisionGroup(Nz::UInt32 groupId);
+			inline void SetCollisionId(unsigned int typeId);
+			inline void SetCollisionMask(Nz::UInt32 mask);
+			inline void SetTrigger(bool trigger);
 
 			Collider2D& operator=(const Collider2D&) = delete;
 			Collider2D& operator=(Collider2D&&) = delete;
@@ -52,6 +65,15 @@ namespace Nz
 
 		protected:
 			virtual std::vector<cpShape*> CreateShapes(RigidBody2D* body) const = 0;
+
+			bool m_trigger;
+			Nz::UInt32 m_categoryMask;
+			Nz::UInt32 m_collisionGroup;
+			unsigned int m_collisionId;
+			Nz::UInt32 m_collisionMask;
+
+		private:
+			virtual std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const;
 
 			static Collider2DLibrary::LibraryMap s_library;
 	};

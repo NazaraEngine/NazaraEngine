@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,135 +6,6 @@
 
 namespace Nz
 {
-	/*!
-	* \brief Sens the uniforms for light
-	*
-	* \param shader Shader to send uniforms to
-	* \param uniforms Uniforms to send
-	* \param index Index of the light
-	* \param uniformOffset Offset for the uniform
-	* \param availableTextureUnit Unit texture available
-	*/
-
-	inline void ForwardRenderTechnique::SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, UInt8 availableTextureUnit) const
-	{
-		// If anyone got a better idea..
-		int dummyCubemap = Renderer::GetMaxTextureUnits() - 1;
-		int dummyTexture = Renderer::GetMaxTextureUnits() - 2;
-
-		if (index < m_lights.size())
-		{
-			const LightIndex& lightIndex = m_lights[index];
-
-			shader->SendInteger(uniforms.locations.type + uniformOffset, lightIndex.type); //< Sends the light type
-
-			switch (lightIndex.type)
-			{
-				case LightType_Directional:
-				{
-					const auto& light = m_renderQueue.directionalLights[lightIndex.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.direction));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
-						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
-
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-
-						if (uniforms.locations.directionalSpotLightShadowMap != -1)
-							shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
-					}
-					else if (uniforms.locations.directionalSpotLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
-
-					if (uniforms.locations.directionalSpotLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
-					break;
-				}
-
-				case LightType_Point:
-				{
-					const auto& light = m_renderQueue.pointLights[lightIndex.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(0.f, 0.f, 0.f, light.invRadius));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
-						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
-
-						if (uniforms.locations.pointLightShadowMap != -1)
-							shader->SendInteger(uniforms.locations.pointLightShadowMap + index, availableTextureUnit);
-					}
-					else if (uniforms.locations.pointLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
-
-					if (uniforms.locations.directionalSpotLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
-					break;
-				}
-
-				case LightType_Spot:
-				{
-					const auto& light = m_renderQueue.spotLights[lightIndex.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(light.direction, light.invRadius));
-					shader->SendVector(uniforms.locations.parameters3 + uniformOffset, Vector2f(light.innerAngleCosine, light.outerAngleCosine));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						Renderer::SetTexture(availableTextureUnit, light.shadowMap);
-						Renderer::SetTextureSampler(availableTextureUnit, s_shadowSampler);
-
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-
-						if (uniforms.locations.directionalSpotLightShadowMap != -1)
-							shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, availableTextureUnit);
-					}
-					else if (uniforms.locations.directionalSpotLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
-
-					if (uniforms.locations.pointLightShadowMap != -1)
-						shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
-
-					break;
-				}
-			}
-		}
-		else
-		{
-			if (uniforms.locations.type != -1)
-				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
-			
-			if (uniforms.locations.directionalSpotLightShadowMap != -1)
-				shader->SendInteger(uniforms.locations.directionalSpotLightShadowMap + index, dummyTexture);
-
-			if (uniforms.locations.pointLightShadowMap != -1)
-				shader->SendInteger(uniforms.locations.pointLightShadowMap + index, dummyCubemap);
-		}
-	}
-
 	/*!
 	* \brief Computes the score for directional light
 	* \return 0.f
@@ -163,7 +34,7 @@ namespace Nz
 	inline float ForwardRenderTechnique::ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity
-		return object.SquaredDistance(light.position);
+		return object.GetPosition().SquaredDistance(light.position);
 	}
 
 	/*!
@@ -177,7 +48,7 @@ namespace Nz
 	inline float ForwardRenderTechnique::ComputeSpotLightScore(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Compute a score depending on the light luminosity and spot direction
-		return object.SquaredDistance(light.position);
+		return object.GetPosition().SquaredDistance(light.position);
 	}
 
 	/*!
@@ -199,29 +70,29 @@ namespace Nz
 
 	/*!
 	* \brief Checks whether the point light is suitable for the computations
-	* \return true if light is enoughly close
+	* \return true if light is close enough
 	*
-	* \param object Sphere symbolising the object
+	* \param object Sphere symbolizing the object
 	* \param light Light to compute
 	*/
 
 	inline bool ForwardRenderTechnique::IsPointLightSuitable(const Spheref& object, const AbstractRenderQueue::PointLight& light)
 	{
 		// If the object is too far away from this point light, there is not way it could light it
-		return object.SquaredDistance(light.position) <= light.radius * light.radius;
+		return object.Intersect(Spheref(light.position, light.radius));
 	}
 
 	/*!
 	* \brief Checks whether the spot light is suitable for the computations
-	* \return true if light is enoughly close
+	* \return true if light is close enough
 	*
-	* \param object Sphere symbolising the object
+	* \param object Sphere symbolizing the object
 	* \param light Light to compute
 	*/
 
 	inline bool ForwardRenderTechnique::IsSpotLightSuitable(const Spheref& object, const AbstractRenderQueue::SpotLight& light)
 	{
 		///TODO: Exclude spot lights based on their direction and outer angle?
-		return object.SquaredDistance(light.position) <= light.radius * light.radius;
+		return object.Intersect(Spheref(light.position, light.radius));
 	}
 }

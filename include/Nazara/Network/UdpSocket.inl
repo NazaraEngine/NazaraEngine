@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -101,16 +101,6 @@ namespace Nz
 	inline UInt16 UdpSocket::GetBoundPort() const
 	{
 		return m_boundAddress.GetPort();
-	}
-
-	/*!
-	* \brief Gets the state of the socket
-	* \return State of the socket
-	*/
-
-	inline SocketState UdpSocket::GetState() const
-	{
-		return m_state;
 	}
 
 	/*!

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,10 +24,11 @@ namespace Nz
 
 			void Clear();
 
-			bool IsReady(const AbstractSocket& socket) const;
+			bool IsReadyToRead(const AbstractSocket& socket) const;
+			bool IsReadyToWrite(const AbstractSocket& socket) const;
 			bool IsRegistered(const AbstractSocket& socket) const;
 
-			bool RegisterSocket(AbstractSocket& socket);
+			bool RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(AbstractSocket& socket);
 
 			bool Wait(UInt64 msTimeout);

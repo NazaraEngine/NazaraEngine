@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -50,6 +50,9 @@ namespace Ndk
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
 			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
+
+			inline void UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix);
+			inline void UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder);
 
 			static ComponentIndex componentIndex;
 

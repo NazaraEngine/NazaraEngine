@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,7 +23,7 @@ namespace Nz
 		public:
 			Renderer() = delete;
 			~Renderer() = delete;
-			
+
 			static inline RendererImpl* GetRendererImpl();
 
 			static bool Initialize();

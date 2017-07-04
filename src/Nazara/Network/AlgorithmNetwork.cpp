@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,7 +19,6 @@ namespace Nz
 		* \param number Optional argument to return the number parsed
 		* \param endOfRead Optional argument to determine where parsing stopped
 		*/
-
 		bool ParseDecimal(const char* str, unsigned int* number, const char** endOfRead)
 		{
 			const char* ptr = str;
@@ -52,7 +51,6 @@ namespace Nz
 		* \param number Optional argument to return the number parsed
 		* \param endOfRead Optional argument to determine where parsing stopped
 		*/
-
 		bool ParseHexadecimal(const char* str, unsigned int* number, const char** endOfRead)
 		{
 			const char* ptr = str;
@@ -78,8 +76,113 @@ namespace Nz
 		}
 	}
 
+
 	/*!
-    * \ingroup network
+	* \ingroup network
+	* \brief Returns the text representation of an error
+	* \return Text representation of an error
+	*
+	* \param resolveError Error enumeration
+	*/
+	const char* ErrorToString(Nz::ResolveError resolveError)
+	{
+		switch (resolveError)
+		{
+			case Nz::ResolveError_NoError:
+				return "No error";
+
+			case Nz::ResolveError_Internal:
+				return "An internal error occurred";
+
+			case Nz::ResolveError_ResourceError:
+				return "The operating system lacks the resources to proceed";
+
+			case Nz::ResolveError_NonRecoverable:
+				return "A nonrecoverable error occurred";
+
+			case Nz::ResolveError_NotFound:
+				return "No such host is known";
+
+			case Nz::ResolveError_NotInitialized:
+				return "Nazara Network has not been initialized";
+
+			case Nz::ResolveError_ProtocolNotSupported:
+				return "A specified protocol is not supported by the server";
+
+			case Nz::ResolveError_TemporaryFailure:
+				return "A temporary failure occurred, try again";
+
+			case Nz::ResolveError_Unknown:
+				return "An unknown error occurred";
+
+			default:
+				return "Invalid error value";
+		}
+	}
+
+	/*!
+	* \ingroup network
+	* \brief Returns the text representation of an error
+	* \return Text representation of an error
+	*
+	* \param socketError Error enumeration
+	*/
+	const char* ErrorToString(Nz::SocketError socketError)
+	{
+		switch (socketError)
+		{
+			case Nz::SocketError_NoError:
+				return "No error";
+
+			case Nz::SocketError_AddressNotAvailable:
+				return "The address is already in use";
+
+			case Nz::SocketError_ConnectionClosed:
+				return "The connection has been closed";
+
+			case Nz::SocketError_ConnectionRefused:
+				return "The connection attempt was refused";
+
+			case Nz::SocketError_DatagramSize:
+				return "The datagram size is over the system limit";
+
+			case Nz::SocketError_Internal:
+				return "An internal error occurred";
+
+			case Nz::SocketError_Packet:
+				return "Packet encoding or decoding failed";
+
+			case Nz::SocketError_NetworkError:
+				return "Networking subsystem failed";
+
+			case Nz::SocketError_NotInitialized:
+				return "Network module has not been initialized";
+
+			case Nz::SocketError_NotSupported:
+				return "This operation is not supported";
+
+			case Nz::SocketError_ResolveError:
+				return "The hostname couldn't be resolved";
+
+			case Nz::SocketError_ResourceError:
+				return "The operating system lacks the resources to proceed";
+
+			case Nz::SocketError_TimedOut:
+				return "The operation timed out";
+
+			case Nz::SocketError_Unknown:
+				return "An unknown error occurred";
+
+			case Nz::SocketError_UnreachableHost:
+				return "The host is not reachable";
+
+			default:
+				return "Invalid error value";
+		}
+	}
+
+	/*!
+	* \ingroup network
 	* \brief Parse a textual IPv4 or IPv6 address
 	* \return true If successful
 	*
@@ -97,7 +200,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if addressPtr is invalid
 	* \remark Produces a NazaraAssert if result is invalid
 	*/
-
 	bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port, bool* isIPv6, const char** endOfRead)
 	{
 		NazaraAssert(addressPtr, "Invalid address string");

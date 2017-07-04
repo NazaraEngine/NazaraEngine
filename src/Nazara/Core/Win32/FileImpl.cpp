@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -191,9 +191,7 @@ namespace Nz
 		LARGE_INTEGER cursorPos;
 		cursorPos.QuadPart = GetCursorPos();
 
-		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 		WriteFile(m_handle, buffer, static_cast<DWORD>(size), &written, nullptr);
-		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 
 		m_endOfFileUpdated = false;
 

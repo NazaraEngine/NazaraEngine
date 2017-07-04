@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -43,10 +43,11 @@ namespace Nz
 			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawOrderedSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
-			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, UInt8 availableTextureUnit) const;
+			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const;
 
 			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
 			static float ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light);

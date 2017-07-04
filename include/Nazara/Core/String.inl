@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,6 +17,23 @@ namespace Nz
 	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
 	m_sharedString(std::move(sharedString))
 	{
+	}
+
+	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param ... Format arguments
+	*/
+	String String::Format(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		String result = FormatVA(format, args);
+		va_end(args);
+
+		return result;
 	}
 
 	/*!

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -85,6 +85,12 @@ namespace Ndk
 
 	void PhysicsComponent2D::OnDetached()
 	{
+		m_object.reset();
+	}
+
+	void PhysicsComponent2D::OnEntityDestruction()
+	{
+		// Kill rigidbody before entity destruction to force contact callbacks to be called while the entity is still valid
 		m_object.reset();
 	}
 

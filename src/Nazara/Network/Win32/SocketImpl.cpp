@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Win32/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 #if defined(NAZARA_COMPILER_MINGW) && __GNUC__ < 5
@@ -331,7 +332,7 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
-		unsigned int code;
+		DWORD code;
 		int codeLength = sizeof(code);
 
 		if (getsockopt(handle, SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
@@ -339,7 +340,7 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return -1;
+			return 0;
 		}
 
 		if (error)
@@ -365,6 +366,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return code == TRUE;
+	}
+
+	std::size_t SocketImpl::QueryReceiveBufferSize(SocketHandle handle, SocketError* error)
+	{
+		DWORD code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
 	}
 
 	IpAddress SocketImpl::QueryPeerAddress(SocketHandle handle, SocketError* error)
@@ -413,6 +433,25 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
+	}
+
+	std::size_t SocketImpl::QuerySendBufferSize(SocketHandle handle, SocketError* error)
+	{
+		DWORD code;
+		int codeLength = sizeof(code);
+
+		if (getsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return 0;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return code;
 	}
 
 	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
@@ -555,14 +594,74 @@ namespace Nz
 		int byteSent = send(handle, reinterpret_cast<const char*>(buffer), length, 0);
 		if (byteSent == SOCKET_ERROR)
 		{
-			if (error)
-				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAEWOULDBLOCK:
+				{
+					byteSent = 0;
+					break;
+				}
 
-			return false; //< Error
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
 		}
 
 		if (sent)
 			*sent = byteSent;
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+
+		IpAddressImpl::SockAddrBuffer nameBuffer;
+		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
+
+		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
+		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		for (std::size_t i = 0; i < bufferCount; ++i)
+		{
+			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
+			winBuffers[i].len = static_cast<ULONG>(buffers[i].dataLength);
+		}
+
+		DWORD byteSent;
+		if (WSASendTo(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteSent, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		{
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAEWOULDBLOCK:
+				{
+					byteSent = 0;
+					break;
+				}
+
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
+		}
+
+		if (sent)
+			*sent = static_cast<int>(byteSent);
 
 		if (error)
 			*error = SocketError_NoError;
@@ -581,10 +680,23 @@ namespace Nz
 		int byteSent = sendto(handle, reinterpret_cast<const char*>(buffer), length, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength);
 		if (byteSent == SOCKET_ERROR)
 		{
-			if (error)
-				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAEWOULDBLOCK:
+				{
+					byteSent = 0;
+					break;
+				}
 
-			return false; //< Error
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
 		}
 
 		if (sent)
@@ -664,6 +776,44 @@ namespace Nz
 
 		BOOL option = nodelay;
 		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = static_cast<DWORD>(size);
+		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = static_cast<DWORD>(size);
+		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());

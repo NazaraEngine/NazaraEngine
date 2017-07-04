@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,7 +24,7 @@ namespace Nz
 			ByteStream(const void* ptr, Nz::UInt64 size);
 			ByteStream(const ByteStream&) = delete;
 			inline ByteStream(ByteStream&& stream);
-			~ByteStream();
+			virtual ~ByteStream();
 
 			inline Endianness GetDataEndianness() const;
 			inline Nz::UInt64 GetSize() const;

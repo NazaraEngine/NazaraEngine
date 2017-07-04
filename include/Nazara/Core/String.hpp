@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,7 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <atomic>
+#include <cstdarg>
 #include <iosfwd>
 #include <memory>
 #include <string>
@@ -239,6 +240,8 @@ namespace Nz
 
 			static String Boolean(bool boolean);
 			static int Compare(const String& first, const String& second);
+			static inline String Format(const char* format, ...);
+			static String FormatVA(const char* format, va_list arg);
 			static String Number(float number);
 			static String Number(double number);
 			static String Number(long double number);

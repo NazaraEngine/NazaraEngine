@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,10 +27,13 @@ namespace Nz
 
 			void Clear();
 
+			inline void ForEach(const std::function<bool(const ParameterList& list, const String& name)>& callback);
+			inline void ForEach(const std::function<void(const ParameterList& list, const String& name)>& callback) const;
+
 			bool GetBooleanParameter(const String& name, bool* value) const;
 			bool GetColorParameter(const String& name, Color* value) const;
-			bool GetFloatParameter(const String& name, float* value) const;
-			bool GetIntegerParameter(const String& name, int* value) const;
+			bool GetDoubleParameter(const String& name, double* value) const;
+			bool GetIntegerParameter(const String& name, long long* value) const;
 			bool GetParameterType(const String& name, ParameterType* type) const;
 			bool GetPointerParameter(const String& name, void** value) const;
 			bool GetStringParameter(const String& name, String* value) const;
@@ -45,8 +48,8 @@ namespace Nz
 			void SetParameter(const String& name, const String& value);
 			void SetParameter(const String& name, const char* value);
 			void SetParameter(const String& name, bool value);
-			void SetParameter(const String& name, float value);
-			void SetParameter(const String& name, int value);
+			void SetParameter(const String& name, double value);
+			void SetParameter(const String& name, long long value);
 			void SetParameter(const String& name, void* value);
 			void SetParameter(const String& name, void* value, Destructor destructor);
 
@@ -81,8 +84,8 @@ namespace Nz
 					~Value() {}
 
 					bool boolVal;
-					float floatVal;
-					int intVal;
+					double doubleVal;
+					long long intVal;
 					void* ptrVal;
 					Color colorVal;
 					String stringVal;
@@ -101,5 +104,7 @@ namespace Nz
 }
 
 std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
+
+#include <Nazara/Core/ParameterList.inl>
 
 #endif // NAZARA_PARAMETERLIST_HPP

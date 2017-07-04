@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -92,6 +92,17 @@ namespace Ndk
 
 		return m_projectionMatrix;
 	}
+
+
+	/*!
+	* \brief Gets the projection type of the camera
+	* \return Projection type of the camera
+	*/
+	Nz::ProjectionType CameraComponent::GetProjectionType() const
+	{
+		return m_projectionType;
+	}
+
 
 	/*!
 	* \brief Gets the target of the camera

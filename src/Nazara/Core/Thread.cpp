@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -118,6 +118,25 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Changes the debugging name associated to a thread
+	*
+	* Changes the debugging name associated with a particular thread, and may helps with debugging tools.
+	*
+	* \param name The new name of the thread
+	*
+	* \remark Due to system limitations, thread name cannot exceed 15 characters (excluding null-terminator)
+	*
+	* \see SetCurrentThreadName
+	*/
+	void Thread::SetName(const String& name)
+	{
+		NazaraAssert(m_impl, "Invalid thread");
+		NazaraAssert(name.GetSize() < 16, "Thread name is too long");
+
+		m_impl->SetName(name);
+	}
+
+	/*!
 	* \brief Moves the other thread into this
 	* \return A reference to this
 	*
@@ -145,10 +164,28 @@ namespace Nz
 	* \brief Gets the number of simulatenous threads that can run on the same cpu
 	* \return The number of simulatenous threads
 	*/
-
 	unsigned int Thread::HardwareConcurrency()
 	{
 		return HardwareInfo::GetProcessorCount();
+	}
+
+
+	/*!
+	* \brief Changes the debugging name associated to the calling thread
+	*
+	* Changes the debugging name associated with the calling thread, and may helps with debugging tools.
+	*
+	* \param name The new name associated with this thread
+	*
+	* \remark Due to system limitations, thread name cannot exceed 15 characters (excluding null-terminator)
+	*
+	* \see SetName
+	*/
+	void Thread::SetCurrentThreadName(const String& name)
+	{
+		NazaraAssert(name.GetSize() < 16, "Thread name is too long");
+
+		ThreadImpl::SetCurrentName(name);
 	}
 
 	/*!
@@ -156,7 +193,6 @@ namespace Nz
 	*
 	* \param milliseconds The number of milliseconds to sleep
 	*/
-
 	void Thread::Sleep(UInt32 milliseconds)
 	{
 		ThreadImpl::Sleep(milliseconds);

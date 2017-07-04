@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,6 +10,21 @@
 namespace Nz
 {
 	Collider2D::~Collider2D() = default;
+
+	std::vector<cpShape*> Collider2D::GenerateShapes(RigidBody2D* body) const
+	{
+		cpShapeFilter filter = cpShapeFilterNew(m_collisionGroup, m_categoryMask, m_collisionMask);
+
+		std::vector<cpShape*> shapes = CreateShapes(body);
+		for (cpShape* shape : shapes)
+		{
+			cpShapeSetFilter(shape, filter);
+			cpShapeSetCollisionType(shape, m_collisionId);
+			cpShapeSetSensor(shape, (m_trigger) ? cpTrue : cpFalse);
+		}
+
+		return shapes;
+	}
 
 	/******************************** BoxCollider2D *********************************/
 

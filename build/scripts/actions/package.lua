@@ -85,7 +85,7 @@ ACTION.Function = function ()
 	local exeFileExt
 	local exeFilterFunc
 	if (os.is("windows")) then	
-		binFileMasks = {"**.dll"}
+		binFileMasks = {"**.dll", "**.pdb"}
 		libFileMasks = {"**.lib", "**.a"}
 		exeFileExt = ".exe"
 		exeFilterFunc = function (filePath) return true end

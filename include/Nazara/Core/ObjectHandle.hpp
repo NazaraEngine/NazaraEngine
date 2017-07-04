@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,7 +38,7 @@ namespace Nz
 
 			Nz::String ToString() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 
@@ -69,7 +69,7 @@ namespace Nz
 	template<typename T> bool operator<(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<(const ObjectHandle<T>& lhs, const T& rhs);
 
-	template<typename T> bool operator<=(const ObjectHandle<T>, const ObjectHandle<T>& rhs);
+	template<typename T> bool operator<=(const ObjectHandle<T>&, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const ObjectHandle<T>& lhs, const T& rhs);
 

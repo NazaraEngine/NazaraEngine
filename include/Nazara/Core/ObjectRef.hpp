@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,7 +31,7 @@ namespace Nz
 			bool Reset(T* object = nullptr);
 			ObjectRef& Swap(ObjectRef& ref);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 

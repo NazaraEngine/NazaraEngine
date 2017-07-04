@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -155,7 +155,9 @@ namespace Nz
 	{
 		InitStream(HeaderSize + size, HeaderSize, OpenMode_ReadOnly);
 		m_buffer->Resize(HeaderSize + size);
-		std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
+
+		if (ptr)
+			std::memcpy(m_buffer->GetBuffer() + HeaderSize, ptr, size);
 
 		m_netCode = netCode;
 	}

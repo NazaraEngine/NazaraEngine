@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -9,26 +9,31 @@
 namespace Ndk
 {
 	inline BaseWidget::BaseWidget() :
-	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
+	m_canvasIndex(InvalidCanvasIndex),
 	m_canvas(nullptr),
+	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
+	m_cursor(Nz::SystemCursor_Default),
 	m_contentSize(50.f, 50.f),
-	m_widgetParent(nullptr)
+	m_widgetParent(nullptr),
+	m_visible(true)
 	{
 		SetPadding(5.f, 5.f, 5.f, 5.f);
 	}
 
 	template<typename T, typename... Args>
-	inline T& BaseWidget::Add(Args&&... args)
+	inline T* BaseWidget::Add(Args&&... args)
 	{
 		std::unique_ptr<T> widget = std::make_unique<T>(this, std::forward<Args>(args)...);
-		T& widgetRef = *widget;
+		T* widgetPtr = widget.get();
 		AddChild(std::move(widget));
 
-		return widgetRef;
+		return widgetPtr;
 	}
 
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
+		widget->Show(m_visible);
+		widget->SetParent(this);
 		m_children.emplace_back(std::move(widget));
 	}
 
@@ -41,14 +46,29 @@ namespace Ndk
 		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
 	}
 
+	inline const Nz::Color& BaseWidget::GetBackgroundColor() const
+	{
+		return m_backgroundColor;
+	}
+
 	inline Canvas* BaseWidget::GetCanvas()
 	{
 		return m_canvas;
 	}
 
+	inline Nz::SystemCursor BaseWidget::GetCursor() const
+	{
+		return m_cursor;
+	}
+
 	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
 	{
 		return m_padding;
+	}
+
+	inline Nz::Vector2f BaseWidget::GetContentOrigin() const
+	{
+		return { m_padding.left, m_padding.top };
 	}
 
 	inline const Nz::Vector2f& BaseWidget::GetContentSize() const
@@ -61,10 +81,16 @@ namespace Ndk
 		return Nz::Vector2f(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
 	}
 
+	inline bool BaseWidget::IsVisible() const
+	{
+		return m_visible;
+	}
+
 	inline void BaseWidget::SetContentSize(const Nz::Vector2f& size)
 	{
+		NotifyParentResized(size);
 		m_contentSize = size;
-		
+
 		Layout();
 	}
 
@@ -76,6 +102,17 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline bool BaseWidget::IsRegisteredToCanvas() const
+	{
+		return m_canvas && m_canvasIndex != InvalidCanvasIndex;
+	}
+
+	inline void BaseWidget::NotifyParentResized(const Nz::Vector2f& newSize)
+	{
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->OnParentResized(newSize);
 	}
 
 	inline void BaseWidget::UpdateCanvasIndex(std::size_t index)

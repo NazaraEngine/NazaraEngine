@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -82,9 +82,9 @@ namespace Ndk
 	* \param count Number of entities to create
 	*/
 
-	inline World::EntityList World::CreateEntities(unsigned int count)
+	inline World::EntityVector World::CreateEntities(unsigned int count)
 	{
-		EntityList list;
+		EntityVector list;
 		list.reserve(count);
 
 		for (unsigned int i = 0; i < count; ++i)
@@ -98,7 +98,7 @@ namespace Ndk
 	* \return A constant reference to the entities
 	*/
 
-	inline const World::EntityList& World::GetEntities()
+	inline const EntityList& World::GetEntities() const
 	{
 		return m_aliveEntities;
 	}
@@ -165,15 +165,50 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Marks an entity for deletion
+	*
+	* \param Pointer to the entity
+	*
+	* \remark If the entity pointer is invalid, nothing is done
+	* \remark For safety, entities are not killed until the next world update
+	*/
+	inline void World::KillEntity(Entity* entity)
+	{
+		if (IsEntityValid(entity))
+			m_killedEntities.UnboundedSet(entity->GetId(), true);
+	}
+
+	/*!
 	* \brief Kills a set of entities
+	*
+	* This function has the same effect as calling KillEntity for every entity contained in the vector
 	*
 	* \param list Set of entities to kill
 	*/
-
-	inline void World::KillEntities(const EntityList& list)
+	inline void World::KillEntities(const EntityVector& list)
 	{
 		for (const EntityHandle& entity : list)
 			KillEntity(entity);
+	}
+
+	/*!
+	* \brief Gets an entity
+	* \return A constant reference to a handle of the entity
+	*
+	* \param id Identifier of the entity
+	*
+	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a reference to a handle from a world update to another
+	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
+	*/
+	inline const EntityHandle& World::GetEntity(EntityId id)
+	{
+		if (IsEntityIdValid(id))
+			return m_entityBlocks[id]->handle;
+		else
+		{
+			NazaraError("Invalid ID");
+			return EntityHandle::InvalidHandle;
+		}
 	}
 
 	/*!
@@ -197,7 +232,7 @@ namespace Ndk
 
 	inline bool World::IsEntityIdValid(EntityId id) const
 	{
-		return id < m_entities.size() && m_entities[id].entity.IsValid();
+		return id < m_entityBlocks.size() && m_entityBlocks[id]->entity.IsValid();
 	}
 
 	/*!
@@ -266,10 +301,12 @@ namespace Ndk
 	{
 		m_aliveEntities         = std::move(world.m_aliveEntities);
 		m_dirtyEntities         = std::move(world.m_dirtyEntities);
+		m_entityBlocks          = std::move(world.m_entityBlocks);
 		m_freeIdList            = std::move(world.m_freeIdList);
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
+		m_waitingEntities       = std::move(world.m_waitingEntities);
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
@@ -284,7 +321,7 @@ namespace Ndk
 
 	inline void World::Invalidate()
 	{
-		m_dirtyEntities.Resize(m_entities.size(), false);
+		m_dirtyEntities.Resize(m_entityBlocks.size(), false);
 		m_dirtyEntities.Set(true); // Activation of all bits
 	}
 

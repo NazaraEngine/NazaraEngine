@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -39,7 +39,7 @@ namespace Nz
 
 	inline bool VertexBuffer::IsValid() const
 	{
-		return m_buffer && m_vertexDeclaration;
+		return m_buffer.IsValid() && m_vertexDeclaration.IsValid();
 	}
 
 	template<typename... Args>
