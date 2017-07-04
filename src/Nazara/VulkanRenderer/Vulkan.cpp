@@ -62,16 +62,16 @@ namespace Nz
 		parameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);
 
 		bool bParam;
-		int iParam;
+		long long iParam;
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
-			apiVersion = iParam;
+			apiVersion = static_cast<UInt32>(iParam);
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion", &iParam))
-			appVersion = iParam;
+			appVersion = static_cast<UInt32>(iParam);
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion", &iParam))
-			engineVersion = iParam;
+			engineVersion = static_cast<UInt32>(iParam);
 
 		VkApplicationInfo appInfo = {
 			VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -100,7 +100,7 @@ namespace Nz
 		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
 		{
 			additionalLayers.reserve(iParam);
-			for (int i = 0; i < iParam; ++i)
+			for (long long i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkInstanceInfo_EnabledLayer" + String::Number(i);
 				Nz::String layer;
@@ -171,13 +171,13 @@ namespace Nz
 			UInt32(enabledExtensions.size()),
 			enabledExtensions.data()
 		};
-		
+
 		if (!s_instance.Create(instanceInfo))
 		{
 			NazaraError("Failed to create instance");
 			return false;
 		}
-		
+
 		std::vector<VkPhysicalDevice> physDevices;
 		if (!s_instance.EnumeratePhysicalDevices(&physDevices))
 		{
@@ -299,7 +299,7 @@ namespace Nz
 		std::vector<const char*> enabledExtensions;
 
 		bool bParam;
-		int iParam;
+		long long iParam;
 
 		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
@@ -310,7 +310,7 @@ namespace Nz
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledLayerCount", &iParam))
 		{
 			additionalLayers.reserve(iParam);
-			for (int i = 0; i < iParam; ++i)
+			for (long long i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkDeviceInfo_EnabledLayer" + String::Number(i);
 				Nz::String layer;
@@ -330,7 +330,7 @@ namespace Nz
 		std::vector<String> additionalExtensions; // Just to keep the String alive
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
 		{
-			for (int i = 0; i < iParam; ++i)
+			for (long long i = 0; i < iParam; ++i)
 			{
 				Nz::String parameterName = "VkDeviceInfo_EnabledExtension" + String::Number(i);
 				Nz::String extension;

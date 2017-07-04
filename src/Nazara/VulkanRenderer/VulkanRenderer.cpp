@@ -5,7 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/RenderDeviceInstance.hpp>
-#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+//#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
@@ -78,7 +78,7 @@ namespace Nz
 		{
 			RenderDevice device;
 			device.name = physDevice.properties.deviceName;
-			
+
 			switch (physDevice.properties.deviceType)
 			{
 				case VK_PHYSICAL_DEVICE_TYPE_CPU:
