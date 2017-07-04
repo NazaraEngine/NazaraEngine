@@ -35,7 +35,7 @@ namespace Nz
 
 			case VK_ERROR_OUT_OF_DEVICE_MEMORY:
 				return "A device memory allocation has failed";
-				
+
 			case VK_ERROR_INITIALIZATION_FAILED:
 				return "Initialization of an object could not be completed for implementation-specific reasons";
 
@@ -86,6 +86,12 @@ namespace Nz
 
 			case VK_ERROR_INVALID_SHADER_NV:
 				return "One or more shaders failed to compile or link";
+
+			case VK_ERROR_OUT_OF_POOL_MEMORY_KHR:
+				return "A requested pool allocation has failed";
+
+			case VK_ERROR_INVALID_EXTERNAL_HANDLE_KHX:
+				return "An external handle is not a valid handle of the specified type";
 
 			default:
 				break;
