@@ -373,7 +373,7 @@ namespace Nz
 			return false;
 		}
 
-		return Run(0, 0);
+		return Run(0, LUA_MULTRET);
 	}
 
 	bool LuaState::ExecuteFromFile(const String& filePath)
@@ -419,7 +419,7 @@ namespace Nz
 			return false;
 		}
 
-		return Run(0, 0);
+		return Run(0, LUA_MULTRET);
 	}
 
 	int LuaState::GetAbsIndex(int index) const
