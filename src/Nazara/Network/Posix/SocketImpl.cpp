@@ -550,6 +550,90 @@ namespace Nz
 			senderIp = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(&nameBuffer));
 
 		if (from)
+			*from = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(&nameBuffer));
+
+		if (read)
+			*read = byteRead;
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::ReceiveMultiple(SocketHandle handle, NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, int* read, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+
+		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(iovec));
+		struct iovec* sysBuffers = static_cast<struct iovec*>(memory.GetPtr());
+		for (std::size_t i = 0; i < bufferCount; ++i)
+		{
+			sysBuffers[i].iov_base = buffers[i].data;
+			sysBuffers[i].iov_len = buffers[i].dataLength;
+		}
+
+		struct msghdr msgHdr;
+		std::memset(&msgHdr, 0, sizeof(msgHdr));
+
+		msgHdr.msg_iov = sysBuffers;
+		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
+
+		IpAddressImpl::SockAddrBuffer nameBuffer;
+		if (from)
+		{
+			msgHdr.msg_name = nameBuffer.data();
+			msgHdr.msg_namelen = static_cast<socklen_t>(nameBuffer.size());
+		}
+
+		int byteRead = recvmsg(handle, &msgHdr, MSG_NOSIGNAL);
+		if (byteRead == -1)
+		{
+			int errorCode = GetLastErrorCode();
+			if (errorCode == EAGAIN)
+				errorCode = EWOULDBLOCK;
+
+			switch (errorCode)
+			{
+				case EWOULDBLOCK:
+				{
+					// If we have no data and are not blocking, return true with 0 byte read
+					recvLength = 0;
+					senderIp = IpAddress::Invalid;
+					break;
+				}
+
+				default:
+				{
+					if (error)
+						*error = TranslateErrnoToResolveError(errorCode);
+
+					return false; //< Error
+				}
+			}
+		}
+		else if (byteRead == 0)
+		{
+			if (error)
+				*error = SocketError_ConnectionClosed;
+
+			return false; //< Connection closed
+		}
+		else // else we received something
+			senderIp = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(nameBuffer.data()));
+
+#ifdef HAS_MSGHDR_FLAGS
+		if (msgHdr.msg_flags & MSG_TRUNC)
+		{
+			if (error)
+				*error = SocketError_DatagramSize;
+
+			return false;
+		}
+#endif
+
+		if (from)
 			*from = senderIp;
 
 		if (read)
