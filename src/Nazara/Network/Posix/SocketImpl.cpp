@@ -587,6 +587,8 @@ namespace Nz
 			msgHdr.msg_namelen = static_cast<socklen_t>(nameBuffer.size());
 		}
 
+		IpAddress senderIp;
+
 		int byteRead = recvmsg(handle, &msgHdr, MSG_NOSIGNAL);
 		if (byteRead == -1)
 		{
@@ -599,7 +601,7 @@ namespace Nz
 				case EWOULDBLOCK:
 				{
 					// If we have no data and are not blocking, return true with 0 byte read
-					recvLength = 0;
+					byteRead = 0;
 					senderIp = IpAddress::Invalid;
 					break;
 				}
