@@ -509,12 +509,12 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		socklen_t bufferLength = sizeof(sockaddr_in);
+		socklen_t bufferLength = static_cast<socklen_t>(nameBuffer.size());
 
 		IpAddress senderIp;
 
 		int byteRead = recvfrom(handle, buffer, length, 0, reinterpret_cast<sockaddr*>(&nameBuffer), &bufferLength);
-		if (byteRead == SOCKET_ERROR)
+		if (byteRead == -1)
 		{
 			int errorCode = GetLastErrorCode();
 			if (errorCode == EAGAIN)
