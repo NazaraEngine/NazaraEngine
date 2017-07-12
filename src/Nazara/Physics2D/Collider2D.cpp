@@ -41,7 +41,7 @@ namespace Nz
 
 	float BoxCollider2D::ComputeInertialMatrix(float mass) const
 	{
-		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y)));
+		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height)));
 	}
 
 	ColliderType2D BoxCollider2D::GetType() const
@@ -52,7 +52,7 @@ namespace Nz
 	std::vector<cpShape*> BoxCollider2D::CreateShapes(RigidBody2D* body) const
 	{
 		std::vector<cpShape*> shapes;
-		shapes.push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y), m_radius));
+		shapes.push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height), m_radius));
 
 		return shapes;
 	}

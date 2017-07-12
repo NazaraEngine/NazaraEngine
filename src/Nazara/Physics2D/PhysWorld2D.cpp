@@ -146,7 +146,7 @@ namespace Nz
 		};
 
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
-		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y + boundingBox.height, boundingBox.x + boundingBox.width, boundingBox.y), filter, callback, bodies);
+		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, callback, bodies);
 	}
 
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
