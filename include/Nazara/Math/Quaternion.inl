@@ -481,11 +481,11 @@ namespace Nz
 		T test = x * y + z * w;
 		if (test > F(0.499))
 			// singularity at north pole
-			return EulerAngles<T>(FromDegrees(F(90.0)), FromRadians(F(2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(2.0) * std::atan2(x, w)), FromDegrees(F(90.0)));
 
 		if (test < F(-0.499))
 			// singularity at south pole
-			return EulerAngles<T>(FromDegrees(F(-90.0)), FromRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(-2.0) * std::atan2(x, w)), FromDegrees(F(-90.0)));
 
 		return EulerAngles<T>(FromRadians(std::atan2(F(2.0) * x * w - F(2.0) * y * z, F(1.0) - F(2.0) * x * x - F(2.0) * z * z)),
 		                      FromRadians(std::atan2(F(2.0) * y * w - F(2.0) * x * z, F(1.0) - F(2.0) * y * y - F(2.0) * z * z)),
