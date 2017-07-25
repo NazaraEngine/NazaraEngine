@@ -191,6 +191,11 @@ namespace Nz
 		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
 	}
 
+	PhysWorld2D* RigidBody2D::GetWorld() const
+	{
+		return m_world;
+	}
+
 	bool RigidBody2D::IsMoveable() const
 	{
 		return m_mass > 0.f;
