@@ -211,6 +211,11 @@ namespace Nz
 		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
 	}
 
+	PhysWorld2D* RigidBody2D::GetWorld() const
+	{
+		return m_world;
+	}
+
 	bool RigidBody2D::IsMoveable() const
 	{
 		return m_mass > 0.f;
@@ -253,7 +258,7 @@ namespace Nz
 			cpSpaceAddShape(space, shape);
 		}
 
-		cpBodySetMoment(m_handle, m_geom->ComputeInertialMatrix(m_mass));
+		cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
 	}
 
 	void RigidBody2D::SetMass(float mass)
@@ -265,7 +270,7 @@ namespace Nz
 				m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
 				{
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeInertialMatrix(mass));
+					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				});
 			}
 			else
@@ -279,7 +284,7 @@ namespace Nz
 				{
 					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeInertialMatrix(mass));
+					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				}
 			});
 		}

@@ -135,7 +135,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API CompoundCollider3D : public Collider3D
 	{
 		public:
-			CompoundCollider3D(Collider3D** geoms, std::size_t geomCount);
+			CompoundCollider3D(std::vector<Collider3DRef> geoms);
 
 			const std::vector<Collider3DRef>& GetGeoms() const;
 			ColliderType3D GetType() const override;

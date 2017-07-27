@@ -48,6 +48,7 @@ namespace Nz
 			float GetRotation() const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			PhysWorld2D* GetWorld() const;
 
 			bool IsMoveable() const;
 			bool IsSleeping() const;
