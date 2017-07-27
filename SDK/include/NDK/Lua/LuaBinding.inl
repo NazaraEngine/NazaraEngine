@@ -50,7 +50,7 @@ namespace Ndk
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 
 		ComponentBinding binding;
-		binding.adder = &Detail::AddComponentIf<std::is_default_constructible<T>::value>::AddComponent<T>;
+		binding.adder = &Detail::AddComponentIf<std::is_default_constructible<T>::value>::template AddComponent<T>;
 		binding.getter = &PushComponentOfType<T>;
 		binding.index = T::componentIndex;
 		binding.name = name;
