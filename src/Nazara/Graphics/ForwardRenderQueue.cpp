@@ -697,7 +697,7 @@ namespace Nz
 		auto it = layers.find(i);
 		if (it == layers.end())
 			it = layers.insert(std::make_pair(i, Layer())).first;
-		
+
 		Layer& layer = it->second;
 		layer.clearCount = 0;
 
@@ -729,7 +729,6 @@ namespace Nz
 	void ForwardRenderQueue::SortForOrthographic(const AbstractViewer * viewer)
 	{
 		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
-		Vector3f viewerPos = viewer->GetEyePosition();
 
 		for (auto& pair : layers)
 		{

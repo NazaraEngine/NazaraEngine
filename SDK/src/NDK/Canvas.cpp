@@ -48,7 +48,7 @@ namespace Ndk
 		m_widgetBoxes.pop_back();
 	}
 
-	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -59,7 +59,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
+	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -70,7 +70,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnEventMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
