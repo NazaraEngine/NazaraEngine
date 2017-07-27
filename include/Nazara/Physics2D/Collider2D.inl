@@ -100,6 +100,20 @@ namespace Nz
 		return object.release();
 	}
 
+	inline const std::vector<Collider2DRef>& Nz::CompoundCollider2D::GetGeoms() const
+	{
+		return m_geoms;
+	}
+
+	template<typename... Args>
+	CompoundCollider2DRef CompoundCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<CompoundCollider2D> object(new CompoundCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
+
 	template<typename... Args>
 	NullCollider2DRef NullCollider2D::New(Args&&... args)
 	{
