@@ -45,6 +45,40 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			}
 		}
 
+		WHEN("We construct a compound")
+		{
+			Nz::Rectf aabb(0.f, 0.f, 1.f, 1.f);
+			Nz::BoxCollider2DRef box1 = Nz::BoxCollider2D::New(aabb);
+			aabb.Translate(Nz::Vector2f::Unit());
+			Nz::BoxCollider2DRef box2 = Nz::BoxCollider2D::New(aabb);
+
+			std::vector<Nz::Collider2DRef> colliders;
+			colliders.push_back(box1);
+			colliders.push_back(box2);
+			Nz::CompoundCollider2D compound(colliders);
+
+			THEN("We expect those to be true")
+			{
+				CHECK(compound.GetType() == Nz::ColliderType2D_Compound);
+			}
+		}
+
+		WHEN("We construct a convex")
+		{
+			std::vector<Nz::Vector2f> vertices;
+			vertices.push_back(Nz::Vector2f(0.f, 0.f));
+			vertices.push_back(Nz::Vector2f(0.f, 1.f));
+			vertices.push_back(Nz::Vector2f(1.f, 1.f));
+			vertices.push_back(Nz::Vector2f(1.f, 0.f));
+
+			Nz::ConvexCollider2D convex(Nz::SparsePtr<const Nz::Vector2f>(vertices.data()), vertices.size());
+
+			THEN("We expect those to be true")
+			{
+				CHECK(convex.GetType() == Nz::ColliderType2D_Convex);
+			}
+		}
+
 		WHEN("We construct a null")
 		{
 			Nz::NullCollider2D null;

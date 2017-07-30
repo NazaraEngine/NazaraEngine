@@ -218,6 +218,60 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		}
 	}
 
+	GIVEN("A physic world and a rigid body of compound")
+	{
+		Nz::PhysWorld2D world;
+
+		Nz::Rectf aabb(0.f, 0.f, 1.f, 1.f);
+		Nz::BoxCollider2DRef box1 = Nz::BoxCollider2D::New(aabb);
+		aabb.Translate(Nz::Vector2f::Unit());
+		Nz::BoxCollider2DRef box2 = Nz::BoxCollider2D::New(aabb);
+
+		std::vector<Nz::Collider2DRef> colliders;
+		colliders.push_back(box1);
+		colliders.push_back(box2);
+		Nz::CompoundCollider2DRef compound = Nz::CompoundCollider2D::New(colliders);
+
+		float mass = 1.f;
+		Nz::RigidBody2D body(&world, mass, compound);
+		world.Step(1.f);
+
+		WHEN("We ask for the aabb of the compound")
+		{
+			THEN("We expect this to be true")
+			{
+				Nz::Rectf compoundAABB(0.f, 0.f, 2.f, 2.f);
+				REQUIRE(body.GetAABB() == compoundAABB);
+			}
+		}
+	}
+
+	GIVEN("A physic world and a rigid body of circle")
+	{
+		Nz::PhysWorld2D world;
+
+		std::vector<Nz::Vector2f> vertices;
+		vertices.push_back(Nz::Vector2f(0.f, 0.f));
+		vertices.push_back(Nz::Vector2f(0.f, 1.f));
+		vertices.push_back(Nz::Vector2f(1.f, 1.f));
+		vertices.push_back(Nz::Vector2f(1.f, 0.f));
+
+		Nz::SparsePtr<const Nz::Vector2f> sparsePtr(vertices.data());
+		Nz::ConvexCollider2DRef convex = Nz::ConvexCollider2D::New(sparsePtr, vertices.size());
+		float mass = 1.f;
+		Nz::RigidBody2D body(&world, mass, convex);
+		world.Step(1.f);
+
+		WHEN("We ask for the aabb of the convex")
+		{
+			THEN("We expect this to be true")
+			{
+				Nz::Rectf convexAABB(0.f, 0.f, 1.f, 1.f);
+				REQUIRE(body.GetAABB() == convexAABB);
+			}
+		}
+	}
+
 	GIVEN("A physic world and a rigid body of segment")
 	{
 		Nz::PhysWorld2D world;
