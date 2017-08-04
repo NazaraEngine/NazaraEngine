@@ -30,7 +30,7 @@ namespace Nz
 			bool RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(SocketHandle socket);
 
-			int Wait(UInt64 msTimeout, SocketError* error);
+			int Wait(int msTimeout, SocketError* error);
 
 		private:
 			std::unordered_set<SocketHandle> m_readyToReadSockets;
