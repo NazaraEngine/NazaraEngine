@@ -204,6 +204,11 @@ namespace Nz
 		return velocity;
 	}
 
+	PhysWorld3D* RigidBody3D::GetWorld() const
+	{
+		return m_world;
+	}
+
 	bool RigidBody3D::IsAutoSleepEnabled() const
 	{
 		return NewtonBodyGetAutoSleep(m_body) != 0;
@@ -314,7 +319,7 @@ namespace Nz
 				NazaraUnused(userData);
 				NewtonBodySetSleepState(body, 0);
 				return 1;
-			}, 
+			},
 			nullptr);
 		}
 	}

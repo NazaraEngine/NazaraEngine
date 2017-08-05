@@ -31,7 +31,7 @@ namespace Nz
 			bool RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(AbstractSocket& socket);
 
-			bool Wait(UInt64 msTimeout);
+			bool Wait(int msTimeout);
 
 			inline SocketPoller& operator=(SocketPoller&& socketPoller);
 

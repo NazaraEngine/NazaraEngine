@@ -60,12 +60,12 @@ namespace Nz
 		{
 			cpPointQueryInfo queryInfo;
 
-			if (cpShape* shape = cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
+			if (cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
 			{
 				result->closestPoint.Set(Nz::Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
 				result->distance = float(queryInfo.distance);
 				result->fraction.Set(Nz::Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
-				result->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+				result->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;
 			}
@@ -74,7 +74,7 @@ namespace Nz
 		}
 		else
 		{
-			if (cpShape* shape = cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, nullptr))
+			if (cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, nullptr))
 				return true;
 			else
 				return false;
@@ -114,7 +114,7 @@ namespace Nz
 		{
 			cpSegmentQueryInfo queryInfo;
 
-			if (cpShape* shape = cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
+			if (cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
 			{
 				hitInfo->fraction = float(queryInfo.alpha);
 				hitInfo->hitNormal.Set(Nz::Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
@@ -128,7 +128,7 @@ namespace Nz
 		}
 		else
 		{
-			if (cpShape* shape = cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, nullptr))
+			if (cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, nullptr))
 				return true;
 			else
 				return false;
@@ -146,7 +146,7 @@ namespace Nz
 		};
 
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
-		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y + boundingBox.height, boundingBox.x + boundingBox.width, boundingBox.y), filter, callback, bodies);
+		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, callback, bodies);
 	}
 
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)

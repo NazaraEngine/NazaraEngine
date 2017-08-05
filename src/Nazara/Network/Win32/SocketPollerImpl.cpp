@@ -129,7 +129,7 @@ namespace Nz
 		#endif
 	}
 
-	int SocketPollerImpl::Wait(UInt64 msTimeout, SocketError* error)
+	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 
@@ -179,7 +179,7 @@ namespace Nz
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout > 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
 		if (activeSockets == SOCKET_ERROR)
 		{
 			if (error)
