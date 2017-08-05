@@ -167,11 +167,11 @@ namespace Ndk
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 	}
 
-	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
-	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
@@ -179,15 +179,15 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	void BaseWidget::OnMouseMoved(int /*x*/, int /*y*/, int /*deltaX*/, int /*deltaY*/)
 	{
 	}
 
-	void BaseWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
+	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
 	{
 	}
 
-	void BaseWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
+	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
 	{
 	}
 
@@ -195,11 +195,11 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnParentResized(const Nz::Vector2f& newSize)
+	void BaseWidget::OnParentResized(const Nz::Vector2f& /*newSize*/)
 	{
 	}
 
-	void BaseWidget::OnTextEntered(char32_t character, bool repeated)
+	void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
 	{
 	}
 

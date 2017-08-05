@@ -119,6 +119,42 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Receive multiple datagram from one peer
+	* \return true If data were sent
+	*
+	* \param to Destination IpAddress (must match socket protocol)
+	* \param buffers A pointer to an array of NetBuffer containing buffers and size data
+	* \param bufferCount Number of buffers available
+	* \param from IpAddress of the peer
+	* \param received Optional argument to get the number of bytes received
+	*/
+	bool UdpSocket::ReceiveMultiple(NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, std::size_t* received)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+
+		int read;
+		if (!SocketImpl::ReceiveMultiple(m_handle, buffers, bufferCount, from, &read, &m_lastError))
+		{
+			switch (m_lastError)
+			{
+				case SocketError_ConnectionClosed:
+					m_lastError = SocketError_NoError;
+					read = 0;
+					break;
+
+				default:
+					return false;
+			}
+		}
+
+		if (received)
+			*received = read;
+
+		return true;
+	}
+
+	/*!
 	* \brief Receives the packet available
 	* \return true If packet received
 	*

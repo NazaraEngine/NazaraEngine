@@ -39,6 +39,7 @@ namespace Nz
 			std::size_t QueryMaxDatagramSize();
 
 			bool Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received);
+			bool ReceiveMultiple(NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, std::size_t* received);
 			bool ReceivePacket(NetPacket* packet, IpAddress* from);
 
 			bool Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent);
