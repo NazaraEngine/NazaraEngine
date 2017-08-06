@@ -13,12 +13,12 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class Buffer;
 	class RendererImpl;
 	class RenderDeviceInstance;
