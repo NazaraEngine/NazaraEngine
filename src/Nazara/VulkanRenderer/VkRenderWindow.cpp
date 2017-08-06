@@ -48,7 +48,7 @@ namespace Nz
 		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 		{
 			VkImageSubresourceRange imageRange = {
-						VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // VkImageAspectFlags                     aspectMask
+						VK_IMAGE_ASPECT_DEPTH_BIT, // VkImageAspectFlags                     aspectMask
 						0,                         // uint32_t                               baseMipLevel
 						1,                         // uint32_t                               levelCount
 						0,                         // uint32_t                               baseArrayLayer
@@ -276,7 +276,7 @@ namespace Nz
 					0,                                        // VkAttachmentDescriptionFlags    flags;
 					m_colorFormat,                            // VkFormat                        format;
 					VK_SAMPLE_COUNT_1_BIT,                    // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              loadOp;
+					VK_ATTACHMENT_LOAD_OP_CLEAR,              // VkAttachmentLoadOp              loadOp;
 					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
 					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
 					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
