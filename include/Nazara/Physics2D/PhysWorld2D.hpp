@@ -12,6 +12,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -24,10 +25,10 @@ namespace Nz
 	{
 		friend RigidBody2D;
 
-		using ContactEndCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactPreSolveCallback = bool(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactPostSolveCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactStartCallback = bool(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
+		using ContactEndCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactStartCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 
 		public:
 			struct Callback;
