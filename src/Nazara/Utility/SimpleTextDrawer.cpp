@@ -105,11 +105,10 @@ namespace Nz
 
 	const AbstractTextDrawer::Line& SimpleTextDrawer::GetLine(std::size_t index) const
 	{
-		NazaraAssert(index < m_lines.size(), "Line index out of range");
-
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
+		NazaraAssert(index < m_lines.size(), "Line index out of range");
 		return m_lines[index];
 	}
 
