@@ -174,7 +174,7 @@ namespace Nz
 
 		if (!s_instance.Create(instanceInfo))
 		{
-			NazaraError("Failed to create instance");
+			NazaraError("Failed to create instance: " + TranslateVulkanError(s_instance.GetLastErrorCode()));
 			return false;
 		}
 
