@@ -285,6 +285,14 @@ namespace Nz
 			cpBodySetCenterOfGravity(m_handle, cpv(center.x, center.y));
 	}
 
+	void RigidBody2D::SetMomentOfInertia(float moment)
+	{
+		m_world->RegisterPostStep(this, [moment] (Nz::RigidBody2D* body)
+		{
+			cpBodySetMoment(body->GetHandle(), moment);
+		});
+	}
+
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));

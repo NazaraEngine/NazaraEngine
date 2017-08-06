@@ -57,6 +57,7 @@ namespace Nz
 			void SetGeom(Collider2DRef geom);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
+			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
 			void SetUserdata(void* ud);
