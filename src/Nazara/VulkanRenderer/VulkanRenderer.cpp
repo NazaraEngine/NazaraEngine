@@ -5,7 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/RenderDeviceInstance.hpp>
-//#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
@@ -20,7 +20,7 @@ namespace Nz
 
 	std::unique_ptr<AbstractBuffer> VulkanRenderer::CreateHardwareBufferImpl(Buffer* parent, BufferType type)
 	{
-		return nullptr; //< TODO
+		return std::make_unique<VulkanBuffer>(parent, type); //< TODO
 	}
 
 	std::unique_ptr<RenderSurface> VulkanRenderer::CreateRenderSurfaceImpl()
