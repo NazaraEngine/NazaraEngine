@@ -121,7 +121,9 @@ namespace Ndk
 		std::size_t lineCount = m_drawer.GetLineCount();
 		if (cursorPosition.y >= lineCount)
 			cursorPosition.y = static_cast<unsigned int>(lineCount - 1);
-		
+
+		m_cursorPosition = cursorPosition;
+
 		const auto& lineInfo = m_drawer.GetLine(cursorPosition.y);
 		if (cursorPosition.y + 1 < lineCount)
 		{
@@ -129,7 +131,13 @@ namespace Ndk
 			cursorPosition.x = std::min(cursorPosition.x, static_cast<unsigned int>(nextLineInfo.glyphIndex - lineInfo.glyphIndex - 1));
 		}
 
-		SetCursorPosition(lineInfo.glyphIndex + cursorPosition.x); //<TODO: Optimize to prevent recalculation of line
+		std::size_t glyphIndex = lineInfo.glyphIndex + cursorPosition.x;
+
+		OnTextAreaCursorMove(this, &glyphIndex);
+
+		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
+
+		RefreshCursor();
 	}
 
 	inline void TextAreaWidget::SetReadOnly(bool readOnly)
