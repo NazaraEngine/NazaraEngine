@@ -61,7 +61,6 @@ namespace Ndk
 		m_gradientSprite->SetColor(Nz::Color(128, 128, 128));
 	}
 
-	
 	void ButtonWidget::OnMouseExit()
 	{
 		m_gradientSprite->SetColor(Nz::Color(74, 74, 74));
