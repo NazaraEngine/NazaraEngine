@@ -9,5 +9,7 @@ namespace Ndk
 	inline void ButtonWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
 	{
 		m_textSprite->Update(drawer);
+
+		Layout();
 	}
 }
