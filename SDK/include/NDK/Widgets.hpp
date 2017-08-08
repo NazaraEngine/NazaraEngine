@@ -1,4 +1,4 @@
-// This file was automatically generated
+﻿// This file was automatically generated
 
 #pragma once
 
@@ -8,5 +8,6 @@
 #include <NDK/Widgets/ButtonWidget.hpp>
 #include <NDK/Widgets/LabelWidget.hpp>
 #include <NDK/Widgets/TextAreaWidget.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 
 #endif // NDK_WIDGETS_GLOBAL_HPP
