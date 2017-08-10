@@ -52,12 +52,14 @@ namespace Ndk
 			inline const Nz::Vector2ui& GetCheckboxBorderSize() const;
 
 
+			inline void EnableCheckbox(bool enable = true);
+			inline bool IsCheckboxEnabled() const;
 			inline void EnableTristate(bool enable = true);
 			inline bool IsTristateEnabled() const;
 
 			inline CheckboxState GetState() const;
 			void SetState(CheckboxState state);
-			void SetNextState();
+			CheckboxState SetNextState();
 
 			CheckboxWidget& operator=(const CheckboxWidget&) = delete;
 			CheckboxWidget& operator=(CheckboxWidget&&) = default;
@@ -72,6 +74,7 @@ namespace Ndk
 
 			CheckboxState m_state;
 			bool m_tristate;
+			bool m_checkboxEnabled;
 
 			bool m_adaptativeMargin;
 			float m_textMargin;

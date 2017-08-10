@@ -56,6 +56,17 @@ namespace Ndk
 	}
 
 
+	inline void CheckboxWidget::EnableCheckbox(bool enable)
+	{
+		m_checkboxEnabled = enable;
+		UpdateCheckboxSprite();
+	}
+
+	inline bool CheckboxWidget::IsCheckboxEnabled() const
+	{
+		return m_checkboxEnabled;
+	}
+
 
 	inline void CheckboxWidget::EnableTristate(bool enable)
 	{

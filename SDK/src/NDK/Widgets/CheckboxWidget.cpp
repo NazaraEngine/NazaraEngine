@@ -14,6 +14,7 @@ namespace Ndk
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
 	m_tristate { false },
+	m_checkboxEnabled { true },
 	m_adaptativeMargin { true },
 	m_textMargin { 16.f },
 	m_size { 32, 32 },
@@ -50,6 +51,9 @@ namespace Ndk
 
 	void CheckboxWidget::SetState(CheckboxState state)
 	{
+		if (!m_checkboxEnabled)
+			return;
+
 		if (state == CheckboxState_Tristate)
 			m_tristate = true;
 
@@ -58,8 +62,11 @@ namespace Ndk
 		UpdateCheckboxSprite();
 	}
 
-	void CheckboxWidget::SetNextState()
+	CheckboxState CheckboxWidget::SetNextState()
 	{
+		if (!m_checkboxEnabled)
+			return m_state;
+
 		switch (m_state)
 		{
 			case CheckboxState_Unchecked:
@@ -74,6 +81,8 @@ namespace Ndk
 				SetState(CheckboxState_Unchecked);
 				break;
 		}
+
+		return m_state;
 	}
 
 
@@ -106,8 +115,16 @@ namespace Ndk
 		Nz::Image checkbox;
 		checkbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, m_size.x, m_size.y);
 
-		checkbox.Fill(Nz::Color::Black, Nz::Rectui { m_size.x, m_size.y });
-		checkbox.Fill(Nz::Color::White, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
+		if (m_checkboxEnabled)
+		{
+			checkbox.Fill(Nz::Color::Black, Nz::Rectui { m_size.x, m_size.y });
+			checkbox.Fill(Nz::Color::White, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
+		}
+		else
+		{
+			checkbox.Fill(Nz::Color { 62, 62, 62 }, Nz::Rectui { m_size.x, m_size.y });
+			checkbox.Fill(Nz::Color { 201, 201, 201 }, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
+		}
 
 		m_checkboxSprite->SetTexture(Nz::Texture::New(checkbox).Get());
 		m_checkboxSprite->SetSize(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
