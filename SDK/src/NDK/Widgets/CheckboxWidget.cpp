@@ -120,6 +120,7 @@ namespace Ndk
 			checkbox.Fill(Nz::Color::Black, Nz::Rectui { m_size.x, m_size.y });
 			checkbox.Fill(Nz::Color::White, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
 		}
+
 		else
 		{
 			checkbox.Fill(Nz::Color { 62, 62, 62 }, Nz::Rectui { m_size.x, m_size.y });
@@ -138,6 +139,6 @@ namespace Ndk
 			checkboxString.Set(u8"o"); // ■
 
 		m_checkboxTextSprite->Update(Nz::SimpleTextDrawer::Draw(checkboxString, (m_size.x + m_size.y) / 2u - (m_borderSize.x + m_borderSize.y) / 2u - 2u,
-																0u, Nz::Color::Black));
+																0u, m_checkboxEnabled ? Nz::Color { 62, 62, 62 } : Nz::Color::Black));
 	}
 }
