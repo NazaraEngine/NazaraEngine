@@ -43,7 +43,7 @@ namespace Ndk
 	void CheckboxWidget::ResizeToContent()
 	{
 		Nz::Vector2f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		Nz::Vector2f size { std::max(textSize.x, static_cast<float>(m_size.x)), std::max(textSize.y, static_cast<float>(m_size.y)) };
+		Nz::Vector2f size { m_size.x + m_adaptativeMargin ? m_size.x / 2 : m_textMargin + textSize.x, std::max(textSize.y, static_cast<float>(m_size.y)) };
 
 		SetContentSize(size);
 	}
