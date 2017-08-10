@@ -73,7 +73,7 @@ namespace Ndk
 			void UpdateCheckboxSprite();
 
 			CheckboxState m_state;
-			bool m_tristate;
+			bool m_tristateEnabled;
 			bool m_checkboxEnabled;
 
 			bool m_adaptativeMargin;

@@ -13,7 +13,7 @@ namespace Ndk
 {
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
-	m_tristate { false },
+	m_tristateEnabled { false },
 	m_checkboxEnabled { true },
 	m_adaptativeMargin { true },
 	m_textMargin { 16.f },
@@ -55,7 +55,7 @@ namespace Ndk
 			return;
 
 		if (state == CheckboxState_Tristate)
-			m_tristate = true;
+			m_tristateEnabled = true;
 
 		m_state = state;
 
@@ -74,7 +74,7 @@ namespace Ndk
 				break;
 
 			case CheckboxState_Checked:
-				SetState(m_tristate ? CheckboxState_Tristate : CheckboxState_Unchecked);
+				SetState(m_tristateEnabled ? CheckboxState_Tristate : CheckboxState_Unchecked);
 				break;
 
 			case CheckboxState_Tristate:

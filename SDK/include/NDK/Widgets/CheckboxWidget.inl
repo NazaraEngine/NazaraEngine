@@ -78,12 +78,12 @@ namespace Ndk
 
 	inline void CheckboxWidget::EnableTristate(bool enable)
 	{
-		m_tristate = enable;
+		m_tristateEnabled = enable;
 	}
 
 	inline bool CheckboxWidget::IsTristateEnabled() const
 	{
-		return m_tristate;
+		return m_tristateEnabled;
 	}
 
 
