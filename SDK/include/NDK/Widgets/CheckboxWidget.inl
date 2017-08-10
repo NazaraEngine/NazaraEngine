@@ -13,6 +13,28 @@ namespace Ndk
 		Layout();
 	}
 
+
+	inline void CheckboxWidget::SetTextMargin(float margin)
+	{
+		m_textMargin = margin;
+	}
+
+	inline float CheckboxWidget::GetTextMargin() const
+	{
+		return m_textMargin;
+	}
+
+	inline void CheckboxWidget::EnableAdaptativeMargin(bool enable)
+	{
+		m_adaptativeMargin = enable;
+	}
+
+	inline bool CheckboxWidget::IsMarginAdaptative() const
+	{
+		return m_adaptativeMargin;
+	}
+
+
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2ui& size)
 	{
 		m_size = size;
@@ -22,6 +44,17 @@ namespace Ndk
 	{
 		m_borderSize = size;
 	}
+
+	inline const Nz::Vector2ui& CheckboxWidget::GetCheckboxSize() const
+	{
+		return m_size;
+	}
+
+	inline const Nz::Vector2ui& CheckboxWidget::GetCheckboxBorderSize() const
+	{
+		return m_borderSize;
+	}
+
 
 
 	inline void CheckboxWidget::EnableTristate(bool enable)

@@ -39,8 +39,18 @@ namespace Ndk
 
 			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
+
+			inline void SetTextMargin(float margin);
+			inline float GetTextMargin() const;
+			inline void EnableAdaptativeMargin(bool enable = true);
+			inline bool IsMarginAdaptative() const;
+
+
 			inline void SetCheckboxSize(const Nz::Vector2ui& size);
 			inline void SetCheckboxBorderSize(const Nz::Vector2ui& size);
+			inline const Nz::Vector2ui& GetCheckboxSize() const;
+			inline const Nz::Vector2ui& GetCheckboxBorderSize() const;
+
 
 			inline void EnableTristate(bool enable = true);
 			inline bool IsTristateEnabled() const;
@@ -63,6 +73,8 @@ namespace Ndk
 			CheckboxState m_state;
 			bool m_tristate;
 
+			bool m_adaptativeMargin;
+			float m_textMargin;
 			Nz::Vector2ui m_size;
 			Nz::Vector2ui m_borderSize;
 

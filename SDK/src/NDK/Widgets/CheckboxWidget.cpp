@@ -7,12 +7,15 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/World.hpp>
+#include <algorithm>
 
 namespace Ndk
 {
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
 	m_tristate { false },
+	m_adaptativeMargin { true },
+	m_textMargin { 16.f },
 	m_size { 32, 32 },
 	m_borderSize { 3, 3 }
 	{
@@ -81,13 +84,12 @@ namespace Ndk
 		Nz::Vector2f origin = GetContentOrigin();
 		m_checkboxEntity->GetComponent<NodeComponent>().SetPosition(origin);
 
-		Nz::Boxf checkboxTextBox = m_checkboxTextEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().aabb;
-		m_checkboxTextEntity->GetComponent<NodeComponent>().SetPosition(origin.x + m_size.x / 2 - checkboxTextBox.width, origin.y + m_size.y / 2 - checkboxTextBox.height);
+		Nz::Vector2f checkboxTextBox = m_checkboxTextSprite->GetBoundingVolume().obb.localBox.GetLengths();
+		m_checkboxTextEntity->GetComponent<NodeComponent>().SetPosition(origin.x + m_borderSize.x, origin.y + m_borderSize.y);
 
-		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().aabb;
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + m_size.x + m_size.x / 2u, origin.y + m_size.y / 2 - textBox.height);
-
-		NazaraDebug(Nz::String::Number(m_size.y).Append(" + ").Append(Nz::String::Number(textBox.height)));
+		Nz::Vector2f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + static_cast<float>(m_size.x) + static_cast<float>(m_adaptativeMargin ? m_size.x / 2 : m_textMargin),
+																origin.y + m_size.y / 2 - textBox.y / 2);
 	}
 
 	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
@@ -113,10 +115,10 @@ namespace Ndk
 		Nz::String checkboxString;
 
 		if (m_state == CheckboxState_Checked)
-			checkboxString.Set(u8"✓"); // ✓
+			checkboxString.Set(u8"v"); // ✓
 
 		if (m_state == CheckboxState_Tristate)
-			checkboxString.Set(u8"■"); // ■
+			checkboxString.Set(u8"o"); // ■
 
 		m_checkboxTextSprite->Update(Nz::SimpleTextDrawer::Draw(checkboxString, (m_size.x + m_size.y) / 2u - (m_borderSize.x + m_borderSize.y) / 2u - 2u,
 																0u, Nz::Color::Black));
