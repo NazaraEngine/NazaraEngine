@@ -17,6 +17,7 @@ namespace Ndk
 	inline void CheckboxWidget::SetTextMargin(float margin)
 	{
 		m_textMargin = margin;
+		Layout();
 	}
 
 	inline float CheckboxWidget::GetTextMargin() const
@@ -27,6 +28,7 @@ namespace Ndk
 	inline void CheckboxWidget::EnableAdaptativeMargin(bool enable)
 	{
 		m_adaptativeMargin = enable;
+		Layout();
 	}
 
 	inline bool CheckboxWidget::IsMarginAdaptative() const
@@ -38,11 +40,17 @@ namespace Ndk
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2ui& size)
 	{
 		m_size = size;
+
+		UpdateCheckboxSprite();
+		Layout();
 	}
 
 	inline void CheckboxWidget::SetCheckboxBorderSize(const Nz::Vector2ui& size)
 	{
 		m_borderSize = size;
+
+		UpdateCheckboxSprite();
+		Layout();
 	}
 
 	inline const Nz::Vector2ui& CheckboxWidget::GetCheckboxSize() const
