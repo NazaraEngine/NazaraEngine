@@ -27,7 +27,7 @@ namespace Ndk
 		CheckboxState_Max = CheckboxState_Tristate
 	};
 
-	class NDK_API CheckboxWidget : public BaseWidget
+	class NDK_API CheckboxWidget : public BaseWidget /// TODO: enlever possibilité de modifier la bordure, faire checkbox images au compiletime
 	{
 		public:
 			CheckboxWidget(BaseWidget* parent = nullptr);
@@ -45,12 +45,9 @@ namespace Ndk
 			inline void EnableAdaptativeMargin(bool enable = true);
 			inline bool IsMarginAdaptative() const;
 
-
-			inline void SetCheckboxSize(const Nz::Vector2ui& size);
-			inline void SetCheckboxBorderSize(const Nz::Vector2ui& size);
-			inline const Nz::Vector2ui& GetCheckboxSize() const;
-			inline const Nz::Vector2ui& GetCheckboxBorderSize() const;
-
+			inline void SetCheckboxSize(const Nz::Vector2f& size);
+			inline const Nz::Vector2f& GetCheckboxSize() const;
+			inline Nz::Vector2f GetCheckboxBorderSize() const;
 
 			inline void EnableCheckbox(bool enable = true);
 			inline bool IsCheckboxEnabled() const;
@@ -70,7 +67,9 @@ namespace Ndk
 			void Layout() override;
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;
+
 			void UpdateCheckboxSprite();
+			void CreateCheckboxTextures();
 
 			CheckboxState m_state;
 			bool m_tristateEnabled;
@@ -78,15 +77,18 @@ namespace Ndk
 
 			bool m_adaptativeMargin;
 			float m_textMargin;
-			Nz::Vector2ui m_size;
-			Nz::Vector2ui m_borderSize;
+			float m_borderScale;
 
 			EntityHandle m_checkboxEntity;
 			EntityHandle m_checkboxTextEntity;
 			EntityHandle m_textEntity;
+
 			Nz::SpriteRef m_checkboxSprite;
 			Nz::TextSpriteRef m_checkboxTextSprite;
 			Nz::TextSpriteRef m_textSprite;
+
+			Nz::TextureRef m_checkbox;
+			Nz::TextureRef m_disabledCheckbox;
 	};
 }
 

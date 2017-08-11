@@ -6,6 +6,7 @@
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <NDK/World.hpp>
 #include <algorithm>
 
@@ -13,14 +14,16 @@ namespace Ndk
 {
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
+	m_state { CheckboxState_Unchecked },
 	m_tristateEnabled { false },
 	m_checkboxEnabled { true },
 	m_adaptativeMargin { true },
 	m_textMargin { 16.f },
-	m_size { 32, 32 },
-	m_borderSize { 3, 3 }
+	m_borderScale { 8.f }
 	{
 		m_checkboxSprite = Nz::Sprite::New();
+		m_checkboxSprite->SetMaterial(Nz::Material::New("Basic2D"));
+
 		m_checkboxTextSprite = Nz::TextSprite::New();
 		m_textSprite = Nz::TextSprite::New();
 
@@ -36,6 +39,7 @@ namespace Ndk
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 
+		CreateCheckboxTextures();
 		UpdateCheckboxSprite();
 		Layout();
 	}
@@ -43,9 +47,10 @@ namespace Ndk
 	void CheckboxWidget::ResizeToContent()
 	{
 		Nz::Vector2f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		Nz::Vector2f size { m_size.x + m_adaptativeMargin ? m_size.x / 2 : m_textMargin + textSize.x, std::max(textSize.y, static_cast<float>(m_size.y)) };
+		Nz::Vector2f checkboxSize = m_checkboxSprite->GetSize();
 
-		SetContentSize(size);
+		Nz::Vector2f finalSize { checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
+		SetContentSize(finalSize);
 	}
 
 
@@ -91,14 +96,18 @@ namespace Ndk
 		BaseWidget::Layout();
 
 		Nz::Vector2f origin = GetContentOrigin();
+		Nz::Vector2f checkboxSize = GetCheckboxSize();
+		Nz::Vector2f borderSize = GetCheckboxBorderSize();
+
 		m_checkboxEntity->GetComponent<NodeComponent>().SetPosition(origin);
 
 		Nz::Vector2f checkboxTextBox = m_checkboxTextSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		m_checkboxTextEntity->GetComponent<NodeComponent>().SetPosition(origin.x + m_borderSize.x, origin.y + m_borderSize.y);
-
+		m_checkboxTextEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.x / 2.f,
+																		origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f);
+		
 		Nz::Vector2f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + static_cast<float>(m_size.x) + static_cast<float>(m_adaptativeMargin ? m_size.x / 2 : m_textMargin),
-																origin.y + m_size.y / 2 - textBox.y / 2);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
+																origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
 	}
 
 	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
@@ -110,25 +119,14 @@ namespace Ndk
 		}
 	}
 
+
 	void CheckboxWidget::UpdateCheckboxSprite()
 	{
-		Nz::Image checkbox;
-		checkbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, m_size.x, m_size.y);
-
 		if (m_checkboxEnabled)
-		{
-			checkbox.Fill(Nz::Color::Black, Nz::Rectui { m_size.x, m_size.y });
-			checkbox.Fill(Nz::Color::White, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
-		}
+			m_checkboxSprite->SetTexture(m_checkbox);
 
 		else
-		{
-			checkbox.Fill(Nz::Color { 62, 62, 62 }, Nz::Rectui { m_size.x, m_size.y });
-			checkbox.Fill(Nz::Color { 201, 201, 201 }, Nz::Rectui { m_borderSize.x, m_borderSize.y, m_size.x - (m_borderSize.x * 2), m_size.y - (m_borderSize.y * 2) });
-		}
-
-		m_checkboxSprite->SetTexture(Nz::Texture::New(checkbox).Get());
-		m_checkboxSprite->SetSize(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			m_checkboxSprite->SetTexture(m_disabledCheckbox);
 
 		Nz::String checkboxString;
 
@@ -138,7 +136,34 @@ namespace Ndk
 		if (m_state == CheckboxState_Tristate)
 			checkboxString.Set(u8"o"); // ■
 
-		m_checkboxTextSprite->Update(Nz::SimpleTextDrawer::Draw(checkboxString, (m_size.x + m_size.y) / 2u - (m_borderSize.x + m_borderSize.y) / 2u - 2u,
-																0u, m_checkboxEnabled ? Nz::Color { 62, 62, 62 } : Nz::Color::Black));
+		Nz::Vector2f checkboxSize = GetCheckboxSize();
+		Nz::Vector2f borderSize = GetCheckboxBorderSize();
+
+		m_checkboxTextSprite->Update(Nz::SimpleTextDrawer::Draw(checkboxString, static_cast<unsigned>((checkboxSize.x + checkboxSize.y) / 2.f - (borderSize.x + borderSize.y) / 2.f),
+																0u, m_checkboxEnabled ? Nz::Color::Black : Nz::Color { 62, 62, 62 }));
+	}
+
+	void CheckboxWidget::CreateCheckboxTextures()
+	{
+		Nz::Vector2ui checkboxSize = { 32u, 32u };
+		Nz::Vector2ui borderSize = checkboxSize / static_cast<unsigned>(m_borderScale);
+
+
+		Nz::Image checkbox;
+		checkbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y);
+
+		checkbox.Fill(Nz::Color::Black, Nz::Rectui { checkboxSize.x, checkboxSize.y });
+		checkbox.Fill(Nz::Color::White, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
+
+		m_checkbox = Nz::Texture::New(checkbox);
+
+
+		Nz::Image disabledCheckbox;
+		disabledCheckbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y);
+
+		disabledCheckbox.Fill(Nz::Color { 62, 62, 62 }, Nz::Rectui { checkboxSize.x, checkboxSize.y });
+		disabledCheckbox.Fill(Nz::Color { 201, 201, 201 }, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
+
+		m_disabledCheckbox = Nz::Texture::New(disabledCheckbox);
 	}
 }

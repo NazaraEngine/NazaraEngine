@@ -37,30 +37,20 @@ namespace Ndk
 	}
 
 
-	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2ui& size)
+	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2f& size)
 	{
-		m_size = size;
-
-		UpdateCheckboxSprite();
+		m_checkboxSprite->SetSize(size);
 		Layout();
 	}
 
-	inline void CheckboxWidget::SetCheckboxBorderSize(const Nz::Vector2ui& size)
+	inline const Nz::Vector2f& CheckboxWidget::GetCheckboxSize() const
 	{
-		m_borderSize = size;
-
-		UpdateCheckboxSprite();
-		Layout();
+		return m_checkboxSprite->GetSize();
 	}
 
-	inline const Nz::Vector2ui& CheckboxWidget::GetCheckboxSize() const
+	inline Nz::Vector2f CheckboxWidget::GetCheckboxBorderSize() const
 	{
-		return m_size;
-	}
-
-	inline const Nz::Vector2ui& CheckboxWidget::GetCheckboxBorderSize() const
-	{
-		return m_borderSize;
+		return GetCheckboxSize() / m_borderScale;
 	}
 
 
@@ -94,7 +84,10 @@ namespace Ndk
 
 	inline bool CheckboxWidget::ContainsCheckbox(int x, int y) const
 	{
-		Nz::Vector3f pos = m_checkboxEntity->GetComponent<Ndk::NodeComponent>().GetPosition();
-		return x > pos.x && x < pos.x + m_size.x && y > pos.y && y < pos.y + m_size.y;
+		Nz::Vector2f checkboxSize = GetCheckboxSize();
+		Nz::Vector2f pos = m_checkboxEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local);
+
+		return x > pos.x && x < pos.x + checkboxSize.x &&
+		       y > pos.y && y < pos.y + checkboxSize.y;
 	}
 }
