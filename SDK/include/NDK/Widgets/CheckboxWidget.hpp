@@ -79,6 +79,14 @@ namespace Ndk
 			float m_textMargin;
 			float m_borderScale;
 
+			Nz::Color m_mainColor;
+			Nz::Color m_backgroundColor;
+			Nz::Color m_disabledMainColor;
+			Nz::Color m_disabledBackgroundColor;
+
+			Nz::TextureRef m_checkbox;
+			Nz::TextureRef m_disabledCheckbox;
+
 			EntityHandle m_checkboxEntity;
 			EntityHandle m_checkboxTextEntity;
 			EntityHandle m_textEntity;
@@ -86,9 +94,6 @@ namespace Ndk
 			Nz::SpriteRef m_checkboxSprite;
 			Nz::TextSpriteRef m_checkboxTextSprite;
 			Nz::TextSpriteRef m_textSprite;
-
-			Nz::TextureRef m_checkbox;
-			Nz::TextureRef m_disabledCheckbox;
 	};
 }
 

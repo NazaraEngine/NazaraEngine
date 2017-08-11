@@ -19,7 +19,11 @@ namespace Ndk
 	m_checkboxEnabled { true },
 	m_adaptativeMargin { true },
 	m_textMargin { 16.f },
-	m_borderScale { 8.f }
+	m_borderScale { 8.f },
+	m_mainColor { Nz::Color::Black },
+	m_backgroundColor { Nz::Color::White },
+	m_disabledMainColor { 62, 62, 62 },
+	m_disabledBackgroundColor { 201, 201, 201 }
 	{
 		m_checkboxSprite = Nz::Sprite::New();
 		m_checkboxSprite->SetMaterial(Nz::Material::New("Basic2D"));
@@ -140,7 +144,7 @@ namespace Ndk
 		Nz::Vector2f borderSize = GetCheckboxBorderSize();
 
 		m_checkboxTextSprite->Update(Nz::SimpleTextDrawer::Draw(checkboxString, static_cast<unsigned>((checkboxSize.x + checkboxSize.y) / 2.f - (borderSize.x + borderSize.y) / 2.f),
-																0u, m_checkboxEnabled ? Nz::Color::Black : Nz::Color { 62, 62, 62 }));
+																0u, m_checkboxEnabled ? m_mainColor : m_disabledMainColor));
 	}
 
 	void CheckboxWidget::CreateCheckboxTextures()
@@ -152,8 +156,8 @@ namespace Ndk
 		Nz::Image checkbox;
 		checkbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y);
 
-		checkbox.Fill(Nz::Color::Black, Nz::Rectui { checkboxSize.x, checkboxSize.y });
-		checkbox.Fill(Nz::Color::White, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
+		checkbox.Fill(m_mainColor, Nz::Rectui { checkboxSize.x, checkboxSize.y });
+		checkbox.Fill(m_backgroundColor, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
 
 		m_checkbox = Nz::Texture::New(checkbox);
 
@@ -161,8 +165,8 @@ namespace Ndk
 		Nz::Image disabledCheckbox;
 		disabledCheckbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y);
 
-		disabledCheckbox.Fill(Nz::Color { 62, 62, 62 }, Nz::Rectui { checkboxSize.x, checkboxSize.y });
-		disabledCheckbox.Fill(Nz::Color { 201, 201, 201 }, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
+		disabledCheckbox.Fill(m_disabledMainColor, Nz::Rectui { checkboxSize.x, checkboxSize.y });
+		disabledCheckbox.Fill(m_disabledBackgroundColor, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) });
 
 		m_disabledCheckbox = Nz::Texture::New(disabledCheckbox);
 	}
