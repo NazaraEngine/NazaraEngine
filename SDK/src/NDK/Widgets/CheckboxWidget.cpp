@@ -69,6 +69,7 @@ namespace Ndk
 		m_state = state;
 
 		UpdateCheckboxSprite();
+		Layout();
 	}
 
 	CheckboxState CheckboxWidget::SetNextState()
@@ -108,7 +109,11 @@ namespace Ndk
 		Nz::Vector2f checkboxTextBox = m_checkboxTextSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_checkboxTextEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.x / 2.f,
 																		origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f);
-		
+
+		NazaraDebug(Nz::String::Number(origin.y).Append(" | ").Append(Nz::String::Number(checkboxSize.y)).Append(" | ").Append(Nz::String::Number(checkboxTextBox.y))
+					.Append(" = ").Append(Nz::String::Number(origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f)).Append(" | ")
+					.Append(Nz::String::Number(m_checkboxTextEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local).y)));
+
 		Nz::Vector2f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
 																origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
