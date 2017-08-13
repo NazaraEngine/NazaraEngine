@@ -318,6 +318,10 @@ namespace Nz
 				glyph.color = m_color;
 				glyph.flipped = fontGlyph.flipped;
 
+				glyph.bounds.Set(fontGlyph.aabb);
+				glyph.bounds.x += m_drawPos.x;
+				glyph.bounds.y += m_drawPos.y;
+
 				if (fontGlyph.requireFauxBold)
 				{
 					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
@@ -329,15 +333,12 @@ namespace Nz
 
 					// Replace it at the correct height
 					Vector2f offset(glyph.bounds.GetCenter() - center);
+					glyph.bounds.x -= offset.x;
 					glyph.bounds.y -= offset.y;
 
 					// Adjust advance (+10%)
 					advance += advance / 10;
 				}
-
-				glyph.bounds.Set(fontGlyph.aabb);
-				glyph.bounds.x += m_drawPos.x;
-				glyph.bounds.y += m_drawPos.y;
 
 				// We "lean" the glyph to simulate italics style
 				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
