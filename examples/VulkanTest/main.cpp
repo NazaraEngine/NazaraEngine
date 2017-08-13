@@ -658,6 +658,7 @@ int main()
 
 	window.EnableEventPolling(true);
 
+	Nz::Clock updateClock;
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 	while (window.IsOpen())
@@ -692,23 +693,24 @@ int main()
 					updateUniforms = true;
 					break;
 				}
+			}
+		}
 
-				case Nz::WindowEventType_KeyPressed:
-				{
-					switch (event.key.code)
-					{
-						case Nz::Keyboard::Up:
-							viewerPos += camQuat * Nz::Vector3f::Forward();
-							updateUniforms = true;
-							break;
+		if (updateClock.GetMilliseconds() > 1000 / 60)
+		{
+			float elapsedTime = updateClock.GetSeconds();
+			updateClock.Restart();
 
-						case Nz::Keyboard::Down:
-							viewerPos += camQuat * Nz::Vector3f::Backward();
-							updateUniforms = true;
-							break;
-					}
-					break;
-				}
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up))
+			{
+				viewerPos += camQuat * Nz::Vector3f::Forward() * elapsedTime;
+				updateUniforms = true;
+			}
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down))
+			{
+				viewerPos += camQuat * Nz::Vector3f::Backward() * elapsedTime;
+				updateUniforms = true;
 			}
 		}
 
