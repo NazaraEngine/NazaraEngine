@@ -84,7 +84,7 @@ namespace Ndk
 	inline bool CheckboxWidget::ContainsCheckbox(int x, int y) const
 	{
 		Nz::Vector2f checkboxSize = GetCheckboxSize();
-		Nz::Vector2f pos = m_checkboxEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local);
+		Nz::Vector3f pos = m_checkboxEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local);
 
 		return x > pos.x && x < pos.x + checkboxSize.x &&
 		       y > pos.y && y < pos.y + checkboxSize.y;
