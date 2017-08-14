@@ -234,7 +234,7 @@ namespace Ndk
 		glyphTexture = nullptr;
 
 
-		glyph = font->GetGlyph(charSize, 0u, U'■'); // ■
+		glyph = font->GetGlyph(charSize, 0u, U'◼'); // ◼
 
 		if (!glyph.valid)
 		{
