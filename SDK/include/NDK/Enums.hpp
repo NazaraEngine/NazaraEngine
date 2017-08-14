@@ -11,11 +11,11 @@ namespace Ndk
 {
 	enum CheckboxState
 	{
-		CheckboxState_Unchecked,
 		CheckboxState_Checked,
 		CheckboxState_Tristate,
+		CheckboxState_Unchecked,
 
-		CheckboxState_Max = CheckboxState_Tristate
+		CheckboxState_Max = CheckboxState_Unchecked
 	};
 }
 
