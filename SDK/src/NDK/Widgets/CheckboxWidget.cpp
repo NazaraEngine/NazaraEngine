@@ -207,7 +207,7 @@ namespace Ndk
 		Nz::AbstractImage* glyphTexture {};
 
 
-		glyph = font->GetGlyph(charSize, 0u, 'v'); // ✓
+		glyph = font->GetGlyph(charSize, 0u, U'v'); // ✓
 
 		if (!glyph.valid)
 		{
@@ -234,7 +234,7 @@ namespace Ndk
 		glyphTexture = nullptr;
 
 
-		glyph = font->GetGlyph(charSize, 0u, 'o'); // ■
+		glyph = font->GetGlyph(charSize, 0u, U'■'); // ■
 
 		if (!glyph.valid)
 		{
