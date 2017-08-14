@@ -5,12 +5,28 @@ ACTION.Function = function ()
 	print("Encoding resources ...")
 	local startClock = os.clock()
 	local modules = os.matchdirs("../src/Nazara/*")
-	for k, modulePath in pairs(modules) do
-		local moduleName = modulePath:sub(15, -1)
-		local files = os.matchfiles(modulePath .. "/Resources/**")
+	local tools = os.matchdirs("../SDK/src/NDK")
+	local paths = {}
+
+	for k, path in ipairs(modules) do 
+    	table.insert(paths, path)
+	end
+
+	for k, path in ipairs(tools) do 
+    	table.insert(paths, path)
+	end
+
+	for k, path in pairs(paths) do
+		local files = os.matchfiles(path .. "/Resources/**")
+		local name = path:sub(15, -1)
+
+		if (name == "") then
+			name = "SDK"
+		end
+
 		for k, filePath in pairs(files) do
 			if (filePath:sub(-2) ~= ".h") then
-				local file = filePath:sub(modulePath:len() + 12, -1)
+				local file = filePath:sub(path:len() + 12, -1)
 				local resource, err = io.open(filePath, "rb")
 				if (not resource) then
 					error("Failed to read resource file " .. file .. ": " .. err)
@@ -35,7 +51,7 @@ ACTION.Function = function ()
 				header:write(headerContent)
 				header:close()
 
-				print(string.format("%s: %s (raw: %.3g kB, header: %.3g kB)", moduleName, file, contentLength/1024, string.format("%.3g", headerContent:len()/1024)))
+				print(string.format("%s: %s (raw: %.3g kB, header: %.3g kB)", name, file, contentLength/1024, string.format("%.3g", headerContent:len()/1024)))
 			end
 		end
 	end
