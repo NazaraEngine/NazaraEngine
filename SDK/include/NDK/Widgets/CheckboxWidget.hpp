@@ -65,18 +65,10 @@ namespace Ndk
 			void UpdateCheckboxSprite();
 			void CreateCheckboxTextures();
 
-			CheckboxState m_state;
-			bool m_tristateEnabled;
-			bool m_checkboxEnabled;
 
-			bool m_adaptativeMargin;
-			float m_textMargin;
-			float m_borderScale;
-
-			Nz::Color m_mainColor;
-			Nz::Color m_backgroundColor;
-			Nz::Color m_disabledMainColor;
-			Nz::Color m_disabledBackgroundColor;
+			EntityHandle m_checkboxEntity;
+			EntityHandle m_checkboxContentEntity;
+			EntityHandle m_textEntity;
 
 			Nz::TextureRef m_checkbox;
 			Nz::TextureRef m_disabledCheckbox;
@@ -84,13 +76,22 @@ namespace Ndk
 			Nz::TextureRef m_checkboxContentChecked;
 			Nz::TextureRef m_checkboxContentTristate;
 
-			EntityHandle m_checkboxEntity;
-			EntityHandle m_checkboxContentEntity;
-			EntityHandle m_textEntity;
-
 			Nz::SpriteRef m_checkboxSprite;
 			Nz::SpriteRef m_checkboxContentSprite;
 			Nz::TextSpriteRef m_textSprite;
+
+			Nz::Color m_mainColor;
+			Nz::Color m_backgroundColor;
+			Nz::Color m_disabledMainColor;
+			Nz::Color m_disabledBackgroundColor;
+
+			CheckboxState m_state;
+			bool m_tristateEnabled;
+			bool m_checkboxEnabled;
+
+			bool m_adaptativeMargin;
+			float m_textMargin;
+			float m_borderScale;
 	};
 }
 

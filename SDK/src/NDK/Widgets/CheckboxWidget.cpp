@@ -15,16 +15,16 @@ namespace Ndk
 {
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
+	m_mainColor { Nz::Color::Black },
+	m_backgroundColor { Nz::Color::White },
+	m_disabledMainColor { 62, 62, 62 },
+	m_disabledBackgroundColor { 201, 201, 201 },
 	m_state { CheckboxState_Unchecked },
 	m_tristateEnabled { false },
 	m_checkboxEnabled { true },
 	m_adaptativeMargin { true },
 	m_textMargin { 16.f },
-	m_borderScale { 8.f },
-	m_mainColor { Nz::Color::Black },
-	m_backgroundColor { Nz::Color::White },
-	m_disabledMainColor { 62, 62, 62 },
-	m_disabledBackgroundColor { 201, 201, 201 }
+	m_borderScale { 8.f }
 	{
 		m_checkboxSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
 		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
