@@ -41,7 +41,6 @@ namespace Ndk
 
 			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
-			void RegenerateGlyphs(unsigned quality = 2);
 
 			inline void SetTextMargin(float margin);
 			inline float GetTextMargin() const;
