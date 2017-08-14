@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -126,7 +126,6 @@ namespace Ndk
 	{
 		if (m_checkboxEnabled)
 			m_checkboxSprite->SetTexture(m_checkbox, false);
-
 		else
 			m_checkboxSprite->SetTexture(m_disabledCheckbox, false);
 
@@ -136,13 +135,11 @@ namespace Ndk
 			m_checkboxContentEntity->Enable(false);
 			return;
 		}
-
 		else if (m_state == CheckboxState_Checked)
 		{
 			m_checkboxContentEntity->Enable();
 			m_checkboxContentSprite->SetTexture(m_checkboxContentChecked, false);
 		}
-
 		else
 		{
 			m_checkboxContentEntity->Enable();
