@@ -24,12 +24,12 @@ namespace Ndk
 	m_mainColor { Nz::Color::Black },
 	m_backgroundColor { Nz::Color::White },
 	m_disabledMainColor { 62, 62, 62 },
-	m_disabledBackgroundColor { 201, 201, 201 }
+	m_disabledBackgroundColor { 201, 201, 201 },
+	m_checkedGlyphFlipped { false },
+	m_tristateGlyphFlipped { false }
 	{
-		m_checkboxSprite = Nz::Sprite::New();
-		m_checkboxSprite->SetMaterial(Nz::Material::New("Basic2D"));
-
-		m_checkboxContentSprite = Nz::Sprite::New();
+		m_checkboxSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
 		m_textSprite = Nz::TextSprite::New();
 
 		m_checkboxEntity = CreateEntity();
@@ -106,8 +106,14 @@ namespace Ndk
 		m_checkboxEntity->GetComponent<NodeComponent>().SetPosition(origin);
 
 		Nz::Vector2f checkboxTextBox = m_checkboxContentSprite->GetBoundingVolume().obb.localBox.GetLengths(); // todo redo this
-		m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.x / 2.f,
-		                                                                   origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f);
+
+		if ((m_state == CheckboxState_Checked && m_checkedGlyphFlipped) || (m_state == CheckboxState_Tristate && m_tristateGlyphFlipped))
+			m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.y / 2.f,
+		                                                                       origin.y + checkboxSize.y / 2.f - checkboxTextBox.x / 2.f);
+
+		else
+			m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.x / 2.f,
+																			   origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f);
 
 		Nz::Vector2f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
@@ -142,6 +148,7 @@ namespace Ndk
 		else if (m_state == CheckboxState_Checked)
 		{
 			m_checkboxContentEntity->Enable();
+			m_checkboxContentEntity->GetComponent<NodeComponent>().SetRotation(Nz::EulerAnglesf { 0.f, 0.f, m_checkedGlyphFlipped ? 90.f : 0.f });
 			m_checkboxContentSprite->SetTexture(m_checkboxContentChecked, false);
 			m_checkboxContentSprite->SetTextureRect(m_checkedRect);
 		}
@@ -149,6 +156,7 @@ namespace Ndk
 		else
 		{
 			m_checkboxContentEntity->Enable();
+			m_checkboxContentEntity->GetComponent<NodeComponent>().SetRotation(Nz::EulerAnglesf { 0.f, 0.f, m_tristateGlyphFlipped ? 90.f : 0.f });
 			m_checkboxContentSprite->SetTexture(m_checkboxContentTristate, false);
 			m_checkboxContentSprite->SetTextureRect(m_tristateRect);
 		}
@@ -161,9 +169,6 @@ namespace Ndk
 	{
 		Nz::Vector2ui checkboxSize = { 32u, 32u };
 		Nz::Vector2ui borderSize = checkboxSize / static_cast<unsigned>(m_borderScale);
-
-		m_checkboxSprite->SetSize(static_cast<float>(checkboxSize.x), static_cast<float>(checkboxSize.y));
-		m_checkboxContentSprite->SetSize(Nz::Vector2f { checkboxSize - borderSize - Nz::Vector2ui { 1u, 1u } });
 
 
 		Nz::Image checkbox;
@@ -183,6 +188,15 @@ namespace Ndk
 		m_disabledCheckbox = Nz::Texture::New(disabledCheckbox);
 
 
+		SetCheckboxSize(Nz::Vector2f { static_cast<float>(checkboxSize.x), static_cast<float>(checkboxSize.y) });
+		RegenerateGlyphs();
+	}
+
+	void CheckboxWidget::RegenerateGlyphs(unsigned quality)
+	{
+		Nz::Vector2ui qualitySize = Nz::Vector2ui { static_cast<unsigned>(GetCheckboxSize().x), static_cast<unsigned>(GetCheckboxSize().y) } * quality;
+		const unsigned charSize = (qualitySize.x + qualitySize.y) / 2;
+
 		Nz::FontRef font = Nz::Font::GetDefault();
 		const Nz::AbstractAtlas* atlas = font->GetAtlas().get();
 
@@ -193,12 +207,12 @@ namespace Ndk
 		Nz::AbstractImage* glyphTexture {};
 
 
-		glyph = font->GetGlyph(32u, 0u, 'v'); // ✓
+		glyph = font->GetGlyph(charSize, 0u, 'v'); // ✓
 
 		if (!glyph.valid)
 		{
 			NazaraError("Failed to load checked UTF-8 glyph");
-			glyph = font->GetGlyph(32u, 0u, 'v');
+			glyph = font->GetGlyph(charSize, 0u, 'v');
 
 			if (!glyph.valid)
 			{
@@ -212,6 +226,7 @@ namespace Ndk
 		NazaraAssert(glyphTexture, "Glyph Texture is null");
 
 		m_checkedRect = glyph.atlasRect;
+		m_checkedGlyphFlipped = glyph.flipped;
 		m_checkboxContentChecked = static_cast<Nz::Texture*>(glyphTexture);
 		NazaraAssert(m_checkboxContentChecked, "Checked texture is null");
 
@@ -219,12 +234,12 @@ namespace Ndk
 		glyphTexture = nullptr;
 
 
-		glyph = font->GetGlyph(32u, 0u, 'o'); // ■
+		glyph = font->GetGlyph(charSize, 0u, 'o'); // ■
 
 		if (!glyph.valid)
 		{
 			NazaraError("Failed to load tristate UTF-8 glyph");
-			glyph = font->GetGlyph(32u, 0u, 'o');
+			glyph = font->GetGlyph(charSize, 0u, 'o');
 
 			if (!glyph.valid)
 			{
@@ -238,6 +253,7 @@ namespace Ndk
 		NazaraAssert(glyphTexture, "Glyph Texture is null");
 
 		m_tristateRect = glyph.atlasRect;
+		m_tristateGlyphFlipped = glyph.flipped;
 		m_checkboxContentTristate = static_cast<Nz::Texture*>(glyphTexture);
 		NazaraAssert(m_checkboxContentTristate, "Checked texture is null");
 	}

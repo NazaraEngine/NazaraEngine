@@ -38,7 +38,7 @@ namespace Ndk
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2f& size)
 	{
 		m_checkboxSprite->SetSize(size);
-		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() - Nz::Vector2f { 1u, 1u });
+		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() * 3.f);
 		Layout();
 	}
 

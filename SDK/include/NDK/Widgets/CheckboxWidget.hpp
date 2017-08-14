@@ -41,6 +41,7 @@ namespace Ndk
 
 			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
+			void RegenerateGlyphs(unsigned quality = 2);
 
 			inline void SetTextMargin(float margin);
 			inline float GetTextMargin() const;
@@ -91,6 +92,8 @@ namespace Ndk
 
 			Nz::TextureRef m_checkboxContentChecked;
 			Nz::TextureRef m_checkboxContentTristate;
+			bool m_checkedGlyphFlipped;
+			bool m_tristateGlyphFlipped;
 
 			EntityHandle m_checkboxEntity;
 			EntityHandle m_checkboxContentEntity;
