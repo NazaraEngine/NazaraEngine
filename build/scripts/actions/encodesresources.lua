@@ -9,11 +9,11 @@ ACTION.Function = function ()
 	local paths = {}
 
 	for k, path in ipairs(modules) do 
-    	table.insert(paths, path)
+		table.insert(paths, path)
 	end
 
 	for k, path in ipairs(tools) do 
-    	table.insert(paths, path)
+		table.insert(paths, path)
 	end
 
 	for k, path in pairs(paths) do
