@@ -76,22 +76,22 @@ namespace Ndk
 			Nz::TextureRef m_checkboxContentChecked;
 			Nz::TextureRef m_checkboxContentTristate;
 
-			Nz::SpriteRef m_checkboxSprite;
 			Nz::SpriteRef m_checkboxContentSprite;
+			Nz::SpriteRef m_checkboxSprite;
 			Nz::TextSpriteRef m_textSprite;
 
-			Nz::Color m_mainColor;
 			Nz::Color m_backgroundColor;
-			Nz::Color m_disabledMainColor;
 			Nz::Color m_disabledBackgroundColor;
-
-			CheckboxState m_state;
-			bool m_tristateEnabled;
-			bool m_checkboxEnabled;
+			Nz::Color m_disabledMainColor;
+			Nz::Color m_mainColor;
 
 			bool m_adaptativeMargin;
-			float m_textMargin;
+			bool m_checkboxEnabled;
+			bool m_tristateEnabled;
+
 			float m_borderScale;
+			float m_textMargin;
+			CheckboxState m_state;
 	};
 }
 
