@@ -92,8 +92,6 @@ namespace Ndk
 
 			Nz::TextureRef m_checkboxContentChecked;
 			Nz::TextureRef m_checkboxContentTristate;
-			bool m_checkedGlyphFlipped;
-			bool m_tristateGlyphFlipped;
 
 			EntityHandle m_checkboxEntity;
 			EntityHandle m_checkboxContentEntity;
@@ -102,9 +100,6 @@ namespace Ndk
 			Nz::SpriteRef m_checkboxSprite;
 			Nz::SpriteRef m_checkboxContentSprite;
 			Nz::TextSpriteRef m_textSprite;
-
-			Nz::Rectui m_checkedRect;
-			Nz::Rectui m_tristateRect;
 	};
 }
 
