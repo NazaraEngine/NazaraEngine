@@ -9,6 +9,7 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
+#include <NDK/Enums.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -19,15 +20,6 @@
 namespace Ndk
 {
 	class World;
-
-	enum CheckboxState
-	{
-		CheckboxState_Unchecked,
-		CheckboxState_Checked,
-		CheckboxState_Tristate,
-
-		CheckboxState_Max = CheckboxState_Tristate
-	};
 
 	class NDK_API CheckboxWidget : public BaseWidget
 	{
