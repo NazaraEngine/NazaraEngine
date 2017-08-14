@@ -9,10 +9,12 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
+#include <NDK/Components/NodeComponent.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Rect.hpp>
 
 namespace Ndk
 {
@@ -87,13 +89,19 @@ namespace Ndk
 			Nz::TextureRef m_checkbox;
 			Nz::TextureRef m_disabledCheckbox;
 
+			Nz::TextureRef m_checkboxContentChecked;
+			Nz::TextureRef m_checkboxContentTristate;
+
 			EntityHandle m_checkboxEntity;
-			EntityHandle m_checkboxTextEntity;
+			EntityHandle m_checkboxContentEntity;
 			EntityHandle m_textEntity;
 
 			Nz::SpriteRef m_checkboxSprite;
-			Nz::TextSpriteRef m_checkboxTextSprite;
+			Nz::SpriteRef m_checkboxContentSprite;
 			Nz::TextSpriteRef m_textSprite;
+
+			Nz::Rectui m_checkedRect;
+			Nz::Rectui m_tristateRect;
 	};
 }
 

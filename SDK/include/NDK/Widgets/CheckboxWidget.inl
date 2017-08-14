@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Components/NodeComponent.hpp>
-
 namespace Ndk
 {
 
@@ -40,6 +38,7 @@ namespace Ndk
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2f& size)
 	{
 		m_checkboxSprite->SetSize(size);
+		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() - Nz::Vector2f { 1u, 1u });
 		Layout();
 	}
 
