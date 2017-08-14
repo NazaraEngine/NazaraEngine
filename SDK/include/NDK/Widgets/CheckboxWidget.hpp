@@ -29,7 +29,7 @@ namespace Ndk
 		CheckboxState_Max = CheckboxState_Tristate
 	};
 
-	class NDK_API CheckboxWidget : public BaseWidget /// TODO: enlever possibilité de modifier la bordure, faire checkbox images au compiletime
+	class NDK_API CheckboxWidget : public BaseWidget
 	{
 		public:
 			CheckboxWidget(BaseWidget* parent = nullptr);
