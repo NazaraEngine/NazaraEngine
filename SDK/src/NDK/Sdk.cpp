@@ -23,7 +23,6 @@
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
-#include <NDK/Widgets/CheckboxWidget.hpp>
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
@@ -35,6 +34,7 @@
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 #endif
 
 namespace Ndk
@@ -120,7 +120,6 @@ namespace Ndk
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();
-			#endif
 
 			// Widgets
 			if (!CheckboxWidget::Initialize())
@@ -128,6 +127,7 @@ namespace Ndk
 				NazaraError("Failed to initialize Checkbox Widget");
 				return false;
 			}
+			#endif
 
 			NazaraNotice("Initialized: SDK");
 			return true;
