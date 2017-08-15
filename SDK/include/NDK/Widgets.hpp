@@ -1,4 +1,4 @@
-﻿// This file was automatically generated
+// This file was automatically generated
 
 #pragma once
 
