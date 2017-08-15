@@ -135,7 +135,6 @@ namespace Ndk
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
-
 			return false;
 		}
 	}
