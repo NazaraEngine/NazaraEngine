@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -23,6 +23,7 @@
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
@@ -121,6 +122,13 @@ namespace Ndk
 			InitializeSystem<RenderSystem>();
 			#endif
 
+			// Widgets
+			if (!CheckboxWidget::Initialize())
+			{
+				NazaraError("Failed to initialize Checkbox Widget");
+				return false;
+			}
+
 			NazaraNotice("Initialized: SDK");
 			return true;
 		}
@@ -172,6 +180,9 @@ namespace Ndk
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
+
+		// Widgets
+		CheckboxWidget::Uninitialize();
 
 		NazaraNotice("Uninitialized: SDK");
 	}
