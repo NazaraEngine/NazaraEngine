@@ -1,27 +1,9 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 namespace Ndk
 {
-
-	inline void CheckboxWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
-	{
-		m_textSprite->Update(drawer);
-		Layout();
-	}
-
-
-	inline void CheckboxWidget::SetTextMargin(float margin)
-	{
-		m_textMargin = margin;
-		Layout();
-	}
-
-	inline float CheckboxWidget::GetTextMargin() const
-	{
-		return m_textMargin;
-	}
 
 	inline void CheckboxWidget::EnableAdaptativeMargin(bool enable)
 	{
@@ -29,9 +11,52 @@ namespace Ndk
 		Layout();
 	}
 
+	inline void CheckboxWidget::EnableCheckbox(bool enable)
+	{
+		m_checkboxEnabled = enable;
+		UpdateCheckboxSprite();
+	}
+
+	inline void CheckboxWidget::EnableTristate(bool enable)
+	{
+		m_tristateEnabled = enable;
+	}
+
+
+	inline bool CheckboxWidget::IsCheckboxEnabled() const
+	{
+		return m_checkboxEnabled;
+	}
+
 	inline bool CheckboxWidget::IsMarginAdaptative() const
 	{
 		return m_adaptativeMargin;
+	}
+
+	inline bool CheckboxWidget::IsTristateEnabled() const
+	{
+		return m_tristateEnabled;
+	}
+
+
+	inline const Nz::Vector2f& CheckboxWidget::GetCheckboxSize() const
+	{
+		return m_checkboxSprite->GetSize();
+	}
+
+	inline Nz::Vector2f CheckboxWidget::GetCheckboxBorderSize() const
+	{
+		return GetCheckboxSize() / s_borderScale;
+	}
+
+	inline CheckboxState CheckboxWidget::GetState() const
+	{
+		return m_state;
+	}
+
+	inline float CheckboxWidget::GetTextMargin() const
+	{
+		return m_textMargin;
 	}
 
 
@@ -42,43 +67,17 @@ namespace Ndk
 		Layout();
 	}
 
-	inline const Nz::Vector2f& CheckboxWidget::GetCheckboxSize() const
+	inline void CheckboxWidget::SetTextMargin(float margin)
 	{
-		return m_checkboxSprite->GetSize();
-	}
-
-	inline Nz::Vector2f CheckboxWidget::GetCheckboxBorderSize() const
-	{
-		return GetCheckboxSize() / m_borderScale;
+		m_textMargin = margin;
+		Layout();
 	}
 
 
-	inline void CheckboxWidget::EnableCheckbox(bool enable)
+	inline void CheckboxWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
 	{
-		m_checkboxEnabled = enable;
-		UpdateCheckboxSprite();
-	}
-
-	inline bool CheckboxWidget::IsCheckboxEnabled() const
-	{
-		return m_checkboxEnabled;
-	}
-
-
-	inline void CheckboxWidget::EnableTristate(bool enable)
-	{
-		m_tristateEnabled = enable;
-	}
-
-	inline bool CheckboxWidget::IsTristateEnabled() const
-	{
-		return m_tristateEnabled;
-	}
-
-
-	inline CheckboxState CheckboxWidget::GetState() const
-	{
-		return m_state;
+		m_textSprite->Update(drawer);
+		Layout();
 	}
 
 	inline bool CheckboxWidget::ContainsCheckbox(int x, int y) const

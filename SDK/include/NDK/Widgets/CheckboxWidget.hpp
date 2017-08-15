@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -11,6 +11,7 @@
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Enums.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -23,6 +24,8 @@ namespace Ndk
 
 	class NDK_API CheckboxWidget : public BaseWidget
 	{
+		friend class Sdk;
+
 		public:
 			CheckboxWidget(BaseWidget* parent = nullptr);
 			CheckboxWidget(const CheckboxWidget&) = delete;
@@ -31,26 +34,27 @@ namespace Ndk
 
 			//virtual CheckboxWidget* Clone() const = 0;
 
+			inline void EnableAdaptativeMargin(bool enable = true);
+			inline void EnableCheckbox(bool enable = true);
+			inline void EnableTristate(bool enable = true);
+
+			inline bool IsCheckboxEnabled() const;
+			inline bool IsMarginAdaptative() const;
+			inline bool IsTristateEnabled() const;
+
+			inline const Nz::Vector2f& GetCheckboxSize() const;
+			inline Nz::Vector2f GetCheckboxBorderSize() const;
+			inline CheckboxState GetState() const;
+			inline float GetTextMargin() const;
+
+			inline void SetCheckboxSize(const Nz::Vector2f& size);
+			CheckboxState SetNextState();
+			void SetState(CheckboxState state);
+			inline void SetTextMargin(float margin);
+
 			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
-			inline void SetTextMargin(float margin);
-			inline float GetTextMargin() const;
-			inline void EnableAdaptativeMargin(bool enable = true);
-			inline bool IsMarginAdaptative() const;
-
-			inline void SetCheckboxSize(const Nz::Vector2f& size);
-			inline const Nz::Vector2f& GetCheckboxSize() const;
-			inline Nz::Vector2f GetCheckboxBorderSize() const;
-
-			inline void EnableCheckbox(bool enable = true);
-			inline bool IsCheckboxEnabled() const;
-			inline void EnableTristate(bool enable = true);
-			inline bool IsTristateEnabled() const;
-
-			inline CheckboxState GetState() const;
-			void SetState(CheckboxState state);
-			CheckboxState SetNextState();
 
 			CheckboxWidget& operator=(const CheckboxWidget&) = delete;
 			CheckboxWidget& operator=(CheckboxWidget&&) = default;
@@ -58,12 +62,15 @@ namespace Ndk
 			NazaraSignal(OnStateChanged, const CheckboxWidget* /*checkbox*/);
 
 		private:
+			static bool Initialize();
+			static void Uninitialize();
+
 			void Layout() override;
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;
 
 			void UpdateCheckboxSprite();
-			void CreateCheckboxTextures();
+			void InitializeCheckboxTextures();
 
 
 			EntityHandle m_checkboxEntity;
@@ -72,7 +79,6 @@ namespace Ndk
 
 			Nz::TextureRef m_checkbox;
 			Nz::TextureRef m_disabledCheckbox;
-
 			Nz::TextureRef m_checkboxContentChecked;
 			Nz::TextureRef m_checkboxContentTristate;
 
@@ -80,16 +86,16 @@ namespace Ndk
 			Nz::SpriteRef m_checkboxSprite;
 			Nz::TextSpriteRef m_textSprite;
 
-			Nz::Color m_backgroundColor;
-			Nz::Color m_disabledBackgroundColor;
-			Nz::Color m_disabledMainColor;
-			Nz::Color m_mainColor;
+			static Nz::Color s_backgroundColor;
+			static Nz::Color s_disabledBackgroundColor;
+			static Nz::Color s_disabledMainColor;
+			static Nz::Color s_mainColor;
 
 			bool m_adaptativeMargin;
 			bool m_checkboxEnabled;
 			bool m_tristateEnabled;
 
-			float m_borderScale;
+			static float s_borderScale;
 			float m_textMargin;
 			CheckboxState m_state;
 	};
