@@ -180,8 +180,10 @@ namespace Ndk
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
 
+		#ifndef NDK_SERVER
 		// Widgets
 		CheckboxWidget::Uninitialize();
+		#endif
 
 		NazaraNotice("Uninitialized: SDK");
 	}
