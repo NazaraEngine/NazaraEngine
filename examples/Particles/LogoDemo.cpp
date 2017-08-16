@@ -1,4 +1,5 @@
 #include "LogoDemo.hpp"
+#include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Utility.hpp>
 #include <NDK/Components.hpp>
@@ -8,11 +9,21 @@
 namespace
 {
 	const float duration = 10.f;
-	const float maxVel = 50.f;
+	const float maxSpeed = 100.f;
+	const float maxMouseForce = 1000.f;
+	const float mouseForce = 500.f;
 	const float pauseTime = 3.f;
 	const float startTime = 2.f;
 	const float speed = 3.f;
 }
+
+struct ParticleData
+{
+	Nz::Color color;
+	Nz::Vector2f destination;
+	Nz::Vector2f position;
+	Nz::Vector2f velocity;
+};
 
 struct SpriteController : public Nz::ParticleController
 {
@@ -21,15 +32,74 @@ struct SpriteController : public Nz::ParticleController
 		if (!enabled)
 			return;
 
-		auto posPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Position);
-		auto velPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Velocity);
+		auto destPtr = mapper.GetComponentPtr<Nz::Vector2f>(Nz::ParticleComponent_Userdata0);
+		auto posPtr = mapper.GetComponentPtr<Nz::Vector2f>(Nz::ParticleComponent_Position);
+		auto velPtr = mapper.GetComponentPtr<Nz::Vector2f>(Nz::ParticleComponent_Velocity);
 
+		std::uniform_real_distribution<float> dis(-1.f, 1.f);
+
+		unsigned int count = 0;
 		for (unsigned int i = startId; i <= endId; ++i)
-			posPtr[i] += velPtr[i] * elapsedTime * factor;
+		{
+			Nz::Vector2f newVel = destPtr[i] - posPtr[i];
+			float length;
+			newVel.Normalize(&length);
+
+			float distance = SquaredDistancePointSegment(oldMousePos, actualMousePos, posPtr[i]);
+			if (distance < 250.f)
+			{
+				count++;
+				Nz::Vector2f mouseLine = actualMousePos - oldMousePos;
+				float mouseLength;
+				mouseLine.Normalize(&mouseLength);
+				if (mouseLength > 5.f)
+				{
+					velPtr[i] += mouseLine * std::min(mouseLength * mouseForce, maxMouseForce) * elapsedTime;
+					velPtr[i] += Nz::Vector2f(dis(randomGen), dis(randomGen)) * std::min(mouseLength, maxMouseForce * 0.1f);
+				}
+			}
+
+			if (length > 1.f || velPtr[i].GetSquaredLength() > Nz::IntegralPow(30.f, 2))
+			{
+				newVel *= maxSpeed;
+
+				velPtr[i] = Nz::Lerp(velPtr[i], newVel, 0.4f * elapsedTime);
+				posPtr[i] += velPtr[i] * elapsedTime;
+			}
+			else
+			{
+				velPtr[i] = Nz::Vector2f::Zero();
+				posPtr[i] = destPtr[i];
+			}
+		}
+
+		std::cout << count << std::endl;
 	}
 
+	static float SquaredDistancePointSegment(const Nz::Vector2f& s0, const Nz::Vector2f& s1, const Nz::Vector2f& point)
+	{
+		// http://geomalgorithms.com/a02-_lines.html
+		Nz::Vector2f v = s1 - s0;
+		Nz::Vector2f w = point - s0;
+
+		float c1 = Nz::Vector2f::DotProduct(w, v);
+		if (c1 <= 0.f)
+			return point.SquaredDistance(s0);
+
+		float c2 = Nz::Vector2f::DotProduct(v, v);
+		if (c2 <= c1)
+			return point.SquaredDistance(s1);
+
+		float b = c1 / c2;
+		Nz::Vector2f projPoint = s0 + b * v;
+		return projPoint.SquaredDistance(point);
+	}
+
+	std::mt19937 randomGen;
 	bool enabled = false;
-	float factor = 1.f;
+	float factor = 1000.f;
+	Nz::Vector2f actualMousePos;
+	Nz::Vector2f oldMousePos;
 };
 
 
@@ -67,9 +137,9 @@ ParticleDemo("Logo", sharedData)
 	unsigned int height = m_logo.GetHeight();
 	m_pixels.reserve(width * height);
 
-	for (unsigned int y = 0; y < height; ++y)
+	for (unsigned int x = 0; x < width; ++x)
 	{
-		for (unsigned int x = 0; x < width; ++x)
+		for (unsigned int y = 0; y < height; ++y)
 		{
 			Nz::Color color = m_logo.GetPixelColor(x, y);
 			if (color.a == 0)
@@ -93,6 +163,12 @@ ParticleDemo("Logo", sharedData)
 
 	m_controller = new SpriteController;
 	m_renderer = new SpriteRenderer(std::move(material));
+
+	m_declaration = Nz::ParticleDeclaration::New();
+	m_declaration->EnableComponent(Nz::ParticleComponent_Color, Nz::ComponentType_Color, NazaraOffsetOf(ParticleData, color));
+	m_declaration->EnableComponent(Nz::ParticleComponent_Position, Nz::ComponentType_Float2, NazaraOffsetOf(ParticleData, position));
+	m_declaration->EnableComponent(Nz::ParticleComponent_Userdata0, Nz::ComponentType_Float2, NazaraOffsetOf(ParticleData, destination));
+	m_declaration->EnableComponent(Nz::ParticleComponent_Velocity, Nz::ComponentType_Float2, NazaraOffsetOf(ParticleData, velocity));
 }
 
 void LogoExample::Enter(Ndk::StateMachine& fsm)
@@ -106,17 +182,20 @@ void LogoExample::Enter(Ndk::StateMachine& fsm)
 		m_shared.world2D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::TextureBackground::New(std::move(backgroundTexture)));
 
 	Ndk::EntityHandle particleGroupEntity = m_shared.world2D->CreateEntity();
-	Ndk::ParticleGroupComponent& particleGroup = particleGroupEntity->AddComponent<Ndk::ParticleGroupComponent>(m_pixels.size(), Nz::ParticleLayout_Sprite);
+	Ndk::ParticleGroupComponent& particleGroup = particleGroupEntity->AddComponent<Ndk::ParticleGroupComponent>(m_pixels.size(), m_declaration);
 	RegisterParticleGroup(particleGroupEntity);
 
 	particleGroup.AddController(m_controller);
 	particleGroup.SetRenderer(m_renderer);
 
-	m_particles = static_cast<Nz::ParticleStruct_Sprite*>(particleGroup.CreateParticles(m_pixels.size()));
+	m_particles = particleGroup.CreateParticles(m_pixels.size());
 	ResetParticles(-duration * (speed / 2.f));
 
 	m_accumulator = pauseTime + duration;
 	m_totalAccumulator = 0.f;
+
+	SpriteController* controller = static_cast<SpriteController*>(m_controller.Get());
+	controller->actualMousePos = controller->oldMousePos = Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target));
 }
 
 void LogoExample::Leave(Ndk::StateMachine & fsm)
@@ -136,35 +215,62 @@ bool LogoExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 	m_accumulator += elapsedTime;
 
 	SpriteController* controller = static_cast<SpriteController*>(m_controller.Get());
-	if (m_accumulator > pauseTime + 2.f * duration)
+	controller->enabled = (m_accumulator > pauseTime);
+
+	if (m_mouseClock.GetMilliseconds() > 1000/30)
 	{
-		ResetParticles(0.f);
-		m_accumulator = 0.f;
+		m_mouseClock.Restart();
+
+		controller->oldMousePos = controller->actualMousePos;
+		controller->actualMousePos = Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target));
 	}
 
-	controller->enabled = (m_accumulator > pauseTime);
-	controller->factor = -speed + speed * (m_accumulator - pauseTime) / (duration);
+	if (Nz::Mouse::IsButtonPressed(Nz::Mouse::Left))
+	{
+		if (!m_hasClicked)
+		{
+			m_hasClicked = true;
+			std::uniform_real_distribution<float> dis(50.f, 60.f);
+
+			ParticleData* sprite = static_cast<ParticleData*>(m_particles);
+			for (std::size_t i = 0; i < m_pixels.size(); ++i)
+			{
+				Nz::Vector2f particleToMouse = sprite[i].position - controller->actualMousePos;
+				float sqDist = particleToMouse.GetSquaredLength();
+				if (sqDist < 10000.f)
+				{
+					float dist = std::sqrt(sqDist);
+					particleToMouse /= std::max(dist, 1.f);
+
+					sprite[i].velocity += particleToMouse * dis(m_shared.randomGen);
+				}
+			}
+		}
+	}
+	else
+		m_hasClicked = false;
 
 	return true;
 }
 
 void LogoExample::ResetParticles(float elapsed)
 {
-	Nz::Vector2f center = {m_shared.target->GetWidth() / 2.f, m_shared.target->GetHeight() / 2.f};
+	unsigned int width = m_shared.target->GetWidth();
+	unsigned int height = m_shared.target->GetHeight();
+
+	Nz::Vector2f center = {width / 2.f, height / 2.f};
 	Nz::Vector2f offset = center - Nz::Vector2f(Nz::Vector2ui(m_logo.GetSize()) / 2);
 
-	float ratio = float(m_shared.target->GetWidth()) / m_shared.target->GetHeight();
-	std::uniform_real_distribution<float> disX(-maxVel * ratio, maxVel * ratio);
-	std::uniform_real_distribution<float> disY(-maxVel, maxVel);
+	std::uniform_real_distribution<float> disX(0.f, float(width));
+	std::uniform_real_distribution<float> disY(-float(height) * 0.5f, float(height) * 1.5f);
 
-	Nz::ParticleStruct_Sprite* sprite = m_particles;
+	ParticleData* sprite = static_cast<ParticleData*>(m_particles);
 	for (PixelData& data : m_pixels)
 	{
 		sprite->color = data.color;
-		sprite->position = offset + Nz::Vector2f(data.pos);
-		sprite->rotation = 0.f;
-		sprite->velocity.Set(disX(m_shared.randomGen), disY(m_shared.randomGen), 0.f);
-		sprite->position += sprite->velocity * elapsed;
+		sprite->destination = offset + Nz::Vector2f(data.pos);
+		sprite->position.Set(disX(m_shared.randomGen) - float(width), disY(m_shared.randomGen));
+		sprite->velocity = Nz::Vector2f::Zero();
 		sprite++;
 	}
 }
