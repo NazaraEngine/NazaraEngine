@@ -38,7 +38,7 @@ namespace Nz
 		public:
 			Window();
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
-			inline Window(WindowHandle handle);
+			inline explicit Window(WindowHandle handle);
 			Window(const Window&) = delete;
 			inline Window(Window&& window) noexcept;
 			virtual ~Window();
