@@ -31,7 +31,7 @@ namespace Nz
 		public:
 			RenderWindow() = default;
 			RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			explicit RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
 			RenderWindow(const RenderWindow&) = delete;
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();
