@@ -38,7 +38,6 @@ struct SpriteController : public Nz::ParticleController
 
 		std::uniform_real_distribution<float> dis(-1.f, 1.f);
 
-		unsigned int count = 0;
 		for (unsigned int i = startId; i <= endId; ++i)
 		{
 			Nz::Vector2f newVel = destPtr[i] - posPtr[i];
@@ -48,7 +47,6 @@ struct SpriteController : public Nz::ParticleController
 			float distance = SquaredDistancePointSegment(oldMousePos, actualMousePos, posPtr[i]);
 			if (distance < 250.f)
 			{
-				count++;
 				Nz::Vector2f mouseLine = actualMousePos - oldMousePos;
 				float mouseLength;
 				mouseLine.Normalize(&mouseLength);
@@ -72,8 +70,6 @@ struct SpriteController : public Nz::ParticleController
 				posPtr[i] = destPtr[i];
 			}
 		}
-
-		std::cout << count << std::endl;
 	}
 
 	static float SquaredDistancePointSegment(const Nz::Vector2f& s0, const Nz::Vector2f& s1, const Nz::Vector2f& point)
