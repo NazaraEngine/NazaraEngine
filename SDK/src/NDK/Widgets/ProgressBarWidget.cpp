@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -12,8 +12,8 @@ namespace Ndk
 {
 	float ProgressBarWidget::s_borderScale { 16.f };
 	Nz::Color ProgressBarWidget::s_borderColor { Nz::Color::Black };
-	Nz::Color ProgressBarWidget::s_backgroundColor { Nz::Color { 225, 225, 225 } };
-	Nz::Color ProgressBarWidget::s_backgroundCornerColor { Nz::Color { 255, 255, 255 } };
+	Nz::Color ProgressBarWidget::s_barBackgroundColor { Nz::Color { 225, 225, 225 } };
+	Nz::Color ProgressBarWidget::s_barBackgroundCornerColor { Nz::Color { 255, 255, 255 } };
 	Nz::Color ProgressBarWidget::s_barColor { Nz::Color { 0, 225, 0 } };
 	Nz::Color ProgressBarWidget::s_barCornerColor { Nz::Color { 220, 255, 220 } };
 
@@ -24,22 +24,12 @@ namespace Ndk
 	m_value { 0u }
 	{
 		m_borderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_backgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_barBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
 		m_barSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
 
 		m_borderSprite->SetColor(s_borderColor);
-
-		m_backgroundSprite->SetColor(s_backgroundColor);
-		m_backgroundSprite->SetCornerColor(Nz::RectCorner_LeftTop, s_backgroundCornerColor);
-		m_backgroundSprite->SetCornerColor(Nz::RectCorner_RightTop, s_backgroundCornerColor);
-		m_backgroundSprite->SetCornerColor(Nz::RectCorner_LeftBottom, s_backgroundColor);
-		m_backgroundSprite->SetCornerColor(Nz::RectCorner_RightBottom, s_backgroundColor);
-
-		m_barSprite->SetColor(s_barColor);
-		m_barSprite->SetCornerColor(Nz::RectCorner_LeftTop, s_barCornerColor);
-		m_barSprite->SetCornerColor(Nz::RectCorner_RightTop, s_barCornerColor);
-		m_barSprite->SetCornerColor(Nz::RectCorner_LeftBottom, s_barColor);
-		m_barSprite->SetCornerColor(Nz::RectCorner_RightBottom, s_barColor);
+		SetBarBackgroundColor(s_barBackgroundColor, s_barBackgroundCornerColor);
+		SetBarColor(s_barColor, s_barCornerColor);
 
 
 		m_borderEntity = CreateEntity();
@@ -50,7 +40,7 @@ namespace Ndk
 		m_barEntity->AddComponent<NodeComponent>().SetParent(this);
 		GraphicsComponent& graphics = m_barEntity->AddComponent<GraphicsComponent>();
 
-		graphics.Attach(m_backgroundSprite, 1);
+		graphics.Attach(m_barBackgroundSprite, 1);
 		graphics.Attach(m_barSprite, 2);
 
 
@@ -64,6 +54,28 @@ namespace Ndk
 		Layout();
 	}
 
+
+	const Nz::Color& ProgressBarWidget::GetDefaultBarColor()
+	{
+		return s_barColor;
+	}
+
+	const Nz::Color& ProgressBarWidget::GetDefaultBarCornerColor()
+	{
+		return s_barCornerColor;
+	}
+
+	const Nz::Color& ProgressBarWidget::GetDefaultBarBackgroundColor()
+	{
+		return s_barBackgroundColor;
+	}
+
+	const Nz::Color& ProgressBarWidget::GetDefaultBarBackgroundCornerColor()
+	{
+		return s_barBackgroundCornerColor;
+	}
+
+
 	void ProgressBarWidget::Layout()
 	{
 		Nz::Vector2f origin = GetContentOrigin();
@@ -72,6 +84,8 @@ namespace Ndk
 
 		if (IsTextEnabled())
 		{
+			UpdateText();
+
 			Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 			m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + size.x - textSize.x, origin.y + size.y / 2.f - textSize.y);
 
@@ -81,7 +95,7 @@ namespace Ndk
 		m_borderSprite->SetSize(progressBarSize);
 		Nz::Vector2f borderSize = GetProgressBarBorderSize();
 
-		m_backgroundSprite->SetSize(progressBarSize - (borderSize * 2.f));
+		m_barBackgroundSprite->SetSize(progressBarSize - (borderSize * 2.f));
 		m_barSprite->SetSize((progressBarSize.x - (borderSize.x * 2.f)) / 100.f * static_cast<float>(m_value), progressBarSize.y - (borderSize.y * 2.f));
 
 		m_borderEntity->GetComponent<NodeComponent>().SetPosition(origin.x, origin.y);
