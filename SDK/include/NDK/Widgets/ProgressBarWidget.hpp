@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -34,12 +34,37 @@ namespace Ndk
 			//virtual ProgressBarWidget* Clone() const = 0;
 
 			inline void EnableText(bool enable = true);
+			inline void EnableBorder(bool enable = true);
+
 			inline bool IsTextEnabled() const;
+			inline bool IsBorderEnabled() const;
+
 
 			inline unsigned GetPercentageValue() const;
 			inline Nz::Vector2f GetProgressBarSize() const;
 			inline Nz::Vector2f GetProgressBarBorderSize() const;
 			inline float GetTextMargin() const;
+
+
+			inline const Nz::Color& GetBarBackgroundColor() const;
+			inline const Nz::Color& GetBarBackgroundCornerColor() const;
+			inline const Nz::Color& GetBarColor() const;
+			inline const Nz::Color& GetBarCornerColor() const;
+
+			inline const Nz::TextureRef& GetBarBackgroundTexture() const;
+			inline const Nz::TextureRef& GetBarTexture() const;
+
+			static const Nz::Color& GetDefaultBarColor();
+			static const Nz::Color& GetDefaultBarCornerColor();
+			static const Nz::Color& GetDefaultBarBackgroundColor();
+			static const Nz::Color& GetDefaultBarBackgroundCornerColor();
+
+
+			inline void SetBarBackgroundColor(const Nz::Color& globalColor, const Nz::Color& cornerColor);
+			inline void SetBarBackgroundTexture(Nz::TextureRef texture, bool resetColors = true);
+			inline void SetBarColor(const Nz::Color& globalColor, const Nz::Color& cornerColor);
+			inline void SetBarTexture(Nz::TextureRef texture, bool resetColors = true);
+
 
 			inline void SetPercentageValue(unsigned percentage);
 			inline void SetTextMargin(float margin);
@@ -59,14 +84,14 @@ namespace Ndk
 			EntityHandle m_textEntity;
 
 			static Nz::Color s_borderColor;
-			static Nz::Color s_backgroundColor;
-			static Nz::Color s_backgroundCornerColor;
+			static Nz::Color s_barBackgroundColor;
+			static Nz::Color s_barBackgroundCornerColor;
 			static Nz::Color s_barColor;
 			static Nz::Color s_barCornerColor;
 			Nz::Color m_textColor;
 
 			Nz::SpriteRef m_borderSprite;
-			Nz::SpriteRef m_backgroundSprite;
+			Nz::SpriteRef m_barBackgroundSprite;
 			Nz::SpriteRef m_barSprite;
 			Nz::TextSpriteRef m_textSprite;
 

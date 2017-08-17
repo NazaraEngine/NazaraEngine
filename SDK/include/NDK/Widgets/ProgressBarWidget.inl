@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -7,14 +7,22 @@ namespace Ndk
 	inline void ProgressBarWidget::EnableText(bool enable)
 	{
 		m_textEntity->Enable(enable);
-
-		UpdateText();
 		Layout();
+	}
+
+	inline void ProgressBarWidget::EnableBorder(bool enable)
+	{
+		m_borderEntity->Enable(enable);
 	}
 
 	inline bool ProgressBarWidget::IsTextEnabled() const
 	{
 		return m_textEntity->IsEnabled();
+	}
+
+	inline bool ProgressBarWidget::IsBorderEnabled() const
+	{
+		return m_borderEntity->IsEnabled();
 	}
 
 
@@ -48,12 +56,77 @@ namespace Ndk
 	}
 
 
+	inline const Nz::Color& ProgressBarWidget::GetBarBackgroundColor() const
+	{
+		return m_barBackgroundSprite->GetColor();
+	}
+
+	inline const Nz::Color& ProgressBarWidget::GetBarBackgroundCornerColor() const
+	{
+		return m_barBackgroundSprite->GetCornerColor(Nz::RectCorner_LeftTop);
+	}
+
+	inline const Nz::Color& ProgressBarWidget::GetBarColor() const
+	{
+		return m_barSprite->GetColor();
+	}
+
+	inline const Nz::Color& ProgressBarWidget::GetBarCornerColor() const
+	{
+		return m_barSprite->GetCornerColor(Nz::RectCorner_LeftTop);
+	}
+
+
+	inline const Nz::TextureRef& ProgressBarWidget::GetBarBackgroundTexture() const
+	{
+		return m_barBackgroundSprite->GetMaterial()->GetDiffuseMap();
+	}
+
+	inline const Nz::TextureRef& ProgressBarWidget::GetBarTexture() const
+	{
+		return m_barSprite->GetMaterial()->GetDiffuseMap();
+	}
+
+
+	inline void ProgressBarWidget::SetBarBackgroundColor(const Nz::Color& globalColor, const Nz::Color& cornerColor)
+	{
+		m_barBackgroundSprite->SetColor(globalColor);
+		m_barBackgroundSprite->SetCornerColor(Nz::RectCorner_LeftTop, cornerColor);
+		m_barBackgroundSprite->SetCornerColor(Nz::RectCorner_RightTop, cornerColor);
+		m_barBackgroundSprite->SetCornerColor(Nz::RectCorner_LeftBottom, globalColor);
+		m_barBackgroundSprite->SetCornerColor(Nz::RectCorner_RightBottom, globalColor);
+	}
+
+	inline void ProgressBarWidget::SetBarBackgroundTexture(Nz::TextureRef texture, bool resetColors)
+	{
+		m_barBackgroundSprite->SetTexture(texture, false);
+
+		if (resetColors)
+			SetBarBackgroundColor(Nz::Color::White, Nz::Color::White);
+	}
+
+	inline void ProgressBarWidget::SetBarColor(const Nz::Color& globalColor, const Nz::Color& cornerColor)
+	{
+		m_barSprite->SetColor(globalColor);
+		m_barSprite->SetCornerColor(Nz::RectCorner_LeftTop, cornerColor);
+		m_barSprite->SetCornerColor(Nz::RectCorner_RightTop, cornerColor);
+		m_barSprite->SetCornerColor(Nz::RectCorner_LeftBottom, globalColor);
+		m_barSprite->SetCornerColor(Nz::RectCorner_RightBottom, globalColor);
+	}
+
+	inline void ProgressBarWidget::SetBarTexture(Nz::TextureRef texture, bool resetColors)
+	{
+		m_barSprite->SetTexture(texture, false);
+
+		if (resetColors)
+			SetBarColor(Nz::Color::White, Nz::Color::White);
+	}
+
+
 	inline void ProgressBarWidget::SetPercentageValue(unsigned percentage)
 	{
 		m_value = percentage;
 		OnValueChanged(this);
-
-		UpdateText();
 		Layout();
 	}
 
@@ -76,7 +149,8 @@ namespace Ndk
 		if (IsTextEnabled())
 		{
 			Nz::Vector2f size = GetContentSize();
-			m_textSprite->Update(Nz::SimpleTextDrawer::Draw(Nz::String::Number(m_value).Append('%'), static_cast<unsigned>(size.y / 2.f), 0u, m_textColor));
+			m_textSprite->Update(Nz::SimpleTextDrawer::Draw(Nz::String::Number(m_value).Append('%'),
+															static_cast<unsigned>(std::min(size.x, size.y) / 2.f), 0u, m_textColor));
 		}
 	}
 }
