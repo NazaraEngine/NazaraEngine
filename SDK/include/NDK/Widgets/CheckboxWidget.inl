@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -14,12 +14,15 @@ namespace Ndk
 	inline void CheckboxWidget::EnableCheckbox(bool enable)
 	{
 		m_checkboxEnabled = enable;
-		UpdateCheckboxSprite();
+		UpdateCheckbox();
 	}
 
 	inline void CheckboxWidget::EnableTristate(bool enable)
 	{
 		m_tristateEnabled = enable;
+
+		if (GetState() == CheckboxState_Tristate)
+			SetState(CheckboxState_Unchecked);
 	}
 
 
@@ -41,7 +44,7 @@ namespace Ndk
 
 	inline const Nz::Vector2f& CheckboxWidget::GetCheckboxSize() const
 	{
-		return m_checkboxSprite->GetSize();
+		return m_checkboxBorderSprite->GetSize();
 	}
 
 	inline Nz::Vector2f CheckboxWidget::GetCheckboxBorderSize() const
@@ -62,8 +65,10 @@ namespace Ndk
 
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2f& size)
 	{
-		m_checkboxSprite->SetSize(size);
-		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() * 3.f);
+		m_checkboxBorderSprite->SetSize(size);
+		m_checkboxBackgroundSprite->SetSize(size - GetCheckboxBorderSize() * 2.f);
+		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() * 2.f - Nz::Vector2f { 4.f, 4.f });
+
 		Layout();
 	}
 
@@ -83,7 +88,7 @@ namespace Ndk
 	inline bool CheckboxWidget::ContainsCheckbox(int x, int y) const
 	{
 		Nz::Vector2f checkboxSize = GetCheckboxSize();
-		Nz::Vector3f pos = m_checkboxEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local);
+		Nz::Vector3f pos = m_checkboxBorderEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local);
 
 		return x > pos.x && x < pos.x + checkboxSize.x &&
 		       y > pos.y && y < pos.y + checkboxSize.y;

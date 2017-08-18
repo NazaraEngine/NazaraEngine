@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -66,30 +66,28 @@ namespace Ndk
 			static void Uninitialize();
 
 			void Layout() override;
+			void UpdateCheckbox();
+
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;
 
-			void UpdateCheckboxSprite();
-			void InitializeCheckboxTextures();
 
-
-			EntityHandle m_checkboxEntity;
+			EntityHandle m_checkboxBorderEntity;
+			EntityHandle m_checkboxBackgroundEntity;
 			EntityHandle m_checkboxContentEntity;
 			EntityHandle m_textEntity;
 
-			Nz::TextureRef m_checkbox;
-			Nz::TextureRef m_disabledCheckbox;
-			Nz::TextureRef m_checkboxContentChecked;
-			Nz::TextureRef m_checkboxContentTristate;
+			Nz::TextureRef m_checkMark;
 
 			Nz::SpriteRef m_checkboxContentSprite;
-			Nz::SpriteRef m_checkboxSprite;
+			Nz::SpriteRef m_checkboxBorderSprite;
+			Nz::SpriteRef m_checkboxBackgroundSprite;
 			Nz::TextSpriteRef m_textSprite;
 
 			static Nz::Color s_backgroundColor;
 			static Nz::Color s_disabledBackgroundColor;
-			static Nz::Color s_disabledMainColor;
-			static Nz::Color s_mainColor;
+			static Nz::Color s_disabledBorderColor;
+			static Nz::Color s_borderColor;
 
 			bool m_adaptativeMargin;
 			bool m_checkboxEnabled;

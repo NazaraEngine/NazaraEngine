@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Samy Bensaid
+﻿// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -15,9 +15,9 @@ namespace Ndk
 {
 	Nz::Color CheckboxWidget::s_backgroundColor { Nz::Color::White };
 	Nz::Color CheckboxWidget::s_disabledBackgroundColor { 201, 201, 201 };
-	Nz::Color CheckboxWidget::s_disabledMainColor { 62, 62, 62 };
-	Nz::Color CheckboxWidget::s_mainColor { Nz::Color::Black };
-	float CheckboxWidget::s_borderScale { 8.f };
+	Nz::Color CheckboxWidget::s_disabledBorderColor { 62, 62, 62 };
+	Nz::Color CheckboxWidget::s_borderColor { Nz::Color::Black };
+	float CheckboxWidget::s_borderScale { 16.f };
 
 	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
 	BaseWidget(parent),
@@ -27,86 +27,54 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_state	{ CheckboxState_Unchecked }
 	{
-		m_checkboxSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_checkboxBorderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_checkboxBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
 		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
 		m_textSprite = Nz::TextSprite::New();
 
-		m_checkboxEntity = CreateEntity();
-		m_checkboxEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_checkboxEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxSprite);
+		m_checkboxBorderEntity = CreateEntity();
+		m_checkboxBorderEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_checkboxBorderEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxBorderSprite);
+
+		m_checkboxBackgroundEntity = CreateEntity();
+		m_checkboxBackgroundEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_checkboxBackgroundEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxBackgroundSprite, 1);
 
 		m_checkboxContentEntity = CreateEntity();
 		m_checkboxContentEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_checkboxContentEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxContentSprite, 1);
+		m_checkboxContentEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxContentSprite, 2);
 
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 
-		InitializeCheckboxTextures();
+		m_checkMark = Nz::TextureLibrary::Get("Ndk::CheckboxWidget::checkmark");
+
 		SetCheckboxSize({ 32.f, 32.f });
-		UpdateCheckboxSprite();
-		Layout();
+		UpdateCheckbox();
 	}
 
 	bool CheckboxWidget::Initialize()
 	{
-		Nz::Vector2ui checkboxSize = { 32u, 32u };
-		Nz::Vector2ui borderSize = checkboxSize / static_cast<unsigned>(s_borderScale);
-
-
-		Nz::Image checkbox;
-		if (!checkbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y)) return false;
-
-		if (!checkbox.Fill(s_mainColor, Nz::Rectui { checkboxSize.x, checkboxSize.y })) return false;
-		if (!checkbox.Fill(s_backgroundColor, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) })) return false;
-
-		Nz::TextureRef checkboxTexture = Nz::Texture::New();
-		if (!checkboxTexture->LoadFromImage(checkbox)) return false;
-
-		Nz::Image disabledCheckbox;
-		if (!disabledCheckbox.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, checkboxSize.x, checkboxSize.y)) return false;
-
-		if (!disabledCheckbox.Fill(s_disabledMainColor, Nz::Rectui { checkboxSize.x, checkboxSize.y })) return false;
-		if (!disabledCheckbox.Fill(s_disabledBackgroundColor, Nz::Rectui { borderSize.x, borderSize.y, checkboxSize.x - (borderSize.x * 2), checkboxSize.y - (borderSize.y * 2) })) return false;
-
-		Nz::TextureRef disabledCheckboxTexture = Nz::Texture::New();
-		if (!disabledCheckboxTexture->LoadFromImage(disabledCheckbox)) return false;
-
-
-		Nz::Image tristate;
-		if (!tristate.Create(Nz::ImageType_2D, Nz::PixelFormatType_L8, 1u, 1u)) return false;
-		if (!tristate.Fill(Nz::Color::Black)) return false;
-		Nz::TextureRef tristateTexture = Nz::Texture::New();
-		if (!tristateTexture->LoadFromImage(tristate)) return false;
-
-
 		const Nz::UInt8 r_checkmark[] =
 		{
 			#include <NDK/Resources/checkmark.png.h>
 		};
 
-		Nz::TextureRef checkedTexture = Nz::Texture::New();
-		if (!checkedTexture->LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0])))
+		Nz::TextureRef checkmarkTexture = Nz::Texture::New();
+		if (!checkmarkTexture->LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0])))
 		{
 			NazaraError("Failed to load embedded checkmark");
 			return false;
 		}
 
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkbox", checkboxTexture);
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::disabledCheckbox", disabledCheckboxTexture);
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::tristate", tristateTexture);
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checked", checkedTexture);
-
+		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkmark", checkmarkTexture);
 		return true;
 	}
 	
 	void CheckboxWidget::Uninitialize()
 	{
-		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::checkbox");
-		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::disabledCheckbox");
-		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::tristate");
-		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::checked");
+		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::checkmark");
 	}
 
 
@@ -119,7 +87,7 @@ namespace Ndk
 			m_tristateEnabled = true;
 
 		m_state = state;
-		UpdateCheckboxSprite();
+		UpdateCheckbox();
 	}
 
 	CheckboxState CheckboxWidget::SetNextState()
@@ -149,7 +117,7 @@ namespace Ndk
 	void CheckboxWidget::ResizeToContent()
 	{
 		Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		Nz::Vector2f checkboxSize = m_checkboxSprite->GetSize();
+		Nz::Vector2f checkboxSize = GetCheckboxSize();
 
 		Nz::Vector2f finalSize { checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
 		SetContentSize(finalSize);
@@ -164,11 +132,12 @@ namespace Ndk
 		Nz::Vector2f checkboxSize = GetCheckboxSize();
 		Nz::Vector2f borderSize = GetCheckboxBorderSize();
 
-		m_checkboxEntity->GetComponent<NodeComponent>().SetPosition(origin);
+		m_checkboxBorderEntity->GetComponent<NodeComponent>().SetPosition(origin);
+		m_checkboxBackgroundEntity->GetComponent<NodeComponent>().SetPosition(origin + borderSize);
 
-		Nz::Vector3f checkboxTextBox = m_checkboxContentSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxTextBox.x / 2.f,
-		                                                                   origin.y + checkboxSize.y / 2.f - checkboxTextBox.y / 2.f);
+		Nz::Vector3f checkboxBox = m_checkboxContentSprite->GetBoundingVolume().obb.localBox.GetLengths();
+		m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxBox.x / 2.f,
+		                                                                   origin.y + checkboxSize.y / 2.f - checkboxBox.y / 2.f);
 
 		Nz::Vector3f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
@@ -185,12 +154,18 @@ namespace Ndk
 	}
 
 
-	void CheckboxWidget::UpdateCheckboxSprite()
+	void CheckboxWidget::UpdateCheckbox()
 	{
 		if (m_checkboxEnabled)
-			m_checkboxSprite->SetTexture(m_checkbox, false);
+		{
+			m_checkboxBorderSprite->SetColor(s_borderColor);
+			m_checkboxBackgroundSprite->SetColor(s_backgroundColor);
+		}
 		else
-			m_checkboxSprite->SetTexture(m_disabledCheckbox, false);
+		{
+			m_checkboxBorderSprite->SetColor(s_disabledBorderColor);
+			m_checkboxBackgroundSprite->SetColor(s_disabledBackgroundColor);
+		}
 
 
 		if (m_state == CheckboxState_Unchecked)
@@ -201,23 +176,14 @@ namespace Ndk
 		else if (m_state == CheckboxState_Checked)
 		{
 			m_checkboxContentEntity->Enable();
-			m_checkboxContentSprite->SetTexture(m_checkboxContentChecked, false);
+			m_checkboxContentSprite->SetColor(Nz::Color::White);
+			m_checkboxContentSprite->SetTexture(m_checkMark, false);
 		}
-		else
+		else // Tristate
 		{
 			m_checkboxContentEntity->Enable();
-			m_checkboxContentSprite->SetTexture(m_checkboxContentTristate, false);
+			m_checkboxContentSprite->SetColor(Nz::Color::Black);
+			m_checkboxContentSprite->SetTexture(Nz::TextureRef {});
 		}
-
-		m_checkboxContentSprite->SetColor(m_checkboxEnabled ? s_mainColor : s_disabledMainColor);
-	}
-
-
-	void CheckboxWidget::InitializeCheckboxTextures()
-	{
-		m_checkbox =  Nz::TextureLibrary::Get("Ndk::CheckboxWidget::checkbox");
-		m_disabledCheckbox = Nz::TextureLibrary::Get("Ndk::CheckboxWidget::disabledCheckbox");
-		m_checkboxContentTristate = Nz::TextureLibrary::Get("Ndk::CheckboxWidget::tristate");
-		m_checkboxContentChecked = Nz::TextureLibrary::Get("Ndk::CheckboxWidget::checked");
 	}
 }
