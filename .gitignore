@@ -64,6 +64,7 @@ build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
 build/**/*.VC.opendb
 build/**/*.VC.db*
+.vs
 
 # Compiled Object files
 build/**/*.slo
