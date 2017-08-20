@@ -12,6 +12,7 @@ namespace Nz
 	enum ColliderType2D
 	{
 		ColliderType2D_Box,
+		ColliderType2D_Compound,
 		ColliderType2D_Convex,
 		ColliderType2D_Circle,
 		ColliderType2D_Null,

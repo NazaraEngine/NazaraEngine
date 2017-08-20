@@ -6,6 +6,35 @@
 
 namespace Ndk
 {
+	namespace Detail
+	{
+		template<bool HasDefaultConstructor>
+		struct AddComponentIf;
+
+		template<>
+		struct AddComponentIf<true>
+		{
+			template<typename T>
+			static int AddComponent(Nz::LuaState& lua, EntityHandle& handle)
+			{
+				T& component = handle->AddComponent<T>();
+				lua.Push(component.CreateHandle());
+				return 1;
+			}
+		};
+
+		template<>
+		struct AddComponentIf<false>
+		{
+			template<typename T>
+			static int AddComponent(Nz::LuaState& lua, EntityHandle& /*handle*/)
+			{
+				lua.Error("Component has no default constructor and cannot be created from Lua yet");
+				return 0;
+			}
+		};
+	}
+
 	/*!
 	* \brief Binds a component to a name
 	*
@@ -13,14 +42,15 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if name is empty
 	*/
-
 	template<typename T>
 	void LuaBinding::BindComponent(const Nz::String& name)
 	{
 		NazaraAssert(!name.IsEmpty(), "Component name cannot be empty");
 
+		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
+
 		ComponentBinding binding;
-		binding.adder = &AddComponentOfType<T>;
+		binding.adder = &Detail::AddComponentIf<std::is_default_constructible<T>::value>::template AddComponent<T>;
 		binding.getter = &PushComponentOfType<T>;
 		binding.index = T::componentIndex;
 		binding.name = name;
@@ -33,20 +63,8 @@ namespace Ndk
 	}
 
 	template<typename T>
-	int LuaBinding::AddComponentOfType(Nz::LuaState& lua, EntityHandle& handle)
-	{
-		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
-
-		T& component = handle->AddComponent<T>();
-		lua.Push(component.CreateHandle());
-		return 1;
-	}
-
-	template<typename T>
 	int LuaBinding::PushComponentOfType(Nz::LuaState& lua, BaseComponent& component)
 	{
-		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
-
 		T& rightComponent = static_cast<T&>(component);
 		lua.Push(rightComponent.CreateHandle());
 		return 1;
