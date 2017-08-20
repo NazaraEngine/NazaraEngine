@@ -128,7 +128,7 @@ function NazaraBuild:Execute()
 		language("C++")
 		location(_ACTION)
 
-		if (self.Config["PremakeProject"]) then
+		if (self.Config["PremakeProject"] && os.is("windows")) then
 			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
 			project("_PremakeProject")
 				kind("Utility")
