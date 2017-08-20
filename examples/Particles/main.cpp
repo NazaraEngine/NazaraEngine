@@ -105,7 +105,7 @@ int main()
 	fpsNode.SetPosition(5.f, window.GetHeight() - fpsCountBox.height - particleCountBox.height - 5.f);
 
 
-	//shared.demos.push_back(std::make_shared<LogoExample>(shared));
+	shared.demos.push_back(std::make_shared<LogoExample>(shared));
 	shared.demos.push_back(std::make_shared<SpacebattleExample>(shared));
 
 	std::size_t demoIndex = 0;

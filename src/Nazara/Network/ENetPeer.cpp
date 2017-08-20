@@ -139,7 +139,7 @@ namespace Nz
 		m_packetsLost = 0;
 		m_packetLoss = 0;
 		m_packetLossVariance = 0;
-		m_packetThrottle = ENetConstants::ENetProtocol_MaximumWindowSize;
+		m_packetThrottle = ENetConstants::ENetPeer_DefaultPacketThrottle;
 		m_packetThrottleLimit = ENetConstants::ENetPeer_PacketThrottleScale;
 		m_packetThrottleCounter = 0;
 		m_packetThrottleEpoch = 0;
@@ -1330,7 +1330,7 @@ namespace Nz
 		{
 			if (rtt < m_lastRoundTripTime)
 			{
-				m_packetThrottle = std::max(m_packetThrottle + m_packetThrottleAcceleration, m_packetThrottleLimit);
+				m_packetThrottle = std::min(m_packetThrottle + m_packetThrottleAcceleration, m_packetThrottleLimit);
 				return 1;
 			}
 			else if (rtt > m_lastRoundTripTime + 2 * m_lastRoundTripTimeVariance)

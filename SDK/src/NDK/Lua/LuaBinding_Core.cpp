@@ -321,10 +321,11 @@ namespace Ndk
 		state.SetGlobal("CursorPosition");
 
 		// Nz::HashType
-		static_assert(Nz::HashType_Max + 1 == 9, "Nz::HashType has been updated but change was not reflected to Lua binding");
-		state.PushTable(0, 9);
+		static_assert(Nz::HashType_Max + 1 == 10, "Nz::HashType has been updated but change was not reflected to Lua binding");
+		state.PushTable(0, 10);
 		{
 			state.PushField("CRC32", Nz::HashType_CRC32);
+			state.PushField("CRC64", Nz::HashType_CRC64);
 			state.PushField("Fletcher16", Nz::HashType_Fletcher16);
 			state.PushField("MD5", Nz::HashType_MD5);
 			state.PushField("SHA1", Nz::HashType_SHA1);

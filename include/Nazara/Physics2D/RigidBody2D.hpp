@@ -48,6 +48,7 @@ namespace Nz
 			float GetRotation() const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			PhysWorld2D* GetWorld() const;
 
 			bool IsMoveable() const;
 			bool IsSleeping() const;
@@ -56,6 +57,7 @@ namespace Nz
 			void SetGeom(Collider2DRef geom);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
+			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
 			void SetUserdata(void* ud);

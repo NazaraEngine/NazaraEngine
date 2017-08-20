@@ -128,11 +128,16 @@ namespace Nz
 			if (!result.address)
 				continue;
 
-			if (result.socketType != SocketType_UDP)
-				continue;
-
 			hostnameAddress = result.address;
 			break; //< Take first valid address
+		}
+
+		if (!hostnameAddress.IsValid())
+		{
+			if (error)
+				*error = ResolveError_NotFound;
+
+			return nullptr;
 		}
 
 		return Connect(hostnameAddress, channelCount, data);

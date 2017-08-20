@@ -788,16 +788,17 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_unsigned<T>::value, T> LuaState::CheckBounds(int index, long long value) const
 	{
+		unsigned long long uValue = static_cast<unsigned long long>(value);
 		constexpr unsigned long long minBounds = 0;
 		constexpr unsigned long long maxBounds = std::numeric_limits<T>::max();
-		if (value < minBounds || value > maxBounds)
+		if (uValue < minBounds || uValue > maxBounds)
 		{
 			Nz::StringStream stream;
 			stream << "Argument #" << index << " is outside value range [" << minBounds << ", " << maxBounds << "] (" << value << ')';
 			Error(stream);
 		}
 
-		return static_cast<T>(value);
+		return static_cast<T>(uValue);
 	}
 
 	inline LuaState LuaState::GetState(lua_State* internalState)
