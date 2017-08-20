@@ -1,10 +1,9 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 namespace Ndk
 {
-
 	inline void CheckboxWidget::EnableAdaptativeMargin(bool enable)
 	{
 		m_adaptativeMargin = enable;
@@ -21,7 +20,7 @@ namespace Ndk
 	{
 		m_tristateEnabled = enable;
 
-		if (GetState() == CheckboxState_Tristate)
+		if (m_tristateEnabled && GetState() == CheckboxState_Tristate)
 			SetState(CheckboxState_Unchecked);
 	}
 
