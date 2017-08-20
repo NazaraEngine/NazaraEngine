@@ -31,7 +31,7 @@ namespace Nz
 	/******************************** BoxCollider2D *********************************/
 
 	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
-	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x / 2.f, size.y / 2.f), radius)
+	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x, size.y), radius)
 	{
 	}
 

@@ -115,6 +115,15 @@ namespace Nz
 	}
 
 	template<typename... Args>
+	ConvexCollider2DRef ConvexCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<ConvexCollider2D> object(new ConvexCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
+
+	template<typename... Args>
 	NullCollider2DRef NullCollider2D::New(Args&&... args)
 	{
 		std::unique_ptr<NullCollider2D> object(new NullCollider2D(std::forward<Args>(args)...));
