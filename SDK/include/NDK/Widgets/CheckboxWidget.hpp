@@ -9,7 +9,7 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <NDK/Enums.hpp>
+#include <NDK/Widgets/Enums.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
