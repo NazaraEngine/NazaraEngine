@@ -48,7 +48,7 @@ namespace Ndk
 			inline float GetTextMargin() const;
 
 			inline void SetCheckboxSize(const Nz::Vector2f& size);
-			CheckboxState SetNextState();
+			CheckboxState SwitchToNextState();
 			void SetState(CheckboxState state);
 			inline void SetTextMargin(float margin);
 

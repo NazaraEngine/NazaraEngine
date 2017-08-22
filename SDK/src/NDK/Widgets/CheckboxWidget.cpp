@@ -89,7 +89,7 @@ namespace Ndk
 		UpdateCheckbox();
 	}
 
-	CheckboxState CheckboxWidget::SetNextState()
+	CheckboxState CheckboxWidget::SwitchToNextState()
 	{
 		if (!m_checkboxEnabled)
 			return m_state;
@@ -145,7 +145,7 @@ namespace Ndk
 	{
 		if (button == Nz::Mouse::Left && ContainsCheckbox(x, y) && IsCheckboxEnabled())
 		{
-			SetNextState();
+			SwitchToNextState();
 			OnStateChanged(this);
 		}
 	}
