@@ -24,7 +24,6 @@ namespace Ndk
 			SetState(CheckboxState_Unchecked);
 	}
 
-
 	inline bool CheckboxWidget::IsCheckboxEnabled() const
 	{
 		return m_checkboxEnabled;
@@ -39,7 +38,6 @@ namespace Ndk
 	{
 		return m_tristateEnabled;
 	}
-
 
 	inline const Nz::Vector2f& CheckboxWidget::GetCheckboxSize() const
 	{
@@ -61,7 +59,6 @@ namespace Ndk
 		return m_textMargin;
 	}
 
-
 	inline void CheckboxWidget::SetCheckboxSize(const Nz::Vector2f& size)
 	{
 		m_checkboxBorderSprite->SetSize(size);
@@ -76,7 +73,6 @@ namespace Ndk
 		m_textMargin = margin;
 		Layout();
 	}
-
 
 	inline void CheckboxWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
 	{

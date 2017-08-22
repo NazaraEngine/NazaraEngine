@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -77,7 +77,6 @@ namespace Ndk
 		Nz::TextureLibrary::Unregister("Ndk::CheckboxWidget::checkmark");
 	}
 
-
 	void CheckboxWidget::SetState(CheckboxState state)
 	{
 		if (!m_checkboxEnabled)
@@ -113,7 +112,6 @@ namespace Ndk
 		return m_state;
 	}
 
-
 	void CheckboxWidget::ResizeToContent()
 	{
 		Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
@@ -122,7 +120,6 @@ namespace Ndk
 		Nz::Vector2f finalSize { checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
 		SetContentSize(finalSize);
 	}
-
 
 	void CheckboxWidget::Layout()
 	{
@@ -152,7 +149,6 @@ namespace Ndk
 			OnStateChanged(this);
 		}
 	}
-
 
 	void CheckboxWidget::UpdateCheckbox()
 	{
