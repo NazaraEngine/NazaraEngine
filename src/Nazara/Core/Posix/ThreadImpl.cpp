@@ -5,8 +5,9 @@
 #include <Nazara/Core/Posix/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <sched.h>
+#include <time.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -28,6 +29,43 @@ namespace Nz
 		pthread_join(m_handle, nullptr);
 	}
 
+	void ThreadImpl::SetName(const Nz::String& name)
+	{
+#ifdef __GNUC__
+		pthread_setname_np(m_handle, name.GetConstBuffer());
+#else
+		NazaraWarning("Setting thread name is not supported on this platform");
+#endif
+	}
+
+	void ThreadImpl::SetCurrentName(const Nz::String& name)
+	{
+#ifdef __GNUC__
+		pthread_setname_np(pthread_self(), name.GetConstBuffer());
+#else
+		NazaraWarning("Setting current thread name is not supported on this platform");
+#endif
+	}
+
+	void ThreadImpl::Sleep(UInt32 time)
+	{
+		if (time == 0)
+			sched_yield();
+		else
+		{
+			struct timespec ts;
+			ts.tv_sec = time / 1000;
+			ts.tv_nsec = (time - ts.tv_sec * 1000) * 1'000'000;
+
+			int r;
+			do
+			{
+				r = nanosleep(&ts, &ts);
+			}
+			while (r == -1 && errno == EINTR);
+		}
+	}
+
 	void* ThreadImpl::ThreadProc(void* userdata)
 	{
 		Functor* func = static_cast<Functor*>(userdata);
@@ -35,41 +73,5 @@ namespace Nz
 		delete func;
 
 		return nullptr;
-	}
-
-	void ThreadImpl::Sleep(UInt32 time)
-	{
-		// code from SFML2 Unix SleepImpl.cpp source https://github.com/LaurentGomila/SFML/blob/master/src/SFML/System/Unix/SleepImpl.cpp
-
-		// usleep is not reliable enough (it might block the
-		// whole process instead of just the current thread)
-		// so we must use pthread_cond_timedwait instead
-
-		// this implementation is inspired from Qt
-
-		// get the current time
-		timeval tv;
-		gettimeofday(&tv, nullptr);
-
-		// construct the time limit (current time + time to wait)
-		timespec ti;
-		ti.tv_nsec = (tv.tv_usec + (time % 1000)) * 1000;
-		ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
-		ti.tv_nsec %= 1000000000;
-
-		// create a mutex and thread condition
-		pthread_mutex_t mutex;
-		pthread_mutex_init(&mutex, nullptr);
-		pthread_cond_t condition;
-		pthread_cond_init(&condition, nullptr);
-
-		// wait...
-		pthread_mutex_lock(&mutex);
-		pthread_cond_timedwait(&condition, &mutex, &ti);
-		pthread_mutex_unlock(&mutex);
-
-		// destroy the mutex and condition
-		pthread_cond_destroy(&condition);
-		pthread_mutex_destroy(&mutex);
 	}
 }

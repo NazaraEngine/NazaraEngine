@@ -32,7 +32,8 @@ namespace Ndk
 
 			inline void EnableMultiline(bool enable = true);
 
-			inline std::size_t GetCursorPosition() const;
+			inline const Nz::Vector2ui& GetCursorPosition() const;
+			inline std::size_t GetGlyphUnderCursor() const;
 			inline std::size_t GetLineCount() const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
@@ -43,10 +44,12 @@ namespace Ndk
 			inline bool IsReadOnly() const;
 
 			inline void MoveCursor(int offset);
+			inline void MoveCursor(const Nz::Vector2i& offset);
 
 			void ResizeToContent() override;
 
-			inline void SetCursorPosition(std::size_t cursorPosition);
+			inline void SetCursorPosition(std::size_t glyphIndex);
+			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
@@ -82,7 +85,8 @@ namespace Ndk
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::SpriteRef m_cursorSprite;
 			Nz::TextSpriteRef m_textSprite;
-			std::size_t m_cursorPosition;
+			Nz::Vector2ui m_cursorPosition;
+			std::size_t m_cursorGlyph;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
 	};

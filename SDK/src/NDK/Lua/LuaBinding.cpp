@@ -22,9 +22,10 @@ namespace Ndk
 		utility = LuaBinding_Base::BindUtility(*this);
 
 		#ifndef NDK_SERVER
-		audio = LuaBinding_Base::BindAudio(*this);
+		audio    = LuaBinding_Base::BindAudio(*this);
 		renderer = LuaBinding_Base::BindRenderer(*this);
 		graphics = LuaBinding_Base::BindGraphics(*this);
+		platform = LuaBinding_Base::BindPlatform(*this);
 		#endif
 
 		sdk     = LuaBinding_Base::BindSDK(*this);
@@ -36,31 +37,32 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the engine & SDK
 	*/
 
-	void LuaBinding::RegisterClasses(Nz::LuaInstance& instance)
+	void LuaBinding::RegisterClasses(Nz::LuaState& state)
 	{
-		core->Register(instance);
-		math->Register(instance);
-		network->Register(instance);
-		sdk->Register(instance);
-		utility->Register(instance);
+		core->Register(state);
+		math->Register(state);
+		network->Register(state);
+		sdk->Register(state);
+		utility->Register(state);
 
 		#ifndef NDK_SERVER
-		audio->Register(instance);
-		graphics->Register(instance);
-		renderer->Register(instance);
+		audio->Register(state);
+		graphics->Register(state);
+		renderer->Register(state);
+		platform->Register(state);
 		#endif
 
 		// ComponentType (fake enumeration to expose component indexes)
-		instance.PushTable(0, m_componentBinding.size());
+		state.PushTable(0, m_componentBinding.size());
 		{
 			for (const ComponentBinding& entry : m_componentBinding)
 			{
 				if (entry.name.IsEmpty())
 					continue;
 
-				instance.PushField(entry.name, entry.index);
+				state.PushField(entry.name, entry.index);
 			}
 		}
-		instance.SetGlobal("ComponentType");
+		state.SetGlobal("ComponentType");
 	}
 }

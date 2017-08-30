@@ -1,4 +1,4 @@
-// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel-01---Hello-World
+// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>

@@ -39,7 +39,7 @@ namespace Nz
 
 	inline bool VertexBuffer::IsValid() const
 	{
-		return m_buffer && m_vertexDeclaration;
+		return m_buffer.IsValid() && m_vertexDeclaration.IsValid();
 	}
 
 	template<typename... Args>

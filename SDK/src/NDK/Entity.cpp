@@ -23,13 +23,16 @@ namespace Ndk
 	Entity::Entity(Entity&& entity) :
 	HandledObject(std::move(entity)),
 	m_components(std::move(entity.m_components)),
+	m_containedInLists(std::move(entity.m_containedInLists)),
 	m_componentBits(std::move(entity.m_componentBits)),
+	m_removedComponentBits(std::move(entity.m_removedComponentBits)),
 	m_systemBits(std::move(entity.m_systemBits)),
 	m_id(entity.m_id),
 	m_world(entity.m_world),
 	m_enabled(entity.m_enabled),
 	m_valid(entity.m_valid)
 	{
+		entity.m_world = nullptr;
 	}
 
 	/*!
@@ -53,7 +56,8 @@ namespace Ndk
 
 	Entity::~Entity()
 	{
-		Destroy();
+		if (m_world)
+			Destroy();
 	}
 
 	/*!
@@ -145,6 +149,17 @@ namespace Ndk
 
 	void Entity::Destroy()
 	{
+		OnEntityDestruction(this);
+		OnEntityDestruction.Clear();
+
+		// We prepare components for entity destruction (some components needs this to handle some final callbacks while the entity is still valid)
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			m_components[i]->OnEntityDestruction();
+
+		// Detach components while they're still attached to systems
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+			m_components[i]->SetEntity(nullptr);
+
 		// We alert each system
 		for (std::size_t index = m_systemBits.FindFirst(); index != m_systemBits.npos; index = m_systemBits.FindNext(index))
 		{
@@ -158,15 +173,18 @@ namespace Ndk
 		}
 		m_systemBits.Clear();
 
-		// We properly destroy each component
-		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			m_components[i]->SetEntity(nullptr);
-
+		// Destroy components
 		m_components.clear();
 		m_componentBits.Reset();
 
-		// And then free every handle
+		// Free every handle
 		UnregisterAllHandles();
+
+		// Remove from every list
+		for (EntityList* list : m_containedInLists)
+			list->NotifyEntityDestruction(this);
+
+		m_containedInLists.clear();
 
 		m_valid = false;
 	}

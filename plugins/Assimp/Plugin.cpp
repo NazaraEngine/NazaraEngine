@@ -108,21 +108,21 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
 
-	float smoothingAngle = 80.f;
-	parameters.custom.GetFloatParameter("AssimpLoader_SmoothingAngle", &smoothingAngle);
+	double smoothingAngle = 80.f;
+	parameters.custom.GetDoubleParameter("AssimpLoader_SmoothingAngle", &smoothingAngle);
 
-	int triangleLimit = 1'000'000;
+	long long triangleLimit = 1'000'000;
 	parameters.custom.GetIntegerParameter("AssimpLoader_TriangleLimit", &triangleLimit);
 
-	int vertexLimit   = 1'000'000;
+	long long vertexLimit   = 1'000'000;
 	parameters.custom.GetIntegerParameter("AssimpLoader_VertexLimit", &vertexLimit);
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
-	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, smoothingAngle);
+	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      triangleLimit);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        vertexLimit);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      int(triangleLimit));
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        int(vertexLimit));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               aiComponent_COLORS);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
@@ -153,7 +153,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	if (animatedMesh)
 	{
-		mesh->CreateSkeletal(joints.size());
+		mesh->CreateSkeletal(UInt32(joints.size()));
 
 		Skeleton* skeleton = mesh->GetSkeleton();
 
@@ -171,7 +171,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		mesh->CreateStatic();
 
 		// aiMaterial index in scene => Material index and data in Mesh
-		std::unordered_map<unsigned int, std::pair<std::size_t, ParameterList>> materials;
+		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
 		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 		{
@@ -202,6 +202,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				indexMapper.Unmap();
 
 				// Vertex buffer
+
+				// Make sure the normal/tangent matrix won't rescale our vectors
+				Nz::Matrix4f normalTangentMatrix = parameters.matrix;
+				if (normalTangentMatrix.HasScale())
+					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
+
 				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -214,8 +220,8 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
 
 					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
-					vertex->normal.Set(normal.x, normal.y, normal.z);
-					vertex->tangent.Set(tangent.x, tangent.y, tangent.z);
+					vertex->normal = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
+					vertex->tangent = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
 					vertex->uv.Set(parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale);
 					vertex++;
 				}
@@ -276,7 +282,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 										break;
 								}
 
-								matData.SetParameter(wrapKey, static_cast<int>(wrap));
+								matData.SetParameter(wrapKey, static_cast<long long>(wrap));
 							}
 						}
 					};
@@ -300,7 +306,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
 						matData.SetParameter(MaterialData::FaceCulling, !iValue);
 
-					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(materials.size(), std::move(matData)))).first;
+					matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(UInt32(materials.size()), std::move(matData)))).first;
 				}
 
 				subMesh->SetMaterialIndex(matIt->first);
@@ -308,7 +314,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				mesh->AddSubMesh(subMesh);
 			}
 
-			mesh->SetMaterialCount(std::max<UInt32>(materials.size(), 1));
+			mesh->SetMaterialCount(std::max<UInt32>(UInt32(materials.size()), 1));
 			for (const auto& pair : materials)
 				mesh->SetMaterialData(pair.second.first, pair.second.second);
 		}

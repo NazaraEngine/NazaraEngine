@@ -57,18 +57,18 @@ SCENARIO("Entity", "[NDK][ENTITY]")
 	{
 		Ndk::World world;
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
-		const Ndk::EntityHandle& entity = world.CreateEntity();
+		Ndk::EntityHandle entity = world.CreateEntity();
 
 		WHEN("We add our UpdateComponent")
 		{
 			UpdatableComponent& updatableComponent = entity->AddComponent<UpdatableComponent>();
-			REQUIRE(!updatableComponent.IsUpdated());
+			CHECK(!updatableComponent.IsUpdated());
 
 			THEN("Update the world should update the entity's component")
 			{
 				world.Update(1.f);
 				UpdatableComponent& updatableComponentGet = entity->GetComponent<UpdatableComponent>();
-				REQUIRE(updatableComponentGet.IsUpdated());
+				CHECK(updatableComponentGet.IsUpdated());
 			}
 
 			THEN("Update the world should not update the entity's component if it's disabled")
@@ -76,14 +76,14 @@ SCENARIO("Entity", "[NDK][ENTITY]")
 				entity->Enable(false);
 				world.Update(1.f);
 				UpdatableComponent& updatableComponentGet = entity->GetComponent<UpdatableComponent>();
-				REQUIRE(!updatableComponentGet.IsUpdated());
+				CHECK(!updatableComponentGet.IsUpdated());
 			}
 
 			THEN("We can remove its component")
 			{
 				entity->RemoveComponent(Ndk::GetComponentIndex<UpdatableComponent>());
 				world.Update(1.f);
-				REQUIRE(!entity->HasComponent<UpdatableComponent>());
+				CHECK(!entity->HasComponent<UpdatableComponent>());
 			}
 		}
 
@@ -94,7 +94,7 @@ SCENARIO("Entity", "[NDK][ENTITY]")
 
 			THEN("It's no more valid")
 			{
-				REQUIRE(!world.IsEntityValid(entity));
+				CHECK(!world.IsEntityValid(entity));
 			}
 		}
 	}

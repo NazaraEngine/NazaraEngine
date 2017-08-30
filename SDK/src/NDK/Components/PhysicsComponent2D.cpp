@@ -88,5 +88,11 @@ namespace Ndk
 		m_object.reset();
 	}
 
+	void PhysicsComponent2D::OnEntityDestruction()
+	{
+		// Kill rigidbody before entity destruction to force contact callbacks to be called while the entity is still valid
+		m_object.reset();
+	}
+
 	ComponentIndex PhysicsComponent2D::componentIndex;
 }

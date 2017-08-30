@@ -173,15 +173,52 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 		WHEN("We get the rotation between two vectors")
 		{
-			/*TODO
-			 * Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
+			Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
 
-			THEN("The rotation in left-handed is 270 degree on z")
+			THEN("The rotation in right-handed is 90 degree on z")
 			{
-				Nz::Quaternionf rotation270Z(Nz::FromDegrees(270.f), Nz::Vector3f::UnitZ());
 				Nz::Quaternionf rotation90Z(Nz::FromDegrees(90.f), Nz::Vector3f::UnitZ());
 				REQUIRE(rotation90Z == rotationBetweenXY);
-			}*/
+			}
+		}
+	} 
+
+	GIVEN("Different angles")
+	{
+		Nz::Quaternionf rotation90X(0.707f, 0.707f, 0.f, 0.f);
+		Nz::Quaternionf rotation90Y(0.707f, 0.f, 0.707f, 0.f);
+		Nz::Quaternionf rotation90Z(0.707f, 0.f, 0.f, 0.707f);
+
+		Nz::Quaternionf rotation180X(0.f, 1.f, 0.f, 0.f);
+		Nz::Quaternionf rotation180Y(0.f, 0.f, 1.f, 0.f);
+		Nz::Quaternionf rotation180Z(0.f, 0.f, 0.f, 1.f);
+
+		Nz::Quaternionf rotation270X(-0.707f, 0.707f, 0.f, 0.f);
+		Nz::Quaternionf rotation270Y(-0.707f, 0.f, 0.707f, 0.f);
+		Nz::Quaternionf rotation270Z(-0.707f, 0.f, 0.f, 0.707f);
+
+		Nz::Quaternionf special(0.707f, 0.006f, 0.006f, 0.707f);
+
+		WHEN("We convert them to euler angles")
+		{
+			THEN("Those are equal to")
+			{
+				CHECK(Nz::NumberEquals(rotation90X.ToEulerAngles().pitch, Nz::FromDegrees(90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation90Y.ToEulerAngles().yaw, Nz::FromDegrees(90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation90Z.ToEulerAngles().roll, Nz::FromDegrees(90.f), 0.1f));
+
+				CHECK(rotation180X == Nz::EulerAnglesf(180.f, 0.f, 0.f));
+				CHECK(rotation180Y == Nz::EulerAnglesf(0.f, 180.f, 0.f));
+				CHECK(rotation180Z == Nz::EulerAnglesf(0.f, 0.f, 180.f));
+
+				CHECK(Nz::NumberEquals(rotation270X.ToEulerAngles().pitch, Nz::FromDegrees(-90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation270Y.ToEulerAngles().yaw, Nz::FromDegrees(-90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation270Z.ToEulerAngles().roll, Nz::FromDegrees(-90.f), 0.1f));
+
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().pitch, Nz::FromDegrees(0.f), 0.1f));
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().yaw, Nz::FromDegrees(1.f), 0.1f));
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().roll, Nz::FromDegrees(90.f), 0.1f));
+			}
 		}
 	}
 }

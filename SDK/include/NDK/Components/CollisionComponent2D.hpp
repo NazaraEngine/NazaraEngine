@@ -29,6 +29,7 @@ namespace Ndk
 			CollisionComponent2D(const CollisionComponent2D& collision);
 			~CollisionComponent2D() = default;
 
+			Nz::Rectf GetAABB() const;
 			const Nz::Collider2DRef& GetGeom() const;
 
 			void SetGeom(Nz::Collider2DRef geom);

@@ -34,11 +34,11 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the world
 	*/
 
-	Console::Console(BaseWidget* parent, Nz::LuaInstance& instance) :
+	Console::Console(BaseWidget* parent, Nz::LuaState& state) :
 	BaseWidget(parent),
 	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
-	m_instance(instance),
+	m_state(state),
 	m_characterSize(24)
 	{
 		// History
@@ -65,7 +65,7 @@ namespace Ndk
 
 		m_input->OnTextAreaKeyBackspace.Connect([](const TextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
-			if (textArea->GetCursorPosition() <= s_inputPrefixSize)
+			if (textArea->GetGlyphUnderCursor() <= s_inputPrefixSize)
 				*ignoreDefaultAction = true;
 		});
 
@@ -157,8 +157,8 @@ namespace Ndk
 
 		AddLine(input); //< With the input prefix
 
-		if (!m_instance.Execute(inputCmd))
-			AddLine(m_instance.GetLastError(), Nz::Color::Red);
+		if (!m_state.Execute(inputCmd))
+			AddLine(m_state.GetLastError(), Nz::Color::Red);
 	}
 
 	/*!

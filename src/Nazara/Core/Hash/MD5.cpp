@@ -101,7 +101,7 @@ namespace Nz
 {
 	struct HashMD5_state
 	{
-		UInt32 count[2];	/* message length in bits, lsw first */
+		std::size_t count[2];	/* message length in bits, lsw first */
 		UInt32 abcd[4];		/* digest buffer */
 		UInt8  buf[64];		/* accumulate block */
 	};
@@ -280,9 +280,9 @@ namespace Nz
 	void HashMD5::Append(const UInt8* data, std::size_t len)
 	{
 		const UInt8 *p = data;
-		int left = len;
+		std::size_t left = len;
 		int offset = (m_state->count[0] >> 3) & 63;
-		UInt32 nbits = len << 3;
+		std::size_t nbits = len << 3;
 
 		if (len <= 0)
 			return;
@@ -296,7 +296,7 @@ namespace Nz
 		/* Process an initial partial block. */
 		if (offset)
 		{
-			int copy = (offset + len > 64 ? 64 - offset : len);
+			std::size_t copy = (offset + len > 64 ? 64 - offset : len);
 
 			std::memcpy(m_state->buf + offset, p, copy);
 			if (offset + copy < 64)

@@ -8,6 +8,7 @@ EXAMPLE.Files = {
 
 EXAMPLE.Libraries = {
 	"NazaraCore",
+	"NazaraPlatform",
 	"NazaraUtility"
 }
 

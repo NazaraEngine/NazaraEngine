@@ -63,6 +63,7 @@ namespace Nz
 	enum HashType
 	{
 		HashType_CRC32,
+		HashType_CRC64,
 		HashType_Fletcher16,
 		HashType_MD5,
 		HashType_SHA1,
@@ -105,7 +106,7 @@ namespace Nz
 	{
 		ParameterType_Boolean,
 		ParameterType_Color,
-		ParameterType_Float,
+		ParameterType_Double,
 		ParameterType_Integer,
 		ParameterType_None,
 		ParameterType_Pointer,

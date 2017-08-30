@@ -5,6 +5,7 @@
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstdio>
+#include <sys/file.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -72,11 +73,47 @@ namespace Nz
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
-		///TODO: lock
-		//if ((mode & OpenMode_Lock) == 0)
-		//	shareMode |= FILE_SHARE_WRITE;
-
 		m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
+
+		static struct flock lock;
+
+		auto initialize_flock = [](struct flock& fileLock)
+		{
+			fileLock.l_type = F_WRLCK;
+			fileLock.l_start = 0;
+			fileLock.l_whence = SEEK_SET;
+			fileLock.l_len = 0;
+			fileLock.l_pid = getpid();
+		};
+
+		initialize_flock(lock);
+
+		if (fcntl(m_fileDescriptor, F_GETLK, &lock) == -1)
+		{
+			Close();
+			NazaraError("Unable to detect presence of lock on the file");
+			return false;
+		}
+
+		if (lock.l_type != F_UNLCK)
+		{
+			Close();
+			NazaraError("A lock is present on the file");
+			return false;
+		}
+
+		if (mode & OpenMode_Lock)
+		{
+			initialize_flock(lock);
+
+			if (fcntl(m_fileDescriptor, F_SETLK, &lock) == -1)  
+			{
+				Close();
+				NazaraError("Unable to place a lock on the file");
+				return false;
+			}
+		}
+
 		return m_fileDescriptor != -1;
 	}
 
@@ -128,10 +165,7 @@ namespace Nz
 
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
-		lockf64(m_fileDescriptor, F_LOCK, size);
 		ssize_t written = write(m_fileDescriptor, buffer, size);
-		lockf64(m_fileDescriptor, F_ULOCK, size);
-
 		m_endOfFileUpdated = false;
 
 		return written;
