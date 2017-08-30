@@ -31,7 +31,7 @@ namespace Nz
 			bool Reset(T* object = nullptr);
 			ObjectRef& Swap(ObjectRef& ref);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 

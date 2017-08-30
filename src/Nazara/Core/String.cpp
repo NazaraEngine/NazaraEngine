@@ -2115,7 +2115,7 @@ namespace Nz
 
 			return ptr - m_sharedString->string.get();
 		}
-		catch (utf8::not_enough_room& e)
+		catch (utf8::not_enough_room& /*e*/)
 		{
 			// Returns npos
 		}

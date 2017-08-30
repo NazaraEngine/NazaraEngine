@@ -24,9 +24,9 @@ namespace Nz
 		public:
 			TextureBackground(TextureRef texture = TextureRef());
 
-			void Draw(const AbstractViewer* viewer) const;
+			void Draw(const AbstractViewer* viewer) const override;
 
-			BackgroundType GetBackgroundType() const;
+			BackgroundType GetBackgroundType() const override;
 			inline const TextureRef& GetTexture() const;
 
 			inline void SetTexture(TextureRef texture);

@@ -47,6 +47,7 @@ namespace Nz
 			Vector3f GetPosition() const;
 			Quaternionf GetRotation() const;
 			Vector3f GetVelocity() const;
+			PhysWorld3D* GetWorld() const;
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;

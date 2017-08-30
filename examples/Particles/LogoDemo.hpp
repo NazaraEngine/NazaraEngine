@@ -30,10 +30,13 @@ class LogoExample : public ParticleDemo
 
 		std::vector<PixelData> m_pixels;
 		Nz::BackgroundRef m_oldBackground;
-		Nz::ParticleStruct_Sprite* m_particles;
+		void* m_particles;
+		Nz::Clock m_mouseClock;
 		Nz::Image m_logo;
 		Nz::ParticleControllerRef m_controller;
+		Nz::ParticleDeclarationRef m_declaration;
 		Nz::ParticleRendererRef m_renderer;
+		bool m_hasClicked;
 		float m_accumulator;
 		float m_totalAccumulator;
 };

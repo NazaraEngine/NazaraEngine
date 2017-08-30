@@ -5,7 +5,7 @@
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <Catch/catch.hpp>
 
-SCENARIO("PhysicsSystem", "[NDK][PHYSICSSYSTEM]")
+SCENARIO("PhysicsSystem3D", "[NDK][PHYSICSSYSTEM3D]")
 {
 	GIVEN("A world and a static entity & a dynamic entity")
 	{

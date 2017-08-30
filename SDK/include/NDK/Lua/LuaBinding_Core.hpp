@@ -21,7 +21,7 @@ namespace Ndk
 			LuaBinding_Core(LuaBinding& binding);
 			~LuaBinding_Core() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::Clock> clock;
 			Nz::LuaClass<Nz::Directory> directory;

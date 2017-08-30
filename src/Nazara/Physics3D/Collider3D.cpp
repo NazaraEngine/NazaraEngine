@@ -128,12 +128,12 @@ namespace Nz
 		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
 		{
-			std::vector<Collider3D*> geoms(primitiveCount);
+			std::vector<Collider3DRef> geoms(primitiveCount);
 
 			for (unsigned int i = 0; i < primitiveCount; ++i)
 				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
 
-			return CompoundCollider3D::New(&geoms[0], primitiveCount);
+			return CompoundCollider3D::New(std::move(geoms));
 		}
 		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
@@ -239,11 +239,9 @@ namespace Nz
 
 	/******************************* CompoundCollider3D ********************************/
 
-	CompoundCollider3D::CompoundCollider3D(Collider3D** geoms, std::size_t geomCount)
+	CompoundCollider3D::CompoundCollider3D(std::vector<Collider3DRef> geoms) :
+	m_geoms(std::move(geoms))
 	{
-		m_geoms.reserve(geomCount);
-		for (std::size_t i = 0; i < geomCount; ++i)
-			m_geoms.emplace_back(geoms[i]);
 	}
 
 	const std::vector<Collider3DRef>& CompoundCollider3D::GetGeoms() const

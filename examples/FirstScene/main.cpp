@@ -16,6 +16,7 @@
 #include <Nazara/Lua.hpp> // Module de scripting
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
+#include <Nazara/Network.hpp> // Module utilitaire
 #include <Nazara/Utility.hpp> // Module utilitaire
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
@@ -33,6 +34,7 @@ int main()
 {
 	// Ndk::Application est une classe s'occupant de l'initialisation du moteur ainsi que de la gestion de beaucoup de choses
 	Ndk::Application application;
+	Nz::Initializer<Nz::Network> network;
 
 	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
 	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.

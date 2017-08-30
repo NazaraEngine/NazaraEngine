@@ -22,7 +22,7 @@
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Platform/Window.hpp>
 #endif
 
 namespace Ndk

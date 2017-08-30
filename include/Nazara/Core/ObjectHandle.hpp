@@ -38,7 +38,7 @@ namespace Nz
 
 			Nz::String ToString() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 

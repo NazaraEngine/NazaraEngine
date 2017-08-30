@@ -12,14 +12,14 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Utility/Event.hpp>
+#include <Nazara/Platform/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/EntityOwner.hpp>
 
 namespace Nz
 {
-	class LuaInstance;
+	class LuaState;
 }
 
 namespace Ndk
@@ -32,7 +32,7 @@ namespace Ndk
 	class NDK_API Console : public Nz::Node, public Nz::HandledObject<Console>
 	{
 		public:
-			Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance);
+			Console(World& world, const Nz::Vector2f& size, Nz::LuaState& state);
 			Console(const Console& console) = delete;
 			Console(Console&& console) = default;
 			~Console() = default;
@@ -83,7 +83,7 @@ namespace Ndk
 			EntityOwner m_input;
 			EntityOwner m_inputBackground;
 			Nz::FontRef m_defaultFont;
-			Nz::LuaInstance& m_instance;
+			Nz::LuaState& m_state;
 			Nz::SpriteRef m_historyBackgroundSprite;
 			Nz::SpriteRef m_inputBackgroundSprite;
 			Nz::SimpleTextDrawer m_historyDrawer;

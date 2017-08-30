@@ -26,9 +26,9 @@ namespace Nz
 			ColorBackground(const ColorBackground&) = default;
 			ColorBackground(ColorBackground&&) = delete;
 
-			void Draw(const AbstractViewer* viewer) const;
+			void Draw(const AbstractViewer* viewer) const override;
 
-			BackgroundType GetBackgroundType() const;
+			BackgroundType GetBackgroundType() const override;
 			Color GetColor() const;
 
 			void SetColor(const Color& color);

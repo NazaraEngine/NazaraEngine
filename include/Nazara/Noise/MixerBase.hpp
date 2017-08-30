@@ -15,7 +15,7 @@ namespace Nz
 	{
 		public:
 			MixerBase();
-			~MixerBase() = default;
+			virtual ~MixerBase() = default;
 
 			virtual float Get(float x, float y, float scale) const = 0;
 			virtual float Get(float x, float y, float z, float scale) const = 0;

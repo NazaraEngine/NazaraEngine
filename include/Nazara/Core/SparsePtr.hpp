@@ -41,7 +41,7 @@ namespace Nz
 			void SetPtr(VoidPtr ptr);
 			void SetStride(int stride);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T& operator*() const;
 			T* operator->() const;

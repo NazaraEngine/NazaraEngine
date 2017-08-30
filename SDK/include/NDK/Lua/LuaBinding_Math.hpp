@@ -23,7 +23,7 @@ namespace Ndk
 			LuaBinding_Math(LuaBinding& binding);
 			~LuaBinding_Math() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::EulerAnglesd> eulerAngles;
 			Nz::LuaClass<Nz::Matrix4d> matrix4d;

@@ -23,20 +23,22 @@ namespace Ndk
 			using Factory = std::function<BaseComponent*()>;
 
 			BaseComponent(ComponentIndex componentIndex);
-			BaseComponent(const BaseComponent&) = default;
 			BaseComponent(BaseComponent&&) = default;
 			virtual ~BaseComponent();
 
 			virtual std::unique_ptr<BaseComponent> Clone() const = 0;
 
+			inline const EntityHandle& GetEntity() const;
 			ComponentIndex GetIndex() const;
 
 			inline static ComponentIndex GetMaxComponentIndex();
 
-			BaseComponent& operator=(const BaseComponent&) = default;
+			BaseComponent& operator=(const BaseComponent&) = delete;
 			BaseComponent& operator=(BaseComponent&&) = default;
 
 		protected:
+			BaseComponent(const BaseComponent&) = default;
+
 			ComponentIndex m_componentIndex;
 			EntityHandle m_entity;
 
@@ -47,6 +49,7 @@ namespace Ndk
 			virtual void OnComponentAttached(BaseComponent& component);
 			virtual void OnComponentDetached(BaseComponent& component);
 			virtual void OnDetached();
+			virtual void OnEntityDestruction();
 
 			void SetEntity(Entity* entity);
 

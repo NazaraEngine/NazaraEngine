@@ -49,6 +49,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
+#include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/HandledObject.hpp>

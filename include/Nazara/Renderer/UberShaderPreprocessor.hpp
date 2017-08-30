@@ -29,7 +29,7 @@ namespace Nz
 			UberShaderPreprocessor() = default;
 			~UberShaderPreprocessor();
 
-			UberShaderInstance* Get(const ParameterList& parameters) const;
+			UberShaderInstance* Get(const ParameterList& parameters) const override;
 
 			void SetShader(ShaderStageType stage, const String& source, const String& shaderFlags, const String& requiredFlags = String());
 			bool SetShaderFromFile(ShaderStageType stage, const String& filePath, const String& shaderFlags, const String& requiredFlags = String());

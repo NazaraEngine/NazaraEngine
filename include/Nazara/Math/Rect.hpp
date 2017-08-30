@@ -64,8 +64,8 @@ namespace Nz
 
 			Rect& Translate(const Vector2<T>& translation);
 
-			T& operator[](unsigned int i);
-			T operator[](unsigned int i) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Rect operator*(T scalar) const;
 			Rect operator*(const Vector2<T>& vec) const;

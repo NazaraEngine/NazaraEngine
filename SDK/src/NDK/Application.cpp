@@ -164,25 +164,25 @@ namespace Ndk
 		LuaAPI::RegisterClasses(overlay->lua);
 
 		// Override "print" function to add a line in the console
-		overlay->lua.PushFunction([&consoleRef] (Nz::LuaInstance& instance)
+		overlay->lua.PushFunction([&consoleRef] (Nz::LuaState& state)
 		{
 			Nz::StringStream stream;
 
-			unsigned int argCount = instance.GetStackTop();
-			instance.GetGlobal("tostring");
+			unsigned int argCount = state.GetStackTop();
+			state.GetGlobal("tostring");
 			for (unsigned int i = 1; i <= argCount; ++i)
 			{
-				instance.PushValue(-1); // tostring function
-				instance.PushValue(i);  // argument
-				instance.Call(1, 1);
+				state.PushValue(-1); // tostring function
+				state.PushValue(i);  // argument
+				state.Call(1, 1);
 
 				std::size_t length;
-				const char* str = instance.CheckString(-1, &length);
+				const char* str = state.CheckString(-1, &length);
 				if (i > 1)
 					stream << '\t';
 
 				stream << Nz::String(str, length);
-				instance.Pop(1);
+				state.Pop(1);
 			}
 
 			consoleRef.AddLine(stream);

@@ -57,7 +57,7 @@ namespace Ndk
 
 			std::unique_ptr<Nz::AbstractRenderTechnique> m_renderTechnique;
 			std::vector<GraphicsComponentCullingList::VolumeEntry> m_volumeEntries;
-			EntityList m_cameras;
+			std::vector<EntityHandle> m_cameras;
 			EntityList m_drawables;
 			EntityList m_directionalLights;
 			EntityList m_lights;

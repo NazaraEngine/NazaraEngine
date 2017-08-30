@@ -40,7 +40,7 @@ namespace Ndk
 			application.BindMethod("IsFPSCounterEnabled", &Application::IsFPSCounterEnabled);
 			#endif
 
-			application.BindMethod("AddWorld", [] (Nz::LuaInstance& lua, Application* instance, std::size_t /*argumentCount*/) -> int
+			application.BindMethod("AddWorld", [] (Nz::LuaState& lua, Application* instance, std::size_t /*argumentCount*/) -> int
 			{
 				lua.Push(instance->AddWorld().CreateHandle());
 				return 1;
@@ -69,6 +69,7 @@ namespace Ndk
 			console.BindMethod("GetSize", &Console::GetSize);
 			console.BindMethod("GetTextFont", &Console::GetTextFont);
 
+			console.BindMethod("IsValidHandle", &ConsoleHandle::IsValid);
 			console.BindMethod("IsVisible", &Console::IsVisible);
 
 			console.BindMethod("SendCharacter", &Console::SendCharacter);
@@ -91,28 +92,37 @@ namespace Ndk
 			entity.BindMethod("Kill", &Entity::Kill);
 			entity.BindMethod("IsEnabled", &Entity::IsEnabled);
 			entity.BindMethod("IsValid", &Entity::IsValid);
+			entity.BindMethod("IsValidHandle", &EntityHandle::IsValid);
 			entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
 			entity.BindMethod("__tostring", &EntityHandle::ToString);
 
-			entity.BindMethod("AddComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("AddComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
-				return binding->adder(instance, handle);
+				return bindingComponent->adder(state, handle);
 			});
 
-			entity.BindMethod("GetComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("HasComponent", [this](Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
-				return binding->getter(instance, handle->GetComponent(binding->index));
+				state.PushBoolean(handle->HasComponent(bindingComponent->index));
+				return 1;
 			});
 
-			entity.BindMethod("RemoveComponent", [this] (Nz::LuaInstance& instance, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			entity.BindMethod("GetComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
 			{
-				LuaBinding::ComponentBinding* binding = m_binding.QueryComponentIndex(instance);
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
-				handle->RemoveComponent(binding->index);
+				return bindingComponent->getter(state, handle->GetComponent(bindingComponent->index));
+			});
+
+			entity.BindMethod("RemoveComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			{
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
+
+				handle->RemoveComponent(bindingComponent->index);
 				return 0;
 			});
 		}
@@ -120,6 +130,8 @@ namespace Ndk
 		/*********************************** Ndk::NodeComponent **********************************/
 		nodeComponent.Reset("NodeComponent");
 		{
+			nodeComponent.BindMethod("IsValidHandle", &NodeComponentHandle::IsValid);
+
 			nodeComponent.Inherit<Nz::Node>(utility.node, [] (NodeComponentHandle* handle) -> Nz::Node*
 			{
 				return handle->GetObject();
@@ -129,7 +141,9 @@ namespace Ndk
 		/*********************************** Ndk::VelocityComponent **********************************/
 		velocityComponent.Reset("VelocityComponent");
 		{
-			velocityComponent.SetGetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+			velocityComponent.BindMethod("IsValidHandle", &VelocityComponentHandle::IsValid);
+
+			velocityComponent.SetGetter([] (Nz::LuaState& lua, VelocityComponentHandle& instance)
 			{
 				std::size_t length;
 				const char* member = lua.CheckString(2, &length);
@@ -143,7 +157,7 @@ namespace Ndk
 				return false;
 			});
 
-			velocityComponent.SetSetter([] (Nz::LuaInstance& lua, VelocityComponentHandle& instance)
+			velocityComponent.SetSetter([] (Nz::LuaState& lua, VelocityComponentHandle& instance)
 			{
 				std::size_t length;
 				const char* member = lua.CheckString(2, &length);
@@ -165,6 +179,8 @@ namespace Ndk
 			world.BindMethod("CreateEntity", &World::CreateEntity);
 			world.BindMethod("CreateEntities", &World::CreateEntities);
 			world.BindMethod("Clear", &World::Clear);
+
+			world.BindMethod("IsValidHandle", &WorldHandle::IsValid);
 		}
 
 		#ifndef NDK_SERVER
@@ -176,24 +192,26 @@ namespace Ndk
 				return handle->GetObject();
 			});
 
-			cameraComponent.BindMethod("GetFOV", &Ndk::CameraComponent::GetFOV);
-			cameraComponent.BindMethod("GetLayer", &Ndk::CameraComponent::GetLayer);
+			cameraComponent.BindMethod("GetFOV", &CameraComponent::GetFOV);
+			cameraComponent.BindMethod("GetLayer", &CameraComponent::GetLayer);
 
-			cameraComponent.BindMethod("SetFOV", &Ndk::CameraComponent::SetFOV);
-			cameraComponent.BindMethod("SetLayer", &Ndk::CameraComponent::SetLayer);
-			cameraComponent.BindMethod("SetProjectionType", &Ndk::CameraComponent::SetProjectionType);
-			cameraComponent.BindMethod("SetSize", (void(Ndk::CameraComponent::*)(const Nz::Vector2f&)) &Ndk::CameraComponent::SetSize);
-			//cameraComponent.BindMethod("SetTarget", &Ndk::CameraComponent::SetTarget);
-			cameraComponent.BindMethod("SetTargetRegion", &Ndk::CameraComponent::SetTargetRegion);
-			cameraComponent.BindMethod("SetViewport", &Ndk::CameraComponent::SetViewport);
-			cameraComponent.BindMethod("SetZFar", &Ndk::CameraComponent::SetZFar);
-			cameraComponent.BindMethod("SetZNear", &Ndk::CameraComponent::SetZNear);
+			cameraComponent.BindMethod("IsValidHandle", &CameraComponentHandle::IsValid);
+
+			cameraComponent.BindMethod("SetFOV", &CameraComponent::SetFOV);
+			cameraComponent.BindMethod("SetLayer", &CameraComponent::SetLayer);
+			cameraComponent.BindMethod("SetProjectionType", &CameraComponent::SetProjectionType);
+			cameraComponent.BindMethod("SetSize", (void(CameraComponent::*)(const Nz::Vector2f&)) &CameraComponent::SetSize);
+			//cameraComponent.BindMethod("SetTarget", &CameraComponent::SetTarget);
+			cameraComponent.BindMethod("SetTargetRegion", &CameraComponent::SetTargetRegion);
+			cameraComponent.BindMethod("SetViewport", &CameraComponent::SetViewport);
+			cameraComponent.BindMethod("SetZFar", &CameraComponent::SetZFar);
+			cameraComponent.BindMethod("SetZNear", &CameraComponent::SetZNear);
 		}
 
 		/*********************************** Ndk::GraphicsComponent **********************************/
 		graphicsComponent.Reset("GraphicsComponent");
 		{
-			graphicsComponent.BindMethod("Attach", [] (Nz::LuaInstance& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
+			graphicsComponent.BindMethod("Attach", [] (Nz::LuaState& lua, Ndk::GraphicsComponent* instance, std::size_t argumentCount) -> int
 			{
 				/*
 				void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
@@ -249,6 +267,8 @@ namespace Ndk
 				lua.Error("No matching overload for method GetMemoryUsage");
 				return 0;
 			});
+
+			graphicsComponent.BindMethod("IsValidHandle", &GraphicsComponentHandle::IsValid);
 		}
 		#endif
 
@@ -267,19 +287,19 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the SDK classes
 	*/
-	void LuaBinding_SDK::Register(Nz::LuaInstance& instance)
+	void LuaBinding_SDK::Register(Nz::LuaState& state)
 	{
 		// Classes
-		application.Register(instance);
-		entity.Register(instance);
-		nodeComponent.Register(instance);
-		velocityComponent.Register(instance);
-		world.Register(instance);
+		application.Register(state);
+		entity.Register(state);
+		nodeComponent.Register(state);
+		velocityComponent.Register(state);
+		world.Register(state);
 
 		#ifndef NDK_SERVER
-		cameraComponent.Register(instance);
-		console.Register(instance);
-		graphicsComponent.Register(instance);
+		cameraComponent.Register(state);
+		console.Register(state);
+		graphicsComponent.Register(state);
 		#endif
 
 		// Enums
@@ -292,23 +312,23 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the component
 	* \param argIndex Index of the component
 	*/
-	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaInstance& instance, int argIndex)
+	LuaBinding::ComponentBinding* LuaBinding::QueryComponentIndex(Nz::LuaState& state, int argIndex)
 	{
-		switch (instance.GetType(argIndex))
+		switch (state.GetType(argIndex))
 		{
 			case Nz::LuaType_Number:
 			{
-				ComponentIndex componentIndex = instance.Check<ComponentIndex>(&argIndex);
+				ComponentIndex componentIndex = state.Check<ComponentIndex>(&argIndex);
 				if (componentIndex > m_componentBinding.size())
 				{
-					instance.Error("Invalid component index");
+					state.Error("Invalid component index");
 					return nullptr;
 				}
 
 				ComponentBinding& binding = m_componentBinding[componentIndex];
 				if (binding.name.IsEmpty())
 				{
-					instance.Error("Invalid component index");
+					state.Error("Invalid component index");
 					return nullptr;
 				}
 
@@ -317,11 +337,11 @@ namespace Ndk
 
 			case Nz::LuaType_String:
 			{
-				const char* key = instance.CheckString(argIndex);
+				const char* key = state.CheckString(argIndex);
 				auto it = m_componentBindingByName.find(key);
 				if (it == m_componentBindingByName.end())
 				{
-					instance.Error("Invalid component name");
+					state.Error("Invalid component name");
 					return nullptr;
 				}
 
@@ -332,7 +352,7 @@ namespace Ndk
 				break;
 		}
 
-		instance.Error("Invalid component index at #" + Nz::String::Number(argIndex));
+		state.Error("Invalid component index at #" + Nz::String::Number(argIndex));
 		return nullptr;
 	}
 }

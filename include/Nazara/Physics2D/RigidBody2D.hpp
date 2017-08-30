@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -33,6 +34,8 @@ namespace Nz
 
 			void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys_Global);
 			void AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
+			void AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys_Global);
+			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
 			void AddTorque(float torque);
 
 			Rectf GetAABB() const;
@@ -43,7 +46,9 @@ namespace Nz
 			float GetMass() const;
 			Vector2f GetPosition() const;
 			float GetRotation() const;
+			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			PhysWorld2D* GetWorld() const;
 
 			bool IsMoveable() const;
 			bool IsSleeping() const;
@@ -52,12 +57,17 @@ namespace Nz
 			void SetGeom(Collider2DRef geom);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector2f& center);
+			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
+			void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
 
 			RigidBody2D& operator=(const RigidBody2D& object);
 			RigidBody2D& operator=(RigidBody2D&& object);
+
+			NazaraSignal(OnRigidBody2DMove, RigidBody2D* /*oldPointer*/, RigidBody2D* /*newPointer*/);
+			NazaraSignal(OnRigidBody2DRelease, RigidBody2D* /*rigidBody*/);
 
 		private:
 			void Create(float mass = 1.f, float moment = 1.f);
@@ -66,6 +76,7 @@ namespace Nz
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
 			cpBody* m_handle;
+			void* m_userData;
 			PhysWorld2D* m_world;
 			float m_gravityFactor;
 			float m_mass;

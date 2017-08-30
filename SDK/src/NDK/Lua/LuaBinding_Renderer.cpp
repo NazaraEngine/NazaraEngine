@@ -27,7 +27,7 @@ namespace Ndk
 				return reinterpret_cast<Nz::AbstractImageRef*>(textureRef); //TODO: Make a ObjectRefCast
 			});
 
-			texture.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::TextureRef* instance, std::size_t /*argumentCount*/)
+			texture.SetConstructor([] (Nz::LuaState& /*lua*/, Nz::TextureRef* instance, std::size_t /*argumentCount*/)
 			{
 				Nz::PlacementNew(instance, Nz::Texture::New());
 				return true;
@@ -84,7 +84,7 @@ namespace Ndk
 		}
 
 		/*********************************** Nz::TextureManager ***********************************/
-		textureManager.Reset("textureManager");
+		textureManager.Reset("TextureManager");
 		{
 			textureManager.BindStaticMethod("Clear", &Nz::TextureManager::Clear);
 			textureManager.BindStaticMethod("Get", &Nz::TextureManager::Get);
@@ -101,10 +101,10 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the Renderer classes
 	*/
-	void LuaBinding_Renderer::Register(Nz::LuaInstance& instance)
+	void LuaBinding_Renderer::Register(Nz::LuaState& state)
 	{
-		texture.Register(instance);
-		textureLibrary.Register(instance);
-		textureManager.Register(instance);
+		texture.Register(state);
+		textureLibrary.Register(state);
+		textureManager.Register(state);
 	}
 }

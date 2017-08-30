@@ -27,6 +27,7 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <map>
 #include <memory>
 #include <set>
@@ -573,9 +574,9 @@ namespace Nz
 		}
 
 		// Initialisation des dépendances
-		if (!Utility::Initialize())
+		if (!Platform::Initialize())
 		{
-			NazaraError("Failed to initialize Utility module");
+			NazaraError("Failed to initialize Platform module");
 			return false;
 		}
 
@@ -1374,7 +1375,7 @@ namespace Nz
 		NazaraNotice("Uninitialized: Renderer module");
 
 		// Libération des dépendances
-		Utility::Uninitialize();
+		Platform::Uninitialize();
 	}
 
 	void Renderer::EnableInstancing(bool instancing)
