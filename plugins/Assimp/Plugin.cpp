@@ -202,6 +202,12 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				indexMapper.Unmap();
 
 				// Vertex buffer
+
+				// Make sure the normal/tangent matrix won't rescale our vectors
+				Nz::Matrix4f normalTangentMatrix = parameters.matrix;
+				if (normalTangentMatrix.HasScale())
+					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
+
 				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -214,8 +220,8 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
 
 					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
-					vertex->normal.Set(normal.x, normal.y, normal.z);
-					vertex->tangent.Set(tangent.x, tangent.y, tangent.z);
+					vertex->normal = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
+					vertex->tangent = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
 					vertex->uv.Set(parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale);
 					vertex++;
 				}

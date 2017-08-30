@@ -219,13 +219,16 @@ namespace Nz
 			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
 			matrix *= parameters.matrix;
 
+			Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
+			normalMatrix *= parameters.matrix;
+
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const MD2_Vertex& vert = vertices[v];
 				Vector3f position = matrix * Vector3f(vert.x, vert.y, vert.z);
 
 				vertex->position = position;
-				vertex->normal = rotationQuat * md2Normals[vert.n];
+				vertex->normal = normalMatrix.Transform(md2Normals[vert.n], 0.f);
 
 				vertex++;
 			}
