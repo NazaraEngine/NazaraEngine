@@ -37,7 +37,8 @@ TOOL.FilesExcluded = {
 	"../SDK/**/*Widget*.*",
 	"../SDK/**/LuaBinding_Audio.*",
 	"../SDK/**/LuaBinding_Graphics.*",
-	"../SDK/**/LuaBinding_Renderer.*"
+	"../SDK/**/LuaBinding_Renderer.*",
+	"../SDK/**/LuaBinding_Platform.*"
 }
 
 

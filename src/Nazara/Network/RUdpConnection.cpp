@@ -527,7 +527,7 @@ namespace Nz
 					}
 					else
 					{
-						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address);
+						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address.ToString());
 						return; //< Ignore
 					}
 

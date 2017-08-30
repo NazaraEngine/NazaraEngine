@@ -12,14 +12,14 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Thread.hpp> // Thread::Sleep
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utility/Keyboard.hpp>
-#include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Platform/Keyboard.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <iostream>
 
 int main()
 {
 	// NzKeyboard nécessite l'initialisation du module Utilitaire
-	Nz::Initializer<Nz::Audio, Nz::Utility> audio;
+	Nz::Initializer<Nz::Audio, Nz::Platform> audio;
 	if (!audio)
 	{
 		std::cout << "Failed to initialize audio module" << std::endl;

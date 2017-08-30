@@ -45,7 +45,7 @@ namespace Nz
 
 	inline bool IndexBuffer::IsValid() const
 	{
-		return m_buffer;
+		return m_buffer.IsValid();
 	}
 
 	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length)

@@ -35,6 +35,16 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the collision box representing the entity
+	* \return The physics collision box
+	*/
+
+	inline Nz::Rectf CollisionComponent2D::GetAABB() const
+	{
+		return m_staticBody->GetAABB();
+	}
+
+	/*!
 	* \brief Gets the geometry representing the entity
 	* \return A constant reference to the physics geometry
 	*/

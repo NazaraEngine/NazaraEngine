@@ -29,7 +29,7 @@ namespace Ndk
 			abstractImage.BindMethod("IsCompressed", &Nz::AbstractImage::IsCompressed);
 			abstractImage.BindMethod("IsCubemap", &Nz::AbstractImage::IsCubemap);
 
-			abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
+			abstractImage.BindMethod("GetMemoryUsage", [] (Nz::LuaState& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
 				switch (argCount)
@@ -50,7 +50,7 @@ namespace Ndk
 				return 0;
 			});
 
-			abstractImage.BindMethod("Update", [] (Nz::LuaInstance& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
+			abstractImage.BindMethod("Update", [] (Nz::LuaState& lua, Nz::AbstractImage* instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 6U);
 				int argIndex = 2;
@@ -100,7 +100,7 @@ namespace Ndk
 		/*********************************** Nz::Font **********************************/
 		font.Reset("Font");
 		{
-			font.SetConstructor([] (Nz::LuaInstance& /*lua*/, Nz::FontRef* instance, std::size_t /*argumentCount*/)
+			font.SetConstructor([] (Nz::LuaState& /*lua*/, Nz::FontRef* instance, std::size_t /*argumentCount*/)
 			{
 				Nz::PlacementNew(instance, Nz::Font::New());
 				return true;
@@ -112,7 +112,7 @@ namespace Ndk
 
 			font.BindMethod("Destroy", &Nz::Font::Destroy);
 
-			font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaInstance& lua, Nz::FontRef& instance, std::size_t argumentCount) -> int
+			font.BindMethod("GetCachedGlyphCount", [] (Nz::LuaState& lua, Nz::FontRef& instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -159,13 +159,6 @@ namespace Ndk
 
 			font.BindStaticMethod("SetDefaultGlyphBorder", &Nz::Font::SetDefaultGlyphBorder);
 			font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);
-		}
-
-		/*********************************** Nz::Keyboard **********************************/
-		keyboard.Reset("Keyboard");
-		{
-			keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
-			keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
 		}
 
 		/*********************************** Nz::Node **********************************/
@@ -216,29 +209,29 @@ namespace Ndk
 			node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
 			node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-			node.BindMethod("Move", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
+			node.BindMethod("Move", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 
 				Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
 				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				instance.Move(offset, coordSys);
+				node.Move(offset, coordSys);
 
 				return 0;
 			});
 
-			node.BindMethod("Rotate", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t /*argumentCount*/) -> int
+			node.BindMethod("Rotate", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 
 				Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
 				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				instance.Rotate(rotation, coordSys);
+				node.Rotate(rotation, coordSys);
 
 				return 0;
 			});
 
-			node.BindMethod("Scale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
+			node.BindMethod("Scale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -248,15 +241,15 @@ namespace Ndk
 					case 1:
 					{
 						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-							instance.Scale(lua.Check<float>(&argIndex));
+							node.Scale(lua.Check<float>(&argIndex));
 						else
-							instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+							node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 
 						return 0;
 					}
 
 					case 3:
-						instance.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+						node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 						return 0;
 				}
 
@@ -264,7 +257,7 @@ namespace Ndk
 				return 0;
 			});
 
-			node.BindMethod("SetScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
+			node.BindMethod("SetScale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -278,10 +271,10 @@ namespace Ndk
 						{
 							float scale = lua.Check<float>(&argIndex);
 							Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-							instance.SetScale(scale, coordSys);
+							node.SetScale(scale, coordSys);
 						}
 						else
-							instance.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
+							node.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
 
 						return 0;
 					}
@@ -292,7 +285,7 @@ namespace Ndk
 						Nz::Vector3f scale = lua.Check<Nz::Vector3f>(&argIndex);
 						Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
 
-						instance.SetScale(scale, coordSys);
+						node.SetScale(scale, coordSys);
 						return 0;
 					}
 				}
@@ -301,7 +294,7 @@ namespace Ndk
 				return 0;
 			});
 
-			node.BindMethod("SetInitialScale", [] (Nz::LuaInstance& lua, Nz::Node& instance, std::size_t argumentCount) -> int
+			node.BindMethod("SetInitialScale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -311,16 +304,16 @@ namespace Ndk
 					case 1:
 					{
 						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-							instance.SetInitialScale(lua.Check<float>(&argIndex));
+							node.SetInitialScale(lua.Check<float>(&argIndex));
 						else
-							instance.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
+							node.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
 
 						return 0;
 					}
 
 					case 2:
 					case 3:
-						instance.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
+						node.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
 						return 0;
 				}
 
@@ -335,112 +328,10 @@ namespace Ndk
 	*
 	* \param instance Lua instance that will interact with the Utility classes
 	*/
-	void LuaBinding_Utility::Register(Nz::LuaInstance& instance)
+	void LuaBinding_Utility::Register(Nz::LuaState& state)
 	{
-		abstractImage.Register(instance);
-		font.Register(instance);
-		keyboard.Register(instance);
-		node.Register(instance);
-
-		keyboard.PushGlobalTable(instance);
-		{
-			static_assert(Nz::Keyboard::Count == 121, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
-
-			instance.PushField("Undefined", Nz::Keyboard::Undefined);
-
-			// A-Z
-			for (std::size_t i = 0; i < 26; ++i)
-				instance.PushField(Nz::String('A' + char(i)), Nz::Keyboard::A + i);
-
-			// Numerical
-			for (std::size_t i = 0; i < 10; ++i)
-			{
-				instance.PushField("Num" + Nz::String::Number(i), Nz::Keyboard::Num0 + i);
-				instance.PushField("Numpad" + Nz::String::Number(i), Nz::Keyboard::Numpad0 + i);
-			}
-
-			// F1-F15
-			for (std::size_t i = 0; i < 15; ++i)
-				instance.PushField('F' + Nz::String::Number(i+1), Nz::Keyboard::F1 + i);
-
-			// And all the others...
-			instance.PushField("Down",              Nz::Keyboard::Down);
-			instance.PushField("Left",              Nz::Keyboard::Left);
-			instance.PushField("Right",             Nz::Keyboard::Right);
-			instance.PushField("Up",                Nz::Keyboard::Up);
-
-			instance.PushField("Add",               Nz::Keyboard::Add);
-			instance.PushField("Decimal",           Nz::Keyboard::Decimal);
-			instance.PushField("Divide",            Nz::Keyboard::Divide);
-			instance.PushField("Multiply",          Nz::Keyboard::Multiply);
-			instance.PushField("Subtract",          Nz::Keyboard::Subtract);
-
-			instance.PushField("Backslash",         Nz::Keyboard::Backslash);
-			instance.PushField("Backspace",         Nz::Keyboard::Backspace);
-			instance.PushField("Clear",             Nz::Keyboard::Clear);
-			instance.PushField("Comma",             Nz::Keyboard::Comma);
-			instance.PushField("Dash",              Nz::Keyboard::Dash);
-			instance.PushField("Delete",            Nz::Keyboard::Delete);
-			instance.PushField("End",               Nz::Keyboard::End);
-			instance.PushField("Equal",             Nz::Keyboard::Equal);
-			instance.PushField("Escape",            Nz::Keyboard::Escape);
-			instance.PushField("Home",              Nz::Keyboard::Home);
-			instance.PushField("Insert",            Nz::Keyboard::Insert);
-			instance.PushField("LAlt",              Nz::Keyboard::LAlt);
-			instance.PushField("LBracket",          Nz::Keyboard::LBracket);
-			instance.PushField("LControl",          Nz::Keyboard::LControl);
-			instance.PushField("LShift",            Nz::Keyboard::LShift);
-			instance.PushField("LSystem",           Nz::Keyboard::LSystem);
-			instance.PushField("PageDown",          Nz::Keyboard::PageDown);
-			instance.PushField("PageUp",            Nz::Keyboard::PageUp);
-			instance.PushField("Pause",             Nz::Keyboard::Pause);
-			instance.PushField("Period",            Nz::Keyboard::Period);
-			instance.PushField("Print",             Nz::Keyboard::Print);
-			instance.PushField("PrintScreen",       Nz::Keyboard::PrintScreen);
-			instance.PushField("Quote",             Nz::Keyboard::Quote);
-			instance.PushField("RAlt",              Nz::Keyboard::RAlt);
-			instance.PushField("RBracket",          Nz::Keyboard::RBracket);
-			instance.PushField("RControl",          Nz::Keyboard::RControl);
-			instance.PushField("Return",            Nz::Keyboard::Return);
-			instance.PushField("RShift",            Nz::Keyboard::RShift);
-			instance.PushField("RSystem",           Nz::Keyboard::RSystem);
-			instance.PushField("Semicolon",         Nz::Keyboard::Semicolon);
-			instance.PushField("Slash",             Nz::Keyboard::Slash);
-			instance.PushField("Space",             Nz::Keyboard::Space);
-			instance.PushField("Tab",               Nz::Keyboard::Tab);
-			instance.PushField("Tilde",             Nz::Keyboard::Tilde);
-			instance.PushField("Browser_Back",      Nz::Keyboard::Browser_Back);
-			instance.PushField("Browser_Favorites", Nz::Keyboard::Browser_Favorites);
-			instance.PushField("Browser_Forward",   Nz::Keyboard::Browser_Forward);
-			instance.PushField("Browser_Home",      Nz::Keyboard::Browser_Home);
-			instance.PushField("Browser_Refresh",   Nz::Keyboard::Browser_Refresh);
-			instance.PushField("Browser_Search",    Nz::Keyboard::Browser_Search);
-			instance.PushField("Browser_Stop",      Nz::Keyboard::Browser_Stop);
-			instance.PushField("Media_Next",        Nz::Keyboard::Media_Next);
-			instance.PushField("Media_Play",        Nz::Keyboard::Media_Play);
-			instance.PushField("Media_Previous",    Nz::Keyboard::Media_Previous);
-			instance.PushField("Media_Stop",        Nz::Keyboard::Media_Stop);
-			instance.PushField("Volume_Down",       Nz::Keyboard::Volume_Down);
-			instance.PushField("Volume_Mute",       Nz::Keyboard::Volume_Mute);
-			instance.PushField("Volume_Up",         Nz::Keyboard::Volume_Up);
-			instance.PushField("CapsLock",          Nz::Keyboard::CapsLock);
-			instance.PushField("NumLock",           Nz::Keyboard::NumLock);
-			instance.PushField("ScrollLock",        Nz::Keyboard::ScrollLock);
-		}
-		instance.Pop();
-
-		static_assert(Nz::WindowStyle_Max + 1 == 6, "Nz::WindowStyle has been updated but change was not reflected to Lua binding");
-		instance.PushTable(0, Nz::WindowStyle_Max + 1);
-		{
-			instance.PushField("None",       Nz::WindowStyle_None);
-			instance.PushField("Fullscreen", Nz::WindowStyle_Fullscreen);
-			instance.PushField("Closable",   Nz::WindowStyle_Closable);
-			instance.PushField("Resizable",  Nz::WindowStyle_Resizable);
-			instance.PushField("Titlebar",   Nz::WindowStyle_Titlebar);
-			instance.PushField("Threaded",   Nz::WindowStyle_Threaded);
-		}
-		instance.SetGlobal("WindowStyle");
-
-
+		abstractImage.Register(state);
+		font.Register(state);
+		node.Register(state);
 	}
 }

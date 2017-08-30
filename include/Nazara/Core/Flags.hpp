@@ -54,12 +54,20 @@ namespace Nz
 		private:
 			BitField m_value;
 	};
+
+	// Little hack to have them in both Nz and global scope
+	namespace FlagsOperators
+	{
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs);
+		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
+	}
+
+	using namespace FlagsOperators;
 }
 
-template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator~(E lhs);
-template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator|(E lhs, E rhs);
-template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator&(E lhs, E rhs);
-template<typename E> constexpr std::enable_if_t<Nz::EnumAsFlags<E>::value, Nz::Flags<E>> operator^(E lhs, E rhs);
+using namespace Nz::FlagsOperators;
 
 #include <Nazara/Core/Flags.inl>
 

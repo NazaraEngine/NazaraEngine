@@ -835,7 +835,6 @@ namespace Nz
 		if (!PixelFormat::IsCompressed(m_sharedImage->format))
 		{
 			const PixelFormatInfo& info = PixelFormat::GetInfo(m_sharedImage->format);
-			const UInt8* pixel = GetConstPixels();
 
 			Bitset<> workingBitset;
 			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth);

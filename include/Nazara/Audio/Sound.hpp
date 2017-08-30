@@ -23,14 +23,14 @@ namespace Nz
 			Sound(Sound&&) = default;
 			~Sound();
 
-			void EnableLooping(bool loop);
+			void EnableLooping(bool loop) override;
 
 			const SoundBuffer* GetBuffer() const;
-			UInt32 GetDuration() const;
-			UInt32 GetPlayingOffset() const;
-			SoundStatus GetStatus() const;
+			UInt32 GetDuration() const override;
+			UInt32 GetPlayingOffset() const override;
+			SoundStatus GetStatus() const override;
 
-			bool IsLooping() const;
+			bool IsLooping() const override;
 			bool IsPlayable() const;
 			bool IsPlaying() const;
 
@@ -38,13 +38,13 @@ namespace Nz
 			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 
-			void Pause();
-			void Play();
+			void Pause() override;
+			void Play() override;
 
 			void SetBuffer(const SoundBuffer* buffer);
 			void SetPlayingOffset(UInt32 offset);
 
-			void Stop();
+			void Stop() override;
 
 			Sound& operator=(const Sound&) = delete; ///TODO?
 			Sound& operator=(Sound&&) = default;

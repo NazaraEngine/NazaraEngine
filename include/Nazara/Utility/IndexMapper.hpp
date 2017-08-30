@@ -17,9 +17,6 @@ namespace Nz
 	class IndexIterator;
 	class SubMesh;
 
-	using IndexMapperGetter = UInt32 (*)(const void* buffer, unsigned int i);
-	using IndexMapperSetter = void (*)(void* buffer, unsigned int i, UInt32 value);
-
 	class NAZARA_UTILITY_API IndexMapper
 	{
 		public:
@@ -29,11 +26,11 @@ namespace Nz
 			IndexMapper(const SubMesh* subMesh, BufferAccess access = BufferAccess_ReadOnly);
 			~IndexMapper() = default;
 
-			UInt32 Get(unsigned int i) const;
+			UInt32 Get(std::size_t i) const;
 			const IndexBuffer* GetBuffer() const;
-			unsigned int GetIndexCount() const;
+			std::size_t GetIndexCount() const;
 
-			void Set(unsigned int i, UInt32 value);
+			void Set(std::size_t i, UInt32 value);
 
 			void Unmap();
 
@@ -45,10 +42,13 @@ namespace Nz
 			// Méthodes STD
 
 		private:
+			using Getter = UInt32(*)(const void* buffer, std::size_t i);
+			using Setter = void(*)(void* buffer, std::size_t i, UInt32 value);
+
 			BufferMapper<IndexBuffer> m_mapper;
-			IndexMapperGetter m_getter;
-			IndexMapperSetter m_setter;
-			unsigned int m_indexCount;
+			Getter m_getter;
+			Setter m_setter;
+			std::size_t m_indexCount;
 };
 }
 

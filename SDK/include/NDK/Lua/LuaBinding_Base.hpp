@@ -23,6 +23,7 @@ namespace Ndk
 	class LuaBinding_Renderer;
 	class LuaBinding_SDK;
 	class LuaBinding_Utility;
+	class LuaBinding_Platform;
 
 	class NDK_API LuaBinding_Base
 	{
@@ -30,7 +31,7 @@ namespace Ndk
 			LuaBinding_Base(LuaBinding& binding);
 			virtual ~LuaBinding_Base();
 
-			virtual void Register(Nz::LuaInstance& instance) = 0;
+			virtual void Register(Nz::LuaState& state) = 0;
 
 			// Implementation lies in the respective .cpp files (still searching for a cleaner way..)
 			static std::unique_ptr<LuaBinding_Base> BindCore(LuaBinding& binding);
@@ -43,6 +44,7 @@ namespace Ndk
 			static std::unique_ptr<LuaBinding_Base> BindAudio(LuaBinding& binding);
 			static std::unique_ptr<LuaBinding_Base> BindGraphics(LuaBinding& binding);
 			static std::unique_ptr<LuaBinding_Base> BindRenderer(LuaBinding& binding);
+			static std::unique_ptr<LuaBinding_Base> BindPlatform(LuaBinding& binding);
 			#endif
 
 		protected:

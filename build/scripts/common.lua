@@ -42,7 +42,7 @@ end
 
 function NazaraBuild:Execute()
 	if (_ACTION == nil) then -- If no action is specified, the user probably only wants to know how all of this works
-		return -- Alors l'utilisateur voulait probablement savoir comment utiliser le programme, on ne fait rien
+		return
 	end
 
 	local platformData
@@ -74,7 +74,6 @@ function NazaraBuild:Execute()
 			includedirs("../extlibs/include")
 			libdirs("../extlibs/lib/common")
 			location(_ACTION)
-			kind("StaticLib")
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -128,6 +127,13 @@ function NazaraBuild:Execute()
 
 		language("C++")
 		location(_ACTION)
+
+		if (self.Config["PremakeProject"] and os.is("windows")) then
+			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
+			project("_PremakeProject")
+				kind("Utility")
+				prebuildcommands("cd .. && " .. commandLine)
+		end
 
 		-- Modules
 		if (_OPTIONS["united"]) then
@@ -505,10 +511,46 @@ function NazaraBuild:LoadConfig()
 		end
 	end
 
+	local AddStringOption = function (option, name, description)
+		newoption({
+			trigger     = name,
+			description = description
+		})
+
+		local str = _OPTIONS[name]
+		if (str) then
+			configTable[option] = str
+		end
+	end
+
 	AddBoolOption("BuildDependencies", "with-extlibs", "Builds the extern libraries")
 	AddBoolOption("BuildExamples", "with-examples", "Builds the examples")
+	AddBoolOption("PremakeProject", "premakeproject", "Add a PremakeProject as a shortcut to call Premake")
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
+
+	-- AdditionalCompilationOptions
+	do
+		newoption({
+			trigger     = "compile-options",
+			description = "Specify additionnal compilation options to be added to every generated project."
+		})
+
+		configTable["AdditionalCompilationOptions"] = configTable["AdditionalCompilationOptions"] or ""
+		if (_OPTIONS["compile-options"] ~= nil) then
+			configTable["AdditionalCompilationOptions"] = configTable["AdditionalCompilationOptions"] .. ";" .. _OPTIONS["compile-options"]
+		end
+
+		local configs = {}
+		local paths = string.explode(configTable["AdditionalCompilationOptions"], ";")
+		for k,v in pairs(paths) do
+			if (#v > 0) then
+				table.insert(configs, v)
+			end
+		end
+
+		configTable["AdditionalCompilationOptions"] = configs
+	end
 
 	-- Configurations
 	do
@@ -792,6 +834,8 @@ function NazaraBuild:PrepareGeneric()
 		buildoptions("-ftree-vectorize")
 
 	filter({})
+	
+	buildoptions(self.Config["AdditionalCompilationOptions"])
 end
 
 function NazaraBuild:PrepareMainWorkspace()

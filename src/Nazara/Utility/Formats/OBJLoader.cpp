@@ -124,8 +124,8 @@ namespace Nz
 						// Some default settings
 						data.SetParameter(MaterialData::Blending, true);
 						data.SetParameter(MaterialData::DepthWrite, true);
-						data.SetParameter(MaterialData::DstBlend, static_cast<int>(BlendFunc_InvSrcAlpha));
-						data.SetParameter(MaterialData::SrcBlend, static_cast<int>(BlendFunc_SrcAlpha));
+						data.SetParameter(MaterialData::DstBlend, static_cast<long long>(BlendFunc_InvSrcAlpha));
+						data.SetParameter(MaterialData::SrcBlend, static_cast<long long>(BlendFunc_SrcAlpha));
 					}
 
 					it = materialCache.emplace(matName, std::move(data)).first;
@@ -139,7 +139,7 @@ namespace Nz
 
 		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		{
-			int reservedVertexCount;
+			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
 				reservedVertexCount = 100;
 
@@ -233,8 +233,8 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indices.size(), parameters.storage, 0);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
+				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, 0);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, 0);
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
@@ -244,6 +244,12 @@ namespace Nz
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
 				// Remplissage des vertices
+
+				// Make sure the normal matrix won't rescale our normals
+				Nz::Matrix4f normalMatrix = parameters.matrix;
+				if (normalMatrix.HasScale())
+					normalMatrix.ApplyScale(1.f / normalMatrix.GetScale());
+
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
@@ -259,7 +265,7 @@ namespace Nz
 					vertex.position = Vector3f(parameters.matrix * vec);
 
 					if (vertexIndices.normal > 0)
-						vertex.normal = normals[vertexIndices.normal-1];
+						vertex.normal = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
 					else
 						hasNormals = false;
 

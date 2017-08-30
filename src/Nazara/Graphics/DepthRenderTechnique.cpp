@@ -68,7 +68,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
+	void DepthRenderTechnique::Clear(const SceneData& /*sceneData*/) const
 	{
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
@@ -95,7 +95,7 @@ namespace Nz
 			if (!layer.opaqueModels.empty())
 				DrawOpaqueModels(sceneData, layer);
 
-			if (!layer.basicSprites.empty())
+			if (!layer.opaqueSprites.empty())
 				DrawBasicSprites(sceneData, layer);
 
 			if (!layer.billboards.empty())
@@ -219,7 +219,7 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		for (auto& pipelinePair : layer.basicSprites)
+		for (auto& pipelinePair : layer.opaqueSprites)
 		{
 			const MaterialPipeline* pipeline = pipelinePair.first;
 			auto& pipelineEntry = pipelinePair.second;

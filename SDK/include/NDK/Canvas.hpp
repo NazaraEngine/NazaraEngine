@@ -9,8 +9,8 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/CursorController.hpp>
-#include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Platform/CursorController.hpp>
+#include <Nazara/Platform/EventHandler.hpp>
 
 namespace Ndk
 {
@@ -44,13 +44,13 @@ namespace Ndk
 			void UnregisterWidget(std::size_t index);
 
 		private:
-			void OnMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
-			void OnMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
-			void OnMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
-			void OnMouseLeft(const Nz::EventHandler* eventHandler);
-			void OnKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
-			void OnKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
-			void OnTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
+			void OnEventMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
+			void OnEventMouseLeft(const Nz::EventHandler* eventHandler);
+			void OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
+			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
+			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
 
 			struct WidgetBox
 			{
