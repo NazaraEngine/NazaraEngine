@@ -586,6 +586,72 @@ namespace Nz
 		return true;
 	}
 
+	bool SocketImpl::ReceiveMultiple(SocketHandle handle, NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, int* read, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+
+		IpAddressImpl::SockAddrBuffer nameBuffer;
+		int bufferLength = static_cast<int>(nameBuffer.size());
+
+		IpAddress senderIp;
+
+		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
+		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		for (std::size_t i = 0; i < bufferCount; ++i)
+		{
+			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
+			winBuffers[i].len = static_cast<ULONG>(buffers[i].dataLength);
+		}
+
+		DWORD flags = 0;
+		DWORD byteRead;
+		if (WSARecvFrom(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteRead, &flags, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		{
+			int errorCode = WSAGetLastError();
+			switch (errorCode)
+			{
+				case WSAECONNRESET:
+				case WSAEWOULDBLOCK:
+				{
+					// If we have no data and are not blocking, return true with 0 byte read
+					byteRead = 0;
+					senderIp = IpAddress::Invalid;
+					break;
+				}
+
+				default:
+				{
+					if (error)
+						*error = TranslateWSAErrorToSocketError(errorCode);
+
+					return false; //< Error
+				}
+			}
+		}
+		else
+			senderIp = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(&nameBuffer));
+
+		if (flags & MSG_PARTIAL)
+		{
+			if (error)
+				*error = SocketError_DatagramSize;
+
+			return false;
+		}
+
+		if (from)
+			*from = senderIp;
+
+		if (read)
+			*read = byteRead;
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
 	bool SocketImpl::Send(SocketHandle handle, const void* buffer, int length, int* sent, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");

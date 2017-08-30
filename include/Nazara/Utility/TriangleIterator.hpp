@@ -24,7 +24,7 @@ namespace Nz
 
 			bool Advance();
 
-			UInt32 operator[](unsigned int i) const;
+			UInt32 operator[](std::size_t i) const;
 
 			void Unmap();
 
@@ -32,8 +32,8 @@ namespace Nz
 			PrimitiveMode m_primitiveMode;
 			UInt32 m_triangleIndices[3];
 			IndexMapper m_indexMapper;
-			unsigned int m_currentIndex;
-			unsigned int m_indexCount;
+			std::size_t m_currentIndex;
+			std::size_t m_indexCount;
 	};
 }
 

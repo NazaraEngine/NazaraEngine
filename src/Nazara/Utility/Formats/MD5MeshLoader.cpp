@@ -91,8 +91,8 @@ namespace Nz
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, 0);
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, 0);
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, 0);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, 0);
 
 					// Index buffer
 					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
@@ -236,7 +236,7 @@ namespace Nz
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, 0);
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, 0);
 
 					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 					IndexIterator index = indexMapper.begin();
@@ -251,7 +251,7 @@ namespace Nz
 					indexMapper.Unmap();
 
 					// Vertex buffer
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, 0);
 					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
 					MeshVertex* vertices = static_cast<MeshVertex*>(vertexMapper.GetPointer());

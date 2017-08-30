@@ -9,7 +9,6 @@
 
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/Font.hpp>
-#include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
 
@@ -21,12 +20,11 @@ namespace Ndk
 			LuaBinding_Utility(LuaBinding& binding);
 			~LuaBinding_Utility() = default;
 
-			void Register(Nz::LuaInstance& instance) override;
+			void Register(Nz::LuaState& state) override;
 
 			// Utility
 			Nz::LuaClass<Nz::AbstractImageRef> abstractImage;
 			Nz::LuaClass<Nz::FontRef> font;
-			Nz::LuaClass<Nz::Keyboard> keyboard;
 			Nz::LuaClass<Nz::Node> node;
 	};
 }

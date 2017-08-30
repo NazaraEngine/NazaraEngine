@@ -173,7 +173,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Uninitializes the Core module
+	* \brief Uninitializes the Graphics module
 	*
 	* \remark Produces a NazaraNotice
 	*/

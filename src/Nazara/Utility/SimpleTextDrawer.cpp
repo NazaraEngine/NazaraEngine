@@ -105,11 +105,10 @@ namespace Nz
 
 	const AbstractTextDrawer::Line& SimpleTextDrawer::GetLine(std::size_t index) const
 	{
-		NazaraAssert(index < m_lines.size(), "Line index out of range");
-
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
+		NazaraAssert(index < m_lines.size(), "Line index out of range");
 		return m_lines[index];
 	}
 
@@ -243,7 +242,7 @@ namespace Nz
 		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 
 		if (m_font)
-			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, m_font->GetSizeInfo(m_characterSize).lineHeight), 0});
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, float(m_font->GetSizeInfo(m_characterSize).lineHeight)), 0});
 		else
 			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
@@ -319,6 +318,10 @@ namespace Nz
 				glyph.color = m_color;
 				glyph.flipped = fontGlyph.flipped;
 
+				glyph.bounds.Set(fontGlyph.aabb);
+				glyph.bounds.x += m_drawPos.x;
+				glyph.bounds.y += m_drawPos.y;
+
 				if (fontGlyph.requireFauxBold)
 				{
 					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
@@ -330,15 +333,12 @@ namespace Nz
 
 					// Replace it at the correct height
 					Vector2f offset(glyph.bounds.GetCenter() - center);
+					glyph.bounds.x -= offset.x;
 					glyph.bounds.y -= offset.y;
 
 					// Adjust advance (+10%)
 					advance += advance / 10;
 				}
-
-				glyph.bounds.Set(fontGlyph.aabb);
-				glyph.bounds.x += m_drawPos.x;
-				glyph.bounds.y += m_drawPos.y;
 
 				// We "lean" the glyph to simulate italics style
 				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
@@ -354,7 +354,7 @@ namespace Nz
 			{
 				glyph.atlas = nullptr;
 
-				glyph.bounds.Set(m_drawPos.x, m_drawPos.y, float(advance), sizeInfo.lineHeight);
+				glyph.bounds.Set(float(m_drawPos.x), float(m_drawPos.y), float(advance), float(sizeInfo.lineHeight));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -377,7 +377,7 @@ namespace Nz
 						m_drawPos.x = 0;
 						m_drawPos.y += sizeInfo.lineHeight;
 
-						m_lines.emplace_back(Line{Rectf(0.f, sizeInfo.lineHeight * m_lines.size(), 0.f, sizeInfo.lineHeight), m_glyphs.size() + 1});
+						m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
 						break;
 					}
 				}

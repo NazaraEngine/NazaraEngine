@@ -1,5 +1,6 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Catch/catch.hpp>
+#include <limits>
 
 TEST_CASE("Approach", "[MATH][ALGORITHM]")
 {
@@ -47,6 +48,11 @@ TEST_CASE("CountBits", "[MATH][ALGORITHM]")
 	SECTION("Number 0 has 0 bit set to 1")
 	{
 		REQUIRE(Nz::CountBits(0) == 0);
+	}
+
+	SECTION("Number 0xFFFFFFFF has 32 bit set to 1")
+	{
+		REQUIRE(Nz::CountBits(0xFFFFFFFF) == 32);
 	}
 }
 
@@ -205,9 +211,19 @@ TEST_CASE("NumberEquals", "[MATH][ALGORITHM]")
 		CHECK(Nz::NumberEquals(2.35, 2.35, 0.01));
 	}
 
-	SECTION("3 and 4 unsigned should be the same at 1")
+	SECTION("0 and 4 unsigned should be the same at 1")
 	{
-		CHECK(Nz::NumberEquals(3U, 4U, 1U));
+		CHECK(Nz::NumberEquals(0U, 4U, 4U));
+	}
+
+	SECTION("Maximum integer and -1 should not be equal")
+	{
+		CHECK_FALSE(Nz::NumberEquals(std::numeric_limits<int>::max(), -1));
+	}
+
+	SECTION("Maximum integer and minimum integer should not be equal")
+	{
+		CHECK_FALSE(Nz::NumberEquals(std::numeric_limits<int>::max(), std::numeric_limits<int>::min()));
 	}
 }
 

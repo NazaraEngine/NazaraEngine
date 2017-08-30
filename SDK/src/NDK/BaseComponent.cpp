@@ -54,6 +54,15 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Operation to perform when the entity is destroyed and we're still attached to it
+	*
+	* \remark This is always called before the entity proper destruction, and thus its components.
+	*/
+	void BaseComponent::OnEntityDestruction()
+	{
+	}
+
 	std::vector<BaseComponent::ComponentEntry> BaseComponent::s_entries;
 	std::unordered_map<ComponentId, ComponentIndex> BaseComponent::s_idToIndex;
 }

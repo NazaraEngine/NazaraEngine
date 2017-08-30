@@ -97,6 +97,30 @@ namespace Nz
 
 			return 0;
 		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_floating_point<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			T diff = std::abs(a - b);
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<!std::is_signed<T>::value || (!std::is_integral<T>::value && !std::is_floating_point<T>::value), bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			T diff = a - b;
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			using UnsignedT = std::make_unsigned_t<T>;
+			return static_cast<UnsignedT>(a) - static_cast<UnsignedT>(b) <= static_cast<UnsignedT>(maxDifference);
+		}
 	}
 
 	/*!
@@ -464,7 +488,7 @@ namespace Nz
 	template<typename T, typename T2>
 	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
-		return from + interpolation * (to - from);
+		return static_cast<T>(from + interpolation * (to - from));
 	}
 
 	/*!
@@ -565,11 +589,7 @@ namespace Nz
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
 	{
-		if (b > a)
-			std::swap(a, b);
-
-		T diff = a - b;
-		return diff <= maxDifference;
+		return Detail::NumberEquals(a, b, maxDifference);
 	}
 
 	/*!

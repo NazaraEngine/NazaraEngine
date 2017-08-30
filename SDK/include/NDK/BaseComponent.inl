@@ -20,10 +20,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the entity owning this component
+	* \return A handle to the entity owning this component, may be invalid if no entity owns it.
+	*/
+	inline const EntityHandle& BaseComponent::GetEntity() const
+	{
+		return m_entity;
+	}
+
+	/*!
 	* \brief Gets the index of the component
 	* \return Index of the component
 	*/
-
 	inline ComponentIndex BaseComponent::GetIndex() const
 	{
 		return m_componentIndex;

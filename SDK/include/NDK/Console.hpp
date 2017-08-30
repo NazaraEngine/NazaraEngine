@@ -12,7 +12,7 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Utility/Event.hpp>
+#include <Nazara/Platform/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/BaseWidget.hpp>
@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	class LuaInstance;
+	class LuaState;
 }
 
 namespace Ndk
@@ -34,7 +34,7 @@ namespace Ndk
 	class NDK_API Console : public BaseWidget, public Nz::HandledObject<Console>
 	{
 		public:
-			Console(BaseWidget* parent, Nz::LuaInstance& instance);
+			Console(BaseWidget* parent, Nz::LuaState& state);
 			Console(const Console& console) = delete;
 			Console(Console&& console) = default;
 			~Console() = default;
@@ -72,7 +72,7 @@ namespace Ndk
 			TextAreaWidget* m_history;
 			TextAreaWidget* m_input;
 			Nz::FontRef m_defaultFont;
-			Nz::LuaInstance& m_instance;
+			Nz::LuaState& m_state;
 			unsigned int m_characterSize;
 			unsigned int m_maxHistoryLines;
 	};

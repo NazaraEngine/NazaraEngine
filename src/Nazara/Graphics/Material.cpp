@@ -114,14 +114,14 @@ namespace Nz
 	{
 		Color color;
 		bool isEnabled;
-		float fValue;
-		int iValue;
+		double dValue;
+		long long iValue;
 		String path;
 
 		ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled, true);
 
-		if (matData.GetFloatParameter(MaterialData::AlphaThreshold, &fValue))
-			SetAlphaThreshold(fValue);
+		if (matData.GetDoubleParameter(MaterialData::AlphaThreshold, &dValue))
+			SetAlphaThreshold(float(dValue));
 
 		if (matData.GetBooleanParameter(MaterialData::AlphaTest, &isEnabled))
 			EnableAlphaTest(isEnabled);
@@ -147,17 +147,17 @@ namespace Nz
 		if (matData.GetIntegerParameter(MaterialData::FaceFilling, &iValue))
 			SetFaceFilling(static_cast<FaceFilling>(iValue));
 
-		if (matData.GetFloatParameter(MaterialData::LineWidth, &fValue))
-			SetLineWidth(fValue);
+		if (matData.GetDoubleParameter(MaterialData::LineWidth, &dValue))
+			SetLineWidth(float(dValue));
 
-		if (matData.GetFloatParameter(MaterialData::PointSize, &fValue))
-			SetPointSize(fValue);
+		if (matData.GetDoubleParameter(MaterialData::PointSize, &dValue))
+			SetPointSize(float(dValue));
 
 		if (matData.GetColorParameter(MaterialData::SpecularColor, &color))
 			SetSpecularColor(color);
 
-		if (matData.GetFloatParameter(MaterialData::Shininess, &fValue))
-			SetShininess(fValue);
+		if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
+			SetShininess(float(dValue));
 
 		if (matData.GetIntegerParameter(MaterialData::SrcBlend, &iValue))
 			SetSrcBlend(static_cast<BlendFunc>(iValue));
@@ -277,17 +277,17 @@ namespace Nz
 		matData->SetParameter(MaterialData::AlphaTest, IsAlphaTestEnabled());
 		matData->SetParameter(MaterialData::AlphaThreshold, GetAlphaThreshold());
 		matData->SetParameter(MaterialData::AmbientColor, GetAmbientColor());
-		matData->SetParameter(MaterialData::CullingSide, int(GetFaceCulling()));
-		matData->SetParameter(MaterialData::DepthFunc, int(GetDepthFunc()));
+		matData->SetParameter(MaterialData::CullingSide, static_cast<long long>(GetFaceCulling()));
+		matData->SetParameter(MaterialData::DepthFunc, static_cast<long long>(GetDepthFunc()));
 		matData->SetParameter(MaterialData::DepthSorting, IsDepthSortingEnabled());
 		matData->SetParameter(MaterialData::DiffuseColor, GetDiffuseColor());
-		matData->SetParameter(MaterialData::DstBlend, int(GetDstBlend()));
-		matData->SetParameter(MaterialData::FaceFilling, int(GetFaceFilling()));
+		matData->SetParameter(MaterialData::DstBlend, static_cast<long long>(GetDstBlend()));
+		matData->SetParameter(MaterialData::FaceFilling, static_cast<long long>(GetFaceFilling()));
 		matData->SetParameter(MaterialData::LineWidth, GetLineWidth());
 		matData->SetParameter(MaterialData::PointSize, GetPointSize());
 		matData->SetParameter(MaterialData::Shininess, GetShininess());
 		matData->SetParameter(MaterialData::SpecularColor, GetSpecularColor());
-		matData->SetParameter(MaterialData::SrcBlend, int(GetSrcBlend()));
+		matData->SetParameter(MaterialData::SrcBlend, static_cast<long long>(GetSrcBlend()));
 
 		// RendererParameter
 		matData->SetParameter(MaterialData::Blending, IsBlendingEnabled());
@@ -299,29 +299,29 @@ namespace Nz
 		matData->SetParameter(MaterialData::StencilTest, IsStencilTestEnabled());
 
 		// Samplers
-		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, int(GetDiffuseSampler().GetAnisotropicLevel()));
-		matData->SetParameter(MaterialData::DiffuseFilter, int(GetDiffuseSampler().GetFilterMode()));
-		matData->SetParameter(MaterialData::DiffuseWrap, int(GetDiffuseSampler().GetWrapMode()));
+		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));
+		matData->SetParameter(MaterialData::DiffuseFilter, static_cast<long long>(GetDiffuseSampler().GetFilterMode()));
+		matData->SetParameter(MaterialData::DiffuseWrap, static_cast<long long>(GetDiffuseSampler().GetWrapMode()));
 
-		matData->SetParameter(MaterialData::SpecularAnisotropyLevel, int(GetSpecularSampler().GetAnisotropicLevel()));
-		matData->SetParameter(MaterialData::SpecularFilter, int(GetSpecularSampler().GetFilterMode()));
-		matData->SetParameter(MaterialData::SpecularWrap, int(GetSpecularSampler().GetWrapMode()));
+		matData->SetParameter(MaterialData::SpecularAnisotropyLevel, static_cast<long long>(GetSpecularSampler().GetAnisotropicLevel()));
+		matData->SetParameter(MaterialData::SpecularFilter, static_cast<long long>(GetSpecularSampler().GetFilterMode()));
+		matData->SetParameter(MaterialData::SpecularWrap, static_cast<long long>(GetSpecularSampler().GetWrapMode()));
 
 		// Stencil
-		matData->SetParameter(MaterialData::StencilCompare,   int(GetPipelineInfo().stencilCompare.front));
-		matData->SetParameter(MaterialData::StencilFail,      int(GetPipelineInfo().stencilFail.front));
-		matData->SetParameter(MaterialData::StencilPass,      int(GetPipelineInfo().stencilPass.front));
-		matData->SetParameter(MaterialData::StencilZFail,     int(GetPipelineInfo().stencilDepthFail.front));
-		matData->SetParameter(MaterialData::StencilMask,      int(GetPipelineInfo().stencilWriteMask.front));
-		matData->SetParameter(MaterialData::StencilReference, int(GetPipelineInfo().stencilReference.front));
+		matData->SetParameter(MaterialData::StencilCompare,   static_cast<long long>(GetPipelineInfo().stencilCompare.front));
+		matData->SetParameter(MaterialData::StencilFail,      static_cast<long long>(GetPipelineInfo().stencilFail.front));
+		matData->SetParameter(MaterialData::StencilPass,      static_cast<long long>(GetPipelineInfo().stencilPass.front));
+		matData->SetParameter(MaterialData::StencilZFail,     static_cast<long long>(GetPipelineInfo().stencilDepthFail.front));
+		matData->SetParameter(MaterialData::StencilMask,      static_cast<long long>(GetPipelineInfo().stencilWriteMask.front));
+		matData->SetParameter(MaterialData::StencilReference, static_cast<long long>(GetPipelineInfo().stencilReference.front));
 
 		// Stencil (back)
-		matData->SetParameter(MaterialData::BackFaceStencilCompare,   int(GetPipelineInfo().stencilCompare.back));
-		matData->SetParameter(MaterialData::BackFaceStencilFail,      int(GetPipelineInfo().stencilFail.back));
-		matData->SetParameter(MaterialData::BackFaceStencilPass,      int(GetPipelineInfo().stencilPass.back));
-		matData->SetParameter(MaterialData::BackFaceStencilZFail,     int(GetPipelineInfo().stencilDepthFail.back));
-		matData->SetParameter(MaterialData::BackFaceStencilMask,      int(GetPipelineInfo().stencilWriteMask.back));
-		matData->SetParameter(MaterialData::BackFaceStencilReference, int(GetPipelineInfo().stencilReference.back));
+		matData->SetParameter(MaterialData::BackFaceStencilCompare,   static_cast<long long>(GetPipelineInfo().stencilCompare.back));
+		matData->SetParameter(MaterialData::BackFaceStencilFail,      static_cast<long long>(GetPipelineInfo().stencilFail.back));
+		matData->SetParameter(MaterialData::BackFaceStencilPass,      static_cast<long long>(GetPipelineInfo().stencilPass.back));
+		matData->SetParameter(MaterialData::BackFaceStencilZFail,     static_cast<long long>(GetPipelineInfo().stencilDepthFail.back));
+		matData->SetParameter(MaterialData::BackFaceStencilMask,      static_cast<long long>(GetPipelineInfo().stencilWriteMask.back));
+		matData->SetParameter(MaterialData::BackFaceStencilReference, static_cast<long long>(GetPipelineInfo().stencilReference.back));
 
 		// Textures
 		if (HasAlphaMap())

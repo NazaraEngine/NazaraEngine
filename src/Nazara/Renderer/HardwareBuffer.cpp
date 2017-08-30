@@ -50,7 +50,8 @@ namespace Nz
 
 		UInt32 totalSize = m_parent->GetSize();
 
-		bool forceDiscard = (size == totalSize);
+		//bool forceDiscard = (size == totalSize);
+		bool forceDiscard = true;
 
 		OpenGL::BindBuffer(m_type, m_buffer);
 

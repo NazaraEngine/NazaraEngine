@@ -10,7 +10,7 @@
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Platform/EventHandler.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/State.hpp>
 #include <vector>

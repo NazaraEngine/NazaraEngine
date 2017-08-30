@@ -24,7 +24,7 @@ namespace Ndk
 			ParticleEmitterComponent(ParticleEmitterComponent&& emitter) = default;
 			~ParticleEmitterComponent() = default;
 
-			void Enable(bool active = true);
+			inline void Enable(bool active = true);
 
 			inline bool IsActive() const;
 

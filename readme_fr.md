@@ -43,7 +43,7 @@ Vous pouvez lire des tutoriaux sur l'installation, la compilation et l'utilisati
 [Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
 [Forum](https://forum.digitalpulsesoftware.net)  
 
-###Remerciements:
+### Remerciements:
 
 - **RafBill** et **Raakz:** Recherche de bugs et/ou tests  
 - **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur  
