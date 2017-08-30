@@ -36,6 +36,7 @@
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 #endif
 
 namespace Ndk
@@ -114,6 +115,13 @@ namespace Ndk
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();
+
+			// Widgets
+			if (!CheckboxWidget::Initialize())
+			{
+				NazaraError("Failed to initialize Checkbox Widget");
+				return false;
+			}
 			#endif
 
 			NazaraNotice("Initialized: SDK");
@@ -122,7 +130,6 @@ namespace Ndk
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
-
 			return false;
 		}
 	}
@@ -167,6 +174,11 @@ namespace Ndk
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
+
+		#ifndef NDK_SERVER
+		// Widgets
+		CheckboxWidget::Uninitialize();
+		#endif
 
 		NazaraNotice("Uninitialized: SDK");
 	}
