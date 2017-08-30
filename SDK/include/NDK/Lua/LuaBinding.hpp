@@ -36,6 +36,7 @@ namespace Ndk
 			std::unique_ptr<LuaBinding_Base> audio;
 			std::unique_ptr<LuaBinding_Base> graphics;
 			std::unique_ptr<LuaBinding_Base> renderer;
+			std::unique_ptr<LuaBinding_Base> platform;
 			#endif
 
 		private:

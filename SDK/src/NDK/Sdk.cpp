@@ -6,11 +6,13 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
@@ -64,13 +66,6 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
-			#ifdef NDK_SERVER
-			Nz::ParameterList parameters;
-			parameters.SetParameter("NoWindowSystem", true);
-
-			Nz::Utility::SetParameters(parameters);
-			#endif
-
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics2D::Initialize();

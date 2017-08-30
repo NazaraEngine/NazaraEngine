@@ -6,21 +6,15 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/HardwareInfo.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/TaskScheduler.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Cursor.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
-#include <Nazara/Utility/Window.hpp>
 #include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
@@ -35,15 +29,29 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup utility
+	* \class Nz::Utility
+	* \brief Utility class that represents the module initializer of Utility
+	*/
+
+	/*!
+	* \brief Initializes the Utility module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	* \remark Produces a NazaraError if one submodule failed
+	*/
+
 	bool Utility::Initialize()
 	{
 		if (s_moduleReferenceCounter > 0)
 		{
 			s_moduleReferenceCounter++;
-			return true; // Déjà initialisé
+			return true; // Already initialized
 		}
 
-		// Initialisation des dépendances
+		// Initialisation of dependencies
 		if (!Core::Initialize())
 		{
 			NazaraError("Failed to initialize core module");
@@ -103,23 +111,6 @@ namespace Nz
 			return false;
 		}
 
-		bool bParam;
-		if (!s_initializationParameters.GetBooleanParameter("NoWindowSystem", &bParam) || !bParam)
-		{
-			if (!Window::Initialize())
-			{
-				NazaraError("Failed to initialize window's system");
-				return false;
-			}
-
-			// Must be initialized after Window
-			if (!Cursor::Initialize())
-			{
-				NazaraError("Failed to initialize cursors");
-				return false;
-			}
-		}
-
 		// On enregistre les loaders pour les extensions
 		// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
@@ -159,11 +150,6 @@ namespace Nz
 		return s_moduleReferenceCounter != 0;
 	}
 
-	void Utility::SetParameters(const ParameterList& parameters)
-	{
-		s_initializationParameters = parameters;
-	}
-
 	void Utility::Uninitialize()
 	{
 		if (s_moduleReferenceCounter != 1)
@@ -187,9 +173,6 @@ namespace Nz
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
-
-		Cursor::Uninitialize(); //< Must be done before Window
-		Window::Uninitialize();
 
 		VertexDeclaration::Uninitialize();
 		Skeleton::Uninitialize();
@@ -246,6 +229,5 @@ namespace Nz
 
 	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
 
-	ParameterList Utility::s_initializationParameters;
 	unsigned int Utility::s_moduleReferenceCounter = 0;
 }
