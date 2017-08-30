@@ -244,6 +244,12 @@ namespace Nz
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
 				// Remplissage des vertices
+
+				// Make sure the normal matrix won't rescale our normals
+				Nz::Matrix4f normalMatrix = parameters.matrix;
+				if (normalMatrix.HasScale())
+					normalMatrix.ApplyScale(1.f / normalMatrix.GetScale());
+
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
@@ -259,7 +265,7 @@ namespace Nz
 					vertex.position = Vector3f(parameters.matrix * vec);
 
 					if (vertexIndices.normal > 0)
-						vertex.normal = normals[vertexIndices.normal-1];
+						vertex.normal = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
 					else
 						hasNormals = false;
 
