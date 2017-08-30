@@ -16,7 +16,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <vector>
 
 namespace Nz

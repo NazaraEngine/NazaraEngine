@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Canvas.hpp>
-#include <Nazara/Utility/Cursor.hpp>
+#include <Nazara/Platform/Cursor.hpp>
 
 namespace Ndk
 {
