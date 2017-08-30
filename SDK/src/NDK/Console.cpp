@@ -58,6 +58,8 @@ namespace Ndk
 		m_input->OnTextAreaKeyReturn.Connect(this, &Console::ExecuteInput);
 
 		// Protect input prefix from erasure/selection
+		m_input->SetCursorPosition(s_inputPrefixSize);
+
 		m_input->OnTextAreaCursorMove.Connect([](const TextAreaWidget* textArea, std::size_t* newCursorPos)
 		{
 			*newCursorPos = std::max(*newCursorPos, s_inputPrefixSize);
@@ -67,6 +69,27 @@ namespace Ndk
 		{
 			if (textArea->GetGlyphUnderCursor() <= s_inputPrefixSize)
 				*ignoreDefaultAction = true;
+		});
+
+		// Handle history
+		m_input->OnTextAreaKeyUp.Connect([&] (const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		{
+			*ignoreDefaultAction = true;
+
+			if (m_historyPosition > 0)
+				m_historyPosition--;
+
+			m_input->SetText(s_inputPrefix + m_commandHistory[m_historyPosition]);
+		});
+
+		m_input->OnTextAreaKeyDown.Connect([&] (const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		{
+			*ignoreDefaultAction = true;
+
+			if (++m_historyPosition >= m_commandHistory.size())
+				m_historyPosition = 0;
+
+			m_input->SetText(s_inputPrefix + m_commandHistory[m_historyPosition]);
 		});
 
 		// General
@@ -153,7 +176,7 @@ namespace Ndk
 		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)
 			m_commandHistory.push_back(inputCmd);
 
-		m_historyPosition = 0;
+		m_historyPosition = m_commandHistory.size();
 
 		AddLine(input); //< With the input prefix
 
