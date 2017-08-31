@@ -314,7 +314,8 @@ namespace Ndk
 
 		m_systems = std::move(world.m_systems);
 		for (const auto& systemPtr : m_systems)
-			systemPtr->SetWorld(this);
+			if (systemPtr)
+				systemPtr->SetWorld(this);
 
 		return *this;
 	}
