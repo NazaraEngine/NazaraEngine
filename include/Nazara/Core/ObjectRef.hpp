@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,8 +17,6 @@ namespace Nz
 	template<typename T>
 	class ObjectRef
 	{
-		static_assert(std::is_base_of<RefCounted, T>::value, "ObjectRef shall only be used with RefCounted-derived type");
-
 		public:
 			ObjectRef();
 			ObjectRef(T* object);
@@ -33,7 +31,7 @@ namespace Nz
 			bool Reset(T* object = nullptr);
 			ObjectRef& Swap(ObjectRef& ref);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 
@@ -46,8 +44,33 @@ namespace Nz
 			T* m_object;
 	};
 
-    template<typename T> struct PointedType<ObjectRef<T>> {typedef T type;};
-    template<typename T> struct PointedType<ObjectRef<T> const> {typedef T type;};
+	template<typename T> bool operator==(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator==(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator==(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator!=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator!=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator!=(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator<(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator<=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator<=(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator>(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>(const ObjectRef<T>& lhs, const T& rhs);
+
+	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>=(const T& lhs, const ObjectRef<T>& rhs);
+	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const T& rhs);
+
+
+	template<typename T> struct PointedType<ObjectRef<T>> { typedef T type; };
+	template<typename T> struct PointedType<ObjectRef<T> const> { typedef T type; };
 }
 
 #include <Nazara/Core/ObjectRef.inl>

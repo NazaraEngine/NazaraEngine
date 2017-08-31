@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -129,7 +129,7 @@ namespace Nz
 
 		if (s_useAnisotropicFilter)
 		{
-			for (const std::pair<UInt32, GLuint>& pair : s_samplers)
+			for (const std::pair<const UInt32, GLuint>& pair : s_samplers)
 			{
 				if (((pair.first >> 5) & 0xFF) == 0)
 					glSamplerParameterf(pair.second, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(anisotropyLevel));
@@ -149,7 +149,7 @@ namespace Nz
 
 		s_defaultFilterMode = filterMode;
 
-		for (const std::pair<UInt32, GLuint>& pair : s_samplers)
+		for (const std::pair<const UInt32, GLuint>& pair : s_samplers)
 		{
 			if (((pair.first >> 1) & 0x3) == SamplerFilter_Default)
 			{
@@ -204,7 +204,7 @@ namespace Nz
 		s_defaultWrapMode = wrapMode;
 
 		GLenum wrapEnum = OpenGL::SamplerWrapMode[wrapMode];
-		for (const std::pair<UInt32, GLuint>& pair : s_samplers)
+		for (const std::pair<const UInt32, GLuint>& pair : s_samplers)
 		{
 			if (((pair.first >> 3) & 0x3) == SamplerWrap_Default)
 			{
@@ -380,7 +380,7 @@ namespace Nz
 		if (!s_samplers.empty())
 		{
 			Context::EnsureContext();
-			for (const std::pair<UInt32, GLuint>& pair : s_samplers)
+			for (const std::pair<const UInt32, GLuint>& pair : s_samplers)
 				OpenGL::DeleteSampler(pair.second);
 
 			s_samplers.clear();

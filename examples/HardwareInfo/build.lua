@@ -1,6 +1,6 @@
 EXAMPLE.Name = "HardwareInfo"
 
-EXAMPLE.Console = true
+EXAMPLE.EnableConsole = true
 
 EXAMPLE.Defines = {
 	"NAZARA_RENDERER_OPENGL"
@@ -12,6 +12,7 @@ EXAMPLE.Files = {
 
 EXAMPLE.Libraries = {
 	"NazaraCore",
+	"NazaraPlatform",
 	"NazaraRenderer",
 	"NazaraUtility"
 }

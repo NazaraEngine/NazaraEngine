@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -64,7 +64,7 @@ namespace Nz
 	* \param openMode Flag of the file
 	*/
 
-	File::File(const String& filePath, UInt32 openMode) :
+	File::File(const String& filePath, OpenModeFlags openMode) :
 	File()
 	{
 		Open(filePath, openMode);
@@ -311,7 +311,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(unsigned int openMode)
+	bool File::Open(OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 
@@ -352,7 +352,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(const String& filePath, unsigned int openMode)
+	bool File::Open(const String& filePath, OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 
@@ -385,7 +385,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor	
+	* \brief Sets the position of the cursor
 	* \return true if cursor is successfully positioned
 	*
 	* \param pos Position of the cursor
@@ -404,7 +404,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor	
+	* \brief Sets the position of the cursor
 	* \return true if cursor is successfully positioned
 	*
 	* \param offset Offset according to the cursor begin position
@@ -452,6 +452,25 @@ namespace Nz
 
 		m_filePath = AbsolutePath(filePath);
 		return true;
+	}
+
+	/*!
+	* \brief Sets the size of the file
+	* \return true if the file size has correctly changed
+	*
+	* \param size The size the file should have after this call
+	*
+	* \remark The cursor position is not affected by this call
+	* \remark The file must be open in write mode
+	*/
+	bool File::SetSize(UInt64 size)
+	{
+		NazaraLock(m_mutex)
+
+		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssert(IsWritable(), "File is not writable");
+
+		return m_impl->SetSize(size);
 	}
 
 	/*!
@@ -706,7 +725,7 @@ namespace Nz
 			return true;
 		else if (path.Match("\\\\*")) // Ex: \\Laptop
 			return true;
-		else if (path.StartsWith('\\')) // Special : '\' refering to the root
+		else if (path.StartsWith('\\')) // Special : '\' referring to the root
 			return true;
 		else
 			return false;
@@ -887,5 +906,5 @@ namespace Nz
 		}
 
 		return true;
-	};
+	}
 }

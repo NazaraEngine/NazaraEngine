@@ -1,7 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <utility>
 #include <stdexcept>
@@ -95,9 +96,8 @@ namespace Nz
 	*
 	* \remark If ptr is null, nothing is done
 	*/
-
 	template<typename T>
-	inline void MemoryPool::Delete(T* ptr)
+	void MemoryPool::Delete(T* ptr)
 	{
 		if (ptr)
 		{
@@ -191,7 +191,7 @@ namespace Nz
 	inline T* MemoryPool::New(Args&&... args)
 	{
 		T* object = static_cast<T*>(Allocate(sizeof(T)));
-		PlacementNew<T>(object, std::forward<Args>(args)...);
+		PlacementNew(object, std::forward<Args>(args)...);
 
 		return object;
 	}

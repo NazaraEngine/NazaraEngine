@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -11,23 +11,29 @@
 
 namespace Nz
 {
-	class LuaInstance;
+	class LuaState;
 }
 
 namespace Ndk
 {
+	class LuaBinding;
+
 	class NDK_API LuaAPI
 	{
 		public:
 			LuaAPI() = delete;
 			~LuaAPI() = delete;
 
-			static void Register_Audio(Nz::LuaInstance& instance);
-			static void Register_Core(Nz::LuaInstance& instance);
-			static void Register_Graphics(Nz::LuaInstance& instance);
-			static void Register_Math(Nz::LuaInstance& instance);
-			static void Register_Renderer(Nz::LuaInstance& instance);
-			static void Register_Utility(Nz::LuaInstance& instance);
+			static LuaBinding* GetBinding();
+
+			static bool Initialize();
+
+			static void RegisterClasses(Nz::LuaState& state);
+
+			static void Uninitialize();
+
+		private:
+			static LuaBinding* s_binding;
 	};
 }
 

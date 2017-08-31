@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -50,7 +50,7 @@ namespace Nz
 			String ToString() const;
 			inline UInt32 ToUInt32() const;
 
-			inline operator bool() const;
+			inline explicit operator bool() const;
 
 			IpAddress& operator=(const IpAddress&) = default;
 			IpAddress& operator=(IpAddress&&) = default;

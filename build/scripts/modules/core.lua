@@ -1,6 +1,7 @@
 MODULE.Name = "Core"
+MODULE.Excludable = false -- Excluding the core makes no sense as everything relies on it
 
-MODULE.Files = { -- Les autres fichiers seront ajoutés automatiquement
+MODULE.Files = { -- Other files will be automatically added
 	"../include/Nazara/Prerequesites.hpp",
 	"../include/Nazara/Math/**.hpp",
 	"../include/Nazara/Math/**.inl",

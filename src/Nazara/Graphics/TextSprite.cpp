@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,19 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::TextSprite
+	* \brief Graphics class that represents the rendering of a sprite containing text
+	*/
+
+	/*!
+	* \brief Adds the text to the rendering queue
+	*
+	* \param renderQueue Queue to be added
+	* \param instanceData Data for the instance
+	*/
+
 	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
 	{
 		if (!m_material)
@@ -26,10 +39,18 @@ namespace Nz
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(instanceData.renderOrder, m_material, &vertices[indices.first*4], indices.count, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder, m_material, &vertices[indices.first * 4], indices.count, overlay);
 			}
 		}
 	}
+
+	/*!
+	* \brief Updates the text
+	*
+	* \param drawer Drawer used to compose the text
+	*
+	* \remark Produces a NazaraAssert if atlas does not use a hardware storage
+	*/
 
 	void TextSprite::Update(const AbstractTextDrawer& drawer)
 	{
@@ -43,12 +64,12 @@ namespace Nz
 			pair.second.used = false;
 
 		// ... until they are marked as used by the drawer
-		unsigned int fontCount = drawer.GetFontCount();
-		for (unsigned int i = 0; i < fontCount; ++i)
+		std::size_t fontCount = drawer.GetFontCount();
+		for (std::size_t i = 0; i < fontCount; ++i)
 		{
 			Font* font = drawer.GetFont(i);
 			const AbstractAtlas* atlas = font->GetAtlas().get();
-			NazaraAssert(atlas->GetStorage() & DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
+			NazaraAssert(atlas->GetStorage() == DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
 			auto it = m_atlases.find(atlas);
 			if (it == m_atlases.end())
@@ -74,7 +95,7 @@ namespace Nz
 				++atlasIt;
 		}
 
-		unsigned int glyphCount = drawer.GetGlyphCount();
+		std::size_t glyphCount = drawer.GetGlyphCount();
 		m_localVertices.resize(glyphCount * 4);
 
 		// Reset glyph count for every texture to zero
@@ -84,9 +105,11 @@ namespace Nz
 		// Count glyph count for each texture
 		Texture* lastTexture = nullptr;
 		unsigned int* count = nullptr;
-		for (unsigned int i = 0; i < glyphCount; ++i)
+		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -128,6 +151,8 @@ namespace Nz
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -138,8 +163,8 @@ namespace Nz
 
 			// First, compute the uv coordinates from our atlas rect
 			Vector2ui size(texture->GetSize());
-			float invWidth = 1.f/size.x;
-			float invHeight = 1.f/size.y;
+			float invWidth = 1.f / size.x;
+			float invHeight = 1.f / size.y;
 
 			Rectf uvRect(glyph.atlasRect);
 			uvRect.x *= invWidth;
@@ -155,9 +180,9 @@ namespace Nz
 			for (unsigned int j = 0; j < 4; ++j)
 			{
 				// Remember that indices->count is a counter here, not a count value
-				m_localVertices[indices->count*4 + j].color = glyph.color;
-				m_localVertices[indices->count*4 + j].position.Set(glyph.corners[j]);
-				m_localVertices[indices->count*4 + j].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
+				m_localVertices[indices->count * 4 + j].color = glyph.color;
+				m_localVertices[indices->count * 4 + j].position.Set(glyph.corners[j]);
+				m_localVertices[indices->count * 4 + j].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
 			}
 
 			// Increment the counter, go to next glyph
@@ -172,14 +197,24 @@ namespace Nz
 		clearOnFail.Reset();
 	}
 
+	/*
+	* \brief Makes the bounding volume of this text
+	*/
+
 	void TextSprite::MakeBoundingVolume() const
 	{
 		Rectf bounds(m_localBounds);
-		Vector2f max = bounds.GetMaximum();
-		Vector2f min = bounds.GetMinimum();
+		Vector2f max = m_scale * bounds.GetMaximum();
+		Vector2f min = m_scale * bounds.GetMinimum();
 
-		m_boundingVolume.Set(min.x*Vector3f::Right() + min.y*Vector3f::Down(), max.x*Vector3f::Right() + max.y*Vector3f::Down());
+		m_boundingVolume.Set(min.x * Vector3f::Right() + min.y * Vector3f::Down(), max.x * Vector3f::Right() + max.y * Vector3f::Down());
 	}
+
+	/*!
+	* \brief Handle the invalidation of an atlas
+	*
+	* \param atlas Atlas being invalidated
+	*/
 
 	void TextSprite::OnAtlasInvalidated(const AbstractAtlas* atlas)
 	{
@@ -195,6 +230,14 @@ namespace Nz
 		Clear();
 	}
 
+	/*!
+	* \brief Handle the invalidation of an atlas layer
+	*
+	* \param atlas Atlas being invalidated
+	* \param oldLayer Pointer to the previous layer
+	* \param newLayer Pointer to the new layer
+	*/
+
 	void TextSprite::OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer)
 	{
 		NazaraUnused(atlas);
@@ -207,23 +250,23 @@ namespace Nz
 		}
 		#endif
 
-		// La texture d'un atlas vient d'être recréée (changement de taille)
-		// nous devons ajuster les coordonnées de textures et la texture du rendu
+		// The texture of an atlas have just been recreated (size change)
+		// we have to adjust the coordinates of the texture and the rendering texture
 		Texture* oldTexture = static_cast<Texture*>(oldLayer);
 		Texture* newTexture = static_cast<Texture*>(newLayer);
 
-		// Il est possible que nous n'utilisions pas la texture en question (l'atlas nous prévenant pour chacun de ses layers)
+		// It is possible that we don't use the texture (the atlas warning us for each of its layers)
 		auto it = m_renderInfos.find(oldTexture);
 		if (it != m_renderInfos.end())
 		{
-			// Nous utilisons bien cette texture, nous devons mettre à jour les coordonnées de texture
+			// We indeed use this texture, we have to update its coordinates
 			RenderIndices indices = std::move(it->second);
 
 			Vector2ui oldSize(oldTexture->GetSize());
 			Vector2ui newSize(newTexture->GetSize());
-			Vector2f scale = Vector2f(oldSize)/Vector2f(newSize); // ratio ancienne et nouvelle taille
+			Vector2f scale = Vector2f(oldSize) / Vector2f(newSize); // ratio of the old one to the new one
 
-			// On va maintenant parcourir toutes les coordonnées de texture concernées pour les multiplier par ce ratio
+			// Now we will iterate through each coordinates of the concerned texture to multiply them by the ratio
 			SparsePtr<Vector2f> texCoordPtr(&m_localVertices[indices.first].uv, sizeof(VertexStruct_XYZ_Color_UV));
 			for (unsigned int i = 0; i < indices.count; ++i)
 			{
@@ -231,11 +274,17 @@ namespace Nz
 					m_localVertices[i*4 + j].uv *= scale;
 			}
 
-			// Nous enlevons l'ancienne texture et rajoutons la nouvelle à sa place (pour les mêmes indices)
+			// We get rid off the old texture and we set the new one at the place (same for indices)
 			m_renderInfos.erase(it);
 			m_renderInfos.insert(std::make_pair(newTexture, std::move(indices)));
 		}
 	}
+
+	/*!
+	* \brief Updates the data of the sprite
+	*
+	* \param instanceData Data of the instance
+	*/
 
 	void TextSprite::UpdateData(InstanceData* instanceData) const
 	{
@@ -246,18 +295,18 @@ namespace Nz
 		SparsePtr<Vector3f> posPtr(&vertices[0].position, sizeof(VertexStruct_XYZ_Color_UV));
 		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
-		// Nous allons maintenant initialiser les sommets finaux (ceux envoyés à la RenderQueue)
-		// à l'aide du repère, de la matrice et de notre attribut de couleur
+		// We will not initialize the final vertices (those send to the RenderQueue)
+		// With the help of the coordinates axis, the matrix and our color attribute
 		for (auto& pair : m_renderInfos)
 		{
 			RenderIndices& indices = pair.second;
 			if (indices.count == 0)
 				continue; //< Ignore empty render indices
 
-			SparsePtr<Color> color = colorPtr + indices.first*4;
-			SparsePtr<Vector3f> pos = posPtr + indices.first*4;
-			SparsePtr<Vector2f> uv = texCoordPtr + indices.first*4;
-			VertexStruct_XY_Color_UV* localVertex = &m_localVertices[indices.first*4];
+			SparsePtr<Color> color = colorPtr + indices.first * 4;
+			SparsePtr<Vector3f> pos = posPtr + indices.first * 4;
+			SparsePtr<Vector2f> uv = texCoordPtr + indices.first * 4;
+			VertexStruct_XY_Color_UV* localVertex = &m_localVertices[indices.first * 4];
 			for (unsigned int i = 0; i < indices.count; ++i)
 			{
 				for (unsigned int j = 0; j < 4; ++j)

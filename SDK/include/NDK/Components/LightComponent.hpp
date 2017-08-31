@@ -1,9 +1,10 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 
@@ -28,3 +29,4 @@ namespace Ndk
 #include <NDK/Components/LightComponent.inl>
 
 #endif // NDK_COMPONENTS_LIGHTCOMPONENT_HPP
+#endif // NDK_SERVER

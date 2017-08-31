@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,20 +8,19 @@
 #define NAZARA_ERROR_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Directory.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
 #else
 	#define NazaraAssert(a, err) for (;;) break
 #endif
 
-#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType_Normal, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
-#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType_Internal, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
-#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType_Warning, err, __LINE__, Nz::Directory::GetCurrentFileRelativeToEngine(__FILE__), NAZARA_FUNCTION)
+#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType_Normal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType_Internal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType_Warning, err, __LINE__, __FILE__, NAZARA_FUNCTION)
 
 namespace Nz
 {

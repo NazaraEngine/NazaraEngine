@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -50,10 +50,17 @@ namespace Nz
 			IntersectionSide Intersect(const Sphere<T>& sphere) const;
 			IntersectionSide Intersect(const Vector3<T>* points, unsigned int pointCount) const;
 
+			Frustum& operator=(const Frustum& other) = default;
+
 			Frustum& Set(const Frustum& frustum);
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
 			String ToString() const;
+
+			template<typename U>
+			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum);
+			template<typename U>
+			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum);
 
 		private:
 			Vector3<T> m_corners[BoxCorner_Max+1];
@@ -62,9 +69,6 @@ namespace Nz
 
 	typedef Frustum<double> Frustumd;
 	typedef Frustum<float> Frustumf;
-
-	template<typename T> bool Serialize(SerializationContext& context, const Frustum<T>& frustum);
-	template<typename T> bool Unserialize(SerializationContext& context, Frustum<T>* frustum);
 }
 
 template<typename T>

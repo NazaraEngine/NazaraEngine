@@ -25,21 +25,17 @@
 #ifndef NAZARA_PREREQUESITES_HPP
 #define NAZARA_PREREQUESITES_HPP
 
-// Identification du compilateur
-///TODO: Rajouter des tests d'identification de compilateurs
+// Try to identify the compiler
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
-	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNC__
 #elif defined(__clang__)
 	#define NAZARA_COMPILER_CLANG
-	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 #elif defined(__GNUC__) || defined(__MINGW32__)
 	#define NAZARA_COMPILER_GCC
-	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 
@@ -51,44 +47,50 @@
 	#endif
 #elif defined(__INTEL_COMPILER) || defined(__ICL)
 	#define NAZARA_COMPILER_INTEL
-	#define NAZARA_COMPILER_SUPPORTS_CPP11 (defined(__cplusplus) && __cplusplus >= 201103L)
 	#define NAZARA_DEPRECATED(txt)
 	#define NAZARA_FUNCTION __FUNCTION__
 #elif defined(_MSC_VER)
 	#define NAZARA_COMPILER_MSVC
-	#define NAZARA_COMPILER_SUPPORTS_CPP11 (_MSC_VER >= 1900)
 	#define NAZARA_DEPRECATED(txt) __declspec(deprecated(txt))
 	#define NAZARA_FUNCTION __FUNCSIG__
+
+	#if _MSC_VER >= 1900
+		#define NAZARA_COMPILER_SUPPORTS_CPP11
+	#endif
 
 	#pragma warning(disable: 4251)
 #else
 	#define NAZARA_COMPILER_UNKNOWN
 	#define NAZARA_DEPRECATED(txt)
-	#define NAZARA_FUNCTION __func__ // __func__ est standard depuis le C++11
+	#define NAZARA_FUNCTION __func__ // __func__ has been standardized in C++ 2011
 
-	/// Cette ligne n'est là que pour prévenir, n'hésitez pas à la commenter si elle vous empêche de compiler
 	#pragma message This compiler is not fully supported
 #endif
 
-#if !NAZARA_COMPILER_SUPPORTS_CPP11
+#if !defined(NAZARA_COMPILER_SUPPORTS_CPP11) && defined(__cplusplus) && __cplusplus >= 201103L
+	#define NAZARA_COMPILER_SUPPORTS_CPP11
+#endif
+
+#ifndef NAZARA_COMPILER_SUPPORTS_CPP11
 	#error Nazara requires a C++11 compliant compiler
 #endif
 
-// Version du moteur
+// Nazara version macro
 #define NAZARA_VERSION_MAJOR 0
-#define NAZARA_VERSION_MINOR 1
+#define NAZARA_VERSION_MINOR 3
+#define NAZARA_VERSION_PATCH 0
 
 #include <Nazara/Core/Config.hpp>
 
-// Identification de la plateforme
+// Try to identify target platform via defines
 #if defined(_WIN32)
 	#define NAZARA_PLATFORM_WINDOWS
 
 	#define NAZARA_EXPORT __declspec(dllexport)
 	#define NAZARA_IMPORT __declspec(dllimport)
 
-	// Des defines pour le header Windows
-	#if defined(NAZARA_BUILD) // Pour ne pas entrer en conflit avec les defines de l'application ou d'une autre bibliothèque
+	// Somes defines for windows.h include..
+	#if defined(NAZARA_BUILD)
 		#ifndef WIN32_LEAN_AND_MEAN
 			#define WIN32_LEAN_AND_MEAN
 		#endif
@@ -97,14 +99,13 @@
 			#define NOMINMAX
 		#endif
 
-		#if NAZARA_CORE_WINDOWS_VISTA
-			// Version de Windows minimale : Vista
+		#if NAZARA_CORE_WINDOWS_NT6
 			#define NAZARA_WINNT 0x0600
 		#else
 			#define NAZARA_WINNT 0x0501
 		#endif
 
-		// Pour ne pas casser le define déjà en place s'il est applicable
+		// Keep the actual define if existing and greater than our requirement
 		#if defined(_WIN32_WINNT)
 			#if _WIN32_WINNT < NAZARA_WINNT
 				#undef _WIN32_WINNT
@@ -127,7 +128,6 @@
 	#define NAZARA_PLATFORM_MACOSX
 	#define NAZARA_PLATFORM_POSIX*/
 #else
-	// À commenter pour tenter quand même une compilation
 	#error This operating system is not fully supported by the Nazara Engine
 
 	#define NAZARA_PLATFORM_UNKNOWN
@@ -140,12 +140,7 @@
 	#define NAZARA_PLATFORM_x64
 #endif
 
-// Définit NDEBUG si NAZARA_DEBUG n'est pas présent
-#if !defined(NAZARA_DEBUG) && !defined(NDEBUG)
-	#define NDEBUG
-#endif
-
-// Macros supplémentaires
+// A bunch of useful macros
 #define NazaraPrefix(a, prefix) prefix ## a
 #define NazaraPrefixMacro(a, prefix) NazaraPrefix(a, prefix)
 #define NazaraSuffix(a, suffix) a ## suffix
@@ -154,7 +149,10 @@
 #define NazaraStringifyMacro(s) NazaraStringify(s) // http://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
 #define NazaraUnused(a) (void) a
 
+#include <climits>
 #include <cstdint>
+
+static_assert(CHAR_BIT == 8, "CHAR_BIT is expected to be 8");
 
 static_assert(sizeof(int8_t)  == 1, "int8_t is not of the correct size" );
 static_assert(sizeof(int16_t) == 2, "int16_t is not of the correct size");
@@ -168,17 +166,17 @@ static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
 namespace Nz
 {
-    typedef int8_t Int8;
-    typedef uint8_t UInt8;
+	typedef int8_t Int8;
+	typedef uint8_t UInt8;
 
-    typedef int16_t Int16;
-    typedef uint16_t UInt16;
+	typedef int16_t Int16;
+	typedef uint16_t UInt16;
 
-    typedef int32_t Int32;
-    typedef uint32_t UInt32;
+	typedef int32_t Int32;
+	typedef uint32_t UInt32;
 
-    typedef int64_t Int64;
-    typedef uint64_t UInt64;
+	typedef int64_t Int64;
+	typedef uint64_t UInt64;
 }
 
 #endif // NAZARA_PREREQUESITES_HPP

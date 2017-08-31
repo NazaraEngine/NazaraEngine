@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -131,7 +131,6 @@ namespace Nz
 			static GLenum BufferLockRange[BufferAccess_Max+1];
 			static GLenum BufferTarget[BufferType_Max+1];
 			static GLenum BufferTargetBinding[BufferType_Max+1];
-			static GLenum BufferUsage[BufferUsage_Max+1];
 			static GLenum ComponentType[ComponentType_Max+1];
 			static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 			static GLenum FaceFilling[FaceFilling_Max+1];
@@ -153,7 +152,6 @@ namespace Nz
 			static void OnContextChanged(const Context* newContext);
 			static void OnContextDestruction(const Context* context);
 	};
-}
 
 NAZARA_RENDERER_API extern PFNGLACTIVETEXTUREPROC            glActiveTexture;
 NAZARA_RENDERER_API extern PFNGLATTACHSHADERPROC             glAttachShader;
@@ -180,6 +178,9 @@ NAZARA_RENDERER_API extern PFNGLCREATEPROGRAMPROC            glCreateProgram;
 NAZARA_RENDERER_API extern PFNGLCREATESHADERPROC             glCreateShader;
 NAZARA_RENDERER_API extern PFNGLCHECKFRAMEBUFFERSTATUSPROC   glCheckFramebufferStatus;
 NAZARA_RENDERER_API extern PFNGLCOLORMASKPROC                glColorMask;
+NAZARA_RENDERER_API extern PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC  glCompressedTexSubImage1D;
+NAZARA_RENDERER_API extern PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC  glCompressedTexSubImage2D;
+NAZARA_RENDERER_API extern PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC  glCompressedTexSubImage3D;
 NAZARA_RENDERER_API extern PFNGLCULLFACEPROC                 glCullFace;
 NAZARA_RENDERER_API extern PFNGLCOMPILESHADERPROC            glCompileShader;
 NAZARA_RENDERER_API extern PFNGLCOPYTEXSUBIMAGE2DPROC        glCopyTexSubImage2D;
@@ -248,6 +249,8 @@ NAZARA_RENDERER_API extern PFNGLGETTEXLEVELPARAMETERFVPROC   glGetTexLevelParame
 NAZARA_RENDERER_API extern PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv;
 NAZARA_RENDERER_API extern PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv;
 NAZARA_RENDERER_API extern PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv;
+NAZARA_RENDERER_API extern PFNGLGETUNIFORMFVPROC             glGetUniformfv;
+NAZARA_RENDERER_API extern PFNGLGETUNIFORMIVPROC             glGetUniformiv;
 NAZARA_RENDERER_API extern PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation;
 NAZARA_RENDERER_API extern PFNGLINVALIDATEBUFFERDATAPROC     glInvalidateBufferData;
 NAZARA_RENDERER_API extern PFNGLISENABLEDPROC                glIsEnabled;
@@ -317,6 +320,7 @@ NAZARA_RENDERER_API extern PFNGLUNIFORMMATRIX4DVPROC         glUniformMatrix4dv;
 NAZARA_RENDERER_API extern PFNGLUNIFORMMATRIX4FVPROC         glUniformMatrix4fv;
 NAZARA_RENDERER_API extern PFNGLUNMAPBUFFERPROC              glUnmapBuffer;
 NAZARA_RENDERER_API extern PFNGLUSEPROGRAMPROC               glUseProgram;
+NAZARA_RENDERER_API extern PFNGLVALIDATEPROGRAMPROC          glValidateProgram;
 NAZARA_RENDERER_API extern PFNGLVERTEXATTRIB4FPROC           glVertexAttrib4f;
 NAZARA_RENDERER_API extern PFNGLVERTEXATTRIBDIVISORPROC      glVertexAttribDivisor;
 NAZARA_RENDERER_API extern PFNGLVERTEXATTRIBPOINTERPROC      glVertexAttribPointer;
@@ -335,6 +339,8 @@ NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALEXTPROC         glXSwapInterva
 NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALMESAPROC        NzglXSwapIntervalMESA;
 NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALSGIPROC         glXSwapIntervalSGI;
 #endif
+
+}
 
 #endif // NAZARA_RENDERER_OPENGL
 

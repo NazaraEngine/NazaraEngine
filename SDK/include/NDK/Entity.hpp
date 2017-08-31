@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -8,6 +8,8 @@
 #define NDK_ENTITY_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
 #include <memory>
 #include <vector>
@@ -15,13 +17,17 @@
 namespace Ndk
 {
 	class BaseComponent;
-	class EntityHandle;
+	class BaseSystem;
+	class Entity;
+	class EntityList;
 	class World;
 
-	class NDK_API Entity
+	using EntityHandle = Nz::ObjectHandle<Entity>;
+
+	class NDK_API Entity : public Nz::HandledObject<Entity>
 	{
-		friend class BaseSystem;
-		friend EntityHandle;
+		friend BaseSystem;
+		friend EntityList;
 		friend World;
 
 		public:
@@ -32,12 +38,14 @@ namespace Ndk
 			BaseComponent& AddComponent(std::unique_ptr<BaseComponent>&& component);
 			template<typename ComponentType, typename... Args> ComponentType& AddComponent(Args&&... args);
 
-			EntityHandle CreateHandle();
+			const EntityHandle& Clone() const;
 
-			inline void Enable(bool enable);
+			inline void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
+			inline const BaseComponent& GetComponent(ComponentIndex index) const;
+			template<typename ComponentType> const ComponentType& GetComponent() const;
 			inline const Nz::Bitset<>& GetComponentBits() const;
 			inline EntityId GetId() const;
 			inline const Nz::Bitset<>& GetSystemBits() const;
@@ -52,12 +60,16 @@ namespace Ndk
 			inline bool IsEnabled() const;
 			inline bool IsValid() const;
 
-			void RemoveAllComponents();
-			void RemoveComponent(ComponentIndex index);
+			inline void RemoveAllComponents();
+			inline void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
+
+			inline Nz::String ToString() const;
 
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;
+
+			NazaraSignal(OnEntityDestruction, Entity* /*entity*/);
 
 		private:
 			Entity(World* world, EntityId id);
@@ -65,17 +77,22 @@ namespace Ndk
 			void Create();
 			void Destroy();
 
-			inline void RegisterHandle(EntityHandle* handle);
+			void DestroyComponent(ComponentIndex index);
+
+			inline Nz::Bitset<>& GetRemovedComponentBits();
+
+			inline void RegisterEntityList(EntityList* list);
 			inline void RegisterSystem(SystemIndex index);
 
 			inline void SetWorld(World* world) noexcept;
 
-			inline void UnregisterHandle(EntityHandle* handle);
+			inline void UnregisterEntityList(EntityList* list);
 			inline void UnregisterSystem(SystemIndex index);
 
 			std::vector<std::unique_ptr<BaseComponent>> m_components;
-			std::vector<EntityHandle*> m_handles;
+			std::vector<EntityList*> m_containedInLists;
 			Nz::Bitset<> m_componentBits;
+			Nz::Bitset<> m_removedComponentBits;
 			Nz::Bitset<> m_systemBits;
 			EntityId m_id;
 			World* m_world;

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 
 namespace Nz
 {
@@ -49,6 +50,7 @@ namespace Nz
 			bool ReceivePacket(NetPacket* packet);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const NetPacket& packet);
 
 			bool SetCursorPos(UInt64 offset) override;
@@ -79,8 +81,8 @@ namespace Nz
 			PendingPacket m_pendingPacket;
 			UInt64 m_keepAliveInterval;
 			UInt64 m_keepAliveTime;
-			bool m_isLowDelayEnabled;
 			bool m_isKeepAliveEnabled;
+			bool m_isLowDelayEnabled;
 	};
 }
 

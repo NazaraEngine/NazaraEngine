@@ -1,6 +1,6 @@
 EXAMPLE.Name = "DopplerEffect"
 
-EXAMPLE.Console = true
+EXAMPLE.EnableConsole = true
 
 EXAMPLE.Files = {
 	"main.cpp"
@@ -9,5 +9,6 @@ EXAMPLE.Files = {
 EXAMPLE.Libraries = {
 	"NazaraAudio",
 	"NazaraCore",
+	"NazaraPlatform",
 	"NazaraUtility"
 }

@@ -1,148 +1,222 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <NDK/Systems/PhysicsSystem.hpp>
+#include <NDK/BaseComponent.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #endif
 
 namespace Ndk
 {
-	World::~World()
+	/*!
+	* \ingroup NDK
+	* \class Ndk::World
+	* \brief NDK class that represents a world
+	*/
+
+	/*!
+	* \brief Destructs the object and calls Clear
+	*
+	* \see Clear
+	*/
+
+	World::~World() noexcept
 	{
-		// La destruction doit se faire dans un ordre précis
+		// The destruct must be done in an ordered way
 		Clear();
 	}
 
+	/*!
+	* \brief Adds default systems to the world
+	*/
+
 	void World::AddDefaultSystems()
 	{
-		AddSystem<PhysicsSystem>();
+		AddSystem<PhysicsSystem2D>();
+		AddSystem<PhysicsSystem3D>();
 		AddSystem<VelocitySystem>();
 
 		#ifndef NDK_SERVER
 		AddSystem<ListenerSystem>();
+		AddSystem<ParticleSystem>();
 		AddSystem<RenderSystem>();
 		#endif
 	}
 
+	/*!
+	* \brief Creates an entity in the world
+	* \return The entity created
+	*/
+
 	const EntityHandle& World::CreateEntity()
 	{
 		EntityId id;
+		EntityBlock* entBlock;
 		if (!m_freeIdList.empty())
 		{
-			// On récupère un identifiant
+			// We get an identifier
 			id = m_freeIdList.back();
 			m_freeIdList.pop_back();
+
+			entBlock = &m_entities[id];
+			entBlock->handle.Reset(&entBlock->entity); //< Reset handle (as it was reset when entity got destroyed)
+
+			m_entityBlocks[id] = entBlock;
 		}
 		else
 		{
-			// On alloue une nouvelle entité
-			id = m_entities.size();
+			// We allocate a new entity
+			id = static_cast<Ndk::EntityId>(m_entityBlocks.size());
 
-			// Impossible d'utiliser emplace_back à cause de la portée
-			m_entities.push_back(Entity(this, id));
+			if (m_entities.capacity() > m_entities.size())
+			{
+				NazaraAssert(m_waitingEntities.empty(), "There should be no waiting entities if space is available in main container");
+
+				m_entities.push_back(Entity(this, id)); //< We can't use emplace_back due to the scope
+				entBlock = &m_entities.back();
+			}
+			else
+			{
+				// Pushing to entities would reallocate vector and thus, invalidate EntityHandles (which we don't want until world update)
+				// To prevent this, allocate them into a separate vector and move them at update
+				// For now, we are counting on m_entities grow strategy to keep allocation frequency low
+				m_waitingEntities.emplace_back(std::make_unique<EntityBlock>(Entity(this, id)));
+				entBlock = m_waitingEntities.back().get();
+			}
+
+			if (id >= m_entityBlocks.size())
+				m_entityBlocks.resize(id + 1);
+
+			m_entityBlocks[id] = entBlock;
 		}
 
-		// On initialise l'entité et on l'ajoute à la liste des entités vivantes
-		Entity& entity = m_entities[id].entity;
-		entity.Create();
+		// We initialize the entity and we add it to the list of alive entities
+		entBlock->entity.Create();
 
-		m_aliveEntities.emplace_back(&entity);
-		m_entities[id].aliveIndex = m_aliveEntities.size()-1;
+		m_aliveEntities.Insert(&entBlock->entity);
 
-		return m_aliveEntities.back();
+		return entBlock->handle;
 	}
+
+	/*!
+	* \brief Clears the world from every entities
+	*
+	* \remark Every handles are correctly invalidated, entities are immediately invalidated
+	*/
 
 	void World::Clear() noexcept
 	{
-		///DOC: Tous les handles sont correctement invalidés
-
-		// Destruction des entités d'abord, et des handles ensuite
-		// ceci pour éviter que les handles n'informent les entités inutilement lors de leur destruction
+		// First, destruction of entities, then handles
+		// This is made to avoid that handle warn uselessly entities before their destruction
 		m_entities.clear();
+		m_entityBlocks.clear();
+		m_freeIdList.clear();
+		m_waitingEntities.clear();
 
-		m_aliveEntities.clear();
+		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
 		m_killedEntities.Clear();
 	}
 
-	void World::KillEntity(Entity* entity)
-	{
-		///DOC: Ignoré si l'entité est invalide
+	/*!
+	* \brief Clones the entity
+	* \return The clone newly created
+	*
+	* \param id Identifier of the entity
+	*
+	* \remark Produces a NazaraError if the entity to clone does not exist
+	*/
 
-		if (IsEntityValid(entity))
-			m_killedEntities.UnboundedSet(entity->GetId(), true);
-	}
-
-	const EntityHandle& World::GetEntity(EntityId id)
+	const EntityHandle& World::CloneEntity(EntityId id)
 	{
-		if (IsEntityIdValid(id))
-			return m_aliveEntities[m_entities[id].aliveIndex];
-		else
+		EntityHandle original = GetEntity(id);
+		if (!original)
 		{
-			NazaraError("Invalid ID");
+			NazaraError("Invalid entity ID");
 			return EntityHandle::InvalidHandle;
 		}
+
+		const EntityHandle& clone = CreateEntity();
+
+		const Nz::Bitset<>& componentBits = original->GetComponentBits();
+		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
+		{
+			std::unique_ptr<BaseComponent> component(original->GetComponent(ComponentIndex(i)).Clone());
+			clone->AddComponent(std::move(component));
+		}
+
+		return clone;
 	}
+
+	/*!
+	* \brief Updates the world
+	*
+	* \remark Produces a NazaraAssert if an entity is invalid
+	*/
 
 	void World::Update()
 	{
-		// Gestion des entités tuées depuis le dernier appel
-		for (unsigned int i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
+		if (!m_orderedSystemsUpdated)
+			ReorderSystems();
+
+		// Move waiting entities to entity list
+		if (!m_waitingEntities.empty())
 		{
-			EntityBlock& block = m_entities[i];
-			Entity& entity = block.entity;
+			constexpr std::size_t MinEntityCapacity = 10; //< We want to be able to grow maximum entity count by at least ten without going to the waiting list
 
-			NazaraAssert(entity.IsValid(), "Entity must be valid");
+			m_entities.reserve(m_entities.size() + m_waitingEntities.size() + MinEntityCapacity);
+			for (auto& blockPtr : m_waitingEntities)
+				m_entities.push_back(std::move(*blockPtr));
 
-			// Remise en file d'attente de l'identifiant d'entité
-			m_freeIdList.push_back(entity.GetId());
+			m_waitingEntities.clear();
 
-			// Destruction de l'entité (invalidation du handle par la même occasion)
-			entity.Destroy();
+			// Update entity blocks pointers
+			for (std::size_t i = 0; i < m_entities.size(); ++i)
+				m_entityBlocks[i] = &m_entities[i];
+		}
 
-			// Nous allons sortir le handle de la liste des entités vivantes
-			// en swappant le handle avec le dernier handle, avant de pop
+		// Handle killed entities before last call
+		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
+		{
+			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
-			NazaraAssert(block.aliveIndex < m_aliveEntities.size(), "Alive index out of range");
+			Entity* entity = &m_entityBlocks[i]->entity;
 
-			if (block.aliveIndex < m_aliveEntities.size()-1) // S'il ne s'agit pas du dernier handle
-			{
-				EntityHandle& lastHandle = m_aliveEntities.back();
-				EntityHandle& myHandle = m_aliveEntities[block.aliveIndex];
+			// Destruction of the entity (invalidation of handle by the same way)
+			entity->Destroy();
 
-				myHandle = std::move(lastHandle);
-
-				// On n'oublie pas de corriger l'indice associé à l'entité
-				m_entities[myHandle->GetId()].aliveIndex = block.aliveIndex;
-			}
-			m_aliveEntities.pop_back();
+			// Send back the identifier of the entity to the free queue
+			m_freeIdList.push_back(entity->GetId());
 		}
 		m_killedEntities.Reset();
 
-		// Gestion des entités nécessitant une mise à jour de leurs systèmes
-		for (unsigned int i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
+		// Handle of entities which need an update from the systems
+		for (std::size_t i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
 		{
-			NazaraAssert(i < m_entities.size(), "Entity index out of range");
+			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
-			Entity* entity = &m_entities[i].entity;
+			Entity* entity = &m_entityBlocks[i]->entity;
 
 			// Check entity validity (as it could have been reported as dirty and killed during the same iteration)
 			if (!entity->IsValid())
 				continue;
 
-			for (auto& system : m_systems)
-			{
-				// Ignore non-existent systems
-				if (!system)
-					continue;
+			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
+			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
+				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
+			removedComponents.Reset();
 
+			for (auto& system : m_orderedSystems)
+			{
 				// Is our entity already part of this system?
 				bool partOfSystem = system->HasEntity(entity);
 
@@ -157,12 +231,30 @@ namespace Ndk
 				}
 				else
 				{
-					// No, it shouldn't, remove it if it's part of the system
+					// No it shouldn't, remove it if it's part of the system
 					if (partOfSystem)
 						system->RemoveEntity(entity);
 				}
 			}
 		}
 		m_dirtyEntities.Reset();
+	}
+
+	void World::ReorderSystems()
+	{
+		m_orderedSystems.clear();
+
+		for (auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				m_orderedSystems.push_back(systemPtr.get());
+		}
+
+		std::sort(m_orderedSystems.begin(), m_orderedSystems.end(), [] (BaseSystem* first, BaseSystem* second)
+		{
+			return first->GetUpdateOrder() < second->GetUpdateOrder();
+		});
+
+		m_orderedSystemsUpdated = true;
 	}
 }

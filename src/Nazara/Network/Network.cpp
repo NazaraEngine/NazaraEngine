@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,9 +24,23 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup network
+	* \class Nz::Network
+	* \brief Network class that represents the module initializer of Network
+	*/
+
+	/*!
+	* \brief Initializes the Network module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	* \remark Produces a NazaraError if one submodule failed
+	*/
+
 	bool Network::Initialize()
 	{
-		if (s_moduleReferenceCounter > 0)
+		if (IsInitialized())
 		{
 			s_moduleReferenceCounter++;
 			return true; // Already initialized
@@ -68,10 +82,21 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the module is initialized
+	* \return true if module is initialized
+	*/
+
 	bool Network::IsInitialized()
 	{
 		return s_moduleReferenceCounter != 0;
 	}
+
+	/*!
+	* \brief Uninitializes the Network module
+	*
+	* \remark Produces a NazaraNotice
+	*/
 
 	void Network::Uninitialize()
 	{

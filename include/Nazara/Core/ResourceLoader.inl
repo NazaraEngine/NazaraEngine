@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -66,7 +66,7 @@ namespace Nz
 			return false;
 		}
 
-		File file(path); // Ouvert seulement en cas de besoin
+		File file(path); // Open only if needed
 
 		bool found = false;
 		for (Loader& loader : Type::s_loaders)
@@ -160,7 +160,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters)
+	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, std::size_t size, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(data, "Invalid data pointer");
@@ -244,7 +244,7 @@ namespace Nz
 	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
-		NazaraAssert(stream.GetCursorPos() >= stream.GetSize(), "No data to load");
+		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();

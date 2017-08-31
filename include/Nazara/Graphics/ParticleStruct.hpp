@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,27 +17,28 @@ namespace Nz
 	struct ParticleStruct_Billboard
 	{
 		Color color;
+		Vector2f size;
 		Vector3f normal;
 		Vector3f position;
 		Vector3f velocity;
-		UInt32 life;
+		float life;
 		float rotation;
 	};
 
 	struct ParticleStruct_Model
 	{
+		Quaternionf rotation;
 		Vector3f position;
 		Vector3f velocity;
-		UInt32 life;
-		Quaternionf rotation;
+		float life;
 	};
 
 	struct ParticleStruct_Sprite
 	{
 		Color color;
-		Vector2f position;
-		Vector2f velocity;
-		UInt32 life;
+		Vector3f position;
+		Vector3f velocity;
+		float life;
 		float rotation;
 	};
 }

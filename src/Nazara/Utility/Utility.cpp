@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,10 +6,6 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/HardwareInfo.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/TaskScheduler.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -19,11 +15,13 @@
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
+#include <Nazara/Utility/Formats/OBJLoader.hpp>
+#include <Nazara/Utility/Formats/OBJSaver.hpp>
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
@@ -31,15 +29,29 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup utility
+	* \class Nz::Utility
+	* \brief Utility class that represents the module initializer of Utility
+	*/
+
+	/*!
+	* \brief Initializes the Utility module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	* \remark Produces a NazaraError if one submodule failed
+	*/
+
 	bool Utility::Initialize()
 	{
 		if (s_moduleReferenceCounter > 0)
 		{
 			s_moduleReferenceCounter++;
-			return true; // Déjà initialisé
+			return true; // Already initialized
 		}
 
-		// Initialisation des dépendances
+		// Initialisation of dependencies
 		if (!Core::Initialize())
 		{
 			NazaraError("Failed to initialize core module");
@@ -99,12 +111,6 @@ namespace Nz
 			return false;
 		}
 
-		if (!Window::Initialize())
-		{
-			NazaraError("Failed to initialize window's system");
-			return false;
-		}
-
 		// On enregistre les loaders pour les extensions
 		// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
@@ -113,6 +119,7 @@ namespace Nz
 		Loaders::RegisterFreeType();
 
 		// Image
+		Loaders::RegisterDDSLoader(); // DDS Loader (DirectX format)
 		Loaders::RegisterSTBLoader(); // Generic loader (STB)
 		Loaders::RegisterSTBSaver();  // Generic saver (STB)
 
@@ -120,9 +127,14 @@ namespace Nz
 		// Animation
 		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
 
+		// Mesh (text)
+		Loaders::RegisterOBJLoader();
+		Loaders::RegisterOBJSaver();
+
 		// Mesh
 		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
 		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
+		Loaders::RegisterOBJLoader(); // Loader de fichiers .md5mesh (v10)
 
 		// Image
 		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
@@ -156,11 +168,12 @@ namespace Nz
 		Loaders::UnregisterMD2();
 		Loaders::UnregisterMD5Anim();
 		Loaders::UnregisterMD5Mesh();
+		Loaders::UnregisterOBJLoader();
+		Loaders::UnregisterOBJSaver();
 		Loaders::UnregisterPCX();
 		Loaders::UnregisterSTBLoader();
 		Loaders::UnregisterSTBSaver();
 
-		Window::Uninitialize();
 		VertexDeclaration::Uninitialize();
 		Skeleton::Uninitialize();
 		PixelFormat::Uninitialize();

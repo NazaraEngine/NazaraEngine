@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,18 +11,35 @@ namespace Nz
 {
 	namespace
 	{
+		/*!
+		* \brief Defines render states
+		* \return RenderStates for the color background
+		*/
+
 		RenderStates BuildRenderStates()
 		{
 			RenderStates states;
+			states.cullingSide = FaceSide_Back;
 			states.depthFunc = RendererComparison_Equal;
-			states.faceCulling = FaceSide_Back;
-			states.parameters[RendererParameter_DepthBuffer] = true;
-			states.parameters[RendererParameter_DepthWrite] = false;
-			states.parameters[RendererParameter_FaceCulling] = true;
+			states.depthBuffer = true;
+			states.depthWrite = false;
+			states.faceCulling = true;
 
 			return states;
 		}
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::ColorBackground
+	* \brief Graphics class that represents a background with uniform color
+	*/
+
+	/*!
+	* \brief Constructs a ColorBackground object with a color
+	*
+	* \param color Uniform color (by default Black)
+	*/
 
 	ColorBackground::ColorBackground(const Color& color) :
 	m_color(color)
@@ -37,6 +54,12 @@ namespace Nz
 		m_materialDiffuseUniform = shader->GetUniformLocation("MaterialDiffuse");
 		m_vertexDepthUniform = shader->GetUniformLocation("VertexDepth");
 	}
+
+	/*!
+	* \brief Draws this relatively to the viewer
+	*
+	* \param viewer Viewer for the background
+	*/
 
 	void ColorBackground::Draw(const AbstractViewer* viewer) const
 	{
@@ -55,15 +78,31 @@ namespace Nz
 		Renderer::DrawFullscreenQuad();
 	}
 
+	/*!
+	* \brief Gets the background type
+	* \return Type of background
+	*/
+
 	BackgroundType ColorBackground::GetBackgroundType() const
 	{
 		return BackgroundType_Color;
 	}
 
+	/*!
+	* \brief Gets the color of the background
+	* \return Background color
+	*/
+
 	Color ColorBackground::GetColor() const
 	{
 		return m_color;
 	}
+
+	/*!
+	* \brief Sets the color of the background
+	*
+	* \param color Background color
+	*/
 
 	void ColorBackground::SetColor(const Color& color)
 	{

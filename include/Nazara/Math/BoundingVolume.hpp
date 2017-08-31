@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -30,6 +30,8 @@ namespace Nz
 			BoundingVolume(const BoundingVolume& volume) = default;
 			~BoundingVolume() = default;
 
+			BoundingVolume& ExtendTo(const BoundingVolume& volume);
+
 			bool IsFinite() const;
 			bool IsInfinite() const;
 			bool IsNull() const;
@@ -51,6 +53,7 @@ namespace Nz
 			void Update(const Vector3<T>& translation);
 
 			BoundingVolume operator*(T scalar) const;
+			BoundingVolume& operator=(const BoundingVolume& other) = default;
 
 			BoundingVolume& operator*=(T scalar);
 

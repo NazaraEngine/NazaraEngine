@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,6 +10,16 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredFXAAPass
+	* \brief Graphics class that represents the pass for FXAA in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredFXAAPass object by default
+	*/
+
 	DeferredFXAAPass::DeferredFXAAPass()
 	{
 		m_fxaaShader = ShaderLibrary::Get("DeferredFXAA");
@@ -18,12 +28,21 @@ namespace Nz
 		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
 		m_pointSampler.SetWrapMode(SamplerWrap_Clamp);
 
-		m_states.parameters[RendererParameter_DepthBuffer] = false;
+		m_states.depthBuffer = false;
 	}
 
 	DeferredFXAAPass::~DeferredFXAAPass() = default;
 
-	bool DeferredFXAAPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredFXAAPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraUnused(sceneData);
 

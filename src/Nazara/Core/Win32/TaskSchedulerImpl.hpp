@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -44,7 +44,7 @@ namespace Nz
 			static std::unique_ptr<HANDLE[]> s_doneEvents; // Doivent être contigus
 			static std::unique_ptr<Worker[]> s_workers;
 			static std::unique_ptr<HANDLE[]> s_workerThreads; // Doivent être contigus
-			static std::size_t s_workerCount;
+			static DWORD s_workerCount;
 };
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,8 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 
 namespace Nz
 {
@@ -21,7 +23,8 @@ namespace Nz
 	{
 		public:
 			Light(LightType type = LightType_Point);
-			Light(const Light& light) = default;
+			inline Light(const Light& light);
+			Light(Light&& light) = default;
 			~Light() = default;
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const override;
@@ -31,37 +34,56 @@ namespace Nz
 
 			bool Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const override;
 
-			float GetAmbientFactor() const;
-			float GetAttenuation() const;
-			Color GetColor() const;
-			float GetDiffuseFactor() const;
-			float GetInnerAngle() const;
-			float GetInnerAngleCosine() const;
-			float GetInvRadius() const;
-			LightType GetLightType() const;
-			float GetOuterAngle() const;
-			float GetOuterAngleCosine() const;
-			float GetOuterAngleTangent() const;
-			float GetRadius() const;
+			inline void EnableShadowCasting(bool castShadows);
 
-			void SetAmbientFactor(float factor);
-			void SetAttenuation(float attenuation);
-			void SetColor(const Color& color);
-			void SetDiffuseFactor(float factor);
-			void SetInnerAngle(float innerAngle);
-			void SetLightType(LightType type);
-			void SetOuterAngle(float outerAngle);
-			void SetRadius(float radius);
+			inline void EnsureShadowMapUpdate() const;
+
+			inline float GetAmbientFactor() const;
+			inline float GetAttenuation() const;
+			inline Color GetColor() const;
+			inline float GetDiffuseFactor() const;
+			inline float GetInnerAngle() const;
+			inline float GetInnerAngleCosine() const;
+			inline float GetInvRadius() const;
+			inline LightType GetLightType() const;
+			inline float GetOuterAngle() const;
+			inline float GetOuterAngleCosine() const;
+			inline float GetOuterAngleTangent() const;
+			inline float GetRadius() const;
+			inline TextureRef GetShadowMap() const;
+			inline PixelFormatType GetShadowMapFormat() const;
+			inline const Vector2ui& GetShadowMapSize() const;
+
+			inline bool IsShadowCastingEnabled() const;
+
+			inline void SetAmbientFactor(float factor);
+			inline void SetAttenuation(float attenuation);
+			inline void SetColor(const Color& color);
+			inline void SetDiffuseFactor(float factor);
+			inline void SetInnerAngle(float innerAngle);
+			inline void SetLightType(LightType type);
+			inline void SetOuterAngle(float outerAngle);
+			inline void SetRadius(float radius);
+			inline void SetShadowMapFormat(PixelFormatType shadowFormat);
+			inline void SetShadowMapSize(const Vector2ui& size);
 
 			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
 
-			Light& operator=(const Light& light) = default;
+			Light& operator=(const Light& light);
+			Light& operator=(Light&& light) = default;
 
 		private:
 			void MakeBoundingVolume() const override;
+			inline void InvalidateShadowMap();
+			void UpdateShadowMap() const;
 
-			LightType m_type;
 			Color m_color;
+			LightType m_type;
+			PixelFormatType m_shadowMapFormat;
+			Vector2ui m_shadowMapSize;
+			mutable TextureRef m_shadowMap;
+			bool m_shadowCastingEnabled;
+			mutable bool m_shadowMapUpdated;
 			float m_ambientFactor;
 			float m_attenuation;
 			float m_diffuseFactor;
@@ -81,9 +103,11 @@ namespace Nz
 			int type;
 			int color;
 			int factors;
+			int lightViewProjMatrix;
 			int parameters1;
 			int parameters2;
 			int parameters3;
+			int shadowMapping;
 		};
 
 		bool ubo;

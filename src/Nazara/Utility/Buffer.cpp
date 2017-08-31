@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,6 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
@@ -17,26 +16,18 @@
 
 namespace Nz
 {
-	namespace
-	{
-		AbstractBuffer* SoftwareBufferFactory(Buffer* parent, BufferType type)
-		{
-			return new SoftwareBuffer(parent, type);
-		}
-	}
-
 	Buffer::Buffer(BufferType type) :
 	m_type(type),
-	m_impl(nullptr),
+	m_usage(0),
 	m_size(0)
 	{
 	}
 
-	Buffer::Buffer(BufferType type, unsigned int size, UInt32 storage, BufferUsage usage) :
-	m_type(type),
-	m_impl(nullptr)
+	Buffer::Buffer(BufferType type, UInt32 size, DataStorage storage, BufferUsageFlags usage) :
+	Buffer(type)
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
+
 		Create(size, storage, usage);
 	}
 
@@ -47,27 +38,16 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Buffer::CopyContent(const Buffer& buffer)
+	bool Buffer::CopyContent(const BufferRef& buffer)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer must be valid");
-			return false;
-		}
+		NazaraAssert(m_impl, "Invalid buffer");
+		NazaraAssert(!buffer && !buffer->IsValid(), "Invalid source buffer");
 
-		if (!buffer.IsValid())
-		{
-			NazaraError("Source buffer must be valid");
-			return false;
-		}
-		#endif
-
-		BufferMapper<Buffer> mapper(buffer, BufferAccess_ReadOnly);
-		return Fill(mapper.GetPointer(), 0, buffer.GetSize());
+		BufferMapper<Buffer> mapper(*buffer, BufferAccess_ReadOnly);
+		return Fill(mapper.GetPointer(), 0, buffer->GetSize());
 	}
 
-	bool Buffer::Create(unsigned int size, UInt32 storage, BufferUsage usage)
+	bool Buffer::Create(UInt32 size, DataStorage storage, BufferUsageFlags usage)
 	{
 		Destroy();
 
@@ -79,15 +59,14 @@ namespace Nz
 		}
 
 		std::unique_ptr<AbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
-		if (!impl->Create(size, usage))
+		if (!impl->Initialize(size, usage))
 		{
 			NazaraError("Failed to create buffer");
 			return false;
 		}
 
-		m_impl = impl.release();
+		m_impl = std::move(impl);
 		m_size = size;
-		m_storage = storage;
 		m_usage = usage;
 
 		return true; // Si on arrive ici c'est que tout s'est bien passé.
@@ -95,125 +74,44 @@ namespace Nz
 
 	void Buffer::Destroy()
 	{
-		if (m_impl)
+		if (!m_impl)
 		{
 			OnBufferDestroy(this);
 
-			m_impl->Destroy();
-			delete m_impl;
-			m_impl = nullptr;
+			m_impl.reset();
 		}
 	}
 
-	bool Buffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
+	bool Buffer::Fill(const void* data, UInt32 offset, UInt32 size)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer not valid");
-			return false;
-		}
+		NazaraAssert(m_impl, "Invalid buffer");
+		NazaraAssert(offset + size <= m_size, "Exceeding buffer size");
 
-		if (offset+size > m_size)
-		{
-			NazaraError("Exceeding buffer size (" + String::Number(offset+size) + " > " + String::Number(m_size) + ')');
-			return false;
-		}
-		#endif
-
-		return m_impl->Fill(data, offset, (size == 0) ? m_size-offset : size, forceDiscard);
+		return m_impl->Fill(data, offset, (size == 0) ? m_size - offset : size);
 	}
 
-	AbstractBuffer* Buffer::GetImpl() const
+	void* Buffer::Map(BufferAccess access, UInt32 offset, UInt32 size)
 	{
-		return m_impl;
+		NazaraAssert(m_impl, "Invalid buffer");
+		NazaraAssert(offset + size <= m_size, "Exceeding buffer size");
+
+		return m_impl->Map(access, offset, (size == 0) ? m_size - offset : size);
 	}
 
-	unsigned int Buffer::GetSize() const
+	void* Buffer::Map(BufferAccess access, UInt32 offset, UInt32 size) const
 	{
-		return m_size;
+		NazaraAssert(m_impl, "Invalid buffer");
+		NazaraAssert(access == BufferAccess_ReadOnly, "Buffer access must be read-only when used const");
+		NazaraAssert(offset + size <= m_size, "Exceeding buffer size");
+
+		return m_impl->Map(access, offset, (size == 0) ? m_size - offset : size);
 	}
 
-	UInt32 Buffer::GetStorage() const
+	bool Buffer::SetStorage(DataStorage storage)
 	{
-		return m_storage;
-	}
+		NazaraAssert(m_impl, "Invalid buffer");
 
-	BufferType Buffer::GetType() const
-	{
-		return m_type;
-	}
-
-	BufferUsage Buffer::GetUsage() const
-	{
-		return m_usage;
-	}
-
-	bool Buffer::IsHardware() const
-	{
-		return m_storage & DataStorage_Hardware;
-	}
-
-	bool Buffer::IsValid() const
-	{
-		return m_impl != nullptr;
-	}
-
-	void* Buffer::Map(BufferAccess access, unsigned int offset, unsigned int size)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer not valid");
-			return nullptr;
-		}
-
-		if (offset+size > m_size)
-		{
-			NazaraError("Exceeding buffer size");
-			return nullptr;
-		}
-		#endif
-
-		return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
-	}
-
-	void* Buffer::Map(BufferAccess access, unsigned int offset, unsigned int size) const
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer not valid");
-			return nullptr;
-		}
-
-		if (access != BufferAccess_ReadOnly)
-		{
-			NazaraError("Buffer access must be read-only when used const");
-			return nullptr;
-		}
-
-		if (offset+size > m_size)
-		{
-			NazaraError("Exceeding buffer size");
-			return nullptr;
-		}
-		#endif
-
-		return m_impl->Map(access, offset, (size == 0) ? m_size-offset : size);
-	}
-
-	bool Buffer::SetStorage(UInt32 storage)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer not valid");
-			return false;
-		}
-		#endif
-
-		if (m_storage == storage)
+		if (HasStorage(storage))
 			return true;
 
 		if (!IsStorageSupported(storage))
@@ -235,16 +133,11 @@ namespace Nz
 		});
 
 		std::unique_ptr<AbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
-		if (!impl->Create(m_size, m_usage))
+		if (!impl->Initialize(m_size, m_usage))
 		{
 			NazaraError("Failed to create buffer");
 			return false;
 		}
-
-		CallOnExit destroyImpl([&impl]()
-		{
-			impl->Destroy();
-		});
 
 		if (!impl->Fill(ptr, 0, m_size))
 		{
@@ -252,53 +145,45 @@ namespace Nz
 			return false;
 		}
 
-		destroyImpl.Reset();
-
 		unmapMyImpl.CallAndReset();
-		m_impl->Destroy();
-		delete m_impl;
 
-		m_impl = impl.release();
-		m_storage = storage;
+		m_impl = std::move(impl);
 
 		return true;
 	}
 
 	void Buffer::Unmap() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Buffer not valid");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Invalid buffer");
 
 		if (!m_impl->Unmap())
 			NazaraWarning("Failed to unmap buffer (it's content may be undefined)"); ///TODO: Unexpected ?
 	}
 
-	bool Buffer::IsStorageSupported(UInt32 storage)
+	bool Buffer::IsStorageSupported(DataStorage storage)
 	{
 		return s_bufferFactories[storage] != nullptr;
 	}
 
-	void Buffer::SetBufferFactory(UInt32 storage, BufferFactory func)
+	void Buffer::SetBufferFactory(DataStorage storage, BufferFactory func)
 	{
 		s_bufferFactories[storage] = func;
 	}
 
 	bool Buffer::Initialize()
 	{
-		s_bufferFactories[DataStorage_Software] = SoftwareBufferFactory;
+		SetBufferFactory(DataStorage_Software, [](Buffer* parent, BufferType type) -> AbstractBuffer*
+		{
+			return new SoftwareBuffer(parent, type);
+		});
 
 		return true;
 	}
 
 	void Buffer::Uninitialize()
 	{
-		std::memset(s_bufferFactories, 0, (DataStorage_Max+1)*sizeof(Buffer::BufferFactory));
+		std::fill(s_bufferFactories.begin(), s_bufferFactories.end(), nullptr);
 	}
 
-	Buffer::BufferFactory Buffer::s_bufferFactories[DataStorage_Max+1] = {nullptr};
+	std::array<Buffer::BufferFactory, DataStorage_Max + 1> Buffer::s_bufferFactories;
 }

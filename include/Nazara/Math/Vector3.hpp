@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_VECTOR3_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <functional>
 
 namespace Nz
 {
@@ -87,6 +88,7 @@ namespace Nz
 			Vector3 operator*(T scale) const;
 			Vector3 operator/(const Vector3& vec) const;
 			Vector3 operator/(T scale) const;
+			Vector3& operator=(const Vector3& vec) = default;
 
 			Vector3& operator+=(const Vector3& vec);
 			Vector3& operator-=(const Vector3& vec);
@@ -105,12 +107,15 @@ namespace Nz
 			static Vector3 Backward();
 			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
 			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
+			static T Distance(const Vector3& vec1, const Vector3& vec2);
+			static float Distancef(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Down();
 			static Vector3 Forward();
 			static Vector3 Left();
 			static Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
 			static Vector3 Normalize(const Vector3& vec);
 			static Vector3 Right();
+			static T SquaredDistance(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Unit();
 			static Vector3 UnitX();
 			static Vector3 UnitY();
@@ -136,6 +141,11 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vecto
 
 template<typename T> Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec);
 template<typename T> Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec);
+
+namespace std
+{
+	template<class T> struct hash<Nz::Vector3<T>>;
+}
 
 #include <Nazara/Math/Vector3.inl>
 

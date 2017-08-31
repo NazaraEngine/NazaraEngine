@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_PARAMETERLIST_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/String.hpp>
 #include <atomic>
 #include <unordered_map>
@@ -26,9 +27,13 @@ namespace Nz
 
 			void Clear();
 
+			inline void ForEach(const std::function<bool(const ParameterList& list, const String& name)>& callback);
+			inline void ForEach(const std::function<void(const ParameterList& list, const String& name)>& callback) const;
+
 			bool GetBooleanParameter(const String& name, bool* value) const;
-			bool GetFloatParameter(const String& name, float* value) const;
-			bool GetIntegerParameter(const String& name, int* value) const;
+			bool GetColorParameter(const String& name, Color* value) const;
+			bool GetDoubleParameter(const String& name, double* value) const;
+			bool GetIntegerParameter(const String& name, long long* value) const;
 			bool GetParameterType(const String& name, ParameterType* type) const;
 			bool GetPointerParameter(const String& name, void** value) const;
 			bool GetStringParameter(const String& name, String* value) const;
@@ -39,13 +44,16 @@ namespace Nz
 			void RemoveParameter(const String& name);
 
 			void SetParameter(const String& name);
+			void SetParameter(const String& name, const Color& value);
 			void SetParameter(const String& name, const String& value);
 			void SetParameter(const String& name, const char* value);
+			void SetParameter(const String& name, bool value);
+			void SetParameter(const String& name, double value);
+			void SetParameter(const String& name, long long value);
 			void SetParameter(const String& name, void* value);
 			void SetParameter(const String& name, void* value, Destructor destructor);
-			void SetParameter(const String& name, bool value);
-			void SetParameter(const String& name, float value);
-			void SetParameter(const String& name, int value);
+
+			String ToString() const;
 
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
@@ -55,10 +63,10 @@ namespace Nz
 			{
 				struct UserdataValue
 				{
-					UserdataValue(Destructor Destructor, void* value) :
+					UserdataValue(Destructor func, void* ud) :
 					counter(1),
-					destructor(Destructor),
-					ptr(value)
+					destructor(func),
+					ptr(ud)
 					{
 					}
 
@@ -70,15 +78,16 @@ namespace Nz
 				ParameterType type;
 				union Value
 				{
-					// On définit un constructeur/destructeur vide, permettant de mettre des classes dans l'union
+					// We define an empty constructor/destructor, to be able to put classes in the union
 					Value() {}
 					Value(const Value&) {} // Placeholder
 					~Value() {}
 
 					bool boolVal;
-					float floatVal;
-					int intVal;
+					double doubleVal;
+					long long intVal;
 					void* ptrVal;
+					Color colorVal;
 					String stringVal;
 					UserdataValue* userdataVal;
 				};
@@ -93,5 +102,9 @@ namespace Nz
 			ParameterMap m_parameters;
 	};
 }
+
+std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
+
+#include <Nazara/Core/ParameterList.inl>
 
 #endif // NAZARA_PARAMETERLIST_HPP

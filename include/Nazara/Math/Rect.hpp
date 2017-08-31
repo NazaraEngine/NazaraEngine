@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -64,13 +64,14 @@ namespace Nz
 
 			Rect& Translate(const Vector2<T>& translation);
 
-			T& operator[](unsigned int i);
-			T operator[](unsigned int i) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Rect operator*(T scalar) const;
 			Rect operator*(const Vector2<T>& vec) const;
 			Rect operator/(T scalar) const;
 			Rect operator/(const Vector2<T>& vec) const;
+			Rect& operator=(const Rect& other) = default;
 
 			Rect& operator*=(T scalar);
 			Rect& operator*=(const Vector2<T>& vec);

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -6,7 +6,15 @@
 
 namespace Ndk
 {
-	///TODO: constexpr avec le C++14
+	/*!
+	* \ingroup NDK
+	* \brief Builds a component id based on a name
+	* \return Identifier for the component
+	*
+	* \param name Name to generate id from
+	*/
+
+	///TODO: constexpr with the C++14
 	template<unsigned int N>
 	ComponentId BuildComponentId(const char (&name)[N])
 	{
@@ -19,17 +27,37 @@ namespace Ndk
 		return componentId;
 	}
 
+	/*!
+	* \ingroup NDK
+	* \brief Gets the component id of a component
+	* \return Identifier for the component
+	*/
+
 	template<typename ComponentType>
 	ComponentIndex GetComponentIndex()
 	{
 		return ComponentType::componentIndex;
 	}
 
+	/*!
+	* \ingroup NDK
+	* \brief Gets the system id of a system
+	* \return Identifier for the system
+	*/
+
 	template<typename SystemType>
 	SystemIndex GetSystemIndex()
 	{
 		return SystemType::systemIndex;
 	}
+
+	/*!
+	* \ingroup NDK
+	* \brief Initializes the a component
+	* \return Identifier for the component
+	*
+	* \param name Name to generate id from
+	*/
 
 	template<typename ComponentType, unsigned int N>
 	ComponentIndex InitializeComponent(const char (&name)[N])
@@ -38,6 +66,12 @@ namespace Ndk
 		return ComponentType::componentIndex;
 	}
 
+	/*!
+	* \ingroup NDK
+	* \brief Initializes the a system
+	* \return Identifier for the system
+	*/
+
 	template<typename SystemType>
 	SystemIndex InitializeSystem()
 	{
@@ -45,11 +79,25 @@ namespace Ndk
 		return SystemType::systemIndex;
 	}
 
+	/*!
+	* \brief Checks whether the parameter is a component
+	* \return true If it is the case
+	*
+	* \param component Component to check
+	*/
+
 	template<typename ComponentType, typename C>
 	bool IsComponent(C& component)
 	{
 		return component.GetIndex() == GetComponentIndex<ComponentType>();
 	}
+
+	/*!
+	* \brief Checks whether the parameter is a system
+	* \return true If it is the case
+	*
+	* \param system System to check
+	*/
 
 	template<typename SystemType, typename S>
 	bool IsSystem(S& system)

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -44,6 +44,8 @@ namespace Nz
 			template<typename U> Plane& Set(const Plane<U>& plane);
 
 			String ToString() const;
+
+			Plane& operator=(const Plane& other) = default;
 
 			bool operator==(const Plane& plane) const;
 			bool operator!=(const Plane& plane) const;

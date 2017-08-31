@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_VECTOR2_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <functional>
 
 namespace Nz
 {
@@ -76,6 +77,7 @@ namespace Nz
 			Vector2 operator*(T scale) const;
 			Vector2 operator/(const Vector2& vec) const;
 			Vector2 operator/(T scale) const;
+			Vector2& operator=(const Vector2& other) = default;
 
 			Vector2& operator+=(const Vector2& vec);
 			Vector2& operator-=(const Vector2& vec);
@@ -117,6 +119,11 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vecto
 
 template<typename T> Nz::Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec);
 template<typename T> Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec);
+
+namespace std
+{
+	template<class T> struct hash<Nz::Vector2<T>>;
+}
 
 #include <Nazara/Math/Vector2.inl>
 

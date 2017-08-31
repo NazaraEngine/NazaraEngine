@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,11 +9,21 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredBloomPass
+	* \brief Graphics class that represents the pass for bloom in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredBloomPass object by default
+	*/
+
 	DeferredBloomPass::DeferredBloomPass() :
 	m_uniformUpdated(false),
 	m_brightLuminance(0.8f),
 	m_brightMiddleGrey(0.5f),
-	m_brightThreshold(0.8f),
+	m_brightThreshold(0.4f),
 	m_blurPassCount(5)
 	{
 		m_bilinearSampler.SetAnisotropyLevel(1);
@@ -22,7 +32,7 @@ namespace Nz
 
 		m_bloomBrightShader = ShaderLibrary::Get("DeferredBloomBright");
 		m_bloomFinalShader = ShaderLibrary::Get("DeferredBloomFinal");
-		m_bloomStates.parameters[RendererParameter_DepthBuffer] = false;
+		m_bloomStates.depthBuffer = false;
 		m_gaussianBlurShader = ShaderLibrary::Get("DeferredGaussianBlur");
 		m_gaussianBlurShaderFilterLocation = m_gaussianBlurShader->GetUniformLocation("Filter");
 
@@ -32,25 +42,54 @@ namespace Nz
 
 	DeferredBloomPass::~DeferredBloomPass() = default;
 
+	/*!
+	* \brief Gets the number of pass for blur
+	* \return Number of pass for blur
+	*/
+
 	unsigned int DeferredBloomPass::GetBlurPassCount() const
 	{
 		return m_blurPassCount;
 	}
+
+	/*!
+	* \brief Gets the coefficiant for luminosity
+	* \return Luminosity of bright elements
+	*/
 
 	float DeferredBloomPass::GetBrightLuminance() const
 	{
 		return m_brightLuminance;
 	}
 
+	/*!
+	* \brief Gets the coefficiant for the middle grey
+	* \return Luminosity of grey elements
+	*/
+
 	float DeferredBloomPass::GetBrightMiddleGrey() const
 	{
 		return m_brightMiddleGrey;
 	}
 
+	/*!
+	* \brief Gets the coefficiant for things to be bright
+	* \return Threshold for bright elements
+	*/
+
 	float DeferredBloomPass::GetBrightThreshold() const
 	{
 		return m_brightThreshold;
 	}
+
+	/*!
+	* \brief Gets the ith texture
+	* \return Texture computed
+	*
+	* \param i Index of the texture
+	*
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if index is invalid
+	*/
 
 	Texture* DeferredBloomPass::GetTexture(unsigned int i) const
 	{
@@ -65,7 +104,16 @@ namespace Nz
 		return m_bloomTextures[i];
 	}
 
-	bool DeferredBloomPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredBloomPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraUnused(sceneData);
 
@@ -91,7 +139,7 @@ namespace Nz
 		Renderer::DrawFullscreenQuad();
 
 		Renderer::SetTarget(&m_bloomRTT);
-		Renderer::SetViewport(Recti(0, 0, m_dimensions.x/8, m_dimensions.y/8));
+		Renderer::SetViewport(Recti(0, 0, m_dimensions.x / 8, m_dimensions.y / 8));
 
 		Renderer::SetShader(m_gaussianBlurShader);
 
@@ -124,6 +172,13 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Resizes the texture sizes
+	* \return true If successful
+	*
+	* \param dimensions Dimensions for the compute texture
+	*/
+
 	bool DeferredBloomPass::Resize(const Vector2ui& dimensions)
 	{
 		DeferredRenderPass::Resize(dimensions);
@@ -131,7 +186,7 @@ namespace Nz
 		m_bloomRTT.Create(true);
 		for (unsigned int i = 0; i < 2; ++i)
 		{
-			m_bloomTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, dimensions.x/8, dimensions.y/8);
+			m_bloomTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, dimensions.x / 8, dimensions.y / 8);
 			m_bloomRTT.AttachTexture(AttachmentPoint_Color, i, m_bloomTextures[i]);
 		}
 		m_bloomRTT.Unlock();
@@ -145,10 +200,22 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sets the number of pass for blur
+	*
+	* \param passCount Number of pass for blur
+	*/
+
 	void DeferredBloomPass::SetBlurPassCount(unsigned int passCount)
 	{
 		m_blurPassCount = passCount; // N'est pas une uniforme
 	}
+
+	/*!
+	* \brief Sets the coefficiant for luminosity
+	*
+	* \param luminance Luminosity of bright elements
+	*/
 
 	void DeferredBloomPass::SetBrightLuminance(float luminance)
 	{
@@ -156,11 +223,23 @@ namespace Nz
 		m_uniformUpdated = false;
 	}
 
+	/*!
+	* \brief Sets the coefficiant for the middle grey
+	*
+	* \param middleGrey Luminosity of grey elements
+	*/
+
 	void DeferredBloomPass::SetBrightMiddleGrey(float middleGrey)
 	{
 		m_brightMiddleGrey = middleGrey;
 		m_uniformUpdated = false;
 	}
+
+	/*!
+	* \brief Sets the coefficiant for things to be bright
+	*
+	* \param threshold Threshold for bright elements
+	*/
 
 	void DeferredBloomPass::SetBrightThreshold(float threshold)
 	{

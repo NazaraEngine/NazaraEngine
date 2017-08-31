@@ -1,12 +1,25 @@
 MODULE.Name = "Audio"
 
+MODULE.ClientOnly = true
+
 MODULE.Defines = {
 	"NAZARA_AUDIO_OPENAL"
 }
 
 MODULE.Libraries = {
-	"NazaraCore",
+	"NazaraCore"
+}
+
+MODULE.OsLibraries.Windows = {
 	"sndfile-1"
+}
+
+MODULE.OsLibraries.Posix = {
+	"sndfile"
+}
+
+MODULE.OsDynLib.Windows = {
+	"soft_oal"
 }
 
 MODULE.OsFiles.Windows = {

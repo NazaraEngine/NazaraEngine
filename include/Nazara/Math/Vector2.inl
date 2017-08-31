@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -1057,6 +1057,29 @@ Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec)
 	return Nz::Vector2<T>(scale / vec.x, scale / vec.y);
 }
 
+namespace std
+{
+	template<class T>
+	struct hash<Nz::Vector2<T>>
+	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param v Vector2 to hash
+		*/
+		std::size_t operator()(const Nz::Vector2<T>& v) const
+		{
+			std::size_t seed {};
+
+			Nz::HashCombine(seed, v.x);
+			Nz::HashCombine(seed, v.y);
+
+			return seed;
+		}
+	};
+}
+	
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>

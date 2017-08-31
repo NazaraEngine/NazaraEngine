@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,7 +21,7 @@ namespace Nz
 	{
 		public:
 			ConditionVariableImpl();
-			#if NAZARA_CORE_WINDOWS_VISTA
+			#if NAZARA_CORE_WINDOWS_NT6
 			~ConditionVariableImpl() = default;
 			#else
 			~ConditionVariableImpl();
@@ -34,7 +34,7 @@ namespace Nz
 			bool Wait(MutexImpl* mutex, UInt32 timeout);
 
 		private:
-			#if NAZARA_CORE_WINDOWS_VISTA
+			#if NAZARA_CORE_WINDOWS_NT6
 			CONDITION_VARIABLE m_cv;
 			#else
 			enum

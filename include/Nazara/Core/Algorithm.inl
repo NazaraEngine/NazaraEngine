@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,10 +6,12 @@
 // Merci à Ryan "FullMetal Alchemist" Lahfa
 // Merci aussi à Freedom de siteduzero.com
 
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <climits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -18,16 +20,18 @@ namespace Nz
 	{
 		// http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
 		template<typename F, typename Tuple, size_t... S>
-		auto ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
+		decltype(auto) ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
 		}
 
 		template<typename O, typename F, typename Tuple, size_t... S>
-		auto ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
+		decltype(auto) ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
 		}
+
+		NAZARA_CORE_API extern const UInt8 BitReverseTable256[256];
 	}
 
 	/*!
@@ -41,7 +45,7 @@ namespace Nz
 	* \see Apply
 	*/
 	template<typename F, typename Tuple>
-	auto Apply(F&& fn, Tuple&& t)
+	decltype(auto) Apply(F&& fn, Tuple&& t)
 	{
 		constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
@@ -60,11 +64,22 @@ namespace Nz
 	* \see Apply
 	*/
 	template<typename O, typename F, typename Tuple>
-	auto Apply(O& object, F&& fn, Tuple&& t)
+	decltype(auto) Apply(O& object, F&& fn, Tuple&& t)
 	{
 		constexpr std::size_t tSize = std::tuple_size<typename std::remove_reference<Tuple>::type>::value;
 
 		return Detail::ApplyImplMethod(object, std::forward<F>(fn), std::forward<Tuple>(t), std::make_index_sequence<tSize>());
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Returns the number of bits occupied by the type T
+	* \return Number of bits occupied by the type
+	*/
+	template<typename T>
+	constexpr std::size_t BitCount()
+	{
+		return CHAR_BIT * sizeof(T);
 	}
 
 	/*!
@@ -76,7 +91,7 @@ namespace Nz
 	* \param v Object to hash
 	*
 	* \remark a HashAppend specialization for type T is required
-	* 
+	*
 	* \see ComputeHash
 	*/
 	template<typename T>
@@ -120,7 +135,7 @@ namespace Nz
 	* \see CountOf
 	*/
 	template<typename T, std::size_t N>
-	constexpr std::size_t CountOf(T(&name)[N]) noexcept
+	constexpr std::size_t CountOf(T(&)[N]) noexcept
 	{
 		return N;
 	}
@@ -164,6 +179,23 @@ namespace Nz
 		seed = static_cast<std::size_t>(b * kMul);
 	}
 
+	/*!
+	* \ingroup core
+	* \brief Reverse the bit order of the integer
+	* \return integer with reversed bits
+	*
+	* \param integer Integer whose bits are to be reversed
+	*/
+	template<typename T>
+	T ReverseBits(T integer)
+	{
+		T reversed = 0;
+		for (std::size_t i = 0; i < sizeof(T); ++i)
+			reversed |= T(Detail::BitReverseTable256[(integer >> i * 8) & 0xFF]) << (sizeof(T) * 8 - (i + 1) * 8);
+
+		return reversed;
+	}
+
 	template<typename T> struct PointedType<T*>                {typedef T type;};
 	template<typename T> struct PointedType<T* const>          {typedef T type;};
 	template<typename T> struct PointedType<T* volatile>       {typedef T type;};
@@ -172,7 +204,7 @@ namespace Nz
 	/*!
 	* \ingroup core
 	* \brief Serializes a boolean
-	* \return true if serialization succedeed
+	* \return true if serialization succeeded
 	*
 	* \param context Context for the serialization
 	* \param value Boolean to serialize
@@ -198,8 +230,24 @@ namespace Nz
 
 	/*!
 	* \ingroup core
+	* \brief Serializes a std::string
+	* \return true if successful
+	*
+	* \param context Context for the serialization
+	* \param value String to serialize
+	*/
+	bool Serialize(SerializationContext& context, const std::string& value)
+	{
+		if (!Serialize(context, UInt32(value.size())))
+			return false;
+
+		return context.stream->Write(value.data(), value.size()) == value.size();
+	}
+
+	/*!
+	* \ingroup core
 	* \brief Serializes an arithmetic type
-	* \return true if serialization succedeed
+	* \return true if serialization succeeded
 	*
 	* \param context Context for the serialization
 	* \param value Arithmetic type to serialize
@@ -209,14 +257,8 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
 	{
-		// Flush bits if a writing is in progress
-		if (context.currentBitPos != 8)
-		{
-			context.currentBitPos = 8;
-
-			if (!Serialize<UInt8>(context, context.currentByte))
-				NazaraWarning("Failed to flush bits");
-		}
+		// Flush bits in case a writing is in progress
+		context.FlushBits();
 
 		if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
 			SwapBytes(&value, sizeof(T));
@@ -253,6 +295,23 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Unserializes a string
+	* \return true if successful
+	*
+	* \param context Context of unserialization
+	* \param string std::string to unserialize
+	*/
+	bool Unserialize(SerializationContext& context, std::string* string)
+	{
+		UInt32 size;
+		if (!Unserialize(context, &size))
+			return false;
+
+		string->resize(size);
+		return context.stream->Read(&string[0], size) == size;
+	}
+
+	/*!
 	* \ingroup core
 	* \brief Unserializes an arithmetic type
 	* \return true if unserialization succedeed
@@ -269,8 +328,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
-		// Reset bit position
-		context.currentBitPos = 8;
+		context.ResetBitPosition();
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{

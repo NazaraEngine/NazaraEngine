@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -97,6 +97,8 @@ namespace Nz
 			void SendVectorArray(int location, const Vector4d* vectors, unsigned int count) const;
 			void SendVectorArray(int location, const Vector4f* vectors, unsigned int count) const;
 			void SendVectorArray(int location, const Vector4i* vectors, unsigned int count) const;
+
+			bool Validate() const;
 
 			// Fonctions OpenGL
 			unsigned int GetOpenGLID() const;

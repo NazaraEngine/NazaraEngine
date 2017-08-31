@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,11 @@ namespace Nz
 {
 	namespace
 	{
+		/*!
+		* \brief Builds the shader for the fog
+		* \return Reference to the shader newly created
+		*/
+
 		ShaderRef BuildFogShader()
 		{
 			/*const UInt8 fragmentSource[] = {
@@ -117,6 +122,16 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredFogPass
+	* \brief Graphics class that represents the pass for fog in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredFogPass object by default
+	*/
+
 	DeferredFogPass::DeferredFogPass()
 	{
 		m_pointSampler.SetAnisotropyLevel(1);
@@ -126,12 +141,21 @@ namespace Nz
 		m_shader = BuildFogShader();
 		m_shaderEyePositionLocation = m_shader->GetUniformLocation("EyePosition");
 
-		m_states.parameters[RendererParameter_DepthBuffer] = false;
+		m_states.depthBuffer = false;
 	}
 
 	DeferredFogPass::~DeferredFogPass() = default;
 
-	bool DeferredFogPass::Process( const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredFogPass::Process( const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,7 +28,7 @@ namespace Nz
 
 	bool Core::Initialize()
 	{
-		if (s_moduleReferenceCounter > 0)
+		if (IsInitialized())
 		{
 			s_moduleReferenceCounter++;
 			return true; // Already initialized

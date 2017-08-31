@@ -30,7 +30,7 @@
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
 // La taille du buffer d'Instancing (définit le nombre maximum d'instances en un rendu)
-#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 524288 // 8192 matrices 4x4 flottantes
+#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 1 * 1024 * 1024
 
 // Utilise un manager de mémoire pour gérer les allocations dynamiques (détecte les leaks au prix d'allocations/libérations dynamiques plus lentes)
 #define NAZARA_RENDERER_MANAGE_MEMORY 0

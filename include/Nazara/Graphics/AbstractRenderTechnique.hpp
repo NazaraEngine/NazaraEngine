@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,6 +28,7 @@ namespace Nz
 			AbstractRenderTechnique(AbstractRenderTechnique&&) = default;
 			virtual ~AbstractRenderTechnique();
 
+			virtual void Clear(const SceneData& sceneData) const = 0;
 			virtual bool Draw(const SceneData& sceneData) const = 0;
 
 			virtual void EnableInstancing(bool instancing);

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -52,6 +52,7 @@ namespace Nz
 			Vector3<T> operator()(unsigned int i) const;
 
 			OrientedBox operator*(T scalar) const;
+			OrientedBox& operator=(const OrientedBox& other) = default;
 
 			OrientedBox& operator*=(T scalar);
 

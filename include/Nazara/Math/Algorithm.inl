@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -45,20 +45,21 @@ namespace Nz
 		}
 
 		template<typename T>
-		// Les parenthèses autour de la condition sont nécesaires pour que GCC compile ça
+		// The parentheses are needed for GCC
 		typename std::enable_if<(sizeof(T) > sizeof(UInt32)), unsigned int>::type IntegralLog2(T number)
 		{
 			static_assert(sizeof(T) % sizeof(UInt32) == 0, "Assertion failed");
 
-			// L'algorithme pour le logarithme base 2 (au dessus) ne fonctionne qu'avec des nombres au plus 32bits
-			// ce code décompose les nombres plus grands en nombres 32 bits par masquage et bit shifting
+			// Masking and shifting bits to the right (to bring it back to 32 bits)
+
+			// Call of the function with 32 bits number, if the result is non-null we have our answer
 			for (int i = sizeof(T)-sizeof(UInt32); i >= 0; i -= sizeof(UInt32))
 			{
-				// Le masque 32 bits sur la partie du nombre qu'on traite actuellement
+				// The 32 bits mask on the part we are treating
 				T mask = T(std::numeric_limits<UInt32>::max()) << i*8;
-				T val = (number & mask) >> i*8; // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
+				T val = (number & mask) >> i*8; // Masking and shifting bits to the right (to bring it back to 32 bits)
 
-				// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
+				// Call of the function with 32 bits number, if the result is non-null we have our answer
 				unsigned int log2 = IntegralLog2<UInt32>(val);
 				if (log2)
 					return log2 + i*8;
@@ -75,37 +76,61 @@ namespace Nz
 		}
 
 		template<typename T>
-		// Les parenthèses autour de la condition sont nécesaires pour que GCC compile ça
+		// The parentheses are needed for GCC
 		typename std::enable_if<(sizeof(T) > sizeof(UInt32)), unsigned int>::type IntegralLog2Pot(T number)
 		{
 			static_assert(sizeof(T) % sizeof(UInt32) == 0, "Assertion failed");
 
-			// L'algorithme pour le logarithme base 2 (au dessus) ne fonctionne qu'avec des nombres au plus 32bits
-			// ce code décompose les nombres plus grands en nombres 32 bits par masquage et bit shifting
+			// The algorithm for logarithm in base 2 only works with numbers greather than 32 bits
+			// This code subdivides the biggest number into 32 bits ones
 			for (int i = sizeof(T)-sizeof(UInt32); i >= 0; i -= sizeof(UInt32))
 			{
-				// Le masque 32 bits sur la partie du nombre qu'on traite actuellement
+				// The 32 bits mask on the part we are treating
 				T mask = T(std::numeric_limits<UInt32>::max()) << i*8;
-				UInt32 val = UInt32((number & mask) >> i*8); // Masquage et shifting des bits vers la droite (pour le ramener sur 32bits)
+				UInt32 val = UInt32((number & mask) >> i*8); // Masking and shifting bits to the right (to bring it back to 32 bits)
 
-				// Appel de la fonction avec le nombre 32bits, si le résultat est non-nul nous avons la réponse
+				// Call of the function with 32 bits number, if the result is non-null we have our answer
 				unsigned int log2 = IntegralLog2Pot<UInt32>(val);
-				if (log2)
+				if (log2 || val == 1)
 					return log2 + i*8;
 			}
 
 			return 0;
 		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_floating_point<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			T diff = std::abs(a - b);
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<!std::is_signed<T>::value || (!std::is_integral<T>::value && !std::is_floating_point<T>::value), bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			T diff = a - b;
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			using UnsignedT = std::make_unsigned_t<T>;
+			return static_cast<UnsignedT>(a) - static_cast<UnsignedT>(b) <= static_cast<UnsignedT>(maxDifference);
+		}
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Approaches the objective, beginning with value and with increment
 	* \return The nearest value of the objective you can get with the value and the increment for one step
 	*
 	* \param value Initial value
 	* \param objective Target value
-	* \parma increment One step value
+	* \param increment One step value
 	*/
 
 	template<typename T>
@@ -121,7 +146,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Clamps value between min and max and returns the expected value
 	* \return If value is not in the interval of min..max, value obtained is the nearest limit of this interval
 	*
@@ -137,7 +162,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets number of bits set in the number
 	* \return The number of bits set to 1
 	*
@@ -146,10 +171,10 @@ namespace Nz
 
 	template<typename T>
 	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline T CountBits(T value)
+	/*constexpr*/ inline std::size_t CountBits(T value)
 	{
 		// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
-		unsigned int count = 0;
+		std::size_t count = 0;
 		while (value)
 		{
 			value &= value - 1;
@@ -160,7 +185,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Converts degree to radian
 	* \return The representation in radian of the angle in degree (0..2*pi)
 	*
@@ -174,7 +199,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the unit from degree and convert it according to NAZARA_MATH_ANGLE_RADIAN
 	* \return Express the degrees
 	*
@@ -192,7 +217,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the unit from radian and convert it according to NAZARA_MATH_ANGLE_RADIAN
 	* \return Express the radians
 	*
@@ -210,7 +235,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the nearest power of two for the number
 	* \return First power of two containing the number
 	*
@@ -229,7 +254,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -257,7 +282,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -279,7 +304,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -295,7 +320,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -312,7 +337,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -328,7 +353,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits
 	*
@@ -345,7 +370,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits + 1 for the dot
 	*
@@ -360,7 +385,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits + 1 for the dot
 	*
@@ -375,7 +400,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the number of digits to represent the number in base 10
 	* \return Number of digits + 1 for the dot
 	*
@@ -390,7 +415,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the log in base 2 of integral number
 	* \return Log of the number (floor)
 	*
@@ -408,11 +433,11 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the log in base 2 of integral number, only works for power of two !
 	* \return Log of the number
 	*
-	* \param number To get log in base 2
+	* \param pot To get log in base 2
 	*
 	* \remark Only works for power of two
 	* \remark If number is 0, 0 is returned
@@ -426,18 +451,19 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the power of integrals
 	* \return base^exponent for integral
 	*
 	* \param base Base of the exponentation
-	* \parma exponent Power for the base
+	* \param exponent Power for the base
 	*/
 
 	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline unsigned int IntegralPow(unsigned int base, unsigned int exponent)
+	template<typename T>
+	/*constexpr*/ T IntegralPow(T base, unsigned int exponent)
 	{
-		unsigned int r = 1;
+		T r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
 			r *= base;
 
@@ -445,7 +471,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Interpolates the value to other one with a factor of interpolation
 	* \return A new value which is the interpolation of two values
 	*
@@ -462,11 +488,11 @@ namespace Nz
 	template<typename T, typename T2>
 	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
-		return from + interpolation * (to - from);
+		return static_cast<T>(from + interpolation * (to - from));
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Multiplies X and Y, then add Z
 	* \return The result of X * Y + Z
 	*
@@ -508,7 +534,7 @@ namespace Nz
 	#endif
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Normalizes the angle
 	* \return Normalized value between 0..2*(pi if radian or 180 if degrees)
 	*
@@ -534,7 +560,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Checks whether two numbers are equal
 	* \return true if they are equal within a certain epsilon
 	*
@@ -550,7 +576,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Checks whether two numbers are equal
 	* \return true if they are equal within the max difference
 	*
@@ -563,15 +589,11 @@ namespace Nz
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
 	{
-		if (b > a)
-			std::swap(a, b);
-
-		T diff = a - b;
-		return diff <= maxDifference;
+		return Detail::NumberEquals(a, b, maxDifference);
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Converts the number to String
 	* \return String representation of the number
 	*
@@ -623,7 +645,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Converts radian to degree
 	* \return The representation in degree of the angle in radian (0..360)
 	*
@@ -637,7 +659,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Converts the string to number
 	* \return Number which is represented by the string
 	*
@@ -699,7 +721,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the degree from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
 	* \return Express in degrees
 	*
@@ -717,7 +739,7 @@ namespace Nz
 	}
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \brief Gets the radian from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
 	* \return Express in radians
 	*

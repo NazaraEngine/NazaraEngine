@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_VECTOR4_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <functional>
 
 namespace Nz
 {
@@ -28,7 +29,7 @@ namespace Nz
 			explicit Vector4(T scale);
 			Vector4(const T vec[4]);
 			Vector4(const Vector2<T>& vec, T Z = 0.0, T W = 1.0);
-			Vector4(const Vector3<T>& vec, T W = 0.0);
+			Vector4(const Vector3<T>& vec, T W = 1.0);
 			template<typename U> explicit Vector4(const Vector4<U>& vec);
 			Vector4(const Vector4& vec) = default;
 			~Vector4() = default;
@@ -74,6 +75,7 @@ namespace Nz
 			Vector4 operator*(T scale) const;
 			Vector4 operator/(const Vector4& vec) const;
 			Vector4 operator/(T scale) const;
+			Vector4& operator=(const Vector4& other) = default;
 
 			Vector4& operator+=(const Vector4& vec);
 			Vector4& operator-=(const Vector4& vec);
@@ -115,6 +117,11 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vecto
 
 template<typename T> Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec);
 template<typename T> Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec);
+
+namespace std
+{
+	template<class T> struct hash<Nz::Vector4<T>>;
+}
 
 #include <Nazara/Math/Vector4.inl>
 

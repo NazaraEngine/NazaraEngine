@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -111,7 +111,9 @@ namespace Nz
 
 	bool Log::Initialize()
 	{
-		SetLogger(new FileLogger());
+		if (s_logger == &s_stdLogger)
+			SetLogger(new FileLogger());
+
 		return true;
 	}
 

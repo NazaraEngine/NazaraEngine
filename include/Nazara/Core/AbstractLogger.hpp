@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,7 +21,7 @@ namespace Nz
 
 			virtual void EnableStdReplication(bool enable) = 0;
 
-			virtual bool IsStdReplicationEnabled() = 0;
+			virtual bool IsStdReplicationEnabled() const = 0;
 
 			virtual void Write(const String& string) = 0;
 			virtual void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);

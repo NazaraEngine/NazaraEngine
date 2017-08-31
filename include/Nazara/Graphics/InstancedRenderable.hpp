@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,7 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -31,15 +32,17 @@ namespace Nz
 		public:
 			struct InstanceData;
 
-			InstancedRenderable() = default;
+			inline InstancedRenderable();
 			inline InstancedRenderable(const InstancedRenderable& renderable);
 			InstancedRenderable(InstancedRenderable&& renderable) = delete;
 			virtual ~InstancedRenderable();
 
+			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
+
+			virtual bool Cull(const Frustumf& frustum, const InstanceData& instanceData) const;
+
 			inline void EnsureBoundingVolumeUpdated() const;
 
-			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
-			virtual bool Cull(const Frustumf& frustum, const InstanceData& instanceData) const;
 			virtual const BoundingVolumef& GetBoundingVolume() const;
 			virtual void InvalidateData(InstanceData* instanceData, UInt32 flags) const;
 			virtual void UpdateBoundingVolume(InstanceData* instanceData) const;
@@ -49,33 +52,51 @@ namespace Nz
 			InstancedRenderable& operator=(InstancedRenderable&& renderable) = delete;
 
 			// Signals:
+			NazaraSignal(OnInstancedRenderableInvalidateBoundingVolume, const InstancedRenderable* /*instancedRenderable*/);
 			NazaraSignal(OnInstancedRenderableInvalidateData, const InstancedRenderable* /*instancedRenderable*/, UInt32 /*flags*/);
 			NazaraSignal(OnInstancedRenderableRelease, const InstancedRenderable* /*instancedRenderable*/);
 
 			struct InstanceData
 			{
-				InstanceData(Matrix4f& referenceMatrix) :
-				transformMatrix(referenceMatrix),
+				InstanceData(const Matrix4f& transformationMatrix) :
+				localMatrix(transformationMatrix),
 				flags(0)
 				{
 				}
 
+				InstanceData(InstanceData&& instanceData) noexcept = default;
+
+				InstanceData& operator=(InstanceData&& instanceData) noexcept
+				{
+					data = std::move(instanceData.data);
+					flags = instanceData.flags;
+					renderOrder = instanceData.renderOrder;
+					localMatrix = instanceData.localMatrix;
+					transformMatrix = instanceData.transformMatrix;
+					volume = instanceData.volume;
+
+					return *this;
+				}
+
 				std::vector<UInt8> data;
 				BoundingVolumef volume;
-				Matrix4f& transformMatrix;
+				Matrix4f localMatrix;
+				mutable Matrix4f transformMatrix;
 				UInt32 flags;
 				int renderOrder;
 			};
 
 		protected:
-			virtual void MakeBoundingVolume() const = 0;
-			void InvalidateBoundingVolume();
+			inline void InvalidateBoundingVolume();
 			inline void InvalidateInstanceData(UInt32 flags);
-			inline void UpdateBoundingVolume() const;
+			
+			virtual void MakeBoundingVolume() const = 0;
 
 			mutable BoundingVolumef m_boundingVolume;
 
 		private:
+			inline void UpdateBoundingVolume() const;
+			
 			mutable bool m_boundingVolumeUpdated;
 
 			static InstancedRenderableLibrary::LibraryMap s_library;

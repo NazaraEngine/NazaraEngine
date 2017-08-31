@@ -39,14 +39,12 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 		WHEN("We ask for distance")
 		{
-			THEN("These results are expected")
+			THEN("These results are expected because we don't take into account the border")
 			{
-				REQUIRE(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX()) == Approx(1.f));
-				REQUIRE(firstCenterAndUnit.SquaredDistance(Nz::Vector3f::UnitX()) == Approx(1.f));
+				CHECK(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX() * 2.f) == Approx(1.f));
 
 				Nz::Spheref tmp(Nz::Vector3f::UnitX(), 1.f);
-				REQUIRE(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Approx(3.f));
-				REQUIRE(tmp.SquaredDistance(Nz::Vector3f::UnitX() * 4.f) == Approx(9.f));
+				CHECK(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Approx(2.f));
 			}
 		}
 
@@ -56,7 +54,7 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 			THEN("This is equal to sphere center and radius 0.75")
 			{
-				REQUIRE(centerUnitBox.GetSquaredBoundingSphere() == Nz::Spheref(Nz::Vector3f::Zero(), 0.75f));
+				CHECK(centerUnitBox.GetSquaredBoundingSphere() == Nz::Spheref(Nz::Vector3f::Zero(), 0.75f));
 			}
 		}
 
@@ -66,12 +64,12 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 			THEN("Positive vertex should be the same with centered and unit sphere")
 			{
-				REQUIRE(positiveVector == firstCenterAndUnit.GetPositiveVertex(positiveVector));
+				CHECK(positiveVector == firstCenterAndUnit.GetPositiveVertex(positiveVector));
 			}
 
 			AND_THEN("Negative vertex should be the opposite")
 			{
-				REQUIRE(-positiveVector == firstCenterAndUnit.GetNegativeVertex(positiveVector));
+				CHECK(-positiveVector == firstCenterAndUnit.GetNegativeVertex(positiveVector));
 			}
 		}
 
@@ -81,10 +79,12 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 			firstCenterAndUnit.ExtendTo(point);
 
+			REQUIRE(firstCenterAndUnit.radius == Approx(2.f));
+
 			THEN("Sphere must contain it and distance should be good")
 			{
 				CHECK(firstCenterAndUnit.Contains(point));
-				REQUIRE(firstCenterAndUnit.Distance(point) == 2.f);
+				CHECK(firstCenterAndUnit.Distance(point) == Approx(0.f));
 			}
 		}
 

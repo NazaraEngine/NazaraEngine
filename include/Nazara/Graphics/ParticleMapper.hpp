@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,6 +22,7 @@ namespace Nz
 
 			template<typename T> SparsePtr<T> GetComponentPtr(ParticleComponent component);
 			template<typename T> SparsePtr<const T> GetComponentPtr(ParticleComponent component) const;
+			inline void* GetPointer();
 
 		private:
 			const ParticleDeclaration* m_declaration;

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,7 +22,6 @@ namespace Nz
 	/*!
 	* \brief Constructs a ParameterList object by copy
 	*/
-
 	ParameterList::ParameterList(const ParameterList& list)
 	{
 		operator=(list);
@@ -31,16 +30,14 @@ namespace Nz
 	/*!
 	* \brief Destructs the object and clears
 	*/
-
 	ParameterList::~ParameterList()
 	{
 		Clear();
 	}
 
 	/*!
-	* \brief Clears the list of parameters
+	* \brief Clears all the parameters
 	*/
-
 	void ParameterList::Clear()
 	{
 		for (auto it = m_parameters.begin(); it != m_parameters.end(); ++it)
@@ -50,17 +47,18 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a boolean parameter by name
-	* \return true if success
+	* \brief Gets a parameter as a boolean
+	* \return true if the parameter could be represented as a boolean
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to a boolean to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not a boolean, a conversion will be performed, compatibles types are:
+	          Integer: 0 is interpreted as false, any other value is interpreted as true
+	          String:  Conversion obeys the rule as described by String::ToBool
 	*/
-
 	bool ParameterList::GetBooleanParameter(const String& name, bool* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
@@ -85,18 +83,19 @@ namespace Nz
 				return true;
 
 			case ParameterType_String:
+			{
+				bool converted;
+				if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
 				{
-					bool converted;
-					if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
-					{
-						*value = converted;
-						return true;
-					}
-
-					break;
+					*value = converted;
+					return true;
 				}
 
-			case ParameterType_Float:
+				break;
+			}
+
+			case ParameterType_Color:
+			case ParameterType_Double:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -108,18 +107,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a float parameter by name
-	* \return true if success
+	* \brief Gets a parameter as a color
+	* \return true if the parameter could be represented as a color
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to a color to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not a color, the function fails
 	*/
-
-	bool ParameterList::GetFloatParameter(const String& name, float* value) const
+	bool ParameterList::GetColorParameter(const String& name, Color* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -134,12 +132,58 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Float:
-				*value = it->second.value.floatVal;
+			case ParameterType_Color:
+				*value = it->second.value.colorVal;
+				return true;
+
+			case ParameterType_Boolean:
+			case ParameterType_Double:
+			case ParameterType_Integer:
+			case ParameterType_String:
+			case ParameterType_None:
+			case ParameterType_Pointer:
+			case ParameterType_Userdata:
+				break;
+		}
+
+		NazaraError("Parameter value is not representable as a color");
+		return false;
+	}
+
+	/*!
+	* \brief Gets a parameter as a double
+	* \return true if the parameter could be represented as a double
+	*
+	* \param name Name of the parameter
+	* \param value Pointer to a double to hold the retrieved value
+	*
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not a double, a conversion will be performed, compatibles types are:
+	          Integer: The integer value is converted to its double representation
+	          String:  Conversion obeys the rule as described by String::ToDouble
+	*/
+	bool ParameterList::GetDoubleParameter(const String& name, double* value) const
+	{
+		NazaraAssert(value, "Invalid pointer");
+
+		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+		{
+			NazaraError("Parameter \"" + name + "\" is not present");
+			return false;
+		}
+
+		switch (it->second.type)
+		{
+			case ParameterType_Double:
+				*value = it->second.value.doubleVal;
 				return true;
 
 			case ParameterType_Integer:
-				*value = static_cast<float>(it->second.value.intVal);
+				*value = static_cast<double>(it->second.value.intVal);
 				return true;
 
 			case ParameterType_String:
@@ -147,7 +191,7 @@ namespace Nz
 					double converted;
 					if (it->second.value.stringVal.ToDouble(&converted))
 					{
-						*value = static_cast<float>(converted);
+						*value = converted;
 						return true;
 					}
 
@@ -155,29 +199,32 @@ namespace Nz
 				}
 
 			case ParameterType_Boolean:
+			case ParameterType_Color:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a float");
+		NazaraError("Parameter value is not representable as a double");
 		return false;
 	}
 
 	/*!
-	* \brief Gets a integer parameter by name
-	* \return true if success
+	* \brief Gets a parameter as an integer
+	* \return true if the parameter could be represented as an integer
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to an integer to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not an integer, a conversion will be performed, compatibles types are:
+	          Boolean: The boolean is represented as 1 if true and 0 if false
+	          Double:  The floating-point value is truncated and converted to a integer
+	          String:  Conversion obeys the rule as described by String::ToInteger
 	*/
-
-	bool ParameterList::GetIntegerParameter(const String& name, int* value) const
+	bool ParameterList::GetIntegerParameter(const String& name, long long* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -196,28 +243,26 @@ namespace Nz
 				*value = (it->second.value.boolVal) ? 1 : 0;
 				return true;
 
-			case ParameterType_Float:
-				*value = static_cast<int>(it->second.value.floatVal);
+			case ParameterType_Double:
+				*value = static_cast<long long>(it->second.value.doubleVal);
 				return true;
 
 			case ParameterType_Integer:
 				*value = it->second.value.intVal;
-				return false;
+				return true;
 
 			case ParameterType_String:
 				{
 					long long converted;
 					if (it->second.value.stringVal.ToInteger(&converted))
 					{
-						if (converted <= std::numeric_limits<int>::max() && converted >= std::numeric_limits<int>::min())
-						{
-							*value = static_cast<int>(converted);
-							return true;
-						}
+						*value = converted;
+						return true;
 					}
 					break;
 				}
 
+			case ParameterType_Color:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 			case ParameterType_Userdata:
@@ -229,15 +274,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a parameter type by name
-	* \return true if the parameter is present
+	* \brief Gets a parameter type
+	* \return true if the parameter is present, its type being written to type
 	*
 	* \param name Name of the variable
-	* \param type Pointer to a variable to hold result
+	* \param type Pointer to a variable to hold the result
 	*
-	* \remark Produces a NazaraAssert if type is invalid
+	* \remark type must be a valid pointer to a ParameterType variable
 	*/
-
 	bool ParameterList::GetParameterType(const String& name, ParameterType* type) const
 	{
 		NazaraAssert(type, "Invalid pointer");
@@ -252,17 +296,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a pointer parameter by name
-	* \return true if success
+	* \brief Gets a parameter as a pointer
+	* \return true if the parameter could be represented as a pointer
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to a pointer to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not a pointer, a conversion will be performed, compatibles types are:
+	          Userdata: The pointer part of the userdata is returned
 	*/
-
 	bool ParameterList::GetPointerParameter(const String& name, void** value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
@@ -287,7 +331,8 @@ namespace Nz
 				return true;
 
 			case ParameterType_Boolean:
-			case ParameterType_Float:
+			case ParameterType_Color:
+			case ParameterType_Double:
 			case ParameterType_Integer:
 			case ParameterType_None:
 			case ParameterType_String:
@@ -299,17 +344,23 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a string parameter by name
-	* \return true if success
+	* \brief Gets a parameter as a string
+	* \return true if the parameter could be represented as a string
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to a pointer to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not a string, a conversion will be performed, all types are compatibles:
+	          Boolean:  Conversion obeys the rules of String::Boolean
+	          Color:    Conversion obeys the rules of Color::ToString
+	          Double:   Conversion obeys the rules of String::Number
+	          Integer:  Conversion obeys the rules of String::Number
+	          None:     An empty string is returned
+	          Pointer:  Conversion obeys the rules of String::Pointer
+	          Userdata: Conversion obeys the rules of String::Pointer
 	*/
-
 	bool ParameterList::GetStringParameter(const String& name, String* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
@@ -329,8 +380,12 @@ namespace Nz
 				*value = String::Boolean(it->second.value.boolVal);
 				return true;
 
-			case ParameterType_Float:
-				*value = String::Number(it->second.value.floatVal);
+			case ParameterType_Color:
+				*value = it->second.value.colorVal.ToString();
+				return true;
+
+			case ParameterType_Double:
+				*value = String::Number(it->second.value.doubleVal);
 				return true;
 
 			case ParameterType_Integer:
@@ -359,17 +414,18 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets a user parameter by name
-	* \return true if success
+	* \brief Gets a parameter as an userdata
+	* \return true if the parameter could be represented as a userdata
 	*
-	* \param name Name of the variable
-	* \param value Value to set
+	* \param name Name of the parameter
+	* \param value Pointer to a pointer to hold the retrieved value
 	*
-	* \remark Produces a NazaraAssert if pointer is invalid
-	* \remark Produces a silent NazaraError if name is not a variable
-	* \remark Produces a silent NazaraError if value could not be convertible
+	* \remark value must be a valid pointer
+	* \remark In case of failure, the variable pointed by value keep its value
+	* \remark If the parameter is not an userdata, the function fails
+	*
+	* \see GetPointerParameter
 	*/
-
 	bool ParameterList::GetUserdataParameter(const String& name, void** value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
@@ -396,25 +452,24 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the parameter list has a parameter with that name
+	* \brief Checks whether the parameter list contains a parameter named `name`
 	* \return true if found
 	*
 	* \param name Name of the parameter
 	*/
-
 	bool ParameterList::HasParameter(const String& name) const
 	{
 		return m_parameters.find(name) != m_parameters.end();
 	}
 
 	/*!
-	* \brief Removes the parameter with that name
+	* \brief Removes the parameter named `name`
 	*
-	* Removes the parameter with that name, if not found, nothing is done
+	* Search for a parameter named `name` and remove it from the parameter list, freeing up its memory
+	* Nothing is done if the parameter is not present in the parameter list
 	*
 	* \param name Name of the parameter
 	*/
-
 	void ParameterList::RemoveParameter(const String& name)
 	{
 		auto it = m_parameters.find(name);
@@ -426,11 +481,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to ParameterType_None
+	* \brief Sets a null parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
 	*/
-
 	void ParameterList::SetParameter(const String& name)
 	{
 		Parameter& parameter = CreateValue(name);
@@ -438,71 +494,61 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to the value
+	* \brief Sets a color parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
+	* \param value The color value
 	*/
+	void ParameterList::SetParameter(const String& name, const Color& value)
+	{
+		Parameter& parameter = CreateValue(name);
+		parameter.type = ParameterType_Color;
 
+		PlacementNew(&parameter.value.colorVal, value);
+	}
+
+	/*!
+	* \brief Sets a string parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
+	*
+	* \param name Name of the parameter
+	* \param value The string value
+	*/
 	void ParameterList::SetParameter(const String& name, const String& value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
 
-		PlacementNew<String>(&parameter.value.stringVal, value);
+		PlacementNew(&parameter.value.stringVal, value);
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to the value
+	* \brief Sets a string parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
+	* \param value The string value
 	*/
-
 	void ParameterList::SetParameter(const String& name, const char* value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
 
-		PlacementNew<String>(&parameter.value.stringVal, value);
+		PlacementNew(&parameter.value.stringVal, value);
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to the value
+	* \brief Sets a boolean parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
+	* \param value The boolean value
 	*/
-
-	void ParameterList::SetParameter(const String& name, void* value)
-	{
-		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Pointer;
-		parameter.value.ptrVal = value;
-	}
-
-	/*!
-	* \brief Sets the parameter with the name to the value
-	*
-	* \param name Name of the parameter
-	* \param value Value of the parameter
-	* \param destructor Destructor for dynamic variable
-	*/
-
-	void ParameterList::SetParameter(const String& name, void* value, Destructor destructor)
-	{
-		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Userdata;
-		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
-	}
-
-	/*!
-	* \brief Sets the parameter with the name to the value
-	*
-	* \param name Name of the parameter
-	* \param value Value of the parameter
-	*/
-
 	void ParameterList::SetParameter(const String& name, bool value)
 	{
 		Parameter& parameter = CreateValue(name);
@@ -511,27 +557,29 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to the value
+	* \brief Sets a double parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
+	* \param value The double value
 	*/
-
-	void ParameterList::SetParameter(const String& name, float value)
+	void ParameterList::SetParameter(const String& name, double value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Float;
-		parameter.value.floatVal = value;
+		parameter.type = ParameterType_Double;
+		parameter.value.doubleVal = value;
 	}
 
 	/*!
-	* \brief Sets the parameter with the name to the value
+	* \brief Sets an integer parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
+	* \param value The integer value
 	*/
-
-	void ParameterList::SetParameter(const String& name, int value)
+	void ParameterList::SetParameter(const String& name, long long value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Integer;
@@ -539,12 +587,96 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Assigns the content of the other parameter list to this
+	* \brief Sets a pointer parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
+	*
+	* \param name Name of the parameter
+	* \param value The pointer value
+	*
+	* \remark This sets a raw pointer, this class takes no responsibility toward it,
+	          if you wish to destroy the pointed variable along with the parameter list, you should set a userdata
+	*/
+	void ParameterList::SetParameter(const String& name, void* value)
+	{
+		Parameter& parameter = CreateValue(name);
+		parameter.type = ParameterType_Pointer;
+		parameter.value.ptrVal = value;
+	}
+
+	/*!
+	* \brief Gives a string representation
+	* \return A string representation of the object: "ParameterList(Name: Type(value), ...)"
+	*/
+	String ParameterList::ToString() const
+	{
+		StringStream ss;
+
+		ss << "ParameterList(";
+		for (auto it = m_parameters.cbegin(); it != m_parameters.cend();)
+		{
+			ss << it->first << ": ";
+			switch (it->second.type)
+			{
+				case ParameterType_Boolean:
+					ss << "Boolean(" << String::Boolean(it->second.value.boolVal) << ")";
+					break;
+				case ParameterType_Color:
+					ss << "Color(" << it->second.value.colorVal.ToString() << ")";
+					break;
+				case ParameterType_Double:
+					ss << "Double(" << it->second.value.doubleVal << ")";
+					break;
+				case ParameterType_Integer:
+					ss << "Integer(" << it->second.value.intVal << ")";
+					break;
+				case ParameterType_String:
+					ss << "String(" << it->second.value.stringVal << ")";
+					break;
+				case ParameterType_Pointer:
+					ss << "Pointer(" << String::Pointer(it->second.value.ptrVal) << ")";
+					break;
+				case ParameterType_Userdata:
+					ss << "Userdata(" << String::Pointer(it->second.value.userdataVal->ptr) << ")";
+					break;
+				case ParameterType_None:
+					ss << "None";
+					break;
+			}
+
+			if (++it != m_parameters.cend())
+				ss << ", ";
+		}
+		ss << ")";
+
+		return ss;
+	}
+
+	/*!
+	* \brief Sets a userdata parameter named `name`
+	*
+	* If a parameter already exists with that name, it is destroyed and replaced by this call
+	*
+	* \param name Name of the parameter
+	* \param value The pointer value
+	* \param destructor The destructor function to be called upon parameter suppression
+	*
+	* \remark The destructor is called once when all copies of the userdata are destroyed, which means
+	          you can safely copy the parameter list around.
+	*/
+	void ParameterList::SetParameter(const String& name, void* value, Destructor destructor)
+	{
+		Parameter& parameter = CreateValue(name);
+		parameter.type = ParameterType_Userdata;
+		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
+	}
+
+	/*!
+	* \brief Copies the content of the other parameter list to this
 	* \return A reference to this
 	*
 	* \param list List to assign
 	*/
-
 	ParameterList& ParameterList::operator=(const ParameterList& list)
 	{
 		Clear();
@@ -556,7 +688,8 @@ namespace Nz
 			switch (it->second.type)
 			{
 				case ParameterType_Boolean:
-				case ParameterType_Float:
+				case ParameterType_Color:
+				case ParameterType_Double:
 				case ParameterType_Integer:
 				case ParameterType_Pointer:
 					std::memcpy(&parameter, &it->second, sizeof(Parameter));
@@ -565,7 +698,7 @@ namespace Nz
 				case ParameterType_String:
 					parameter.type = ParameterType_String;
 
-					PlacementNew<String>(&parameter.value.stringVal, it->second.value.stringVal);
+					PlacementNew(&parameter.value.stringVal, it->second.value.stringVal);
 					break;
 
 				case ParameterType_Userdata:
@@ -627,11 +760,26 @@ namespace Nz
 				}
 
 			case ParameterType_Boolean:
-			case ParameterType_Float:
+			case ParameterType_Color:
+			case ParameterType_Double:
 			case ParameterType_Integer:
 			case ParameterType_None:
 			case ParameterType_Pointer:
 				break;
 		}
 	}
+}
+
+/*!
+* \brief Output operator
+* \return The stream
+*
+* \param out The stream
+* \param parameterList The ParameterList to output
+*/
+
+std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList)
+{
+	out << parameterList.ToString();
+	return out;
 }

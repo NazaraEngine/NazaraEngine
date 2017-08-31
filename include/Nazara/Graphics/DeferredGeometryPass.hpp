@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,8 +21,8 @@ namespace Nz
 			DeferredGeometryPass();
 			virtual ~DeferredGeometryPass();
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const;
-			bool Resize(const Vector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
+			bool Resize(const Vector2ui& dimensions) override;
 
 		protected:
 			struct ShaderUniforms;

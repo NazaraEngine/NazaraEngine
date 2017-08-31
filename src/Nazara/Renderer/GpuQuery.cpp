@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,7 +19,7 @@ namespace Nz
 		Context::EnsureContext();
 
 		m_id = 0;
-		glGenQueries(1, reinterpret_cast<GLuint*>(&m_id));
+		glGenQueries(1, static_cast<GLuint*>(&m_id));
 
 		#ifdef NAZARA_DEBUG
 		if (!m_id)

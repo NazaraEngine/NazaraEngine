@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -39,15 +39,15 @@ namespace Nz
 			virtual const Boxf& GetAABB() const = 0;
 			virtual AnimationType GetAnimationType() const = 0;
 			virtual const IndexBuffer* GetIndexBuffer() const = 0;
-			unsigned int GetMaterialIndex() const;
+			UInt32 GetMaterialIndex() const;
 			const Mesh* GetParent() const;
 			PrimitiveMode GetPrimitiveMode() const;
-			unsigned int GetTriangleCount() const;
-			virtual unsigned int GetVertexCount() const = 0;
+			UInt32 GetTriangleCount() const;
+			virtual UInt32 GetVertexCount() const = 0;
 
 			virtual bool IsAnimated() const = 0;
 
-			void SetMaterialIndex(unsigned int matIndex);
+			void SetMaterialIndex(UInt32 matIndex);
 			void SetPrimitiveMode(PrimitiveMode mode);
 
 			// Signals:
@@ -56,7 +56,7 @@ namespace Nz
 		protected:
 			PrimitiveMode m_primitiveMode;
 			const Mesh* m_parent;
-			unsigned int m_matIndex;
+			UInt32 m_matIndex;
 	};
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -25,7 +25,9 @@ namespace Nz
 			virtual ~Renderable();
 
 			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const = 0;
+
 			virtual bool Cull(const Frustumf& frustum, const Matrix4f& transformMatrix) const;
+
 			inline void EnsureBoundingVolumeUpdated() const;
 			virtual const BoundingVolumef& GetBoundingVolume() const;
 			virtual void UpdateBoundingVolume(const Matrix4f& transformMatrix);
@@ -36,11 +38,12 @@ namespace Nz
 		protected:
 			virtual void MakeBoundingVolume() const = 0;
 			inline void InvalidateBoundingVolume();
-			inline void UpdateBoundingVolume() const;
 
 			mutable BoundingVolumef m_boundingVolume;
 
 		private:
+			inline void UpdateBoundingVolume() const;
+
 			mutable bool m_boundingVolumeUpdated;
 	};
 }

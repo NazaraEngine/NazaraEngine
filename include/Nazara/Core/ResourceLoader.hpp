@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -39,7 +39,7 @@ namespace Nz
 			static bool IsExtensionSupported(const String& extension);
 
 			static bool LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters = Parameters());
-			static bool LoadFromMemory(Type* resource, const void* data, unsigned int size, const Parameters& parameters = Parameters());
+			static bool LoadFromMemory(Type* resource, const void* data, std::size_t size, const Parameters& parameters = Parameters());
 			static bool LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters = Parameters());
 
 			static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);

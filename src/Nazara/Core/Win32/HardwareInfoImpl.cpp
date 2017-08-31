@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,10 +22,22 @@ namespace Nz
 		// Visual propose une fonction intrinsèque pour le cpuid
 		__cpuidex(reinterpret_cast<int*>(registers), static_cast<int>(functionId), static_cast<int>(subFunctionId));
 	#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
-		// Source: http://stackoverflow.com/questions/1666093/cpuid-implementations-in-c
-		asm volatile ("cpuid" // Besoin d'être volatile ?
-					  : "=a" (registers[0]), "=b" (registers[1]), "=c" (registers[2]), "=d" (registers[3]) // output
-					  : "a" (functionId), "c" (subFunctionId));                                // input
+		// https://en.wikipedia.org/wiki/CPUID
+		asm volatile(
+			#ifdef NAZARA_PLATFORM_x64
+			"pushq %%rbx     \n\t" // save %rbx
+			#else
+			"pushl %%ebx     \n\t" // save %ebx
+			#endif
+			"cpuid            \n\t"
+			"movl %%ebx ,%[ebx]  \n\t" // write the result into output var
+			#ifdef NAZARA_PLATFORM_x64
+			"popq %%rbx \n\t"
+			#else
+			"popl %%ebx \n\t"
+			#endif
+			: "=a"(registers[0]), [ebx] "=r"(registers[1]), "=c"(registers[2]), "=d"(registers[3]) // output
+			: "a"(functionId), "c" (subFunctionId));                                               // input
 	#else
 		NazaraInternalError("Cpuid has been called although it is not supported");
 	#endif
@@ -33,7 +45,7 @@ namespace Nz
 
 	unsigned int HardwareInfoImpl::GetProcessorCount()
 	{
-		// Plus simple (et plus portable) que de passer par le CPUID
+		// Simpler (and more portable) than using CPUID
 		SYSTEM_INFO infos;
 		GetNativeSystemInfo(&infos);
 
@@ -52,7 +64,7 @@ namespace Nz
 	bool HardwareInfoImpl::IsCpuidSupported()
 	{
 	#ifdef NAZARA_PLATFORM_x64
-		return true; // Toujours supporté sur un processeur 64 bits
+		return true; // cpuid is always supported on x64 arch
 	#else
 		#if defined(NAZARA_COMPILER_MSVC)
 		int supported;
@@ -76,25 +88,25 @@ namespace Nz
 		#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 		int supported;
 		asm volatile (" pushfl\n"
-					  " pop %%eax\n"
-					  " mov %%eax, %%ecx\n"
-					  " xor $0x200000, %%eax\n"
-					  " push %%eax\n"
-					  " popfl\n"
-					  " pushfl\n"
-					  " pop %%eax\n"
-					  " xor %%ecx, %%eax\n"
-					  " mov %%eax, %0\n"
-					  " push %%ecx\n"
-					  " popfl"
-					  : "=m" (supported)         // output
-					  :                          // input
-					  : "eax", "ecx", "memory"); // clobbered register
+		              " pop %%eax\n"
+		              " mov %%eax, %%ecx\n"
+		              " xor $0x200000, %%eax\n"
+		              " push %%eax\n"
+		              " popfl\n"
+		              " pushfl\n"
+		              " pop %%eax\n"
+		              " xor %%ecx, %%eax\n"
+		              " mov %%eax, %0\n"
+		              " push %%ecx\n"
+		              " popfl"
+		              : "=m" (supported)         // output
+		              :                          // input
+		              : "eax", "ecx", "memory"); // clobbered register
 
 		return supported != 0;
 		#else
 		return false;
 		#endif
 	#endif
-}
+	}
 }

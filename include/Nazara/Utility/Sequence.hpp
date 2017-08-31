@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -16,9 +16,9 @@ namespace Nz
 	struct Sequence
 	{
 		String name;
-		unsigned int firstFrame;
-		unsigned int frameCount;
-		unsigned int frameRate;
+		UInt32 firstFrame;
+		UInt32 frameCount;
+		UInt32 frameRate;
 	};
 
 	struct SequenceJoint

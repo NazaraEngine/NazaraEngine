@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,6 +17,13 @@ namespace Nz
 		BackgroundType_User,
 
 		BackgroundType_Max = BackgroundType_User
+	};
+
+	enum class CullTest
+	{
+		NoTest,
+		Sphere,
+		Volume
 	};
 
 	enum ProjectionType
@@ -108,6 +115,7 @@ namespace Nz
 		RenderTechniqueType_AdvancedForward, // AdvancedForwardRenderTechnique
 		RenderTechniqueType_BasicForward,    // BasicForwardRenderTechnique
 		RenderTechniqueType_DeferredShading, // DeferredRenderTechnique
+		RenderTechniqueType_Depth,           // DepthRenderTechnique
 		RenderTechniqueType_LightPrePass,    // LightPrePassRenderTechnique
 		RenderTechniqueType_User,
 
@@ -127,7 +135,7 @@ namespace Nz
 		SceneNodeType_Max = SceneNodeType_User
 	};
 
-	// Ces paramètres sont indépendants du matériau: ils peuvent être demandés à tout moment
+	// These parameters are independant of the material: they can not be asked for the moment
 	enum ShaderFlags
 	{
 		ShaderFlags_None = 0,
@@ -138,7 +146,27 @@ namespace Nz
 		ShaderFlags_TextureOverlay = 0x08,
 		ShaderFlags_VertexColor    = 0x10,
 
-		ShaderFlags_Max = ShaderFlags_VertexColor*2-1
+		ShaderFlags_Max = ShaderFlags_VertexColor * 2 - 1
+	};
+
+	enum TextureMap
+	{
+		TextureMap_Alpha,
+		TextureMap_Diffuse,
+		TextureMap_Emissive,
+		TextureMap_Height,
+		TextureMap_ReflectionCube,
+		TextureMap_Normal,
+		TextureMap_Overlay,
+		TextureMap_Shadow2D_1,
+		TextureMap_Shadow2D_2,
+		TextureMap_Shadow2D_3,
+		TextureMap_ShadowCube_1,
+		TextureMap_ShadowCube_2,
+		TextureMap_ShadowCube_3,
+		TextureMap_Specular,
+
+		TextureMap_Max = TextureMap_Specular
 	};
 }
 

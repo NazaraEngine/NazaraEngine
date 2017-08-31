@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -9,6 +9,18 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::CameraComponent
+	* \brief NDK class that represents the component for camera
+	*/
+
+	/*!
+	* \brief Applys the view of the camera
+	*
+	* \remark Produces a NazaraAssert if the camera has no target
+	*/
+
 	void CameraComponent::ApplyView() const
 	{
 		NazaraAssert(m_target, "CameraComponent has no target");
@@ -23,6 +35,23 @@ namespace Ndk
 		Nz::Renderer::SetViewport(m_viewport);
 	}
 
+	/*!
+	* \brief Gets the aspect ratio of the camera
+	* \return Aspect ratio of the camera
+	*/
+	float CameraComponent::GetAspectRatio() const
+	{
+		EnsureViewportUpdate();
+
+		return m_aspectRatio;
+	}
+
+	/*!
+	* \brief Gets the eye position of the camera
+	*
+	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
+	*/
+
 	Nz::Vector3f CameraComponent::GetEyePosition() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
@@ -30,12 +59,105 @@ namespace Ndk
 		return m_entity->GetComponent<NodeComponent>().GetPosition();
 	}
 
+	/*!
+	* \brief Gets the forward direction of the camera
+	*
+	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
+	*/
 	Nz::Vector3f CameraComponent::GetForward() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
 
 		return m_entity->GetComponent<NodeComponent>().GetForward();
 	}
+
+	/*!
+	* \brief Gets the frutum of the camera
+	* \return A constant reference to the frustum of the camera
+	*/
+	const Nz::Frustumf& CameraComponent::GetFrustum() const
+	{
+		EnsureFrustumUpdate();
+
+		return m_frustum;
+	}
+
+	/*!
+	* \brief Gets the projection matrix of the camera
+	* \return A constant reference to the projection matrix of the camera
+	*/
+	const Nz::Matrix4f& CameraComponent::GetProjectionMatrix() const
+	{
+		EnsureProjectionMatrixUpdate();
+
+		return m_projectionMatrix;
+	}
+
+
+	/*!
+	* \brief Gets the projection type of the camera
+	* \return Projection type of the camera
+	*/
+	Nz::ProjectionType CameraComponent::GetProjectionType() const
+	{
+		return m_projectionType;
+	}
+
+
+	/*!
+	* \brief Gets the target of the camera
+	* \return A constant reference to the render target of the camera
+	*/
+	const Nz::RenderTarget* CameraComponent::GetTarget() const
+	{
+		return m_target;
+	}
+
+	/*!
+	* \brief Gets the view matrix of the camera
+	* \return A constant reference to the view matrix of the camera
+	*/
+	const Nz::Matrix4f& CameraComponent::GetViewMatrix() const
+	{
+		EnsureViewMatrixUpdate();
+
+		return m_viewMatrix;
+	}
+
+	/*!
+	* \brief Gets the view port of the camera
+	* \return A constant reference to the view port of the camera
+	*/
+	const Nz::Recti& CameraComponent::GetViewport() const
+	{
+		EnsureViewportUpdate();
+
+		return m_viewport;
+	}
+
+	/*!
+	* \brief Gets the Z far distance of the camera
+	* \return Z far distance of the camera
+	*/
+	float CameraComponent::GetZFar() const
+	{
+		return m_zFar;
+	}
+
+	/*!
+	* \brief Gets the Z near distance of the camera
+	* \return Z near distance of the camera
+	*/
+	float CameraComponent::GetZNear() const
+	{
+		return m_zNear;
+	}
+
+	/*!
+	* \brief Sets the layer of the camera in case of multiples fields
+	*
+	* \param layer Layer of the camera
+	*/
 
 	void CameraComponent::SetLayer(unsigned int layer)
 	{
@@ -44,6 +166,10 @@ namespace Ndk
 		m_entity->Invalidate(); // Invalidate the entity to make it passes through RenderSystem validation
 	}
 
+	/*!
+	* \brief Operation to perform when component is attached to an entity
+	*/
+
 	void CameraComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
@@ -51,6 +177,12 @@ namespace Ndk
 
 		InvalidateViewMatrix();
 	}
+
+	/*!
+	* \brief Operation to perform when component is attached to this component
+	*
+	* \param component Component being attached
+	*/
 
 	void CameraComponent::OnComponentAttached(BaseComponent& component)
 	{
@@ -63,6 +195,12 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from this component
+	*
+	* \param component Component being detached
+	*/
+
 	void CameraComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<NodeComponent>(component))
@@ -73,12 +211,22 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Operation to perform when component is detached from an entity
+	*/
+
 	void CameraComponent::OnDetached()
 	{
 		m_nodeInvalidationSlot.Disconnect();
 
 		InvalidateViewMatrix();
 	}
+
+	/*!
+	* \brief Operation to perform when the node is invalidated
+	*
+	* \param node Pointer to the node
+	*/
 
 	void CameraComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
@@ -88,6 +236,12 @@ namespace Ndk
 		InvalidateViewMatrix();
 	}
 
+	/*!
+	* \brief Operation to perform when the render target is released
+	*
+	* \param renderTarget Pointer to the RenderTarget
+	*/
+
 	void CameraComponent::OnRenderTargetRelease(const Nz::RenderTarget* renderTarget)
 	{
 		if (renderTarget == m_target)
@@ -96,6 +250,12 @@ namespace Ndk
 			NazaraInternalError("Not listening to " + Nz::String::Pointer(renderTarget));
 	}
 
+	/*!
+	* \brief Operation to perform when the render target has its size changed
+	*
+	* \param renderTarget Pointer to the RenderTarget
+	*/
+
 	void CameraComponent::OnRenderTargetSizeChange(const Nz::RenderTarget* renderTarget)
 	{
 		if (renderTarget == m_target)
@@ -103,6 +263,10 @@ namespace Ndk
 		else
 			NazaraInternalError("Not listening to " + Nz::String::Pointer(renderTarget));
 	}
+
+	/*!
+	* \brief Updates the frustum of the camera
+	*/
 
 	void CameraComponent::UpdateFrustum() const
 	{
@@ -113,6 +277,10 @@ namespace Ndk
 		m_frustum.Extract(m_viewMatrix, m_projectionMatrix);
 		m_frustumUpdated = true;
 	}
+
+	/*!
+	* \brief Updates the project matrix of the camera
+	*/
 
 	void CameraComponent::UpdateProjectionMatrix() const
 	{
@@ -139,6 +307,12 @@ namespace Ndk
 		m_projectionMatrixUpdated = true;
 	}
 
+	/*!
+	* \brief Updates the view matrix of the camera
+	*
+	* \remark Produces a NazaraAssert if entity is invalid or has no NodeComponent
+	*/
+
 	void CameraComponent::UpdateViewMatrix() const
 	{
 		NazaraAssert(m_entity && m_entity->HasComponent<NodeComponent>(), "CameraComponent requires NodeComponent");
@@ -149,6 +323,12 @@ namespace Ndk
 		m_viewMatrix.MakeViewMatrix(nodeComponent.GetPosition(Nz::CoordSys_Global), nodeComponent.GetRotation(Nz::CoordSys_Global));
 		m_viewMatrixUpdated = true;
 	}
+
+	/*!
+	* \brief Updates the view port of the camera
+	*
+	* \remark Produces a NazaraAssert if entity has no target
+	*/
 
 	void CameraComponent::UpdateViewport() const
 	{

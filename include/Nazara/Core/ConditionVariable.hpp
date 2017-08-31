@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,7 +29,7 @@ namespace Nz
 			bool Wait(Mutex* mutex, UInt32 timeout);
 
 			ConditionVariable& operator=(const ConditionVariable&) = delete;
-			inline ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
+			ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
 
 		private:
 			ConditionVariableImpl* m_impl;

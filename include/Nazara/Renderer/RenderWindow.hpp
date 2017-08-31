@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -16,7 +16,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <vector>
 
 namespace Nz
@@ -30,8 +30,8 @@ namespace Nz
 	{
 		public:
 			RenderWindow() = default;
-			RenderWindow(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
+			explicit RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
 			RenderWindow(const RenderWindow&) = delete;
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();
@@ -39,7 +39,7 @@ namespace Nz
 			bool CopyToImage(AbstractImage* image, const Vector3ui& dstPos = Vector3ui(0U)) const;
 			bool CopyToImage(AbstractImage* image, const Rectui& rect, const Vector3ui& dstPos = Vector3ui(0U)) const;
 
-			bool Create(VideoMode mode, const String& title, UInt32 style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
+			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
 			bool Create(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
 
 			void Display();
@@ -65,12 +65,11 @@ namespace Nz
 		protected:
 			bool Activate() const override;
 			void EnsureTargetUpdated() const override;
-
-		private:
 			bool OnWindowCreated() override;
 			void OnWindowDestroy() override;
 			void OnWindowResized() override;
 
+		private:
 			mutable std::vector<UInt8> m_buffer;
 			Clock m_clock;
 			ContextParameters m_parameters;

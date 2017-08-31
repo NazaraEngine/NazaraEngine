@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	RenderWindow::RenderWindow(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters) :
+	RenderWindow::RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters) :
 	RenderTarget(), Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -121,7 +121,7 @@ namespace Nz
 		return true;
 	}
 
-	bool RenderWindow::Create(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters)
+	bool RenderWindow::Create(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters)
 	{
 		m_parameters = parameters;
 		return Window::Create(mode, title, style);

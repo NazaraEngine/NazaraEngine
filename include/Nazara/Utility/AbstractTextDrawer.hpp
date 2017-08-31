@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,23 +22,33 @@ namespace Nz
 	{
 		public:
 			struct Glyph;
+			struct Line;
 
 			AbstractTextDrawer() = default;
 			virtual ~AbstractTextDrawer();
 
-			virtual const Rectui& GetBounds() const = 0;
-			virtual Font* GetFont(unsigned int index) const = 0;
-			virtual unsigned int GetFontCount() const = 0;
-			virtual const Glyph& GetGlyph(unsigned int index) const = 0;
-			virtual unsigned int GetGlyphCount() const = 0;
+			virtual const Recti& GetBounds() const = 0;
+			virtual Font* GetFont(std::size_t index) const = 0;
+			virtual std::size_t GetFontCount() const = 0;
+			virtual const Glyph& GetGlyph(std::size_t index) const = 0;
+			virtual std::size_t GetGlyphCount() const = 0;
+			virtual const Line& GetLine(std::size_t index) const = 0;
+			virtual std::size_t GetLineCount() const = 0;
 
 			struct Glyph
 			{
 				Color color;
+				Rectf bounds;
 				Rectui atlasRect;
 				Vector2f corners[4];
 				AbstractImage* atlas;
 				bool flipped;
+			};
+
+			struct Line
+			{
+				Rectf bounds;
+				std::size_t glyphIndex;
 			};
 	};
 }

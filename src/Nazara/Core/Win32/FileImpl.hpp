@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,9 +29,10 @@ namespace Nz
 			bool EndOfFile() const;
 			void Flush();
 			UInt64 GetCursorPos() const;
-			bool Open(const String& filePath, UInt32 mode);
+			bool Open(const String& filePath, OpenModeFlags mode);
 			std::size_t Read(void* buffer, std::size_t size);
 			bool SetCursorPos(CursorPosition pos, Int64 offset);
+			bool SetSize(UInt64 size);
 			std::size_t Write(const void* buffer, std::size_t size);
 
 			FileImpl& operator=(const FileImpl&) = delete;

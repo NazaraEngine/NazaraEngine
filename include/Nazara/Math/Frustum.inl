@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -491,8 +491,8 @@ namespace Nz
 	*
 	* \remark If volume is infinite, IntersectionSide_Intersecting is returned
 	* \remark If volume is null, IntersectionSide_Outside is returned
-	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and false is returned
-	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and false is returned. This should not never happen for a user of the library
+	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and IntersectionSide_Outside is returned
+	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and IntersectionSide_Outside is returned. This should not never happen for a user of the library
 	*/
 
 	template<typename T>
@@ -688,13 +688,13 @@ namespace Nz
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{
-			if (!Serialize(context, m_corners[i]))
+			if (!Serialize(context, frustum.m_corners[i]))
 				return false;
 		}
 
 		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
-			if (!Serialize(context, m_planes[i]))
+			if (!Serialize(context, frustum.m_planes[i]))
 				return false;
 		}
 
@@ -702,24 +702,24 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Matrix4
+	* \brief Unserializes a Frustum
 	* \return true if successfully unserialized
 	*
 	* \param context Serialization context
-	* \param matrix Output matrix
+	* \param matrix Output frustum
 	*/
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Frustum<T>* frustum)
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{
-			if (!Unserialize(context, &m_corners[i]))
+			if (!Unserialize(context, &frustum->m_corners[i]))
 				return false;
 		}
 
 		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
-			if (!Unserialize(context, &m_planes[i]))
+			if (!Unserialize(context, &frustum->m_planes[i]))
 				return false;
 		}
 

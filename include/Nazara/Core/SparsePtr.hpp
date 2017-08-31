@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -41,7 +41,7 @@ namespace Nz
 			void SetPtr(VoidPtr ptr);
 			void SetStride(int stride);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T& operator*() const;
 			T* operator->() const;

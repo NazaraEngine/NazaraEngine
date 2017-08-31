@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,6 +20,22 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup network
+	* \class Nz::TcpClient
+	* \brief Network class that represents a client in a TCP connection
+	*/
+
+	/*!
+	* \brief Connects to the IpAddress
+	* \return State of the socket
+	*
+	* \param remoteAddress Address to connect to
+	*
+	* \remark Produces a NazaraAssert if remote is invalid
+	* \remark Produces a NazaraAssert if remote's port is not specified
+	*/
+
 	SocketState TcpClient::Connect(const IpAddress& remoteAddress)
 	{
 		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
@@ -44,6 +60,17 @@ namespace Nz
 		UpdateState(state);
 		return state;
 	}
+
+
+	/*!
+	* \brief Connects to the hostname
+	* \return State of the socket
+	*
+	* \param hostName Hostname of the remote
+	* \param protocol Net protocol to use
+	* \param service Specify the protocol used
+	* \param error Optional argument to get the error
+	*/
 
 	SocketState TcpClient::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
 	{
@@ -73,6 +100,14 @@ namespace Nz
 		return Connect(hostnameAddress);
 	}
 
+	/*!
+	* \brief Enables low delay in emitting
+	*
+	* \param lowDelay Should low delay be used
+	*
+	* \remark This may produce lag
+	*/
+
 	void TcpClient::EnableLowDelay(bool lowDelay)
 	{
 		if (m_isLowDelayEnabled != lowDelay)
@@ -83,6 +118,14 @@ namespace Nz
 			m_isLowDelayEnabled = lowDelay;
 		}
 	}
+
+	/*!
+	* \brief Enables the keep alive flag
+	*
+	* \param keepAlive Should the connection be kept alive
+	* \param msTime Time in milliseconds before expiration
+	* \param msInterval Interval in milliseconds between two pings
+	*/
 
 	void TcpClient::EnableKeepAlive(bool keepAlive, UInt64 msTime, UInt64 msInterval)
 	{
@@ -97,10 +140,22 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if there is no more available bytes
+	*/
+
 	bool TcpClient::EndOfStream() const
 	{
 		return QueryAvailableBytes() == 0;
 	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return 0
+	*
+	* \remark Produces a NazaraError because it is a special stream
+	*/
 
 	UInt64 TcpClient::GetCursorPos() const
 	{
@@ -108,10 +163,27 @@ namespace Nz
 		return 0;
 	}
 
+	/*!
+	* \brief Gets the size of the raw memory available
+	* \return Size of the memory available
+	*/
+
 	UInt64 TcpClient::GetSize() const
 	{
 		return QueryAvailableBytes();
 	}
+
+	/*!
+	* \brief Receives the data available
+	* \return true If data received
+	*
+	* \param buffer Raw memory to write
+	* \param size Size of the buffer
+	* \param received Optional argument to get the number of bytes received
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	* \remark Produces a NazaraAssert if buffer and its size is invalid
+	*/
 
 	bool TcpClient::Receive(void* buffer, std::size_t size, std::size_t* received)
 	{
@@ -142,6 +214,17 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Receives the packet available
+	* \return true If packet received
+	*
+	* \param packet Packet to receive
+	*
+	* \remark Produces a NazaraAssert if packet is invalid
+	* \remark Produces a NazaraAssert if packet size is inferior to the header size
+	* \remark Produces a NazaraWarning if packet's header is invalid
+	*/
+
 	bool TcpClient::ReceivePacket(NetPacket* packet)
 	{
 		//TODO: Every packet requires at least two Receive call, using an internal buffer of a fixed size would prevent this
@@ -157,6 +240,7 @@ namespace Nz
 
 			m_pendingPacket.received += received;
 
+			//TODO: Should never happen in production !
 			NazaraAssert(m_pendingPacket.received <= NetPacket::HeaderSize, "Received more data than header size");
 			if (m_pendingPacket.received >= NetPacket::HeaderSize)
 			{
@@ -178,6 +262,17 @@ namespace Nz
 		if (m_pendingPacket.headerReceived)
 		{
 			UInt16 packetSize = static_cast<UInt16>(m_pendingPacket.data.GetSize()); //< Total packet size
+			if (packetSize == 0)
+			{
+				// Special case: our packet carry no data
+				packet->Reset(m_pendingPacket.netcode);
+
+				// And reset every state
+				m_pendingPacket.data.Clear();
+				m_pendingPacket.headerReceived = false;
+				m_pendingPacket.received = 0;
+				return true;
+			}
 
 			std::size_t received;
 			if (!Receive(&m_pendingPacket.data[m_pendingPacket.received], packetSize - m_pendingPacket.received, &received))
@@ -185,6 +280,7 @@ namespace Nz
 
 			m_pendingPacket.received += received;
 
+			//TODO: Should never happen in production !
 			NazaraAssert(m_pendingPacket.received <= packetSize, "Received more data than packet size");
 			if (m_pendingPacket.received >= packetSize)
 			{
@@ -202,6 +298,19 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Sends the data available
+	* \return true If data sended
+	*
+	* \param buffer Raw memory to read
+	* \param size Size of the buffer
+	* \param sent Optional argument to get the number of bytes sent
+	*
+	* \remark Large sending are handled, you do not need to call this multiple time
+	* \remark Produces a NazaraAssert if socket is invalid
+	* \remark Produces a NazaraAssert if buffer and its size is invalid
+	*/
+
 	bool TcpClient::Send(const void* buffer, std::size_t size, std::size_t* sent)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
@@ -217,11 +326,11 @@ namespace Nz
 			});
 		}
 
-		while (totalByteSent < size)
+		while (totalByteSent < size || !IsBlockingEnabled())
 		{
 			int sendSize = static_cast<int>(std::min<std::size_t>(size - totalByteSent, std::numeric_limits<int>::max())); //< Handle very large send
 			int sentSize;
-			if (!SocketImpl::Send(m_handle, reinterpret_cast<const UInt8*>(buffer) + totalByteSent, sendSize, &sentSize, &m_lastError))
+			if (!SocketImpl::Send(m_handle, static_cast<const UInt8*>(buffer) + totalByteSent, sendSize, &sentSize, &m_lastError))
 			{
 				switch (m_lastError)
 				{
@@ -244,6 +353,54 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Sends multiple buffers at once
+	* \return true If data were sent
+	*
+	* \param buffers A pointer to an array of NetBuffer containing buffers and size data
+	* \param size Number of NetBuffer to send
+	* \param sent Optional argument to get the number of bytes sent
+	*/
+	bool TcpClient::SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent)
+	{
+		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+
+		int byteSent;
+		if (!SocketImpl::SendMultiple(m_handle, buffers, bufferCount, m_peerAddress, &byteSent, &m_lastError))
+		{
+			switch (m_lastError)
+			{
+				case SocketError_ConnectionClosed:
+				case SocketError_ConnectionRefused:
+					UpdateState(SocketState_NotConnected);
+					break;
+
+				default:
+					break;
+			}
+
+			if (sent)
+				*sent = byteSent;
+
+			return false;
+		}
+
+		if (sent)
+			*sent = byteSent;
+
+		UpdateState(SocketState_Connected);
+		return true;
+	}
+
+	/*!
+	* \brief Sends the packet available
+	* \return true If packet sent
+	*
+	* \param packet Packet to send
+	*
+	* \remark Produces a NazaraError if packet could not be prepared for sending
+	*/
+
 	bool TcpClient::SendPacket(const NetPacket& packet)
 	{
 		std::size_t size = 0;
@@ -258,11 +415,29 @@ namespace Nz
 		return Send(ptr, size, nullptr);
 	}
 
-	bool TcpClient::SetCursorPos(UInt64 offset)
+	/*!
+	* \brief Sets the position of the cursor
+	* \return false
+	*
+	* \param offset Offset according to the beginning of the stream
+	*
+	* \remark Produces a NazaraError because it is a special stream
+	*/
+
+	bool TcpClient::SetCursorPos(UInt64 /*offset*/)
 	{
 		NazaraError("SetCursorPos() cannot be used on sequential streams");
 		return false;
 	}
+
+	/*!
+	* \brief Waits for being connected before time out
+	* \return true If connection is successful
+	*
+	* \param msTimeout Time in milliseconds before time out
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	*/
 
 	bool TcpClient::WaitForConnected(UInt64 msTimeout)
 	{
@@ -308,9 +483,17 @@ namespace Nz
 		return false;
 	}
 
+	/*!
+	* \brief Flushes the stream
+	*/
+
 	void TcpClient::FlushStream()
 	{
 	}
+
+	/*!
+	* \brief Operation to do when closing socket
+	*/
 
 	void TcpClient::OnClose()
 	{
@@ -319,6 +502,12 @@ namespace Nz
 		m_openMode = OpenMode_NotOpen;
 		m_peerAddress = IpAddress::Invalid;
 	}
+
+	/*!
+	* \brief Operation to do when opening socket
+	*
+	* \remark Produces a NazaraWarning if delay mode or keep alive failed
+	*/
 
 	void TcpClient::OnOpened()
 	{
@@ -335,6 +524,16 @@ namespace Nz
 		m_peerAddress = IpAddress::Invalid;
 		m_openMode = OpenMode_ReadWrite;
 	}
+
+	/*!
+	* \brief Reads blocks
+	* \return Number of blocks read
+	*
+	* \param buffer Preallocated buffer to contain information read
+	* \param size Size of the read and thus of the buffer
+	*
+	* \remark Produces a NazaraAssert if socket is invalid
+	*/
 
 	std::size_t TcpClient::ReadBlock(void* buffer, std::size_t size)
 	{
@@ -357,6 +556,13 @@ namespace Nz
 		return received;
 	}
 
+	/*!
+	* \brief Resets the connection with a new socket and a peer address
+	*
+	* \param handle Socket to connect
+	* \param peerAddress Address to connect to
+	*/
+
 	void TcpClient::Reset(SocketHandle handle, const IpAddress& peerAddress)
 	{
 		Open(handle);
@@ -365,8 +571,20 @@ namespace Nz
 		UpdateState(SocketState_Connected);
 	}
 
+	/*!
+	* \brief Writes blocks
+	* \return Number of blocks written
+	*
+	* \param buffer Preallocated buffer containing information to write
+	* \param size Size of the writting and thus of the buffer
+	*
+	* \remark Produces a NazaraAssert if buffer is nullptr
+	* \remark Produces a NazaraAssert if socket is invalid
+	*/
+
 	std::size_t TcpClient::WriteBlock(const void* buffer, std::size_t size)
 	{
+		NazaraAssert(buffer, "Invalid buffer");
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 		CallOnExit restoreBlocking;

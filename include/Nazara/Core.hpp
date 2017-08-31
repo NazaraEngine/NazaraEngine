@@ -1,4 +1,4 @@
-// This file was automatically generated on 03 Feb 2016 at 00:06:56
+// This file was automatically generated
 
 /*
 	Nazara Engine - Core module
@@ -49,8 +49,10 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
+#include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
+#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/LockGuard.hpp>
@@ -61,6 +63,7 @@
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Mutex.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
@@ -72,8 +75,10 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Semaphore.hpp>
-#include <Nazara/Core/Serialization.hpp>
+#include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Core/StdLogger.hpp>

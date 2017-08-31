@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -88,7 +88,7 @@ namespace Nz
 			inline void ShrinkToFit();
 			inline void Swap(ByteArray& other);
 
-			inline String ToHex() const;
+			String ToHex() const;
 			inline String ToString() const;
 
 			// STL interface

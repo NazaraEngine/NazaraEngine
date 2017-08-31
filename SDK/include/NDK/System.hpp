@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -11,7 +11,7 @@
 
 namespace Ndk
 {
-	template<typename ComponentType>
+	template<typename SystemType>
 	class System : public BaseSystem
 	{
 		public:
@@ -20,7 +20,7 @@ namespace Ndk
 			System(System&&) = default;
 			virtual ~System();
 
-			BaseSystem* Clone() const override;
+			std::unique_ptr<BaseSystem> Clone() const override;
 
 			System& operator=(const System&) = delete;
 			System& operator=(System&&) = default;

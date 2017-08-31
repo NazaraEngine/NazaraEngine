@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,6 +13,16 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredPhongLightingPass
+	* \brief Graphics class that represents the pass for phong lighting in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredPhongLightingPass object by default
+	*/
+
 	DeferredPhongLightingPass::DeferredPhongLightingPass() :
 	m_lightMeshesDrawing(false)
 	{
@@ -21,7 +31,7 @@ namespace Nz
 		m_directionalLightShaderSceneAmbientLocation = m_directionalLightShader->GetUniformLocation("SceneAmbient");
 
 		m_directionalLightUniforms.ubo = false;
-		m_directionalLightUniforms.locations.type = -1; // Type déjà connu
+		m_directionalLightUniforms.locations.type = -1; // Type already known
 		m_directionalLightUniforms.locations.color = m_directionalLightShader->GetUniformLocation("LightColor");
 		m_directionalLightUniforms.locations.factors = m_directionalLightShader->GetUniformLocation("LightFactors");
 		m_directionalLightUniforms.locations.parameters1 = m_directionalLightShader->GetUniformLocation("LightDirection");
@@ -56,15 +66,35 @@ namespace Nz
 
 	DeferredPhongLightingPass::~DeferredPhongLightingPass() = default;
 
+	/*!
+	* \brief Enables the drawing of meshes with light
+	*
+	* \param enable Should meshes with light parameter be drawed
+	*/
+
 	void DeferredPhongLightingPass::EnableLightMeshesDrawing(bool enable)
 	{
 		m_lightMeshesDrawing = enable;
 	}
 
+	/*!
+	* \brief Checks whether the drawing of meshes with light is enabled
+	* \return true If it is the case
+	*/
+
 	bool DeferredPhongLightingPass::IsLightMeshesDrawingEnabled() const
 	{
 		return m_lightMeshesDrawing;
 	}
+
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
 
 	bool DeferredPhongLightingPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
 	{
@@ -84,15 +114,18 @@ namespace Nz
 		Renderer::SetTexture(2, m_GBuffer[2]);
 		Renderer::SetTextureSampler(2, m_pointSampler);
 
+		Renderer::SetTexture(3, m_depthStencilTexture);
+		Renderer::SetTextureSampler(3, m_pointSampler);
+
 		Renderer::SetClearColor(Color::Black);
 		Renderer::Clear(RendererBuffer_Color);
 
 		RenderStates lightStates;
 		lightStates.dstBlend = BlendFunc_One;
 		lightStates.srcBlend = BlendFunc_One;
-		lightStates.parameters[RendererParameter_Blend] = true;
-		lightStates.parameters[RendererParameter_DepthBuffer] = false;
-		lightStates.parameters[RendererParameter_DepthWrite] = false;
+		lightStates.blending = true;
+		lightStates.depthBuffer = false;
+		lightStates.depthWrite = false;
 
 		// Directional lights
 		if (!m_renderQueue->directionalLights.empty())
@@ -116,18 +149,18 @@ namespace Nz
 		if (!m_renderQueue->pointLights.empty() || !m_renderQueue->spotLights.empty())
 		{
 			// http://www.altdevblogaday.com/2011/08/08/stencil-buffer-optimisation-for-deferred-lights/
-			lightStates.parameters[RendererParameter_StencilTest] = true;
-			lightStates.faceCulling = FaceSide_Front;
-			lightStates.backFace.stencilMask = 0xFF;
-			lightStates.backFace.stencilReference = 0;
-			lightStates.backFace.stencilFail = StencilOperation_Keep;
-			lightStates.backFace.stencilPass = StencilOperation_Keep;
-			lightStates.backFace.stencilZFail = StencilOperation_Invert;
-			lightStates.frontFace.stencilMask = 0xFF;
-			lightStates.frontFace.stencilReference = 0;
-			lightStates.frontFace.stencilFail = StencilOperation_Keep;
-			lightStates.frontFace.stencilPass = StencilOperation_Keep;
-			lightStates.frontFace.stencilZFail = StencilOperation_Invert;
+			lightStates.cullingSide = FaceSide_Front;
+			lightStates.stencilTest = true;
+			lightStates.stencilDepthFail.back = StencilOperation_Invert;
+			lightStates.stencilDepthFail.front = StencilOperation_Invert;
+			lightStates.stencilFail.back = StencilOperation_Keep;
+			lightStates.stencilFail.front = StencilOperation_Keep;
+			lightStates.stencilPass.back = StencilOperation_Keep;
+			lightStates.stencilPass.front = StencilOperation_Keep;
+			lightStates.stencilReference.back = 0;
+			lightStates.stencilReference.front = 0;
+			lightStates.stencilWriteMask.back = 0xFF;
+			lightStates.stencilWriteMask.front = 0xFF;
 
 			Renderer::SetRenderStates(lightStates);
 
@@ -151,12 +184,12 @@ namespace Nz
 					m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters1, Vector4f(light.position, light.attenuation));
 					m_pointSpotLightShader->SendVector(m_pointSpotLightUniforms.locations.parameters2, Vector4f(0.f, 0.f, 0.f, light.invRadius));
 
-					lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // Pour corriger les imperfections liées à la sphère
+					lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // To correct imperfections due to the sphere
 					lightMatrix.SetTranslation(light.position);
 
 					Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
-					// Rendu de la sphère dans le stencil buffer
+					// Sphere rendering in the stencil buffer
 					Renderer::Enable(RendererParameter_ColorWrite, false);
 					Renderer::Enable(RendererParameter_DepthBuffer, true);
 					Renderer::Enable(RendererParameter_FaceCulling, false);
@@ -166,7 +199,7 @@ namespace Nz
 
 					Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 
-					// Rendu de la sphère comme zone d'effet
+					// Sphere rendering as effect zone
 					Renderer::Enable(RendererParameter_ColorWrite, true);
 					Renderer::Enable(RendererParameter_DepthBuffer, false);
 					Renderer::Enable(RendererParameter_FaceCulling, true);
@@ -192,7 +225,7 @@ namespace Nz
 					Renderer::SetShader(shader);
 					for (const auto& light : m_renderQueue->pointLights)
 					{
-						lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // Pour corriger les imperfections liées à la sphère
+						lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // To correct imperfections due to the sphere
 						lightMatrix.SetTranslation(light.position);
 
 						Renderer::SetMatrix(MatrixType_World, lightMatrix);
@@ -230,7 +263,7 @@ namespace Nz
 
 					Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
-					// Rendu de la sphère dans le stencil buffer
+					// Sphere rendering in the stencil buffer
 					Renderer::Enable(RendererParameter_ColorWrite, false);
 					Renderer::Enable(RendererParameter_DepthBuffer, true);
 					Renderer::Enable(RendererParameter_FaceCulling, false);
@@ -240,7 +273,7 @@ namespace Nz
 
 					Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, indexBuffer->GetIndexCount());
 
-					// Rendu de la sphère comme zone d'effet
+					// Sphere rendering as effect zone
 					Renderer::Enable(RendererParameter_ColorWrite, true);
 					Renderer::Enable(RendererParameter_DepthBuffer, false);
 					Renderer::Enable(RendererParameter_FaceCulling, true);

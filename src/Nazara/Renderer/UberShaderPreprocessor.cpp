@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <algorithm>
 #include <memory>
@@ -76,7 +77,7 @@ namespace Nz
 
 							code << "#define GLSL_VERSION " << glslVersion << "\n\n";
 
-							code << "#define EARLY_FRAGMENT_TEST " << (glslVersion >= 420 || OpenGL::IsSupported(OpenGLExtension_Shader_ImageLoadStore)) << "\n\n";
+							code << "#define EARLY_FRAGMENT_TESTS " << ((glslVersion >= 420 || OpenGL::IsSupported(OpenGLExtension_Shader_ImageLoadStore)) ? '1' : '0') << "\n\n";
 
 							for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
 								code << "#define " << it->first << ' ' << ((stageFlags & it->second) ? '1' : '0') << '\n';
@@ -85,7 +86,18 @@ namespace Nz
 							code << shaderStage.source;
 
 							stage.SetSource(code);
-							stage.Compile();
+
+							try
+							{
+								stage.Compile();
+							}
+							catch (const std::exception&)
+							{
+								ErrorFlags errFlags2(ErrorFlag_ThrowExceptionDisabled);
+
+								NazaraError("Shader code failed to compile (" + stage.GetLog() + ")\n" + code.ToString());
+								throw;
+							}
 
 							stageIt = shaderStage.cache.emplace(flags, std::move(stage)).first;
 						}

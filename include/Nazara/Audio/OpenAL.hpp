@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,18 +15,18 @@
 #include <Nazara/Core/String.hpp>
 #include <vector>
 
-// Inclusion des headers OpenAL
+// Inclusion of OpenAL headers
 
-// Étant donné que les headers OpenAL ne nous permettent pas de n'avoir que les signatures sans les pointeurs de fonctions
-// Et que je ne souhaite pas les modifier, je suis contraint de les placer dans un espace de nom différent pour ensuite
-// remettre dans l'espace global les choses intéressantes (les typedef notamment)
+// OpenAL headers does not allow us to only get the signatures without the pointers to the functions
+// And I do no want to modify them, I'm obliged to put them in a different namespace
+// to put only interesting things back in the global namespace (specially typedef)
 namespace OpenALDetail
 {
 	#include <AL/al.h>
 	#include <AL/alc.h>
 }
 
-// Si quelqu'un a une meilleure idée ...
+// If someone has a better idea ...
 using OpenALDetail::ALboolean;
 using OpenALDetail::ALbyte;
 using OpenALDetail::ALchar;
@@ -87,7 +87,6 @@ namespace Nz
 			static bool OpenDevice();
 			static OpenALFunc LoadEntry(const char* name, bool throwException = false);
 	};
-}
 
 // al
 NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFER3F             alBuffer3f;
@@ -185,6 +184,8 @@ NAZARA_AUDIO_API extern OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurr
 NAZARA_AUDIO_API extern OpenALDetail::LPALCOPENDEVICE         alcOpenDevice;
 NAZARA_AUDIO_API extern OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext;
 NAZARA_AUDIO_API extern OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext;
+
+}
 
 #endif // NAZARA_AUDIO_OPENAL
 

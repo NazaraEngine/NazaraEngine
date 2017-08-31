@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,6 +15,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 
 namespace Nz
 {
@@ -35,10 +36,10 @@ namespace Nz
 			~ParticleDeclaration();
 
 			void DisableComponent(ParticleComponent component);
-			void EnableComponent(ParticleComponent component, ComponentType type, unsigned int offset);
+			void EnableComponent(ParticleComponent component, ComponentType type, std::size_t offset);
 
-			void GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, unsigned int* offset) const;
-			unsigned int GetStride() const;
+			void GetComponent(ParticleComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			std::size_t GetStride() const;
 
 			void SetStride(unsigned int stride);
 
@@ -46,6 +47,7 @@ namespace Nz
 
 			static ParticleDeclaration* Get(ParticleLayout layout);
 			static bool IsTypeSupported(ComponentType type);
+			template<typename... Args> static ParticleDeclarationRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnParticleDeclarationRelease, const ParticleDeclaration* /*particleDeclaration*/);
@@ -58,22 +60,24 @@ namespace Nz
 			{
 				ComponentType type;
 				bool enabled = false;
-				unsigned int offset;
+				std::size_t offset;
 
 				/*
 				** -Lynix:
-				** Il serait aussi possible de préciser le stride de façon indépendante, ce que je ne permets pas
-				** pour décomplexifier l'interface en enlevant quelque chose que je juge inutile.
-				** Si vous pensez que ça peut être utile, n'hésitez pas à me le faire savoir !
+				** It would be also possible to precise the stride by an independant way, what I don't allow
+				** to decomplexify the interface of something I consider useless.
+				** If you think that could be useful, don't hesitate to make me aware !
 				*/
 			};
 
-			Component m_components[ParticleComponent_Max+1];
-			unsigned int m_stride;
+			std::array<Component, ParticleComponent_Max + 1> m_components;
+			std::size_t m_stride;
 
-			static ParticleDeclaration s_declarations[ParticleLayout_Max+1];
+			static std::array<ParticleDeclaration, ParticleLayout_Max + 1> s_declarations;
 			static ParticleDeclarationLibrary::LibraryMap s_library;
 	};
 }
+
+#include <Nazara/Graphics/ParticleDeclaration.inl>
 
 #endif // NAZARA_PARTICLEDECLARATION_HPP

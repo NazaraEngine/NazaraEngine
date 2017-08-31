@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,19 +14,19 @@
 
 namespace Nz
 {
-	IndexBuffer::IndexBuffer(bool largeIndices, Buffer* buffer)
+	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
-		Reset(largeIndices, buffer);
+		Reset(largeIndices, std::move(buffer));
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, Buffer* buffer, unsigned int startOffset, unsigned int endOffset)
+	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
-		Reset(largeIndices, buffer, startOffset, endOffset);
+		Reset(largeIndices, std::move(buffer), offset, size);
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, unsigned int length, UInt32 storage, BufferUsage usage)
+	IndexBuffer::IndexBuffer(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
 		Reset(largeIndices, length, storage, usage);
@@ -35,10 +35,10 @@ namespace Nz
 	IndexBuffer::IndexBuffer(const IndexBuffer& indexBuffer) :
 	RefCounted(),
 	m_buffer(indexBuffer.m_buffer),
-	m_largeIndices(indexBuffer.m_largeIndices),
 	m_endOffset(indexBuffer.m_endOffset),
 	m_indexCount(indexBuffer.m_indexCount),
-	m_startOffset(indexBuffer.m_startOffset)
+	m_startOffset(indexBuffer.m_startOffset),
+	m_largeIndices(indexBuffer.m_largeIndices)
 	{
 	}
 
@@ -54,105 +54,33 @@ namespace Nz
 		return Nz::ComputeCacheMissCount(mapper.begin(), m_indexCount);
 	}
 
-	bool IndexBuffer::Fill(const void* data, unsigned int startIndex, unsigned int length, bool forceDiscard)
+	bool IndexBuffer::Fill(const void* data, UInt32 startIndex, UInt32 length)
 	{
-		unsigned int stride = GetStride();
-		return FillRaw(data, startIndex*stride, length*stride, forceDiscard);
+		UInt32 stride = GetStride();
+
+		return FillRaw(data, startIndex*stride, length*stride);
 	}
 
-	bool IndexBuffer::FillRaw(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
+	bool IndexBuffer::FillRaw(const void* data, UInt32 offset, UInt32 size)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (m_startOffset + offset + size > m_endOffset)
-		{
-			NazaraError("Exceeding virtual buffer size");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
-		return m_buffer->Fill(data, m_startOffset+offset, size, forceDiscard);
+		return m_buffer->Fill(data, m_startOffset+offset, size);
 	}
 
-	Buffer* IndexBuffer::GetBuffer() const
+	void* IndexBuffer::MapRaw(BufferAccess access, UInt32 offset, UInt32 size)
 	{
-		return m_buffer;
-	}
-
-	unsigned int IndexBuffer::GetEndOffset() const
-	{
-		return m_endOffset;
-	}
-
-	unsigned int IndexBuffer::GetIndexCount() const
-	{
-		return m_indexCount;
-	}
-
-	unsigned int IndexBuffer::GetStride() const
-	{
-		return (m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16);
-	}
-
-	unsigned int IndexBuffer::GetStartOffset() const
-	{
-		return m_startOffset;
-	}
-
-	bool IndexBuffer::HasLargeIndices() const
-	{
-		return m_largeIndices;
-	}
-
-	bool IndexBuffer::IsHardware() const
-	{
-		return m_buffer->IsHardware();
-	}
-
-	bool IndexBuffer::IsValid() const
-	{
-		return m_buffer;
-	}
-
-	void* IndexBuffer::Map(BufferAccess access, unsigned int startIndex, unsigned int length)
-	{
-		unsigned int stride = GetStride();
-		return MapRaw(access, startIndex*stride, length*stride);
-	}
-
-	void* IndexBuffer::Map(BufferAccess access, unsigned int startIndex, unsigned int length) const
-	{
-		unsigned int stride = GetStride();
-		return MapRaw(access, startIndex*stride, length*stride);
-	}
-
-	void* IndexBuffer::MapRaw(BufferAccess access, unsigned int offset, unsigned int size)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_buffer)
-		{
-			NazaraError("No buffer");
-			return nullptr;
-		}
-
-		if (m_startOffset + offset + size > m_endOffset)
-		{
-			NazaraError("Exceeding virtual buffer size");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(access, offset, size);
 	}
 
-	void* IndexBuffer::MapRaw(BufferAccess access, unsigned int offset, unsigned int size) const
+	void* IndexBuffer::MapRaw(BufferAccess access, UInt32 offset, UInt32 size) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (m_startOffset + offset + size > m_endOffset)
-		{
-			NazaraError("Exceeding virtual buffer size");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(access, offset, size);
 	}
@@ -169,52 +97,31 @@ namespace Nz
 		m_buffer.Reset();
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, Buffer* buffer)
+	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer)
 	{
-		Reset(largeIndices, buffer, 0, buffer->GetSize()-1);
+		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+
+		Reset(largeIndices, buffer, 0, buffer->GetSize());
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, Buffer* buffer, unsigned int startOffset, unsigned int endOffset)
+	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!buffer || !buffer->IsValid())
-		{
-			NazaraError("Buffer is invalid");
-			return;
-		}
+		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(size > 0, "Invalid size");
+		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
-		if (startOffset > endOffset)
-		{
-			NazaraError("Start offset cannot be over end offset");
-			return;
-		}
-
-		unsigned int bufferSize = buffer->GetSize();
-		if (startOffset >= bufferSize)
-		{
-			NazaraError("Start offset is over buffer size");
-			return;
-		}
-
-		if (endOffset >= bufferSize)
-		{
-			NazaraError("End offset is over buffer size");
-			return;
-		}
-		#endif
-
-		unsigned int stride = (largeIndices) ? sizeof(UInt32) : sizeof(UInt16);
+		UInt32 stride = static_cast<UInt32>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_buffer = buffer;
-		m_endOffset = endOffset;
-		m_indexCount = (endOffset - startOffset) / stride;
+		m_endOffset = offset + size;
+		m_indexCount = size / stride;
 		m_largeIndices = largeIndices;
-		m_startOffset = startOffset;
+		m_startOffset = offset;
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, unsigned int length, UInt32 storage, BufferUsage usage)
+	void IndexBuffer::Reset(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage)
 	{
-		unsigned int stride = (largeIndices) ? sizeof(UInt32) : sizeof(UInt16);
+		UInt32 stride = static_cast<UInt32>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_endOffset = length * stride;
 		m_indexCount = length;
@@ -231,11 +138,6 @@ namespace Nz
 		m_indexCount = indexBuffer.m_indexCount;
 		m_largeIndices = indexBuffer.m_largeIndices;
 		m_startOffset = indexBuffer.m_startOffset;
-	}
-
-	bool IndexBuffer::SetStorage(UInt32 storage)
-	{
-		return m_buffer->SetStorage(storage);
 	}
 
 	void IndexBuffer::Unmap() const

@@ -1,8 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/RudpConnection.hpp>
+#include <Nazara/Network/RUdpConnection.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/NetPacket.hpp>
@@ -10,6 +10,16 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup network
+	* \class Nz::RUdpConnection
+	* \brief Network class that represents a reliable UDP connection
+	*/
+
+	/*!
+	* \brief Constructs a RUdpConnection object by default
+	*/
+
 	RUdpConnection::RUdpConnection() :
 	m_peerIterator(0),
 	m_forceAckSendTime(10'000), //< 10ms
@@ -18,13 +28,25 @@ namespace Nz
 	m_timeBeforePing(500'000), //< 0.5s
 	m_timeBeforeTimeOut(10'000'000), //< 10s
 	m_currentTime(0),
+	m_isSimulationEnabled(false),
 	m_shouldAcceptConnections(true)
 	{
 	}
 
+	/*!
+	* \brief Connects to the IpAddress
+	* \return true
+	*
+	* \param remoteAddress Address to connect to
+	*
+	* \remark Produces a NazaraAssert if socket is not bound
+	* \remark Produces a NazaraAssert if remote is invalid
+	* \remark Produces a NazaraAssert if port is not specified
+	*/
+
 	bool RUdpConnection::Connect(const IpAddress& remoteAddress)
 	{
-		NazaraAssert(m_socket.GetState() != SocketState_Bound, "Socket must be bound first");
+		NazaraAssert(m_socket.GetState() == SocketState_Bound, "Socket must be bound first");
 		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
 		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
 
@@ -34,9 +56,19 @@ namespace Nz
 		NetPacket connectionRequestPacket(NetCode_RequestConnection);
 		connectionRequestPacket << client.stateData1;
 
-		EnqueuePacket(client, PacketPriority_Immediate, PacketReliability_Unreliable, connectionRequestPacket);
+		EnqueuePacket(client, PacketPriority_Immediate, PacketReliability_Reliable, connectionRequestPacket);
 		return true;
 	}
+
+	/*!
+	* \brief Connects to the hostname
+	* \return true If successful
+	*
+	* \param hostName Hostname of the remote
+	* \param protocol Net protocol to use
+	* \param service Specify the protocol used
+	* \param error Optional argument to get the error
+	*/
 
 	bool RUdpConnection::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
 	{
@@ -63,7 +95,14 @@ namespace Nz
 		return Connect(hostnameAddress);
 	}
 
-	bool RUdpConnection::Listen(const IpAddress& address, unsigned int queueSize)
+	/*!
+	* \brief Listens to a socket
+	* \return true If successfully bound
+	*
+	* \param remoteAddress Address to listen to
+	*/
+
+	bool RUdpConnection::Listen(const IpAddress& address)
 	{
 		if (!InitSocket(address.GetProtocol()))
 			return false;
@@ -71,8 +110,19 @@ namespace Nz
 		return m_socket.Bind(address) == SocketState_Bound;
 	}
 
+	/*!
+	* \brief Polls the message
+	* \return true If there is a message
+	*
+	* \param message Message to poll
+	*
+	* \remark Produces a NazaraAssert if message is invalid
+	*/
+
 	bool RUdpConnection::PollMessage(RUdpMessage* message)
 	{
+		NazaraAssert(message, "Invalid message");
+
 		if (m_receivedMessages.empty())
 			return false;
 
@@ -80,6 +130,16 @@ namespace Nz
 		m_receivedMessages.pop();
 		return true;
 	}
+
+	/*!
+	* \brief Sends the packet to a peer
+	* \return true If peer exists (false may result from disconnected client)
+	*
+	* \param peerIp IpAddress of the peer
+	* \param priority Priority of the packet
+	* \param reliability Policy of reliability of the packet
+	* \param packet Packet to send
+	*/
 
 	bool RUdpConnection::Send(const IpAddress& peerIp, PacketPriority priority, PacketReliability reliability, const NetPacket& packet)
 	{
@@ -90,6 +150,10 @@ namespace Nz
 		EnqueuePacket(m_peers[it->second], priority, reliability, packet);
 		return true;
 	}
+
+	/*!
+	* \brief Updates the reliable connection
+	*/
 
 	void RUdpConnection::Update()
 	{
@@ -110,7 +174,7 @@ namespace Nz
 		{
 			PeerData& peer = m_peers[m_peerIterator];
 
-			UInt32 timeSinceLastPacket = m_currentTime - peer.lastPacketTime;
+			UInt32 timeSinceLastPacket = static_cast<UInt32>(m_currentTime - peer.lastPacketTime);
 			if (timeSinceLastPacket > m_timeBeforeTimeOut)
 			{
 				DisconnectPeer(peer.index);
@@ -155,6 +219,14 @@ namespace Nz
 		//m_activeClients.Reset();
 	}
 
+	/*!
+	* \brief Disconnects a peer
+	*
+	* \param peerIndex Index of the peer
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
 	void RUdpConnection::DisconnectPeer(std::size_t peerIndex)
 	{
 		PeerData& peer = m_peers[peerIndex];
@@ -192,6 +264,15 @@ namespace Nz
 		m_peers.pop_back();
 	}
 
+	/*!
+	* \brief Enqueues a packet in the sending list
+	*
+	* \param peer Data relative to the peer
+	* \param priority Priority of the packet
+	* \param reliability Policy of reliability of the packet
+	* \param packet Packet to send
+	*/
+
 	void RUdpConnection::EnqueuePacket(PeerData& peer, PacketPriority priority, PacketReliability reliability, const NetPacket& packet)
 	{
 		UInt16 protocolBegin = static_cast<UInt16>(m_protocol & 0xFFFF);
@@ -207,6 +288,15 @@ namespace Nz
 		EnqueuePacketInternal(peer, priority, reliability, std::move(data));
 	}
 
+	/*!
+	* \brief Enqueues internally a packet in the sending list
+	*
+	* \param peer Data relative to the peer
+	* \param priority Priority of the packet
+	* \param reliability Policy of reliability of the packet
+	* \param packet Packet to send
+	*/
+
 	void RUdpConnection::EnqueuePacketInternal(PeerData& peer, PacketPriority priority, PacketReliability reliability, NetPacket&& data)
 	{
 		PendingPacket pendingPacket;
@@ -217,6 +307,13 @@ namespace Nz
 		peer.pendingPackets[priority].emplace_back(std::move(pendingPacket));
 		m_activeClients.UnboundedSet(peer.index);
 	}
+
+	/*!
+	* \brief Inits the internal socket
+	* \return true If successful
+	*
+	* \param protocol Net protocol to use
+	*/
 
 	bool RUdpConnection::InitSocket(NetProtocol protocol)
 	{
@@ -231,6 +328,14 @@ namespace Nz
 		m_socket.EnableBlocking(false);
 		return true;
 	}
+
+	/*!
+	* \brief Processes the acks
+	*
+	* \param peer Data relative to the peer
+	* \param lastAck Last index of the ack
+	* \param ackBits Bits for acking
+	*/
 
 	void RUdpConnection::ProcessAcks(PeerData& peer, SequenceIndex lastAck, UInt32 ackBits)
 	{
@@ -256,6 +361,14 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Registers a peer
+	* \return Data relative to the peer
+	*
+	* \param address Address of the peer
+	* \param state Status of the peer
+	*/
+
 	RUdpConnection::PeerData& RUdpConnection::RegisterPeer(const IpAddress& address, PeerState state)
 	{
 		PeerData data;
@@ -265,7 +378,7 @@ namespace Nz
 		data.index = m_peers.size();
 		data.lastPacketTime = m_currentTime;
 		data.lastPingTime = m_currentTime;
-		data.roundTripTime = 1000000; ///< Okay that's quite a lot
+		data.roundTripTime = 1'000'000; ///< Okay that's quite a lot
 		data.state = state;
 
 		m_activeClients.UnboundedSet(data.index);
@@ -274,6 +387,14 @@ namespace Nz
 		m_peers.emplace_back(std::move(data));
 		return m_peers.back();
 	}
+
+	/*!
+	* \brief Operation to do when client requests a connection
+	*
+	* \param address Address of the peer
+	* \param sequenceId Sequence index for the ack
+	* \param token Token for connection
+	*/
 
 	void RUdpConnection::OnClientRequestingConnection(const IpAddress& address, SequenceIndex sequenceId, UInt64 token)
 	{
@@ -291,6 +412,13 @@ namespace Nz
 		EnqueuePacket(client, PacketPriority_Immediate, PacketReliability_Reliable, connectionAcceptedPacket);
 	}
 
+	/*!
+	* \brief Operation to do when a packet is lost
+	*
+	* \param peer Data relative to the peer
+	* \param packet Pending packet
+	*/
+
 	void RUdpConnection::OnPacketLost(PeerData& peer, PendingAckPacket&& packet)
 	{
 		//NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(packet.sequenceId));
@@ -298,6 +426,14 @@ namespace Nz
 		if (IsReliable(packet.reliability))
 			EnqueuePacketInternal(peer, packet.priority, packet.reliability, std::move(packet.data));
 	}
+
+	/*!
+	* \brief Operation to do when receiving a packet
+	*
+	* \param peerIndex Index of the peer
+	*
+	* \remark Produces a NazaraNotice
+	*/
 
 	void RUdpConnection::OnPacketReceived(const IpAddress& peerIp, NetPacket&& packet)
 	{
@@ -349,6 +485,12 @@ namespace Nz
 			if (peer.receivedQueue.find(sequenceId) != peer.receivedQueue.end())
 				return; //< Ignore
 
+			if (m_isSimulationEnabled && m_packetLossProbability(s_randomGenerator))
+			{
+				NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(sequenceId) + " from " + peerIp.ToString() + " for simulation purpose");
+				return;
+			}
+
 			///< Receiving a packet from an acknowledged client means the connection works in both ways
 			if (peer.state == PeerState_Aknowledged && packet.GetNetCode() != NetCode_RequestConnection)
 			{
@@ -385,7 +527,7 @@ namespace Nz
 					}
 					else
 					{
-						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address);
+						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address.ToString());
 						return; //< Ignore
 					}
 
@@ -429,6 +571,13 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Sends a packet to a peer
+	*
+	* \param peer Data relative to the peer
+	* \param packet Pending packet
+	*/
+
 	void RUdpConnection::SendPacket(PeerData& peer, PendingPacket&& packet)
 	{
 		if (peer.state == PeerState_WillAck)
@@ -441,7 +590,7 @@ namespace Nz
 		{
 			if (ack == remoteSequence)
 				continue;
-			
+
 			unsigned int difference = ComputeSequenceDifference(remoteSequence, ack);
 			if (difference <= 32U)
 				previousAcks |= (1U << (difference - 1));
@@ -466,6 +615,11 @@ namespace Nz
 		peer.pendingAckQueue.emplace_back(std::move(pendingAckPacket));
 	}
 
+	/*!
+	* \brief Initializes the RUdpConnection class
+	* \return true
+	*/
+
 	bool RUdpConnection::Initialize()
 	{
 		std::random_device device;
@@ -474,7 +628,11 @@ namespace Nz
 		return true;
 	}
 
-	inline void RUdpConnection::Uninitialize()
+	/*!
+	* \brief Uninitializes the RUdpConnection class
+	*/
+
+	void RUdpConnection::Uninitialize()
 	{
 	}
 

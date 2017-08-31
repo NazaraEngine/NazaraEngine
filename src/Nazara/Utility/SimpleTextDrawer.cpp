@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,7 +49,7 @@ namespace Nz
 		ClearGlyphs();
 	}
 
-	const Rectui& SimpleTextDrawer::GetBounds() const
+	const Recti& SimpleTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -72,19 +72,20 @@ namespace Nz
 		return m_font;
 	}
 
-	Font* SimpleTextDrawer::GetFont(unsigned int index) const
+	Font* SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
+		NazaraUnused(index);
 
 		return m_font;
 	}
 
-	unsigned int SimpleTextDrawer::GetFontCount() const
+	std::size_t SimpleTextDrawer::GetFontCount() const
 	{
 		return 1;
 	}
 
-	const AbstractTextDrawer::Glyph& SimpleTextDrawer::GetGlyph(unsigned int index) const
+	const AbstractTextDrawer::Glyph& SimpleTextDrawer::GetGlyph(std::size_t index) const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -94,12 +95,29 @@ namespace Nz
 		return m_glyphs[index];
 	}
 
-	unsigned int SimpleTextDrawer::GetGlyphCount() const
+	std::size_t SimpleTextDrawer::GetGlyphCount() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
 		return m_glyphs.size();
+	}
+
+	const AbstractTextDrawer::Line& SimpleTextDrawer::GetLine(std::size_t index) const
+	{
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		NazaraAssert(index < m_lines.size(), "Line index out of range");
+		return m_lines[index];
+	}
+
+	std::size_t SimpleTextDrawer::GetLineCount() const
+	{
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		return m_lines.size();
 	}
 
 	UInt32 SimpleTextDrawer::GetStyle() const
@@ -217,10 +235,16 @@ namespace Nz
 		m_bounds.MakeZero();
 		m_colorUpdated = true;
 		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
 		m_previousCharacter = 0;
 		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
+
+		if (m_font)
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, float(m_font->GetSizeInfo(m_characterSize).lineHeight)), 0});
+		else
+			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
 
 	void SimpleTextDrawer::ConnectFontSlots()
@@ -263,19 +287,16 @@ namespace Nz
 			m_previousCharacter = character;
 
 			bool whitespace = true;
+			int advance = 0;
 			switch (character)
 			{
 				case ' ':
-					m_drawPos.x += sizeInfo.spaceAdvance;
-					break;
-
 				case '\n':
-					m_drawPos.x = 0;
-					m_drawPos.y += sizeInfo.lineHeight;
+					advance = sizeInfo.spaceAdvance;
 					break;
 
 				case '\t':
-					m_drawPos.x += sizeInfo.spaceAdvance * 4;
+					advance = sizeInfo.spaceAdvance * 4;
 					break;
 
 				default:
@@ -283,61 +304,96 @@ namespace Nz
 					break;
 			}
 
-			if (whitespace)
-				continue; // White spaces are blanks and invisible, move the draw position and skip the rest
-
-			const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
-			if (!fontGlyph.valid)
-				continue; // Glyph failed to load, just skip it (can't do much)
-
 			Glyph glyph;
-			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
-			glyph.atlasRect = fontGlyph.atlasRect;
-			glyph.color = m_color;
-			glyph.flipped = fontGlyph.flipped;
-
-			int advance = fontGlyph.advance;
-
-			Rectf bounds(fontGlyph.aabb);
-			bounds.x += m_drawPos.x;
-			bounds.y += m_drawPos.y;
-
-			if (fontGlyph.requireFauxBold)
+			if (!whitespace)
 			{
-				// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
-				Vector2f center = bounds.GetCenter();
+				const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
+				if (!fontGlyph.valid)
+					continue; // Glyph failed to load, just skip it (can't do much)
 
-				// Enlarge by 10%
-				bounds.width *= 1.1f;
-				bounds.height *= 1.1f;
+				advance = fontGlyph.advance;
 
-				// Replace it at the correct height
-				Vector2f offset(bounds.GetCenter() - center);
-				bounds.y -= offset.y;
+				glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+				glyph.atlasRect = fontGlyph.atlasRect;
+				glyph.color = m_color;
+				glyph.flipped = fontGlyph.flipped;
 
-				// Adjust advance (+10%)
-				advance += advance / 10;
+				glyph.bounds.Set(fontGlyph.aabb);
+				glyph.bounds.x += m_drawPos.x;
+				glyph.bounds.y += m_drawPos.y;
+
+				if (fontGlyph.requireFauxBold)
+				{
+					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
+					Vector2f center = glyph.bounds.GetCenter();
+
+					// Enlarge by 10%
+					glyph.bounds.width *= 1.1f;
+					glyph.bounds.height *= 1.1f;
+
+					// Replace it at the correct height
+					Vector2f offset(glyph.bounds.GetCenter() - center);
+					glyph.bounds.x -= offset.x;
+					glyph.bounds.y -= offset.y;
+
+					// Adjust advance (+10%)
+					advance += advance / 10;
+				}
+
+				// We "lean" the glyph to simulate italics style
+				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+				float italicTop = italic * glyph.bounds.y;
+				float italicBottom = italic * glyph.bounds.GetMaximum().y;
+
+				glyph.corners[0].Set(glyph.bounds.x - italicTop, glyph.bounds.y);
+				glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop, glyph.bounds.y);
+				glyph.corners[2].Set(glyph.bounds.x - italicBottom, glyph.bounds.y + glyph.bounds.height);
+				glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom, glyph.bounds.y + glyph.bounds.height);
+			}
+			else
+			{
+				glyph.atlas = nullptr;
+
+				glyph.bounds.Set(float(m_drawPos.x), float(m_drawPos.y), float(advance), float(sizeInfo.lineHeight));
+
+				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
+				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
+				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner_LeftBottom));
+				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner_RightBottom));
+
+				switch (character)
+				{
+					case '\n':
+					{
+						// Extend the line bounding rect to the last glyph it contains, thus extending upon all glyphs of the line
+						if (!m_glyphs.empty())
+						{
+							Glyph& lastGlyph = m_glyphs.back();
+							m_lines.back().bounds.ExtendTo(lastGlyph.bounds);
+						}
+
+						// Reset cursor
+						advance = 0;
+						m_drawPos.x = 0;
+						m_drawPos.y += sizeInfo.lineHeight;
+
+						m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
+						break;
+					}
+				}
 			}
 
-			// We "lean" the glyph to simulate italics style
-			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-			float italicTop = italic * bounds.y;
-			float italicBottom = italic * bounds.GetMaximum().y;
-
-			glyph.corners[0].Set(bounds.x - italicTop, bounds.y);
-			glyph.corners[1].Set(bounds.x + bounds.width - italicTop, bounds.y);
-			glyph.corners[2].Set(bounds.x - italicBottom, bounds.y + bounds.height);
-			glyph.corners[3].Set(bounds.x + bounds.width - italicBottom, bounds.y + bounds.height);
+			m_lines.back().bounds.ExtendTo(glyph.bounds);
 
 			if (!m_workingBounds.IsValid())
-				m_workingBounds.Set(glyph.corners[0]);
-
-			for (unsigned int i = 0; i < 4; ++i)
-				m_workingBounds.ExtendTo(glyph.corners[i]);
+				m_workingBounds.Set(glyph.bounds);
+			else
+				m_workingBounds.ExtendTo(glyph.bounds);
 
 			m_drawPos.x += advance;
 			m_glyphs.push_back(glyph);
 		}
+		m_lines.back().bounds.ExtendTo(m_glyphs.back().bounds);
 
 		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
 	}

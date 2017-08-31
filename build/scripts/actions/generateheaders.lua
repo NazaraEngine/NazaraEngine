@@ -60,6 +60,15 @@ ACTION.Function = function ()
 		Target = "../SDK/include/NDK/Systems.hpp"
 	})
 	
+	table.insert(paths, {
+		Excludes = {},
+		HeaderGuard = "NDK_WIDGETS_GLOBAL_HPP",
+		Name = "NDK Widgets",
+		SearchDir = "../SDK/include/NDK/Widgets", 
+		TopDir = "NDK", 
+		Target = "../SDK/include/NDK/Widgets.hpp"
+	})
+	
 	for k,v in ipairs(paths) do
 		print(v.Name)
 		local header, err = io.open(v.Target, "w+")
@@ -67,7 +76,7 @@ ACTION.Function = function ()
 			error("Failed to create header file (" .. v.Target .. "): " .. err)
 		end
 
-		header:write("// This file was automatically generated on " .. os.date("%d %b %Y at %X") .. "\n\n")
+		header:write("// This file was automatically generated\n\n")
 		if (v.Header) then
 			header:write(v.Header)
 		end

@@ -1,9 +1,9 @@
-// This file was automatically generated on 17 Nov 2015 at 13:20:45
+// This file was automatically generated
 
 /*
 	Nazara Engine - Noise module
 
-	Copyright (C) 2015 Rémi "Overdrivr" Bèges (remi.beges@laposte.net)
+	Copyright (C) 2016 Rémi "Overdrivr" Bèges (remi.beges@laposte.net)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -29,25 +29,16 @@
 #ifndef NAZARA_GLOBAL_NOISE_HPP
 #define NAZARA_GLOBAL_NOISE_HPP
 
-#include <Nazara/Noise/Abstract2DNoise.hpp>
-#include <Nazara/Noise/Abstract3DNoise.hpp>
-#include <Nazara/Noise/Abstract4DNoise.hpp>
-#include <Nazara/Noise/ComplexNoiseBase.hpp>
 #include <Nazara/Noise/Config.hpp>
-#include <Nazara/Noise/FBM2D.hpp>
-#include <Nazara/Noise/FBM3D.hpp>
-#include <Nazara/Noise/FBM4D.hpp>
-#include <Nazara/Noise/HybridMultiFractal2D.hpp>
-#include <Nazara/Noise/HybridMultiFractal3D.hpp>
-#include <Nazara/Noise/HybridMultiFractal4D.hpp>
-#include <Nazara/Noise/MappedNoiseBase.hpp>
+#include <Nazara/Noise/Enums.hpp>
+#include <Nazara/Noise/FBM.hpp>
+#include <Nazara/Noise/HybridMultiFractal.hpp>
+#include <Nazara/Noise/MixerBase.hpp>
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <Nazara/Noise/Perlin2D.hpp>
-#include <Nazara/Noise/Perlin3D.hpp>
-#include <Nazara/Noise/Perlin4D.hpp>
-#include <Nazara/Noise/Simplex2D.hpp>
-#include <Nazara/Noise/Simplex3D.hpp>
-#include <Nazara/Noise/Simplex4D.hpp>
+#include <Nazara/Noise/NoiseTools.hpp>
+#include <Nazara/Noise/Perlin.hpp>
+#include <Nazara/Noise/Simplex.hpp>
+#include <Nazara/Noise/Worley.hpp>
 
 #endif // NAZARA_GLOBAL_NOISE_HPP

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,6 +17,23 @@ namespace Nz
 	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
 	m_sharedString(std::move(sharedString))
 	{
+	}
+
+	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param ... Format arguments
+	*/
+	String String::Format(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		String result = FormatVA(format, args);
+		va_end(args);
+
+		return result;
 	}
 
 	/*!
@@ -45,7 +62,7 @@ namespace Nz
 	*/
 
 	inline String::SharedString::SharedString(std::size_t strSize) :
-	capacity(strSize), 
+	capacity(strSize),
 	size(strSize),
 	string(new char[strSize + 1])
 	{
@@ -84,16 +101,15 @@ namespace Nz
 
 namespace std
 {
-	/*!
-	* \brief Specialisation of std to hash
-	* \return Result of the hash
-	*
-	* \param str String to hash
-	*/
-
 	template<>
 	struct hash<Nz::String>
 	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param str String to hash
+		*/
 		size_t operator()(const Nz::String& str) const
 		{
 			// Algorithme DJB2

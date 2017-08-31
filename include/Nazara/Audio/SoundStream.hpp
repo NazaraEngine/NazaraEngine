@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,11 +21,11 @@ namespace Nz
 
 			virtual UInt32 GetDuration() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
-			virtual UInt32 GetSampleCount() const = 0;
+			virtual UInt64 GetSampleCount() const = 0;
 			virtual UInt32 GetSampleRate() const = 0;
 
-			virtual unsigned int Read(void* buffer, unsigned int sampleCount) = 0;
-			virtual void Seek(UInt32 offset) = 0;
+			virtual UInt64 Read(void* buffer, UInt64 sampleCount) = 0;
+			virtual void Seek(UInt64 offset) = 0;
 	};
 }
 

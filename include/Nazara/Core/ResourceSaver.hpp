@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,6 +27,7 @@ namespace Nz
 		friend Type;
 
 		public:
+			using ExtensionGetter = bool (*)(const String& extension);
 			using FormatQuerier = bool (*)(const String& format);
 			using FileSaver = bool (*)(const Type& resource, const String& filePath, const Parameters& parameters);
 			using StreamSaver = bool (*)(const Type& resource, const String& format, Stream& stream, const Parameters& parameters);

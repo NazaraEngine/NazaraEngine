@@ -2,12 +2,27 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#pragma once
+
+#ifndef NAZARA_SOCKETIMPL_HPP
+#define NAZARA_SOCKETIMPL_HPP
+
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
+
+#define NAZARA_NETWORK_POLL_SUPPORT 1
 
 namespace Nz
 {
+	struct PollSocket
+	{
+		SocketHandle fd;
+		short events;
+		short revents;
+	};
+
 	class SocketImpl
 	{
 		public:
@@ -41,17 +56,25 @@ namespace Nz
 			static bool QueryNoDelay(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QueryPeerAddress(SocketHandle handle, SocketError* error = nullptr);
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QueryReceiveBufferSize(SocketHandle handle, SocketError* error = nullptr);
+			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
+
+			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
+			static bool ReceiveMultiple(SocketHandle handle, NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, int* read, SocketError* error);
 
 			static bool Send(SocketHandle handle, const void* buffer, int length, int* sent, SocketError* error);
+			static bool SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error);
 			static bool SendTo(SocketHandle handle, const void* buffer, int length, const IpAddress& to, int* sent, SocketError* error);
 
 			static bool SetBlocking(SocketHandle handle, bool blocking, SocketError* error = nullptr);
 			static bool SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
 			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
+			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
+			static bool SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 
 			static SocketError TranslateErrnoToResolveError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
@@ -66,3 +89,5 @@ namespace Nz
 			static socketID s_socket;
 	};
 }
+
+#endif // NAZARA_SOCKETIMPL_HPP

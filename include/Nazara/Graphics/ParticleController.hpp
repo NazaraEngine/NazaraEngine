@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,7 +18,7 @@ namespace Nz
 {
 	class ParticleController;
 	class ParticleMapper;
-	class ParticleSystem;
+	class ParticleGroup;
 
 	using ParticleControllerConstRef = ObjectRef<const ParticleController>;
 	using ParticleControllerLibrary = ObjectLibrary<ParticleController>;
@@ -34,7 +34,7 @@ namespace Nz
 			ParticleController(const ParticleController& controller);
 			virtual ~ParticleController();
 
-			virtual void Apply(ParticleSystem& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
+			virtual void Apply(ParticleGroup& system, ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime) = 0;
 
 			// Signals:
 			NazaraSignal(OnParticleControllerRelease, const ParticleController* /*particleController*/);

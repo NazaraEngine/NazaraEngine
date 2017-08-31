@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
@@ -41,25 +42,26 @@ namespace Nz
 
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
-										 Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
+			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
 			String baseDir = stream.GetDirectory();
 
 			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
-			Vector3f scale(parameters.scale/40.f);
+			Matrix4f matrix = Matrix4f::Transform(Nz::Vector3f::Zero(), rotationQuat, Vector3f(1.f / 40.f));
+			matrix *= parameters.matrix;
 
 			const MD5MeshParser::Joint* joints = parser.GetJoints();
 			const MD5MeshParser::Mesh* meshes = parser.GetMeshes();
-			unsigned int jointCount = parser.GetJointCount();
-			unsigned int meshCount = parser.GetMeshCount();
+			UInt32 jointCount = parser.GetJointCount();
+			UInt32 meshCount = parser.GetMeshCount();
 
 			if (parameters.animated)
 			{
 				mesh->CreateSkeletal(jointCount);
 
 				Skeleton* skeleton = mesh->GetSkeleton();
-				for (unsigned int i = 0; i < jointCount; ++i)
+				for (UInt32 i = 0; i < jointCount; ++i)
 				{
 					Joint* joint = skeleton->GetJoint(i);
 
@@ -80,17 +82,17 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (unsigned int i = 0; i < meshCount; ++i)
+				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
-					unsigned int indexCount = md5Mesh.triangles.size()*3;
-					unsigned int vertexCount = md5Mesh.vertices.size();
+					std::size_t indexCount = md5Mesh.triangles.size()*3;
+					std::size_t vertexCount = md5Mesh.vertices.size();
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage);
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, BufferUsage_Static);
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, 0);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, 0);
 
 					// Index buffer
 					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
@@ -98,7 +100,7 @@ namespace Nz
 					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
 					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
 					// (On parle ici de winding)
-					unsigned int index = 0;
+					UInt32 index = 0;
 					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
 					{
 						// On les respécifie dans le bon ordre (inversion du winding)
@@ -182,14 +184,17 @@ namespace Nz
 						}
 
 						vertices->position = finalPos;
-						vertices->uv.Set(vertex.uv.x, (parameters.flipUVs) ? 1.f - vertex.uv.y : vertex.uv.y); // Inversion des UV si demandé
+						vertices->uv.Set(parameters.texCoordOffset + vertex.uv * parameters.texCoordScale);
 						vertices++;
 					}
 
 					vertexMapper.Unmap();
 
 					// Material
-					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+					ParameterList matData;
+					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+
+					mesh->SetMaterialData(i, std::move(matData));
 
 					// Submesh
 					SkeletalMeshRef subMesh = SkeletalMesh::New(mesh);
@@ -222,16 +227,16 @@ namespace Nz
 				}
 
 				mesh->SetMaterialCount(meshCount);
-				for (unsigned int i = 0; i < meshCount; ++i)
+				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
-					unsigned int indexCount = md5Mesh.triangles.size()*3;
-					unsigned int vertexCount = md5Mesh.vertices.size();
+					std::size_t indexCount = md5Mesh.triangles.size()*3;
+					std::size_t vertexCount = md5Mesh.vertices.size();
 
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage);
+					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, 0);
 
 					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 					IndexIterator index = indexMapper.begin();
@@ -246,10 +251,10 @@ namespace Nz
 					indexMapper.Unmap();
 
 					// Vertex buffer
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, 0);
 					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
-					MeshVertex* vertex = reinterpret_cast<MeshVertex*>(vertexMapper.GetPointer());
+					MeshVertex* vertices = static_cast<MeshVertex*>(vertexMapper.GetPointer());
 					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 					{
 						// Skinning MD5 (Formule d'Id Tech)
@@ -263,9 +268,9 @@ namespace Nz
 						}
 
 						// On retourne le modèle dans le bon sens
-						vertex->position = scale * (rotationQuat * finalPos);
-						vertex->uv.Set(md5Vertex.uv.x, (parameters.flipUVs) ? 1.f - md5Vertex.uv.y : md5Vertex.uv.y); // Inversion des UV si demandé
-						vertex++;
+						vertices->position = matrix * finalPos;
+						vertices->uv.Set(parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale);
+						vertices++;
 					}
 
 					vertexMapper.Unmap();
@@ -285,7 +290,10 @@ namespace Nz
 					mesh->AddSubMesh(subMesh);
 
 					// Material
-					mesh->SetMaterial(i, baseDir + md5Mesh.shader);
+					ParameterList matData;
+					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+
+					mesh->SetMaterialData(i, std::move(matData));
 				}
 
 				if (parameters.center)

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -43,27 +43,27 @@ namespace Nz
 			bool Create(SoundStream* soundStream);
 			void Destroy();
 
-			void EnableLooping(bool loop);
+			void EnableLooping(bool loop) override;
 
-			UInt32 GetDuration() const;
+			UInt32 GetDuration() const override;
 			AudioFormat GetFormat() const;
-			UInt32 GetPlayingOffset() const;
-			UInt32 GetSampleCount() const;
+			UInt32 GetPlayingOffset() const override;
+			UInt64 GetSampleCount() const;
 			UInt32 GetSampleRate() const;
-			SoundStatus GetStatus() const;
+			SoundStatus GetStatus() const override;
 
-			bool IsLooping() const;
+			bool IsLooping() const override;
 
 			bool OpenFromFile(const String& filePath, const MusicParams& params = MusicParams());
 			bool OpenFromMemory(const void* data, std::size_t size, const MusicParams& params = MusicParams());
 			bool OpenFromStream(Stream& stream, const MusicParams& params = MusicParams());
 
-			void Pause();
-			void Play();
+			void Pause() override;
+			void Play() override;
 
 			void SetPlayingOffset(UInt32 offset);
 
-			void Stop();
+			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
 			Music& operator=(Music&&) = delete; ///TODO
@@ -73,6 +73,7 @@ namespace Nz
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();
+			void StopThread();
 
 			static MusicLoader::LoaderList s_loaders;
 	};

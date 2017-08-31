@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,15 +13,22 @@ namespace Nz
 {
 	class Mutex;
 
-	class NAZARA_CORE_API LockGuard
+	class LockGuard
 	{
 		public:
-			LockGuard(Mutex& mutex);
-			~LockGuard();
+			inline LockGuard(Mutex& mutex, bool lock = true);
+			inline ~LockGuard();
+
+			inline void Lock();
+			inline bool TryLock();
+			inline void Unlock();
 
 		private:
 			Mutex& m_mutex;
+			bool m_locked;
 	};
 }
+
+#include <Nazara/Core/LockGuard.inl>
 
 #endif // NAZARA_LOCKGUARD_HPP

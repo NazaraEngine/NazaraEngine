@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,7 @@
 #define NAZARA_LOG_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
@@ -29,8 +30,6 @@
 
 namespace Nz
 {
-	class AbstractLogger;
-
 	class NAZARA_CORE_API Log
 	{
 		friend class Core;

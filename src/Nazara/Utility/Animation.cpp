@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,13 +14,13 @@ namespace Nz
 {
 	struct AnimationImpl
 	{
-		std::unordered_map<String, unsigned int> sequenceMap;
+		std::unordered_map<String, UInt32> sequenceMap;
 		std::vector<Sequence> sequences;
 		std::vector<SequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 		AnimationType type;
 		bool loopPointInterpolation = false;
-		unsigned int frameCount;
-		unsigned int jointCount;  // Uniquement pour les animations squelettiques
+		UInt32 frameCount;
+		UInt32 jointCount;  // Uniquement pour les animations squelettiques
 	};
 
 	bool AnimationParams::IsValid() const
@@ -37,44 +37,24 @@ namespace Nz
 	Animation::~Animation()
 	{
 		OnAnimationRelease(this);
+
+		Destroy();
 	}
 
 	bool Animation::AddSequence(const Sequence& sequence)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return false;
-		}
-
-		if (sequence.frameCount == 0)
-		{
-			NazaraError("Sequence frame count must be over zero");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(sequence.frameCount > 0, "Sequence frame count must be over zero");
 
 		if (m_impl->type == AnimationType_Skeletal)
 		{
-			unsigned int endFrame = sequence.firstFrame + sequence.frameCount - 1;
+			UInt32 endFrame = sequence.firstFrame + sequence.frameCount - 1;
 			if (endFrame >= m_impl->frameCount)
 			{
 				m_impl->frameCount = endFrame+1;
 				m_impl->sequenceJoints.resize(m_impl->frameCount*m_impl->jointCount);
 			}
 		}
-		#if NAZARA_UTILITY_SAFE
-		else
-		{
-			unsigned int endFrame = sequence.firstFrame + sequence.frameCount - 1;
-			if (endFrame >= m_impl->frameCount)
-			{
-				NazaraError("Sequence end frame is over animation end frame");
-				return false;
-			}
-		}
-		#endif
 
 		if (!sequence.name.IsEmpty())
 		{
@@ -82,12 +62,12 @@ namespace Nz
 			auto it = m_impl->sequenceMap.find(sequence.name);
 			if (it != m_impl->sequenceMap.end())
 			{
-				NazaraError("Sequence name \"" + sequence.name + "\" is already used");
+				NazaraError("Sequence name \"" + sequence.name + "\" is already in use");
 				return false;
 			}
 			#endif
 
-			m_impl->sequenceMap[sequence.name] = m_impl->sequences.size();
+			m_impl->sequenceMap[sequence.name] = static_cast<UInt32>(m_impl->sequences.size());
 		}
 
 		m_impl->sequences.push_back(sequence);
@@ -95,55 +75,16 @@ namespace Nz
 		return true;
 	}
 
-	void Animation::AnimateSkeleton(Skeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const
+	void Animation::AnimateSkeleton(Skeleton* targetSkeleton, UInt32 frameA, UInt32 frameB, float interpolation) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
+		NazaraAssert(targetSkeleton && targetSkeleton->IsValid(), "Invalid skeleton");
+		NazaraAssert(targetSkeleton->GetJointCount() == m_impl->jointCount, "Skeleton joint does not match animation joint count");
+		NazaraAssert(frameA < m_impl->frameCount, "FrameA is out of range");
+		NazaraAssert(frameB < m_impl->frameCount, "FrameB is out of range");
 
-		if (m_impl->type != AnimationType_Skeletal)
-		{
-			NazaraError("Animation is not skeletal");
-			return;
-		}
-
-		if (!targetSkeleton || !targetSkeleton->IsValid())
-		{
-			NazaraError("Target skeleton is invalid");
-			return;
-		}
-
-		if (targetSkeleton->GetJointCount() != m_impl->jointCount)
-		{
-			NazaraError("Target skeleton joint count must match animation joint count");
-			return;
-		}
-
-		if (frameA >= m_impl->frameCount)
-		{
-			NazaraError("Frame A is out of range (" + String::Number(frameA) + " >= " + String::Number(m_impl->frameCount) + ')');
-			return;
-		}
-
-		if (frameB >= m_impl->frameCount)
-		{
-			NazaraError("Frame B is out of range (" + String::Number(frameB) + " >= " + String::Number(m_impl->frameCount) + ')');
-			return;
-		}
-		#endif
-
-		#ifdef NAZARA_DEBUG
-		if (interpolation < 0.f || interpolation > 1.f)
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
-			return;
-		}
-		#endif
-
-		for (unsigned int i = 0; i < m_impl->jointCount; ++i)
+		for (UInt32 i = 0; i < m_impl->jointCount; ++i)
 		{
 			Joint* joint = targetSkeleton->GetJoint(i);
 
@@ -156,17 +97,12 @@ namespace Nz
 		}
 	}
 
-	bool Animation::CreateSkeletal(unsigned int frameCount, unsigned int jointCount)
+	bool Animation::CreateSkeletal(UInt32 frameCount, UInt32 jointCount)
 	{
-		Destroy();
+		NazaraAssert(frameCount > 0, "Frame count must be over zero");
+		NazaraAssert(jointCount > 0, "Frame count must be over zero");
 
-		#if NAZARA_UTILITY_SAFE
-		if (frameCount == 0)
-		{
-			NazaraError("Frame count must be over zero");
-			return false;
-		}
-		#endif
+		Destroy();
 
 		m_impl = new AnimationImpl;
 		m_impl->frameCount = frameCount;
@@ -190,255 +126,130 @@ namespace Nz
 
 	void Animation::EnableLoopPointInterpolation(bool loopPointInterpolation)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		m_impl->loopPointInterpolation = loopPointInterpolation;
 	}
 
-	unsigned int Animation::GetFrameCount() const
+	UInt32 Animation::GetFrameCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return m_impl->frameCount;
 	}
 
-	unsigned int Animation::GetJointCount() const
+	UInt32 Animation::GetJointCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return 0;
-		}
-
-		if (m_impl->type != AnimationType_Skeletal)
-		{
-			NazaraError("Animation is not skeletal");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return m_impl->jointCount;
 	}
 
 	Sequence* Animation::GetSequence(const String& sequenceName)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
-
-		#if NAZARA_UTILITY_SAFE
 		if (it == m_impl->sequenceMap.end())
 		{
 			NazaraError("Sequence not found");
 			return nullptr;
 		}
-		#endif
 
 		return &m_impl->sequences[it->second];
 	}
 
-	Sequence* Animation::GetSequence(unsigned int index)
+	Sequence* Animation::GetSequence(UInt32 index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->sequences.size())
-		{
-			NazaraError("Sequence index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->sequences.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		return &m_impl->sequences[index];
 	}
 
 	const Sequence* Animation::GetSequence(const String& sequenceName) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
-
-		#if NAZARA_UTILITY_SAFE
 		if (it == m_impl->sequenceMap.end())
 		{
 			NazaraError("Sequence not found");
 			return nullptr;
 		}
-		#endif
 
 		return &m_impl->sequences[it->second];
 	}
 
-	const Sequence* Animation::GetSequence(unsigned int index) const
+	const Sequence* Animation::GetSequence(UInt32 index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->sequences.size())
-		{
-			NazaraError("Sequence index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->sequences.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		return &m_impl->sequences[index];
 	}
 
-	unsigned int Animation::GetSequenceCount() const
+	UInt32 Animation::GetSequenceCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return 0;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
-		return m_impl->sequences.size();
+		return static_cast<UInt32>(m_impl->sequences.size());
 	}
 
-	int Animation::GetSequenceIndex(const String& sequenceName) const
+	UInt32 Animation::GetSequenceIndex(const String& sequenceName) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return -1;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
-
-		#if NAZARA_UTILITY_SAFE
 		if (it == m_impl->sequenceMap.end())
 		{
 			NazaraError("Sequence not found");
-			return -1;
+			return 0xFFFFFFFF;
 		}
-		#endif
 
 		return it->second;
 	}
 
-	SequenceJoint* Animation::GetSequenceJoints(unsigned int frameIndex)
+	SequenceJoint* Animation::GetSequenceJoints(UInt32 frameIndex)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (m_impl->type != AnimationType_Skeletal)
-		{
-			NazaraError("Animation is not skeletal");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
 	}
 
-	const SequenceJoint* Animation::GetSequenceJoints(unsigned int frameIndex) const
+	const SequenceJoint* Animation::GetSequenceJoints(UInt32 frameIndex) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return nullptr;
-		}
-
-		if (m_impl->type != AnimationType_Skeletal)
-		{
-			NazaraError("Animation is not skeletal");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
 	}
 
 	AnimationType Animation::GetType() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return AnimationType_Static; // Ce qui est une valeur invalide pour Animation
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return m_impl->type;
 	}
 
 	bool Animation::HasSequence(const String& sequenceName) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return m_impl->sequenceMap.find(sequenceName) != m_impl->sequenceMap.end();
 	}
 
-	bool Animation::HasSequence(unsigned int index) const
+	bool Animation::HasSequence(UInt32 index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return index >= m_impl->sequences.size();
 	}
 
 	bool Animation::IsLoopPointInterpolationEnabled() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
 
 		return m_impl->loopPointInterpolation;
 	}
@@ -465,12 +276,7 @@ namespace Nz
 
 	void Animation::RemoveSequence(const String& identifier)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return;
-		}
+		NazaraAssert(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(identifier);
 		if (it == m_impl->sequenceMap.end())
@@ -479,32 +285,16 @@ namespace Nz
 			return;
 		}
 
-		int index = it->second;
-		#else
-		int index = m_impl->sequenceMap[identifier];
-		#endif
+		auto sequenceIt = m_impl->sequences.begin();
+		std::advance(sequenceIt, it->second);
 
-		auto it2 = m_impl->sequences.begin();
-		std::advance(it2, index);
-
-		m_impl->sequences.erase(it2);
+		m_impl->sequences.erase(sequenceIt);
 	}
 
-	void Animation::RemoveSequence(unsigned int index)
+	void Animation::RemoveSequence(UInt32 index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Animation not created");
-			return;
-		}
-
-		if (index >= m_impl->sequences.size())
-		{
-			NazaraError("Sequence index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->sequences.size()) + ')');
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		auto it = m_impl->sequences.begin();
 		std::advance(it, index);

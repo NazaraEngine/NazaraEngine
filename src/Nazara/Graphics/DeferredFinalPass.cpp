@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,13 +10,23 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredFinalPass
+	* \brief Graphics class that represents the final pass in deferred rendering
+	*/
+
+	/*!
+	* \brief Constructs a DeferredFinalPass object by default
+	*/
+
 	DeferredFinalPass::DeferredFinalPass()
 	{
 		m_pointSampler.SetAnisotropyLevel(1);
 		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
 		m_pointSampler.SetWrapMode(SamplerWrap_Clamp);
 
-		m_states.parameters[RendererParameter_DepthBuffer] = false;
+		m_states.depthBuffer = false;
 
 		m_uberShader = UberShaderLibrary::Get("Basic");
 
@@ -34,7 +44,16 @@ namespace Nz
 
 	DeferredFinalPass::~DeferredFinalPass() = default;
 
-	bool DeferredFinalPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned secondWorkTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredFinalPass::Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NDK_ENTITYOWNER_HPP
 #define NDK_ENTITYOWNER_HPP
 
-#include <NDK/EntityHandle.hpp>
+#include <NDK/Entity.hpp>
 
 namespace Ndk
 {
@@ -17,7 +17,7 @@ namespace Ndk
 			EntityOwner() = default;
 			explicit EntityOwner(Entity* entity);
 			EntityOwner(const EntityOwner& handle) = delete;
-			EntityOwner(EntityOwner&& handle);
+			EntityOwner(EntityOwner&& handle) noexcept = default;
 			~EntityOwner();
 
 			void Reset(Entity* entity = nullptr);
@@ -25,7 +25,7 @@ namespace Ndk
 
 			EntityOwner& operator=(Entity* entity);
 			EntityOwner& operator=(const EntityOwner& handle) = delete;
-			EntityOwner& operator=(EntityOwner&& handle);
+			EntityOwner& operator=(EntityOwner&& handle) noexcept = default;
 	};
 }
 

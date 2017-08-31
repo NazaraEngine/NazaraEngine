@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,11 +32,13 @@ namespace Nz
 			Id GetId() const;
 			bool IsJoinable() const;
 			void Join();
+			void SetName(const String& name);
 
 			Thread& operator=(const Thread&) = delete;
 			Thread& operator=(Thread&& thread);
 
 			static unsigned int HardwareConcurrency();
+			static void SetCurrentThreadName(const String& name);
 			static void Sleep(UInt32 milliseconds);
 
 		private:

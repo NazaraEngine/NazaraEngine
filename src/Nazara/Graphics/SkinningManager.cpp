@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -46,6 +46,13 @@ namespace Nz
 		SkeletonMap s_cache;
 		std::vector<QueueData> s_skinningQueue;
 
+		/*!
+		* \brief Skins the mesh for a single thread context
+		*
+		* \param mesh Skeletal mesh to get vertex buffer from
+		* \param skeleton Skeleton to consider for getting data
+		* \param buffer Vertex buffer symbolizing the transition
+		*/
 
 		void Skin_MonoCPU(const SkeletalMesh* mesh, const Skeleton* skeleton, VertexBuffer* buffer)
 		{
@@ -60,6 +67,14 @@ namespace Nz
 			SkinPositionNormalTangent(skinningData, 0, mesh->GetVertexCount());
 		}
 
+		/*!
+		* \brief Skins the mesh for a multi-threaded context
+		*
+		* \param mesh Skeletal mesh to get vertex buffer from
+		* \param skeleton Skeleton to consider for getting data
+		* \param buffer Vertex buffer symbolizing the transition
+		*/
+
 		void Skin_MultiCPU(const SkeletalMesh* mesh, const Skeleton* skeleton, VertexBuffer* buffer)
 		{
 			BufferMapper<VertexBuffer> inputMapper(mesh->GetVertexBuffer(), BufferAccess_ReadOnly);
@@ -70,8 +85,8 @@ namespace Nz
 			skinningData.outputVertex = static_cast<MeshVertex*>(outputMapper.GetPointer());
 			skinningData.joints = skeleton->GetJoints();
 
-			// Afin d'empêcher les différents threads de vouloir mettre à jour la même matrice en même temps,
-			// on se charge de la mettre à jour avant de les lancer
+			// To avoid different threads to update the same matrix at the same time
+			// We try to update them before launching the tasks
 			unsigned int jointCount = skeleton->GetJointCount();
 			for (unsigned int i = 0; i < jointCount; ++i)
 				skinningData.joints[i].EnsureSkinningMatrixUpdate();
@@ -86,6 +101,23 @@ namespace Nz
 			TaskScheduler::WaitForTasks();
 		}
 	}
+
+	/*!
+	* \ingroup graphics
+	* \class Nz::SkinningManager
+	* \brief Graphics class that represents the management of skinning
+	*/
+
+	/*!
+	* \brief Gets the vertex buffer from a skeletal mesh with its skeleton
+	* \return A pointer to the vertex buffer newly created
+	*
+	* \param mesh Skeletal mesh to get vertex buffer from
+	* \param skeleton Skeleton to consider for getting data
+	*
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if mesh is invalid
+	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if skeleton is invalid
+	*/
 
 	VertexBuffer* SkinningManager::GetBuffer(const SkeletalMesh* mesh, const Skeleton* skeleton)
 	{
@@ -149,6 +181,10 @@ namespace Nz
 		return buffer;
 	}
 
+	/*!
+	* \brief Skins the skeletal mesh
+	*/
+
 	void SkinningManager::Skin()
 	{
 		for (QueueData& data : s_skinningQueue)
@@ -156,6 +192,11 @@ namespace Nz
 
 		s_skinningQueue.clear();
 	}
+
+	/*!
+	* \brief Initializes the skinning librairies
+	* \return true
+	*/
 
 	bool SkinningManager::Initialize()
 	{
@@ -165,8 +206,14 @@ namespace Nz
 		else
 			s_skinFunc = Skin_MonoCPU;
 
-		return true; // Rien de particulier à faire
+		return true; // Nothing particular to do
 	}
+
+	/*!
+	* \brief Handle the destruction of a skeletal mesh
+	*
+	* \param mesh SkeletalMesh being destroyed
+	*/
 
 	void SkinningManager::OnSkeletalMeshDestroy(const SkeletalMesh* mesh)
 	{
@@ -177,16 +224,32 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Handle the invalidation of a skeletal mesh
+	*
+	* \param mesh SkeletalMesh being invalidated
+	*/
+
 	void SkinningManager::OnSkeletonInvalidated(const Skeleton* skeleton)
 	{
 		for (auto& pair : s_cache.at(skeleton).meshMap)
 			pair.second.updated = false;
 	}
 
+	/*!
+	* \brief Handle the release of a skeletal mesh
+	*
+	* \param skeleton SkeletalMesh being released
+	*/
+
 	void SkinningManager::OnSkeletonRelease(const Skeleton* skeleton)
 	{
 		s_cache.erase(skeleton);
 	}
+
+	/*!
+	* \brief Uninitializes the skinning librairies
+	*/
 
 	void SkinningManager::Uninitialize()
 	{

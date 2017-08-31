@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,7 +28,7 @@ namespace Nz
 	{
 		for (Saver& saver : Type::s_savers)
 		{
-			ExtensionGetter isExtensionSupported = std::get<0>(loader);
+			ExtensionGetter isExtensionSupported = std::get<0>(saver);
 
 			if (isExtensionSupported && isExtensionSupported(extension))
 				return true;
@@ -48,7 +48,7 @@ namespace Nz
 	* \remark The previous file content will be discarded, to prevent this behavior you should use SaveToStream
 	* \remark The file extension will be used as format for the saver ("image.png" => "png", to write a specified format to a user-specified extension you should use SaveToStream
 	*
-	* \seealso SaveToStream
+	* \see SaveToStream
 	*/
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const String& filePath, const Parameters& parameters)
@@ -84,7 +84,7 @@ namespace Nz
 			}
 			else
 			{
-				if (!file.Open(OpenMode_WriteOnly))
+				if (!file.Open(OpenMode_WriteOnly | OpenMode_Truncate))
 				{
 					NazaraError("Failed to save to file: unable to open \"" + filePath + "\" in write mode");
 					return false;
@@ -114,7 +114,7 @@ namespace Nz
 	* \param format Data format to save the resource to
 	* \param parameters Parameters for the saving
 	*
-	* \seealso SaveToFile
+	* \see SaveToFile
 	*/
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const String& format, const Parameters& parameters)

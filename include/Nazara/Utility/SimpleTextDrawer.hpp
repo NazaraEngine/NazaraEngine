@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,14 +28,16 @@ namespace Nz
 
 			void Clear();
 
-			const Rectui& GetBounds() const override;
+			const Recti& GetBounds() const override;
 			unsigned int GetCharacterSize() const;
 			const Color& GetColor() const;
 			Font* GetFont() const;
-			Font* GetFont(unsigned int index) const override;
-			unsigned int GetFontCount() const override;
-			const Glyph& GetGlyph(unsigned int index) const override;
-			unsigned int GetGlyphCount() const override;
+			Font* GetFont(std::size_t index) const override;
+			std::size_t GetFontCount() const override;
+			const Glyph& GetGlyph(std::size_t index) const override;
+			std::size_t GetGlyphCount() const override;
+			const Line& GetLine(std::size_t index) const override;
+			std::size_t GetLineCount() const override;
 			UInt32 GetStyle() const;
 			const String& GetText() const;
 
@@ -68,10 +70,11 @@ namespace Nz
 			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
 
 			mutable std::vector<Glyph> m_glyphs;
+			mutable std::vector<Line> m_lines;
 			Color m_color;
 			FontRef m_font;
 			mutable Rectf m_workingBounds;
-			mutable Rectui m_bounds;
+			mutable Recti m_bounds;
 			String m_text;
 			mutable UInt32 m_previousCharacter;
 			UInt32 m_style;

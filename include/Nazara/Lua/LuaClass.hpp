@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,39 +26,61 @@ namespace Nz
 		friend class LuaClass;
 
 		public:
-			using ClassFunc = std::function<int(LuaInstance& lua, T& instance)>;
-			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using ConstructorFunc = std::function<T*(LuaInstance& lua)>;
-			using FinalizerFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
-			using StaticFunc = std::function<int(LuaInstance& lua)>;
+			using ClassFunc = std::function<int(LuaState& state, T& instance, std::size_t argumentCount)>;
+			using ClassIndexFunc = std::function<bool(LuaState& state, T& instance)>;
+			using ConstructorFunc = std::function<bool(LuaState& state, T* instance, std::size_t argumentCount)>;
+			template<typename P> using ConvertToParent = std::function<P*(T*)>;
+			using FinalizerFunc = std::function<bool(LuaState& state, T& instance)>;
+			using StaticIndexFunc = std::function<bool(LuaState& state)>;
+			using StaticFunc = std::function<int(LuaState& state)>;
 
+			LuaClass() = default;
 			LuaClass(const String& name);
 
-			template<class P>
-			void Inherit(LuaClass<P>& parent);
+			void BindDefaultConstructor();
 
-			void Register(LuaInstance& lua);
+			void BindMethod(const String& name, ClassFunc method);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> BindMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> BindMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> BindMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
+			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> BindMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
 
-			void PushGlobalTable(LuaInstance& lua);
+			void BindStaticMethod(const String& name, StaticFunc func);
+			template<typename R, typename... Args, typename... DefArgs> void BindStaticMethod(const String& name, R(*func)(Args...), DefArgs&&... defArgs);
+
+			template<class P> void Inherit(LuaClass<P>& parent);
+			template<class P> void Inherit(LuaClass<P>& parent, ConvertToParent<P> convertFunc);
+
+			void Reset();
+			void Reset(const String& name);
+
+			void Register(LuaState& state);
+
+			void PushGlobalTable(LuaState& state);
 
 			void SetConstructor(ConstructorFunc constructor);
 			void SetFinalizer(FinalizerFunc finalizer);
 			void SetGetter(ClassIndexFunc getter);
-			void SetMethod(const String& name, ClassFunc method);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, T>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...), DefArgs&&... defArgs);
-			template<typename R, typename P, typename... Args, typename... DefArgs> std::enable_if_t<std::is_base_of<P, typename PointedType<T>::type>::value> SetMethod(const String& name, R(P::*func)(Args...) const, DefArgs&&... defArgs);
 			void SetSetter(ClassIndexFunc setter);
 			void SetStaticGetter(StaticIndexFunc getter);
-			void SetStaticMethod(const String& name, StaticFunc func);
-			template<typename R, typename... Args, typename... DefArgs> void SetStaticMethod(const String& name, R(*func)(Args...), DefArgs&&... defArgs);
 			void SetStaticSetter(StaticIndexFunc getter);
 
 		private:
-			using ParentFunc = std::function<void(LuaInstance& lua, T& instance)>;
-			using InstanceGetter = std::function<T*(LuaInstance& lua)>;
+			template<typename U, bool HasDestructor>
+			friend struct LuaClassImplFinalizerSetupProxy;
+
+			void PushClassInfo(LuaState& state);
+			void SetupConstructor(LuaState& state);
+			void SetupDefaultToString(LuaState& state);
+			void SetupFinalizer(LuaState& state);
+			void SetupGetter(LuaState& state, LuaCFunction proxy);
+			void SetupGlobalTable(LuaState& state);
+			void SetupMetatable(LuaState& state);
+			void SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex);
+			void SetupSetter(LuaState& state, LuaCFunction proxy);
+
+			using ParentFunc = std::function<void(LuaState& state, T* instance)>;
+			using InstanceGetter = std::function<T*(LuaState& state)>;
 
 			struct ClassInfo
 			{
@@ -76,16 +98,17 @@ namespace Nz
 				int globalTableRef = -1;
 			};
 
-			static int ConstructorProxy(lua_State* state);
-			static int FinalizerProxy(lua_State* state);
-			static int InfoDestructor(lua_State* state);
-			static void Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T& instance);
-			static int GetterProxy(lua_State* state);
-			static int MethodProxy(lua_State* state);
-			static int SetterProxy(lua_State* state);
-			static int StaticGetterProxy(lua_State* state);
-			static int StaticMethodProxy(lua_State* state);
-			static int StaticSetterProxy(lua_State* state);
+			static int ConstructorProxy(lua_State* internalState);
+			static int FinalizerProxy(lua_State* internalState);
+			static int InfoDestructor(lua_State* internalState);
+			static void Get(const std::shared_ptr<ClassInfo>& info, LuaState& state, T* instance);
+			static int GetterProxy(lua_State* internalState);
+			static int MethodProxy(lua_State* internalState);
+			static int SetterProxy(lua_State* internalState);
+			static int StaticGetterProxy(lua_State* internalState);
+			static int StaticMethodProxy(lua_State* internalState);
+			static int StaticSetterProxy(lua_State* internalState);
+			static int ToStringProxy(lua_State* internalState);
 
 			std::map<String, ClassFunc> m_methods;
 			std::map<String, StaticFunc> m_staticMethods;

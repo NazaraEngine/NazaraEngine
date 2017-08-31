@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,7 +12,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
-///TODO: Faire hériter SoundEmitter de Node
+///TODO: Inherit SoundEmitter from Node
 
 namespace Nz
 {

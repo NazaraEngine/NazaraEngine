@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,8 @@
 
 #ifndef NAZARA_ENUMS_UTILITY_HPP
 #define NAZARA_ENUMS_UTILITY_HPP
+
+#include <Nazara/Core/Flags.hpp>
 
 namespace Nz
 {
@@ -15,6 +17,22 @@ namespace Nz
 		AnimationType_Static,
 
 		AnimationType_Max = AnimationType_Static
+	};
+
+	enum BlendFunc
+	{
+		BlendFunc_DestAlpha,
+		BlendFunc_DestColor,
+		BlendFunc_SrcAlpha,
+		BlendFunc_SrcColor,
+		BlendFunc_InvDestAlpha,
+		BlendFunc_InvDestColor,
+		BlendFunc_InvSrcAlpha,
+		BlendFunc_InvSrcColor,
+		BlendFunc_One,
+		BlendFunc_Zero,
+
+		BlendFunc_Max = BlendFunc_Zero
 	};
 
 	enum BufferAccess
@@ -38,10 +56,19 @@ namespace Nz
 	enum BufferUsage
 	{
 		BufferUsage_Dynamic,
-		BufferUsage_Static,
+		BufferUsage_FastRead,
 
-		BufferUsage_Max = BufferUsage_Static
+		BufferUsage_Max = BufferUsage_FastRead
 	};
+
+	template<>
+	struct EnumAsFlags<BufferUsage>
+	{
+		static constexpr bool value = true;
+		static constexpr int  max   = BufferUsage_Max;
+	};
+
+	using BufferUsageFlags = Flags<BufferUsage>;
 
 	enum ComponentType
 	{
@@ -65,8 +92,8 @@ namespace Nz
 
 	enum CubemapFace
 	{
-		// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de Image contenant un cubemap
-		// L'ordre est X, -X, Y, -Y, Z, -Z
+		// This enumeration is intended to replace the "z" argument of Image's methods containing cubemap
+		// The order is X, -X, Y, -Y, Z, -Z
 		CubemapFace_PositiveX = 0,
 		CubemapFace_PositiveY = 2,
 		CubemapFace_PositiveZ = 4,
@@ -77,14 +104,30 @@ namespace Nz
 		CubemapFace_Max = CubemapFace_NegativeZ
 	};
 
-	enum DataStorageFlags
+	enum DataStorage
 	{
-		DataStorage_Hardware = 0x1,
-		DataStorage_Software = 0x2,
+		DataStorage_Hardware,
+		DataStorage_Software,
 
-		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
+		DataStorage_Max = DataStorage_Software
+	};
 
-		DataStorage_Max = DataStorage_Software*2-1
+	enum FaceFilling
+	{
+		FaceFilling_Fill,
+		FaceFilling_Line,
+		FaceFilling_Point,
+
+		FaceFilling_Max = FaceFilling_Point
+	};
+
+	enum FaceSide
+	{
+		FaceSide_Back,
+		FaceSide_Front,
+		FaceSide_FrontAndBack,
+
+		FaceSide_Max = FaceSide_FrontAndBack
 	};
 
 	enum ImageType
@@ -106,6 +149,17 @@ namespace Nz
 		NodeType_Skeletal, ///TODO
 
 		NodeType_Max = NodeType_Skeletal
+	};
+
+	enum PixelFormatContent
+	{
+		PixelFormatContent_Undefined = -1,
+
+		PixelFormatContent_ColorRGBA,
+		PixelFormatContent_DepthStencil,
+		PixelFormatContent_Stencil,
+
+		PixelFormatContent_Max = PixelFormatContent_Stencil
 	};
 
 	enum PixelFormatType
@@ -168,16 +222,16 @@ namespace Nz
 		PixelFormatType_Max = PixelFormatType_Stencil16
 	};
 
-	enum PixelFormatTypeType
+	enum PixelFormatSubType
 	{
-		PixelFormatTypeType_Undefined = -1,
+		PixelFormatSubType_Compressed, // Opaque
+		PixelFormatSubType_Double,     // F64
+		PixelFormatSubType_Float,      // F32
+		PixelFormatSubType_Half,       // F16
+		PixelFormatSubType_Int,        //   Signed integer
+		PixelFormatSubType_Unsigned,   // Unsigned integer
 
-		PixelFormatTypeType_Color,
-		PixelFormatTypeType_Depth,
-		PixelFormatTypeType_DepthStencil,
-		PixelFormatTypeType_Stencil,
-
-		PixelFormatTypeType_Max = PixelFormatTypeType_Stencil
+		PixelFormatSubType_Max = PixelFormatSubType_Unsigned
 	};
 
 	enum PixelFlipping
@@ -198,6 +252,73 @@ namespace Nz
 		PrimitiveMode_TriangleFan,
 
 		PrimitiveMode_Max = PrimitiveMode_TriangleFan
+	};
+
+	enum RendererComparison
+	{
+		RendererComparison_Always,
+		RendererComparison_Equal,
+		RendererComparison_Greater,
+		RendererComparison_GreaterOrEqual,
+		RendererComparison_Less,
+		RendererComparison_LessOrEqual,
+		RendererComparison_Never,
+		RendererComparison_NotEqual,
+
+		RendererComparison_Max = RendererComparison_NotEqual
+	};
+
+	enum RendererParameter
+	{
+		RendererParameter_Blend,
+		RendererParameter_ColorWrite,
+		RendererParameter_DepthBuffer,
+		RendererParameter_DepthWrite,
+		RendererParameter_FaceCulling,
+		RendererParameter_ScissorTest,
+		RendererParameter_StencilTest,
+
+		RendererParameter_Max = RendererParameter_StencilTest
+	};
+
+	enum SamplerFilter
+	{
+		SamplerFilter_Unknown = -1,
+
+		SamplerFilter_Bilinear,
+		SamplerFilter_Nearest,
+		SamplerFilter_Trilinear,
+
+		SamplerFilter_Default,
+
+		SamplerFilter_Max = SamplerFilter_Default
+	};
+
+	enum SamplerWrap
+	{
+		SamplerWrap_Unknown = -1,
+
+		SamplerWrap_Clamp,
+		SamplerWrap_MirroredRepeat,
+		SamplerWrap_Repeat,
+
+		SamplerWrap_Default,
+
+		SamplerWrap_Max = SamplerWrap_Repeat
+	};
+
+	enum StencilOperation
+	{
+		StencilOperation_Decrement,
+		StencilOperation_DecrementNoClamp,
+		StencilOperation_Increment,
+		StencilOperation_IncrementNoClamp,
+		StencilOperation_Invert,
+		StencilOperation_Keep,
+		StencilOperation_Replace,
+		StencilOperation_Zero,
+
+		StencilOperation_Max = StencilOperation_Zero
 	};
 
 	enum TextAlign
@@ -225,7 +346,7 @@ namespace Nz
 	{
 		VertexComponent_Unused = -1,
 
-		// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
+		// We limit to 16 components by vertex since it's the minimal number supported by the GPU
 		VertexComponent_InstanceData0,
 		VertexComponent_InstanceData1,
 		VertexComponent_InstanceData2,
@@ -253,7 +374,7 @@ namespace Nz
 
 	enum VertexLayout
 	{
-		// Déclarations destinées au rendu
+		// Declarations meant for the rendering
 		VertexLayout_XY,
 		VertexLayout_XY_Color,
 		VertexLayout_XY_UV,
@@ -266,69 +387,10 @@ namespace Nz
 		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 		VertexLayout_XYZ_UV,
 
-		// Déclarations destinées à l'instancing
+		// Declarations meant for the instancing
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4
-	};
-
-	enum WindowCursor
-	{
-		WindowCursor_None,
-		WindowCursor_Default,
-
-		WindowCursor_Crosshair,
-		WindowCursor_Hand,
-		WindowCursor_Help,
-		WindowCursor_Move,
-		WindowCursor_Pointer,
-		WindowCursor_Progress,
-		WindowCursor_ResizeE,
-		WindowCursor_ResizeN,
-		WindowCursor_ResizeNE,
-		WindowCursor_ResizeNW,
-		WindowCursor_ResizeS,
-		WindowCursor_ResizeSE,
-		WindowCursor_ResizeSW,
-		WindowCursor_ResizeW,
-		WindowCursor_Text,
-		WindowCursor_Wait,
-
-		WindowCursor_Max = WindowCursor_Wait
-	};
-
-	enum WindowEventType
-	{
-		WindowEventType_GainedFocus,
-		WindowEventType_LostFocus,
-		WindowEventType_KeyPressed,
-		WindowEventType_KeyReleased,
-		WindowEventType_MouseButtonDoubleClicked,
-		WindowEventType_MouseButtonPressed,
-		WindowEventType_MouseButtonReleased,
-		WindowEventType_MouseEntered,
-		WindowEventType_MouseLeft,
-		WindowEventType_MouseMoved,
-		WindowEventType_MouseWheelMoved,
-		WindowEventType_Moved,
-		WindowEventType_Quit,
-		WindowEventType_Resized,
-		WindowEventType_TextEntered,
-
-		WindowEventType_Max = WindowEventType_TextEntered
-	};
-
-	enum WindowStyleFlags
-	{
-		WindowStyle_None       = 0x0,
-		WindowStyle_Fullscreen = 0x1,
-
-		WindowStyle_Closable   = 0x2,
-		WindowStyle_Resizable  = 0x4,
-		WindowStyle_Titlebar   = 0x8,
-
-		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
-		WindowStyle_Max = WindowStyle_Titlebar*2-1
 	};
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,8 +28,8 @@ namespace Nz
 		{
 			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<T>();
+		}
 	}
-}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

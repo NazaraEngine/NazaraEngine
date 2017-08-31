@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -70,6 +70,15 @@ namespace Nz
 	b(vec[2]),
 	a(alpha)
 	{
+	}
+
+	/*!
+	* \brief Return true is the color has no degree of transparency
+	* \return true if the color has an alpha value of 255
+	*/
+	inline bool Color::IsOpaque() const
+	{
+		return a == 255;
 	}
 
 	/*!

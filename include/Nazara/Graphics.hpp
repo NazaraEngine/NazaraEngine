@@ -1,4 +1,4 @@
-// This file was automatically generated on 17 Nov 2015 at 13:20:45
+// This file was automatically generated
 
 /*
 	Nazara Engine - Graphics module
@@ -36,6 +36,7 @@
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Graphics/DeferredDOFPass.hpp>
 #include <Nazara/Graphics/DeferredFinalPass.hpp>
@@ -47,6 +48,8 @@
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DepthRenderQueue.hpp>
+#include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
@@ -56,15 +59,19 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleEmitter.hpp>
+#include <Nazara/Graphics/ParticleFunctionController.hpp>
+#include <Nazara/Graphics/ParticleFunctionGenerator.hpp>
+#include <Nazara/Graphics/ParticleFunctionRenderer.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
+#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
-#include <Nazara/Graphics/ParticleSystem.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
@@ -74,5 +81,6 @@
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureBackground.hpp>
+#include <Nazara/Graphics/TileMap.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP

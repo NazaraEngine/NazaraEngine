@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,8 +13,20 @@
 
 namespace Nz
 {
+	/*!
+	* \ingroup graphics
+	* \class Nz::DeferredForwardPass
+	* \brief Graphics class that represents the forward pass in deferred rendering
+	*/
+
 	DeferredForwardPass::DeferredForwardPass() = default;
 	DeferredForwardPass::~DeferredForwardPass() = default;
+
+	/*!
+	* \brief Initializes the deferred forward pass which needs the forward technique
+	*
+	* \param technique Rendering technique
+	*/
 
 	void DeferredForwardPass::Initialize(DeferredRenderTechnique* technique)
 	{
@@ -23,7 +35,16 @@ namespace Nz
 		m_forwardTechnique = technique->GetForwardTechnique();
 	}
 
-	bool DeferredForwardPass::Process(const SceneData& sceneData, unsigned int workTexture, unsigned sceneTexture) const
+	/*!
+	* \brief Processes the work on the data while working with textures
+	* \return true
+	*
+	* \param sceneData Data for the scene
+	* \param firstWorkTexture Index of the first texture to work with
+	* \param firstWorkTexture Index of the second texture to work with
+	*/
+
+	bool DeferredForwardPass::Process(const SceneData& sceneData, unsigned int workTexture, unsigned int sceneTexture) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 		NazaraUnused(workTexture);

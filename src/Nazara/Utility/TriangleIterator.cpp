@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,12 +17,19 @@ namespace Nz
 		m_triangleIndices[1] = m_indexMapper.Get(1);
 		m_triangleIndices[2] = m_indexMapper.Get(2);
 
-		m_indexCount = indexBuffer->GetIndexCount();
+		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
-	TriangleIterator::TriangleIterator(SubMesh* subMesh) :
-	TriangleIterator(subMesh->GetPrimitiveMode(), subMesh->GetIndexBuffer())
+	TriangleIterator::TriangleIterator(const SubMesh* subMesh) :
+	m_primitiveMode(subMesh->GetPrimitiveMode()),
+	m_indexMapper(subMesh, BufferAccess_ReadOnly)
 	{
+		m_currentIndex = 3;
+		m_triangleIndices[0] = m_indexMapper.Get(0);
+		m_triangleIndices[1] = m_indexMapper.Get(1);
+		m_triangleIndices[2] = m_indexMapper.Get(2);
+
+		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
 	bool TriangleIterator::Advance()
@@ -59,18 +66,9 @@ namespace Nz
 		return true;
 	}
 
-	UInt32 TriangleIterator::operator[](unsigned int i) const
+	UInt32 TriangleIterator::operator[](std::size_t i) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (i >= 3)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 3)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 3, "Index out of range");
 
 		return m_triangleIndices[i];
 	}

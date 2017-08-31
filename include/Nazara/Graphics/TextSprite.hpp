@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -77,8 +77,7 @@ namespace Nz
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
 			MaterialRef m_material;
-			Rectui m_localBounds;
-			mutable bool m_verticesUpdated;
+			Recti m_localBounds;
 			float m_scale;
 
 			static TextSpriteLibrary::LibraryMap s_library;

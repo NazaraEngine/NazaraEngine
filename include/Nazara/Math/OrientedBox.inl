@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -340,7 +340,7 @@ namespace Nz
 	* \brief Multiplies the lengths with the scalar
 	* \return A OrientedBox where the position is the same and width, height and depth are the product of the old width, height and depth and the scalar
 	*
-	* \param scale The scalar to multiply width, height and depth with
+	* \param scalar The scalar to multiply width, height and depth with
 	*/
 
 	template<typename T>

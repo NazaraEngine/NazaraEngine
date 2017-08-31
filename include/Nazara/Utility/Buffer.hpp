@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,8 +11,10 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 
 namespace Nz
 {
@@ -20,8 +22,6 @@ namespace Nz
 
 	using BufferConstRef = ObjectRef<const Buffer>;
 	using BufferRef = ObjectRef<Buffer>;
-
-	class AbstractBuffer;
 
 	class NAZARA_UTILITY_API Buffer : public RefCounted
 	{
@@ -31,40 +31,41 @@ namespace Nz
 			using BufferFactory = AbstractBuffer* (*)(Buffer* parent, BufferType type);
 
 			Buffer(BufferType type);
-			Buffer(BufferType type, unsigned int size, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			Buffer(BufferType type, UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
 			Buffer(const Buffer&) = delete;
-			Buffer(Buffer&&) = delete;
+			Buffer(Buffer&&) = default;
 			~Buffer();
 
-			bool CopyContent(const Buffer& buffer);
+			bool CopyContent(const BufferRef& buffer);
 
-			bool Create(unsigned int size, UInt32 storage = DataStorage_Software, BufferUsage usage = BufferUsage_Static);
+			bool Create(UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
 			void Destroy();
 
-			bool Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard = false);
+			bool Fill(const void* data, UInt32 offset, UInt32 size);
 
-			AbstractBuffer* GetImpl() const;
-			unsigned int GetSize() const;
-			UInt32 GetStorage() const;
-			BufferType GetType() const;
-			BufferUsage GetUsage() const;
+			inline AbstractBuffer* GetImpl() const;
+			inline UInt32 GetSize() const;
+			inline DataStorage GetStorage() const;
+			inline BufferType GetType() const;
+			inline BufferUsageFlags GetUsage() const;
 
-			bool IsHardware() const;
-			bool IsValid() const;
+			inline bool HasStorage(DataStorage storage) const;
 
-			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0);
-			void* Map(BufferAccess access, unsigned int offset = 0, unsigned int size = 0) const;
+			inline bool IsValid() const;
 
-			bool SetStorage(UInt32 storage);
+			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0);
+			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) const;
+
+			bool SetStorage(DataStorage storage);
 
 			void Unmap() const;
 
 			Buffer& operator=(const Buffer&) = delete;
-			Buffer& operator=(Buffer&&) = delete;
+			Buffer& operator=(Buffer&&) = default;
 
-			static bool IsStorageSupported(UInt32 storage);
+			static bool IsStorageSupported(DataStorage storage);
 			template<typename... Args> static BufferRef New(Args&&... args);
-			static void SetBufferFactory(UInt32 storage, BufferFactory func);
+			static void SetBufferFactory(DataStorage storage, BufferFactory func);
 
 			// Signals:
 			NazaraSignal(OnBufferDestroy, const Buffer* /*buffer*/);
@@ -74,13 +75,12 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
+			std::unique_ptr<AbstractBuffer> m_impl;
 			BufferType m_type;
-			BufferUsage m_usage;
-			UInt32 m_storage;
-			AbstractBuffer* m_impl;
-			unsigned int m_size;
+			BufferUsageFlags m_usage;
+			UInt32 m_size;
 
-			static BufferFactory s_bufferFactories[DataStorage_Max+1];
+			static std::array<BufferFactory, DataStorage_Max + 1> s_bufferFactories;
 	};
 }
 

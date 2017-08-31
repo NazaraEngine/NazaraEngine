@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,7 +24,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	ByteStream::ByteStream(ByteArray* byteArray, UInt32 openMode) :
+	ByteStream::ByteStream(ByteArray* byteArray, OpenModeFlags openMode) :
 	ByteStream()
 	{
 		SetStream(byteArray, openMode);
@@ -67,11 +67,11 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	void ByteStream::SetStream(ByteArray* byteArray, UInt32 openMode)
+	void ByteStream::SetStream(ByteArray* byteArray, OpenModeFlags openMode)
 	{
 		std::unique_ptr<Stream> stream(new MemoryStream(byteArray, openMode));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}
@@ -89,7 +89,7 @@ namespace Nz
 	{
 		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}
@@ -107,7 +107,7 @@ namespace Nz
 	{
 		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
 
-		SetStream(m_ownedStream.get());
+		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
 		m_ownedStream = std::move(stream);
 	}

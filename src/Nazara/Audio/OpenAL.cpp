@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,6 +23,14 @@ namespace Nz
 		ALCcontext* s_context = nullptr;
 		unsigned int s_version;
 
+		/*!
+		* \brief Parses the devices
+		* \return Number of devices
+		*
+		* \param deviceString String for the device (input / output)
+		* \param devices List of names of the devices
+		*/
+
 		std::size_t ParseDevices(const char* deviceString, std::vector<String>& devices)
 		{
 			if (!deviceString)
@@ -41,35 +49,77 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \ingroup audio
+	* \class Nz::OpenAL
+	* \brief Audio class that represents the link with OpenAL 
+	*
+	* \remark This class is meant to be used by Module Audio
+	*/
+
+	/*!
+	* \brief Gets the entry for the function name
+	* \return Pointer to the function
+	*
+	* \param entryPoint Name of the entry
+	*
+	* \remark This does not produces a NazaraError if entry does not exist
+	*/
+
 	OpenALFunc OpenAL::GetEntry(const String& entryPoint)
 	{
 		return LoadEntry(entryPoint.GetConstBuffer(), false);
 	}
+
+	/*!
+	* \brief Gets the name of the renderer
+	* \return Name of the renderer
+	*/
 
 	String OpenAL::GetRendererName()
 	{
 		return s_rendererName;
 	}
 
+	/*!
+	* \brief Gets the name of the vendor
+	* \return Name of the vendor
+	*/
+
 	String OpenAL::GetVendorName()
 	{
 		return s_vendorName;
 	}
+
+	/*!
+	* \brief Gets the version of OpenAL
+	* \return Version of OpenAL
+	*/
 
 	unsigned int OpenAL::GetVersion()
 	{
 		return s_version;
 	}
 
+	/*!
+	* \brief Initializes the module OpenAL
+	* \return true if initialization is successful
+	*
+	* \param openDevice True to get information from the device
+	*
+	* \remark Produces a NazaraError if one of the entry failed
+	* \remark Produces a NazaraError if opening device failed with openDevice parameter set to true
+	*/
+
 	bool OpenAL::Initialize(bool openDevice)
 	{
-		if (s_library.IsLoaded())
+		if (IsInitialized())
 			return true;
 
 		#if defined(NAZARA_PLATFORM_WINDOWS)
-		///FIXME: Est-ce qu'OpenAL Soft est une meilleure implémentation que Creative ?
-		/// Si on pouvait se résigner à utiliser OpenAL Soft tout le temps, cela nous permettrait d'utiliser les extensions sonores
-		/// et de donner plus de possibilités techniques au niveau de l'audio.
+		///FIXME: Is OpenAL Soft a better implementation than Creative ?
+		/// If we could use OpenAL Soft everytime, this would allow us to use sonorous extensions
+		/// and give us more technical possibilities  with audio
 		const char* libs[] = {
 			"soft_oal.dll",
 			"wrap_oal.dll",
@@ -217,10 +267,22 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Checks whether the module is initialized
+	* \return true if it is the case
+	*/
+
 	bool OpenAL::IsInitialized()
 	{
 		return s_library.IsLoaded();
 	}
+
+	/*!
+	* \brief Queries the input devices
+	* \return Number of devices
+	*
+	* \param devices List of names of the input devices
+	*/
 
 	std::size_t OpenAL::QueryInputDevices(std::vector<String>& devices)
 	{
@@ -231,6 +293,13 @@ namespace Nz
 		return ParseDevices(deviceString, devices);
 	}
 
+	/*!
+	* \brief Queries the output devices
+	* \return Number of devices
+	*
+	* \param devices List of names of the output devices
+	*/
+
 	std::size_t OpenAL::QueryOutputDevices(std::vector<String>& devices)
 	{
 		const char* deviceString = reinterpret_cast<const char*>(alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER));
@@ -239,6 +308,13 @@ namespace Nz
 
 		return ParseDevices(deviceString, devices);
 	}
+
+	/*!
+	* \brief Sets the active device
+	* \return true if device is successfully opened
+	*
+	* \param deviceName Name of the device
+	*/
 
 	bool OpenAL::SetDevice(const String& deviceName)
 	{
@@ -253,6 +329,10 @@ namespace Nz
 			return true;
 	}
 
+	/*!
+	* \brief Uninitializes the module
+	*/
+
 	void OpenAL::Uninitialize()
 	{
 		CloseDevice();
@@ -262,8 +342,14 @@ namespace Nz
 		s_library.Unload();
 	}
 
-	///ATTENTION: La valeur entière est le nombre de canaux possédés par ce format
-	ALenum OpenAL::AudioFormat[AudioFormat_Max+1] = {0}; // Valeur ajoutées au chargement d'OpenAL
+	///WARNING: The integer value is the number of canals owned by the format
+	ALenum OpenAL::AudioFormat[AudioFormat_Max+1] = {0}; // Added values with loading of OpenAL
+
+	/*!
+	* \brief Closes the device
+	*
+	* \remark Produces a NazaraWarning if you try to close an active device
+	*/
 
 	void OpenAL::CloseDevice()
 	{
@@ -277,24 +363,31 @@ namespace Nz
 			}
 
 			if (!alcCloseDevice(s_device))
-				// Nous n'avons pas pu fermer le device, ce qui signifie qu'il est en cours d'utilisation
+				// We could not close the close, this means that it's still in use
 				NazaraWarning("Failed to close device");
 
 			s_device = nullptr;
 		}
 	}
 
+	/*!
+	* \brief Opens the device
+	* \return true if open is successful
+	*
+	* \remark Produces a NazaraError if it could not create the context
+	*/
+
 	bool OpenAL::OpenDevice()
 	{
-		// Initialisation du module
-		s_device = alcOpenDevice(s_deviceName.IsEmpty() ? nullptr : s_deviceName.GetConstBuffer()); // On choisit le device par défaut
+		// Initialisation of the module
+		s_device = alcOpenDevice(s_deviceName.IsEmpty() ? nullptr : s_deviceName.GetConstBuffer()); // We choose the default device
 		if (!s_device)
 		{
 			NazaraError("Failed to open default device");
 			return false;
 		}
 
-		// Un seul contexte nous suffira
+		// One context is enough
 		s_context = alcCreateContext(s_device, nullptr);
 		if (!s_context)
 		{
@@ -341,7 +434,7 @@ namespace Nz
 			s_version = 0;
 		}
 
-		// On complète le tableau de formats
+		// We complete the formats table
 		AudioFormat[AudioFormat_Mono] = AL_FORMAT_MONO16;
 		AudioFormat[AudioFormat_Stereo] = AL_FORMAT_STEREO16;
 
@@ -359,6 +452,16 @@ namespace Nz
 		return true;
 	}
 
+	/*!
+	* \brief Loads the entry for the function name
+	* \return Pointer to the function
+	*
+	* \param name Name of the entry
+	* \param throwException Should throw exception if failed ?
+	*
+	* \remark Produces a std::runtime_error if entry does not exist and throwException is set to true
+	*/
+
 	OpenALFunc OpenAL::LoadEntry(const char* name, bool throwException)
 	{
 		OpenALFunc entry = reinterpret_cast<OpenALFunc>(s_library.GetSymbol(name));
@@ -372,7 +475,6 @@ namespace Nz
 
 		return entry;
 	}
-}
 
 // al
 OpenALDetail::LPALBUFFER3F             alBuffer3f             = nullptr;
@@ -470,3 +572,5 @@ OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurrent = nullptr;
 OpenALDetail::LPALCOPENDEVICE         alcOpenDevice         = nullptr;
 OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext     = nullptr;
 OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext     = nullptr;
+
+}

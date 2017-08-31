@@ -1,0 +1,3 @@
+newmtl space_frigate
+	map_Kd space_frigate_6_color.jpg
+	map_Ks space_frigate_6_specular.jpg

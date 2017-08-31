@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -481,11 +481,11 @@ namespace Nz
 		T test = x * y + z * w;
 		if (test > F(0.499))
 			// singularity at north pole
-			return EulerAngles<T>(FromDegrees(F(90.0)), FromRadians(F(2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(2.0) * std::atan2(x, w)), FromDegrees(F(90.0)));
 
 		if (test < F(-0.499))
 			// singularity at south pole
-			return EulerAngles<T>(FromDegrees(F(-90.0)), FromRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(-2.0) * std::atan2(x, w)), FromDegrees(F(-90.0)));
 
 		return EulerAngles<T>(FromRadians(std::atan2(F(2.0) * x * w - F(2.0) * y * z, F(1.0) - F(2.0) * x * x - F(2.0) * z * z)),
 		                      FromRadians(std::atan2(F(2.0) * y * w - F(2.0) * x * z, F(1.0) - F(2.0) * y * y - F(2.0) * z * z)),
@@ -553,9 +553,9 @@ namespace Nz
 	template<typename T>
 	Vector3<T> Quaternion<T>::operator*(const Vector3<T>& vec) const
 	{
-		Vector3f quatVec(x, y, z);
-		Vector3f uv = quatVec.CrossProduct(vec);
-		Vector3f uuv = quatVec.CrossProduct(uv);
+		Vector3<T> quatVec(x, y, z);
+		Vector3<T> uv = quatVec.CrossProduct(vec);
+		Vector3<T> uuv = quatVec.CrossProduct(uv);
 		uv *= F(2.0) * w;
 		uuv *= F(2.0);
 
@@ -714,10 +714,10 @@ namespace Nz
 		#endif
 
 		Quaternion interpolated;
-		interpolated.w = Lerp(from.w, to.w, interpolation);
-		interpolated.x = Lerp(from.x, to.x, interpolation);
-		interpolated.y = Lerp(from.y, to.y, interpolation);
-		interpolated.z = Lerp(from.z, to.z, interpolation);
+		interpolated.w = Nz::Lerp(from.w, to.w, interpolation);
+		interpolated.x = Nz::Lerp(from.x, to.x, interpolation);
+		interpolated.y = Nz::Lerp(from.y, to.y, interpolation);
+		interpolated.z = Nz::Lerp(from.z, to.z, interpolation);
 
 		return interpolated;
 	}

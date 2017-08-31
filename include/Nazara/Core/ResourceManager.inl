@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -78,7 +78,7 @@ namespace Nz
 		while (it != Type::s_managerMap.end())
 		{
 			const ObjectRef<Type>& ref = it->second;
-			if (ref.GetReferenceCount() == 1) // Are we the only ones to own the resource ?
+			if (ref->GetReferenceCount() == 1) // Are we the only ones to own the resource ?
 			{
 				NazaraDebug("Purging resource from file " + ref->GetFilePath());
 				Type::s_managerMap.erase(it++); // Then we erase it

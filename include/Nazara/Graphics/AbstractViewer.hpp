@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -33,6 +33,7 @@ namespace Nz
 			virtual Vector3f GetForward() const = 0;
 			virtual const Frustumf& GetFrustum() const = 0;
 			virtual const Matrix4f& GetProjectionMatrix() const = 0;
+			virtual Nz::ProjectionType GetProjectionType() const = 0;
 			virtual const RenderTarget* GetTarget() const = 0;
 			virtual const Matrix4f& GetViewMatrix() const = 0;
 			virtual const Recti& GetViewport() const = 0;

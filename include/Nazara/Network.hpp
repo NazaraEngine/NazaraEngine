@@ -1,4 +1,4 @@
-// This file was automatically generated on 03 Feb 2016 at 00:06:56
+// This file was automatically generated
 
 /*
 	Nazara Engine - Network module
@@ -32,11 +32,19 @@
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/Config.hpp>
+#include <Nazara/Network/ENetHost.hpp>
+#include <Nazara/Network/ENetPacket.hpp>
+#include <Nazara/Network/ENetPeer.hpp>
+#include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/Network.hpp>
+#include <Nazara/Network/RUdpConnection.hpp>
+#include <Nazara/Network/RUdpMessage.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
+#include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Nazara/Network/UdpSocket.hpp>

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	template<typename T> void MixToMono(T* input, T* output, unsigned int channelCount, unsigned int frameCount);
+	template<typename T> void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount);
 }
 
 #include <Nazara/Audio/Algorithm.inl>

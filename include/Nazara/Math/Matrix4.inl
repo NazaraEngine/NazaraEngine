@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -242,7 +242,7 @@ namespace Nz
 		}
 		#endif
 
-		T* ptr = (&m11) + column*4;
+		const T* ptr = (&m11) + column*4;
 		return Vector4<T>(ptr);
 	}
 
@@ -636,7 +636,7 @@ namespace Nz
 		}
 		#endif
 
-		T* ptr = &m11;
+		const T* ptr = &m11;
 		return Vector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
 	}
 
@@ -750,7 +750,7 @@ namespace Nz
 	* \brief Inverts this matrix
 	* \return A reference to this matrix inverted
 	*
-	* \param bool Optional argument to know if matrix has been successfully inverted
+	* \param succeeded Optional argument to know if matrix has been successfully inverted
 	*
 	* \see InverseAffine
 	*/
@@ -769,7 +769,7 @@ namespace Nz
 	* \brief Inverts this matrix
 	* \return A reference to this matrix inverted
 	*
-	* \param bool Optional argument to know if matrix has been successfully inverted
+	* \param succeeded Optional argument to know if matrix has been successfully inverted
 	*
 	* \see Inverse
 	*/
@@ -792,7 +792,7 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::IsAffine() const
 	{
-		return m14 == F(0.0) && m24 == F(0.0) && m34 == F(0.0) && m44 == F(1.0);
+		return NumberEquals(m14, F(0.0)) && NumberEquals(m24, F(0.0)) && NumberEquals(m34, F(0.0)) && NumberEquals(m44, F(1.0));
 	}
 
 	/*!
@@ -1487,7 +1487,7 @@ namespace Nz
 	* \brief Compares the matrix to other one
 	* \return true if the matrices are the same
 	*
-	* \param matrix Other matrix to compare with
+	* \param mat Other matrix to compare with
 	*/
 
 	template<typename T>
@@ -1504,7 +1504,7 @@ namespace Nz
 	* \brief Compares the matrix to other one
 	* \return false if the matrices are the same
 	*
-	* \param matrix Other matrix to compare with
+	* \param mat Other matrix to compare with
 	*/
 
 	template<typename T>
@@ -1792,9 +1792,10 @@ namespace Nz
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix)
 	{
+		T* head = matrix->operator T*();
 		for (unsigned int i = 0; i < 16; ++i)
 		{
-			if (!Unserialize(context, &matrix[i]))
+			if (!Unserialize(context, head + i))
 				return false;
 		}
 

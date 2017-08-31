@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -746,6 +746,31 @@ namespace Nz
 			glUniform4iv(location, count, reinterpret_cast<const int*>(vectors));
 		}
 	}
+
+	bool Shader::Validate() const
+	{
+		#if NAZARA_RENDERER_SAFE
+		if (!m_program)
+		{
+			NazaraError("Shader is not initialized");
+			return false;
+		}
+		#endif
+
+		glValidateProgram(m_program);
+
+		GLint success;
+		glGetProgramiv(m_program, GL_VALIDATE_STATUS, &success);
+
+		if (success == GL_TRUE)
+			return true;
+		else
+		{
+			NazaraError("Failed to validate shader: " + GetLog());
+			return false;
+		}
+	}
+
 
 	unsigned int Shader::GetOpenGLID() const
 	{

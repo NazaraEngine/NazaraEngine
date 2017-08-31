@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,7 +31,7 @@ namespace Nz
 		public:
 			File();
 			File(const String& filePath);
-			File(const String& filePath, UInt32 openMode);
+			File(const String& filePath, OpenModeFlags openMode);
 			File(const File&) = delete;
 			File(File&& file) noexcept;
 			~File();
@@ -57,14 +57,15 @@ namespace Nz
 
 			bool IsOpen() const;
 
-			bool Open(unsigned int openMode = OpenMode_NotOpen);
-			bool Open(const String& filePath, unsigned int openMode = OpenMode_NotOpen);
+			bool Open(OpenModeFlags openMode = OpenMode_NotOpen);
+			bool Open(const String& filePath, OpenModeFlags openMode = OpenMode_NotOpen);
 
 			bool Rename(const String& newFilePath);
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
 			bool SetCursorPos(UInt64 offset) override;
 			bool SetFile(const String& filePath);
+			bool SetSize(UInt64 size);
 
 			File& operator=(const String& filePath);
 			File& operator=(const File&) = delete;

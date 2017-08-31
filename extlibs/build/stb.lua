@@ -12,5 +12,5 @@ LIBRARY.Language = "C++" -- On compile en C++ car le C99 n'est pas supporté part
 
 LIBRARY.Files = {
 	"../extlibs/include/stb/*.h",
-	"../extlibs/src/stb/*.c"
+	"../extlibs/src/stb/*.cpp"
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,7 +13,7 @@ namespace Nz
 	{
 		AudioFormat_Unknown = -1,
 
-		// La valeur entière est le nombre de canaux possédés par ce format
+		// The integer value is the number of channels used by the format
 		AudioFormat_Mono   = 1,
 		AudioFormat_Stereo = 2,
 		AudioFormat_Quad   = 4,

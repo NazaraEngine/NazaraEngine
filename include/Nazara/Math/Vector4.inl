@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -843,11 +843,11 @@ namespace Nz
 	template<typename T>
 	bool Vector4<T>::operator<(const Vector4& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
+			if (NumberEquals(y, vec.y))
 			{
-				if (z == vec.z)
+				if (NumberEquals(z, vec.z))
 					return w < vec.w;
 				else
 					return z < vec.z;
@@ -869,12 +869,12 @@ namespace Nz
 	template<typename T>
 	bool Vector4<T>::operator<=(const Vector4& vec) const
 	{
-		if (x == vec.x)
+		if (NumberEquals(x, vec.x))
 		{
-			if (y == vec.y)
+			if (NumberEquals(y, vec.y))
 			{
-				if (z == vec.z)
-					return w <= vec.w;
+				if (NumberEquals(z, vec.z))
+					return NumberEquals(w, vec.w) || w < vec.w;
 				else
 					return z < vec.z;
 			}
@@ -1118,6 +1118,31 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 	#endif
 
 	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+}
+
+namespace std
+{
+	template<class T>
+	struct hash<Nz::Vector4<T>>
+	{
+		/*!
+		* \brief Specialisation of std to hash
+		* \return Result of the hash
+		*
+		* \param v Vector4 to hash
+		*/
+		std::size_t operator()(const Nz::Vector4<T>& v) const
+		{
+			std::size_t seed {};
+
+			Nz::HashCombine(seed, v.x);
+			Nz::HashCombine(seed, v.y);
+			Nz::HashCombine(seed, v.z);
+			Nz::HashCombine(seed, v.w);
+
+			return seed;
+		}
+	};
 }
 
 #undef F

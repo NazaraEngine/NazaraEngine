@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,16 +20,15 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Sequence.hpp>
-#include <limits>
 
 namespace Nz
 {
 	struct NAZARA_UTILITY_API AnimationParams : ResourceParameters
 	{
 		// La frame de fin à charger
-		unsigned int endFrame = std::numeric_limits<unsigned int>::max();
+		UInt32 endFrame = 0xFFFFFFFF;
 		// La frame de début à charger
-		unsigned int startFrame = 0;
+		UInt32 startFrame = 0;
 
 		bool IsValid() const;
 	};
@@ -57,27 +56,27 @@ namespace Nz
 			~Animation();
 
 			bool AddSequence(const Sequence& sequence);
-			void AnimateSkeleton(Skeleton* targetSkeleton, unsigned int frameA, unsigned int frameB, float interpolation) const;
+			void AnimateSkeleton(Skeleton* targetSkeleton, UInt32 frameA, UInt32 frameB, float interpolation) const;
 
-			bool CreateSkeletal(unsigned int frameCount, unsigned int jointCount);
+			bool CreateSkeletal(UInt32 frameCount, UInt32 jointCount);
 			void Destroy();
 
 			void EnableLoopPointInterpolation(bool loopPointInterpolation);
 
-			unsigned int GetFrameCount() const;
-			unsigned int GetJointCount() const;
+			UInt32 GetFrameCount() const;
+			UInt32 GetJointCount() const;
 			Sequence* GetSequence(const String& sequenceName);
-			Sequence* GetSequence(unsigned int index);
+			Sequence* GetSequence(UInt32 index);
 			const Sequence* GetSequence(const String& sequenceName) const;
-			const Sequence* GetSequence(unsigned int index) const;
-			unsigned int GetSequenceCount() const;
-			int GetSequenceIndex(const String& sequenceName) const;
-			SequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0);
-			const SequenceJoint* GetSequenceJoints(unsigned int frameIndex = 0) const;
+			const Sequence* GetSequence(UInt32 index) const;
+			UInt32 GetSequenceCount() const;
+			UInt32 GetSequenceIndex(const String& sequenceName) const;
+			SequenceJoint* GetSequenceJoints(UInt32 frameIndex = 0);
+			const SequenceJoint* GetSequenceJoints(UInt32 frameIndex = 0) const;
 			AnimationType GetType() const;
 
 			bool HasSequence(const String& sequenceName) const;
-			bool HasSequence(unsigned int index = 0) const;
+			bool HasSequence(UInt32 index = 0) const;
 
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
@@ -87,7 +86,7 @@ namespace Nz
 			bool LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 
 			void RemoveSequence(const String& sequenceName);
-			void RemoveSequence(unsigned int index);
+			void RemoveSequence(UInt32 index);
 
 			template<typename... Args> static AnimationRef New(Args&&... args);
 

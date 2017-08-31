@@ -1,7 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -31,7 +32,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>::Signal(Signal&& signal)
+	Signal<Args...>::Signal(Signal&& signal) noexcept
 	{
 		operator=(std::move(signal));
 	}
@@ -181,7 +182,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal)
+	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal) noexcept
 	{
 		m_slots = std::move(signal.m_slots);
 		m_slotIterator = signal.m_slotIterator;
@@ -204,7 +205,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::Disconnect(const SlotPtr& slot)
+	void Signal<Args...>::Disconnect(const SlotPtr& slot) noexcept
 	{
 		NazaraAssert(slot, "Invalid slot pointer");
 		NazaraAssert(slot->index < m_slots.size(), "Invalid slot index");
@@ -246,6 +247,18 @@ namespace Nz
 	*/
 
 	/*!
+	* \brief Constructs a Signal::Connection object with by move semantic
+	*
+	* \param connection Connection object to move
+	*/
+	template<typename... Args>
+	Signal<Args...>::Connection::Connection(Connection&& connection) noexcept :
+	m_ptr(std::move(connection.m_ptr))
+	{
+		connection.m_ptr.reset(); //< Fuck you GCC 4.9
+	}
+	
+	/*!
 	* \brief Constructs a Signal::Connection object with a slot
 	*
 	* \param slot Slot of the listener
@@ -276,7 +289,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::Connection::Disconnect()
+	void Signal<Args...>::Connection::Disconnect() noexcept
 	{
 		if (SlotPtr ptr = m_ptr.lock())
 			ptr->signal->Disconnect(ptr);
@@ -293,6 +306,20 @@ namespace Nz
 		return !m_ptr.expired();
 	}
 
+	/*!
+	* \brief Constructs a Signal::ConnectionGuard object by move semantic
+	*
+	* \param connection Connection to move
+	*/
+	template<typename... Args>
+	typename Signal<Args...>::Connection& Signal<Args...>::Connection::operator=(Connection&& connection) noexcept
+	{
+		m_ptr = std::move(connection.m_ptr);
+		connection.m_ptr.reset(); //< Fuck you GCC 4.9
+
+		return *this;
+	}
+	
 	/*!
 	* \class Nz::Signal::ConnectionGuard
 	* \brief Core class that represents a RAII for a connection attached to a signal
@@ -352,7 +379,7 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	void Signal<Args...>::ConnectionGuard::Disconnect()
+	void Signal<Args...>::ConnectionGuard::Disconnect() noexcept
 	{
 		m_connection.Disconnect();
 	}
@@ -405,8 +432,11 @@ namespace Nz
 	template<typename... Args>
 	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(Connection&& connection)
 	{
-		m_connection.Disconnect();
-		m_connection = std::move(connection);
+		if (&connection != this)
+		{
+			m_connection.Disconnect();
+			m_connection = std::move(connection);
+		}
 
 		return *this;
 	}
@@ -419,10 +449,13 @@ namespace Nz
 	*/
 
 	template<typename... Args>
-	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection)
+	typename Signal<Args...>::ConnectionGuard& Signal<Args...>::ConnectionGuard::operator=(ConnectionGuard&& connection) noexcept
 	{
-		m_connection.Disconnect();
-		m_connection = std::move(connection.m_connection);
+		if (&connection != this)
+		{
+			m_connection.Disconnect();
+			m_connection = std::move(connection.m_connection);
+		}
 
 		return *this;
 	}

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,10 +22,10 @@ namespace Nz
 		public:
 			struct Joint
 			{
+				Int32 parent;
 				Quaternionf bindOrient;
 				String name;
 				Vector3f bindPos;
-				int parent;
 			};
 
 			typedef Vector3ui Triangle;
@@ -58,9 +58,9 @@ namespace Nz
 			Ternary Check();
 
 			const Joint* GetJoints() const;
-			unsigned int GetJointCount() const;
+			UInt32 GetJointCount() const;
 			const Mesh* GetMeshes() const;
-			unsigned int GetMeshCount() const;
+			UInt32 GetMeshCount() const;
 
 			bool Parse();
 

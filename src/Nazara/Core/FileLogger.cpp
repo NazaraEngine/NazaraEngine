@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -65,7 +65,7 @@ namespace Nz
 	* \return true If replication is enabled
 	*/
 
-	bool FileLogger::IsStdReplicationEnabled()
+	bool FileLogger::IsStdReplicationEnabled() const
 	{
 		return m_stdReplicationEnabled;
 	}
@@ -75,7 +75,7 @@ namespace Nz
 	* \return true If logging of the time is enabled
 	*/
 
-	bool FileLogger::IsTimeLoggingEnabled()
+	bool FileLogger::IsTimeLoggingEnabled() const
 	{
 		return m_timeLoggingEnabled;
 	}
@@ -147,14 +147,6 @@ namespace Nz
 
 	void FileLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
-		if (m_forceStdOutput || m_stdReplicationEnabled)
-		{
-			m_stdLogger.WriteError(type, error, line, file, function);
-
-			if (m_forceStdOutput)
-				return;
-		}
-
 		AbstractLogger::WriteError(type, error, line, file, function);
 		m_outputFile.Flush();
 	}

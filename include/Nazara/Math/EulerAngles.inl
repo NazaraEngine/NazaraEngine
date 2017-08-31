@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,11 +17,11 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::EulerAngles
 	* \brief Math class that represents an Euler angle. Those describe a rotation transformation by rotating an object on its various axes in specified amounts per axis, and a specified axis order
 	*
-	* \remark Rotation are "left-handed", it means that you take your left hand, put your thumb finger in the direction you want and you other fingers represent the way of rotating
+	* \remark Rotation are "right-handed", it means that you take your right hand, put your thumb finger in the direction you want and you other fingers represent the way of rotating
 	*/
 
 	/*!
@@ -197,6 +197,7 @@ namespace Nz
 	template<typename T>
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
+		// XYZ
 		T c1 = std::cos(ToRadians(yaw) / F(2.0));
 		T c2 = std::cos(ToRadians(roll) / F(2.0));
 		T c3 = std::cos(ToRadians(pitch) / F(2.0));

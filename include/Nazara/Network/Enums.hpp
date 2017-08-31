@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,8 @@
 
 #ifndef NAZARA_ENUMS_NETWORK_HPP
 #define NAZARA_ENUMS_NETWORK_HPP
+
+#include <Nazara/Core/Flags.hpp>
 
 namespace Nz
 {
@@ -89,6 +91,23 @@ namespace Nz
 		SocketError_Max = SocketError_UnreachableHost
 	};
 
+	enum SocketPollEvent
+	{
+		SocketPollEvent_Read,  //< One or more sockets is ready for a read operation
+		SocketPollEvent_Write, //< One or more sockets is ready for a write operation
+
+		SocketPollEvent_Max = SocketPollEvent_Write
+	};
+
+	template<>
+	struct EnumAsFlags<SocketPollEvent>
+	{
+		static constexpr bool value = true;
+		static constexpr int  max = SocketPollEvent_Max;
+	};
+
+	using SocketPollEventFlags = Flags<SocketPollEvent>;
+
 	enum SocketState
 	{
 		SocketState_Bound,        //< The socket is currently bound
@@ -97,7 +116,7 @@ namespace Nz
 		SocketState_NotConnected, //< The socket is not connected (or has been disconnected)
 		SocketState_Resolving,    //< The socket is currently resolving a host name
 
-		SocketState_Max = SocketState_NotConnected
+		SocketState_Max = SocketState_Resolving
 	};
 
 	enum SocketType

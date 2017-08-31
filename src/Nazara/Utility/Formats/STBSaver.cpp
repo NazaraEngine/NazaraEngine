@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -99,7 +99,7 @@ namespace Nz
 		void WriteToStream(void* userdata, void* data, int size)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
-			if (stream->Write(data, size) != size)
+			if (stream->Write(data, size) != static_cast<std::size_t>(size))
 				throw std::runtime_error("Failed to write to stream");
 		}
 
@@ -121,7 +121,7 @@ namespace Nz
 			ImageType type = image.GetType();
 			if (type != ImageType_1D && type != ImageType_2D)
 			{
-				NazaraError("Image type 0x" + String::Number(type, 16) + " is not ");
+				NazaraError("Image type 0x" + String::Number(type, 16) + " is not in a supported format");
 				return false;
 			}
 
@@ -142,6 +142,8 @@ namespace Nz
 
 		bool SaveBMP(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 			
 			int componentCount = ConvertToIntegerFormat(tempImage);
@@ -159,9 +161,11 @@ namespace Nz
 
 			return true;
 		}
-																	  
+
 		bool SaveHDR(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToFloatFormat(tempImage);
@@ -173,7 +177,7 @@ namespace Nz
 
 			if (!stbi_write_hdr_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, reinterpret_cast<const float*>(tempImage.GetConstPixels())))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write HDR to stream");
 				return false;
 			}
 
@@ -182,6 +186,8 @@ namespace Nz
 
 		bool SavePNG(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToIntegerFormat(tempImage);
@@ -193,7 +199,7 @@ namespace Nz
 
 			if (!stbi_write_png_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels(), 0))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write PNG to stream");
 				return false;
 			}
 
@@ -202,6 +208,8 @@ namespace Nz
 
 		bool SaveTGA(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
+			NazaraUnused(parameters);
+
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
 
 			int componentCount = ConvertToIntegerFormat(tempImage);
@@ -213,7 +221,7 @@ namespace Nz
 
 			if (!stbi_write_tga_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels()))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("Failed to write TGA to stream");
 				return false;
 			}
 

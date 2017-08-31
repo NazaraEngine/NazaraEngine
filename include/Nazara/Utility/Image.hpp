@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -47,7 +46,7 @@ namespace Nz
 	using ImageRef = ObjectRef<Image>;
 	using ImageSaver = ResourceSaver<Image, ImageParams>;
 
-	class NAZARA_UTILITY_API Image : public AbstractImage, public RefCounted, public Resource
+	class NAZARA_UTILITY_API Image : public AbstractImage, public Resource
 	{
 		friend ImageLibrary;
 		friend ImageLoader;
@@ -79,18 +78,20 @@ namespace Nz
 			bool FlipVertically();
 
 			const UInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0) const;
-			unsigned int GetDepth(UInt8 level = 0) const;
-			PixelFormatType GetFormat() const;
-			unsigned int GetHeight(UInt8 level = 0) const;
-			UInt8 GetLevelCount() const;
-			UInt8 GetMaxLevel() const;
-			unsigned int GetMemoryUsage() const;
-			unsigned int GetMemoryUsage(UInt8 level) const;
+			unsigned int GetDepth(UInt8 level = 0) const override;
+			PixelFormatType GetFormat() const override;
+			unsigned int GetHeight(UInt8 level = 0) const override;
+			UInt8 GetLevelCount() const override;
+			UInt8 GetMaxLevel() const override;
+			std::size_t GetMemoryUsage() const override;
+			std::size_t GetMemoryUsage(UInt8 level) const override;
 			Color GetPixelColor(unsigned int x, unsigned int y = 0, unsigned int z = 0) const;
 			UInt8* GetPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0);
-			Vector3ui GetSize(UInt8 level = 0) const;
-			ImageType GetType() const;
-			unsigned int GetWidth(UInt8 level = 0) const;
+			Vector3ui GetSize(UInt8 level = 0) const override;
+			ImageType GetType() const override;
+			unsigned int GetWidth(UInt8 level = 0) const override;
+
+			bool HasAlpha() const;
 
 			bool IsValid() const;
 
@@ -125,13 +126,13 @@ namespace Nz
 			void SetLevelCount(UInt8 levelCount);
 			bool SetPixelColor(const Color& color, unsigned int x, unsigned int y = 0, unsigned int z = 0);
 
-			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
-			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
-			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
+			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
+			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 
 			Image& operator=(const Image& image);
 
-			static void Copy(UInt8* destination, const UInt8* source, UInt8 bpp, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
+			static void Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 			template<typename... Args> static ImageRef New(Args&&... args);

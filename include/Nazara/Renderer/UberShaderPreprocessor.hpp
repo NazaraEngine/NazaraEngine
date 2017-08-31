@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,7 +29,7 @@ namespace Nz
 			UberShaderPreprocessor() = default;
 			~UberShaderPreprocessor();
 
-			UberShaderInstance* Get(const ParameterList& parameters) const;
+			UberShaderInstance* Get(const ParameterList& parameters) const override;
 
 			void SetShader(ShaderStageType stage, const String& source, const String& shaderFlags, const String& requiredFlags = String());
 			bool SetShaderFromFile(ShaderStageType stage, const String& filePath, const String& shaderFlags, const String& requiredFlags = String());

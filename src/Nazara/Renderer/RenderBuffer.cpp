@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -44,7 +44,7 @@ namespace Nz
 		OpenGL::Format openglFormat;
 		if (!OpenGL::TranslateFormat(format, &openglFormat, OpenGL::FormatType_RenderBuffer))
 		{
-			NazaraError("Failed to translate pixel format \"" + PixelFormat::ToString(format) + "\" into OpenGL format");
+			NazaraError("Failed to translate pixel format \"" + PixelFormat::GetName(format) + "\" into OpenGL format");
 			return false;
 		}
 

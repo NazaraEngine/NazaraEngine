@@ -1,14 +1,16 @@
 TOOL.Name = "SDK"
 
-TOOL.Directory = "../SDK/lib"
+TOOL.Directory = "../SDK"
 TOOL.Kind = "Library"
+TOOL.TargetDirectory = "../lib"
 
 TOOL.Defines = {
 	"NDK_BUILD"
 }
 
 TOOL.Includes = {
-	"../SDK/include"
+	"../SDK/include",
+	"../SDK/src"
 }
 
 TOOL.Files = {
@@ -19,13 +21,11 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
-TOOL.Libraries = {
-	"NazaraCore",
-	"NazaraAudio",
-	"NazaraLua",
-	"NazaraNoise",
-	"NazaraPhysics",
-	"NazaraUtility",
-	"NazaraRenderer",
-	"NazaraGraphics",
-}
+TOOL.Libraries = function()
+    local libraries = {}
+    for k,v in pairs(NazaraBuild.Modules) do
+        table.insert(libraries, "Nazara" .. v.Name)
+    end
+
+    return libraries
+end

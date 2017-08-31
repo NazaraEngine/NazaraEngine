@@ -1,4 +1,4 @@
-// This file was automatically generated on 24 Jun 2015 at 13:55:50
+// This file was automatically generated
 
 /*
 	Nazara Engine - Lua scripting module
@@ -33,6 +33,8 @@
 #include <Nazara/Lua/Enums.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Lua/LuaClass.hpp>
+#include <Nazara/Lua/LuaCoroutine.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
+#include <Nazara/Lua/LuaState.hpp>
 
 #endif // NAZARA_GLOBAL_LUA_HPP
