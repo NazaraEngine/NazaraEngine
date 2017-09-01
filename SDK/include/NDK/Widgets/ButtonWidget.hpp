@@ -10,6 +10,7 @@
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 
@@ -29,6 +30,32 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline const Nz::Color& GetColor() const;
+			inline const Nz::Color& GetCornerColor() const;
+			inline const Nz::Color& GetHoverColor() const;
+			inline const Nz::Color& GetHoverCornerColor() const;
+			inline const Nz::Color& GetPressColor() const;
+			inline const Nz::Color& GetPressCornerColor() const;
+
+			const Nz::Color& GetDefaultColor() const;
+			const Nz::Color& GetDefaultCornerColor() const;
+			const Nz::Color& GetDefaultHoverColor() const;
+			const Nz::Color& GetDefaultHoverCornerColor() const;
+			const Nz::Color& GetDefaultPressColor() const;
+			const Nz::Color& GetDefaultPressCornerColor() const;
+
+			inline const Nz::TextureRef& GetTexture() const;
+			inline const Nz::TextureRef& GetHoverTexture() const;
+			inline const Nz::TextureRef& GetPressTexture() const;
+
+			inline void SetColor(const Nz::Color& color, const Nz::Color& cornerColor);
+			inline void SetHoverColor(const Nz::Color& color, const Nz::Color& cornerColor);
+			inline void SetPressColor(const Nz::Color& color, const Nz::Color& cornerColor);
+
+			inline void SetTexture(const Nz::TextureRef& texture, bool resetColors = true, bool changeHoverTexture = true);
+			inline void SetHoverTexture(const Nz::TextureRef& texture, bool resetColors = true);
+			inline void SetPressTexture(const Nz::TextureRef& texture, bool resetColors = true);
+
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 			ButtonWidget& operator=(const ButtonWidget&) = delete;
@@ -40,6 +67,7 @@ namespace Ndk
 			void Layout() override;
 
 			void OnMouseEnter() override;
+			void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button) override;
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			void OnMouseExit() override;
 
@@ -47,6 +75,24 @@ namespace Ndk
 			EntityHandle m_gradientEntity;
 			Nz::SpriteRef m_gradientSprite;
 			Nz::TextSpriteRef m_textSprite;
+
+			Nz::Color m_color;
+			Nz::Color m_cornerColor;
+			Nz::Color m_hoverColor;
+			Nz::Color m_hoverCornerColor;
+			Nz::Color m_pressColor;
+			Nz::Color m_pressCornerColor;
+
+			Nz::TextureRef m_texture;
+			Nz::TextureRef m_hoverTexture;
+			Nz::TextureRef m_pressTexture;
+
+			static Nz::Color s_color;
+			static Nz::Color s_cornerColor;
+			static Nz::Color s_hoverColor;
+			static Nz::Color s_hoverCornerColor;
+			static Nz::Color s_pressColor;
+			static Nz::Color s_pressCornerColor;
 	};
 }
 
