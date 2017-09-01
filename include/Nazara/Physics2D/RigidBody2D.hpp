@@ -54,8 +54,8 @@ namespace Nz
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(float angularVelocity);
-			void SetGeom(Collider2DRef geom);
-			void SetMass(float mass);
+			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
+			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center);
 			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
