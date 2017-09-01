@@ -231,7 +231,7 @@ namespace Nz
 		cpBodySetAngularVelocity(m_handle, ToRadians(angularVelocity));
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom)
+	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment)
 	{
 		// We have no public way of getting rid of an existing geom without removing the whole body
 		// So let's save some attributes of the body, destroy it and rebuild it
@@ -258,19 +258,22 @@ namespace Nz
 			cpSpaceAddShape(space, shape);
 		}
 
-		cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+		if (recomputeMoment)
+			cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
 	}
 
-	void RigidBody2D::SetMass(float mass)
+	void RigidBody2D::SetMass(float mass, bool recomputeMoment)
 	{
 		if (m_mass > 0.f)
 		{
 			if (mass > 0.f)
 			{
-				m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
+				m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
 				{
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+
+					if (recomputeMoment)
+						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				});
 			}
 			else
@@ -278,13 +281,15 @@ namespace Nz
 		}
 		else if (mass > 0.f)
 		{
-			m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
+			m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
 			{
 				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_KINEMATIC)
 				{
 					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+
+					if (recomputeMoment)
+						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				}
 			});
 		}
@@ -300,6 +305,7 @@ namespace Nz
 
 	void RigidBody2D::SetMomentOfInertia(float moment)
 	{
+		// Even though Chipmunk allows us to change this anytime, we need to do it in a post-step to prevent other post-steps to override this
 		m_world->RegisterPostStep(this, [moment] (Nz::RigidBody2D* body)
 		{
 			cpBodySetMoment(body->GetHandle(), moment);
