@@ -274,13 +274,13 @@ namespace Nz
 				});
 			}
 			else
-				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), CP_BODY_TYPE_STATIC); } );
+				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), CP_BODY_TYPE_KINEMATIC); } );
 		}
 		else if (mass > 0.f)
 		{
 			m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
 			{
-				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_STATIC)
+				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_KINEMATIC)
 				{
 					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(body->GetHandle(), mass);
@@ -309,8 +309,6 @@ namespace Nz
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));
-		if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
-			cpSpaceReindexShapesForBody(m_world->GetHandle(), m_handle);
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
