@@ -55,8 +55,8 @@ namespace Nz
 			ENetPeer* Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
 
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
-			bool Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount = 0);
-			bool Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
+			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount = 0);
+			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
 			void Destroy();
 
 			void Flush();
@@ -152,6 +152,7 @@ namespace Nz
 			UInt32 m_totalReceivedPackets;
 			UInt64 m_totalSentData;
 			UInt64 m_totalReceivedData;
+			bool m_allowsIncomingConnections;
 			bool m_continueSending;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;

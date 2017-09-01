@@ -143,14 +143,14 @@ namespace Nz
 		return Connect(hostnameAddress, channelCount, data);
 	}
 
-	bool ENetHost::Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount)
+	bool ENetHost::Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount)
 	{
-		return Create(address, peerCount, channelCount, 0, 0);
+		return Create(listenAddress, peerCount, channelCount, 0, 0);
 	}
 
-	bool ENetHost::Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth)
+	bool ENetHost::Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth)
 	{
-		NazaraAssert(address.IsValid(), "Invalid listening address");
+		NazaraAssert(listenAddress.IsValid(), "Invalid listening address");
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
@@ -158,10 +158,11 @@ namespace Nz
 			return false;
 		}
 
-		if (!InitSocket(address))
+		if (!InitSocket(listenAddress))
 			return false;
 
-		m_address = address;
+		m_address = listenAddress;
+		m_allowsIncomingConnections = (listenAddress.IsValid() && !listenAddress.IsLoopback());
 		m_randomSeed = *reinterpret_cast<UInt32*>(this);
 		m_randomSeed += s_randomGenerator();
 		m_randomSeed = (m_randomSeed << 16) | (m_randomSeed >> 16);
@@ -235,6 +236,8 @@ namespace Nz
 				default:
 					break;
 			}
+
+			if (!m_allowsIncomingConnections && m_connectedPeers == 0)
 
 			switch (ReceiveIncomingCommands(event))
 			{
@@ -323,7 +326,7 @@ namespace Nz
 		m_socket.SetReceiveBufferSize(ENetConstants::ENetHost_ReceiveBufferSize);
 		m_socket.SetSendBufferSize(ENetConstants::ENetHost_SendBufferSize);
 
-		if (!address.IsLoopback())
+		if (address.IsValid() && !address.IsLoopback())
 		{
 			if (m_socket.Bind(address) != SocketState_Bound)
 			{
@@ -407,6 +410,9 @@ namespace Nz
 
 	ENetPeer* ENetHost::HandleConnect(ENetProtocolHeader* /*header*/, ENetProtocol* command)
 	{
+		if (!m_allowsIncomingConnections)
+			return nullptr;
+
 		UInt32 channelCount = NetToHost(command->connect.channelCount);
 
 		if (channelCount < ENetProtocol_MinimumChannelCount || channelCount > ENetProtocol_MaximumChannelCount)
