@@ -42,11 +42,13 @@ namespace Nz
 			const FontRef& GetDefaultFont() const;
 			UInt32 GetDefaultStyle() const;
 
-			const Rectui& GetBounds() const override;
-			Font* GetFont(unsigned int index) const override;
-			unsigned int GetFontCount() const override;
-			const Glyph& GetGlyph(unsigned int index) const override;
-			unsigned int GetGlyphCount() const override;
+			const Recti& GetBounds() const override;
+			Font* GetFont(std::size_t index) const override;
+			std::size_t GetFontCount() const override;
+			const Glyph& GetGlyph(std::size_t index) const override;
+			std::size_t GetGlyphCount() const override;
+			const Line& GetLine(std::size_t index) const override;
+			std::size_t GetLineCount() const override;
 
 			void MergeBlocks();
 
@@ -98,6 +100,7 @@ namespace Nz
 			UInt32 m_defaultStyle;
 			unsigned int m_defaultCharacterSize;
 			std::unordered_map<FontRef, unsigned int> m_fonts;
+			std::vector<Block> m_blocks;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable Rectf m_workingBounds;
 			mutable Rectui m_bounds;
