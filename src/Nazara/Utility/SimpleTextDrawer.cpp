@@ -396,6 +396,9 @@ namespace Nz
 		m_lines.back().bounds.ExtendTo(m_glyphs.back().bounds);
 
 		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+
+		m_colorUpdated = true;
+		m_glyphUpdated = true;
 	}
 
 	void SimpleTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)
