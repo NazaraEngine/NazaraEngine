@@ -237,7 +237,9 @@ namespace Nz
 					break;
 			}
 
-			if (!m_allowsIncomingConnections && m_connectedPeers == 0)
+			// Receiving on an unbound socket which has never sent data is an invalid operation
+			if (!m_allowsIncomingConnections && m_totalSentData == 0)
+				return 0;
 
 			switch (ReceiveIncomingCommands(event))
 			{
