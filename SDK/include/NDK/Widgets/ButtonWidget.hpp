@@ -37,13 +37,6 @@ namespace Ndk
 			inline const Nz::Color& GetPressColor() const;
 			inline const Nz::Color& GetPressCornerColor() const;
 
-			static const Nz::Color& GetDefaultColor();
-			static const Nz::Color& GetDefaultCornerColor();
-			static const Nz::Color& GetDefaultHoverColor();
-			static const Nz::Color& GetDefaultHoverCornerColor();
-			static const Nz::Color& GetDefaultPressColor();
-			static const Nz::Color& GetDefaultPressCornerColor();
-
 			inline const Nz::TextureRef& GetTexture() const;
 			inline const Nz::TextureRef& GetHoverTexture() const;
 			inline const Nz::TextureRef& GetPressTexture() const;
@@ -60,6 +53,13 @@ namespace Ndk
 
 			ButtonWidget& operator=(const ButtonWidget&) = delete;
 			ButtonWidget& operator=(ButtonWidget&&) = default;
+
+			static const Nz::Color& GetDefaultColor();
+			static const Nz::Color& GetDefaultCornerColor();
+			static const Nz::Color& GetDefaultHoverColor();
+			static const Nz::Color& GetDefaultHoverCornerColor();
+			static const Nz::Color& GetDefaultPressColor();
+			static const Nz::Color& GetDefaultPressCornerColor();
 
 			NazaraSignal(OnButtonTrigger, const ButtonWidget* /*button*/);
 
