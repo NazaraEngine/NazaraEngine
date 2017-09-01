@@ -37,12 +37,12 @@ namespace Ndk
 			inline const Nz::Color& GetPressColor() const;
 			inline const Nz::Color& GetPressCornerColor() const;
 
-			const Nz::Color& GetDefaultColor() const;
-			const Nz::Color& GetDefaultCornerColor() const;
-			const Nz::Color& GetDefaultHoverColor() const;
-			const Nz::Color& GetDefaultHoverCornerColor() const;
-			const Nz::Color& GetDefaultPressColor() const;
-			const Nz::Color& GetDefaultPressCornerColor() const;
+			static const Nz::Color& GetDefaultColor();
+			static const Nz::Color& GetDefaultCornerColor();
+			static const Nz::Color& GetDefaultHoverColor();
+			static const Nz::Color& GetDefaultHoverCornerColor();
+			static const Nz::Color& GetDefaultPressColor();
+			static const Nz::Color& GetDefaultPressCornerColor();
 
 			inline const Nz::TextureRef& GetTexture() const;
 			inline const Nz::TextureRef& GetHoverTexture() const;

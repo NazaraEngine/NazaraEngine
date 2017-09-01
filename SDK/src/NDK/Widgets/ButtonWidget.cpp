@@ -44,32 +44,32 @@ namespace Ndk
 		Layout();
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultColor() const
+	const Nz::Color& ButtonWidget::GetDefaultColor()
 	{
 		return s_color;
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultCornerColor() const
+	const Nz::Color& ButtonWidget::GetDefaultCornerColor()
 	{
 		return s_cornerColor;
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultHoverColor() const
+	const Nz::Color& ButtonWidget::GetDefaultHoverColor()
 	{
 		return s_hoverColor;
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultHoverCornerColor() const
+	const Nz::Color& ButtonWidget::GetDefaultHoverCornerColor()
 	{
 		return s_hoverCornerColor;
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultPressColor() const
+	const Nz::Color& ButtonWidget::GetDefaultPressColor()
 	{
 		return s_pressColor;
 	}
 
-	const Nz::Color& ButtonWidget::GetDefaultPressCornerColor() const
+	const Nz::Color& ButtonWidget::GetDefaultPressCornerColor()
 	{
 		return s_pressCornerColor;
 	}
