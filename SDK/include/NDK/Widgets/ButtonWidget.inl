@@ -73,32 +73,20 @@ namespace Ndk
 		m_pressCornerColor = cornerColor;
 	}
 
-	inline void ButtonWidget::SetTexture(const Nz::TextureRef& texture, bool resetColors, bool changeHoverTexture)
+	inline void ButtonWidget::SetTexture(const Nz::TextureRef& texture)
 	{
 		m_texture = texture;
 		m_gradientSprite->SetTexture(m_texture);
-
-		if (resetColors)
-			SetColor(Nz::Color::White, Nz::Color::White);
-
-		if (changeHoverTexture)
-			SetHoverTexture(texture, resetColors);
 	}
 
-	inline void ButtonWidget::SetHoverTexture(const Nz::TextureRef& texture, bool resetColors)
+	inline void ButtonWidget::SetHoverTexture(const Nz::TextureRef& texture)
 	{
 		m_hoverTexture = texture;
-
-		if (resetColors)
-			SetHoverColor(Nz::Color::White, Nz::Color::White);
 	}
 
-	inline void ButtonWidget::SetPressTexture(const Nz::TextureRef& texture, bool resetColors)
+	inline void ButtonWidget::SetPressTexture(const Nz::TextureRef& texture)
 	{
 		m_pressTexture = texture;
-
-		if (resetColors)
-			SetPressColor(Nz::Color::White, Nz::Color::White);
 	}
 
 	inline void ButtonWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)

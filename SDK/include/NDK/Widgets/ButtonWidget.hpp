@@ -45,9 +45,9 @@ namespace Ndk
 			inline void SetHoverColor(const Nz::Color& color, const Nz::Color& cornerColor);
 			inline void SetPressColor(const Nz::Color& color, const Nz::Color& cornerColor);
 
-			inline void SetTexture(const Nz::TextureRef& texture, bool resetColors = true, bool changeHoverTexture = true);
-			inline void SetHoverTexture(const Nz::TextureRef& texture, bool resetColors = true);
-			inline void SetPressTexture(const Nz::TextureRef& texture, bool resetColors = true);
+			inline void SetTexture(const Nz::TextureRef& texture);
+			inline void SetHoverTexture(const Nz::TextureRef& texture);
+			inline void SetPressTexture(const Nz::TextureRef& texture);
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
