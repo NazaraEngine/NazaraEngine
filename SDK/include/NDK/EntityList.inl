@@ -137,6 +137,16 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Reserves enough space to contains entityCount entities
+	*
+	* \param entityCount Number of entities to reserve
+	*/
+	inline void EntityList::Reserve(std::size_t entityCount)
+	{
+		m_entityBits.Reserve(entityCount);
+	}
+
 	// STL Interface
 	inline EntityList::iterator EntityList::begin() const
 	{
