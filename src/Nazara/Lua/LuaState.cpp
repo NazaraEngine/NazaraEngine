@@ -126,12 +126,6 @@ namespace Nz
 		static_assert(sizeof(s_types)/sizeof(int) == LuaType_Max+1, "Lua type array is incomplete");
 	}
 
-	LuaState::LuaState(LuaState&& state) noexcept :
-	m_lastError(state.m_lastError),
-	m_state(state.m_state)
-	{
-	}
-
 	void LuaState::ArgCheck(bool condition, unsigned int argNum, const char* error) const
 	{
 		luaL_argcheck(m_state, condition, argNum, error);
@@ -787,14 +781,6 @@ namespace Nz
 	void* LuaState::ToUserdata(int index, const String& tname) const
 	{
 		return luaL_testudata(m_state, index, tname.GetConstBuffer());
-	}
-
-	LuaState& LuaState::operator=(LuaState&& state) noexcept
-	{
-		m_lastError = std::move(state.m_lastError);
-		m_state = state.m_state;
-
-		return *this;
 	}
 
 	bool LuaState::Run(int argCount, int resultCount)

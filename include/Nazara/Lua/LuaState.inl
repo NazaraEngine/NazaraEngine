@@ -20,6 +20,13 @@ namespace Nz
 	{
 	}
 
+	inline LuaState::LuaState(LuaState&& state) noexcept :
+	m_lastError(state.m_lastError),
+	m_state(state.m_state)
+	{
+		state.m_state = nullptr;
+	}
+
 	inline lua_State* LuaState::GetInternalState() const
 	{
 		return m_state;
@@ -768,6 +775,16 @@ namespace Nz
 		PlacementNew(userdata, std::forward<Args>(args)...);
 
 		SetMetatable(tname);
+	}
+
+	inline LuaState& LuaState::operator=(LuaState&& state) noexcept
+	{
+		m_lastError = std::move(state.m_lastError);
+		m_state = state.m_state;
+
+		state.m_state = nullptr;
+
+		return *this;
 	}
 
 	template<typename T>

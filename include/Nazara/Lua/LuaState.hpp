@@ -33,7 +33,7 @@ namespace Nz
 	{
 		public:
 			LuaState(const LuaState&) = default;
-			LuaState(LuaState&& instance) noexcept;
+			inline LuaState(LuaState&& instance) noexcept;
 			~LuaState() = default;
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -174,7 +174,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaState& operator=(const LuaState&) = default;
-			LuaState& operator=(LuaState&& instance) noexcept;
+			inline LuaState& operator=(LuaState&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance& GetInstance(lua_State* internalState);
