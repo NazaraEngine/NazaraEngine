@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -42,6 +42,12 @@ namespace Nz
 		if (matrix == Matrix4f::Zero())
 		{
 			NazaraError("Invalid matrix");
+			return false;
+		}
+
+		if (vertexDeclaration == nullptr)
+		{
+			NazaraError("The vertex declaration can't be null");
 			return false;
 		}
 
@@ -113,7 +119,7 @@ namespace Nz
 		Matrix4f matrix(primitive.matrix);
 		matrix *= params.matrix;
 
-		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		VertexDeclaration* declaration = params.vertexDeclaration;
 
 		switch (primitive.type)
 		{

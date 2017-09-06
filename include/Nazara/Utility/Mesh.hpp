@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -37,6 +37,13 @@ namespace Nz
 		bool animated = true;                       ///< If true, will load an animated version of the model if possible
 		bool center = false;                        ///< If true, will center the mesh vertices around the origin
 		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+
+		/* The declaration must have a Vector3f position component enabled
+		 * If the declaration has a Vector2f UV component enabled, UV are generated
+		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.
+		 * If the declaration has a Vector3f Tangents component enabled, Tangents are generated.
+		 */
+		VertexDeclaration* vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
 		bool IsValid() const;
 	};

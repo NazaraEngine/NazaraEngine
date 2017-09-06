@@ -1,9 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 
 namespace Nz
 {
@@ -22,6 +23,7 @@ namespace Nz
 		if (enabled)
 		{
 			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
+			NazaraAssert(ComponentTypeOf<T>() == type, "Wanted type is not the same than the declaration");
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
 		}
 		else
@@ -29,6 +31,18 @@ namespace Nz
 			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<T>();
 		}
+	}
+
+	template<typename T> 
+	bool VertexMapper::HaveComponent(VertexComponent component)
+	{
+		const VertexDeclaration* declaration = m_mapper.GetBuffer()->GetVertexDeclaration();
+
+		bool enabled;
+		ComponentType type;
+		declaration->GetComponent(component, &enabled, &type, nullptr);
+
+		return !enabled || ComponentTypeOf<T> != type;
 	}
 }
 

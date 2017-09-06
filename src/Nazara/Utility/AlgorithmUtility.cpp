@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -1163,5 +1163,89 @@ namespace Nz
 			if (vertexPointers.tangentPtr)
 				*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
 			}
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Color>()
+	{
+		return ComponentType_Color;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<double>()
+	{
+		return ComponentType_Double1;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector2d>()
+	{
+		return ComponentType_Double2;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector3d>()
+	{
+		return ComponentType_Double3;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector4d>()
+	{
+		return ComponentType_Double4;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<float>()
+	{
+		return ComponentType_Float1;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector2f>()
+	{
+		return ComponentType_Float2;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector3f>()
+	{
+		return ComponentType_Float3;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector4f>()
+	{
+		return ComponentType_Float4;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<int>()
+	{
+		return ComponentType_Int1;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector2i>()
+	{
+		return ComponentType_Int2;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector3i>()
+	{
+		return ComponentType_Int3;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Vector4i>()
+	{
+		return ComponentType_Int4;
+	}
+
+	template<>
+	ComponentType ComponentTypeOf<Quaternionf>()
+	{
+		return ComponentType_Quaternion;
 	}
 }

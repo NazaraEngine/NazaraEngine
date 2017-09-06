@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,11 +8,14 @@
 #define NAZARA_ALGORITHM_UTILITY_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
@@ -57,6 +60,24 @@ namespace Nz
 	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
+
+	template<typename T> ComponentType ComponentTypeOf();
+	template<> ComponentType ComponentTypeOf<Color>();
+	template<> ComponentType ComponentTypeOf<double>();
+	template<> ComponentType ComponentTypeOf<Vector2d>();
+	template<> ComponentType ComponentTypeOf<Vector3d>();
+	template<> ComponentType ComponentTypeOf<Vector4d>();
+	template<> ComponentType ComponentTypeOf<float>();
+	template<> ComponentType ComponentTypeOf<Vector2f>();
+	template<> ComponentType ComponentTypeOf<Vector3f>();
+	template<> ComponentType ComponentTypeOf<Vector4f>();
+	template<> ComponentType ComponentTypeOf<int>();
+	template<> ComponentType ComponentTypeOf<Vector2i>();
+	template<> ComponentType ComponentTypeOf<Vector3i>();
+	template<> ComponentType ComponentTypeOf<Vector4i>();
+	template<> ComponentType ComponentTypeOf<Quaternionf>();
 }
+
+#include <Nazara/Utility/Algorithm.inl>
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP
