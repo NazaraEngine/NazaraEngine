@@ -128,7 +128,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetUserdata() == &userData);
 				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
 
-				CHECK(body.IsMoveable() == true);
+				CHECK(body.IsKinematic() == false);
 				CHECK(body.IsSleeping() == false);
 			}
 		}
