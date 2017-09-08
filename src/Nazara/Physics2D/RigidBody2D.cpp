@@ -36,12 +36,12 @@ namespace Nz
 	m_userData(object.m_userData),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
-	m_mass(0.f)
+	m_mass(object.GetMass())
 	{
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		m_handle = Create(object.GetMass(), object.GetMomentOfInertia());
+		m_handle = Create(m_mass, object.GetMomentOfInertia());
 		SetGeom(object.GetGeom(), false);
 
 		CopyBodyData(object.GetHandle());
