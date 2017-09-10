@@ -60,24 +60,49 @@ namespace Nz
 	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
+	
 
-	template<typename T> ComponentType ComponentTypeOf();
-	template<> ComponentType ComponentTypeOf<Color>();
-	template<> ComponentType ComponentTypeOf<double>();
-	template<> ComponentType ComponentTypeOf<Vector2d>();
-	template<> ComponentType ComponentTypeOf<Vector3d>();
-	template<> ComponentType ComponentTypeOf<Vector4d>();
-	template<> ComponentType ComponentTypeOf<float>();
-	template<> ComponentType ComponentTypeOf<Vector2f>();
-	template<> ComponentType ComponentTypeOf<Vector3f>();
-	template<> ComponentType ComponentTypeOf<Vector4f>();
-	template<> ComponentType ComponentTypeOf<int>();
-	template<> ComponentType ComponentTypeOf<Vector2i>();
-	template<> ComponentType ComponentTypeOf<Vector3i>();
-	template<> ComponentType ComponentTypeOf<Vector4i>();
-	template<> ComponentType ComponentTypeOf<Quaternionf>();
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Color>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Color; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, double>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Double1; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2d>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Double2; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3d>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Double3; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4d>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Double4; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, float>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Float1; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2f>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Float2; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3f>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Float3; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4f>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Float4; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, int>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Int1; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2i>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Int2; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3i>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Int3; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4i>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Int4; }
+
+	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Quaternionf>::value>...>
+	ComponentType ComponentTypeOf() { return ComponentType_Quaternion; }
 }
-
-#include <Nazara/Utility/Algorithm.inl>
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP

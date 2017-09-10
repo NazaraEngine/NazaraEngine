@@ -34,15 +34,9 @@ namespace Nz
 	}
 
 	template<typename T> 
-	bool VertexMapper::HaveComponent(VertexComponent component)
+	bool VertexMapper::HaveComponent(VertexComponent component) const
 	{
-		const VertexDeclaration* declaration = m_mapper.GetBuffer()->GetVertexDeclaration();
-
-		bool enabled;
-		ComponentType type;
-		declaration->GetComponent(component, &enabled, &type, nullptr);
-
-		return !enabled || ComponentTypeOf<T> != type;
+		return m_mapper.GetBuffer()->GetVertexDeclaration()->HaveComponent<T>(component);
 	}
 }
 

@@ -38,6 +38,7 @@ namespace Nz
 			void EnableComponent(VertexComponent component, ComponentType type, std::size_t offset);
 
 			void GetComponent(VertexComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			template<typename T> bool HaveComponent(VertexComponent component) const;
 			std::size_t GetStride() const;
 
 			void SetStride(std::size_t stride);
