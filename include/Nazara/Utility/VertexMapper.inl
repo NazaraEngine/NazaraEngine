@@ -20,10 +20,9 @@ namespace Nz
 		std::size_t offset;
 		declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled)
+		if (enabled && ComponentTypeOf<T>() == type)
 		{
 			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
-			NazaraAssert(ComponentTypeOf<T>() == type, "Wanted type is not the same than the declaration");
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
 		}
 		else

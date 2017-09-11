@@ -1,9 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Debug.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 
 namespace Nz
 {
@@ -26,7 +27,7 @@ namespace Nz
 		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled)
+		if (enabled && ComponentTypeOf<T>() == type)
 		{
 			///TODO: Check the ratio between the type of the attribute and the template type ?
 			return SparsePtr<T>(m_ptr + offset, m_declaration->GetStride());
@@ -57,7 +58,7 @@ namespace Nz
 		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled)
+		if (enabled && ComponentTypeOf<T>() == type)
 		{
 			///TODO: Check the ratio between the type of the attribute and the template type ?
 			return SparsePtr<const T>(m_ptr + offset, m_declaration->GetStride());
