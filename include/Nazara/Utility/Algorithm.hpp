@@ -61,48 +61,35 @@ namespace Nz
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
 	
+	template<typename T>
+	struct IsSuitableForComponent
+	{
+		constexpr static bool value = false;
+	};
 
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Color>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Color; }
+	template<class T> constexpr const ComponentType componentTypeId() 
+	{ 
+		static_assert(IsSuitableForComponent<T>::value, "This type cannot be used as a component.");
+		return ComponentType{}; 
+	}
 
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, double>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Double1; }
+	template<> constexpr const ComponentType componentTypeId<Color>() { return ComponentType_Color; }
+	template<> constexpr const ComponentType componentTypeId<double>() { return ComponentType_Double1; }
+	template<> constexpr const ComponentType componentTypeId<Vector2d>() { return ComponentType_Double2; }
+	template<> constexpr const ComponentType componentTypeId<Vector3d>() { return ComponentType_Double3; }
+	template<> constexpr const ComponentType componentTypeId<Vector4d>() { return ComponentType_Double4; }
+	template<> constexpr const ComponentType componentTypeId<float>() { return ComponentType_Float1; }
+	template<> constexpr const ComponentType componentTypeId<Vector2f>() { return ComponentType_Float2; }
+	template<> constexpr const ComponentType componentTypeId<Vector3f>() { return ComponentType_Float3; }
+	template<> constexpr const ComponentType componentTypeId<Vector4f>() { return ComponentType_Float4; }
+	template<> constexpr const ComponentType componentTypeId<int>() { return ComponentType_Int1; }
+	template<> constexpr const ComponentType componentTypeId<Vector2i>() { return ComponentType_Int2; }
+	template<> constexpr const ComponentType componentTypeId<Vector3i>() { return ComponentType_Int3; }
+	template<> constexpr const ComponentType componentTypeId<Vector4i>() { return ComponentType_Int4; }
+	template<> constexpr const ComponentType componentTypeId<Quaternionf>() { return ComponentType_Quaternion; }
 
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2d>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Double2; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3d>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Double3; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4d>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Double4; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, float>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Float1; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2f>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Float2; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3f>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Float3; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4f>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Float4; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, int>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Int1; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector2i>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Int2; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector3i>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Int3; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Vector4i>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Int4; }
-
-	template <typename T, std::enable_if_t<std::is_same<std::remove_const_t<T>, Quaternionf>::value>...>
-	ComponentType ComponentTypeOf() { return ComponentType_Quaternion; }
+	template<typename T>
+	constexpr const ComponentType GetComponentTypeOf() { return componentTypeId<std::decay_t<T>>(); }
 }
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP

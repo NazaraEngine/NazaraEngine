@@ -27,7 +27,7 @@ namespace Nz
 		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled && ComponentTypeOf<T>() == type)
+		if (enabled && GetComponentTypeOf<T>() == type)
 		{
 			///TODO: Check the ratio between the type of the attribute and the template type ?
 			return SparsePtr<T>(m_ptr + offset, m_declaration->GetStride());
@@ -58,7 +58,7 @@ namespace Nz
 		std::size_t offset;
 		m_declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled && ComponentTypeOf<T>() == type)
+		if (enabled && GetComponentTypeOf<T>() == type)
 		{
 			///TODO: Check the ratio between the type of the attribute and the template type ?
 			return SparsePtr<const T>(m_ptr + offset, m_declaration->GetStride());

@@ -17,14 +17,14 @@ namespace Nz
 	}
 
 	template<typename T> 
-	bool VertexDeclaration::HaveComponent(VertexComponent component) const
+	bool VertexDeclaration::HasComponentOfType(VertexComponent component) const
 	{
 		bool enabled;
 		Nz::ComponentType type;
 
 		GetComponent(component, &enabled, &type, nullptr);
 
-		return enabled && ComponentTypeOf<T>() == type;
+		return enabled && GetComponentTypeOf<T>() == type;
 	}
 }
 

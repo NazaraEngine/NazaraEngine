@@ -20,7 +20,7 @@ namespace Nz
 		std::size_t offset;
 		declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled && ComponentTypeOf<T>() == type)
+		if (enabled && GetComponentTypeOf<T>() == type)
 		{
 			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
@@ -33,9 +33,9 @@ namespace Nz
 	}
 
 	template<typename T> 
-	bool VertexMapper::HaveComponent(VertexComponent component) const
+	bool VertexMapper::HasComponentOfType(VertexComponent component) const
 	{
-		return m_mapper.GetBuffer()->GetVertexDeclaration()->HaveComponent<T>(component);
+		return m_mapper.GetBuffer()->GetVertexDeclaration()->HasComponentOfType<T>(component);
 	}
 }
 

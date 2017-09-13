@@ -111,7 +111,7 @@ namespace Nz
 		NazaraAssert(m_impl, "Mesh should be created first");
 		NazaraAssert(m_impl->animationType == AnimationType_Static, "Submesh building only works for static meshes");
 		NazaraAssert(params.IsValid(), "Invalid parameters");
-		NazaraAssert(params.vertexDeclaration->HaveComponent<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
+		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
 
 		Boxf aabb;
 		IndexBufferRef indexBuffer;
