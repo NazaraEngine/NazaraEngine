@@ -31,6 +31,8 @@
 #include <algorithm>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/SkeletalMesh.hpp>
 
 namespace Nz
 {

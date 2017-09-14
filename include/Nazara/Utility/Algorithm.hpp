@@ -17,11 +17,17 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
 
 namespace Nz
 {
+	class Joint;
+
+	class VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
+	typedef VertexStruct_XYZ_Normal_UV_Tangent_Skinning SkeletalMeshVertex;
+
+	class VertexStruct_XYZ_Normal_UV_Tangent;
+	typedef VertexStruct_XYZ_Normal_UV_Tangent MeshVertex;
+
 	struct SkinningData
 	{
 		const Joint* joints;
@@ -67,26 +73,26 @@ namespace Nz
 		constexpr static bool value = false;
 	};
 
-	template<class T> constexpr const ComponentType componentTypeId() 
+	template<class T> constexpr ComponentType componentTypeId() 
 	{ 
 		static_assert(IsSuitableForComponent<T>::value, "This type cannot be used as a component.");
 		return ComponentType{}; 
 	}
 
-	template<> constexpr const ComponentType componentTypeId<Color>() { return ComponentType_Color; }
-	template<> constexpr const ComponentType componentTypeId<double>() { return ComponentType_Double1; }
-	template<> constexpr const ComponentType componentTypeId<Vector2d>() { return ComponentType_Double2; }
-	template<> constexpr const ComponentType componentTypeId<Vector3d>() { return ComponentType_Double3; }
-	template<> constexpr const ComponentType componentTypeId<Vector4d>() { return ComponentType_Double4; }
-	template<> constexpr const ComponentType componentTypeId<float>() { return ComponentType_Float1; }
-	template<> constexpr const ComponentType componentTypeId<Vector2f>() { return ComponentType_Float2; }
-	template<> constexpr const ComponentType componentTypeId<Vector3f>() { return ComponentType_Float3; }
-	template<> constexpr const ComponentType componentTypeId<Vector4f>() { return ComponentType_Float4; }
-	template<> constexpr const ComponentType componentTypeId<int>() { return ComponentType_Int1; }
-	template<> constexpr const ComponentType componentTypeId<Vector2i>() { return ComponentType_Int2; }
-	template<> constexpr const ComponentType componentTypeId<Vector3i>() { return ComponentType_Int3; }
-	template<> constexpr const ComponentType componentTypeId<Vector4i>() { return ComponentType_Int4; }
-	template<> constexpr const ComponentType componentTypeId<Quaternionf>() { return ComponentType_Quaternion; }
+	template<> constexpr ComponentType componentTypeId<Color>() { return ComponentType_Color; }
+	template<> constexpr ComponentType componentTypeId<double>() { return ComponentType_Double1; }
+	template<> constexpr ComponentType componentTypeId<Vector2d>() { return ComponentType_Double2; }
+	template<> constexpr ComponentType componentTypeId<Vector3d>() { return ComponentType_Double3; }
+	template<> constexpr ComponentType componentTypeId<Vector4d>() { return ComponentType_Double4; }
+	template<> constexpr ComponentType componentTypeId<float>() { return ComponentType_Float1; }
+	template<> constexpr ComponentType componentTypeId<Vector2f>() { return ComponentType_Float2; }
+	template<> constexpr ComponentType componentTypeId<Vector3f>() { return ComponentType_Float3; }
+	template<> constexpr ComponentType componentTypeId<Vector4f>() { return ComponentType_Float4; }
+	template<> constexpr ComponentType componentTypeId<int>() { return ComponentType_Int1; }
+	template<> constexpr ComponentType componentTypeId<Vector2i>() { return ComponentType_Int2; }
+	template<> constexpr ComponentType componentTypeId<Vector3i>() { return ComponentType_Int3; }
+	template<> constexpr ComponentType componentTypeId<Vector4i>() { return ComponentType_Int4; }
+	template<> constexpr ComponentType componentTypeId<Quaternionf>() { return ComponentType_Quaternion; }
 
 	template<typename T>
 	constexpr const ComponentType GetComponentTypeOf() { return componentTypeId<std::decay_t<T>>(); }

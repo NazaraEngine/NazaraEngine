@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 
 namespace Nz
 {
