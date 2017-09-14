@@ -86,7 +86,7 @@ namespace Nz
 			return nullptr;
 		}
 
-		m_channelLimit = Clamp<std::size_t>(channelCount, ENetConstants::ENetProtocol_MinimumChannelCount, ENetConstants::ENetProtocol_MaximumChannelCount);
+		channelCount = Clamp<std::size_t>(channelCount, ENetConstants::ENetProtocol_MinimumChannelCount, ENetConstants::ENetProtocol_MaximumChannelCount);
 
 		UInt32 windowSize;
 		if (m_outgoingBandwidth == 0)
