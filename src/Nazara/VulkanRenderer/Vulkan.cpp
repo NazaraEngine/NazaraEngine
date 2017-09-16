@@ -244,15 +244,14 @@ namespace Nz
 
 			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
-				if (graphicsQueueNodeIndex == UINT32_MAX)
-					graphicsQueueNodeIndex = i;
-
 				if (supportPresentation)
 				{
 					graphicsQueueNodeIndex = i;
 					presentQueueNodeIndex = i;
 					break;
 				}
+				else if (graphicsQueueNodeIndex == UINT32_MAX)
+					graphicsQueueNodeIndex = i;
 			}
 			else if (supportPresentation)
 				presentQueueNodeIndex = i;
@@ -260,7 +259,7 @@ namespace Nz
 
 		for (UInt32 i = 0; i < queueFamilies.size(); i++)
 		{
-			if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) //< Compute and graphics queue implicitly support transfer operations
 			{
 				transfertQueueNodeFamily = i;
 				if (transfertQueueNodeFamily != graphicsQueueNodeIndex)
