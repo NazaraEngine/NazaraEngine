@@ -21,12 +21,11 @@
 namespace Nz
 {
 	class Joint;
-
 	class VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
-	typedef VertexStruct_XYZ_Normal_UV_Tangent_Skinning SkeletalMeshVertex;
-
 	class VertexStruct_XYZ_Normal_UV_Tangent;
-	typedef VertexStruct_XYZ_Normal_UV_Tangent MeshVertex;
+
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
+	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
 
 	struct SkinningData
 	{
@@ -66,36 +65,16 @@ namespace Nz
 	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
-	
+
 	template<typename T>
 	struct IsSuitableForComponent
 	{
 		constexpr static bool value = false;
 	};
 
-	template<class T> constexpr ComponentType componentTypeId() 
-	{ 
-		static_assert(IsSuitableForComponent<T>::value, "This type cannot be used as a component.");
-		return ComponentType{}; 
-	}
-
-	template<> constexpr ComponentType componentTypeId<Color>() { return ComponentType_Color; }
-	template<> constexpr ComponentType componentTypeId<double>() { return ComponentType_Double1; }
-	template<> constexpr ComponentType componentTypeId<Vector2d>() { return ComponentType_Double2; }
-	template<> constexpr ComponentType componentTypeId<Vector3d>() { return ComponentType_Double3; }
-	template<> constexpr ComponentType componentTypeId<Vector4d>() { return ComponentType_Double4; }
-	template<> constexpr ComponentType componentTypeId<float>() { return ComponentType_Float1; }
-	template<> constexpr ComponentType componentTypeId<Vector2f>() { return ComponentType_Float2; }
-	template<> constexpr ComponentType componentTypeId<Vector3f>() { return ComponentType_Float3; }
-	template<> constexpr ComponentType componentTypeId<Vector4f>() { return ComponentType_Float4; }
-	template<> constexpr ComponentType componentTypeId<int>() { return ComponentType_Int1; }
-	template<> constexpr ComponentType componentTypeId<Vector2i>() { return ComponentType_Int2; }
-	template<> constexpr ComponentType componentTypeId<Vector3i>() { return ComponentType_Int3; }
-	template<> constexpr ComponentType componentTypeId<Vector4i>() { return ComponentType_Int4; }
-	template<> constexpr ComponentType componentTypeId<Quaternionf>() { return ComponentType_Quaternion; }
-
-	template<typename T>
-	constexpr const ComponentType GetComponentTypeOf() { return componentTypeId<std::decay_t<T>>(); }
+	template<typename T> constexpr ComponentType ComponentTypeId();
+	template<typename T> constexpr const ComponentType GetComponentTypeOf();
 }
+#include <Nazara/Utility/Algorithm.inl>
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP
