@@ -5,9 +5,18 @@
 
 namespace Nz
 {
+	namespace Detail
+	{
+		template<typename T>
+		struct IsSuitableForComponent
+		{
+			constexpr static bool value = false;
+		};
+	}
+
 	template<typename T> constexpr ComponentType ComponentTypeId()
 	{
-		static_assert(IsSuitableForComponent<T>::value, "This type cannot be used as a component.");
+		static_assert(Detail::IsSuitableForComponent<T>::value, "This type cannot be used as a component.");
 		return ComponentType{};
 	}
 

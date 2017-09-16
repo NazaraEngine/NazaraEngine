@@ -66,12 +66,6 @@ namespace Nz
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
 
-	template<typename T>
-	struct IsSuitableForComponent
-	{
-		constexpr static bool value = false;
-	};
-
 	template<typename T> constexpr ComponentType ComponentTypeId();
 	template<typename T> constexpr const ComponentType GetComponentTypeOf();
 }
