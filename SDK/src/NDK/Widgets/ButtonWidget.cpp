@@ -46,7 +46,7 @@ namespace Ndk
 		m_gradientEntity->GetComponent<NodeComponent>().SetPosition(origin);
 		m_gradientSprite->SetSize(contentSize);
 
-		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().aabb;
+		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().obb.localBox;
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + contentSize.x / 2 - textBox.width / 2, origin.y + contentSize.y / 2 - textBox.height / 2);
 	}
 
