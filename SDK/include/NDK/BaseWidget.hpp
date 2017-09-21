@@ -38,6 +38,8 @@ namespace Ndk
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
 			inline void Center();
+			inline void CenterHorizontal();
+			inline void CenterVertical();
 
 			inline void Destroy();
 
