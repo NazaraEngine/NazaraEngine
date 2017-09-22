@@ -171,7 +171,7 @@ namespace Ndk
 
 		if (m_maxUpdateRate > 0.f)
 		{
-			if (m_updateCounter > elapsedTime)
+			if (m_updateCounter >= m_maxUpdateRate)
 			{
 				if (m_fixedUpdateRate > 0.f)
 				{
@@ -184,7 +184,7 @@ namespace Ndk
 				else
 				{
 					OnUpdate(m_maxUpdateRate);
-					m_updateCounter -= elapsedTime;
+					m_updateCounter -= m_maxUpdateRate;
 				}
 			}
 		}
