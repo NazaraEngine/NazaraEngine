@@ -36,7 +36,7 @@ namespace Ndk
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateOrder(100); //< Render last, after every movement is done
-		SetUpdateRate(0.f);  //< We don't want any rate limit
+		SetMaximumUpdateRate(0.f);  //< We don't want any rate limit
 	}
 
 	/*!
