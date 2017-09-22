@@ -35,17 +35,19 @@ namespace Ndk
 			bool Filters(const Entity* entity) const;
 
 			inline const EntityList& GetEntities() const;
+			inline float GetFixedUpdateRate() const;
 			inline SystemIndex GetIndex() const;
+			inline float GetMaximumUpdateRate() const;
 			inline int GetUpdateOrder() const;
-			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
 
 			inline bool IsEnabled() const;
 
 			inline bool HasEntity(const Entity* entity) const;
 
+			inline void SetFixedUpdateRate(float updatePerSecond);
+			inline void SetMaximumUpdateRate(float updatePerSecond);
 			void SetUpdateOrder(int updateOrder);
-			inline void SetUpdateRate(float updatePerSecond);
 
 			inline void Update(float elapsedTime);
 
@@ -93,8 +95,9 @@ namespace Ndk
 			SystemIndex m_systemIndex;
 			World* m_world;
 			bool m_updateEnabled;
+			float m_fixedUpdateRate;
+			float m_maxUpdateRate;
 			float m_updateCounter;
-			float m_updateRate;
 			int m_updateOrder;
 
 			static SystemIndex s_nextIndex;
