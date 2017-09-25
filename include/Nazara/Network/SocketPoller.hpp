@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
-#include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {

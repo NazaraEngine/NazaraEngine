@@ -19,7 +19,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
@@ -28,11 +27,7 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
-#include <deque>
-#include <queue>
 #include <random>
-#include <set>
-#include <unordered_map>
 
 namespace Nz
 {
