@@ -13,12 +13,11 @@
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/X11/CursorImpl.hpp>
+#include <Nazara/Platform/X11/Display.hpp>
 #include <Nazara/Platform/X11/IconImpl.hpp>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
-#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
 #include <Nazara/Platform/Debug.hpp>
 

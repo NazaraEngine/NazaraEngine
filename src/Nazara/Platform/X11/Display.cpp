@@ -4,8 +4,8 @@
 
 #include <Nazara/Platform/X11/Display.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Platform/X11/ScopedXCB.hpp>
 #include <xcb/xcb_keysyms.h>
 #include <map>
 #include <Nazara/Platform/Debug.hpp>

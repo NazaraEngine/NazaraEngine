@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/X11/ScopedXCB.hpp>
 #include <xcb/randr.h>
 #include <algorithm>
 #include <Nazara/Platform/Debug.hpp>

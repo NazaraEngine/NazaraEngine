@@ -14,7 +14,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
-#include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <xcb/randr.h>
 #include <xcb/xcb_icccm.h>
 

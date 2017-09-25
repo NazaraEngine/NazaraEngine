@@ -26,7 +26,6 @@
 
 namespace Nz
 {
-	class Image;
 	class WindowImpl;
 
 	class NAZARA_PLATFORM_API Window
