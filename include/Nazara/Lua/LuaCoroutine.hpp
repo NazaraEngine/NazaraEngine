@@ -9,8 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Lua/LuaState.hpp>
-#include <cstddef>
-#include <functional>
 
 namespace Nz
 {
