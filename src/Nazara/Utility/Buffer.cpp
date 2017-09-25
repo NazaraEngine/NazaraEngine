@@ -9,9 +9,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
-#include <cstring>
 #include <memory>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

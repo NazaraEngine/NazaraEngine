@@ -19,7 +19,6 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Sequence.hpp>
 
 namespace Nz
 {
@@ -34,6 +33,8 @@ namespace Nz
 	};
 
 	class Animation;
+	class Sequence;
+	class SequenceJoint;
 	class Skeleton;
 
 	using AnimationConstRef = ObjectRef<const Animation>;

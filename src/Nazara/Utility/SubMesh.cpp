@@ -6,10 +6,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
