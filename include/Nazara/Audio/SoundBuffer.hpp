@@ -18,7 +18,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
