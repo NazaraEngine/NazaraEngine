@@ -8,7 +8,6 @@
 #define NAZARA_NOISE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Noise/Config.hpp>
 
 namespace Nz
