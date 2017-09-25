@@ -10,10 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
 
