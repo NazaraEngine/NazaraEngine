@@ -14,11 +14,11 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 
 namespace Nz
 {
 	class Skeleton;
+	class StaticMesh;
 
 	class NAZARA_RENDERER_API DebugDrawer
 	{

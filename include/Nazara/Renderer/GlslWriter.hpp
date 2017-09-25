@@ -11,7 +11,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
-#include <map>
 #include <set>
 #include <unordered_map>
 
