@@ -4,10 +4,6 @@
 
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <cstring>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

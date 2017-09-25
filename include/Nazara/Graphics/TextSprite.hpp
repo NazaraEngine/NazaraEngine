@@ -11,13 +11,11 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <memory>
-#include <set>
 
 namespace Nz
 {
+	class AbstractTextDrawer;
 	class TextSprite;
 
 	using TextSpriteConstRef = ObjectRef<const TextSprite>;

@@ -353,4 +353,3 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
-#include "Sprite.hpp"

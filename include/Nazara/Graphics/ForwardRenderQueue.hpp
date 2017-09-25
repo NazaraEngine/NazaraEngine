@@ -18,7 +18,6 @@
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <map>
-#include <tuple>
 
 namespace Nz
 {
