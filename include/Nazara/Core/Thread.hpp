@@ -13,6 +13,7 @@
 
 namespace Nz
 {
+	class String;
 	class ThreadImpl;
 
 	class NAZARA_CORE_API Thread

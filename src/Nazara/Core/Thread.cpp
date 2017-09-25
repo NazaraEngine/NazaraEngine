@@ -6,8 +6,6 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
-#include <ostream>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ThreadImpl.hpp>

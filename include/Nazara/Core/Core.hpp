@@ -8,7 +8,6 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
 
 namespace Nz
 {

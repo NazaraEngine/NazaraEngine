@@ -5,9 +5,9 @@
 #include <Nazara/Core/MemoryManager.hpp>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <new>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <windows.h>
