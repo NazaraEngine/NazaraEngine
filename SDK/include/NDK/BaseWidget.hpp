@@ -12,7 +12,6 @@
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Event.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>

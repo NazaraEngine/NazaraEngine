@@ -8,9 +8,7 @@
 #define NDK_BASESYSTEM_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <NDK/Entity.hpp>
 #include <NDK/EntityList.hpp>
-#include <vector>
 
 namespace Ndk
 {

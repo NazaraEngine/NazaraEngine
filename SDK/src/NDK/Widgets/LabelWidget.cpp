@@ -5,7 +5,6 @@
 #include <NDK/Widgets/LabelWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
 
 namespace Ndk
 {

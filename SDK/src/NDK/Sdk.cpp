@@ -6,7 +6,6 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>

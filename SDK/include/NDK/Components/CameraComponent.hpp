@@ -19,7 +19,6 @@
 namespace Ndk
 {
 	class CameraComponent;
-	class Entity;
 
 	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
 

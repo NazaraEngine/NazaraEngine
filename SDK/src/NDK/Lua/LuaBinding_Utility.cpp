@@ -209,29 +209,29 @@ namespace Ndk
 			node.BindMethod("SetPosition", (void(Nz::Node::*)(const Nz::Vector3f&, Nz::CoordSys)) &Nz::Node::SetPosition, Nz::CoordSys_Local);
 			node.BindMethod("SetRotation", (void(Nz::Node::*)(const Nz::Quaternionf&, Nz::CoordSys)) &Nz::Node::SetRotation, Nz::CoordSys_Local);
 
-			node.BindMethod("Move", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
+			node.BindMethod("Move", [] (Nz::LuaState& lua, Nz::Node& movingNode, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 
 				Nz::Vector3f offset = lua.Check<Nz::Vector3f>(&argIndex);
 				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				node.Move(offset, coordSys);
+				movingNode.Move(offset, coordSys);
 
 				return 0;
 			});
 
-			node.BindMethod("Rotate", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t /*argumentCount*/) -> int
+			node.BindMethod("Rotate", [] (Nz::LuaState& lua, Nz::Node& rotatingNode, std::size_t /*argumentCount*/) -> int
 			{
 				int argIndex = 2;
 
 				Nz::Quaternionf rotation = lua.Check<Nz::Quaternionf>(&argIndex);
 				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				node.Rotate(rotation, coordSys);
+				rotatingNode.Rotate(rotation, coordSys);
 
 				return 0;
 			});
 
-			node.BindMethod("Scale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
+			node.BindMethod("Scale", [] (Nz::LuaState& lua, Nz::Node& scalingNode, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -241,15 +241,15 @@ namespace Ndk
 					case 1:
 					{
 						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-							node.Scale(lua.Check<float>(&argIndex));
+							scalingNode.Scale(lua.Check<float>(&argIndex));
 						else
-							node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+							scalingNode.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 
 						return 0;
 					}
 
 					case 3:
-						node.Scale(lua.Check<Nz::Vector3f>(&argIndex));
+						scalingNode.Scale(lua.Check<Nz::Vector3f>(&argIndex));
 						return 0;
 				}
 
@@ -257,7 +257,7 @@ namespace Ndk
 				return 0;
 			});
 
-			node.BindMethod("SetScale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
+			node.BindMethod("SetScale", [] (Nz::LuaState& lua, Nz::Node& scalingNode, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -271,10 +271,10 @@ namespace Ndk
 						{
 							float scale = lua.Check<float>(&argIndex);
 							Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-							node.SetScale(scale, coordSys);
+							scalingNode.SetScale(scale, coordSys);
 						}
 						else
-							node.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
+							scalingNode.SetScale(lua.Check<Nz::Vector3f>(&argIndex));
 
 						return 0;
 					}
@@ -285,7 +285,7 @@ namespace Ndk
 						Nz::Vector3f scale = lua.Check<Nz::Vector3f>(&argIndex);
 						Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
 
-						node.SetScale(scale, coordSys);
+						scalingNode.SetScale(scale, coordSys);
 						return 0;
 					}
 				}
@@ -294,7 +294,7 @@ namespace Ndk
 				return 0;
 			});
 
-			node.BindMethod("SetInitialScale", [] (Nz::LuaState& lua, Nz::Node& node, std::size_t argumentCount) -> int
+			node.BindMethod("SetInitialScale", [] (Nz::LuaState& lua, Nz::Node& scalingNode, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 4U);
 
@@ -304,16 +304,16 @@ namespace Ndk
 					case 1:
 					{
 						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
-							node.SetInitialScale(lua.Check<float>(&argIndex));
+							scalingNode.SetInitialScale(lua.Check<float>(&argIndex));
 						else
-							node.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
+							scalingNode.SetInitialScale(lua.Check<Nz::Vector2f>(&argIndex));
 
 						return 0;
 					}
 
 					case 2:
 					case 3:
-						node.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
+						scalingNode.SetInitialScale(lua.Check<Nz::Vector3f>(&argIndex));
 						return 0;
 				}
 
