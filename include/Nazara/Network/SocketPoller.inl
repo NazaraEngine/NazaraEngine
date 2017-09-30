@@ -8,30 +8,6 @@
 
 namespace Nz
 {
-	/*!
-	* \brief Constructs a SocketPoller object with another one by move semantic
-	*
-	* \param socketPoller SocketPoller to move into this
-	*/
-	inline SocketPoller::SocketPoller(SocketPoller&& socketPoller) :
-	m_impl(socketPoller.m_impl)
-	{
-		socketPoller.m_impl = nullptr;
-	}
-
-	/*!
-	* \brief Moves the SocketPoller into this
-	* \return A reference to this
-	*
-	* \param socketPoller SocketPoller to move in this
-	*/
-	inline SocketPoller& SocketPoller::operator=(SocketPoller&& socketPoller)
-	{
-		m_impl = socketPoller.m_impl;
-		socketPoller.m_impl = nullptr;
-
-		return *this;
-	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>
