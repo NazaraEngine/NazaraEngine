@@ -5975,7 +5975,7 @@ namespace std
 
 	istream& getline(istream& is, Nz::String& str)
 	{
-		return getline(is, str, '\n');
+		return getline(is, str, is.widen('\n'));
 	}
 
 	/*!
