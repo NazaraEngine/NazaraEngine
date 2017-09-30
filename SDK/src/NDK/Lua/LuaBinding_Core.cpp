@@ -32,28 +32,28 @@ namespace Ndk
 			stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
 			stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-			stream.BindMethod("Read", [] (Nz::LuaState& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			stream.BindMethod("Read", [] (Nz::LuaState& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 				int argIndex = 2;
 
 				std::size_t length = lua.Check<std::size_t>(&argIndex);
 
 				std::unique_ptr<char[]> buffer(new char[length]);
-				std::size_t readLength = stream.Read(buffer.get(), length);
+				std::size_t readLength = instance.Read(buffer.get(), length);
 
 				lua.PushString(Nz::String(buffer.get(), readLength));
 				return 1;
 			});
 
-			stream.BindMethod("Write", [] (Nz::LuaState& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			stream.BindMethod("Write", [] (Nz::LuaState& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 				int argIndex = 2;
 
 				std::size_t bufferSize = 0;
 				const char* buffer = lua.CheckString(argIndex, &bufferSize);
 
-				if (stream.IsTextModeEnabled())
-					lua.Push(stream.Write(Nz::String(buffer, bufferSize)));
+				if (instance.IsTextModeEnabled())
+					lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
 				else
-					lua.Push(stream.Write(buffer, bufferSize));
+					lua.Push(instance.Write(buffer, bufferSize));
 				return 1;
 			});
 		}
@@ -103,11 +103,11 @@ namespace Ndk
 			clock.BindMethod("Unpause", &Nz::Clock::Unpause);
 
 			// Manual
-			clock.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Clock& clock, std::size_t /*argumentCount*/) -> int {
+			clock.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Clock& instance, std::size_t /*argumentCount*/) -> int {
 				Nz::StringStream ss("Clock(Elapsed: ");
-				ss << clock.GetSeconds();
+				ss << instance.GetSeconds();
 				ss << "s, Paused: ";
-				ss << clock.IsPaused();
+				ss << instance.IsPaused();
 				ss << ')';
 
 				lua.PushString(ss);

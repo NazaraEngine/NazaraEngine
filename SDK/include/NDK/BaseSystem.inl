@@ -35,9 +35,9 @@ namespace Ndk
 	m_requiredComponents(system.m_requiredComponents),
 	m_systemIndex(system.m_systemIndex),
 	m_updateEnabled(system.m_updateEnabled),
-	m_updateCounter(0.f),
 	m_fixedUpdateRate(system.m_fixedUpdateRate),
 	m_maxUpdateRate(system.m_maxUpdateRate),
+	m_updateCounter(0.f),
 	m_updateOrder(system.m_updateOrder)
 	{
 	}
