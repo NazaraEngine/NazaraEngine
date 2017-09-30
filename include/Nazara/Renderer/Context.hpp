@@ -8,7 +8,6 @@
 #define NAZARA_CONTEXT_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -36,7 +35,7 @@ namespace Nz
 		public:
 			Context() = default;
 			Context(const Context&) = delete;
-			Context(Context&&) noexcept = default;
+			Context(Context&&) = delete;
 			~Context();
 
 			bool Create(const ContextParameters& parameters = ContextParameters());
@@ -53,7 +52,7 @@ namespace Nz
 			void SwapBuffers();
 
 			Context& operator=(const Context&) = delete;
-			Context& operator=(Context&&) noexcept = default;
+			Context& operator=(Context&&) = delete;
 
 			static bool EnsureContext();
 
@@ -70,7 +69,7 @@ namespace Nz
 			static void Uninitialize();
 
 			ContextParameters m_parameters;
-			MovablePtr<ContextImpl> m_impl = nullptr;
+			ContextImpl* m_impl = nullptr;
 
 			static std::unique_ptr<Context> s_reference;
 			static std::vector<std::unique_ptr<Context>> s_contexts;
