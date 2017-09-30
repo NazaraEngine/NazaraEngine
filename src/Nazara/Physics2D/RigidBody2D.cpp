@@ -46,7 +46,7 @@ namespace Nz
 
 		CopyBodyData(object.GetHandle());
 
-		for (int i = 0; i < m_shapes.size(); ++i)
+		for (std::size_t i = 0; i < m_shapes.size(); ++i)
 			m_shapes[i]->bb = cpShapeCacheBB(object.m_shapes[i]);
 	}
 
