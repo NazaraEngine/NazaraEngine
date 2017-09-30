@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	class Functor;
+	struct Functor;
 
 	class TaskSchedulerImpl
 	{

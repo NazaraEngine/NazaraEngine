@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	class NetBuffer;
+	struct NetBuffer;
 
 	struct PollSocket
 	{

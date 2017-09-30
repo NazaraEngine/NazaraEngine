@@ -15,7 +15,7 @@ namespace Nz
 {
 	class DeferredRenderTechnique;
 	class DeferredRenderQueue;
-	class SceneData;
+	struct SceneData;
 	class RenderTexture;
 	class Texture;
 

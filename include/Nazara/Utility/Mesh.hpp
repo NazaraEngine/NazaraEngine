@@ -40,7 +40,7 @@ namespace Nz
 	};
 
 	class Mesh;
-	class Primitive;
+	struct Primitive;
 	class PrimitiveList;
 	class Skeleton;
 	class SubMesh;

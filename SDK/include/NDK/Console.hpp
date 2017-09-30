@@ -19,7 +19,7 @@
 namespace Nz
 {
 	class LuaState;
-	class WindowEvent;
+	struct WindowEvent;
 }
 
 namespace Ndk

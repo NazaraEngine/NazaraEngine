@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class NetBuffer;
+	struct NetBuffer;
 	class NetPacket;
 
 	class NAZARA_NETWORK_API UdpSocket : public AbstractSocket

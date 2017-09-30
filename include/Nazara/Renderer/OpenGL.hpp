@@ -46,7 +46,7 @@ namespace Nz
 	};
 
 	class Context;
-	class RenderStates;
+	struct RenderStates;
 	class RenderTarget;
 
 	using OpenGLFunc = void (*)();

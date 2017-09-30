@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	class NetBuffer;
+	struct NetBuffer;
 	class NetPacket;
 
 	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream

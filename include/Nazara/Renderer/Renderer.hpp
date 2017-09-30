@@ -21,7 +21,7 @@ namespace Nz
 	class GpuQuery;
 	class IndexBuffer;
 	class RenderTarget;
-	class RenderStates;
+	struct RenderStates;
 	class Shader;
 	class Texture;
 	class TextureSampler;

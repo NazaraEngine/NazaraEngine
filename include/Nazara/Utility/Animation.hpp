@@ -34,8 +34,8 @@ namespace Nz
 	};
 
 	class Animation;
-	class Sequence;
-	class SequenceJoint;
+	struct Sequence;
+	struct SequenceJoint;
 	class Skeleton;
 
 	using AnimationConstRef = ObjectRef<const Animation>;
