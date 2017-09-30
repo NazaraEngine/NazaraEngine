@@ -53,7 +53,7 @@ namespace Nz
 			SoundBuffer() = default;
 			SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
 			SoundBuffer(const SoundBuffer&) = delete;
-			SoundBuffer(SoundBuffer&&) noexcept = default;
+			SoundBuffer(SoundBuffer&&) = delete;
 			~SoundBuffer();
 
 			bool Create(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
@@ -75,7 +75,7 @@ namespace Nz
 			template<typename... Args> static SoundBufferRef New(Args&&... args);
 
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
-			SoundBuffer& operator=(SoundBuffer&&) noexcept = default;
+			SoundBuffer& operator=(SoundBuffer&&) = delete;
 
 			// Signals:
 			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);
