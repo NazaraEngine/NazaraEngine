@@ -8,6 +8,7 @@
 #define NAZARA_RENDERTEXTURE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -30,7 +31,7 @@ namespace Nz
 		public:
 			inline RenderTexture();
 			RenderTexture(const RenderTexture&) = delete;
-			RenderTexture(RenderTexture&&) = delete; ///TODO?
+			RenderTexture(RenderTexture&&) noexcept = default;
 			inline ~RenderTexture();
 
 			bool AttachBuffer(AttachmentPoint attachmentPoint, UInt8 index, RenderBuffer* buffer);
@@ -64,7 +65,7 @@ namespace Nz
 			bool HasContext() const override;
 
 			RenderTexture& operator=(const RenderTexture&) = delete;
-			RenderTexture& operator=(RenderTexture&&) = delete; ///TODO?
+			RenderTexture& operator=(RenderTexture&&) noexcept = default;
 
 			static inline void Blit(RenderTexture* src, RenderTexture* dst, UInt32 buffers = RendererBuffer_Color | RendererBuffer_Depth | RendererBuffer_Stencil, bool bilinearFilter = false);
 			static void Blit(RenderTexture* src, Rectui srcRect, RenderTexture* dst, Rectui dstRect, UInt32 buffers = RendererBuffer_Color | RendererBuffer_Depth | RendererBuffer_Stencil, bool bilinearFilter = false);
@@ -85,7 +86,7 @@ namespace Nz
 			void UpdateSize() const;
 			void UpdateTargets() const;
 
-			RenderTextureImpl* m_impl;
+			MovablePtr<RenderTextureImpl> m_impl;
 			mutable bool m_checked ;
 			mutable bool m_drawBuffersUpdated;
 			mutable bool m_sizeUpdated;

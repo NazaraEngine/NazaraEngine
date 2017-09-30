@@ -8,6 +8,7 @@
 #define NAZARA_MUTEX_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz
 {
@@ -20,7 +21,7 @@ namespace Nz
 		public:
 			Mutex();
 			Mutex(const Mutex&) = delete;
-			inline Mutex(Mutex&& mutex) noexcept;
+			Mutex(Mutex&&) noexcept = default;
 			~Mutex();
 
 			void Lock();
@@ -28,10 +29,10 @@ namespace Nz
 			void Unlock();
 
 			Mutex& operator=(const Mutex&) = delete;
-			Mutex& operator=(Mutex&& mutex) noexcept;
+			Mutex& operator=(Mutex&&) noexcept = default;
 
 		private:
-			MutexImpl* m_impl;
+			MovablePtr<MutexImpl> m_impl;
 	};
 }
 

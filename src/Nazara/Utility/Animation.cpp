@@ -88,8 +88,8 @@ namespace Nz
 		{
 			Joint* joint = targetSkeleton->GetJoint(i);
 
-			SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
-			SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
 
 			joint->SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation));
 			joint->SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation));

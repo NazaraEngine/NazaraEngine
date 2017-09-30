@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 
@@ -33,7 +34,7 @@ namespace Nz
 			File(const String& filePath);
 			File(const String& filePath, OpenModeFlags openMode);
 			File(const File&) = delete;
-			File(File&& file) noexcept;
+			File(File&& file) noexcept = default;
 			~File();
 
 			bool Copy(const String& newFilePath);
@@ -69,7 +70,7 @@ namespace Nz
 
 			File& operator=(const String& filePath);
 			File& operator=(const File&) = delete;
-			File& operator=(File&& file) noexcept;
+			File& operator=(File&& file) noexcept = default;
 
 			static String AbsolutePath(const String& filePath);
 			static inline ByteArray ComputeHash(HashType hash, const String& filePath);
@@ -95,7 +96,7 @@ namespace Nz
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			String m_filePath;
-			FileImpl* m_impl;
+			MovablePtr<FileImpl> m_impl;
 	};
 
 	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile);

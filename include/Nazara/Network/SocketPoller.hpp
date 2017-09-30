@@ -8,6 +8,7 @@
 #define NAZARA_SOCKETPOLLER_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 
@@ -19,7 +20,7 @@ namespace Nz
 	{
 		public:
 			SocketPoller();
-			inline SocketPoller(SocketPoller&& socketPoller);
+			SocketPoller(SocketPoller&&) noexcept = default;
 			~SocketPoller();
 
 			void Clear();
@@ -33,10 +34,10 @@ namespace Nz
 
 			bool Wait(int msTimeout);
 
-			inline SocketPoller& operator=(SocketPoller&& socketPoller);
+			SocketPoller& operator=(SocketPoller&&) noexcept = default;
 
 		private:
-			SocketPollerImpl* m_impl;
+			MovablePtr<SocketPollerImpl> m_impl;
 	};
 }
 
