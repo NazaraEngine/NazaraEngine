@@ -5999,9 +5999,11 @@ namespace std
 			if (c != delim && c != '\0')
 				str += c;
 			else
+			{
 				if (c == '\0')
 					is.setstate(std::ios_base::eofbit);
 				break;
+			}
 		}
 
 		return is;
