@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			RenderTarget() = default;
 			RenderTarget(const RenderTarget&) = delete;
-			RenderTarget(RenderTarget&&) = delete; ///TOOD?
+			RenderTarget(RenderTarget&&) noexcept = default;
 			virtual ~RenderTarget();
 
 			virtual unsigned int GetHeight() const = 0;
@@ -37,7 +37,7 @@ namespace Nz
 			virtual bool HasContext() const = 0;
 
 			RenderTarget& operator=(const RenderTarget&) = delete;
-			RenderTarget& operator=(RenderTarget&&) = delete; ///TOOD?
+			RenderTarget& operator=(RenderTarget&&) noexcept = default;
 
 			// Signals:
 			NazaraSignal(OnRenderTargetParametersChange, const RenderTarget* /*renderTarget*/);

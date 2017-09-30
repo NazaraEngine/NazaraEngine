@@ -19,7 +19,8 @@ namespace Ndk
 	m_updateEnabled(true),
 	m_updateOrder(0)
 	{
-		SetUpdateRate(30);
+		SetFixedUpdateRate(0);
+		SetMaximumUpdateRate(30);
 	}
 
 	/*!
@@ -33,8 +34,9 @@ namespace Ndk
 	m_requiredComponents(system.m_requiredComponents),
 	m_systemIndex(system.m_systemIndex),
 	m_updateEnabled(system.m_updateEnabled),
+	m_fixedUpdateRate(system.m_fixedUpdateRate),
+	m_maxUpdateRate(system.m_maxUpdateRate),
 	m_updateCounter(0.f),
-	m_updateRate(system.m_updateRate),
 	m_updateOrder(system.m_updateOrder)
 	{
 	}
@@ -61,6 +63,24 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the maximum rate of update of the system
+	* \return Update rate
+	*/
+	inline float BaseSystem::GetFixedUpdateRate() const
+	{
+		return (m_fixedUpdateRate > 0.f) ? 1.f / m_fixedUpdateRate : 0.f;
+	}
+
+	/*!
+	* \brief Gets the maximum rate of update of the system
+	* \return Update rate
+	*/
+	inline float BaseSystem::GetMaximumUpdateRate() const
+	{
+		return (m_maxUpdateRate > 0.f) ? 1.f / m_maxUpdateRate : 0.f;
+	}
+
+	/*!
 	* \brief Gets the index of the system
 	* \return Index of the system
 	*/
@@ -79,16 +99,6 @@ namespace Ndk
 	inline int BaseSystem::GetUpdateOrder() const
 	{
 		return m_updateOrder;
-	}
-
-	/*!
-	* \brief Gets the rate of update of the system
-	* \return Update rate
-	*/
-
-	inline float BaseSystem::GetUpdateRate() const
-	{
-		return (m_updateRate > 0.f) ? 1.f / m_updateRate : 0.f;
 	}
 
 	/*!
@@ -124,15 +134,25 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Sets the rate of update for the system
+	* \brief Sets the fixed update rate for the system
+	*
+	* \param updatePerSecond Update rate, 0 means update rate is not fixed
+	*/
+	inline void BaseSystem::SetFixedUpdateRate(float updatePerSecond)
+	{
+		m_updateCounter = 0.f;
+		m_fixedUpdateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
+	}
+
+	/*!
+	* \brief Sets the maximum update rate for the system
 	*
 	* \param updatePerSecond Update rate, 0 means as much as possible
 	*/
-
-	inline void BaseSystem::SetUpdateRate(float updatePerSecond)
+	inline void BaseSystem::SetMaximumUpdateRate(float updatePerSecond)
 	{
 		m_updateCounter = 0.f;
-		m_updateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
+		m_maxUpdateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
 	}
 
 	/*!
@@ -146,18 +166,40 @@ namespace Ndk
 		if (!IsEnabled())
 			return;
 
-		if (m_updateRate > 0.f)
-		{
-			m_updateCounter += elapsedTime;
+		m_updateCounter += elapsedTime;
 
-			while (m_updateCounter >= m_updateRate)
+		if (m_maxUpdateRate > 0.f)
+		{
+			if (m_updateCounter >= m_maxUpdateRate)
 			{
-				OnUpdate(m_updateRate);
-				m_updateCounter -= m_updateRate;
+				if (m_fixedUpdateRate > 0.f)
+				{
+					while (m_updateCounter >= m_fixedUpdateRate)
+					{
+						OnUpdate(m_fixedUpdateRate);
+						m_updateCounter -= m_fixedUpdateRate;
+					}
+				}
+				else
+				{
+					OnUpdate(m_maxUpdateRate);
+					m_updateCounter -= m_maxUpdateRate;
+				}
 			}
 		}
 		else
-			OnUpdate(elapsedTime);
+		{
+			if (m_fixedUpdateRate > 0.f)
+			{
+				while (m_updateCounter >= m_fixedUpdateRate)
+				{
+					OnUpdate(m_fixedUpdateRate);
+					m_updateCounter -= m_fixedUpdateRate;
+				}
+			}
+			else
+				OnUpdate(elapsedTime);
+		}
 	}
 
 	/*!

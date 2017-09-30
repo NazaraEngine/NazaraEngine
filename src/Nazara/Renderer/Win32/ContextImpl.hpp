@@ -18,7 +18,7 @@ namespace Nz
 		public:
 			ContextImpl();
 
-			bool Activate();
+			bool Activate() const;
 
 			bool Create(ContextParameters& parameters);
 

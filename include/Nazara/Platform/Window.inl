@@ -26,26 +26,6 @@ namespace Nz
 		Create(handle);
 	}
 
-	/*!
-	* \brief Constructs a Window object by moving another one
-	*/
-	inline Window::Window(Window&& window) noexcept :
-	m_impl(window.m_impl),
-	m_events(std::move(window.m_events)),
-	m_pendingEvents(std::move(window.m_pendingEvents)),
-	m_eventCondition(std::move(window.m_eventCondition)),
-	m_eventHandler(std::move(window.m_eventHandler)),
-	m_eventMutex(std::move(window.m_eventMutex)),
-	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
-	m_closed(window.m_closed),
-	m_closeOnQuit(window.m_closeOnQuit),
-	m_eventPolling(window.m_eventPolling),
-	m_ownsWindow(window.m_ownsWindow),
-	m_waitForEvent(window.m_waitForEvent)
-	{
-		window.m_impl = nullptr;
-	}
-
 	inline void Window::Close()
 	{
 		m_closed = true; // The window will be closed at the next non-const IsOpen() call
@@ -143,32 +123,6 @@ namespace Nz
 				m_eventConditionMutex.Unlock();
 			}
 		}
-	}
-
-	/*!
-	* \brief Moves a window to another window object
-	* \return A reference to the object
-	*/
-	inline Window& Window::operator=(Window&& window)
-	{
-		Destroy();
-
-		m_closed              = window.m_closed;
-		m_closeOnQuit         = window.m_closeOnQuit;
-		m_eventCondition      = std::move(window.m_eventCondition);
-		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
-		m_eventHandler        = std::move(window.m_eventHandler);
-		m_eventMutex          = std::move(window.m_eventMutex);
-		m_eventPolling        = window.m_eventPolling;
-		m_impl                = window.m_impl;
-		m_events              = std::move(window.m_events);
-		m_pendingEvents       = std::move(window.m_pendingEvents);
-		m_ownsWindow          = window.m_ownsWindow;
-		m_waitForEvent        = window.m_waitForEvent;
-
-		window.m_impl = nullptr;
-
-		return *this;
 	}
 }
 

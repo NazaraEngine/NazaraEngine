@@ -157,7 +157,7 @@ namespace Nz
 
 		inline Cast::Cast(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth) :
 		exprType(castTo),
-		expressions({first, second, third, fourth})
+		expressions({ {first, second, third, fourth} })
 		{
 			unsigned int componentCount = 0;
 			unsigned int requiredComponents = GetComponentCount(exprType);

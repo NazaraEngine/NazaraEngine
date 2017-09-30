@@ -51,14 +51,19 @@ namespace Nz
 		m_socket.Close();
 	}
 
-	inline Nz::IpAddress ENetHost::GetBoundAddress() const
+	inline IpAddress ENetHost::GetBoundAddress() const
 	{
 		return m_address;
 	}
 
-	inline UInt32 Nz::ENetHost::GetServiceTime() const
+	inline UInt32 ENetHost::GetServiceTime() const
 	{
 		return m_serviceTime;
+	}
+
+	inline void ENetHost::SetCompressor(std::unique_ptr<ENetCompressor>&& compressor)
+	{
+		m_compressor = std::move(compressor);
 	}
 
 	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
