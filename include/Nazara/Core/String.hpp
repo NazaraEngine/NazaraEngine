@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class SerializationContext;
+	struct SerializationContext;
 
 	class NAZARA_CORE_API String
 	{
