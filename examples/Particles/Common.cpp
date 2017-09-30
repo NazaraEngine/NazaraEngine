@@ -11,7 +11,7 @@ m_name(name)
 {
 }
 
-void ParticleDemo::Enter(Ndk::StateMachine& fsm)
+void ParticleDemo::Enter(Ndk::StateMachine& /*fsm*/)
 {
 	m_shared.demoName->Update(Nz::SimpleTextDrawer::Draw(Nz::String::Number(m_index+1) + " - " + m_name, 48));
 	m_fpsCounter = 0;
@@ -23,7 +23,7 @@ void ParticleDemo::Enter(Ndk::StateMachine& fsm)
 	m_oldBackground3D = renderSystem3D.GetDefaultBackground();
 }
 
-void ParticleDemo::Leave(Ndk::StateMachine& fsm)
+void ParticleDemo::Leave(Ndk::StateMachine& /*fsm*/)
 {
 	m_shared.world2D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(m_oldBackground2D);
 	m_shared.world3D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(m_oldBackground3D);
@@ -32,7 +32,7 @@ void ParticleDemo::Leave(Ndk::StateMachine& fsm)
 	m_particleGroups.clear();
 }
 
-bool ParticleDemo::Update(Ndk::StateMachine& fsm, float elapsedTime)
+bool ParticleDemo::Update(Ndk::StateMachine& /*fsm*/, float elapsedTime)
 {
 	m_fpsCounter++;
 	if (m_updateClock.GetMilliseconds() > 1000)
