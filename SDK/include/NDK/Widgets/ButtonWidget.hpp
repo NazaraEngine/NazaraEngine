@@ -9,15 +9,17 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 
+namespace Nz
+{
+	class AbstractTextDrawer;
+}
+
 namespace Ndk
 {
-	class World;
-
 	class NDK_API ButtonWidget : public BaseWidget
 	{
 		public:

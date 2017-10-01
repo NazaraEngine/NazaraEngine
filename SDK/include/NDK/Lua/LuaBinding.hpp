@@ -7,7 +7,6 @@
 #ifndef NDK_LUABINDING_HPP
 #define NDK_LUABINDING_HPP
 
-#include <NDK/BaseComponent.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
 #include <memory>

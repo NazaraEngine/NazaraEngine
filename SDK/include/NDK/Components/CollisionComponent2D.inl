@@ -2,12 +2,6 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Components/CollisionComponent2D.hpp>
-#include <NDK/Entity.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/PhysicsComponent2D.hpp>
-#include <NDK/Systems/PhysicsSystem2D.hpp>
-
 namespace Ndk
 {
 	/*!

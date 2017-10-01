@@ -8,14 +8,9 @@
 #include <Lua/lualib.h>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
-#include <Nazara/Core/MemoryView.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <cassert>
 #include <cstdlib>
 #include <stdexcept>
-#include <unordered_map>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz

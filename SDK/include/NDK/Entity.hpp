@@ -11,6 +11,7 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
+#include <NDK/Prerequesites.hpp>
 #include <memory>
 #include <vector>
 

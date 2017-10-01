@@ -8,7 +8,6 @@
 #define NAZARA_MODULENAME_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Network/Config.hpp>
 
 namespace Nz

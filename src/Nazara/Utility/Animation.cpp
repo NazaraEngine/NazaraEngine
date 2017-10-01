@@ -5,6 +5,8 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Joint.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <vector>
 #include <unordered_map>

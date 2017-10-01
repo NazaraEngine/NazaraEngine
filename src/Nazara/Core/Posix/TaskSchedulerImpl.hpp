@@ -8,7 +8,6 @@
 #define NAZARA_TASKSCHEDULERIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Functor.hpp>
 #include <atomic>
 #include <memory>
 #include <pthread.h>
@@ -16,6 +15,8 @@
 
 namespace Nz
 {
+	struct Functor;
+
 	class TaskSchedulerImpl
 	{
 		public:

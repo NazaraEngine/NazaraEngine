@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>

@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

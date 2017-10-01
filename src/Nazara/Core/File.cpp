@@ -5,12 +5,11 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
-#include <cstring>
 #include <memory>
-#include <utility>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/FileImpl.hpp>

@@ -6,8 +6,8 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>

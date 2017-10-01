@@ -9,19 +9,20 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <NDK/Widgets/Enums.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Widgets/Enums.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Rect.hpp>
+
+namespace Nz
+{
+	class AbstractTextDrawer;
+}
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API CheckboxWidget : public BaseWidget
 	{
 		friend class Sdk;

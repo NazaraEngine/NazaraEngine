@@ -11,6 +11,7 @@
 #include <NDK/Components.hpp>
 #include <NDK/Console.hpp>
 #include <NDK/Entity.hpp>
+#include <NDK/World.hpp>
 
 namespace Ndk
 {

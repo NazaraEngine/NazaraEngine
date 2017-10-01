@@ -7,7 +7,6 @@
 #ifndef NAZARA_SOCKETPOLLERIMPL_HPP
 #define NAZARA_SOCKETPOLLERIMPL_HPP
 
-#include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <unordered_map>

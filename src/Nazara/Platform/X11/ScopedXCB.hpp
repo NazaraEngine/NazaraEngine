@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+#include <cstdlib>
 
 namespace Nz
 {

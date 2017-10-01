@@ -5,7 +5,6 @@
 #include <Nazara/Lua/LuaState.hpp>
 #include <Lua/lauxlib.h>
 #include <Lua/lua.h>
-#include <Lua/lualib.h>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -14,9 +13,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Lua/LuaCoroutine.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
-#include <cstdlib>
-#include <stdexcept>
-#include <unordered_map>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz

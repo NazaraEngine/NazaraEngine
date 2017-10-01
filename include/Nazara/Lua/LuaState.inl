@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>

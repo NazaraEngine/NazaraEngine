@@ -10,12 +10,13 @@
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetBuffer.hpp>
 
 #define NAZARA_NETWORK_POLL_SUPPORT 1
 
 namespace Nz
 {
+	struct NetBuffer;
+
 	struct PollSocket
 	{
 		SocketHandle fd;

@@ -8,25 +8,25 @@
 #define NAZARA_RENDERER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/GpuQuery.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 
 namespace Nz
 {
 	class Color;
 	class Context;
+	class GpuQuery;
 	class IndexBuffer;
 	class RenderTarget;
+	struct RenderStates;
 	class Shader;
 	class Texture;
+	class TextureSampler;
 	class VertexBuffer;
+	class VertexDeclaration;
 
 	class NAZARA_RENDERER_API Renderer
 	{

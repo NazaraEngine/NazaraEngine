@@ -13,8 +13,6 @@
 
 namespace Ndk
 {
-	class Entity;
-
 	class NDK_API PhysicsComponent3D : public Component<PhysicsComponent3D>
 	{
 		friend class CollisionComponent3D;

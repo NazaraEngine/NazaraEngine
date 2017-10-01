@@ -5,8 +5,11 @@
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
 #include <memory>

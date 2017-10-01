@@ -9,18 +9,15 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Utility/SimpleTextDrawer.hpp>
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API ProgressBarWidget : public BaseWidget
 	{
 		friend class Sdk;
