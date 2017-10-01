@@ -11,7 +11,6 @@
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/Config.hpp>
 
 namespace Nz

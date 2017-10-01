@@ -8,12 +8,9 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

@@ -7,9 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)

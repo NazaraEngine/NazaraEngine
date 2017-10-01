@@ -19,6 +19,8 @@
 
 namespace Nz
 {
+	class Joint;
+
 	struct SkinningData
 	{
 		const Joint* joints;

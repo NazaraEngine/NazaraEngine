@@ -10,7 +10,9 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
 
 namespace Nz
 {

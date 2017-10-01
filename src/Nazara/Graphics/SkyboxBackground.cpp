@@ -6,10 +6,11 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

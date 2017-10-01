@@ -8,16 +8,17 @@
 #define NAZARA_UBERSHADER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Renderer/UberShaderInstance.hpp>
-#include <unordered_map>
+#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Renderer/Config.hpp>
 
 namespace Nz
 {
+	class ParameterList;
 	class UberShader;
+	class UberShaderInstance;
 
 	using UberShaderConstRef = ObjectRef<const UberShader>;
 	using UberShaderLibrary = ObjectLibrary<UberShader>;

@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>

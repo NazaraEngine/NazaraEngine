@@ -10,7 +10,6 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Utility/Utility.hpp>
-#include <cstring>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

@@ -23,8 +23,6 @@ namespace Nz
 {
 	class AbstractImage;
 	class Context;
-	class Texture;
-	struct ContextParameters;
 
 	class NAZARA_RENDERER_API RenderWindow : public RenderTarget, public Window
 	{

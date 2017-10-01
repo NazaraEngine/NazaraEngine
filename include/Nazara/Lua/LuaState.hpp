@@ -8,8 +8,6 @@
 #define NAZARA_LUASTATE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -25,6 +23,7 @@ namespace Nz
 	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
+	class Stream;
 
 	using LuaCFunction = int (*)(lua_State* internalState);
 	using LuaFunction = std::function<int(LuaState& state)>;

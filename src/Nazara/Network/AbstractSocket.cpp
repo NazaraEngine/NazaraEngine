@@ -4,7 +4,6 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <utility>
 #include <Nazara/Network/Debug.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

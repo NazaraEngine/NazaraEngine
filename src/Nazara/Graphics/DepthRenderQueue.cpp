@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/DepthRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

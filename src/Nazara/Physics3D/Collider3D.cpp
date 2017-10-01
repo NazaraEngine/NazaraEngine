@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
-#include <memory>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
@@ -50,7 +50,7 @@ namespace Nz
 	{
 		Vector3f min, max;
 
-		// Si nous n'avons aucune instance, nous en créons une temporaire
+		// Si nous n'avons aucune instance, nous en crï¿½ons une temporaire
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -61,7 +61,7 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute faï¿½on)
 			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, min, max);
 
 		return Boxf(scale * min, scale * max);
@@ -72,7 +72,7 @@ namespace Nz
 		float inertiaMatrix[3];
 		float origin[3];
 
-		// Si nous n'avons aucune instance, nous en créons une temporaire
+		// Si nous n'avons aucune instance, nous en crï¿½ons une temporaire
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -83,7 +83,7 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute faï¿½on)
 			NewtonConvexCollisionCalculateInertialMatrix(m_handles.begin()->second, inertiaMatrix, origin);
 
 		if (inertia)
@@ -97,7 +97,7 @@ namespace Nz
 	{
 		float volume;
 
-		// Si nous n'avons aucune instance, nous en créons une temporaire
+		// Si nous n'avons aucune instance, nous en crï¿½ons une temporaire
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -108,7 +108,7 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute façon)
+		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute faï¿½on)
 			volume = NewtonConvexCollisionCalculateVolume(m_handles.begin()->second);
 
 		return volume;

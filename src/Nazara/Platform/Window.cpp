@@ -5,12 +5,9 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Platform/Win32/WindowImpl.hpp>

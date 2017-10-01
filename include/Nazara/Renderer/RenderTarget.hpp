@@ -11,12 +11,9 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
-#include <unordered_map>
 
 namespace Nz
 {
-	class Renderer;
-
 	class NAZARA_RENDERER_API RenderTarget
 	{
 		friend class Renderer;

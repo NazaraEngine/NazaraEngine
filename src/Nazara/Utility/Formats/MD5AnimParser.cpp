@@ -4,13 +4,8 @@
 
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <cstdio>
-#include <cstring>
-#include <limits>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

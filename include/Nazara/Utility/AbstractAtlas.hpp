@@ -12,8 +12,6 @@
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <unordered_map>
 
 namespace Nz
 {

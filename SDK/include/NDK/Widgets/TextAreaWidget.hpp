@@ -14,8 +14,6 @@
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:

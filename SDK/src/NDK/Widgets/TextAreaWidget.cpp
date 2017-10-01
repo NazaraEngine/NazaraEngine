@@ -6,8 +6,6 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
-#include <limits>
 
 namespace Ndk
 {

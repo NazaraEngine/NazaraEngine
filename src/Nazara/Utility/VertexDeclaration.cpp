@@ -10,7 +10,6 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <cstring>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

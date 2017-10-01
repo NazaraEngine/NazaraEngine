@@ -10,8 +10,6 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <memory>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz

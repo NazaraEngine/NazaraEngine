@@ -28,7 +28,9 @@ SOFTWARE.
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>

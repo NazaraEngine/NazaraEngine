@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_private.h>

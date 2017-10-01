@@ -4,17 +4,17 @@
 
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 ///TODO: Améliorer

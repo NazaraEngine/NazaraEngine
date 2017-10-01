@@ -3,13 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

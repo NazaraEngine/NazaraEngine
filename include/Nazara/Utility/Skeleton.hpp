@@ -13,11 +13,11 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Utility/Joint.hpp>
-#include <vector>
+#include <Nazara/Utility/Config.hpp>
 
 namespace Nz
 {
+	class Joint;
 	class Skeleton;
 
 	using SkeletonConstRef = ObjectRef<const Skeleton>;

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Error.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ClockImpl.hpp>

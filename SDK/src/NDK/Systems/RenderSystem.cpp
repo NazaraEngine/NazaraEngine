@@ -4,6 +4,8 @@
 
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
