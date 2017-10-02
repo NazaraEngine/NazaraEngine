@@ -11,14 +11,10 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
-#include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
 namespace Nz
 {
-	class Light;
-	struct LightUniforms;
-
 	class NAZARA_GRAPHICS_API Light : public Renderable
 	{
 		public:

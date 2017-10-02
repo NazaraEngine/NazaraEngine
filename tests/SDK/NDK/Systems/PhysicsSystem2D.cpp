@@ -19,6 +19,8 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
+
 		WHEN("We update the world")
 		{
 			world.Update(1.f);
@@ -77,6 +79,8 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
+
 		WHEN("We make rotate our entity")
 		{
 			float angularSpeed = Nz::FromDegrees(45.f);
@@ -118,6 +122,8 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::EntityHandle movingEntity = CreateBaseEntity(world, position, movingAABB);
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
+
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 
 		WHEN("We make rotate our entity")
 		{

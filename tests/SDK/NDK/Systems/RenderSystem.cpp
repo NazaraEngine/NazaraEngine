@@ -1,6 +1,7 @@
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Catch/catch.hpp>
 

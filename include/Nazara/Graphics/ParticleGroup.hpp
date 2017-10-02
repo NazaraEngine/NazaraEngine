@@ -15,9 +15,7 @@
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
-#include <Nazara/Math/BoundingVolume.hpp>
 #include <functional>
-#include <memory>
 #include <set>
 #include <vector>
 

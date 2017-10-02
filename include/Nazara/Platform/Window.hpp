@@ -11,6 +11,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -26,7 +27,6 @@
 
 namespace Nz
 {
-	class Image;
 	class WindowImpl;
 
 	class NAZARA_PLATFORM_API Window
@@ -40,7 +40,7 @@ namespace Nz
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline explicit Window(WindowHandle handle);
 			Window(const Window&) = delete;
-			inline Window(Window&& window) noexcept;
+			Window(Window&&) = default;
 			virtual ~Window();
 
 			inline void Close();
@@ -103,14 +103,14 @@ namespace Nz
 			bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
-			inline Window& operator=(Window&& window);
+			Window& operator=(Window&&) = default;
 
 		protected:
 			virtual bool OnWindowCreated();
 			virtual void OnWindowDestroy();
 			virtual void OnWindowResized();
 
-			WindowImpl* m_impl;
+			MovablePtr<WindowImpl> m_impl;
 
 		private:
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;

@@ -9,18 +9,14 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
 	class DeferredRenderTechnique;
 	class DeferredRenderQueue;
-	class RenderBuffer;
+	struct SceneData;
 	class RenderTexture;
-	class Scene;
 	class Texture;
 
 	class NAZARA_GRAPHICS_API DeferredRenderPass

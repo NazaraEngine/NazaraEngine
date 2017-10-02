@@ -2,12 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
 #include <cmath>
-#include <cstdlib>
-#include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

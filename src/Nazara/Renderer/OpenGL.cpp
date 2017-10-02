@@ -6,13 +6,12 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #if defined(NAZARA_PLATFORM_GLX)
 #include <Nazara/Platform/X11/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
-#include <cstring>
 #include <set>
 #include <sstream>
 #include <stdexcept>

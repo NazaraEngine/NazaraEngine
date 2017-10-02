@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <atomic>
-#include <unordered_map>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_REFCOUNTED
 	#include <Nazara/Core/ThreadSafety.hpp>

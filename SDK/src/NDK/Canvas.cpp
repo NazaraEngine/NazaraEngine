@@ -3,9 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Canvas.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
 #include <limits>
 
 namespace Ndk

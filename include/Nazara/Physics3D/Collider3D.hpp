@@ -8,7 +8,6 @@
 #define NAZARA_COLLIDER3D_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -32,6 +31,7 @@ namespace Nz
 	///TODO: TreeGeom
 
 	class Collider3D;
+	class PrimitiveList;
 	class PhysWorld3D;
 
 	using Collider3DConstRef = ObjectRef<const Collider3D>;

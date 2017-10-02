@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/PluginManager.hpp>

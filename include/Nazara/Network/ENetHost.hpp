@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Copyright(c) 2002 - 2016 Lee Salzman
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions :
@@ -19,8 +19,8 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -28,11 +28,7 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
-#include <deque>
-#include <queue>
 #include <random>
-#include <set>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -65,6 +61,8 @@ namespace Nz
 			inline UInt32 GetServiceTime() const;
 
 			int Service(ENetEvent* event, UInt32 timeout);
+
+			inline void SetCompressor(std::unique_ptr<ENetCompressor>&& compressor);
 
 			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);
 
@@ -130,6 +128,7 @@ namespace Nz
 			std::size_t m_peerCount;
 			std::size_t m_receivedDataLength;
 			std::uniform_int_distribution<UInt16> m_packetDelayDistribution;
+			std::unique_ptr<ENetCompressor> m_compressor;
 			std::vector<ENetPeer> m_peers;
 			std::vector<PendingIncomingPacket> m_pendingIncomingPackets;
 			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;

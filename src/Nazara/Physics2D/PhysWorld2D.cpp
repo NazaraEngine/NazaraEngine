@@ -21,6 +21,11 @@ namespace Nz
 		cpSpaceFree(m_handle);
 	}
 
+	float PhysWorld2D::GetDamping() const
+	{
+		return float(cpSpaceGetDamping(m_handle));
+	}
+
 	Vector2f PhysWorld2D::GetGravity() const
 	{
 		cpVect gravity = cpSpaceGetGravity(m_handle);
@@ -157,6 +162,11 @@ namespace Nz
 	void PhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks)
 	{
 		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), callbacks);
+	}
+
+	void PhysWorld2D::SetDamping(float dampingValue)
+	{
+		cpSpaceSetDamping(m_handle, dampingValue);
 	}
 
 	void PhysWorld2D::SetGravity(const Vector2f& gravity)

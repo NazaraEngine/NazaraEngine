@@ -11,16 +11,16 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
-#include <unordered_map>
+#include <NDK/Components/GraphicsComponent.hpp>
 #include <vector>
 
 namespace Ndk
 {
+	class AbstractViewer;
+
 	class NDK_API RenderSystem : public System<RenderSystem>
 	{
 		public:

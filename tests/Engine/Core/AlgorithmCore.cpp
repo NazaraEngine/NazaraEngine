@@ -3,8 +3,6 @@
 
 #include <Nazara/Math/Vector2.hpp>
 
-#include <array>
-
 TEST_CASE("Apply", "[CORE][ALGORITHM]")
 {
 	SECTION("Apply lambda to two vector2")

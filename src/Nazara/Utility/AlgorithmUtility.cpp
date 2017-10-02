@@ -26,8 +26,8 @@
  */
 
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <algorithm>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>

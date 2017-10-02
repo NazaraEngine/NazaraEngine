@@ -4,8 +4,10 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <cstdio>
-#include <sys/file.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

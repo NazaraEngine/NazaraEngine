@@ -4,9 +4,6 @@
 
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <memory>
-#include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

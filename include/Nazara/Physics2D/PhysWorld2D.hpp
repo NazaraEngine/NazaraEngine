@@ -40,6 +40,7 @@ namespace Nz
 			PhysWorld2D(PhysWorld2D&&) = delete; ///TODO
 			~PhysWorld2D();
 
+			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
 			float GetStepSize() const;
@@ -55,6 +56,7 @@ namespace Nz
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
 
+			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
 			void SetStepSize(float stepSize);
 

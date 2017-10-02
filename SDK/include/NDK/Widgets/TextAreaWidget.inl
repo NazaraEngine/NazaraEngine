@@ -71,13 +71,13 @@ namespace Ndk
 
 	inline void TextAreaWidget::MoveCursor(const Nz::Vector2i& offset)
 	{
-		auto BoundOffset = [] (unsigned int cursorPosition, int offset) -> unsigned int
+		auto BoundOffset = [] (unsigned int cursorPosition, int cursorOffset) -> unsigned int
 		{
-			if (offset >= 0)
-				return cursorPosition + offset;
+			if (cursorOffset >= 0)
+				return cursorPosition + cursorOffset;
 			else
 			{
-				unsigned int nOffset = static_cast<unsigned int>(-offset);
+				unsigned int nOffset = static_cast<unsigned int>(-cursorOffset);
 				if (nOffset >= cursorPosition)
 					return 0;
 				else

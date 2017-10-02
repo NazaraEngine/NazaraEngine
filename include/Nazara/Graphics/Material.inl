@@ -1389,4 +1389,3 @@ namespace Nz
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
-#include "Material.hpp"

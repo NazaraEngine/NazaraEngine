@@ -8,11 +8,11 @@
 #define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <vector>
 
 namespace Nz

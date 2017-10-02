@@ -4,6 +4,8 @@
 
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
@@ -36,7 +38,7 @@ namespace Ndk
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateOrder(100); //< Render last, after every movement is done
-		SetUpdateRate(0.f);  //< We don't want any rate limit
+		SetMaximumUpdateRate(0.f);  //< We don't want any rate limit
 	}
 
 	/*!

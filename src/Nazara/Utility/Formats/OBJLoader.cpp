@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/OBJLoader.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
@@ -12,7 +11,6 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Utility/Formats/OBJParser.hpp>
-#include <cstdio>
 #include <limits>
 #include <memory>
 #include <unordered_map>

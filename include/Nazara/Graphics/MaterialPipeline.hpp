@@ -10,10 +10,8 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <array>
 
 namespace Nz

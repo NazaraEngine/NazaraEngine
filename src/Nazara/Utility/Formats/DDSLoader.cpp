@@ -5,11 +5,9 @@
 #include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Formats/DDSConstants.hpp>
-#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

@@ -5,19 +5,14 @@
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
-#include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
-#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

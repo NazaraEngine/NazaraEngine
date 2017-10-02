@@ -6,8 +6,6 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
-#include <limits>
 
 namespace Ndk
 {
@@ -173,10 +171,13 @@ namespace Ndk
 				MoveCursor({0, -1});
 				break;
 			}
+
+			default:
+				break;
 		}
 	}
 
-	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
@@ -195,7 +196,7 @@ namespace Ndk
 		}
 	}
 
-	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	void TextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
 	}
 

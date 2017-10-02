@@ -2,13 +2,9 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/World.hpp>
 #include <NDK/Widgets/CheckboxWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Utility/Font.hpp>
-#include <Nazara/Utility/FontGlyph.hpp>
 #include <algorithm>
 
 namespace Ndk

@@ -14,7 +14,6 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 
 namespace Nz
 {

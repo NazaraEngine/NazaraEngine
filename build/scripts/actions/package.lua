@@ -203,5 +203,5 @@ ACTION.Function = function ()
 	end
 	
 	local config = libDir .. " - " .. enabledArchs
-	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), config))
+	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size // (1024 * 1024), config))
 end

@@ -3,13 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Sound.hpp>
-#include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <cstring>
-#include <memory>
-#include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

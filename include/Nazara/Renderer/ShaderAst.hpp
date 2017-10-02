@@ -13,9 +13,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Enums.hpp>
 #include <array>
-#include <memory>
 
 namespace Nz
 {

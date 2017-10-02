@@ -9,7 +9,6 @@
 #define NDK_COMPONENTS_PARTICLEEMITTERCOMPONENT_HPP
 
 #include <Nazara/Graphics/ParticleEmitter.hpp>
-#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk

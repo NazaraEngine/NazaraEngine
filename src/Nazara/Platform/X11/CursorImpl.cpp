@@ -6,8 +6,8 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/X11/ScopedXCB.hpp>
 #include <xcb/xcb_image.h>
 
 // Some older versions of xcb/util-renderutil (notably the one available on Travis CI) use `template` as an argument name

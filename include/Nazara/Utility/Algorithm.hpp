@@ -21,11 +21,11 @@
 namespace Nz
 {
 	class Joint;
-	class VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 	class VertexStruct_XYZ_Normal_UV_Tangent;
+	class VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
-	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	struct SkinningData
 	{

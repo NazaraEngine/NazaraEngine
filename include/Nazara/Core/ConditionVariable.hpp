@@ -8,6 +8,7 @@
 #define NAZARA_CONDITIONVARIABLE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz
 {
@@ -19,7 +20,7 @@ namespace Nz
 		public:
 			ConditionVariable();
 			ConditionVariable(const ConditionVariable&) = delete;
-			inline ConditionVariable(ConditionVariable&& condition) noexcept;
+			ConditionVariable(ConditionVariable&& condition) noexcept = default;
 			~ConditionVariable();
 
 			void Signal();
@@ -29,10 +30,10 @@ namespace Nz
 			bool Wait(Mutex* mutex, UInt32 timeout);
 
 			ConditionVariable& operator=(const ConditionVariable&) = delete;
-			ConditionVariable& operator=(ConditionVariable&& condition) noexcept;
+			ConditionVariable& operator=(ConditionVariable&& condition) noexcept = default;
 
 		private:
-			ConditionVariableImpl* m_impl;
+			MovablePtr<ConditionVariableImpl> m_impl;
 	};
 }
 
