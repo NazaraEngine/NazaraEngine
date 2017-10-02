@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
@@ -16,7 +15,6 @@
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/World.hpp>
-#include <algorithm>
 
 #ifndef NDK_SERVER
 #include <Nazara/Audio/Music.hpp>

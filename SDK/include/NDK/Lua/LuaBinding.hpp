@@ -7,7 +7,6 @@
 #ifndef NDK_LUABINDING_HPP
 #define NDK_LUABINDING_HPP
 
-#include <NDK/BaseComponent.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
 #include <memory>
@@ -36,6 +35,7 @@ namespace Ndk
 			std::unique_ptr<LuaBinding_Base> audio;
 			std::unique_ptr<LuaBinding_Base> graphics;
 			std::unique_ptr<LuaBinding_Base> renderer;
+			std::unique_ptr<LuaBinding_Base> platform;
 			#endif
 
 		private:

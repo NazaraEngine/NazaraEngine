@@ -129,12 +129,36 @@ namespace Nz
 		#endif
 	}
 
-	int SocketPollerImpl::Wait(UInt64 msTimeout, SocketError* error)
+	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
+
+		m_readyToReadSockets.clear();
+		m_readyToWriteSockets.clear();
+		if (activeSockets > 0U)
+		{
+			int socketRemaining = activeSockets;
+			for (PollSocket& entry : m_sockets)
+			{
+				if (entry.revents != 0)
+				{
+					if (entry.revents & POLLRDNORM)
+						m_readyToReadSockets.insert(entry.fd);
+
+					if (entry.revents & POLLWRNORM)
+						m_readyToWriteSockets.insert(entry.fd);
+
+					entry.revents = 0;
+
+					if (--socketRemaining == 0)
+						break;
+				}
+			}
+		}
+
 		#else
 		fd_set* readSet = nullptr;
 		fd_set* writeSet = nullptr;
@@ -155,7 +179,7 @@ namespace Nz
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout > 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
 		if (activeSockets == SOCKET_ERROR)
 		{
 			if (error)

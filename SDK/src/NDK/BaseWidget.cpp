@@ -11,6 +11,20 @@
 
 namespace Ndk
 {
+	/*!
+	* \ingroup NDK
+	* \class Ndk::BaseWidget
+	* \brief Abstract class serving as a base class for all widgets
+	*/
+
+	/*!
+	* \brief Constructs a BaseWidget object using another widget as its parent
+	*
+	* \param parent Parent widget, must be valid and attached to a canvas
+	*
+	* Constructs a BaseWidget object using another widget as a base.
+	* This will also register the widget to the canvas owning the top-most widget.
+	*/
 	BaseWidget::BaseWidget(BaseWidget* parent) :
 	BaseWidget()
 	{
@@ -24,11 +38,19 @@ namespace Ndk
 		RegisterToCanvas();
 	}
 
+	/*!
+	* \brief Frees the widget, unregistering it from its canvas
+	*/
 	BaseWidget::~BaseWidget()
 	{
 		UnregisterFromCanvas();
 	}
 
+	/*!
+	* \brief Destroy the widget, deleting it in the process.
+	*
+	* Calling this function immediately destroys the widget, freeing its memory.
+	*/
 	void BaseWidget::Destroy()
 	{
 		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
@@ -36,6 +58,9 @@ namespace Ndk
 		m_widgetParent->DestroyChild(this); //< This does delete us
 	}
 
+	/*!
+	* \brief Enable or disables the widget background.
+	*/
 	void BaseWidget::EnableBackground(bool enable)
 	{
 		if (m_backgroundEntity.IsValid() == enable)
@@ -142,11 +167,11 @@ namespace Ndk
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 	}
 
-	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
-	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
@@ -154,15 +179,15 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	void BaseWidget::OnMouseMoved(int /*x*/, int /*y*/, int /*deltaX*/, int /*deltaY*/)
 	{
 	}
 
-	void BaseWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
+	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
 	{
 	}
 
-	void BaseWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
+	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
 	{
 	}
 
@@ -170,11 +195,11 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnParentResized(const Nz::Vector2f& newSize)
+	void BaseWidget::OnParentResized(const Nz::Vector2f& /*newSize*/)
 	{
 	}
 
-	void BaseWidget::OnTextEntered(char32_t character, bool repeated)
+	void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
 	{
 	}
 

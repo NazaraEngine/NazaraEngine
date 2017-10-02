@@ -76,7 +76,7 @@ namespace Nz
 		m_readyToWriteSockets.erase(socket);
 	}
 
-	int SocketPollerImpl::Wait(UInt64 msTimeout, SocketError* error)
+	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 

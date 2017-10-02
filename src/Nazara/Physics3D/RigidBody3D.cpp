@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/RigidBody3D.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
 #include <algorithm>
@@ -204,6 +202,11 @@ namespace Nz
 		return velocity;
 	}
 
+	PhysWorld3D* RigidBody3D::GetWorld() const
+	{
+		return m_world;
+	}
+
 	bool RigidBody3D::IsAutoSleepEnabled() const
 	{
 		return NewtonBodyGetAutoSleep(m_body) != 0;
@@ -314,7 +317,7 @@ namespace Nz
 				NazaraUnused(userData);
 				NewtonBodySetSleepState(body, 0);
 				return 1;
-			}, 
+			},
 			nullptr);
 		}
 	}

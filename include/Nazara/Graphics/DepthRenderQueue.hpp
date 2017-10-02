@@ -8,15 +8,9 @@
 #define NAZARA_DEPTHRENDERQUEUE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Color.hpp>
-#include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Utility/IndexBuffer.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
-#include <map>
-#include <tuple>
 
 namespace Nz
 {

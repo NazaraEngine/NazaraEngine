@@ -8,18 +8,12 @@
 #define NDK_COMPONENTS_COLLISIONCOMPONENT3D_HPP
 
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <NDK/Component.hpp>
 #include <memory>
 
-namespace Nz
-{
-	class RigidBody3D;
-}
-
 namespace Ndk
 {
-	class Entity;
-
 	class NDK_API CollisionComponent3D : public Component<CollisionComponent3D>
 	{
 		friend class PhysicsSystem3D;

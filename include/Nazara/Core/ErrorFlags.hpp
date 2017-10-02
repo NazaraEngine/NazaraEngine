@@ -8,7 +8,6 @@
 #define NAZARA_ERRORFLAGS_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Enums.hpp>
 
 namespace Nz
 {

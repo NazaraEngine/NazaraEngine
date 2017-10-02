@@ -8,7 +8,6 @@
 #define NAZARA_PHYSWORLD_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 

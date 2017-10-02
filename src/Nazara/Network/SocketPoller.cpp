@@ -170,7 +170,7 @@ namespace Nz
 	* Waits a specific/undetermined amount of time until at least one socket part of the SocketPoller becomes ready.
 	* To query the ready state of the registered socket, use the IsReadyToRead or IsReadyToWrite functions.
 	*
-	* \param msTimeout Maximum time to wait in milliseconds, 0 for infinity
+	* \param msTimeout Maximum time to wait in milliseconds, 0 will returns immediately and -1 will block indefinitely
 	*
 	* \return True if at least one socket registered to the poller is ready.
 	*
@@ -179,7 +179,7 @@ namespace Nz
 	* \see IsReady
 	* \see RegisterSocket
 	*/
-	bool SocketPoller::Wait(UInt64 msTimeout)
+	bool SocketPoller::Wait(int msTimeout)
 	{
 		SocketError error;
 

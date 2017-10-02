@@ -86,7 +86,7 @@ namespace Nz
 			return nullptr;
 		}
 
-		m_channelLimit = Clamp<std::size_t>(channelCount, ENetConstants::ENetProtocol_MinimumChannelCount, ENetConstants::ENetProtocol_MaximumChannelCount);
+		channelCount = Clamp<std::size_t>(channelCount, ENetConstants::ENetProtocol_MinimumChannelCount, ENetConstants::ENetProtocol_MaximumChannelCount);
 
 		UInt32 windowSize;
 		if (m_outgoingBandwidth == 0)
@@ -128,24 +128,29 @@ namespace Nz
 			if (!result.address)
 				continue;
 
-			if (result.socketType != SocketType_UDP)
-				continue;
-
 			hostnameAddress = result.address;
 			break; //< Take first valid address
+		}
+
+		if (!hostnameAddress.IsValid())
+		{
+			if (error)
+				*error = ResolveError_NotFound;
+
+			return nullptr;
 		}
 
 		return Connect(hostnameAddress, channelCount, data);
 	}
 
-	bool ENetHost::Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount)
+	bool ENetHost::Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount)
 	{
-		return Create(address, peerCount, channelCount, 0, 0);
+		return Create(listenAddress, peerCount, channelCount, 0, 0);
 	}
 
-	bool ENetHost::Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth)
+	bool ENetHost::Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth)
 	{
-		NazaraAssert(address.IsValid(), "Invalid listening address");
+		NazaraAssert(listenAddress.IsValid(), "Invalid listening address");
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
@@ -153,10 +158,11 @@ namespace Nz
 			return false;
 		}
 
-		if (!InitSocket(address))
+		if (!InitSocket(listenAddress))
 			return false;
 
-		m_address = address;
+		m_address = listenAddress;
+		m_allowsIncomingConnections = (listenAddress.IsValid() && !listenAddress.IsLoopback());
 		m_randomSeed = *reinterpret_cast<UInt32*>(this);
 		m_randomSeed += s_randomGenerator();
 		m_randomSeed = (m_randomSeed << 16) | (m_randomSeed >> 16);
@@ -230,6 +236,10 @@ namespace Nz
 				default:
 					break;
 			}
+
+			// Receiving on an unbound socket which has never sent data is an invalid operation
+			if (!m_allowsIncomingConnections && m_totalSentData == 0)
+				return 0;
 
 			switch (ReceiveIncomingCommands(event))
 			{
@@ -318,7 +328,7 @@ namespace Nz
 		m_socket.SetReceiveBufferSize(ENetConstants::ENetHost_ReceiveBufferSize);
 		m_socket.SetSendBufferSize(ENetConstants::ENetHost_SendBufferSize);
 
-		if (!address.IsLoopback())
+		if (address.IsValid() && !address.IsLoopback())
 		{
 			if (m_socket.Bind(address) != SocketState_Bound)
 			{
@@ -402,6 +412,9 @@ namespace Nz
 
 	ENetPeer* ENetHost::HandleConnect(ENetProtocolHeader* /*header*/, ENetProtocol* command)
 	{
+		if (!m_allowsIncomingConnections)
+			return nullptr;
+
 		UInt32 channelCount = NetToHost(command->connect.channelCount);
 
 		if (channelCount < ENetProtocol_MinimumChannelCount || channelCount > ENetProtocol_MaximumChannelCount)
@@ -508,6 +521,19 @@ namespace Nz
 		}
 
 		// Compression handling
+		if (flags & ENetProtocolHeaderFlag_Compressed)
+		{
+			if (!m_compressor)
+				return false;
+
+			std::size_t newSize = m_compressor->Decompress(peer, m_receivedData, m_receivedDataLength, m_packetData[1].data() + headerSize, m_packetData[1].size() - headerSize);
+			if (newSize == 0 || newSize > m_packetData[1].size() - headerSize)
+				return false;
+
+			std::memcpy(m_packetData[1].data(), header, headerSize);
+			m_receivedData = m_packetData[1].data();
+			m_receivedDataLength = headerSize + newSize;
+		}
 
 		// Checksum
 
@@ -868,8 +894,6 @@ namespace Nz
 				break;
 			}
 
-			++currentCommand;
-
 			if (channel && outgoingCommand->sendAttempts < 1)
 			{
 				channel->usedReliableWindows |= 1 << reliableWindow;
@@ -888,7 +912,7 @@ namespace Nz
 				peer->m_nextTimeout = m_serviceTime + outgoingCommand->roundTripTimeout;
 
 			peer->m_sentReliableCommands.emplace_back(std::move(*outgoingCommand));
-			peer->m_outgoingReliableCommands.erase(outgoingCommand);
+			currentCommand = peer->m_outgoingReliableCommands.erase(outgoingCommand);
 
 			outgoingCommand = peer->m_sentReliableCommands.end();
 			--outgoingCommand;
@@ -911,7 +935,7 @@ namespace Nz
 				++m_bufferCount;
 
 				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
-				packetBuffer.data = outgoingCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.data = outgoingCommand->packet->data.GetData() + NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
 				packetBuffer.dataLength = outgoingCommand->fragmentLength;
 
 				m_packetSize += packetBuffer.dataLength;
@@ -1013,10 +1037,26 @@ namespace Nz
 				else
 					m_buffers[0].dataLength = NazaraOffsetOf(ENetProtocolHeader, sentTime);
 
+				// Compress packet buffers if possible
+				std::size_t compressedSize = 0;
+				if (m_compressor)
+				{
+					compressedSize = m_compressor->Compress(currentPeer, &m_buffers[1], m_bufferCount, m_packetSize - sizeof(ENetProtocolHeader), m_packetData[1].data(), m_packetData[1].size());
+					if (compressedSize > 0)
+						m_headerFlags |= ENetProtocolHeaderFlag_Compressed;
+				}
+
 				if (currentPeer->m_outgoingPeerID < ENetConstants::ENetProtocol_MaximumPeerId)
 					m_headerFlags |= currentPeer->m_outgoingSessionID << ENetProtocolHeaderSessionShift;
 
 				header->peerID = HostToNet(static_cast<UInt16>(currentPeer->m_outgoingPeerID | m_headerFlags));
+
+				if (compressedSize > 0)
+				{
+					m_buffers[1].data = m_packetData[1].data();
+					m_buffers[1].dataLength = compressedSize;
+					m_bufferCount = 2;
+				}
 
 				currentPeer->m_lastSendTime = m_serviceTime;
 
@@ -1027,7 +1067,7 @@ namespace Nz
 					sendNow = false;
 					if (!currentPeer->m_packetLossProbability(s_randomGenerator))
 					{
-						Nz::UInt16 delay = currentPeer->m_packetDelayDistribution(s_randomGenerator);
+						UInt16 delay = currentPeer->m_packetDelayDistribution(s_randomGenerator);
 						if (delay == 0)
 							sendNow = true;
 						else
@@ -1148,7 +1188,7 @@ namespace Nz
 				++m_bufferCount;
 
 				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
-				packetBuffer.data = outgoingCommand->packet->data.GetData() + Nz::NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.data = outgoingCommand->packet->data.GetData() + NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
 				packetBuffer.dataLength = outgoingCommand->fragmentLength;
 
 				m_packetSize += packetBuffer.dataLength;

@@ -10,8 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
-#include <array>
 #include <set>
 
 namespace Nz

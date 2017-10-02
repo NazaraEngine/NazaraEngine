@@ -10,12 +10,13 @@
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetBuffer.hpp>
 
 #define NAZARA_NETWORK_POLL_SUPPORT 1
 
 namespace Nz
 {
+	struct NetBuffer;
+
 	struct PollSocket
 	{
 		SocketHandle fd;
@@ -63,6 +64,7 @@ namespace Nz
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
+			static bool ReceiveMultiple(SocketHandle handle, NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, int* read, SocketError* error);
 
 			static bool Send(SocketHandle handle, const void* buffer, int length, int* sent, SocketError* error);
 			static bool SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error);

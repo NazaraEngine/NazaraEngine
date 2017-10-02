@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,18 +6,14 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <cstring>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -42,6 +38,12 @@ namespace Nz
 		if (matrix == Matrix4f::Zero())
 		{
 			NazaraError("Invalid matrix");
+			return false;
+		}
+
+		if (vertexDeclaration == nullptr)
+		{
+			NazaraError("The vertex declaration can't be null");
 			return false;
 		}
 
@@ -105,6 +107,7 @@ namespace Nz
 		NazaraAssert(m_impl, "Mesh should be created first");
 		NazaraAssert(m_impl->animationType == AnimationType_Static, "Submesh building only works for static meshes");
 		NazaraAssert(params.IsValid(), "Invalid parameters");
+		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
 
 		Boxf aabb;
 		IndexBufferRef indexBuffer;
@@ -113,7 +116,7 @@ namespace Nz
 		Matrix4f matrix(primitive.matrix);
 		matrix *= params.matrix;
 
-		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		VertexDeclaration* declaration = params.vertexDeclaration;
 
 		switch (primitive.type)
 		{

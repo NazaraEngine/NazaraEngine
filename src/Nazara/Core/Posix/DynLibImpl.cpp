@@ -4,8 +4,8 @@
 
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <dlfcn.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

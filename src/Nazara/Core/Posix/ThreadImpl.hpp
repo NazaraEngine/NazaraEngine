@@ -8,11 +8,17 @@
 #define NAZARA_THREADIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+
+#if defined(__GNUC__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 #include <pthread.h>
 
 namespace Nz
 {
 	struct Functor;
+	class String;
 
 	class ThreadImpl
 	{
@@ -21,7 +27,9 @@ namespace Nz
 
 			void Detach();
 			void Join();
+			void SetName(const Nz::String& name);
 
+			static void SetCurrentName(const Nz::String& name);
 			static void Sleep(UInt32 time);
 
 		private:

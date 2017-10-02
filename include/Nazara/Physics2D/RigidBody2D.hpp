@@ -10,10 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
 
@@ -44,18 +41,21 @@ namespace Nz
 			const Collider2DRef& GetGeom() const;
 			cpBody* GetHandle() const;
 			float GetMass() const;
+			float GetMomentOfInertia() const;
 			Vector2f GetPosition() const;
 			float GetRotation() const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			PhysWorld2D* GetWorld() const;
 
-			bool IsMoveable() const;
+			bool IsKinematic() const;
 			bool IsSleeping() const;
 
 			void SetAngularVelocity(float angularVelocity);
-			void SetGeom(Collider2DRef geom);
-			void SetMass(float mass);
+			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
+			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center);
+			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
 			void SetUserdata(void* ud);
@@ -68,7 +68,8 @@ namespace Nz
 			NazaraSignal(OnRigidBody2DRelease, RigidBody2D* /*rigidBody*/);
 
 		private:
-			void Create(float mass = 1.f, float moment = 1.f);
+			void CopyBodyData(cpBody* body);
+			cpBody* Create(float mass = 1.f, float moment = 1.f);
 			void Destroy();
 
 			std::vector<cpShape*> m_shapes;

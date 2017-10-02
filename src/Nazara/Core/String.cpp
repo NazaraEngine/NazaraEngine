@@ -5975,20 +5975,7 @@ namespace std
 
 	istream& getline(istream& is, Nz::String& str)
 	{
-		str.Clear();
-
-		char c;
-
-		for (;;)
-                {
-			is.get(c);
-			if (c != '\n' && c != '\0')
-				str += c;
-			else
-				break;
-		}
-
-		return is;
+		return getline(is, str, is.widen('\n'));
 	}
 
 	/*!
@@ -6012,7 +5999,11 @@ namespace std
 			if (c != delim && c != '\0')
 				str += c;
 			else
+			{
+				if (c == '\0')
+					is.setstate(std::ios_base::eofbit);
 				break;
+			}
 		}
 
 		return is;

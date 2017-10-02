@@ -7,12 +7,12 @@
 #ifndef NAZARA_CONFIG_CHECK_UTILITY_HPP
 #define NAZARA_CONFIG_CHECK_UTILITY_HPP
 
-/// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
+/// This file is used to check the constant values defined in Config.hpp
 
 #include <type_traits>
 #define NazaraCheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
 
-// On force la valeur de MANAGE_MEMORY en mode debug
+// We force the value of MANAGE_MEMORY in debug
 #if defined(NAZARA_DEBUG) && !NAZARA_UTILITY_MANAGE_MEMORY
 	#undef NAZARA_UTILITY_MANAGE_MEMORY
 	#define NAZARA_UTILITY_MANAGE_MEMORY 0

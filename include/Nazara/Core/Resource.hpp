@@ -17,7 +17,7 @@ namespace Nz
 		public:
 			Resource() = default;
 			Resource(const Resource&) = default;
-			Resource(Resource&&) = default;
+			Resource(Resource&&) noexcept = default;
 			virtual ~Resource();
 
 			const String& GetFilePath() const;
@@ -25,7 +25,7 @@ namespace Nz
 			void SetFilePath(const String& filePath);
 
 			Resource& operator=(const Resource&) = default;
-			Resource& operator=(Resource&&) = default;
+			Resource& operator=(Resource&&) noexcept = default;
 
 		private:
 			String m_filePath;

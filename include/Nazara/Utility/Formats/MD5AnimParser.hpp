@@ -8,11 +8,10 @@
 #define NAZARA_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <vector>
 
 namespace Nz

@@ -8,13 +8,11 @@
 #define NDK_APPLICATION_HPP
 
 #include <NDK/Prerequesites.hpp>
-#include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <map>
 #include <list>
 #include <set>
-#include <vector>
 
 #ifndef NDK_SERVER
 #include <NDK/Console.hpp>
@@ -22,7 +20,7 @@
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Platform/Window.hpp>
 #endif
 
 namespace Ndk

@@ -6,7 +6,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 {
 	GIVEN("A world & an entity")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
 		Ndk::EntityHandle entity = world.CreateEntity();
 
 		WHEN("We set the ownership of the entity to our owner")

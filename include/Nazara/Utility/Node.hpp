@@ -14,7 +14,6 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <unordered_map>
 #include <vector>
 
 namespace Nz

@@ -3,13 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ParticleEmitter.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleGroup.hpp>
-#include <cstdlib>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

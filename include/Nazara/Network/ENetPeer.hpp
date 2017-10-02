@@ -19,12 +19,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Network/UdpSocket.hpp>
 #include <array>
 #include <list>
 #include <random>
@@ -82,7 +79,6 @@ namespace Nz
 			void InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand);
 			void InitOutgoing(std::size_t channelCount, const IpAddress& address, UInt32 connectId, UInt32 windowSize);
 
-			struct Acknowledgement;
 			struct Channel;
 			struct IncomingCommmand;
 			struct OutgoingCommand;

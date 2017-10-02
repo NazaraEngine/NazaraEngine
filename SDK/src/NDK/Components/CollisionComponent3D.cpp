@@ -4,7 +4,6 @@
 
 #include <NDK/Components/CollisionComponent3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>

@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
@@ -18,6 +17,13 @@ namespace Nz
 	inline LuaState::LuaState(lua_State* internalState) :
 	m_state(internalState)
 	{
+	}
+
+	inline LuaState::LuaState(LuaState&& state) noexcept :
+	m_lastError(state.m_lastError),
+	m_state(state.m_state)
+	{
+		state.m_state = nullptr;
 	}
 
 	inline lua_State* LuaState::GetInternalState() const
@@ -770,8 +776,18 @@ namespace Nz
 		SetMetatable(tname);
 	}
 
+	inline LuaState& LuaState::operator=(LuaState&& state) noexcept
+	{
+		m_lastError = std::move(state.m_lastError);
+		m_state = state.m_state;
+
+		state.m_state = nullptr;
+
+		return *this;
+	}
+
 	template<typename T>
-	T LuaState::CheckBounds(int index, long long value) const
+	std::enable_if_t<std::is_signed<T>::value, T> LuaState::CheckBounds(int index, long long value) const
 	{
 		constexpr long long minBounds = std::numeric_limits<T>::min();
 		constexpr long long maxBounds = std::numeric_limits<T>::max();
@@ -783,6 +799,22 @@ namespace Nz
 		}
 
 		return static_cast<T>(value);
+	}
+
+	template<typename T>
+	std::enable_if_t<std::is_unsigned<T>::value, T> LuaState::CheckBounds(int index, long long value) const
+	{
+		unsigned long long uValue = static_cast<unsigned long long>(value);
+		constexpr unsigned long long minBounds = 0;
+		constexpr unsigned long long maxBounds = std::numeric_limits<T>::max();
+		if (uValue < minBounds || uValue > maxBounds)
+		{
+			Nz::StringStream stream;
+			stream << "Argument #" << index << " is outside value range [" << minBounds << ", " << maxBounds << "] (" << value << ')';
+			Error(stream);
+		}
+
+		return static_cast<T>(uValue);
 	}
 
 	inline LuaState LuaState::GetState(lua_State* internalState)

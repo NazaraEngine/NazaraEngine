@@ -24,7 +24,6 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/MaterialData.hpp>
 
 namespace Nz
 {

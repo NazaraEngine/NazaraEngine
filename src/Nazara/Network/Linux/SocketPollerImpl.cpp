@@ -80,7 +80,7 @@ namespace Nz
 			NazaraWarning("An error occured while removing socket from epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 	}
 
-	int SocketPollerImpl::Wait(UInt64 msTimeout, SocketError* error)
+	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 

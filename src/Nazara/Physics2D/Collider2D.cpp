@@ -15,7 +15,9 @@ namespace Nz
 	{
 		cpShapeFilter filter = cpShapeFilterNew(m_collisionGroup, m_categoryMask, m_collisionMask);
 
-		std::vector<cpShape*> shapes = CreateShapes(body);
+		std::vector<cpShape*> shapes;
+		CreateShapes(body, shapes);
+
 		for (cpShape* shape : shapes)
 		{
 			cpShapeSetFilter(shape, filter);
@@ -29,7 +31,7 @@ namespace Nz
 	/******************************** BoxCollider2D *********************************/
 
 	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
-	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x / 2.f, size.y / 2.f), radius)
+	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x, size.y), radius)
 	{
 	}
 
@@ -39,9 +41,9 @@ namespace Nz
 	{
 	}
 
-	float BoxCollider2D::ComputeInertialMatrix(float mass) const
+	float BoxCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y)));
+		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height)));
 	}
 
 	ColliderType2D BoxCollider2D::GetType() const
@@ -49,12 +51,9 @@ namespace Nz
 		return ColliderType2D_Box;
 	}
 
-	std::vector<cpShape*> BoxCollider2D::CreateShapes(RigidBody2D* body) const
+	void BoxCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const
 	{
-		std::vector<cpShape*> shapes;
-		shapes.push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y + m_rect.height, m_rect.x + m_rect.width, m_rect.y), m_radius));
-
-		return shapes;
+		shapes.push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height), m_radius));
 	}
 
 	/******************************** CircleCollider2D *********************************/
@@ -65,7 +64,7 @@ namespace Nz
 	{
 	}
 
-	float CircleCollider2D::ComputeInertialMatrix(float mass) const
+	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return static_cast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
 	}
@@ -75,12 +74,66 @@ namespace Nz
 		return ColliderType2D_Circle;
 	}
 
-	std::vector<cpShape*> CircleCollider2D::CreateShapes(RigidBody2D* body) const
+	void CircleCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const
 	{
-		std::vector<cpShape*> shapes;
 		shapes.push_back(cpCircleShapeNew(body->GetHandle(), m_radius, cpv(m_offset.x, m_offset.y)));
+	}
 
-		return shapes;
+	/******************************** CompoundCollider2D *********************************/
+
+	CompoundCollider2D::CompoundCollider2D(std::vector<Collider2DRef> geoms) :
+	m_geoms(std::move(geoms))
+	{
+	}
+
+	float CompoundCollider2D::ComputeMomentOfInertia(float mass) const
+	{
+		///TODO: Correctly compute moment using parallel axis theorem:
+		/// https://chipmunk-physics.net/forum/viewtopic.php?t=1056
+		float momentOfInertia = 0.f;
+		for (const auto& geom : m_geoms)
+			momentOfInertia += geom->ComputeMomentOfInertia(mass); //< Eeeer
+
+		return momentOfInertia;
+	}
+
+	ColliderType2D CompoundCollider2D::GetType() const
+	{
+		return ColliderType2D_Compound;
+	}
+
+	void CompoundCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const
+	{
+		// Since C++ does not allow protected call from other objects, we have to be a friend of Collider2D, yay
+		for (const auto& geom : m_geoms)
+			geom->CreateShapes(body, shapes);
+	}
+
+	/******************************** ConvexCollider2D *********************************/
+
+	ConvexCollider2D::ConvexCollider2D(SparsePtr<const Vector2f> vertices, std::size_t vertexCount, float radius) :
+	m_radius(radius)
+	{
+		m_vertices.resize(vertexCount);
+		for (std::size_t i = 0; i < vertexCount; ++i)
+			m_vertices[i].Set(*vertices++);
+	}
+
+	float ConvexCollider2D::ComputeMomentOfInertia(float mass) const
+	{
+		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
+
+		return static_cast<float>(cpMomentForPoly(mass, int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpv(0.0, 0.0), m_radius));
+	}
+
+	ColliderType2D ConvexCollider2D::GetType() const
+	{
+		return ColliderType2D_Convex;
+	}
+
+	void ConvexCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const
+	{
+		shapes.push_back(cpPolyShapeNew(body->GetHandle(), int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpTransformIdentity, m_radius));
 	}
 
 	/********************************* NullCollider2D **********************************/
@@ -90,19 +143,18 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
-	float NullCollider2D::ComputeInertialMatrix(float /*mass*/) const
+	float NullCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return 0.f;
+		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
 	}
 
-	std::vector<cpShape*> NullCollider2D::CreateShapes(RigidBody2D* /*body*/) const
+	void NullCollider2D::CreateShapes(RigidBody2D* /*body*/, std::vector<cpShape*>& /*shapes*/) const
 	{
-		return std::vector<cpShape*>();
 	}
 
 	/******************************** SegmentCollider2D *********************************/
 
-	float SegmentCollider2D::ComputeInertialMatrix(float mass) const
+	float SegmentCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return static_cast<float>(cpMomentForSegment(mass, cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
 	}
@@ -112,12 +164,8 @@ namespace Nz
 		return ColliderType2D_Segment;
 	}
 
-	std::vector<cpShape*> SegmentCollider2D::CreateShapes(RigidBody2D* body) const
+	void SegmentCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const
 	{
-		std::vector<cpShape*> shapes;
 		shapes.push_back(cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
-
-		return shapes;
 	}
-
 }

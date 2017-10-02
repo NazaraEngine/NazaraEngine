@@ -5,8 +5,14 @@ ACTION.Function = function ()
 	print("Encoding resources ...")
 	local startClock = os.clock()
 	local modules = os.matchdirs("../src/Nazara/*")
+	table.insert(modules, "../SDK/src/NDK")
 	for k, modulePath in pairs(modules) do
-		local moduleName = modulePath:sub(15, -1)
+		local moduleName
+		if (modulePath:sub(4, 6) == "src") then
+			moduleName = modulePath:sub(15, -1)
+		else
+			moduleName = "SDK"
+		end
 		local files = os.matchfiles(modulePath .. "/Resources/**")
 		for k, filePath in pairs(files) do
 			if (filePath:sub(-2) ~= ".h") then

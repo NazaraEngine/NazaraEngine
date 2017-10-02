@@ -10,7 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/String.hpp>
 
 namespace Nz
 {

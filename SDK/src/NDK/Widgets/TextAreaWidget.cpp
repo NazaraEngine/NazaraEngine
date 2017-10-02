@@ -6,14 +6,13 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
-#include <limits>
 
 namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
-	m_cursorPosition(0U),
+	m_cursorPosition(0U, 0U),
+	m_cursorGlyph(0),
 	m_multiLineEnabled(false),
 	m_readOnly(false)
 	{
@@ -81,7 +80,7 @@ namespace Ndk
 
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
-		if (m_cursorPosition >= m_drawer.GetGlyphCount())
+		if (m_cursorGlyph >= m_drawer.GetGlyphCount())
 		{
 			AppendText(text);
 			SetCursorPosition(m_drawer.GetGlyphCount());
@@ -89,10 +88,10 @@ namespace Ndk
 		else
 		{
 			Nz::String currentText = m_drawer.GetText();
-			currentText.Insert(currentText.GetCharacterPosition(m_cursorPosition), text);
+			currentText.Insert(currentText.GetCharacterPosition(m_cursorGlyph), text);
 			SetText(currentText);
 
-			SetCursorPosition(m_cursorPosition + text.GetLength());
+			SetCursorPosition(m_cursorGlyph + text.GetLength());
 		}
 	}
 
@@ -114,11 +113,11 @@ namespace Ndk
 				const Nz::String& text = m_drawer.GetText();
 
 				Nz::String newText;
-				if (m_cursorPosition > 0)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorPosition) - 1));
+				if (m_cursorGlyph > 0)
+					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph) - 1));
 
-				if (m_cursorPosition < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorPosition + 1)));
+				if (m_cursorGlyph < m_drawer.GetGlyphCount())
+					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph + 1)));
 
 				m_drawer.SetText(newText);
 				m_textSprite->Update(m_drawer);
@@ -133,7 +132,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				//TODO
+				MoveCursor({0, 1});
 				break;
 			}
 
@@ -145,7 +144,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				MoveCursor(-1);
+				MoveCursor({-1, 0});
 				break;
 			}
 
@@ -157,7 +156,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				MoveCursor(1);
+				MoveCursor({1, 0});
 				break;
 			}
 
@@ -169,13 +168,16 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				//TODO
+				MoveCursor({0, -1});
 				break;
 			}
+
+			default:
+				break;
 		}
 	}
 
-	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
@@ -194,7 +196,7 @@ namespace Ndk
 		}
 	}
 
-	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	void TextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
 	}
 
@@ -221,13 +223,13 @@ namespace Ndk
 				const Nz::String& text = m_drawer.GetText();
 
 				Nz::String newText;
-				if (m_cursorPosition > 1)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorPosition - 1) - 1));
+				if (m_cursorGlyph > 1)
+					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
 
-				if (m_cursorPosition < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorPosition)));
+				if (m_cursorGlyph < m_drawer.GetGlyphCount())
+					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph)));
 
-				MoveCursor(-1);
+				MoveCursor({-1, 0});
 				SetText(newText);
 				break;
 			}
@@ -258,25 +260,15 @@ namespace Ndk
 
 	void TextAreaWidget::RefreshCursor()
 	{
-		std::size_t lineCount = m_drawer.GetLineCount();
-		std::size_t line = 0U;
-		for (std::size_t i = line + 1; i < lineCount; ++i)
-		{
-			if (m_drawer.GetLine(i).glyphIndex > m_cursorPosition)
-				break;
-
-			line = i;
-		}
-
-		const auto& lineInfo = m_drawer.GetLine(line);
+		const auto& lineInfo = m_drawer.GetLine(m_cursorPosition.y);
 
 		std::size_t glyphCount = m_drawer.GetGlyphCount();
 		float position;
-		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorPosition)
+		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorGlyph)
 		{
-			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorPosition, glyphCount - 1));
+			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorGlyph, glyphCount - 1));
 			position = glyph.bounds.x;
-			if (m_cursorPosition >= glyphCount)
+			if (m_cursorGlyph >= glyphCount)
 				position += glyph.bounds.width;
 		}
 		else

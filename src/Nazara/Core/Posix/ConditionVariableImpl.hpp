@@ -11,8 +11,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <pthread.h>
-#include <unistd.h>
-#include <sys/time.h>
 
 namespace Nz
 {

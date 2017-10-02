@@ -9,8 +9,6 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz

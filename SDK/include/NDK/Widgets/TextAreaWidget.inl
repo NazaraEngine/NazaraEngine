@@ -20,9 +20,14 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
-	inline std::size_t TextAreaWidget::GetCursorPosition() const
+	inline const Nz::Vector2ui& TextAreaWidget::GetCursorPosition() const
 	{
 		return m_cursorPosition;
+	}
+
+	inline std::size_t Ndk::TextAreaWidget::GetGlyphUnderCursor() const
+	{
+		return m_cursorGlyph;
 	}
 
 	inline std::size_t TextAreaWidget::GetLineCount() const
@@ -53,22 +58,84 @@ namespace Ndk
 	inline void TextAreaWidget::MoveCursor(int offset)
 	{
 		if (offset >= 0)
-			SetCursorPosition(m_cursorPosition += static_cast<std::size_t>(offset));
+			SetCursorPosition(m_cursorGlyph + static_cast<std::size_t>(offset));
 		else
 		{
 			std::size_t nOffset = static_cast<std::size_t>(-offset);
-			if (nOffset >= m_cursorPosition)
+			if (nOffset >= m_cursorGlyph)
 				SetCursorPosition(0);
 			else
-				SetCursorPosition(m_cursorPosition - nOffset);
+				SetCursorPosition(m_cursorGlyph - nOffset);
 		}
 	}
 
-	inline void TextAreaWidget::SetCursorPosition(std::size_t cursorPosition)
+	inline void TextAreaWidget::MoveCursor(const Nz::Vector2i& offset)
 	{
-		OnTextAreaCursorMove(this, &cursorPosition);
+		auto BoundOffset = [] (unsigned int cursorPosition, int cursorOffset) -> unsigned int
+		{
+			if (cursorOffset >= 0)
+				return cursorPosition + cursorOffset;
+			else
+			{
+				unsigned int nOffset = static_cast<unsigned int>(-cursorOffset);
+				if (nOffset >= cursorPosition)
+					return 0;
+				else
+					return cursorPosition - nOffset;
+			}
+		};
 
-		m_cursorPosition = std::min(cursorPosition, m_drawer.GetGlyphCount());
+		Nz::Vector2ui cursorPosition = m_cursorPosition;
+		cursorPosition.x = BoundOffset(static_cast<unsigned int>(cursorPosition.x), offset.x);
+		cursorPosition.y = BoundOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
+
+		SetCursorPosition(cursorPosition);
+	}
+
+	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
+	{
+		OnTextAreaCursorMove(this, &glyphIndex);
+
+		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
+		
+		std::size_t lineCount = m_drawer.GetLineCount();
+		std::size_t line = 0U;
+		for (std::size_t i = line + 1; i < lineCount; ++i)
+		{
+			if (m_drawer.GetLine(i).glyphIndex > m_cursorGlyph)
+				break;
+
+			line = i;
+		}
+
+		const auto& lineInfo = m_drawer.GetLine(line);
+
+		m_cursorPosition.y = line;
+		m_cursorPosition.x = m_cursorGlyph - lineInfo.glyphIndex;
+
+		RefreshCursor();
+	}
+
+	inline void TextAreaWidget::SetCursorPosition(Nz::Vector2ui cursorPosition)
+	{
+		std::size_t lineCount = m_drawer.GetLineCount();
+		if (cursorPosition.y >= lineCount)
+			cursorPosition.y = static_cast<unsigned int>(lineCount - 1);
+
+		m_cursorPosition = cursorPosition;
+
+		const auto& lineInfo = m_drawer.GetLine(cursorPosition.y);
+		if (cursorPosition.y + 1 < lineCount)
+		{
+			const auto& nextLineInfo = m_drawer.GetLine(cursorPosition.y + 1);
+			cursorPosition.x = std::min(cursorPosition.x, static_cast<unsigned int>(nextLineInfo.glyphIndex - lineInfo.glyphIndex - 1));
+		}
+
+		std::size_t glyphIndex = lineInfo.glyphIndex + cursorPosition.x;
+
+		OnTextAreaCursorMove(this, &glyphIndex);
+
+		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
 
 		RefreshCursor();
 	}

@@ -32,28 +32,28 @@ namespace Ndk
 			stream.BindMethod("IsWritable", &Nz::Stream::IsWritable);
 			stream.BindMethod("SetCursorPos", &Nz::Stream::SetCursorPos);
 
-			stream.BindMethod("Read", [] (Nz::LuaState& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			stream.BindMethod("Read", [] (Nz::LuaState& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 				int argIndex = 2;
 
 				std::size_t length = lua.Check<std::size_t>(&argIndex);
 
 				std::unique_ptr<char[]> buffer(new char[length]);
-				std::size_t readLength = stream.Read(buffer.get(), length);
+				std::size_t readLength = instance.Read(buffer.get(), length);
 
 				lua.PushString(Nz::String(buffer.get(), readLength));
 				return 1;
 			});
 
-			stream.BindMethod("Write", [] (Nz::LuaState& lua, Nz::Stream& stream, std::size_t /*argumentCount*/) -> int {
+			stream.BindMethod("Write", [] (Nz::LuaState& lua, Nz::Stream& instance, std::size_t /*argumentCount*/) -> int {
 				int argIndex = 2;
 
 				std::size_t bufferSize = 0;
 				const char* buffer = lua.CheckString(argIndex, &bufferSize);
 
-				if (stream.IsTextModeEnabled())
-					lua.Push(stream.Write(Nz::String(buffer, bufferSize)));
+				if (instance.IsTextModeEnabled())
+					lua.Push(instance.Write(Nz::String(buffer, bufferSize)));
 				else
-					lua.Push(stream.Write(buffer, bufferSize));
+					lua.Push(instance.Write(buffer, bufferSize));
 				return 1;
 			});
 		}
@@ -103,11 +103,11 @@ namespace Ndk
 			clock.BindMethod("Unpause", &Nz::Clock::Unpause);
 
 			// Manual
-			clock.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Clock& clock, std::size_t /*argumentCount*/) -> int {
+			clock.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Clock& instance, std::size_t /*argumentCount*/) -> int {
 				Nz::StringStream ss("Clock(Elapsed: ");
-				ss << clock.GetSeconds();
+				ss << instance.GetSeconds();
 				ss << "s, Paused: ";
-				ss << clock.IsPaused();
+				ss << instance.IsPaused();
 				ss << ')';
 
 				lua.PushString(ss);
@@ -159,9 +159,9 @@ namespace Ndk
 			directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
 
 			// Manual
-			directory.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Directory& dir, std::size_t /*argumentCount*/) -> int {
+			directory.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Directory& instance, std::size_t /*argumentCount*/) -> int {
 				Nz::StringStream ss("Directory(");
-				ss << dir.GetPath();
+				ss << instance.GetPath();
 				ss << ')';
 
 				lua.PushString(ss);
@@ -237,7 +237,7 @@ namespace Ndk
 			file.BindStaticMethod("Rename", &Nz::File::Rename);
 
 			// Manual
-			file.BindMethod("Open", [] (Nz::LuaState& lua, Nz::File& file, std::size_t argumentCount) -> int
+			file.BindMethod("Open", [] (Nz::LuaState& lua, Nz::File& instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -246,13 +246,13 @@ namespace Ndk
 				{
 					case 0:
 					case 1:
-						return lua.Push(file.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
+						return lua.Push(instance.Open(lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen)));
 
 					case 2:
 					{
 						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
 						Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
-						return lua.Push(file.Open(filePath, openMode));
+						return lua.Push(instance.Open(filePath, openMode));
 					}
 				}
 
@@ -260,7 +260,7 @@ namespace Ndk
 				return 0;
 			});
 
-			file.BindMethod("SetCursorPos", [] (Nz::LuaState& lua, Nz::File& file, std::size_t argumentCount) -> int
+			file.BindMethod("SetCursorPos", [] (Nz::LuaState& lua, Nz::File& instance, std::size_t argumentCount) -> int
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -268,13 +268,13 @@ namespace Ndk
 				switch (argCount)
 				{
 					case 1:
-						return lua.Push(file.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
+						return lua.Push(instance.SetCursorPos(lua.Check<Nz::UInt64>(&argIndex)));
 
 					case 2:
 					{
 						Nz::CursorPosition curPos = lua.Check<Nz::CursorPosition>(&argIndex);
 						Nz::Int64 offset = lua.Check<Nz::Int64>(&argIndex);
-						return lua.Push(file.SetCursorPos(curPos, offset));
+						return lua.Push(instance.SetCursorPos(curPos, offset));
 					}
 				}
 
@@ -282,10 +282,10 @@ namespace Ndk
 				return 0;
 			});
 
-			file.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::File& file, std::size_t /*argumentCount*/) -> int {
+			file.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::File& instance, std::size_t /*argumentCount*/) -> int {
 				Nz::StringStream ss("File(");
-				if (file.IsOpen())
-					ss << "Path: " << file.GetPath();
+				if (instance.IsOpen())
+					ss << "Path: " << instance.GetPath();
 
 				ss << ')';
 
@@ -321,10 +321,11 @@ namespace Ndk
 		state.SetGlobal("CursorPosition");
 
 		// Nz::HashType
-		static_assert(Nz::HashType_Max + 1 == 9, "Nz::HashType has been updated but change was not reflected to Lua binding");
-		state.PushTable(0, 9);
+		static_assert(Nz::HashType_Max + 1 == 10, "Nz::HashType has been updated but change was not reflected to Lua binding");
+		state.PushTable(0, 10);
 		{
 			state.PushField("CRC32", Nz::HashType_CRC32);
+			state.PushField("CRC64", Nz::HashType_CRC64);
 			state.PushField("Fletcher16", Nz::HashType_Fletcher16);
 			state.PushField("MD5", Nz::HashType_MD5);
 			state.PushField("SHA1", Nz::HashType_SHA1);

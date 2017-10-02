@@ -55,7 +55,7 @@ SCENARIO("World", "[NDK][WORLD]")
 {
 	GIVEN("A brave new world and the update system")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
 
 		WHEN("We had a new entity with an updatable component and a system")

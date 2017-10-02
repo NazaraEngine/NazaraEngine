@@ -10,18 +10,17 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 
 namespace Nz
@@ -38,14 +37,24 @@ namespace Nz
 		bool center = false;                        ///< If true, will center the mesh vertices around the origin
 		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
 
+		/* The declaration must have a Vector3f position component enabled
+		 * If the declaration has a Vector2f UV component enabled, UV are generated
+		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.
+		 * If the declaration has a Vector3f Tangents component enabled, Tangents are generated.
+		 */
+		VertexDeclaration* vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+
 		bool IsValid() const;
 	};
 
 	class Mesh;
+	struct Primitive;
 	class PrimitiveList;
+	class Skeleton;
+	class SubMesh;
 
-	typedef VertexStruct_XYZ_Normal_UV_Tangent MeshVertex;
-	typedef VertexStruct_XYZ_Normal_UV_Tangent_Skinning SkeletalMeshVertex;
+	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	using MeshConstRef = ObjectRef<const Mesh>;
 	using MeshLibrary = ObjectLibrary<Mesh>;
