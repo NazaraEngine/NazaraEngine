@@ -8,13 +8,12 @@
 #define NAZARA_LUASTATE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
 #include <functional>
+#include <type_traits>
 
 struct lua_Debug;
 struct lua_State;
@@ -24,6 +23,7 @@ namespace Nz
 	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
+	class Stream;
 
 	using LuaCFunction = int (*)(lua_State* internalState);
 	using LuaFunction = std::function<int(LuaState& state)>;
@@ -32,7 +32,7 @@ namespace Nz
 	{
 		public:
 			LuaState(const LuaState&) = default;
-			LuaState(LuaState&& instance) noexcept;
+			inline LuaState(LuaState&& instance) noexcept;
 			~LuaState() = default;
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -173,7 +173,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaState& operator=(const LuaState&) = default;
-			LuaState& operator=(LuaState&& instance) noexcept;
+			inline LuaState& operator=(LuaState&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance& GetInstance(lua_State* internalState);
@@ -182,7 +182,8 @@ namespace Nz
 		protected:
 			LuaState(lua_State* internalState);
 
-			template<typename T> T CheckBounds(int index, long long value) const;
+			template<typename T> std::enable_if_t<std::is_signed<T>::value, T> CheckBounds(int index, long long value) const;
+			template<typename T> std::enable_if_t<std::is_unsigned<T>::value, T> CheckBounds(int index, long long value) const;
 			virtual bool Run(int argCount, int resultCount);
 
 			static int ProxyFunc(lua_State* internalState);

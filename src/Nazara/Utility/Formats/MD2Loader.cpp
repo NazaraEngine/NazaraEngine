@@ -6,15 +6,12 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MD2Constants.hpp>
-#include <cstddef>
-#include <cstring>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -219,13 +216,16 @@ namespace Nz
 			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
 			matrix *= parameters.matrix;
 
+			Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
+			normalMatrix *= parameters.matrix;
+
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const MD2_Vertex& vert = vertices[v];
 				Vector3f position = matrix * Vector3f(vert.x, vert.y, vert.z);
 
 				vertex->position = position;
-				vertex->normal = rotationQuat * md2Normals[vert.n];
+				vertex->normal = normalMatrix.Transform(md2Normals[vert.n], 0.f);
 
 				vertex++;
 			}

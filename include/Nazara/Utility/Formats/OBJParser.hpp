@@ -8,7 +8,6 @@
 #define NAZARA_FORMATS_OBJPARSER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -20,8 +19,6 @@ namespace Nz
 	class NAZARA_UTILITY_API OBJParser
 	{
 		public:
-			struct Face;
-			struct FaceVertex;
 			struct Mesh;
 
 			OBJParser() = default;

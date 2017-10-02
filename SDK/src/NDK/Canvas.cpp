@@ -3,9 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <NDK/Canvas.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
 #include <limits>
 
 namespace Ndk
@@ -48,7 +45,7 @@ namespace Ndk
 		m_widgetBoxes.pop_back();
 	}
 
-	void Canvas::OnMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -59,7 +56,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
+	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
 	{
 		if (m_hoveredWidget)
 		{
@@ -70,7 +67,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnEventMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
 		const WidgetBox* bestEntry = nullptr;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
@@ -120,7 +117,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnMouseLeft(const Nz::EventHandler* /*eventHandler*/)
+	void Canvas::OnEventMouseLeft(const Nz::EventHandler* /*eventHandler*/)
 	{
 		if (m_hoveredWidget)
 		{
@@ -129,19 +126,19 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner)
 			m_keyboardOwner->OnKeyPressed(event);
 	}
 
-	void Canvas::OnKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner)
 			m_keyboardOwner->OnKeyReleased(event);
 	}
 
-	void Canvas::OnTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
+	void Canvas::OnEventTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
 	{
 		if (m_keyboardOwner)
 			m_keyboardOwner->OnTextEntered(event.character, event.repeated);

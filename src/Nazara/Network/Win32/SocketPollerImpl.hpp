@@ -32,7 +32,7 @@ namespace Nz
 			bool RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(SocketHandle socket);
 
-			int Wait(UInt64 msTimeout, SocketError* error);
+			int Wait(int msTimeout, SocketError* error);
 
 		private:
 			#if NAZARA_NETWORK_POLL_SUPPORT

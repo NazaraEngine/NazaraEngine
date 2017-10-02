@@ -161,7 +161,7 @@ namespace Nz
 		#endif
 
 		const char* tmp = source.GetConstBuffer();
-		GLint length = source.GetSize();
+		GLint length = static_cast<GLint>(source.GetSize());
 		glShaderSource(m_id, 1, &tmp, &length);
 	}
 

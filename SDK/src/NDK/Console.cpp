@@ -4,7 +4,8 @@
 
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Lua/LuaInstance.hpp>
+#include <Nazara/Lua/LuaState.hpp>
+#include <Nazara/Platform/Event.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/World.hpp>

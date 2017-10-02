@@ -12,9 +12,7 @@
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Utility/Animation.hpp>
-#include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
-#include <vector>
+#include <Nazara/Utility/Skeleton.hpp>
 
 namespace Nz
 {

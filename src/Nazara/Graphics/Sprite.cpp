@@ -4,9 +4,7 @@
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
-#include <cstring>
-#include <memory>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

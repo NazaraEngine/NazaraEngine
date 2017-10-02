@@ -3,12 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
+#include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

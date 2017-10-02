@@ -56,7 +56,7 @@ namespace Nz
 	};
 
 	// Little hack to have them in both Nz and global scope
-	namespace DetailFlagOperators
+	namespace FlagsOperators
 	{
 		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs);
 		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs);
@@ -64,10 +64,10 @@ namespace Nz
 		template<typename E> constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs);
 	}
 
-	using namespace DetailFlagOperators;
+	using namespace FlagsOperators;
 }
 
-using namespace Nz::DetailFlagOperators;
+using namespace Nz::FlagsOperators;
 
 #include <Nazara/Core/Flags.inl>
 

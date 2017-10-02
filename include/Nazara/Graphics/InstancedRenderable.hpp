@@ -7,7 +7,6 @@
 #ifndef NAZARA_INSTANCEDRENDERABLE_HPP
 #define NAZARA_INSTANCEDRENDERABLE_HPP
 
-#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>

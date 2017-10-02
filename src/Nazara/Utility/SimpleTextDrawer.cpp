@@ -105,11 +105,10 @@ namespace Nz
 
 	const AbstractTextDrawer::Line& SimpleTextDrawer::GetLine(std::size_t index) const
 	{
-		NazaraAssert(index < m_lines.size(), "Line index out of range");
-
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
+		NazaraAssert(index < m_lines.size(), "Line index out of range");
 		return m_lines[index];
 	}
 
@@ -319,6 +318,10 @@ namespace Nz
 				glyph.color = m_color;
 				glyph.flipped = fontGlyph.flipped;
 
+				glyph.bounds.Set(fontGlyph.aabb);
+				glyph.bounds.x += m_drawPos.x;
+				glyph.bounds.y += m_drawPos.y;
+
 				if (fontGlyph.requireFauxBold)
 				{
 					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
@@ -330,15 +333,12 @@ namespace Nz
 
 					// Replace it at the correct height
 					Vector2f offset(glyph.bounds.GetCenter() - center);
+					glyph.bounds.x -= offset.x;
 					glyph.bounds.y -= offset.y;
 
 					// Adjust advance (+10%)
 					advance += advance / 10;
 				}
-
-				glyph.bounds.Set(fontGlyph.aabb);
-				glyph.bounds.x += m_drawPos.x;
-				glyph.bounds.y += m_drawPos.y;
 
 				// We "lean" the glyph to simulate italics style
 				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
@@ -377,6 +377,7 @@ namespace Nz
 						m_drawPos.x = 0;
 						m_drawPos.y += sizeInfo.lineHeight;
 
+						m_workingBounds.ExtendTo(m_lines.back().bounds);
 						m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
 						break;
 					}
@@ -385,17 +386,16 @@ namespace Nz
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);
 
-			if (!m_workingBounds.IsValid())
-				m_workingBounds.Set(glyph.bounds);
-			else
-				m_workingBounds.ExtendTo(glyph.bounds);
-
 			m_drawPos.x += advance;
 			m_glyphs.push_back(glyph);
 		}
 		m_lines.back().bounds.ExtendTo(m_glyphs.back().bounds);
+		m_workingBounds.ExtendTo(m_lines.back().bounds);
 
 		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+
+		m_colorUpdated = true;
+		m_glyphUpdated = true;
 	}
 
 	void SimpleTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)

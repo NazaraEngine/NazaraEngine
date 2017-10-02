@@ -5,13 +5,6 @@
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_REFCOUNTED
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

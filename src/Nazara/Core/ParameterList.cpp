@@ -7,8 +7,6 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <cstring>
-#include <limits>
-#include <new>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

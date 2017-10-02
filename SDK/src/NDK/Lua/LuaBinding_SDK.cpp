@@ -69,6 +69,7 @@ namespace Ndk
 			console.BindMethod("GetSize", &Console::GetSize);
 			console.BindMethod("GetTextFont", &Console::GetTextFont);
 
+			console.BindMethod("IsValidHandle", &ConsoleHandle::IsValid);
 			console.BindMethod("IsVisible", &Console::IsVisible);
 
 			console.BindMethod("SendCharacter", &Console::SendCharacter);
@@ -91,6 +92,7 @@ namespace Ndk
 			entity.BindMethod("Kill", &Entity::Kill);
 			entity.BindMethod("IsEnabled", &Entity::IsEnabled);
 			entity.BindMethod("IsValid", &Entity::IsValid);
+			entity.BindMethod("IsValidHandle", &EntityHandle::IsValid);
 			entity.BindMethod("RemoveAllComponents", &Entity::RemoveAllComponents);
 			entity.BindMethod("__tostring", &EntityHandle::ToString);
 
@@ -99,6 +101,14 @@ namespace Ndk
 				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
 
 				return bindingComponent->adder(state, handle);
+			});
+
+			entity.BindMethod("HasComponent", [this](Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
+			{
+				LuaBinding::ComponentBinding* bindingComponent = m_binding.QueryComponentIndex(state);
+
+				state.PushBoolean(handle->HasComponent(bindingComponent->index));
+				return 1;
 			});
 
 			entity.BindMethod("GetComponent", [this] (Nz::LuaState& state, EntityHandle& handle, std::size_t /*argumentCount*/) -> int
@@ -120,6 +130,8 @@ namespace Ndk
 		/*********************************** Ndk::NodeComponent **********************************/
 		nodeComponent.Reset("NodeComponent");
 		{
+			nodeComponent.BindMethod("IsValidHandle", &NodeComponentHandle::IsValid);
+
 			nodeComponent.Inherit<Nz::Node>(utility.node, [] (NodeComponentHandle* handle) -> Nz::Node*
 			{
 				return handle->GetObject();
@@ -129,6 +141,8 @@ namespace Ndk
 		/*********************************** Ndk::VelocityComponent **********************************/
 		velocityComponent.Reset("VelocityComponent");
 		{
+			velocityComponent.BindMethod("IsValidHandle", &VelocityComponentHandle::IsValid);
+
 			velocityComponent.SetGetter([] (Nz::LuaState& lua, VelocityComponentHandle& instance)
 			{
 				std::size_t length;
@@ -165,6 +179,8 @@ namespace Ndk
 			world.BindMethod("CreateEntity", &World::CreateEntity);
 			world.BindMethod("CreateEntities", &World::CreateEntities);
 			world.BindMethod("Clear", &World::Clear);
+
+			world.BindMethod("IsValidHandle", &WorldHandle::IsValid);
 		}
 
 		#ifndef NDK_SERVER
@@ -176,18 +192,20 @@ namespace Ndk
 				return handle->GetObject();
 			});
 
-			cameraComponent.BindMethod("GetFOV", &Ndk::CameraComponent::GetFOV);
-			cameraComponent.BindMethod("GetLayer", &Ndk::CameraComponent::GetLayer);
+			cameraComponent.BindMethod("GetFOV", &CameraComponent::GetFOV);
+			cameraComponent.BindMethod("GetLayer", &CameraComponent::GetLayer);
 
-			cameraComponent.BindMethod("SetFOV", &Ndk::CameraComponent::SetFOV);
-			cameraComponent.BindMethod("SetLayer", &Ndk::CameraComponent::SetLayer);
-			cameraComponent.BindMethod("SetProjectionType", &Ndk::CameraComponent::SetProjectionType);
-			cameraComponent.BindMethod("SetSize", (void(Ndk::CameraComponent::*)(const Nz::Vector2f&)) &Ndk::CameraComponent::SetSize);
-			//cameraComponent.BindMethod("SetTarget", &Ndk::CameraComponent::SetTarget);
-			cameraComponent.BindMethod("SetTargetRegion", &Ndk::CameraComponent::SetTargetRegion);
-			cameraComponent.BindMethod("SetViewport", &Ndk::CameraComponent::SetViewport);
-			cameraComponent.BindMethod("SetZFar", &Ndk::CameraComponent::SetZFar);
-			cameraComponent.BindMethod("SetZNear", &Ndk::CameraComponent::SetZNear);
+			cameraComponent.BindMethod("IsValidHandle", &CameraComponentHandle::IsValid);
+
+			cameraComponent.BindMethod("SetFOV", &CameraComponent::SetFOV);
+			cameraComponent.BindMethod("SetLayer", &CameraComponent::SetLayer);
+			cameraComponent.BindMethod("SetProjectionType", &CameraComponent::SetProjectionType);
+			cameraComponent.BindMethod("SetSize", (void(CameraComponent::*)(const Nz::Vector2f&)) &CameraComponent::SetSize);
+			//cameraComponent.BindMethod("SetTarget", &CameraComponent::SetTarget);
+			cameraComponent.BindMethod("SetTargetRegion", &CameraComponent::SetTargetRegion);
+			cameraComponent.BindMethod("SetViewport", &CameraComponent::SetViewport);
+			cameraComponent.BindMethod("SetZFar", &CameraComponent::SetZFar);
+			cameraComponent.BindMethod("SetZNear", &CameraComponent::SetZNear);
 		}
 
 		/*********************************** Ndk::GraphicsComponent **********************************/
@@ -249,6 +267,8 @@ namespace Ndk
 				lua.Error("No matching overload for method GetMemoryUsage");
 				return 0;
 			});
+
+			graphicsComponent.BindMethod("IsValidHandle", &GraphicsComponentHandle::IsValid);
 		}
 		#endif
 

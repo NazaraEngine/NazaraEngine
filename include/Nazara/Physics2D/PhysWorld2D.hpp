@@ -12,6 +12,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -24,10 +25,10 @@ namespace Nz
 	{
 		friend RigidBody2D;
 
-		using ContactEndCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactPreSolveCallback = bool(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactPostSolveCallback = void(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
-		using ContactStartCallback = bool(*)(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata);
+		using ContactEndCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactStartCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 
 		public:
 			struct Callback;
@@ -39,6 +40,7 @@ namespace Nz
 			PhysWorld2D(PhysWorld2D&&) = delete; ///TODO
 			~PhysWorld2D();
 
+			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
 			float GetStepSize() const;
@@ -54,6 +56,7 @@ namespace Nz
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
 
+			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
 			void SetStepSize(float stepSize);
 

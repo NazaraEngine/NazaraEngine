@@ -52,12 +52,12 @@ namespace Nz
 			virtual void Stop() = 0;
 
 			SoundEmitter& operator=(const SoundEmitter&) = delete; ///TODO
-			SoundEmitter& operator=(SoundEmitter&&) = delete; ///TODO
+			SoundEmitter& operator=(SoundEmitter&&) = delete;
 
 		protected:
 			SoundEmitter();
 			SoundEmitter(const SoundEmitter& emitter);
-			SoundEmitter(SoundEmitter&&) = delete; ///TODO
+			SoundEmitter(SoundEmitter&&) = delete;
 
 			SoundStatus GetInternalStatus() const;
 

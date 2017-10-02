@@ -8,7 +8,6 @@
 #define NAZARA_HARDWAREINFOIMPL_POSIX_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <unistd.h>
 
 namespace Nz
 {

@@ -10,6 +10,7 @@
 #define NAZARA_THREADIMPL_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/String.hpp>
 #include <windows.h>
 
 namespace Nz
@@ -23,12 +24,16 @@ namespace Nz
 
 			void Detach();
 			void Join();
+			void SetName(const Nz::String& name);
 
+			static void SetCurrentName(const Nz::String& name);
 			static void Sleep(UInt32 time);
 
 		private:
+			static void SetThreadName(DWORD threadId, const char* threadName);
 			static unsigned int __stdcall ThreadProc(void* userdata);
 
+			DWORD m_threadId;
 			HANDLE m_handle;
 	};
 }

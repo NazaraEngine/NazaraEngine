@@ -13,22 +13,25 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <map>
 #include <memory>
-#include <set>
-#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -40,14 +43,6 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_coreFragmentShader[] = {
-			#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
-		};
-
-		const UInt8 r_coreVertexShader[] = {
-			#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
-		};
-
 		enum ObjectType
 		{
 			ObjectType_Context,
@@ -579,9 +574,9 @@ namespace Nz
 		}
 
 		// Initialisation des dépendances
-		if (!Utility::Initialize())
+		if (!Platform::Initialize())
 		{
-			NazaraError("Failed to initialize Utility module");
+			NazaraError("Failed to initialize Platform module");
 			return false;
 		}
 
@@ -719,33 +714,11 @@ namespace Nz
 			return false;
 		}
 
-		// Création du shader de Debug
-		ShaderRef debugShader = Shader::New();
-		if (!debugShader->Create())
+		if (!GenerateDebugShader())
 		{
-			NazaraError("Failed to create debug shader");
+			NazaraError("Failed to generate debug shader");
 			return false;
 		}
-
-		if (!debugShader->AttachStageFromSource(ShaderStageType_Fragment, reinterpret_cast<const char*>(r_coreFragmentShader), sizeof(r_coreFragmentShader)))
-		{
-			NazaraError("Failed to attach fragment stage");
-			return false;
-		}
-
-		if (!debugShader->AttachStageFromSource(ShaderStageType_Vertex, reinterpret_cast<const char*>(r_coreVertexShader), sizeof(r_coreVertexShader)))
-		{
-			NazaraError("Failed to attach vertex stage");
-			return false;
-		}
-
-		if (!debugShader->Link())
-		{
-			NazaraError("Failed to link shader");
-			return false;
-		}
-
-		ShaderLibrary::Register("DebugSimple", debugShader);
 
 		onExit.Reset();
 
@@ -1402,7 +1375,7 @@ namespace Nz
 		NazaraNotice("Uninitialized: Renderer module");
 
 		// Libération des dépendances
-		Utility::Uninitialize();
+		Platform::Uninitialize();
 	}
 
 	void Renderer::EnableInstancing(bool instancing)
@@ -1865,6 +1838,74 @@ namespace Nz
 			return false;
 		}
 		#endif
+
+		return true;
+	}
+
+	bool Renderer::GenerateDebugShader()
+	{
+		GlslWriter writer;
+		writer.SetGlslVersion(OpenGL::GetGLSLVersion());
+
+		String fragmentShader;
+		String vertexShader;
+
+		try
+		{
+			using namespace ShaderBuilder;
+			using ShaderAst::BuiltinEntry;
+			using ShaderAst::ExpressionType;
+
+			// Fragment shader
+			{
+				auto rt0 = Output("RenderTarget0", ExpressionType::Float4);
+				auto color = Uniform("Color", ExpressionType::Float4);
+
+				fragmentShader = writer.Generate(ExprStatement(Assign(rt0, color)));
+			}
+
+			// Vertex shader
+			{
+				auto vertexPosition = Input("VertexPosition", ExpressionType::Float3);
+				auto wvpMatrix = Uniform("WorldViewProjMatrix", ExpressionType::Mat4x4);
+				auto builtinPos = Builtin(BuiltinEntry::VertexPosition);
+
+				vertexShader = writer.Generate(ExprStatement(Assign(builtinPos, Multiply(wvpMatrix, Cast<ExpressionType::Float4>(vertexPosition, Constant(1.f))))));
+			}
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to generate shader code: " + String(e.what()));
+			return false;
+		}
+
+
+		ShaderRef debugShader = Shader::New();
+		if (!debugShader->Create())
+		{
+			NazaraError("Failed to create debug shader");
+			return false;
+		}
+
+		if (!debugShader->AttachStageFromSource(ShaderStageType_Fragment, fragmentShader))
+		{
+			NazaraError("Failed to attach fragment stage");
+			return false;
+		}
+
+		if (!debugShader->AttachStageFromSource(ShaderStageType_Vertex, vertexShader))
+		{
+			NazaraError("Failed to attach vertex stage");
+			return false;
+		}
+
+		if (!debugShader->Link())
+		{
+			NazaraError("Failed to link shader");
+			return false;
+		}
+
+		ShaderLibrary::Register("DebugSimple", debugShader);
 
 		return true;
 	}

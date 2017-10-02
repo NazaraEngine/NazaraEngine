@@ -9,8 +9,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/SerializationContext.hpp>
-#include <atomic>
 #include <cstdarg>
 #include <iosfwd>
 #include <memory>
@@ -19,6 +17,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	class NAZARA_CORE_API String
 	{
 		public:

@@ -8,7 +8,8 @@ MODULE.Defines = {
 
 MODULE.Libraries = {
 	"NazaraCore",
-	"NazaraUtility"
+	"NazaraUtility",
+	"NazaraPlatform"
 }
 
 MODULE.OsFiles.Windows = {

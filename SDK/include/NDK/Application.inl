@@ -2,9 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/Application.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <type_traits>
 #include <NDK/Sdk.hpp>
 
 namespace Ndk

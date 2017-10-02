@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Physics2D/Collider2D.hpp>
 #include <memory>
 #include <Nazara/Physics2D/Debug.hpp>
 
@@ -95,6 +94,29 @@ namespace Nz
 	CircleCollider2DRef CircleCollider2D::New(Args&&... args)
 	{
 		std::unique_ptr<CircleCollider2D> object(new CircleCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
+
+	inline const std::vector<Collider2DRef>& Nz::CompoundCollider2D::GetGeoms() const
+	{
+		return m_geoms;
+	}
+
+	template<typename... Args>
+	CompoundCollider2DRef CompoundCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<CompoundCollider2D> object(new CompoundCollider2D(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
+
+	template<typename... Args>
+	ConvexCollider2DRef ConvexCollider2D::New(Args&&... args)
+	{
+		std::unique_ptr<ConvexCollider2D> object(new ConvexCollider2D(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();

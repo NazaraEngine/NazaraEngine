@@ -3,13 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/HardwareBuffer.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <cstring>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -50,7 +48,8 @@ namespace Nz
 
 		UInt32 totalSize = m_parent->GetSize();
 
-		bool forceDiscard = (size == totalSize);
+		//bool forceDiscard = (size == totalSize);
+		bool forceDiscard = true;
 
 		OpenGL::BindBuffer(m_type, m_buffer);
 

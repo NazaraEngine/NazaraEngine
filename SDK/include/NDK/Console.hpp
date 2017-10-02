@@ -12,7 +12,6 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/EntityOwner.hpp>
@@ -20,12 +19,12 @@
 namespace Nz
 {
 	class LuaState;
+	struct WindowEvent;
 }
 
 namespace Ndk
 {
 	class Console;
-	class Entity;
 
 	using ConsoleHandle = Nz::ObjectHandle<Console>;
 

@@ -9,8 +9,6 @@
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <algorithm>
-#include <cstdlib>
-#include <cmath>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
 

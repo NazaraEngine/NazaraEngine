@@ -4,7 +4,6 @@
 
 #include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cctype>
 #include <memory>

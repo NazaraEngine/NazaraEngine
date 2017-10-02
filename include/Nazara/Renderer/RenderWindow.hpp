@@ -16,22 +16,20 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Utility/Window.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <vector>
 
 namespace Nz
 {
 	class AbstractImage;
 	class Context;
-	class Texture;
-	struct ContextParameters;
 
 	class NAZARA_RENDERER_API RenderWindow : public RenderTarget, public Window
 	{
 		public:
 			RenderWindow() = default;
 			RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			explicit RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
 			RenderWindow(const RenderWindow&) = delete;
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();

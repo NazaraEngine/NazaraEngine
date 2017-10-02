@@ -8,13 +8,14 @@
 #define NAZARA_BYTESTREAM_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <memory>
 
 namespace Nz
 {
+	class ByteArray;
+	class Stream;
+
 	class NAZARA_CORE_API ByteStream
 	{
 		public:

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/OBJLoader.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
@@ -12,7 +11,6 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Utility/Formats/OBJParser.hpp>
-#include <cstdio>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -244,6 +242,12 @@ namespace Nz
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
 				// Remplissage des vertices
+
+				// Make sure the normal matrix won't rescale our normals
+				Nz::Matrix4f normalMatrix = parameters.matrix;
+				if (normalMatrix.HasScale())
+					normalMatrix.ApplyScale(1.f / normalMatrix.GetScale());
+
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
@@ -259,7 +263,7 @@ namespace Nz
 					vertex.position = Vector3f(parameters.matrix * vec);
 
 					if (vertexIndices.normal > 0)
-						vertex.normal = normals[vertexIndices.normal-1];
+						vertex.normal = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
 					else
 						hasNormals = false;
 

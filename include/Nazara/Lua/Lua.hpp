@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,7 +8,6 @@
 #define NAZARA_LUA_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Lua/Config.hpp>
 
 namespace Nz

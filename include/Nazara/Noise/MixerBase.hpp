@@ -7,7 +7,6 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <array>
 
 namespace Nz
 {

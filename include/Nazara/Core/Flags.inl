@@ -211,7 +211,7 @@ namespace Nz
 	}
 
 
-	namespace DetailFlagOperators
+	namespace FlagsOperators
 	{
 		/*!
 		* \brief Override binary NOT operator on enum to turns into a Flags object.

@@ -12,6 +12,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
 

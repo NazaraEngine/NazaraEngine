@@ -90,8 +90,8 @@ namespace Nz
 			void UnboundedSet(std::size_t bit, bool val = true);
 			bool UnboundedTest(std::size_t bit) const;
 
-			Bit operator[](int index);
-			bool operator[](int index) const;
+			Bit operator[](std::size_t index);
+			bool operator[](std::size_t index) const;
 
 			Bitset operator~() const;
 
@@ -145,7 +145,7 @@ namespace Nz
 			template<bool BadCall = true>
 			void* operator&() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 			Bit& operator=(bool val);
 			Bit& operator=(const Bit& bit);
 

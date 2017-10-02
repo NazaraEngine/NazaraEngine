@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
@@ -37,7 +38,7 @@ namespace Nz
 		public:
 			Music() = default;
 			Music(const Music&) = delete;
-			Music(Music&&) = delete; ///TODO
+			Music(Music&&) = delete;
 			~Music();
 
 			bool Create(SoundStream* soundStream);
@@ -66,10 +67,10 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) = delete; ///TODO
+			Music& operator=(Music&&) = delete;
 
 		private:
-			MusicImpl* m_impl = nullptr;
+			MovablePtr<MusicImpl> m_impl = nullptr;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();

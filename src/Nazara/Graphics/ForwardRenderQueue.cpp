@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 ///TODO: Replace sinus/cosinus by a lookup table (which will lead to a speed up about 10x)
@@ -697,7 +697,7 @@ namespace Nz
 		auto it = layers.find(i);
 		if (it == layers.end())
 			it = layers.insert(std::make_pair(i, Layer())).first;
-		
+
 		Layer& layer = it->second;
 		layer.clearCount = 0;
 
@@ -729,7 +729,6 @@ namespace Nz
 	void ForwardRenderQueue::SortForOrthographic(const AbstractViewer * viewer)
 	{
 		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
-		Vector3f viewerPos = viewer->GetEyePosition();
 
 		for (auto& pair : layers)
 		{

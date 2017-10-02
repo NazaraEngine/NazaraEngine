@@ -8,8 +8,6 @@
 #define NAZARA_UTILITY_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
@@ -25,15 +23,12 @@ namespace Nz
 
 			static bool IsInitialized();
 
-			static void SetParameters(const ParameterList& parameters);
-
 			static void Uninitialize();
 
 			static unsigned int ComponentCount[ComponentType_Max+1];
 			static std::size_t ComponentStride[ComponentType_Max+1];
 
 		private:
-			static ParameterList s_initializationParameters;
 			static unsigned int s_moduleReferenceCounter;
 	};
 }

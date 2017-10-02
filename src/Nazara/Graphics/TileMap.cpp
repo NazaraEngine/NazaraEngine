@@ -4,10 +4,8 @@
 
 #include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <cstring>
-#include <memory>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
