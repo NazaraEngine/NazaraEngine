@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,6 +20,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 
 namespace Nz
@@ -52,8 +53,8 @@ namespace Nz
 	class Skeleton;
 	class SubMesh;
 
-	typedef VertexStruct_XYZ_Normal_UV_Tangent MeshVertex;
-	typedef VertexStruct_XYZ_Normal_UV_Tangent_Skinning SkeletalMeshVertex;
+	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	using MeshConstRef = ObjectRef<const Mesh>;
 	using MeshLibrary = ObjectLibrary<Mesh>;

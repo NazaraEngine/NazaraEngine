@@ -25,6 +25,7 @@ namespace Nz
 			SparsePtr();
 			SparsePtr(T* ptr);
 			SparsePtr(VoidPtr ptr, int stride);
+			SparsePtr(VoidPtr ptr, std::size_t stride);
 			template<typename U> SparsePtr(const SparsePtr<U>& ptr);
 			SparsePtr(const SparsePtr& ptr) = default;
 			~SparsePtr() = default;
