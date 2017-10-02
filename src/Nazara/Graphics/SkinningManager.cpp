@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <unordered_map>
 #include <Nazara/Graphics/Debug.hpp>

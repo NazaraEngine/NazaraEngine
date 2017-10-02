@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,6 +38,12 @@ namespace Nz
 		if (matrix == Matrix4f::Zero())
 		{
 			NazaraError("Invalid matrix");
+			return false;
+		}
+
+		if (vertexDeclaration == nullptr)
+		{
+			NazaraError("The vertex declaration can't be null");
 			return false;
 		}
 
@@ -101,6 +107,7 @@ namespace Nz
 		NazaraAssert(m_impl, "Mesh should be created first");
 		NazaraAssert(m_impl->animationType == AnimationType_Static, "Submesh building only works for static meshes");
 		NazaraAssert(params.IsValid(), "Invalid parameters");
+		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
 
 		Boxf aabb;
 		IndexBufferRef indexBuffer;
@@ -109,7 +116,7 @@ namespace Nz
 		Matrix4f matrix(primitive.matrix);
 		matrix *= params.matrix;
 
-		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		VertexDeclaration* declaration = params.vertexDeclaration;
 
 		switch (primitive.type)
 		{
