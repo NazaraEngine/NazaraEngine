@@ -958,7 +958,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](int index)
+	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](std::size_t index)
 	{
 		return Bit(m_blocks[GetBlockIndex(index)], Block(1U) << GetBitIndex(index));
 	}
@@ -969,7 +969,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	bool Bitset<Block, Allocator>::operator[](int index) const
+	bool Bitset<Block, Allocator>::operator[](std::size_t index) const
 	{
 		return Test(index);
 	}

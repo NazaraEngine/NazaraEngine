@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,8 +21,8 @@
 namespace Nz
 {
 	class Joint;
-	class VertexStruct_XYZ_Normal_UV_Tangent;
-	class VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
+	struct VertexStruct_XYZ_Normal_UV_Tangent;
+	struct VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
 	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
