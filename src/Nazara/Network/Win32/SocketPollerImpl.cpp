@@ -143,6 +143,9 @@ namespace Nz
 			int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)
 			{
+				if (!entry.revents)
+					continue;
+
 				if (entry.revents & (POLLRDNORM | POLLWRNORM | POLLHUP | POLLERR))
 				{
 					if (entry.revents & (POLLRDNORM | POLLHUP | POLLERR))
@@ -158,12 +161,11 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.events, 16) + ')');
+					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
 					activeSockets--;
 				}
 			}
 		}
-
 		#else
 		fd_set* readSet = nullptr;
 		fd_set* writeSet = nullptr;
