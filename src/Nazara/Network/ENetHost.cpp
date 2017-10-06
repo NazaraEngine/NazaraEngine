@@ -201,7 +201,7 @@ namespace Nz
 	{
 		m_serviceTime = GetElapsedMilliseconds();
 
-		SendOutgoingCommands(nullptr, 0);
+		SendOutgoingCommands(nullptr, false);
 	}
 
 	int ENetHost::Service(ENetEvent* event, UInt32 timeout)
@@ -526,7 +526,7 @@ namespace Nz
 			if (!m_compressor)
 				return false;
 
-			std::size_t newSize = m_compressor->Decompress(peer, m_receivedData, m_receivedDataLength, m_packetData[1].data() + headerSize, m_packetData[1].size() - headerSize);
+			std::size_t newSize = m_compressor->Decompress(peer, m_receivedData + headerSize, m_receivedDataLength - headerSize, m_packetData[1].data() + headerSize, m_packetData[1].size() - headerSize);
 			if (newSize == 0 || newSize > m_packetData[1].size() - headerSize)
 				return false;
 
@@ -1041,7 +1041,7 @@ namespace Nz
 				std::size_t compressedSize = 0;
 				if (m_compressor)
 				{
-					compressedSize = m_compressor->Compress(currentPeer, &m_buffers[1], m_bufferCount, m_packetSize - sizeof(ENetProtocolHeader), m_packetData[1].data(), m_packetData[1].size());
+					compressedSize = m_compressor->Compress(currentPeer, &m_buffers[1], m_bufferCount - 1, m_packetSize - sizeof(ENetProtocolHeader), m_packetData[1].data(), m_packetData[1].size());
 					if (compressedSize > 0)
 						m_headerFlags |= ENetProtocolHeaderFlag_Compressed;
 				}
@@ -1180,6 +1180,8 @@ namespace Nz
 
 			buffer.data = &command;
 			buffer.dataLength = commandSize;
+
+			m_packetSize += buffer.dataLength;
 
 			command = outgoingCommand->command;
 
