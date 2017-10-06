@@ -80,7 +80,7 @@ namespace Ndk
 			};
 
 		protected:
-			EntityHandle CreateEntity();
+			const EntityHandle& CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
 			void InvalidateNode() override;

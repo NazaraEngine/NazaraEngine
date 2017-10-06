@@ -87,7 +87,7 @@ namespace Ndk
 
 	void BaseWidget::GrabKeyboard()
 	{
-		m_canvas->SetKeyboardOwner(this);
+		m_canvas->SetKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -133,9 +133,9 @@ namespace Ndk
 		}
 	}
 
-	EntityHandle BaseWidget::CreateEntity()
+	const Ndk::EntityHandle& BaseWidget::CreateEntity()
 	{
-		EntityHandle newEntity = m_world->CreateEntity();
+		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
 
 		m_entities.emplace_back(newEntity);
