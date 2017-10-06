@@ -8,9 +8,9 @@
 namespace Ndk
 {
 	inline Canvas::Canvas(WorldHandle world, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController) :
+	m_hoveredWidget(InvalidCanvasIndex),
+	m_keyboardOwner(InvalidCanvasIndex),
 	m_cursorController(cursorController),
-	m_hoveredWidget(nullptr),
-	m_keyboardOwner(nullptr),
 	m_world(std::move(world))
 	{
 		m_canvas = this;
@@ -61,12 +61,12 @@ namespace Ndk
 		WidgetBox& entry = m_widgetBoxes[index];
 
 		entry.cursor = entry.widget->GetCursor();
-		if (m_cursorController && m_hoveredWidget == &entry)
+		if (m_cursorController && m_hoveredWidget == index)
 			m_cursorController->UpdateCursor(Nz::Cursor::Get(entry.cursor));
 	}
 
-	inline void Ndk::Canvas::SetKeyboardOwner(BaseWidget* widget)
+	inline void Canvas::SetKeyboardOwner(std::size_t canvasIndex)
 	{
-		m_keyboardOwner = widget;
+		m_keyboardOwner = canvasIndex;
 	}
 }

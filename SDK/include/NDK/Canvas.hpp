@@ -39,7 +39,7 @@ namespace Ndk
 
 			std::size_t RegisterWidget(BaseWidget* widget);
 
-			inline void SetKeyboardOwner(BaseWidget* widget);
+			inline void SetKeyboardOwner(std::size_t canvasIndex);
 
 			void UnregisterWidget(std::size_t index);
 
@@ -67,10 +67,10 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
 			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
 
+			std::size_t m_keyboardOwner;
+			std::size_t m_hoveredWidget;
 			std::vector<WidgetBox> m_widgetBoxes;
 			Nz::CursorControllerHandle m_cursorController;
-			const WidgetBox* m_hoveredWidget;
-			BaseWidget* m_keyboardOwner;
 			WorldHandle m_world;
 	};
 }
