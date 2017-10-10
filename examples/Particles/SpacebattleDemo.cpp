@@ -641,13 +641,13 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretFireSound.LoadFromFile("resources/turretFire.wav");
 	m_turretReloadSound.LoadFromFile("resources/turretReload.wav");
 
-	//m_onMouseMoved.Connect(m_shared.target->GetEventHandler().OnMouseMoved, this, &SpacebattleExample::OnMouseMoved);
-	//m_shared.target->SetCursor(Nz::SystemCursor_None);
+	m_onMouseMoved.Connect(m_shared.target->GetEventHandler().OnMouseMoved, this, &SpacebattleExample::OnMouseMoved);
+	m_shared.target->SetCursor(Nz::SystemCursor_None);
 
 	//////////////////////////////////////////////////////////////////////////
 
 	Nz::TextSpriteRef introText = Nz::TextSprite::New();
-	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nZQSD pour orienter la tourelle, espace pour tirer.\n", 72));
+	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nLa souris contrôle l'orientation de la tourelle, cliquez pour tirer.\n", 72));
 	introText->SetScale(0.5f);
 
 	m_introText = m_shared.world3D->CreateEntity();
@@ -680,7 +680,7 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 
 	const float speed = 100.f;
 
-	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+	/*if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 		m_turretCannonBaseRotation = std::max(m_turretCannonBaseRotation - speed * elapsedTime, -65.f);
 
 	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
@@ -690,13 +690,13 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 		m_turretBaseRotation += speed * elapsedTime;
 
 	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
-		m_turretBaseRotation -= speed * elapsedTime;
+		m_turretBaseRotation -= speed * elapsedTime;*/
 
 	m_turret.cannonBaseEntity->GetComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(m_turretCannonBaseRotation, 0.f, 0.f));
 	m_turret.rotatingBaseEntity->GetComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(0.f, m_turretBaseRotation, 0.f));
 
 	bool discharged = m_turretShootTimer < 1.f;
-	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space) && !discharged)
+	if (Nz::Mouse::IsButtonPressed(Nz::Mouse::Left) && !discharged)
 	{
 		m_turretFireSound.Play();
 
