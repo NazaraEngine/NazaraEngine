@@ -7,6 +7,7 @@
 
 #include <NDK/Widgets/ButtonWidget.hpp>
 #include <NDK/Widgets/CheckboxWidget.hpp>
+#include <NDK/Widgets/Enums.hpp>
 #include <NDK/Widgets/LabelWidget.hpp>
 #include <NDK/Widgets/ProgressBarWidget.hpp>
 #include <NDK/Widgets/TextAreaWidget.hpp>
