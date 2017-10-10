@@ -152,6 +152,7 @@ namespace Ndk
 			//material.BindMethod("GetPipeline",            &Nz::Material::GetPipeline);
 			//material.BindMethod("GetPipelineInfo",        &Nz::Material::GetPipelineInfo);
 			material.BindMethod("GetPointSize", &Nz::Material::GetPointSize);
+			material.BindMethod("GetReflectionMode", &Nz::Material::GetReflectionMode);
 			//material.BindMethod("GetShader",              &Nz::Material::GetShader);
 			material.BindMethod("GetShininess", &Nz::Material::GetShininess);
 			material.BindMethod("GetSpecularColor", &Nz::Material::GetSpecularColor);
@@ -196,6 +197,7 @@ namespace Ndk
 			material.BindMethod("SetFaceFilling", &Nz::Material::SetFaceFilling);
 			material.BindMethod("SetLineWidth", &Nz::Material::SetLineWidth);
 			material.BindMethod("SetPointSize", &Nz::Material::SetPointSize);
+			material.BindMethod("SetReflectionMode", &Nz::Material::SetReflectionMode);
 			material.BindMethod("SetShininess", &Nz::Material::SetShininess);
 			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
 			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
@@ -483,5 +485,15 @@ namespace Ndk
 		model.Register(state);
 		sprite.Register(state);
 		spriteLibrary.Register(state);
+
+		// Nz::ReflectionMode
+		static_assert(Nz::ReflectionMode_Max + 1 == 3, "Nz::ReflectionMode has been updated but change was not reflected to Lua binding");
+		state.PushTable(0, 3);
+		{
+			state.PushField("Probe",    Nz::ReflectionMode_Probe);
+			state.PushField("RealTime", Nz::ReflectionMode_RealTime);
+			state.PushField("Skybox",   Nz::ReflectionMode_Skybox);
+		}
+		state.SetGlobal("ReflectionMode");
 	}
 }

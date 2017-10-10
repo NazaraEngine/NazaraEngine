@@ -52,6 +52,7 @@ namespace Ndk
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
+			void UpdateDynamicReflections();
 			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
@@ -63,6 +64,7 @@ namespace Ndk
 			EntityList m_lights;
 			EntityList m_pointSpotLights;
 			EntityList m_particleGroups;
+			EntityList m_realtimeReflected;
 			GraphicsComponentCullingList m_drawableCulling;
 			Nz::BackgroundRef m_background;
 			Nz::DepthRenderTechnique m_shadowTechnique;
