@@ -62,6 +62,7 @@
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
