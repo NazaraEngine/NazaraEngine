@@ -67,7 +67,7 @@ namespace Nz
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
 
 	template<typename T> constexpr ComponentType ComponentTypeId();
-	template<typename T> constexpr const ComponentType GetComponentTypeOf();
+	template<typename T> constexpr ComponentType GetComponentTypeOf();
 }
 #include <Nazara/Utility/Algorithm.inl>
 
