@@ -727,7 +727,7 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 
 		auto& spacestationNode = m_spacestationEntity->GetComponent<Ndk::NodeComponent>();
 
-		Ndk::EntityHandle spaceship = m_spaceshipTemplate->Clone();
+		const Ndk::EntityHandle& spaceship = m_spaceshipTemplate->Clone();
 		RegisterEntity(spaceship);
 		auto& nodeComponent = spaceship->GetComponent<Ndk::NodeComponent>();
 		auto& spaceshipComponent = spaceship->GetComponent<SpaceshipComponent>();
