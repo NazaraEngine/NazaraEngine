@@ -36,7 +36,7 @@ namespace Nz
 	template<> constexpr ComponentType ComponentTypeId<Quaternionf>() { return ComponentType_Quaternion; }
 
 	template<typename T>
-	constexpr const ComponentType GetComponentTypeOf()
+	constexpr ComponentType GetComponentTypeOf()
 	{ 
 		return ComponentTypeId<std::decay_t<T>>(); 
 	}
