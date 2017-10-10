@@ -231,7 +231,7 @@ bool LogoExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 			ParticleData* sprite = static_cast<ParticleData*>(m_particles);
 			for (std::size_t i = 0; i < m_pixels.size(); ++i)
 			{
-				Nz::Vector2f particleToMouse = sprite[i].position - controller->actualMousePos;
+				Nz::Vector2f particleToMouse = Nz::Vector2f(sprite[i].position) - controller->actualMousePos;
 				float sqDist = particleToMouse.GetSquaredLength();
 				if (sqDist < 10000.f)
 				{
