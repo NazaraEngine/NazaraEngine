@@ -13,6 +13,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <limits>
 
 struct cpBody;
 
@@ -44,6 +45,7 @@ namespace Nz
 			float GetMomentOfInertia() const;
 			Vector2f GetPosition() const;
 			float GetRotation() const;
+			std::size_t GetShapeIndex(cpShape* shape) const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
 			PhysWorld2D* GetWorld() const;
@@ -66,6 +68,8 @@ namespace Nz
 
 			NazaraSignal(OnRigidBody2DMove, RigidBody2D* /*oldPointer*/, RigidBody2D* /*newPointer*/);
 			NazaraSignal(OnRigidBody2DRelease, RigidBody2D* /*rigidBody*/);
+
+			static constexpr std::size_t InvalidShapeIndex = std::numeric_limits<std::size_t>::max();
 
 		private:
 			void CopyBodyData(cpBody* body);
