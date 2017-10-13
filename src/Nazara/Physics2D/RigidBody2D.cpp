@@ -184,6 +184,15 @@ namespace Nz
 		return FromRadians(static_cast<float>(cpBodyGetAngle(m_handle)));
 	}
 
+	std::size_t RigidBody2D::GetShapeIndex(cpShape* shape) const
+	{
+		auto it = std::find(m_shapes.begin(), m_shapes.end(), shape);
+		if (it == m_shapes.end())
+			return InvalidShapeIndex;
+
+		return std::distance(m_shapes.begin(), it);
+	}
+
 	void* RigidBody2D::GetUserdata() const
 	{
 		return m_userData;
