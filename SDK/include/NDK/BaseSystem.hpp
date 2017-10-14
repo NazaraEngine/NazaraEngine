@@ -22,13 +22,11 @@ namespace Ndk
 
 		public:
 			inline BaseSystem(SystemIndex systemId);
-			inline BaseSystem(const BaseSystem&);
+			BaseSystem(const BaseSystem&) = delete;
 			BaseSystem(BaseSystem&&) noexcept = default;
 			virtual ~BaseSystem();
 
 			inline void Enable(bool enable = true);
-
-			virtual std::unique_ptr<BaseSystem> Clone() const = 0;
 
 			bool Filters(const Entity* entity) const;
 

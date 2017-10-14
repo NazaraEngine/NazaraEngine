@@ -24,24 +24,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Constructs a BaseSystem object by copy semantic
-	*
-	* \param system System to copy
-	*/
-
-	inline BaseSystem::BaseSystem(const BaseSystem& system) :
-	m_excludedComponents(system.m_excludedComponents),
-	m_requiredComponents(system.m_requiredComponents),
-	m_systemIndex(system.m_systemIndex),
-	m_updateEnabled(system.m_updateEnabled),
-	m_fixedUpdateRate(system.m_fixedUpdateRate),
-	m_maxUpdateRate(system.m_maxUpdateRate),
-	m_updateCounter(0.f),
-	m_updateOrder(system.m_updateOrder)
-	{
-	}
-
-	/*!
 	* \brief Enables the system
 	*
 	* \param enable Should the system be enabled
