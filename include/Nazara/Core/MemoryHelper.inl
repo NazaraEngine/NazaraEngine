@@ -127,37 +127,37 @@ namespace Nz
 	template<typename T>
 	typename StackArray<T>::iterator StackArray<T>::begin() noexcept
 	{
-		return &m_ptr[0];
+		return iterator(&m_ptr[0]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_iterator StackArray<T>::begin() const noexcept
 	{
-		return &m_ptr[0];
+		return const_iterator(&m_ptr[0]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_iterator StackArray<T>::cbegin() const noexcept
 	{
-		return &m_ptr[0];
+		return const_iterator(&m_ptr[0]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_iterator StackArray<T>::cend() const noexcept
 	{
-		return &m_ptr[m_size];
+		return const_iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
-	typename StackArray<T>::const_iterator StackArray<T>::crbegin() const noexcept
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::crbegin() const noexcept
 	{
-		return &m_ptr[m_size];
+		return const_reverse_iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
-	typename StackArray<T>::const_iterator StackArray<T>::crend() const noexcept
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::crend() const noexcept
 	{
-		return &m_ptr[0];
+		return const_reverse_iterator(&m_ptr[0]);
 	}
 
 	template<typename T>
@@ -181,13 +181,13 @@ namespace Nz
 	template<typename T>
 	typename StackArray<T>::iterator StackArray<T>::end() noexcept
 	{
-		return &m_ptr[m_size];
+		return iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_iterator StackArray<T>::end() const noexcept
 	{
-		return &m_ptr[m_size];
+		return const_iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
@@ -217,25 +217,25 @@ namespace Nz
 	template<typename T>
 	typename StackArray<T>::reverse_iterator StackArray<T>::rbegin() noexcept
 	{
-		return m_ptr[m_size];
+		return reverse_iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_reverse_iterator StackArray<T>::rbegin() const noexcept
 	{
-		return m_ptr[m_size];
+		return reverse_iterator(&m_ptr[m_size]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::reverse_iterator StackArray<T>::rend() noexcept
 	{
-		return m_ptr[0];
+		return reverse_iterator(&m_ptr[0]);
 	}
 
 	template<typename T>
 	typename StackArray<T>::const_reverse_iterator StackArray<T>::rend() const noexcept
 	{
-		return m_ptr[0];
+		return reverse_iterator(&m_ptr[0]);
 	}
 
 	template<typename T>

@@ -74,8 +74,8 @@ namespace Nz
 
 			const_iterator cbegin() const noexcept;
 			const_iterator cend() const noexcept;
-			const_iterator crbegin() const noexcept;
-			const_iterator crend() const noexcept;
+			const_reverse_iterator crbegin() const noexcept;
+			const_reverse_iterator crend() const noexcept;
 
 			T* data() noexcept;
 			const T* data() const noexcept;
