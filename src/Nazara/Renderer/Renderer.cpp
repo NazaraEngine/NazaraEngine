@@ -1768,7 +1768,7 @@ namespace Nz
 				GLint size;
 				GLenum type;
 
-				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer);
+				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer.data());
 
 				dump << "Uniform #" << i << ": " << nameBuffer.data() << "(Type: 0x" << String::Number(type, 16);
 
