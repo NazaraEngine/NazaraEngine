@@ -1762,9 +1762,7 @@ namespace Nz
 			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 			maxLength++;
 
-			StackAllocation stackAlloc = NazaraStackAllocation((maxLength + 1) * sizeof(GLchar));
-			GLchar* nameBuffer = static_cast<GLchar*>(stackAlloc.GetPtr());
-
+			StackAllocation<GLchar> nameBuffer = NazaraStackAllocation(GLchar, maxLength + 1);
 			for (GLint i = 0; i < count; i++)
 			{
 				GLint size;
@@ -1772,9 +1770,9 @@ namespace Nz
 
 				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer);
 
-				dump << "Uniform #" << i << ": " << nameBuffer << "(Type: 0x" << String::Number(type, 16);
+				dump << "Uniform #" << i << ": " << nameBuffer.data() << "(Type: 0x" << String::Number(type, 16);
 
-				GLint location = glGetUniformLocation(program, nameBuffer);
+				GLint location = glGetUniformLocation(program, nameBuffer.data());
 				switch (type)
 				{
 					case GL_FLOAT:
