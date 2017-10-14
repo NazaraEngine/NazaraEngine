@@ -1762,7 +1762,7 @@ namespace Nz
 			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 			maxLength++;
 
-			StackAllocation<GLchar> nameBuffer = NazaraStackAllocation(GLchar, maxLength + 1);
+			StackArray<GLchar> nameBuffer = NazaraStackAllocation(GLchar, maxLength + 1);
 			for (GLint i = 0; i < count; i++)
 			{
 				GLint size;
