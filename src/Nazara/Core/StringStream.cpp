@@ -3,6 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Math/Algorithm.hpp>
+#include <array>
+#include <limits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -14,22 +17,13 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a StringStream object by default
-	*/
-	StringStream::StringStream() :
-	m_bufferSize(0)
-	{
-	}
-
-	/*!
 	* \brief Constructs a StringStream object with a string
 	*
 	* \param str First value of the stream
 	*/
-	StringStream::StringStream(const String& str) :
-	m_bufferSize(str.GetSize())
+	StringStream::StringStream(String str) :
+	m_result(std::move(str))
 	{
-		m_strings.push_back(str);
 	}
 
 	/*!
@@ -37,8 +31,7 @@ namespace Nz
 	*/
 	void StringStream::Clear()
 	{
-		m_bufferSize = 0;
-		m_strings.clear();
+		m_result.Clear();
 	}
 
 	/*!
@@ -47,7 +40,7 @@ namespace Nz
 	*/
 	std::size_t StringStream::GetBufferSize() const
 	{
-		return m_bufferSize;
+		return m_result.GetSize();
 	}
 
 	/*!
@@ -56,13 +49,7 @@ namespace Nz
 	*/
 	String StringStream::ToString() const
 	{
-		String string;
-		string.Reserve(m_bufferSize);
-
-		for (const String& str : m_strings)
-			string += str;
-
-		return string;
+		return m_result;
 	}
 
 	/*!
@@ -73,8 +60,10 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(bool boolean)
 	{
-		m_strings.push_back(String::Boolean(boolean));
-		m_bufferSize += m_strings.back().GetSize();
+		std::size_t size = (boolean) ? 4 : 5;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + size);
+		std::memcpy(&m_result[start], (boolean) ? "true" : "false", size);
 
 		return *this;
 	}
@@ -87,8 +76,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(short number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<short>::digits10 + 2;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%hd", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -101,8 +93,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(unsigned short number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<unsigned short>::digits10 + 1;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%hu", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -115,8 +110,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(int number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<int>::digits10 + 2;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%d", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -129,8 +127,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(unsigned int number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<unsigned int>::digits10 + 1;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%u", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -143,8 +144,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(long number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<long>::digits10 + 2;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%ld", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -157,8 +161,12 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(unsigned long number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<unsigned long>::digits10 + 1;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%lu", number);
+		m_result.Resize(start + written);
+
 
 		return *this;
 	}
@@ -171,8 +179,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(long long number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<long long>::digits10 + 2;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%lld", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -185,8 +196,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(unsigned long long number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = std::numeric_limits<unsigned long long>::digits10 + 1;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "%llu", number);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
@@ -199,10 +213,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(float number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
-
-		return *this;
+		return operator<<(double(number)); //< snprintf doesn't support float anyway
 	}
 
 	/*!
@@ -213,8 +224,16 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(double number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		// https://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
+		const std::size_t maxSize = 3 + std::numeric_limits<double>::digits - std::numeric_limits<double>::min_exponent;
+
+		// Use a temporary buffer to prevent 1kb string capacity growth
+		std::array<char, maxSize + 1> buffer;
+		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%f", number);
+
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + written);
+		std::memcpy(&m_result[start], buffer.data(), written);
 
 		return *this;
 	}
@@ -227,8 +246,16 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(long double number)
 	{
-		m_strings.push_back(String::Number(number));
-		m_bufferSize += m_strings.back().GetSize();
+		// https://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
+		const std::size_t maxSize = 3 + std::numeric_limits<long double>::digits - std::numeric_limits<long double>::min_exponent;
+
+		// Use a temporary buffer to prevent 1kb string capacity growth
+		std::array<char, maxSize + 1> buffer;
+		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%f", number);
+
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + written);
+		std::memcpy(&m_result[start], buffer.data(), written);
 
 		return *this;
 	}
@@ -241,9 +268,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(char character)
 	{
-		m_strings.push_back(String(character));
-		m_bufferSize++;
-
+		m_result.Append(character);
 		return *this;
 	}
 
@@ -255,9 +280,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(unsigned char character)
 	{
-		m_strings.push_back(String(static_cast<char>(character)));
-		m_bufferSize++;
-
+		m_result.Append(static_cast<unsigned char>(character));
 		return *this;
 	}
 
@@ -269,9 +292,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(const char* string)
 	{
-		m_strings.push_back(string);
-		m_bufferSize += m_strings.back().GetSize();
-
+		m_result.Append(string);
 		return *this;
 	}
 
@@ -283,9 +304,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(const std::string& string)
 	{
-		m_strings.push_back(string);
-		m_bufferSize += string.size();
-
+		m_result.Append(string.data(), string.size());
 		return *this;
 	}
 
@@ -297,8 +316,7 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(const String& string)
 	{
-		m_strings.push_back(string);
-		m_bufferSize += string.GetSize();
+		m_result.Append(string);
 
 		return *this;
 	}
@@ -311,8 +329,11 @@ namespace Nz
 	*/
 	StringStream& StringStream::operator<<(const void* ptr)
 	{
-		m_strings.push_back(String::Pointer(ptr));
-		m_bufferSize += m_strings.back().GetSize();
+		constexpr std::size_t maxSize = sizeof(void*) * 2 + 2;
+		std::size_t start = m_result.GetSize();
+		m_result.Resize(start + maxSize);
+		std::size_t written = std::snprintf(&m_result[start], maxSize + 1, "0x%p", ptr);
+		m_result.Resize(start + written);
 
 		return *this;
 	}
