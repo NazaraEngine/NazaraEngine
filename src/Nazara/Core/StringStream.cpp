@@ -229,7 +229,7 @@ namespace Nz
 
 		// Use a temporary buffer to prevent 1kb string capacity growth
 		std::array<char, maxSize + 1> buffer;
-		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%f", number);
+		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%.6f", number);
 
 		std::size_t start = m_result.GetSize();
 		m_result.Resize(start + written);
@@ -251,7 +251,7 @@ namespace Nz
 
 		// Use a temporary buffer to prevent 1kb string capacity growth
 		std::array<char, maxSize + 1> buffer;
-		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%f", number);
+		std::size_t written = std::snprintf(buffer.data(), buffer.size(), "%.6Lf", number);
 
 		std::size_t start = m_result.GetSize();
 		m_result.Resize(start + written);
