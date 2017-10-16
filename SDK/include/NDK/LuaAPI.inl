@@ -308,9 +308,22 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::Entity** handle, TypeTag<Ndk::Entity*>)
+	{
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			*handle = nullptr;
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
 	{
-		*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			handle->Reset();
 
 		return 1;
 	}
