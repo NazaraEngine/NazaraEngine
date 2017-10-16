@@ -44,11 +44,11 @@ namespace Nz
 			{
 				//TODO: constexpr if to prevent copy/cast if sizeof(cpVect) == sizeof(Vector2f)
 
-				StackArray<Vector2f> vertices = NazaraStackAllocation(Vector2f, vertexCount);
+				StackArray<Vector2f> nVertices = NazaraStackAllocation(Vector2f, vertexCount);
 				for (int i = 0; i < vertexCount; ++i)
-					vertices[i].Set(float(vertices[i].x), float(vertices[i].y));
+					nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
 
-				drawOptions->polygonCallback(vertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+				drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 			}
 		};
 
