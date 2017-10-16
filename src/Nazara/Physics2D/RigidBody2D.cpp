@@ -20,8 +20,9 @@ namespace Nz
 	m_geom(),
 	m_userData(nullptr),
 	m_world(world),
+	m_isStatic(false),
 	m_gravityFactor(1.f),
-	m_mass(1.f)
+	m_mass(mass)
 	{
 		NazaraAssert(m_world, "Invalid world");
 
@@ -33,6 +34,7 @@ namespace Nz
 	m_geom(object.m_geom),
 	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.GetMass())
 	{
@@ -56,6 +58,7 @@ namespace Nz
 	m_userData(object.m_userData),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
+	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
@@ -219,6 +222,11 @@ namespace Nz
 		return cpBodyIsSleeping(m_handle) != 0;
 	}
 
+	bool RigidBody2D::IsStatic() const
+	{
+		return m_isStatic;
+	}
+
 	void RigidBody2D::SetAngularVelocity(float angularVelocity)
 	{
 		cpBodySetAngularVelocity(m_handle, ToRadians(angularVelocity));
@@ -256,7 +264,10 @@ namespace Nz
 		}
 
 		if (recomputeMoment)
-			cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+		{
+			if (!IsStatic() && !IsKinematic())
+				cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+		}
 	}
 
 	void RigidBody2D::SetMass(float mass, bool recomputeMoment)
@@ -274,13 +285,13 @@ namespace Nz
 				});
 			}
 			else
-				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), CP_BODY_TYPE_KINEMATIC); } );
+				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), (body->IsStatic()) ? CP_BODY_TYPE_STATIC : CP_BODY_TYPE_KINEMATIC); } );
 		}
 		else if (mass > 0.f)
 		{
 			m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
 			{
-				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_KINEMATIC)
+				if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_DYNAMIC)
 				{
 					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(body->GetHandle(), mass);
@@ -311,11 +322,42 @@ namespace Nz
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));
+		if (m_isStatic)
+		{
+			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			{
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			});
+		}
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
 	{
 		cpBodySetAngle(m_handle, ToRadians(rotation));
+		if (m_isStatic)
+		{
+			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			{
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			});
+		}
+	}
+
+	void RigidBody2D::SetStatic(bool setStaticBody)
+	{
+		m_isStatic = setStaticBody;
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (body->IsStatic())
+			{
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_STATIC);
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			}
+			else if (cpBodyGetMass(body->GetHandle()) > 0.f)
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_KINEMATIC);
+			else
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
+		});
 	}
 
 	void RigidBody2D::SetUserdata(void* ud)
@@ -342,6 +384,7 @@ namespace Nz
 		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
 
 		m_handle             = object.m_handle;
+		m_isStatic           = object.m_isStatic;
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
 		m_mass               = object.m_mass;

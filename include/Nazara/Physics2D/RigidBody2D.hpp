@@ -52,6 +52,7 @@ namespace Nz
 
 			bool IsKinematic() const;
 			bool IsSleeping() const;
+			bool IsStatic() const;
 
 			void SetAngularVelocity(float angularVelocity);
 			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
@@ -60,6 +61,7 @@ namespace Nz
 			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
+			void SetStatic(bool setStaticBody = true);
 			void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
 
@@ -81,9 +83,10 @@ namespace Nz
 			cpBody* m_handle;
 			void* m_userData;
 			PhysWorld2D* m_world;
+			bool m_isStatic;
 			float m_gravityFactor;
 			float m_mass;
 	};
 }
 
-#endif // NAZARA_RIGIDBODY3D_HPP
+#endif // NAZARA_RIGIDBODY2D_HPP
