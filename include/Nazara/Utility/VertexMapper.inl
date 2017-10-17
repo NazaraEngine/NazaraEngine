@@ -2,9 +2,10 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/VertexMapper.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Debug.hpp>
-#include <Nazara/Utility/Algorithm.hpp>
 
 namespace Nz
 {
@@ -20,9 +21,10 @@ namespace Nz
 		std::size_t offset;
 		declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled && GetComponentTypeOf<T>() == type)
+		if (enabled)
 		{
-			///TODO: Vérifier le rapport entre le type de l'attribut et le type template ?
+			NazaraAssert(GetComponentTypeOf<T>() == type, "Attribute type does not match template type");
+
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
 		}
 		else
@@ -30,6 +32,16 @@ namespace Nz
 			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<T>();
 		}
+	}
+
+	inline const VertexBuffer* VertexMapper::GetVertexBuffer() const
+	{
+		return m_mapper.GetBuffer();
+	}
+
+	inline UInt32 VertexMapper::GetVertexCount() const
+	{
+		return GetVertexBuffer()->GetVertexCount();
 	}
 
 	template<typename T> 
