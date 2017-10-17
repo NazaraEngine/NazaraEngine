@@ -186,7 +186,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, 0);
+				IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
 
 				IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 				IndexIterator index = indexMapper.begin();
@@ -210,7 +210,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				if (normalTangentMatrix.HasScale())
 					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, parameters.vertexBufferFlags);
 				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
 				MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());

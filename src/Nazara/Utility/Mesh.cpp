@@ -126,8 +126,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -148,8 +148,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -170,8 +170,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -196,8 +196,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
 
@@ -218,8 +218,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -240,8 +240,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 

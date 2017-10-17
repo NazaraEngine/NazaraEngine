@@ -29,6 +29,8 @@ namespace Nz
 	{
 		MeshParams();
 
+		BufferUsageFlags indexBufferFlags = 0;      ///< Buffer usage flags used to build the index buffers
+		BufferUsageFlags vertexBufferFlags = 0;     ///< Buffer usage flags used to build the vertex buffers
 		Matrix4f matrix = Matrix4f::Identity();     ///< A matrix which will transform every vertex position
 		DataStorage storage = DataStorage_Hardware; ///< The place where the buffers will be allocated
 		Vector2f texCoordOffset = {0.f, 0.f};       ///< Offset to apply on the texture coordinates (not scaled)

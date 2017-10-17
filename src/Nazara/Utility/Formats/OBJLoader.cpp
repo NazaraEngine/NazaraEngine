@@ -231,8 +231,8 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, 0);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, 0);
+				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, parameters.indexBufferFlags);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
