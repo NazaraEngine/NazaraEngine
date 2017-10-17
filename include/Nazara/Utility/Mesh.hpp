@@ -35,7 +35,11 @@ namespace Nz
 		Vector2f texCoordScale  = {1.f, 1.f};       ///< Scale to apply on the texture coordinates
 		bool animated = true;                       ///< If true, will load an animated version of the model if possible
 		bool center = false;                        ///< If true, will center the mesh vertices around the origin
+		#ifndef NAZARA_DEBUG
 		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+		#else
+		bool optimizeIndexBuffers = false;          ///< Since this optimization take a lot of time, especially in debug mode, don't enable it by default in debug.
+		#endif
 
 		/* The declaration must have a Vector3f position component enabled
 		 * If the declaration has a Vector2f UV component enabled, UV are generated
