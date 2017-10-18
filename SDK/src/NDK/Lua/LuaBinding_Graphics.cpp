@@ -322,17 +322,17 @@ namespace Ndk
 						if (lua.IsOfType(argIndex, Nz::LuaType_Number))
 						{
 							std::size_t matIndex(lua.Check<std::size_t>(&argIndex));
-							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+							Nz::MaterialRef mat(lua.Check<Nz::MaterialRef>(&argIndex));
 
-							instance->SetMaterial(matIndex, std::move(material));
+							instance->SetMaterial(matIndex, std::move(mat));
 							return 0;
 						}
 						else if (lua.IsOfType(argIndex, Nz::LuaType_String))
 						{
 							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
-							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+							Nz::MaterialRef mat(lua.Check<Nz::MaterialRef>(&argIndex));
 
-							instance->SetMaterial(subMesh, std::move(material));
+							instance->SetMaterial(subMesh, std::move(mat));
 							return 0;
 						}
 
@@ -346,9 +346,9 @@ namespace Ndk
 						{
 							std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
 							std::size_t matIndex(lua.Check<std::size_t>(&argIndex));
-							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+							Nz::MaterialRef mat(lua.Check<Nz::MaterialRef>(&argIndex));
 
-							instance->SetMaterial(skinIndex, matIndex, std::move(material));
+							instance->SetMaterial(skinIndex, matIndex, std::move(mat));
 							return 0;
 						}
 						else if (lua.IsOfType(argIndex, Nz::LuaType_String))

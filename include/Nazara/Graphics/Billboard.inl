@@ -146,9 +146,9 @@ namespace Nz
 
 		if (resizeBillboard)
 		{
-			if (const MaterialRef& material = GetMaterial())
+			if (const MaterialRef& newMat = GetMaterial())
 			{
-				const TextureRef& diffuseMap = material->GetDiffuseMap();
+				const TextureRef& diffuseMap = newMat->GetDiffuseMap();
 				if (diffuseMap && diffuseMap->IsValid())
 					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
 			}
