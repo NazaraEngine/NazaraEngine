@@ -53,7 +53,7 @@ namespace Nz
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
 			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount = 0);
 			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
-			void Destroy();
+			inline void Destroy();
 
 			void Flush();
 
