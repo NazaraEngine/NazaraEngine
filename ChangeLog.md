@@ -1,10 +1,7 @@
 # Upcoming version:
 
-Additions/Changes:
-- 
-
-Fixes:
-- 
+Nazara Engine:
+- VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
 
 # 0.4:
 

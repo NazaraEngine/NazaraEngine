@@ -21,17 +21,10 @@ namespace Nz
 		std::size_t offset;
 		declaration->GetComponent(component, &enabled, &type, &offset);
 
-		if (enabled)
-		{
-			NazaraAssert(GetComponentTypeOf<T>() == type, "Attribute type does not match template type");
-
+		if (enabled && GetComponentTypeOf<T>() == type)
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
-		}
 		else
-		{
-			NazaraError("Attribute 0x" + String::Number(component, 16) + " is not enabled");
 			return SparsePtr<T>();
-		}
 	}
 
 	inline const VertexBuffer* VertexMapper::GetVertexBuffer() const
