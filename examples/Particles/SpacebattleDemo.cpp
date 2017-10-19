@@ -420,7 +420,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 					emitter.SetEmissionCount(2);
 					emitter.SetEmissionRate(200.f);
 
-					emitter.SetSetupFunc([this] (const Ndk::EntityHandle& emitter, Nz::ParticleMapper& particleMapper, unsigned int count)
+					emitter.SetSetupFunc([this] (const Ndk::EntityHandle& emitterEntity, Nz::ParticleMapper& particleMapper, unsigned int count)
 					{
 						auto& gen = m_shared.randomGen;
 
@@ -432,7 +432,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 						std::uniform_real_distribution<float> sizeDis(1.0f, 4.f);
 						std::uniform_real_distribution<float> velDis(-maxFireVel, maxFireVel);
 
-						Nz::Vector3f pos = emitter->GetComponent<Ndk::NodeComponent>().GetPosition();
+						Nz::Vector3f pos = emitterEntity->GetComponent<Ndk::NodeComponent>().GetPosition();
 
 						Nz::ParticleStruct_Billboard* billboards = static_cast<Nz::ParticleStruct_Billboard*>(particleMapper.GetPointer());
 						Nz::ParticleStruct_Billboard* smokeParticles = static_cast<Nz::ParticleStruct_Billboard*>(m_smokeGroup->CreateParticles(count));
