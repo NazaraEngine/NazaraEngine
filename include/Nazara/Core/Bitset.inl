@@ -776,7 +776,7 @@ namespace Nz
 	* \param bitset Other bitset to swap
 	*/
 	template<typename Block, class Allocator>
-	void Bitset<Block, Allocator>::Swap(Bitset& bitset)
+	void Bitset<Block, Allocator>::Swap(Bitset& bitset) noexcept
 	{
 		std::swap(m_bitCount, bitset.m_bitCount);
 		std::swap(m_blocks,   bitset.m_blocks);
@@ -1645,7 +1645,7 @@ namespace std
 	*/
 
 	template<typename Block, class Allocator>
-	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs)
+	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs) noexcept
 	{
 		lhs.Swap(rhs);
 	}
