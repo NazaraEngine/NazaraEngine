@@ -48,7 +48,7 @@ namespace Nz
 		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.
 		 * If the declaration has a Vector3f Tangents component enabled, Tangents are generated.
 		 */
-		VertexDeclaration* vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		VertexDeclarationConstRef vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
 		bool IsValid() const;
 	};

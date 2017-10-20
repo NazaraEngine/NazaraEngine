@@ -41,7 +41,7 @@ namespace Nz
 			return false;
 		}
 
-		if (vertexDeclaration == nullptr)
+		if (!vertexDeclaration)
 		{
 			NazaraError("The vertex declaration can't be null");
 			return false;
