@@ -11,6 +11,7 @@
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
@@ -128,6 +129,7 @@ namespace Nz
 
 					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
+
 					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
 					{
 						// Skinning MD5 (Formule d'Id Tech)
@@ -254,13 +256,15 @@ namespace Nz
 					indexMapper.Unmap();
 
 					// Vertex buffer
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
-					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
-					MeshVertex* vertices = static_cast<MeshVertex*>(vertexMapper.GetPointer());
+					VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+
+					auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+
 					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 					{
-						// Skinning MD5 (Formule d'Id Tech)
+						// Id Tech MD5 skinning
 						Vector3f finalPos(Vector3f::Zero());
 						for (unsigned int j = 0; j < md5Vertex.weightCount; ++j)
 						{
@@ -271,9 +275,13 @@ namespace Nz
 						}
 
 						// On retourne le modèle dans le bon sens
-						vertices->position = matrix * finalPos;
-						vertices->uv.Set(parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale);
-						vertices++;
+						*posPtr++ = matrix * finalPos;
+					}
+
+					if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
+					{
+						for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
+							*uvPtr++ = parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale;
 					}
 
 					vertexMapper.Unmap();
@@ -287,8 +295,15 @@ namespace Nz
 
 					subMesh->SetIndexBuffer(indexBuffer);
 					subMesh->GenerateAABB();
-					subMesh->GenerateNormalsAndTangents();
 					subMesh->SetMaterialIndex(i);
+
+					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Normal))
+					{
+						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Tangent))
+							subMesh->GenerateNormalsAndTangents();
+						else
+							subMesh->GenerateNormals();
+					}
 
 					mesh->AddSubMesh(subMesh);
 

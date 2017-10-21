@@ -2,7 +2,8 @@
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- MeshParams now hold a ConstRef to the VertexDeclaration (preventing it to be freed before usage)
+- Bitset swap operation is now correctly marked as noexcept`
+- Mesh loaders now takes MeshParams vertexDeclaration into account
 
 # 0.4:
 
