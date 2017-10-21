@@ -28,12 +28,14 @@ namespace Nz
 	void SubMesh::GenerateNormals()
 	{
 		VertexMapper mapper(this);
-		unsigned int vertexCount = GetVertexCount();
+		UInt32 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+		if (!normals || !positions)
+			return;
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 			normals[i].MakeZero();
 
 		TriangleIterator iterator(this);
@@ -52,21 +54,23 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 			normals[i].Normalize();
 	}
 
 	void SubMesh::GenerateNormalsAndTangents()
 	{
 		VertexMapper mapper(this);
-		unsigned int vertexCount = GetVertexCount();
+		UInt32 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		if (!normals || !positions || !tangents || !texCoords)
+			return;
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 		{
 			normals[i].MakeZero();
 			tangents[i].MakeZero();
@@ -105,7 +109,7 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 		{
 			normals[i].Normalize();
 			tangents[i].Normalize();
@@ -120,6 +124,8 @@ namespace Nz
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		if (!normals || !positions || !tangents || !texCoords)
+			return;
 
 		TriangleIterator iterator(this);
 		do

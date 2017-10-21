@@ -1164,6 +1164,6 @@ namespace Nz
 
 			if (vertexPointers.tangentPtr)
 				*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
-			}
+		}
 	}
 }

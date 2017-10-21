@@ -47,6 +47,12 @@ namespace Nz
 			return false;
 		}
 
+		if (!vertexDeclaration->HasComponent(VertexComponent_Position))
+		{
+			NazaraError("Vertex declaration must contains a vertex position");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -54,7 +60,7 @@ namespace Nz
 	{
 		MeshImpl()
 		{
-			materialData.resize(1); // Un matériau par défaut
+			materialData.resize(1); // One material by default
 		}
 
 		std::unordered_map<String, UInt32> subMeshMap;
@@ -62,10 +68,10 @@ namespace Nz
 		std::vector<SubMeshRef> subMeshes;
 		AnimationType animationType;
 		Boxf aabb;
-		Skeleton skeleton; // Uniquement pour les meshs squelettiques
+		Skeleton skeleton; // Only used by skeletal meshes
 		String animationPath;
 		bool aabbUpdated = false;
-		UInt32 jointCount; // Uniquement pour les meshs squelettiques
+		UInt32 jointCount; // Only used by skeletal meshes
 	};
 
 	Mesh::~Mesh()
