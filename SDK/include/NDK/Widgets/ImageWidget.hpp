@@ -26,8 +26,6 @@ namespace Ndk
 
 			//virtual ImageWidget* Clone() const = 0;
 
-			void ResizeToContent() override;
-
 			inline const Nz::TextureRef& GetTexture() const;
 			inline void SetTexture(const Nz::TextureRef& texture, bool resizeWidget = true);
 

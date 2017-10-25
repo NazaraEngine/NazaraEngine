@@ -19,11 +19,6 @@ namespace Ndk
 		gfx.Attach(m_sprite);
 	}
 
-	void ImageWidget::ResizeToContent()
-	{
-
-	}
-
 	void ImageWidget::Layout()
 	{
 		BaseWidget::Layout();
