@@ -31,6 +31,9 @@ namespace Ndk
 			inline const Nz::TextureRef& GetTexture() const;
 			inline void SetTexture(const Nz::TextureRef& texture, bool resizeToContent = true);
 
+			ImageWidget& operator=(const ImageWidget&) = delete;
+			ImageWidget& operator=(ImageWidget&&) = default;
+
 		private:
 			void Layout() override;
 
