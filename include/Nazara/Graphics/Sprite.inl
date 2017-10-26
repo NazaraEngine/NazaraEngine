@@ -282,9 +282,6 @@ namespace Nz
 	*/
 	inline void Sprite::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite)
 	{
-		if (resizeSprite && texture && texture->IsValid())
-			SetSize(Vector2f(Vector2ui(texture->GetSize())));
-
 		const MaterialRef& material = GetMaterial(skinIndex);
 
 		if (material->GetReferenceCount() > 1)
@@ -292,10 +289,14 @@ namespace Nz
 			MaterialRef newMat = Material::New(*material); // Copy
 			newMat->SetDiffuseMap(std::move(texture));
 
-			SetMaterial(skinIndex, std::move(newMat));
+			SetMaterial(skinIndex, std::move(newMat), resizeSprite);
 		}
 		else
+		{
 			material->SetDiffuseMap(std::move(texture));
+			if (resizeSprite && texture && texture->IsValid())
+				SetSize(Vector2f(Vector2ui(texture->GetSize())));
+		}
 	}
 
 	/*!
