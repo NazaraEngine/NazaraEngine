@@ -369,7 +369,7 @@ namespace Nz
 
 	void WindowImpl::SetPosition(int x, int y)
 	{
-		SetWindowPos(m_handle, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		SetWindowPos(m_handle, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetSize(unsigned int width, unsigned int height)
@@ -378,15 +378,15 @@ namespace Nz
 		RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 		AdjustWindowRect(&rect, static_cast<DWORD>(GetWindowLongPtr(m_handle, GWL_STYLE)), false);
 
-		SetWindowPos(m_handle, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(m_handle, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetStayOnTop(bool stayOnTop)
 	{
 		if (stayOnTop)
-			SetWindowPos(m_handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+			SetWindowPos(m_handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
 		else
-			SetWindowPos(m_handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(m_handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetTitle(const String& title)
