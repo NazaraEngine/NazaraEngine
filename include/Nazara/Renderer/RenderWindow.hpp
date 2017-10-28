@@ -44,9 +44,8 @@ namespace Nz
 
 			void EnableVerticalSync(bool enabled);
 
-			unsigned int GetHeight() const override;
 			RenderTargetParameters GetParameters() const override;
-			unsigned int GetWidth() const override;
+			Vector2ui GetSize() const override;
 
 			bool IsRenderable() const override;
 			bool IsValid() const;

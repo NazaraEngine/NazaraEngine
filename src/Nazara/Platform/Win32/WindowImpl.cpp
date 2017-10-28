@@ -218,11 +218,6 @@ namespace Nz
 		return m_handle;
 	}
 
-	unsigned int WindowImpl::GetHeight() const
-	{
-		return m_size.y;
-	}
-
 	Vector2i WindowImpl::GetPosition() const
 	{
 		return m_position;
@@ -250,11 +245,6 @@ namespace Nz
 		GetWindowTextW(m_handle, wTitle.get(), titleSize);
 
 		return String::Unicode(wTitle.get());
-	}
-
-	unsigned int WindowImpl::GetWidth() const
-	{
-		return m_size.x;
 	}
 
 	bool WindowImpl::HasFocus() const

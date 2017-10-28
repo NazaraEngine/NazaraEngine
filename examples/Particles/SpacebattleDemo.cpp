@@ -820,5 +820,6 @@ void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, 
 	m_turretCannonBaseRotation = Nz::Clamp(m_turretCannonBaseRotation + speed * event.deltaY, -65.f, 40.f);
 	m_turretBaseRotation -= event.deltaX * speed;
 
-	Nz::Mouse::SetPosition(m_shared.target->GetWidth() / 2, m_shared.target->GetHeight() / 2, *m_shared.target);
+	Nz::Vector2ui size = m_shared.target->GetSize();
+	Nz::Mouse::SetPosition(size.x / 2, size.y / 2, *m_shared.target);
 }

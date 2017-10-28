@@ -100,9 +100,10 @@ int main()
 	Nz::Boxf fpsCountBox = fpsGfx.GetBoundingVolume().aabb;
 	Nz::Boxf particleCountBox = particleCountGfx.GetBoundingVolume().aabb;
 
+	Nz::Vector2ui windowSize = window.GetSize();
 	demoNameNode.SetPosition(5.f, 5.f);
-	particleCountNode.SetPosition(5.f, window.GetHeight() - particleCountBox.height - 5.f);
-	fpsNode.SetPosition(5.f, window.GetHeight() - fpsCountBox.height - particleCountBox.height - 5.f);
+	particleCountNode.SetPosition(5.f, windowSize.y - particleCountBox.height - 5.f);
+	fpsNode.SetPosition(5.f, windowSize.x - fpsCountBox.height - particleCountBox.height - 5.f);
 
 
 	shared.demos.push_back(std::make_shared<LogoExample>(shared));

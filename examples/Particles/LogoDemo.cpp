@@ -251,21 +251,20 @@ bool LogoExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 
 void LogoExample::ResetParticles(float elapsed)
 {
-	unsigned int width = m_shared.target->GetWidth();
-	unsigned int height = m_shared.target->GetHeight();
+	Nz::Vector2ui size = m_shared.target->GetSize();
 
-	Nz::Vector2f center = {width / 2.f, height / 2.f};
+	Nz::Vector2f center = {size.x / 2.f, size.y / 2.f};
 	Nz::Vector2f offset = center - Nz::Vector2f(Nz::Vector2ui(m_logo.GetSize()) / 2);
 
-	std::uniform_real_distribution<float> disX(0.f, float(width));
-	std::uniform_real_distribution<float> disY(-float(height) * 0.5f, float(height) * 1.5f);
+	std::uniform_real_distribution<float> disX(0.f, float(size.x));
+	std::uniform_real_distribution<float> disY(-float(size.y) * 0.5f, float(size.y) * 1.5f);
 
 	ParticleData* sprite = static_cast<ParticleData*>(m_particles);
 	for (PixelData& data : m_pixels)
 	{
 		sprite->color = data.color;
 		sprite->destination = offset + Nz::Vector2f(data.pos);
-		sprite->position.Set(disX(m_shared.randomGen) - float(width), disY(m_shared.randomGen), 0.f);
+		sprite->position.Set(disX(m_shared.randomGen) - float(size.x), disY(m_shared.randomGen), 0.f);
 		sprite->velocity = Nz::Vector2f::Zero();
 		sprite++;
 	}

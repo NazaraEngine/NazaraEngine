@@ -62,12 +62,10 @@ namespace Nz
 			inline CursorController& GetCursorController();
 			inline EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
-			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
-			unsigned int GetWidth() const;
 
 			bool HasFocus() const;
 
