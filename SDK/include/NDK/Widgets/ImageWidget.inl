@@ -41,6 +41,6 @@ namespace Ndk
 
 	inline void ImageWidget::SetTextureRect(const Nz::Rectui& rect)
 	{
-		m_sprite->SetTextureRect(rect)
+		m_sprite->SetTextureRect(rect);
 	}
 }
