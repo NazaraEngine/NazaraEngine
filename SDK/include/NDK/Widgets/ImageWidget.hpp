@@ -28,8 +28,14 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline const Nz::Color& GetColor() const;
 			inline const Nz::TextureRef& GetTexture() const;
+			inline const Nz::Rectf& GetTextureCoords() const;
+
+			inline void SetColor(const Nz::Color& color);
 			inline void SetTexture(const Nz::TextureRef& texture, bool resizeToContent = true);
+			inline void SetTextureCoords(const Nz::Rectf& coords);
+			inline void SetTextureRect(const Nz::Rectui& rect);
 
 			ImageWidget& operator=(const ImageWidget&) = delete;
 			ImageWidget& operator=(ImageWidget&&) = default;
