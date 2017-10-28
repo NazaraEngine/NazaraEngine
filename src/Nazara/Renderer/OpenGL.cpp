@@ -402,7 +402,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 				s_contextStates->scissorBoxUpdated = true;
 			}
@@ -494,7 +494,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 				s_contextStates->viewportUpdated = true;
 			}
@@ -1287,7 +1287,7 @@ namespace Nz
 			{
 				const Recti& scissorBox = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 
 				s_contextStates->scissorBoxUpdated = true;
@@ -1297,7 +1297,7 @@ namespace Nz
 			{
 				const Recti& viewport = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 
 				s_contextStates->viewportUpdated = true;

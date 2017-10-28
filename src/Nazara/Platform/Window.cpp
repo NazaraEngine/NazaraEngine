@@ -203,19 +203,6 @@ namespace Nz
 		return m_impl->GetHandle();
 	}
 
-	unsigned int Window::GetHeight() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetHeight();
-	}
-
 	Vector2i Window::GetPosition() const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -266,19 +253,6 @@ namespace Nz
 		#endif
 
 		return m_impl->GetTitle();
-	}
-
-	unsigned int Window::GetWidth() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetWidth();
 	}
 
 	bool Window::HasFocus() const

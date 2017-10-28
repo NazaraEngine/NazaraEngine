@@ -237,10 +237,9 @@ namespace Ndk
 		NazaraAssert(m_target, "Component has no render target");
 
 		// We compute the region necessary to make this view port with the actual size of the target
-		float invWidth = 1.f / m_target->GetWidth();
-		float invHeight = 1.f / m_target->GetHeight();
+		Nz::Vector2f invSize = 1.f / Nz::Vector2f(m_target->GetSize());
 
-		SetTargetRegion(Nz::Rectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
+		SetTargetRegion(Nz::Rectf(invSize.x * viewport.x, invSize.y * viewport.y, invSize.x * viewport.width, invSize.y * viewport.height));
 	}
 
 	/*!

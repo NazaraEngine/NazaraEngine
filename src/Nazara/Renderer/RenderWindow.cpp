@@ -162,11 +162,6 @@ namespace Nz
 			NazaraError("No context");
 	}
 
-	unsigned int RenderWindow::GetHeight() const
-	{
-		return Window::GetHeight();
-	}
-
 	RenderTargetParameters RenderWindow::GetParameters() const
 	{
 		if (m_context)
@@ -181,9 +176,9 @@ namespace Nz
 		}
 	}
 
-	unsigned int RenderWindow::GetWidth() const
+	Vector2ui RenderWindow::GetSize() const
 	{
-		return Window::GetWidth();
+		return Window::GetSize();
 	}
 
 	bool RenderWindow::IsRenderable() const

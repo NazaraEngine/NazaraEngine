@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
 
@@ -24,9 +25,8 @@ namespace Nz
 			RenderTarget(RenderTarget&&) noexcept = default;
 			virtual ~RenderTarget();
 
-			virtual unsigned int GetHeight() const = 0;
 			virtual RenderTargetParameters GetParameters() const = 0;
-			virtual unsigned int GetWidth() const = 0;
+			virtual Vector2ui GetSize() const = 0;
 
 			bool IsActive() const;
 			virtual bool IsRenderable() const = 0;

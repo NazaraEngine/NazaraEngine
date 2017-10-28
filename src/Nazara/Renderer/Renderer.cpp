@@ -1444,7 +1444,7 @@ namespace Nz
 		}
 
 		// Envoi des uniformes liées au Renderer
-		Vector2ui targetSize(s_target->GetWidth(), s_target->GetHeight());
+		Vector2ui targetSize = s_target->GetSize();
 		if (s_targetSize != targetSize)
 		{
 			int location;

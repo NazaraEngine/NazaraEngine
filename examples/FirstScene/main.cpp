@@ -307,7 +307,8 @@ int main()
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Mouse::SetPosition(window.GetWidth() / 2, window.GetHeight() / 2, window);
+					Nz::Vector2ui size = window.GetSize();
+					Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
 					break;
 				}
 
