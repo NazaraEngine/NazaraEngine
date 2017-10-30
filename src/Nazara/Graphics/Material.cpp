@@ -387,6 +387,7 @@ namespace Nz
 		m_ambientColor = Color(128, 128, 128);
 		m_diffuseColor = Color::White;
 		m_diffuseSampler = TextureSampler();
+		m_reflectionMode = ReflectionMode_Skybox;
 		m_shadowCastingEnabled = true;
 		m_shininess = 50.f;
 		m_specularColor = Color::White;
@@ -394,6 +395,7 @@ namespace Nz
 		m_pipelineInfo = MaterialPipelineInfo();
 		m_pipelineInfo.depthBuffer = true;
 		m_pipelineInfo.faceCulling = true;
+		m_reflectionSize = 256;
 
 		SetShader("Basic");
 
