@@ -212,7 +212,7 @@ namespace Nz
 			bool m_shadowCastingEnabled;
 			float m_alphaThreshold;
 			float m_shininess;
-			unsigned int  m_reflectionSize;
+			unsigned int m_reflectionSize;
 
 			static std::array<int, TextureMap_Max + 1> s_textureUnits;
 			static MaterialLibrary::LibraryMap s_library;

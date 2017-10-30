@@ -1258,7 +1258,7 @@ namespace Nz
 	/*!
 	* \brief Changes reflection mode of the material
 	*
-	* When reflections are enable, the material will render reflections from the object environment according to the reflection mode.
+	* When reflections are enabled, the material will render reflections from the object environment according to the reflection mode.
 	* This function does change the reflection mode used by the material.
 	*
 	* Skyboxes reflections are the cheapest but are static and thus can't reflect other objects.
