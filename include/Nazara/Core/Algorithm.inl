@@ -308,7 +308,7 @@ namespace Nz
 			return false;
 
 		string->resize(size);
-		return context.stream->Read(&string[0], size) == size;
+		return context.stream->Read(&(*string)[0], size) == size;
 	}
 
 	/*!
