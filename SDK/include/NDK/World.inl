@@ -306,11 +306,14 @@ namespace Ndk
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
-		m_waitingEntities       = std::move(world.m_waitingEntities);
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
 			block.entity.SetWorld(this);
+
+		m_waitingEntities = std::move(world.m_waitingEntities);
+		for (auto& blockPtr : m_waitingEntities)
+			blockPtr->entity.SetWorld(this);
 
 		m_systems = std::move(world.m_systems);
 		for (const auto& systemPtr : m_systems)
