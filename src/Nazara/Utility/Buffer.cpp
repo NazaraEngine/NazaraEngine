@@ -72,7 +72,7 @@ namespace Nz
 
 	void Buffer::Destroy()
 	{
-		if (!m_impl)
+		if (m_impl)
 		{
 			OnBufferDestroy(this);
 
