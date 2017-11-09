@@ -144,18 +144,18 @@ namespace Ndk
 	void Canvas::OnEventKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_hoveredWidget].widget->OnKeyPressed(event);
+			m_widgetBoxes[m_keyboardOwner].widget->OnKeyPressed(event);
 	}
 
 	void Canvas::OnEventKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_hoveredWidget].widget->OnKeyReleased(event);
+			m_widgetBoxes[m_keyboardOwner].widget->OnKeyReleased(event);
 	}
 
 	void Canvas::OnEventTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_hoveredWidget].widget->OnTextEntered(event.character, event.repeated);
+			m_widgetBoxes[m_keyboardOwner].widget->OnTextEntered(event.character, event.repeated);
 	}
 }
