@@ -17,6 +17,7 @@ Nazara Development Kit:
 - Fix World movement which could cause crashes when updating systems
 - Fix crash occuring sometimes on keyboard event
 - Add support for EchoMode to TextAreaWidget (which allows to setup password text area)
+- Add signal OnTextChanged to TextAreaWidget
 
 # 0.4:
 
