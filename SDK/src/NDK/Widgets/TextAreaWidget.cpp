@@ -69,6 +69,8 @@ namespace Ndk
 		}
 
 		m_textSprite->Update(m_drawer);
+
+		OnTextChanged(this, m_text);
 	}
 
 	std::size_t TextAreaWidget::GetHoveredGlyph(float x, float y) const

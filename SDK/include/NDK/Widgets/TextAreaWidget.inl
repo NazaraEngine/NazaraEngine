@@ -172,6 +172,7 @@ namespace Ndk
 	inline void TextAreaWidget::SetText(const Nz::String& text)
 	{
 		m_text = text;
+		OnTextChanged(this, m_text);
 
 		UpdateDisplayText();
 	}
