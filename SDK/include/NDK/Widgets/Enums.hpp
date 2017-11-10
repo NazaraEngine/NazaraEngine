@@ -17,6 +17,15 @@ namespace Ndk
 
 		CheckboxState_Max = CheckboxState_Unchecked
 	};
+
+	enum EchoMode
+	{
+		EchoMode_Normal,
+		EchoMode_Password,
+		EchoMode_PasswordExceptLast,
+
+		EchoMode_Max = EchoMode_PasswordExceptLast
+	};
 }
 
 #endif // NAZARA_ENUMS_SDK_HPP
