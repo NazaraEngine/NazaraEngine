@@ -139,11 +139,15 @@ namespace Ndk
 		{
 			case Nz::Keyboard::Delete:
 			{
+				std::size_t textLength = m_text.GetLength();
+				if (m_cursorGlyph > textLength)
+					break;
+
 				Nz::String newText;
 				if (m_cursorGlyph > 0)
 					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph) - 1));
 
-				if (m_cursorGlyph < m_text.GetLength())
+				if (m_cursorGlyph < textLength)
 					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph + 1)));
 
 				SetText(newText);
@@ -243,15 +247,16 @@ namespace Ndk
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
 
-				if (ignoreDefaultAction)
+				if (ignoreDefaultAction || m_cursorGlyph == 0)
 					break;
 
 				Nz::String newText;
-				if (m_cursorGlyph > 0)
+
+				if (m_cursorGlyph > 1)
 					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
 
 				if (m_cursorGlyph < m_text.GetLength())
-					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph + 1)));
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph)));
 
 				MoveCursor({-1, 0});
 				SetText(newText);
