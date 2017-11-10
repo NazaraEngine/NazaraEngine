@@ -7,10 +7,10 @@
 #ifndef NDK_WIDGETS_TEXTAREAWIDGET_HPP
 #define NDK_WIDGETS_TEXTAREAWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
-#include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NDK/BaseWidget.hpp>
+#include <NDK/Widgets/Enums.hpp>
 
 namespace Ndk
 {
@@ -30,9 +30,11 @@ namespace Ndk
 
 			inline void EnableMultiline(bool enable = true);
 
+			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
+			inline const Nz::String& GetDisplayText() const;
+			inline EchoMode GetEchoMode() const;
 			inline std::size_t GetGlyphUnderCursor() const;
-			inline std::size_t GetLineCount() const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 
@@ -46,8 +48,10 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
+			inline void SetEchoMode(EchoMode echoMode);
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
@@ -77,11 +81,14 @@ namespace Ndk
 			void OnTextEntered(char32_t character, bool repeated) override;
 
 			void RefreshCursor();
+			void UpdateDisplayText();
 
+			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::SpriteRef m_cursorSprite;
+			Nz::String m_text;
 			Nz::TextSpriteRef m_textSprite;
 			Nz::Vector2ui m_cursorPosition;
 			std::size_t m_cursorGlyph;

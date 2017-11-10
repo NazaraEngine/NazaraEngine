@@ -16,6 +16,7 @@ Nazara Development Kit:
 - ⚠️ Removed TextAreaWidget::GetLineCount
 - Fix World movement which could cause crashes when updating systems
 - Fix crash occuring sometimes on keyboard event
+- Add support for EchoMode to TextAreaWidget (which allows to setup password text area)
 
 # 0.4:
 

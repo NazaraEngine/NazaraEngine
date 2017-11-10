@@ -11,6 +11,7 @@ namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
+	m_echoMode(EchoMode_Normal),
 	m_cursorPosition(0U, 0U),
 	m_cursorGlyph(0),
 	m_multiLineEnabled(false),
@@ -38,7 +39,34 @@ namespace Ndk
 
 	void TextAreaWidget::AppendText(const Nz::String& text)
 	{
-		m_drawer.AppendText(text);
+		m_text += text;
+		switch (m_echoMode)
+		{
+			case EchoMode_Normal:
+				m_drawer.AppendText(text);
+				break;
+
+			case EchoMode_Password:
+				m_drawer.AppendText(Nz::String(text.GetLength(), '*'));
+				break;
+
+			case EchoMode_PasswordExceptLast:
+			{
+				m_drawer.Clear();
+				std::size_t textLength = m_text.GetLength();
+				if (textLength >= 2)
+				{
+					std::size_t lastCharacterPosition = m_text.GetCharacterPosition(textLength - 2);
+					if (lastCharacterPosition != Nz::String::npos)
+						m_drawer.AppendText(Nz::String(textLength - 1, '*'));
+				}
+
+				if (textLength >= 1)
+					m_drawer.AppendText(m_text.SubString(m_text.GetCharacterPosition(textLength - 1)));
+
+				break;
+			}
+		}
 
 		m_textSprite->Update(m_drawer);
 	}
@@ -87,9 +115,8 @@ namespace Ndk
 		}
 		else
 		{
-			Nz::String currentText = m_drawer.GetText();
-			currentText.Insert(currentText.GetCharacterPosition(m_cursorGlyph), text);
-			SetText(currentText);
+			m_text.Insert(m_text.GetCharacterPosition(m_cursorGlyph), text);
+			SetText(m_text);
 
 			SetCursorPosition(m_cursorGlyph + text.GetLength());
 		}
@@ -110,17 +137,14 @@ namespace Ndk
 		{
 			case Nz::Keyboard::Delete:
 			{
-				const Nz::String& text = m_drawer.GetText();
-
 				Nz::String newText;
 				if (m_cursorGlyph > 0)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph) - 1));
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph) - 1));
 
-				if (m_cursorGlyph < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph + 1)));
+				if (m_cursorGlyph < m_text.GetLength())
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph + 1)));
 
-				m_drawer.SetText(newText);
-				m_textSprite->Update(m_drawer);
+				SetText(newText);
 				break;
 			}
 
@@ -220,14 +244,12 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				const Nz::String& text = m_drawer.GetText();
-
 				Nz::String newText;
-				if (m_cursorGlyph > 1)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
+				if (m_cursorGlyph > 0)
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
 
-				if (m_cursorGlyph < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph)));
+				if (m_cursorGlyph < m_text.GetLength())
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph + 1)));
 
 				MoveCursor({-1, 0});
 				SetText(newText);
@@ -277,5 +299,24 @@ namespace Ndk
 		Nz::Vector2f contentOrigin = GetContentOrigin();
 
 		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(contentOrigin.x + position, contentOrigin.y + lineInfo.bounds.y);
+	}
+
+	void TextAreaWidget::UpdateDisplayText()
+	{
+		switch (m_echoMode)
+		{
+			case EchoMode_Normal:
+				m_drawer.SetText(m_text);
+				break;
+
+			case EchoMode_Password:
+			case EchoMode_PasswordExceptLast:
+				m_drawer.SetText(Nz::String(m_text.GetLength(), '*'));
+				break;
+		}
+
+		m_textSprite->Update(m_drawer);
+
+		SetCursorPosition(m_cursorPosition); //< Refresh cursor position (prevent it from being outside of the text)
 	}
 }

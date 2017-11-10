@@ -20,9 +20,24 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline unsigned int TextAreaWidget::GetCharacterSize() const
+	{
+		return m_drawer.GetCharacterSize();
+	}
+
 	inline const Nz::Vector2ui& TextAreaWidget::GetCursorPosition() const
 	{
 		return m_cursorPosition;
+	}
+
+	inline const Nz::String & TextAreaWidget::GetDisplayText() const
+	{
+		return m_drawer.GetText();
+	}
+
+	inline EchoMode TextAreaWidget::GetEchoMode() const
+	{
+		return m_echoMode;
 	}
 
 	inline std::size_t Ndk::TextAreaWidget::GetGlyphUnderCursor() const
@@ -30,14 +45,9 @@ namespace Ndk
 		return m_cursorGlyph;
 	}
 
-	inline std::size_t TextAreaWidget::GetLineCount() const
-	{
-		return m_drawer.GetLineCount();
-	}
-
 	inline const Nz::String& TextAreaWidget::GetText() const
 	{
-		return m_drawer.GetText();
+		return m_text;
 	}
 
 	inline const Nz::Color& TextAreaWidget::GetTextColor() const
@@ -92,12 +102,17 @@ namespace Ndk
 		SetCursorPosition(cursorPosition);
 	}
 
+	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
+	{
+		m_drawer.SetCharacterSize(characterSize);
+	}
+
 	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
 	{
 		OnTextAreaCursorMove(this, &glyphIndex);
 
 		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
-		
+
 		std::size_t lineCount = m_drawer.GetLineCount();
 		std::size_t line = 0U;
 		for (std::size_t i = line + 1; i < lineCount; ++i)
@@ -110,8 +125,8 @@ namespace Ndk
 
 		const auto& lineInfo = m_drawer.GetLine(line);
 
-		m_cursorPosition.y = line;
-		m_cursorPosition.x = m_cursorGlyph - lineInfo.glyphIndex;
+		m_cursorPosition.y = static_cast<unsigned int>(line);
+		m_cursorPosition.x = static_cast<unsigned int>(m_cursorGlyph - lineInfo.glyphIndex);
 
 		RefreshCursor();
 	}
@@ -140,6 +155,13 @@ namespace Ndk
 		RefreshCursor();
 	}
 
+	inline void TextAreaWidget::SetEchoMode(EchoMode echoMode)
+	{
+		m_echoMode = echoMode;
+
+		UpdateDisplayText();
+	}
+
 	inline void TextAreaWidget::SetReadOnly(bool readOnly)
 	{
 		m_readOnly = readOnly;
@@ -149,11 +171,9 @@ namespace Ndk
 
 	inline void TextAreaWidget::SetText(const Nz::String& text)
 	{
-		m_drawer.SetText(text);
+		m_text = text;
 
-		m_textSprite->Update(m_drawer);
-
-		SetCursorPosition(m_cursorPosition); //< Refresh cursor position (prevent it from being outside of the text)
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextColor(const Nz::Color& text)
