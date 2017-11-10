@@ -6,6 +6,16 @@ Nazara Engine:
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
+- Fix compilation error when including Nazara/Renderer/ShaderBuilder.hpp
+- Fix reflection sometimes being enabled by default for Materials
+- Fix built-in unserialization of std::string which was corruption memory
+- Fix Buffer::Destroy() not really destroying buffer
+
+Nazara Development Kit:
+- Added ImageWidget (#139)
+- ⚠️ Removed TextAreaWidget::GetLineCount
+- Fix World movement which could cause crashes when updating systems
+- Fix crash occuring sometimes on keyboard event
 
 # 0.4:
 
