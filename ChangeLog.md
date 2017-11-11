@@ -11,6 +11,7 @@ Nazara Engine:
 - Fix built-in unserialization of std::string which was corruption memory
 - Fix Buffer::Destroy() not really destroying buffer
 
+
 Nazara Development Kit:
 - Added ImageWidget (#139)
 - ⚠️ Removed TextAreaWidget::GetLineCount
@@ -18,6 +19,10 @@ Nazara Development Kit:
 - Fix crash occuring sometimes on keyboard event
 - Add support for EchoMode to TextAreaWidget (which allows to setup password text area)
 - Add signal OnTextChanged to TextAreaWidget
+- ⚠️ Removed TextAreaWidget::GetGlyphUnderCursor
+- Fixed minor issues relative to TextAreaWidget cursor handling
+- ⚠️ Renamed BaseWidget::GrabKeyboard method to SetFocus
+- Added BaseWidget::ClearFocus method and OnFocus[Lost|Received] virtual methods
 
 # 0.4:
 

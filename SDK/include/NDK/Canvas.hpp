@@ -34,6 +34,8 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
+			inline void ClearKeyboardOwner(std::size_t canvasIndex);
+			
 			inline void NotifyWidgetBoxUpdate(std::size_t index);
 			inline void NotifyWidgetCursorUpdate(std::size_t index);
 
