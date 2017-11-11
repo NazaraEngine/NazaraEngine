@@ -13,7 +13,6 @@ namespace Ndk
 	BaseWidget(parent),
 	m_echoMode(EchoMode_Normal),
 	m_cursorPosition(0U, 0U),
-	m_cursorGlyph(0),
 	m_multiLineEnabled(false),
 	m_readOnly(false)
 	{
@@ -110,17 +109,19 @@ namespace Ndk
 
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
-		if (m_cursorGlyph >= m_drawer.GetGlyphCount())
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+
+		if (cursorGlyph >= m_drawer.GetGlyphCount())
 		{
 			AppendText(text);
 			SetCursorPosition(m_drawer.GetGlyphCount());
 		}
 		else
 		{
-			m_text.Insert(m_text.GetCharacterPosition(m_cursorGlyph), text);
+			m_text.Insert(m_text.GetCharacterPosition(cursorGlyph), text);
 			SetText(m_text);
 
-			SetCursorPosition(m_cursorGlyph + text.GetLength());
+			SetCursorPosition(cursorGlyph + text.GetLength());
 		}
 	}
 
@@ -139,16 +140,18 @@ namespace Ndk
 		{
 			case Nz::Keyboard::Delete:
 			{
+				std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+
 				std::size_t textLength = m_text.GetLength();
-				if (m_cursorGlyph > textLength)
+				if (cursorGlyph > textLength)
 					break;
 
 				Nz::String newText;
-				if (m_cursorGlyph > 0)
-					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph) - 1));
+				if (cursorGlyph > 0)
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyph) - 1));
 
-				if (m_cursorGlyph < textLength)
-					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph + 1)));
+				if (cursorGlyph < textLength)
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyph + 1)));
 
 				SetText(newText);
 				break;
@@ -247,18 +250,19 @@ namespace Ndk
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
 
-				if (ignoreDefaultAction || m_cursorGlyph == 0)
+				std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+				if (ignoreDefaultAction || cursorGlyph == 0)
 					break;
 
 				Nz::String newText;
 
-				if (m_cursorGlyph > 1)
-					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
+				if (cursorGlyph > 1)
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyph - 1) - 1));
 
-				if (m_cursorGlyph < m_text.GetLength())
-					newText.Append(m_text.SubString(m_text.GetCharacterPosition(m_cursorGlyph)));
+				if (cursorGlyph < m_text.GetLength())
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyph)));
 
-				MoveCursor({-1, 0});
+				MoveCursor(-1);
 				SetText(newText);
 				break;
 			}
@@ -290,14 +294,15 @@ namespace Ndk
 	void TextAreaWidget::RefreshCursor()
 	{
 		const auto& lineInfo = m_drawer.GetLine(m_cursorPosition.y);
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
 
 		std::size_t glyphCount = m_drawer.GetGlyphCount();
 		float position;
-		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorGlyph)
+		if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
 		{
-			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorGlyph, glyphCount - 1));
+			const auto& glyph = m_drawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
 			position = glyph.bounds.x;
-			if (m_cursorGlyph >= glyphCount)
+			if (cursorGlyph >= glyphCount)
 				position += glyph.bounds.width;
 		}
 		else

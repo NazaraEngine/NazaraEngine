@@ -30,19 +30,25 @@ namespace Ndk
 		return m_cursorPosition;
 	}
 
-	inline const Nz::String & TextAreaWidget::GetDisplayText() const
+	inline const Nz::String& TextAreaWidget::GetDisplayText() const
 	{
 		return m_drawer.GetText();
+	}
+
+	inline std::size_t TextAreaWidget::GetGlyphIndex(const Nz::Vector2ui& cursorPosition)
+	{
+		std::size_t glyphIndex = m_drawer.GetLine(cursorPosition.y).glyphIndex + cursorPosition.x;
+		if (m_drawer.GetLineCount() > cursorPosition.y + 1)
+			glyphIndex = std::min(glyphIndex, m_drawer.GetLine(cursorPosition.y + 1).glyphIndex - 1);
+		else
+			glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
+
+		return glyphIndex;
 	}
 
 	inline EchoMode TextAreaWidget::GetEchoMode() const
 	{
 		return m_echoMode;
-	}
-
-	inline std::size_t Ndk::TextAreaWidget::GetGlyphUnderCursor() const
-	{
-		return m_cursorGlyph;
 	}
 
 	inline const Nz::String& TextAreaWidget::GetText() const
@@ -67,21 +73,22 @@ namespace Ndk
 
 	inline void TextAreaWidget::MoveCursor(int offset)
 	{
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
 		if (offset >= 0)
-			SetCursorPosition(m_cursorGlyph + static_cast<std::size_t>(offset));
+			SetCursorPosition(cursorGlyph + static_cast<std::size_t>(offset));
 		else
 		{
 			std::size_t nOffset = static_cast<std::size_t>(-offset);
-			if (nOffset >= m_cursorGlyph)
+			if (nOffset >= cursorGlyph)
 				SetCursorPosition(0);
 			else
-				SetCursorPosition(m_cursorGlyph - nOffset);
+				SetCursorPosition(cursorGlyph - nOffset);
 		}
 	}
 
 	inline void TextAreaWidget::MoveCursor(const Nz::Vector2i& offset)
 	{
-		auto BoundOffset = [] (unsigned int cursorPosition, int cursorOffset) -> unsigned int
+		auto ClampOffset = [] (unsigned int cursorPosition, int cursorOffset) -> unsigned int
 		{
 			if (cursorOffset >= 0)
 				return cursorPosition + cursorOffset;
@@ -96,8 +103,8 @@ namespace Ndk
 		};
 
 		Nz::Vector2ui cursorPosition = m_cursorPosition;
-		cursorPosition.x = BoundOffset(static_cast<unsigned int>(cursorPosition.x), offset.x);
-		cursorPosition.y = BoundOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
+		cursorPosition.x = ClampOffset(static_cast<unsigned int>(cursorPosition.x), offset.x);
+		cursorPosition.y = ClampOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
 
 		SetCursorPosition(cursorPosition);
 	}
@@ -111,13 +118,13 @@ namespace Ndk
 	{
 		OnTextAreaCursorMove(this, &glyphIndex);
 
-		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
-
+		glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
+		
 		std::size_t lineCount = m_drawer.GetLineCount();
 		std::size_t line = 0U;
 		for (std::size_t i = line + 1; i < lineCount; ++i)
 		{
-			if (m_drawer.GetLine(i).glyphIndex > m_cursorGlyph)
+			if (m_drawer.GetLine(i).glyphIndex > glyphIndex)
 				break;
 
 			line = i;
@@ -126,7 +133,7 @@ namespace Ndk
 		const auto& lineInfo = m_drawer.GetLine(line);
 
 		m_cursorPosition.y = static_cast<unsigned int>(line);
-		m_cursorPosition.x = static_cast<unsigned int>(m_cursorGlyph - lineInfo.glyphIndex);
+		m_cursorPosition.x = static_cast<unsigned int>(glyphIndex - lineInfo.glyphIndex);
 
 		RefreshCursor();
 	}
@@ -149,8 +156,6 @@ namespace Ndk
 		std::size_t glyphIndex = lineInfo.glyphIndex + cursorPosition.x;
 
 		OnTextAreaCursorMove(this, &glyphIndex);
-
-		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
 
 		RefreshCursor();
 	}
