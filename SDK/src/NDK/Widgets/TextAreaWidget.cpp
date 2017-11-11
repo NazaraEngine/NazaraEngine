@@ -234,14 +234,6 @@ namespace Ndk
 		}
 	}
 
-	void TextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
-	{
-		if (m_isMouseButtonDown)
-		{
-
-		}
-	}
-
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
 	{
 		if (m_readOnly)
