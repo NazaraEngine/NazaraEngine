@@ -177,7 +177,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				MoveCursor({-1, 0});
+				MoveCursor(-1);
 				break;
 			}
 
@@ -189,7 +189,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					break;
 
-				MoveCursor({1, 0});
+				MoveCursor(1);
 				break;
 			}
 
