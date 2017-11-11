@@ -40,6 +40,8 @@ namespace Ndk
 			inline void CenterHorizontal();
 			inline void CenterVertical();
 
+			void ClearFocus();
+
 			inline void Destroy();
 
 			void EnableBackground(bool enable);
@@ -56,13 +58,12 @@ namespace Ndk
 
 			inline bool IsVisible() const;
 
-			void GrabKeyboard();
-
 			virtual void ResizeToContent() = 0;
 
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
 			inline void SetContentSize(const Nz::Vector2f& size);
+			void SetFocus();
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
 
@@ -85,6 +86,8 @@ namespace Ndk
 			virtual void Layout();
 			void InvalidateNode() override;
 
+			virtual void OnFocusLost();
+			virtual void OnFocusReceived();
 			virtual void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();

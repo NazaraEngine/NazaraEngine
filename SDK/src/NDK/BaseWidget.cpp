@@ -47,6 +47,15 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Clears keyboard focus if and only if this widget owns it.
+	*/
+	void BaseWidget::ClearFocus()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->ClearKeyboardOwner(m_canvasIndex);
+	}
+
+	/*!
 	* \brief Destroy the widget, deleting it in the process.
 	*
 	* Calling this function immediately destroys the widget, freeing its memory.
@@ -85,11 +94,6 @@ namespace Ndk
 		}
 	}
 
-	void BaseWidget::GrabKeyboard()
-	{
-		m_canvas->SetKeyboardOwner(m_canvasIndex);
-	}
-
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
 	{
 		m_backgroundColor = color;
@@ -107,6 +111,12 @@ namespace Ndk
 
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetCursorUpdate(m_canvasIndex);
+	}
+
+	void BaseWidget::SetFocus()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->SetKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetSize(const Nz::Vector2f& size)
@@ -165,6 +175,14 @@ namespace Ndk
 
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+	}
+
+	void BaseWidget::OnFocusLost()
+	{
+	}
+
+	void BaseWidget::OnFocusReceived()
+	{
 	}
 
 	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)

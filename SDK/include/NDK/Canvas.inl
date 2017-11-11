@@ -46,6 +46,12 @@ namespace Ndk
 		return m_world;
 	}
 
+	inline void Canvas::ClearKeyboardOwner(std::size_t canvasIndex)
+	{
+		if (m_keyboardOwner == canvasIndex)
+			SetKeyboardOwner(InvalidCanvasIndex);
+	}
+
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
 		WidgetBox& entry = m_widgetBoxes[index];
@@ -67,6 +73,12 @@ namespace Ndk
 
 	inline void Canvas::SetKeyboardOwner(std::size_t canvasIndex)
 	{
+		if (m_keyboardOwner != InvalidCanvasIndex)
+			m_widgetBoxes[m_keyboardOwner].widget->OnFocusLost();
+
 		m_keyboardOwner = canvasIndex;
+
+		if (m_keyboardOwner != InvalidCanvasIndex)
+			m_widgetBoxes[m_keyboardOwner].widget->OnFocusReceived();
 	}
 }
