@@ -23,6 +23,7 @@ Nazara Development Kit:
 - Fixed minor issues relative to TextAreaWidget cursor handling
 - ⚠️ Renamed BaseWidget::GrabKeyboard method to SetFocus
 - Added BaseWidget::ClearFocus method and OnFocus[Lost|Received] virtual methods
+- TextAreaWidget will now show a cursor as long as it has focus
 
 # 0.4:
 

@@ -134,6 +134,16 @@ namespace Ndk
 		RefreshCursor();
 	}
 
+	void TextAreaWidget::OnFocusLost()
+	{
+		m_cursorEntity->Enable(false);
+	}
+
+	void TextAreaWidget::OnFocusReceived()
+	{
+		m_cursorEntity->Enable(true);
+	}
+
 	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
 	{
 		switch (key.code)
@@ -214,16 +224,11 @@ namespace Ndk
 	{
 	}
 
-	void TextAreaWidget::OnMouseEnter()
-	{
-		m_cursorEntity->Enable(true);
-	}
-
 	void TextAreaWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
 	{
 		if (button == Nz::Mouse::Left)
 		{
-			GrabKeyboard();
+			SetFocus();
 
 			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
 		}
@@ -231,11 +236,10 @@ namespace Ndk
 
 	void TextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
-	}
+		if (m_isMouseButtonDown)
+		{
 
-	void TextAreaWidget::OnMouseExit()
-	{
-		m_cursorEntity->Enable(false);
+		}
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
