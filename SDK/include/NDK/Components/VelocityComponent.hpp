@@ -19,10 +19,11 @@ namespace Ndk
 	class NDK_API VelocityComponent : public Component<VelocityComponent>, public Nz::HandledObject<VelocityComponent>
 	{
 		public:
-			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());
+			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero(), bool dampedMovement = false);
 			~VelocityComponent() = default;
 
 			Nz::Vector3f linearVelocity;
+			bool damped;
 
 			VelocityComponent& operator=(const Nz::Vector3f& vel);
 

@@ -14,10 +14,12 @@ namespace Ndk
 	* \brief Constructs a VelocityComponent object with a velocity
 	*
 	* \param velocity Linear velocity
+	* \param dampedMovement smooth movements when true
 	*/
 
-	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity) :
-	linearVelocity(velocity)
+	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity, bool dampedMovement) :
+	linearVelocity(velocity),
+	damped(dampedMovement)
 	{
 	}
 

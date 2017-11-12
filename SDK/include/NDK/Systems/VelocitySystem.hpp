@@ -7,6 +7,7 @@
 #ifndef NDK_SYSTEMS_VELOCITYSYSTEM_HPP
 #define NDK_SYSTEMS_VELOCITYSYSTEM_HPP
 
+#include <Nazara/Math/Vector3.hpp>
 #include <NDK/System.hpp>
 
 namespace Ndk
@@ -20,6 +21,7 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
+			Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& targetPos, float frametime, float springStrength = 3.f) const;
 			void OnUpdate(float elapsedTime) override;
 	};
 }
