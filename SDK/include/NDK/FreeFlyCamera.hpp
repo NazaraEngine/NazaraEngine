@@ -10,7 +10,6 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
-#include <Nazara/Utility/Node.hpp>
 #include <NDK/EntityOwner.hpp>
 
 namespace Ndk
@@ -19,10 +18,10 @@ namespace Ndk
 
 	using FreeFlyCameraHandle = Nz::ObjectHandle<FreeFlyCamera>;
 
-	class NDK_API FreeFlyCamera : public Nz::Node, public Nz::HandledObject<FreeFlyCamera>
+	class NDK_API FreeFlyCamera : public Nz::HandledObject<FreeFlyCamera>
 	{
 		public:
-			FreeFlyCamera(World& world, Nz::RenderWindow& window, float zfar = 5000.f, float znear = .1f);
+			FreeFlyCamera(EntityHandle& camera, Nz::RenderWindow& window);
 
 			inline void EnableSmoothedMovement(bool smooth = true);
 			
@@ -43,7 +42,7 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnKeyReleased, m_onKeyReleased);
 			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_onMouseMoved);
 			
-			EntityOwner m_camera;
+			EntityHandle m_camera;
 			Nz::EulerAnglesf m_angles;
 			Nz::RenderWindow& m_window;
 			Nz::Vector3f m_targetPos;

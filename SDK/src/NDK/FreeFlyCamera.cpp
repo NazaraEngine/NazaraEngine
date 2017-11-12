@@ -4,7 +4,6 @@
 
 #include <NDK/FreeFlyCamera.hpp>
 #include <NDK/Application.hpp>
-#include <NDK/Components/CameraComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/World.hpp>
 
@@ -21,32 +20,23 @@ namespace Ndk
 	*
 	* \param world World where the camera has to be created
 	* \param window Window to target with the camera
-	* \param zfar Distance between eyes and the farthest plan
-	* \param znear Distance between eyes and the nearest plan (0 is a forbidden value because division by 0 is so)
 	*/
 
-	FreeFlyCamera::FreeFlyCamera(World& world, Nz::RenderWindow& window, float zfar, float znear) :
+	FreeFlyCamera::FreeFlyCamera(EntityHandle& camera, Nz::RenderWindow& window) :
+	m_camera(camera),
 	m_angles(Nz::EulerAnglesf::Zero()),
 	m_window(window),
 	m_targetPos(Nz::Vector3f::Zero()),
 	m_sensitivity(0.3f),
 	m_speed(5.f)
 	{
+		NazaraAssert(m_camera->HasComponent<Ndk::NodeComponent>(), "Camera entity expects a NodeComponent to create FreeFlyCamera");
+		NazaraAssert(m_camera->HasComponent<Ndk::VelocityComponent>(), "Camera entity expects a VelocityComponent to create FreeFlyCamera");
+
 		Nz::EventHandler& eventHandler = m_window.GetEventHandler();
 		m_onKeyPressed.Connect(eventHandler.OnKeyPressed, this, &FreeFlyCamera::OnKeyPressed);
 		m_onKeyReleased.Connect(eventHandler.OnKeyReleased, this, &FreeFlyCamera::OnKeyReleased);
 		m_onMouseMoved.Connect(eventHandler.OnMouseMoved, this, &FreeFlyCamera::OnMouseMoved);
-
-		m_camera = world.CreateEntity();
-		m_camera->AddComponent<Ndk::NodeComponent>().SetParent(this);
-		m_camera->AddComponent<Ndk::VelocityComponent>().damped = true;
-
-		Ndk::CameraComponent& cameraComp = m_camera->AddComponent<Ndk::CameraComponent>();
-		cameraComp.SetZFar(zfar);
-		cameraComp.SetZNear(znear);
-		cameraComp.SetTarget(&m_window);
-
-		SetRotation(m_angles);
 	}
 
 	/*!
