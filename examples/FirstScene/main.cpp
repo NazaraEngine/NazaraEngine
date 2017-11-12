@@ -21,6 +21,7 @@
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Console.hpp>
+#include <NDK/FreeFlyCamera.hpp>
 #include <NDK/Systems.hpp>
 #include <NDK/LuaAPI.hpp>
 #include <NDK/Sdk.hpp>
@@ -165,25 +166,25 @@ int main()
 	spaceshipGraphics.Attach(spaceshipModel);
 
 	// Nous avons besoin également d'une caméra pour servir de point de vue à notre scène, celle-ci sera à l'écart du modèle
-	// regardant dans sa direction.
-
-	// On conserve la rotation à part via des angles d'eulers pour la caméra free-fly
-	Nz::EulerAnglesf camAngles(0.f, -20.f, 0.f);
+	// regardant dans sa direction.	
 
 	// Nous créons donc une seconde entité
 	// Note: La création d'entité est une opération légère au sein du moteur, mais plus vous aurez d'entités et plus le processeur devra travailler.
-	Ndk::EntityHandle camera = world->CreateEntity();
+	Ndk::EntityHandle cameraEntity = world->CreateEntity();
 
 	// Notre caméra a elle aussi besoin d'être positionnée dans la scène
-	Ndk::NodeComponent& cameraNode = camera->AddComponent<Ndk::NodeComponent>();
+	Ndk::NodeComponent& cameraNode = cameraEntity->AddComponent<Ndk::NodeComponent>();
 	cameraNode.SetPosition(0.f, 0.25f, 2.f); // On place la caméra à l'écart
-	cameraNode.SetRotation(camAngles);
+	cameraNode.SetRotation(Nz::EulerAnglesf(0.f, -20.f, 0.f));
+	
+	// Needed by FreeFlyCamera
+	cameraEntity->AddComponent<Ndk::VelocityComponent>().damped = true;
 
 	// Et dispose d'un composant pour chaque point de vue de la scène, le CameraComponent
-	Ndk::CameraComponent& cameraComp = camera->AddComponent<Ndk::CameraComponent>();
+	Ndk::CameraComponent& cameraComp = cameraEntity->AddComponent<Ndk::CameraComponent>();
 
 	// Ajoutons un composant écouteur, si nous venions à avoir du son
-	camera->AddComponent<Ndk::ListenerComponent>();
+	cameraEntity->AddComponent<Ndk::ListenerComponent>();
 
 	// Et on n'oublie pas de définir les plans délimitant le champs de vision
 	// (Seul ce qui se trouvera entre les deux plans sera rendu)
@@ -258,6 +259,10 @@ int main()
 	// On lie la caméra à la fenêtre
 	cameraComp.SetTarget(&window);
 
+	// Création de la FreeFlyCamera qui va controler notre entité
+	Ndk::FreeFlyCamera camera(cameraEntity, window);
+	camera.SetSpeed(10.f);
+
 	// Et on créé une horloge pour gérer le temps
 	Nz::Clock updateClock;
 	Nz::UInt64 updateAccumulator = 0;
@@ -265,8 +270,6 @@ int main()
 	// Quelques variables de plus pour notre caméra
 	bool smoothMovement = true;
 	Nz::Vector3f targetPos = cameraNode.GetPosition();
-
-	window.EnableEventPolling(true); // Déprécié
 
 	application.EnableConsole(true);
 	application.EnableFPSCounter(true);
@@ -277,165 +280,9 @@ int main()
 
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
-	{
-		// Ensuite nous allons traiter les évènements (Étape indispensable pour la fenêtre)
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
-				{
-					if (application.IsConsoleEnabled())
-					{
-						Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-						if (consoleOverlay.console->IsVisible())
-							break;
-					}
-
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
-
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
-
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					// On applique les angles d'Euler à notre caméra
-					cameraNode.SetRotation(camAngles);
-
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Vector2ui size = window.GetSize();
-					Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
-					break;
-				}
-
-				case  Nz::WindowEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
-					application.Quit();
-					break;
-
-				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
-					if (event.key.code == Nz::Keyboard::Key::Escape)
-						window.Close();
-					else if (event.key.code == Nz::Keyboard::F1)
-					{
-						if (smoothMovement)
-						{
-							targetPos = cameraNode.GetPosition();
-							smoothMovement = false;
-						}
-						else
-							smoothMovement = true;
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		Nz::UInt64 elapsedUS = updateClock.GetMicroseconds();
-		// On relance l'horloge
-		updateClock.Restart();
-
-		// Mise à jour (Caméra)
-		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
-		updateAccumulator += elapsedUS;
-
-		if (updateAccumulator >= updateRate)
-		{
-			// Le temps écoulé en seconde depuis la dernière fois que ce bloc a été exécuté
-			float elapsedTime = updateAccumulator / 1000000.f;
-
-			// Vitesse de déplacement de la caméra
-			float cameraSpeed = 3.f * elapsedTime; // Trois mètres par seconde
-
-			bool move = true;
-
-			if (application.IsConsoleEnabled())
-			{
-				Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-				if (consoleOverlay.console->IsVisible())
-					move = false;
-			}
-
-			if (move)
-			{
-				// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
-					cameraSpeed *= 2.f;
-
-				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
-				// les directions locales de la caméra
-
-				// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
-					targetPos += cameraNode.GetForward() * cameraSpeed;
-
-				// Si la flèche du bas ou la touche S est pressée, on recule
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
-					targetPos += cameraNode.GetBackward() * cameraSpeed;
-
-				// Etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
-					targetPos += cameraNode.GetLeft() * cameraSpeed;
-
-				// Etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
-					targetPos += cameraNode.GetRight() * cameraSpeed;
-
-				// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
-					targetPos += Nz::Vector3f::Up() * cameraSpeed;
-
-				// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
-					targetPos += Nz::Vector3f::Down() * cameraSpeed;
-			}
-
-			cameraNode.SetPosition((smoothMovement) ? DampedString(cameraNode.GetPosition(), targetPos, elapsedTime) : targetPos, Nz::CoordSys_Global);
-			updateAccumulator = 0;
-		}
-
 		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
 		window.Display();
-	}
 
 	return EXIT_SUCCESS;
-}
-
-Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& targetPos, float frametime, float springStrength)
-{
-	// Je ne suis pas l'auteur de cette fonction
-	// Je l'ai reprise du programme "Floaty Camera Example" et adaptée au C++
-	// Trouvé ici: http://nccastaff.bournemouth.ac.uk/jmacey/RobTheBloke/www/opengl_programming.html#4
-	// Tout le mérite revient à l'auteur (Qui me permettra ainsi d'améliorer les démos, voire même le moteur)
-
-	// calculate the displacement between the target and the current position
-	Nz::Vector3f displacement = targetPos - currentPos;
-
-	// whats the distance between them?
-	float displacementLength = displacement.GetLength();
-
-	// Stops small position fluctuations (integration errors probably - since only using euler)
-	if (Nz::NumberEquals(displacementLength, 0.f))
-		return currentPos;
-
-	float invDisplacementLength = 1.f / displacementLength;
-
-	const float dampConstant = 0.000065f; // Something v.small to offset 1/ displacement length
-
-	// the strength of the spring increases the further away the camera is from the target.
-	float springMagitude = springStrength*displacementLength + dampConstant*invDisplacementLength;
-
-	// Normalise the displacement and scale by the spring magnitude
-	// and the amount of time passed
-	float scalar = std::min(invDisplacementLength * springMagitude * frametime, 1.f);
-	displacement *= scalar;
-
-	// move the camera a bit towards the target
-	return currentPos + displacement;
 }
