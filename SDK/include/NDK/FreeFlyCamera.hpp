@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_FREEFLYCAMERA_HPP
 #define NDK_FREEFLYCAMERA_HPP
 
@@ -55,3 +56,4 @@ namespace Ndk
 #include <NDK/FreeFlyCamera.inl>
 
 #endif  // NDK_FREEFLYCAMERA_HPP
+#endif // NDK_SERVER
