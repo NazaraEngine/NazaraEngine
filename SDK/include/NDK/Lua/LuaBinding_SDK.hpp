@@ -29,6 +29,7 @@ namespace Ndk
 			Nz::LuaClass<EntityHandle> entity;
 			Nz::LuaClass<NodeComponentHandle> nodeComponent;
 			Nz::LuaClass<VelocityComponentHandle> velocityComponent;
+			Nz::LuaClass<PhysicsComponent2DHandle> physics2DComponent;
 			Nz::LuaClass<WorldHandle> world;
 
 			#ifndef NDK_SERVER
