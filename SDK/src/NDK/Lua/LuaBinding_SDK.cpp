@@ -138,6 +138,12 @@ namespace Ndk
 			});
 		}
 
+		/*********************************** Ndk::PhysicsComponent2D **********************************/
+		nodeComponent.Reset("PhysicsComponent2d");
+		{
+			nodeComponent.BindMethod("IsValidHandle", &PhysicsComponentHandle::IsValid);
+		}
+
 		/*********************************** Ndk::VelocityComponent **********************************/
 		velocityComponent.Reset("VelocityComponent");
 		{
