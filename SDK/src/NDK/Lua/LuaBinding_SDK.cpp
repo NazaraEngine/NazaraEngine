@@ -139,9 +139,9 @@ namespace Ndk
 		}
 
 		/*********************************** Ndk::PhysicsComponent2D **********************************/
-		nodeComponent.Reset("PhysicsComponent2d");
+		physicsComponent2D.Reset("PhysicsComponent2d");
 		{
-			nodeComponent.BindMethod("IsValidHandle", &PhysicsComponentHandle::IsValid);
+			physicsComponent2D.BindMethod("IsValidHandle", &PhysicsComponent2DHandle::IsValid);
 		}
 
 		/*********************************** Ndk::VelocityComponent **********************************/
@@ -281,6 +281,7 @@ namespace Ndk
 		// Components functions
 		m_binding.BindComponent<NodeComponent>("Node");
 		m_binding.BindComponent<VelocityComponent>("Velocity");
+		m_binding.BindComponent<PhysicsComponent2D>("Physics2D");
 
 		#ifndef NDK_SERVER
 		m_binding.BindComponent<CameraComponent>("Camera");
@@ -301,6 +302,7 @@ namespace Ndk
 		nodeComponent.Register(state);
 		velocityComponent.Register(state);
 		world.Register(state);
+		physicsComponent2D.Register(state);
 
 		#ifndef NDK_SERVER
 		cameraComponent.Register(state);
