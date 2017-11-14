@@ -50,7 +50,38 @@ namespace Ndk
 
 		m_object->AddForce(force, point, coordSys);
 	}
-
+	
+	/*!
+	* \brief Applies a impulse to the entity
+	*
+	* \param impulse Impulse to apply on the entity
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	
+	inline void PhysicsComponent2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys_Global)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		
+		m_object->AddImpulse(impulse, coordSys);
+	}
+	
+	/*!
+	* \brief Applies a impulse to the entity
+	*
+	* \param impulse Impulse to apply on the entity
+	* \param point Point where the impulse is applied
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	
+	inline void PhysicsComponent2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		
+		m_object->AddImpulse(impulse, point, coordSys);
+	}
+	
 	/*!
 	* \brief Applies a torque to the entity
 	*
