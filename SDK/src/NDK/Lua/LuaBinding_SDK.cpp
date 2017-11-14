@@ -143,6 +143,24 @@ namespace Ndk
 		{
 			physicsComponent2D.BindMethod("IsValidHandle", &PhysicsComponent2DHandle::IsValid);
 			
+			physicsComponent2D.BindMethod("GetAABB", &PhysicsComponent2D::GetAABB);
+			physicsComponent2D.BindMethod("GetAngularVelocity", &PhysicsComponent2D::GetAngularVelocity);
+			physicsComponent2D.BindMethod("GetCenterOfGravity", &PhysicsComponent2D::GetCenterOfGravity);
+			physicsComponent2D.BindMethod("GetMass", &PhysicsComponent2D::GetMass);
+			physicsComponent2D.BindMethod("GetPosition", &PhysicsComponent2D::GetPosition);
+			physicsComponent2D.BindMethod("GetRotation", &PhysicsComponent2D::GetRotation);
+			physicsComponent2D.BindMethod("GetVelocity", &PhysicsComponent2D::GetVelocity);
+			
+			
+			physicsComponent2D.BindMethod("IsSleeping", &PhysicsComponent2D::IsSleeping);
+			
+			physicsComponent2D.BindMethod("SetAngularVelocity", &PhysicsComponent2D::SetAngularVelocity);
+			physicsComponent2D.BindMethod("SetMass", &PhysicsComponent2D::SetMass);
+			physicsComponent2D.BindMethod("SetMassCenter", &PhysicsComponent2D::SetMassCenter);
+			physicsComponent2D.BindMethod("SetPosition", &PhysicsComponent2D::SetPosition);
+			physicsComponent2D.BindMethod("SetRotation", &PhysicsComponent2D::SetRotation);
+			physicsComponent2D.BindMethod("SetVelocity", &PhysicsComponent2D::SetVelocity);
+			
 			physicsComponent2D.BindMethod("AddTorque", &PhysicsComponent2D::AddTorque);
 			
 			physicsComponent2D.BindMethod("AddForce", [] (Nz::LuaState& lua, Nz::PhysicsComponent2DHandle& instance, std::size_t /*argumentCount*/) -> int
