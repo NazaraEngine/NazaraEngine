@@ -139,9 +139,33 @@ namespace Ndk
 		}
 
 		/*********************************** Ndk::PhysicsComponent2D **********************************/
-		physicsComponent2D.Reset("PhysicsComponent2d");
+		physicsComponent2D.Reset("PhysicsComponent2D");
 		{
 			physicsComponent2D.BindMethod("IsValidHandle", &PhysicsComponent2DHandle::IsValid);
+			
+			physicsComponent2D.BindMethod("AddTorque", &PhysicsComponent2D::AddTorque);
+			
+			physicsComponent2D.BindMethod("AddForce", [] (Nz::LuaState& lua, Nz::PhysicsComponent2DHandle& instance, std::size_t /*argumentCount*/) -> int
+			{
+				int argIndex = 2;
+
+				Nz::Vector2f offset = lua.Check<Nz::Vector2f>(&argIndex);
+				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+				instance.AddForce(offset, coordSys);
+
+				return 0;
+			});
+			
+			physicsComponent2D.BindMethod("AddImpulse", [] (Nz::LuaState& lua, Nz::PhysicsComponent2DHandle& instance, std::size_t /*argumentCount*/) -> int
+			{
+				int argIndex = 2;
+
+				Nz::Vector2f offset = lua.Check<Nz::Vector2f>(&argIndex);
+				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
+				instance.AddImpulse(offset, coordSys);
+
+				return 0;
+			});
 		}
 
 		/*********************************** Ndk::VelocityComponent **********************************/
