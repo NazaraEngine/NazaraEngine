@@ -64,6 +64,18 @@ namespace Ndk
 		SetPosition(GetPosition(Nz::CoordSys_Local).x, (parentSize.y - mySize.y) / 2.f);
 	}
 
+	/*!
+	* \brief Destroy the widget, deleting it in the process.
+	*
+	* Calling this function immediately destroys the widget, freeing its memory.
+	*/
+	inline void BaseWidget::Destroy()
+	{
+		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
+
+		m_widgetParent->DestroyChild(this); //< This does delete us
+	}
+
 	inline const Nz::Color& BaseWidget::GetBackgroundColor() const
 	{
 		return m_backgroundColor;
