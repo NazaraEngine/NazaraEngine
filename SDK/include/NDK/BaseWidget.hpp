@@ -42,7 +42,7 @@ namespace Ndk
 
 			void ClearFocus();
 
-			inline void Destroy();
+			void Destroy();
 
 			void EnableBackground(bool enable);
 

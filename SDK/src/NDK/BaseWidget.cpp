@@ -56,6 +56,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Destroy the widget, deleting it in the process.
+	*
+	* Calling this function immediately destroys the widget, freeing its memory.
+	*/
+	void BaseWidget::Destroy()
+	{
+		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
+
+		m_widgetParent->DestroyChild(this); //< This does delete us
+	}
+
+	/*!
 	* \brief Enable or disables the widget background.
 	*/
 	void BaseWidget::EnableBackground(bool enable)
