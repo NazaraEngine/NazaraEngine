@@ -27,6 +27,7 @@ TOOL.FilesExcluded = {
 	"../SDK/**/CameraComponent.*",
 	"../SDK/**/Canvas.*",
 	"../SDK/**/Console.*",
+	"../SDK/**/FreeFlyCamera.*",
 	"../SDK/**/GraphicsComponent.*",
 	"../SDK/**/LightComponent.*",
 	"../SDK/**/ListenerComponent.*",
