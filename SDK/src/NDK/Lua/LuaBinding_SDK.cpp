@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
+// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
@@ -135,54 +135,6 @@ namespace Ndk
 			nodeComponent.Inherit<Nz::Node>(utility.node, [] (NodeComponentHandle* handle) -> Nz::Node*
 			{
 				return handle->GetObject();
-			});
-		}
-
-		/*********************************** Ndk::PhysicsComponent2D **********************************/
-		physicsComponent2D.Reset("PhysicsComponent2D");
-		{
-			physicsComponent2D.BindMethod("IsValidHandle", &PhysicsComponent2DHandle::IsValid);
-			
-			physicsComponent2D.BindMethod("GetAABB", &PhysicsComponent2D::GetAABB);
-			physicsComponent2D.BindMethod("GetAngularVelocity", &PhysicsComponent2D::GetAngularVelocity);
-			physicsComponent2D.BindMethod("GetCenterOfGravity", &PhysicsComponent2D::GetCenterOfGravity);
-			physicsComponent2D.BindMethod("GetMass", &PhysicsComponent2D::GetMass);
-			physicsComponent2D.BindMethod("GetPosition", &PhysicsComponent2D::GetPosition);
-			physicsComponent2D.BindMethod("GetRotation", &PhysicsComponent2D::GetRotation);
-			physicsComponent2D.BindMethod("GetVelocity", &PhysicsComponent2D::GetVelocity);
-			
-			
-			physicsComponent2D.BindMethod("IsSleeping", &PhysicsComponent2D::IsSleeping);
-			
-			physicsComponent2D.BindMethod("SetAngularVelocity", &PhysicsComponent2D::SetAngularVelocity);
-			physicsComponent2D.BindMethod("SetMass", &PhysicsComponent2D::SetMass);
-			physicsComponent2D.BindMethod("SetMassCenter", &PhysicsComponent2D::SetMassCenter);
-			physicsComponent2D.BindMethod("SetPosition", &PhysicsComponent2D::SetPosition);
-			physicsComponent2D.BindMethod("SetRotation", &PhysicsComponent2D::SetRotation);
-			physicsComponent2D.BindMethod("SetVelocity", &PhysicsComponent2D::SetVelocity);
-			
-			physicsComponent2D.BindMethod("AddTorque", &PhysicsComponent2D::AddTorque);
-			
-			physicsComponent2D.BindMethod("AddForce", [] (Nz::LuaState& lua, Nz::PhysicsComponent2DHandle& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-
-				Nz::Vector2f offset = lua.Check<Nz::Vector2f>(&argIndex);
-				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				instance.AddForce(offset, coordSys);
-
-				return 0;
-			});
-			
-			physicsComponent2D.BindMethod("AddImpulse", [] (Nz::LuaState& lua, Nz::PhysicsComponent2DHandle& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-
-				Nz::Vector2f offset = lua.Check<Nz::Vector2f>(&argIndex);
-				Nz::CoordSys coordSys = lua.Check<Nz::CoordSys>(&argIndex, Nz::CoordSys_Local);
-				instance.AddImpulse(offset, coordSys);
-
-				return 0;
 			});
 		}
 
@@ -323,7 +275,6 @@ namespace Ndk
 		// Components functions
 		m_binding.BindComponent<NodeComponent>("Node");
 		m_binding.BindComponent<VelocityComponent>("Velocity");
-		m_binding.BindComponent<PhysicsComponent2D>("Physics2D");
 
 		#ifndef NDK_SERVER
 		m_binding.BindComponent<CameraComponent>("Camera");
@@ -344,7 +295,6 @@ namespace Ndk
 		nodeComponent.Register(state);
 		velocityComponent.Register(state);
 		world.Register(state);
-		physicsComponent2D.Register(state);
 
 		#ifndef NDK_SERVER
 		cameraComponent.Register(state);
