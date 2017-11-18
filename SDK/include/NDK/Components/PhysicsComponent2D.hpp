@@ -12,12 +12,7 @@
 #include <memory>
 
 namespace Ndk
-{
-	class PhysicsComponent2D;
-	
-	using PhysicsComponent2DHandle = ObjectHandle<PhysicsComponent2D>;
-	
-	class NDK_API PhysicsComponent2D : public Component<PhysicsComponent2D>, public HandledObject<PhysicsComponent2D>
+	class NDK_API PhysicsComponent2D : public Component<PhysicsComponent2D>
 	{
 		friend class CollisionComponent2D;
 		friend class PhysicsSystem2D;
