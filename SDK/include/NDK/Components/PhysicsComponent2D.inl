@@ -59,7 +59,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 	
-	inline void PhysicsComponent2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys_Global)
+	inline void PhysicsComponent2D::AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 		
@@ -75,7 +75,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 	
-	inline void PhysicsComponent2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global)
+	inline void PhysicsComponent2D::AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 		
