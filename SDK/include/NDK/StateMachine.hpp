@@ -24,15 +24,13 @@ namespace Ndk
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
-			inline const std::shared_ptr<State>& GetCurrentState() const;
-
 			inline bool IsTopState(const State* state) const;
 
-			inline std::shared_ptr<State> PopState();
-			inline bool PopStatesUntil(std::shared_ptr<State> state);
+			inline void PopState();
+			inline void PopStatesUntil(std::shared_ptr<State> state);
 			inline void PushState(std::shared_ptr<State> state);
 
-			inline void SetState(std::shared_ptr<State> state);
+			inline void ResetState(std::shared_ptr<State> state);
 
 			inline bool Update(float elapsedTime);
 
@@ -40,7 +38,21 @@ namespace Ndk
 			StateMachine& operator=(const StateMachine&) = delete;
 
 		private:
+			enum class TransitionType
+			{
+				Pop,
+				PopUntil,
+				Push,
+			};
+
+			struct StateTransition
+			{
+				TransitionType type;
+				std::shared_ptr<State> state;
+			};
+
 			std::vector<std::shared_ptr<State>> m_states;
+			std::vector<StateTransition> m_transitions;
 	};
 }
 
