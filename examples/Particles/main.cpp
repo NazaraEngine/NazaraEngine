@@ -126,7 +126,7 @@ int main()
 					switch (event.key.code)
 					{
 						case Nz::Keyboard::Backspace:
-							stateMachine.ChangeState(stateMachine.GetCurrentState());
+							stateMachine.ChangeState(shared.demos[demoIndex]);
 							break;
 
 						case Nz::Keyboard::Escape:
