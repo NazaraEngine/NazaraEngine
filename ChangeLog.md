@@ -25,6 +25,7 @@ Nazara Development Kit:
 - Added BaseWidget::ClearFocus method and OnFocus[Lost|Received] virtual methods
 - TextAreaWidget will now show a cursor as long as it has focus
 - Fix BaseWidget linking error on Linux
+- ⚠️ Rewrite StateMachine to fix instantaneous state changing (state change is no longer effective until the next update call)
 
 # 0.4:
 
