@@ -44,7 +44,7 @@ namespace Nz
 			void Detach(AttachmentPoint attachmentPoint, UInt8 index);
 
 			RenderTargetParameters GetParameters() const override;
-			Vector2ui GetSize() const;
+			Vector2ui GetSize() const override;
 
 			bool IsComplete() const;
 			bool IsRenderable() const override;
