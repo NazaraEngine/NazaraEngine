@@ -421,7 +421,6 @@ namespace Nz
 
 	/*!
 	* \brief Resizes the string
-	* \return A reference to this
 	*
 	* \param newSize Target size
 	*/
@@ -433,7 +432,6 @@ namespace Nz
 
 	/*!
 	* \brief Resizes the string
-	* \return A reference to this
 	*
 	* \param newSize Target size
 	* \param byte Byte to add if newSize is greather than actual size

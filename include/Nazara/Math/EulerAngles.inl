@@ -77,7 +77,6 @@ namespace Nz
 
 	/*!
 	* \brief Makes the euler angle (0, 0, 0)
-	* \return A reference to this euler angle with components (0, 0, 0)
 	*
 	* \see Zero
 	*/
@@ -276,7 +275,7 @@ namespace Nz
 	* \brief Substracts the components of other euler angle to this euler angle
 	* \return A reference to this euler angle where components are the difference of this euler angle and the other one
 	*
-	* \param angle The other euler angle to substract components with
+	* \param angles The other euler angle to substract components with
 	*/
 
 	template<typename T>

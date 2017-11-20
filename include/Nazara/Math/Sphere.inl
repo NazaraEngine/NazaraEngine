@@ -500,7 +500,7 @@ namespace Nz
 	* \brief Multiplies the radius of the sphere with a scalar
 	* \return A sphere where the center is the same and radius is the product of this radius and the scalar
 	*
-	* \param scale The scalar to multiply radius with
+	* \param scalar The scalar to multiply radius with
 	*/
 
 	template<typename T>
@@ -513,7 +513,7 @@ namespace Nz
 	* \brief Multiplies the radius of other sphere with a scalar
 	* \return A reference to this sphere where the center is the same and radius is the product of this radius and the scalar
 	*
-	* \param scale The scalar to multiply radius with
+	* \param scalar The scalar to multiply radius with
 	*/
 
 	template<typename T>

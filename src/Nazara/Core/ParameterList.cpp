@@ -718,7 +718,6 @@ namespace Nz
 	* \brief Create an uninitialized value of a set name
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
 	*
 	* \remark The previous value if any gets destroyed
 	*/
