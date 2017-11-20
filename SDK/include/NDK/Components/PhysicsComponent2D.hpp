@@ -11,7 +11,7 @@
 #include <NDK/Component.hpp>
 #include <memory>
 
-namespace Ndk
+namespace Ndk {
 	class NDK_API PhysicsComponent2D : public Component<PhysicsComponent2D>
 	{
 		friend class CollisionComponent2D;
@@ -24,8 +24,8 @@ namespace Ndk
 			
 			void AddForce(const Nz::Vector2f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys_Global);
-			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddTorque(float torque);
 
 			Nz::Rectf GetAABB() const;
