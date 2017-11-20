@@ -99,6 +99,94 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			}
 		}
 	}
+
+	GIVEN("Three entities, a character, a wall and a trigger zone")
+	{
+		unsigned int CHARACTER_COLLISION_ID = 1;
+		unsigned int WALL_COLLISION_ID = 2;
+		unsigned int TRIGGER_COLLISION_ID = 3;
+
+		Nz::PhysWorld2D world;
+
+		Nz::Rectf characterAABB(0.f, 0.f, 1.f, 1.f);
+		Nz::Collider2DRef characterBox = Nz::BoxCollider2D::New(characterAABB);
+		characterBox->SetCollisionId(CHARACTER_COLLISION_ID);
+		Nz::RigidBody2D character(&world, 1.f, characterBox);
+		character.SetPosition(Nz::Vector2f::Zero());
+
+		Nz::Rectf wallAABB(0.f, 0.f, 1.f, 2.f);
+		Nz::Collider2DRef wallBox = Nz::BoxCollider2D::New(wallAABB);
+		wallBox->SetCollisionId(WALL_COLLISION_ID);
+		Nz::RigidBody2D wall(&world, 0.f, wallBox);
+		wall.SetPosition(Nz::Vector2f(5.f, 0.f));
+
+		Nz::Rectf triggerAABB(0.f, 0.f, 1.f, 1.f);
+		Nz::Collider2DRef triggerBox = Nz::BoxCollider2D::New(triggerAABB);
+		triggerBox->SetTrigger(true);
+		triggerBox->SetCollisionId(TRIGGER_COLLISION_ID);
+		Nz::RigidBody2D trigger(&world, 0.f, triggerBox);
+		trigger.SetPosition(Nz::Vector2f(2.f, 0.f));
+
+		world.Step(0.f);
+
+		int statusTriggerCollision = 0;
+		Nz::PhysWorld2D::Callback characterTriggerCallback;
+		characterTriggerCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+			statusTriggerCollision = statusTriggerCollision | 1 << 0;
+			return true;
+		};
+		characterTriggerCallback.preSolveCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+			statusTriggerCollision = statusTriggerCollision | 1 << 1;
+			return true;
+		};
+		characterTriggerCallback.postSolveCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+			statusTriggerCollision = statusTriggerCollision | 1 << 2;
+		};
+		characterTriggerCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+			statusTriggerCollision = statusTriggerCollision | 1 << 3;
+		};
+		world.RegisterCallbacks(CHARACTER_COLLISION_ID, TRIGGER_COLLISION_ID, characterTriggerCallback);
+
+		int statusWallCollision = 0;
+		Nz::PhysWorld2D::Callback characterWallCallback;
+		characterWallCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+			statusWallCollision = statusWallCollision | 1 << 0;
+			return true;
+		};
+		characterWallCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+			statusWallCollision = statusWallCollision | 1 << 1;
+		};
+		world.RegisterCallbacks(CHARACTER_COLLISION_ID, WALL_COLLISION_ID, characterWallCallback);
+
+		WHEN("We make our character go towards the wall")
+		{
+			character.SetVelocity(Nz::Vector2f(1.f, 0.f));
+			for (int i = 0; i != 11; ++i)
+				world.Step(0.1f);
+
+			THEN("It should trigger several collisions")
+			{
+				CHECK(statusTriggerCollision == 3);
+				for (int i = 0; i != 20; ++i)
+					world.Step(0.1f);
+				CHECK(statusTriggerCollision == 11);
+
+				CHECK(character.GetPosition().x == Approx(3.1f).epsilon(0.01f));
+
+				for (int i = 0; i != 9; ++i)
+					world.Step(0.1f);
+				CHECK(character.GetPosition().x == Approx(4.f).epsilon(0.01f));
+				world.Step(0.1f);
+				CHECK(character.GetPosition().x == Approx(4.f).epsilon(0.01f));
+				CHECK(statusWallCollision == 1); // It should be close to the wall
+
+				character.SetVelocity(Nz::Vector2f(-2.f, 0.f));
+				for (int i = 0; i != 10; ++i)
+					world.Step(0.1f);
+				CHECK(statusWallCollision == 3);
+			}
+		}
+	}
 }
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world, const Nz::Vector2f& position, bool isMoving, const Nz::Vector2f& lengths)
