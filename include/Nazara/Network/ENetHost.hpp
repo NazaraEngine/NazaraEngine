@@ -19,6 +19,7 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
@@ -94,6 +95,8 @@ namespace Nz
 			void SendUnreliableOutgoingCommands(ENetPeer* peer);
 
 			void ThrottleBandwidth();
+
+			inline void UpdateServiceTime();
 
 			static std::size_t GetCommandSize(UInt8 commandNumber);
 			static bool Initialize();

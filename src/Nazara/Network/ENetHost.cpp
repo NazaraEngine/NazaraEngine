@@ -13,7 +13,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/ENetHost.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
@@ -199,7 +198,7 @@ namespace Nz
 
 	void ENetHost::Flush()
 	{
-		m_serviceTime = GetElapsedMilliseconds();
+		UpdateServiceTime();
 
 		SendOutgoingCommands(nullptr, false);
 	}
@@ -216,7 +215,8 @@ namespace Nz
 				return 1;
 		}
 
-		m_serviceTime = GetElapsedMilliseconds();
+		UpdateServiceTime();
+
 		timeout += m_serviceTime;
 
 		do
@@ -279,7 +279,7 @@ namespace Nz
 
 			for (;;)
 			{
-				m_serviceTime = GetElapsedMilliseconds();
+				UpdateServiceTime();
 
 				if (ENetTimeGreaterEqual(m_serviceTime, timeout))
 					return 0;
@@ -288,7 +288,7 @@ namespace Nz
 					break;
 			}
 
-			m_serviceTime = GetElapsedMilliseconds();
+			UpdateServiceTime();
 		}
 		while (m_poller.IsReadyToRead(m_socket));
 
