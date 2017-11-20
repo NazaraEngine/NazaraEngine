@@ -11,7 +11,8 @@
 #include <NDK/Component.hpp>
 #include <memory>
 
-namespace Ndk {
+namespace Ndk
+{
 	class NDK_API PhysicsComponent2D : public Component<PhysicsComponent2D>
 	{
 		friend class CollisionComponent2D;
