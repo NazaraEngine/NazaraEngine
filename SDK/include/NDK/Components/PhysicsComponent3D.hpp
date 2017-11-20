@@ -25,8 +25,6 @@ namespace Ndk
 
 			void AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddImpulse(const Nz::Vector3f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddImpulse(const Nz::Vector3f& impulse, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 
 			void EnableAutoSleep(bool autoSleep);
