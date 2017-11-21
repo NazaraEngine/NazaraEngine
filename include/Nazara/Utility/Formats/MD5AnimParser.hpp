@@ -69,12 +69,12 @@ namespace Nz
 			std::vector<Frame> m_frames;
 			std::vector<Joint> m_joints;
 			Stream& m_stream;
+			StreamOptionFlags m_streamFlags;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_frameIndex;
 			unsigned int m_frameRate;
 			unsigned int m_lineCount;
-			unsigned int m_streamFlags;
 	};
 }
 

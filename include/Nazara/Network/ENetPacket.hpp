@@ -22,8 +22,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<ENetPacketFlag>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max = ENetPacketFlag_UnreliableFragment;
+		static constexpr ENetPacketFlag max = ENetPacketFlag_UnreliableFragment;
 	};
 
 	using ENetPacketFlags = Flags<ENetPacketFlag>;

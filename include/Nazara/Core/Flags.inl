@@ -222,7 +222,7 @@ namespace Nz
 		* Returns a Flags object with all state enabled except for the enum one.
 		*/
 		template<typename E>
-		constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator~(E lhs)
+		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator~(E lhs)
 		{
 			return ~Flags<E>(lhs);
 		}
@@ -237,7 +237,7 @@ namespace Nz
 		* Returns a Flags object with combined states from the two enumeration values.
 		*/
 		template<typename E>
-		constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator|(E lhs, E rhs)
+		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator|(E lhs, E rhs)
 		{
 			return Flags<E>(lhs) | rhs;
 		}
@@ -253,7 +253,7 @@ namespace Nz
 		* In this case, only one flag will be enabled if both enumeration values are the same.
 		*/
 		template<typename E>
-		constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator&(E lhs, E rhs)
+		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator&(E lhs, E rhs)
 		{
 			return Flags<E>(lhs) & rhs;
 		}
@@ -269,7 +269,7 @@ namespace Nz
 		* In this case, two flags will be enabled if both the enumeration values are different.
 		*/
 		template<typename E>
-		constexpr std::enable_if_t<EnumAsFlags<E>::value, Flags<E>> operator^(E lhs, E rhs)
+		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator^(E lhs, E rhs)
 		{
 			return Flags<E>(lhs) ^ rhs;
 		}

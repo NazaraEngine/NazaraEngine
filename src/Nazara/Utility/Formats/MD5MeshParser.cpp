@@ -13,10 +13,10 @@ namespace Nz
 {
 	MD5MeshParser::MD5MeshParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_lineCount(0),
-	m_meshIndex(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_meshIndex(0)
 	{
 		m_stream.EnableTextMode(true);
 	}

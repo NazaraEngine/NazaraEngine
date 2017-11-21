@@ -75,11 +75,11 @@ namespace Nz
 			std::vector<Joint> m_joints;
 			std::vector<Mesh> m_meshes;
 			Stream& m_stream;
+			StreamOptionFlags m_streamFlags;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 			unsigned int m_meshIndex;
-			unsigned int m_streamFlags;
 	};
 }
 
