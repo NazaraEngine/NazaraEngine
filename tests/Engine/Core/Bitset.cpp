@@ -8,6 +8,7 @@
 template<typename Block> void Check(const char* title);
 template<typename Block> void CheckAppend(const char* title);
 template<typename Block> void CheckBitOps(const char* title);
+template<typename Block> void CheckBitOpsMultipleBlocks(const char* title);
 template<typename Block> void CheckConstructor(const char* title);
 template<typename Block> void CheckCopyMoveSwap(const char* title);
 template<typename Block> void CheckRead(const char* title);
@@ -28,6 +29,7 @@ void Check(const char* title)
 	CheckCopyMoveSwap<Block>(title);
 
 	CheckBitOps<Block>(title);
+	CheckBitOpsMultipleBlocks<Block>(title);
 
 	CheckAppend<Block>(title);
 	CheckRead<Block>(title);
@@ -111,7 +113,68 @@ void CheckBitOps(const char* title)
 				{
 					CHECK(andBitset == Nz::Bitset<Block>("00001"));
 					CHECK(orBitset  == Nz::Bitset<Block>("11111"));
+					CHECK(orBitset.TestAll());
 					CHECK(xorBitset == Nz::Bitset<Block>("11110"));
+					CHECK(!xorBitset.TestAll());
+					CHECK((~orBitset).TestNone());
+				}
+			}
+
+			WHEN("We perform bit shifts")
+			{
+				first.ShiftLeft(1);
+				second.ShiftRight(2);
+
+				THEN("We should obtain these")
+				{
+					CHECK(first == Nz::Bitset<Block>("10010"));
+					CHECK(second == Nz::Bitset<Block>("101"));
+				}
+			}
+		}
+	}
+}
+
+template<typename Block>
+void CheckBitOpsMultipleBlocks(const char* title)
+{
+	SECTION(title)
+	{
+		GIVEN("Two bitsets")
+		{
+			Nz::Bitset<Block> first("01001011010010101001010011010101001");
+			Nz::Bitset<Block> second("10111111101101110110111101101110110");
+
+			WHEN("We perform operators")
+			{
+				Nz::Bitset<Block> andBitset = first & second;
+				Nz::Bitset<Block> orBitset = first | second;
+				Nz::Bitset<Block> xorBitset = first ^ second;
+
+				THEN("They should operate as logical operators")
+				{
+					CHECK(andBitset == Nz::Bitset<Block>("00001011000000100000010001000100000"));
+					CHECK(orBitset  == Nz::Bitset<Block>("11111111111111111111111111111111111"));
+					CHECK(orBitset.TestAll());
+					CHECK(xorBitset == Nz::Bitset<Block>("11110100111111011111101110111011111"));
+					CHECK(!xorBitset.TestAll());
+					CHECK((~orBitset).TestNone());
+				}
+			}
+
+			WHEN("We perform bit shifts")
+			{
+				first.ShiftLeft(16);
+				second.ShiftRight(16);
+
+				THEN("We should obtain these")
+				{
+					CHECK(first == Nz::Bitset<Block>("10010100110101010010000000000000000"));
+					first.ShiftLeft(1);
+					CHECK(first == Nz::Bitset<Block>("00101001101010100100000000000000000"));
+					CHECK(second == Nz::Bitset<Block>("1011111110110111011"));
+					second.ShiftRight(1);
+					CHECK(second == Nz::Bitset<Block>("101111111011011101"));
 				}
 			}
 		}

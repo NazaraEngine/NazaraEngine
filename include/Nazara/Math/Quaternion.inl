@@ -251,35 +251,19 @@ namespace Nz
 	* \param from Initial vector
 	* \param to Target vector
 	*
+	* \remark Vectors are not required to be normalized
+	*
 	* \see RotationBetween
 	*/
 
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to)
 	{
-		// TODO (Gawaboumga): Replace by http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors ?
-
-		T dot = from.DotProduct(to);
-		if (NumberEquals(dot, F(-1.0)))
-		{
-			Vector3<T> cross = Vector3<T>::CrossProduct(Vector3<T>::UnitX(), from);
-			if (NumberEquals(cross.GetLength(), F(0.0)))
-				cross = Vector3<T>::CrossProduct(Vector3<T>::UnitY(), from);
-
-			return Set(F(180.0), cross);
-		}
-		else if (NumberEquals(dot, F(1.0)))
-			return MakeIdentity();
-		else
-		{
-			Vector3<T> a = from.CrossProduct(to);
-			x = a.x;
-			y = a.y;
-			z = a.z;
-			w = T(1.0) + dot;
-
-			return Normalize();
-		}
+		// Based on: http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
+		T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
+		Vector3<T> crossProduct = from.CrossProduct(to);
+		Set(norm + from.DotProduct(to), crossProduct.x, crossProduct.y, crossProduct.z);
+		return Normalize();
 	}
 
 	/*!
@@ -425,7 +409,7 @@ namespace Nz
 	* \brief Sets the components of the quaternion from another quaternion
 	* \return A reference to this quaternion
 	*
-	* \param vec The other quaternion
+	* \param quat The other quaternion
 	*/
 
 	template<typename T>
@@ -647,7 +631,7 @@ namespace Nz
 	* \brief Compares the quaternion to other one
 	* \return true if the quaternions are the same
 	*
-	* \param vec Other quaternion to compare with
+	* \param quat Other quaternion to compare with
 	*/
 
 	template<typename T>
@@ -663,7 +647,7 @@ namespace Nz
 	* \brief Compares the quaternion to other one
 	* \return false if the quaternions are the same
 	*
-	* \param vec Other quaternion to compare with
+	* \param quat Other quaternion to compare with
 	*/
 
 	template<typename T>

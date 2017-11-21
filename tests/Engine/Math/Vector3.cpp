@@ -1,6 +1,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Catch/catch.hpp>
 
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
 SCENARIO("Vector3", "[MATH][VECTOR3]")
@@ -94,6 +95,26 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 				Nz::Vector3f zero = Nz::Vector3f::Zero();
 				Nz::Vector3f unit = Nz::Vector3f::Unit();
 				REQUIRE(Nz::Vector3f::Lerp(zero, unit, 0.5f) == (Nz::Vector3f::Unit() * 0.5f));
+			}
+		}
+	}
+
+	GIVEN("Two vectors")
+	{
+		Nz::Vector2f unit = Nz::Vector2f::Unit();
+		Nz::Vector3f smaller(-1.f, unit);
+
+		float data[3] = { 1.f, unit.x, unit.y };
+		Nz::Vector3f bigger(data);
+
+		WHEN("We combine divisions and multiplications")
+		{
+			Nz::Vector3f result = smaller / bigger;
+			result *= bigger;
+
+			THEN("We should get the identity")
+			{
+				REQUIRE(result == smaller);
 			}
 		}
 	}

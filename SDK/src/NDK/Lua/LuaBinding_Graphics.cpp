@@ -355,9 +355,9 @@ namespace Ndk
 						{
 							std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
 							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
-							Nz::MaterialRef material(lua.Check<Nz::MaterialRef>(&argIndex));
+							Nz::MaterialRef materialRef(lua.Check<Nz::MaterialRef>(&argIndex));
 
-							instance->SetMaterial(skinIndex, subMesh, std::move(material));
+							instance->SetMaterial(skinIndex, subMesh, std::move(materialRef));
 							return 0;
 						}
 
