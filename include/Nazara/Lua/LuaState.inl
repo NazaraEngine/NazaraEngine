@@ -202,7 +202,7 @@ namespace Nz
 	template<typename E>
 	int LuaImplReplyVal(const LuaState& instance, Flags<E> val, TypeTag<Flags<E>>)
 	{
-		instance.PushInteger(Flags<E>::BitField(val));
+		instance.PushInteger(typename Flags<E>::BitField(val));
 		return 1;
 	}
 
