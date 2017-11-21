@@ -664,9 +664,9 @@ namespace Nz
 	template<typename T>
 	Vector3<T> Matrix4<T>::GetSquaredScale() const
 	{
-		return Vector3<T>(m11*m11 + m21*m21 + m31*m31,
-		                  m12*m12 + m22*m22 + m32*m32,
-		                  m13*m13 + m23*m23 + m33*m33);
+		return Vector3<T>(m11 * m11 + m12 * m12 + m13 * m13,
+		                  m21 * m21 + m22 * m22 + m23 * m23,
+		                  m31 * m31 + m32 * m32 + m33 * m33);
 	}
 
 	/*!
@@ -1153,36 +1153,32 @@ namespace Nz
 	*
 	* \param rotation Quaternion representing a rotation of space
 	*
-	* \remark 3rd column and row are unchanged
+	* \remark 3rd column and row are unchanged. Scale is removed.
 	*/
 
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::SetRotation(const Quaternion<T>& rotation)
 	{
-		T tx  = rotation.x + rotation.x;
-		T ty  = rotation.y + rotation.y;
-		T tz  = rotation.z + rotation.z;
-		T twx = tx * rotation.w;
-		T twy = ty * rotation.w;
-		T twz = tz * rotation.w;
-		T txx = tx * rotation.x;
-		T txy = ty * rotation.x;
-		T txz = tz * rotation.x;
-		T tyy = ty * rotation.y;
-		T tyz = tz * rotation.y;
-		T tzz = tz * rotation.z;
+		T qw = rotation.w;
+		T qx = rotation.x;
+		T qy = rotation.y;
+		T qz = rotation.z;
 
-		m11 = F(1.0) - (tyy + tzz);
-		m12 = txy + twz;
-		m13 = txz - twy;
+		T qx2 = qx * qx;
+		T qy2 = qy * qy;
+		T qz2 = qz * qz;
 
-		m21 = txy - twz;
-		m22 = F(1.0) - (txx + tzz);
-		m23 = tyz + twx;
+		m11 = F(1.0) - F(2.0) * qy2 - F(2.0) * qz2;
+		m21 = F(2.0) * qx * qy - F(2.0) * qz * qw;
+		m31 = F(2.0) * qx * qz + F(2.0) * qy * qw;
 
-		m31 = txz + twy;
-		m32 = tyz - twx;
-		m33 = F(1.0) - (txx + tyy);
+		m12 = F(2.0) * qx * qy + F(2.0) * qz * qw;
+		m22 = F(1.0) - F(2.0) * qx2 - F(2.0) * qz2;
+		m32 = F(2.0) * qy * qz - F(2.0) * qx * qw;
+
+		m13 = F(2.0) * qx * qz - F(2.0) * qy * qw;
+		m23 = F(2.0) * qy * qz + F(2.0) * qx * qw;
+		m33 = F(1.0) - F(2.0) * qx2 - F(2.0) * qy2;
 
 		return *this;
 	}

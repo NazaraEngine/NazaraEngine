@@ -815,7 +815,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_blocks.size(); ++i)
 		{
 			Block mask = (i == m_blocks.size() - 1) ? lastBlockMask : fullBitMask;
-			if (m_blocks[i] == mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
+			if (m_blocks[i] != mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
 				return false;
 		}
 

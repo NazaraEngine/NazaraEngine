@@ -121,7 +121,7 @@ namespace std
 				const char* ptr = str.GetConstBuffer();
 
 				do
-					h = ((h << 5) + h) + *ptr;
+					h = ((h << 5) + h) + static_cast<size_t>(*ptr);
 				while (*++ptr);
 			}
 

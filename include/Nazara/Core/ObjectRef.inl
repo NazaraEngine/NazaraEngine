@@ -484,16 +484,17 @@ namespace Nz
 
 namespace std
 {
-	/*!
-	* \ingroup core
-	* \brief Gives a hash representation of the object, specialisation of std
-	* \return Hash of the ObjectRef
-	*
-	* \param object Object to hash
-	*/
 	template<typename T>
 	struct hash<Nz::ObjectRef<T>>
 	{
+		/*!
+		* \ingroup core
+		* \brief Gives a hash representation of the object, specialisation of std
+		* \return Hash of the ObjectRef
+		*
+		* \param object Object to hash
+		*/
+
 		size_t operator()(const Nz::ObjectRef<T>& object) const
 		{
 			hash<T*> h;
