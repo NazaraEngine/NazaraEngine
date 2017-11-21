@@ -26,14 +26,14 @@ namespace Nz
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->circleCallback)
 				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), float(angle), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
-		};
+		}
 
 		void DrawDot(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->dotCallback)
 				drawOptions->dotCallback(Vector2f(float(pos.x), float(pos.y)), float(size), CpDebugColorToColor(color), drawOptions->userdata);
-		};
+		}
 
 		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
 
@@ -50,21 +50,21 @@ namespace Nz
 
 				drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 			}
-		};
+		}
 
 		void DrawSegment(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->segmentCallback)
 				drawOptions->segmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), CpDebugColorToColor(color), drawOptions->userdata);
-		};
+		}
 
 		void DrawThickSegment(cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->thickSegmentCallback)
 				drawOptions->thickSegmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
-		};
+		}
 
 		cpSpaceDebugColor GetColorForShape(cpShape* shape, cpDataPointer userdata)
 		{
@@ -76,7 +76,7 @@ namespace Nz
 			}
 			else
 				return cpSpaceDebugColor{255.f, 0.f, 0.f, 255.f};
-		};
+		}
 	}
 
 	PhysWorld2D::PhysWorld2D() :

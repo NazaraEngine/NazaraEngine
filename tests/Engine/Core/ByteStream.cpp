@@ -1,12 +1,14 @@
 #include <Nazara/Core/ByteStream.hpp>
 #include <Catch/catch.hpp>
 
+#include <array>
+
 SCENARIO("ByteStream", "[CORE][BYTESTREAM]")
 {
 	GIVEN("A bytestream from a bunch of bytes")
 	{
 		const int numberOfBytes = 16;
-		std::array<Nz::Int8, numberOfBytes> data{};
+		std::array<Nz::Int8, numberOfBytes> data;
 
 		Nz::ByteStream byteStream(data.data(), numberOfBytes);
 

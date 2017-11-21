@@ -94,7 +94,7 @@ namespace Nz
 	* \return Raw memory allocated
 	*
 	* \param size Size to allocate
-	* \parma multi Array or not
+	* \param multi Array or not
 	* \param file File of the allocation
 	* \param line Line of the allocation in the file
 	*/
