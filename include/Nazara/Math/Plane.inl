@@ -106,9 +106,9 @@ namespace Nz
 	* \brief Returns the distance from the plane to the point
 	* \return Distance to the point
 	*
-	* \param X X position of the point
-	* \param Y Y position of the point
-	* \param Z Z position of the point
+	* \param x X position of the point
+	* \param y Y position of the point
+	* \param z Z position of the point
 	*
 	* \remark If T is negative, it means that the point is in the opposite direction of the normal
 	*
@@ -319,7 +319,7 @@ namespace Nz
 	* \brief Compares the plane to other one
 	* \return true if the planes are the same
 	*
-	* \param vec Other vector to compare with
+	* \param plane Other vector to compare with
 	*
 	* \remark Plane with normal N and distance D is the same than with normal -N et distance -D
 	*/

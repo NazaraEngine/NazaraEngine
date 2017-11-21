@@ -42,7 +42,7 @@ namespace Nz
 	{
 		String path = libraryPath;
 
-		unsigned int pos = path.FindLast(".so");
+		size_t pos = path.FindLast(".so");
 		if (pos == String::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
 			path += ".so";
 

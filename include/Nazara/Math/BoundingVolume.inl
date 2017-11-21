@@ -541,7 +541,7 @@ namespace Nz
 						return Infinite();
 
 					case Extend_Null:
-						return from.obb * interpolation;
+						return to.obb * interpolation;
 				}
 
 				// If we arrive here, the extend is invalid

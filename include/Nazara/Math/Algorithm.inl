@@ -552,11 +552,11 @@ namespace Nz
 		#endif
 		const T twoLimit = limit * T(2);
 
-		angle = std::fmod(angle + limit, twoLimit);
+		angle = std::fmod(angle, twoLimit);
 		if (angle < T(0))
 			angle += twoLimit;
 
-		return angle - limit;
+		return angle;
 	}
 
 	/*!

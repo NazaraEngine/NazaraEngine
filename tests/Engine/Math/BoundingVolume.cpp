@@ -114,5 +114,52 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, centerAndUnit, 0.5f) == result);
 			}
 		}
+
+		WHEN("We lerp with special cases")
+		{
+			Nz::OrientedBoxf centerAndUnitOBB(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
+			centerAndUnitOBB.Update(Nz::Matrix4f::Identity());
+
+			Nz::BoundingVolumef centerAndUnit(centerAndUnitOBB);
+
+			Nz::BoundingVolumef nullBoundingVolume(Nz::Extend_Null);
+			Nz::BoundingVolumef infiniteBoundingVolume(Nz::Extend_Infinite);
+
+			THEN("Normal to null should give a smaller volume")
+			{
+				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				result.Update(Nz::Matrix4f::Identity());
+
+				REQUIRE(Nz::BoundingVolumef::Lerp(centerAndUnit, nullBoundingVolume, 0.5f) == result);
+			}
+
+			THEN("Normal to infinite should give an infinite volume")
+			{
+				REQUIRE(Nz::BoundingVolumef::Lerp(centerAndUnit, infiniteBoundingVolume, 0.5f) == infiniteBoundingVolume);
+			}
+
+			THEN("Null to normal should give a small volume")
+			{
+				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				result.Update(Nz::Matrix4f::Identity());
+
+				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, centerAndUnit, 0.5f) == result);
+			}
+
+			THEN("Infinite to normal should give an infinite volume")
+			{
+				REQUIRE(Nz::BoundingVolumef::Lerp(infiniteBoundingVolume, centerAndUnit, 0.5f) == infiniteBoundingVolume);
+			}
+
+			THEN("Infinite to null should give an infinite volume")
+			{
+				REQUIRE(Nz::BoundingVolumef::Lerp(infiniteBoundingVolume, nullBoundingVolume, 0.5f) == infiniteBoundingVolume);
+			}
+
+			THEN("Null to null should give a null volume")
+			{
+				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, nullBoundingVolume, 0.5f) == nullBoundingVolume);
+			}
+		}
 	}
 }
