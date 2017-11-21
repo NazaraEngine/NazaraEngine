@@ -8,8 +8,8 @@
 namespace Ndk
 {
 	inline Canvas::Canvas(WorldHandle world, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController) :
-	m_hoveredWidget(InvalidCanvasIndex),
 	m_keyboardOwner(InvalidCanvasIndex),
+	m_hoveredWidget(InvalidCanvasIndex),
 	m_cursorController(cursorController),
 	m_world(std::move(world))
 	{

@@ -41,7 +41,7 @@ namespace Nz
 			void SetStream(void* ptr, Nz::UInt64 size);
 			void SetStream(const void* ptr, Nz::UInt64 size);
 
-			inline void Write(const void* data, std::size_t size);
+			inline std::size_t Write(const void* data, std::size_t size);
 
 			template<typename T>
 			ByteStream& operator>>(T& value);

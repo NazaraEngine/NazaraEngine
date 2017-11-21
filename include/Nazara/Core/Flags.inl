@@ -29,7 +29,7 @@ namespace Nz
 	/*!
 	* \brief Constructs a Flags object using an Enum value
 	*
-	* \param value enumVal
+	* \param enumVal enumVal
 	*
 	* Setup a Flags object with only one flag active (corresponding to the enum value passed as argument).
 	*/

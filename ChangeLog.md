@@ -10,6 +10,13 @@ Nazara Engine:
 - Fix reflection sometimes being enabled by default for Materials
 - Fix built-in unserialization of std::string which was corruption memory
 - Fix Buffer::Destroy() not really destroying buffer
+- Fix Bitset::TestAll() returned wrong result on full of '1' bitset
+- ByteStream now returns the number of bytes written as the other streams
+- Total rewriting of the color conversions
+- Fix NormalizeAngle to the correct range
+- Fix BoundingVolume::Lerp() with Extend_Null
+- Simplification of methods Matrix4::SetRotation() and Quaternion::MakeRotationBetween()
+- Fix mouve moved event generated on X11 platform when doing Mouse::SetPosition()
 - ⚠️ Reworked Flags class, replaced EnumAsFlags<E>::value by IsEnumFlag<E>::value, EnumAsFlags<E> no longer need to contains a `value` field. The `max` field can also be of the same type as the enum.
 
 Nazara Development Kit:

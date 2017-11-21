@@ -219,35 +219,29 @@ namespace Nz
 	* \brief Converts HSL representation to RGB
 	* \return Color resulting
 	*
-	* \param hue Hue component
-	* \param saturation Saturation component
-	* \param lightness Lightness component
+	* \param hue Hue component in [0, 360]
+	* \param saturation Saturation component [0, 1]
+	* \param lightness Lightness component [0, 1]
 	*/
 
-	inline Color Color::FromHSL(UInt8 hue, UInt8 saturation, UInt8 lightness)
+	inline Color Color::FromHSL(float hue, float saturation, float lightness)
 	{
-		if (saturation == 0)
+		if (NumberEquals(saturation, 0.f))
 		{
 			// RGB results from 0 to 255
-			return Color(lightness * 255,
-			             lightness * 255,
-			             lightness * 255);
+			return Color(static_cast<UInt8>(lightness * 255.f));
 		}
 		else
 		{
-			// Norme Windows
-			float l = lightness/240.f;
-			float h = hue/240.f;
-			float s = saturation/240.f;
-
 			float v2;
-			if (l < 0.5f)
-				v2 = l * (1.f + s);
+			if (lightness < 0.5f)
+				v2 = lightness * (1.f + saturation);
 			else
-				v2 = (l + s) - (s*l);
+				v2 = (lightness + saturation) - (saturation * lightness);
 
-			float v1 = 2.f * l - v2;
+			float v1 = 2.f * lightness - v2;
 
+			float h = hue / 360.f;
 			return Color(static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h + (1.f/3.f))),
 			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h)),
 			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
@@ -258,9 +252,9 @@ namespace Nz
 	* \brief Converts HSV representation to RGB
 	* \return Color resulting
 	*
-	* \param hue Hue component
-	* \param saturation Saturation component
-	* \param value Value component
+	* \param hue Hue component in [0, 360]
+	* \param saturation Saturation component in [0, 1]
+	* \param value Value component in [0, 1]
 	*/
 
 	inline Color Color::FromHSV(float hue, float saturation, float value)
@@ -269,16 +263,15 @@ namespace Nz
 			return Color(static_cast<UInt8>(value * 255.f));
 		else
 		{
-			float h = hue/360.f * 6.f;
-			float s = saturation/360.f;
+			float h = (hue / 360.f) * 6.f;
 
-			if (NumberEquals(h, 6.f))
-				h = 0; // hue must be < 1
+			if (NumberEquals(h , 6.f))
+				h = 0.f; // hue must be < 1
 
-			int i = static_cast<unsigned int>(h);
-			float v1 = value * (1.f - s);
-			float v2 = value * (1.f - s * (h - i));
-			float v3 = value * (1.f - s * (1.f - (h - i)));
+			int i = static_cast<int>(h);
+			float v1 = value * (1.f - saturation);
+			float v2 = value * (1.f - saturation * (h - i));
+			float v3 = value * (1.f - saturation * (1.f - (h - i)));
 
 			float r, g, b;
 			switch (i)
@@ -321,7 +314,7 @@ namespace Nz
 			}
 
 			// RGB results from 0 to 255
-			return Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
+			return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
 		}
 	}
 
@@ -338,7 +331,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Converts XYZ representation to RGB
+	* \brief Converts XYZ representation (D65/2°) to RGB
 	* \return Color resulting
 	*
 	* \param x X component
@@ -362,12 +355,12 @@ namespace Nz
 			r *= 12.92f;
 
 		if (g > 0.0031308f)
-			g = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
+			g = 1.055f * (std::pow(g, 1.f/2.4f)) - 0.055f;
 		else
 			g *= 12.92f;
 
 		if (b > 0.0031308f)
-			b = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
+			b = 1.055f * (std::pow(b, 1.f/2.4f)) - 0.055f;
 		else
 			b *= 12.92f;
 
@@ -427,12 +420,12 @@ namespace Nz
 	* \brief Converts RGB representation to HSL
 	*
 	* \param color Color to transform
-	* \param hue Hue component
-	* \param saturation Saturation component
-	* \param lightness Lightness component
+	* \param hue Hue component [0, 360]
+	* \param saturation Saturation component in [0, 1]
+	* \param lightness Lightness component in [0, 1]
 	*/
 
-	inline void Color::ToHSL(const Color& color, UInt8* hue, UInt8* saturation, UInt8* lightness)
+	inline void Color::ToHSL(const Color& color, float* hue, float* saturation, float* lightness)
 	{
 		float r = color.r / 255.f;
 		float g = color.g / 255.f;
@@ -443,42 +436,41 @@ namespace Nz
 
 		float deltaMax = max - min; //Delta RGB value
 
-		float l = (max + min)/2.f;
+		float l = (max + min) / 2.f;
+		*lightness = l;
 
 		if (NumberEquals(deltaMax, 0.f))
 		{
 			//This is a gray, no chroma...
-			*hue = 0; //HSL results from 0 to 1
-			*saturation = 0;
+			*hue = 0.f;
+			*saturation = 0.f;
 		}
 		else
 		{
-			//Chromatic data...
-			if (l < 0.5f)
-				*saturation = static_cast<UInt8>(deltaMax/(max+min)*240.f);
+			if (l <= 0.5f)
+				*saturation = deltaMax / (max + min);
 			else
-				*saturation = static_cast<UInt8>(deltaMax/(2.f-max-min)*240.f);
+				*saturation = (deltaMax / (2.f - max - min));
 
-			*lightness = static_cast<UInt8>(l*240.f);
-
-			float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
-			float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
-			float deltaB = ((max - b)/6.f + deltaMax/2.f)/deltaMax;
+			float deltaR = ((max - r) / 6.f + deltaMax / 2.f) / deltaMax;
+			float deltaG = ((max - g) / 6.f + deltaMax / 2.f) / deltaMax;
+			float deltaB = ((max - b) / 6.f + deltaMax / 2.f) / deltaMax;
 
 			float h;
+
 			if (NumberEquals(r, max))
 				h = deltaB - deltaG;
 			else if (NumberEquals(g, max))
-				h = (1.f/3.f) + deltaR - deltaB;
+				h = (1.f / 3.f) + deltaR - deltaB;
 			else
-				h = (2.f/3.f) + deltaG - deltaR;
+				h = (2.f / 3.f) + deltaG - deltaR;
 
 			if (h < 0.f)
 				h += 1.f;
 			else if (h > 1.f)
 				h -= 1.f;
 
-			*hue = static_cast<UInt8>(h*240.f);
+			*hue = h * 360.f;
 		}
 	}
 
@@ -507,33 +499,33 @@ namespace Nz
 		if (NumberEquals(deltaMax, 0.f))
 		{
 			//This is a gray, no chroma...
-			*hue = 0; //HSV results from 0 to 1
-			*saturation = 0;
+			*hue = 0.f;
+			*saturation = 0.f;
 		}
 		else
 		{
 			//Chromatic data...
-			*saturation = deltaMax/max*360.f;
+			*saturation = deltaMax / max;
 
-			float deltaR = ((max - r)/6.f + deltaMax/2.f)/deltaMax;
-			float deltaG = ((max - g)/6.f + deltaMax/2.f)/deltaMax;
-			float deltaB = ((max - b)/6.f + deltaMax/2.f)/deltaMax;
+			float deltaR = ((max - r) / 6.f + deltaMax / 2.f) / deltaMax;
+			float deltaG = ((max - g) / 6.f + deltaMax / 2.f) / deltaMax;
+			float deltaB = ((max - b) / 6.f + deltaMax / 2.f) / deltaMax;
 
 			float h;
 
 			if (NumberEquals(r, max))
 				h = deltaB - deltaG;
 			else if (NumberEquals(g, max))
-				h = (1.f/3.f) + deltaR - deltaB;
+				h = (1.f / 3.f) + deltaR - deltaB;
 			else
-				h = (2.f/3.f) + deltaG - deltaR;
+				h = (2.f / 3.f) + deltaG - deltaR;
 
 			if (h < 0.f)
 				h += 1.f;
 			else if (h > 1.f)
 				h -= 1.f;
 
-			*hue = h*360.f;
+			*hue = h * 360.f;
 		}
 	}
 

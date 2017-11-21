@@ -58,7 +58,8 @@ namespace Nz
 	m_parent(parent),
 	m_smoothScrolling(false),
 	m_mousePos(0, 0),
-	m_keyRepeat(true)
+	m_keyRepeat(true),
+	m_lastSequence(0)
 	{
 		std::memset(&m_size_hints, 0, sizeof(m_size_hints));
 	}
@@ -1244,8 +1245,11 @@ namespace Nz
 			{
 				xcb_motion_notify_event_t* motionNotifyEvent = (xcb_motion_notify_event_t*)windowEvent;
 
-				if (m_mousePos.x == motionNotifyEvent->event_x && m_mousePos.y == motionNotifyEvent->event_y)
+				// We use the sequence to determine whether the motion is linked to a Mouse::SetPosition
+				if ((m_mousePos.x == motionNotifyEvent->event_x && m_mousePos.y == motionNotifyEvent->event_y) || m_lastSequence == motionNotifyEvent->sequence)
 					break;
+
+				m_lastSequence = motionNotifyEvent->sequence;
 
 				WindowEvent event;
 				event.type        = Nz::WindowEventType_MouseMoved;

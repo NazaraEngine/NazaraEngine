@@ -24,5 +24,21 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 				memoryPool.Delete(vector2);
 			}
 		}
+
+		WHEN("We construct three vectors")
+		{
+			Nz::Vector2<int>* vector1 = memoryPool.New<Nz::Vector2<int>>(1, 2);
+			Nz::Vector2<int>* vector2 = memoryPool.New<Nz::Vector2<int>>(3, 4);
+			Nz::Vector2<int>* vector3 = memoryPool.New<Nz::Vector2<int>>(5, 6);
+
+			THEN("Memory is available")
+			{
+				vector1->x = 3;
+				vector2->y = 5;
+				CHECK(*vector1 == Nz::Vector2<int>(3, 2));
+				CHECK(*vector2 == Nz::Vector2<int>(3, 5));
+				CHECK(vector3->GetSquaredLength() == Approx(61.f));
+			}
+		}
 	}
 }
