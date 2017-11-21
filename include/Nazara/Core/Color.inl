@@ -229,7 +229,7 @@ namespace Nz
 		if (NumberEquals(saturation, 0.f))
 		{
 			// RGB results from 0 to 255
-			return Color(lightness * 255.f);
+			return Color(static_cast<UInt8>(lightness * 255.f));
 		}
 		else
 		{
@@ -242,9 +242,9 @@ namespace Nz
 			float v1 = 2.f * lightness - v2;
 
 			float h = hue / 360.f;
-			return Color(255.f * Hue2RGB(v1, v2, h + (1.f/3.f)),
-			             255.f * Hue2RGB(v1, v2, h),
-			             255.f * Hue2RGB(v1, v2, h - (1.f/3.f)));
+			return Color(static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h + (1.f/3.f))),
+			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h)),
+			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
 		}
 	}
 
@@ -260,7 +260,7 @@ namespace Nz
 	inline Color Color::FromHSV(float hue, float saturation, float value)
 	{
 		if (NumberEquals(saturation, 0.f))
-			return Color(value * 255.f);
+			return Color(static_cast<UInt8>(value * 255.f));
 		else
 		{
 			float h = (hue / 360.f) * 6.f;
@@ -314,7 +314,7 @@ namespace Nz
 			}
 
 			// RGB results from 0 to 255
-			return Color(r * 255.f, g * 255.f, b * 255.f);
+			return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
 		}
 	}
 
@@ -364,7 +364,7 @@ namespace Nz
 		else
 			b *= 12.92f;
 
-		return Color(r * 255.f, g * 255.f, b * 255.f);
+		return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
 	}
 
 	/*!

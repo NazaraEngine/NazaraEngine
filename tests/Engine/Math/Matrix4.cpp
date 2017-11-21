@@ -1,6 +1,8 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Catch/catch.hpp>
 
+#include <array>
+
 SCENARIO("Matrix4", "[MATH][MATRIX4]")
 {
 	GIVEN("Two identity matrix")

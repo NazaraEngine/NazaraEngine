@@ -206,7 +206,7 @@ TEST_CASE("MultiplyAdd", "[MATH][ALGORITHM]")
 
 TEST_CASE("NormalizeAngle", "[MATH][ALGORITHM]")
 {
-	SECTION("-90 should be normalized to +90")
+	SECTION("-90 should be normalized to +270")
 	{
 		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90.f)) == Nz::FromDegrees(270.f));
 	}
@@ -236,7 +236,7 @@ TEST_CASE("NormalizeAngle", "[MATH][ALGORITHM]")
 		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(450.f)) == Nz::FromDegrees(90.f));
 	}
 
-	SECTION("-90 should be normalized to +90")
+	SECTION("-90 should be normalized to +270")
 	{
 		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90)) == Nz::FromDegrees(270));
 	}
