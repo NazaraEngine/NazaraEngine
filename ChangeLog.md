@@ -10,7 +10,7 @@ Nazara Engine:
 - Fix reflection sometimes being enabled by default for Materials
 - Fix built-in unserialization of std::string which was corruption memory
 - Fix Buffer::Destroy() not really destroying buffer
-
+- ⚠️ Reworked Flags class, replaced EnumAsFlags<E>::value by IsEnumFlag<E>::value, EnumAsFlags<E> no longer need to contains a `value` field. The `max` field can also be of the same type as the enum.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
