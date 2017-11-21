@@ -1257,10 +1257,11 @@ namespace Nz
 				event.mouseMove.deltaY = motionNotifyEvent->event_y - m_mousePos.y;
 				event.mouseMove.x = motionNotifyEvent->event_x;
 				event.mouseMove.y = motionNotifyEvent->event_y;
-				m_parent->PushEvent(event);
 
 				m_mousePos.x = motionNotifyEvent->event_x;
 				m_mousePos.y = motionNotifyEvent->event_y;
+
+				m_parent->PushEvent(event);
 
 				break;
 			}
