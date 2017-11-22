@@ -1034,7 +1034,16 @@ namespace Nz
 			case XCB_FOCUS_IN:
 			{
 				const uint32_t value_list[] = { eventMask };
-				xcb_change_window_attributes(connection, m_window, XCB_CW_EVENT_MASK, value_list);
+				if (!X11::CheckCookie(
+					connection,
+					xcb_change_window_attributes(
+						connection,
+						m_window,
+						XCB_CW_EVENT_MASK,
+						value_list
+					))
+				)
+					NazaraError("Failed to change event mask");
 
 				WindowEvent event;
 				event.type = Nz::WindowEventType_GainedFocus;
@@ -1051,8 +1060,17 @@ namespace Nz
 				m_parent->PushEvent(event);
 
 				const uint32_t values[] = { XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
-				xcb_change_window_attributes(connection, m_window, XCB_CW_EVENT_MASK, values);
-
+				if (!X11::CheckCookie(
+					connection,
+					xcb_change_window_attributes(
+						connection,
+						m_window,
+						XCB_CW_EVENT_MASK,
+						values
+					))
+				)
+					NazaraError("Failed to change event mask");
+				
 				break;
 			}
 
