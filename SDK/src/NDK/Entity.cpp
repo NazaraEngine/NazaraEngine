@@ -56,7 +56,7 @@ namespace Ndk
 
 	Entity::~Entity()
 	{
-		if (m_world)
+		if (m_world && m_valid)
 			Destroy();
 	}
 
