@@ -22,6 +22,7 @@ Nazara Engine:
 - Flags class now use an UInt8 or UInt16 to store the value if possible.
 - Flags class is now explicitly convertible to any integer type of the same size (or greater size) than the internal size.
 - Fix String movement constructor, which was leaving a null shared string (which was not reusable)
+- Add Flags<E>::Test method, in order to test one or multiple flags at once.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
