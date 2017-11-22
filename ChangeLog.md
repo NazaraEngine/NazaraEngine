@@ -17,7 +17,10 @@ Nazara Engine:
 - Fix BoundingVolume::Lerp() with Extend_Null
 - Simplification of methods Matrix4::SetRotation() and Quaternion::MakeRotationBetween()
 - Fix mouve moved event generated on X11 platform when doing Mouse::SetPosition()
-- ⚠️ Reworked Flags class, replaced EnumAsFlags<E>::value by IsEnumFlag<E>::value, EnumAsFlags<E> no longer need to contains a `value` field. The `max` field can also be of the same type as the enum.
+- EnumAsFlags specialization no longer require a `value` field to enable flags operators
+- EnumAsFlags specialization `max` field can be of the same type as the enum
+- Flags class now use an UInt8 or UInt16 to store the value if possible.
+- Flags class is now explicitly convertible to any integer type of the same size (or greater size) than the internal size.
 - Fix String movement constructor, which was leaving a null shared string (which was not reusable)
 
 Nazara Development Kit:
