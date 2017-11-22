@@ -18,6 +18,7 @@ Nazara Engine:
 - Simplification of methods Matrix4::SetRotation() and Quaternion::MakeRotationBetween()
 - Fix mouve moved event generated on X11 platform when doing Mouse::SetPosition()
 - ⚠️ Reworked Flags class, replaced EnumAsFlags<E>::value by IsEnumFlag<E>::value, EnumAsFlags<E> no longer need to contains a `value` field. The `max` field can also be of the same type as the enum.
+- Fix String movement constructor, which was leaving a null shared string (which was not reusable)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

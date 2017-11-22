@@ -41,7 +41,7 @@ namespace Nz
 			String(const char* string, std::size_t length);
 			String(const std::string& string);
 			String(const String& string) = default;
-			String(String&& string) noexcept = default;
+			inline String(String&& string) noexcept;
 			~String() = default;
 
 			String& Append(char character);
