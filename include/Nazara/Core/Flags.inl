@@ -52,13 +52,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Converts to a bitfield
-	* \return Enabled flags as a bitfield.
+	* \brief Converts to an integer
+	* \return Enabled flags as a integer
 	*
-	* This will convert to a bitfield value.
+	* This will only works if the integer type is large enough to store all flags states
 	*/
 	template<typename E>
-	constexpr Flags<E>::operator BitField() const
+	template<typename T, typename>
+	constexpr Flags<E>::operator T() const
 	{
 		return m_value;
 	}
