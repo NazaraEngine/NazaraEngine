@@ -7,12 +7,11 @@
 
 namespace Nz
 {
-	/*!
-	* \ingroup core
-	* \brief Constructs a String object with a shared string by move semantic
-	*
-	* \param sharedString Shared string to move into this
-	*/
+	inline Nz::String::String(String&& string) noexcept :
+	m_sharedString(std::move(string.m_sharedString))
+	{
+		string.m_sharedString = GetEmptyString();
+	}
 
 	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
 	m_sharedString(std::move(sharedString))
