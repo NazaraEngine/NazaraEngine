@@ -113,7 +113,6 @@ namespace Nz
 			bool m_threadActive;
 			Vector2i m_mousePos;
 			bool m_keyRepeat;
-			uint16_t m_lastSequence;
 
 			struct
 			{
