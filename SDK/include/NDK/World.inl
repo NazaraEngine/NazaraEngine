@@ -197,7 +197,7 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*
-	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a reference to a handle from a world update to another
+	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a handle reference from a world update to another
 	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
 	*/
 	inline const EntityHandle& World::GetEntity(EntityId id)

@@ -34,6 +34,7 @@ Nazara Development Kit:
 - TextAreaWidget will now show a cursor as long as it has focus
 - Fix BaseWidget linking error on Linux
 - ⚠️ Rewrite StateMachine to fix instantaneous state changing (state change is no longer effective until the next update call)
+- Fix entities destruction when coming from World::Clear() (also called by destructor), which invalidated world entities handles before destroying entities (preventing destruction callback to get valid entities handles from world)
 
 # 0.4:
 

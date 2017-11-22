@@ -115,10 +115,15 @@ namespace Ndk
 
 	void World::Clear() noexcept
 	{
-		// First, destruction of entities, then handles
-		// This is made to avoid that handle warn uselessly entities before their destruction
-		m_entities.clear();
+		// Destroy every valid entity first, to ensure entities are still accessible by ID while being destroyed
+		for (EntityBlock* entBlock : m_entityBlocks)
+		{
+			if (entBlock->entity.IsValid())
+				entBlock->entity.Destroy();
+		}
 		m_entityBlocks.clear();
+
+		m_entities.clear();
 		m_freeIdList.clear();
 		m_waitingEntities.clear();
 
