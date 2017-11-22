@@ -48,6 +48,8 @@ namespace Nz
 			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
 
+			constexpr bool Test(const Flags& flags) const;
+
 			explicit constexpr operator bool() const;
 			template<typename T, typename = std::enable_if_t<std::is_integral<T>::value && sizeof(T) >= sizeof(BitField)>> explicit constexpr operator T() const;
 

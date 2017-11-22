@@ -40,7 +40,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Tests a Flags
+	* \brief Tests if all flags from a Flags object are enabled
+	* \return True if all tested flags are enabled.
+	*/
+	template<typename E>
+	constexpr bool Flags<E>::Test(const Flags& flags) const
+	{
+		return (m_value & flags.m_value) == flags.m_value;
+	}
+
+	/*!
+	* \brief Tests any flag
 	* \return True if any flag is enabled.
 	*
 	* This will convert to a boolean value allowing to check if any flag is set.
