@@ -35,7 +35,9 @@ namespace Ndk
 
 		protected:
 			inline void ClearKeyboardOwner(std::size_t canvasIndex);
-			
+
+			inline bool IsKeyboardOwner(std::size_t canvasIndex) const;
+
 			inline void NotifyWidgetBoxUpdate(std::size_t index);
 			inline void NotifyWidgetCursorUpdate(std::size_t index);
 

@@ -52,6 +52,11 @@ namespace Ndk
 			SetKeyboardOwner(InvalidCanvasIndex);
 	}
 
+	inline bool Canvas::IsKeyboardOwner(std::size_t canvasIndex) const
+	{
+		return m_keyboardOwner == canvasIndex;
+	}
+
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
 		WidgetBox& entry = m_widgetBoxes[index];

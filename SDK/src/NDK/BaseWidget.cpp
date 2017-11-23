@@ -79,7 +79,7 @@ namespace Ndk
 		{
 			m_backgroundSprite = Nz::Sprite::New();
 			m_backgroundSprite->SetColor(m_backgroundColor);
-			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D"));
+			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
 			m_backgroundEntity = CreateEntity();
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
@@ -92,6 +92,18 @@ namespace Ndk
 			m_backgroundEntity->Kill();
 			m_backgroundSprite.Reset();
 		}
+	}
+
+	/*!
+	* \brief Checks if this widget has keyboard focus
+	* \return true if widget has keyboard focus, false otherwhise
+	*/
+	bool BaseWidget::HasFocus() const
+	{
+		if (!IsRegisteredToCanvas())
+			return false;
+
+		return m_canvas->IsKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
