@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
+#include <NDK/Entity.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
@@ -28,11 +29,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Disables the entity
+	*
+	* This is just a shortcut to Enable(false)
+	*/
+	inline void Entity::Disable()
+	{
+		Enable(false);
+	}
+
+	/*!
 	* \brief Enables the entity
 	*
 	* \param enable Should the entity be enabled
 	*/
-
 	inline void Entity::Enable(bool enable)
 	{
 		if (m_enabled != enable)

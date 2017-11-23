@@ -41,6 +41,7 @@ namespace Ndk
 
 			const EntityHandle& Clone() const;
 
+			inline void Disable();
 			inline void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
