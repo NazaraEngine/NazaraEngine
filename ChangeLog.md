@@ -23,6 +23,8 @@ Nazara Engine:
 - Flags class is now explicitly convertible to any integer type of the same size (or greater size) than the internal size.
 - Fix String movement constructor, which was leaving a null shared string (which was not reusable)
 - Add Flags<E>::Test method, in order to test one or multiple flags at once.
+- ⚠️ Vector2, Vector3 and Vector4 array/pointer constructor is now explicit to prevent some mistakes as `Vector2 vec2; vec2 = 0;`
+
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -39,6 +41,9 @@ Nazara Development Kit:
 - Fix BaseWidget linking error on Linux
 - ⚠️ Rewrite StateMachine to fix instantaneous state changing (state change is no longer effective until the next update call)
 - Fix entities destruction when coming from World::Clear() (also called by destructor), which invalidated world entities handles before destroying entities (preventing destruction callback to get valid entities handles from world)
+- Add Entity::Disable method, which is a shortcut to Enable(false)
+- Add BaseWidget::HasFocus
+- Fix TextAreaWidget cursor sometimes showing up in readonly mode
 
 # 0.4:
 
