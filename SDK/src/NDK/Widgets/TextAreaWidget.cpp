@@ -141,7 +141,8 @@ namespace Ndk
 
 	void TextAreaWidget::OnFocusReceived()
 	{
-		m_cursorEntity->Enable(true);
+		if (!m_readOnly)
+			m_cursorEntity->Enable(true);
 	}
 
 	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
@@ -289,6 +290,9 @@ namespace Ndk
 
 	void TextAreaWidget::RefreshCursor()
 	{
+		if (m_readOnly)
+			return;
+
 		const auto& lineInfo = m_drawer.GetLine(m_cursorPosition.y);
 		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
 
