@@ -8,7 +8,7 @@ namespace Ndk
 {
 	inline void TextAreaWidget::Clear()
 	{
-		m_cursorPosition = 0;
+		m_cursorPosition.MakeZero();
 		m_drawer.Clear();
 		m_textSprite->Update(m_drawer);
 
@@ -119,7 +119,7 @@ namespace Ndk
 		OnTextAreaCursorMove(this, &glyphIndex);
 
 		glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
-		
+
 		std::size_t lineCount = m_drawer.GetLineCount();
 		std::size_t line = 0U;
 		for (std::size_t i = line + 1; i < lineCount; ++i)
