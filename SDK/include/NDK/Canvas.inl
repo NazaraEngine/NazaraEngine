@@ -78,12 +78,15 @@ namespace Ndk
 
 	inline void Canvas::SetKeyboardOwner(std::size_t canvasIndex)
 	{
-		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_keyboardOwner].widget->OnFocusLost();
+		if (m_keyboardOwner != canvasIndex)
+		{
+			if (m_keyboardOwner != InvalidCanvasIndex)
+				m_widgetBoxes[m_keyboardOwner].widget->OnFocusLost();
 
-		m_keyboardOwner = canvasIndex;
+			m_keyboardOwner = canvasIndex;
 
-		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_keyboardOwner].widget->OnFocusReceived();
+			if (m_keyboardOwner != InvalidCanvasIndex)
+				m_widgetBoxes[m_keyboardOwner].widget->OnFocusReceived();
+		}
 	}
 }
