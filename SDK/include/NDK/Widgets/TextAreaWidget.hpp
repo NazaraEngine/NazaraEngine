@@ -73,6 +73,7 @@ namespace Ndk
 		private:
 			void Layout() override;
 
+			bool IsFocusable() const override;
 			void OnFocusLost() override;
 			void OnFocusReceived() override;
 			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;

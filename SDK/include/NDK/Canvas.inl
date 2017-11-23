@@ -59,7 +59,7 @@ namespace Ndk
 
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
-		WidgetBox& entry = m_widgetBoxes[index];
+		WidgetEntry& entry = m_widgetEntries[index];
 
 		Nz::Vector3f pos = entry.widget->GetPosition();
 		Nz::Vector2f size = entry.widget->GetContentSize();
@@ -69,7 +69,7 @@ namespace Ndk
 
 	inline void Canvas::NotifyWidgetCursorUpdate(std::size_t index)
 	{
-		WidgetBox& entry = m_widgetBoxes[index];
+		WidgetEntry& entry = m_widgetEntries[index];
 
 		entry.cursor = entry.widget->GetCursor();
 		if (m_cursorController && m_hoveredWidget == index)
@@ -81,12 +81,12 @@ namespace Ndk
 		if (m_keyboardOwner != canvasIndex)
 		{
 			if (m_keyboardOwner != InvalidCanvasIndex)
-				m_widgetBoxes[m_keyboardOwner].widget->OnFocusLost();
+				m_widgetEntries[m_keyboardOwner].widget->OnFocusLost();
 
 			m_keyboardOwner = canvasIndex;
 
 			if (m_keyboardOwner != InvalidCanvasIndex)
-				m_widgetBoxes[m_keyboardOwner].widget->OnFocusReceived();
+				m_widgetEntries[m_keyboardOwner].widget->OnFocusReceived();
 		}
 	}
 }
