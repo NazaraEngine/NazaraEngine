@@ -56,6 +56,8 @@ namespace Ndk
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
+			bool HasFocus() const;
+
 			inline bool IsVisible() const;
 
 			virtual void ResizeToContent() = 0;
