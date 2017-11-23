@@ -170,8 +170,7 @@ namespace Ndk
 	inline void TextAreaWidget::SetReadOnly(bool readOnly)
 	{
 		m_readOnly = readOnly;
-
-		m_cursorEntity->Enable(!m_readOnly);
+		m_cursorEntity->Enable(!m_readOnly && HasFocus());
 	}
 
 	inline void TextAreaWidget::SetText(const Nz::String& text)
