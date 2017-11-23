@@ -144,7 +144,57 @@ namespace Ndk
 	void Canvas::OnEventKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetEntries[m_keyboardOwner].widget->OnKeyPressed(event);
+		{
+			if (m_widgetEntries[m_keyboardOwner].widget->OnKeyPressed(event))
+				return;
+
+			if (event.code == Nz::Keyboard::Tab)
+			{
+				if (!event.shift)
+				{
+					// Forward
+					for (std::size_t i = m_keyboardOwner + 1; i < m_widgetEntries.size(); ++i)
+					{
+						if (m_widgetEntries[i].widget->IsFocusable())
+						{
+							SetKeyboardOwner(i);
+							return;
+						}
+					}
+
+					for (std::size_t i = 0; i < m_keyboardOwner; ++i)
+					{
+						if (m_widgetEntries[i].widget->IsFocusable())
+						{
+							SetKeyboardOwner(i);
+							return;
+						}
+					}
+				}
+				else
+				{
+					// Backward
+					for (decltype(m_widgetEntries)::reverse_iterator rit{ m_widgetEntries.begin() + m_keyboardOwner }; rit != m_widgetEntries.rend(); ++rit)
+					{
+						if (rit->widget->IsFocusable())
+						{
+							SetKeyboardOwner(std::distance(m_widgetEntries.begin(), rit.base()) - 1);
+							return;
+						}
+					}
+
+					decltype(m_widgetEntries)::reverse_iterator rend { m_widgetEntries.begin() + m_keyboardOwner };
+					for (auto rit = m_widgetEntries.rbegin(); rit != rend; ++rit)
+					{
+						if (rit->widget->IsFocusable())
+						{
+							SetKeyboardOwner(std::distance(m_widgetEntries.begin(), rit.base()) - 1);
+							return;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void Canvas::OnEventKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)

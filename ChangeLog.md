@@ -44,6 +44,8 @@ Nazara Development Kit:
 - Add Entity::Disable method, which is a shortcut to Enable(false)
 - Add BaseWidget::HasFocus
 - Fix TextAreaWidget cursor sometimes showing up in readonly mode
+- ⚠️ BaseWidget::OnKeyPressed now returns a boolean to indicate if it should block default action (such as tab to switch to the previous/next widget)
+- Pressing tab/shift-tab will now move to the next/previous widget able to be focused on
 
 # 0.4:
 

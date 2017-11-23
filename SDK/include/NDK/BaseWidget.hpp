@@ -88,9 +88,10 @@ namespace Ndk
 			virtual void Layout();
 			void InvalidateNode() override;
 
+			virtual bool IsFocusable() const;
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
-			virtual void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
+			virtual bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
