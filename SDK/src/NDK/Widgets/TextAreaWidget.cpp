@@ -134,9 +134,14 @@ namespace Ndk
 		RefreshCursor();
 	}
 
+	bool TextAreaWidget::IsFocusable() const
+	{
+		return !m_readOnly;
+	}
+
 	void TextAreaWidget::OnFocusLost()
 	{
-		m_cursorEntity->Enable(false);
+		m_cursorEntity->Disable();
 	}
 
 	void TextAreaWidget::OnFocusReceived()
@@ -145,7 +150,7 @@ namespace Ndk
 			m_cursorEntity->Enable(true);
 	}
 
-	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	bool TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
 	{
 		switch (key.code)
 		{
@@ -155,7 +160,7 @@ namespace Ndk
 
 				std::size_t textLength = m_text.GetLength();
 				if (cursorGlyph > textLength)
-					break;
+					return true;
 
 				Nz::String newText;
 				if (cursorGlyph > 0)
@@ -165,7 +170,7 @@ namespace Ndk
 					newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyph + 1)));
 
 				SetText(newText);
-				break;
+				return true;
 			}
 
 			case Nz::Keyboard::Down:
@@ -174,10 +179,10 @@ namespace Ndk
 				OnTextAreaKeyDown(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor({0, 1});
-				break;
+				return true;
 			}
 
 			case Nz::Keyboard::Left:
@@ -186,10 +191,10 @@ namespace Ndk
 				OnTextAreaKeyLeft(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor(-1);
-				break;
+				return true;
 			}
 
 			case Nz::Keyboard::Right:
@@ -198,10 +203,10 @@ namespace Ndk
 				OnTextAreaKeyRight(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor(1);
-				break;
+				return true;
 			}
 
 			case Nz::Keyboard::Up:
@@ -210,14 +215,14 @@ namespace Ndk
 				OnTextAreaKeyUp(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor({0, -1});
-				break;
+				return true;
 			}
 
 			default:
-				break;
+				return false;
 		}
 	}
 

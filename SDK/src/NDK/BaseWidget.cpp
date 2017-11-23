@@ -189,6 +189,11 @@ namespace Ndk
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 	}
 
+	bool BaseWidget::IsFocusable() const
+	{
+		return false;
+	}
+
 	void BaseWidget::OnFocusLost()
 	{
 	}
@@ -197,8 +202,9 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)
+	bool BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
 	{
+		return false;
 	}
 
 	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)

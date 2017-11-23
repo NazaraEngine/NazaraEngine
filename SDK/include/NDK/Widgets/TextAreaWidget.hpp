@@ -76,7 +76,7 @@ namespace Ndk
 			bool IsFocusable() const override;
 			void OnFocusLost() override;
 			void OnFocusReceived() override;
-			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
+			bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button) override;
 			void OnTextEntered(char32_t character, bool repeated) override;
