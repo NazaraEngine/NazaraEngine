@@ -8,7 +8,6 @@
 #define NAZARA_ABSTRACTLOGGER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz

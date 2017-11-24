@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/ENetHost.hpp>
 #include <utility>
 #include <Nazara/Network/Debug.hpp>
 
@@ -52,14 +51,19 @@ namespace Nz
 		m_socket.Close();
 	}
 
-	inline Nz::IpAddress ENetHost::GetBoundAddress() const
+	inline IpAddress ENetHost::GetBoundAddress() const
 	{
 		return m_address;
 	}
 
-	inline UInt32 Nz::ENetHost::GetServiceTime() const
+	inline UInt32 ENetHost::GetServiceTime() const
 	{
 		return m_serviceTime;
+	}
+
+	inline void ENetHost::SetCompressor(std::unique_ptr<ENetCompressor>&& compressor)
+	{
+		m_compressor = std::move(compressor);
 	}
 
 	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
@@ -68,6 +72,12 @@ namespace Nz
 		ref->data = std::move(data);
 
 		return ref;
+	}
+
+	inline void ENetHost::UpdateServiceTime()
+	{
+		// Compute service time as microseconds for extra precision
+		m_serviceTime = static_cast<UInt32>(GetElapsedMicroseconds() / 1000);
 	}
 }
 

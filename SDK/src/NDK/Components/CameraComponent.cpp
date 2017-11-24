@@ -334,15 +334,15 @@ namespace Ndk
 	{
 		NazaraAssert(m_target, "CameraComponent has no target");
 
-		unsigned int targetWidth = m_target->GetWidth();
-		unsigned int targetHeight = std::max(m_target->GetHeight(), 1U); // Let's make sure we won't divide by zero
+		Nz::Vector2ui targetSize = m_target->GetSize();
+		targetSize.y = std::max(targetSize.y, 1U); // Let's make sure we won't divide by zero
 
 		// Our target region is expressed as % of the viewport dimensions, let's compute it in pixels
 		Nz::Rectf fViewport(m_targetRegion);
-		fViewport.x *= targetWidth;
-		fViewport.y *= targetHeight;
-		fViewport.width *= targetWidth;
-		fViewport.height *= targetHeight;
+		fViewport.x *= targetSize.x;
+		fViewport.y *= targetSize.y;
+		fViewport.width *= targetSize.x;
+		fViewport.height *= targetSize.y;
 
 		// Compute the new aspect ratio, if it's different we need to invalidate the projection matrix
 		float aspectRatio = fViewport.width/fViewport.height;

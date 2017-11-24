@@ -10,14 +10,12 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -217,8 +215,15 @@ namespace Nz
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
 			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
 
+			s_reflectionSampler.SetFilterMode(SamplerFilter_Bilinear);
+			s_reflectionSampler.SetWrapMode(SamplerWrap_Clamp);
+
 			s_shadowSampler.SetFilterMode(SamplerFilter_Bilinear);
 			s_shadowSampler.SetWrapMode(SamplerWrap_Clamp);
+
+			std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
+			s_dummyReflection.Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
+			s_dummyReflection.Update(whitePixels.data());
 		}
 		catch (const std::exception& e)
 		{
@@ -235,6 +240,7 @@ namespace Nz
 
 	void ForwardRenderTechnique::Uninitialize()
 	{
+		s_dummyReflection.Destroy();
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
@@ -587,6 +593,10 @@ namespace Nz
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 
+		Texture* reflectionMap = sceneData.globalReflectionTexture;
+		if (!reflectionMap)
+			reflectionMap = &s_dummyReflection;
+
 		for (auto& pipelinePair : layer.opaqueModels)
 		{
 			const MaterialPipeline* pipeline = pipelinePair.first;
@@ -621,6 +631,14 @@ namespace Nz
 					if (matEntry.enabled)
 					{
 						material->Apply(pipelineInstance);
+
+						if (shaderUniforms->reflectionMap != -1)
+						{
+							unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
+
+							Renderer::SetTexture(textureUnit, reflectionMap);
+							Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
+						}
 
 						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
@@ -1035,6 +1053,7 @@ namespace Nz
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &ForwardRenderTechnique::OnShaderInvalidated);
 
 			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+			uniforms.reflectionMap = shader->GetUniformLocation("ReflectionMap");
 			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
@@ -1175,6 +1194,8 @@ namespace Nz
 	}
 
 	IndexBuffer ForwardRenderTechnique::s_quadIndexBuffer;
+	Texture ForwardRenderTechnique::s_dummyReflection;
+	TextureSampler ForwardRenderTechnique::s_reflectionSampler;
 	TextureSampler ForwardRenderTechnique::s_shadowSampler;
 	VertexBuffer ForwardRenderTechnique::s_quadVertexBuffer;
 	VertexDeclaration ForwardRenderTechnique::s_billboardInstanceDeclaration;

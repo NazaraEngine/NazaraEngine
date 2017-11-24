@@ -197,7 +197,7 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*
-	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a reference to a handle from a world update to another
+	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a handle reference from a world update to another
 	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
 	*/
 	inline const EntityHandle& World::GetEntity(EntityId id)
@@ -306,15 +306,19 @@ namespace Ndk
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
-		m_waitingEntities       = std::move(world.m_waitingEntities);
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
 			block.entity.SetWorld(this);
 
+		m_waitingEntities = std::move(world.m_waitingEntities);
+		for (auto& blockPtr : m_waitingEntities)
+			blockPtr->entity.SetWorld(this);
+
 		m_systems = std::move(world.m_systems);
 		for (const auto& systemPtr : m_systems)
-			systemPtr->SetWorld(this);
+			if (systemPtr)
+				systemPtr->SetWorld(this);
 
 		return *this;
 	}

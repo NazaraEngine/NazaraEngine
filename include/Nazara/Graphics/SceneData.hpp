@@ -13,12 +13,14 @@ namespace Nz
 {
 	class AbstractBackground;
 	class AbstractViewer;
+	class Texture;
 
 	struct SceneData
 	{
 		Color ambientColor;
 		const AbstractBackground* background;
 		const AbstractViewer* viewer;
+		Texture* globalReflectionTexture;
 	};
 }
 

@@ -77,18 +77,4 @@ namespace Nz
 		NazaraAssert(m_impl, "Cannot unlock a moved mutex");
 		m_impl->Unlock();
 	}
-
-	/*!
-	* \brief Moves a mutex to another mutex object
-	* \return A reference to the object
-	*/
-	Mutex& Mutex::operator=(Mutex&& mutex) noexcept
-	{
-		delete m_impl;
-
-		m_impl = mutex.m_impl;
-		mutex.m_impl = nullptr;
-
-		return *this;
-	}
 }

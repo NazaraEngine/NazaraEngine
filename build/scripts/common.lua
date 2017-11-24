@@ -128,7 +128,7 @@ function NazaraBuild:Execute()
 		language("C++")
 		location(_ACTION)
 
-		if (self.Config["PremakeProject"]) then
+		if (self.Config["PremakeProject"] and os.ishost("windows")) then
 			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
 			project("_PremakeProject")
 				kind("Utility")
@@ -477,10 +477,8 @@ function NazaraBuild:LoadConfig()
 	    local content = f:read("*a")
 		f:close()
 
-		local func, err = loadstring(content)
+		local func, err = load(content, "Config file", "t", self.Config)
 		if (func) then
-			setfenv(func, self.Config)
-
 			local status, err = pcall(func)
 			if (not status) then
 				print("Failed to load config.lua: " .. err)
@@ -607,7 +605,7 @@ function NazaraBuild:LoadConfig()
 end
 
 function NazaraBuild:MakeInstallCommands(infoTable)
-	if (os.is("windows")) then
+	if (os.istarget("windows")) then
 		filter("kind:SharedLib")
 
 		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
@@ -739,13 +737,13 @@ function NazaraBuild:Process(infoTable)
 				for platform, defineTable in pairs(v) do
 					platform = string.lower(platform)
 					if (platform == "posix") then
-						local osname = os.get()
+						local osname = os.target()
 						if (PosixOSes[osname]) then
 							platform = osname
 						end
 					end
 
-					if (os.is(platform)) then
+					if (os.istarget(platform)) then
 						for k,v in ipairs(defineTable) do
 							table.insert(targetTable, v)
 						end
@@ -779,13 +777,14 @@ end
 
 function NazaraBuild:PrepareGeneric()
 	flags({
-		"C++14",
 		"MultiProcessorCompile",
 		"NoMinimalRebuild",
 		"RelativeLinks",
 		"ShadowedVariables",
 		"UndefinedIdentifiers"
 	})
+	
+	cppdialect("C++14")
 
 	self:FilterLibDirectory("../extlibs/lib/", libdirs)
 

@@ -8,7 +8,7 @@ namespace Ndk
 {
 	inline void TextAreaWidget::Clear()
 	{
-		m_cursorPosition = 0;
+		m_cursorPosition.MakeZero();
 		m_drawer.Clear();
 		m_textSprite->Update(m_drawer);
 
@@ -20,24 +20,40 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline unsigned int TextAreaWidget::GetCharacterSize() const
+	{
+		return m_drawer.GetCharacterSize();
+	}
+
 	inline const Nz::Vector2ui& TextAreaWidget::GetCursorPosition() const
 	{
 		return m_cursorPosition;
 	}
 
-	inline std::size_t Ndk::TextAreaWidget::GetGlyphUnderCursor() const
+	inline const Nz::String& TextAreaWidget::GetDisplayText() const
 	{
-		return m_cursorGlyph;
+		return m_drawer.GetText();
 	}
 
-	inline std::size_t TextAreaWidget::GetLineCount() const
+	inline std::size_t TextAreaWidget::GetGlyphIndex(const Nz::Vector2ui& cursorPosition)
 	{
-		return m_drawer.GetLineCount();
+		std::size_t glyphIndex = m_drawer.GetLine(cursorPosition.y).glyphIndex + cursorPosition.x;
+		if (m_drawer.GetLineCount() > cursorPosition.y + 1)
+			glyphIndex = std::min(glyphIndex, m_drawer.GetLine(cursorPosition.y + 1).glyphIndex - 1);
+		else
+			glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
+
+		return glyphIndex;
+	}
+
+	inline EchoMode TextAreaWidget::GetEchoMode() const
+	{
+		return m_echoMode;
 	}
 
 	inline const Nz::String& TextAreaWidget::GetText() const
 	{
-		return m_drawer.GetText();
+		return m_text;
 	}
 
 	inline const Nz::Color& TextAreaWidget::GetTextColor() const
@@ -57,27 +73,28 @@ namespace Ndk
 
 	inline void TextAreaWidget::MoveCursor(int offset)
 	{
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
 		if (offset >= 0)
-			SetCursorPosition(m_cursorGlyph + static_cast<std::size_t>(offset));
+			SetCursorPosition(cursorGlyph + static_cast<std::size_t>(offset));
 		else
 		{
 			std::size_t nOffset = static_cast<std::size_t>(-offset);
-			if (nOffset >= m_cursorGlyph)
+			if (nOffset >= cursorGlyph)
 				SetCursorPosition(0);
 			else
-				SetCursorPosition(m_cursorGlyph - nOffset);
+				SetCursorPosition(cursorGlyph - nOffset);
 		}
 	}
 
 	inline void TextAreaWidget::MoveCursor(const Nz::Vector2i& offset)
 	{
-		auto BoundOffset = [] (unsigned int cursorPosition, int offset) -> unsigned int
+		auto ClampOffset = [] (unsigned int cursorPosition, int cursorOffset) -> unsigned int
 		{
-			if (offset >= 0)
-				return cursorPosition + offset;
+			if (cursorOffset >= 0)
+				return cursorPosition + cursorOffset;
 			else
 			{
-				unsigned int nOffset = static_cast<unsigned int>(-offset);
+				unsigned int nOffset = static_cast<unsigned int>(-cursorOffset);
 				if (nOffset >= cursorPosition)
 					return 0;
 				else
@@ -86,23 +103,28 @@ namespace Ndk
 		};
 
 		Nz::Vector2ui cursorPosition = m_cursorPosition;
-		cursorPosition.x = BoundOffset(static_cast<unsigned int>(cursorPosition.x), offset.x);
-		cursorPosition.y = BoundOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
+		cursorPosition.x = ClampOffset(static_cast<unsigned int>(cursorPosition.x), offset.x);
+		cursorPosition.y = ClampOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
 
 		SetCursorPosition(cursorPosition);
+	}
+
+	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
+	{
+		m_drawer.SetCharacterSize(characterSize);
 	}
 
 	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
 	{
 		OnTextAreaCursorMove(this, &glyphIndex);
 
-		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
-		
+		glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
+
 		std::size_t lineCount = m_drawer.GetLineCount();
 		std::size_t line = 0U;
 		for (std::size_t i = line + 1; i < lineCount; ++i)
 		{
-			if (m_drawer.GetLine(i).glyphIndex > m_cursorGlyph)
+			if (m_drawer.GetLine(i).glyphIndex > glyphIndex)
 				break;
 
 			line = i;
@@ -110,8 +132,8 @@ namespace Ndk
 
 		const auto& lineInfo = m_drawer.GetLine(line);
 
-		m_cursorPosition.y = line;
-		m_cursorPosition.x = m_cursorGlyph - lineInfo.glyphIndex;
+		m_cursorPosition.y = static_cast<unsigned int>(line);
+		m_cursorPosition.x = static_cast<unsigned int>(glyphIndex - lineInfo.glyphIndex);
 
 		RefreshCursor();
 	}
@@ -135,25 +157,28 @@ namespace Ndk
 
 		OnTextAreaCursorMove(this, &glyphIndex);
 
-		m_cursorGlyph = std::min(glyphIndex, m_drawer.GetGlyphCount());
-
 		RefreshCursor();
+	}
+
+	inline void TextAreaWidget::SetEchoMode(EchoMode echoMode)
+	{
+		m_echoMode = echoMode;
+
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetReadOnly(bool readOnly)
 	{
 		m_readOnly = readOnly;
-
-		m_cursorEntity->Enable(!m_readOnly);
+		m_cursorEntity->Enable(!m_readOnly && HasFocus());
 	}
 
 	inline void TextAreaWidget::SetText(const Nz::String& text)
 	{
-		m_drawer.SetText(text);
+		m_text = text;
+		OnTextChanged(this, m_text);
 
-		m_textSprite->Update(m_drawer);
-
-		SetCursorPosition(m_cursorPosition); //< Refresh cursor position (prevent it from being outside of the text)
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextColor(const Nz::Color& text)

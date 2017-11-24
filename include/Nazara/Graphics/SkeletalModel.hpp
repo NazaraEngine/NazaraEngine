@@ -12,9 +12,7 @@
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Utility/Animation.hpp>
-#include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
-#include <vector>
+#include <Nazara/Utility/Skeleton.hpp>
 
 namespace Nz
 {
@@ -60,8 +58,6 @@ namespace Nz
 			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
-
-			void Reset();
 
 			bool SetAnimation(Animation* animation);
 			void SetMesh(Mesh* mesh) override;

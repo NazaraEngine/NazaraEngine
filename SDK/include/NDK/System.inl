@@ -29,22 +29,6 @@ namespace Ndk
 	System<SystemType>::~System() = default;
 
 	/*!
-	* \brief Clones the system
-	* \return The clone newly created
-	*
-	* \remark The system to clone should be trivially copy constructible
-	*/
-
-	template<typename SystemType>
-	std::unique_ptr<BaseSystem> System<SystemType>::Clone() const
-	{
-		///FIXME: Not fully supported in GCC (4.9.2)
-		//static_assert(std::is_trivially_copy_constructible<SystemType>::value, "SystemType should be copy-constructible");
-
-		return std::make_unique<SystemType>(static_cast<const SystemType&>(*this));
-	}
-
-	/*!
 	* \brief Registers the system by assigning it an index
 	*/
 

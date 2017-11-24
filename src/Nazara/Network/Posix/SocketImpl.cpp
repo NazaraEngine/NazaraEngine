@@ -4,8 +4,8 @@
 
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
@@ -566,8 +566,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(iovec));
-		struct iovec* sysBuffers = static_cast<struct iovec*>(memory.GetPtr());
+		StackArray<iovec> sysBuffers = NazaraStackAllocation(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			sysBuffers[i].iov_base = buffers[i].data;
@@ -577,7 +576,7 @@ namespace Nz
 		struct msghdr msgHdr;
 		std::memset(&msgHdr, 0, sizeof(msgHdr));
 
-		msgHdr.msg_iov = sysBuffers;
+		msgHdr.msg_iov = sysBuffers.data();
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
@@ -689,8 +688,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(iovec));
-		struct iovec* sysBuffers = static_cast<struct iovec*>(memory.GetPtr());
+		StackArray<iovec> sysBuffers = NazaraStackAllocation(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			sysBuffers[i].iov_base = buffers[i].data;
@@ -703,7 +701,7 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		msgHdr.msg_namelen = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 		msgHdr.msg_name = nameBuffer.data();
-		msgHdr.msg_iov = sysBuffers;
+		msgHdr.msg_iov = sysBuffers.data();
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
 		int byteSent = sendmsg(handle, &msgHdr, MSG_NOSIGNAL);

@@ -9,8 +9,8 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/CursorController.hpp>
-#include <Nazara/Utility/EventHandler.hpp>
+#include <Nazara/Platform/CursorController.hpp>
+#include <Nazara/Platform/EventHandler.hpp>
 
 namespace Ndk
 {
@@ -34,12 +34,16 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
+			inline void ClearKeyboardOwner(std::size_t canvasIndex);
+
+			inline bool IsKeyboardOwner(std::size_t canvasIndex) const;
+
 			inline void NotifyWidgetBoxUpdate(std::size_t index);
 			inline void NotifyWidgetCursorUpdate(std::size_t index);
 
 			std::size_t RegisterWidget(BaseWidget* widget);
 
-			inline void SetKeyboardOwner(BaseWidget* widget);
+			inline void SetKeyboardOwner(std::size_t canvasIndex);
 
 			void UnregisterWidget(std::size_t index);
 
@@ -52,7 +56,7 @@ namespace Ndk
 			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
 
-			struct WidgetBox
+			struct WidgetEntry
 			{
 				BaseWidget* widget;
 				Nz::Boxf box;
@@ -67,10 +71,10 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
 			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
 
-			std::vector<WidgetBox> m_widgetBoxes;
+			std::size_t m_keyboardOwner;
+			std::size_t m_hoveredWidget;
+			std::vector<WidgetEntry> m_widgetEntries;
 			Nz::CursorControllerHandle m_cursorController;
-			const WidgetBox* m_hoveredWidget;
-			BaseWidget* m_keyboardOwner;
 			WorldHandle m_world;
 	};
 }

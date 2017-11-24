@@ -3,7 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
+#include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

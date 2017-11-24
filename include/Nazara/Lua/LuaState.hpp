@@ -8,8 +8,6 @@
 #define NAZARA_LUASTATE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -25,6 +23,7 @@ namespace Nz
 	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
+	class Stream;
 
 	using LuaCFunction = int (*)(lua_State* internalState);
 	using LuaFunction = std::function<int(LuaState& state)>;
@@ -33,7 +32,7 @@ namespace Nz
 	{
 		public:
 			LuaState(const LuaState&) = default;
-			LuaState(LuaState&& instance) noexcept;
+			inline LuaState(LuaState&& instance) noexcept;
 			~LuaState() = default;
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -174,7 +173,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaState& operator=(const LuaState&) = default;
-			LuaState& operator=(LuaState&& instance) noexcept;
+			inline LuaState& operator=(LuaState&& instance) noexcept;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance& GetInstance(lua_State* internalState);

@@ -4,6 +4,9 @@
 
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
+#include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <NDK/Components/CameraComponent.hpp>
@@ -36,7 +39,7 @@ namespace Ndk
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateOrder(100); //< Render last, after every movement is done
-		SetUpdateRate(0.f);  //< We don't want any rate limit
+		SetMaximumUpdateRate(0.f);  //< We don't want any rate limit
 	}
 
 	/*!
@@ -98,15 +101,19 @@ namespace Ndk
 		{
 			m_drawables.Insert(entity);
 
+			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 			if (justAdded)
-			{
-				GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 				gfxComponent.AddToCullingList(&m_drawableCulling);
-			}
+
+			if (gfxComponent.DoesRequireRealTimeReflections())
+				m_realtimeReflected.Insert(entity);
+			else
+				m_realtimeReflected.Remove(entity);
 		}
 		else
 		{
 			m_drawables.Remove(entity);
+			m_realtimeReflected.Remove(entity);
 
 			if (entity->HasComponent<GraphicsComponent>())
 			{
@@ -176,6 +183,7 @@ namespace Ndk
 			m_coordinateSystemInvalidated = false;
 		}
 
+		UpdateDynamicReflections();
 		UpdatePointSpotShadowMaps();
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
@@ -231,7 +239,11 @@ namespace Ndk
 			Nz::SceneData sceneData;
 			sceneData.ambientColor = Nz::Color(25, 25, 25);
 			sceneData.background = m_background;
+			sceneData.globalReflectionTexture = nullptr;
 			sceneData.viewer = &camComponent;
+
+			if (m_background && m_background->GetBackgroundType() == Nz::BackgroundType_Skybox)
+				sceneData.globalReflectionTexture = static_cast<Nz::SkyboxBackground*>(m_background.Get())->GetTexture();
 
 			m_renderTechnique->Clear(sceneData);
 			m_renderTechnique->Draw(sceneData);
@@ -243,6 +255,19 @@ namespace Ndk
 	*
 	* \param viewer Viewer of the scene
 	*/
+
+	void RenderSystem::UpdateDynamicReflections()
+	{
+		Nz::SceneData dummySceneData;
+		dummySceneData.ambientColor = Nz::Color(0, 0, 0);
+		dummySceneData.background = nullptr;
+		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
+
+		for (const Ndk::EntityHandle& handle : m_realtimeReflected)
+		{
+			//NazaraWarning("Realtime reflected: #" + handle->ToString());
+		}
+	}
 
 	void RenderSystem::UpdateDirectionalShadowMaps(const Nz::AbstractViewer& /*viewer*/)
 	{
@@ -322,12 +347,12 @@ namespace Ndk
 				{
 					static Nz::Quaternionf rotations[6] =
 					{
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitX()), // nzCubemapFace_PositiveX
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitX()), // nzCubemapFace_NegativeX
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitY()), // nzCubemapFace_PositiveY
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitY()), // nzCubemapFace_NegativeY
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitZ()), // nzCubemapFace_PositiveZ
-						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitZ())  // nzCubemapFace_NegativeZ
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitX()), // CubemapFace_PositiveX
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitX()), // CubemapFace_NegativeX
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitY()), // CubemapFace_PositiveY
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitY()), // CubemapFace_NegativeY
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -Nz::Vector3f::UnitZ()), // CubemapFace_PositiveZ
+						Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(),  Nz::Vector3f::UnitZ())  // CubemapFace_NegativeZ
 					};
 
 					for (unsigned int face = 0; face < 6; ++face)

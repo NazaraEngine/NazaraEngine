@@ -25,7 +25,7 @@ namespace Nz
 			Vector3(T X, T Y, T Z);
 			Vector3(T X, const Vector2<T>& vec);
 			explicit Vector3(T scale);
-			Vector3(const T vec[3]);
+			explicit Vector3(const T vec[3]);
 			Vector3(const Vector2<T>& vec, T Z = 0.0);
 			template<typename U> explicit Vector3(const Vector3<U>& vec);
 			Vector3(const Vector3& vec) = default;

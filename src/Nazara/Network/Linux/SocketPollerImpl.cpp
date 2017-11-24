@@ -111,9 +111,6 @@ namespace Nz
 
 					if (m_events[i].events & (EPOLLOUT | EPOLLERR))
 						m_readyToWriteSockets.insert(m_events[i].data.fd);
-
-					if (m_events[i].events & EPOLLERR)
-						NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll with EPOLLERR status");
 				}
 				else
 				{

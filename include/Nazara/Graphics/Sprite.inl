@@ -2,9 +2,10 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <memory>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
@@ -18,6 +19,8 @@ namespace Nz
 	m_size(64.f, 64.f),
 	m_origin(Nz::Vector3f::Zero())
 	{
+		ResetMaterials(1);
+
 		for (Color& color : m_cornerColor)
 			color = Color::White;
 
@@ -56,7 +59,6 @@ namespace Nz
 	inline Sprite::Sprite(const Sprite& sprite) :
 	InstancedRenderable(sprite),
 	m_color(sprite.m_color),
-	m_material(sprite.m_material),
 	m_textureCoords(sprite.m_textureCoords),
 	m_size(sprite.m_size),
 	m_origin(sprite.m_origin)
@@ -92,15 +94,6 @@ namespace Nz
 		NazaraAssert(static_cast<std::size_t>(corner) < m_cornerColor.size(), "Invalid corner");
 
 		return m_cornerColor[corner];
-	}
-
-	/*!
-	* \brief Gets the material of the sprite
-	* \return Current material
-	*/
-	inline const MaterialRef& Sprite::GetMaterial() const
-	{
-		return m_material;
 	}
 
 	/*!
@@ -187,16 +180,32 @@ namespace Nz
 	* \brief Changes the material of the sprite
 	*
 	* \param material Material for the sprite
-	* \param resizeSprite Should the sprite be resized to the texture size?
+	* \param resizeSprite Should billboard be resized to the material size (diffuse map)
 	*/
 	inline void Sprite::SetMaterial(MaterialRef material, bool resizeSprite)
 	{
-		m_material = std::move(material);
-		if (m_material && resizeSprite)
+		SetMaterial(GetSkin(), std::move(material), resizeSprite);
+	}
+
+	/*!
+	* \brief Sets the material of the sprite
+	*
+	* \param skinIndex Skin index to change
+	* \param material Material for the sprite
+	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
+	*/
+	inline void Sprite::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite)
+	{
+		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
+
+		if (resizeSprite)
 		{
-			Texture* diffuseMap = m_material->GetDiffuseMap();
-			if (diffuseMap && diffuseMap->IsValid())
-				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			if (const MaterialRef& newMat = GetMaterial())
+			{
+				const TextureRef& diffuseMap = newMat->GetDiffuseMap();
+				if (diffuseMap && diffuseMap->IsValid())
+					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			}
 		}
 	}
 
@@ -246,9 +255,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the texture of the sprite
+	* \brief Sets the texture of the sprite for the current skin
 	*
-	* Assign a texture to the sprite material
+	* This function changes the diffuse map of the material associated with the current skin
 	*
 	* \param texture Texture for the sprite
 	* \param resizeSprite Should the sprite be resized to the texture size?
@@ -257,15 +266,37 @@ namespace Nz
 	*/
 	inline void Sprite::SetTexture(TextureRef texture, bool resizeSprite)
 	{
-		if (!m_material)
-			SetDefaultMaterial();
-		else if (m_material->GetReferenceCount() > 1)
-			m_material = Material::New(*m_material); // Copy the material
+		SetTexture(GetSkin(), std::move(texture), resizeSprite);
+	}
 
-		if (resizeSprite && texture && texture->IsValid())
-			SetSize(Vector2f(Vector2ui(texture->GetSize())));
+	/*!
+	* \brief Sets the texture of the sprite for a specific skin
+	*
+	* This function changes the diffuse map of the material associated with the specified skin
+	*
+	* \param skinIndex Skin index to change
+	* \param texture Texture for the sprite
+	* \param resizeSprite Should the sprite be resized to the texture size?
+	*
+	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
+	*/
+	inline void Sprite::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite)
+	{
+		const MaterialRef& material = GetMaterial(skinIndex);
 
-		m_material->SetDiffuseMap(std::move(texture));
+		if (material->GetReferenceCount() > 1)
+		{
+			MaterialRef newMat = Material::New(*material); // Copy
+			newMat->SetDiffuseMap(std::move(texture));
+
+			SetMaterial(skinIndex, std::move(newMat), resizeSprite);
+		}
+		else
+		{
+			material->SetDiffuseMap(std::move(texture));
+			if (resizeSprite && texture && texture->IsValid())
+				SetSize(Vector2f(Vector2ui(texture->GetSize())));
+		}
 	}
 
 	/*!
@@ -277,6 +308,7 @@ namespace Nz
 	inline void Sprite::SetTextureCoords(const Rectf& coords)
 	{
 		m_textureCoords = coords;
+
 		InvalidateVertices();
 	}
 
@@ -291,10 +323,10 @@ namespace Nz
 
 	inline void Sprite::SetTextureRect(const Rectui& rect)
 	{
-		NazaraAssert(m_material, "Sprite has no material");
-		NazaraAssert(m_material->HasDiffuseMap(), "Sprite material has no diffuse map");
+		const MaterialRef& material = GetMaterial();
+		NazaraAssert(material->HasDiffuseMap(), "Sprite material has no diffuse map");
 
-		Texture* diffuseMap = m_material->GetDiffuseMap();
+		Texture* diffuseMap = material->GetDiffuseMap();
 
 		float invWidth = 1.f / diffuseMap->GetWidth();
 		float invHeight = 1.f / diffuseMap->GetHeight();
@@ -314,7 +346,6 @@ namespace Nz
 		InstancedRenderable::operator=(sprite);
 
 		m_color = sprite.m_color;
-		m_material = sprite.m_material;
 		m_origin = sprite.m_origin;
 		m_textureCoords = sprite.m_textureCoords;
 		m_size = sprite.m_size;
@@ -352,5 +383,4 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Renderer/DebugOff.hpp>
-#include "Sprite.hpp"
+#include <Nazara/Graphics/DebugOff.hpp>

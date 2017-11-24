@@ -11,6 +11,7 @@
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
@@ -34,6 +35,7 @@
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 #endif
 
 namespace Ndk
@@ -63,13 +65,6 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
-			#ifdef NDK_SERVER
-			Nz::ParameterList parameters;
-			parameters.SetParameter("NoWindowSystem", true);
-
-			Nz::Utility::SetParameters(parameters);
-			#endif
-
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics2D::Initialize();
@@ -119,6 +114,13 @@ namespace Ndk
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();
+
+			// Widgets
+			if (!CheckboxWidget::Initialize())
+			{
+				NazaraError("Failed to initialize Checkbox Widget");
+				return false;
+			}
 			#endif
 
 			NazaraNotice("Initialized: SDK");
@@ -127,7 +129,6 @@ namespace Ndk
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
-
 			return false;
 		}
 	}
@@ -172,6 +173,11 @@ namespace Ndk
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
+
+		#ifndef NDK_SERVER
+		// Widgets
+		CheckboxWidget::Uninitialize();
+		#endif
 
 		NazaraNotice("Uninitialized: SDK");
 	}

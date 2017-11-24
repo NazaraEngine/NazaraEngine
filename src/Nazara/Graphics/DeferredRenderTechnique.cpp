@@ -8,7 +8,6 @@
 
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Graphics/DeferredDOFPass.hpp>
@@ -18,18 +17,13 @@
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
 #include <Nazara/Graphics/DeferredGeometryPass.hpp>
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
-#include <Nazara/Graphics/Drawable.hpp>
-#include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
-#include <limits>
 #include <memory>
-#include <random>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

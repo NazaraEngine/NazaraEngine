@@ -5,17 +5,6 @@
 namespace Ndk
 {
 	/*!
-	* \brief Constructs a RenderSystem object by copy semantic
-	*
-	* \param renderSystem RenderSystem to copy
-	*/
-
-	inline RenderSystem::RenderSystem(const RenderSystem& renderSystem) :
-	System(renderSystem)
-	{
-	}
-
-	/*!
 	* \brief Changes the render technique used for the system
 	* \return A reference to the render technique type
 	*/

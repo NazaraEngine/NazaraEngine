@@ -692,7 +692,7 @@ namespace Nz
 	* \brief Multiplies the components of other vector with a scalar
 	* \return A reference to this vector where components are the product of this vector and the scalar
 	*
-	* \param vec The other vector to multiply components with
+	* \param scale The scalar to multiply components with
 	*/
 
 	template<typename T>
@@ -737,7 +737,7 @@ namespace Nz
 	* \brief Divides the components of other vector with a scalar
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
-	* \param vec The other vector to divide components with
+	* \param scale The scalar to divide components with
 	*
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null

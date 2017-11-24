@@ -8,6 +8,7 @@
 #define NAZARA_SEMAPHORE_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz
 {
@@ -18,7 +19,7 @@ namespace Nz
 		public:
 			Semaphore(unsigned int count);
 			Semaphore(const Semaphore&) = delete;
-			Semaphore(Semaphore&&) = delete; ///TODO
+			Semaphore(Semaphore&&) noexcept = default;
 			~Semaphore();
 
 			unsigned int GetCount() const;
@@ -29,10 +30,10 @@ namespace Nz
 			bool Wait(UInt32 timeout);
 
 			Semaphore& operator=(const Semaphore&) = delete;
-			Semaphore& operator=(Semaphore&&) = delete; ///TODO
+			Semaphore& operator=(Semaphore&&) noexcept = default;
 
 		private:
-			SemaphoreImpl* m_impl;
+			MovablePtr<SemaphoreImpl> m_impl;
 	};
 }
 

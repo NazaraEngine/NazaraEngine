@@ -12,6 +12,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
 
@@ -147,7 +148,10 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-			windowDimensions.Set(info.window->GetWidth(), info.window->GetHeight() / 4);
+		{
+			windowDimensions = info.window->GetSize();
+			windowDimensions.y /= 4;
+		}
 		else
 			windowDimensions.MakeZero();
 
@@ -211,7 +215,8 @@ namespace Ndk
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
-			consoleRef.SetSize({float(renderTarget->GetWidth()), renderTarget->GetHeight() / 4.f});
+			Nz::Vector2ui size = renderTarget->GetSize();
+			consoleRef.SetSize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);

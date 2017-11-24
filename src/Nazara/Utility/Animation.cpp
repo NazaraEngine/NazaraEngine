@@ -5,6 +5,8 @@
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Joint.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <vector>
 #include <unordered_map>
@@ -88,8 +90,8 @@ namespace Nz
 		{
 			Joint* joint = targetSkeleton->GetJoint(i);
 
-			SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
-			SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
 
 			joint->SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation));
 			joint->SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation));

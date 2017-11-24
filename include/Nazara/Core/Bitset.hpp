@@ -76,7 +76,7 @@ namespace Nz
 			void ShiftLeft(std::size_t pos);
 			void ShiftRight(std::size_t pos);
 
-			void Swap(Bitset& bitset);
+			void Swap(Bitset& bitset) noexcept;
 
 			bool Test(std::size_t bit) const;
 			bool TestAll() const;
@@ -90,8 +90,8 @@ namespace Nz
 			void UnboundedSet(std::size_t bit, bool val = true);
 			bool UnboundedTest(std::size_t bit) const;
 
-			Bit operator[](int index);
-			bool operator[](int index) const;
+			Bit operator[](std::size_t index);
+			bool operator[](std::size_t index) const;
 
 			Bitset operator~() const;
 
@@ -199,7 +199,7 @@ namespace Nz
 namespace std
 {
 	template<typename Block, class Allocator>
-	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs);
+	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs) noexcept;
 }
 
 #include <Nazara/Core/Bitset.inl>

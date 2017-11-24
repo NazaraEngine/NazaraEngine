@@ -9,13 +9,15 @@
 
 #include <NDK/Prerequesites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+
+namespace Nz
+{
+	class AbstractTextDrawer;
+}
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API LabelWidget : public BaseWidget
 	{
 		public:

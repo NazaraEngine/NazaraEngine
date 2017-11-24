@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
 	graphicsComponent.Attach(textSprite);
 
 	Nz::Boxf textBox = graphicsComponent.GetBoundingVolume().aabb;
-	nodeComponent.SetPosition(mainWindow.GetWidth() / 2 - textBox.width / 2, mainWindow.GetHeight() / 2 - textBox.height / 2);
+	Nz::Vector2ui windowSize = mainWindow.GetSize();
+	nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
 
 	while (application.Run())
 	{

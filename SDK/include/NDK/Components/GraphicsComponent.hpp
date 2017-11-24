@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
+#include <unordered_map>
 
 namespace Ndk
 {
@@ -34,12 +35,14 @@ namespace Ndk
 			inline void AddToCullingList(GraphicsComponentCullingList* cullingList) const;
 			void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
 
-			void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
+			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
 
 			inline void Clear();
 
 			inline void Detach(const Nz::InstancedRenderable* renderable);
+
+			inline bool DoesRequireRealTimeReflections() const;
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
@@ -57,21 +60,42 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
+			struct Renderable;
+
+			void ConnectInstancedRenderableSignals(Renderable& renderable);
+
 			inline void InvalidateBoundingVolume() const;
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
+			void InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat);
 			inline void InvalidateRenderables();
+			void InvalidateReflectionMap();
 			inline void InvalidateTransformMatrix();
+
+			void RegisterMaterial(Nz::Material* material, std::size_t count = 1);
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
+
+			void OnInstancedRenderableResetMaterials(const Nz::InstancedRenderable* renderable, std::size_t newMaterialCount);
+			void OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex);
+			void OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode);
 			void OnNodeInvalidated(const Nz::Node* node);
+
+			void UnregisterMaterial(Nz::Material* material);
 
 			void UpdateBoundingVolume() const;
 			void UpdateTransformMatrix() const;
 
 			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
+
+			struct MaterialEntry
+			{
+				NazaraSlot(Nz::Material, OnMaterialReflectionModeChange, reflectionModelChangeSlot);
+
+				std::size_t renderableCounter;
+			};
 
 			struct Renderable
 			{
@@ -81,15 +105,8 @@ namespace Ndk
 				{
 				}
 
-				Renderable(Renderable&& rhs) noexcept :
-				renderableBoundingVolumeInvalidationSlot(std::move(rhs.renderableBoundingVolumeInvalidationSlot)),
-				renderableDataInvalidationSlot(std::move(rhs.renderableDataInvalidationSlot)),
-				renderableReleaseSlot(std::move(rhs.renderableReleaseSlot)),
-				data(std::move(rhs.data)),
-				renderable(std::move(rhs.renderable)),
-				dataUpdated(rhs.dataUpdated)
-				{
-				}
+				Renderable(const Renderable&) = delete;
+				Renderable(Renderable&& rhs) noexcept = default;
 
 				~Renderable()
 				{
@@ -97,21 +114,15 @@ namespace Ndk
 					renderableReleaseSlot.Disconnect();
 				}
 
-				Renderable& operator=(Renderable&& r) noexcept
-				{
-					data = std::move(r.data);
-					dataUpdated = r.dataUpdated;
-					renderable = std::move(r.renderable);
-					renderableBoundingVolumeInvalidationSlot = std::move(r.renderableBoundingVolumeInvalidationSlot);
-					renderableDataInvalidationSlot = std::move(r.renderableDataInvalidationSlot);
-					renderableReleaseSlot = std::move(r.renderableReleaseSlot);
-
-					return *this;
-				}
+				Renderable& operator=(const Renderable&) = delete;
+				Renderable& operator=(Renderable&& r) noexcept = default;
 
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateBoundingVolume, renderableBoundingVolumeInvalidationSlot);
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateData, renderableDataInvalidationSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableInvalidateMaterial, renderableMaterialInvalidationSlot);
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableRelease, renderableReleaseSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableResetMaterials, renderableResetMaterialsSlot);
+				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableSkinChange, renderableSkinChangeSlot);
 
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;
@@ -127,12 +138,16 @@ namespace Ndk
 				NazaraSlot(GraphicsComponentCullingList, OnCullingListRelease, cullingListReleaseSlot);
 			};
 
+			std::size_t m_reflectiveMaterialCount;
 			mutable std::vector<VolumeCullingEntry> m_volumeCullingEntries;
 			std::vector<Renderable> m_renderables;
+			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
 			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;
+			Nz::TextureRef m_reflectionMap;
 			mutable bool m_boundingVolumeUpdated;
 			mutable bool m_transformMatrixUpdated;
+			unsigned int m_reflectionMapSize;
 	};
 }
 

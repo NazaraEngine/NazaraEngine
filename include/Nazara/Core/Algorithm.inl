@@ -130,8 +130,6 @@ namespace Nz
 	* \brief Returns the number of elements in a C-array
 	* \return The number of elements
 	*
-	* \param name C-array
-	*
 	* \see CountOf
 	*/
 	template<typename T, std::size_t N>
@@ -308,7 +306,7 @@ namespace Nz
 			return false;
 
 		string->resize(size);
-		return context.stream->Read(&string[0], size) == size;
+		return context.stream->Read(&(*string)[0], size) == size;
 	}
 
 	/*!

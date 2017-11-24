@@ -39,6 +39,17 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Attaches a renderable to the entity
+	*
+	* \param renderable Reference to a renderable element
+	* \param renderOrder Render order of the element
+	*/
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
+	{
+		return Attach(std::move(renderable), Nz::Matrix4f::Identity(), renderOrder);
+	}
+
+	/*!
 	* \brief Clears every renderable elements
 	*/
 
@@ -62,10 +73,27 @@ namespace Ndk
 			if (it->renderable == renderable)
 			{
 				InvalidateBoundingVolume();
+
+				std::size_t materialCount = renderable->GetMaterialCount();
+				for (std::size_t i = 0; i < materialCount; ++i)
+					UnregisterMaterial(renderable->GetMaterial(i));
+
 				m_renderables.erase(it);
 				break;
 			}
 		}
+	}
+
+	/*!
+	* \brief Checks if this graphics component requires real-time reflections to be generated
+	*
+	* If any of the materials attached to a GraphicsComponent (via the attached instanced renderable) needs real-time reflections, this function will return true.
+	*
+	* \return True if real-time reflections needs to be generated or false
+	*/
+	inline bool GraphicsComponent::DoesRequireRealTimeReflections() const
+	{
+		return m_reflectiveMaterialCount != 0 && m_reflectionMap;
 	}
 
 	/*!

@@ -4,7 +4,8 @@
 
 #include <Nazara/Graphics/TextureBackground.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <memory>
+#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

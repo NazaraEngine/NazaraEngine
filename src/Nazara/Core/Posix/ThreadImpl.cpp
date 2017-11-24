@@ -5,9 +5,10 @@
 #include <Nazara/Core/Posix/ThreadImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/String.hpp>
+#include <errno.h>
 #include <sched.h>
 #include <time.h>
-#include <unistd.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

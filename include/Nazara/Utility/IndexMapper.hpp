@@ -13,7 +13,6 @@
 
 namespace Nz
 {
-	class IndexBuffer;
 	class IndexIterator;
 	class SubMesh;
 

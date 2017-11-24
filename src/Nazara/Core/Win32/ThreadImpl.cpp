@@ -63,6 +63,7 @@ namespace Nz
 
 	void ThreadImpl::SetThreadName(DWORD threadId, const char* threadName)
 	{
+		#ifdef NAZARA_COMPILER_MSVC
 		// https://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 		constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
 
@@ -72,8 +73,8 @@ namespace Nz
 		info.dwThreadID = threadId;
 		info.dwFlags = 0;
 
-#pragma warning(push)
-#pragma warning(disable: 6320 6322)
+		#pragma warning(push)
+		#pragma warning(disable: 6320 6322)
 		__try
 		{
 			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
@@ -81,7 +82,10 @@ namespace Nz
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
 		}
-#pragma warning(pop)
+		#pragma warning(pop)
+		#else
+		NazaraWarning("SetThreadName on Windows is only supported with MSVC for now");
+		#endif
 	}
 
 	unsigned int __stdcall ThreadImpl::ThreadProc(void* userdata)

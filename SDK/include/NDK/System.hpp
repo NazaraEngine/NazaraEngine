@@ -16,11 +16,9 @@ namespace Ndk
 	{
 		public:
 			System();
-			System(const System&) = default;
+			System(const System&) = delete;
 			System(System&&) = default;
 			virtual ~System();
-
-			std::unique_ptr<BaseSystem> Clone() const override;
 
 			System& operator=(const System&) = delete;
 			System& operator=(System&&) = default;

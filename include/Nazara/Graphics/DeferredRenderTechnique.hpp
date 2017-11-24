@@ -9,21 +9,18 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
-#include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <map>
 #include <memory>
 
 namespace Nz
 {
+	class DeferredRenderPass;
+
 	class NAZARA_GRAPHICS_API DeferredRenderTechnique : public AbstractRenderTechnique
 	{
 		friend class Graphics;

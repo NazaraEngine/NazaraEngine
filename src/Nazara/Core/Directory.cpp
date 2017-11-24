@@ -312,7 +312,7 @@ namespace Nz
 	/*!
 	* \brief Sets the pattern of the directory
 	*
-	* \param dirPath Pattern of the directory
+	* \param pattern Pattern of the directory
 	*/
 
 	void Directory::SetPattern(const String& pattern)
@@ -327,7 +327,7 @@ namespace Nz
 	* \return true if copy is successful
 	*
 	* \param sourcePath Path of the original directory
-	* \param targetPath Path of the copied directory
+	* \param destPath Path of the copied directory
 	*
 	* \remark Produces a NazaraError if could not create destination directory
 	* \remark Produces a NazaraError if could not open origin directory

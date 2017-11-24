@@ -37,7 +37,7 @@ namespace Nz
 		}
 
 		auto impl = Renderer::GetRendererImpl()->CreateRenderWindowImpl();
-		if (!impl->Create(surface.get(), Vector2ui(GetWidth(), GetHeight()), m_parameters))
+		if (!impl->Create(surface.get(), GetSize(), m_parameters))
 		{
 			NazaraError("Failed to create render window implementation: " + Error::GetLastError());
 			return false;

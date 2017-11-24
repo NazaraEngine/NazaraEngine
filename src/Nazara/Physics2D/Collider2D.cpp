@@ -31,7 +31,7 @@ namespace Nz
 	/******************************** BoxCollider2D *********************************/
 
 	BoxCollider2D::BoxCollider2D(const Vector2f& size, float radius) :
-	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x / 2.f, size.y / 2.f), radius)
+	BoxCollider2D(Rectf(-size.x / 2.f, -size.y / 2.f, size.x, size.y), radius)
 	{
 	}
 
@@ -143,9 +143,9 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
-	float NullCollider2D::ComputeMomentOfInertia(float /*mass*/) const
+	float NullCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return 0.f;
+		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
 	}
 
 	void NullCollider2D::CreateShapes(RigidBody2D* /*body*/, std::vector<cpShape*>& /*shapes*/) const

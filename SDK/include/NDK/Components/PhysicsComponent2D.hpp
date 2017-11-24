@@ -13,8 +13,6 @@
 
 namespace Ndk
 {
-	class Entity;
-
 	class NDK_API PhysicsComponent2D : public Component<PhysicsComponent2D>
 	{
 		friend class CollisionComponent2D;
@@ -24,9 +22,11 @@ namespace Ndk
 			PhysicsComponent2D() = default;
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
-
+			
 			void AddForce(const Nz::Vector2f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddTorque(float torque);
 
 			Nz::Rectf GetAABB() const;

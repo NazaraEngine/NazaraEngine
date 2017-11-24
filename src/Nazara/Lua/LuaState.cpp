@@ -5,7 +5,6 @@
 #include <Nazara/Lua/LuaState.hpp>
 #include <Lua/lauxlib.h>
 #include <Lua/lua.h>
-#include <Lua/lualib.h>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -14,9 +13,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Lua/LuaCoroutine.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
-#include <cstdlib>
-#include <stdexcept>
-#include <unordered_map>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
@@ -124,12 +120,6 @@ namespace Nz
 		};
 
 		static_assert(sizeof(s_types)/sizeof(int) == LuaType_Max+1, "Lua type array is incomplete");
-	}
-
-	LuaState::LuaState(LuaState&& state) noexcept :
-	m_lastError(state.m_lastError),
-	m_state(state.m_state)
-	{
 	}
 
 	void LuaState::ArgCheck(bool condition, unsigned int argNum, const char* error) const
@@ -787,14 +777,6 @@ namespace Nz
 	void* LuaState::ToUserdata(int index, const String& tname) const
 	{
 		return luaL_testudata(m_state, index, tname.GetConstBuffer());
-	}
-
-	LuaState& LuaState::operator=(LuaState&& state) noexcept
-	{
-		m_lastError = std::move(state.m_lastError);
-		m_state = state.m_state;
-
-		return *this;
 	}
 
 	bool LuaState::Run(int argCount, int resultCount)

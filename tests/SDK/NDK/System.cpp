@@ -1,6 +1,6 @@
 #include <NDK/System.hpp>
 #include <Catch/catch.hpp>
-
+/*
 namespace
 {
 	class TestSystem : public Ndk::System<TestSystem>
@@ -23,7 +23,7 @@ namespace
 		private:
 			int m_value;
 
-			void OnUpdate(float /*elapsedTime*/) override
+			void OnUpdate(float elapsedTime) override
 			{
 			}
 	};
@@ -47,4 +47,4 @@ SCENARIO("System", "[NDK][SYSTEM]")
 			}
 		}
 	}
-}
+}*/

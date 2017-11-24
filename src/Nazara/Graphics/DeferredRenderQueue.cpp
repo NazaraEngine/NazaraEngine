@@ -3,9 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
-#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 ///TODO: Render billboards using Deferred Shading if possible

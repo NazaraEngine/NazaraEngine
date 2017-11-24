@@ -8,6 +8,7 @@
 #define NAZARA_PHYSWORLD2D_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
@@ -30,8 +31,16 @@ namespace Nz
 		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 		using ContactStartCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 
+		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, float rotation, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawDotCallback = std::function<void(const Vector2f& origin, float radius, Color color, void* userdata)>;
+		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, Color color, void* userdata)>;
+		using DebugDrawTickSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, float thickness, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawGetColorCallback = std::function<Color(RigidBody2D& body, std::size_t shapeIndex, void* userdata)>;
+
 		public:
 			struct Callback;
+			struct DebugDrawOptions;
 			struct NearestQueryResult;
 			struct RaycastHit;
 
@@ -40,6 +49,9 @@ namespace Nz
 			PhysWorld2D(PhysWorld2D&&) = delete; ///TODO
 			~PhysWorld2D();
 
+			void DebugDraw(const DebugDrawOptions& options, bool drawShapes = true, bool drawConstraints = true, bool drawCollisions = true);
+
+			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
 			float GetStepSize() const;
@@ -55,6 +67,7 @@ namespace Nz
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
 
+			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
 			void SetStepSize(float stepSize);
 
@@ -69,6 +82,22 @@ namespace Nz
 				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactPostSolveCallback postSolveCallback = nullptr;
 				ContactStartCallback startCallback = nullptr;
+				void* userdata;
+			};
+
+			struct DebugDrawOptions
+			{
+				Color constraintColor;
+				Color collisionPointColor;
+				Color shapeOutlineColor;
+
+				DebugDrawCircleCallback circleCallback;
+				DebugDrawGetColorCallback colorCallback;
+				DebugDrawDotCallback dotCallback;
+				DebugDrawPolygonCallback polygonCallback;
+				DebugDrawSegmentCallback segmentCallback;
+				DebugDrawTickSegmentCallback thickSegmentCallback;
+
 				void* userdata;
 			};
 

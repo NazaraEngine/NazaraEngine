@@ -4,11 +4,8 @@
 
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
-#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

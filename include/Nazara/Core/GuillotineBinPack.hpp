@@ -11,7 +11,6 @@
 #define NAZARA_GUILLOTINEBINPACK_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 

@@ -8,6 +8,7 @@
 #define NAZARA_ANIMATION_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -19,7 +20,6 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Sequence.hpp>
 
 namespace Nz
 {
@@ -34,6 +34,8 @@ namespace Nz
 	};
 
 	class Animation;
+	struct Sequence;
+	struct SequenceJoint;
 	class Skeleton;
 
 	using AnimationConstRef = ObjectRef<const Animation>;
@@ -98,7 +100,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			AnimationImpl* m_impl = nullptr;
+			MovablePtr<AnimationImpl> m_impl = nullptr;
 
 			static AnimationLibrary::LibraryMap s_library;
 			static AnimationLoader::LoaderList s_loaders;
