@@ -14,7 +14,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Image.hpp>

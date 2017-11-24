@@ -39,7 +39,7 @@ namespace Nz
 		friend ModelLoader;
 
 		public:
-			Model();
+			inline Model();
 			Model(const Model& model) = default;
 			Model(Model&& model) = default;
 			virtual ~Model();
@@ -47,13 +47,9 @@ namespace Nz
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
 			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder = 0);
 
-			Material* GetMaterial(const String& subMeshName) const;
-			Material* GetMaterial(unsigned int matIndex) const;
-			Material* GetMaterial(unsigned int skinIndex, const String& subMeshName) const;
-			Material* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
-			unsigned int GetMaterialCount() const;
-			unsigned int GetSkin() const;
-			unsigned int GetSkinCount() const;
+			using InstancedRenderable::GetMaterial;
+			const MaterialRef& GetMaterial(const String& subMeshName) const;
+			const MaterialRef& GetMaterial(std::size_t skinIndex, const String& subMeshName) const;
 			Mesh* GetMesh() const;
 
 			virtual bool IsAnimated() const;
@@ -62,15 +58,11 @@ namespace Nz
 			bool LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
 			bool LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 
-			void Reset();
+			using InstancedRenderable::SetMaterial;
+			bool SetMaterial(const String& subMeshName, MaterialRef material);
+			bool SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material);
 
-			bool SetMaterial(const String& subMeshName, Material* material);
-			void SetMaterial(unsigned int matIndex, Material* material);
-			bool SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material);
-			void SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material);
 			virtual void SetMesh(Mesh* mesh);
-			void SetSkin(unsigned int skin);
-			void SetSkinCount(unsigned int skinCount);
 
 			Model& operator=(const Model& node) = default;
 			Model& operator=(Model&& node) = default;
@@ -80,11 +72,7 @@ namespace Nz
 		protected:
 			void MakeBoundingVolume() const override;
 
-			std::vector<MaterialRef> m_materials;
 			MeshRef m_mesh;
-			unsigned int m_matCount;
-			unsigned int m_skin;
-			unsigned int m_skinCount;
 
 			static ModelLoader::LoaderList s_loaders;
 	};

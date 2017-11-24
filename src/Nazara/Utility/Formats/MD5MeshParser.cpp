@@ -4,18 +4,8 @@
 
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/IndexIterator.hpp>
-#include <Nazara/Utility/IndexMapper.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <cstdio>
-#include <cstring>
-#include <limits>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -23,10 +13,10 @@ namespace Nz
 {
 	MD5MeshParser::MD5MeshParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_lineCount(0),
-	m_meshIndex(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_meshIndex(0)
 	{
 		m_stream.EnableTextMode(true);
 	}

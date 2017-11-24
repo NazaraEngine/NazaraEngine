@@ -12,12 +12,8 @@
 #endif
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/File.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <ctime>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 namespace Nz
 {

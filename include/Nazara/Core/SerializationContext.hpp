@@ -10,9 +10,6 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <functional>
-#include <tuple>
-#include <type_traits>
 
 namespace Nz
 {

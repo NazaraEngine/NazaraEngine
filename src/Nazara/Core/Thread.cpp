@@ -6,8 +6,7 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
-#include <ostream>
-#include <stdexcept>
+#include <Nazara/Core/MovablePtr.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ThreadImpl.hpp>
@@ -34,18 +33,6 @@ namespace Nz
 	Thread::Thread() :
 	m_impl(nullptr)
 	{
-	}
-
-	/*!
-	* \brief Constructs a Thread<T> object by move semantic
-	*
-	* \param other Thread to move into this
-	*/
-
-	Thread::Thread(Thread&& other) noexcept :
-	m_impl(other.m_impl)
-	{
-		other.m_impl = nullptr;
 	}
 
 	/*!
@@ -134,30 +121,6 @@ namespace Nz
 		NazaraAssert(name.GetSize() < 16, "Thread name is too long");
 
 		m_impl->SetName(name);
-	}
-
-	/*!
-	* \brief Moves the other thread into this
-	* \return A reference to this
-	*
-	* \param thread Thread to move in this
-	*
-	* \remark Produce a NazaraError if no functor was assigned and NAZARA_CORE_SAFE is defined
-	* \remark And call std::terminate if no functor was assigned and NAZARA_CORE_SAFE is defined
-	*/
-
-	Thread& Thread::operator=(Thread&& thread)
-	{
-		#if NAZARA_CORE_SAFE
-		if (m_impl)
-		{
-			NazaraError("This thread cannot be joined");
-			std::terminate();
-		}
-		#endif
-
-		std::swap(m_impl, thread.m_impl);
-		return *this;
 	}
 
 	/*!

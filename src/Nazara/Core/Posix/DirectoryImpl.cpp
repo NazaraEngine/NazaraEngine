@@ -4,10 +4,12 @@
 
 #include <Nazara/Core/Posix/DirectoryImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
-
+#include <Nazara/Core/String.hpp>
 #include <errno.h>
 #include <sys/param.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

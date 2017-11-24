@@ -596,8 +596,7 @@ namespace Nz
 
 		IpAddress senderIp;
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
-		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -606,7 +605,7 @@ namespace Nz
 
 		DWORD flags = 0;
 		DWORD byteRead;
-		if (WSARecvFrom(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteRead, &flags, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		if (WSARecvFrom(handle, winBuffers.data(), static_cast<DWORD>(bufferCount), &byteRead, &flags, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
 			switch (errorCode)
@@ -696,8 +695,7 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
-		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -705,7 +703,7 @@ namespace Nz
 		}
 
 		DWORD byteSent;
-		if (WSASendTo(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteSent, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		if (WSASendTo(handle, winBuffers.data(), static_cast<DWORD>(bufferCount), &byteSent, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
 			switch (errorCode)

@@ -13,8 +13,6 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
 #include <vector>
 
 namespace Nz
@@ -23,6 +21,7 @@ namespace Nz
 	class Material;
 	class Texture;
 	struct MeshData;
+	struct VertexStruct_XYZ_Color_UV;
 
 	class NAZARA_GRAPHICS_API AbstractRenderQueue
 	{

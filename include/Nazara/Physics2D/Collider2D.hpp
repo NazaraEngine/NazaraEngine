@@ -19,7 +19,6 @@
 #include <vector>
 
 struct cpShape;
-struct cpSpace;
 
 namespace Nz
 {

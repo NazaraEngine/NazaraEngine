@@ -22,8 +22,6 @@
 
 namespace Nz
 {
-	class RUdpClient;
-
 	class NAZARA_NETWORK_API RUdpConnection
 	{
 		friend class Network;

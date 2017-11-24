@@ -6,7 +6,11 @@
 #define NDK_WIDGETS_GLOBAL_HPP
 
 #include <NDK/Widgets/ButtonWidget.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
+#include <NDK/Widgets/Enums.hpp>
+#include <NDK/Widgets/ImageWidget.hpp>
 #include <NDK/Widgets/LabelWidget.hpp>
+#include <NDK/Widgets/ProgressBarWidget.hpp>
 #include <NDK/Widgets/TextAreaWidget.hpp>
 
 #endif // NDK_WIDGETS_GLOBAL_HPP

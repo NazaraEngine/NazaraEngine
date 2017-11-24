@@ -12,9 +12,8 @@
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Utility/Cursor.hpp>
-#include <Nazara/Utility/Event.hpp>
-#include <Nazara/Utility/Mouse.hpp>
+#include <Nazara/Platform/Event.hpp>
+#include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <limits>
 
@@ -38,8 +37,12 @@ namespace Ndk
 			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
 
 			inline void Center();
+			inline void CenterHorizontal();
+			inline void CenterVertical();
 
-			inline void Destroy();
+			void ClearFocus();
+
+			void Destroy();
 
 			void EnableBackground(bool enable);
 
@@ -53,15 +56,16 @@ namespace Ndk
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
 
-			inline bool IsVisible() const;
+			bool HasFocus() const;
 
-			void GrabKeyboard();
+			inline bool IsVisible() const;
 
 			virtual void ResizeToContent() = 0;
 
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
 			inline void SetContentSize(const Nz::Vector2f& size);
+			void SetFocus();
 			inline void SetPadding(float left, float top, float right, float bottom);
 			void SetSize(const Nz::Vector2f& size);
 
@@ -79,12 +83,15 @@ namespace Ndk
 			};
 
 		protected:
-			EntityHandle CreateEntity();
+			const EntityHandle& CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
 			void InvalidateNode() override;
 
-			virtual void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
+			virtual bool IsFocusable() const;
+			virtual void OnFocusLost();
+			virtual void OnFocusReceived();
+			virtual bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);

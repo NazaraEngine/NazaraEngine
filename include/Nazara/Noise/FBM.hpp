@@ -6,7 +6,6 @@
 #define NAZARA_FBM_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Noise/Enums.hpp>
 #include <Nazara/Noise/MixerBase.hpp>
 
 namespace Nz

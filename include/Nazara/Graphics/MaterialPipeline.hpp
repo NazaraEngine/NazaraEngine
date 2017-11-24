@@ -10,25 +10,24 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <array>
 
 namespace Nz
 {
 	struct MaterialPipelineInfo : RenderStates
 	{
-		bool alphaTest      = false;
-		bool depthSorting   = false;
-		bool hasAlphaMap    = false;
-		bool hasDiffuseMap  = false;
-		bool hasEmissiveMap = false;
-		bool hasHeightMap   = false;
-		bool hasNormalMap   = false;
-		bool hasSpecularMap = false;
-		bool shadowReceive  = true;
+		bool alphaTest         = false;
+		bool depthSorting      = false;
+		bool hasAlphaMap       = false;
+		bool hasDiffuseMap     = false;
+		bool hasEmissiveMap    = false;
+		bool hasHeightMap      = false;
+		bool hasNormalMap      = false;
+		bool hasSpecularMap    = false;
+		bool reflectionMapping = false;
+		bool shadowReceive     = true;
 
 		UberShaderConstRef uberShader;
 	};

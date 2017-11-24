@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Copyright(c) 2002 - 2016 Lee Salzman
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions :
@@ -21,6 +21,7 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -28,11 +29,7 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
-#include <deque>
-#include <queue>
 #include <random>
-#include <set>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -55,9 +52,9 @@ namespace Nz
 			ENetPeer* Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
 
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
-			bool Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount = 0);
-			bool Create(const IpAddress& address, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
-			void Destroy();
+			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount = 0);
+			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
+			inline void Destroy();
 
 			void Flush();
 
@@ -65,6 +62,8 @@ namespace Nz
 			inline UInt32 GetServiceTime() const;
 
 			int Service(ENetEvent* event, UInt32 timeout);
+
+			inline void SetCompressor(std::unique_ptr<ENetCompressor>&& compressor);
 
 			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);
 
@@ -96,6 +95,8 @@ namespace Nz
 			void SendUnreliableOutgoingCommands(ENetPeer* peer);
 
 			void ThrottleBandwidth();
+
+			inline void UpdateServiceTime();
 
 			static std::size_t GetCommandSize(UInt8 commandNumber);
 			static bool Initialize();
@@ -130,6 +131,7 @@ namespace Nz
 			std::size_t m_peerCount;
 			std::size_t m_receivedDataLength;
 			std::uniform_int_distribution<UInt16> m_packetDelayDistribution;
+			std::unique_ptr<ENetCompressor> m_compressor;
 			std::vector<ENetPeer> m_peers;
 			std::vector<PendingIncomingPacket> m_pendingIncomingPackets;
 			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;
@@ -152,6 +154,7 @@ namespace Nz
 			UInt32 m_totalReceivedPackets;
 			UInt64 m_totalSentData;
 			UInt64 m_totalReceivedData;
+			bool m_allowsIncomingConnections;
 			bool m_continueSending;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;

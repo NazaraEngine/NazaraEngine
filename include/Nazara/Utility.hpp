@@ -39,27 +39,19 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
-#include <Nazara/Utility/Cursor.hpp>
-#include <Nazara/Utility/CursorController.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Event.hpp>
-#include <Nazara/Utility/EventHandler.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
-#include <Nazara/Utility/Icon.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
-#include <Nazara/Utility/Joystick.hpp>
-#include <Nazara/Utility/Keyboard.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/MeshData.hpp>
-#include <Nazara/Utility/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -75,8 +67,5 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <Nazara/Utility/VideoMode.hpp>
-#include <Nazara/Utility/Window.hpp>
-#include <Nazara/Utility/WindowHandle.hpp>
 
 #endif // NAZARA_GLOBAL_UTILITY_HPP

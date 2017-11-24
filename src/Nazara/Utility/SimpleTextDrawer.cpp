@@ -377,6 +377,7 @@ namespace Nz
 						m_drawPos.x = 0;
 						m_drawPos.y += sizeInfo.lineHeight;
 
+						m_workingBounds.ExtendTo(m_lines.back().bounds);
 						m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
 						break;
 					}
@@ -385,17 +386,16 @@ namespace Nz
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);
 
-			if (!m_workingBounds.IsValid())
-				m_workingBounds.Set(glyph.bounds);
-			else
-				m_workingBounds.ExtendTo(glyph.bounds);
-
 			m_drawPos.x += advance;
 			m_glyphs.push_back(glyph);
 		}
 		m_lines.back().bounds.ExtendTo(m_glyphs.back().bounds);
+		m_workingBounds.ExtendTo(m_lines.back().bounds);
 
 		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+
+		m_colorUpdated = true;
+		m_glyphUpdated = true;
 	}
 
 	void SimpleTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)

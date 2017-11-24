@@ -8,8 +8,7 @@
 #define NAZARA_MEMORYMANAGER_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <cstdio>
-#include <cstring>
+#include <cstddef>
 
 namespace Nz
 {

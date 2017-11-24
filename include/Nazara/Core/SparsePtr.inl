@@ -2,7 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/SparsePtr.hpp>
+#include <cassert>
 #include <iterator>
+#include <limits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -46,6 +49,22 @@ namespace Nz
 	SparsePtr<T>::SparsePtr(VoidPtr ptr, int stride)
 	{
 		Reset(ptr, stride);
+	}
+
+	/*!
+	* \brief Constructs a SparsePtr object with a pointer and a step
+	*
+	* \param ptr Pointer to data
+	* \param stride Step between two elements
+	*
+	* \remark This constructor only exists because std::size_t is a frequent type for constructing this object, but stride may not be higher than int max
+	*/
+
+	template<typename T>
+	SparsePtr<T>::SparsePtr(VoidPtr ptr, std::size_t stride)
+	{
+		assert(stride <= std::numeric_limits<int>::max());
+		Reset(ptr, static_cast<int>(stride));
 	}
 
 	/*!

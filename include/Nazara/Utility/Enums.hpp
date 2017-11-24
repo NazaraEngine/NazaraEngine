@@ -64,8 +64,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<BufferUsage>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max   = BufferUsage_Max;
+		static constexpr BufferUsage max = BufferUsage_Max;
 	};
 
 	using BufferUsageFlags = Flags<BufferUsage>;
@@ -92,8 +91,8 @@ namespace Nz
 
 	enum CubemapFace
 	{
-		// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de Image contenant un cubemap
-		// L'ordre est X, -X, Y, -Y, Z, -Z
+		// This enumeration is intended to replace the "z" argument of Image's methods containing cubemap
+		// The order is X, -X, Y, -Y, Z, -Z
 		CubemapFace_PositiveX = 0,
 		CubemapFace_PositiveY = 2,
 		CubemapFace_PositiveZ = 4,
@@ -307,30 +306,6 @@ namespace Nz
 		SamplerWrap_Max = SamplerWrap_Repeat
 	};
 
-	enum SystemCursor
-	{
-		SystemCursor_Crosshair,
-		SystemCursor_Default,
-		SystemCursor_Hand,
-		SystemCursor_Help,
-		SystemCursor_Move,
-		SystemCursor_None,
-		SystemCursor_Pointer,
-		SystemCursor_Progress,
-		SystemCursor_ResizeE,
-		SystemCursor_ResizeN,
-		SystemCursor_ResizeNE,
-		SystemCursor_ResizeNW,
-		SystemCursor_ResizeS,
-		SystemCursor_ResizeSE,
-		SystemCursor_ResizeSW,
-		SystemCursor_ResizeW,
-		SystemCursor_Text,
-		SystemCursor_Wait,
-
-		SystemCursor_Max = SystemCursor_Wait
-	};
-
 	enum StencilOperation
 	{
 		StencilOperation_Decrement,
@@ -370,7 +345,7 @@ namespace Nz
 	{
 		VertexComponent_Unused = -1,
 
-		// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
+		// We limit to 16 components by vertex since it's the minimal number supported by the GPU
 		VertexComponent_InstanceData0,
 		VertexComponent_InstanceData1,
 		VertexComponent_InstanceData2,
@@ -398,7 +373,7 @@ namespace Nz
 
 	enum VertexLayout
 	{
-		// Déclarations destinées au rendu
+		// Declarations meant for the rendering
 		VertexLayout_XY,
 		VertexLayout_XY_Color,
 		VertexLayout_XY_UV,
@@ -411,57 +386,11 @@ namespace Nz
 		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 		VertexLayout_XYZ_UV,
 
-		// Déclarations destinées à l'instancing
+		// Declarations meant for the instancing
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4
 	};
-
-	enum WindowEventType
-	{
-		WindowEventType_GainedFocus,
-		WindowEventType_LostFocus,
-		WindowEventType_KeyPressed,
-		WindowEventType_KeyReleased,
-		WindowEventType_MouseButtonDoubleClicked,
-		WindowEventType_MouseButtonPressed,
-		WindowEventType_MouseButtonReleased,
-		WindowEventType_MouseEntered,
-		WindowEventType_MouseLeft,
-		WindowEventType_MouseMoved,
-		WindowEventType_MouseWheelMoved,
-		WindowEventType_Moved,
-		WindowEventType_Quit,
-		WindowEventType_Resized,
-		WindowEventType_TextEntered,
-
-		WindowEventType_Max = WindowEventType_TextEntered
-	};
-
-	enum WindowStyle
-	{
-		WindowStyle_None,       ///< Window has no border nor titlebar.
-		WindowStyle_Fullscreen, ///< At the window creation, the OS tries to set it in fullscreen.
-
-		WindowStyle_Closable,   ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
-		WindowStyle_Resizable,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
-		WindowStyle_Titlebar,   ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
-
-		WindowStyle_Threaded,   ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
-
-		WindowStyle_Max = WindowStyle_Threaded
-	};
-
-	template<>
-	struct EnumAsFlags<WindowStyle>
-	{
-		static constexpr bool value = true;
-		static constexpr int  max   = WindowStyle_Max;
-	};
-
-	using WindowStyleFlags = Flags<WindowStyle>;
-
-	constexpr WindowStyleFlags WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar;
 }
 
 #endif // NAZARA_ENUMS_UTILITY_HPP

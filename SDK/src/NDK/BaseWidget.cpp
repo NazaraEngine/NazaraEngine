@@ -47,6 +47,15 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Clears keyboard focus if and only if this widget owns it.
+	*/
+	void BaseWidget::ClearFocus()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->ClearKeyboardOwner(m_canvasIndex);
+	}
+
+	/*!
 	* \brief Destroy the widget, deleting it in the process.
 	*
 	* Calling this function immediately destroys the widget, freeing its memory.
@@ -70,7 +79,7 @@ namespace Ndk
 		{
 			m_backgroundSprite = Nz::Sprite::New();
 			m_backgroundSprite->SetColor(m_backgroundColor);
-			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D"));
+			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
 			m_backgroundEntity = CreateEntity();
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
@@ -85,9 +94,16 @@ namespace Ndk
 		}
 	}
 
-	void BaseWidget::GrabKeyboard()
+	/*!
+	* \brief Checks if this widget has keyboard focus
+	* \return true if widget has keyboard focus, false otherwhise
+	*/
+	bool BaseWidget::HasFocus() const
 	{
-		m_canvas->SetKeyboardOwner(this);
+		if (!IsRegisteredToCanvas())
+			return false;
+
+		return m_canvas->IsKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -107,6 +123,12 @@ namespace Ndk
 
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetCursorUpdate(m_canvasIndex);
+	}
+
+	void BaseWidget::SetFocus()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->SetKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetSize(const Nz::Vector2f& size)
@@ -133,9 +155,9 @@ namespace Ndk
 		}
 	}
 
-	EntityHandle BaseWidget::CreateEntity()
+	const Ndk::EntityHandle& BaseWidget::CreateEntity()
 	{
-		EntityHandle newEntity = m_world->CreateEntity();
+		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
 
 		m_entities.emplace_back(newEntity);
@@ -167,8 +189,22 @@ namespace Ndk
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 	}
 
-	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)
+	bool BaseWidget::IsFocusable() const
 	{
+		return false;
+	}
+
+	void BaseWidget::OnFocusLost()
+	{
+	}
+
+	void BaseWidget::OnFocusReceived()
+	{
+	}
+
+	bool BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	{
+		return false;
 	}
 
 	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)

@@ -31,18 +31,6 @@ namespace Ndk
 		Excludes<PhysicsComponent3D>();
 	}
 
-	/*!
-	* \brief Constructs a PhysicsSystem object by copy semantic
-	*
-	* \param system PhysicsSystem to copy
-	*/
-
-	PhysicsSystem2D::PhysicsSystem2D(const PhysicsSystem2D& system) :
-	System(system),
-	m_world()
-	{
-	}
-
 	void PhysicsSystem2D::CreatePhysWorld() const
 	{
 		NazaraAssert(!m_world, "Physics world should not be created twice");

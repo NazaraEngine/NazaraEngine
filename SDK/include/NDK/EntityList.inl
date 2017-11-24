@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
-#include <NDK/EntityList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
 
@@ -135,6 +134,16 @@ namespace Ndk
 
 			entity->UnregisterEntityList(this);
 		}
+	}
+
+	/*!
+	* \brief Reserves enough space to contains entityCount entities
+	*
+	* \param entityCount Number of entities to reserve
+	*/
+	inline void EntityList::Reserve(std::size_t entityCount)
+	{
+		m_entityBits.Reserve(entityCount);
 	}
 
 	// STL Interface

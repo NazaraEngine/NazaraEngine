@@ -3,8 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Graphics/DeferredRenderQueue.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

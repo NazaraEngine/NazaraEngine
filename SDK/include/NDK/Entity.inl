@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <type_traits>
-#include <utility>
 
 namespace Ndk
 {
@@ -30,11 +29,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Disables the entity
+	*
+	* This is just a shortcut to Enable(false)
+	*/
+	inline void Entity::Disable()
+	{
+		Enable(false);
+	}
+
+	/*!
 	* \brief Enables the entity
 	*
 	* \param enable Should the entity be enabled
 	*/
-
 	inline void Entity::Enable(bool enable)
 	{
 		if (m_enabled != enable)

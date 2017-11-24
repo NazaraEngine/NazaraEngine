@@ -10,6 +10,7 @@
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,7 +19,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
@@ -74,7 +74,7 @@ namespace Nz
 			template<typename... Args> static SoundBufferRef New(Args&&... args);
 
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
-			SoundBuffer& operator=(SoundBuffer&&) = delete; ///TODO
+			SoundBuffer& operator=(SoundBuffer&&) = delete;
 
 			// Signals:
 			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);
@@ -86,7 +86,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			SoundBufferImpl* m_impl = nullptr;
+			MovablePtr<SoundBufferImpl> m_impl = nullptr;
 
 			static SoundBufferLibrary::LibraryMap s_library;
 			static SoundBufferLoader::LoaderList s_loaders;

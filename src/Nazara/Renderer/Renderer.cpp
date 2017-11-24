@@ -7,6 +7,7 @@
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -26,6 +27,12 @@ namespace Nz
 		if (!Utility::Initialize())
 		{
 			NazaraError("Failed to initialize Utility module");
+			return false;
+		}
+
+		if (!Platform::Initialize())
+		{
+			NazaraError("Failed to initialize Platform module");
 			return false;
 		}
 
@@ -124,6 +131,7 @@ namespace Nz
 		NazaraNotice("Uninitialized: Renderer module");
 
 		// Free module dependencies
+		Platform::Uninitialize();
 		Utility::Uninitialize();
 	}
 

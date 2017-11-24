@@ -776,7 +776,7 @@ namespace Nz
 	* \param bitset Other bitset to swap
 	*/
 	template<typename Block, class Allocator>
-	void Bitset<Block, Allocator>::Swap(Bitset& bitset)
+	void Bitset<Block, Allocator>::Swap(Bitset& bitset) noexcept
 	{
 		std::swap(m_bitCount, bitset.m_bitCount);
 		std::swap(m_blocks,   bitset.m_blocks);
@@ -815,7 +815,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_blocks.size(); ++i)
 		{
 			Block mask = (i == m_blocks.size() - 1) ? lastBlockMask : fullBitMask;
-			if (m_blocks[i] == mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
+			if (m_blocks[i] != mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
 				return false;
 		}
 
@@ -958,7 +958,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](int index)
+	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](std::size_t index)
 	{
 		return Bit(m_blocks[GetBlockIndex(index)], Block(1U) << GetBitIndex(index));
 	}
@@ -969,7 +969,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	bool Bitset<Block, Allocator>::operator[](int index) const
+	bool Bitset<Block, Allocator>::operator[](std::size_t index) const
 	{
 		return Test(index);
 	}
@@ -1645,7 +1645,7 @@ namespace std
 	*/
 
 	template<typename Block, class Allocator>
-	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs)
+	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs) noexcept
 	{
 		lhs.Swap(rhs);
 	}

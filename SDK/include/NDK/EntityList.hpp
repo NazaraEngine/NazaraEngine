@@ -35,6 +35,7 @@ namespace Ndk
 			inline void Insert(Entity* entity);
 
 			inline void Remove(Entity* entity);
+			inline void Reserve(std::size_t entityCount);
 
 			// STL API
 			inline iterator begin() const;

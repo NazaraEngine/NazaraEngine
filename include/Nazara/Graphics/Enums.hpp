@@ -122,6 +122,15 @@ namespace Nz
 		RenderTechniqueType_Max = RenderTechniqueType_User
 	};
 
+	enum ReflectionMode
+	{
+		ReflectionMode_RealTime,
+		ReflectionMode_Probe,
+		ReflectionMode_Skybox,
+
+		ReflectionMode_Max = ReflectionMode_Skybox
+	};
+
 	enum SceneNodeType
 	{
 		SceneNodeType_Light,           // Light

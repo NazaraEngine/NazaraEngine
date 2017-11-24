@@ -30,13 +30,30 @@
 #define NAZARA_GLOBAL_RENDERER_HPP
 
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/ContextParameters.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderDeviceInstance.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/RenderSurface.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
+#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderWriter.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/UberShader.hpp>
+#include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP

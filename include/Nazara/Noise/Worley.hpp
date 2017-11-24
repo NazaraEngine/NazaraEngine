@@ -10,7 +10,6 @@
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Enums.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <initializer_list>
 #include <map>
 
 namespace Nz
