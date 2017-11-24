@@ -6,6 +6,10 @@
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+#include <Nazara/Platform/X11/ScopedXCB.hpp>
+#endif
+
 namespace Nz
 {
 	VulkanSurface::VulkanSurface() :
@@ -24,6 +28,11 @@ namespace Nz
 			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
 
 			success = m_surface.Create(instance, winHandle);
+		}
+		#elif defined(VK_USE_PLATFORM_XCB_KHR)
+		{
+			ScopedXCBConnection connection;
+			success = m_surface.Create(connection, handle);
 		}
 		#else
 		#error This OS is not supported by Vulkan

@@ -43,7 +43,7 @@ namespace Nz
 		NazaraDebug("Searching for renderer implementation");
 
 		Directory dir(".");
-		dir.SetPattern("Nazara?*Renderer*" NAZARA_DYNLIB_EXTENSION); //< Ex: NazaraVulkanRenderer.dll
+		dir.SetPattern("*Nazara?*Renderer*" NAZARA_DYNLIB_EXTENSION); //< Ex: NazaraVulkanRenderer.dll
 
 		if (!dir.Open())
 		{

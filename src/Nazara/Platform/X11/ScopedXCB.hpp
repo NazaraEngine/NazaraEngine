@@ -8,13 +8,14 @@
 #define NAZARA_SCOPEDXCB_HPP
 
 #include <Nazara/Prerequesites.hpp>
+#include <Nazara/Platform/Config.hpp>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
 #include <cstdlib>
 
 namespace Nz
 {
-	class ScopedXCBConnection
+	class NAZARA_PLATFORM_API ScopedXCBConnection
 	{
 		public:
 			ScopedXCBConnection();
