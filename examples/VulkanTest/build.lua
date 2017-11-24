@@ -14,6 +14,7 @@ EXAMPLE.Files = {
 
 EXAMPLE.Libraries = {
 	"NazaraCore",
+	"NazaraPlatform",
 	"NazaraVulkanRenderer",
 	"NazaraUtility"
 }

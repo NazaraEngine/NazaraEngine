@@ -176,7 +176,7 @@ int main()
 		{{0.0f, -1.f, 0.0f},  {0.0f, 0.0f, 1.0f}}
 	};
 
-	Nz::Matrix4f projection = Nz::Matrix4f::Perspective(70.f, float(window.GetWidth()) / window.GetHeight(), 1.f, 1000.f);
+	Nz::Matrix4f projection = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 1.f, 1000.f);
 	Nz::Matrix4f world = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 5.f);
 
 	for (unsigned int i = 0; i < 3; ++i)
@@ -302,7 +302,8 @@ int main()
 	}
 	ubo;
 
-	ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(window.GetWidth()) / window.GetHeight(), 0.1f, 1000.f);
+	Nz::Vector2ui windowSize = window.GetSize();
+	ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 	ubo.viewMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	ubo.modelMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 
@@ -593,8 +594,8 @@ int main()
 				0                                           // int32_t                        y
 			},
 			{                                           // VkExtent2D                     extent
-				window.GetWidth(),                                        // int32_t                        width
-				window.GetHeight(),                                        // int32_t                        height
+				windowSize.x,                                        // int32_t                        width
+				windowSize.y,                                        // int32_t                        height
 			}
 		};
 
@@ -637,8 +638,8 @@ int main()
 		renderCmd.BindVertexBuffer(0, vertexBuffer, 0);
 		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
 		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-		renderCmd.SetScissor(Nz::Recti{0, 0, int(window.GetWidth()), int(window.GetHeight())});
-		renderCmd.SetViewport({0.f, 0.f, float(window.GetWidth()), float(window.GetHeight())}, 0.f, 1.f);
+		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
+		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
 		renderCmd.DrawIndexed(indexCount);
 		renderCmd.EndRenderPass();
 
@@ -689,7 +690,7 @@ int main()
 
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Mouse::SetPosition(window.GetWidth() / 2, window.GetHeight() / 2, window);
+					Nz::Mouse::SetPosition(windowSize.x / 2, windowSize.y / 2, window);
 					updateUniforms = true;
 					break;
 				}
