@@ -8,7 +8,7 @@
 #define NAZARA_RENDERSURFACE_HPP
 
 #include <Nazara/Prerequesites.hpp>
-#include <Nazara/Utility/WindowHandle.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
 
 namespace Nz

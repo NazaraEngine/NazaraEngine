@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequesites.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
-#include <Nazara/Utility/WindowHandle.hpp>
 #include <vector>
 
 namespace Nz
