@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -107,6 +107,17 @@ namespace Nz
 		// Since C++ does not allow protected call from other objects, we have to be a friend of Collider2D, yay
 		for (const auto& geom : m_geoms)
 			geom->CreateShapes(body, shapes);
+	}
+
+	std::vector<cpShape*> CompoundCollider2D::GenerateShapes(RigidBody2D * body) const
+	{
+		std::vector<cpShape*> shapes;
+		for (const auto& geom : m_geoms)
+		{
+			const auto& tempShapes = geom->GenerateShapes(body);
+			shapes.insert(shapes.end(), tempShapes.begin(), tempShapes.end());
+		}
+		return shapes;
 	}
 
 	/******************************** ConvexCollider2D *********************************/

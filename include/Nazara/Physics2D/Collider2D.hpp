@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -148,6 +148,7 @@ namespace Nz
 
 		private:
 			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const override;
 
 			std::vector<Collider2DRef> m_geoms;
 	};
