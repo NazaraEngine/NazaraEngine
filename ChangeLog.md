@@ -24,7 +24,7 @@ Nazara Engine:
 - Fix String movement constructor, which was leaving a null shared string (which was not reusable)
 - Add Flags<E>::Test method, in order to test one or multiple flags at once.
 - ⚠️ Vector2, Vector3 and Vector4 array/pointer constructor is now explicit to prevent some mistakes as `Vector2 vec2; vec2 = 0;`
-
+- Fix RigidBody2D::SetGeom attribute copy and possible crash with static objects
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -46,6 +46,7 @@ Nazara Development Kit:
 - Fix TextAreaWidget cursor sometimes showing up in readonly mode
 - ⚠️ BaseWidget::OnKeyPressed now returns a boolean to indicate if it should block default action (such as tab to switch to the previous/next widget)
 - Pressing tab/shift-tab will now move to the next/previous widget able to be focused on
+- Fix GraphicsComponent::Clear method now clearing reflective states
 
 # 0.4:
 
