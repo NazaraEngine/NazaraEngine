@@ -58,7 +58,7 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
 		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, 0.f, m_geom));
+		m_staticBody = std::make_unique<Nz::RigidBody2D>(&physWorld, 0.f, m_geom);
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())
