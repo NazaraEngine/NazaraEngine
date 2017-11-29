@@ -395,7 +395,7 @@ namespace Nz
 				return false;
 
 			#ifdef NAZARA_PLATFORM_WINDOWS
-			// Unlike to disk (Ex: "C:"), the netwrok path is not considered as a directory (Ex: "\\Laptop")
+			// Unlike to disk (Ex: "C:"), the network path is not considered as a directory (Ex: "\\Laptop")
 			if (path.Match("\\\\*"))
 			{
 				foundPos = path.Find('\\', 2);
@@ -414,11 +414,14 @@ namespace Nz
 				if (p.EndsWith(NAZARA_DIRECTORY_SEPARATOR))
 					p = p.SubString(0, -2);
 
-				if (!DirectoryImpl::Exists(p) && !DirectoryImpl::Create(p))
-					return false;
+				if (!p.IsEmpty())
+				{
+					if (!DirectoryImpl::Exists(p) && !DirectoryImpl::Create(p))
+						return false;
 
-				if (foundPos == String::npos)
-					break;
+					if (foundPos == String::npos)
+						break;
+				}
 
 				foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR, foundPos + 1);
 			}
