@@ -55,7 +55,14 @@ namespace Ndk
 
 	inline void GraphicsComponent::Clear()
 	{
+		m_materialEntries.clear();
 		m_renderables.clear();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			m_reflectiveMaterialCount = 0;
+			InvalidateReflectionMap();
+		}
 
 		InvalidateBoundingVolume();
 	}
