@@ -133,6 +133,14 @@ namespace Nz
 		return Boxf(min, max);
 	}
 
+	Vector3f RigidBody3D::GetAngularDamping() const
+	{
+		Vector3f angularDamping;
+		NewtonBodyGetAngularDamping(m_body, angularDamping);
+
+		return angularDamping;
+	}
+
 	Vector3f RigidBody3D::GetAngularVelocity() const
 	{
 		Vector3f angularVelocity;
@@ -154,6 +162,11 @@ namespace Nz
 	NewtonBody* RigidBody3D::GetHandle() const
 	{
 		return m_body;
+	}
+
+	float RigidBody3D::GetLinearDamping() const
+	{
+		return NewtonBodyGetLinearDamping(m_body);
 	}
 
 	float RigidBody3D::GetMass() const
@@ -222,6 +235,11 @@ namespace Nz
 		return NewtonBodyGetSleepState(m_body) != 0;
 	}
 
+	void RigidBody3D::SetAngularDamping(const Nz::Vector3f& angularDamping)
+	{
+		NewtonBodySetAngularDamping(m_body, angularDamping);
+	}
+
 	void RigidBody3D::SetAngularVelocity(const Vector3f& angularVelocity)
 	{
 		NewtonBodySetOmega(m_body, angularVelocity);
@@ -243,6 +261,11 @@ namespace Nz
 	void RigidBody3D::SetGravityFactor(float gravityFactor)
 	{
 		m_gravityFactor = gravityFactor;
+	}
+
+	void RigidBody3D::SetLinearDamping(float damping)
+	{
+		NewtonBodySetLinearDamping(m_body, damping);
 	}
 
 	void RigidBody3D::SetMass(float mass)

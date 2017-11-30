@@ -30,8 +30,10 @@ namespace Ndk
 			void EnableAutoSleep(bool autoSleep);
 
 			Nz::Boxf GetAABB() const;
+			Nz::Vector3f GetAngularDamping() const;
 			Nz::Vector3f GetAngularVelocity() const;
 			float GetGravityFactor() const;
+			float GetLinearDamping() const;
 			float GetMass() const;
 			Nz::Vector3f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			const Nz::Matrix4f& GetMatrix() const;
@@ -43,8 +45,10 @@ namespace Ndk
 			bool IsMoveable() const;
 			bool IsSleeping() const;
 
+			void SetAngularDamping(const Nz::Vector3f& angularDamping);
 			void SetAngularVelocity(const Nz::Vector3f& angularVelocity);
 			void SetGravityFactor(float gravityFactor);
+			void SetLinearDamping(float damping);
 			void SetMass(float mass);
 			void SetMassCenter(const Nz::Vector3f& center);
 			void SetPosition(const Nz::Vector3f& position);
