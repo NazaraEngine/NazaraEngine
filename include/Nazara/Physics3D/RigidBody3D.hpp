@@ -37,10 +37,12 @@ namespace Nz
 			void EnableAutoSleep(bool autoSleep);
 
 			Boxf GetAABB() const;
+			Vector3f GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
 			const Collider3DRef& GetGeom() const;
 			float GetGravityFactor() const;
 			NewtonBody* GetHandle() const;
+			float GetLinearDamping() const;
 			float GetMass() const;
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
 			const Matrix4f& GetMatrix() const;
@@ -53,9 +55,11 @@ namespace Nz
 			bool IsMoveable() const;
 			bool IsSleeping() const;
 
+			void SetAngularDamping(const Nz::Vector3f& angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
 			void SetGeom(Collider3DRef geom);
 			void SetGravityFactor(float gravityFactor);
+			void SetLinearDamping(float damping);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
 			void SetPosition(const Vector3f& position);

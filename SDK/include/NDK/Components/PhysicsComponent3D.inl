@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequesites.hpp
 
 #include <Nazara/Core/Error.hpp>
+#include "PhysicsComponent3D.hpp"
 
 namespace Ndk
 {
@@ -88,7 +89,6 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline Nz::Boxf PhysicsComponent3D::GetAABB() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -97,12 +97,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the angular damping of the physics object
+	* \return Angular damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline Nz::Vector3f PhysicsComponent3D::GetAngularDamping() const
+	{
+		return m_object->GetAngularDamping();
+	}
+
+	/*!
 	* \brief Gets the angular velocity of the physics object
 	* \return Angular velocity of the object
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline Nz::Vector3f PhysicsComponent3D::GetAngularVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -116,12 +126,24 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline float PhysicsComponent3D::GetGravityFactor() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetGravityFactor();
+	}
+
+	/*!
+	* \brief Gets the linear damping of the physics object
+	* \return Linear damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline float PhysicsComponent3D::GetLinearDamping() const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetLinearDamping();
 	}
 
 	/*!
@@ -216,12 +238,24 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline bool PhysicsComponent3D::IsAutoSleepEnabled() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->IsAutoSleepEnabled();
+	}
+
+	/*!
+	* \brief Checks whether the object is moveable
+	* \return true If it is the case
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline bool PhysicsComponent3D::IsMoveable() const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->IsMoveable();
 	}
 
 	/*!
@@ -239,13 +273,26 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the angular damping of the physics object
+	*
+	* \param angularDamping Angular damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline void PhysicsComponent3D::SetAngularDamping(const Nz::Vector3f& angularDamping)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetAngularDamping(angularDamping);
+	}
+
+	/*!
 	* \brief Sets the angular velocity of the physics object
 	*
 	* \param angularVelocity Angular velocity of the object
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent3D::SetAngularVelocity(const Nz::Vector3f& angularVelocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -260,12 +307,25 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent3D::SetGravityFactor(float gravityFactor)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetGravityFactor(gravityFactor);
+	}
+
+	/*!
+	* \brief Sets the linear damping of the physics object
+	*
+	* \param damping Linear damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline void PhysicsComponent3D::SetLinearDamping(float damping)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetLinearDamping(damping);
 	}
 
 	/*!
@@ -276,7 +336,6 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	* \remark Produces a NazaraAssert if the mass is negative
 	*/
-
 	inline void PhysicsComponent3D::SetMass(float mass)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
