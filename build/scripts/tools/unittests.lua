@@ -1,5 +1,6 @@
 TOOL.Name = "UnitTests"
 
+TOOL.Category = "Test"
 TOOL.Directory = "../tests"
 TOOL.EnableConsole = true
 TOOL.Kind = "Application"

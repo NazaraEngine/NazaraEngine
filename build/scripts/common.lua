@@ -463,7 +463,7 @@ function NazaraBuild:Initialize()
 			if (self:Process(projectTable)) then
 				table.insert(orderedTables[k], projectTable)
 			else
-				print("Rejected " .. projectTable.Name .. " " .. string.lower(projectTable.Type) .. ": " .. projectTable.ExcludeReason)
+				print("Rejected " .. projectTable.Name .. " " .. string.lower(projectTable.Category) .. ": " .. projectTable.ExcludeReason)
 			end
 		end
 
@@ -664,7 +664,7 @@ function NazaraBuild:Process(infoTable)
 		if (libraryTable) then
 			if (libraryTable.Excluded) then
 				infoTable.Excluded = true
-				infoTable.ExcludeReason = "depends on excluded " .. library .. " " .. libraryTable.Type:lower()
+				infoTable.ExcludeReason = "depends on excluded " .. library .. " " .. libraryTable.Category:lower()
 				return false
 			end
 
@@ -927,6 +927,8 @@ function NazaraBuild:RegisterExample(exampleTable)
 	exampleTable.Files = files
 
 	exampleTable.Type = "Example"
+	exampleTable.Category = exampleTable.Category or exampleTable.Type
+
 	self.Examples[lowerCaseName] = exampleTable
 	return true
 end
@@ -950,6 +952,8 @@ function NazaraBuild:RegisterExternLibrary(libTable)
 	end
 
 	libTable.Type = "ExternLib"
+	libTable.Category = libTable.Category or libTable.Type
+
 	self.ExtLibs[lowerCaseName] = libTable
 	return true
 end
@@ -976,6 +980,8 @@ function NazaraBuild:RegisterModule(moduleTable)
 	end
 
 	moduleTable.Type = "Module"
+	moduleTable.Category = moduleTable.Category or moduleTable.Type
+
 	self.Modules[lowerCaseName] = moduleTable
 	return true
 end
@@ -1006,10 +1012,13 @@ function NazaraBuild:RegisterTool(toolTable)
 	end
 
 	toolTable.Type = "Tool"
+	toolTable.Category = toolTable.Category or toolTable.Type
+
 	self.Tools[lowerCaseName] = toolTable
 	return true
 end
 
+local globalExcludes = {}
 function NazaraBuild:Resolve(infoTable)
 	if (infoTable.ClientOnly and self.Config["ServerMode"]) then
 		infoTable.Excluded = true
@@ -1017,15 +1026,28 @@ function NazaraBuild:Resolve(infoTable)
 	end
 
 	if (infoTable.Excludable) then
-		local optionName = "excludes-" .. string.lower(infoTable.Type .. "-" .. infoTable.Name)
+		local globalExcludeOption = "excludes-" .. infoTable.Category:lower() .. "s"
+		if (not globalExcludes[infoTable.Category]) then
+			newoption({
+				trigger     = globalExcludeOption,
+				description = "Excludes all " .. string.lower(infoTable.Category) .. "s and projects relying on it"
+			})
+
+			globalExcludes[infoTable.Category] = true
+		end
+	
+		local specificExcludeOption = "excludes-" .. string.lower(infoTable.Category .. "-" .. infoTable.Name)
 		newoption({
-			trigger     = optionName,
-			description = "Excludes the " .. infoTable.Name .. " " .. string.lower(infoTable.Type) .. " and projects relying on it"
+			trigger     = specificExcludeOption,
+			description = "Excludes the " .. infoTable.Name .. " " .. string.lower(infoTable.Category) .. " and projects relying on it"
 		})
 
-		if (_OPTIONS[optionName]) then
+		if (_OPTIONS[globalExcludeOption]) then
 			infoTable.Excluded = true
-			infoTable.ExcludeReason = "excluded by command-line options"
+			infoTable.ExcludeReason = "excluded by global command-line options"
+		elseif (_OPTIONS[specificExcludeOption]) then
+			infoTable.Excluded = true
+			infoTable.ExcludeReason = "excluded by specific command-line options"
 		end
 	end
 
