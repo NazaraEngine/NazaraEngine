@@ -658,6 +658,10 @@ local PosixOSes = {
 }
 
 function NazaraBuild:Process(infoTable)
+	if (infoTable.Excluded) then
+		return false
+	end
+
 	local libraries = {}
 	for k, library in pairs(infoTable.Libraries) do
 		local libraryTable = self:GetDependency(infoTable, library)
