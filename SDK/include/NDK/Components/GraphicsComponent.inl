@@ -25,7 +25,7 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable, r.data.renderOrder);
+			Attach(r.renderable, r.data.localMatrix, r.data.renderOrder);
 	}
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
