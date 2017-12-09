@@ -1,5 +1,10 @@
 # Upcoming version:
 
+Build system:
+- Add possibility to excludes with one commande all tests/examples/tools/etc.
+- Units tests are now part of the "test" exclusion category
+- Fix project exclusion not working (but correctly excluding projects relying upon it)
+
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
 - Bitset swap operation is now correctly marked as noexcept`
@@ -25,6 +30,11 @@ Nazara Engine:
 - Add Flags<E>::Test method, in order to test one or multiple flags at once.
 - ⚠️ Vector2, Vector3 and Vector4 array/pointer constructor is now explicit to prevent some mistakes as `Vector2 vec2; vec2 = 0;`
 - Fix RigidBody2D::SetGeom attribute copy and possible crash with static objects
+- Fix error when opening a non-existent file on Posix
+- Fix Directory::Create not working on Posix systems when recursive option was enabled
+- Fix default directory permission (now created with 777)
+- Add linear and angular damping accessor to RigidBody3D
+- Fix MemoryStream::WriteBlock "Invalid buffer" assertion triggering when writing a zero-sized block
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -47,6 +57,8 @@ Nazara Development Kit:
 - ⚠️ BaseWidget::OnKeyPressed now returns a boolean to indicate if it should block default action (such as tab to switch to the previous/next widget)
 - Pressing tab/shift-tab will now move to the next/previous widget able to be focused on
 - Fix GraphicsComponent::Clear method now clearing reflective states
+- Add linear and angular damping accessor to PhysicsComponent3D
+- Fix GraphicsComponent cloning not copying renderable local matrices
 
 # 0.4:
 
