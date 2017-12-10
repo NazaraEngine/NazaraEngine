@@ -35,6 +35,7 @@ Nazara Engine:
 - Fix default directory permission (now created with 777)
 - Add linear and angular damping accessor to RigidBody3D
 - Fix MemoryStream::WriteBlock "Invalid buffer" assertion triggering when writing a zero-sized block
+- ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -59,6 +60,7 @@ Nazara Development Kit:
 - Fix GraphicsComponent::Clear method now clearing reflective states
 - Add linear and angular damping accessor to PhysicsComponent3D
 - Fix GraphicsComponent cloning not copying renderable local matrices
+- ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 
 # 0.4:
 

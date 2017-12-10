@@ -147,6 +147,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the linear velocity of the physics object
+	* \return Linear velocity of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+
+	inline Nz::Vector3f PhysicsComponent3D::GetLinearVelocity() const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetLinearVelocity();
+	}
+
+	/*!
 	* \brief Gets the mass of the physics object
 	* \return Mass of the object
 	*
@@ -216,20 +230,6 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetRotation();
-	}
-
-	/*!
-	* \brief Gets the velocity of the physics object
-	* \return Velocity of the object
-	*
-	* \remark Produces a NazaraAssert if the physics object is invalid
-	*/
-
-	inline Nz::Vector3f PhysicsComponent3D::GetVelocity() const
-	{
-		NazaraAssert(m_object, "Invalid physics object");
-
-		return m_object->GetVelocity();
 	}
 
 	/*!
@@ -329,6 +329,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the linear velocity of the physics object
+	*
+	* \param velocity New linear velocity of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline void PhysicsComponent3D::SetLinearVelocity(const Nz::Vector3f& velocity)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetLinearVelocity(velocity);
+	}
+
+	/*!
 	* \brief Sets the mass of the physics object
 	*
 	* \param mass Mass of the object
@@ -387,21 +401,6 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetRotation(rotation);
-	}
-
-	/*!
-	* \brief Sets the velocity of the physics object
-	*
-	* \param velocity Velocity of the object
-	*
-	* \remark Produces a NazaraAssert if the physics object is invalid
-	*/
-
-	inline void PhysicsComponent3D::SetVelocity(const Nz::Vector3f& velocity)
-	{
-		NazaraAssert(m_object, "Invalid physics object");
-
-		m_object->SetVelocity(velocity);
 	}
 
 	/*!
