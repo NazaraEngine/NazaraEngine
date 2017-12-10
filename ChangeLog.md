@@ -37,6 +37,7 @@ Nazara Engine:
 - Fix MemoryStream::WriteBlock "Invalid buffer" assertion triggering when writing a zero-sized block
 - ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
+- Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

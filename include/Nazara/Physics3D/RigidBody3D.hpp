@@ -35,6 +35,7 @@ namespace Nz
 			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys_Global);
 
 			void EnableAutoSleep(bool autoSleep);
+			void EnableSimulation(bool simulation);
 
 			Boxf GetAABB() const;
 			Vector3f GetAngularDamping() const;
@@ -53,6 +54,7 @@ namespace Nz
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;
+			bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
 
 			void SetAngularDamping(const Nz::Vector3f& angularDamping);
