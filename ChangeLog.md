@@ -63,6 +63,7 @@ Nazara Development Kit:
 - Add linear and angular damping accessor to PhysicsComponent3D
 - Fix GraphicsComponent cloning not copying renderable local matrices
 - ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
+- Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
 
 # 0.4:
 

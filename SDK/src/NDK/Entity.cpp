@@ -96,6 +96,10 @@ namespace Ndk
 				m_components[i]->OnComponentAttached(component);
 		}
 
+		// If we are currently disabled, inform the component
+		if (!m_enabled)
+			component.OnEntityDisabled();
+
 		return component;
 	}
 
@@ -106,7 +110,6 @@ namespace Ndk
 	* \remark The close is enable by default, even if the original is disabled
 	* \remark Produces a NazaraAssert if the entity is not valid
 	*/
-
 	const EntityHandle& Entity::Clone() const
 	{
 		NazaraAssert(IsValid(), "Invalid entity");
@@ -115,9 +118,33 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Enables the entity
+	*
+	* \param enable Should the entity be enabled
+	*/
+	void Entity::Enable(bool enable)
+	{
+		if (m_enabled != enable)
+		{
+			m_enabled = enable;
+			if (m_enabled)
+			{
+				for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+					m_components[i]->OnEntityEnabled();
+			}
+			else
+			{
+				for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+					m_components[i]->OnEntityDisabled();
+			}
+
+			Invalidate();
+		}
+	}
+
+	/*!
 	* \brief Kills the entity
 	*/
-
 	void Entity::Kill()
 	{
 		m_world->KillEntity(this);

@@ -63,6 +63,26 @@ namespace Ndk
 	{
 	}
 
+	/*!
+	* \brief Operation to perform when the entity is disabled
+	*
+	* \remark Disabling an entity will remove it from systems it belongs to, but sometimes the entity will need to do
+	*         additional work in order to be properly disabled (i.e.: disabling physics simulation & collisions)
+	*/
+	void BaseComponent::OnEntityDisabled()
+	{
+	}
+
+	/*!
+	* \brief Operation to perform when the entity is disabled
+	*
+	* \remark Enabling an entity will add it back to systems it belongs to, but sometimes the entity will need to do
+	*         additional work in order to be properly re-enabled (i.e.: enabling physics simulation & collisions)
+	*/
+	void BaseComponent::OnEntityEnabled()
+	{
+	}
+
 	std::vector<BaseComponent::ComponentEntry> BaseComponent::s_entries;
 	std::unordered_map<ComponentId, ComponentIndex> BaseComponent::s_idToIndex;
 }
