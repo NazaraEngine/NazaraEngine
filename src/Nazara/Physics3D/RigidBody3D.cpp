@@ -133,6 +133,11 @@ namespace Nz
 		NewtonBodySetAutoSleep(m_body, autoSleep);
 	}
 
+	void RigidBody3D::EnableSimulation(bool simulation)
+	{
+		NewtonBodySetSimulationState(m_body, simulation);
+	}
+
 	Boxf RigidBody3D::GetAABB() const
 	{
 		Vector3f min, max;
@@ -236,6 +241,11 @@ namespace Nz
 	bool RigidBody3D::IsMoveable() const
 	{
 		return m_mass > 0.f;
+	}
+
+	bool RigidBody3D::IsSimulationEnabled() const
+	{
+		return NewtonBodyGetSimulationState(m_body) != 0;
 	}
 
 	bool RigidBody3D::IsSleeping() const
