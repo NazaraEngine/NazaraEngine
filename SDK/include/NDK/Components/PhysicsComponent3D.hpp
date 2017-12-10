@@ -65,6 +65,8 @@ namespace Ndk
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 			void OnEntityDestruction() override;
+			void OnEntityDisabled() override;
+			void OnEntityEnabled() override;
 
 			std::unique_ptr<Nz::RigidBody3D> m_object;
 	};
