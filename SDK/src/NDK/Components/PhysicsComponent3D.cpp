@@ -93,5 +93,19 @@ namespace Ndk
 		m_object.reset();
 	}
 
+	void PhysicsComponent3D::OnEntityDisabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(false);
+	}
+
+	void PhysicsComponent3D::OnEntityEnabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(true);
+	}
+
 	ComponentIndex PhysicsComponent3D::componentIndex;
 }

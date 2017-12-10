@@ -64,6 +64,7 @@ Nazara Development Kit:
 - Fix GraphicsComponent cloning not copying renderable local matrices
 - ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
+- Disabling an entity with a CollisionComponent3D or PhysicsComponent3D will properly disable it from the physics simulation
 
 # 0.4:
 
