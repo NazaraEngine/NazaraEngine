@@ -47,7 +47,15 @@ namespace Nz
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
+
 		SetMass(object.m_mass);
+		SetAngularDamping(object.GetAngularDamping());
+		SetAngularVelocity(object.GetAngularVelocity());
+		SetLinearDamping(object.GetLinearDamping());
+		SetLinearVelocity(object.GetLinearVelocity());
+		SetMassCenter(object.GetMassCenter());
+		SetPosition(object.GetPosition());
+		SetRotation(object.GetRotation());
 	}
 
 	RigidBody3D::RigidBody3D(RigidBody3D&& object) :
