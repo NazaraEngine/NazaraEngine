@@ -43,12 +43,12 @@ namespace Nz
 			float GetGravityFactor() const;
 			NewtonBody* GetHandle() const;
 			float GetLinearDamping() const;
+			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
 			const Matrix4f& GetMatrix() const;
 			Vector3f GetPosition() const;
 			Quaternionf GetRotation() const;
-			Vector3f GetVelocity() const;
 			PhysWorld3D* GetWorld() const;
 
 			bool IsAutoSleepEnabled() const;
@@ -60,11 +60,11 @@ namespace Nz
 			void SetGeom(Collider3DRef geom);
 			void SetGravityFactor(float gravityFactor);
 			void SetLinearDamping(float damping);
+			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
-			void SetVelocity(const Vector3f& velocity);
 
 			RigidBody3D& operator=(const RigidBody3D& object);
 			RigidBody3D& operator=(RigidBody3D&& object);

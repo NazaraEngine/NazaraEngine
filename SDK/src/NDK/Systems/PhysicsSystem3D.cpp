@@ -103,10 +103,10 @@ namespace Ndk
 			if (newPosition != oldPosition)
 			{
 				physObj->SetPosition(newPosition);
-				physObj->SetVelocity((newPosition - oldPosition) * invElapsedTime);
+				physObj->SetLinearVelocity((newPosition - oldPosition) * invElapsedTime);
 			}
 			else
-				physObj->SetVelocity(Nz::Vector3f::Zero());
+				physObj->SetLinearVelocity(Nz::Vector3f::Zero());
 
 			if (newRotation != oldRotation)
 			{

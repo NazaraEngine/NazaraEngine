@@ -169,6 +169,14 @@ namespace Nz
 		return NewtonBodyGetLinearDamping(m_body);
 	}
 
+	Vector3f RigidBody3D::GetLinearVelocity() const
+	{
+		Vector3f velocity;
+		NewtonBodyGetVelocity(m_body, velocity);
+
+		return velocity;
+	}
+
 	float RigidBody3D::GetMass() const
 	{
 		return m_mass;
@@ -205,14 +213,6 @@ namespace Nz
 	Quaternionf RigidBody3D::GetRotation() const
 	{
 		return m_matrix.GetRotation();
-	}
-
-	Vector3f RigidBody3D::GetVelocity() const
-	{
-		Vector3f velocity;
-		NewtonBodyGetVelocity(m_body, velocity);
-
-		return velocity;
 	}
 
 	PhysWorld3D* RigidBody3D::GetWorld() const
@@ -268,6 +268,11 @@ namespace Nz
 		NewtonBodySetLinearDamping(m_body, damping);
 	}
 
+	void RigidBody3D::SetLinearVelocity(const Vector3f& velocity)
+	{
+		NewtonBodySetVelocity(m_body, velocity);
+	}
+
 	void RigidBody3D::SetMass(float mass)
 	{
 		if (m_mass > 0.f)
@@ -311,11 +316,6 @@ namespace Nz
 		m_matrix.SetRotation(rotation);
 
 		UpdateBody();
-	}
-
-	void RigidBody3D::SetVelocity(const Vector3f& velocity)
-	{
-		NewtonBodySetVelocity(m_body, velocity);
 	}
 
 	RigidBody3D& RigidBody3D::operator=(const RigidBody3D& object)

@@ -34,12 +34,12 @@ namespace Ndk
 			Nz::Vector3f GetAngularVelocity() const;
 			float GetGravityFactor() const;
 			float GetLinearDamping() const;
+			Nz::Vector3f GetLinearVelocity() const;
 			float GetMass() const;
 			Nz::Vector3f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			const Nz::Matrix4f& GetMatrix() const;
 			Nz::Vector3f GetPosition() const;
 			Nz::Quaternionf GetRotation() const;
-			Nz::Vector3f GetVelocity() const;
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;
@@ -49,11 +49,11 @@ namespace Ndk
 			void SetAngularVelocity(const Nz::Vector3f& angularVelocity);
 			void SetGravityFactor(float gravityFactor);
 			void SetLinearDamping(float damping);
+			void SetLinearVelocity(const Nz::Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Nz::Vector3f& center);
 			void SetPosition(const Nz::Vector3f& position);
 			void SetRotation(const Nz::Quaternionf& rotation);
-			void SetVelocity(const Nz::Vector3f& velocity);
 
 			static ComponentIndex componentIndex;
 
