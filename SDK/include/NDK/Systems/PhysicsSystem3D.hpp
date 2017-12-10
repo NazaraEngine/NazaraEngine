@@ -18,7 +18,6 @@ namespace Ndk
 	{
 		public:
 			PhysicsSystem3D();
-			PhysicsSystem3D(const PhysicsSystem3D& system);
 			~PhysicsSystem3D() = default;
 
 			Nz::PhysWorld3D& GetWorld();

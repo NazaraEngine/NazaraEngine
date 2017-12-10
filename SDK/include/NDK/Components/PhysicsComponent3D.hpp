@@ -52,6 +52,8 @@ namespace Ndk
 			void SetLinearVelocity(const Nz::Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Nz::Vector3f& center);
+			void SetMaterial(const Nz::String& materialName);
+			void SetMaterial(int materialIndex);
 			void SetPosition(const Nz::Vector3f& position);
 			void SetRotation(const Nz::Quaternionf& rotation);
 

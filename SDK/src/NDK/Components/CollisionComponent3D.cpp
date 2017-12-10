@@ -59,6 +59,7 @@ namespace Ndk
 
 		m_staticBody = std::make_unique<Nz::RigidBody3D>(&physWorld, m_geom);
 		m_staticBody->EnableAutoSleep(false);
+		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 	}
 
 	/*!
