@@ -33,6 +33,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		SocketHandle newClient = accept(handle, reinterpret_cast<sockaddr*>(&nameBuffer), &bufferLength);
@@ -392,6 +394,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		if (getpeername(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
@@ -413,6 +417,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		if (getsockname(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
@@ -537,6 +543,8 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		IpAddress senderIp;
@@ -592,6 +600,8 @@ namespace Nz
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		IpAddress senderIp;
