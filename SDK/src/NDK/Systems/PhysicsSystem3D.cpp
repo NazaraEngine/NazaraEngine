@@ -47,16 +47,20 @@ namespace Ndk
 
 	void PhysicsSystem3D::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		// It's possible our entity got revalidated because of the addition/removal of a PhysicsComponent3D
-		if (!justAdded)
+		if (entity->HasComponent<PhysicsComponent3D>())
 		{
-			// We take the opposite array from which the entity should belong to
-			auto& entities = (entity->HasComponent<PhysicsComponent3D>()) ? m_staticObjects : m_dynamicObjects;
-			entities.Remove(entity);
-		}
+			if (entity->GetComponent<PhysicsComponent3D>().IsNodeSynchronizationEnabled())
+				m_dynamicObjects.Insert(entity);
+			else
+				m_dynamicObjects.Remove(entity);
 
-		auto& entities = (entity->HasComponent<PhysicsComponent3D>()) ? m_dynamicObjects : m_staticObjects;
-		entities.Insert(entity);
+			m_staticObjects.Remove(entity);
+		}
+		else
+		{
+			m_dynamicObjects.Remove(entity);
+			m_staticObjects.Insert(entity);
+		}
 
 		if (!m_world)
 			CreatePhysWorld();

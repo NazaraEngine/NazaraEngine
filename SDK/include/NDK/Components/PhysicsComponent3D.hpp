@@ -19,7 +19,7 @@ namespace Ndk
 		friend class PhysicsSystem3D;
 
 		public:
-			PhysicsComponent3D() = default;
+			inline PhysicsComponent3D();
 			PhysicsComponent3D(const PhysicsComponent3D& physics);
 			~PhysicsComponent3D() = default;
 
@@ -28,6 +28,7 @@ namespace Ndk
 			void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 
 			void EnableAutoSleep(bool autoSleep);
+			void EnableNodeSynchronization(bool nodeSynchronization);
 
 			Nz::Boxf GetAABB() const;
 			Nz::Vector3f GetAngularDamping() const;
@@ -43,6 +44,7 @@ namespace Ndk
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;
+			bool IsNodeSynchronizationEnabled() const;
 			bool IsSleeping() const;
 
 			void SetAngularDamping(const Nz::Vector3f& angularDamping);
@@ -69,6 +71,7 @@ namespace Ndk
 			void OnEntityEnabled() override;
 
 			std::unique_ptr<Nz::RigidBody3D> m_object;
+			bool m_nodeSynchronizationEnabled;
 	};
 }
 
