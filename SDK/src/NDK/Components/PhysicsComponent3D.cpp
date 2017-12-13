@@ -41,7 +41,11 @@ namespace Ndk
 			matrix.MakeIdentity();
 
 		m_object = std::make_unique<Nz::RigidBody3D>(&world, geom, matrix);
-		m_object->SetMass(1.f);
+
+		if (m_pendingStates.valid)
+			ApplyPhysicsState(*m_object);
+		else
+			m_object->SetMass(1.f);
 	}
 
 	/*!
@@ -57,6 +61,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(static_cast<CollisionComponent3D&>(component).GetGeom());
 		}
 	}
@@ -74,6 +79,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(Nz::NullCollider3D::New());
 		}
 	}
@@ -84,7 +90,11 @@ namespace Ndk
 
 	void PhysicsComponent3D::OnDetached()
 	{
-		m_object.reset();
+		if (m_object)
+		{
+			CopyPhysicsState(*m_object);
+			m_object.reset();
+		}
 	}
 
 	void PhysicsComponent3D::OnEntityDestruction()

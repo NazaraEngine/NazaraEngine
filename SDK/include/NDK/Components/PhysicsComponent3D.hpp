@@ -60,7 +60,10 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
+			void ApplyPhysicsState(Nz::RigidBody3D& rigidBody) const;
+			void CopyPhysicsState(const Nz::RigidBody3D& rigidBody);
 			Nz::RigidBody3D& GetRigidBody();
+			const Nz::RigidBody3D& GetRigidBody() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -70,7 +73,19 @@ namespace Ndk
 			void OnEntityDisabled() override;
 			void OnEntityEnabled() override;
 
+			struct PendingPhysObjectStates
+			{
+				Nz::Vector3f angularDamping;
+				Nz::Vector3f massCenter;
+				bool autoSleep;
+				bool valid = false;
+				float gravityFactor;
+				float linearDamping;
+				float mass;
+			};
+
 			std::unique_ptr<Nz::RigidBody3D> m_object;
+			PendingPhysObjectStates m_pendingStates;
 			bool m_nodeSynchronizationEnabled;
 	};
 }
