@@ -64,7 +64,7 @@ namespace Nz
 			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
 		private:
-			Id(ThreadImpl* thread);
+			explicit Id(ThreadImpl* thread);
 
 			ThreadImpl* m_id = nullptr;
 	};
