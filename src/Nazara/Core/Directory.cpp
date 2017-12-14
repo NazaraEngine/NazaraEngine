@@ -31,7 +31,7 @@ namespace Nz
 	namespace
 	{
 		//FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
-		thread_local std::string currentPath(DirectoryImpl::GetCurrent());
+		thread_local std::string currentPath(DirectoryImpl::GetCurrent().ToStdString());
 	}
 
 	/*!
@@ -526,7 +526,7 @@ namespace Nz
 		String path = File::AbsolutePath(dirPath);
 		if (DirectoryImpl::Exists(path))
 		{
-			currentPath = path;
+			currentPath = path.ToStdString();
 			return true;
 		}
 		else
