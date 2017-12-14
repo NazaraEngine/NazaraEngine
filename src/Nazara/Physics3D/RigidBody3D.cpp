@@ -6,6 +6,7 @@
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Newton/Newton.h>
 #include <algorithm>
+#include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
@@ -31,6 +32,7 @@ namespace Nz
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
+		NewtonBodySetTransformCallback(m_body, &TransformCallback);
 	}
 
 	RigidBody3D::RigidBody3D(const RigidBody3D& object) :
@@ -47,6 +49,7 @@ namespace Nz
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
+		NewtonBodySetTransformCallback(m_body, &TransformCallback);
 
 		SetMass(object.m_mass);
 		SetAngularDamping(object.GetAngularDamping());
@@ -303,16 +306,27 @@ namespace Nz
 
 	void RigidBody3D::SetMass(float mass)
 	{
+		NazaraAssert(mass >= 0.f, "Mass must be positive and finite");
+		NazaraAssert(std::isfinite(mass), "Mass must be positive and finite");
+
 		if (m_mass > 0.f)
 		{
-			// If we already have a mass, we already have an inertial matrix as well, just rescale it
-			float Ix, Iy, Iz;
-			NewtonBodyGetMassMatrix(m_body, &m_mass, &Ix, &Iy, &Iz);
+			if (mass > 0.f)
+			{
+				// If we already have a mass, we already have an inertial matrix as well, just rescale it
+				float Ix, Iy, Iz;
+				NewtonBodyGetMassMatrix(m_body, &m_mass, &Ix, &Iy, &Iz);
 
-			float scale = mass/m_mass;
-			NewtonBodySetMassMatrix(m_body, mass, Ix*scale, Iy*scale, Iz*scale);
+				float scale = mass / m_mass;
+				NewtonBodySetMassMatrix(m_body, mass, Ix*scale, Iy*scale, Iz*scale);
+			}
+			else
+			{
+				NewtonBodySetMassMatrix(m_body, 0.f, 0.f, 0.f, 0.f);
+				NewtonBodySetForceAndTorqueCallback(m_body, nullptr);
+			}
 		}
-		else if (mass > 0.f)
+		else
 		{
 			Vector3f inertia, origin;
 			m_geom->ComputeInertialMatrix(&inertia, &origin);
@@ -320,7 +334,6 @@ namespace Nz
 			NewtonBodySetCentreOfMass(m_body, &origin.x);
 			NewtonBodySetMassMatrix(m_body, mass, inertia.x*mass, inertia.y*mass, inertia.z*mass);
 			NewtonBodySetForceAndTorqueCallback(m_body, &ForceAndTorqueCallback);
-			NewtonBodySetTransformCallback(m_body, &TransformCallback);
 		}
 
 		m_mass = mass;

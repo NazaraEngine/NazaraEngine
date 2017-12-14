@@ -48,7 +48,8 @@ namespace Nz
 		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
 
 		epoll_event entry;
-		entry.events = 0;
+		std::memset(&entry, 0, sizeof(epoll_event));
+
 		entry.data.fd = socket;
 
 		if (eventFlags & SocketPollEvent_Read)
