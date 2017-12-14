@@ -607,7 +607,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -633,7 +633,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -723,7 +723,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -752,7 +752,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -1050,7 +1050,7 @@ Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 

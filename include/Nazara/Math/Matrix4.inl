@@ -238,7 +238,7 @@ namespace Nz
 			String error("Column out of range: (" + String::Number(column) + ") > 3");
 
 			NazaraError(error);
-			throw std::out_of_range(error);
+			throw std::out_of_range(error.ToStdString());
 		}
 		#endif
 
@@ -632,7 +632,7 @@ namespace Nz
 			String error("Row out of range: (" + String::Number(row) + ") > 3");
 
 			NazaraError(error);
-			throw std::out_of_range(error);
+			throw std::out_of_range(error.ToStdString());
 		}
 		#endif
 
@@ -1347,7 +1347,7 @@ namespace Nz
 			String error("Index out of range: (" + String::Number(x) + ", " + String::Number(y) +") > (3, 3)");
 
 			NazaraError(error);
-			throw std::out_of_range(error);
+			throw std::out_of_range(error.ToStdString());
 		}
 		#endif
 
@@ -1371,7 +1371,7 @@ namespace Nz
 			String error("Index out of range: (" + String::Number(x) + ", " + String::Number(y) +") > (3, 3)");
 
 			NazaraError(error);
-			throw std::out_of_range(error);
+			throw std::out_of_range(error.ToStdString());
 		}
 		#endif
 
