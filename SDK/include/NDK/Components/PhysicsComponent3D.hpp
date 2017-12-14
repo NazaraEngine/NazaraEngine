@@ -19,7 +19,7 @@ namespace Ndk
 		friend class PhysicsSystem3D;
 
 		public:
-			PhysicsComponent3D() = default;
+			inline PhysicsComponent3D();
 			PhysicsComponent3D(const PhysicsComponent3D& physics);
 			~PhysicsComponent3D() = default;
 
@@ -28,6 +28,7 @@ namespace Ndk
 			void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 
 			void EnableAutoSleep(bool autoSleep);
+			void EnableNodeSynchronization(bool nodeSynchronization);
 
 			Nz::Boxf GetAABB() const;
 			Nz::Vector3f GetAngularDamping() const;
@@ -43,6 +44,7 @@ namespace Ndk
 
 			bool IsAutoSleepEnabled() const;
 			bool IsMoveable() const;
+			bool IsNodeSynchronizationEnabled() const;
 			bool IsSleeping() const;
 
 			void SetAngularDamping(const Nz::Vector3f& angularDamping);
@@ -60,7 +62,10 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
+			void ApplyPhysicsState(Nz::RigidBody3D& rigidBody) const;
+			void CopyPhysicsState(const Nz::RigidBody3D& rigidBody);
 			Nz::RigidBody3D& GetRigidBody();
+			const Nz::RigidBody3D& GetRigidBody() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -70,7 +75,20 @@ namespace Ndk
 			void OnEntityDisabled() override;
 			void OnEntityEnabled() override;
 
+			struct PendingPhysObjectStates
+			{
+				Nz::Vector3f angularDamping;
+				Nz::Vector3f massCenter;
+				bool autoSleep;
+				bool valid = false;
+				float gravityFactor;
+				float linearDamping;
+				float mass;
+			};
+
 			std::unique_ptr<Nz::RigidBody3D> m_object;
+			PendingPhysObjectStates m_pendingStates;
+			bool m_nodeSynchronizationEnabled;
 	};
 }
 

@@ -7,16 +7,21 @@
 
 namespace Ndk
 {
+	inline PhysicsComponent3D::PhysicsComponent3D() :
+	m_nodeSynchronizationEnabled(true)
+	{
+	}
+
 	/*!
 	* \brief Constructs a PhysicsComponent3D object by copy semantic
 	*
 	* \param physics PhysicsComponent3D to copy
 	*/
-
-	inline PhysicsComponent3D::PhysicsComponent3D(const PhysicsComponent3D& physics)
+	inline PhysicsComponent3D::PhysicsComponent3D(const PhysicsComponent3D& physics) :
+	m_nodeSynchronizationEnabled(physics.m_nodeSynchronizationEnabled)
 	{
-		// No copy of physical object (because we only create it when attached to an entity)
-		NazaraUnused(physics);
+		// We can't make a copy of the RigidBody3D, as we are not attached yet (and will possibly be attached to another world)
+		CopyPhysicsState(physics.GetRigidBody());
 	}
 
 	/*!
@@ -75,12 +80,27 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent3D::EnableAutoSleep(bool autoSleep)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->EnableAutoSleep(autoSleep);
+	}
+
+	/*!
+	* \brief Enables position/rotation synchronization with the NodeComponent
+	*
+	* By default, at every update of the PhysicsSystem3D, the NodeComponent's position and rotation (if any) will be synchronized with
+	* the values of the PhysicsComponent3D. This function allows to enable/disable this behavior on a per-entity basis.
+	*
+	* \param nodeSynchronization Should synchronization occur between NodeComponent and PhysicsComponent3D
+	*/
+	inline void PhysicsComponent3D::EnableNodeSynchronization(bool nodeSynchronization)
+	{
+		m_nodeSynchronizationEnabled = nodeSynchronization;
+
+		if (m_entity)
+			m_entity->Invalidate();
 	}
 
 	/*!
@@ -178,7 +198,7 @@ namespace Ndk
 	* \brief Gets the gravity center of the physics object
 	* \return Gravity center of the object
 	*
-	* \param coordSys System coordinates to consider 
+	* \param coordSys System coordinates to consider
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
@@ -259,12 +279,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Checks if position & rotation are synchronized with NodeComponent
+	* \return true If synchronization is enabled
+	*
+	* \see EnableNodeSynchronization
+	*/
+	inline bool PhysicsComponent3D::IsNodeSynchronizationEnabled() const
+	{
+		return m_nodeSynchronizationEnabled;
+	}
+
+	/*!
 	* \brief Checks whether the entity is currently sleeping
 	* \return true If it is the case
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline bool PhysicsComponent3D::IsSleeping() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -353,7 +383,8 @@ namespace Ndk
 	inline void PhysicsComponent3D::SetMass(float mass)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
-		NazaraAssert(mass > 0.f, "Mass should be positive");
+		NazaraAssert(mass >= 0.f, "Mass must be positive and finite");
+		NazaraAssert(std::isfinite(mass), "Mass must be positive and finite");
 
 		m_object->SetMass(mass);
 	}
@@ -430,12 +461,43 @@ namespace Ndk
 		m_object->SetRotation(rotation);
 	}
 
+	inline void PhysicsComponent3D::ApplyPhysicsState(Nz::RigidBody3D& rigidBody) const
+	{
+		assert(m_pendingStates.valid);
+
+		rigidBody.EnableAutoSleep(m_pendingStates.autoSleep);
+		rigidBody.SetAngularDamping(m_pendingStates.angularDamping);
+		rigidBody.SetGravityFactor(m_pendingStates.gravityFactor);
+		rigidBody.SetLinearDamping(m_pendingStates.linearDamping);
+		rigidBody.SetMass(m_pendingStates.mass);
+		rigidBody.SetMassCenter(m_pendingStates.massCenter);
+	}
+
+	inline void PhysicsComponent3D::CopyPhysicsState(const Nz::RigidBody3D& rigidBody)
+	{
+		m_pendingStates.autoSleep = rigidBody.IsAutoSleepEnabled();
+		m_pendingStates.angularDamping = rigidBody.GetAngularDamping();
+		m_pendingStates.gravityFactor = rigidBody.GetGravityFactor();
+		m_pendingStates.linearDamping = rigidBody.GetLinearDamping();
+		m_pendingStates.mass = rigidBody.GetMass();
+		m_pendingStates.massCenter = rigidBody.GetMassCenter(Nz::CoordSys_Local);
+		m_pendingStates.valid = true;
+	}
+
 	/*!
 	* \brief Gets the underlying physics object
 	* \return A reference to the physics object
 	*/
-
 	inline Nz::RigidBody3D& PhysicsComponent3D::GetRigidBody()
+	{
+		return *m_object.get();
+	}
+
+	/*!
+	* \brief Gets the underlying physics object
+	* \return A reference to the physics object
+	*/
+	inline const Nz::RigidBody3D& PhysicsComponent3D::GetRigidBody() const
 	{
 		return *m_object.get();
 	}
