@@ -579,7 +579,7 @@ namespace Nz
 			String error("Planes are parallel");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 

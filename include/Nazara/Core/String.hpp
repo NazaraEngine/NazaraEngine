@@ -168,6 +168,7 @@ namespace Nz
 			bool ToDouble(double* value) const;
 			bool ToInteger(long long* value, UInt8 radix = 10) const;
 			String ToLower(UInt32 flags = None) const;
+			std::string ToStdString() const;
 			String ToUpper(UInt32 flags = None) const;
 
 			String& Trim(UInt32 flags = None);
@@ -192,8 +193,6 @@ namespace Nz
 			//typedef char* reverse_iterator;
 			typedef char value_type;
 			// Méthodes STD
-
-			operator std::string() const;
 
 			char& operator[](std::size_t pos);
 			char operator[](std::size_t pos) const;

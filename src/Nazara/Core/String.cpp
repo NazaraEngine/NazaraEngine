@@ -4198,12 +4198,20 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Converts the string to std::string
+	* \return std::string representation
+	*/
+	std::string String::ToStdString() const
+	{
+		return std::string(m_sharedString->string.get(), m_sharedString->size);
+	}
+
+	/*!
 	* \brief Converts the string to upper
 	* \return Upper string
 	*
 	* \param flags Flag for the look up
 	*/
-
 	String String::ToUpper(UInt32 flags) const
 	{
 		if (m_sharedString->size == 0)
@@ -4480,16 +4488,6 @@ namespace Nz
 		return &m_sharedString->string[-1];
 	}
 	*/
-
-	/*!
-	* \brief Converts the string to std::string
-	* \return std::string representation
-	*/
-
-	String::operator std::string() const
-	{
-		return std::string(m_sharedString->string.get(), m_sharedString->size);
-	}
 
 	/*!
 	* \brief Gets the ith character in the string
