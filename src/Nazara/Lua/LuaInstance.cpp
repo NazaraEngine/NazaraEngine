@@ -21,7 +21,7 @@ namespace Nz
 		{
 			String lastError(lua_tostring(internalState, -1));
 
-			throw std::runtime_error("Lua panic: " + lastError);
+			throw std::runtime_error("Lua panic: " + lastError.ToStdString());
 		}
 	}
 
