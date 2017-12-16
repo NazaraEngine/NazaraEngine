@@ -38,15 +38,36 @@ namespace Nz
 		luaL_openlibs(m_state);
 	}
 
+	LuaInstance::LuaInstance(LuaInstance&& instance) :
+	LuaState(std::move(instance)),
+	m_memoryLimit(std::move(m_memoryLimit)),
+	m_memoryUsage(std::move(m_memoryUsage)),
+	m_timeLimit(std::move(m_timeLimit)),
+	m_clock(std::move(m_clock)),
+	m_level(std::move(m_level))
+	{
+		lua_setallocf(m_state, MemoryAllocator, this);
+	}
+
 	LuaInstance::~LuaInstance()
 	{
 		if (m_state)
 			lua_close(m_state);
 	}
 
-	inline void LuaInstance::SetMemoryUsage(std::size_t memoryUsage)
+	LuaInstance& LuaInstance::operator=(LuaInstance&& instance)
 	{
-		m_memoryUsage = memoryUsage;
+		LuaState::operator=(std::move(instance));
+
+		m_memoryLimit = std::move(instance.m_memoryLimit);
+		m_memoryUsage = std::move(instance.m_memoryUsage);
+		m_timeLimit = std::move(instance.m_timeLimit);
+		m_clock = std::move(instance.m_clock);
+		m_level = std::move(instance.m_level);
+
+		lua_setallocf(m_state, MemoryAllocator, this);
+
+		return *this;
 	}
 
 	void* LuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std::size_t nsize)
