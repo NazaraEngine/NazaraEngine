@@ -39,14 +39,19 @@ namespace Nz
 	}
 
 	LuaInstance::LuaInstance(LuaInstance&& instance) :
-	LuaState(std::move(instance)),
-	m_memoryLimit(std::move(m_memoryLimit)),
-	m_memoryUsage(std::move(m_memoryUsage)),
-	m_timeLimit(std::move(m_timeLimit)),
-	m_clock(std::move(m_clock)),
-	m_level(std::move(m_level))
+	LuaState(std::move(instance))
 	{
-		lua_setallocf(m_state, MemoryAllocator, this);
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
+
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
 	}
 
 	LuaInstance::~LuaInstance()
@@ -59,13 +64,17 @@ namespace Nz
 	{
 		LuaState::operator=(std::move(instance));
 
-		m_memoryLimit = std::move(instance.m_memoryLimit);
-		m_memoryUsage = std::move(instance.m_memoryUsage);
-		m_timeLimit = std::move(instance.m_timeLimit);
-		m_clock = std::move(instance.m_clock);
-		m_level = std::move(instance.m_level);
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
 
-		lua_setallocf(m_state, MemoryAllocator, this);
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
 
 		return *this;
 	}
