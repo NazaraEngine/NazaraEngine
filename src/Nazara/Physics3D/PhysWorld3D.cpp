@@ -74,20 +74,46 @@ namespace Nz
 		m_stepSize = stepSize;
 	}
 
-	void PhysWorld3D::SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, CollisionCallback callback)
+	void PhysWorld3D::SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback)
 	{
 		static_assert(sizeof(Nz::UInt64) >= 2 * sizeof(int), "Oops");
 
 		auto callbackPtr = std::make_unique<Callback>();
-		callbackPtr->collisionCallback = std::move(callback);
+		callbackPtr->aabbOverlapCallback = std::move(aabbOverlapCallback);
+		callbackPtr->collisionCallback = std::move(collisionCallback);
 
-		NewtonMaterialSetCollisionCallback(m_world, firstMaterial, secondMaterial, callbackPtr.get(), nullptr, ProcessContact);
+		NewtonMaterialSetCollisionCallback(m_world, firstMaterial, secondMaterial, callbackPtr.get(), (callbackPtr->aabbOverlapCallback) ? OnAABBOverlap : nullptr, (callbackPtr->collisionCallback) ? ProcessContact : nullptr);
 
 		Nz::UInt64 firstMaterialId(firstMaterial);
 		Nz::UInt64 secondMaterialId(secondMaterial);
 
 		Nz::UInt64 callbackIndex = firstMaterialId << 32 | secondMaterialId;
 		m_callbacks[callbackIndex] = std::move(callbackPtr);
+	}
+
+	void PhysWorld3D::SetMaterialDefaultCollidable(int firstMaterial, int secondMaterial, bool collidable)
+	{
+		NewtonMaterialSetDefaultCollidable(m_world, firstMaterial, secondMaterial, collidable);
+	}
+
+	void PhysWorld3D::SetMaterialDefaultElasticity(int firstMaterial, int secondMaterial, float elasticCoef)
+	{
+		NewtonMaterialSetDefaultElasticity(m_world, firstMaterial, secondMaterial, elasticCoef);
+	}
+
+	void PhysWorld3D::SetMaterialDefaultFriction(int firstMaterial, int secondMaterial, float staticFriction, float kineticFriction)
+	{
+		NewtonMaterialSetDefaultFriction(m_world, firstMaterial, secondMaterial, staticFriction, kineticFriction);
+	}
+
+	void PhysWorld3D::SetMaterialDefaultSoftness(int firstMaterial, int secondMaterial, float softness)
+	{
+		NewtonMaterialSetDefaultSoftness(m_world, firstMaterial, secondMaterial, softness);
+	}
+
+	void PhysWorld3D::SetMaterialSurfaceThickness(int firstMaterial, int secondMaterial, float thickness)
+	{
+		NewtonMaterialSetSurfaceThickness(m_world, firstMaterial, secondMaterial, thickness);
 	}
 
 	void PhysWorld3D::Step(float timestep)
@@ -99,6 +125,19 @@ namespace Nz
 			NewtonUpdate(m_world, m_stepSize);
 			m_timestepAccumulator -= m_stepSize;
 		}
+	}
+
+	int PhysWorld3D::OnAABBOverlap(const NewtonMaterial* const material, const NewtonBody* const body0, const NewtonBody* const body1, int threadIndex)
+	{
+		Nz::RigidBody3D* bodyA = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(body0));
+		Nz::RigidBody3D* bodyB = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(body1));
+		assert(bodyA && bodyB);
+
+		Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
+		assert(callbackData);
+		assert(callbackData->aabbOverlapCallback);
+
+		return callbackData->aabbOverlapCallback(*bodyA, *bodyB);
 	}
 
 	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
@@ -123,6 +162,7 @@ namespace Nz
 			NewtonMaterial* material = NewtonContactGetMaterial(contact);
 			Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
 			assert(callbackData);
+			assert(callbackData->collisionCallback);
 
 			if (!callbackData->collisionCallback(*bodyA, *bodyB))
 				NewtonContactJointRemoveContact(contactJoint, contact);
