@@ -13,7 +13,9 @@
 #include <Nazara/Physics3D/Config.hpp>
 #include <unordered_map>
 
+class NewtonBody;
 class NewtonJoint;
+class NewtonMaterial;
 class NewtonWorld;
 
 namespace Nz
@@ -23,6 +25,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
 		public:
+			using AABBOverlapCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 			using CollisionCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 
 			PhysWorld3D();
@@ -41,7 +44,12 @@ namespace Nz
 			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
 
-			void SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, CollisionCallback callback);
+			void SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback);
+			void SetMaterialDefaultCollidable(int firstMaterial, int secondMaterial, bool collidable);
+			void SetMaterialDefaultElasticity(int firstMaterial, int secondMaterial, float elasticCoef);
+			void SetMaterialDefaultFriction(int firstMaterial, int secondMaterial, float staticFriction, float kineticFriction);
+			void SetMaterialDefaultSoftness(int firstMaterial, int secondMaterial, float softness);
+			void SetMaterialSurfaceThickness(int firstMaterial, int secondMaterial, float thickness);
 
 			void Step(float timestep);
 
@@ -51,9 +59,11 @@ namespace Nz
 		private:
 			struct Callback
 			{
+				AABBOverlapCallback aabbOverlapCallback;
 				CollisionCallback collisionCallback;
 			};
 
+			static int OnAABBOverlap(const NewtonMaterial* const material, const NewtonBody* const body0, const NewtonBody* const body1, int threadIndex);
 			static void ProcessContact(const NewtonJoint* const contact, float timestep, int threadIndex);
 
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;
