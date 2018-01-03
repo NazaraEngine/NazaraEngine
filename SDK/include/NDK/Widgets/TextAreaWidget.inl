@@ -10,9 +10,11 @@ namespace Ndk
 	{
 		m_cursorPosition.MakeZero();
 		m_drawer.Clear();
+		m_text.Clear();
 		m_textSprite->Update(m_drawer);
 
 		RefreshCursor();
+		OnTextChanged(this, m_text);
 	}
 
 	inline void TextAreaWidget::EnableMultiline(bool enable)
