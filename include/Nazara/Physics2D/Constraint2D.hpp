@@ -56,12 +56,14 @@ namespace Nz
 			Constraint2D(cpConstraint* constraint);
 
 			MovablePtr<cpConstraint> m_constraint;
+
+		private:
+			static Constraint2DLibrary s_library;
 	};
 
 	class DampedSpringConstraint2D;
 
 	using DampedSpringConstraint2DConstRef = ObjectRef<const DampedSpringConstraint2D>;
-	using DampedSpringConstraint2DLibrary = ObjectLibrary<DampedSpringConstraint2D>;
 	using DampedSpringConstraint2DRef = ObjectRef<DampedSpringConstraint2D>;
 	
 	class NAZARA_PHYSICS2D_API DampedSpringConstraint2D : public Constraint2D
@@ -88,7 +90,6 @@ namespace Nz
 	class DampedRotarySpringConstraint2D;
 
 	using DampedRotarySpringConstraint2DConstRef = ObjectRef<const DampedRotarySpringConstraint2D>;
-	using DampedRotarySpringConstraint2DLibrary = ObjectLibrary<DampedRotarySpringConstraint2D>;
 	using DampedRotarySpringConstraint2DRef = ObjectRef<DampedRotarySpringConstraint2D>;
 
 	class NAZARA_PHYSICS2D_API DampedRotarySpringConstraint2D : public Constraint2D
@@ -111,7 +112,6 @@ namespace Nz
 	class GearConstraint2D;
 
 	using GearConstraint2DConstRef = ObjectRef<const GearConstraint2D>;
-	using GearConstraint2DLibrary = ObjectLibrary<GearConstraint2D>;
 	using GearConstraint2DRef = ObjectRef<GearConstraint2D>;
 	
 	class NAZARA_PHYSICS2D_API GearConstraint2D : public Constraint2D
@@ -132,7 +132,6 @@ namespace Nz
 	class MotorConstraint2D;
 
 	using MotorConstraint2DConstRef = ObjectRef<const MotorConstraint2D>;
-	using MotorConstraint2DLibrary = ObjectLibrary<MotorConstraint2D>;
 	using MotorConstraint2DRef = ObjectRef<MotorConstraint2D>;
 	
 	class NAZARA_PHYSICS2D_API MotorConstraint2D : public Constraint2D
@@ -150,7 +149,6 @@ namespace Nz
 	class PinConstraint2D;
 
 	using PinConstraint2DConstRef = ObjectRef<const PinConstraint2D>;
-	using PinConstraint2DLibrary = ObjectLibrary<PinConstraint2D>;
 	using PinConstraint2DRef = ObjectRef<PinConstraint2D>;
 
 	class NAZARA_PHYSICS2D_API PinConstraint2D : public Constraint2D
@@ -173,7 +171,6 @@ namespace Nz
 	class PivotConstraint2D;
 
 	using PivotConstraint2DConstRef = ObjectRef<const PivotConstraint2D>;
-	using PivotConstraint2DLibrary = ObjectLibrary<PivotConstraint2D>;
 	using PivotConstraint2DRef = ObjectRef<PivotConstraint2D>;
 	
 	class NAZARA_PHYSICS2D_API PivotConstraint2D : public Constraint2D
@@ -195,7 +192,6 @@ namespace Nz
 	class RatchetConstraint2D;
 
 	using RatchetConstraint2DConstRef = ObjectRef<const RatchetConstraint2D>;
-	using RatchetConstraint2DLibrary = ObjectLibrary<RatchetConstraint2D>;
 	using RatchetConstraint2DRef = ObjectRef<RatchetConstraint2D>;
 	
 	class NAZARA_PHYSICS2D_API RatchetConstraint2D : public Constraint2D
@@ -218,7 +214,6 @@ namespace Nz
 	class RotaryLimitConstraint2D;
 
 	using RotaryLimitConstraint2DConstRef = ObjectRef<const RotaryLimitConstraint2D>;
-	using RotaryLimitConstraint2DLibrary = ObjectLibrary<RotaryLimitConstraint2D>;
 	using RotaryLimitConstraint2DRef = ObjectRef<RotaryLimitConstraint2D>;
 
 	class NAZARA_PHYSICS2D_API RotaryLimitConstraint2D : public Constraint2D
@@ -239,7 +234,6 @@ namespace Nz
 	class SlideConstraint2D;
 
 	using SlideConstraint2DConstRef = ObjectRef<const SlideConstraint2D>;
-	using SlideConstraint2DLibrary = ObjectLibrary<SlideConstraint2D>;
 	using SlideConstraint2DRef = ObjectRef<SlideConstraint2D>;
 
 	class NAZARA_PHYSICS2D_API SlideConstraint2D : public Constraint2D
