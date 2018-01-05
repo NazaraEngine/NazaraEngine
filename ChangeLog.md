@@ -1,9 +1,10 @@
 # Upcoming version:
 
-Build system:
+Build system/unit tests:
 - Add possibility to excludes with one commande all tests/examples/tools/etc.
 - Units tests are now part of the "test" exclusion category
 - Fix project exclusion not working (but correctly excluding projects relying upon it)
+- Upgraded Catch to v2.0.1
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -38,6 +39,13 @@ Nazara Engine:
 - ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
 - Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- Fix some uninitialized values (found by Valgrind) in Network module
+- Fix possible infinite recursion when outputting a Thread::Id object 
+- ⚠️ Replaced implicit conversion from a Nz::String to a std::string by an explicit method ToStdString()
+- Fix LuaInstance movement constructor/assignment operator which was corrupting Lua memory
+- Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
+- It is now possible to initialize a StackArray with a size of zero on every platforms (this was not possible on non-Windows platforms before)
+- Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -65,6 +73,9 @@ Nazara Development Kit:
 - ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
 - Disabling an entity with a CollisionComponent3D or PhysicsComponent3D will properly disable it from the physics simulation
+- It is now possible to disable synchronization between a PhysicsComponent3D and the NodeComponent
+- Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
+- Fix TextAreaWidget::Clear crash
 
 # 0.4:
 
