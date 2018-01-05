@@ -52,11 +52,11 @@ namespace Nz
 			MovablePtr<cpConstraint> m_constraint;
 	};
 	
-	class NAZARA_PHYSICS2D_API DampedSpring2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API DampedSpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedSpring2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
-			~DampedSpring2D() = default;
+			DampedSpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
+			~DampedSpringConstraint2D() = default;
 
 			float GetDamping() const;
 			Vector2f GetFirstAnchor() const;
@@ -71,11 +71,11 @@ namespace Nz
 			void SetStiffness(float newStiffness);
 	};
 
-	class NAZARA_PHYSICS2D_API DampedRotarySpring2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API DampedRotarySpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedRotarySpring2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping);
-			~DampedRotarySpring2D() = default;
+			DampedRotarySpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping);
+			~DampedRotarySpringConstraint2D() = default;
 
 			float GetDamping() const;
 			float GetRestAngle() const;
@@ -86,11 +86,11 @@ namespace Nz
 			void SetStiffness(float newStiffness);
 	};
 	
-	class NAZARA_PHYSICS2D_API GearJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API GearConstraint2D : public Constraint2D
 	{
 		public:
-			GearJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio);
-			~GearJoint2D() = default;
+			GearConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio);
+			~GearConstraint2D() = default;
 
 			float GetPhase() const;
 			float GetRatio() const;
@@ -99,21 +99,21 @@ namespace Nz
 			void SetRatio(float ratio);
 	};
 	
-	class NAZARA_PHYSICS2D_API MotorJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API MotorConstraint2D : public Constraint2D
 	{
 		public:
-			MotorJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate);
-			~MotorJoint2D() = default;
+			MotorConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate);
+			~MotorConstraint2D() = default;
 
 			float GetRate() const;
 			void SetRate(float rate);
 	};
 
-	class NAZARA_PHYSICS2D_API PinJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API PinConstraint2D : public Constraint2D
 	{
 		public:
-			PinJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
-			~PinJoint2D() = default;
+			PinConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
+			~PinConstraint2D() = default;
 
 			float GetDistance() const;
 			Vector2f GetFirstAnchor() const;
@@ -124,12 +124,12 @@ namespace Nz
 			void SetSecondAnchor(const Vector2f& firstAnchor);
 	};
 	
-	class NAZARA_PHYSICS2D_API PivotJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API PivotConstraint2D : public Constraint2D
 	{
 		public:
-			PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor);
-			PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
-			~PivotJoint2D() = default;
+			PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor);
+			PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
+			~PivotConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;
 			Vector2f GetSecondAnchor() const;
@@ -138,11 +138,11 @@ namespace Nz
 			void SetSecondAnchor(const Vector2f& firstAnchor);
 	};
 	
-	class NAZARA_PHYSICS2D_API RatchetJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API RatchetConstraint2D : public Constraint2D
 	{
 		public:
-			RatchetJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet);
-			~RatchetJoint2D() = default;
+			RatchetConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet);
+			~RatchetConstraint2D() = default;
 
 			float GetAngle() const;
 			float GetPhase() const;
@@ -153,11 +153,11 @@ namespace Nz
 			void SetRatchet(float ratchet);
 	};
 
-	class NAZARA_PHYSICS2D_API RotaryLimitJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API RotaryLimitConstraint2D : public Constraint2D
 	{
 		public:
-			RotaryLimitJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle);
-			~RotaryLimitJoint2D() = default;
+			RotaryLimitConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle);
+			~RotaryLimitConstraint2D() = default;
 
 			float GetMaxAngle() const;
 			float GetMinAngle() const;
@@ -166,11 +166,11 @@ namespace Nz
 			void SetMinAngle(float minAngle);
 	};
 
-	class NAZARA_PHYSICS2D_API SlideJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API SlideConstraint2D : public Constraint2D
 	{
 		public:
-			SlideJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max);
-			~SlideJoint2D() = default;
+			SlideConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max);
+			~SlideConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;
 			float GetMaxDistance() const;

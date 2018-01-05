@@ -105,320 +105,319 @@ namespace Nz
 	}
 
 
-	DampedSpring2D::DampedSpring2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
+	DampedSpringConstraint2D::DampedSpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
 	Constraint2D(world, cpDampedSpringNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), restLength, stiffness, damping))
 	{
 	}
 
-	float DampedSpring2D::GetDamping() const
+	float DampedSpringConstraint2D::GetDamping() const
 	{
 		return float(cpDampedSpringGetDamping(m_constraint));
 	}
 
-	Vector2f DampedSpring2D::GetFirstAnchor() const
+	Vector2f DampedSpringConstraint2D::GetFirstAnchor() const
 	{
 		cpVect anchor = cpDampedSpringGetAnchorA(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	float DampedSpring2D::GetRestLength() const
+	float DampedSpringConstraint2D::GetRestLength() const
 	{
 		return float(cpDampedSpringGetRestLength(m_constraint));
 	}
 
-	Vector2f DampedSpring2D::GetSecondAnchor() const
+	Vector2f DampedSpringConstraint2D::GetSecondAnchor() const
 	{
 		cpVect anchor = cpDampedSpringGetAnchorB(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	float DampedSpring2D::GetStiffness() const
+	float DampedSpringConstraint2D::GetStiffness() const
 	{
 		return float(cpDampedSpringGetStiffness(m_constraint));
 	}
 
-	void DampedSpring2D::SetDamping(float newDamping)
+	void DampedSpringConstraint2D::SetDamping(float newDamping)
 	{
 		cpDampedSpringSetDamping(m_constraint, newDamping);
 	}
 
-	void DampedSpring2D::SetFirstAnchor(const Vector2f& firstAnchor)
+	void DampedSpringConstraint2D::SetFirstAnchor(const Vector2f& firstAnchor)
 	{
 		cpDampedSpringSetAnchorA(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
-	void DampedSpring2D::SetRestLength(float newLength)
+	void DampedSpringConstraint2D::SetRestLength(float newLength)
 	{
 		cpDampedSpringSetRestLength(m_constraint, newLength);
 	}
 
-	void DampedSpring2D::SetSecondAnchor(const Vector2f& firstAnchor)
+	void DampedSpringConstraint2D::SetSecondAnchor(const Vector2f& firstAnchor)
 	{
 		cpDampedSpringSetAnchorB(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
-	void DampedSpring2D::SetStiffness(float newStiffness)
+	void DampedSpringConstraint2D::SetStiffness(float newStiffness)
 	{
 		cpDampedSpringSetStiffness(m_constraint, newStiffness);
 	}
 
 	
-	DampedRotarySpring2D::DampedRotarySpring2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping) :
+	DampedRotarySpringConstraint2D::DampedRotarySpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping) :
 	Constraint2D(world, cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle, stiffness, damping))
 	{
 	}
 
-	float DampedRotarySpring2D::GetDamping() const
+	float DampedRotarySpringConstraint2D::GetDamping() const
 	{
 		return float(cpDampedRotarySpringGetDamping(m_constraint));
 	}
 
-	float DampedRotarySpring2D::GetRestAngle() const
+	float DampedRotarySpringConstraint2D::GetRestAngle() const
 	{
 		return float(cpDampedRotarySpringGetRestAngle(m_constraint));
 	}
 
-	float DampedRotarySpring2D::GetStiffness() const
+	float DampedRotarySpringConstraint2D::GetStiffness() const
 	{
 		return float(cpDampedRotarySpringGetStiffness(m_constraint));
 	}
 
-	void DampedRotarySpring2D::SetDamping(float newDamping)
+	void DampedRotarySpringConstraint2D::SetDamping(float newDamping)
 	{
 		cpDampedSpringSetDamping(m_constraint, newDamping);
 	}
 
-	void DampedRotarySpring2D::SetRestAngle(float newAngle)
+	void DampedRotarySpringConstraint2D::SetRestAngle(float newAngle)
 	{
 		cpDampedRotarySpringSetRestAngle(m_constraint, newAngle);
 	}
 
-	void DampedRotarySpring2D::SetStiffness(float newStiffness)
+	void DampedRotarySpringConstraint2D::SetStiffness(float newStiffness)
 	{
 		cpDampedRotarySpringSetStiffness(m_constraint, newStiffness);
 	}
 
 
-	GearJoint2D::GearJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio) :
+	GearConstraint2D::GearConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio) :
 	Constraint2D(world, cpGearJointNew(first.GetHandle(), second.GetHandle(), phase, ratio))
 	{
 	}
 
-	float GearJoint2D::GetPhase() const
+	float GearConstraint2D::GetPhase() const
 	{
 		return float(cpGearJointGetPhase(m_constraint));
 	}
 
-	float GearJoint2D::GetRatio() const
+	float GearConstraint2D::GetRatio() const
 	{
 		return float(cpGearJointGetRatio(m_constraint));
 	}
 
-	void GearJoint2D::SetPhase(float phase)
+	void GearConstraint2D::SetPhase(float phase)
 	{
 		cpGearJointSetPhase(m_constraint, phase);
 	}
 
-	void GearJoint2D::SetRatio(float ratio)
+	void GearConstraint2D::SetRatio(float ratio)
 	{
 		cpGearJointSetRatio(m_constraint, ratio);
 	}
 
 
-	MotorJoint2D::MotorJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate) :
+	MotorConstraint2D::MotorConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate) :
 	Constraint2D(world, cpSimpleMotorNew(first.GetHandle(), second.GetHandle(), rate))
 	{
 	}
 
-	float MotorJoint2D::GetRate() const
+	float MotorConstraint2D::GetRate() const
 	{
 		return float(cpSimpleMotorGetRate(m_constraint));
 	}
 
-	void MotorJoint2D::SetRate(float rate)
+	void MotorConstraint2D::SetRate(float rate)
 	{
 		cpSimpleMotorSetRate(m_constraint, rate);
 	}
 
 
-	PinJoint2D::PinJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	PinConstraint2D::PinConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
 	Constraint2D(world, cpPinJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
 
-	float PinJoint2D::GetDistance() const
+	float PinConstraint2D::GetDistance() const
 	{
 		return float(cpPinJointGetDist(m_constraint));
 	}
 
-	Vector2f PinJoint2D::GetFirstAnchor() const
+	Vector2f PinConstraint2D::GetFirstAnchor() const
 	{
 		cpVect anchor = cpPinJointGetAnchorA(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	Vector2f PinJoint2D::GetSecondAnchor() const
+	Vector2f PinConstraint2D::GetSecondAnchor() const
 	{
 		cpVect anchor = cpPinJointGetAnchorB(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	void PinJoint2D::SetDistance(float newDistance)
+	void PinConstraint2D::SetDistance(float newDistance)
 	{
 		cpPinJointSetDist(m_constraint, newDistance);
 	}
 
-	void PinJoint2D::SetFirstAnchor(const Vector2f& firstAnchor)
+	void PinConstraint2D::SetFirstAnchor(const Vector2f& firstAnchor)
 	{
 		cpPinJointSetAnchorA(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
-	void PinJoint2D::SetSecondAnchor(const Vector2f& firstAnchor)
+	void PinConstraint2D::SetSecondAnchor(const Vector2f& firstAnchor)
 	{
 		cpPinJointSetAnchorB(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
 
-	PivotJoint2D::PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor) :
+	PivotConstraint2D::PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor) :
 	Constraint2D(world, cpPivotJointNew(first.GetHandle(), second.GetHandle(), cpv(anchor.x, anchor.y)))
 	{
 	}
 
-	PivotJoint2D::PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	PivotConstraint2D::PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
 	Constraint2D(world, cpPivotJointNew2(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
 
-	Vector2f PivotJoint2D::GetFirstAnchor() const
+	Vector2f PivotConstraint2D::GetFirstAnchor() const
 	{
 		cpVect anchor = cpPivotJointGetAnchorA(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	Vector2f PivotJoint2D::GetSecondAnchor() const
+	Vector2f PivotConstraint2D::GetSecondAnchor() const
 	{
 		cpVect anchor = cpPivotJointGetAnchorB(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	void PivotJoint2D::SetFirstAnchor(const Vector2f& firstAnchor)
+	void PivotConstraint2D::SetFirstAnchor(const Vector2f& firstAnchor)
 	{
 		cpPivotJointSetAnchorA(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
-	void PivotJoint2D::SetSecondAnchor(const Vector2f& firstAnchor)
+	void PivotConstraint2D::SetSecondAnchor(const Vector2f& firstAnchor)
 	{
 		cpPivotJointSetAnchorB(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
 
-	RatchetJoint2D::RatchetJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet) :
+	RatchetConstraint2D::RatchetConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet) :
 	Constraint2D(world, cpRatchetJointNew(first.GetHandle(), second.GetHandle(), phase, ratchet))
 	{
 	}
 
-	float RatchetJoint2D::GetAngle() const
+	float RatchetConstraint2D::GetAngle() const
 	{
 		return float(cpRatchetJointGetAngle(m_constraint));
 	}
 
-	float RatchetJoint2D::GetPhase() const
+	float RatchetConstraint2D::GetPhase() const
 	{
 		return float(cpRatchetJointGetPhase(m_constraint));
 	}
 
-	float RatchetJoint2D::GetRatchet() const
+	float RatchetConstraint2D::GetRatchet() const
 	{
 		return float(cpRatchetJointGetRatchet(m_constraint));
 	}
 
-	void RatchetJoint2D::SetAngle(float angle)
+	void RatchetConstraint2D::SetAngle(float angle)
 	{
 		cpRatchetJointSetAngle(m_constraint, angle);
 	}
 
-	void RatchetJoint2D::SetPhase(float phase)
+	void RatchetConstraint2D::SetPhase(float phase)
 	{
 		cpRatchetJointSetPhase(m_constraint, phase);
 	}
 
-	void RatchetJoint2D::SetRatchet(float ratchet)
+	void RatchetConstraint2D::SetRatchet(float ratchet)
 	{
 		cpRatchetJointSetRatchet(m_constraint, ratchet);
 	}
 
 
-	RotaryLimitJoint2D::RotaryLimitJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle) :
+	RotaryLimitConstraint2D::RotaryLimitConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle) :
 	Constraint2D(world, cpRotaryLimitJointNew(first.GetHandle(), second.GetHandle(), minAngle, maxAngle))
 	{
 	}
 
-	float RotaryLimitJoint2D::GetMaxAngle() const
+	float RotaryLimitConstraint2D::GetMaxAngle() const
 	{
 		return float(cpRotaryLimitJointGetMax(m_constraint));
 	}
 
-	float RotaryLimitJoint2D::GetMinAngle() const
+	float RotaryLimitConstraint2D::GetMinAngle() const
 	{
 		return float(cpRotaryLimitJointGetMax(m_constraint));
 	}
 
-	void RotaryLimitJoint2D::SetMaxAngle(float maxAngle)
+	void RotaryLimitConstraint2D::SetMaxAngle(float maxAngle)
 	{
 		cpRotaryLimitJointSetMax(m_constraint, maxAngle);
 	}
 
-	void RotaryLimitJoint2D::SetMinAngle(float minAngle)
+	void RotaryLimitConstraint2D::SetMinAngle(float minAngle)
 	{
 		cpRotaryLimitJointSetMin(m_constraint, minAngle);
 	}
 
 
-	SlideJoint2D::SlideJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max) :
+	SlideConstraint2D::SlideConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max) :
 	Constraint2D(world, cpSlideJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), min, max))
 	{
 	}
 
-	Vector2f SlideJoint2D::GetFirstAnchor() const
+	Vector2f SlideConstraint2D::GetFirstAnchor() const
 	{
 		cpVect anchor = cpSlideJointGetAnchorA(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	float SlideJoint2D::GetMaxDistance() const
+	float SlideConstraint2D::GetMaxDistance() const
 	{
 		return float(cpSlideJointGetMax(m_constraint));
 	}
 
-	float SlideJoint2D::GetMinDistance() const
+	float SlideConstraint2D::GetMinDistance() const
 	{
 		return float(cpSlideJointGetMin(m_constraint));
 	}
 
-	Vector2f SlideJoint2D::GetSecondAnchor() const
+	Vector2f SlideConstraint2D::GetSecondAnchor() const
 	{
 		cpVect anchor = cpSlideJointGetAnchorB(m_constraint);
 		return Vector2f(static_cast<float>(anchor.x), static_cast<float>(anchor.y));
 	}
 
-	void SlideJoint2D::SetFirstAnchor(const Vector2f& firstAnchor)
+	void SlideConstraint2D::SetFirstAnchor(const Vector2f& firstAnchor)
 	{
 		cpSlideJointSetAnchorA(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
 
-	void SlideJoint2D::SetMaxDistance(float newMaxDistance)
+	void SlideConstraint2D::SetMaxDistance(float newMaxDistance)
 	{
 		cpSlideJointSetMax(m_constraint, newMaxDistance);
 	}
 
-	void SlideJoint2D::SetMinDistance(float newMinDistance)
+	void SlideConstraint2D::SetMinDistance(float newMinDistance)
 	{
 		cpSlideJointSetMin(m_constraint, newMinDistance);
 	}
 
-	void SlideJoint2D::SetSecondAnchor(const Vector2f& firstAnchor)
+	void SlideConstraint2D::SetSecondAnchor(const Vector2f& firstAnchor)
 	{
 		cpSlideJointSetAnchorB(m_constraint, cpv(firstAnchor.x, firstAnchor.y));
 	}
-
 }
