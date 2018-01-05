@@ -81,7 +81,7 @@ namespace Nz
 		{
 			static_assert(sizeof(T) % sizeof(UInt32) == 0, "Assertion failed");
 
-			// The algorithm for logarithm in base 2 only works with numbers greather than 32 bits
+			// The algorithm for logarithm in base 2 only works with numbers greater than 32 bits
 			// This code subdivides the biggest number into 32 bits ones
 			for (int i = sizeof(T)-sizeof(UInt32); i >= 0; i -= sizeof(UInt32))
 			{
