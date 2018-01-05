@@ -104,8 +104,6 @@ namespace Nz
 		return *this;
 	}
 
-	Constraint2DLibrary Constraint2D::s_library;
-
 
 	DampedSpringConstraint2D::DampedSpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
 	Constraint2D(cpDampedSpringNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), restLength, stiffness, damping))
