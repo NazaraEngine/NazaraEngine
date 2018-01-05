@@ -81,6 +81,8 @@ namespace Nz
 			void SetRestLength(float newLength);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
 			void SetStiffness(float newStiffness);
+
+			template<typename... Args> static DampedSpringConstraint2DRef New(Args&&... args);
 	};
 
 	class DampedRotarySpringConstraint2D;
@@ -102,6 +104,8 @@ namespace Nz
 			void SetDamping(float newDamping);
 			void SetRestAngle(float newAngle);
 			void SetStiffness(float newStiffness);
+
+			template<typename... Args> static DampedRotarySpringConstraint2DRef New(Args&&... args);
 	};
 
 	class GearConstraint2D;
@@ -121,6 +125,8 @@ namespace Nz
 
 			void SetPhase(float phase);
 			void SetRatio(float ratio);
+
+			template<typename... Args> static GearConstraint2DRef New(Args&&... args);
 	};
 
 	class MotorConstraint2D;
@@ -137,6 +143,8 @@ namespace Nz
 
 			float GetRate() const;
 			void SetRate(float rate);
+
+			template<typename... Args> static MotorConstraint2DRef New(Args&&... args);
 	};
 
 	class PinConstraint2D;
@@ -158,6 +166,8 @@ namespace Nz
 			void SetDistance(float newDistance);
 			void SetFirstAnchor(const Vector2f& firstAnchor);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static PinConstraint2DRef New(Args&&... args);
 	};
 
 	class PivotConstraint2D;
@@ -178,6 +188,8 @@ namespace Nz
 
 			void SetFirstAnchor(const Vector2f& firstAnchor);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static PivotConstraint2DRef New(Args&&... args);
 	};
 
 	class RatchetConstraint2D;
@@ -199,6 +211,8 @@ namespace Nz
 			void SetAngle(float angle);
 			void SetPhase(float phase);
 			void SetRatchet(float ratchet);
+
+			template<typename... Args> static RatchetConstraint2DRef New(Args&&... args);
 	};
 
 	class RotaryLimitConstraint2D;
@@ -218,13 +232,15 @@ namespace Nz
 
 			void SetMaxAngle(float maxAngle);
 			void SetMinAngle(float minAngle);
+
+			template<typename... Args> static RotaryLimitConstraint2DRef New(Args&&... args);
 	};
 
-	class RotaryLimitConstraint2D;
+	class SlideConstraint2D;
 
-	using RotaryLimitConstraint2DConstRef = ObjectRef<const RotaryLimitConstraint2D>;
-	using RotaryLimitConstraint2DLibrary = ObjectLibrary<RotaryLimitConstraint2D>;
-	using RotaryLimitConstraint2DRef = ObjectRef<RotaryLimitConstraint2D>;
+	using SlideConstraint2DConstRef = ObjectRef<const SlideConstraint2D>;
+	using SlideConstraint2DLibrary = ObjectLibrary<SlideConstraint2D>;
+	using SlideConstraint2DRef = ObjectRef<SlideConstraint2D>;
 
 	class NAZARA_PHYSICS2D_API SlideConstraint2D : public Constraint2D
 	{
@@ -241,6 +257,8 @@ namespace Nz
 			void SetMaxDistance(float newMaxDistance);
 			void SetMinDistance(float newMinDistance);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static SlideConstraint2DRef New(Args&&... args);
 	};
 }
 
