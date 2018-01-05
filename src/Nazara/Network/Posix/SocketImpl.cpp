@@ -152,7 +152,7 @@ namespace Nz
 			tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 			tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-			int ret = select(0, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
+			int ret = select(handle + 1, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
 			if (ret == SOCKET_ERROR)
 			{
 				int code = GetLastErrorCode(handle, error);
