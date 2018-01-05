@@ -18,7 +18,6 @@
 #elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 #include <alloca.h>
 
-#define NAZARA_ALLOCA(size) alloca(size)
 // with Clang/GCC, using alloca with a size of zero does nothing good
 #define NAZARA_ALLOCA(size) alloca(((size) > 0) ? (size) : 1)
 #define NAZARA_ALLOCA_SUPPORT
