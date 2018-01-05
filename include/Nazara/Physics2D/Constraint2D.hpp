@@ -67,7 +67,7 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API DampedSpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedSpringConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
+			DampedSpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
 			~DampedSpringConstraint2D() = default;
 
 			float GetDamping() const;
@@ -148,7 +148,7 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API PinConstraint2D : public Constraint2D
 	{
 		public:
-			PinConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
+			PinConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
 			~PinConstraint2D() = default;
 
 			float GetDistance() const;
@@ -170,7 +170,7 @@ namespace Nz
 	{
 		public:
 			PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor);
-			PivotConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
+			PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
 			~PivotConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;
@@ -229,7 +229,7 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API SlideConstraint2D : public Constraint2D
 	{
 		public:
-			SlideConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max);
+			SlideConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float min, float max);
 			~SlideConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;

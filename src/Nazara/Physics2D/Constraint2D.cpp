@@ -105,7 +105,7 @@ namespace Nz
 	}
 
 
-	DampedSpringConstraint2D::DampedSpringConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
+	DampedSpringConstraint2D::DampedSpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
 	Constraint2D(cpDampedSpringNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), restLength, stiffness, damping))
 	{
 	}
@@ -241,7 +241,7 @@ namespace Nz
 	}
 
 
-	PinConstraint2D::PinConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	PinConstraint2D::PinConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor) :
 	Constraint2D(cpPinJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
@@ -284,7 +284,7 @@ namespace Nz
 	{
 	}
 
-	PivotConstraint2D::PivotConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	PivotConstraint2D::PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor) :
 	Constraint2D(cpPivotJointNew2(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
@@ -374,7 +374,7 @@ namespace Nz
 	}
 
 
-	SlideConstraint2D::SlideConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max) :
+	SlideConstraint2D::SlideConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float min, float max) :
 	Constraint2D(cpSlideJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), min, max))
 	{
 	}
