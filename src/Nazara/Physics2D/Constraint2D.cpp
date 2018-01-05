@@ -8,11 +8,11 @@
 
 namespace Nz
 {
-	Constraint2D::Constraint2D(PhysWorld2D& world, cpConstraint* constraint) :
+	Constraint2D::Constraint2D(cpConstraint* constraint) :
 	m_constraint(constraint)
 	{
 		cpConstraintSetUserData(m_constraint, this);
-		cpSpaceAddConstraint(world.GetHandle(), m_constraint);
+		cpSpaceAddConstraint(cpConstraintGetSpace(m_constraint), m_constraint);
 	}
 
 	Constraint2D::Constraint2D(Constraint2D&& rhs) :
@@ -105,8 +105,8 @@ namespace Nz
 	}
 
 
-	DampedSpringConstraint2D::DampedSpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
-	Constraint2D(world, cpDampedSpringNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), restLength, stiffness, damping))
+	DampedSpringConstraint2D::DampedSpringConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping) :
+	Constraint2D(cpDampedSpringNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), restLength, stiffness, damping))
 	{
 	}
 
@@ -163,8 +163,8 @@ namespace Nz
 	}
 
 	
-	DampedRotarySpringConstraint2D::DampedRotarySpringConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping) :
-	Constraint2D(world, cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle, stiffness, damping))
+	DampedRotarySpringConstraint2D::DampedRotarySpringConstraint2D(RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping) :
+	Constraint2D(cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle, stiffness, damping))
 	{
 	}
 
@@ -199,8 +199,8 @@ namespace Nz
 	}
 
 
-	GearConstraint2D::GearConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio) :
-	Constraint2D(world, cpGearJointNew(first.GetHandle(), second.GetHandle(), phase, ratio))
+	GearConstraint2D::GearConstraint2D(RigidBody2D& first, RigidBody2D& second, float phase, float ratio) :
+	Constraint2D(cpGearJointNew(first.GetHandle(), second.GetHandle(), phase, ratio))
 	{
 	}
 
@@ -225,8 +225,8 @@ namespace Nz
 	}
 
 
-	MotorConstraint2D::MotorConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate) :
-	Constraint2D(world, cpSimpleMotorNew(first.GetHandle(), second.GetHandle(), rate))
+	MotorConstraint2D::MotorConstraint2D(RigidBody2D& first, RigidBody2D& second, float rate) :
+	Constraint2D(cpSimpleMotorNew(first.GetHandle(), second.GetHandle(), rate))
 	{
 	}
 
@@ -241,8 +241,8 @@ namespace Nz
 	}
 
 
-	PinConstraint2D::PinConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
-	Constraint2D(world, cpPinJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
+	PinConstraint2D::PinConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	Constraint2D(cpPinJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
 
@@ -279,13 +279,13 @@ namespace Nz
 	}
 
 
-	PivotConstraint2D::PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor) :
-	Constraint2D(world, cpPivotJointNew(first.GetHandle(), second.GetHandle(), cpv(anchor.x, anchor.y)))
+	PivotConstraint2D::PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor) :
+	Constraint2D(cpPivotJointNew(first.GetHandle(), second.GetHandle(), cpv(anchor.x, anchor.y)))
 	{
 	}
 
-	PivotConstraint2D::PivotConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
-	Constraint2D(world, cpPivotJointNew2(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
+	PivotConstraint2D::PivotConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor) :
+	Constraint2D(cpPivotJointNew2(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y)))
 	{
 	}
 
@@ -312,8 +312,8 @@ namespace Nz
 	}
 
 
-	RatchetConstraint2D::RatchetConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet) :
-	Constraint2D(world, cpRatchetJointNew(first.GetHandle(), second.GetHandle(), phase, ratchet))
+	RatchetConstraint2D::RatchetConstraint2D(RigidBody2D& first, RigidBody2D& second, float phase, float ratchet) :
+	Constraint2D(cpRatchetJointNew(first.GetHandle(), second.GetHandle(), phase, ratchet))
 	{
 	}
 
@@ -348,8 +348,8 @@ namespace Nz
 	}
 
 
-	RotaryLimitConstraint2D::RotaryLimitConstraint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle) :
-	Constraint2D(world, cpRotaryLimitJointNew(first.GetHandle(), second.GetHandle(), minAngle, maxAngle))
+	RotaryLimitConstraint2D::RotaryLimitConstraint2D(RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle) :
+	Constraint2D(cpRotaryLimitJointNew(first.GetHandle(), second.GetHandle(), minAngle, maxAngle))
 	{
 	}
 
@@ -374,8 +374,8 @@ namespace Nz
 	}
 
 
-	SlideConstraint2D::SlideConstraint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max) :
-	Constraint2D(world, cpSlideJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), min, max))
+	SlideConstraint2D::SlideConstraint2D(RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max) :
+	Constraint2D(cpSlideJointNew(first.GetHandle(), second.GetHandle(), cpv(firstAnchor.x, firstAnchor.y), cpv(secondAnchor.x, secondAnchor.y), min, max))
 	{
 	}
 
