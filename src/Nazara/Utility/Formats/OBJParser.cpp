@@ -227,7 +227,7 @@ namespace Nz
 
 						if (p < 0)
 						{
-							p += static_cast<int>(m_positions.size() - 1);
+							p += static_cast<int>(m_positions.size());
 							if (p < 0)
 							{
 								Error("Vertex index out of range (" + String::Number(p) + " < 0");
@@ -238,7 +238,7 @@ namespace Nz
 
 						if (n < 0)
 						{
-							n += static_cast<int>(m_normals.size() - 1);
+							n += static_cast<int>(m_normals.size());
 							if (n < 0)
 							{
 								Error("Normal index out of range (" + String::Number(n) + " < 0");
@@ -249,7 +249,7 @@ namespace Nz
 
 						if (t < 0)
 						{
-							t += static_cast<int>(m_texCoords.size() - 1);
+							t += static_cast<int>(m_texCoords.size());
 							if (t < 0)
 							{
 								Error("Texture coordinates index out of range (" + String::Number(t) + " < 0");
