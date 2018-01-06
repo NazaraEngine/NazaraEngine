@@ -57,7 +57,7 @@ namespace Nz
 			Rect& Set(const T rect[4]);
 			Rect& Set(const Rect<T>& rect);
 			Rect& Set(const Vector2<T>& lengths);
-			Rect& Set(const Vector2<T>& pos, const Vector2<T>& length));
+			Rect& Set(const Vector2<T>& pos, const Vector2<T>& length);
 			template<typename U> Rect& Set(const Rect<U>& rect);
 
 			String ToString() const;
