@@ -91,7 +91,7 @@ namespace Ndk
 			CollisionComponent2D& collision = entity->GetComponent<CollisionComponent2D>();
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 
-			Nz::RigidBody2D* body = collision.GetStaticBody();
+			Nz::RigidBody2D* body = &collision.GetStaticBody();
 
 			Nz::Vector2f oldPosition = body->GetPosition();
 			Nz::Vector2f newPosition = Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global));
