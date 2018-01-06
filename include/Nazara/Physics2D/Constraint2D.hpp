@@ -53,7 +53,7 @@ namespace Nz
 			Constraint2D& operator=(Constraint2D&& rhs);
 
 		protected:
-			Constraint2D(cpConstraint* constraint);
+			Constraint2D(Nz::PhysWorld2D* const world, cpConstraint* constraint);
 
 			MovablePtr<cpConstraint> m_constraint;
 
