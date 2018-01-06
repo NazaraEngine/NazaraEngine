@@ -53,31 +53,33 @@ function NazaraBuild:Execute()
 	end
 
 	if (self.Actions[_ACTION] == nil) then
+		-- Start defining projects
+		workspace("NazaraEngine")
+		platforms(platformData)
+
+		location(_ACTION)
+
+		do
+			local linkTypes = {"Dynamic"} -- {"Static", "Dynamic"}
+			local configs = {}
+			for k,linkType in pairs(linkTypes) do
+				for k,config in pairs(self.Config["Configurations"]) do
+					table.insert(configs, config .. linkType)
+				end
+			end
+
+			configurations(configs)
+		end
+
+		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
-			workspace("NazaraExtlibs")
-			platforms(platformData)
-
-			-- Configuration générale
-			configurations({
-				"DebugStatic",
-				"ReleaseStatic"
-			})
-
-			self:PrepareGeneric()
 			self:FilterLibDirectory("../extlibs/lib/", targetdir)
-
-			filter(clangGccActions)
-				buildoptions("-U__STRICT_ANSI__")
-
-			filter({})
-
-			includedirs("../extlibs/include")
-			libdirs("../extlibs/lib/common")
-			location(_ACTION)
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
 
+				self:PrepareGeneric()
+				
 				language(libTable.Language)
 				location(_ACTION .. "/extlibs")
 
@@ -86,8 +88,14 @@ function NazaraBuild:Execute()
 
 				defines(libTable.Defines)
 				flags(libTable.Flags)
+				kind("StaticLib") -- Force them as static libs
+				includedirs("../extlibs/include")
 				includedirs(libTable.Includes)
 				links(libTable.Libraries)
+				libdirs("../extlibs/lib/common")
+
+				filter(clangGccActions)
+					buildoptions("-U__STRICT_ANSI__")
 
 				filter("architecture:x86")
 					libdirs(libTable.LibraryPaths.x86)
@@ -103,31 +111,7 @@ function NazaraBuild:Execute()
 				filter({})
 			end
 		end
-
-		-- Start defining projects
-		workspace("NazaraEngine")
-		platforms(platformData)
-
-		self:PrepareMainWorkspace()
-
-		-- Add lib/conf/arch to library search path
-		self:FilterLibDirectory("../lib/", libdirs)
-
-		do
-			local linkTypes = {"Dynamic"} -- {"Static", "Dynamic"}
-			local configs = {}
-			for k,linkType in pairs(linkTypes) do
-				for k,config in pairs(self.Config["Configurations"]) do
-					table.insert(configs, config .. linkType)
-				end
-			end
-
-			configurations(configs)
-		end
-
-		language("C++")
-		location(_ACTION)
-
+		
 		if (self.Config["PremakeProject"] and os.ishost("windows")) then
 			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
 			project("_PremakeProject")
@@ -138,11 +122,15 @@ function NazaraBuild:Execute()
 		-- Modules
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
+
+			self:PrepareMainWorkspace()
 		end
 
 		for k, moduleTable in ipairs(self.OrderedModules) do
 			if (not _OPTIONS["united"]) then
 				project("Nazara" .. moduleTable.Name)
+				
+				self:PrepareMainWorkspace()
 			end
 
 			location(_ACTION .. "/modules")
@@ -194,6 +182,8 @@ function NazaraBuild:Execute()
 			end
 
 			project(prefix .. toolTable.Name)
+
+			self:PrepareMainWorkspace()
 
 			location(_ACTION .. "/tools")
 
@@ -257,6 +247,8 @@ function NazaraBuild:Execute()
 			local destPath = "../examples/bin"
 
 			project("Demo" .. exampleTable.Name)
+
+			self:PrepareMainWorkspace()
 
 			location(_ACTION .. "/examples")
 
@@ -690,12 +682,16 @@ function NazaraBuild:Process(infoTable)
 			elseif (libraryTable.Type == "ExternLib") then
 				library = libraryTable.Name
 
-				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library .. "-s")
+				if (self.Config["BuildDependencies"]) then
+					table.insert(libraries, library)
+				else
+					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
+					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
+					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library .. "-s")
+				end
 			elseif (libraryTable.Type == "Tool") then
 				library = "Nazara" .. libraryTable.Name
 
@@ -805,13 +801,13 @@ function NazaraBuild:PrepareGeneric()
 	filter("kind:*Lib")
 		pic("On")
 
-	filter({"kind:*Lib", "configurations:DebugStatic"})
+	filter({"kind:StaticLib", "configurations:Debug*"})
 		targetsuffix("-s-d")
 
-	filter({"kind:*Lib", "configurations:ReleaseStatic"})
+	filter({"kind:StaticLib", "configurations:Release*"})
 		targetsuffix("-s")
 
-	filter({"kind:*Lib", "configurations:DebugDynamic"})
+	filter({"kind:SharedLib", "configurations:Debug*"})
 		targetsuffix("-d")
 
 	filter("configurations:*Debug*")
@@ -843,6 +839,11 @@ end
 
 function NazaraBuild:PrepareMainWorkspace()
 	self:PrepareGeneric()
+
+	language("C++")
+
+	-- Add lib/conf/arch to library search path
+	self:FilterLibDirectory("../lib/", libdirs)
 
 	filter("action:vs*")
 		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
