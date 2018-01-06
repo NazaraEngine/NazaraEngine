@@ -47,6 +47,7 @@ Nazara Engine:
 - Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
 - It is now possible to initialize a StackArray with a size of zero on every platforms (this was not possible on non-Windows platforms before)
 - Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
+- Fix OBJParser relative offsets handling
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
