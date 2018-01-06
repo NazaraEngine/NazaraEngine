@@ -13,7 +13,7 @@ namespace Ndk
 				return entity->GetComponent<Ndk::PhysicsComponent2D>().GetRigidBody();
 			else if (entity->HasComponent<Ndk::CollisionComponent2D>())
 				return entity->GetComponent<Ndk::CollisionComponent2D>().GetStaticBody();
-			else NazaraError("Entity must have a CollisionComponent2D or a PhysicsComponent2D")
+			else NazaraError("Entity must have a CollisionComponent2D or a PhysicsComponent2D");
 		};
 
 		Nz::ObjectRef<T> constraint = T::New(QueryBody(first), QueryBody(second), std::forward<Args>(args)...);
