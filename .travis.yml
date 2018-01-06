@@ -25,7 +25,7 @@ addons:
       - mesa-common-dev
 
 sudo:
-  required
+  false
 
 notifications:
   email: true
@@ -46,7 +46,7 @@ script:
   - cd build &&
     ./premake5-linux64 --cc=clang gmake
   - cd gmake &&
-    make -j4 -f NazaraEngine.make config=${CONFIG}dynamic_x64
+    make -j4 config=${CONFIG}dynamic_x64
 
 after_script:
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
