@@ -506,21 +506,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets a Rect object from two vectors representing point of the space
-	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
-	* \return A reference to this rectangle
+	* \brief Set the position and the lenghts of the Rect
 	*
 	* \param vec1 First point
 	* \param vec2 Second point
 	*/
 
 	template<typename T>
-	Rect<T>& Rect<T>::Set(const Vector2<T>& vec1, const Vector2<T>& vec2)
+	Rect<T>& Rect<T>::Set(const Vector2<T>& pos, const Vector2<T>& length)
 	{
-		x = std::min(vec1.x, vec2.x);
-		y = std::min(vec1.y, vec2.y);
-		width = (vec2.x > vec1.x) ? vec2.x - vec1.x : vec1.x - vec2.x;
-		height = (vec2.y > vec1.y) ? vec2.y - vec1.y : vec1.y - vec2.y;
+		x = pos.x;
+		y = pos.y;
+		width = length.x;
+		height = length.y;
 
 		return *this;
 	}
