@@ -34,7 +34,7 @@ namespace Ndk
 
 		private:
 			void InitializeStaticBody();
-			Nz::RigidBody3D* GetStaticBody();
+			Nz::RigidBody3D& GetStaticBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
