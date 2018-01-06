@@ -13,9 +13,6 @@ namespace Ndk
 {
 	class NDK_API ConstraintComponent2D : public Component<ConstraintComponent2D>
 	{
-		friend class CollisionComponent2D;
-		friend class PhysicsComponent2D;
-
 		public:
 			ConstraintComponent2D() = default;
 			ConstraintComponent2D(const ConstraintComponent2D& joint) = default;

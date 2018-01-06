@@ -17,6 +17,7 @@ namespace Ndk
 	{
 		friend class CollisionComponent2D;
 		friend class PhysicsSystem2D;
+		friend class ConstraintComponent2D;
 
 		public:
 			PhysicsComponent2D() = default;
