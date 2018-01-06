@@ -95,7 +95,7 @@ namespace Ndk
 			CollisionComponent3D& collision = entity->GetComponent<CollisionComponent3D>();
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 
-			Nz::RigidBody3D* physObj = collision.GetStaticBody();
+			Nz::RigidBody3D* physObj = &collision.GetStaticBody();
 
 			Nz::Quaternionf oldRotation = physObj->GetRotation();
 			Nz::Vector3f oldPosition = physObj->GetPosition();
