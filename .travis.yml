@@ -7,10 +7,10 @@ dist:
 addons:
   apt:
     sources:
-      - llvm-toolchain-precise-3.7
+      - llvm-toolchain-precise-5.0
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.7
+      - clang-5.0
       - libassimp-dev
       - libfreetype6-dev
       - libgl1-mesa-dev
@@ -35,7 +35,7 @@ compiler:
 
 env:
   global:
-    - COMPILER=clang++-3.7
+    - COMPILER=clang++-5.0
     - CFLAGS="-Wall -Wextra" 
     - CXXFLAGS="-Wall -Wextra"
   matrix:
