@@ -234,6 +234,8 @@ namespace Nz
 								error = true;
 								break;
 							}
+
+							++p;
 						}
 
 						if (n < 0)
@@ -245,6 +247,8 @@ namespace Nz
 								error = true;
 								break;
 							}
+
+							++n;
 						}
 
 						if (t < 0)
@@ -256,6 +260,8 @@ namespace Nz
 								error = true;
 								break;
 							}
+
+							++t;
 						}
 
 						if (static_cast<std::size_t>(p) > m_positions.size())
