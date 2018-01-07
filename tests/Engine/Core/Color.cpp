@@ -1,7 +1,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Catch/catch.hpp>
 
-const float epsilon = 0.01f;
+const float epsilon = 1.f;
 
 void CompareColor(const Nz::Color& lhs, const Nz::Color& rhs)
 {
@@ -16,46 +16,46 @@ void CompareCMY(const Nz::Color& color, float cyan, float magenta, float yellow)
 {
 	float retrievedCyan = 0.f, retrievedMagenta = 0.f, retrievedYellow = 0.f;
 	Nz::Color::ToCMY(color, &retrievedCyan, &retrievedMagenta, &retrievedYellow);
-	CHECK(retrievedCyan == Approx(cyan).epsilon(epsilon));
-	CHECK(retrievedMagenta == Approx(magenta).epsilon(epsilon));
-	CHECK(retrievedYellow == Approx(yellow).epsilon(epsilon));
+	CHECK(retrievedCyan == Approx(cyan).margin(epsilon));
+	CHECK(retrievedMagenta == Approx(magenta).margin(epsilon));
+	CHECK(retrievedYellow == Approx(yellow).margin(epsilon));
 }
 
 void CompareCMYK(const Nz::Color& color, float cyan, float magenta, float yellow, float black)
 {
 	float retrievedCyan = 0.f, retrievedMagenta = 0.f, retrievedYellow = 0.f, retrievedBlack = 0.f;
 	Nz::Color::ToCMYK(color, &retrievedCyan, &retrievedMagenta, &retrievedYellow, &retrievedBlack);
-	CHECK(retrievedCyan == Approx(cyan).epsilon(epsilon));
-	CHECK(retrievedMagenta == Approx(magenta).epsilon(epsilon));
-	CHECK(retrievedYellow == Approx(yellow).epsilon(epsilon));
-	CHECK(retrievedBlack == Approx(black).epsilon(epsilon));
+	CHECK(retrievedCyan == Approx(cyan).margin(epsilon));
+	CHECK(retrievedMagenta == Approx(magenta).margin(epsilon));
+	CHECK(retrievedYellow == Approx(yellow).margin(epsilon));
+	CHECK(retrievedBlack == Approx(black).margin(epsilon));
 }
 
 void CompareHSL(const Nz::Color& color, float hue, float saturation, float luminosity)
 {
 	float retrievedHue = 0.f, retrievedSaturation = 0.f, retrievedLuminosity = 0.f;
 	Nz::Color::ToHSL(color, &retrievedHue, &retrievedSaturation, &retrievedLuminosity);
-	CHECK(retrievedHue == Approx(hue).epsilon(epsilon));
-	CHECK(retrievedSaturation == Approx(saturation).epsilon(epsilon));
-	CHECK(retrievedLuminosity == Approx(luminosity).epsilon(epsilon));
+	CHECK(retrievedHue == Approx(hue).margin(epsilon));
+	CHECK(retrievedSaturation == Approx(saturation).margin(epsilon));
+	CHECK(retrievedLuminosity == Approx(luminosity).margin(epsilon));
 }
 
 void CompareHSV(const Nz::Color& color, float hue, float saturation, float value)
 {
 	float retrievedHue = 0.f, retrievedSaturation = 0.f, retrievedValue = 0.f;
 	Nz::Color::ToHSV(color, &retrievedHue, &retrievedSaturation, &retrievedValue);
-	CHECK(retrievedHue == Approx(hue).epsilon(epsilon));
-	CHECK(retrievedSaturation == Approx(saturation).epsilon(epsilon));
-	CHECK(retrievedValue == Approx(value).epsilon(epsilon));
+	CHECK(retrievedHue == Approx(hue).margin(epsilon));
+	CHECK(retrievedSaturation == Approx(saturation).margin(epsilon));
+	CHECK(retrievedValue == Approx(value).margin(epsilon));
 }
 
 void CompareXYZ(const Nz::Color& color, float x, float y, float z)
 {
 	Nz::Vector3f retrievedValues = Nz::Vector3f::Zero();
 	Nz::Color::ToXYZ(color, &retrievedValues);
-	CHECK(retrievedValues.x == Approx(x).epsilon(epsilon));
-	CHECK(retrievedValues.y == Approx(y).epsilon(epsilon));
-	CHECK(retrievedValues.z == Approx(z).epsilon(epsilon));
+	CHECK(retrievedValues.x == Approx(x).margin(epsilon));
+	CHECK(retrievedValues.y == Approx(y).margin(epsilon));
+	CHECK(retrievedValues.z == Approx(z).margin(epsilon));
 }
 
 SCENARIO("Color", "[CORE][COLOR]")
