@@ -1,11 +1,12 @@
 # Upcoming version:
 
-Build system/unit tests:
+Miscellaneous:
 - Add possibility to excludes with one commande all tests/examples/tools/etc.
 - Units tests are now part of the "test" exclusion category
 - Fix project exclusion not working (but correctly excluding projects relying upon it)
 - Upgraded Catch to v2.0.1
 - ⚠️ Merged NazaraExtlibs workspace to main workspace (allowing `make` command to work without -f parameter) and removed extern libraries precompiled
+- Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
