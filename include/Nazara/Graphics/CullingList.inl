@@ -212,8 +212,10 @@ namespace Nz
 	}
 
 	template<typename T>
-	void CullingList<T>::NotifyMovement(CullTest type, std::size_t index, void* /*oldPtr*/, void* newPtr)
+	void CullingList<T>::NotifyMovement(CullTest type, std::size_t index, void* oldPtr, void* newPtr)
 	{
+		NazaraUnused(oldPtr);
+
 		switch (type)
 		{
 			case CullTest::NoTest:
