@@ -7,7 +7,7 @@ dist:
 addons:
   apt:
     sources:
-      - llvm-toolchain-trusty-3.7
+      - llvm-toolchain-precise-3.7
       - ubuntu-toolchain-r-test
     packages:
       - clang-3.7
