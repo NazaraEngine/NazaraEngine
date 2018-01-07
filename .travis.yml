@@ -7,10 +7,10 @@ dist:
 addons:
   apt:
     sources:
-      - llvm-toolchain-trusty-5.0
+      - llvm-toolchain-trusty-3.7
       - ubuntu-toolchain-r-test
     packages:
-      - clang-5.0
+      - clang-3.7
       - libassimp-dev
       - libfreetype6-dev
       - libgl1-mesa-dev
@@ -25,7 +25,7 @@ addons:
       - mesa-common-dev
 
 sudo:
-  required
+  false
 
 notifications:
   email: true
@@ -35,7 +35,7 @@ compiler:
 
 env:
   global:
-    - COMPILER=clang++-5.0
+    - COMPILER=clang++-3.7
     - CFLAGS="-Wall -Wextra" 
     - CXXFLAGS="-Wall -Wextra"
   matrix:
