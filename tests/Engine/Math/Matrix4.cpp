@@ -83,8 +83,8 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			THEN("We get the identity")
 			{
 				Nz::Matrix4f tmp = matrix1 * invMatrix1;
-				CHECK(tmp.m32 == Approx(0.f));
-				CHECK(tmp.m42 == Approx(0.f));
+				CHECK(tmp.m32 == Approx(0.f).margin(0.0001f));
+				CHECK(tmp.m42 == Approx(0.f).margin(0.0001f));
 				tmp.m32 = 0.f;
 				tmp.m42 = 0.f;
 				CHECK(tmp == Nz::Matrix4f::Identity());
