@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	Constraint2D::Constraint2D(Nz::PhysWorld2D* const world, cpConstraint* constraint) :
+	Constraint2D::Constraint2D(Nz::PhysWorld2D* world, cpConstraint* constraint) :
 	m_constraint(constraint)
 	{
 		cpConstraintSetUserData(m_constraint, this);
