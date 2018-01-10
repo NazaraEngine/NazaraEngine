@@ -50,7 +50,7 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
-			Nz::RigidBody2D& GetRigidBody();
+			Nz::RigidBody2D* GetRigidBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
