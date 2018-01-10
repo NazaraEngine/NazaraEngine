@@ -33,7 +33,7 @@ namespace Ndk
 		{
 			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent2D
 			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
-			physComponent.GetRigidBody().SetGeom(m_geom);
+			physComponent.GetRigidBody()->SetGeom(m_geom);
 		}
 		else
 		{

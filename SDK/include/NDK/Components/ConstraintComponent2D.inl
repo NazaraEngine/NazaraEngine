@@ -7,7 +7,7 @@ namespace Ndk
 	template<typename T, typename ...Args>
 	inline Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle first, const Ndk::EntityHandle second, Args && ...args)
 	{
-		auto QueryBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D&
+		auto QueryBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D*
 		{
 			if (entity->HasComponent<Ndk::PhysicsComponent2D>())
 				return entity->GetComponent<Ndk::PhysicsComponent2D>().GetRigidBody();
@@ -16,7 +16,7 @@ namespace Ndk
 			else NazaraError("Entity must have a CollisionComponent2D or a PhysicsComponent2D");
 		};
 
-		Nz::ObjectRef<T> constraint = T::New(QueryBody(first), QueryBody(second), std::forward<Args>(args)...);
+		Nz::ObjectRef<T> constraint = T::New(*QueryBody(first), *QueryBody(second), std::forward<Args>(args)...);
 
 		m_constraints.push_back(constraint);
 
