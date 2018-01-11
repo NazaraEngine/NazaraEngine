@@ -104,7 +104,7 @@ ACTION.Function = function ()
 	for arch, enabled in pairs(archEnabled) do
 		if (enabled) then
 			local archLibSrc = realLibDir .. arch .. "/"
-			local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
+			local arch3rdPartyBinSrc = "../thirdparty/lib/common/" .. arch .. "/"
 			local archBinDst = "bin/" .. arch .. "/"
 			local archLibDst = "lib/" .. arch .. "/"
 			

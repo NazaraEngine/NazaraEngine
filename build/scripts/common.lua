@@ -73,7 +73,7 @@ function NazaraBuild:Execute()
 
 		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
-			self:FilterLibDirectory("../extlibs/lib/", targetdir)
+			self:FilterLibDirectory("../thirdparty/lib/", targetdir)
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -81,7 +81,7 @@ function NazaraBuild:Execute()
 				self:PrepareGeneric()
 				
 				language(libTable.Language)
-				location(_ACTION .. "/extlibs")
+				location(_ACTION .. "/thirdparty")
 
 				files(libTable.Files)
 				excludes(libTable.FilesExcluded)
@@ -89,10 +89,10 @@ function NazaraBuild:Execute()
 				defines(libTable.Defines)
 				flags(libTable.Flags)
 				kind("StaticLib") -- Force them as static libs
-				includedirs("../extlibs/include")
+				includedirs("../thirdparty/include")
 				includedirs(libTable.Includes)
 				links(libTable.Libraries)
-				libdirs("../extlibs/lib/common")
+				libdirs("../thirdparty/lib/common")
 
 				filter(clangGccActions)
 					buildoptions("-U__STRICT_ANSI__")
@@ -138,7 +138,7 @@ function NazaraBuild:Execute()
 			includedirs({
 				"../include",
 				"../src/",
-				"../extlibs/include"
+				"../thirdparty/include"
 			})
 
 			files(moduleTable.Files)
@@ -150,7 +150,7 @@ function NazaraBuild:Execute()
 			links(moduleTable.Libraries)
 
 			libdirs({
-				"../extlibs/lib/common",
+				"../thirdparty/lib/common",
 				"../lib"
 			})
 
@@ -206,11 +206,11 @@ function NazaraBuild:Execute()
 
 			includedirs({
 				"../include",
-				"../extlibs/include"
+				"../thirdparty/include"
 			})
 
 			libdirs({
-				"../extlibs/lib/common",
+				"../thirdparty/lib/common",
 				"../lib"
 			})
 
@@ -270,7 +270,7 @@ function NazaraBuild:Execute()
 			debugdir(destPath)
 			includedirs({
 				"../include",
-				"../extlibs/include"
+				"../thirdparty/include"
 			})
 			libdirs("../lib")
 
@@ -347,7 +347,7 @@ function NazaraBuild:Initialize()
 	ACTION = nil
 
 	-- Extern libraries
-	local extlibs = os.matchfiles("../extlibs/build/*.lua")
+	local extlibs = os.matchfiles("../thirdparty/build/*.lua")
 	for k,v in pairs(extlibs) do
 		local f, err = loadfile(v)
 		if (f) then
@@ -786,7 +786,7 @@ function NazaraBuild:PrepareGeneric()
 	
 	cppdialect("C++14")
 
-	self:FilterLibDirectory("../extlibs/lib/", libdirs)
+	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
 
 	-- Fixes Premake stuff
 	filter({"kind:SharedLib", clangGccActions})
@@ -1096,10 +1096,10 @@ function NazaraBuild:SetupExtlibTable(infoTable)
 
 	infoTable.Kind = "library"
 
-	table.insert(infoTable.BinaryPaths.x86, "../extlibs/lib/common/x86")
-	table.insert(infoTable.BinaryPaths.x64, "../extlibs/lib/common/x64")
-	table.insert(infoTable.LibraryPaths.x86, "../extlibs/lib/common/x86")
-	table.insert(infoTable.LibraryPaths.x64, "../extlibs/lib/common/x64")
+	table.insert(infoTable.BinaryPaths.x86, "../thirdparty/lib/common/x86")
+	table.insert(infoTable.BinaryPaths.x64, "../thirdparty/lib/common/x64")
+	table.insert(infoTable.LibraryPaths.x86, "../thirdparty/lib/common/x86")
+	table.insert(infoTable.LibraryPaths.x64, "../thirdparty/lib/common/x64")
 end
 
 function NazaraBuild:SetupModuleTable(infoTable)
@@ -1107,10 +1107,10 @@ function NazaraBuild:SetupModuleTable(infoTable)
 
 	infoTable.Kind = "library"
 
-	table.insert(infoTable.BinaryPaths.x86, "../extlibs/lib/common/x86")
-	table.insert(infoTable.BinaryPaths.x64, "../extlibs/lib/common/x64")
-	table.insert(infoTable.LibraryPaths.x86, "../extlibs/lib/common/x86")
-	table.insert(infoTable.LibraryPaths.x64, "../extlibs/lib/common/x64")
+	table.insert(infoTable.BinaryPaths.x86, "../thirdparty/lib/common/x86")
+	table.insert(infoTable.BinaryPaths.x64, "../thirdparty/lib/common/x64")
+	table.insert(infoTable.LibraryPaths.x86, "../thirdparty/lib/common/x86")
+	table.insert(infoTable.LibraryPaths.x64, "../thirdparty/lib/common/x64")
 end
 
 NazaraBuild.SetupToolTable = NazaraBuild.SetupInfoTable
