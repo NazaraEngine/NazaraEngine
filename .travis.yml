@@ -49,6 +49,6 @@ script:
     make -j4 config=${CONFIG}dynamic_x64
 
 after_success:
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../thirdparty/lib/gmake/x64/ &&
     cd ../../tests &&
     ./NazaraUnitTestsServer
