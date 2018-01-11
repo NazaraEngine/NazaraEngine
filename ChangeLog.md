@@ -7,6 +7,7 @@ Miscellaneous:
 - Upgraded Catch to v2.0.1
 - ⚠️ Merged NazaraExtlibs workspace to main workspace (allowing `make` command to work without -f parameter) and removed extern libraries precompiled
 - Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
+- ⚠️ Renamed extlibs folder to thirdparty
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
