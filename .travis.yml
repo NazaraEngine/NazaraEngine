@@ -19,12 +19,7 @@ script:
         cd build &&
         ./premake5-linux64 --cc=clang gmake &&
         cd gmake &&
-        make -j4
-      "
-
-after_script:
-  - docker exec Nazara
-      sh -c "
+        make -j4 &&
         cd ../../tests &&
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
         ./NazaraUnitTestsServer
