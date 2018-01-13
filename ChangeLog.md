@@ -38,6 +38,7 @@ Nazara Engine:
 - ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
 - Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -65,6 +66,7 @@ Nazara Development Kit:
 - ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
 - Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
 - Disabling an entity with a CollisionComponent3D or PhysicsComponent3D will properly disable it from the physics simulation
+- Add ConstraintComponent2D class
 
 # 0.4:
 
