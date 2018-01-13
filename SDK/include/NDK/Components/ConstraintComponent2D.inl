@@ -5,7 +5,7 @@
 namespace Ndk
 {
 	template<typename T, typename ...Args>
-	inline Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle& first, const Ndk::EntityHandle& second, Args && ...args)
+	Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle& first, const Ndk::EntityHandle& second, Args && ...args)
 	{
 		auto FetchBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D*
 		{
