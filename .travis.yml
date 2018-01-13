@@ -1,54 +1,31 @@
 language:
   cpp
 
-dist: 
-  trusty
-
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-precise-3.7
-      - ubuntu-toolchain-r-test
-    packages:
-      - clang-3.7
-      - libassimp-dev
-      - libfreetype6-dev
-      - libgl1-mesa-dev
-      - libopenal-dev
-      - libsndfile1-dev
-      - libx11-dev
-      - libxcb-cursor-dev
-      - libxcb-ewmh-dev
-      - libxcb-icccm4-dev
-      - libxcb-keysyms1-dev
-      - libxcb-randr0-dev
-      - mesa-common-dev
-
 sudo:
   required
 
 notifications:
   email: true
 
-compiler:
-  - clang
+services:
+  - docker
 
-env:
-  global:
-    - COMPILER=clang++-3.7
-    - CFLAGS="-Wall -Wextra" 
-    - CXXFLAGS="-Wall -Wextra"
-  matrix:
-    - CONFIG=debug
-    - CONFIG=release
+before_install:
+  - docker build -t nazara .
 
 script:
-  - cd build &&
-    ./premake5-linux64 --cc=clang gmake
-  - cd gmake &&
-    make -j4 config=${CONFIG}dynamic_x64
+  - docker run --name Nazara -v `pwd`:/NazaraEngine nazara
+      sh -c "
+        cd build &&
+        ./premake5-linux64 --cc=clang gmake &&
+        cd gmake &&
+        make -j4
+      "
 
-after_success:
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../thirdparty/lib/gmake/x64/ &&
-    cd ../../tests &&
-    ./NazaraUnitTestsServer
+after_script:
+  - docker exec Nazara
+      sh -c "
+        cd ../../tests &&
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib/gmake/x64/:../extlibs/lib/gmake/x64/ &&
+        ./NazaraUnitTestsServer
+      "
