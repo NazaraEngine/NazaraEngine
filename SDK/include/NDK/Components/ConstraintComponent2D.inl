@@ -5,23 +5,25 @@
 namespace Ndk
 {
 	template<typename T, typename ...Args>
-	inline Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle first, const Ndk::EntityHandle second, Args && ...args)
+	inline Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle& first, const Ndk::EntityHandle& second, Args && ...args)
 	{
-		auto QueryBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D*
+		auto FetchBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D*
 		{
 			if (entity->HasComponent<Ndk::PhysicsComponent2D>())
 				return entity->GetComponent<Ndk::PhysicsComponent2D>().GetRigidBody();
 			else if (entity->HasComponent<Ndk::CollisionComponent2D>())
 				return entity->GetComponent<Ndk::CollisionComponent2D>().GetStaticBody();
+
 			return nullptr;
 		};
 
-		Nz::RigidBody2D* body_first{ QueryBody(first) }, body_second{ QueryBody(second) };
+		Nz::RigidBody2D* firstBody = FetchBody(first);
+		NazaraAssert(firstBody, "First entity has no CollisionComponent2D nor PhysicsComponent2D component");
 
-		NazaraAssert(body_first && body_second, "RigidBodies of CollisionComponent2D or PhysicsComponent2D must be valid");
+		Nz::RigidBody2D* secondBody = FetchBody(second);
+		NazaraAssert(secondBody, "Second entity has no CollisionComponent2D nor PhysicsComponent2D component");
 
-		Nz::ObjectRef<T> constraint = T::New(*body_first, *body_second, std::forward<Args>(args)...);
-
+		Nz::ObjectRef<T> constraint = T::New(*firstBody, *secondBody, std::forward<Args>(args)...);
 		m_constraints.push_back(constraint);
 
 		return constraint;
