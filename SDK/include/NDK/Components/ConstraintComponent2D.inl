@@ -13,11 +13,14 @@ namespace Ndk
 				return entity->GetComponent<Ndk::PhysicsComponent2D>().GetRigidBody();
 			else if (entity->HasComponent<Ndk::CollisionComponent2D>())
 				return entity->GetComponent<Ndk::CollisionComponent2D>().GetStaticBody();
-			else NazaraError("Entity must have a CollisionComponent2D or a PhysicsComponent2D");
 			return nullptr;
 		};
 
-		Nz::ObjectRef<T> constraint = T::New(*QueryBody(first), *QueryBody(second), std::forward<Args>(args)...);
+		Nz::RigidBody2D* body_first{ QueryBody(first) }, body_second{ QueryBody(second) };
+
+		NazaraAssert(body_first && body_second, "RigidBodies of CollisionComponent2D or PhysicsComponent2D must be valid");
+
+		Nz::ObjectRef<T> constraint = T::New(*body_first, *body_second, std::forward<Args>(args)...);
 
 		m_constraints.push_back(constraint);
 
