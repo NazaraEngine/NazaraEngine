@@ -17,6 +17,7 @@ namespace Ndk
 	{
 		friend class CollisionComponent2D;
 		friend class PhysicsSystem2D;
+		friend class ConstraintComponent2D;
 
 		public:
 			PhysicsComponent2D() = default;
@@ -49,7 +50,7 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
-			Nz::RigidBody2D& GetRigidBody();
+			Nz::RigidBody2D* GetRigidBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;

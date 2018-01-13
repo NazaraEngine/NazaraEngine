@@ -17,6 +17,7 @@ namespace Ndk
 	class NDK_API CollisionComponent2D : public Component<CollisionComponent2D>
 	{
 		friend class PhysicsSystem2D;
+		friend class ConstraintComponent2D;
 
 		public:
 			CollisionComponent2D(Nz::Collider2DRef geom = Nz::Collider2DRef());
