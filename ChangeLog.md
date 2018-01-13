@@ -51,6 +51,7 @@ Nazara Engine:
 - Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
 - Fix OBJParser relative offsets handling
 - Add JPEG image saver
+- Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -81,6 +82,7 @@ Nazara Development Kit:
 - It is now possible to disable synchronization between a PhysicsComponent3D and the NodeComponent
 - Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
 - Fix TextAreaWidget::Clear crash
+- Add ConstraintComponent2D class
 
 # 0.4:
 
