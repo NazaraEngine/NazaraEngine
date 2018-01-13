@@ -1,7 +1,22 @@
+/*
+* FirstScene - Première scène graphique
+* Prérequis: Aucun
+* Utilisation du module utilitaire et graphique
+** Présente :
+* -Création et gestion d'une fenêtre (Traitement des évènements clavier/souris)
+* -Gestion du clavier(Récupération de l'état d'une touche)
+* -Des outils pour afficher une scène basique via le chargement d'un modèle (et son affichage)
+* -Éclairage directionnel
+* -Gestion d'une caméra free-fly (Avec déplacement fluide)
+* -Gestion basique d'une horloge
+* -Console
+*/
+
 #include <Nazara/Core/Clock.hpp> // Horloges
 #include <Nazara/Lua.hpp> // Module de scripting
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
+#include <Nazara/Network.hpp> // Module utilitaire
 #include <Nazara/Utility.hpp> // Module utilitaire
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
