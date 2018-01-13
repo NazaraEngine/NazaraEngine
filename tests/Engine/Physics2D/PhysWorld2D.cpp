@@ -80,7 +80,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 				{
 					const Nz::PhysWorld2D::RaycastHit& result = results[i];
 					CHECK(result.nearestBody == &bodies[i]);
-					CHECK(result.fraction == Approx(i / 4.f).epsilon(0.1f));
+					CHECK(result.fraction == Approx(i / 4.f).margin(0.1f));
 					CHECK(result.hitPos == Nz::Vector2f(0.f, i * 10.f));
 					CHECK(result.hitNormal == -Nz::Vector2f::UnitY());
 				}
@@ -171,13 +171,13 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 					world.Step(0.1f);
 				CHECK(statusTriggerCollision == 11);
 
-				CHECK(character.GetPosition().x == Approx(3.1f).epsilon(0.01f));
+				CHECK(character.GetPosition().x == Approx(3.1f).margin(0.01f));
 
 				for (int i = 0; i != 9; ++i)
 					world.Step(0.1f);
-				CHECK(character.GetPosition().x == Approx(4.f).epsilon(0.01f));
+				CHECK(character.GetPosition().x == Approx(4.f).margin(0.01f));
 				world.Step(0.1f);
-				CHECK(character.GetPosition().x == Approx(4.f).epsilon(0.01f));
+				CHECK(character.GetPosition().x == Approx(4.f).margin(0.01f));
 				CHECK(statusWallCollision == 1); // It should be close to the wall
 
 				character.SetVelocity(Nz::Vector2f(-2.f, 0.f));

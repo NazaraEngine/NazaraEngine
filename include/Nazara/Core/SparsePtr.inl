@@ -63,7 +63,7 @@ namespace Nz
 	template<typename T>
 	SparsePtr<T>::SparsePtr(VoidPtr ptr, std::size_t stride)
 	{
-		assert(stride <= std::numeric_limits<int>::max());
+		assert(stride <= static_cast<unsigned int>(std::numeric_limits<int>::max()));
 		Reset(ptr, static_cast<int>(stride));
 	}
 
