@@ -319,7 +319,7 @@ int main()
 		}
 	});
 
-	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre é jour le monde)
+	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
 
