@@ -16,7 +16,6 @@
 #include <Nazara/Lua.hpp> // Module de scripting
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
-#include <Nazara/Network.hpp> // Module utilitaire
 #include <Nazara/Utility.hpp> // Module utilitaire
 #include <NDK/Application.hpp>
 #include <NDK/Components.hpp>
@@ -34,7 +33,6 @@ int main()
 {
 	// Ndk::Application est une classe s'occupant de l'initialisation du moteur ainsi que de la gestion de beaucoup de choses
 	Ndk::Application application;
-	Nz::Initializer<Nz::Network> network;
 
 	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
 	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.
@@ -68,9 +66,9 @@ int main()
 		// Accédons maintenant au système de rendu faisant partie du monde
 		Ndk::RenderSystem& renderSystem = world->GetSystem<Ndk::RenderSystem>(); // Une assertion valide la précondition "le système doit faire partie du monde"
 
-		// Nous assignons ensuite notre skybox comme "fond par défaut" du système
-		// La notion "par défaut" existe parce qu'une caméra pourrait utiliser son propre fond lors du rendu,
-		// le fond par défaut est utilisé lorsque la caméra n'a pas de fond propre assigné
+																				 // Nous assignons ensuite notre skybox comme "fond par défaut" du système
+																				 // La notion "par défaut" existe parce qu'une caméra pourrait utiliser son propre fond lors du rendu,
+																				 // le fond par défaut est utilisé lorsque la caméra n'a pas de fond propre assigné
 		renderSystem.SetDefaultBackground(std::move(skybox));
 
 		// Notre skybox est maintenant référencée par le système, lui-même appartenant au monde, aucune libération explicite n'est nécessaire
@@ -96,8 +94,8 @@ int main()
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
 	params.mesh.matrix.MakeScale(Nz::Vector3f(0.01f)); // Un centième de la taille originelle
 
-	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
-	// Nous devons donc indiquer au moteur de les retourner lors du chargement
+													   // Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
+													   // Nous devons donc indiquer au moteur de les retourner lors du chargement
 	params.mesh.texCoordScale.Set(1.f, -1.f);
 
 	// Nazara va par défaut optimiser les modèles pour un rendu plus rapide, cela peut prendre du temps et n'est pas nécessaire ici
@@ -129,7 +127,7 @@ int main()
 	// celui de la coque, est le second (Cela est bien entendu lié au modèle en lui-même)
 	Nz::Material* material = spaceshipModel->GetMaterial(1); // Encore une fois nous ne faisons qu'un accès direct.
 
-	// On lui indique ensuite le chemin vers la normal map
+															 // On lui indique ensuite le chemin vers la normal map
 	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
 	{
 		// Le chargement a échoué, peut-être le fichier n'existe pas, ou n'est pas reconnu par le moteur
@@ -226,7 +224,7 @@ int main()
 	// Pour commencer le mode vidéo, celui-ci va définir la taille de la zone de rendu et le nombre de bits par pixels
 	Nz::VideoMode mode = Nz::VideoMode::GetDesktopMode(); // Nous récupérons le mode vidéo du bureau
 
-	// Nous allons prendre les trois quarts de la résolution du bureau pour notre fenêtre
+														  // Nous allons prendre les trois quarts de la résolution du bureau pour notre fenêtre
 	mode.width = 3 * mode.width / 4;
 	mode.height = 3 * mode.height / 4;
 
@@ -237,9 +235,9 @@ int main()
 	// peut-on la redimensionner, ...
 	Nz::WindowStyleFlags style = Nz::WindowStyle_Default; // Nous prenons le style par défaut, autorisant tout ce que je viens de citer
 
-	// Ensuite, les paramètres du contexte de rendu
-	// On peut configurer le niveau d'antialiasing, le nombre de bits du depth buffer et le nombre de bits du stencil buffer
-	// Nous désirons avoir un peu d'antialiasing (4x), les valeurs par défaut pour le reste nous conviendrons très bien
+														  // Ensuite, les paramètres du contexte de rendu
+														  // On peut configurer le niveau d'antialiasing, le nombre de bits du depth buffer et le nombre de bits du stencil buffer
+														  // Nous désirons avoir un peu d'antialiasing (4x), les valeurs par défaut pour le reste nous conviendrons très bien
 	Nz::RenderTargetParameters parameters;
 	parameters.antialiasingLevel = 4;
 
@@ -275,66 +273,55 @@ int main()
 	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
 	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
 
+	//Gestion des Evenements 
+	Nz::EventHandler& eventHandler = window.GetEventHandler();
+
+	eventHandler.OnMouseMoved.Connect([&camAngles, &cameraNode, &window](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+	{
+		if (Ndk::Application::Instance()->IsConsoleEnabled())
+		{
+			Ndk::Application::ConsoleOverlay& consoleOverlay = Ndk::Application::Instance()->GetConsoleOverlay();
+			if (consoleOverlay.console->IsVisible())
+				return;
+		}
+		// Gestion de la caméra free-fly (Rotation)
+		float sensitivity = 0.3f; // Sensibilité de la souris
+
+								  // On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+		camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.deltaX*sensitivity);
+
+		// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+		camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY*sensitivity, -89.f, 89.f);
+
+		// On applique les angles d'Euler à notre caméra
+		cameraNode.SetRotation(camAngles);
+
+		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
+		// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
+		Nz::Vector2ui size = window.GetSize();
+		Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
+	});
+
+	eventHandler.OnKeyPressed.Connect([&targetPos, &cameraNode, &smoothMovement, &window](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
+	{
+		// Une touche a été pressée !
+		if (event.code == Nz::Keyboard::Key::Escape)
+			window.Close();
+		else if (event.code == Nz::Keyboard::F1)
+		{
+			if (smoothMovement)
+			{
+				targetPos = cameraNode.GetPosition();
+				smoothMovement = false;
+			}
+			else
+				smoothMovement = true;
+		}
+	});
+
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
-		// Ensuite nous allons traiter les évènements (Étape indispensable pour la fenêtre)
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
-				{
-					if (application.IsConsoleEnabled())
-					{
-						Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-						if (consoleOverlay.console->IsVisible())
-							break;
-					}
-
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
-
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
-
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					// On applique les angles d'Euler à notre caméra
-					cameraNode.SetRotation(camAngles);
-
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Vector2ui size = window.GetSize();
-					Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
-					break;
-				}
-
-				case  Nz::WindowEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
-					application.Quit();
-					break;
-
-				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
-					if (event.key.code == Nz::Keyboard::Key::Escape)
-						window.Close();
-					else if (event.key.code == Nz::Keyboard::F1)
-					{
-						if (smoothMovement)
-						{
-							targetPos = cameraNode.GetPosition();
-							smoothMovement = false;
-						}
-						else
-							smoothMovement = true;
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
 
 		Nz::UInt64 elapsedUS = updateClock.GetMicroseconds();
 		// On relance l'horloge
@@ -370,7 +357,7 @@ int main()
 				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 				// les directions locales de la caméra
 
-				// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
+				// Si la flèche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 					targetPos += cameraNode.GetForward() * cameraSpeed;
 
@@ -428,8 +415,8 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 
 	const float dampConstant = 0.000065f; // Something v.small to offset 1/ displacement length
 
-	// the strength of the spring increases the further away the camera is from the target.
-	float springMagitude = springStrength*displacementLength + dampConstant*invDisplacementLength;
+										  // the strength of the spring increases the further away the camera is from the target.
+	float springMagitude = springStrength * displacementLength + dampConstant * invDisplacementLength;
 
 	// Normalise the displacement and scale by the spring magnitude
 	// and the amount of time passed
