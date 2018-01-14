@@ -335,7 +335,7 @@ int main()
 
 		if (updateAccumulator >= updateRate)
 		{
-			// Le temps écoulé en seconde depuis la derniére fois que ce bloc a été exécuté
+			// Le temps écoulé en seconde depuis la dernière fois que ce bloc a été exécuté
 			float elapsedTime = updateAccumulator / 1000000.f;
 
 			// Vitesse de déplacement de la caméra
@@ -388,7 +388,7 @@ int main()
 			updateAccumulator = 0;
 		}
 
-		// Aprés avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
+		// Après avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
 		window.Display();
 	}
@@ -417,7 +417,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 
 	const float dampConstant = 0.000065f; // Something v.small to offset 1/ displacement length
 
-										  // the strength of the spring increases the further away the camera is from the target.
+	// the strength of the spring increases the further away the camera is from the target.
 	float springMagitude = springStrength * displacementLength + dampConstant * invDisplacementLength;
 
 	// Normalise the displacement and scale by the spring magnitude
