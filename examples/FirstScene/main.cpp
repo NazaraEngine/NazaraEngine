@@ -289,13 +289,13 @@ int main()
 		// Gestion de la caméra free-fly (Rotation)
 		float sensitivity = 0.3f; // Sensibilité de la souris
 
-		// On modifie l'angle de la caméra gréce au déplacement relatif sur X de la souris
+		// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
 		camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.deltaX*sensitivity);
 
-		// Idem, mais pour éviter les problémes de calcul de la matrice de vue, on restreint les angles
+		// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
 		camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY*sensitivity, -89.f, 89.f);
 
-		// On applique les angles d'Euler é notre caméra
+		// On applique les angles d'Euler à notre caméra
 		cameraNode.SetRotation(camAngles);
 
 		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenétre
@@ -359,7 +359,7 @@ int main()
 				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 				// les directions locales de la caméra
 
-				// Si la fléche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
+				// Si la flèche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 					targetPos += cameraNode.GetForward() * cameraSpeed;
 
