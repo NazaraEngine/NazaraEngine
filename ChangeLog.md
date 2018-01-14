@@ -1,10 +1,14 @@
 # Upcoming version:
 
-Build system/unit tests:
+Miscellaneous:
 - Add possibility to excludes with one commande all tests/examples/tools/etc.
 - Units tests are now part of the "test" exclusion category
 - Fix project exclusion not working (but correctly excluding projects relying upon it)
 - Upgraded Catch to v2.0.1
+- ⚠️ Merged NazaraExtlibs workspace to main workspace (allowing `make` command to work without -f parameter) and removed extern libraries precompiled
+- Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
+- ⚠️ Renamed extlibs folder to thirdparty
+- Partial fix for Premake regenerating projects for no reason
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -46,6 +50,9 @@ Nazara Engine:
 - Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
 - It is now possible to initialize a StackArray with a size of zero on every platforms (this was not possible on non-Windows platforms before)
 - Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
+- Fix OBJParser relative offsets handling
+- Add JPEG image saver
+- Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -76,6 +83,7 @@ Nazara Development Kit:
 - It is now possible to disable synchronization between a PhysicsComponent3D and the NodeComponent
 - Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
 - Fix TextAreaWidget::Clear crash
+- Add ConstraintComponent2D class
 
 # 0.4:
 

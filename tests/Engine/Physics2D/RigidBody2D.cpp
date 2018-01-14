@@ -4,6 +4,7 @@
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world);
 void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right);
+void EQUALITY(const Nz::Rectf& left, const Nz::Rectf& right);
 
 SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 {
@@ -65,16 +66,15 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We set a new geometry")
 		{
 			float radius = 5.f;
-			Nz::Vector2f positionCircle(0.f, 0.f);
-			Nz::Collider2DRef circle = Nz::CircleCollider2D::New(radius, position);
-			body.SetGeom(circle);
+			body.SetGeom(Nz::CircleCollider2D::New(radius));
 
 			world.Step(1.f);
 
 			THEN("The aabb should be updated")
 			{
+				position = body.GetPosition();
 				Nz::Rectf circleAABB(position.x - radius, position.y - radius, 2.f * radius, 2.f* radius);
-				REQUIRE(body.GetAABB() == circleAABB);
+				EQUALITY(body.GetAABB(), circleAABB);
 			}
 		}
 	}
@@ -315,4 +315,12 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 	CHECK(left.GetRotation() == right.GetRotation());
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
+}
+
+void EQUALITY(const Nz::Rectf& left, const Nz::Rectf& right)
+{
+	CHECK(left.x == Approx(right.x));
+	CHECK(left.y == Approx(right.y));
+	CHECK(left.width == Approx(right.width));
+	CHECK(left.height == Approx(right.height));
 }
