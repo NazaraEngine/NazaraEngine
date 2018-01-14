@@ -4,12 +4,12 @@ NazaraBuild = {}
 local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
 
 function NazaraBuild:AddExecutablePath(path)
-	self.ExecutableDir[path] = true
-	self.InstallDir[path] = true
+	table.insert(self.ExecutableDir, path)
+	self:AddInstallPath(path)
 end
 
 function NazaraBuild:AddInstallPath(path)
-	self.InstallDir[path] = true
+	table.insert(self.InstallDir, path)
 end
 
 function NazaraBuild:FilterLibDirectory(prefix, func)
@@ -602,11 +602,13 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 
 		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
 
-		for k,v in pairs(self.InstallDir) do
-			local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+		-- Copy built file to install directory
+		for k,installPath in pairs(self.InstallDir) do
+			local destPath = path.translate(path.isabsolute(installPath) and installPath or "../../" .. installPath)
 			postbuildcommands({[[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]]})
 		end
 
+		-- Copy additional dependencies to executable directories too
 		for k,fileName in pairs(table.join(infoTable.Libraries, infoTable.DynLib)) do
 			local paths = {}
 			for k,v in pairs(infoTable.BinaryPaths.x86) do
@@ -629,9 +631,9 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 
 					filter("architecture:" .. arch)
 					
-					for k,v in pairs(self.ExecutableDir) do
+					for k,execPath in pairs(self.ExecutableDir) do
 						local srcPath = path.isabsolute(srcPath) and path.translate(srcPath) or [[%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}]]
-						local destPath = path.translate(path.isabsolute(k) and k or "../../" .. k)
+						local destPath = path.translate(path.isabsolute(execPath) and execPath or "../../" .. execPath)
 						postbuildcommands({[[xcopy "]] .. srcPath .. [[" "]] .. destPath .. [[\" /E /Y]]})
 					end
 				end
