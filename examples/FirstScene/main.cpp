@@ -299,7 +299,7 @@ int main()
 		cameraNode.SetRotation(camAngles);
 
 		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenétre
-		// Cette fonction est codée de sorte é ne pas provoquer d'événement MouseMoved
+		// Cette fonction est codée de sorte à ne pas provoquer d'événement MouseMoved
 		Nz::Vector2ui size = window.GetSize();
 		Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
 	});
@@ -329,7 +329,7 @@ int main()
 		// On relance l'horloge
 		updateClock.Restart();
 
-		// Mise é jour (Caméra)
+		// Mise à jour (Caméra)
 		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
 		updateAccumulator += elapsedUS;
 
@@ -339,7 +339,7 @@ int main()
 			float elapsedTime = updateAccumulator / 1000000.f;
 
 			// Vitesse de déplacement de la caméra
-			float cameraSpeed = 3.f * elapsedTime; // Trois métres par seconde
+			float cameraSpeed = 3.f * elapsedTime; // Trois mètres par seconde
 
 			bool move = true;
 
@@ -356,14 +356,14 @@ int main()
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
 					cameraSpeed *= 2.f;
 
-				// Pour que nos déplacement soient liés é la rotation de la caméra, nous allons utiliser
+				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 				// les directions locales de la caméra
 
 				// Si la fléche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 					targetPos += cameraNode.GetForward() * cameraSpeed;
 
-				// Si la fléche du bas ou la touche S est pressée, on recule
+				// Si la flèche du bas ou la touche S est pressée, on recule
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
 					targetPos += cameraNode.GetBackward() * cameraSpeed;
 
@@ -379,7 +379,7 @@ int main()
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
 					targetPos += Nz::Vector3f::Up() * cameraSpeed;
 
-				// Contréle (Gauche ou droite) pour descendre dans l'espace global, etc...
+				// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
 					targetPos += Nz::Vector3f::Down() * cameraSpeed;
 			}
@@ -388,7 +388,7 @@ int main()
 			updateAccumulator = 0;
 		}
 
-		// Aprés avoir dessiné sur la fenétre, il faut s'assurer qu'elle affiche cela
+		// Aprés avoir dessiné sur la fenêtre, il faut s'assurer qu'elle affiche cela
 		// Cet appel ne fait rien d'autre qu'échanger les buffers de rendu (Double Buffering)
 		window.Display();
 	}
@@ -401,7 +401,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 	// Je ne suis pas l'auteur de cette fonction
 	// Je l'ai reprise du programme "Floaty Camera Example" et adaptée au C++
 	// Trouvé ici: http://nccastaff.bournemouth.ac.uk/jmacey/RobTheBloke/www/opengl_programming.html#4
-	// Tout le mérite revient é l'auteur (Qui me permettra ainsi d'améliorer les démos, voire méme le moteur)
+	// Tout le mérite revient à l'auteur (Qui me permettra ainsi d'améliorer les démos, voire même le moteur)
 
 	// calculate the displacement between the target and the current position
 	Nz::Vector3f displacement = targetPos - currentPos;
