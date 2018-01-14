@@ -64,7 +64,7 @@ namespace Ndk
 		private:
 			void ApplyPhysicsState(Nz::RigidBody3D& rigidBody) const;
 			void CopyPhysicsState(const Nz::RigidBody3D& rigidBody);
-			Nz::RigidBody3D& GetRigidBody();
+			Nz::RigidBody3D* GetRigidBody();
 			const Nz::RigidBody3D& GetRigidBody() const;
 
 			void OnAttached() override;

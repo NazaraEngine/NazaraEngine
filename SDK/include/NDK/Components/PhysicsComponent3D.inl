@@ -488,9 +488,9 @@ namespace Ndk
 	* \brief Gets the underlying physics object
 	* \return A reference to the physics object
 	*/
-	inline Nz::RigidBody3D& PhysicsComponent3D::GetRigidBody()
+	inline Nz::RigidBody3D* PhysicsComponent3D::GetRigidBody()
 	{
-		return *m_object.get();
+		return m_object.get();
 	}
 
 	/*!
