@@ -7,7 +7,7 @@
 #ifndef NAZARA_BYTEARRAY_HPP
 #define NAZARA_BYTEARRAY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <vector>
 

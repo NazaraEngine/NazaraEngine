@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTTEXTDRAWER_HPP
 #define NAZARA_ABSTRACTTEXTDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>

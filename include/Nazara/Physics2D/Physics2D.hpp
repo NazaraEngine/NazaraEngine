@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSICS2D_HPP
 #define NAZARA_PHYSICS2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 
 namespace Nz

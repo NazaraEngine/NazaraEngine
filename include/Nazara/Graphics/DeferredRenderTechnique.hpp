@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDRENDERTECHNIQUE_HPP
 #define NAZARA_DEFERREDRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEPTHRENDERQUEUE_HPP
 #define NAZARA_DEPTHRENDERQUEUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>

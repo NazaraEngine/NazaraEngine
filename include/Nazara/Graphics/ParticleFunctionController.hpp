@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEFUNCTIONCONTROLLER_HPP
 #define NAZARA_PARTICLEFUNCTIONCONTROLLER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <functional>
 
