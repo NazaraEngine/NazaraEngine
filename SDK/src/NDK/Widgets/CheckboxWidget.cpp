@@ -134,7 +134,7 @@ namespace Ndk
 
 		Nz::Vector3f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
-																origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
+		                                                        origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
 	}
 
 	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)

@@ -32,7 +32,7 @@ namespace Ndk
 		{
 			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent3D
 			PhysicsComponent3D& physComponent = m_entity->GetComponent<PhysicsComponent3D>();
-			physComponent.GetRigidBody().SetGeom(m_geom);
+			physComponent.GetRigidBody()->SetGeom(m_geom);
 		}
 		else
 		{
@@ -57,7 +57,7 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem3D>(), "World must have a physics system");
 		Nz::PhysWorld3D& physWorld = entityWorld->GetSystem<PhysicsSystem3D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody3D(&physWorld, m_geom));
+		m_staticBody = std::make_unique<Nz::RigidBody3D>(&physWorld, m_geom);
 		m_staticBody->EnableAutoSleep(false);
 	}
 
@@ -102,6 +102,18 @@ namespace Ndk
 	void CollisionComponent3D::OnDetached()
 	{
 		m_staticBody.reset();
+	}
+
+	void CollisionComponent3D::OnEntityDisabled()
+	{
+		if (m_staticBody)
+			m_staticBody->EnableSimulation(false);
+	}
+
+	void CollisionComponent3D::OnEntityEnabled()
+	{
+		if (m_staticBody)
+			m_staticBody->EnableSimulation(true);
 	}
 
 	ComponentIndex CollisionComponent3D::componentIndex;

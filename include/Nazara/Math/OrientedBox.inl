@@ -304,7 +304,7 @@ namespace Nz
 			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
 
 			NazaraError(ss);
-			throw std::out_of_range(ss.ToString());
+			throw std::out_of_range(ss.ToString().ToStdString());
 		}
 		#endif
 
@@ -329,7 +329,7 @@ namespace Nz
 			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
 
 			NazaraError(ss);
-			throw std::out_of_range(ss.ToString());
+			throw std::out_of_range(ss.ToString().ToStdString());
 		}
 		#endif
 

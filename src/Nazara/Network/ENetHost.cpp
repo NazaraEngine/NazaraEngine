@@ -894,6 +894,8 @@ namespace Nz
 				break;
 			}
 
+			++currentCommand;
+
 			if (channel && outgoingCommand->sendAttempts < 1)
 			{
 				channel->usedReliableWindows |= 1 << reliableWindow;
@@ -912,8 +914,8 @@ namespace Nz
 				peer->m_nextTimeout = m_serviceTime + outgoingCommand->roundTripTimeout;
 
 			peer->m_sentReliableCommands.emplace_back(std::move(*outgoingCommand));
-			currentCommand = peer->m_outgoingReliableCommands.erase(outgoingCommand);
 
+			peer->m_outgoingReliableCommands.erase(outgoingCommand);
 			outgoingCommand = peer->m_sentReliableCommands.end();
 			--outgoingCommand;
 

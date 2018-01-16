@@ -17,5 +17,6 @@
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
+#include <NDK/Components/ConstraintComponent2D.hpp>
 
 #endif // NDK_COMPONENTS_GLOBAL_HPP

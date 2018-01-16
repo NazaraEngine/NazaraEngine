@@ -40,8 +40,12 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::RigidBody3D(&world, geom, matrix));
-		m_object->SetMass(1.f);
+		m_object = std::make_unique<Nz::RigidBody3D>(&world, geom, matrix);
+
+		if (m_pendingStates.valid)
+			ApplyPhysicsState(*m_object);
+		else
+			m_object->SetMass(1.f);
 	}
 
 	/*!
@@ -57,6 +61,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(static_cast<CollisionComponent3D&>(component).GetGeom());
 		}
 	}
@@ -74,6 +79,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(Nz::NullCollider3D::New());
 		}
 	}
@@ -84,13 +90,31 @@ namespace Ndk
 
 	void PhysicsComponent3D::OnDetached()
 	{
-		m_object.reset();
+		if (m_object)
+		{
+			CopyPhysicsState(*m_object);
+			m_object.reset();
+		}
 	}
 
 	void PhysicsComponent3D::OnEntityDestruction()
 	{
 		// Kill rigid body before entity destruction to force contact callbacks to be called while the entity is still valid
 		m_object.reset();
+	}
+
+	void PhysicsComponent3D::OnEntityDisabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(false);
+	}
+
+	void PhysicsComponent3D::OnEntityEnabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(true);
 	}
 
 	ComponentIndex PhysicsComponent3D::componentIndex;

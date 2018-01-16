@@ -72,7 +72,7 @@ namespace Nz
 
 	bool DirectoryImpl::Create(const String& dirPath)
 	{
-		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; // TODO: check permissions, no right to execute but read and write for every others.
+		mode_t permissions = S_IRWXU | S_IRWXG | S_IRWXO; // 777
 		return mkdir(dirPath.GetConstBuffer(), permissions) != -1;
 	}
 

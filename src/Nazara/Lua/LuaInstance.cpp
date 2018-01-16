@@ -21,7 +21,7 @@ namespace Nz
 		{
 			String lastError(lua_tostring(internalState, -1));
 
-			throw std::runtime_error("Lua panic: " + lastError);
+			throw std::runtime_error("Lua panic: " + lastError.ToStdString());
 		}
 	}
 
@@ -38,15 +38,45 @@ namespace Nz
 		luaL_openlibs(m_state);
 	}
 
+	LuaInstance::LuaInstance(LuaInstance&& instance) :
+	LuaState(std::move(instance))
+	{
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
+
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
+	}
+
 	LuaInstance::~LuaInstance()
 	{
 		if (m_state)
 			lua_close(m_state);
 	}
 
-	inline void LuaInstance::SetMemoryUsage(std::size_t memoryUsage)
+	LuaInstance& LuaInstance::operator=(LuaInstance&& instance)
 	{
-		m_memoryUsage = memoryUsage;
+		LuaState::operator=(std::move(instance));
+
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
+
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
+
+		return *this;
 	}
 
 	void* LuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std::size_t nsize)

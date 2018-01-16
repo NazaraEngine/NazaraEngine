@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			LuaInstance();
 			LuaInstance(const LuaInstance&) = delete;
-			LuaInstance(LuaInstance&& instance) = default;
+			LuaInstance(LuaInstance&& instance);
 			~LuaInstance();
 
 			inline std::size_t GetMemoryLimit() const;
@@ -33,7 +33,7 @@ namespace Nz
 			inline void SetTimeLimit(UInt32 limit);
 
 			LuaInstance& operator=(const LuaInstance&) = delete;
-			LuaInstance& operator=(LuaInstance&& instance) = default;
+			LuaInstance& operator=(LuaInstance&& instance);
 
 		private:
 			inline void SetMemoryUsage(std::size_t memoryUsage);

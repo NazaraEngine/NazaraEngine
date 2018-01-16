@@ -138,12 +138,11 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*
-	* \remark Produces a NazaraError if the entity to clone does not exist
+	* \remark Cloning a disabled entity will produce an enabled clone
 	*/
-
 	const EntityHandle& World::CloneEntity(EntityId id)
 	{
-		EntityHandle original = GetEntity(id);
+		const EntityHandle& original = GetEntity(id);
 		if (!original)
 		{
 			NazaraError("Invalid entity ID");
@@ -151,6 +150,8 @@ namespace Ndk
 		}
 
 		const EntityHandle& clone = CreateEntity();
+		if (!original->IsEnabled())
+			clone->Disable();
 
 		const Nz::Bitset<>& componentBits = original->GetComponentBits();
 		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
@@ -158,6 +159,8 @@ namespace Ndk
 			std::unique_ptr<BaseComponent> component(original->GetComponent(ComponentIndex(i)).Clone());
 			clone->AddComponent(std::move(component));
 		}
+
+		clone->Enable();
 
 		return clone;
 	}

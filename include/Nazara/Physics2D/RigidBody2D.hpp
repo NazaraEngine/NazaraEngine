@@ -74,9 +74,10 @@ namespace Nz
 			static constexpr std::size_t InvalidShapeIndex = std::numeric_limits<std::size_t>::max();
 
 		private:
-			void CopyBodyData(cpBody* body);
 			cpBody* Create(float mass = 1.f, float moment = 1.f);
 			void Destroy();
+
+			static void CopyBodyData(cpBody* from, cpBody* to);
 
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;

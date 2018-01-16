@@ -142,7 +142,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -726,7 +726,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -751,7 +751,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -839,7 +839,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 
 		x /= vec.x;
@@ -866,7 +866,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 
 		x /= scale;
@@ -1340,7 +1340,7 @@ Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 
