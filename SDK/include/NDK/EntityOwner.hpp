@@ -31,4 +31,4 @@ namespace Ndk
 
 #include <NDK/EntityOwner.inl>
 
-#endif // NDK_ENTITYOwner_HPP
+#endif // NDK_ENTITYOWNER_HPP

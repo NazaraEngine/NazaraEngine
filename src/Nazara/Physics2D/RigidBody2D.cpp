@@ -44,7 +44,7 @@ namespace Nz
 		m_handle = Create(m_mass, object.GetMomentOfInertia());
 		SetGeom(object.GetGeom(), false);
 
-		CopyBodyData(object.GetHandle());
+		CopyBodyData(object.GetHandle(), m_handle);
 
 		for (std::size_t i = 0; i < m_shapes.size(); ++i)
 			m_shapes[i]->bb = cpShapeCacheBB(object.m_shapes[i]);
@@ -243,7 +243,7 @@ namespace Nz
 
 			cpBody* newHandle = Create(static_cast<float>(mass), static_cast<float>(moment));
 
-			CopyBodyData(m_handle);
+			CopyBodyData(m_handle, newHandle);
 			Destroy();
 
 			m_handle = newHandle;
@@ -403,25 +403,20 @@ namespace Nz
 		return *this;
 	}
 
-	void RigidBody2D::CopyBodyData(cpBody* body)
-	{
-		cpBodySetAngle(m_handle, cpBodyGetAngle(body));
-		cpBodySetAngularVelocity(m_handle, cpBodyGetAngularVelocity(body));
-		cpBodySetCenterOfGravity(m_handle, cpBodyGetCenterOfGravity(body));
-		cpBodySetForce(m_handle, cpBodyGetForce(body));
-		cpBodySetPosition(m_handle, cpBodyGetPosition(body));
-		cpBodySetTorque(m_handle, cpBodyGetTorque(body));
-		cpBodySetVelocity(m_handle, cpBodyGetVelocity(body));
-	}
-
 	cpBody* RigidBody2D::Create(float mass, float moment)
 	{
-		cpBody* handle = cpBodyNew(mass, moment);
+		cpBody* handle;
+		if (IsKinematic())
+		{
+			if (IsStatic())
+				handle = cpBodyNewStatic();
+			else
+				handle = cpBodyNewKinematic();
+		}
+		else
+			handle = cpBodyNew(mass, moment);
+
 		cpBodySetUserData(handle, this);
-
-		if (mass <= 0.f)
-			cpBodySetType(handle, CP_BODY_TYPE_KINEMATIC);
-
 		cpSpaceAddBody(m_world->GetHandle(), handle);
 
 		return handle;
@@ -443,4 +438,16 @@ namespace Nz
 		}
 		m_shapes.clear();
 	}
+
+	void RigidBody2D::CopyBodyData(cpBody* from, cpBody* to)
+	{
+		cpBodySetAngle(to, cpBodyGetAngle(from));
+		cpBodySetAngularVelocity(to, cpBodyGetAngularVelocity(from));
+		cpBodySetCenterOfGravity(to, cpBodyGetCenterOfGravity(from));
+		cpBodySetForce(to, cpBodyGetForce(from));
+		cpBodySetPosition(to, cpBodyGetPosition(from));
+		cpBodySetTorque(to, cpBodyGetTorque(from));
+		cpBodySetVelocity(to, cpBodyGetVelocity(from));
+	}
+
 }

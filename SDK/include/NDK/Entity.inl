@@ -39,20 +39,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Enables the entity
-	*
-	* \param enable Should the entity be enabled
-	*/
-	inline void Entity::Enable(bool enable)
-	{
-		if (m_enabled != enable)
-		{
-			m_enabled = enable;
-			Invalidate();
-		}
-	}
-
-	/*!
 	* \brief Gets a component in the entity by index
 	* \return A reference to the component
 	*

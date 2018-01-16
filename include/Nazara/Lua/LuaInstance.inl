@@ -30,6 +30,11 @@ namespace Nz
 	{
 		m_timeLimit = limit;
 	}
+
+	inline void LuaInstance::SetMemoryUsage(std::size_t memoryUsage)
+	{
+		m_memoryUsage = memoryUsage;
+	}
 }
 
 #include <Nazara/Lua/DebugOff.hpp>

@@ -27,5 +27,8 @@ TOOL.Libraries = function()
         table.insert(libraries, "Nazara" .. v.Name)
     end
 
+	-- Keep libraries in the same order to prevent useless premake regeneration
+	table.sort(libraries)
+
     return libraries
 end

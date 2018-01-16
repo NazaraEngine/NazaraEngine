@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -52,6 +53,11 @@ namespace Nz
 
 	void SkyboxBackground::Draw(const AbstractViewer* viewer) const
 	{
+		const Nz::RenderTarget* target = viewer->GetTarget();
+		Nz::Vector2ui targetSize = target->GetSize();
+
+		Matrix4f projectionMatrix = Nz::Matrix4f::Perspective(45.f, float(targetSize.x) / targetSize.y, viewer->GetZNear(), viewer->GetZFar());
+
 		Matrix4f skyboxMatrix(viewer->GetViewMatrix());
 		skyboxMatrix.SetTranslation(Vector3f::Zero());
 
@@ -71,6 +77,7 @@ namespace Nz
 		world.SetTranslation(offset);
 
 		Renderer::SetIndexBuffer(s_indexBuffer);
+		Renderer::SetMatrix(MatrixType_Projection, projectionMatrix);
 		Renderer::SetMatrix(MatrixType_View, skyboxMatrix);
 		Renderer::SetMatrix(MatrixType_World, world);
 		Renderer::SetRenderStates(s_renderStates);
@@ -81,6 +88,7 @@ namespace Nz
 
 		Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, 36);
 
+		Renderer::SetMatrix(MatrixType_Projection, viewer->GetProjectionMatrix());
 		Renderer::SetMatrix(MatrixType_View, viewer->GetViewMatrix());
 	}
 

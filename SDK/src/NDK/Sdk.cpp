@@ -21,6 +21,7 @@
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
+#include <NDK/Components/ConstraintComponent2D.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
@@ -89,6 +90,7 @@ namespace Ndk
 			InitializeComponent<PhysicsComponent2D>("NdkPhys2");
 			InitializeComponent<PhysicsComponent3D>("NdkPhys3");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
+			InitializeComponent<VelocityComponent>("NdkCons2");
 
 			#ifndef NDK_SERVER
 			// Client components

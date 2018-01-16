@@ -621,7 +621,7 @@ namespace Nz
 		UInt32 totalLength = NetToHost(command->sendFragment.totalLength);
 
 		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_host->m_maximumPacketSize ||
-			fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+		    fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
 			return false;
 
 		ENetPeer::IncomingCommmand* startCommand = nullptr;
@@ -643,7 +643,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;

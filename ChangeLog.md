@@ -1,5 +1,15 @@
 # Upcoming version:
 
+Miscellaneous:
+- Add possibility to excludes with one commande all tests/examples/tools/etc.
+- Units tests are now part of the "test" exclusion category
+- Fix project exclusion not working (but correctly excluding projects relying upon it)
+- Upgraded Catch to v2.0.1
+- ⚠️ Merged NazaraExtlibs workspace to main workspace (allowing `make` command to work without -f parameter) and removed extern libraries precompiled
+- Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
+- ⚠️ Renamed extlibs folder to thirdparty
+- Partial fix for Premake regenerating projects for no reason
+
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
 - Bitset swap operation is now correctly marked as noexcept`
@@ -24,7 +34,25 @@ Nazara Engine:
 - Fix String movement constructor, which was leaving a null shared string (which was not reusable)
 - Add Flags<E>::Test method, in order to test one or multiple flags at once.
 - ⚠️ Vector2, Vector3 and Vector4 array/pointer constructor is now explicit to prevent some mistakes as `Vector2 vec2; vec2 = 0;`
-
+- Fix RigidBody2D::SetGeom attribute copy and possible crash with static objects
+- Fix error when opening a non-existent file on Posix
+- Fix Directory::Create not working on Posix systems when recursive option was enabled
+- Fix default directory permission (now created with 777)
+- Add linear and angular damping accessor to RigidBody3D
+- Fix MemoryStream::WriteBlock "Invalid buffer" assertion triggering when writing a zero-sized block
+- ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
+- Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
+- Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- Fix some uninitialized values (found by Valgrind) in Network module
+- Fix possible infinite recursion when outputting a Thread::Id object 
+- ⚠️ Replaced implicit conversion from a Nz::String to a std::string by an explicit method ToStdString()
+- Fix LuaInstance movement constructor/assignment operator which was corrupting Lua memory
+- Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
+- It is now possible to initialize a StackArray with a size of zero on every platforms (this was not possible on non-Windows platforms before)
+- Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
+- Fix OBJParser relative offsets handling
+- Add JPEG image saver
+- Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -46,6 +74,16 @@ Nazara Development Kit:
 - Fix TextAreaWidget cursor sometimes showing up in readonly mode
 - ⚠️ BaseWidget::OnKeyPressed now returns a boolean to indicate if it should block default action (such as tab to switch to the previous/next widget)
 - Pressing tab/shift-tab will now move to the next/previous widget able to be focused on
+- Fix GraphicsComponent::Clear method now clearing reflective states
+- Add linear and angular damping accessor to PhysicsComponent3D
+- Fix GraphicsComponent cloning not copying renderable local matrices
+- ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
+- Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
+- Disabling an entity with a CollisionComponent3D or PhysicsComponent3D will properly disable it from the physics simulation
+- It is now possible to disable synchronization between a PhysicsComponent3D and the NodeComponent
+- Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
+- Fix TextAreaWidget::Clear crash
+- Add ConstraintComponent2D class
 
 # 0.4:
 
