@@ -7,7 +7,7 @@
 #ifndef NAZARA_LUACOROUTINE_HPP
 #define NAZARA_LUACOROUTINE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 
 namespace Nz

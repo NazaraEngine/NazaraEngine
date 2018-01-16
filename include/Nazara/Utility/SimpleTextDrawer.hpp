@@ -7,7 +7,7 @@
 #ifndef NAZARA_SIMPLETEXTDRAWER_HPP
 #define NAZARA_SIMPLETEXTDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>

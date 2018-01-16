@@ -7,7 +7,7 @@
 #ifndef NAZARA_SHADER_HPP
 #define NAZARA_SHADER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>

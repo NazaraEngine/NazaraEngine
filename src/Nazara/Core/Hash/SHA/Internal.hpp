@@ -42,7 +42,7 @@
 #ifndef NAZARA_HASH_SHA2_INTERNAL_HPP
 #define NAZARA_HASH_SHA2_INTERNAL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 /* Digest lengths for SHA-1/224/256/384/512 */
 #define   SHA1_DIGEST_LENGTH          20

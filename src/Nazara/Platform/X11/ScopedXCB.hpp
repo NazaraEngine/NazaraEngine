@@ -7,7 +7,7 @@
 #ifndef NAZARA_SCOPEDXCB_HPP
 #define NAZARA_SCOPEDXCB_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
 #include <cstdlib>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_TEXTURESAMPLER_HPP
 #define NAZARA_TEXTURESAMPLER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 

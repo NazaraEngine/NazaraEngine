@@ -7,7 +7,7 @@
 #ifndef NAZARA_ICONIMPL_HPP
 #define NAZARA_ICONIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/X11/ScopedXCB.hpp>
 
 namespace Nz

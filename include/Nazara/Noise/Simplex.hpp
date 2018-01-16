@@ -5,7 +5,7 @@
 #ifndef NAZARA_SIMPLEX_HPP
 #define NAZARA_SIMPLEX_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
 

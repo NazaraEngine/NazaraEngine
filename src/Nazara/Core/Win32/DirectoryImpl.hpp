@@ -7,7 +7,7 @@
 #ifndef NAZARA_DIRECTORYIMPL_HPP
 #define NAZARA_DIRECTORYIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <windows.h>
 
 namespace Nz

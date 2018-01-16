@@ -7,7 +7,7 @@
 #ifndef NAZARA_SEMAPHORE_HPP
 #define NAZARA_SEMAPHORE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz

@@ -7,7 +7,7 @@
 #ifndef NAZARA_LOADERS_PCX_HPP
 #define NAZARA_LOADERS_PCX_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

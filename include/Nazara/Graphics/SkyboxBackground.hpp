@@ -7,7 +7,7 @@
 #ifndef NAZARA_SKYBOXBACKGROUND_HPP
 #define NAZARA_SKYBOXBACKGROUND_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
