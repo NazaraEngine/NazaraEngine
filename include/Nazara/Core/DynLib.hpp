@@ -7,7 +7,7 @@
 #ifndef NAZARA_DYNLIB_HPP
 #define NAZARA_DYNLIB_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 

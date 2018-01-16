@@ -7,7 +7,7 @@
 #ifndef NAZARA_WINDOWS_TIME_HPP
 #define NAZARA_WINDOWS_TIME_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <ctime>
 #include <windows.h>
 

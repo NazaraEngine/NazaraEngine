@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEPTHRENDERTECHNIQUE_HPP
 #define NAZARA_DEPTHRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthRenderQueue.hpp>

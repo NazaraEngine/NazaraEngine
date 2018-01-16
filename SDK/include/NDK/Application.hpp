@@ -1,13 +1,13 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_APPLICATION_HPP
 #define NDK_APPLICATION_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <NDK/World.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <map>

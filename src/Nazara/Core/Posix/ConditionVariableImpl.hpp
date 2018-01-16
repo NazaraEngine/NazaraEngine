@@ -9,7 +9,7 @@
 #ifndef NAZARA_CONDITIONVARIABLEIMPL_HPP
 #define NAZARA_CONDITIONVARIABLEIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <pthread.h>
 
 namespace Nz

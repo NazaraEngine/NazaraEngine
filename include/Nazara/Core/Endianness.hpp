@@ -7,7 +7,7 @@
 #ifndef NAZARA_ENDIANNESS_HPP
 #define NAZARA_ENDIANNESS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 
 #if !defined(NAZARA_BIG_ENDIAN) && !defined(NAZARA_LITTLE_ENDIAN)

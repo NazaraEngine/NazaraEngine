@@ -7,7 +7,7 @@
 #ifndef NAZARA_TASKSCHEDULER_HPP
 #define NAZARA_TASKSCHEDULER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Functor.hpp>
 
 namespace Nz

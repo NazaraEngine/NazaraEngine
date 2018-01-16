@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSWORLD_HPP
 #define NAZARA_PHYSWORLD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 

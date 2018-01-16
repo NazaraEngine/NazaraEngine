@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEMAPPER_HPP
 #define NAZARA_PARTICLEMAPPER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>

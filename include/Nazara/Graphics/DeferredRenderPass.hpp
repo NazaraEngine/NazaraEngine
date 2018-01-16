@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDRENDERPASS_HPP
 #define NAZARA_DEFERREDRENDERPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
