@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEGROUP_HPP
 #define NAZARA_PARTICLEGROUP_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>

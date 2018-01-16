@@ -7,7 +7,7 @@
 #ifndef NAZARA_FORMATS_MTLPARSER_HPP
 #define NAZARA_FORMATS_MTLPARSER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>

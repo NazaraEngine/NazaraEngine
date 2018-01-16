@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSWORLD2D_HPP
 #define NAZARA_PHYSWORLD2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>

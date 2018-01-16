@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_HPP
 #define NAZARA_RENDERER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>

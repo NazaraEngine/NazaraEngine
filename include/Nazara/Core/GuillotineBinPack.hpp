@@ -10,7 +10,7 @@
 #ifndef NAZARA_GUILLOTINEBINPACK_HPP
 #define NAZARA_GUILLOTINEBINPACK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 

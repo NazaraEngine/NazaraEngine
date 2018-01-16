@@ -9,7 +9,7 @@
 
 ///FIXME: Is SparsePtr a really good name for this class ?
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <cstddef>
 #include <type_traits>
 

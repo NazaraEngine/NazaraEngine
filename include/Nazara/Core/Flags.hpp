@@ -7,7 +7,7 @@
 #ifndef NAZARA_FLAGS_HPP
 #define NAZARA_FLAGS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <type_traits>
 
 namespace Nz

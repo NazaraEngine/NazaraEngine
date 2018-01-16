@@ -7,7 +7,7 @@
 #ifndef NAZARA_ERRORFLAGS_HPP
 #define NAZARA_ERRORFLAGS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

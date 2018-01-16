@@ -7,7 +7,7 @@
 #ifndef NAZARA_TEXTSPRITE_HPP
 #define NAZARA_TEXTSPRITE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>

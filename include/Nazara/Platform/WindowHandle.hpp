@@ -7,7 +7,7 @@
 #ifndef NAZARA_WINDOWHANDLE_HPP
 #define NAZARA_WINDOWHANDLE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #if defined(NAZARA_PLATFORM_X11)
 #include <xcb/xcb.h>
 #endif

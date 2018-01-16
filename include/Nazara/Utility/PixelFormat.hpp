@@ -7,7 +7,7 @@
 #ifndef NAZARA_PIXELFORMAT_HPP
 #define NAZARA_PIXELFORMAT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
