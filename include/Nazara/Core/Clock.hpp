@@ -7,7 +7,7 @@
 #ifndef NAZARA_CLOCK_HPP
 #define NAZARA_CLOCK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>

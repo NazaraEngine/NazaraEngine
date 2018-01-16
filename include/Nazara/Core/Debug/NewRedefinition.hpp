@@ -10,7 +10,7 @@
 #ifndef NAZARA_DEBUG_NEWREDEFINITION_HPP
 #define NAZARA_DEBUG_NEWREDEFINITION_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
 
 NAZARA_CORE_API void* operator new(std::size_t size, const char* file, unsigned int line);

@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_HPP
 #define NAZARA_GRAPHICS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
 namespace Nz

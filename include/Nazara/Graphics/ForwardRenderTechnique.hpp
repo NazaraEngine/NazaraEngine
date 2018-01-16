@@ -7,7 +7,7 @@
 #ifndef NAZARA_FORWARDRENDERTECHNIQUE_HPP
 #define NAZARA_FORWARDRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ForwardRenderQueue.hpp>

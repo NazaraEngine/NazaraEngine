@@ -7,7 +7,7 @@
 #ifndef NAZARA_CONSTRAINT2D_HPP
 #define NAZARA_CONSTRAINT2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>

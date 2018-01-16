@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_HPP
 #define NAZARA_CORE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

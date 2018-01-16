@@ -7,7 +7,7 @@
 #ifndef NAZARA_STRING_HPP
 #define NAZARA_STRING_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <cstdarg>
 #include <iosfwd>

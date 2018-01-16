@@ -7,7 +7,7 @@
 #ifndef NAZARA_ALGORITHM_AUDIO_HPP
 #define NAZARA_ALGORITHM_AUDIO_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

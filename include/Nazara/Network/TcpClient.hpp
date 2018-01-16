@@ -7,7 +7,7 @@
 #ifndef NAZARA_TCPCLIENT_HPP
 #define NAZARA_TCPCLIENT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>

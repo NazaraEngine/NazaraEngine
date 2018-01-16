@@ -9,7 +9,7 @@
 #ifndef NAZARA_WINDOW_HPP
 #define NAZARA_WINDOW_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Mutex.hpp>
