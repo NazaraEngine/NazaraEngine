@@ -8,7 +8,7 @@
 #ifndef NAZARA_ALGORITHM_MATH_HPP
 #define NAZARA_ALGORITHM_MATH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <cmath>
 #include <limits>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_TASKSCHEDULERIMPL_HPP
 #define NAZARA_TASKSCHEDULERIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
 #include <pthread.h>

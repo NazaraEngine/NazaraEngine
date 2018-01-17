@@ -9,7 +9,7 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>

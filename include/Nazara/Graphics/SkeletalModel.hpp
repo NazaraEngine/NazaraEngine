@@ -7,7 +7,7 @@
 #ifndef NAZARA_SKELETALMODEL_HPP
 #define NAZARA_SKELETALMODEL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Model.hpp>

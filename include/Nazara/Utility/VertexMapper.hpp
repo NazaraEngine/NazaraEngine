@@ -7,7 +7,7 @@
 #ifndef NAZARA_VERTEXMAPPER_HPP
 #define NAZARA_VERTEXMAPPER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Enums.hpp>

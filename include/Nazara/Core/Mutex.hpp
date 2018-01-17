@@ -7,7 +7,7 @@
 #ifndef NAZARA_MUTEX_HPP
 #define NAZARA_MUTEX_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz

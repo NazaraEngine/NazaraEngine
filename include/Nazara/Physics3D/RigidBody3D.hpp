@@ -7,7 +7,7 @@
 #ifndef NAZARA_RIGIDBODY3D_HPP
 #define NAZARA_RIGIDBODY3D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>

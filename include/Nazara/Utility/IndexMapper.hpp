@@ -7,7 +7,7 @@
 #ifndef NAZARA_INDEXMAPPER_HPP
 #define NAZARA_INDEXMAPPER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 

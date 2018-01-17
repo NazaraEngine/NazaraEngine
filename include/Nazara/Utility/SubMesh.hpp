@@ -7,7 +7,7 @@
 #ifndef NAZARA_SUBMESH_HPP
 #define NAZARA_SUBMESH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Math/Box.hpp>

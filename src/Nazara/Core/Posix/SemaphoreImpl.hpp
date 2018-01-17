@@ -7,7 +7,7 @@
 #ifndef NAZARA_SEMAPHOREIMPL_HPP
 #define NAZARA_SEMAPHOREIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <semaphore.h>
 
 namespace Nz

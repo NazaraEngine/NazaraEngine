@@ -7,7 +7,7 @@
 #ifndef NAZARA_PRIMITIVELIST_HPP
 #define NAZARA_PRIMITIVELIST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 

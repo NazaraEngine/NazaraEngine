@@ -9,6 +9,9 @@ Miscellaneous:
 - Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
 - ⚠️ Renamed extlibs folder to thirdparty
 - Partial fix for Premake regenerating projects for no reason
+- FirstScene now uses the EventHandler (#151)
+- ⚠️ Rename Prerequesites.hpp to Prerequisites.hpp (#153)
+- Updated premake5-linux64 with a nightly to fix a build error when a previous version of Nazara was installed on the system.
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -53,6 +56,8 @@ Nazara Engine:
 - Fix OBJParser relative offsets handling
 - Add JPEG image saver
 - Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
+- Fix LuaClass not working correctly when Lua stack wasn't empty
+- Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -84,6 +89,7 @@ Nazara Development Kit:
 - Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
 - Fix TextAreaWidget::Clear crash
 - Add ConstraintComponent2D class
+- Fix CollisionComponent3D initialization (teleportation to their real coordinates) which could sometimes mess up the physics scene.
 
 # 0.4:
 

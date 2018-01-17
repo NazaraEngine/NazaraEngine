@@ -7,7 +7,7 @@
 #ifndef NAZARA_SHADERWRITER_HPP
 #define NAZARA_SHADERWRITER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
