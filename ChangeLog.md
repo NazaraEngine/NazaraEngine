@@ -57,6 +57,7 @@ Nazara Engine:
 - Add JPEG image saver
 - Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 - Fix LuaClass not working correctly when Lua stack wasn't empty
+- Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

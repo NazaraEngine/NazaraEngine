@@ -20,6 +20,8 @@ namespace Nz
 	m_geom(),
 	m_userData(nullptr),
 	m_world(world),
+	m_isRegistered(false),
+	m_isSimulationEnabled(true),
 	m_isStatic(false),
 	m_gravityFactor(1.f),
 	m_mass(mass)
@@ -34,6 +36,8 @@ namespace Nz
 	m_geom(object.m_geom),
 	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_isRegistered(false),
+	m_isSimulationEnabled(true),
 	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.GetMass())
@@ -119,6 +123,19 @@ namespace Nz
 	void RigidBody2D::AddTorque(float torque)
 	{
 		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + ToRadians(torque));
+	}
+
+	void RigidBody2D::EnableSimulation(bool simulation)
+	{
+		if (m_isRegistered != simulation)
+		{
+			m_isRegistered = simulation;
+
+			if (simulation)
+				RegisterToSpace();
+			else
+				UnregisterFromSpace();
+		}
 	}
 
 	Rectf RigidBody2D::GetAABB() const
@@ -217,6 +234,11 @@ namespace Nz
 		return m_mass <= 0.f;
 	}
 
+	bool RigidBody2D::IsSimulationEnabled() const
+	{
+		return m_isRegistered;
+	}
+
 	bool RigidBody2D::IsSleeping() const
 	{
 		return cpBodyIsSleeping(m_handle) != 0;
@@ -244,6 +266,7 @@ namespace Nz
 			cpBody* newHandle = Create(static_cast<float>(mass), static_cast<float>(moment));
 
 			CopyBodyData(m_handle, newHandle);
+
 			Destroy();
 
 			m_handle = newHandle;
@@ -258,10 +281,10 @@ namespace Nz
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
-		{
 			cpShapeSetUserData(shape, this);
-			cpSpaceAddShape(space, shape);
-		}
+
+		if (m_isSimulationEnabled)
+			RegisterToSpace();
 
 		if (recomputeMoment)
 		{
@@ -384,6 +407,7 @@ namespace Nz
 		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
 
 		m_handle             = object.m_handle;
+		m_isRegistered          = object.m_isRegistered;
 		m_isStatic           = object.m_isStatic;
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
@@ -417,26 +441,52 @@ namespace Nz
 			handle = cpBodyNew(mass, moment);
 
 		cpBodySetUserData(handle, this);
-		cpSpaceAddBody(m_world->GetHandle(), handle);
 
 		return handle;
 	}
 
 	void RigidBody2D::Destroy()
 	{
+		UnregisterFromSpace();
+
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
-		{
-			cpSpaceRemoveShape(space, shape);
 			cpShapeFree(shape);
-		}
 
 		if (m_handle)
-		{
-			cpSpaceRemoveBody(space, m_handle);
 			cpBodyFree(m_handle);
-		}
+
 		m_shapes.clear();
+	}
+
+	void RigidBody2D::RegisterToSpace()
+	{
+		if (!m_isRegistered)
+		{
+			cpSpace* space = m_world->GetHandle();
+			for (cpShape* shape : m_shapes)
+				cpSpaceAddShape(space, shape);
+
+			if (m_handle)
+				cpSpaceAddBody(space, m_handle);
+
+			m_isRegistered = true;
+		}
+	}
+
+	void RigidBody2D::UnregisterFromSpace()
+	{
+		if (m_isRegistered)
+		{
+			cpSpace* space = m_world->GetHandle();
+			for (cpShape* shape : m_shapes)
+				cpSpaceRemoveShape(space, shape);
+
+			if (m_handle)
+				cpSpaceRemoveBody(space, m_handle);
+
+			m_isRegistered = false;
+		}
 	}
 
 	void RigidBody2D::CopyBodyData(cpBody* from, cpBody* to)
