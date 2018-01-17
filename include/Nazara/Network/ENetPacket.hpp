@@ -7,7 +7,7 @@
 #ifndef NAZARA_ENETPACKET_HPP
 #define NAZARA_ENETPACKET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
 namespace Nz

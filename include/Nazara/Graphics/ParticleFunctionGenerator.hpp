@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEFUNCTIONGENERATOR_HPP
 #define NAZARA_PARTICLEFUNCTIONGENERATOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <functional>
 

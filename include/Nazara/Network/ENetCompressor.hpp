@@ -17,7 +17,7 @@
 #ifndef NAZARA_ENETCOMPRESSOR_HPP
 #define NAZARA_ENETCOMPRESSOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 

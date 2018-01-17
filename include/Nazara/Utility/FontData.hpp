@@ -7,7 +7,7 @@
 #ifndef NAZARA_FONTDATA_HPP
 #define NAZARA_FONTDATA_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_X11DISPLAY_HPP
 #define NAZARA_X11DISPLAY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>

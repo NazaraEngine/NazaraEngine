@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_HPP
 #define NAZARA_AUDIO_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Math/Quaternion.hpp>

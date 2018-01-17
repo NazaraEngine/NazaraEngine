@@ -7,7 +7,7 @@
 #ifndef NAZARA_BILLBOARD_HPP
 #define NAZARA_BILLBOARD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 

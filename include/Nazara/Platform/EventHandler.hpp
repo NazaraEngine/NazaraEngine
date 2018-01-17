@@ -7,7 +7,7 @@
 #ifndef NAZARA_EVENTHANDLER_HPP
 #define NAZARA_EVENTHANDLER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>

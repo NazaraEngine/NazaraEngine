@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTRENDERQUEUE_HPP
 #define NAZARA_ABSTRACTRENDERQUEUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/Config.hpp>

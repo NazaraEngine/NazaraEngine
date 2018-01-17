@@ -30,7 +30,7 @@
 *  A library grouping every modules of Nazara into multiple higher-level features suchs as scene management (handled by an ECS), application, lua binding, etc.
 */
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 // Importation/Exportation of the API
 #if defined(NAZARA_STATIC)
