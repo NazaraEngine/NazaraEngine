@@ -22,8 +22,8 @@
 	SOFTWARE.
 */
 
-#ifndef NDK_PREREQUESITES_HPP
-#define NDK_PREREQUESITES_HPP
+#ifndef NDK_PREREQUISITES_HPP
+#define NDK_PREREQUISITES_HPP
 
 /*!
 * \defgroup NDK (NazaraSDK) Nazara Development Kit
@@ -51,4 +51,4 @@ namespace Ndk
 	using SystemIndex = Nz::UInt32;
 }
 
-#endif // NDK_PREREQUESITES_HPP
+#endif // NDK_PREREQUISITES_HPP
