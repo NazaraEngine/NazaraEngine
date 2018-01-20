@@ -13,7 +13,8 @@ namespace Ndk
 	* \param addDefaultSystems Should default provided systems be used
 	*/
 
-	inline World::World(bool addDefaultSystems)
+	inline World::World(bool addDefaultSystems) :
+	m_orderedSystemsUpdated(false)
 	{
 		if (addDefaultSystems)
 			AddDefaultSystems();
