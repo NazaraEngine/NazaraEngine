@@ -165,6 +165,7 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
+		overlay->lua.LoadLibraries();
 		LuaAPI::RegisterClasses(overlay->lua);
 
 		// Override "print" function to add a line in the console
