@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 #include <unordered_map>
@@ -25,6 +26,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
 		public:
+			using BodyIterator = std::function<bool(const RigidBody3D& body)>;
 			using AABBOverlapCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 			using CollisionCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 
@@ -34,6 +36,8 @@ namespace Nz
 			~PhysWorld3D();
 
 			int CreateMaterial(Nz::String name = Nz::String());
+
+			void ForEachBodyInAABB(const Nz::Boxf& box, BodyIterator iterator);
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
