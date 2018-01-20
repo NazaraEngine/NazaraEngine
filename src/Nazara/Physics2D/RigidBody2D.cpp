@@ -62,6 +62,8 @@ namespace Nz
 	m_handle(object.m_handle),
 	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_isRegistered(object.m_isRegistered),
+	m_isSimulationEnabled(object.m_isSimulationEnabled),
 	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
@@ -406,15 +408,16 @@ namespace Nz
 		OnRigidBody2DMove    = std::move(object.OnRigidBody2DMove);
 		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
 
-		m_handle             = object.m_handle;
-		m_isRegistered          = object.m_isRegistered;
-		m_isStatic           = object.m_isStatic;
-		m_geom               = std::move(object.m_geom);
-		m_gravityFactor      = object.m_gravityFactor;
-		m_mass               = object.m_mass;
-		m_shapes             = std::move(object.m_shapes);
-		m_userData           = object.m_userData;
-		m_world              = object.m_world;
+		m_handle              = object.m_handle;
+		m_isRegistered        = object.m_isRegistered;
+		m_isSimulationEnabled = object.m_isSimulationEnabled;
+		m_isStatic            = object.m_isStatic;
+		m_geom                = std::move(object.m_geom);
+		m_gravityFactor       = object.m_gravityFactor;
+		m_mass                = object.m_mass;
+		m_shapes              = std::move(object.m_shapes);
+		m_userData            = object.m_userData;
+		m_world               = object.m_world;
 
 		cpBodySetUserData(m_handle, this);
 		for (cpShape* shape : m_shapes)

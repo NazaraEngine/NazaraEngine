@@ -58,6 +58,7 @@ Nazara Engine:
 - Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
 - Fix LuaClass not working correctly when Lua stack wasn't empty
 - Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- ⚠️ LuaInstance no longer load all lua libraries on construction, this is done in the new LoadLibraries method which allows you to excludes some libraries
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
