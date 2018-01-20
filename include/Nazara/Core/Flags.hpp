@@ -67,7 +67,7 @@ namespace Nz
 
 			static constexpr BitField GetFlagValue(E enumValue);
 
-			static constexpr BitField ValueMask = ((BitField(1) << (MaxValue + 1)) - 1);
+			static constexpr BitField ValueMask = BitField((UInt64(1) << (MaxValue + 1)) - 1);
 
 		private:
 			BitField m_value;
