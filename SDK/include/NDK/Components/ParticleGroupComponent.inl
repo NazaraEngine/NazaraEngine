@@ -49,7 +49,7 @@ namespace Ndk
 	inline void ParticleGroupComponent::AddEmitter(Entity* emitter)
 	{
 		NazaraAssert(emitter && emitter->IsValid(), "Invalid entity");
-		NazaraAssert(emitter->HasComponent<ParticleEmitterComponent>(), "Entity must have a NodeComponent");
+		NazaraAssert(emitter->HasComponent<ParticleEmitterComponent>(), "Entity must have a ParticleEmitterComponent");
 
 		auto& emitterComponent = emitter->GetComponent<ParticleEmitterComponent>();
 		ParticleGroup::AddEmitter(&emitterComponent);
@@ -68,7 +68,7 @@ namespace Ndk
 	inline void ParticleGroupComponent::RemoveEmitter(Entity* emitter)
 	{
 		NazaraAssert(emitter && emitter->IsValid(), "Invalid entity");
-		NazaraAssert(emitter->HasComponent<ParticleEmitterComponent>(), "Entity must have a NodeComponent");
+		NazaraAssert(emitter->HasComponent<ParticleEmitterComponent>(), "Entity must have a ParticleEmitterComponent");
 
 		auto& emitterComponent = emitter->GetComponent<ParticleEmitterComponent>();
 		ParticleGroup::RemoveEmitter(&emitterComponent);
