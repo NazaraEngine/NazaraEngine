@@ -8,8 +8,8 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
-#if defined(NAZARA_COMPILER_MINGW) && __GNUC__ < 5
 // Some compilers (olders versions of MinGW) are lacking Mstcpip.h which defines the following struct/#define
+#if (defined(__has_include) && !__has_include(<Mstcpip.h>)) || (defined(NAZARA_COMPILER_MINGW) && !defined(__has_include))
 struct tcp_keepalive
 {
 	u_long onoff;
