@@ -8,8 +8,15 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
-// Some compilers (olders versions of MinGW) are lacking Mstcpip.h which defines the following struct/#define
-#if (defined(__has_include) && !__has_include(<Mstcpip.h>)) || (defined(NAZARA_COMPILER_MINGW) && !defined(__has_include))
+// Some compilers (olders versions of MinGW) lack Mstcpip.h which defines some structs/defines
+#if defined(__has_include)
+	#define NZ_HAS_MSTCPIP_HEADER __has_include(<Mstcpip.h>)
+#else
+	// If this version of MinGW doesn't support __has_include, assume it hasn't Mstcpip.h
+	#define NZ_HAS_MSTCPIP_HEADER !defined(NAZARA_COMPILER_MINGW)
+#endif
+
+#if NZ_HAS_MSTCPIP_HEADER
 struct tcp_keepalive
 {
 	u_long onoff;
