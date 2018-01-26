@@ -9,6 +9,15 @@
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
+// some MinGW distributions seem to lack some defines
+#ifndef ERROR_NOT_ENOUGH_MEMORY
+#define ERROR_NOT_ENOUGH_MEMORY 8L
+#endif
+
+#ifndef WSA_NOT_ENOUGH_MEMORY
+#define WSA_NOT_ENOUGH_MEMORY (ERROR_NOT_ENOUGH_MEMORY)
+#endif
+
 namespace Nz
 {
 	namespace Detail
