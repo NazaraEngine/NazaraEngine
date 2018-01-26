@@ -37,7 +37,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToReadSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToReadSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToReadSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -46,7 +46,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToWriteSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToWriteSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToWriteSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -55,8 +55,9 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_allSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readSockets) != 0 ||
-		       FD_ISSET(socket, &m_writeSockets) != 0;
+		// FD_ISSET is not const-correct
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readSockets)) != 0 || 
+		       FD_ISSET(socket, const_cast<fd_set*>(&m_writeSockets)) != 0;
 		#endif
 	}
 
