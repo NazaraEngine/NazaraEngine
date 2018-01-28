@@ -8,7 +8,7 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
-// Some compilers (olders versions of MinGW) lack Mstcpip.h which defines some structs/defines
+// Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
 #if defined(__has_include)
 	#define NZ_HAS_MSTCPIP_HEADER __has_include(<Mstcpip.h>)
 #else
