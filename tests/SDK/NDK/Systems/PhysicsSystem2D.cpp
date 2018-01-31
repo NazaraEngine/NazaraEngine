@@ -89,7 +89,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 			THEN("It should have been rotated")
 			{
-				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
+				CHECK(physicsComponent2D.GetAngularVelocity() == Approx(angularSpeed));
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(-2.f, 0.f, 2.f, 1.f));
 				CHECK(physicsComponent2D.GetRotation() == Approx(Nz::FromDegrees(90.f)));
 				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
