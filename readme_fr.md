@@ -15,7 +15,7 @@ Vous pouvez également l'utiliser pour toute application commerciale sans aucune
 ## Auteurs
 
 Jérôme "Lynix" Leclercq - développeur principal (<lynix680@gmail.com>)  
-Rémi "overdrivr" Bèges - développeur & aide - module Noise - (<remi.beges@laposte.net>)
+Full Cycle Games - sponsor et contributeur depuis Janvier 2017.
 
 ## Installation
 
@@ -45,7 +45,8 @@ Vous pouvez lire des tutoriaux sur l'installation, la compilation et l'utilisati
 
 ### Remerciements:
 
-- **RafBill** et **Raakz:** Recherche de bugs et/ou tests  
-- **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur  
-- **Alexandre "Danman" Janniaux**: Aide sur l'implémentation POSIX
+- **RafBill** et **Raakz:** Recherche de bugs et/ou tests.
+- **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur.
+- **Alexandre "Danman" Janniaux**: Aide sur l'implémentation POSIX.
 - **Youri "Gawaboumga" Hubaut**: Amélioration du moteur tant au niveau du code que de sa documentation et du projet en général.
+- **Rémi "overdrivr" Bèges**: Développement du module Noise.
