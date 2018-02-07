@@ -35,13 +35,13 @@ namespace Nz
 			PhysWorld3D(PhysWorld3D&&) = delete; ///TODO
 			~PhysWorld3D();
 
-			int CreateMaterial(Nz::String name = Nz::String());
+			int CreateMaterial(String name = String());
 
-			void ForEachBodyInAABB(const Nz::Boxf& box, BodyIterator iterator);
+			void ForEachBodyInAABB(const Boxf& box, BodyIterator iterator);
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
-			int GetMaterial(const Nz::String& name);
+			int GetMaterial(const String& name);
 			float GetStepSize() const;
 
 			void SetGravity(const Vector3f& gravity);
