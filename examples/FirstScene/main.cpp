@@ -325,9 +325,7 @@ int main()
 	while (application.Run())
 	{
 
-		Nz::UInt64 elapsedUS = updateClock.GetMicroseconds();
-		// On relance l'horloge
-		updateClock.Restart();
+		Nz::UInt64 elapsedUS = updateClock.Restart() / 1'000'000;
 
 		// Mise à jour (Caméra)
 		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
