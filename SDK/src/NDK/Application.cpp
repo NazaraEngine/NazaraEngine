@@ -107,8 +107,7 @@ namespace Ndk
 		if (m_shouldQuit)
 			return false;
 
-		m_updateTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
 
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);

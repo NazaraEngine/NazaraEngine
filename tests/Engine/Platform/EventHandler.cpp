@@ -51,9 +51,8 @@ SCENARIO("EventHandler", "[PLATFORM][EVENTHANDLER][INTERACTIVE][.]")
 		while (app.Run())
 		{
 			window.Display();
-			float elapsedTime = elapsedTimeClock.GetSeconds();
-			elapsedTimeClock.Restart();
 
+			float elapsedTime = elapsedTimeClock.Restart() / 1'000'000;
 			if (!fsm.Update(elapsedTime))
 			{
 				NazaraError("Failed to update state machine.");
