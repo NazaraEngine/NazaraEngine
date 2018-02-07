@@ -15,7 +15,7 @@ You can use it in any kind of commercial/non-commercial applications without any
 ## Authors
 
 Jérôme "Lynix" Leclercq - main developper (<lynix680@gmail.com>)   
-Rémi "overdrivr" Bèges - developper & helper - Noise Module - (<remi.beges@laposte.net>)
+Full Cycle Games - sponsor and contributor since January 2017.
 
 ## Install
 
@@ -45,7 +45,8 @@ You can find tutorials on installation, compilation and use on the [official wik
 
 ## Thanks to:
 
-- **RafBill** and **Raakz:** Finding bugs and/or testing  
-- **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design  
-- **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation
+- **RafBill** and **Raakz:** Finding bugs and/or testing.
+- **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design.
+- **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation.
 - **Youri "Gawaboumga" Hubaut**: Improving the whole project by making the documentation, improving the code, and more.
+- **Rémi "overdrivr" Bèges**: Made the Noise module.

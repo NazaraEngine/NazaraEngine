@@ -306,13 +306,13 @@ Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world)
 void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 {
 	CHECK(left.GetAABB() == right.GetAABB());
-	CHECK(left.GetAngularVelocity() == right.GetAngularVelocity());
+	CHECK(left.GetAngularVelocity() == Approx(right.GetAngularVelocity()));
 	CHECK(left.GetCenterOfGravity() == right.GetCenterOfGravity());
 	CHECK(left.GetGeom() == right.GetGeom());
 	CHECK(left.GetHandle() != right.GetHandle());
-	CHECK(left.GetMass() == right.GetMass());
+	CHECK(left.GetMass() == Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
-	CHECK(left.GetRotation() == right.GetRotation());
+	CHECK(left.GetRotation() == Approx(right.GetRotation()));
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }
