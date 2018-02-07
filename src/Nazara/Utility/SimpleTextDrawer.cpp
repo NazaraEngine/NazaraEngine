@@ -354,7 +354,7 @@ namespace Nz
 			{
 				glyph.atlas = nullptr;
 
-				glyph.bounds.Set(float(m_drawPos.x), float(m_drawPos.y), float(advance), float(sizeInfo.lineHeight));
+				glyph.bounds.Set(float(m_drawPos.x), float(0.f), float(advance), float(sizeInfo.lineHeight));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));

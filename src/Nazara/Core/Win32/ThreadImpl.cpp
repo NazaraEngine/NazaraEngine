@@ -11,6 +11,7 @@
 
 namespace Nz
 {
+#ifdef NAZARA_COMPILER_MSVC
 	namespace
 	{
 #pragma pack(push,8)
@@ -23,6 +24,7 @@ namespace Nz
 		};
 #pragma pack(pop)
 	}
+#endif
 
 	ThreadImpl::ThreadImpl(Functor* functor)
 	{
