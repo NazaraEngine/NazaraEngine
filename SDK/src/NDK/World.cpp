@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/World.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
@@ -177,6 +178,10 @@ namespace Ndk
 	* - Destroying dead entities and allowing their ids to be used by newly created entities
 	* - Update dirty entities, destroying their removed components and filtering them along systems
 	*
+	* \remark Calling this outside of Update will not increase the profiler values
+	*
+	* \see GetProfilerData
+	* \see Update
 	*/
 	void World::Refresh()
 	{
@@ -257,16 +262,39 @@ namespace Ndk
 
 	/*!
 	* \brief Updates the world
-	*
 	* \param elapsedTime Delta time used for the update
+	*
+	* This function Refreshes the world and calls the Update function of every active system part of it with the elapsedTime value.
+	* It also increase the profiler data with the elapsed time passed in Refresh and every system update.
 	*/
 	void World::Update(float elapsedTime)
 	{
-		Refresh(); //< Update entities
+		if (m_isProfilerEnabled)
+		{
+			Nz::UInt64 t1 = Nz::GetElapsedMicroseconds();
+			Refresh();
+			Nz::UInt64 t2 = Nz::GetElapsedMicroseconds();
 
-		// And then update systems
-		for (auto& systemPtr : m_orderedSystems)
-			systemPtr->Update(elapsedTime);
+			m_profilerData.refreshTime += t2 - t1;
+
+			for (auto& systemPtr : m_orderedSystems)
+			{
+				systemPtr->Update(elapsedTime);
+
+				Nz::UInt64 t3 = Nz::GetElapsedMicroseconds();
+				m_profilerData.updateTime[systemPtr->GetIndex()] += t3 - t2;
+				t2 = t3;
+			}
+
+			m_profilerData.updateCount++;
+		}
+		else
+		{
+			Refresh();
+
+			for (auto& systemPtr : m_orderedSystems)
+				systemPtr->Update(elapsedTime);
+		}
 	}
 
 	void World::ReorderSystems()
