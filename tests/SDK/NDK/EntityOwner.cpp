@@ -17,7 +17,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 
 				Ndk::EntityOwner entityOwner(entity);
 
-				world.Update();
+				world.Refresh();
 				CHECK(entity.IsValid());
 			}
 
@@ -29,12 +29,12 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 				Ndk::EntityOwner entityOwner2(std::move(entityOwner));
 				entityOwner.Reset();
 
-				world.Update();
+				world.Refresh();
 				CHECK(entity.IsValid());
 
 				entityOwner2.Reset();
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 
@@ -47,12 +47,12 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 				entityOwner2 = std::move(entityOwner);
 				entityOwner.Reset();
 
-				world.Update();
+				world.Refresh();
 				CHECK(entity.IsValid());
 
 				entityOwner2.Reset();
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 
@@ -64,7 +64,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 					Ndk::EntityOwner entityOwner(entity);
 				}
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 
@@ -76,7 +76,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 				Ndk::EntityOwner entityOwner(entity);
 				entityOwner.Reset();
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 
@@ -87,7 +87,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 				Ndk::EntityOwner entityOwner(entity);
 				entityOwner = world.CreateEntity();
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 
@@ -100,7 +100,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 
 				entityOwner = std::move(entity2);
 
-				world.Update();
+				world.Refresh();
 				CHECK(!entity.IsValid());
 			}
 		}
