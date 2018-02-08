@@ -66,11 +66,11 @@ namespace Ndk
 			inline bool IsEntityIdValid(EntityId id) const;
 			inline bool IsProfilerEnabled() const;
 
+			void Refresh();
+
 			inline void RemoveAllSystems();
 			inline void RemoveSystem(SystemIndex index);
 			template<typename SystemType> void RemoveSystem();
-
-			void Refresh();
 			inline void ResetProfiler();
 
 			void Update(float elapsedTime);

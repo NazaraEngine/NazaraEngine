@@ -178,6 +178,7 @@ namespace Ndk
 	* - Destroying dead entities and allowing their ids to be used by newly created entities
 	* - Update dirty entities, destroying their removed components and filtering them along systems
 	*
+	* \remark This is called automatically by Update and you most likely won't need to call it yourself
 	* \remark Calling this outside of Update will not increase the profiler values
 	*
 	* \see GetProfilerData
