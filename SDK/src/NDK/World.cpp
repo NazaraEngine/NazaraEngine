@@ -61,11 +61,14 @@ namespace Ndk
 	{
 		EntityId id;
 		EntityBlock* entBlock;
-		if (!m_freeIdList.empty())
+
+		std::size_t freeEntityId = m_freeEntityIds.FindFirst();
+		if (freeEntityId != m_freeEntityIds.npos)
 		{
 			// We get an identifier
-			id = m_freeIdList.back();
-			m_freeIdList.pop_back();
+			m_freeEntityIds.Reset(freeEntityId); //< Remove id from free entity id
+
+			id = static_cast<EntityId>(freeEntityId);
 
 			entBlock = &m_entities[id];
 			entBlock->handle.Reset(&entBlock->entity); //< Reset handle (as it was reset when entity got destroyed)
@@ -81,7 +84,7 @@ namespace Ndk
 			{
 				NazaraAssert(m_waitingEntities.empty(), "There should be no waiting entities if space is available in main container");
 
-				m_entities.push_back(Entity(this, id)); //< We can't use emplace_back due to the scope
+				m_entities.emplace_back(Entity(this, id)); //< We can't make our vector create the entity due to the scope
 				entBlock = &m_entities.back();
 			}
 			else
@@ -124,11 +127,11 @@ namespace Ndk
 		m_entityBlocks.clear();
 
 		m_entities.clear();
-		m_freeIdList.clear();
 		m_waitingEntities.clear();
 
 		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
+		m_freeEntityIds.Clear();
 		m_killedEntities.Clear();
 	}
 
@@ -207,7 +210,7 @@ namespace Ndk
 			entity->Destroy();
 
 			// Send back the identifier of the entity to the free queue
-			m_freeIdList.push_back(entity->GetId());
+			m_freeEntityIds.UnboundedSet(entity->GetId());
 		}
 		m_killedEntities.Reset();
 

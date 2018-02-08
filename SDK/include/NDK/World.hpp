@@ -96,9 +96,9 @@ namespace Ndk
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityBlock*> m_entityBlocks;
 			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
-			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
 			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
+			Nz::Bitset<Nz::UInt64> m_freeEntityIds;
 			Nz::Bitset<Nz::UInt64> m_killedEntities;
 			bool m_orderedSystemsUpdated;
 	};
