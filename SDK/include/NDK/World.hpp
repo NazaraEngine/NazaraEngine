@@ -64,8 +64,9 @@ namespace Ndk
 			inline void RemoveSystem(SystemIndex index);
 			template<typename SystemType> void RemoveSystem();
 
-			void Update();
-			inline void Update(float elapsedTime);
+			void Refresh();
+
+			void Update(float elapsedTime);
 
 			World& operator=(const World&) = delete;
 			inline World& operator=(World&& world) noexcept;

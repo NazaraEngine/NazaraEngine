@@ -166,12 +166,16 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Updates the world
+	* \brief Refreshes the world
 	*
-	* \remark Produces a NazaraAssert if an entity is invalid
+	* This function will perform all pending operations in the following order:
+	* - Reorder systems according to their update order if needed
+	* - Moving newly created entities (whose which allocate never-used id) data and handles to normal entity list, this will invalidate references to world EntityHandle
+	* - Destroying dead entities and allowing their ids to be used by newly created entities
+	* - Update dirty entities, destroying their removed components and filtering them along systems
+	*
 	*/
-
-	void World::Update()
+	void World::Refresh()
 	{
 		if (!m_orderedSystemsUpdated)
 			ReorderSystems();
@@ -246,6 +250,20 @@ namespace Ndk
 			}
 		}
 		m_dirtyEntities.Reset();
+	}
+
+	/*!
+	* \brief Updates the world
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
+	void World::Update(float elapsedTime)
+	{
+		Refresh(); //< Update entities
+
+		// And then update systems
+		for (auto& systemPtr : m_orderedSystems)
+			systemPtr->Update(elapsedTime);
 	}
 
 	void World::ReorderSystems()
