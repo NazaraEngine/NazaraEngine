@@ -279,21 +279,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Updates the world
-	*
-	* \param elapsedTime Delta time used for the update
-	*/
-
-	inline void World::Update(float elapsedTime)
-	{
-		Update(); //< Update entities
-
-		// And then update systems
-		for (auto& systemPtr : m_orderedSystems)
-			systemPtr->Update(elapsedTime);
-	}
-
-	/*!
 	* \brief Moves a world into another world object
 	* \return A reference to the object
 	*/
