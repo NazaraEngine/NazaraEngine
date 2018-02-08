@@ -95,6 +95,7 @@ Nazara Development Kit:
 - Add ConstraintComponent2D class
 - Fix CollisionComponent3D initialization (teleportation to their real coordinates) which could sometimes mess up the physics scene.
 - ⚠️ Renamed World::Update() to World::Refresh() for more clarity and to differentiate it from World::Update(elapsedTime)
+- World entity ids are now reused from lowest to highest (they were previously reused in reverse order of death)
 
 # 0.4:
 
