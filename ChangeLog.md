@@ -14,6 +14,7 @@ Miscellaneous:
 - Updated premake5-linux64 with a nightly to fix a build error when a previous version of Nazara was installed on the system.
 - Fix compilation with some MinGW distributions
 - Add Lua unit tests
+- NDEBUG is now defined in Release
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
