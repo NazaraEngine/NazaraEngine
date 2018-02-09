@@ -54,6 +54,7 @@ namespace Nz
 			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
+			std::size_t GetIterationCount() const;
 			float GetStepSize() const;
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
@@ -69,6 +70,7 @@ namespace Nz
 
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
+			void SetIterationCount(std::size_t iterationCount);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);
