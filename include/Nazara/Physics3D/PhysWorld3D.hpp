@@ -25,9 +25,11 @@ namespace Nz
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
+			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
 			void SetGravity(const Vector3f& gravity);
+			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
 
@@ -37,6 +39,7 @@ namespace Nz
 			PhysWorld3D& operator=(PhysWorld3D&&) = delete; ///TODO
 
 		private:
+			std::size_t m_maxStepCount;
 			Vector3f m_gravity;
 			NewtonWorld* m_world;
 			float m_stepSize;

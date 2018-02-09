@@ -80,6 +80,7 @@ namespace Nz
 	}
 
 	PhysWorld2D::PhysWorld2D() :
+	m_maxStepCount(50),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -147,6 +148,11 @@ namespace Nz
 	std::size_t PhysWorld2D::GetIterationCount() const
 	{
 		return cpSpaceGetIterations(m_handle);
+	}
+
+	std::size_t PhysWorld2D::GetMaxStepCount() const
+	{
+		return m_maxStepCount;
 	}
 
 	float PhysWorld2D::GetStepSize() const
@@ -291,6 +297,11 @@ namespace Nz
 		cpSpaceSetIterations(m_handle, int(iterationCount));
 	}
 
+	void PhysWorld2D::SetMaxStepCount(std::size_t maxStepCount)
+	{
+		m_maxStepCount = maxStepCount;
+	}
+
 	void PhysWorld2D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
@@ -300,7 +311,8 @@ namespace Nz
 	{
 		m_timestepAccumulator += timestep;
 
-		while (m_timestepAccumulator >= m_stepSize)
+		std::size_t stepCount = 0;
+		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
 			OnPhysWorld2DPreStep(this);
 
@@ -319,6 +331,7 @@ namespace Nz
 			}
 
 			m_timestepAccumulator -= m_stepSize;
+			stepCount++;
 		}
 	}
 
