@@ -821,6 +821,7 @@ function NazaraBuild:PrepareGeneric()
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
+		defines("NDEBUG")
 		optimize("Speed")
 		vectorextensions("SSE2")
 
