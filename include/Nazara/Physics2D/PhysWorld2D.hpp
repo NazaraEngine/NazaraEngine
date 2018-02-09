@@ -75,6 +75,8 @@ namespace Nz
 
 			void Step(float timestep);
 
+			void UseSpatialHash(float cellSize, std::size_t entityCount);
+
 			PhysWorld2D& operator=(const PhysWorld2D&) = delete;
 			PhysWorld2D& operator=(PhysWorld2D&&) = delete; ///TODO
 

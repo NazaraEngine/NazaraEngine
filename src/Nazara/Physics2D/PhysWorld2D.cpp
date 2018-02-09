@@ -322,6 +322,11 @@ namespace Nz
 		}
 	}
 
+	void PhysWorld2D::UseSpatialHash(float cellSize, std::size_t entityCount)
+	{
+		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
+	}
+
 	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks)
 	{
 		auto it = m_callbacks.emplace(handler, std::make_unique<Callback>(callbacks)).first;
