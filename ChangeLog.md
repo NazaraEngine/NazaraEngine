@@ -65,6 +65,7 @@ Nazara Engine:
 - Clock::Restart now returns the elapsed microseconds since construction or last Restart call
 - Add PhysWorld2D::[Get|Set]IterationCount to control how many iterations chipmunk will perform per step.
 - Add PhysWorld2D::UseSpatialHash to use spatial hashing instead of bounding box trees, which may speedup simulation in some cases.
+- Add PhysWorld[2D|3D] max step count per Step call (default: 50), to avoid spirals of death when the physics engine simulation time is over step size.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

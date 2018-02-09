@@ -55,6 +55,7 @@ namespace Nz
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
 			std::size_t GetIterationCount() const;
+			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
@@ -71,6 +72,7 @@ namespace Nz
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
 			void SetIterationCount(std::size_t iterationCount);
+			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);
@@ -144,6 +146,7 @@ namespace Nz
 
 			static_assert(std::is_nothrow_move_constructible<PostStepContainer>::value, "PostStepContainer should be noexcept MoveConstructible");
 
+			std::size_t m_maxStepCount;
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;
