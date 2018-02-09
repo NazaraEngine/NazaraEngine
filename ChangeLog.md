@@ -63,6 +63,7 @@ Nazara Engine:
 - Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 - ⚠️ LuaInstance no longer load all lua libraries on construction, this is done in the new LoadLibraries method which allows you to excludes some libraries
 - Clock::Restart now returns the elapsed microseconds since construction or last Restart call
+- Add PhysWorld2D::[Get|Set]IterationCount to control how many iterations chipmunk will perform per step.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

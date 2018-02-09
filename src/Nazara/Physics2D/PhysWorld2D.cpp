@@ -144,6 +144,11 @@ namespace Nz
 		return m_handle;
 	}
 
+	std::size_t PhysWorld2D::GetIterationCount() const
+	{
+		return cpSpaceGetIterations(m_handle);
+	}
+
 	float PhysWorld2D::GetStepSize() const
 	{
 		return m_stepSize;
@@ -279,6 +284,11 @@ namespace Nz
 	void PhysWorld2D::SetGravity(const Vector2f& gravity)
 	{
 		cpSpaceSetGravity(m_handle, cpv(gravity.x, gravity.y));
+	}
+
+	void PhysWorld2D::SetIterationCount(std::size_t iterationCount)
+	{
+		cpSpaceSetIterations(m_handle, int(iterationCount));
 	}
 
 	void PhysWorld2D::SetStepSize(float stepSize)
