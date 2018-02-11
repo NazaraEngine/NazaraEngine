@@ -32,7 +32,7 @@ namespace Nz
 			bool IsPaused() const;
 
 			void Pause();
-			void Restart();
+			UInt64 Restart();
 			void Unpause();
 
 			Clock& operator=(const Clock& clock) = default;
@@ -46,7 +46,7 @@ namespace Nz
 			bool m_paused;
 	};
 
-	typedef UInt64 (*ClockFunction)();
+	using ClockFunction = UInt64 (*)();
 
 	extern NAZARA_CORE_API ClockFunction GetElapsedMicroseconds;
 	extern NAZARA_CORE_API ClockFunction GetElapsedMilliseconds;

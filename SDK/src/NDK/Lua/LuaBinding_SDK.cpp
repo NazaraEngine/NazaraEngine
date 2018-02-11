@@ -179,6 +179,12 @@ namespace Ndk
 			world.BindMethod("CreateEntity", &World::CreateEntity);
 			world.BindMethod("CreateEntities", &World::CreateEntities);
 			world.BindMethod("Clear", &World::Clear);
+			world.BindMethod("DisableProfiler", &World::DisableProfiler);
+			world.BindMethod("EnableProfiler", &World::EnableProfiler);
+			world.BindMethod("IsProfilerEnabled", &World::IsProfilerEnabled);
+			world.BindMethod("Refresh", &World::Refresh);
+			world.BindMethod("ResetProfiler", &World::ResetProfiler);
+			world.BindMethod("Update", &World::Update);
 
 			world.BindMethod("IsValidHandle", &WorldHandle::IsValid);
 		}
