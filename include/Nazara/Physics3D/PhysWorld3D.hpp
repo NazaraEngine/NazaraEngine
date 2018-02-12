@@ -37,7 +37,7 @@ namespace Nz
 
 			int CreateMaterial(Nz::String name = Nz::String());
 
-			void ForEachBodyInAABB(const Nz::Boxf& box, BodyIterator iterator);
+			void ForEachBodyInAABB(const Nz::Boxf& box, const BodyIterator& iterator);
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;

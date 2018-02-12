@@ -37,16 +37,16 @@ namespace Nz
 		return materialId;
 	}
 
-	void PhysWorld3D::ForEachBodyInAABB(const Nz::Boxf& box, BodyIterator iterator)
+	void PhysWorld3D::ForEachBodyInAABB(const Nz::Boxf& box, const BodyIterator& iterator)
 	{
 		auto NewtonCallback = [](const NewtonBody* const body, void* const userdata) -> int
 		{
-			BodyIterator& iterator = *static_cast<BodyIterator*>(userdata);
+			const BodyIterator& iterator = *static_cast<BodyIterator*>(userdata);
 			RigidBody3D* nzBody = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
 			return iterator(*nzBody);
 		};
 
-		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, &iterator);
+		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
 	}
 
 	Vector3f PhysWorld3D::GetGravity() const
