@@ -39,7 +39,7 @@ You can find tutorials on installation, compilation and use on the [official wik
 
 [Website](https://nazara.digitalpulsesoftware.net)  
 [Documentation](https://nazara.digitalpulsesoftware.net/doc)  
-[Mattermost](https://mattermost.digitalpulsesoftware.net)  
+[Discord](https://discord.gg/MvwNx73)  
 [Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
 [Forum](https://forum.digitalpulsesoftware.net)  
 
