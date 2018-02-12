@@ -216,6 +216,11 @@ namespace Nz
 		return center;
 	}
 
+	int RigidBody3D::GetMaterial() const
+	{
+		return NewtonBodyGetMaterialGroupID(m_body);
+	}
+
 	const Matrix4f& RigidBody3D::GetMatrix() const
 	{
 		return m_matrix;
@@ -229,6 +234,11 @@ namespace Nz
 	Quaternionf RigidBody3D::GetRotation() const
 	{
 		return m_matrix.GetRotation();
+	}
+
+	void* RigidBody3D::GetUserdata() const
+	{
+		return m_userdata;
 	}
 
 	PhysWorld3D* RigidBody3D::GetWorld() const
@@ -335,6 +345,16 @@ namespace Nz
 			NewtonBodySetCentreOfMass(m_body, center);
 	}
 
+	void RigidBody3D::SetMaterial(const Nz::String& materialName)
+	{
+		SetMaterial(m_world->GetMaterial(materialName));
+	}
+
+	void RigidBody3D::SetMaterial(int materialIndex)
+	{
+		NewtonBodySetMaterialGroupID(m_body, materialIndex);
+	}
+
 	void RigidBody3D::SetPosition(const Vector3f& position)
 	{
 		m_matrix.SetTranslation(position);
@@ -347,6 +367,11 @@ namespace Nz
 		m_matrix.SetRotation(rotation);
 
 		UpdateBody();
+	}
+
+	void RigidBody3D::SetUserdata(void* ud)
+	{
+		m_userdata = ud;
 	}
 
 	RigidBody3D& RigidBody3D::operator=(const RigidBody3D& object)
