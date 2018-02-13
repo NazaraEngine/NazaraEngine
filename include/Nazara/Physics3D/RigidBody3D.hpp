@@ -7,7 +7,7 @@
 #ifndef NAZARA_RIGIDBODY3D_HPP
 #define NAZARA_RIGIDBODY3D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -47,9 +47,11 @@ namespace Nz
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
+			int GetMaterial() const;
 			const Matrix4f& GetMatrix() const;
 			Vector3f GetPosition() const;
 			Quaternionf GetRotation() const;
+			void* GetUserdata() const;
 			PhysWorld3D* GetWorld() const;
 
 			bool IsAutoSleepEnabled() const;
@@ -65,8 +67,11 @@ namespace Nz
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
+			void SetMaterial(const Nz::String& materialName);
+			void SetMaterial(int materialIndex);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
+			void SetUserdata(void* ud);
 
 			RigidBody3D& operator=(const RigidBody3D& object);
 			RigidBody3D& operator=(RigidBody3D&& object);
@@ -82,6 +87,7 @@ namespace Nz
 			Vector3f m_torqueAccumulator;
 			NewtonBody* m_body;
 			PhysWorld3D* m_world;
+			void* m_userdata;
 			float m_gravityFactor;
 			float m_mass;
 	};

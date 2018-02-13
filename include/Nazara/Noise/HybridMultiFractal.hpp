@@ -5,7 +5,7 @@
 #ifndef NAZARA_HYBRIDMULTIFRACTAL_HPP
 #define NAZARA_HYBRIDMULTIFRACTAL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Noise/MixerBase.hpp>
 
 namespace Nz

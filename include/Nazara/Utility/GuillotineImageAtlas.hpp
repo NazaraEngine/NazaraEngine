@@ -7,7 +7,7 @@
 #ifndef NAZARA_GUILLOTINEIMAGEATLAS_HPP
 #define NAZARA_GUILLOTINEIMAGEATLAS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>

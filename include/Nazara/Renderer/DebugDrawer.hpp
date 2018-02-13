@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEBUGDRAWER_HPP
 #define NAZARA_DEBUGDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Box.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 #define NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>

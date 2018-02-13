@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTSOCKET_HPP
 #define NAZARA_ABSTRACTSOCKET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>

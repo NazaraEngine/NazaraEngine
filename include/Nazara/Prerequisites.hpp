@@ -22,8 +22,8 @@
 	SOFTWARE.
 */
 
-#ifndef NAZARA_PREREQUESITES_HPP
-#define NAZARA_PREREQUESITES_HPP
+#ifndef NAZARA_PREREQUISITES_HPP
+#define NAZARA_PREREQUISITES_HPP
 
 // Try to identify the compiler
 #if defined(__BORLANDC__)
@@ -179,4 +179,4 @@ namespace Nz
 	typedef uint64_t UInt64;
 }
 
-#endif // NAZARA_PREREQUESITES_HPP
+#endif // NAZARA_PREREQUISITES_HPP

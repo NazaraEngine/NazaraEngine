@@ -7,7 +7,7 @@
 #ifndef NAZARA_HASH_CRC64_HPP
 #define NAZARA_HASH_CRC64_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_MUSIC_HPP
 #define NAZARA_MUSIC_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Core/MovablePtr.hpp>

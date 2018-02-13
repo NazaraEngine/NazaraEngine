@@ -7,7 +7,7 @@
 #ifndef NAZARA_RIGIDBODY2D_HPP
 #define NAZARA_RIGIDBODY2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -36,6 +36,8 @@ namespace Nz
 			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
 			void AddTorque(float torque);
 
+			void EnableSimulation(bool simulation);
+
 			Rectf GetAABB() const;
 			float GetAngularVelocity() const;
 			Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
@@ -51,6 +53,7 @@ namespace Nz
 			PhysWorld2D* GetWorld() const;
 
 			bool IsKinematic() const;
+			bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
 			bool IsStatic() const;
 
@@ -76,6 +79,8 @@ namespace Nz
 		private:
 			cpBody* Create(float mass = 1.f, float moment = 1.f);
 			void Destroy();
+			void RegisterToSpace();
+			void UnregisterFromSpace();
 
 			static void CopyBodyData(cpBody* from, cpBody* to);
 
@@ -84,6 +89,8 @@ namespace Nz
 			cpBody* m_handle;
 			void* m_userData;
 			PhysWorld2D* m_world;
+			bool m_isRegistered;
+			bool m_isSimulationEnabled;
 			bool m_isStatic;
 			float m_gravityFactor;
 			float m_mass;

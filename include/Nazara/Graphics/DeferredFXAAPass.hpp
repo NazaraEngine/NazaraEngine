@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDFXAAPASS_HPP
 #define NAZARA_DEFERREDFXAAPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>

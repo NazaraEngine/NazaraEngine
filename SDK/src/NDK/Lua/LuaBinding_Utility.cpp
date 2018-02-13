@@ -1,5 +1,5 @@
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Lua/LuaBinding_Utility.hpp>
 #include <NDK/LuaAPI.hpp>

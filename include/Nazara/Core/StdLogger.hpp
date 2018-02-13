@@ -7,7 +7,7 @@
 #ifndef NAZARA_STDLOGGER_HPP
 #define NAZARA_STDLOGGER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 
 namespace Nz

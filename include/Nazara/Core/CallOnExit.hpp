@@ -7,7 +7,7 @@
 #ifndef NAZARA_CALLONEXIT_HPP
 #define NAZARA_CALLONEXIT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <functional>
 
 namespace Nz

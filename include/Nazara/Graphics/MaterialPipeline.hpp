@@ -7,7 +7,7 @@
 #ifndef NAZARA_MATERIALPIPELINE_HPP
 #define NAZARA_MATERIALPIPELINE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>

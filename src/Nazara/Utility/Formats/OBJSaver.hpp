@@ -7,7 +7,7 @@
 #ifndef NAZARA_FORMATS_OBJSAVER_HPP
 #define NAZARA_FORMATS_OBJSAVER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

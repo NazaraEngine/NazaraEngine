@@ -7,7 +7,7 @@
 #ifndef NAZARA_RESOURCEREF_HPP
 #define NAZARA_RESOURCEREF_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>

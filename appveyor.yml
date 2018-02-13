@@ -47,3 +47,11 @@ artifacts:
 
 on_success:
   - cd tests && "./NazaraUnitTestsServer.exe"
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: 5FSnJzsZCMXNDqPYGhN4ZSX7qa1KMmbV0UGT9i0LcElk3X91z3fs1TZRpZZ3++Tkw8qAk1G/qDChom5GQ7Vj7X29cScQHvGHXffl3qaC5EdSiGpjloMZKfeiGTnf798IX0n/ABSlDHG7GrB8IiulRGx3iVOpPQmrPWCiz9ZPtY8h84xpd65FGd8gETKG/sYk
+    on_build_success: true 
+    on_build_failure: true 
+    on_build_status_changed: false

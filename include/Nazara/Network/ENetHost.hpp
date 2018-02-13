@@ -17,7 +17,7 @@
 #ifndef NAZARA_ENETHOST_HPP
 #define NAZARA_ENETHOST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>

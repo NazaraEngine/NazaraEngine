@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTVIEWER_HPP
 #define NAZARA_ABSTRACTVIEWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Frustum.hpp>
