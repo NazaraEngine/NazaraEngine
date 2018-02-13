@@ -7,7 +7,7 @@
 #ifndef NAZARA_FORMATS_OBJPARSER_HPP
 #define NAZARA_FORMATS_OBJPARSER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>

@@ -9,6 +9,12 @@ Miscellaneous:
 - Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
 - ⚠️ Renamed extlibs folder to thirdparty
 - Partial fix for Premake regenerating projects for no reason
+- FirstScene now uses the EventHandler (#151)
+- ⚠️ Rename Prerequesites.hpp to Prerequisites.hpp (#153)
+- Updated premake5-linux64 with a nightly to fix a build error when a previous version of Nazara was installed on the system.
+- Fix compilation with some MinGW distributions
+- Add Lua unit tests
+- NDEBUG is now defined in Release
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -53,6 +59,13 @@ Nazara Engine:
 - Fix OBJParser relative offsets handling
 - Add JPEG image saver
 - Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
+- Fix LuaClass not working correctly when Lua stack wasn't empty
+- Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- ⚠️ LuaInstance no longer load all lua libraries on construction, this is done in the new LoadLibraries method which allows you to excludes some libraries
+- Clock::Restart now returns the elapsed microseconds since construction or last Restart call
+- Add PhysWorld2D::[Get|Set]IterationCount to control how many iterations chipmunk will perform per step.
+- Add PhysWorld2D::UseSpatialHash to use spatial hashing instead of bounding box trees, which may speedup simulation in some cases.
+- Add PhysWorld[2D|3D] max step count per Step call (default: 50), to avoid spirals of death when the physics engine simulation time is over step size.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -84,6 +97,10 @@ Nazara Development Kit:
 - Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
 - Fix TextAreaWidget::Clear crash
 - Add ConstraintComponent2D class
+- Fix CollisionComponent3D initialization (teleportation to their real coordinates) which could sometimes mess up the physics scene.
+- ⚠️ Renamed World::Update() to World::Refresh() for more clarity and to differentiate it from World::Update(elapsedTime)
+- World entity ids are now reused from lowest to highest (they were previously reused in reverse order of death)
+- World now has an internal profiler, allowing to measure the refresh and system update time
 
 # 0.4:
 

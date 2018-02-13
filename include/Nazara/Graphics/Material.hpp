@@ -7,7 +7,7 @@
 #ifndef NAZARA_MATERIAL_HPP
 #define NAZARA_MATERIAL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>

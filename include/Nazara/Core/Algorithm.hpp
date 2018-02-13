@@ -7,7 +7,7 @@
 #ifndef NAZARA_ALGORITHM_CORE_HPP
 #define NAZARA_ALGORITHM_CORE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <functional>

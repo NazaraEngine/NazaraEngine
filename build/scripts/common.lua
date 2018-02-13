@@ -73,7 +73,7 @@ function NazaraBuild:Execute()
 
 		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
-			self:FilterLibDirectory("../thirdparty/lib/", targetdir)
+			self:FilterLibDirectory("../thirdparty/genlib/", targetdir) -- For generated libraries
 
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
@@ -788,6 +788,7 @@ function NazaraBuild:PrepareGeneric()
 	
 	cppdialect("C++14")
 
+	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
 
 	-- Fixes Premake stuff
@@ -820,6 +821,7 @@ function NazaraBuild:PrepareGeneric()
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
+		defines("NDEBUG")
 		optimize("Speed")
 		vectorextensions("SSE2")
 

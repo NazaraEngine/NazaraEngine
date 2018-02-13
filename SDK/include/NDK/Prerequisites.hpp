@@ -22,15 +22,15 @@
 	SOFTWARE.
 */
 
-#ifndef NDK_PREREQUESITES_HPP
-#define NDK_PREREQUESITES_HPP
+#ifndef NDK_PREREQUISITES_HPP
+#define NDK_PREREQUISITES_HPP
 
 /*!
 * \defgroup NDK (NazaraSDK) Nazara Development Kit
 *  A library grouping every modules of Nazara into multiple higher-level features suchs as scene management (handled by an ECS), application, lua binding, etc.
 */
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 // Importation/Exportation of the API
 #if defined(NAZARA_STATIC)
@@ -51,4 +51,4 @@ namespace Ndk
 	using SystemIndex = Nz::UInt32;
 }
 
-#endif // NDK_PREREQUESITES_HPP
+#endif // NDK_PREREQUISITES_HPP

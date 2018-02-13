@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
@@ -41,6 +41,7 @@ namespace Ndk
 			matrix.MakeIdentity();
 
 		m_object = std::make_unique<Nz::RigidBody3D>(&world, geom, matrix);
+		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 
 		if (m_pendingStates.valid)
 			ApplyPhysicsState(*m_object);

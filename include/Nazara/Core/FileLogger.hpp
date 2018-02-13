@@ -7,7 +7,7 @@
 #ifndef NAZARA_FILELOGGER_HPP
 #define NAZARA_FILELOGGER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StdLogger.hpp>

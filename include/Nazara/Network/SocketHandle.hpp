@@ -7,7 +7,7 @@
 #ifndef NAZARA_SOCKETHANDLE_HPP
 #define NAZARA_SOCKETHANDLE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <basetsd.h>

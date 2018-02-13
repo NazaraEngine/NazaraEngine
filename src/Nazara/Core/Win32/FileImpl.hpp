@@ -7,7 +7,7 @@
 #ifndef NAZARA_FILEIMPL_HPP
 #define NAZARA_FILEIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/File.hpp>
 #include <ctime>
 #include <windows.h>

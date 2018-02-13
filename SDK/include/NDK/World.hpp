@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -29,6 +29,7 @@ namespace Ndk
 
 		public:
 			using EntityVector = std::vector<EntityHandle>;
+			struct ProfilerData;
 
 			inline World(bool addDefaultSystems = true);
 			World(const World&) = delete;
@@ -46,8 +47,12 @@ namespace Ndk
 			void Clear() noexcept;
 			const EntityHandle& CloneEntity(EntityId id);
 
+			inline void DisableProfiler();
+			inline void EnableProfiler(bool enable = true);
+
 			inline const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities() const;
+			inline const ProfilerData& GetProfilerData() const;
 			inline BaseSystem& GetSystem(SystemIndex index);
 			template<typename SystemType> SystemType& GetSystem();
 
@@ -59,16 +64,26 @@ namespace Ndk
 
 			inline bool IsEntityValid(const Entity* entity) const;
 			inline bool IsEntityIdValid(EntityId id) const;
+			inline bool IsProfilerEnabled() const;
+
+			void Refresh();
 
 			inline void RemoveAllSystems();
 			inline void RemoveSystem(SystemIndex index);
 			template<typename SystemType> void RemoveSystem();
+			inline void ResetProfiler();
 
-			void Update();
-			inline void Update(float elapsedTime);
+			void Update(float elapsedTime);
 
 			World& operator=(const World&) = delete;
 			inline World& operator=(World&& world) noexcept;
+
+			struct ProfilerData
+			{
+				Nz::UInt64 refreshTime = 0;
+				std::vector<Nz::UInt64> updateTime;
+				std::size_t updateCount = 0;
+			};
 
 		private:
 			inline void Invalidate();
@@ -95,11 +110,13 @@ namespace Ndk
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityBlock*> m_entityBlocks;
 			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
-			std::vector<EntityId> m_freeIdList;
 			EntityList m_aliveEntities;
+			ProfilerData m_profilerData;
 			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
+			Nz::Bitset<Nz::UInt64> m_freeEntityIds;
 			Nz::Bitset<Nz::UInt64> m_killedEntities;
 			bool m_orderedSystemsUpdated;
+			bool m_isProfilerEnabled;
 	};
 }
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_ALGORITHM_UTILITY_HPP
 #define NAZARA_ALGORITHM_UTILITY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>

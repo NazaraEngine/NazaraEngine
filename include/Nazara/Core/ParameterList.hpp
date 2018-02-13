@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARAMETERLIST_HPP
 #define NAZARA_PARAMETERLIST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/String.hpp>
 #include <atomic>

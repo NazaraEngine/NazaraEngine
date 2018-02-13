@@ -7,8 +7,9 @@
 #ifndef NAZARA_LUAINSTANCE_HPP
 #define NAZARA_LUAINSTANCE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Lua/Enums.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <cstddef>
 
@@ -28,6 +29,8 @@ namespace Nz
 			inline std::size_t GetMemoryLimit() const;
 			inline std::size_t GetMemoryUsage() const;
 			inline UInt32 GetTimeLimit() const;
+
+			void LoadLibraries(LuaLibFlags libFlags = LuaLib_All);
 
 			inline void SetMemoryLimit(std::size_t memoryLimit);
 			inline void SetTimeLimit(UInt32 limit);

@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include "PhysicsComponent3D.hpp"
@@ -396,12 +396,39 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent3D::SetMassCenter(const Nz::Vector3f& center)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetMassCenter(center);
+	}
+
+	/*!
+	* \brief Sets the material of the object, affecting how object does respond to collisions
+	*
+	* \param materialName Name of the material, previously registered to physics world
+	*
+	* \remark materialName must exists in PhysWorld before this call
+	*/
+	inline void PhysicsComponent3D::SetMaterial(const Nz::String& materialName)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetMaterial(materialName);
+	}
+
+	/*!
+	* \brief Sets the material of the object, affecting how object does respond to collisions
+	*
+	* \param materialIndex Id of the material, previously retrieved from a physics world
+	*
+	* \remark materialIndex must come from a call to in PhysWorld::CreateMaterial
+	*/
+	inline void PhysicsComponent3D::SetMaterial(int materialIndex)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetMaterial(materialIndex);
 	}
 
 	/*!

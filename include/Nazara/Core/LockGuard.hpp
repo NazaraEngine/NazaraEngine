@@ -7,7 +7,7 @@
 #ifndef NAZARA_LOCKGUARD_HPP
 #define NAZARA_LOCKGUARD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {
