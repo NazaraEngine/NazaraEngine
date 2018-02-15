@@ -501,6 +501,7 @@ namespace Nz
 						event.size.height = size.y;
 						m_parent->PushEvent(event);
 					}
+					break;
 				}
 
 				case WM_KEYDOWN:
