@@ -38,7 +38,7 @@ namespace Nz
 			SkeletalModel(SkeletalModel&& model) = default;
 			~SkeletalModel() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 			void AdvanceAnimation(float elapsedTime);
 
 			SkeletalModel* Clone() const;

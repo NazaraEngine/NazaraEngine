@@ -372,9 +372,17 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		/*auto it = m_materialIds.find(material);
+		if (it != m_materialIds.end())
+			it = m_materialIds.emplace(material, m_materialIds.size()).first;
+
+		std::size_t matId = it->second;
+*/
+		RegisterLayer(renderOrder);
 
 		if (material->IsDepthSortingEnabled())
 		{
@@ -396,7 +404,15 @@ namespace Nz
 		}
 		else
 		{
-			Layer& currentLayer = GetLayer(renderOrder);
+			opaqueModels.Insert({
+				renderOrder,
+				meshData,
+				material,
+				transformMatrix,
+				scissorRect
+			});
+
+			/*Layer& currentLayer = GetLayer(renderOrder);
 			MeshPipelineBatches& opaqueModels = currentLayer.opaqueModels;
 
 			const MaterialPipeline* materialPipeline = material->GetPipeline();
@@ -442,7 +458,7 @@ namespace Nz
 			std::vector<Matrix4f>& instances = it2->second.instances;
 			instances.push_back(transformMatrix);
 
-			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());
+			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());*/
 		}
 	}
 
@@ -537,6 +553,8 @@ namespace Nz
 	{
 		AbstractRenderQueue::Clear(fully);
 
+		opaqueModels.Clear();
+		m_renderLayers.clear();
 		if (fully)
 			layers.clear();
 		else
@@ -636,6 +654,52 @@ namespace Nz
 
 	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
 	{
+		std::unordered_map<int, std::size_t> layers;
+		for (int layer : m_renderLayers)
+			layers.emplace(layer, layers.size());
+
+		std::unordered_map<const Nz::MaterialPipeline*, std::size_t> pipelines;
+		std::unordered_map<const Nz::Material*, std::size_t> materials;
+		std::unordered_map<const Nz::UberShader*, std::size_t> shaders;
+		std::unordered_map<const Nz::Texture*, std::size_t> textures;
+		std::unordered_map<const Nz::VertexBuffer*, std::size_t> vertexBuffers;
+		opaqueModels.Sort([&](const OpaqueModels& renderData)
+		{
+			// RQ index:
+			// - Layer (4bits)
+			// - Pipeline (8bits)
+			// - Material (8bits)
+			// - Shader? (8bits)
+			// - Textures (8bits)
+			// - Buffers (8bits)
+			// - Scissor (4bits)
+			// - Depth? (16bits)
+
+			auto GetOrInsert = [](auto& container, auto&& value)
+			{
+				return container.emplace(value, container.size()).first->second;
+			};
+
+			Nz::UInt64 layerIndex = layers[renderData.layerIndex];
+			Nz::UInt64 pipelineIndex = GetOrInsert(pipelines, renderData.material->GetPipeline());
+			Nz::UInt64 materialIndex = GetOrInsert(materials, renderData.material);
+			Nz::UInt64 shaderIndex = GetOrInsert(shaders, renderData.material->GetShader());
+			Nz::UInt64 textureIndex = GetOrInsert(textures, renderData.material->GetDiffuseMap());
+			Nz::UInt64 bufferIndex = GetOrInsert(vertexBuffers, renderData.meshData.vertexBuffer);
+			Nz::UInt64 scissorIndex = 0; //< TODO
+			Nz::UInt64 depthIndex = 0; //< TODO
+
+			Nz::UInt64 index = (layerIndex    & 0xF0)   << 60 |
+			                   (pipelineIndex & 0xFF)   << 52 |
+			                   (materialIndex & 0xFF)   << 44 |
+			                   (shaderIndex   & 0xFF)   << 36 |
+			                   (textureIndex  & 0xFF)   << 28 |
+			                   (bufferIndex   & 0xFF)   << 20 |
+			                   (scissorIndex  & 0xF0)   << 16 |
+			                   (depthIndex    & 0xFFFF) <<  0;
+			return index;
+		});
+
 		if (viewer->GetProjectionType() == ProjectionType_Orthogonal)
 			SortForOrthographic(viewer);
 		else

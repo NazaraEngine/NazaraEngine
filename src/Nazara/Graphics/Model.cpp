@@ -52,7 +52,7 @@ namespace Nz
 	* \param instanceData Data used for this instance
 	*/
 
-	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
 		for (unsigned int i = 0; i < submeshCount; ++i)
@@ -65,7 +65,7 @@ namespace Nz
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = mesh->GetVertexBuffer();
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
 	}
 

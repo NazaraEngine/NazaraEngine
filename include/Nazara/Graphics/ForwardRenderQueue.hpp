@@ -9,8 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Plane.hpp>
@@ -18,6 +20,8 @@
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <map>
+#include <set>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -40,7 +44,7 @@ namespace Nz
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
 			void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
 			void AddDrawable(int renderOrder, const Drawable* drawable) override;
-			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) override;
+			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) override;
 			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) override;
 
 			void Clear(bool fully = false) override;
@@ -183,9 +187,36 @@ namespace Nz
 
 			std::map<int, Layer> layers;
 
+			struct OpaqueModels
+			{
+				int layerIndex;
+				MeshData meshData;
+				MovablePtr<const Nz::Material> material;
+				Nz::Matrix4f matrix;
+				Nz::Recti scissorRect;
+			};
+
+			RenderQueue<OpaqueModels> opaqueModels;
+
+
+			/*struct RenderData
+			{
+				Nz::IndexBuffer indexBuffer;
+				Nz::MaterialPipelineRef pipeline;
+				Nz::MaterialRef material;
+				Nz::Matrix4f matrix;
+				Nz::Rectf scissor;
+				Nz::ShaderRef shader;
+				Nz::TextureRef texture; //< multiples actually
+				Nz::UInt8 layer;
+				Nz::VertexBuffer vertexBuffer;
+			};*/
+
 		private:
 			BillboardData* GetBillboardData(int renderOrder, const Material* material, unsigned int count);
 			Layer& GetLayer(int i); ///TODO: Inline
+
+			inline void RegisterLayer(int layerIndex);
 
 			void SortBillboards(Layer& layer, const Planef& nearPlane);
 			void SortForOrthographic(const AbstractViewer* viewer);
@@ -195,7 +226,11 @@ namespace Nz
 			void OnMaterialInvalidation(const Material* material);
 			void OnTextureInvalidation(const Texture* texture);
 			void OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer);
+
+			std::vector<int> m_renderLayers;
 	};
 }
+
+#include <Nazara/Graphics/ForwardrenderQueue.inl>
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP

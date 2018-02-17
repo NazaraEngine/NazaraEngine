@@ -188,17 +188,19 @@ namespace Nz
 		MaterialPipelineInfo pipelineInfo;
 		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
-		// Basic 2D - No depth write/face culling
+		// Basic 2D - No depth write/face culling with scissoring
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
+		pipelineInfo.scissorTest = true;
 
 		MaterialPipelineLibrary::Register("Basic2D", GetPipeline(pipelineInfo));
 
-		// Translucent 2D - Alpha blending with no depth write/face culling
+		// Translucent 2D - Alpha blending with no depth write/face culling and scissoring
 		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
 		pipelineInfo.depthSorting = true;
+		pipelineInfo.scissorTest = true;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
 
@@ -210,6 +212,7 @@ namespace Nz
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
 		pipelineInfo.depthSorting = true;
+		pipelineInfo.scissorTest = false;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
 
