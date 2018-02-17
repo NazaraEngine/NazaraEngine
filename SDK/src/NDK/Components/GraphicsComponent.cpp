@@ -35,7 +35,7 @@ namespace Ndk
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
 		}
 	}
 

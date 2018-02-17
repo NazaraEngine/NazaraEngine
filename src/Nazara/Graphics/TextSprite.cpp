@@ -26,7 +26,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		for (auto& pair : m_renderInfos)
 		{

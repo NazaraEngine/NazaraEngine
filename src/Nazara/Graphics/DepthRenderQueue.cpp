@@ -295,7 +295,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void DepthRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -309,7 +309,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix);
+		ForwardRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix, scissorRect);
 	}
 
 	/*!

@@ -9,12 +9,16 @@
 
 namespace Ndk
 {
+	inline GraphicsComponent::GraphicsComponent() :
+	m_scissorRect(-1, -1)
+	{
+	}
+
 	/*!
 	* \brief Constructs a GraphicsComponent object by copy semantic
 	*
 	* \param graphicsComponent GraphicsComponent to copy
 	*/
-
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
@@ -175,6 +179,14 @@ namespace Ndk
 				break;
 			}
 		}
+	}
+
+	inline void GraphicsComponent::SetScissorRect(const Nz::Recti& scissorRect)
+	{
+		m_scissorRect = scissorRect;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
 	}
 
 	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)

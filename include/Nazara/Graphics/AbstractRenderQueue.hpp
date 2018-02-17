@@ -47,7 +47,7 @@ namespace Nz
 			virtual void AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) = 0;
 			virtual void AddDrawable(int renderOrder, const Drawable* drawable) = 0;
 			virtual void AddDirectionalLight(const DirectionalLight& light);
-			virtual void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix) = 0;
+			virtual void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) = 0;
 			virtual void AddPointLight(const PointLight& light);
 			virtual void AddSpotLight(const SpotLight& light);
 			virtual void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) = 0;

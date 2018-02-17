@@ -22,7 +22,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 		renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), vertices, 1);

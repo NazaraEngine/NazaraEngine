@@ -187,11 +187,11 @@ namespace Nz
 	* \param transformMatrix Matrix of the mesh
 	*/
 
-	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void DeferredRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		if (material->IsBlendingEnabled() || material->IsDepthSortingEnabled()) //< Fixme: Deferred Shading should be able to handle depth sorting
 			// Deferred Shading cannot handle blended objects, put them in the forward list
-			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix);
+			m_forwardQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix, scissorRect);
 		else
 		{
 			Layer& currentLayer = GetLayer(renderOrder);
