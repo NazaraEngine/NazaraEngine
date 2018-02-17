@@ -19,7 +19,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
-		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaximumUpdateRate(0.f);
 
 		WHEN("We update the world")
 		{
@@ -43,7 +43,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 			world.Update(1.f);
 
-			THEN("It should moved freely")
+			THEN("It should move freely")
 			{
 				REQUIRE(nodeComponent.GetPosition() == position);
 				movingAABB.Translate(position);
@@ -89,7 +89,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 			THEN("It should have been rotated")
 			{
-				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
+				CHECK(physicsComponent2D.GetAngularVelocity() == Approx(angularSpeed));
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(-2.f, 0.f, 2.f, 1.f));
 				CHECK(physicsComponent2D.GetRotation() == Approx(Nz::FromDegrees(90.f)));
 				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));

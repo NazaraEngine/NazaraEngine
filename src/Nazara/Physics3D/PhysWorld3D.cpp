@@ -12,6 +12,7 @@ namespace Nz
 {
 	PhysWorld3D::PhysWorld3D() :
 	m_gravity(Vector3f::Zero()),
+	m_maxStepCount(50),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -66,6 +67,11 @@ namespace Nz
 		return it->second;
 	}
 
+	std::size_t PhysWorld3D::GetMaxStepCount() const
+	{
+		return m_maxStepCount;
+	}
+
 	float PhysWorld3D::GetStepSize() const
 	{
 		return m_stepSize;
@@ -74,6 +80,11 @@ namespace Nz
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_gravity = gravity;
+	}
+
+	void PhysWorld3D::SetMaxStepCount(std::size_t maxStepCount)
+	{
+		m_maxStepCount = maxStepCount;
 	}
 
 	void PhysWorld3D::SetSolverModel(unsigned int model)
@@ -132,10 +143,12 @@ namespace Nz
 	{
 		m_timestepAccumulator += timestep;
 
-		while (m_timestepAccumulator >= m_stepSize)
+		std::size_t stepCount = 0;
+		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
 			NewtonUpdate(m_world, m_stepSize);
 			m_timestepAccumulator -= m_stepSize;
+			stepCount++;
 		}
 	}
 

@@ -42,9 +42,11 @@ namespace Nz
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
 			int GetMaterial(const String& name);
+			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
 			void SetGravity(const Vector3f& gravity);
+			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
 
@@ -72,6 +74,7 @@ namespace Nz
 
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<Nz::String, int> m_materialIds;
+			std::size_t m_maxStepCount;
 			Vector3f m_gravity;
 			NewtonWorld* m_world;
 			float m_stepSize;
