@@ -59,7 +59,7 @@ namespace Nz
 			bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
 
-			void SetAngularDamping(const Nz::Vector3f& angularDamping);
+			void SetAngularDamping(const Vector3f& angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
 			void SetGeom(Collider3DRef geom);
 			void SetGravityFactor(float gravityFactor);
@@ -67,7 +67,7 @@ namespace Nz
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
-			void SetMaterial(const Nz::String& materialName);
+			void SetMaterial(const String& materialName);
 			void SetMaterial(int materialIndex);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
