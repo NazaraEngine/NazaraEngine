@@ -8,6 +8,7 @@
 #define NAZARA_PHYSWORLD_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -32,7 +33,7 @@ namespace Nz
 
 			PhysWorld3D();
 			PhysWorld3D(const PhysWorld3D&) = delete;
-			PhysWorld3D(PhysWorld3D&&) = delete; ///TODO
+			PhysWorld3D(PhysWorld3D&&) = default;
 			~PhysWorld3D();
 
 			int CreateMaterial(String name = String());
@@ -60,7 +61,7 @@ namespace Nz
 			void Step(float timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
-			PhysWorld3D& operator=(PhysWorld3D&&) = delete; ///TODO
+			PhysWorld3D& operator=(PhysWorld3D&&) = default;
 
 		private:
 			struct Callback
@@ -75,8 +76,8 @@ namespace Nz
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<Nz::String, int> m_materialIds;
 			std::size_t m_maxStepCount;
+			MovablePtr<NewtonWorld> m_world;
 			Vector3f m_gravity;
-			NewtonWorld* m_world;
 			float m_stepSize;
 			float m_timestepAccumulator;
 	};
