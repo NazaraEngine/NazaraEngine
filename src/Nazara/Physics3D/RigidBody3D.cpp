@@ -266,7 +266,7 @@ namespace Nz
 		return NewtonBodyGetSleepState(m_body) != 0;
 	}
 
-	void RigidBody3D::SetAngularDamping(const Nz::Vector3f& angularDamping)
+	void RigidBody3D::SetAngularDamping(const Vector3f& angularDamping)
 	{
 		NewtonBodySetAngularDamping(m_body, angularDamping);
 	}
@@ -345,7 +345,7 @@ namespace Nz
 			NewtonBodySetCentreOfMass(m_body, center);
 	}
 
-	void RigidBody3D::SetMaterial(const Nz::String& materialName)
+	void RigidBody3D::SetMaterial(const String& materialName)
 	{
 		SetMaterial(m_world->GetMaterial(materialName));
 	}
