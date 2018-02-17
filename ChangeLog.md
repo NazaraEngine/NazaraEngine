@@ -67,6 +67,7 @@ Nazara Engine:
 - Add PhysWorld2D::UseSpatialHash to use spatial hashing instead of bounding box trees, which may speedup simulation in some cases.
 - Add PhysWorld[2D|3D] max step count per Step call (default: 50), to avoid spirals of death when the physics engine simulation time is over step size.
 - Fix Window triggering KeyPressed event after triggering a resize/movement event on Windows
+- (WIP) Add support for materials and callbacks to Physics3D module.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
