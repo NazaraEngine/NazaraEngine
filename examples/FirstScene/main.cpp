@@ -324,12 +324,11 @@ int main()
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
-
-		Nz::UInt64 elapsedUS = updateClock.Restart() / 1'000'000;
+		Nz::UInt64 elapsedUs = updateClock.Restart();
 
 		// Mise à jour (Caméra)
 		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
-		updateAccumulator += elapsedUS;
+		updateAccumulator += elapsedUs;
 
 		if (updateAccumulator >= updateRate)
 		{
