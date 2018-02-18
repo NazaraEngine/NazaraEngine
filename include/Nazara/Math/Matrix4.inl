@@ -242,8 +242,8 @@ namespace Nz
 		}
 		#endif
 
-		const T* ptr = (&m11) + column*4;
-		return Vector4<T>(ptr);
+		const T* ptr = &m11 + column * 4;
+		return Vector4<T>(ptr[0], ptr[1], ptr[2], ptr[3]);
 	}
 
 	/*!

@@ -104,8 +104,7 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 		Nz::Vector2f unit = Nz::Vector2f::Unit();
 		Nz::Vector3f smaller(-1.f, unit);
 
-		float data[3] = { 1.f, unit.x, unit.y };
-		Nz::Vector3f bigger(data);
+		Nz::Vector3f bigger(1.f, unit.x, unit.y);
 
 		WHEN("We combine divisions and multiplications")
 		{

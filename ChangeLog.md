@@ -69,6 +69,7 @@ Nazara Engine:
 - Fix Window triggering KeyPressed event after triggering a resize/movement event on Windows
 - (WIP) Add support for materials and callbacks to Physics3D module.
 - PhysWorld3D class is now movable
+- ⚠️ Removed array/pointer constructor from Vector classes
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
