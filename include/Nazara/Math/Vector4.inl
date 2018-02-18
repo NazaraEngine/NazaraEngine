@@ -17,7 +17,7 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::Vector4
 	* \brief Math class that represents an element of the three dimensional vector space with the notion of projectivity. When the fourth component is 1, it describes an 'usual' point and when it is 0, it represents the point at infinity
 	*/
@@ -88,18 +88,6 @@ namespace Nz
 	Vector4<T>::Vector4(T scale)
 	{
 		Set(scale);
-	}
-
-	/*!
-	* \brief Constructs a Vector4 object from an array of four elements
-	*
-	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
-	*/
-
-	template<typename T>
-	Vector4<T>::Vector4(const T vec[4])
-	{
-		Set(vec);
 	}
 
 	/*!

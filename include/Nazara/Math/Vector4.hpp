@@ -27,7 +27,6 @@ namespace Nz
 			Vector4(T X, const Vector2<T>& vec, T W);
 			Vector4(T X, const Vector3<T>& vec);
 			explicit Vector4(T scale);
-			explicit Vector4(const T vec[4]);
 			Vector4(const Vector2<T>& vec, T Z = 0.0, T W = 1.0);
 			Vector4(const Vector3<T>& vec, T W = 1.0);
 			template<typename U> explicit Vector4(const Vector4<U>& vec);
