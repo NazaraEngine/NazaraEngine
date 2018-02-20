@@ -352,7 +352,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
+	void DepthRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay /*= nullptr*/)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -366,7 +366,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddSprites(0, material, vertices, spriteCount, overlay);
+		ForwardRenderQueue::AddSprites(0, material, vertices, spriteCount, scissorRect, overlay);
 	}
 }
 
