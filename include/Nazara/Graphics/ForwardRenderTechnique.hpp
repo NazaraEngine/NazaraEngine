@@ -40,8 +40,10 @@ namespace Nz
 			struct ShaderUniforms;
 
 			void ChooseLights(const Spheref& object, bool includeDirectionalLights = true) const;
+			void DrawBasicSprites(const SceneData& sceneData) const;
 			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawOpaqueModels(const SceneData& sceneData) const;
 			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawOrderedSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;

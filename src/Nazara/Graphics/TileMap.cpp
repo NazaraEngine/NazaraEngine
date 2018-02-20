@@ -31,7 +31,7 @@ namespace Nz
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size());
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}

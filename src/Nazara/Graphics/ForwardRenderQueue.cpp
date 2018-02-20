@@ -473,7 +473,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
+	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay /*= nullptr*/)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -498,48 +498,14 @@ namespace Nz
 		}
 		else
 		{
-			SpritePipelineBatches& sprites = currentLayer.opaqueSprites;
-
-			const MaterialPipeline* materialPipeline = material->GetPipeline();
-
-			auto pipelineIt = sprites.find(materialPipeline);
-			if (pipelineIt == sprites.end())
-			{
-				BatchedSpritePipelineEntry materialEntry;
-				pipelineIt = sprites.insert(SpritePipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
-			}
-
-			BatchedSpritePipelineEntry& pipelineEntry = pipelineIt->second;
-			pipelineEntry.enabled = true;
-
-			SpriteMaterialBatches& materialMap = pipelineEntry.materialMap;
-
-			auto matIt = materialMap.find(material);
-			if (matIt == materialMap.end())
-			{
-				BatchedBasicSpriteEntry entry;
-				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-				matIt = materialMap.insert(SpriteMaterialBatches::value_type(material, std::move(entry))).first;
-			}
-
-			BatchedBasicSpriteEntry& entry = matIt->second;
-			entry.enabled = true;
-
-			auto& overlayMap = entry.overlayMap;
-
-			auto overlayIt = overlayMap.find(overlay);
-			if (overlayIt == overlayMap.end())
-			{
-				BatchedSpriteEntry overlayEntry;
-				if (overlay)
-					overlayEntry.textureReleaseSlot.Connect(overlay->OnTextureRelease, this, &ForwardRenderQueue::OnTextureInvalidation);
-
-				overlayIt = overlayMap.insert(std::make_pair(overlay, std::move(overlayEntry))).first;
-			}
-
-			auto& spriteVector = overlayIt->second.spriteChains;
-			spriteVector.push_back(SpriteChain_XYZ_Color_UV({vertices, spriteCount}));
+			basicSprites.Insert({
+				renderOrder,
+				spriteCount,
+				material,
+				overlay,
+				vertices,
+				scissorRect
+			});
 		}
 	}
 
@@ -553,7 +519,9 @@ namespace Nz
 	{
 		AbstractRenderQueue::Clear(fully);
 
+		basicSprites.Clear();
 		opaqueModels.Clear();
+
 		m_renderLayers.clear();
 		if (fully)
 			layers.clear();
@@ -660,9 +628,11 @@ namespace Nz
 
 		std::unordered_map<const Nz::MaterialPipeline*, std::size_t> pipelines;
 		std::unordered_map<const Nz::Material*, std::size_t> materials;
+		std::unordered_map<const Nz::Texture*, std::size_t> overlays;
 		std::unordered_map<const Nz::UberShader*, std::size_t> shaders;
 		std::unordered_map<const Nz::Texture*, std::size_t> textures;
 		std::unordered_map<const Nz::VertexBuffer*, std::size_t> vertexBuffers;
+
 		opaqueModels.Sort([&](const OpaqueModels& renderData)
 		{
 			// RQ index:
@@ -697,6 +667,44 @@ namespace Nz
 			                   (bufferIndex   & 0xFF)   << 20 |
 			                   (scissorIndex  & 0xF0)   << 16 |
 			                   (depthIndex    & 0xFFFF) <<  0;
+			return index;
+		});
+		
+		basicSprites.Sort([&](const BasicSprites& vertices)
+		{
+			// RQ index:
+			// - Layer (4bits)
+			// - Pipeline (8bits)
+			// - Material (8bits)
+			// - Shader? (8bits)
+			// - Textures (8bits)
+			// - Overlay (8bits)
+			// - Scissor (4bits)
+			// - Depth? (16bits)
+
+			auto GetOrInsert = [](auto& container, auto&& value)
+			{
+				return container.emplace(value, container.size()).first->second;
+			};
+
+			Nz::UInt64 layerIndex = layers[vertices.layerIndex];
+			Nz::UInt64 pipelineIndex = GetOrInsert(pipelines, vertices.material->GetPipeline());
+			Nz::UInt64 materialIndex = GetOrInsert(materials, vertices.material);
+			Nz::UInt64 shaderIndex = GetOrInsert(shaders, vertices.material->GetShader());
+			Nz::UInt64 textureIndex = GetOrInsert(textures, vertices.material->GetDiffuseMap());
+			Nz::UInt64 overlayIndex = GetOrInsert(overlays, vertices.overlay);
+			Nz::UInt64 scissorIndex = 0; //< TODO
+			Nz::UInt64 depthIndex = 0; //< TODO
+
+			Nz::UInt64 index = (layerIndex    & 0xF0)   << 60 |
+			                   (pipelineIndex & 0xFF)   << 52 |
+			                   (materialIndex & 0xFF)   << 44 |
+			                   (shaderIndex   & 0xFF)   << 36 |
+			                   (textureIndex  & 0xFF)   << 28 |
+			                   (overlayIndex  & 0xFF)   << 20 |
+			                   (scissorIndex  & 0xF0)   << 16 |
+			                   (depthIndex    & 0xFFFF) <<  0;
+
 			return index;
 		});
 

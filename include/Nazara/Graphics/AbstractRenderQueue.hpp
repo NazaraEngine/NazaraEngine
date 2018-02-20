@@ -50,7 +50,7 @@ namespace Nz
 			virtual void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) = 0;
 			virtual void AddPointLight(const PointLight& light);
 			virtual void AddSpotLight(const SpotLight& light);
-			virtual void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay = nullptr) = 0;
+			virtual void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay = nullptr) = 0;
 
 			virtual void Clear(bool fully = false);
 

@@ -92,86 +92,18 @@ namespace Nz
 
 		m_renderQueue.Sort(sceneData.viewer);
 
-		for (const ForwardRenderQueue::OpaqueModels& opaqueModels : m_renderQueue.opaqueModels)
-		{
-			const MaterialPipeline::Instance& pipelineInstance = opaqueModels.material->GetPipeline()->Apply(0);
+		if (!m_renderQueue.opaqueModels.empty())
+			DrawOpaqueModels(sceneData);
 
-			const Shader* shader = pipelineInstance.uberInstance->GetShader();
-
-			auto shaderUniforms = GetShaderUniforms(shader);
-
-			// Ambiant color of the scene
-			shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-			// Position of the camera
-			shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-			opaqueModels.material->Apply(pipelineInstance);
-
-			if (shaderUniforms->reflectionMap != -1)
-			{
-				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
-
-				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
-				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
-			}
-
-			if (opaqueModels.material->IsScissorTestEnabled() && opaqueModels.scissorRect.width > 0)
-				Renderer::SetScissorRect(opaqueModels.scissorRect);
-
-			Renderer::SetIndexBuffer(opaqueModels.meshData.indexBuffer);
-			Renderer::SetVertexBuffer(opaqueModels.meshData.vertexBuffer);
-
-			if (shaderUniforms->hasLightUniforms)
-			{
-				ChooseLights(Spheref(opaqueModels.matrix.GetTranslation(), 25));
-
-				std::size_t lightCount = m_lights.size();
-
-				Nz::Renderer::SetMatrix(Nz::MatrixType_World, opaqueModels.matrix);
-				std::size_t lightIndex = 0;
-				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
-
-				std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-				for (std::size_t pass = 0; pass < passCount; ++pass)
-				{
-					lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-
-					if (pass == 1)
-					{
-						// To add the result of light computations
-						// We won't interfere with materials parameters because we only render opaques objects
-						// (A.K.A., without blending)
-						// About the depth function, it must be applied only the first time
-						Renderer::Enable(RendererParameter_Blend, true);
-						Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
-						Renderer::SetDepthFunc(RendererComparison_Equal);
-					}
-
-					// Sends the light uniforms to the shader
-					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
-
-					// And we draw
-					Nz::Renderer::DrawIndexedPrimitives(opaqueModels.meshData.primitiveMode, 0, opaqueModels.meshData.indexBuffer->GetIndexCount());
-				}
-
-				Renderer::Enable(RendererParameter_Blend, false);
-				Renderer::SetDepthFunc(oldDepthFunc);
-			}
-		}
+		if (!m_renderQueue.basicSprites.empty())
+			DrawBasicSprites(sceneData);
 
 		for (auto& pair : m_renderQueue.layers)
 		{
 			ForwardRenderQueue::Layer& layer = pair.second;
 
-			//if (!layer.opaqueModels.empty())
-				//DrawOpaqueModels(sceneData, layer);
-
 			if (!layer.depthSortedMeshes.empty())
 				DrawTransparentModels(sceneData, layer);
-
-			if (!layer.opaqueSprites.empty())
-				DrawBasicSprites(sceneData, layer);
 
 			if (!layer.depthSortedSprites.empty())
 				DrawOrderedSprites(sceneData, layer);
@@ -356,6 +288,203 @@ namespace Nz
 		{
 			return light1.score < light2.score;
 		});
+	}
+
+	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData) const
+	{
+		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
+		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		Renderer::SetVertexBuffer(&m_spriteBuffer);
+
+		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+
+		std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> sprites;
+
+		auto Commit = [&]()
+		{
+			std::size_t spriteChainCount = sprites.size();
+			if (spriteChainCount > 0)
+			{
+				std::size_t spriteChain = 0; // Which chain of sprites are we treating
+				std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
+
+				do
+				{
+					// We open the buffer in writing mode
+					BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+					VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+					std::size_t spriteCount = 0;
+
+					do
+					{
+						const VertexStruct_XYZ_Color_UV* currentChain = sprites[spriteChain].first;
+						std::size_t currentChainSpriteCount = sprites[spriteChain].second;
+						std::size_t count = std::min(maxSpriteCount - spriteCount, currentChainSpriteCount - spriteChainOffset);
+
+						std::memcpy(vertices, currentChain + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
+						vertices += count * 4;
+
+						spriteCount += count;
+						spriteChainOffset += count;
+
+						// Have we treated the entire chain ?
+						if (spriteChainOffset == currentChainSpriteCount)
+						{
+							spriteChain++;
+							spriteChainOffset = 0;
+						}
+					}
+					while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
+
+					vertexMapper.Unmap();
+
+					Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
+				}
+				while (spriteChain < spriteChainCount);
+			}
+
+			sprites.clear();
+		};
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		for (const ForwardRenderQueue::BasicSprites& basicSprites : m_renderQueue.basicSprites)
+		{
+			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect))
+			{
+				Commit();
+
+				const MaterialPipeline* pipeline = basicSprites.material->GetPipeline();
+				if (lastPipeline != pipeline)
+				{
+					pipelineInstance = &basicSprites.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
+
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+						// Overlay texture unit
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				if (lastMaterial != basicSprites.material)
+				{
+					basicSprites.material->Apply(*pipelineInstance);
+
+					Renderer::SetTextureSampler(overlayTextureUnit, basicSprites.material->GetDiffuseSampler());
+
+					lastMaterial = basicSprites.material;
+				}
+
+				if (basicSprites.overlay != lastOverlay)
+				{
+					Renderer::SetTexture(overlayTextureUnit, (basicSprites.overlay) ? basicSprites.overlay : &m_whiteTexture);
+					lastOverlay = basicSprites.overlay;
+				}
+
+				if (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(basicSprites.scissorRect);
+					lastScissorRect = basicSprites.scissorRect;
+				}
+			}
+
+			sprites.emplace_back(basicSprites.vertices, basicSprites.spriteCount);
+		}
+
+		Commit();
+	}
+
+	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData) const
+	{
+		for (const ForwardRenderQueue::OpaqueModels& opaqueModels : m_renderQueue.opaqueModels)
+		{
+			const MaterialPipeline::Instance& pipelineInstance = opaqueModels.material->GetPipeline()->Apply(0);
+
+			const Shader* shader = pipelineInstance.uberInstance->GetShader();
+
+			auto shaderUniforms = GetShaderUniforms(shader);
+
+			// Ambiant color of the scene
+			shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+			// Position of the camera
+			shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+			opaqueModels.material->Apply(pipelineInstance);
+
+			if (shaderUniforms->reflectionMap != -1)
+			{
+				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
+
+				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
+				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
+			}
+
+			if (opaqueModels.material->IsScissorTestEnabled() && opaqueModels.scissorRect.width > 0)
+				Renderer::SetScissorRect(opaqueModels.scissorRect);
+
+			Renderer::SetIndexBuffer(opaqueModels.meshData.indexBuffer);
+			Renderer::SetVertexBuffer(opaqueModels.meshData.vertexBuffer);
+
+			if (shaderUniforms->hasLightUniforms)
+			{
+				ChooseLights(Spheref(opaqueModels.matrix.GetTranslation(), 25));
+
+				std::size_t lightCount = m_lights.size();
+
+				Nz::Renderer::SetMatrix(Nz::MatrixType_World, opaqueModels.matrix);
+				std::size_t lightIndex = 0;
+				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
+
+				std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+				for (std::size_t pass = 0; pass < passCount; ++pass)
+				{
+					lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
+
+					if (pass == 1)
+					{
+						// To add the result of light computations
+						// We won't interfere with materials parameters because we only render opaques objects
+						// (A.K.A., without blending)
+						// About the depth function, it must be applied only the first time
+						Renderer::Enable(RendererParameter_Blend, true);
+						Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
+						Renderer::SetDepthFunc(RendererComparison_Equal);
+					}
+
+					// Sends the light uniforms to the shader
+					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
+
+					// And we draw
+					Nz::Renderer::DrawIndexedPrimitives(opaqueModels.meshData.primitiveMode, 0, opaqueModels.meshData.indexBuffer->GetIndexCount());
+				}
+
+				Renderer::Enable(RendererParameter_Blend, false);
+				Renderer::SetDepthFunc(oldDepthFunc);
+			}
+		}
 	}
 
 	/*!

@@ -252,9 +252,9 @@ namespace Nz
 	* \param overlay Texture of the sprites
 	*/
 
-	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
+	void DeferredRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay)
 	{
-		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, overlay);
+		m_forwardQueue->AddSprites(renderOrder, material, vertices, spriteCount, scissorRect, overlay);
 	}
 
 	/*!
