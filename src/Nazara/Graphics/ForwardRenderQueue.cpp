@@ -479,6 +479,8 @@ namespace Nz
 
 		Layer& currentLayer = GetLayer(renderOrder);
 
+		RegisterLayer(renderOrder);
+
 		if (material->IsDepthSortingEnabled())
 		{
 			auto& transparentSprites = currentLayer.depthSortedSprites;
@@ -659,13 +661,13 @@ namespace Nz
 			Nz::UInt64 scissorIndex = 0; //< TODO
 			Nz::UInt64 depthIndex = 0; //< TODO
 
-			Nz::UInt64 index = (layerIndex    & 0xF0)   << 60 |
+			Nz::UInt64 index = (layerIndex    & 0x0F)   << 60 |
 			                   (pipelineIndex & 0xFF)   << 52 |
 			                   (materialIndex & 0xFF)   << 44 |
 			                   (shaderIndex   & 0xFF)   << 36 |
 			                   (textureIndex  & 0xFF)   << 28 |
 			                   (bufferIndex   & 0xFF)   << 20 |
-			                   (scissorIndex  & 0xF0)   << 16 |
+			                   (scissorIndex  & 0x0F)   << 16 |
 			                   (depthIndex    & 0xFFFF) <<  0;
 			return index;
 		});
@@ -696,13 +698,13 @@ namespace Nz
 			Nz::UInt64 scissorIndex = 0; //< TODO
 			Nz::UInt64 depthIndex = 0; //< TODO
 
-			Nz::UInt64 index = (layerIndex    & 0xF0)   << 60 |
+			Nz::UInt64 index = (layerIndex    & 0x0F)   << 60 |
 			                   (pipelineIndex & 0xFF)   << 52 |
 			                   (materialIndex & 0xFF)   << 44 |
 			                   (shaderIndex   & 0xFF)   << 36 |
 			                   (textureIndex  & 0xFF)   << 28 |
 			                   (overlayIndex  & 0xFF)   << 20 |
-			                   (scissorIndex  & 0xF0)   << 16 |
+			                   (scissorIndex  & 0x0F)   << 16 |
 			                   (depthIndex    & 0xFFFF) <<  0;
 
 			return index;
