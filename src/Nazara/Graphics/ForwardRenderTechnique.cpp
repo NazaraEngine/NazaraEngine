@@ -397,10 +397,11 @@ namespace Nz
 					lastMaterial = basicSprites.material;
 				}
 
-				if (basicSprites.overlay != lastOverlay)
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay : &m_whiteTexture;
+				if (overlayTexture != lastOverlay)
 				{
-					Renderer::SetTexture(overlayTextureUnit, (basicSprites.overlay) ? basicSprites.overlay : &m_whiteTexture);
-					lastOverlay = basicSprites.overlay;
+					Renderer::SetTexture(overlayTextureUnit, overlayTexture);
+					lastOverlay = overlayTexture;
 				}
 
 				if (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect)
