@@ -86,6 +86,7 @@ namespace Ndk
 			const EntityHandle& CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
+
 			void InvalidateNode() override;
 
 			virtual bool IsFocusable() const;
@@ -111,6 +112,7 @@ namespace Ndk
 			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
+			void UpdatePositionAndSize();
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 

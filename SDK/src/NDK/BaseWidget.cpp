@@ -174,19 +174,17 @@ namespace Ndk
 
 	void BaseWidget::Layout()
 	{
-		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
-
 		if (m_backgroundEntity)
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
+
+		UpdatePositionAndSize();
 	}
 
 	void BaseWidget::InvalidateNode()
 	{
 		Node::InvalidateNode();
 
-		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+		UpdatePositionAndSize();
 	}
 
 	bool BaseWidget::IsFocusable() const
@@ -269,6 +267,22 @@ namespace Ndk
 		{
 			m_canvas->UnregisterWidget(m_canvasIndex);
 			m_canvasIndex = InvalidCanvasIndex;
+		}
+	}
+
+	void BaseWidget::UpdatePositionAndSize()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+
+		Nz::Vector3f pos = GetPosition();
+		Nz::Vector2f size = GetContentSize();
+
+		Nz::Recti scissorBounds(Nz::Rectf(pos.x, pos.y, size.x, size.y));
+		for (const Ndk::EntityHandle& entity : m_entities)
+		{
+			if (entity->HasComponent<GraphicsComponent>())
+				entity->GetComponent<GraphicsComponent>().SetScissorRect(scissorBounds);
 		}
 	}
 }
