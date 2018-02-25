@@ -70,6 +70,7 @@ Nazara Engine:
 - (WIP) Add support for materials and callbacks to Physics3D module.
 - PhysWorld3D class is now movable
 - ⚠️ Removed array/pointer constructor from Vector classes
+- Fixed Platform module not being classified as client-only
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
