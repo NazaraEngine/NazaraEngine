@@ -328,9 +328,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Read a byte sequence into a bitset
+	* \brief Writes a byte sequence into a bitset
 	*
-	* This function extends the bitset with bits read from a byte sequence
+	* This function extends the bitset with bits read from a byte sequence.
 	*
 	* \param ptr A pointer to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -341,17 +341,18 @@ namespace Nz
 	*
 	* \see AppendBits
 	* \see Read
+	* \see Write
 	*/
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const void* ptr, std::size_t bitCount)
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Write(const void* ptr, std::size_t bitCount)
 	{
-		return Read(PointerSequence(ptr, 0U), bitCount);
+		return Write(PointerSequence(ptr, 0U), bitCount);
 	}
 
 	/*!
-	* \brief Read a byte sequence into a bitset
+	* \brief Writes a byte sequence into a bitset
 	*
-	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
+	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index).
 	*
 	* \param sequence A pointer sequence to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -362,9 +363,10 @@ namespace Nz
 	*
 	* \see AppendBits
 	* \see Read
+	* \see Write
 	*/
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const PointerSequence& sequence, std::size_t bitCount)
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Write(const PointerSequence& sequence, std::size_t bitCount)
 	{
 		NazaraAssert(sequence.first, "Invalid pointer sequence");
 		NazaraAssert(sequence.second < 8, "Invalid next bit index (must be < 8)");
@@ -1161,9 +1163,9 @@ namespace Nz
 		Bitset bitset;
 
 		if (sequence)
-			*sequence = bitset.Read(ptr, bitCount);
+			*sequence = bitset.Write(ptr, bitCount);
 		else
-			bitset.Read(ptr, bitCount);
+			bitset.Write(ptr, bitCount);
 
 		return bitset;
 	}

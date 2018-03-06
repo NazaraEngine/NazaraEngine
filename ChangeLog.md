@@ -71,6 +71,7 @@ Nazara Engine:
 - PhysWorld3D class is now movable
 - ⚠️ Removed array/pointer constructor from Vector classes
 - Fixed Platform module not being classified as client-only
+- ⚠️ Renamed Bitset::Read to Bitset::Write
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
