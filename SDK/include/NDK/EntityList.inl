@@ -180,6 +180,12 @@ namespace Ndk
 
 	inline EntityList& EntityList::operator=(EntityList&& entityList) noexcept
 	{
+		if (this == &entityList)
+			return *this;
+
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
+
 		m_entityBits = std::move(entityList.m_entityBits);
 		m_world = entityList.m_world;
 
