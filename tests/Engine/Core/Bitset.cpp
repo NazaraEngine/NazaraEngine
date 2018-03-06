@@ -322,9 +322,9 @@ void CheckRead(const char* title)
 				{
 					Nz::Bitset<Block> bitset;
 
-					auto seq = bitset.Read(data.data(), pair.second);
+					auto seq = bitset.Write(data.data(), pair.second);
 					for (std::size_t i = pair.second; i < bitCount; i += pair.second)
-						seq = bitset.Read(seq, pair.second);
+						seq = bitset.Write(seq, pair.second);
 
 					REQUIRE(bitset.GetSize() == bitCount);
 
