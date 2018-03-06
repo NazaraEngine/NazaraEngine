@@ -376,89 +376,31 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
-		/*auto it = m_materialIds.find(material);
-		if (it != m_materialIds.end())
-			it = m_materialIds.emplace(material, m_materialIds.size()).first;
-
-		std::size_t matId = it->second;
-*/
 		RegisterLayer(renderOrder);
+
+		Spheref obbSphere(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
 
 		if (material->IsDepthSortingEnabled())
 		{
-			Layer& currentLayer = GetLayer(renderOrder);
-			auto& transparentMeshes = currentLayer.depthSortedMeshes;
-			auto& transparentData = currentLayer.depthSortedMeshData;
-
-			// The material is marked for depth sorting, we must draw this mesh using another way (after the rendering of opaques objects while sorting them)
-			std::size_t index = transparentData.size();
-			transparentData.resize(index+1);
-
-			UnbatchedModelData& data = transparentData.back();
-			data.material = material;
-			data.meshData = meshData;
-			data.obbSphere = Spheref(transformMatrix.GetTranslation() + meshAABB.GetCenter(), meshAABB.GetSquaredRadius());
-			data.transformMatrix = transformMatrix;
-
-			transparentMeshes.push_back(index);
-		}
-		else
-		{
-			opaqueModels.Insert({
+			depthSortedModels.Insert({
 				renderOrder,
 				meshData,
 				material,
 				transformMatrix,
-				scissorRect
+				scissorRect,
+				obbSphere
 			});
-
-			/*Layer& currentLayer = GetLayer(renderOrder);
-			MeshPipelineBatches& opaqueModels = currentLayer.opaqueModels;
-
-			const MaterialPipeline* materialPipeline = material->GetPipeline();
-
-			auto pipelineIt = opaqueModels.find(materialPipeline);
-			if (pipelineIt == opaqueModels.end())
-			{
-				BatchedMaterialEntry materialEntry;
-				pipelineIt = opaqueModels.insert(MeshPipelineBatches::value_type(materialPipeline, std::move(materialEntry))).first;
-			}
-
-			BatchedMaterialEntry& materialEntry = pipelineIt->second;
-			MeshMaterialBatches& materialMap = materialEntry.materialMap;
-
-			auto materialIt = materialMap.find(material);
-			if (materialIt == materialMap.end())
-			{
-				BatchedModelEntry entry;
-				entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-				materialIt = materialMap.insert(MeshMaterialBatches::value_type(material, std::move(entry))).first;
-			}
-
-			BatchedModelEntry& entry = materialIt->second;
-			entry.enabled = true;
-
-			MeshInstanceContainer& meshMap = entry.meshMap;
-
-			auto it2 = meshMap.find(meshData);
-			if (it2 == meshMap.end())
-			{
-				MeshInstanceEntry instanceEntry;
-				instanceEntry.squaredBoundingSphere = meshAABB.GetSquaredBoundingSphere();
-
-				if (meshData.indexBuffer)
-					instanceEntry.indexBufferReleaseSlot.Connect(meshData.indexBuffer->OnIndexBufferRelease, this, &ForwardRenderQueue::OnIndexBufferInvalidation);
-
-				instanceEntry.vertexBufferReleaseSlot.Connect(meshData.vertexBuffer->OnVertexBufferRelease, this, &ForwardRenderQueue::OnVertexBufferInvalidation);
-
-				it2 = meshMap.insert(std::make_pair(meshData, std::move(instanceEntry))).first;
-			}
-
-			std::vector<Matrix4f>& instances = it2->second.instances;
-			instances.push_back(transformMatrix);
-
-			materialEntry.maxInstanceCount = std::max(materialEntry.maxInstanceCount, instances.size());*/
+		}
+		else
+		{
+			models.Insert({
+				renderOrder,
+				meshData,
+				material,
+				transformMatrix,
+				scissorRect,
+				obbSphere
+			});
 		}
 	}
 
@@ -483,20 +425,14 @@ namespace Nz
 
 		if (material->IsDepthSortingEnabled())
 		{
-			auto& transparentSprites = currentLayer.depthSortedSprites;
-			auto& transparentData = currentLayer.depthSortedSpriteData;
-
-			// The material is marked for depth sorting, we must draw this mesh using another way (after the rendering of opaques objects while sorting them)
-			std::size_t index = transparentData.size();
-			transparentData.resize(index + 1);
-
-			UnbatchedSpriteData& data = transparentData.back();
-			data.material = material;
-			data.overlay = overlay;
-			data.spriteCount = spriteCount;
-			data.vertices = vertices;
-
-			transparentSprites.push_back(index);
+			depthSortedSprites.Insert({
+				renderOrder,
+				spriteCount,
+				material,
+				overlay,
+				vertices,
+				scissorRect
+				});
 		}
 		else
 		{
@@ -522,7 +458,11 @@ namespace Nz
 		AbstractRenderQueue::Clear(fully);
 
 		basicSprites.Clear();
-		opaqueModels.Clear();
+		billboards.Clear();
+		depthSortedBillboards.Clear();
+		depthSortedModels.Clear();
+		depthSortedSprites.Clear();
+		models.Clear();
 
 		m_renderLayers.clear();
 		if (fully)
@@ -635,44 +575,7 @@ namespace Nz
 		std::unordered_map<const Nz::Texture*, std::size_t> textures;
 		std::unordered_map<const Nz::VertexBuffer*, std::size_t> vertexBuffers;
 
-		opaqueModels.Sort([&](const OpaqueModels& renderData)
-		{
-			// RQ index:
-			// - Layer (4bits)
-			// - Pipeline (8bits)
-			// - Material (8bits)
-			// - Shader? (8bits)
-			// - Textures (8bits)
-			// - Buffers (8bits)
-			// - Scissor (4bits)
-			// - Depth? (16bits)
-
-			auto GetOrInsert = [](auto& container, auto&& value)
-			{
-				return container.emplace(value, container.size()).first->second;
-			};
-
-			Nz::UInt64 layerIndex = layers[renderData.layerIndex];
-			Nz::UInt64 pipelineIndex = GetOrInsert(pipelines, renderData.material->GetPipeline());
-			Nz::UInt64 materialIndex = GetOrInsert(materials, renderData.material);
-			Nz::UInt64 shaderIndex = GetOrInsert(shaders, renderData.material->GetShader());
-			Nz::UInt64 textureIndex = GetOrInsert(textures, renderData.material->GetDiffuseMap());
-			Nz::UInt64 bufferIndex = GetOrInsert(vertexBuffers, renderData.meshData.vertexBuffer);
-			Nz::UInt64 scissorIndex = 0; //< TODO
-			Nz::UInt64 depthIndex = 0; //< TODO
-
-			Nz::UInt64 index = (layerIndex    & 0x0F)   << 60 |
-			                   (pipelineIndex & 0xFF)   << 52 |
-			                   (materialIndex & 0xFF)   << 44 |
-			                   (shaderIndex   & 0xFF)   << 36 |
-			                   (textureIndex  & 0xFF)   << 28 |
-			                   (bufferIndex   & 0xFF)   << 20 |
-			                   (scissorIndex  & 0x0F)   << 16 |
-			                   (depthIndex    & 0xFFFF) <<  0;
-			return index;
-		});
-		
-		basicSprites.Sort([&](const BasicSprites& vertices)
+		basicSprites.Sort([&](const SpriteChain& vertices)
 		{
 			// RQ index:
 			// - Layer (4bits)
@@ -709,6 +612,180 @@ namespace Nz
 
 			return index;
 		});
+		
+		billboards.Sort([&](const Billboard& billboard)
+		{
+			// RQ index:
+			// - Layer (4bits)
+			// - Pipeline (8bits)
+			// - Material (8bits)
+			// - Shader? (8bits)
+			// - Textures (8bits)
+			// - ??? (8bits)
+			// - Scissor (4bits)
+			// - Depth? (16bits)
+
+			auto GetOrInsert = [](auto& container, auto&& value)
+			{
+				return container.emplace(value, container.size()).first->second;
+			};
+
+			Nz::UInt64 layerIndex = layers[billboard.layerIndex];
+			Nz::UInt64 pipelineIndex = GetOrInsert(pipelines, billboard.material->GetPipeline());
+			Nz::UInt64 materialIndex = GetOrInsert(materials, billboard.material);
+			Nz::UInt64 shaderIndex = GetOrInsert(shaders, billboard.material->GetShader());
+			Nz::UInt64 textureIndex = GetOrInsert(textures, billboard.material->GetDiffuseMap());
+			Nz::UInt64 unknownIndex = 0; //< ???
+			Nz::UInt64 scissorIndex = 0; //< TODO
+			Nz::UInt64 depthIndex = 0; //< TODO?
+
+			Nz::UInt64 index = (layerIndex    & 0x0F)   << 60 |
+			                   (pipelineIndex & 0xFF)   << 52 |
+			                   (materialIndex & 0xFF)   << 44 |
+			                   (shaderIndex   & 0xFF)   << 36 |
+			                   (textureIndex  & 0xFF)   << 28 |
+			                   (unknownIndex  & 0xFF)   << 20 |
+			                   (scissorIndex  & 0x0F)   << 16 |
+			                   (depthIndex    & 0xFFFF) <<  0;
+
+			return index;
+		});
+		
+		models.Sort([&](const Model& renderData)
+		{
+			// RQ index:
+			// - Layer (4bits)
+			// - Pipeline (8bits)
+			// - Material (8bits)
+			// - Shader? (8bits)
+			// - Textures (8bits)
+			// - Buffers (8bits)
+			// - Scissor (4bits)
+			// - Depth? (16bits)
+
+			auto GetOrInsert = [](auto& container, auto&& value)
+			{
+				return container.emplace(value, container.size()).first->second;
+			};
+
+			Nz::UInt64 layerIndex = layers[renderData.layerIndex];
+			Nz::UInt64 pipelineIndex = GetOrInsert(pipelines, renderData.material->GetPipeline());
+			Nz::UInt64 materialIndex = GetOrInsert(materials, renderData.material);
+			Nz::UInt64 shaderIndex = GetOrInsert(shaders, renderData.material->GetShader());
+			Nz::UInt64 textureIndex = GetOrInsert(textures, renderData.material->GetDiffuseMap());
+			Nz::UInt64 bufferIndex = GetOrInsert(vertexBuffers, renderData.meshData.vertexBuffer);
+			Nz::UInt64 scissorIndex = 0; //< TODO
+			Nz::UInt64 depthIndex = 0; //< TODO
+
+			Nz::UInt64 index = (layerIndex    & 0x0F)   << 60 |
+			                   (pipelineIndex & 0xFF)   << 52 |
+			                   (materialIndex & 0xFF)   << 44 |
+			                   (shaderIndex   & 0xFF)   << 36 |
+			                   (textureIndex  & 0xFF)   << 28 |
+			                   (bufferIndex   & 0xFF)   << 20 |
+			                   (scissorIndex  & 0x0F)   << 16 |
+			                   (depthIndex    & 0xFFFF) <<  0;
+			return index;
+		});
+		
+		Planef nearPlane = viewer->GetFrustum().GetPlane(FrustumPlane_Near);
+
+		depthSortedBillboards.Sort([&](const Billboard& billboard)
+		{
+			// RQ index:
+			// - Layer (4bits)
+			// - Depth (32bits)
+			// - ??    (28bits)
+
+			float depth = nearPlane.Distance(billboard.center);
+
+			Nz::UInt64 layerIndex = layers[billboard.layerIndex];
+			Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
+
+			Nz::UInt64 index = (layerIndex & 0x0F) << 60 |
+			                   (depthIndex & 0xFFFFFFFF) << 52;
+
+			return index;
+		});
+
+		if (viewer->GetProjectionType() == ProjectionType_Orthogonal)
+		{
+			depthSortedModels.Sort([&](const Model& model)
+			{
+				// RQ index:
+				// - Layer (4bits)
+				// - Depth (32bits)
+				// - ??    (28bits)
+
+				float depth = nearPlane.Distance(model.obbSphere.GetPosition());
+
+				Nz::UInt64 layerIndex = layers[model.layerIndex];
+				Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
+
+				Nz::UInt64 index = (layerIndex & 0x0F) << 60 |
+				                   (depthIndex & 0xFFFFFFFF) << 52;
+
+				return index;
+			});
+
+			depthSortedSprites.Sort([&](const SpriteChain& spriteChain)
+			{
+				// RQ index:
+				// - Layer (4bits)
+				// - Depth (32bits)
+				// - ??    (28bits)
+
+				float depth = nearPlane.Distance(spriteChain.vertices[0].position);
+
+				Nz::UInt64 layerIndex = layers[spriteChain.layerIndex];
+				Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
+
+				Nz::UInt64 index = (layerIndex & 0x0F) << 60 |
+				                   (depthIndex & 0xFFFFFFFF) << 52;
+
+				return index;
+			});
+		}
+		else
+		{
+			Vector3f viewerPos = viewer->GetEyePosition();
+			
+			depthSortedModels.Sort([&](const Model& model)
+			{
+				// RQ index:
+				// - Layer (4bits)
+				// - Depth (32bits)
+				// - ??    (28bits)
+
+				float depth = viewerPos.SquaredDistance(model.obbSphere.GetPosition());
+
+				Nz::UInt64 layerIndex = layers[model.layerIndex];
+				Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
+
+				Nz::UInt64 index = (layerIndex & 0x0F) << 60 |
+				                   (depthIndex & 0xFFFFFFFF) << 52;
+
+				return index;
+			});
+
+			depthSortedSprites.Sort([&](const SpriteChain& sprites)
+			{
+				// RQ index:
+				// - Layer (4bits)
+				// - Depth (32bits)
+				// - ??    (28bits)
+
+				float depth = viewerPos.SquaredDistance(sprites.vertices[0].position);
+
+				Nz::UInt64 layerIndex = layers[sprites.layerIndex];
+				Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
+
+				Nz::UInt64 index = (layerIndex & 0x0F) << 60 |
+				                   (depthIndex & 0xFFFFFFFF) << 52;
+
+				return index;
+			});
+		}
 
 		if (viewer->GetProjectionType() == ProjectionType_Orthogonal)
 			SortForOrthographic(viewer);

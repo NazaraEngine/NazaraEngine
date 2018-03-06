@@ -92,21 +92,27 @@ namespace Nz
 
 		m_renderQueue.Sort(sceneData.viewer);
 
-		if (!m_renderQueue.opaqueModels.empty())
-			DrawOpaqueModels(sceneData);
-
 		if (!m_renderQueue.basicSprites.empty())
-			DrawBasicSprites(sceneData);
+			DrawSprites(sceneData, m_renderQueue.basicSprites);
+
+		//if (!m_renderQueue.billboards.empty())
+		//	DrawBillboards(sceneData, m_renderQueue.billboards);
+
+		if (!m_renderQueue.models.empty())
+			DrawModels(sceneData, m_renderQueue.models);
+
+		//if (!m_renderQueue.depthSortedBillboards.empty())
+		//	DrawBillboards(sceneData, m_renderQueue.depthSortedBillboards);
+
+		if (!m_renderQueue.depthSortedModels.empty())
+			DrawModels(sceneData, m_renderQueue.depthSortedModels);
+
+		if (!m_renderQueue.depthSortedSprites.empty())
+			DrawSprites(sceneData, m_renderQueue.depthSortedSprites);
 
 		for (auto& pair : m_renderQueue.layers)
 		{
 			ForwardRenderQueue::Layer& layer = pair.second;
-
-			if (!layer.depthSortedMeshes.empty())
-				DrawTransparentModels(sceneData, layer);
-
-			if (!layer.depthSortedSprites.empty())
-				DrawOrderedSprites(sceneData, layer);
 
 			if (!layer.billboards.empty())
 				DrawBillboards(sceneData, layer);
@@ -290,7 +296,7 @@ namespace Nz
 		});
 	}
 
-	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, const RenderQueue<ForwardRenderQueue::SpriteChain>& spriteList) const
 	{
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
@@ -357,7 +363,7 @@ namespace Nz
 
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		for (const ForwardRenderQueue::BasicSprites& basicSprites : m_renderQueue.basicSprites)
+		for (const ForwardRenderQueue::SpriteChain& basicSprites : spriteList)
 		{
 			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect))
 			{
@@ -417,9 +423,9 @@ namespace Nz
 		Commit();
 	}
 
-	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData) const
+	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const Nz::RenderQueue<Nz::ForwardRenderQueue::Model>& models) const
 	{
-		for (const ForwardRenderQueue::OpaqueModels& opaqueModels : m_renderQueue.opaqueModels)
+		for (const ForwardRenderQueue::Model& opaqueModels : models)
 		{
 			const MaterialPipeline::Instance& pipelineInstance = opaqueModels.material->GetPipeline()->Apply(0);
 
@@ -497,7 +503,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert is viewer is invalid
 	*/
 
-	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
@@ -784,7 +790,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert is viewer is invalid
 	*/
 
-	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 

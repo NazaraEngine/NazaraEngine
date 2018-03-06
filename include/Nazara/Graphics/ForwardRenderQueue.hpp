@@ -187,18 +187,36 @@ namespace Nz
 
 			std::map<int, Layer> layers;
 
-			struct OpaqueModels
+			struct Billboard
+			{
+				int layerIndex;
+				Color color;
+				Vector3f center;
+				Vector2f size;
+				Vector2f sinCos;
+				MovablePtr<const Nz::Material> material;
+				Nz::Matrix4f matrix;
+				Nz::Recti scissorRect;
+				Nz::Spheref obbSphere;
+			};
+
+			RenderQueue<Billboard> billboards;
+			RenderQueue<Billboard> depthSortedBillboards;
+
+			struct Model
 			{
 				int layerIndex;
 				MeshData meshData;
 				MovablePtr<const Nz::Material> material;
 				Nz::Matrix4f matrix;
 				Nz::Recti scissorRect;
+				Nz::Spheref obbSphere;
 			};
 
-			RenderQueue<OpaqueModels> opaqueModels;
+			RenderQueue<Model> models;
+			RenderQueue<Model> depthSortedModels;
 
-			struct BasicSprites
+			struct SpriteChain
 			{
 				int layerIndex;
 				std::size_t spriteCount;
@@ -208,7 +226,8 @@ namespace Nz
 				Nz::Recti scissorRect;
 			};
 
-			RenderQueue<BasicSprites> basicSprites;
+			RenderQueue<SpriteChain> basicSprites;
+			RenderQueue<SpriteChain> depthSortedSprites;
 
 			/*struct RenderData
 			{
