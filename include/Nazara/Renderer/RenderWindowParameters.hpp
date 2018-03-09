@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERWINDOWPARAMETERS_HPP
 #define NAZARA_RENDERWINDOWPARAMETERS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <vector>
 

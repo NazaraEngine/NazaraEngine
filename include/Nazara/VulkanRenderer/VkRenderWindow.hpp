@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
 #define NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>

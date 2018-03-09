@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERSURFACE_HPP
 #define NAZARA_RENDERSURFACE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
 

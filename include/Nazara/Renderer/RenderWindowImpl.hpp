@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERWINDOWIMPL_HPP
 #define NAZARA_RENDERWINDOWIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>

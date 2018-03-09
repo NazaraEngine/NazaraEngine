@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VKDESCRIPTORSET_HPP
 #define NAZARA_VULKANRENDERER_VKDESCRIPTORSET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <vulkan/vulkan.h>

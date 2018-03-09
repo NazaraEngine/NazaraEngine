@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_RENDERERIMPL_HPP
 #define NAZARA_RENDERER_RENDERERIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
