@@ -7,8 +7,8 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANDEVICE_HPP
 #define NAZARA_VULKANRENDERER_VULKANDEVICE_HPP
 
-#include <Nazara/Prerequesites.hpp>
 #include <Nazara/Renderer/RenderDeviceInstance.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vector>
 

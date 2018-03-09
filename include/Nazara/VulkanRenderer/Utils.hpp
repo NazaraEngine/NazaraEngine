@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILS_VULKAN_HPP
 #define NAZARA_UTILS_VULKAN_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 

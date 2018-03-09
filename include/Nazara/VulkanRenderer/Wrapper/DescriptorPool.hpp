@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
 #define NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 

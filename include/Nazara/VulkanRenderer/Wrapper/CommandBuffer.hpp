@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VKCOMMANDBUFFER_HPP
 #define NAZARA_VULKANRENDERER_VKCOMMANDBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <vulkan/vulkan.h>
