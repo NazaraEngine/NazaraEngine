@@ -44,6 +44,11 @@ namespace Nz
 		return true;
 	}
 
+	const UInt8* SoftwareBuffer::GetData() const
+	{
+		return m_buffer.data();
+	}
+
 	DataStorage SoftwareBuffer::GetStorage() const
 	{
 		return DataStorage_Software;

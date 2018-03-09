@@ -4,20 +4,28 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERDEVICE_HPP
-#define NAZARA_RENDERDEVICE_HPP
+#ifndef NAZARA_RENDERDEVICEINSTANCE_HPP
+#define NAZARA_RENDERDEVICEINSTANCE_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/String.hpp>
-#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <memory>
 
 namespace Nz
 {
-	struct RenderDevice
+	class Buffer;
+
+	class NAZARA_RENDERER_API RenderDevice
 	{
-		RenderDeviceType type;
-		String name;
+		public:
+			RenderDevice() = default;
+			virtual ~RenderDevice();
+
+			virtual std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) = 0;
 	};
 }
 
-#endif // NAZARA_RENDERER_HPP
+#include <Nazara/Renderer/RenderDevice.inl>
+
+#endif // NAZARA_RENDERDEVICEINSTANCE_HPP

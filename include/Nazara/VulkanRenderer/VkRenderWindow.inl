@@ -7,9 +7,14 @@
 
 namespace Nz
 {
-	inline const Vk::DeviceHandle& VkRenderWindow::GetDevice() const
+	inline VulkanDevice& VkRenderWindow::GetDevice()
 	{
-		return m_device;
+		return *m_device;
+	}
+
+	inline const VulkanDevice& VkRenderWindow::GetDevice() const
+	{
+		return *m_device;
 	}
 
 	inline const Vk::Framebuffer& VkRenderWindow::GetFrameBuffer(UInt32 imageIndex) const

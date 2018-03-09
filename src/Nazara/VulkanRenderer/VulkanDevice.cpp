@@ -8,4 +8,9 @@
 namespace Nz
 {
 	VulkanDevice::~VulkanDevice() = default;
+
+	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(Buffer* parent, BufferType type)
+	{
+		return std::make_unique<VulkanBuffer>(CreateHandle(), parent, type);
+	}
 }

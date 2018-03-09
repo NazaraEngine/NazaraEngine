@@ -7,9 +7,16 @@
 
 namespace Nz
 {
-	inline VulkanBuffer::VulkanBuffer(Buffer* parent, BufferType type) :
-	m_softwareData(parent, type)
+	inline VulkanBuffer::VulkanBuffer(const Vk::DeviceHandle& device, Buffer* parent, BufferType type) :
+	m_device(device),
+	m_parent(parent),
+	m_type(type)
 	{
+	}
+
+	inline Nz::Vk::Buffer& Nz::VulkanBuffer::GetBufferHandle()
+	{
+		return m_buffer;
 	}
 }
 

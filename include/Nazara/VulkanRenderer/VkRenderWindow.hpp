@@ -11,8 +11,10 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
@@ -39,11 +41,12 @@ namespace Nz
 			void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 			void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
 
-			bool Create(RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
+			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 
 			inline const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
-			inline UInt32 GetFramebufferCount() const;
-			inline const Vk::DeviceHandle& GetDevice() const;
+			inline UInt32 GetFramebufferCount() const override;
+			inline VulkanDevice& GetDevice();
+			inline const VulkanDevice& GetDevice() const;
 			inline UInt32 GetPresentableFamilyQueue() const;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
@@ -62,8 +65,8 @@ namespace Nz
 			VkFormat m_colorFormat;
 			VkFormat m_depthStencilFormat;
 			VkPhysicalDevice m_physicalDevice;
+			std::shared_ptr<VulkanDevice> m_device;
 			std::vector<Vk::Framebuffer> m_frameBuffers;
-			Vk::DeviceHandle m_device;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;

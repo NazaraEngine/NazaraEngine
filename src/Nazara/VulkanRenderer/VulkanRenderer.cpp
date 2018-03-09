@@ -4,11 +4,12 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Renderer/RenderDeviceInstance.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -16,11 +17,6 @@ namespace Nz
 	VulkanRenderer::~VulkanRenderer()
 	{
 		Vulkan::Uninitialize();
-	}
-
-	std::unique_ptr<AbstractBuffer> VulkanRenderer::CreateHardwareBufferImpl(Buffer* parent, BufferType type)
-	{
-		return std::make_unique<VulkanBuffer>(parent, type); //< TODO
 	}
 
 	std::unique_ptr<RenderSurface> VulkanRenderer::CreateRenderSurfaceImpl()
@@ -33,9 +29,10 @@ namespace Nz
 		return std::make_unique<VkRenderWindow>();
 	}
 
-	std::unique_ptr<RenderDeviceInstance> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
 	{
-		return std::unique_ptr<RenderDeviceInstance>();
+		assert(deviceIndex < m_physDevices.size());
+		return Vulkan::SelectDevice(m_physDevices[deviceIndex].device);
 	}
 
 	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
@@ -69,14 +66,14 @@ namespace Nz
 		return APIVersion;
 	}
 
-	std::vector<RenderDevice> VulkanRenderer::QueryRenderDevices() const
+	std::vector<RenderDeviceInfo> VulkanRenderer::QueryRenderDevices() const
 	{
-		std::vector<RenderDevice> devices;
+		std::vector<RenderDeviceInfo> devices;
 		devices.reserve(m_physDevices.size());
 
 		for (const Vk::PhysicalDevice& physDevice : m_physDevices)
 		{
-			RenderDevice device;
+			RenderDeviceInfo device;
 			device.name = physDevice.properties.deviceName;
 
 			switch (physDevice.properties.deviceType)
@@ -104,7 +101,7 @@ namespace Nz
 					break;
 			}
 
-			devices.emplace_back(device);
+			devices.emplace_back(std::move(device));
 		}
 
 		return devices;

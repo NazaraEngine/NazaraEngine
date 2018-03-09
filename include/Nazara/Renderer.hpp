@@ -36,8 +36,8 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderDeviceInstance.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>

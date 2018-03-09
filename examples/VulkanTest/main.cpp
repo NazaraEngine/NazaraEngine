@@ -1,5 +1,6 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/VulkanRenderer.hpp>
 #include <array>
@@ -112,13 +113,7 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f));
-
-	Nz::Mesh drfreak;
-	if (!drfreak.LoadFromFile("resources/drfreak.md2", meshParams))
-	{
-		NazaraError("Failed to load Dr. Freak");
-		return __LINE__;
-	}
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal);
 
 	Nz::String windowTitle = "Vulkan Test";
 	if (!window.Create(Nz::VideoMode(800, 600, 32), windowTitle))
@@ -141,23 +136,28 @@ int main()
 	std::vector<VkQueueFamilyProperties> queues;
 	instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &queues);*/
 
-	Nz::Vk::DeviceHandle device = vulkanWindow.GetDevice();
+	Nz::VulkanDevice& device = vulkanWindow.GetDevice();
 
 	Nz::Vk::ShaderModule vertexShader;
-	if (!vertexShader.Create(device, reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
+	if (!vertexShader.Create(device.CreateHandle(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
 	{
 		NazaraError("Failed to create vertex shader");
 		return __LINE__;
 	}
 
 	Nz::Vk::ShaderModule fragmentShader;
-	if (!fragmentShader.Create(device, reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
+	if (!fragmentShader.Create(device.CreateHandle(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
 	{
 		NazaraError("Failed to create fragment shader");
 		return __LINE__;
 	}
 
-	VkMemoryRequirements memRequirement;
+	Nz::Mesh drfreak;
+	if (!drfreak.LoadFromFile("resources/OILTANK1.md2", meshParams))
+	{
+		NazaraError("Failed to load model");
+		return __LINE__;
+	}
 
 	Nz::StaticMesh* drfreakMesh = static_cast<Nz::StaticMesh*>(drfreak.GetSubMesh(0));
 
@@ -165,134 +165,28 @@ int main()
 	const Nz::IndexBuffer* drfreakIB = drfreakMesh->GetIndexBuffer();
 
 	// Vertex buffer
-	struct Vertex {
-		Nz::Vector4f pos;
-		Nz::Vector3f col;
-	};
+	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
 
-	/*std::vector<Vertex> vertexBufferData = {
-		{{-1.f,  1.f, 0.0f},  {1.0f, 0.0f, 0.0f}},
-		{{1.f,  1.f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{0.0f, -1.f, 0.0f},  {0.0f, 0.0f, 1.0f}}
-	};
-
-	Nz::Matrix4f projection = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 1.f, 1000.f);
-	Nz::Matrix4f world = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 5.f);
-
-	for (unsigned int i = 0; i < 3; ++i)
+	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
+	if (!renderBufferIB->Synchronize(&device))
 	{
-		Nz::Vector4f pos = vertexBufferData[i].pos;
-		vertexBufferData[i].pos = projection * (world * pos);
-	}*/
-
-	Nz::BufferMapper<Nz::VertexBuffer> vertexMapper(drfreakVB, Nz::BufferAccess_ReadOnly);
-	Nz::MeshVertex* meshVertices = static_cast<Nz::MeshVertex*>(vertexMapper.GetPointer());
-
-	std::size_t vertexCount = drfreakVB->GetVertexCount();
-
-	Nz::Image meshImage;
-	if (!meshImage.LoadFromFile("resources/drfreak.tga"))
-	{
-		NazaraError("Failed to load texture");
+		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	std::vector<Vertex> vertexBufferData;
-	vertexBufferData.reserve(vertexCount);
-	for (std::size_t i = 0; i < vertexCount; ++i)
-	{
-		std::size_t texX = meshVertices[i].uv.x * meshImage.GetWidth();
-		std::size_t texY = meshVertices[i].uv.y * meshImage.GetHeight();
-
-		Nz::Color c = meshImage.GetPixelColor(texX, texY);
-
-		Vertex vertex = {
-			meshVertices[i].position,
-			{c.r / 255.f, c.g / 255.f, c.b / 255.f}
-		};
-
-		vertexBufferData.push_back(vertex);
-	}
-
-	Nz::UInt32 vertexBufferSize = static_cast<Nz::UInt32>(vertexBufferData.size() * sizeof(Vertex));
-
-	Nz::Vk::Buffer vertexBuffer;
-	if (!vertexBuffer.Create(device, 0, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
-	{
-		NazaraError("Failed to create vertex buffer");
-		return __LINE__;
-	}
-
-	memRequirement = vertexBuffer.GetMemoryRequirements();
-
-	Nz::Vk::DeviceMemory vertexBufferMemory;
-	if (!vertexBufferMemory.Create(device, memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
-	{
-		NazaraError("Failed to allocate vertex buffer memory");
-		return __LINE__;
-	}
-
-	if (!vertexBufferMemory.Map(0, vertexBufferSize))
-	{
-		NazaraError("Failed to map vertex buffer");
-		return __LINE__;
-	}
-
-	std::memcpy(vertexBufferMemory.GetMappedPointer(), vertexBufferData.data(), vertexBufferSize);
-
-	vertexBufferMemory.Unmap();
-
-	if (!vertexBuffer.BindBufferMemory(vertexBufferMemory))
-	{
-		NazaraError("Failed to bind vertex buffer to its memory");
-		return __LINE__;
-	}
+	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&device));
 
 	// Index buffer
-	Nz::IndexMapper indexMapper(drfreakIB);
+	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
-	std::size_t indexCount = indexMapper.GetIndexCount();
-	std::vector<Nz::UInt32> indexBufferData;
-	indexBufferData.reserve(indexCount);
-
-	for (std::size_t i = 0; i < indexCount; ++i)
+	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
+	if (!renderBufferVB->Synchronize(&device))
 	{
-		indexBufferData.push_back(indexMapper.Get(i));
-	}
-
-	Nz::UInt32 indexBufferSize = indexBufferData.size() * sizeof(Nz::UInt32);
-
-	Nz::Vk::Buffer indexBuffer;
-	if (!indexBuffer.Create(device, 0, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT))
-	{
-		NazaraError("Failed to create vertex buffer");
+		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	memRequirement = indexBuffer.GetMemoryRequirements();
-
-	Nz::Vk::DeviceMemory indexBufferMemory;
-	if (!indexBufferMemory.Create(device, memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
-	{
-		NazaraError("Failed to allocate vertex buffer memory");
-		return __LINE__;
-	}
-
-	if (!indexBufferMemory.Map(0, indexBufferSize))
-	{
-		NazaraError("Failed to map vertex buffer");
-		return __LINE__;
-	}
-
-	std::memcpy(indexBufferMemory.GetMappedPointer(), indexBufferData.data(), indexBufferSize);
-
-	indexBufferMemory.Unmap();
-
-	if (!indexBuffer.BindBufferMemory(indexBufferMemory))
-	{
-		NazaraError("Failed to bind vertex buffer to its memory");
-		return __LINE__;
-	}
+	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&device));
 
 	struct
 	{
@@ -310,16 +204,16 @@ int main()
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::Vk::Buffer uniformBuffer;
-	if (!uniformBuffer.Create(device, 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
+	if (!uniformBuffer.Create(device.CreateHandle(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
 	{
 		NazaraError("Failed to create vertex buffer");
 		return __LINE__;
 	}
 
-	memRequirement = uniformBuffer.GetMemoryRequirements();
+	VkMemoryRequirements memRequirement = uniformBuffer.GetMemoryRequirements();
 
 	Nz::Vk::DeviceMemory uniformBufferMemory;
-	if (!uniformBufferMemory.Create(device, memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+	if (!uniformBufferMemory.Create(device.CreateHandle(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
 	{
 		NazaraError("Failed to allocate vertex buffer memory");
 		return __LINE__;
@@ -350,7 +244,7 @@ int main()
 	layoutBinding.pImmutableSamplers = nullptr;
 
 	Nz::Vk::DescriptorSetLayout descriptorLayout;
-	if (!descriptorLayout.Create(device, layoutBinding))
+	if (!descriptorLayout.Create(device.CreateHandle(), layoutBinding))
 	{
 		NazaraError("Failed to create descriptor set layout");
 		return __LINE__;
@@ -361,7 +255,7 @@ int main()
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	Nz::Vk::DescriptorPool descriptorPool;
-	if (!descriptorPool.Create(device, 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+	if (!descriptorPool.Create(device.CreateHandle(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
 	{
 		NazaraError("Failed to create descriptor pool");
 		return __LINE__;
@@ -396,7 +290,7 @@ int main()
 
 	VkVertexInputBindingDescription bindingDescription = {
 		0,
-		sizeof(Vertex),
+		drfreakVB->GetStride(),
 		VK_VERTEX_INPUT_RATE_VERTEX
 	};
 
@@ -406,14 +300,14 @@ int main()
 			{
 				0,                          // uint32_t    location
 				0,                          // uint32_t    binding;
-				VK_FORMAT_R32G32B32A32_SFLOAT, // VkFormat    format;
+				VK_FORMAT_R32G32B32_SFLOAT, // VkFormat    format;
 				0                           // uint32_t    offset;
 			},
 			{
 				1,                          // uint32_t    location
 				0,                          // uint32_t    binding;
 				VK_FORMAT_R32G32B32_SFLOAT, // VkFormat    format;
-				sizeof(float) * 4           // uint32_t    offset;
+				sizeof(float) * 3           // uint32_t    offset;
 			}
 		}
 	};
@@ -510,7 +404,7 @@ int main()
 	};
 
 	Nz::Vk::PipelineLayout pipelineLayout;
-	pipelineLayout.Create(device, layout_create_info);
+	pipelineLayout.Create(device.CreateHandle(), layout_create_info);
 
 	std::array<VkDynamicState, 2> dynamicStates = {
 		VK_DYNAMIC_STATE_SCISSOR,
@@ -563,14 +457,14 @@ int main()
 	};
 
 	Nz::Vk::Pipeline pipeline;
-	if (!pipeline.CreateGraphics(device, pipeline_create_info))
+	if (!pipeline.CreateGraphics(device.CreateHandle(), pipeline_create_info))
 	{
 		NazaraError("Failed to create pipeline");
 		return __LINE__;
 	}
 
 	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(device, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+	if (!cmdPool.Create(device.CreateHandle(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
 	{
 		NazaraError("Failed to create rendering cmd pool");
 		return __LINE__;
@@ -580,7 +474,7 @@ int main()
 	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
-	Nz::Vk::Queue graphicsQueue(device, device->GetEnabledQueues()[0].queues[0].queue);
+	Nz::Vk::Queue graphicsQueue(device.CreateHandle(), device.GetEnabledQueues()[0].queues[0].queue);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -634,13 +528,13 @@ int main()
 		renderCmd.BeginRenderPass(render_pass_begin_info);
 		//renderCmd.ClearAttachment(clearAttachment, clearRect);
 		//renderCmd.ClearAttachment(clearAttachmentDepth, clearRect);
-		renderCmd.BindIndexBuffer(indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-		renderCmd.BindVertexBuffer(0, vertexBuffer, 0);
+		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
+		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
 		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
 		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
-		renderCmd.DrawIndexed(indexCount);
+		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());
 		renderCmd.EndRenderPass();
 
 		vulkanWindow.BuildPostRenderCommands(i, renderCmd);
@@ -675,21 +569,21 @@ int main()
 					window.Close();
 					break;
 
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
+				case Nz::WindowEventType_MouseMoved: // La souris a bougÃ©
 				{
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
+					// Gestion de la camÃ©ra free-fly (Rotation)
+					float sensitivity = 0.3f; // SensibilitÃ© de la souris
 
-												// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+												// On modifie l'angle de la camÃ©ra grÃ¢ce au dÃ©placement relatif sur X de la souris
 					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+					// Idem, mais pour Ã©viter les problÃ¨mes de calcul de la matrice de vue, on restreint les angles
 					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
 
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
+					// Pour Ã©viter que le curseur ne sorte de l'Ã©cran, nous le renvoyons au centre de la fenÃªtre
+					// Cette fonction est codÃ©e de sorte Ã  ne pas provoquer d'Ã©vÃ¨nement MouseMoved
 					Nz::Mouse::SetPosition(windowSize.x / 2, windowSize.y / 2, window);
 					updateUniforms = true;
 					break;
@@ -758,25 +652,25 @@ int main()
 
 		vulkanWindow.Present(imageIndex);
 
-		// On incrémente le compteur de FPS improvisé
+		// On incrÃ©mente le compteur de FPS improvisÃ©
 		fps++;
 
 		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
 		{
-			// Et on insère ces données dans le titre de la fenêtre
+			// Et on insÃ¨re ces donnÃ©es dans le titre de la fenÃªtre
 			window.SetTitle(windowTitle + " - " + Nz::String::Number(fps) + " FPS");
 
 			/*
-			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
-			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
-			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
+			Note: En C++11 il est possible d'insÃ©rer de l'Unicode de faÃ§on standard, quel que soit l'encodage du fichier,
+			via quelque chose de similaire Ã  u8"Cha\u00CEne de caract\u00E8res".
+			Cependant, si le code source est encodÃ© en UTF-8 (Comme c'est le cas dans ce fichier),
+			cela fonctionnera aussi comme ceci : "ChaÃ®ne de caractÃ¨res".
 			*/
 
-			// Et on réinitialise le compteur de FPS
+			// Et on rÃ©initialise le compteur de FPS
 			fps = 0;
 
-			// Et on relance l'horloge pour refaire ça dans une seconde
+			// Et on relance l'horloge pour refaire Ã§a dans une seconde
 			secondClock.Restart();
 		}
 	}

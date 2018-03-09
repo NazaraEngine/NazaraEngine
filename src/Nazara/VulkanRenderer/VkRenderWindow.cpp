@@ -22,7 +22,9 @@ namespace Nz
 
 	VkRenderWindow::~VkRenderWindow()
 	{
-		m_device->WaitForIdle();
+		if (m_device)
+			m_device->WaitForIdle();
+
 		m_frameBuffers.clear();
 		m_renderPass.Destroy();
 
@@ -64,7 +66,7 @@ namespace Nz
 		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
-	bool VkRenderWindow::Create(RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
+	bool VkRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
 	{
 		m_physicalDevice = Vulkan::GetPhysicalDevices()[0].device;
 
@@ -184,14 +186,14 @@ namespace Nz
 				1U                                            // uint32_t                    layers;
 			};
 
-			if (!m_frameBuffers[i].Create(m_device, frameBufferCreate))
+			if (!m_frameBuffers[i].Create(m_device->CreateHandle(), frameBufferCreate))
 			{
 				NazaraError("Failed to create framebuffer for image #" + String::Number(i));
 				return false;
 			}
 		}
 
-		m_imageReadySemaphore.Create(m_device);
+		m_imageReadySemaphore.Create(m_device->CreateHandle());
 
 		m_clock.Restart();
 
@@ -218,14 +220,14 @@ namespace Nz
 			VK_IMAGE_LAYOUT_UNDEFINED,                                                     // VkImageLayout            initialLayout;
 		};
 
-		if (!m_depthBuffer.Create(m_device, imageCreateInfo))
+		if (!m_depthBuffer.Create(m_device->CreateHandle(), imageCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer");
 			return false;
 		}
 
 		VkMemoryRequirements memoryReq = m_depthBuffer.GetMemoryRequirements();
-		if (!m_depthBufferMemory.Create(m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+		if (!m_depthBufferMemory.Create(m_device->CreateHandle(), memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
 		{
 			NazaraError("Failed to allocate depth buffer memory");
 			return false;
@@ -259,7 +261,7 @@ namespace Nz
 			}
 		};
 
-		if (!m_depthBufferView.Create(m_device, imageViewCreateInfo))
+		if (!m_depthBufferView.Create(m_device->CreateHandle(), imageViewCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer view");
 			return false;
@@ -353,7 +355,7 @@ namespace Nz
 			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
 		};
 
-		return m_renderPass.Create(m_device, createInfo);
+		return m_renderPass.Create(m_device->CreateHandle(), createInfo);
 	}
 
 	bool VkRenderWindow::SetupSwapchain(Vk::Surface& surface, const Vector2ui& size)
@@ -418,7 +420,7 @@ namespace Nz
 			0
 		};
 
-		if (!m_swapchain.Create(m_device, swapchainInfo))
+		if (!m_swapchain.Create(m_device->CreateHandle(), swapchainInfo))
 		{
 			NazaraError("Failed to create swapchain");
 			return false;

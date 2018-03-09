@@ -29,15 +29,16 @@ namespace Nz
 
 	bool RenderWindow::OnWindowCreated()
 	{
-		auto surface = Renderer::GetRendererImpl()->CreateRenderSurfaceImpl();
+		RendererImpl* rendererImpl = Renderer::GetRendererImpl();
+		auto surface = rendererImpl->CreateRenderSurfaceImpl();
 		if (!surface->Create(GetHandle()))
 		{
 			NazaraError("Failed to create render surface: " + Error::GetLastError());
 			return false;
 		}
 
-		auto impl = Renderer::GetRendererImpl()->CreateRenderWindowImpl();
-		if (!impl->Create(surface.get(), GetSize(), m_parameters))
+		auto impl = rendererImpl->CreateRenderWindowImpl();
+		if (!impl->Create(rendererImpl, surface.get(), GetSize(), m_parameters))
 		{
 			NazaraError("Failed to create render window implementation: " + Error::GetLastError());
 			return false;

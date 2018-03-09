@@ -12,7 +12,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <vector>
@@ -21,7 +21,7 @@ namespace Nz
 {
 	class Buffer;
 	class RendererImpl;
-	class RenderDeviceInstance;
+	class RenderDevice;
 	class RenderSurface;
 	class RenderWindowImpl;
 
@@ -33,11 +33,10 @@ namespace Nz
 			RendererImpl() = default;
 			virtual ~RendererImpl();
 
-			virtual std::unique_ptr<AbstractBuffer> CreateHardwareBufferImpl(Buffer* parent, BufferType type) = 0;
 			virtual std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() = 0;
 			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() = 0;
 
-			virtual std::unique_ptr<RenderDeviceInstance> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
+			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
 
 			virtual bool IsBetterThan(const RendererImpl* other) const = 0;
 
@@ -45,7 +44,7 @@ namespace Nz
 			virtual String QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
 
-			virtual std::vector<RenderDevice> QueryRenderDevices() const = 0;
+			virtual std::vector<RenderDeviceInfo> QueryRenderDevices() const = 0;
 
 			virtual bool Prepare(const ParameterList& parameters) = 0;
 	};
