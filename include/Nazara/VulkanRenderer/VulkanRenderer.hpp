@@ -25,18 +25,17 @@ namespace Nz
 			VulkanRenderer() = default;
 			~VulkanRenderer();
 
-			std::unique_ptr<AbstractBuffer> CreateHardwareBufferImpl(Buffer* parent, BufferType type) override;
 			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
 			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() override;
 
-			std::unique_ptr<RenderDeviceInstance> InstanciateRenderDevice(std::size_t deviceIndex) override;
+			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) override;
 
 			bool IsBetterThan(const RendererImpl* other) const override;
 
 			RenderAPI QueryAPI() const override;
 			String QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
-			std::vector<RenderDevice> QueryRenderDevices() const override;
+			std::vector<RenderDeviceInfo> QueryRenderDevices() const override;
 
 			bool Prepare(const ParameterList& parameters) override;
 
