@@ -9,6 +9,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <array>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -186,10 +187,8 @@ namespace Nz
 		}
 
 		s_physDevices.reserve(physDevices.size());
-		for (std::size_t i = 0; i < physDevices.size(); ++i)
+		for (VkPhysicalDevice physDevice : physDevices)
 		{
-			VkPhysicalDevice physDevice = physDevices[i];
-
 			Vk::PhysicalDevice deviceInfo;
 			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queues))
 			{
@@ -225,7 +224,47 @@ namespace Nz
 		return s_instance.IsValid();
 	}
 
-	Vk::DeviceHandle Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu)
+	{
+		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies;
+		s_instance.GetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilies);
+
+		// Find a queue that supports graphics operations
+		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
+		UInt32 transfertQueueNodeFamily = UINT32_MAX;
+
+		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		{
+			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			{
+				graphicsQueueNodeIndex = i;
+				break;
+			}
+		}
+
+		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		{
+			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) //< Compute and graphics queue implicitly support transfer operations
+			{
+				transfertQueueNodeFamily = i;
+				if (transfertQueueNodeFamily != graphicsQueueNodeIndex)
+					break;
+			}
+		}
+
+		std::array<QueueFamily, 2> queuesFamilies = {
+			{
+				{ graphicsQueueNodeIndex, 1.f },
+				{ transfertQueueNodeFamily, 1.f }
+			}
+		};
+
+		return CreateDevice(gpu, queuesFamilies.data(), queuesFamilies.size());
+	}
+
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -267,15 +306,31 @@ namespace Nz
 			}
 		}
 
-		std::array<UInt32, 3> usedQueueFamilies = {graphicsQueueNodeIndex, presentQueueNodeIndex, transfertQueueNodeFamily};
-		std::array<float, 3>  priorities = {1.f, 1.f, 1.f};
-
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		for (UInt32 queueFamily : usedQueueFamilies)
-		{
-			auto it = std::find_if(queueCreateInfos.begin(), queueCreateInfos.end(), [queueFamily] (const VkDeviceQueueCreateInfo& createInfo)
+		std::array<QueueFamily, 3> queuesFamilies = {
 			{
-				return createInfo.queueFamilyIndex == queueFamily;
+				{graphicsQueueNodeIndex, 1.f},
+				{presentQueueNodeIndex, 1.f},
+				{transfertQueueNodeFamily, 1.f}
+			}
+		};
+
+		*presentableFamilyQueue = presentQueueNodeIndex;
+
+		return CreateDevice(gpu, queuesFamilies.data(), queuesFamilies.size());
+	}
+
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
+	{
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		queueCreateInfos.reserve(queueFamilyCount);
+
+		for (std::size_t i = 0; i < queueFamilyCount; ++i)
+		{
+			const QueueFamily& queueFamily = queueFamilies[i];
+
+			auto it = std::find_if(queueCreateInfos.begin(), queueCreateInfos.end(), [&] (const VkDeviceQueueCreateInfo& createInfo)
+			{
+				return createInfo.queueFamilyIndex == queueFamily.familyIndex;
 			});
 
 			if (it == queueCreateInfos.end())
@@ -284,15 +339,14 @@ namespace Nz
 								VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // VkStructureType             sType;
 								nullptr,                                    // const void*                 pNext;
 								0,                                          // VkDeviceQueueCreateFlags    flags;
-								queueFamily,                                // uint32_t                    queueFamilyIndex;
+								queueFamily.familyIndex,                    // uint32_t                    queueFamilyIndex;
 								1,                                          // uint32_t                    queueCount;
-								priorities.data()                           // const float*                pQueuePriorities;
+								&queueFamily.priority                       // const float*                pQueuePriorities;
 				};
 
 				queueCreateInfos.emplace_back(createInfo);
 			}
 		}
-
 
 		std::vector<const char*> enabledLayers;
 		std::vector<const char*> enabledExtensions;
@@ -356,25 +410,51 @@ namespace Nz
 			nullptr
 		};
 
-		///TODO: First create then move
-		s_devices.emplace_back(s_instance);
+		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance);
+		if (!device->Create(gpu, createInfo))
+		{
+			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));
+			return {};
+		}
 
-		Vk::Device& device = s_devices.back();
-		device.Create(gpu, createInfo);
+		s_devices.emplace_back(device);
 
-		*presentableFamilyQueue = presentQueueNodeIndex;
-
-		return device.CreateHandle();
+		return device;
 	}
 
-	Vk::DeviceHandle Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(VkPhysicalDevice gpu)
+	{
+		for (auto it = s_devices.begin(); it != s_devices.end();)
+		{
+			auto devicePtr = it->lock();
+			if (!devicePtr)
+			{
+				it = s_devices.erase(it);
+				continue;
+			}
+
+			if (devicePtr->GetPhysicalDevice() == gpu)
+				return devicePtr;
+		}
+
+		return CreateDevice(gpu);
+	}
+
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		// First, try to find a device compatible with that surface
-		for (Vk::Device& device : s_devices)
+		for (auto it = s_devices.begin(); it != s_devices.end();)
 		{
-			if (device.GetPhysicalDevice() == gpu)
+			auto devicePtr = it->lock();
+			if (!devicePtr)
 			{
-				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = device.GetEnabledQueues();
+				it = s_devices.erase(it);
+				continue;
+			}
+
+			if (devicePtr->GetPhysicalDevice() == gpu)
+			{
+				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
 				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
 				for (Vk::Device::QueueFamilyInfo queueInfo : queueFamilyInfo)
 				{
@@ -393,9 +473,11 @@ namespace Nz
 				if (presentableQueueFamilyIndex != UINT32_MAX)
 				{
 					*presentableFamilyQueue = presentableQueueFamilyIndex;
-					return device.CreateHandle();
+					return devicePtr;
 				}
 			}
+
+			++it;
 		}
 
 		// No device had support for that surface, create one
@@ -411,7 +493,7 @@ namespace Nz
 		Vk::Loader::Uninitialize();
 	}
 
-	std::list<Vk::Device> Vulkan::s_devices;
+	std::vector<std::weak_ptr<VulkanDevice>> Vulkan::s_devices;
 	std::vector<Vk::PhysicalDevice> Vulkan::s_physDevices;
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;

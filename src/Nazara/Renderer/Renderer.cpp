@@ -8,6 +8,7 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -135,9 +136,9 @@ namespace Nz
 		Utility::Uninitialize();
 	}
 
-	AbstractBuffer* Renderer::CreateHardwareBufferImpl(Buffer * parent, BufferType type)
+	AbstractBuffer* Renderer::CreateHardwareBufferImpl(Buffer* parent, BufferType type)
 	{
-		return s_rendererImpl->CreateHardwareBufferImpl(parent, type).release();
+		return new RenderBuffer(parent, type);
 	}
 
 	std::unique_ptr<RendererImpl> Renderer::s_rendererImpl;

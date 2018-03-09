@@ -7,26 +7,26 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANDEVICE_HPP
 #define NAZARA_VULKANRENDERER_VULKANDEVICE_HPP
 
-#include <Nazara/Renderer/RenderDeviceInstance.hpp>
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vector>
 
 namespace Nz
 {
-	//TODO: Move all the software stuff to the Renderer
-
-	class NAZARA_VULKANRENDERER_API VulkanDevice : public RenderDeviceInstance
+	class NAZARA_VULKANRENDERER_API VulkanDevice : public RenderDevice, public Vk::Device
 	{
 		public:
-			VulkanDevice(Vk::DeviceHandle device);
+			using Device::Device;
+			VulkanDevice(const VulkanDevice&) = delete;
+			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
 
-			VulkanDevice& operator=(const VulkanDevice&) = delete;
-			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO
+			std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) override;
 
-		private:
-			Vk::DeviceHandle m_device;
+			VulkanDevice& operator=(const VulkanDevice&) = delete;
+			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
 	};
 }
 
