@@ -49,7 +49,9 @@ namespace Nz
 		m_uberShader = UberShaderLibrary::Get("Basic");
 
 		ParameterList list;
+		list.SetParameter("AUTO_TEXCOORDS", true);
 		list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
+
 		m_uberShaderInstance = m_uberShader->Get(list);
 
 		const Shader* shader = m_uberShaderInstance->GetShader();
