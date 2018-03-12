@@ -190,14 +190,9 @@ namespace Nz
 			struct Billboard
 			{
 				int layerIndex;
-				Color color;
-				Vector3f center;
-				Vector2f size;
-				Vector2f sinCos;
 				MovablePtr<const Nz::Material> material;
-				Nz::Matrix4f matrix;
 				Nz::Recti scissorRect;
-				Nz::Spheref obbSphere;
+				BillboardData data;
 			};
 
 			RenderQueue<Billboard> billboards;
