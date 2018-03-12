@@ -169,6 +169,9 @@ namespace Ndk
 
 	inline EntityList& EntityList::operator=(const EntityList& entityList)
 	{
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
+
 		m_entityBits = entityList.m_entityBits;
 		m_world = entityList.m_world;
 
