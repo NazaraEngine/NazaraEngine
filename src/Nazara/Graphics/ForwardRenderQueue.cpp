@@ -43,14 +43,19 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
-			billboardData->center = *positionPtr++;
-			billboardData->color = *colorPtr++;
-			billboardData->sinCos = *sinCosPtr++;
-			billboardData->size = *sizePtr++;
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					*colorPtr++,
+					*positionPtr++,
+					*sizePtr++,
+					*sinCosPtr++
+				}
+			});
 		}
 	}
 
@@ -82,14 +87,19 @@ namespace Nz
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
 
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
-			billboardData->center = *positionPtr++;
-			billboardData->color = Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++)));
-			billboardData->sinCos = *sinCosPtr++;
-			billboardData->size = *sizePtr++;
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
+					*positionPtr++,
+					*sizePtr++,
+					*sinCosPtr++
+				}
+				});
 		}
 	}
 
@@ -119,18 +129,23 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
 			float cos = std::cos(ToRadians(*anglePtr));
 			anglePtr++;
 
-			billboardData->center = *positionPtr++;
-			billboardData->color = *colorPtr++;
-			billboardData->sinCos.Set(sin, cos);
-			billboardData->size = *sizePtr++;
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					*colorPtr++,
+					*positionPtr++,
+					*sizePtr++,
+					{sin, cos}
+				}
+			});
 		}
 	}
 
@@ -161,19 +176,24 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
-
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
+		
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
 			float cos = std::cos(ToRadians(*anglePtr));
 			anglePtr++;
 
-			billboardData->center = *positionPtr++;
-			billboardData->color = Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++)));
-			billboardData->sinCos.Set(sin, cos);
-			billboardData->size = *sizePtr++;
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
+					*positionPtr++,
+					*sizePtr++,
+					{sin, cos}
+				}
+			});
 		}
 	}
 
@@ -202,15 +222,20 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
-
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
+		
 		for (unsigned int i = 0; i < count; ++i)
 		{
-			billboardData->center = *positionPtr++;
-			billboardData->color = *colorPtr++;
-			billboardData->sinCos = *sinCosPtr++;
-			billboardData->size.Set(*sizePtr++);
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					*colorPtr++,
+					*positionPtr++,
+					Nz::Vector2f(*sizePtr++),
+					*sinCosPtr++
+				}
+			});
 		}
 	}
 
@@ -241,15 +266,20 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
-
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
+		
 		for (unsigned int i = 0; i < count; ++i)
 		{
-			billboardData->center = *positionPtr++;
-			billboardData->color = Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++)));
-			billboardData->sinCos = *sinCosPtr++;
-			billboardData->size.Set(*sizePtr++);
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
+					*positionPtr++,
+					Nz::Vector2f(*sizePtr++),
+					*sinCosPtr++
+				}
+			});
 		}
 	}
 
@@ -278,19 +308,24 @@ namespace Nz
 
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
-
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
+		
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
 			float cos = std::cos(ToRadians(*anglePtr));
 			anglePtr++;
 
-			billboardData->center = *positionPtr++;
-			billboardData->color = *colorPtr++;
-			billboardData->sinCos.Set(sin, cos);
-			billboardData->size.Set(*sizePtr++);
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					*colorPtr++,
+					*positionPtr++,
+					Nz::Vector2f(*sizePtr++),
+					{sin, cos}
+				}
+			});
 		}
 	}
 
@@ -321,19 +356,24 @@ namespace Nz
 
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
-
-		BillboardData* billboardData = GetBillboardData(renderOrder, material, count);
+		
 		for (unsigned int i = 0; i < count; ++i)
 		{
 			float sin = std::sin(ToRadians(*anglePtr));
 			float cos = std::cos(ToRadians(*anglePtr));
 			anglePtr++;
 
-			billboardData->center = *positionPtr++;
-			billboardData->color = Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++)));
-			billboardData->sinCos.Set(sin, cos);
-			billboardData->size.Set(*sizePtr++);
-			billboardData++;
+			billboards.Insert({
+				renderOrder,
+				material,
+				Nz::Recti(-1,-1),
+				{
+					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
+					*positionPtr++,
+					Nz::Vector2f(*sizePtr++),
+					{sin, cos}
+				}
+			});
 		}
 	}
 
@@ -564,16 +604,24 @@ namespace Nz
 
 	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
 	{
-		std::unordered_map<int, std::size_t> layers;
-		for (int layer : m_renderLayers)
-			layers.emplace(layer, layers.size());
+		static std::unordered_map<int, std::size_t> layers;
+		static bool once = false;
 
-		std::unordered_map<const Nz::MaterialPipeline*, std::size_t> pipelines;
-		std::unordered_map<const Nz::Material*, std::size_t> materials;
-		std::unordered_map<const Nz::Texture*, std::size_t> overlays;
-		std::unordered_map<const Nz::UberShader*, std::size_t> shaders;
-		std::unordered_map<const Nz::Texture*, std::size_t> textures;
-		std::unordered_map<const Nz::VertexBuffer*, std::size_t> vertexBuffers;
+		if (!once)
+		{
+			for (int layer : m_renderLayers)
+				layers.emplace(layer, layers.size());
+
+			once = true;
+		}
+
+
+		static std::unordered_map<const Nz::MaterialPipeline*, std::size_t> pipelines;
+		static std::unordered_map<const Nz::Material*, std::size_t> materials;
+		static std::unordered_map<const Nz::Texture*, std::size_t> overlays;
+		static std::unordered_map<const Nz::UberShader*, std::size_t> shaders;
+		static std::unordered_map<const Nz::Texture*, std::size_t> textures;
+		static std::unordered_map<const Nz::VertexBuffer*, std::size_t> vertexBuffers;
 
 		basicSprites.Sort([&](const SpriteChain& vertices)
 		{
@@ -627,7 +675,11 @@ namespace Nz
 
 			auto GetOrInsert = [](auto& container, auto&& value)
 			{
-				return container.emplace(value, container.size()).first->second;
+				auto it = container.find(value);
+				if (it == container.end())
+					it = container.emplace(value, container.size()).first;
+
+				return it->second;
 			};
 
 			Nz::UInt64 layerIndex = layers[billboard.layerIndex];
@@ -697,7 +749,7 @@ namespace Nz
 			// - Depth (32bits)
 			// - ??    (28bits)
 
-			float depth = nearPlane.Distance(billboard.center);
+			float depth = nearPlane.Distance(billboard.data.center);
 
 			Nz::UInt64 layerIndex = layers[billboard.layerIndex];
 			Nz::UInt64 depthIndex = *reinterpret_cast<Nz::UInt32*>(&depth);
