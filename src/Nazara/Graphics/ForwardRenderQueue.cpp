@@ -31,7 +31,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -43,63 +43,115 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
-			billboards.Insert({
-				renderOrder,
-				material,
-				Nz::Recti(-1,-1),
-				{
-					*colorPtr++,
-					*positionPtr++,
-					*sizePtr++,
-					*sinCosPtr++
-				}
-			});
-		}
-	}
-
-	/*!
-	* \brief Adds multiple billboards to the queue
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboards
-	* \param count Number of billboards
-	* \param positionPtr Position of the billboards
-	* \param sizePtr Sizes of the billboards
-	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
-	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
-	*
-	* \remark Produces a NazaraAssert if material is invalid
-	*/
-
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
-	{
-		NazaraAssert(material, "Invalid material");
-
-		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
-
-		if (!sinCosPtr)
-			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
-
-		float defaultAlpha = 1.f;
-
-		if (!alphaPtr)
-			alphaPtr.Reset(&defaultAlpha, 0); // Same
-
-		for (unsigned int i = 0; i < count; ++i)
-		{
-			billboards.Insert({
-				renderOrder,
-				material,
-				Nz::Recti(-1,-1),
-				{
-					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
-					*positionPtr++,
-					*sizePtr++,
-					*sinCosPtr++
-				}
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						*colorPtr++,
+						*positionPtr++,
+						*sizePtr++,
+						*sinCosPtr++
+					}
 				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = *colorPtr++;
+				data->sinCos = *sinCosPtr++;
+				data->size   = *sizePtr++;
+				data++;
+			}
+
+			billboards.Insert({
+				renderOrder,
+				material,
+				scissorRect,
+				billboardCount,
+				billboardIndex
+			});
+		}
+	}
+
+	/*!
+	* \brief Adds multiple billboards to the queue
+	*
+	* \param renderOrder Order of rendering
+	* \param material Material of the billboards
+	* \param count Number of billboards
+	* \param positionPtr Position of the billboards
+	* \param sizePtr Sizes of the billboards
+	* \param sinCosPtr Rotation of the billboards if null, Vector2f(0.f, 1.f) is used
+	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	*/
+
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	{
+		NazaraAssert(material, "Invalid material");
+
+		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
+
+		if (!sinCosPtr)
+			sinCosPtr.Reset(&defaultSinCos, 0); // The trick here is to put the stride to zero, which leads the pointer to be immobile
+
+		float defaultAlpha = 1.f;
+
+		if (!alphaPtr)
+			alphaPtr.Reset(&defaultAlpha, 0); // Same
+
+		if (material->IsDepthSortingEnabled())
+		{
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						ComputeColor(*alphaPtr++),
+						*positionPtr++,
+						*sizePtr++,
+						*sinCosPtr++
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = ComputeColor(*alphaPtr++);
+				data->sinCos = *sinCosPtr++;
+				data->size   = *sizePtr++;
+				data++;
+			}
+
+			billboards.Insert({
+				renderOrder,
+				material,
+				scissorRect,
+				billboardCount,
+				billboardIndex
+			});
 		}
 	}
 
@@ -117,7 +169,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -129,22 +181,44 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
-			float sin = std::sin(ToRadians(*anglePtr));
-			float cos = std::cos(ToRadians(*anglePtr));
-			anglePtr++;
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						*colorPtr++,
+						*positionPtr++,
+						*sizePtr++,
+						ComputeSinCos(*anglePtr++)
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = *colorPtr++;
+				data->sinCos = ComputeSinCos(*anglePtr++);
+				data->size   = *sizePtr++;
+				data++;
+			}
 
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					*colorPtr++,
-					*positionPtr++,
-					*sizePtr++,
-					{sin, cos}
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -163,7 +237,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -177,22 +251,44 @@ namespace Nz
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
 		
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
-			float sin = std::sin(ToRadians(*anglePtr));
-			float cos = std::cos(ToRadians(*anglePtr));
-			anglePtr++;
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						ComputeColor(*alphaPtr++),
+						*positionPtr++,
+						*sizePtr++,
+						ComputeSinCos(*anglePtr++)
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = ComputeColor(*alphaPtr++);
+				data->sinCos = ComputeSinCos(*anglePtr++);
+				data->size   = *sizePtr++;
+				data++;
+			}
 
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
-					*positionPtr++,
-					*sizePtr++,
-					{sin, cos}
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -211,7 +307,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -223,18 +319,44 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 		
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						*colorPtr++,
+						*positionPtr++,
+						ComputeSize(*sizePtr++),
+						*sinCosPtr++
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = *colorPtr++;
+				data->sinCos = *sinCosPtr++;
+				data->size   = ComputeSize(*sizePtr++);
+				data++;
+			}
+
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					*colorPtr++,
-					*positionPtr++,
-					Nz::Vector2f(*sizePtr++),
-					*sinCosPtr++
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -253,7 +375,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -267,18 +389,44 @@ namespace Nz
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
 		
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						ComputeColor(*alphaPtr++),
+						*positionPtr++,
+						ComputeSize(*sizePtr++),
+						*sinCosPtr++
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = ComputeColor(*alphaPtr++);
+				data->sinCos = *sinCosPtr++;
+				data->size   = ComputeSize(*sizePtr++);
+				data++;
+			}
+
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
-					*positionPtr++,
-					Nz::Vector2f(*sizePtr++),
-					*sinCosPtr++
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -297,7 +445,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -309,22 +457,44 @@ namespace Nz
 		if (!colorPtr)
 			colorPtr.Reset(&Color::White, 0); // Same
 		
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
-			float sin = std::sin(ToRadians(*anglePtr));
-			float cos = std::cos(ToRadians(*anglePtr));
-			anglePtr++;
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						*colorPtr++,
+						*positionPtr++,
+						ComputeSize(*sizePtr++),
+						ComputeSinCos(*anglePtr++)
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = *colorPtr++;
+				data->sinCos = ComputeSinCos(*anglePtr++);
+				data->size   = ComputeSize(*sizePtr++);
+				data++;
+			}
 
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					*colorPtr++,
-					*positionPtr++,
-					Nz::Vector2f(*sizePtr++),
-					{sin, cos}
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -343,7 +513,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -357,22 +527,44 @@ namespace Nz
 		if (!alphaPtr)
 			alphaPtr.Reset(&defaultAlpha, 0); // Same
 		
-		for (unsigned int i = 0; i < count; ++i)
+		if (material->IsDepthSortingEnabled())
 		{
-			float sin = std::sin(ToRadians(*anglePtr));
-			float cos = std::cos(ToRadians(*anglePtr));
-			anglePtr++;
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				depthSortedBillboards.Insert({
+					renderOrder,
+					material,
+					scissorRect,
+					{
+						ComputeColor(*alphaPtr++),
+						*positionPtr++,
+						ComputeSize(*sizePtr++),
+						ComputeSinCos(*anglePtr++)
+					}
+				});
+			}
+		}
+		else
+		{
+			std::size_t billboardIndex = m_billboards.size();
+			m_billboards.resize(billboardIndex + billboardCount);
+			BillboardData* data = &m_billboards.back() - billboardCount;
+
+			for (std::size_t i = 0; i < billboardCount; ++i)
+			{
+				data->center = *positionPtr++;
+				data->color  = ComputeColor(*alphaPtr++);
+				data->sinCos = ComputeSinCos(*anglePtr++);
+				data->size   = ComputeSize(*sizePtr++);
+				data++;
+			}
 
 			billboards.Insert({
 				renderOrder,
 				material,
-				Nz::Recti(-1,-1),
-				{
-					Color(255, 255, 255, static_cast<UInt8>(255.f * (*alphaPtr++))),
-					*positionPtr++,
-					Nz::Vector2f(*sizePtr++),
-					{sin, cos}
-				}
+				scissorRect,
+				billboardCount,
+				billboardIndex
 			});
 		}
 	}
@@ -504,6 +696,7 @@ namespace Nz
 		depthSortedSprites.Clear();
 		models.Clear();
 
+		m_billboards.clear();
 		m_renderLayers.clear();
 		if (fully)
 			layers.clear();
@@ -661,7 +854,7 @@ namespace Nz
 			return index;
 		});
 		
-		billboards.Sort([&](const Billboard& billboard)
+		billboards.Sort([&](const BillboardChain& billboard)
 		{
 			// RQ index:
 			// - Layer (4bits)
@@ -843,49 +1036,6 @@ namespace Nz
 			SortForOrthographic(viewer);
 		else
 			SortForPerspective(viewer);
-	}
-
-	/*!
-	* \brief Gets the billboard data
-	* \return Pointer to the data of the billboards
-	*
-	* \param renderOrder Order of rendering
-	* \param material Material of the billboard
-	*/
-
-	ForwardRenderQueue::BillboardData* ForwardRenderQueue::GetBillboardData(int renderOrder, const Material* material, unsigned int count)
-	{
-		auto& billboards = GetLayer(renderOrder).billboards;
-
-		const MaterialPipeline* materialPipeline = material->GetPipeline();
-
-		auto pipelineIt = billboards.find(materialPipeline);
-		if (pipelineIt == billboards.end())
-		{
-			BatchedBillboardPipelineEntry pipelineEntry;
-			pipelineIt = billboards.insert(BillboardPipelineBatches::value_type(materialPipeline, std::move(pipelineEntry))).first;
-		}
-		BatchedBillboardPipelineEntry& pipelineEntry = pipelineIt->second;
-		pipelineEntry.enabled = true;
-
-		BatchedBillboardContainer& materialMap = pipelineEntry.materialMap;
-
-		auto it = materialMap.find(material);
-		if (it == materialMap.end())
-		{
-			BatchedBillboardEntry entry;
-			entry.materialReleaseSlot.Connect(material->OnMaterialRelease, this, &ForwardRenderQueue::OnMaterialInvalidation);
-
-			it = materialMap.insert(BatchedBillboardContainer::value_type(material, std::move(entry))).first;
-		}
-
-		BatchedBillboardEntry& entry = it->second;
-
-		auto& billboardVector = entry.billboards;
-		std::size_t prevSize = billboardVector.size();
-		billboardVector.resize(prevSize + count);
-
-		return &billboardVector[prevSize];
 	}
 
 	/*!

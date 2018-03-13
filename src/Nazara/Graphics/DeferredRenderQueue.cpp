@@ -39,9 +39,9 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -56,9 +56,9 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -73,9 +73,9 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -90,9 +90,9 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!
@@ -107,9 +107,9 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -124,9 +124,9 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -141,9 +141,9 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -158,9 +158,9 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
-		m_forwardQueue->AddBillboards(renderOrder, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		m_forwardQueue->AddBillboards(renderOrder, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!

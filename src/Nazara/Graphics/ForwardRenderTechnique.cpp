@@ -96,13 +96,13 @@ namespace Nz
 			DrawSprites(sceneData, m_renderQueue.basicSprites);
 
 		if (!m_renderQueue.billboards.empty())
-			DrawBillboards(sceneData, m_renderQueue.billboards);
+			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.billboards);
 
 		if (!m_renderQueue.models.empty())
 			DrawModels(sceneData, m_renderQueue.models);
 
 		if (!m_renderQueue.depthSortedBillboards.empty())
-			DrawBillboards(sceneData, m_renderQueue.depthSortedBillboards);
+			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.depthSortedBillboards);
 
 		if (!m_renderQueue.depthSortedModels.empty())
 			DrawModels(sceneData, m_renderQueue.depthSortedModels);
@@ -610,7 +610,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderTechnique::DrawBillboards(const SceneData & sceneData, const RenderQueue<ForwardRenderQueue::Billboard>& billboards) const
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::Billboard>& billboards) const
 	{
 		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
@@ -689,6 +689,102 @@ namespace Nz
 			std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(ForwardRenderQueue::BillboardData) * billboardCount, &billboard.data, sizeof(ForwardRenderQueue::BillboardData));
 			if (++billboardCount >= maxBillboardPerDraw)
 				Commit();
+		}
+
+		Commit();
+	}
+	
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::BillboardChain>& billboards) const
+	{
+		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
+
+		Renderer::SetVertexBuffer(&s_quadVertexBuffer);
+
+		Nz::BufferMapper<VertexBuffer> instanceBufferMapper;
+		std::size_t billboardCount = 0;
+		std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+
+		auto Commit = [&]()
+		{
+			if (billboardCount > 0)
+			{
+				instanceBufferMapper.Unmap();
+
+				Renderer::DrawPrimitivesInstanced(billboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+
+				billboardCount = 0;
+			}
+		};
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		for (const ForwardRenderQueue::BillboardChain& billboard : billboards)
+		{
+			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect))
+			{
+				Commit();
+
+				const MaterialPipeline* pipeline = billboard.material->GetPipeline();
+				if (lastPipeline != pipeline)
+				{
+					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
+
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				if (lastMaterial != billboard.material)
+				{
+					billboard.material->Apply(*pipelineInstance);
+					lastMaterial = billboard.material;
+				}
+
+				if (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(billboard.scissorRect);
+					lastScissorRect = billboard.scissorRect;
+				}
+			}
+
+			std::size_t billboardRemaining = billboard.billboardCount;
+			const ForwardRenderQueue::BillboardData* billboardData = renderQueue.GetBillboardData(billboard.billboardIndex);
+			do
+			{
+				std::size_t renderedBillboardCount = std::min(billboardRemaining, maxBillboardPerDraw - billboardCount);
+				billboardRemaining -= renderedBillboardCount;
+
+				if (!instanceBufferMapper.GetBuffer())
+					instanceBufferMapper.Map(instanceBuffer, BufferAccess_DiscardAndWrite);
+
+				std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(ForwardRenderQueue::BillboardData) * billboardCount, billboardData, renderedBillboardCount * sizeof(ForwardRenderQueue::BillboardData));
+				billboardCount += renderedBillboardCount;
+				billboardData += renderedBillboardCount;
+
+				if (billboardCount >= maxBillboardPerDraw)
+					Commit();
+			}
+			while (billboardRemaining > 0);
 		}
 
 		Commit();

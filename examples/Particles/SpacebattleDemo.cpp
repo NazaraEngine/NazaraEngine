@@ -471,7 +471,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotationPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr     = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, positionPtr, sizePtr, rotationPtr);
+		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, Nz::Recti(-1, -1), positionPtr, sizePtr, rotationPtr);
 		for (unsigned int i = startId; i <= endId; ++i)
 		{
 			Nz::AbstractRenderQueue::PointLight pointLight;
@@ -622,7 +622,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
 	m_smokeGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([smokeMat] (const Nz::ParticleGroup& /*group*/, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
@@ -632,7 +632,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
 	//////////////////////////////////////////////////////////////////////////

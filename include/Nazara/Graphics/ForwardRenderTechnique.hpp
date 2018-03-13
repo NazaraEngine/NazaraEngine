@@ -42,7 +42,8 @@ namespace Nz
 			void ChooseLights(const Spheref& object, bool includeDirectionalLights = true) const;
 			void DrawSprites(const SceneData& sceneData, const RenderQueue<ForwardRenderQueue::SpriteChain>& sprites) const;
 			void DrawSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawBillboards(const SceneData& sceneData, const RenderQueue<ForwardRenderQueue::Billboard>& billboards) const;
+			void DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::Billboard>& billboards) const;
+			void DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::BillboardChain>& billboards) const;
 			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
 			void DrawModels(const SceneData& sceneData, const Nz::RenderQueue<Nz::ForwardRenderQueue::Model>& models) const;
 			void DrawModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
