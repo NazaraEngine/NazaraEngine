@@ -34,6 +34,9 @@ namespace Nz
 			void AddSpotLight(const SpotLight& light) override;
 			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay = nullptr) override;
 
+
+			std::map<int, Layer> layers;
+
 		private:
 			inline bool IsMaterialSuitable(const Material* material) const;
 

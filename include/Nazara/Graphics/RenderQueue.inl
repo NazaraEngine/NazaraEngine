@@ -31,10 +31,7 @@ namespace Nz
 		for (const RenderData& renderData : m_data)
 			m_orderedRenderQueue.emplace_back(func(renderData), dataIndex++);
 
-		std::sort(m_orderedRenderQueue.begin(), m_orderedRenderQueue.end(), [](const RenderDataPair& lhs, const RenderDataPair& rhs)
-		{
-			return lhs.first < rhs.first;
-		});
+		RenderQueueInternal::Sort();
 	}
 
 	template<typename RenderData>

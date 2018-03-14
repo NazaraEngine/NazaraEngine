@@ -18,7 +18,7 @@ namespace Nz
 		return Color(255, 255, 255, static_cast<UInt8>(255.f * alpha));
 	}
 
-	inline Vector2f Nz::ForwardRenderQueue::ComputeSinCos(float angle)
+	inline Vector2f ForwardRenderQueue::ComputeSinCos(float angle)
 	{
 		float radians = ToRadians(angle);
 		return { std::sin(radians), std::cos(radians) };

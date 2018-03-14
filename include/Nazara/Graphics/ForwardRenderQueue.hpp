@@ -20,8 +20,6 @@
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <map>
-#include <set>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -55,6 +53,81 @@ namespace Nz
 
 			void Sort(const AbstractViewer* viewer);
 
+			struct BillboardData
+			{
+				Color color;
+				Vector3f center;
+				Vector2f size;
+				Vector2f sinCos;
+			};
+
+			struct Billboard
+			{
+				int layerIndex;
+				MovablePtr<const Nz::Material> material;
+				Nz::Recti scissorRect;
+				BillboardData data;
+			};
+
+			struct BillboardChain
+			{
+				int layerIndex;
+				MovablePtr<const Nz::Material> material;
+				Nz::Recti scissorRect;
+				std::size_t billboardCount;
+				std::size_t billboardIndex;
+			};
+
+			RenderQueue<BillboardChain> billboards;
+			RenderQueue<Billboard> depthSortedBillboards;
+
+			struct CustomDrawable
+			{
+				int layerIndex;
+				MovablePtr<const Drawable> drawable;
+			};
+
+			RenderQueue<CustomDrawable> customDrawables;
+
+			struct Model
+			{
+				int layerIndex;
+				MeshData meshData;
+				MovablePtr<const Nz::Material> material;
+				Nz::Matrix4f matrix;
+				Nz::Recti scissorRect;
+				Nz::Spheref obbSphere;
+			};
+
+			RenderQueue<Model> models;
+			RenderQueue<Model> depthSortedModels;
+
+			struct SpriteChain
+			{
+				int layerIndex;
+				std::size_t spriteCount;
+				MovablePtr<const Material> material;
+				MovablePtr<const Texture> overlay;
+				MovablePtr<const VertexStruct_XYZ_Color_UV> vertices;
+				Nz::Recti scissorRect;
+			};
+
+			RenderQueue<SpriteChain> basicSprites;
+			RenderQueue<SpriteChain> depthSortedSprites;
+
+			/*struct RenderData
+			{
+				Nz::IndexBuffer indexBuffer;
+				Nz::MaterialPipelineRef pipeline;
+				Nz::MaterialRef material;
+				Nz::Matrix4f matrix;
+				Nz::Rectf scissor;
+				Nz::ShaderRef shader;
+				Nz::TextureRef texture; //< multiples actually
+				Nz::UInt8 layer;
+				Nz::VertexBuffer vertexBuffer;
+			};*/
+
 			struct MaterialComparator
 			{
 				bool operator()(const Material* mat1, const Material* mat2) const;
@@ -63,15 +136,6 @@ namespace Nz
 			struct MaterialPipelineComparator
 			{
 				bool operator()(const MaterialPipeline* pipeline1, const MaterialPipeline* pipeline2) const;
-			};
-
-			/// Billboards
-			struct BillboardData
-			{
-				Color color;
-				Vector3f center;
-				Vector2f size;
-				Vector2f sinCos;
 			};
 
 			struct BatchedBillboardEntry
@@ -189,84 +253,12 @@ namespace Nz
 				unsigned int clearCount = 0;
 			};
 
-			std::map<int, Layer> layers;
-
-			struct Billboard
-			{
-				int layerIndex;
-				MovablePtr<const Nz::Material> material;
-				Nz::Recti scissorRect;
-				BillboardData data;
-			};
-
-			struct BillboardChain
-			{
-				int layerIndex;
-				MovablePtr<const Nz::Material> material;
-				Nz::Recti scissorRect;
-				std::size_t billboardCount;
-				std::size_t billboardIndex;
-			};
-
-			RenderQueue<BillboardChain> billboards;
-			RenderQueue<Billboard> depthSortedBillboards;
-
-			struct Model
-			{
-				int layerIndex;
-				MeshData meshData;
-				MovablePtr<const Nz::Material> material;
-				Nz::Matrix4f matrix;
-				Nz::Recti scissorRect;
-				Nz::Spheref obbSphere;
-			};
-
-			RenderQueue<Model> models;
-			RenderQueue<Model> depthSortedModels;
-
-			struct SpriteChain
-			{
-				int layerIndex;
-				std::size_t spriteCount;
-				MovablePtr<const Material> material;
-				MovablePtr<const Texture> overlay;
-				MovablePtr<const VertexStruct_XYZ_Color_UV> vertices;
-				Nz::Recti scissorRect;
-			};
-
-			RenderQueue<SpriteChain> basicSprites;
-			RenderQueue<SpriteChain> depthSortedSprites;
-
-			/*struct RenderData
-			{
-				Nz::IndexBuffer indexBuffer;
-				Nz::MaterialPipelineRef pipeline;
-				Nz::MaterialRef material;
-				Nz::Matrix4f matrix;
-				Nz::Rectf scissor;
-				Nz::ShaderRef shader;
-				Nz::TextureRef texture; //< multiples actually
-				Nz::UInt8 layer;
-				Nz::VertexBuffer vertexBuffer;
-			};*/
-
 		private:
-			Layer& GetLayer(int i); ///TODO: Inline
-
 			inline Color ComputeColor(float alpha);
 			inline Vector2f ComputeSinCos(float angle);
 			inline Vector2f ComputeSize(float size);
 
 			inline void RegisterLayer(int layerIndex);
-
-			void SortBillboards(Layer& layer, const Planef& nearPlane);
-			void SortForOrthographic(const AbstractViewer* viewer);
-			void SortForPerspective(const AbstractViewer* viewer);
-
-			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
-			void OnMaterialInvalidation(const Material* material);
-			void OnTextureInvalidation(const Texture* texture);
-			void OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer);
 
 			std::vector<BillboardData> m_billboards;
 			std::vector<int> m_renderLayers;

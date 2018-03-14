@@ -13,14 +13,29 @@
 
 namespace Nz
 {
+	class RenderQueueInternal
+	{
+		public:
+			using Index = Nz::UInt64;
+
+			RenderQueueInternal() = default;
+			~RenderQueueInternal() = default;
+
+		protected:
+			using RenderDataPair = std::pair<Index, std::size_t>;
+
+			void Sort();
+
+			std::vector<RenderDataPair> m_orderedRenderQueue;
+	};
+
 	template<typename RenderData>
-	class RenderQueue
+	class RenderQueue : public RenderQueueInternal
 	{
 		public:
 			class const_iterator;
 			friend const_iterator;
 			using size_type = std::size_t;
-			using Index = Nz::UInt64;
 
 			RenderQueue() = default;
 			RenderQueue(const RenderQueue&) = default;
@@ -45,9 +60,6 @@ namespace Nz
 		private:
 			const RenderData& GetData(std::size_t i) const;
 
-			using RenderDataPair = std::pair<Index, std::size_t>;
-
-			std::vector<RenderDataPair> m_orderedRenderQueue;
 			std::vector<RenderData> m_data;
 	};
 	

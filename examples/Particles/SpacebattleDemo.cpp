@@ -607,6 +607,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	fireMat->EnableFaceCulling(true);
 	fireMat->SetDiffuseMap("resources/fire_particle.png");
 	// Additive blending for fire
+	fireMat->EnableDepthSorting(false); //< No need for depth sort
 	fireMat->SetDstBlend(Nz::BlendFunc_One);
 	fireMat->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
@@ -647,6 +648,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	//////////////////////////////////////////////////////////////////////////
 
 	Nz::TextSpriteRef introText = Nz::TextSprite::New();
+	introText->SetMaterial(Nz::Material::New("Translucent3D"));
 	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nLa souris contrôle l'orientation de la tourelle, cliquez pour tirer.\n", 72));
 	introText->SetScale(0.5f);
 
