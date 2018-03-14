@@ -46,18 +46,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2 object from an array of two elements
-	*
-	* \param vec[2] vec[0] is X component and vec[1] is Y component
-	*/
-
-	template<typename T>
-	Vector2<T>::Vector2(const T vec[2])
-	{
-		Set(vec);
-	}
-
-	/*!
 	* \brief Constructs a Vector2 object from another type of Vector2
 	*
 	* \param vec Vector of type U to convert to type T

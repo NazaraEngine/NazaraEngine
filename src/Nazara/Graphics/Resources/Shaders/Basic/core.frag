@@ -24,7 +24,7 @@ void main()
 
 #if AUTO_TEXCOORDS
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
-#else
+#elif TEXTURE_MAPPING
 	vec2 texCoord = vTexCoord;
 #endif
 

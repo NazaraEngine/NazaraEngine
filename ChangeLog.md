@@ -69,6 +69,9 @@ Nazara Engine:
 - Fix Window triggering KeyPressed event after triggering a resize/movement event on Windows
 - (WIP) Add support for materials and callbacks to Physics3D module.
 - PhysWorld3D class is now movable
+- ⚠️ Removed array/pointer constructor from Vector classes
+- Fixed Platform module not being classified as client-only
+- ⚠️ Renamed Bitset::Read to Bitset::Write
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -105,6 +108,7 @@ Nazara Development Kit:
 - World entity ids are now reused from lowest to highest (they were previously reused in reverse order of death)
 - World now has an internal profiler, allowing to measure the refresh and system update time
 - CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
+- Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
 
 # 0.4:
 
