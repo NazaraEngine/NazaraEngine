@@ -43,19 +43,19 @@ namespace Nz
 	template<typename RenderData>
 	bool RenderQueue<RenderData>::empty() const
 	{
-		return m_data.empty();
+		return m_orderedRenderQueue.empty();
 	}
 
 	template<typename RenderData>
 	typename RenderQueue<RenderData>::const_iterator RenderQueue<RenderData>::end() const
 	{
-		return const_iterator(this, m_data.size());
+		return const_iterator(this, m_orderedRenderQueue.size());
 	}
 
 	template<typename RenderData>
 	typename RenderQueue<RenderData>::size_type RenderQueue<RenderData>::size() const
 	{
-		return m_data.size();
+		return m_orderedRenderQueue.size();
 	}
 
 	template<typename RenderData>

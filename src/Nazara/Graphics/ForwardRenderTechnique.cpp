@@ -476,20 +476,51 @@ namespace Nz
 	
 	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const Nz::RenderQueue<Nz::ForwardRenderQueue::Model>& models) const
 	{
-		for (const ForwardRenderQueue::Model& opaqueModels : models)
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		///TODO: Reimplement instancing
+
+		for (const ForwardRenderQueue::Model& model : models)
 		{
-			const MaterialPipeline::Instance& pipelineInstance = opaqueModels.material->GetPipeline()->Apply(0);
+			const MaterialPipeline* pipeline = model.material->GetPipeline();
+			if (lastPipeline != pipeline)
+			{
+				pipelineInstance = &model.material->GetPipeline()->Apply();
 
-			const Shader* shader = pipelineInstance.uberInstance->GetShader();
+				const Shader* shader = pipelineInstance->uberInstance->GetShader();
+				if (shader != lastShader)
+				{
+					// Index of uniforms in the shader
+					shaderUniforms = GetShaderUniforms(shader);
 
-			auto shaderUniforms = GetShaderUniforms(shader);
+					// Ambient color of the scene
+					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+					// Position of the camera
+					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-			// Ambiant color of the scene
-			shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-			// Position of the camera
-			shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+					lastShader = shader;
+				}
 
-			opaqueModels.material->Apply(pipelineInstance);
+				lastPipeline = pipeline;
+			}
+
+			if (lastMaterial != model.material)
+			{
+				model.material->Apply(*pipelineInstance);
+				lastMaterial = model.material;
+			}
+
+			if (model.material->IsScissorTestEnabled() && model.scissorRect != lastScissorRect)
+			{
+				Renderer::SetScissorRect(model.scissorRect);
+				lastScissorRect = model.scissorRect;
+			}
 
 			if (shaderUniforms->reflectionMap != -1)
 			{
@@ -499,19 +530,34 @@ namespace Nz
 				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
 			}
 
-			if (opaqueModels.material->IsScissorTestEnabled() && opaqueModels.scissorRect.width > 0)
-				Renderer::SetScissorRect(opaqueModels.scissorRect);
+			// Handle draw call before rendering loop
+			Renderer::DrawCall drawFunc;
+			Renderer::DrawCallInstanced instancedDrawFunc;
+			unsigned int indexCount;
 
-			Renderer::SetIndexBuffer(opaqueModels.meshData.indexBuffer);
-			Renderer::SetVertexBuffer(opaqueModels.meshData.vertexBuffer);
+			if (model.meshData.indexBuffer)
+			{
+				drawFunc = Renderer::DrawIndexedPrimitives;
+				instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+				indexCount = model.meshData.indexBuffer->GetIndexCount();
+			}
+			else
+			{
+				drawFunc = Renderer::DrawPrimitives;
+				instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+				indexCount = model.meshData.vertexBuffer->GetVertexCount();
+			}
+
+			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
+			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
 			if (shaderUniforms->hasLightUniforms)
 			{
-				ChooseLights(Spheref(opaqueModels.matrix.GetTranslation(), 25));
+				ChooseLights(model.obbSphere);
 
 				std::size_t lightCount = m_lights.size();
 
-				Nz::Renderer::SetMatrix(Nz::MatrixType_World, opaqueModels.matrix);
+				Nz::Renderer::SetMatrix(Nz::MatrixType_World, model.matrix);
 				std::size_t lightIndex = 0;
 				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
@@ -533,14 +579,19 @@ namespace Nz
 
 					// Sends the light uniforms to the shader
 					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
+						SendLightUniforms(lastShader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
 
 					// And we draw
-					Nz::Renderer::DrawIndexedPrimitives(opaqueModels.meshData.primitiveMode, 0, opaqueModels.meshData.indexBuffer->GetIndexCount());
+					drawFunc(model.meshData.primitiveMode, 0, indexCount);
 				}
 
 				Renderer::Enable(RendererParameter_Blend, false);
 				Renderer::SetDepthFunc(oldDepthFunc);
+			}
+			else
+			{
+				Renderer::SetMatrix(MatrixType_World, model.matrix);
+				drawFunc(model.meshData.primitiveMode, 0, indexCount);
 			}
 		}
 	}
@@ -554,7 +605,8 @@ namespace Nz
 		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
-		std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> sprites;
+		static std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> sprites;
+		sprites.clear();
 
 		auto Commit = [&]()
 		{
