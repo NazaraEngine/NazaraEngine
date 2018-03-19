@@ -605,12 +605,11 @@ namespace Nz
 		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
-		static std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> sprites;
-		sprites.clear();
+		m_spriteChains.clear();
 
 		auto Commit = [&]()
 		{
-			std::size_t spriteChainCount = sprites.size();
+			std::size_t spriteChainCount = m_spriteChains.size();
 			if (spriteChainCount > 0)
 			{
 				std::size_t spriteChain = 0; // Which chain of sprites are we treating
@@ -626,8 +625,8 @@ namespace Nz
 
 					do
 					{
-						const VertexStruct_XYZ_Color_UV* currentChain = sprites[spriteChain].first;
-						std::size_t currentChainSpriteCount = sprites[spriteChain].second;
+						const VertexStruct_XYZ_Color_UV* currentChain = m_spriteChains[spriteChain].first;
+						std::size_t currentChainSpriteCount = m_spriteChains[spriteChain].second;
 						std::size_t count = std::min(maxSpriteCount - spriteCount, currentChainSpriteCount - spriteChainOffset);
 
 						std::memcpy(vertices, currentChain + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
@@ -652,7 +651,7 @@ namespace Nz
 				while (spriteChain < spriteChainCount);
 			}
 
-			sprites.clear();
+			m_spriteChains.clear();
 		};
 
 		const Material* lastMaterial = nullptr;
@@ -718,7 +717,7 @@ namespace Nz
 				}
 			}
 
-			sprites.emplace_back(basicSprites.vertices, basicSprites.spriteCount);
+			m_spriteChains.emplace_back(basicSprites.vertices, basicSprites.spriteCount);
 		}
 
 		Commit();

@@ -85,6 +85,7 @@ namespace Nz
 
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			mutable std::vector<LightIndex> m_lights;
+			mutable std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> m_spriteChains;
 			Buffer m_vertexBuffer;
 			mutable ForwardRenderQueue m_renderQueue;
 			Texture m_whiteTexture;

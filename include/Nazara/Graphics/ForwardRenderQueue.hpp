@@ -260,6 +260,14 @@ namespace Nz
 
 			inline void RegisterLayer(int layerIndex);
 
+			std::unordered_map<const MaterialPipeline*, std::size_t> m_pipelineCache;
+			std::unordered_map<const Material*, std::size_t> m_materialCache;
+			std::unordered_map<const Texture*, std::size_t> m_overlayCache;
+			std::unordered_map<const UberShader*, std::size_t> m_shaderCache;
+			std::unordered_map<const Texture*, std::size_t> m_textureCache;
+			std::unordered_map<const VertexBuffer*, std::size_t> m_vertexBufferCache;
+			std::unordered_map<int, std::size_t> m_layerCache;
+
 			std::vector<BillboardData> m_billboards;
 			std::vector<int> m_renderLayers;
 	};

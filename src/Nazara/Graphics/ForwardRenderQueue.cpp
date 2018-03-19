@@ -691,6 +691,13 @@ namespace Nz
 		depthSortedSprites.Clear();
 		models.Clear();
 
+		m_pipelineCache.clear();
+		m_materialCache.clear();
+		m_overlayCache.clear();
+		m_shaderCache.clear();
+		m_textureCache.clear();
+		m_vertexBufferCache.clear();
+
 		m_billboards.clear();
 		m_renderLayers.clear();
 	}
@@ -703,24 +710,9 @@ namespace Nz
 
 	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
 	{
-		static std::unordered_map<int, std::size_t> layers;
-		static bool once = false;
-
-		if (!once)
-		{
-			for (int layer : m_renderLayers)
-				layers.emplace(layer, layers.size());
-
-			once = true;
-		}
-
-
-		static std::unordered_map<const MaterialPipeline*, std::size_t> pipelines;
-		static std::unordered_map<const Material*, std::size_t> materials;
-		static std::unordered_map<const Texture*, std::size_t> overlays;
-		static std::unordered_map<const UberShader*, std::size_t> shaders;
-		static std::unordered_map<const Texture*, std::size_t> textures;
-		static std::unordered_map<const VertexBuffer*, std::size_t> vertexBuffers;
+		m_layerCache.clear();
+		for (int layer : m_renderLayers)
+			m_layerCache.emplace(layer, m_layerCache.size());
 
 		basicSprites.Sort([&](const SpriteChain& vertices)
 		{
@@ -739,12 +731,12 @@ namespace Nz
 				return container.emplace(value, container.size()).first->second;
 			};
 
-			UInt64 layerIndex = layers[vertices.layerIndex];
-			UInt64 pipelineIndex = GetOrInsert(pipelines, vertices.material->GetPipeline());
-			UInt64 materialIndex = GetOrInsert(materials, vertices.material);
-			UInt64 shaderIndex = GetOrInsert(shaders, vertices.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(textures, vertices.material->GetDiffuseMap());
-			UInt64 overlayIndex = GetOrInsert(overlays, vertices.overlay);
+			UInt64 layerIndex = m_layerCache[vertices.layerIndex];
+			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, vertices.material->GetPipeline());
+			UInt64 materialIndex = GetOrInsert(m_materialCache, vertices.material);
+			UInt64 shaderIndex = GetOrInsert(m_shaderCache, vertices.material->GetShader());
+			UInt64 textureIndex = GetOrInsert(m_textureCache, vertices.material->GetDiffuseMap());
+			UInt64 overlayIndex = GetOrInsert(m_overlayCache, vertices.overlay);
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO
 
@@ -781,11 +773,11 @@ namespace Nz
 				return it->second;
 			};
 
-			UInt64 layerIndex = layers[billboard.layerIndex];
-			UInt64 pipelineIndex = GetOrInsert(pipelines, billboard.material->GetPipeline());
-			UInt64 materialIndex = GetOrInsert(materials, billboard.material);
-			UInt64 shaderIndex = GetOrInsert(shaders, billboard.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(textures, billboard.material->GetDiffuseMap());
+			UInt64 layerIndex = m_layerCache[billboard.layerIndex];
+			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, billboard.material->GetPipeline());
+			UInt64 materialIndex = GetOrInsert(m_materialCache, billboard.material);
+			UInt64 shaderIndex = GetOrInsert(m_shaderCache, billboard.material->GetShader());
+			UInt64 textureIndex = GetOrInsert(m_textureCache, billboard.material->GetDiffuseMap());
 			UInt64 unknownIndex = 0; //< ???
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO?
@@ -807,7 +799,7 @@ namespace Nz
 			// RQ index:
 			// - Layer (4bits)
 
-			UInt64 layerIndex = layers[drawable.layerIndex];
+			UInt64 layerIndex = m_layerCache[drawable.layerIndex];
 
 			UInt64 index = (layerIndex & 0x0F) << 60;
 
@@ -832,12 +824,12 @@ namespace Nz
 				return container.emplace(value, container.size()).first->second;
 			};
 
-			UInt64 layerIndex = layers[renderData.layerIndex];
-			UInt64 pipelineIndex = GetOrInsert(pipelines, renderData.material->GetPipeline());
-			UInt64 materialIndex = GetOrInsert(materials, renderData.material);
-			UInt64 shaderIndex = GetOrInsert(shaders, renderData.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(textures, renderData.material->GetDiffuseMap());
-			UInt64 bufferIndex = GetOrInsert(vertexBuffers, renderData.meshData.vertexBuffer);
+			UInt64 layerIndex = m_layerCache[renderData.layerIndex];
+			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, renderData.material->GetPipeline());
+			UInt64 materialIndex = GetOrInsert(m_materialCache, renderData.material);
+			UInt64 shaderIndex = GetOrInsert(m_shaderCache, renderData.material->GetShader());
+			UInt64 textureIndex = GetOrInsert(m_textureCache, renderData.material->GetDiffuseMap());
+			UInt64 bufferIndex = GetOrInsert(m_vertexBufferCache, renderData.meshData.vertexBuffer);
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO
 
@@ -874,7 +866,7 @@ namespace Nz
 			// a negative distance may happen with billboard behind the camera which we don't care about since they'll be rendered)
 			float depth = nearPlane.Distance(billboard.data.center);
 
-			UInt64 layerIndex = layers[billboard.layerIndex];
+			UInt64 layerIndex = m_layerCache[billboard.layerIndex];
 			UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
 			UInt64 index = (layerIndex & 0x0F) << 60 |
@@ -894,7 +886,7 @@ namespace Nz
 
 				float depth = nearPlane.Distance(model.obbSphere.GetPosition());
 
-				UInt64 layerIndex = layers[model.layerIndex];
+				UInt64 layerIndex = m_layerCache[model.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
 				UInt64 index = (layerIndex & 0x0F) << 60 |
@@ -912,7 +904,7 @@ namespace Nz
 
 				float depth = nearPlane.Distance(spriteChain.vertices[0].position);
 
-				UInt64 layerIndex = layers[spriteChain.layerIndex];
+				UInt64 layerIndex = m_layerCache[spriteChain.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
 				UInt64 index = (layerIndex & 0x0F) << 60 |
@@ -934,7 +926,7 @@ namespace Nz
 
 				float depth = viewerPos.SquaredDistance(model.obbSphere.GetPosition());
 
-				UInt64 layerIndex = layers[model.layerIndex];
+				UInt64 layerIndex = m_layerCache[model.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
 				UInt64 index = (layerIndex & 0x0F) << 60 |
@@ -952,7 +944,7 @@ namespace Nz
 
 				float depth = viewerPos.SquaredDistance(sprites.vertices[0].position);
 
-				UInt64 layerIndex = layers[sprites.layerIndex];
+				UInt64 layerIndex = m_layerCache[sprites.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
 				UInt64 index = (layerIndex & 0x0F) << 60 |
