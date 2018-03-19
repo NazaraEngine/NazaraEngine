@@ -267,6 +267,8 @@ ParticleDemo("Space battle", sharedData)
 	if (!m_spacestationModel.LoadFromFile("resources/SpaceStation/space_station.obj", parameters))
 		NazaraWarning("Failed to load space_station.obj");
 
+	m_spacestationModel.GetMesh()->GenerateNormalsAndTangents();
+
 	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
