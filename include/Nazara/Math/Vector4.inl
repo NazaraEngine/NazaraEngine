@@ -1011,7 +1011,7 @@ namespace Nz
 	* \param vector Input Vector3
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Vector4<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -1036,7 +1036,7 @@ namespace Nz
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector4<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;

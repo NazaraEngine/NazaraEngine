@@ -94,8 +94,8 @@ namespace Nz
 	typedef Rect<Int32> Recti32;
 	typedef Rect<UInt32> Rectui32;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect);
-	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect);
+	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
 }
 
 template<typename T>

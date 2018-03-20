@@ -58,9 +58,9 @@ namespace Nz
 			String ToString() const;
 
 			template<typename U>
-			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum);
+			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<T>>);
 			template<typename U>
-			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum);
+			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<T>>);
 
 		private:
 			Vector3<T> m_corners[BoxCorner_Max+1];

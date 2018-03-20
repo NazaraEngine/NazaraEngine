@@ -826,7 +826,7 @@ namespace Nz
 	* \param quat Input Quaternion
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Quaternion<T>& quat)
+	bool Serialize(SerializationContext& context, const Quaternion<T>& quat, TypeTag<Quaternion<T>>)
 	{
 		if (!Serialize(context, quat.x))
 			return false;
@@ -851,7 +851,7 @@ namespace Nz
 	* \param quat Output Quaternion
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Quaternion<T>* quat)
+	bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>)
 	{
 		if (!Unserialize(context, &quat->x))
 			return false;

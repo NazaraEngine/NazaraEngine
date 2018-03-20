@@ -132,8 +132,8 @@ namespace Nz
 	typedef Vector3<Int32> Vector3i32;
 	typedef Vector3<UInt32> Vector3ui32;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec);

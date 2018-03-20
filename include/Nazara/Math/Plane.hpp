@@ -62,8 +62,8 @@ namespace Nz
 	typedef Plane<double> Planed;
 	typedef Plane<float> Planef;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane);
-	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane);
+	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);
 }
 
 template<typename T>

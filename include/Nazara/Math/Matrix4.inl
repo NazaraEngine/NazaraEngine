@@ -1767,7 +1767,7 @@ namespace Nz
 	* \param matrix Input matrix
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Matrix4<T>& matrix)
+	bool Serialize(SerializationContext& context, const Matrix4<T>& matrix, TypeTag<Matrix4<T>>)
 	{
 		for (unsigned int i = 0; i < 16; ++i)
 		{
@@ -1786,7 +1786,7 @@ namespace Nz
 	* \param matrix Output matrix
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix)
+	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>)
 	{
 		T* head = matrix->operator T*();
 		for (unsigned int i = 0; i < 16; ++i)
