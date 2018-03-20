@@ -617,7 +617,7 @@ namespace Nz
 	* \param context Serialization context
 	* \param color Input color
 	*/
-	inline bool Serialize(SerializationContext& context, const Color& color)
+	inline bool Serialize(SerializationContext& context, const Color& color, TypeTag<Color>)
 	{
 		if (!Serialize(context, color.r))
 			return false;
@@ -641,7 +641,7 @@ namespace Nz
 	* \param context Serialization context
 	* \param color Output color
 	*/
-	inline bool Unserialize(SerializationContext& context, Color* color)
+	inline bool Unserialize(SerializationContext& context, Color* color, TypeTag<Color>)
 	{
 		if (!Unserialize(context, &color->r))
 			return false;

@@ -5932,7 +5932,7 @@ namespace Nz
 	* \param context Context of serialization
 	* \param string String to serialize
 	*/
-	bool Serialize(SerializationContext& context, const String& string)
+	bool Serialize(SerializationContext& context, const String& string, TypeTag<String>)
 	{
 		if (!Serialize(context, UInt32(string.GetSize())))
 			return false;
@@ -5947,7 +5947,7 @@ namespace Nz
 	* \param context Context of unserialization
 	* \param string String to unserialize
 	*/
-	bool Unserialize(SerializationContext& context, String* string)
+	bool Unserialize(SerializationContext& context, String* string, TypeTag<String>)
 	{
 		UInt32 size;
 		if (!Unserialize(context, &size))

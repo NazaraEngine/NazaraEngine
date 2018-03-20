@@ -125,15 +125,15 @@ namespace Nz
 			T x, y, z;
 	};
 
-	typedef Vector3<double> Vector3d;
-	typedef Vector3<float> Vector3f;
-	typedef Vector3<int> Vector3i;
-	typedef Vector3<unsigned int> Vector3ui;
-	typedef Vector3<Int32> Vector3i32;
-	typedef Vector3<UInt32> Vector3ui32;
+	using Vector3d = Vector3<double>;
+	using Vector3f = Vector3<float>;
+	using Vector3i = Vector3<int>;
+	using Vector3ui = Vector3<unsigned int>;
+	using Vector3i32 = Vector3<Int32>;
+	using Vector3ui32 = Vector3<UInt32>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec);

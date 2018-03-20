@@ -15,6 +15,7 @@ Miscellaneous:
 - Fix compilation with some MinGW distributions
 - Add Lua unit tests
 - NDEBUG is now defined in Release
+- Replaced typedefs keywords with modern using keywords
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -72,6 +73,9 @@ Nazara Engine:
 - ⚠️ Removed array/pointer constructor from Vector classes
 - Fixed Platform module not being classified as client-only
 - ⚠️ Renamed Bitset::Read to Bitset::Write
+- Fixed ENetCompressor class destructor not being virtual
+- ⚠️ Added a type tag parameter to Serialize and Unserialize functions, to prevent implicit conversions with overloads
+- Fixed Apply functions with complex return types
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

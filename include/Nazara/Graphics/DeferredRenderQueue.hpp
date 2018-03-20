@@ -47,7 +47,7 @@ namespace Nz
 				std::vector<Matrix4f> instances;
 			};
 
-			typedef std::map<MeshData, MeshInstanceEntry, ForwardRenderQueue::MeshDataComparator> MeshInstanceContainer;
+			using MeshInstanceContainer = std::map<MeshData, MeshInstanceEntry, ForwardRenderQueue::MeshDataComparator>;
 
 			struct BatchedModelEntry
 			{
@@ -57,7 +57,7 @@ namespace Nz
 				bool enabled = false;
 			};
 
-			typedef std::map<const Material*, BatchedModelEntry, ForwardRenderQueue::MaterialComparator> MeshMaterialBatches;
+			using MeshMaterialBatches = std::map<const Material*, BatchedModelEntry, ForwardRenderQueue::MaterialComparator>;
 
 			struct BatchedMaterialEntry
 			{
@@ -65,7 +65,7 @@ namespace Nz
 				MeshMaterialBatches materialMap;
 			};
 
-			typedef std::map<const MaterialPipeline*, BatchedMaterialEntry, ForwardRenderQueue::MaterialPipelineComparator> MeshPipelineBatches;
+			using MeshPipelineBatches = std::map<const MaterialPipeline*, BatchedMaterialEntry, ForwardRenderQueue::MaterialPipelineComparator>;
 
 			struct Layer
 			{
