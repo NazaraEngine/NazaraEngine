@@ -67,8 +67,8 @@ namespace Nz
 			Plane<T> m_planes[FrustumPlane_Max+1];
 	};
 
-	typedef Frustum<double> Frustumd;
-	typedef Frustum<float> Frustumf;
+	using Frustumd = Frustum<double>;
+	using Frustumf = Frustum<float>;
 }
 
 template<typename T>

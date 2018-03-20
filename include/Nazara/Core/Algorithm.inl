@@ -195,10 +195,10 @@ namespace Nz
 		return reversed;
 	}
 
-	template<typename T> struct PointedType<T*>                {typedef T type;};
-	template<typename T> struct PointedType<T* const>          {typedef T type;};
-	template<typename T> struct PointedType<T* volatile>       {typedef T type;};
-	template<typename T> struct PointedType<T* const volatile> {typedef T type;};
+	template<typename T> struct PointedType<T*>                { using type = T; };
+	template<typename T> struct PointedType<T* const>          { using type = T; };
+	template<typename T> struct PointedType<T* volatile>       { using type = T; };
+	template<typename T> struct PointedType<T* const volatile> { using type = T; };
 
 
 	template<typename T>

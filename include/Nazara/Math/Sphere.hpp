@@ -78,8 +78,8 @@ namespace Nz
 			T x, y, z, radius;
 	};
 
-	typedef Sphere<double> Sphered;
-	typedef Sphere<float> Spheref;
+	using Sphered = Sphere<double>;
+	using Spheref = Sphere<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>);

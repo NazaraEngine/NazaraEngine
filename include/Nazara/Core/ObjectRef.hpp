@@ -69,8 +69,8 @@ namespace Nz
 	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const T& rhs);
 
 
-	template<typename T> struct PointedType<ObjectRef<T>> { typedef T type; };
-	template<typename T> struct PointedType<ObjectRef<T> const> { typedef T type; };
+	template<typename T> struct PointedType<ObjectRef<T>> { using type = T; };
+	template<typename T> struct PointedType<ObjectRef<T> const> { using type = T; };
 }
 
 #include <Nazara/Core/ObjectRef.inl>

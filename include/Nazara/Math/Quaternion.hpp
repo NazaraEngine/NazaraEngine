@@ -88,8 +88,8 @@ namespace Nz
 			T w, x, y, z;
 	};
 
-	typedef Quaternion<double> Quaterniond;
-	typedef Quaternion<float> Quaternionf;
+	using Quaterniond = Quaternion<double>;
+	using Quaternionf = Quaternion<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat, TypeTag<Quaternion<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>);

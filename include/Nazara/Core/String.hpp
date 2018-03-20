@@ -189,10 +189,10 @@ namespace Nz
 			//char* rend();
 			//const char* rend() const;
 
-			typedef const char& const_reference;
-			typedef char* iterator;
-			//typedef char* reverse_iterator;
-			typedef char value_type;
+			using const_reference = const char&;
+			using iterator = char*;
+			//using reverse_iterator = char*;
+			using value_type = char;
 			// Méthodes STD
 
 			char& operator[](std::size_t pos);

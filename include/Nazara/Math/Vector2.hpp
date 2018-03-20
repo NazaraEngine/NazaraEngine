@@ -103,8 +103,6 @@ namespace Nz
 			T x, y;
 	};
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
 	using Vector2d = Vector2<double>;
 	using Vector2f = Vector2<float>;
 	using Vector2i = Vector2<int>;
@@ -112,6 +110,8 @@ namespace Nz
 	using Vector2i32 = Vector2<Int32>;
 	using Vector2ui32 = Vector2<UInt32>;
 
+	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector, TypeTag<Vector2<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec);
