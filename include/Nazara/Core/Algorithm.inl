@@ -21,13 +21,13 @@ namespace Nz
 	{
 		// http://www.cppsamples.com/common-tasks/apply-tuple-to-function.html
 		template<typename F, typename Tuple, size_t... S>
-		decltype(auto) ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
+		auto ApplyImplFunc(F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return std::forward<F>(fn)(std::get<S>(std::forward<Tuple>(t))...);
 		}
 
 		template<typename O, typename F, typename Tuple, size_t... S>
-		decltype(auto) ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
+		auto ApplyImplMethod(O& object, F&& fn, Tuple&& t, std::index_sequence<S...>)
 		{
 			return (object .* std::forward<F>(fn))(std::get<S>(std::forward<Tuple>(t))...);
 		}
