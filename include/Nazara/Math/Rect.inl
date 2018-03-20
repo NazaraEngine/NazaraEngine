@@ -808,7 +808,7 @@ namespace Nz
 	* \param rect Input Rect
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Rect<T>& rect)
+	bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>)
 	{
 		if (!Serialize(context, rect.x))
 			return false;
@@ -833,7 +833,7 @@ namespace Nz
 	* \param rect Output Rect
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Rect<T>* rect)
+	bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>)
 	{
 		if (!Unserialize(context, &rect->x))
 			return false;

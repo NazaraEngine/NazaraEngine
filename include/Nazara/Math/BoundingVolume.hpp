@@ -72,8 +72,8 @@ namespace Nz
 	typedef BoundingVolume<double> BoundingVolumed;
 	typedef BoundingVolume<float> BoundingVolumef;
 
-	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume);
-	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume);
+	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume, TypeTag<BoundingVolume<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>);
 }
 
 template<typename T>

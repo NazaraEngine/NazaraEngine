@@ -434,7 +434,7 @@ namespace Nz
 	* \param plane Input Vector2
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Plane<T>& plane)
+	bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>)
 	{
 		if (!Serialize(context, plane.normal))
 			return false;
@@ -453,7 +453,7 @@ namespace Nz
 	* \param plane Output Plane
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Plane<T>* plane)
+	bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>)
 	{
 		if (!Unserialize(context, &plane->normal))
 			return false;

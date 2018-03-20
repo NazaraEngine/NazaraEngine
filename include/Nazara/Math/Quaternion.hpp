@@ -91,8 +91,8 @@ namespace Nz
 	typedef Quaternion<double> Quaterniond;
 	typedef Quaternion<float> Quaternionf;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat);
-	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat);
+	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat, TypeTag<Quaternion<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat);

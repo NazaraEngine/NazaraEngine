@@ -108,8 +108,8 @@ namespace Nz
 	typedef Vector4<Int32> Vector4i32;
 	typedef Vector4<UInt32> Vector4ui32;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec);

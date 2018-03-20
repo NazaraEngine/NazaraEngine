@@ -71,8 +71,8 @@ namespace Nz
 			static float Hue2RGB(float v1, float v2, float vH);
 	};
 
-	inline bool Serialize(SerializationContext& context, const Color& color);
-	inline bool Unserialize(SerializationContext& context, Color* color);
+	inline bool Serialize(SerializationContext& context, const Color& color, TypeTag<Color>);
+	inline bool Unserialize(SerializationContext& context, Color* color, TypeTag<Color>);
 }
 
 std::ostream& operator<<(std::ostream& out, const Nz::Color& color);

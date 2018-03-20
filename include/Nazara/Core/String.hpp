@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <cstdarg>
 #include <iosfwd>
 #include <memory>
@@ -328,8 +329,8 @@ namespace Nz
 	class AbstractHash;
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string, TypeTag<String>);
+	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string, TypeTag<String>);
 }
 
 namespace std
