@@ -93,12 +93,12 @@ namespace Nz
 			T x, y, z, width, height, depth;
 	};
 
-	typedef Box<double> Boxd;
-	typedef Box<float> Boxf;
-	typedef Box<int> Boxi;
-	typedef Box<unsigned int> Boxui;
-	typedef Box<Int32> Boxi32;
-	typedef Box<UInt32> Boxui32;
+	using Boxd = Box<double>;
+	using Boxf = Box<float>;
+	using Boxi = Box<int>;
+	using Boxui = Box<unsigned int>;
+	using Boxi32 = Box<Int32>;
+	using Boxui32 = Box<UInt32>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Box<T>& box, TypeTag<Box<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>);

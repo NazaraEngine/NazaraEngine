@@ -59,8 +59,8 @@ namespace Nz
 			T distance;
 	};
 
-	typedef Plane<double> Planed;
-	typedef Plane<float> Planef;
+	using Planed = Plane<double>;
+	using Planef = Plane<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);

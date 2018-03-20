@@ -28,7 +28,7 @@ namespace Nz
 				Vector3f bindPos;
 			};
 
-			typedef Vector3ui Triangle;
+			using Triangle = Vector3ui;
 
 			struct Vertex
 			{

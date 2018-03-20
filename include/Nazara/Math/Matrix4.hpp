@@ -138,8 +138,8 @@ namespace Nz
 			 m41, m42, m43, m44;
 	};
 
-	typedef Matrix4<double> Matrix4d;
-	typedef Matrix4<float> Matrix4f;
+	using Matrix4d = Matrix4<double>;
+	using Matrix4f = Matrix4<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Matrix4<T>& matrix, TypeTag<Matrix4<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>);

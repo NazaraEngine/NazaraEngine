@@ -15,6 +15,7 @@ Miscellaneous:
 - Fix compilation with some MinGW distributions
 - Add Lua unit tests
 - NDEBUG is now defined in Release
+- Replaced typedefs keywords with modern using keywords
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.

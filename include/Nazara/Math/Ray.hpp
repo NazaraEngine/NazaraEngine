@@ -74,8 +74,8 @@ namespace Nz
 			Vector3<T> direction, origin;
 	};
 
-	typedef Ray<double> Rayd;
-	typedef Ray<float> Rayf;
+	using Rayd = Ray<double>;
+	using Rayf = Ray<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray, TypeTag<Ray<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>);
