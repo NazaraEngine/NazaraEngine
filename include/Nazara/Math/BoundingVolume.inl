@@ -605,7 +605,7 @@ namespace Nz
 	template<typename T>
 	bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume, TypeTag<BoundingVolume<T>>)
 	{
-		if (!Serialize(context, static_cast<UInt8>(boundingVolume.extend)>))
+		if (!Serialize(context, static_cast<UInt8>(boundingVolume.extend)))
 			return false;
 
 		if (!Serialize(context, boundingVolume.aabb))
