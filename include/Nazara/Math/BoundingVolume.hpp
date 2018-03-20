@@ -5,7 +5,6 @@
 #ifndef NAZARA_BOUNDINGVOLUME_HPP
 #define NAZARA_BOUNDINGVOLUME_HPP
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
