@@ -273,6 +273,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/ForwardrenderQueue.inl>
+#include <Nazara/Graphics/ForwardRenderQueue.inl>
 
 #endif // NAZARA_FORWARDRENDERQUEUE_HPP
