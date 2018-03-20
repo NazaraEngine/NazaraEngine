@@ -74,6 +74,7 @@ Nazara Engine:
 - Fixed Platform module not being classified as client-only
 - ⚠️ Renamed Bitset::Read to Bitset::Write
 - ⚠️ Added a type tag parameter to Serialize and Unserialize functions, to prevent implicit conversions with overloads
+- Fixed Apply functions with complex return types
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
