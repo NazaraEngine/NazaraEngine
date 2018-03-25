@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
@@ -311,6 +312,9 @@ namespace Nz
 			}
 		};
 
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
@@ -356,7 +360,7 @@ namespace Nz
 
 				if (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect(billboard.scissorRect);
+					Renderer::SetScissorRect((billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect);
 					lastScissorRect = billboard.scissorRect;
 				}
 			}
@@ -394,6 +398,9 @@ namespace Nz
 				billboardCount = 0;
 			}
 		};
+
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
@@ -440,7 +447,7 @@ namespace Nz
 
 				if (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect(billboard.scissorRect);
+					Renderer::SetScissorRect((billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect);
 					lastScissorRect = billboard.scissorRect;
 				}
 			}
@@ -476,6 +483,9 @@ namespace Nz
 	
 	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const Nz::RenderQueue<Nz::ForwardRenderQueue::Model>& models) const
 	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
@@ -518,7 +528,7 @@ namespace Nz
 
 			if (model.material->IsScissorTestEnabled() && model.scissorRect != lastScissorRect)
 			{
-				Renderer::SetScissorRect(model.scissorRect);
+				Renderer::SetScissorRect((model.scissorRect.width > 0) ? model.scissorRect : fullscreenScissorRect);
 				lastScissorRect = model.scissorRect;
 			}
 
@@ -598,6 +608,9 @@ namespace Nz
 
 	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::SpriteChain>& spriteList) const
 	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
@@ -712,7 +725,7 @@ namespace Nz
 
 				if (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect(basicSprites.scissorRect);
+					Renderer::SetScissorRect((basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect);
 					lastScissorRect = basicSprites.scissorRect;
 				}
 			}
