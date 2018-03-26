@@ -27,7 +27,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
 		public:
-			using BodyIterator = std::function<bool(const RigidBody3D& body)>;
+			using BodyIterator = std::function<bool(RigidBody3D& body)>;
 			using AABBOverlapCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 			using CollisionCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 
