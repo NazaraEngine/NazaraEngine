@@ -355,7 +355,7 @@ namespace Nz
 
 	ColliderType3D ConvexCollider3D::GetType() const
 	{
-		return ColliderType3D_Compound;
+		return ColliderType3D_ConvexHull;
 	}
 
 	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
