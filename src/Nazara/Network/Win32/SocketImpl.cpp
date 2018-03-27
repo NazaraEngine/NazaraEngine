@@ -10,13 +10,15 @@
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
 #if defined(__has_include)
-	#define NZ_HAS_MSTCPIP_HEADER __has_include(<Mstcpip.h>)
+	#define NZ_HAS_MSTCPIP_HEADER __has_include(<mstcpip.h>)
 #else
 	// If this version of MinGW doesn't support __has_include, assume it hasn't Mstcpip.h
 	#define NZ_HAS_MSTCPIP_HEADER !defined(NAZARA_COMPILER_MINGW)
 #endif
 
 #if NZ_HAS_MSTCPIP_HEADER
+#include <mstcpip.h>
+#else
 struct tcp_keepalive
 {
 	u_long onoff;
@@ -25,8 +27,6 @@ struct tcp_keepalive
 };
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
-#else
-#include <Mstcpip.h>
 #endif
 
 #include <Winsock2.h>
