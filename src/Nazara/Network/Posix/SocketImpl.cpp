@@ -810,7 +810,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = broadcasting;
-		if (setsockopt(handle, IPPROTO_IPV6, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
@@ -829,7 +829,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = ipv6Only;
-		if (setsockopt(handle, SOL_SOCKET, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
