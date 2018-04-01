@@ -218,9 +218,9 @@ namespace Nz
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
 					{
-						UInt16 networkOrder = htons(address[i]);
-						socketAddress->sin6_addr.s6_addr[2 * i] = networkOrder / 256;
-						socketAddress->sin6_addr.s6_addr[2 * i + 1] = networkOrder % 256;
+						u_short addressPart = htons(address[i]);
+						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = addressPart >> 0;
+						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = addressPart >> 8;
 					}
 
 					return sizeof(sockaddr_in6);
