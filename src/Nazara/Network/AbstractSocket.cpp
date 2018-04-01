@@ -202,6 +202,8 @@ namespace Nz
 					NazaraError("Failed to open a dual-stack socket: " + Nz::String(ErrorToString(m_lastError)));
 					return false;
 				}
+
+				protocol = NetProtocol_IPv6;
 			}
 
 			m_protocol = protocol;
