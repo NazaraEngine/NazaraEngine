@@ -828,7 +828,7 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		int option = broadcasting;
+		int option = ipv6Only;
 		if (setsockopt(handle, SOL_SOCKET, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
