@@ -320,7 +320,7 @@ namespace Nz
 
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
-		if (!m_socket.Create(address.GetProtocol()))
+		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol_Any : address.GetProtocol()))
 			return false;
 
 		m_socket.EnableBlocking(false);

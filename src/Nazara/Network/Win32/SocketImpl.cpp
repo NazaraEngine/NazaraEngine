@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2018 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -825,6 +825,32 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return true;
+	}
+
+	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
+	{
+#if NAZARA_CORE_WINDOWS_NT6
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = ipv6Only;
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+#else
+		if (error)
+			*error = SocketError_NotSupported;
+
+		return false;
+#endif
 	}
 
 	bool SocketImpl::SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error)

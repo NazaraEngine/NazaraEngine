@@ -77,6 +77,7 @@ Nazara Engine:
 - ⚠️ Added a type tag parameter to Serialize and Unserialize functions, to prevent implicit conversions with overloads
 - Added Collider3D::ForEachPolygon method, allowing construction of a debug mesh based on the physics collider
 - Fixed ConvexCollider3D::GetType returning Compound instead of ConvexHull.
+- Dual-stack sockets are now supported (by using NetProtocol_Any at creation/opening)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

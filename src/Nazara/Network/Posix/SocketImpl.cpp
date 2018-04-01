@@ -809,8 +809,27 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		bool option = broadcasting;
-		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		int option = broadcasting;
+		if (setsockopt(handle, IPPROTO_IPV6, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		int option = broadcasting;
+		if (setsockopt(handle, SOL_SOCKET, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());
