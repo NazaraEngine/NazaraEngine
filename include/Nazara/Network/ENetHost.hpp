@@ -156,6 +156,7 @@ namespace Nz
 			UInt64 m_totalReceivedData;
 			bool m_allowsIncomingConnections;
 			bool m_continueSending;
+			bool m_isUsingDualStack;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;
 
