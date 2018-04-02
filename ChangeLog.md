@@ -78,6 +78,7 @@ Nazara Engine:
 - Added Collider3D::ForEachPolygon method, allowing construction of a debug mesh based on the physics collider
 - Fixed ConvexCollider3D::GetType returning Compound instead of ConvexHull.
 - Dual-stack sockets are now supported (by using NetProtocol_Any at creation/opening)
+- Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
