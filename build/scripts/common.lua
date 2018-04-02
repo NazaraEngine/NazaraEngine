@@ -1,7 +1,7 @@
 NazaraBuild = {}
 
 -- I wish Premake had a way to know the compiler in advance
-local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
+local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake*", "xcode3", "xcode4"}, " or ")
 
 function NazaraBuild:AddExecutablePath(path)
 	table.insert(self.ExecutableDir, path)
@@ -13,16 +13,16 @@ function NazaraBuild:AddInstallPath(path)
 end
 
 function NazaraBuild:FilterLibDirectory(prefix, func)
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86", "system:Windows"})
 		func(prefix .. "mingw/x86")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86_64", "system:Windows"})
 		func(prefix .. "mingw/x64")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:not Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86", "system:not Windows"})
 		func(prefix .. "gmake/x86")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:not Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86_64", "system:not Windows"})
 		func(prefix .. "gmake/x64")
 
 	filter({"action:vs*", "architecture:x86"})
