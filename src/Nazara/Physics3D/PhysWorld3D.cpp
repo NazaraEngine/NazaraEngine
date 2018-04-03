@@ -41,9 +41,8 @@ namespace Nz
 	{
 		auto NewtonCallback = [](const NewtonBody* const body, void* const userdata) -> int
 		{
-			const BodyIterator& iterator = *static_cast<BodyIterator*>(userdata);
-			RigidBody3D* nzBody = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
-			return iterator(*nzBody);
+			const BodyIterator& bodyIterator = *static_cast<BodyIterator*>(userdata);
+			return bodyIterator(*static_cast<RigidBody3D*>(NewtonBodyGetUserData(body)));
 		};
 
 		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
