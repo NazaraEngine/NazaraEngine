@@ -56,7 +56,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -86,7 +86,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -116,7 +116,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -146,7 +146,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!
@@ -176,7 +176,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -206,7 +206,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -236,7 +236,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -266,7 +266,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!
@@ -309,7 +309,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix, scissorRect);
+		BasicRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix, scissorRect);
 	}
 
 	/*!
@@ -366,7 +366,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddSprites(0, material, vertices, spriteCount, scissorRect, overlay);
+		BasicRenderQueue::AddSprites(0, material, vertices, spriteCount, scissorRect, overlay);
 	}
 }
 

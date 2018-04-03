@@ -35,9 +35,9 @@ namespace Nz
 		private:
 			struct ShaderUniforms;
 
-			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawBasicSprites(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const;
+			void DrawBillboards(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const;
+			void DrawOpaqueModels(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const;
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
 

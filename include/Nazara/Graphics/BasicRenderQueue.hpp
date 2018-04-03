@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORWARDRENDERQUEUE_HPP
-#define NAZARA_FORWARDRENDERQUEUE_HPP
+#ifndef NAZARA_BASICRENDERQUEUE_HPP
+#define NAZARA_BASICRENDERQUEUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -20,20 +20,22 @@
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <map>
+#include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
 	class AbstractViewer;
 
-	class NAZARA_GRAPHICS_API ForwardRenderQueue : public AbstractRenderQueue
+	class NAZARA_GRAPHICS_API BasicRenderQueue : public AbstractRenderQueue
 	{
 		friend class ForwardRenderTechnique;
 
 		public:
 			struct BillboardData;
 
-			ForwardRenderQueue() = default;
-			~ForwardRenderQueue() = default;
+			BasicRenderQueue() = default;
+			~BasicRenderQueue() = default;
 
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
@@ -273,6 +275,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/ForwardRenderQueue.inl>
+#include <Nazara/Graphics/BasicRenderQueue.inl>
 
-#endif // NAZARA_FORWARDRENDERQUEUE_HPP
+#endif // NAZARA_BASICRENDERQUEUE_HPP

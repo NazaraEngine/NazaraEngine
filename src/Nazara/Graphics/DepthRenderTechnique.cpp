@@ -85,7 +85,7 @@ namespace Nz
 	{
 		for (auto& pair : m_renderQueue.layers)
 		{
-			ForwardRenderQueue::Layer& layer = pair.second;
+			BasicRenderQueue::Layer& layer = pair.second;
 
 			if (!layer.opaqueModels.empty())
 				DrawOpaqueModels(sceneData, layer);
@@ -175,9 +175,9 @@ namespace Nz
 
 			// Declaration utilisée lors du rendu des billboards par instancing
 			// L'avantage ici est la copie directe (std::memcpy) des données de la RenderQueue vers le buffer GPU
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color, NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(BasicRenderQueue::BillboardData, center));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(BasicRenderQueue::BillboardData, size)); // Englobe sincos
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color, NazaraOffsetOf(BasicRenderQueue::BillboardData, color));
 		}
 		catch (const std::exception& e)
 		{
@@ -205,7 +205,7 @@ namespace Nz
 	* \param layer Layer of the rendering
 	*/
 
-	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void DepthRenderTechnique::DrawBasicSprites(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -276,7 +276,7 @@ namespace Nz
 
 									do
 									{
-										ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
+										BasicRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
 										std::size_t count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
 
 										std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
@@ -318,7 +318,7 @@ namespace Nz
 	* \param layer Layer of the rendering
 	*/
 
-	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void DepthRenderTechnique::DrawBillboards(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -365,7 +365,7 @@ namespace Nz
 							// We begin to apply the material (and get the shader activated doing so)
 							material->Apply(pipelineInstance);
 
-							const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+							const BasicRenderQueue::BillboardData* data = &billboardVector[0];
 							std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
 							do
 							{
@@ -418,7 +418,7 @@ namespace Nz
 						auto& entry = matIt.second;
 						auto& billboardVector = entry.billboards;
 
-						const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
+						const BasicRenderQueue::BillboardData* data = &billboardVector[0];
 						std::size_t maxBillboardPerDraw = std::min(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
 
 						std::size_t billboardCount = billboardVector.size();
@@ -432,7 +432,7 @@ namespace Nz
 
 							for (unsigned int i = 0; i < renderedBillboardCount; ++i)
 							{
-								const ForwardRenderQueue::BillboardData& billboard = *data++;
+								const BasicRenderQueue::BillboardData& billboard = *data++;
 
 								vertices->color = billboard.color;
 								vertices->position = billboard.center;
@@ -483,7 +483,7 @@ namespace Nz
 	* \param layer Layer of the rendering
 	*/
 
-	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void DepthRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, BasicRenderQueue::Layer& layer) const
 	{
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -521,7 +521,7 @@ namespace Nz
 					{
 						material->Apply(pipelineInstance);
 
-						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
+						BasicRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
 
 						// Meshes
 						for (auto& meshIt : meshInstances)

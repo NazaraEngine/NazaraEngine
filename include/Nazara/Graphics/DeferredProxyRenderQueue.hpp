@@ -8,22 +8,27 @@
 #define NAZARA_DEFERREDRENDERQUEUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <map>
+#include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API DeferredRenderQueue : public AbstractRenderQueue
+	class BasicRenderQueue;
+
+	class NAZARA_GRAPHICS_API DeferredProxyRenderQueue final : public AbstractRenderQueue
 	{
 		public:
-			DeferredRenderQueue(ForwardRenderQueue* forwardQueue);
-			~DeferredRenderQueue() = default;
+			struct BillboardData;
+
+			inline DeferredProxyRenderQueue(BasicRenderQueue* deferredQueue, BasicRenderQueue* forwardQueue);
+			~DeferredProxyRenderQueue() = default;
 
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
@@ -39,51 +44,15 @@ namespace Nz
 
 			void Clear(bool fully = false) override;
 
-			struct MeshInstanceEntry
-			{
-				NazaraSlot(IndexBuffer, OnIndexBufferRelease, indexBufferReleaseSlot);
-				NazaraSlot(VertexBuffer, OnVertexBufferRelease, vertexBufferReleaseSlot);
-
-				std::vector<Matrix4f> instances;
-			};
-
-			using MeshInstanceContainer = std::map<MeshData, MeshInstanceEntry, ForwardRenderQueue::MeshDataComparator>;
-
-			struct BatchedModelEntry
-			{
-				NazaraSlot(Material, OnMaterialRelease, materialReleaseSlot);
-
-				MeshInstanceContainer meshMap;
-				bool enabled = false;
-			};
-
-			using MeshMaterialBatches = std::map<const Material*, BatchedModelEntry, ForwardRenderQueue::MaterialComparator>;
-
-			struct BatchedMaterialEntry
-			{
-				std::size_t maxInstanceCount = 0;
-				MeshMaterialBatches materialMap;
-			};
-
-			using MeshPipelineBatches = std::map<const MaterialPipeline*, BatchedMaterialEntry, ForwardRenderQueue::MaterialPipelineComparator>;
-
-			struct Layer
-			{
-				MeshPipelineBatches opaqueModels;
-				unsigned int clearCount = 0;
-			};
-
-			std::map<int, Layer> layers;
+			inline BasicRenderQueue* GetDeferredRenderQueue();
+			inline BasicRenderQueue* GetForwardRenderQueue();
 
 		private:
-			Layer& GetLayer(unsigned int i); ///TODO: Inline
-
-			ForwardRenderQueue* m_forwardQueue;
-
-			void OnIndexBufferInvalidation(const IndexBuffer* indexBuffer);
-			void OnMaterialInvalidation(const Material* material);
-			void OnVertexBufferInvalidation(const VertexBuffer* vertexBuffer);
+			BasicRenderQueue * m_deferredRenderQueue;
+			BasicRenderQueue* m_forwardRenderQueue;
 	};
 }
+
+#include <Nazara/Graphics/DeferredProxyRenderQueue.inl>
 
 #endif // NAZARA_DEFERREDRENDERQUEUE_HPP

@@ -8,13 +8,13 @@
 #define NAZARA_DEPTHRENDERQUEUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API DepthRenderQueue : public ForwardRenderQueue
+	class NAZARA_GRAPHICS_API DepthRenderQueue : public BasicRenderQueue
 	{
 		public:
 			DepthRenderQueue();

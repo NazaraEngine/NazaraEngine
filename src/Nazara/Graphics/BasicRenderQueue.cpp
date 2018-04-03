@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
@@ -14,8 +14,8 @@ namespace Nz
 {
 	/*!
 	* \ingroup graphics
-	* \class Nz::ForwardRenderQueue
-	* \brief Graphics class that represents the rendering queue for forward rendering
+	* \class Nz::BasicRenderQueue
+	* \brief Graphics class that represents a simple rendering queue
 	*/
 
 	/*!
@@ -32,7 +32,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -100,7 +100,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -170,7 +170,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -238,7 +238,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -308,7 +308,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -376,7 +376,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -446,7 +446,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -514,7 +514,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void ForwardRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -578,7 +578,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if drawable is invalid
 	*/
-	void ForwardRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
+	void BasicRenderQueue::AddDrawable(int renderOrder, const Drawable* drawable)
 	{
 		NazaraAssert(drawable, "Invalid material");
 
@@ -601,7 +601,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void ForwardRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
+	void BasicRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -644,7 +644,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void ForwardRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay /*= nullptr*/)
+	void BasicRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay /*= nullptr*/)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -680,7 +680,7 @@ namespace Nz
 	* \param fully Should everything be cleared or we can keep layers
 	*/
 
-	void ForwardRenderQueue::Clear(bool fully)
+	void BasicRenderQueue::Clear(bool fully)
 	{
 		AbstractRenderQueue::Clear(fully);
 
@@ -708,11 +708,20 @@ namespace Nz
 	* \param viewer Viewer of the scene
 	*/
 
-	void ForwardRenderQueue::Sort(const AbstractViewer* viewer)
+	void BasicRenderQueue::Sort(const AbstractViewer* viewer)
 	{
 		m_layerCache.clear();
 		for (int layer : m_renderLayers)
 			m_layerCache.emplace(layer, m_layerCache.size());
+
+		auto GetOrInsert = [](auto& container, auto&& value)
+		{
+			auto it = container.find(value);
+			if (it == container.end())
+				it = container.emplace(value, container.size()).first;
+
+			return it->second;
+		};
 
 		basicSprites.Sort([&](const SpriteChain& vertices)
 		{
@@ -725,11 +734,6 @@ namespace Nz
 			// - Overlay (8bits)
 			// - Scissor (4bits)
 			// - Depth? (16bits)
-
-			auto GetOrInsert = [](auto& container, auto&& value)
-			{
-				return container.emplace(value, container.size()).first->second;
-			};
 
 			UInt64 layerIndex = m_layerCache[vertices.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, vertices.material->GetPipeline());
@@ -763,15 +767,6 @@ namespace Nz
 			// - ??? (8bits)
 			// - Scissor (4bits)
 			// - Depth? (16bits)
-
-			auto GetOrInsert = [](auto& container, auto&& value)
-			{
-				auto it = container.find(value);
-				if (it == container.end())
-					it = container.emplace(value, container.size()).first;
-
-				return it->second;
-			};
 
 			UInt64 layerIndex = m_layerCache[billboard.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, billboard.material->GetPipeline());
@@ -819,11 +814,6 @@ namespace Nz
 			// - Scissor (4bits)
 			// - Depth? (16bits)
 
-			auto GetOrInsert = [](auto& container, auto&& value)
-			{
-				return container.emplace(value, container.size()).first->second;
-			};
-
 			UInt64 layerIndex = m_layerCache[renderData.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, renderData.material->GetPipeline());
 			UInt64 materialIndex = GetOrInsert(m_materialCache, renderData.material);
@@ -833,14 +823,14 @@ namespace Nz
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO
 
-			UInt64 index = (layerIndex     & 0x0F)   << 60 |
-			                (pipelineIndex & 0xFF)   << 52 |
-			                (materialIndex & 0xFF)   << 44 |
-			                (shaderIndex   & 0xFF)   << 36 |
-			                (textureIndex  & 0xFF)   << 28 |
-			                (bufferIndex   & 0xFF)   << 20 |
-			                (scissorIndex  & 0x0F)   << 16 |
-			                (depthIndex    & 0xFFFF) <<  0;
+			UInt64 index = (layerIndex    & 0x0F)   << 60 |
+			               (pipelineIndex & 0xFF)   << 52 |
+			               (materialIndex & 0xFF)   << 44 |
+			               (shaderIndex   & 0xFF)   << 36 |
+			               (textureIndex  & 0xFF)   << 28 |
+			               (bufferIndex   & 0xFF)   << 20 |
+			               (scissorIndex  & 0x0F)   << 16 |
+			               (depthIndex    & 0xFFFF) <<  0;
 
 			return index;
 		});
@@ -956,7 +946,7 @@ namespace Nz
 	}
 
 
-	bool ForwardRenderQueue::MaterialComparator::operator()(const Material* mat1, const Material* mat2) const
+	bool BasicRenderQueue::MaterialComparator::operator()(const Material* mat1, const Material* mat2) const
 	{
 		const Texture* diffuseMap1 = mat1->GetDiffuseMap();
 		const Texture* diffuseMap2 = mat2->GetDiffuseMap();
@@ -966,7 +956,7 @@ namespace Nz
 		return mat1 < mat2;
 	}
 
-	bool ForwardRenderQueue::MaterialPipelineComparator::operator()(const MaterialPipeline* pipeline1, const MaterialPipeline* pipeline2) const
+	bool BasicRenderQueue::MaterialPipelineComparator::operator()(const MaterialPipeline* pipeline1, const MaterialPipeline* pipeline2) const
 	{
 		const Shader* shader1 = pipeline1->GetInstance().renderPipeline.GetInfo().shader;
 		const Shader* shader2 = pipeline2->GetInstance().renderPipeline.GetInfo().shader;
@@ -984,7 +974,7 @@ namespace Nz
 	* \param data2 Second mesh to compare
 	*/
 
-	bool ForwardRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
+	bool BasicRenderQueue::MeshDataComparator::operator()(const MeshData& data1, const MeshData& data2) const
 	{
 		const Buffer* buffer1;
 		const Buffer* buffer2;

@@ -112,7 +112,7 @@ namespace Nz
 			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.depthSortedBillboards);
 
 		if (!m_renderQueue.customDrawables.empty())
-			DrawCustomBillboards(sceneData, m_renderQueue, m_renderQueue.customDrawables);
+			DrawCustomDrawables(sceneData, m_renderQueue, m_renderQueue.customDrawables);
 
 		return true;
 	}
@@ -210,9 +210,9 @@ namespace Nz
 
 			// Declaration used when rendering the billboards with intancing
 			// The main advantage is the direct copy (std::memcpy) of data in the RenderQueue to the GPU buffer
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(BasicRenderQueue::BillboardData, center));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(BasicRenderQueue::BillboardData, size)); // Englobe sincos
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(BasicRenderQueue::BillboardData, color));
 
 			s_reflectionSampler.SetFilterMode(SamplerFilter_Bilinear);
 			s_reflectionSampler.SetWrapMode(SamplerWrap_Clamp);
@@ -289,7 +289,7 @@ namespace Nz
 		});
 	}
 
-	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::Billboard>& billboards) const
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Billboard>& billboards) const
 	{
 		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
@@ -324,7 +324,7 @@ namespace Nz
 
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		for (const ForwardRenderQueue::Billboard& billboard : billboards)
+		for (const BasicRenderQueue::Billboard& billboard : billboards)
 		{
 			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect))
 			{
@@ -368,7 +368,7 @@ namespace Nz
 			if (!instanceBufferMapper.GetBuffer())
 				instanceBufferMapper.Map(instanceBuffer, BufferAccess_DiscardAndWrite);
 
-			std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(ForwardRenderQueue::BillboardData) * billboardCount, &billboard.data, sizeof(ForwardRenderQueue::BillboardData));
+			std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(BasicRenderQueue::BillboardData) * billboardCount, &billboard.data, sizeof(BasicRenderQueue::BillboardData));
 			if (++billboardCount >= maxBillboardPerDraw)
 				Commit();
 		}
@@ -376,7 +376,7 @@ namespace Nz
 		Commit();
 	}
 	
-	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::BillboardChain>& billboards) const
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::BillboardChain>& billboards) const
 	{
 		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
 		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
@@ -411,7 +411,7 @@ namespace Nz
 
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		for (const ForwardRenderQueue::BillboardChain& billboard : billboards)
+		for (const BasicRenderQueue::BillboardChain& billboard : billboards)
 		{
 			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect))
 			{
@@ -453,7 +453,7 @@ namespace Nz
 			}
 
 			std::size_t billboardRemaining = billboard.billboardCount;
-			const ForwardRenderQueue::BillboardData* billboardData = renderQueue.GetBillboardData(billboard.billboardIndex);
+			const BasicRenderQueue::BillboardData* billboardData = renderQueue.GetBillboardData(billboard.billboardIndex);
 			do
 			{
 				std::size_t renderedBillboardCount = std::min(billboardRemaining, maxBillboardPerDraw - billboardCount);
@@ -462,7 +462,7 @@ namespace Nz
 				if (!instanceBufferMapper.GetBuffer())
 					instanceBufferMapper.Map(instanceBuffer, BufferAccess_DiscardAndWrite);
 
-				std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(ForwardRenderQueue::BillboardData) * billboardCount, billboardData, renderedBillboardCount * sizeof(ForwardRenderQueue::BillboardData));
+				std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(BasicRenderQueue::BillboardData) * billboardCount, billboardData, renderedBillboardCount * sizeof(BasicRenderQueue::BillboardData));
 				billboardCount += renderedBillboardCount;
 				billboardData += renderedBillboardCount;
 
@@ -475,13 +475,13 @@ namespace Nz
 		Commit();
 	}
 
-	void ForwardRenderTechnique::DrawCustomBillboards(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::CustomDrawable>& customDrawables) const
+	void ForwardRenderTechnique::DrawCustomDrawables(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::CustomDrawable>& customDrawables) const
 	{
-		for (const ForwardRenderQueue::CustomDrawable& customDrawable : customDrawables)
+		for (const BasicRenderQueue::CustomDrawable& customDrawable : customDrawables)
 			customDrawable.drawable->Draw();
 	}
 	
-	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const Nz::RenderQueue<Nz::ForwardRenderQueue::Model>& models) const
+	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const Nz::RenderQueue<Nz::BasicRenderQueue::Model>& models) const
 	{
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
@@ -496,7 +496,7 @@ namespace Nz
 
 		///TODO: Reimplement instancing
 
-		for (const ForwardRenderQueue::Model& model : models)
+		for (const BasicRenderQueue::Model& model : models)
 		{
 			const MaterialPipeline* pipeline = model.material->GetPipeline();
 			if (lastPipeline != pipeline)
@@ -606,7 +606,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, const ForwardRenderQueue& renderQueue, const RenderQueue<ForwardRenderQueue::SpriteChain>& spriteList) const
+	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& spriteList) const
 	{
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
@@ -676,7 +676,7 @@ namespace Nz
 
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		for (const ForwardRenderQueue::SpriteChain& basicSprites : spriteList)
+		for (const BasicRenderQueue::SpriteChain& basicSprites : spriteList)
 		{
 			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect))
 			{
