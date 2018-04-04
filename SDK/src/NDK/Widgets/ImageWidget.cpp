@@ -11,7 +11,7 @@ namespace Ndk
 	ImageWidget::ImageWidget(BaseWidget* parent) :
 	BaseWidget(parent)
 	{
-		m_entity = CreateEntity();
+		m_entity = CreateEntity(true);
 		m_entity->AddComponent<NodeComponent>();
 		auto& gfx = m_entity->AddComponent<GraphicsComponent>();
 
