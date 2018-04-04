@@ -107,6 +107,24 @@ namespace Nz
 						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
 					}
 
+					if (!mtlMat->emissiveMap.IsEmpty())
+					{
+						String fullPath = mtlMat->emissiveMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::EmissiveTexturePath, fullPath);
+					}
+
+					if (!mtlMat->normalMap.IsEmpty())
+					{
+						String fullPath = mtlMat->normalMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::NormalTexturePath, fullPath);
+					}
+
 					if (!mtlMat->specularMap.IsEmpty())
 					{
 						String fullPath = mtlMat->specularMap;

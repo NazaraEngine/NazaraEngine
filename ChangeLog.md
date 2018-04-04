@@ -80,6 +80,7 @@ Nazara Engine:
 - Dual-stack sockets are now supported (by using NetProtocol_Any at creation/opening)
 - Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
 - Fix copy and move semantic on HandledObject and ObjectHandle
+- Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

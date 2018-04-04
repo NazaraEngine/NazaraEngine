@@ -251,6 +251,32 @@ namespace Nz
 					currentMaterial->reflectionMap = map;
 				}
 			}
+			else if (keyword == "map_normal" || keyword == "normal")
+			{
+				// <!> This is a custom keyword
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
+				if (mapPos != String::npos)
+				{
+					String map = m_currentLine.SubString(mapPos);
+					if (!currentMaterial)
+						currentMaterial = AddMaterial("default");
+
+					currentMaterial->normalMap = map;
+				}
+			}
+			else if (keyword == "map_emissive" || keyword == "emissive")
+			{
+				// <!> This is a custom keyword
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
+				if (mapPos != String::npos)
+				{
+					String map = m_currentLine.SubString(mapPos);
+					if (!currentMaterial)
+						currentMaterial = AddMaterial("default");
+
+					currentMaterial->emissiveMap = map;
+				}
+			}
 			else if (keyword == "newmtl")
 			{
 				String materialName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
