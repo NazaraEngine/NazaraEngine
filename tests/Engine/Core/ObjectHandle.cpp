@@ -90,13 +90,16 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 			Nz::ObjectHandle<Test> otherHandle = other.CreateHandle();
 			test = std::move(other);
 
+			THEN("Handles to previous objects should be invalid")
+			{
+				CHECK_FALSE(handle1.IsValid());
+				CHECK_FALSE(handle2.IsValid());
+			}
+
 			THEN("Handles should point to 4")
 			{
-				CHECK(handle1->i == moveValue);
-				CHECK(handle2->i == moveValue);
-				CHECK(otherHandle->i == moveValue);
-				CHECK(handle1.GetObject() == &test);
 				CHECK(otherHandle.GetObject() == &test);
+				CHECK(otherHandle->i == moveValue);
 			}
 		}
 	}
