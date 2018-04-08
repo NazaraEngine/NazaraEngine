@@ -119,6 +119,7 @@ Nazara Development Kit:
 - World now has an internal profiler, allowing to measure the refresh and system update time
 - CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
 - Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
+- ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
 
 # 0.4:
 
