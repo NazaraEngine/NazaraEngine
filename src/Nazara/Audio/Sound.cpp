@@ -37,6 +37,7 @@ namespace Nz
 	SoundEmitter(sound)
 	{
 		SetBuffer(sound.m_buffer);
+		EnableLooping(sound.IsLooping());
 	}
 
 	/*!
