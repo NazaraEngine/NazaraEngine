@@ -20,7 +20,7 @@ namespace Nz
 			Sound() = default;
 			Sound(const SoundBuffer* soundBuffer);
 			Sound(const Sound& sound);
-			Sound(Sound&&) = default;
+			Sound(Sound&&) noexcept = default;
 			~Sound();
 
 			void EnableLooping(bool loop) override;
@@ -47,7 +47,7 @@ namespace Nz
 			void Stop() override;
 
 			Sound& operator=(const Sound&) = delete; ///TODO?
-			Sound& operator=(Sound&&) = default;
+			Sound& operator=(Sound&&) noexcept = default;
 
 		private:
 			SoundBufferConstRef m_buffer;

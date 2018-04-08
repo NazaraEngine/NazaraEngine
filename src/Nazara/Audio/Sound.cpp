@@ -56,6 +56,8 @@ namespace Nz
 	*/
 	void Sound::EnableLooping(bool loop)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcei(m_source, AL_LOOPING, loop);
 	}
 
@@ -87,6 +89,8 @@ namespace Nz
 	*/
 	UInt32 Sound::GetPlayingOffset() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
@@ -108,6 +112,8 @@ namespace Nz
 	*/
 	bool Sound::IsLooping() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALint loop;
 		alGetSourcei(m_source, AL_LOOPING, &loop);
 
@@ -205,6 +211,8 @@ namespace Nz
 	*/
 	void Sound::Pause()
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcePause(m_source);
 	}
 
@@ -215,6 +223,7 @@ namespace Nz
 	*/
 	void Sound::Play()
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 		NazaraAssert(IsPlayable(), "Music is not playable");
 
 		alSourcePlay(m_source);
@@ -229,6 +238,7 @@ namespace Nz
 	*/
 	void Sound::SetBuffer(const SoundBuffer* buffer)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 		NazaraAssert(!buffer || buffer->IsValid(), "Invalid sound buffer");
 
 		if (m_buffer == buffer)
@@ -251,14 +261,19 @@ namespace Nz
 	*/
 	void Sound::SetPlayingOffset(UInt32 offset)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcei(m_source, AL_SAMPLE_OFFSET, static_cast<ALint>(offset/1000.f * m_buffer->GetSampleRate()));
 	}
 
 	/*!
 	* \brief Stops the sound
+	*
+	* \remark This is one of the only function that can be called on a moved sound (and does nothing)
 	*/
 	void Sound::Stop()
 	{
-		alSourceStop(m_source);
+		if (m_source != InvalidSource)
+			alSourceStop(m_source);
 	}
 }

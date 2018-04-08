@@ -38,7 +38,7 @@ namespace Nz
 		public:
 			Music() = default;
 			Music(const Music&) = delete;
-			Music(Music&&) = delete;
+			Music(Music&&) noexcept = default;
 			~Music();
 
 			bool Create(SoundStream* soundStream);
@@ -67,10 +67,10 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) = delete;
+			Music& operator=(Music&&) noexcept = default;
 
 		private:
-			MovablePtr<MusicImpl> m_impl = nullptr;
+			MovablePtr<MusicImpl> m_impl;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();
