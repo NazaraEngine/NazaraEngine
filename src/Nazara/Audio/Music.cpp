@@ -262,6 +262,8 @@ namespace Nz
 	*/
 	void Music::Pause()
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcePause(m_source);
 	}
 

@@ -81,6 +81,7 @@ Nazara Engine:
 - Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
 - Fix copy and move semantic on HandledObject and ObjectHandle
 - Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
+- Music, Sound and SoundEmitter are now movable
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
