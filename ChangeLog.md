@@ -121,6 +121,8 @@ Nazara Development Kit:
 - CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
 - Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
 - ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
+- World now has const getters for systems
+- Add World::ForEachSystem method, allowing iteration on every active system on a specific world
 
 # 0.4:
 
