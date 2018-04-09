@@ -134,6 +134,40 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Executes a function on every present system
+	*
+	* Calls iterationFunc on every previously added system, in the same order as their indexes
+	*
+	* \param iterationFunc Function to be called
+	*/
+	template<typename F>
+	void World::ForEachSystem(const F& iterationFunc)
+	{
+		for (const auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				iterationFunc(*systemPtr);
+		}
+	}
+
+	/*!
+	* \brief Executes a function on every present system
+	*
+	* Calls iterationFunc on every previously added system, in the same order as their indexes
+	*
+	* \param iterationFunc Function to be called
+	*/
+	template<typename F>
+	void World::ForEachSystem(const F& iterationFunc) const
+	{
+		for (const auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				iterationFunc(static_cast<const Ndk::BaseSystem&>(*systemPtr)); //< Force const reference
+		}
+	}
+
+	/*!
 	* \brief Gets an entity
 	* \return A constant reference to a handle of the entity
 	*
@@ -392,7 +426,7 @@ namespace Ndk
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
 		m_profilerData          = std::move(world.m_profilerData);
-		m_isProfilerEnabled     = world.m_isProfilerEnabled;
+		m_isProfilerEnabled     = m_isProfilerEnabled;
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)

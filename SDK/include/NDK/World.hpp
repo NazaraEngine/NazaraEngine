@@ -50,6 +50,9 @@ namespace Ndk
 			inline void DisableProfiler();
 			inline void EnableProfiler(bool enable = true);
 
+			template<typename F> void ForEachSystem(const F& iterationFunc);
+			template<typename F> void ForEachSystem(const F& iterationFunc) const;
+
 			inline const EntityHandle& GetEntity(EntityId id);
 			inline const EntityList& GetEntities() const;
 			inline const ProfilerData& GetProfilerData() const;
