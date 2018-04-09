@@ -54,7 +54,9 @@ namespace Ndk
 			inline const EntityList& GetEntities() const;
 			inline const ProfilerData& GetProfilerData() const;
 			inline BaseSystem& GetSystem(SystemIndex index);
+			inline const BaseSystem& GetSystem(SystemIndex index) const;
 			template<typename SystemType> SystemType& GetSystem();
+			template<typename SystemType> const SystemType& GetSystem() const;
 
 			inline bool HasSystem(SystemIndex index) const;
 			template<typename SystemType> bool HasSystem() const;
