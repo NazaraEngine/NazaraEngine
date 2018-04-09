@@ -177,9 +177,8 @@ namespace Ndk
 	*
 	* \param index Index of the system
 	*
-	* \remark Produces a NazaraAssert if system is not available in this world
+	* \remark The world must have the system before calling this function
 	*/
-
 	inline BaseSystem& World::GetSystem(SystemIndex index)
 	{
 		NazaraAssert(HasSystem(index), "This system is not part of the world");
@@ -191,12 +190,29 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets a system in the world by index
+	* \return A const reference to the system
+	*
+	* \param index Index of the system
+	*
+	* \remark The world must have the system before calling this function
+	*/
+	inline const BaseSystem& World::GetSystem(SystemIndex index) const
+	{
+		NazaraAssert(HasSystem(index), "This system is not part of the world");
+
+		const BaseSystem* system = m_systems[index].get();
+		NazaraAssert(system, "Invalid system pointer");
+
+		return *system;
+	}
+
+	/*!
 	* \brief Gets a system in the world by type
 	* \return A reference to the system
 	*
 	* \remark Produces a NazaraAssert if system is not available in this world
 	*/
-
 	template<typename SystemType>
 	SystemType& World::GetSystem()
 	{
@@ -204,6 +220,21 @@ namespace Ndk
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		return static_cast<SystemType&>(GetSystem(index));
+	}
+
+	/*!
+	* \brief Gets a system in the world by type
+	* \return A const reference to the system
+	*
+	* \remark Produces a NazaraAssert if system is not available in this world
+	*/
+	template<typename SystemType>
+	const SystemType& World::GetSystem() const
+	{
+		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a system");
+
+		SystemIndex index = GetSystemIndex<SystemType>();
+		return static_cast<const SystemType&>(GetSystem(index));
 	}
 
 	/*!
