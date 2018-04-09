@@ -83,6 +83,7 @@ Nazara Engine:
 - Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
 - Music, Sound and SoundEmitter are now movable
 - Fixed Sound copy which was not copying looping state
+- Fixed Billboard bounding volume
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
