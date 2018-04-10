@@ -3,15 +3,15 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 
-class Test
+class LuaClass_Test
 {
 	public:
-		Test() = default;
-		Test(const Test& other) = default;
-		Test& operator=(const Test& other) = default;
-		virtual ~Test() = default;
+		LuaClass_Test() = default;
+		LuaClass_Test(const LuaClass_Test& other) = default;
+		LuaClass_Test& operator=(const LuaClass_Test& other) = default;
+		virtual ~LuaClass_Test() = default;
 
-		Test(int i, bool j = false) :
+		LuaClass_Test(int i, bool j = false) :
 		m_i(i),
 		m_j(j)
 		{
@@ -42,21 +42,21 @@ class Test
 		bool m_j;
 };
 
-class InheritTest : public Test
+class LuaClass_InheritTest : public LuaClass_Test
 {
 	public:
-		InheritTest() :
-			Test(5, true)
+		LuaClass_InheritTest() :
+			LuaClass_Test(5, true)
 		{
 		}
 
 		int GetI() const override
 		{
-			return Test::GetI() + 3;
+			return LuaClass_Test::GetI() + 3;
 		}
 };
 
-class TestWithHandle : public Nz::HandledObject<TestWithHandle>
+class LuaClass_TestWithHandle : public Nz::HandledObject<LuaClass_TestWithHandle>
 {
 	public:
 		int GetI() const
@@ -73,24 +73,24 @@ class TestWithHandle : public Nz::HandledObject<TestWithHandle>
 		int m_i = 8;
 };
 
-inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, Test* arg, Nz::TypeTag<Test>)
+inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, LuaClass_Test* arg, Nz::TypeTag<LuaClass_Test>)
 {
 	REQUIRE(instance.IsOfType(index, "Test"));
-	*arg = *static_cast<Test*>(instance.ToUserdata(index));
+	*arg = *static_cast<LuaClass_Test*>(instance.ToUserdata(index));
 	return 1;
 }
 
-inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, Nz::ObjectHandle<TestWithHandle>* arg, Nz::TypeTag<Nz::ObjectHandle<TestWithHandle>>)
+inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, Nz::ObjectHandle<LuaClass_TestWithHandle>* arg, Nz::TypeTag<Nz::ObjectHandle<LuaClass_TestWithHandle>>)
 {
 	REQUIRE(instance.IsOfType(index, "TestWithHandle"));
-	*arg = *static_cast<Nz::ObjectHandle<TestWithHandle>*>(instance.ToUserdata(index));
+	*arg = *static_cast<Nz::ObjectHandle<LuaClass_TestWithHandle>*>(instance.ToUserdata(index));
 	return 1;
 }
 
-inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, InheritTest* arg, Nz::TypeTag<InheritTest>)
+inline unsigned int LuaImplQueryArg(const Nz::LuaState& instance, int index, LuaClass_InheritTest* arg, Nz::TypeTag<LuaClass_InheritTest>)
 {
 	REQUIRE(instance.IsOfType(index, "InheritTest"));
-	*arg = *static_cast<InheritTest*>(instance.ToUserdata(index));
+	*arg = *static_cast<LuaClass_InheritTest*>(instance.ToUserdata(index));
 	return 1;
 }
 
@@ -99,9 +99,9 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 	GIVEN("One lua class for our Test class")
 	{
 		Nz::LuaInstance luaInstance;
-		Nz::LuaClass<Test> test;
-		Nz::LuaClass<InheritTest> inheritTest;
-		using TestHandle = Nz::ObjectHandle<TestWithHandle>;
+		Nz::LuaClass<LuaClass_Test> test;
+		Nz::LuaClass<LuaClass_InheritTest> inheritTest;
+		using TestHandle = Nz::ObjectHandle<LuaClass_TestWithHandle>;
 		Nz::LuaClass<TestHandle> testHandle;
 
 		WHEN("We bind the methods")
@@ -110,7 +110,7 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 
 			test.BindDefaultConstructor();
 
-			test.SetConstructor([] (Nz::LuaState& lua, Test* instance, std::size_t argumentCount)
+			test.SetConstructor([] (Nz::LuaState& lua, LuaClass_Test* instance, std::size_t argumentCount)
 			{
 				std::size_t argCount = std::min<std::size_t>(argumentCount, 2U);
 
@@ -139,14 +139,14 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 				return false;
 			});
 
-			test.BindMethod("GetI", &Test::GetI);
-			test.BindMethod("GetJ", &Test::GetJ);
-			test.BindMethod("GetDefault", &Test::GetDefault, 0);
+			test.BindMethod("GetI", &LuaClass_Test::GetI);
+			test.BindMethod("GetJ", &LuaClass_Test::GetJ);
+			test.BindMethod("GetDefault", &LuaClass_Test::GetDefault, 0);
 
 			test.BindStaticMethod("StaticMethodWithArguments", [] (Nz::LuaState& state) -> int
 			{
 				int argIndex = 1;
-				int result = Test::StaticMethodWithArguments(state.Check<int>(&argIndex), state.Check<int>(&argIndex));
+				int result = LuaClass_Test::StaticMethodWithArguments(state.Check<int>(&argIndex), state.Check<int>(&argIndex));
 
 				state.Push(result);
 				return 1;
@@ -162,7 +162,7 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 				luaInstance.PushFunction([=](Nz::LuaState& state) -> int
 				{
 					int argIndex = 1;
-					Test result = state.Check<Test>(&argIndex);
+					LuaClass_Test result = state.Check<LuaClass_Test>(&argIndex);
 					CHECK(result.GetI() == value);
 					CHECK_FALSE(result.GetJ());
 					return 1;
@@ -181,7 +181,7 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 				luaInstance.PushFunction([=](Nz::LuaState& state) -> int
 				{
 					int argIndex = 1;
-					Test result = state.Check<Test>(&argIndex);
+					LuaClass_Test result = state.Check<LuaClass_Test>(&argIndex);
 					CHECK(result.GetI() == staticResult);
 					CHECK(result.GetJ());
 					return 1;
@@ -205,7 +205,7 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 				luaInstance.PushFunction([=](Nz::LuaState& state) -> int
 				{
 					int argIndex = 1;
-					InheritTest result = state.Check<InheritTest>(&argIndex);
+					LuaClass_InheritTest result = state.Check<LuaClass_InheritTest>(&argIndex);
 					CHECK(result.GetI() == 8);
 					CHECK(result.GetJ());
 					return 1;
@@ -224,8 +224,8 @@ SCENARIO("LuaClass", "[LUA][LUACLASS]")
 
 			testHandle.Reset("TestHandle");
 			testHandle.BindMethod("IsValid", &TestHandle::IsValid);
-			testHandle.BindMethod("GetI", &TestWithHandle::GetI);
-			testHandle.BindMethod("GetDefault", &TestWithHandle::GetDefault, defaultValue);
+			testHandle.BindMethod("GetI", &LuaClass_TestWithHandle::GetI);
+			testHandle.BindMethod("GetDefault", &LuaClass_TestWithHandle::GetDefault, defaultValue);
 			testHandle.Register(luaInstance);
 
 			THEN("We can ensure the following properties")

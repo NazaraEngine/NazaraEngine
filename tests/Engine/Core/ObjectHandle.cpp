@@ -2,13 +2,9 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Catch/catch.hpp>
 
-class Test;
-
-using TestHandle = Nz::ObjectHandle<Test>;
-
-struct Test : public Nz::HandledObject<Test>
+struct ObjectHandle_Test : public Nz::HandledObject<ObjectHandle_Test>
 {
-	Test(int value) :
+	ObjectHandle_Test(int value) :
 	i(value)
 	{
 	}
@@ -21,10 +17,10 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 	GIVEN("One test with two handles")
 	{
 		int defaultValue = 1;
-		Test test(defaultValue);
+		ObjectHandle_Test test(defaultValue);
 
-		Nz::ObjectHandle<Test> handle1 = test.CreateHandle();
-		Nz::ObjectHandle<Test> handle2 = test.CreateHandle();
+		Nz::ObjectHandle<ObjectHandle_Test> handle1 = test.CreateHandle();
+		Nz::ObjectHandle<ObjectHandle_Test> handle2 = test.CreateHandle();
 
 		WHEN("We modify from one")
 		{
@@ -39,8 +35,8 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 
 		WHEN("We copy construct")
 		{
-			Test other(test);
-			Nz::ObjectHandle<Test> otherHandle = other.CreateHandle();
+			ObjectHandle_Test other(test);
+			Nz::ObjectHandle<ObjectHandle_Test> otherHandle = other.CreateHandle();
 
 			THEN("Handles should point to 1")
 			{
@@ -54,8 +50,8 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 
 		WHEN("We move construct")
 		{
-			Test other(std::move(test));
-			Nz::ObjectHandle<Test> otherHandle = other.CreateHandle();
+			ObjectHandle_Test other(std::move(test));
+			Nz::ObjectHandle<ObjectHandle_Test> otherHandle = other.CreateHandle();
 
 			THEN("Handles should point to 1")
 			{
@@ -69,8 +65,8 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 		WHEN("We copy assign")
 		{
 			int copyValue = 3;
-			Test other(copyValue);
-			Nz::ObjectHandle<Test> otherHandle = other.CreateHandle();
+			ObjectHandle_Test other(copyValue);
+			Nz::ObjectHandle<ObjectHandle_Test> otherHandle = other.CreateHandle();
 			test = other;
 
 			THEN("Handles should point to 3")
@@ -86,30 +82,33 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 		WHEN("We move assign")
 		{
 			int moveValue = 4;
-			Test other(moveValue);
-			Nz::ObjectHandle<Test> otherHandle = other.CreateHandle();
+			ObjectHandle_Test other(moveValue);
+			Nz::ObjectHandle<ObjectHandle_Test> otherHandle = other.CreateHandle();
 			test = std::move(other);
+
+			THEN("Handles to previous objects should be invalid")
+			{
+				CHECK_FALSE(handle1.IsValid());
+				CHECK_FALSE(handle2.IsValid());
+			}
 
 			THEN("Handles should point to 4")
 			{
-				CHECK(handle1->i == moveValue);
-				CHECK(handle2->i == moveValue);
-				CHECK(otherHandle->i == moveValue);
-				CHECK(handle1.GetObject() == &test);
 				CHECK(otherHandle.GetObject() == &test);
+				CHECK(otherHandle->i == moveValue);
 			}
 		}
 	}
 
 	GIVEN("One handle pointing to a default test")
 	{
-		Test test(1);
-		Nz::ObjectHandle<Test> invalidHandle(&test);
+		ObjectHandle_Test test(1);
+		Nz::ObjectHandle<ObjectHandle_Test> invalidHandle(&test);
 
 		WHEN("We bind it to a HandledObject which is going to die")
 		{
 			{
-				Test dyingTest(5);
+				ObjectHandle_Test dyingTest(5);
 				invalidHandle.Reset(&dyingTest);
 			}
 
@@ -122,10 +121,10 @@ SCENARIO("Handle", "[CORE][HandledObject][ObjectHandle]")
 
 	GIVEN("Two handle pointing to two different tests")
 	{
-		Test test1(1);
-		Nz::ObjectHandle<Test> test1Handle = test1.CreateHandle();
-		Test test2(2);
-		Nz::ObjectHandle<Test> test2Handle = test2.CreateHandle();
+		ObjectHandle_Test test1(1);
+		Nz::ObjectHandle<ObjectHandle_Test> test1Handle = test1.CreateHandle();
+		ObjectHandle_Test test2(2);
+		Nz::ObjectHandle<ObjectHandle_Test> test2Handle = test2.CreateHandle();
 
 		WHEN("We swap their content")
 		{

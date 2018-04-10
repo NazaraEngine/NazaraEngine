@@ -345,7 +345,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	CreateSpaceShip();
 	CreateTurret();
 
-	Ndk::EntityHandle light = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& light = m_shared.world3D->CreateEntity();
 	Ndk::NodeComponent& lightNode = light->AddComponent<Ndk::NodeComponent>();
 	Ndk::LightComponent& lightComp = light->AddComponent<Ndk::LightComponent>(Nz::LightType_Directional);
 	lightNode.SetRotation(Nz::EulerAnglesf(-30.f, 0.f, 0.f));
@@ -362,7 +362,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretCannonBaseRotation = 0.f;
 	m_turretShootTimer = 0.f;
 
-	Ndk::EntityHandle torpedoGroupEntity = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& torpedoGroupEntity = m_shared.world3D->CreateEntity();
 	m_torpedoGroup = torpedoGroupEntity->AddComponent<Ndk::ParticleGroupComponent>(200, m_torpedoDeclaration).CreateHandle();
 	RegisterParticleGroup(torpedoGroupEntity);
 

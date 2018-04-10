@@ -81,6 +81,10 @@ Nazara Engine:
 - Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
 - Fix copy and move semantic on HandledObject and ObjectHandle
 - Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
+- Music, Sound and SoundEmitter are now movable
+- Fixed Sound copy which was not copying looping state
+- Fixed Billboard bounding volume
+- Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -118,6 +122,9 @@ Nazara Development Kit:
 - World now has an internal profiler, allowing to measure the refresh and system update time
 - CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
 - Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
+- ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
+- World now has const getters for systems
+- Add World::ForEachSystem method, allowing iteration on every active system on a specific world
 
 # 0.4:
 
