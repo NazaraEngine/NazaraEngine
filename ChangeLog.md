@@ -82,6 +82,8 @@ Nazara Engine:
 - Fix copy and move semantic on HandledObject and ObjectHandle
 - Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
 - Music, Sound and SoundEmitter are now movable
+- Fixed Sound copy which was not copying looping state
+- Fixed Billboard bounding volume
 - Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
 
 Nazara Development Kit:
