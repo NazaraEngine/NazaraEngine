@@ -43,6 +43,7 @@ namespace Nz
 			static bool Remove(const String& dirPath);
 
 		private:
+			const Directory* m_parent;
 			DIR* m_handle;
 			dirent64* m_result;
 	};
