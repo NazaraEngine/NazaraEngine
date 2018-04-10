@@ -230,7 +230,9 @@ namespace Nz
 
 		for (const BasicRenderQueue::Billboard& billboard : billboards)
 		{
-			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect))
+			const Nz::Recti& scissorRect = (billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect;
+
+			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
 			{
 				Commit();
 
@@ -262,10 +264,10 @@ namespace Nz
 					lastMaterial = billboard.material;
 				}
 
-				if (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect)
+				if (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect((billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect);
-					lastScissorRect = billboard.scissorRect;
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
 				}
 			}
 
@@ -317,7 +319,9 @@ namespace Nz
 
 		for (const BasicRenderQueue::BillboardChain& billboard : billboards)
 		{
-			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect))
+			const Nz::Recti& scissorRect = (billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect;
+
+			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
 			{
 				Commit();
 
@@ -349,10 +353,10 @@ namespace Nz
 					lastMaterial = billboard.material;
 				}
 
-				if (billboard.material->IsScissorTestEnabled() && billboard.scissorRect != lastScissorRect)
+				if (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect((billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect);
-					lastScissorRect = billboard.scissorRect;
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
 				}
 			}
 
@@ -424,10 +428,14 @@ namespace Nz
 				lastMaterial = model.material;
 			}
 
-			if (model.material->IsScissorTestEnabled() && model.scissorRect != lastScissorRect)
+			if (model.material->IsScissorTestEnabled())
 			{
-				Renderer::SetScissorRect((model.scissorRect.width > 0) ? model.scissorRect : fullscreenScissorRect);
-				lastScissorRect = model.scissorRect;
+				const Nz::Recti& scissorRect = (model.scissorRect.width > 0) ? model.scissorRect : fullscreenScissorRect;
+				if (scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
+				}
 			}
 
 			// Handle draw call before rendering loop
@@ -528,7 +536,9 @@ namespace Nz
 
 		for (const BasicRenderQueue::SpriteChain& basicSprites : spriteList)
 		{
-			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect))
+			const Nz::Recti& scissorRect = (basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect;
+
+			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
 			{
 				Commit();
 
@@ -573,10 +583,10 @@ namespace Nz
 					lastOverlay = overlayTexture;
 				}
 
-				if (basicSprites.material->IsScissorTestEnabled() && basicSprites.scissorRect != lastScissorRect)
+				if (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
 				{
-					Renderer::SetScissorRect((basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect);
-					lastScissorRect = basicSprites.scissorRect;
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
 				}
 			}
 
