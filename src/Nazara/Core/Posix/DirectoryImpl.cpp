@@ -33,32 +33,29 @@ namespace Nz
 
 	UInt64 DirectoryImpl::GetResultSize() const
 	{
-		if (S_ISREG(m_result->d_type))
-		{
-			String path = m_parent->GetPath();
-			std::size_t pathSize = path.GetSize();
+		String path = m_parent->GetPath();
+		std::size_t pathSize = path.GetSize();
 
-			std::size_t resultNameSize = std::strlen(m_result->d_name);
+		std::size_t resultNameSize = std::strlen(m_result->d_name);
 
-			std::size_t fullNameSize = pathSize + 1 + resultNameSize;
-			StackArray<char> fullName = NazaraStackAllocationNoInit(char, fullNameSize + 1);
-			std::memcpy(&fullName[0], path.GetConstBuffer(), pathSize * sizeof(char));
-			fullName[pathSize] = '/';
-			std::memcpy(&fullName[pathSize + 1], m_result->d_name, resultNameSize * sizeof(char));
-			fullName[fullNameSize] = '\0';
+		std::size_t fullNameSize = pathSize + 1 + resultNameSize;
+		StackArray<char> fullName = NazaraStackAllocationNoInit(char, fullNameSize + 1);
+		std::memcpy(&fullName[0], path.GetConstBuffer(), pathSize * sizeof(char));
+		fullName[pathSize] = '/';
+		std::memcpy(&fullName[pathSize + 1], m_result->d_name, resultNameSize * sizeof(char));
+		fullName[fullNameSize] = '\0';
 
-			struct stat64 results;
-			stat64(fullName.data(), &results);
+		struct stat64 results;
+		stat64(fullName.data(), &results);
 
-			return results.st_size;
-		}
-		else
-			return 0;
+		return results.st_size;
 	}
 
 	bool DirectoryImpl::IsResultDirectory() const
 	{
-		return S_ISDIR(m_result->d_type);
+		//TODO: Fix d_type handling (field can be missing or be a symbolic link, both cases which must be handled by calling stat)
+
+		return m_result->d_type == DT_DIR;
 	}
 
 	bool DirectoryImpl::NextResult()
