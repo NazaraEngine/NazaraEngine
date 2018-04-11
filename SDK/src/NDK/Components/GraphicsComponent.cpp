@@ -35,7 +35,7 @@ namespace Ndk
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
 		}
 	}
 
@@ -282,7 +282,7 @@ namespace Ndk
 				boundingVolume.Set(Nz::Boxf(newPos.x, newPos.y, newPos.z, newLengths.x, newLengths.y, newLengths.z));
 			}
 
-			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
+			m_boundingVolume.ExtendTo(boundingVolume);
 		}
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();

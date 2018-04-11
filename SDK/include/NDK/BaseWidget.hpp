@@ -83,9 +83,10 @@ namespace Ndk
 			};
 
 		protected:
-			const EntityHandle& CreateEntity();
+			const EntityHandle& CreateEntity(bool isContentEntity);
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
+
 			void InvalidateNode() override;
 
 			virtual bool IsFocusable() const;
@@ -111,11 +112,18 @@ namespace Ndk
 			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
+			void UpdatePositionAndSize();
+
+			struct WidgetEntity
+			{
+				EntityOwner handle;
+				bool isContent;
+			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 
 			std::size_t m_canvasIndex;
-			std::vector<EntityOwner> m_entities;
+			std::vector<WidgetEntity> m_entities;
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			Canvas* m_canvas;
 			EntityOwner m_backgroundEntity;

@@ -43,7 +43,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -56,7 +56,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -73,7 +73,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -86,7 +86,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -103,7 +103,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -116,7 +116,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -133,7 +133,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -146,7 +146,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!
@@ -163,7 +163,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -176,7 +176,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, colorPtr);
 	}
 
 	/*!
@@ -193,7 +193,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -206,7 +206,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, sinCosPtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, sinCosPtr, alphaPtr);
 	}
 
 	/*!
@@ -223,7 +223,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -236,7 +236,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, colorPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, colorPtr);
 	}
 
 	/*!
@@ -253,7 +253,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, unsigned int count, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DepthRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -266,11 +266,11 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddBillboards(0, material, count, positionPtr, sizePtr, anglePtr, alphaPtr);
+		BasicRenderQueue::AddBillboards(0, material, billboardCount, scissorRect, positionPtr, sizePtr, anglePtr, alphaPtr);
 	}
 
 	/*!
-	* \brief Adds a direcitonal light to the queue
+	* \brief Adds a directional light to the queue
 	*
 	* \param light Light to add
 	*
@@ -295,7 +295,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix)
+	void DepthRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -309,7 +309,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix);
+		BasicRenderQueue::AddMesh(0, material, meshData, meshAABB, transformMatrix, scissorRect);
 	}
 
 	/*!
@@ -352,7 +352,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
 
-	void DepthRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Texture* overlay)
+	void DepthRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay /*= nullptr*/)
 	{
 		NazaraAssert(material, "Invalid material");
 		NazaraUnused(renderOrder);
@@ -366,7 +366,7 @@ namespace Nz
 		else
 			material = m_baseMaterial;
 
-		ForwardRenderQueue::AddSprites(0, material, vertices, spriteCount, overlay);
+		BasicRenderQueue::AddSprites(0, material, vertices, spriteCount, scissorRect, overlay);
 	}
 }
 
