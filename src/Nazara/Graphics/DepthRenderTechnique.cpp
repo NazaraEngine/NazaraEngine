@@ -587,7 +587,7 @@ namespace Nz
 					lastMaterial = basicSprites.material;
 				}
 
-				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay : &m_whiteTexture;
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : &m_whiteTexture;
 				if (overlayTexture != lastOverlay)
 				{
 					Renderer::SetTexture(overlayTextureUnit, overlayTexture);
