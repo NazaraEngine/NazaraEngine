@@ -426,7 +426,7 @@ namespace Ndk
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
 		m_profilerData          = std::move(world.m_profilerData);
-		m_isProfilerEnabled     = m_isProfilerEnabled;
+		m_isProfilerEnabled     = world.m_isProfilerEnabled;
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
