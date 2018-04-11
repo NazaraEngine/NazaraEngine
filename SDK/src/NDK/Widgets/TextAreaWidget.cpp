@@ -20,14 +20,14 @@ namespace Ndk
 		m_cursorSprite->SetColor(Nz::Color::Black);
 		m_cursorSprite->SetSize(1.f, float(m_drawer.GetFont()->GetSizeInfo(m_drawer.GetCharacterSize()).lineHeight));
 
-		m_cursorEntity = CreateEntity();
+		m_cursorEntity = CreateEntity(true);
 		m_cursorEntity->AddComponent<GraphicsComponent>().Attach(m_cursorSprite, 10);
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_cursorEntity->Enable(false);
 
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity();
+		m_textEntity = CreateEntity(true);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
@@ -236,7 +236,8 @@ namespace Ndk
 		{
 			SetFocus();
 
-			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
+			const Padding& padding = GetPadding();
+			SetCursorPosition(GetHoveredGlyph(float(x - padding.left), float(y - padding.top)));
 		}
 	}
 

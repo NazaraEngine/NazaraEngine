@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
+#include <Nazara/Graphics/DeferredProxyRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
-#include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -47,7 +47,7 @@ namespace Nz
 	void DeferredRenderPass::Initialize(DeferredRenderTechnique* technique)
 	{
 		m_deferredTechnique = technique;
-		m_renderQueue = static_cast<DeferredRenderQueue*>(technique->GetRenderQueue());
+		m_renderQueue = static_cast<DeferredProxyRenderQueue*>(technique->GetRenderQueue());
 
 		m_depthStencilTexture = technique->GetDepthStencilTexture();
 

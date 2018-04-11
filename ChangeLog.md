@@ -125,6 +125,9 @@ Nazara Development Kit:
 - ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
 - World now has const getters for systems
 - Add World::ForEachSystem method, allowing iteration on every active system on a specific world
+- Fix GraphicsComponent bounding volume not taking local matrix in account
+- ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
+- ⚠️ All widgets are now bound to a scissor box when rendering
 
 # 0.4:
 

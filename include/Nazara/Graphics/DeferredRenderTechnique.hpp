@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
-#include <Nazara/Graphics/DeferredRenderQueue.hpp>
+#include <Nazara/Graphics/DeferredProxyRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
@@ -64,8 +64,9 @@ namespace Nz
 			};
 
 			std::map<RenderPassType, std::map<int, std::unique_ptr<DeferredRenderPass>>, RenderPassComparator> m_passes;
-			ForwardRenderTechnique m_forwardTechnique; // Must be initialized before the RenderQueue
-			DeferredRenderQueue m_renderQueue;
+			BasicRenderQueue m_deferredRenderQueue; // Must be initialized before the ProxyRenderQueue
+			ForwardRenderTechnique m_forwardTechnique; // Must be initialized before the ProxyRenderQueue
+			DeferredProxyRenderQueue m_renderQueue;
 			mutable TextureRef m_depthStencilTexture;
 			mutable RenderTexture m_GBufferRTT;
 			mutable RenderTexture m_workRTT;
