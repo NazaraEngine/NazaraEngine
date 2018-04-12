@@ -85,6 +85,7 @@ Nazara Engine:
 - Fixed Sound copy which was not copying looping state
 - Fixed Billboard bounding volume
 - Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
+- Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
