@@ -85,6 +85,7 @@ Nazara Engine:
 - Fixed Sound copy which was not copying looping state
 - Fixed Billboard bounding volume
 - Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
+- Fixed Quaternion::Inverse which was not correctly normalizing quaternions
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
