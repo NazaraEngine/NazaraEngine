@@ -7,9 +7,8 @@
 #ifndef NAZARA_REFCOUNTED_HPP
 #define NAZARA_REFCOUNTED_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <atomic>
-#include <unordered_map>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_REFCOUNTED
 	#include <Nazara/Core/ThreadSafety.hpp>

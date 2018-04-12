@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Entity.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <type_traits>
-#include <utility>
 
 namespace Ndk
 {
@@ -30,18 +29,13 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Enables the entity
+	* \brief Disables the entity
 	*
-	* \param enable Should the entity be enabled
+	* This is just a shortcut to Enable(false)
 	*/
-
-	inline void Entity::Enable(bool enable)
+	inline void Entity::Disable()
 	{
-		if (m_enabled != enable)
-		{
-			m_enabled = enable;
-			Invalidate();
-		}
+		Enable(false);
 	}
 
 	/*!

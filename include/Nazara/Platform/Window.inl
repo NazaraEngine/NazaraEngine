@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Debug.hpp>
@@ -25,26 +24,6 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 		Create(handle);
-	}
-
-	/*!
-	* \brief Constructs a Window object by moving another one
-	*/
-	inline Window::Window(Window&& window) noexcept :
-	m_impl(window.m_impl),
-	m_events(std::move(window.m_events)),
-	m_pendingEvents(std::move(window.m_pendingEvents)),
-	m_eventCondition(std::move(window.m_eventCondition)),
-	m_eventHandler(std::move(window.m_eventHandler)),
-	m_eventMutex(std::move(window.m_eventMutex)),
-	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
-	m_closed(window.m_closed),
-	m_closeOnQuit(window.m_closeOnQuit),
-	m_eventPolling(window.m_eventPolling),
-	m_ownsWindow(window.m_ownsWindow),
-	m_waitForEvent(window.m_waitForEvent)
-	{
-		window.m_impl = nullptr;
 	}
 
 	inline void Window::Close()
@@ -144,32 +123,6 @@ namespace Nz
 				m_eventConditionMutex.Unlock();
 			}
 		}
-	}
-
-	/*!
-	* \brief Moves a window to another window object
-	* \return A reference to the object
-	*/
-	inline Window& Window::operator=(Window&& window)
-	{
-		Destroy();
-
-		m_closed              = window.m_closed;
-		m_closeOnQuit         = window.m_closeOnQuit;
-		m_eventCondition      = std::move(window.m_eventCondition);
-		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
-		m_eventHandler        = std::move(window.m_eventHandler);
-		m_eventMutex          = std::move(window.m_eventMutex);
-		m_eventPolling        = window.m_eventPolling;
-		m_impl                = window.m_impl;
-		m_events              = std::move(window.m_events);
-		m_pendingEvents       = std::move(window.m_pendingEvents);
-		m_ownsWindow          = window.m_ownsWindow;
-		m_waitForEvent        = window.m_waitForEvent;
-
-		window.m_impl = nullptr;
-
-		return *this;
 	}
 }
 

@@ -7,9 +7,8 @@
 #ifndef NAZARA_LUASTATE_HPP
 #define NAZARA_LUASTATE_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -25,6 +24,7 @@ namespace Nz
 	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
+	class Stream;
 
 	using LuaCFunction = int (*)(lua_State* internalState);
 	using LuaFunction = std::function<int(LuaState& state)>;
@@ -33,7 +33,7 @@ namespace Nz
 	{
 		public:
 			LuaState(const LuaState&) = default;
-			LuaState(LuaState&& instance) noexcept;
+			LuaState(LuaState&& instance) = default;
 			~LuaState() = default;
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -174,7 +174,7 @@ namespace Nz
 			void* ToUserdata(int index, const String& tname) const;
 
 			LuaState& operator=(const LuaState&) = default;
-			LuaState& operator=(LuaState&& instance) noexcept;
+			LuaState& operator=(LuaState&& instance) = default;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance& GetInstance(lua_State* internalState);
@@ -189,8 +189,8 @@ namespace Nz
 
 			static int ProxyFunc(lua_State* internalState);
 
+			MovablePtr<lua_State> m_state;
 			String m_lastError;
-			lua_State* m_state;
 	};
 }
 

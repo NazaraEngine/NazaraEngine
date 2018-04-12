@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -32,8 +31,7 @@ namespace Nz
 		NazaraAssert(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
 		NazaraAssert(m_layers.size() != 0U, "Invalid material count");
 
-		for (Layer& layer : m_layers)
-			layer.material = Material::GetDefault();
+		ResetMaterials(materialCount);
 
 		InvalidateBoundingVolume();
 	}
@@ -183,9 +181,11 @@ namespace Nz
 	inline void TileMap::EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
-		NazaraAssert(m_layers[materialIndex].material->HasDiffuseMap(), "Material has no diffuse map");
 
-		Texture* diffuseMap = m_layers[materialIndex].material->GetDiffuseMap();
+		const MaterialRef& material = GetMaterial(materialIndex);
+		NazaraAssert(material->HasDiffuseMap(), "Material has no diffuse map");
+
+		Texture* diffuseMap = material->GetDiffuseMap();
 		float invWidth = 1.f / diffuseMap->GetWidth();
 		float invHeight = 1.f / diffuseMap->GetHeight();
 
@@ -246,7 +246,7 @@ namespace Nz
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		Texture* diffuseMap = m_layers[materialIndex].material->GetDiffuseMap();
+		Texture* diffuseMap = GetMaterial(materialIndex)->GetDiffuseMap();
 		float invWidth = 1.f / diffuseMap->GetWidth();
 		float invHeight = 1.f / diffuseMap->GetHeight();
 
@@ -321,37 +321,16 @@ namespace Nz
 	inline void TileMap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
-		NazaraAssert(m_layers[materialIndex].material->HasDiffuseMap(), "Material has no diffuse map");
 
-		Texture* diffuseMap = m_layers[materialIndex].material->GetDiffuseMap();
+		const MaterialRef& material = GetMaterial(materialIndex);
+		NazaraAssert(material->HasDiffuseMap(), "Material has no diffuse map");
+
+		Texture* diffuseMap = material->GetDiffuseMap();
 		float invWidth = 1.f / diffuseMap->GetWidth();
 		float invHeight = 1.f / diffuseMap->GetHeight();
 
 		Rectf unnormalizedCoords(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height);
 		EnableTiles(tilesPos, tileCount, unnormalizedCoords, color, materialIndex);
-	}
-
-	/*!
-	* \brief Gets the material at position index used by the TileMap
-	*
-	* \param index Index of the material to query
-	*
-	* \return Material at index
-	*/
-	inline const MaterialRef& TileMap::GetMaterial(std::size_t index) const
-	{
-		NazaraAssert(index < m_layers.size(), "Material out of bounds");
-
-		return m_layers[index].material;
-	}
-
-	/*!
-	* \brief Gets the maximum material count this TileMap can use
-	* \return Material count
-	*/
-	inline std::size_t TileMap::GetMaterialCount() const
-	{
-		return m_layers.size();
 	}
 
 	/*!
@@ -413,19 +392,6 @@ namespace Nz
 	inline bool TileMap::IsIsometricModeEnabled() const
 	{
 		return m_isometricModeEnabled;
-	}
-
-	/*!
-	* \brief Sets a material of the TileMap
-	*
-	* \param index Index of the material to change
-	* \param material Material for the TileMap
-	*/
-	inline void TileMap::SetMaterial(std::size_t index, MaterialRef material)
-	{
-		NazaraAssert(index < m_layers.size(), "Material out of bounds");
-
-		m_layers[index].material = std::move(material);
 	}
 
 	/*!

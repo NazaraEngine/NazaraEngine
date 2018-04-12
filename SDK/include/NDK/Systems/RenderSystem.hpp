@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -11,16 +11,16 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
-#include <unordered_map>
+#include <NDK/Components/GraphicsComponent.hpp>
 #include <vector>
 
 namespace Ndk
 {
+	class AbstractViewer;
+
 	class NDK_API RenderSystem : public System<RenderSystem>
 	{
 		public:
@@ -52,6 +52,7 @@ namespace Ndk
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
+			void UpdateDynamicReflections();
 			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
@@ -63,6 +64,7 @@ namespace Ndk
 			EntityList m_lights;
 			EntityList m_pointSpotLights;
 			EntityList m_particleGroups;
+			EntityList m_realtimeReflected;
 			GraphicsComponentCullingList m_drawableCulling;
 			Nz::BackgroundRef m_background;
 			Nz::DepthRenderTechnique m_shadowTechnique;

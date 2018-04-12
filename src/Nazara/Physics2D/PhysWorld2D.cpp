@@ -3,12 +3,84 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <chipmunk/chipmunk.h>
 #include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {
+	namespace
+	{
+		Color CpDebugColorToColor(cpSpaceDebugColor c)
+		{
+			return Color{ static_cast<Nz::UInt8>(c.r * 255.f), static_cast<Nz::UInt8>(c.g * 255.f), static_cast<Nz::UInt8>(c.b * 255.f), static_cast<Nz::UInt8>(c.a * 255.f) };
+		}
+
+		cpSpaceDebugColor ColorToCpDebugColor(Color c)
+		{
+			return cpSpaceDebugColor{ c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f };
+		}
+
+		void DrawCircle(cpVect pos, cpFloat angle, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->circleCallback)
+				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), float(angle), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+		}
+
+		void DrawDot(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->dotCallback)
+				drawOptions->dotCallback(Vector2f(float(pos.x), float(pos.y)), float(size), CpDebugColorToColor(color), drawOptions->userdata);
+		}
+
+		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+
+		void DrawPolygon(int vertexCount, const cpVect* vertices, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->polygonCallback)
+			{
+				//TODO: constexpr if to prevent copy/cast if sizeof(cpVect) == sizeof(Vector2f)
+
+				StackArray<Vector2f> nVertices = NazaraStackAllocation(Vector2f, vertexCount);
+				for (int i = 0; i < vertexCount; ++i)
+					nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
+
+				drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+			}
+		}
+
+		void DrawSegment(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->segmentCallback)
+				drawOptions->segmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), CpDebugColorToColor(color), drawOptions->userdata);
+		}
+
+		void DrawThickSegment(cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->thickSegmentCallback)
+				drawOptions->thickSegmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+		}
+
+		cpSpaceDebugColor GetColorForShape(cpShape* shape, cpDataPointer userdata)
+		{
+			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
+			if (drawOptions->colorCallback)
+			{
+				RigidBody2D& rigidBody = *static_cast<RigidBody2D*>(cpShapeGetUserData(shape));
+				return ColorToCpDebugColor(drawOptions->colorCallback(rigidBody, rigidBody.GetShapeIndex(shape), drawOptions->userdata));
+			}
+			else
+				return cpSpaceDebugColor{255.f, 0.f, 0.f, 255.f};
+		}
+	}
+
 	PhysWorld2D::PhysWorld2D() :
+	m_maxStepCount(50),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -21,6 +93,47 @@ namespace Nz
 		cpSpaceFree(m_handle);
 	}
 
+	void PhysWorld2D::DebugDraw(const DebugDrawOptions& options, bool drawShapes, bool drawConstraints, bool drawCollisions)
+	{
+		auto ColorToCpDebugColor = [](Color c) -> cpSpaceDebugColor
+		{
+			return cpSpaceDebugColor{ c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f };
+		};
+
+		cpSpaceDebugDrawOptions drawOptions;
+		drawOptions.collisionPointColor = ColorToCpDebugColor(options.collisionPointColor);
+		drawOptions.constraintColor = ColorToCpDebugColor(options.constraintColor);
+		drawOptions.shapeOutlineColor = ColorToCpDebugColor(options.shapeOutlineColor);
+		drawOptions.data = const_cast<DebugDrawOptions*>(&options); //< Yeah, I know, shame :bell: but it won't be used for writing anyway
+
+		std::underlying_type_t<cpSpaceDebugDrawFlags> drawFlags = 0;
+		if (drawCollisions)
+			drawFlags |= CP_SPACE_DEBUG_DRAW_COLLISION_POINTS;
+
+		if (drawConstraints)
+			drawFlags |= CP_SPACE_DEBUG_DRAW_CONSTRAINTS;
+
+		if (drawShapes)
+			drawFlags |= CP_SPACE_DEBUG_DRAW_SHAPES;
+
+		drawOptions.flags = static_cast<cpSpaceDebugDrawFlags>(drawFlags);
+
+		// Callback trampoline
+		drawOptions.colorForShape = GetColorForShape;
+		drawOptions.drawCircle = DrawCircle;
+		drawOptions.drawDot = DrawDot;
+		drawOptions.drawFatSegment = DrawThickSegment;
+		drawOptions.drawPolygon = DrawPolygon;
+		drawOptions.drawSegment = DrawSegment;
+
+		cpSpaceDebugDraw(m_handle, &drawOptions);
+	}
+
+	float PhysWorld2D::GetDamping() const
+	{
+		return float(cpSpaceGetDamping(m_handle));
+	}
+
 	Vector2f PhysWorld2D::GetGravity() const
 	{
 		cpVect gravity = cpSpaceGetGravity(m_handle);
@@ -30,6 +143,16 @@ namespace Nz
 	cpSpace* PhysWorld2D::GetHandle() const
 	{
 		return m_handle;
+	}
+
+	std::size_t PhysWorld2D::GetIterationCount() const
+	{
+		return cpSpaceGetIterations(m_handle);
+	}
+
+	std::size_t PhysWorld2D::GetMaxStepCount() const
+	{
+		return m_maxStepCount;
 	}
 
 	float PhysWorld2D::GetStepSize() const
@@ -159,9 +282,24 @@ namespace Nz
 		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), callbacks);
 	}
 
+	void PhysWorld2D::SetDamping(float dampingValue)
+	{
+		cpSpaceSetDamping(m_handle, dampingValue);
+	}
+
 	void PhysWorld2D::SetGravity(const Vector2f& gravity)
 	{
 		cpSpaceSetGravity(m_handle, cpv(gravity.x, gravity.y));
+	}
+
+	void PhysWorld2D::SetIterationCount(std::size_t iterationCount)
+	{
+		cpSpaceSetIterations(m_handle, int(iterationCount));
+	}
+
+	void PhysWorld2D::SetMaxStepCount(std::size_t maxStepCount)
+	{
+		m_maxStepCount = maxStepCount;
 	}
 
 	void PhysWorld2D::SetStepSize(float stepSize)
@@ -173,7 +311,8 @@ namespace Nz
 	{
 		m_timestepAccumulator += timestep;
 
-		while (m_timestepAccumulator >= m_stepSize)
+		std::size_t stepCount = 0;
+		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
 			OnPhysWorld2DPreStep(this);
 
@@ -192,7 +331,13 @@ namespace Nz
 			}
 
 			m_timestepAccumulator -= m_stepSize;
+			stepCount++;
 		}
+	}
+
+	void PhysWorld2D::UseSpatialHash(float cellSize, std::size_t entityCount)
+	{
+		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
 	}
 
 	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks)

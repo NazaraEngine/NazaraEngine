@@ -1,8 +1,9 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/World.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
@@ -61,11 +62,14 @@ namespace Ndk
 	{
 		EntityId id;
 		EntityBlock* entBlock;
-		if (!m_freeIdList.empty())
+
+		std::size_t freeEntityId = m_freeEntityIds.FindFirst();
+		if (freeEntityId != m_freeEntityIds.npos)
 		{
 			// We get an identifier
-			id = m_freeIdList.back();
-			m_freeIdList.pop_back();
+			m_freeEntityIds.Reset(freeEntityId); //< Remove id from free entity id
+
+			id = static_cast<EntityId>(freeEntityId);
 
 			entBlock = &m_entities[id];
 			entBlock->handle.Reset(&entBlock->entity); //< Reset handle (as it was reset when entity got destroyed)
@@ -81,7 +85,7 @@ namespace Ndk
 			{
 				NazaraAssert(m_waitingEntities.empty(), "There should be no waiting entities if space is available in main container");
 
-				m_entities.push_back(Entity(this, id)); //< We can't use emplace_back due to the scope
+				m_entities.emplace_back(Entity(this, id)); //< We can't make our vector create the entity due to the scope
 				entBlock = &m_entities.back();
 			}
 			else
@@ -115,15 +119,20 @@ namespace Ndk
 
 	void World::Clear() noexcept
 	{
-		// First, destruction of entities, then handles
-		// This is made to avoid that handle warn uselessly entities before their destruction
-		m_entities.clear();
+		// Destroy every valid entity first, to ensure entities are still accessible by ID while being destroyed
+		for (EntityBlock* entBlock : m_entityBlocks)
+		{
+			if (entBlock->entity.IsValid())
+				entBlock->entity.Destroy();
+		}
 		m_entityBlocks.clear();
-		m_freeIdList.clear();
+
+		m_entities.clear();
 		m_waitingEntities.clear();
 
 		m_aliveEntities.Clear();
 		m_dirtyEntities.Clear();
+		m_freeEntityIds.Clear();
 		m_killedEntities.Clear();
 	}
 
@@ -133,12 +142,11 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*
-	* \remark Produces a NazaraError if the entity to clone does not exist
+	* \remark Cloning a disabled entity will produce an enabled clone
 	*/
-
 	const EntityHandle& World::CloneEntity(EntityId id)
 	{
-		EntityHandle original = GetEntity(id);
+		const EntityHandle& original = GetEntity(id);
 		if (!original)
 		{
 			NazaraError("Invalid entity ID");
@@ -146,6 +154,8 @@ namespace Ndk
 		}
 
 		const EntityHandle& clone = CreateEntity();
+		if (!original->IsEnabled())
+			clone->Disable();
 
 		const Nz::Bitset<>& componentBits = original->GetComponentBits();
 		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
@@ -154,16 +164,27 @@ namespace Ndk
 			clone->AddComponent(std::move(component));
 		}
 
+		clone->Enable();
+
 		return clone;
 	}
 
 	/*!
-	* \brief Updates the world
+	* \brief Refreshes the world
 	*
-	* \remark Produces a NazaraAssert if an entity is invalid
+	* This function will perform all pending operations in the following order:
+	* - Reorder systems according to their update order if needed
+	* - Moving newly created entities (whose which allocate never-used id) data and handles to normal entity list, this will invalidate references to world EntityHandle
+	* - Destroying dead entities and allowing their ids to be used by newly created entities
+	* - Update dirty entities, destroying their removed components and filtering them along systems
+	*
+	* \remark This is called automatically by Update and you most likely won't need to call it yourself
+	* \remark Calling this outside of Update will not increase the profiler values
+	*
+	* \see GetProfilerData
+	* \see Update
 	*/
-
-	void World::Update()
+	void World::Refresh()
 	{
 		if (!m_orderedSystemsUpdated)
 			ReorderSystems();
@@ -195,7 +216,7 @@ namespace Ndk
 			entity->Destroy();
 
 			// Send back the identifier of the entity to the free queue
-			m_freeIdList.push_back(entity->GetId());
+			m_freeEntityIds.UnboundedSet(entity->GetId());
 		}
 		m_killedEntities.Reset();
 
@@ -238,6 +259,43 @@ namespace Ndk
 			}
 		}
 		m_dirtyEntities.Reset();
+	}
+
+	/*!
+	* \brief Updates the world
+	* \param elapsedTime Delta time used for the update
+	*
+	* This function Refreshes the world and calls the Update function of every active system part of it with the elapsedTime value.
+	* It also increase the profiler data with the elapsed time passed in Refresh and every system update.
+	*/
+	void World::Update(float elapsedTime)
+	{
+		if (m_isProfilerEnabled)
+		{
+			Nz::UInt64 t1 = Nz::GetElapsedMicroseconds();
+			Refresh();
+			Nz::UInt64 t2 = Nz::GetElapsedMicroseconds();
+
+			m_profilerData.refreshTime += t2 - t1;
+
+			for (auto& systemPtr : m_orderedSystems)
+			{
+				systemPtr->Update(elapsedTime);
+
+				Nz::UInt64 t3 = Nz::GetElapsedMicroseconds();
+				m_profilerData.updateTime[systemPtr->GetIndex()] += t3 - t2;
+				t2 = t3;
+			}
+
+			m_profilerData.updateCount++;
+		}
+		else
+		{
+			Refresh();
+
+			for (auto& systemPtr : m_orderedSystems)
+				systemPtr->Update(elapsedTime);
+		}
 	}
 
 	void World::ReorderSystems()

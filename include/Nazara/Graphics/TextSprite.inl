@@ -2,8 +2,9 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/TextSprite.hpp>
 #include <memory>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
@@ -15,6 +16,8 @@ namespace Nz
 	m_color(Color::White),
 	m_scale(1.f)
 	{
+		ResetMaterials(1U);
+
 		SetDefaultMaterial();
 	}
 
@@ -41,7 +44,6 @@ namespace Nz
 	m_renderInfos(sprite.m_renderInfos),
 	m_localVertices(sprite.m_localVertices),
 	m_color(sprite.m_color),
-	m_material(sprite.m_material),
 	m_localBounds(sprite.m_localBounds),
 	m_scale(sprite.m_scale)
 	{
@@ -79,16 +81,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the material of the text sprite
-	* \return Current material
-	*/
-
-	inline const MaterialRef& TextSprite::GetMaterial() const
-	{
-		return m_material;
-	}
-
-	/*!
 	* \brief Gets the current scale of the text sprite
 	* \return Current scale
 	*/
@@ -118,14 +110,7 @@ namespace Nz
 
 	inline void TextSprite::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New();
-		material->EnableBlending(true);
-		material->EnableDepthWrite(false);
-		material->EnableFaceCulling(false);
-		material->SetDstBlend(BlendFunc_InvSrcAlpha);
-		material->SetSrcBlend(BlendFunc_SrcAlpha);
-
-		SetMaterial(material);
+		SetMaterial(Material::New("Translucent2D"));
 	}
 
 	/*!
@@ -136,7 +121,12 @@ namespace Nz
 
 	inline void TextSprite::SetMaterial(MaterialRef material)
 	{
-		m_material = std::move(material);
+		InstancedRenderable::SetMaterial(0, std::move(material));
+	}
+
+	inline void TextSprite::SetMaterial(std::size_t skinIndex, MaterialRef material)
+	{
+		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
 	}
 
 	/*!
@@ -167,7 +157,6 @@ namespace Nz
 		m_atlases.clear();
 
 		m_color = text.m_color;
-		m_material = text.m_material;
 		m_renderInfos = text.m_renderInfos;
 		m_localBounds = text.m_localBounds;
 		m_localVertices = text.m_localVertices;
@@ -216,4 +205,4 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Renderer/DebugOff.hpp>
+#include <Nazara/Graphics/DebugOff.hpp>

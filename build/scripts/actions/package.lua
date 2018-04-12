@@ -84,13 +84,13 @@ ACTION.Function = function ()
 	local libFileMasks
 	local exeFileExt
 	local exeFilterFunc
-	if (os.is("windows")) then	
+	if (os.ishost("windows")) then	
 		binFileMasks = {"**.dll", "**.pdb"}
 		libFileMasks = {"**.lib", "**.a"}
 		exeFileExt = ".exe"
 		exeFilterFunc = function (filePath) return true end
 	else
-		if (os.is("macosx")) then
+		if (os.ishost("macosx")) then
 			binFileMasks = {"**.dynlib"}
 		else
 			binFileMasks = {"**.so"}
@@ -104,7 +104,7 @@ ACTION.Function = function ()
 	for arch, enabled in pairs(archEnabled) do
 		if (enabled) then
 			local archLibSrc = realLibDir .. arch .. "/"
-			local arch3rdPartyBinSrc = "../extlibs/lib/common/" .. arch .. "/"
+			local arch3rdPartyBinSrc = "../thirdparty/lib/common/" .. arch .. "/"
 			local archBinDst = "bin/" .. arch .. "/"
 			local archLibDst = "lib/" .. arch .. "/"
 			
@@ -183,14 +183,7 @@ ACTION.Function = function ()
 				end
 			end
 
-			local ok, err
-			if (os.is("windows")) then
-				ok, err = os.copyfile(v, targetPath)
-			else
-				-- Workaround: As premake is translating this to "cp %s %s", it fails if space are presents in source/destination paths.
-				ok, err = os.copyfile(string.format("\"%s\"", v), string.format("\"%s\"", targetPath))
-			end
-
+			local ok, err = os.copyfile(v, targetPath)
 			if (not ok) then
 				print("Failed to copy \"" .. v .. "\" to \"" .. targetPath .. "\": " .. err)
 			end
@@ -203,5 +196,5 @@ ACTION.Function = function ()
 	end
 	
 	local config = libDir .. " - " .. enabledArchs
-	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size / (1024 * 1024), config))
+	print(string.format("Package successfully created at \"%s\" (%u MB, %s)", packageDir, size // (1024 * 1024), config))
 end

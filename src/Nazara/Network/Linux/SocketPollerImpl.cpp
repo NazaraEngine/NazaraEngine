@@ -48,7 +48,8 @@ namespace Nz
 		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
 
 		epoll_event entry;
-		entry.events = 0;
+		std::memset(&entry, 0, sizeof(epoll_event));
+
 		entry.data.fd = socket;
 
 		if (eventFlags & SocketPollEvent_Read)
@@ -111,9 +112,6 @@ namespace Nz
 
 					if (m_events[i].events & (EPOLLOUT | EPOLLERR))
 						m_readyToWriteSockets.insert(m_events[i].data.fd);
-
-					if (m_events[i].events & EPOLLERR)
-						NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll with EPOLLERR status");
 				}
 				else
 				{

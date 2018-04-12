@@ -9,7 +9,7 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -46,12 +46,10 @@ namespace Nz
 			void EnableSmoothScrolling(bool enable);
 
 			WindowHandle GetHandle() const;
-			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
-			unsigned int GetWidth() const;
 
 			bool HasFocus() const;
 

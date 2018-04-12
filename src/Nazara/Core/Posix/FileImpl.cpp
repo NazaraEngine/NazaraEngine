@@ -4,8 +4,10 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <cstdio>
-#include <sys/file.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -74,6 +76,11 @@ namespace Nz
 			flags |= O_TRUNC;
 
 		m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
+		if (m_fileDescriptor == -1)
+		{
+			NazaraError("Failed to open \"" + filePath + "\" : " + Error::GetLastSystemError());
+			return false;
+		}
 
 		static struct flock lock;
 
@@ -114,7 +121,7 @@ namespace Nz
 			}
 		}
 
-		return m_fileDescriptor != -1;
+		return true;
 	}
 
 	std::size_t FileImpl::Read(void* buffer, std::size_t size)

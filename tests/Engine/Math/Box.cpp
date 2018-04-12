@@ -56,6 +56,16 @@ SCENARIO("Box", "[MATH][BOX]")
 			}
 		}
 
+		WHEN("We ask for the intersection when there are none")
+		{
+			firstCenterAndUnit.Translate(Nz::Vector3f::UnitZ() * 5.f);
+			THEN("We should have a center and unit")
+			{
+				Nz::Boxf thirdCenterAndUnit;
+				CHECK(!firstCenterAndUnit.Intersect(secondCenterAndUnit, &thirdCenterAndUnit));
+			}
+		}
+
 		WHEN("We use the constructor of conversion")
 		{
 			THEN("Shouldn't be a problem")

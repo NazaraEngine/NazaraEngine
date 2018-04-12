@@ -7,7 +7,7 @@
 #ifndef NAZARA_FORMATS_STBLOADER_HPP
 #define NAZARA_FORMATS_STBLOADER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

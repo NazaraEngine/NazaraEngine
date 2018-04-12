@@ -7,9 +7,8 @@
 #ifndef NAZARA_MEMORYMANAGER_HPP
 #define NAZARA_MEMORYMANAGER_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <cstdio>
-#include <cstring>
+#include <Nazara/Prerequisites.hpp>
+#include <cstddef>
 
 namespace Nz
 {

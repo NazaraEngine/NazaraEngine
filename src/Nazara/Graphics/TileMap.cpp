@@ -4,10 +4,8 @@
 
 #include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <cstring>
-#include <memory>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -25,15 +23,15 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data for the instance
 	*/
-	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 
+		std::size_t matCount = 0;
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			if (layer.material)
-				renderQueue->AddSprites(instanceData.renderOrder, layer.material, &vertices[spriteCount], layer.tiles.size());
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}

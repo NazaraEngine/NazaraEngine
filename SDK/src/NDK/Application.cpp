@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -12,6 +12,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
 
@@ -106,8 +107,7 @@ namespace Ndk
 		if (m_shouldQuit)
 			return false;
 
-		m_updateTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
 
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);
@@ -147,7 +147,10 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-			windowDimensions.Set(info.window->GetWidth(), info.window->GetHeight());
+		{
+			windowDimensions = info.window->GetSize();
+			windowDimensions.y /= 4;
+		}
 		else
 			windowDimensions.MakeZero();
 
@@ -163,6 +166,7 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
+		overlay->lua.LoadLibraries();
 		LuaAPI::RegisterClasses(overlay->lua);
 
 		// Override "print" function to add a line in the console
@@ -213,7 +217,8 @@ namespace Ndk
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
-			consoleRef.SetSize({float(renderTarget->GetWidth()), renderTarget->GetHeight() / 4.f});
+			Nz::Vector2ui size = renderTarget->GetSize();
+			consoleRef.SetSize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);

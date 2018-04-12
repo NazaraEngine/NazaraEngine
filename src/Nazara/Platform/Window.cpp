@@ -5,12 +5,9 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Platform/Win32/WindowImpl.hpp>
@@ -206,19 +203,6 @@ namespace Nz
 		return m_impl->GetHandle();
 	}
 
-	unsigned int Window::GetHeight() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetHeight();
-	}
-
 	Vector2i Window::GetPosition() const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -269,19 +253,6 @@ namespace Nz
 		#endif
 
 		return m_impl->GetTitle();
-	}
-
-	unsigned int Window::GetWidth() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetWidth();
 	}
 
 	bool Window::HasFocus() const

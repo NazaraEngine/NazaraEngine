@@ -1,21 +1,19 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_WIDGETS_TEXTAREAWIDGET_HPP
 #define NDK_WIDGETS_TEXTAREAWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
-#include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NDK/BaseWidget.hpp>
+#include <NDK/Widgets/Enums.hpp>
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:
@@ -32,9 +30,11 @@ namespace Ndk
 
 			inline void EnableMultiline(bool enable = true);
 
+			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
-			inline std::size_t GetGlyphUnderCursor() const;
-			inline std::size_t GetLineCount() const;
+			inline const Nz::String& GetDisplayText() const;
+			inline EchoMode GetEchoMode() const;
+			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition);
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 
@@ -48,8 +48,10 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
+			inline void SetEchoMode(EchoMode echoMode);
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
@@ -66,27 +68,30 @@ namespace Ndk
 			NazaraSignal(OnTextAreaKeyReturn, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyRight, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyUp, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextChanged, const TextAreaWidget* /*textArea*/, const Nz::String& /*text*/);
 
 		private:
 			void Layout() override;
 
-			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
+			bool IsFocusable() const override;
+			void OnFocusLost() override;
+			void OnFocusReceived() override;
+			bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
-			void OnMouseEnter() override;
 			void OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button) override;
-			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
-			void OnMouseExit() override;
 			void OnTextEntered(char32_t character, bool repeated) override;
 
 			void RefreshCursor();
+			void UpdateDisplayText();
 
+			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::SpriteRef m_cursorSprite;
+			Nz::String m_text;
 			Nz::TextSpriteRef m_textSprite;
 			Nz::Vector2ui m_cursorPosition;
-			std::size_t m_cursorGlyph;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
 	};

@@ -1,8 +1,7 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
@@ -16,7 +15,6 @@
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/World.hpp>
-#include <algorithm>
 
 #ifndef NDK_SERVER
 #include <Nazara/Audio/Music.hpp>
@@ -310,9 +308,22 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::Entity** handle, TypeTag<Ndk::Entity*>)
+	{
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			*handle = nullptr;
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
 	{
-		*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			handle->Reset();
 
 		return 1;
 	}

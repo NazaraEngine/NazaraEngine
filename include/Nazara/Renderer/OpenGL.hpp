@@ -9,11 +9,11 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 // Inclusion des headers OpenGL
@@ -46,6 +46,7 @@ namespace Nz
 	};
 
 	class Context;
+	struct RenderStates;
 	class RenderTarget;
 
 	using OpenGLFunc = void (*)();

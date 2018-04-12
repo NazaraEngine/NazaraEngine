@@ -7,8 +7,7 @@
 #ifndef NAZARA_THREADIMPL_HPP
 #define NAZARA_THREADIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 #if defined(__GNUC__) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
@@ -19,6 +18,7 @@
 namespace Nz
 {
 	struct Functor;
+	class String;
 
 	class ThreadImpl
 	{

@@ -9,12 +9,12 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
-#include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <xcb/randr.h>
 #include <xcb/xcb_icccm.h>
 

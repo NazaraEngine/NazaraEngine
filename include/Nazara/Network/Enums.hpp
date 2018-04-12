@@ -102,8 +102,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<SocketPollEvent>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max = SocketPollEvent_Max;
+		static constexpr SocketPollEvent max = SocketPollEvent_Max;
 	};
 
 	using SocketPollEventFlags = Flags<SocketPollEvent>;

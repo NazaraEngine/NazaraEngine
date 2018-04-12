@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,18 +6,14 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <cstring>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -45,6 +41,18 @@ namespace Nz
 			return false;
 		}
 
+		if (!vertexDeclaration)
+		{
+			NazaraError("The vertex declaration can't be null");
+			return false;
+		}
+
+		if (!vertexDeclaration->HasComponent(VertexComponent_Position))
+		{
+			NazaraError("Vertex declaration must contains a vertex position");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -52,7 +60,7 @@ namespace Nz
 	{
 		MeshImpl()
 		{
-			materialData.resize(1); // Un matériau par défaut
+			materialData.resize(1); // One material by default
 		}
 
 		std::unordered_map<String, UInt32> subMeshMap;
@@ -60,10 +68,10 @@ namespace Nz
 		std::vector<SubMeshRef> subMeshes;
 		AnimationType animationType;
 		Boxf aabb;
-		Skeleton skeleton; // Uniquement pour les meshs squelettiques
+		Skeleton skeleton; // Only used by skeletal meshes
 		String animationPath;
 		bool aabbUpdated = false;
-		UInt32 jointCount; // Uniquement pour les meshs squelettiques
+		UInt32 jointCount; // Only used by skeletal meshes
 	};
 
 	Mesh::~Mesh()
@@ -105,6 +113,7 @@ namespace Nz
 		NazaraAssert(m_impl, "Mesh should be created first");
 		NazaraAssert(m_impl->animationType == AnimationType_Static, "Submesh building only works for static meshes");
 		NazaraAssert(params.IsValid(), "Invalid parameters");
+		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
 
 		Boxf aabb;
 		IndexBufferRef indexBuffer;
@@ -113,7 +122,7 @@ namespace Nz
 		Matrix4f matrix(primitive.matrix);
 		matrix *= params.matrix;
 
-		VertexDeclaration* declaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		VertexDeclaration* declaration = params.vertexDeclaration;
 
 		switch (primitive.type)
 		{
@@ -123,8 +132,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -145,8 +154,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -167,8 +176,8 @@ namespace Nz
 				unsigned int vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -193,8 +202,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
 
@@ -215,8 +224,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 
@@ -237,8 +246,8 @@ namespace Nz
 						unsigned int vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, 0);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, 0);
+						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
 						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
 

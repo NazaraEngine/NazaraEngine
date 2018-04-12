@@ -1,20 +1,18 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
-#include <limits>
 
 namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
+	m_echoMode(EchoMode_Normal),
 	m_cursorPosition(0U, 0U),
-	m_cursorGlyph(0),
 	m_multiLineEnabled(false),
 	m_readOnly(false)
 	{
@@ -22,14 +20,14 @@ namespace Ndk
 		m_cursorSprite->SetColor(Nz::Color::Black);
 		m_cursorSprite->SetSize(1.f, float(m_drawer.GetFont()->GetSizeInfo(m_drawer.GetCharacterSize()).lineHeight));
 
-		m_cursorEntity = CreateEntity();
+		m_cursorEntity = CreateEntity(true);
 		m_cursorEntity->AddComponent<GraphicsComponent>().Attach(m_cursorSprite, 10);
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_cursorEntity->Enable(false);
 
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity();
+		m_textEntity = CreateEntity(true);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
@@ -40,9 +38,38 @@ namespace Ndk
 
 	void TextAreaWidget::AppendText(const Nz::String& text)
 	{
-		m_drawer.AppendText(text);
+		m_text += text;
+		switch (m_echoMode)
+		{
+			case EchoMode_Normal:
+				m_drawer.AppendText(text);
+				break;
+
+			case EchoMode_Password:
+				m_drawer.AppendText(Nz::String(text.GetLength(), '*'));
+				break;
+
+			case EchoMode_PasswordExceptLast:
+			{
+				m_drawer.Clear();
+				std::size_t textLength = m_text.GetLength();
+				if (textLength >= 2)
+				{
+					std::size_t lastCharacterPosition = m_text.GetCharacterPosition(textLength - 2);
+					if (lastCharacterPosition != Nz::String::npos)
+						m_drawer.AppendText(Nz::String(textLength - 1, '*'));
+				}
+
+				if (textLength >= 1)
+					m_drawer.AppendText(m_text.SubString(m_text.GetCharacterPosition(textLength - 1)));
+
+				break;
+			}
+		}
 
 		m_textSprite->Update(m_drawer);
+
+		OnTextChanged(this, m_text);
 	}
 
 	std::size_t TextAreaWidget::GetHoveredGlyph(float x, float y) const
@@ -82,18 +109,19 @@ namespace Ndk
 
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
-		if (m_cursorGlyph >= m_drawer.GetGlyphCount())
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+
+		if (cursorGlyph >= m_drawer.GetGlyphCount())
 		{
 			AppendText(text);
 			SetCursorPosition(m_drawer.GetGlyphCount());
 		}
 		else
 		{
-			Nz::String currentText = m_drawer.GetText();
-			currentText.Insert(currentText.GetCharacterPosition(m_cursorGlyph), text);
-			SetText(currentText);
+			m_text.Insert(m_text.GetCharacterPosition(cursorGlyph), text);
+			SetText(m_text);
 
-			SetCursorPosition(m_cursorGlyph + text.GetLength());
+			SetCursorPosition(cursorGlyph + text.GetLength());
 		}
 	}
 
@@ -106,24 +134,43 @@ namespace Ndk
 		RefreshCursor();
 	}
 
-	void TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	bool TextAreaWidget::IsFocusable() const
+	{
+		return !m_readOnly;
+	}
+
+	void TextAreaWidget::OnFocusLost()
+	{
+		m_cursorEntity->Disable();
+	}
+
+	void TextAreaWidget::OnFocusReceived()
+	{
+		if (!m_readOnly)
+			m_cursorEntity->Enable(true);
+	}
+
+	bool TextAreaWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
 	{
 		switch (key.code)
 		{
 			case Nz::Keyboard::Delete:
 			{
-				const Nz::String& text = m_drawer.GetText();
+				std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+
+				std::size_t textLength = m_text.GetLength();
+				if (cursorGlyph > textLength)
+					return true;
 
 				Nz::String newText;
-				if (m_cursorGlyph > 0)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph) - 1));
+				if (cursorGlyph > 0)
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyph) - 1));
 
-				if (m_cursorGlyph < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph + 1)));
+				if (cursorGlyph < textLength)
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyph + 1)));
 
-				m_drawer.SetText(newText);
-				m_textSprite->Update(m_drawer);
-				break;
+				SetText(newText);
+				return true;
 			}
 
 			case Nz::Keyboard::Down:
@@ -132,10 +179,10 @@ namespace Ndk
 				OnTextAreaKeyDown(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor({0, 1});
-				break;
+				return true;
 			}
 
 			case Nz::Keyboard::Left:
@@ -144,10 +191,10 @@ namespace Ndk
 				OnTextAreaKeyLeft(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
-				MoveCursor({-1, 0});
-				break;
+				MoveCursor(-1);
+				return true;
 			}
 
 			case Nz::Keyboard::Right:
@@ -156,10 +203,10 @@ namespace Ndk
 				OnTextAreaKeyRight(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
-				MoveCursor({1, 0});
-				break;
+				MoveCursor(1);
+				return true;
 			}
 
 			case Nz::Keyboard::Up:
@@ -168,40 +215,30 @@ namespace Ndk
 				OnTextAreaKeyUp(this, &ignoreDefaultAction);
 
 				if (ignoreDefaultAction)
-					break;
+					return true;
 
 				MoveCursor({0, -1});
-				break;
+				return true;
 			}
+
+			default:
+				return false;
 		}
 	}
 
-	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& key)
+	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
 	{
-	}
-
-	void TextAreaWidget::OnMouseEnter()
-	{
-		m_cursorEntity->Enable(true);
 	}
 
 	void TextAreaWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
 	{
 		if (button == Nz::Mouse::Left)
 		{
-			GrabKeyboard();
+			SetFocus();
 
-			SetCursorPosition(GetHoveredGlyph(float(x), float(y)));
+			const Padding& padding = GetPadding();
+			SetCursorPosition(GetHoveredGlyph(float(x - padding.left), float(y - padding.top)));
 		}
-	}
-
-	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
-	{
-	}
-
-	void TextAreaWidget::OnMouseExit()
-	{
-		m_cursorEntity->Enable(false);
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
@@ -216,19 +253,19 @@ namespace Ndk
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
 
-				if (ignoreDefaultAction)
+				std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
+				if (ignoreDefaultAction || cursorGlyph == 0)
 					break;
 
-				const Nz::String& text = m_drawer.GetText();
-
 				Nz::String newText;
-				if (m_cursorGlyph > 1)
-					newText.Append(text.SubString(0, text.GetCharacterPosition(m_cursorGlyph - 1) - 1));
 
-				if (m_cursorGlyph < m_drawer.GetGlyphCount())
-					newText.Append(text.SubString(text.GetCharacterPosition(m_cursorGlyph)));
+				if (cursorGlyph > 1)
+					newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyph - 1) - 1));
 
-				MoveCursor({-1, 0});
+				if (cursorGlyph < m_text.GetLength())
+					newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyph)));
+
+				MoveCursor(-1);
 				SetText(newText);
 				break;
 			}
@@ -259,15 +296,19 @@ namespace Ndk
 
 	void TextAreaWidget::RefreshCursor()
 	{
+		if (m_readOnly)
+			return;
+
 		const auto& lineInfo = m_drawer.GetLine(m_cursorPosition.y);
+		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPosition);
 
 		std::size_t glyphCount = m_drawer.GetGlyphCount();
 		float position;
-		if (glyphCount > 0 && lineInfo.glyphIndex < m_cursorGlyph)
+		if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
 		{
-			const auto& glyph = m_drawer.GetGlyph(std::min(m_cursorGlyph, glyphCount - 1));
+			const auto& glyph = m_drawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
 			position = glyph.bounds.x;
-			if (m_cursorGlyph >= glyphCount)
+			if (cursorGlyph >= glyphCount)
 				position += glyph.bounds.width;
 		}
 		else
@@ -276,5 +317,24 @@ namespace Ndk
 		Nz::Vector2f contentOrigin = GetContentOrigin();
 
 		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(contentOrigin.x + position, contentOrigin.y + lineInfo.bounds.y);
+	}
+
+	void TextAreaWidget::UpdateDisplayText()
+	{
+		switch (m_echoMode)
+		{
+			case EchoMode_Normal:
+				m_drawer.SetText(m_text);
+				break;
+
+			case EchoMode_Password:
+			case EchoMode_PasswordExceptLast:
+				m_drawer.SetText(Nz::String(m_text.GetLength(), '*'));
+				break;
+		}
+
+		m_textSprite->Update(m_drawer);
+
+		SetCursorPosition(m_cursorPosition); //< Refresh cursor position (prevent it from being outside of the text)
 	}
 }

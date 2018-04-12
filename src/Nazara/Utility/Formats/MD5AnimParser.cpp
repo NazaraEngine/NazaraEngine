@@ -4,24 +4,19 @@
 
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <cstdio>
-#include <cstring>
-#include <limits>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
 	MD5AnimParser::MD5AnimParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_frameIndex(0),
 	m_frameRate(0),
-	m_lineCount(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_lineCount(0)
 	{
 		m_stream.EnableTextMode(true);
 	}

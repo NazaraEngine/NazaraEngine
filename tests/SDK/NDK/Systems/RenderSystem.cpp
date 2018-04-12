@@ -1,6 +1,8 @@
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Catch/catch.hpp>
 
@@ -61,6 +63,7 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 		entity->AddComponent<Ndk::CollisionComponent2D>(boxCollider2D);
 		Ndk::PhysicsComponent2D& physicsComponent2D = entity->AddComponent<Ndk::PhysicsComponent2D>();
 
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 		world.Update(1.f);
 
 		WHEN("We move it")

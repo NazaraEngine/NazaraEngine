@@ -7,7 +7,7 @@
 #ifndef NAZARA_ENETPACKET_HPP
 #define NAZARA_ENETPACKET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
 namespace Nz
@@ -22,8 +22,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<ENetPacketFlag>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max = ENetPacketFlag_UnreliableFragment;
+		static constexpr ENetPacketFlag max = ENetPacketFlag_UnreliableFragment;
 	};
 
 	using ENetPacketFlags = Flags<ENetPacketFlag>;

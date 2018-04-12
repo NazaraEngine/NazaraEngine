@@ -28,8 +28,11 @@ SOFTWARE.
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
 #include <assimp/config.h>
@@ -94,16 +97,15 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	fileIO.OpenProc = StreamOpener;
 	fileIO.UserData = reinterpret_cast<char*>(&userdata);
 
-	unsigned int postProcess = aiProcess_CalcTangentSpace     | aiProcess_JoinIdenticalVertices
-	                         | aiProcess_MakeLeftHanded       | aiProcess_Triangulate
-	                         | aiProcess_RemoveComponent      | aiProcess_GenSmoothNormals
-	                         | aiProcess_SplitLargeMeshes     | aiProcess_LimitBoneWeights
-	                         | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials
-	                         | aiProcess_FixInfacingNormals   | aiProcess_SortByPType
-	                         | aiProcess_FindInvalidData      | aiProcess_GenUVCoords
-	                         | aiProcess_TransformUVCoords    | aiProcess_OptimizeMeshes
-	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder
-	                         | aiProcess_Debone;
+	unsigned int postProcess = aiProcess_CalcTangentSpace  | aiProcess_Debone
+	                         | aiProcess_FindInvalidData   | aiProcess_FixInfacingNormals
+	                         | aiProcess_FlipWindingOrder  | aiProcess_GenSmoothNormals
+	                         | aiProcess_GenUVCoords       | aiProcess_JoinIdenticalVertices
+	                         | aiProcess_LimitBoneWeights  | aiProcess_MakeLeftHanded
+	                         | aiProcess_OptimizeGraph     | aiProcess_OptimizeMeshes
+	                         | aiProcess_RemoveComponent   | aiProcess_RemoveRedundantMaterials
+	                         | aiProcess_SortByPType       | aiProcess_SplitLargeMeshes
+	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
 
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
@@ -117,13 +119,27 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	long long vertexLimit   = 1'000'000;
 	parameters.custom.GetIntegerParameter("AssimpLoader_VertexLimit", &vertexLimit);
 
+	int excludedComponents = 0;
+
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Color))
+		excludedComponents |= aiComponent_COLORS;
+
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Normal))
+		excludedComponents |= aiComponent_NORMALS;
+
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Tangent))
+		excludedComponents |= aiComponent_TANGENTS_AND_BITANGENTS;
+
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_TexCoord))
+		excludedComponents |= aiComponent_TEXCOORDS;
+
 	aiPropertyStore* properties = aiCreatePropertyStore();
 	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      int(triangleLimit));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        int(vertexLimit));
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               aiComponent_COLORS);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               excludedComponents);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
@@ -184,7 +200,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, 0);
+				IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
 
 				IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 				IndexIterator index = indexMapper.begin();
@@ -208,22 +224,56 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				if (normalTangentMatrix.HasScale())
 					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), vertexCount, parameters.storage, 0);
-				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, vertexCount, parameters.storage, parameters.vertexBufferFlags);
 
-				MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());
+				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+
+				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 				for (unsigned int j = 0; j < vertexCount; ++j)
 				{
 					aiVector3D position = iMesh->mVertices[j];
-					aiVector3D normal = iMesh->mNormals[j];
-					aiVector3D tangent = (iMesh->HasTangentsAndBitangents()) ? iMesh->mTangents[j] : aiVector3D(0.f, 1.f, 0.f);
-					aiVector3D uv = (iMesh->HasTextureCoords(0)) ? iMesh->mTextureCoords[0][j] : aiVector3D(0.f);
+					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
+				}
 
-					vertex->position = parameters.matrix * Vector3f(position.x, position.y, position.z);
-					vertex->normal = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
-					vertex->tangent = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
-					vertex->uv.Set(parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale);
-					vertex++;
+				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
+				{
+					for (unsigned int j = 0; j < vertexCount; ++j)
+					{
+						aiVector3D normal = iMesh->mNormals[j];
+						*normalPtr++ = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
+					}
+				}
+
+				bool generateTangents = false;
+				if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent))
+				{
+					if (iMesh->HasTangentsAndBitangents())
+					{
+						for (unsigned int j = 0; j < vertexCount; ++j)
+						{
+							aiVector3D tangent = iMesh->mTangents[j];
+							*tangentPtr++ = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
+						}
+					}
+					else
+						generateTangents = true;
+				}
+
+				if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
+				{
+					if (iMesh->HasTextureCoords(0))
+					{
+						for (unsigned int j = 0; j < vertexCount; ++j)
+						{
+							aiVector3D uv = iMesh->mTextureCoords[0][j];
+							*uvPtr++ = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+						}
+					}
+					else
+					{
+						for (unsigned int j = 0; j < vertexCount; ++j)
+							*uvPtr++ = Vector2f::Zero();
+					}
 				}
 
 				vertexMapper.Unmap();
@@ -235,6 +285,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				subMesh->SetIndexBuffer(indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
+
+				if (generateTangents)
+					subMesh->GenerateTangents();
 
 				auto matIt = materials.find(iMesh->mMaterialIndex);
 				if (matIt == materials.end())

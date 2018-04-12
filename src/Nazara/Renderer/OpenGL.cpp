@@ -6,13 +6,12 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #if defined(NAZARA_PLATFORM_GLX)
 #include <Nazara/Platform/X11/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
-#include <cstring>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -403,7 +402,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 				s_contextStates->scissorBoxUpdated = true;
 			}
@@ -495,7 +494,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 				s_contextStates->viewportUpdated = true;
 			}
@@ -1288,7 +1287,7 @@ namespace Nz
 			{
 				const Recti& scissorBox = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 
 				s_contextStates->scissorBoxUpdated = true;
@@ -1298,7 +1297,7 @@ namespace Nz
 			{
 				const Recti& viewport = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 
 				s_contextStates->viewportUpdated = true;

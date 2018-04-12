@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

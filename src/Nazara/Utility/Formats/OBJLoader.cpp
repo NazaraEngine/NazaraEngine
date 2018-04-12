@@ -3,16 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/OBJLoader.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Utility/Formats/OBJParser.hpp>
-#include <cstdio>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -107,6 +105,24 @@ namespace Nz
 							fullPath.Prepend(baseDir);
 
 						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
+					}
+
+					if (!mtlMat->emissiveMap.IsEmpty())
+					{
+						String fullPath = mtlMat->emissiveMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::EmissiveTexturePath, fullPath);
+					}
+
+					if (!mtlMat->normalMap.IsEmpty())
+					{
+						String fullPath = mtlMat->normalMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::NormalTexturePath, fullPath);
 					}
 
 					if (!mtlMat->specularMap.IsEmpty())
@@ -233,8 +249,8 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, 0);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), UInt32(vertexCount), parameters.storage, 0);
+				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, parameters.indexBufferFlags);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
@@ -252,30 +268,45 @@ namespace Nz
 
 				bool hasNormals = true;
 				bool hasTexCoords = true;
-				BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
-				MeshVertex* meshVertices = static_cast<MeshVertex*>(vertexMapper.GetPointer());
+
+				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+
+				auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
+				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+				auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+
+				if (!normalPtr)
+					hasNormals = false;
+
+				if (!uvPtr)
+					hasTexCoords = false;
+
 				for (auto& vertexPair : vertices)
 				{
 					const OBJParser::FaceVertex& vertexIndices = vertexPair.first;
 					unsigned int index = vertexPair.second;
 
-					MeshVertex& vertex = meshVertices[index];
-
 					const Vector4f& vec = positions[vertexIndices.position-1];
-					vertex.position = Vector3f(parameters.matrix * vec);
+					posPtr[index] = Vector3f(parameters.matrix * vec);
 
-					if (vertexIndices.normal > 0)
-						vertex.normal = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
-					else
-						hasNormals = false;
-
-					if (vertexIndices.texCoord > 0)
+					if (hasNormals)
 					{
-						Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
-						vertex.uv.Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
+						if (vertexIndices.normal > 0)
+							normalPtr[index] = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
+						else
+							hasNormals = false;
 					}
-					else
-						hasTexCoords = false;
+
+					if (hasTexCoords)
+					{
+						if (vertexIndices.texCoord > 0)
+						{
+							Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
+							uvPtr[index] = Vector2f(parameters.texCoordOffset + uv * parameters.texCoordScale);
+						}
+						else
+							hasTexCoords = false;
+					}
 				}
 
 				vertexMapper.Unmap();
@@ -300,7 +331,7 @@ namespace Nz
 					subMesh->GenerateTangents();
 				else if (hasTexCoords)
 					subMesh->GenerateNormalsAndTangents();
-				else
+				else if (normalPtr)
 					subMesh->GenerateNormals();
 
 				mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh);

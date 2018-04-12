@@ -7,7 +7,7 @@
 #ifndef NAZARA_RUDMESSAGE_HPP
 #define NAZARA_RUDMESSAGE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
