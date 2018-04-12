@@ -103,7 +103,6 @@ namespace Ndk
 	* \param text New line of text
 	* \param color Color for the text
 	*/
-
 	void Console::AddLine(const Nz::String& text, const Nz::Color& color)
 	{
 		m_historyLines.emplace_back(Line{ color, text });
@@ -112,13 +111,24 @@ namespace Ndk
 
 	/*!
 	* \brief Clears the console
+	*
+	* Clears the console history and input
 	*/
-
 	void Console::Clear()
 	{
 		m_historyLines.clear();
 		m_history->Clear();
 		m_input->SetText(s_inputPrefix);
+	}
+
+	/*!
+	* \brief Clears the console focus
+	*
+	* Clear console input widget focus (if owned)
+	*/
+	void Console::ClearFocus()
+	{
+		m_input->ClearFocus();
 	}
 
 	void Console::ResizeToContent()
@@ -130,7 +140,6 @@ namespace Ndk
 	*
 	* \param size Size of the font
 	*/
-
 	void Console::SetCharacterSize(unsigned int size)
 	{
 		m_characterSize = size;
@@ -142,13 +151,21 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Give the console input focus
+	*
+	*/
+	void Console::SetFocus()
+	{
+		m_input->SetFocus();
+	}
+
+	/*!
 	* \brief Sets the text font
 	*
 	* \param font Reference to a valid font
 	*
 	* \remark Produces a NazaraAssert if font is invalid or null
 	*/
-
 	void Console::SetTextFont(Nz::FontRef font)
 	{
 		NazaraAssert(font && font->IsValid(), "Invalid font");
