@@ -52,9 +52,8 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		std::array<UInt8, 4> whitePixel = { {255, 255, 255, 255} };
-		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
-		m_whiteTexture.Update(whitePixel.data());
+		m_whiteCubemap = Nz::TextureLibrary::Get("WhiteCubemap");
+		m_whiteTexture = Nz::TextureLibrary::Get("White2D");
 
 		m_vertexBuffer.Create(s_vertexBufferSize, DataStorage_Hardware, BufferUsage_Dynamic);
 
@@ -219,10 +218,6 @@ namespace Nz
 
 			s_shadowSampler.SetFilterMode(SamplerFilter_Bilinear);
 			s_shadowSampler.SetWrapMode(SamplerWrap_Clamp);
-
-			std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
-			s_dummyReflection.Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
-			s_dummyReflection.Update(whitePixels.data());
 		}
 		catch (const std::exception& e)
 		{
@@ -239,7 +234,6 @@ namespace Nz
 
 	void ForwardRenderTechnique::Uninitialize()
 	{
-		s_dummyReflection.Destroy();
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
@@ -247,7 +241,7 @@ namespace Nz
 	/*!
 	* \brief Chooses the nearest lights for one object
 	*
-	* \param object Sphere symbolising the object
+	* \param object Sphere symbolizing the object
 	* \param includeDirectionalLights Should directional lights be included in the computation
 	*/
 
@@ -726,7 +720,7 @@ namespace Nz
 					lastMaterial = basicSprites.material;
 				}
 
-				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : &m_whiteTexture;
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
 				if (overlayTexture != lastOverlay)
 				{
 					Renderer::SetTexture(overlayTextureUnit, overlayTexture);
@@ -897,7 +891,6 @@ namespace Nz
 	}
 
 	IndexBuffer ForwardRenderTechnique::s_quadIndexBuffer;
-	Texture ForwardRenderTechnique::s_dummyReflection;
 	TextureSampler ForwardRenderTechnique::s_reflectionSampler;
 	TextureSampler ForwardRenderTechnique::s_shadowSampler;
 	VertexBuffer ForwardRenderTechnique::s_quadVertexBuffer;
