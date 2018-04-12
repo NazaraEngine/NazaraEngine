@@ -42,6 +42,7 @@ namespace Ndk
 			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
 
 			void Clear();
+			void ClearFocus();
 
 			inline unsigned int GetCharacterSize() const;
 			inline const TextAreaWidget* GetHistory() const;
@@ -51,6 +52,7 @@ namespace Ndk
 			void ResizeToContent() override;
 
 			void SetCharacterSize(unsigned int size);
+			void SetFocus();
 			void SetTextFont(Nz::FontRef font);
 
 			Console& operator=(const Console& console) = delete;
