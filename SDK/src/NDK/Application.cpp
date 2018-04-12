@@ -209,7 +209,19 @@ namespace Ndk
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
 			if (event.code == Nz::Keyboard::F9)
-				consoleRef.Show(!consoleRef.IsVisible());
+			{
+				// Toggle console visibility and focus
+				if (consoleRef.IsVisible())
+				{
+					consoleRef.ClearFocus();
+					consoleRef.Show(false);
+				}
+				else
+				{
+					consoleRef.Show(true);
+					consoleRef.SetFocus();
+				}
+			}
 		});
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
