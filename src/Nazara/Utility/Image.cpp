@@ -7,9 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
@@ -841,7 +839,7 @@ namespace Nz
 			if (pixelCount == 0)
 				return false;
 
-			auto seq = workingBitset.Read(GetConstPixels(), info.bitsPerPixel);
+			auto seq = workingBitset.Write(GetConstPixels(), info.bitsPerPixel);
 			do
 			{
 				workingBitset &= info.alphaMask;
@@ -849,7 +847,7 @@ namespace Nz
 					return true;
 
 				workingBitset.Clear();
-				workingBitset.Read(seq, info.bitsPerPixel);
+				workingBitset.Write(seq, info.bitsPerPixel);
 			}
 			while (--pixelCount > 0);
 

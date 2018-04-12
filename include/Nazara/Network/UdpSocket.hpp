@@ -7,13 +7,13 @@
 #ifndef NAZARA_UDPSOCKET_HPP
 #define NAZARA_UDPSOCKET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetBuffer.hpp>
 
 namespace Nz
 {
+	struct NetBuffer;
 	class NetPacket;
 
 	class NAZARA_NETWORK_API UdpSocket : public AbstractSocket

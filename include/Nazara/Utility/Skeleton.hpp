@@ -7,17 +7,17 @@
 #ifndef NAZARA_SKELETON_HPP
 #define NAZARA_SKELETON_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Utility/Joint.hpp>
-#include <vector>
+#include <Nazara/Utility/Config.hpp>
 
 namespace Nz
 {
+	class Joint;
 	class Skeleton;
 
 	using SkeletonConstRef = ObjectRef<const Skeleton>;

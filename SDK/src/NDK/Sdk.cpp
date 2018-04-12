@@ -1,12 +1,11 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Sdk.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
@@ -22,6 +21,7 @@
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
+#include <NDK/Components/ConstraintComponent2D.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
@@ -90,6 +90,7 @@ namespace Ndk
 			InitializeComponent<PhysicsComponent2D>("NdkPhys2");
 			InitializeComponent<PhysicsComponent3D>("NdkPhys3");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
+			InitializeComponent<VelocityComponent>("NdkCons2");
 
 			#ifndef NDK_SERVER
 			// Client components

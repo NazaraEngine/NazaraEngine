@@ -7,7 +7,7 @@
 #ifndef NAZARA_LUACLASS_HPP
 #define NAZARA_LUACLASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
@@ -69,15 +69,15 @@ namespace Nz
 			template<typename U, bool HasDestructor>
 			friend struct LuaClassImplFinalizerSetupProxy;
 
-			void PushClassInfo(LuaState& state);
-			void SetupConstructor(LuaState& state);
-			void SetupDefaultToString(LuaState& state);
-			void SetupFinalizer(LuaState& state);
-			void SetupGetter(LuaState& state, LuaCFunction proxy);
-			void SetupGlobalTable(LuaState& state);
-			void SetupMetatable(LuaState& state);
-			void SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex);
-			void SetupSetter(LuaState& state, LuaCFunction proxy);
+			int PushClassInfo(LuaState& state);
+			void SetupConstructor(LuaState& state, int classInfoRef);
+			void SetupDefaultToString(LuaState& state, int classInfoRef);
+			void SetupFinalizer(LuaState& state, int classInfoRef);
+			void SetupGetter(LuaState& state, LuaCFunction proxy, int classInfoRef);
+			void SetupGlobalTable(LuaState& state, int classInfoRef);
+			void SetupMetatable(LuaState& state, int classInfoRef);
+			void SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex, int classInfoRef);
+			void SetupSetter(LuaState& state, LuaCFunction proxy, int classInfoRef);
 
 			using ParentFunc = std::function<void(LuaState& state, T* instance)>;
 			using InstanceGetter = std::function<T*(LuaState& state)>;

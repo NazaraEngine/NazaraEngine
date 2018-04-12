@@ -7,7 +7,7 @@
 #ifndef NAZARA_MATERIAL_HPP
 #define NAZARA_MATERIAL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
@@ -24,7 +24,6 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/MaterialData.hpp>
 
 namespace Nz
 {
@@ -79,6 +78,7 @@ namespace Nz
 			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableReflectionMapping(bool reflection);
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableShadowCasting(bool castShadows);
 			inline void EnableShadowReceive(bool receiveShadows);
@@ -105,6 +105,7 @@ namespace Nz
 			inline const MaterialPipeline* GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
+			inline ReflectionMode GetReflectionMode() const;
 			inline const UberShader* GetShader() const;
 			inline float GetShininess() const;
 			inline Color GetSpecularColor() const;
@@ -128,6 +129,7 @@ namespace Nz
 			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
+			inline bool IsReflectionMappingEnabled() const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
 			inline bool IsShadowCastingEnabled() const;
@@ -162,6 +164,7 @@ namespace Nz
 			inline bool SetNormalMap(const String& textureName);
 			inline void SetNormalMap(TextureRef textureName);
 			inline void SetPointSize(float pointSize);
+			inline void SetReflectionMode(ReflectionMode reflectionMode);
 			inline void SetShader(UberShaderConstRef uberShader);
 			inline bool SetShader(const String& uberShaderName);
 			inline void SetShininess(float shininess);
@@ -178,6 +181,7 @@ namespace Nz
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
+			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
@@ -195,6 +199,7 @@ namespace Nz
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;
+			ReflectionMode m_reflectionMode;
 			TextureSampler m_diffuseSampler;
 			TextureSampler m_specularSampler;
 			TextureRef m_alphaMap;
@@ -207,6 +212,7 @@ namespace Nz
 			bool m_shadowCastingEnabled;
 			float m_alphaThreshold;
 			float m_shininess;
+			unsigned int m_reflectionSize;
 
 			static std::array<int, TextureMap_Max + 1> s_textureUnits;
 			static MaterialLibrary::LibraryMap s_library;

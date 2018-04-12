@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -16,6 +16,15 @@ namespace Ndk
 		CheckboxState_Unchecked,
 
 		CheckboxState_Max = CheckboxState_Unchecked
+	};
+
+	enum EchoMode
+	{
+		EchoMode_Normal,
+		EchoMode_Password,
+		EchoMode_PasswordExceptLast,
+
+		EchoMode_Max = EchoMode_PasswordExceptLast
 	};
 }
 

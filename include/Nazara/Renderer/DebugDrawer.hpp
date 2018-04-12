@@ -7,18 +7,18 @@
 #ifndef NAZARA_DEBUGDRAWER_HPP
 #define NAZARA_DEBUGDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 
 namespace Nz
 {
 	class Skeleton;
+	class StaticMesh;
 
 	class NAZARA_RENDERER_API DebugDrawer
 	{

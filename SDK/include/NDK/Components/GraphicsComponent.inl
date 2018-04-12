@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/World.hpp>
@@ -9,12 +9,16 @@
 
 namespace Ndk
 {
+	inline GraphicsComponent::GraphicsComponent() :
+	m_scissorRect(-1, -1)
+	{
+	}
+
 	/*!
 	* \brief Constructs a GraphicsComponent object by copy semantic
 	*
 	* \param graphicsComponent GraphicsComponent to copy
 	*/
-
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
@@ -25,7 +29,7 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable, r.data.renderOrder);
+			Attach(r.renderable, r.data.localMatrix, r.data.renderOrder);
 	}
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
@@ -39,12 +43,30 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Attaches a renderable to the entity
+	*
+	* \param renderable Reference to a renderable element
+	* \param renderOrder Render order of the element
+	*/
+	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
+	{
+		return Attach(std::move(renderable), Nz::Matrix4f::Identity(), renderOrder);
+	}
+
+	/*!
 	* \brief Clears every renderable elements
 	*/
 
 	inline void GraphicsComponent::Clear()
 	{
+		m_materialEntries.clear();
 		m_renderables.clear();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			m_reflectiveMaterialCount = 0;
+			InvalidateReflectionMap();
+		}
 
 		InvalidateBoundingVolume();
 	}
@@ -62,10 +84,27 @@ namespace Ndk
 			if (it->renderable == renderable)
 			{
 				InvalidateBoundingVolume();
+
+				std::size_t materialCount = renderable->GetMaterialCount();
+				for (std::size_t i = 0; i < materialCount; ++i)
+					UnregisterMaterial(renderable->GetMaterial(i));
+
 				m_renderables.erase(it);
 				break;
 			}
 		}
+	}
+
+	/*!
+	* \brief Checks if this graphics component requires real-time reflections to be generated
+	*
+	* If any of the materials attached to a GraphicsComponent (via the attached instanced renderable) needs real-time reflections, this function will return true.
+	*
+	* \return True if real-time reflections needs to be generated or false
+	*/
+	inline bool GraphicsComponent::DoesRequireRealTimeReflections() const
+	{
+		return m_reflectiveMaterialCount != 0 && m_reflectionMap;
 	}
 
 	/*!
@@ -140,6 +179,14 @@ namespace Ndk
 				break;
 			}
 		}
+	}
+
+	inline void GraphicsComponent::SetScissorRect(const Nz::Recti& scissorRect)
+	{
+		m_scissorRect = scissorRect;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
 	}
 
 	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)

@@ -1,10 +1,9 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/CollisionComponent3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
@@ -33,7 +32,7 @@ namespace Ndk
 		{
 			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent3D
 			PhysicsComponent3D& physComponent = m_entity->GetComponent<PhysicsComponent3D>();
-			physComponent.GetRigidBody().SetGeom(m_geom);
+			physComponent.GetRigidBody()->SetGeom(m_geom);
 		}
 		else
 		{
@@ -58,8 +57,9 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem3D>(), "World must have a physics system");
 		Nz::PhysWorld3D& physWorld = entityWorld->GetSystem<PhysicsSystem3D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody3D(&physWorld, m_geom));
+		m_staticBody = std::make_unique<Nz::RigidBody3D>(&physWorld, m_geom);
 		m_staticBody->EnableAutoSleep(false);
+		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 	}
 
 	/*!
@@ -103,6 +103,18 @@ namespace Ndk
 	void CollisionComponent3D::OnDetached()
 	{
 		m_staticBody.reset();
+	}
+
+	void CollisionComponent3D::OnEntityDisabled()
+	{
+		if (m_staticBody)
+			m_staticBody->EnableSimulation(false);
+	}
+
+	void CollisionComponent3D::OnEntityEnabled()
+	{
+		if (m_staticBody)
+			m_staticBody->EnableSimulation(true);
 	}
 
 	ComponentIndex CollisionComponent3D::componentIndex;

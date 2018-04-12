@@ -7,7 +7,7 @@
 #ifndef NAZARA_WINDOWHANDLE_HPP
 #define NAZARA_WINDOWHANDLE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #if defined(NAZARA_PLATFORM_X11)
 #include <xcb/xcb.h>
 #endif
@@ -16,7 +16,7 @@ namespace Nz
 {
 	#if defined(NAZARA_PLATFORM_WINDOWS)
 	// http://msdn.microsoft.com/en-us/library/aa383751(v=vs.85).aspx
-	typedef void* WindowHandle;
+	using WindowHandle = void*;
 	#elif defined(NAZARA_PLATFORM_X11)
 	// http://en.wikipedia.org/wiki/Xlib#Data_types
 	using WindowHandle = xcb_window_t;

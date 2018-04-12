@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,8 @@
 
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
+#include <algorithm>
+#include <cassert>
 #include <new>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -68,56 +70,195 @@ namespace Nz
 	* \brief Calls the object destructor explicitly
 	*
 	* \param ptr Pointer to a previously constructed pointer on raw memory
+	*
+	* \remark This does not deallocate memory, and is a no-op on a null pointer
 	*/
 	template<typename T>
 	void PlacementDestroy(T* ptr)
 	{
-		ptr->~T();
+		if (ptr)
+			ptr->~T();
 	}
 
 	/*!
 	* \ingroup core
-	* \class Nz::StackAllocation
-	* \brief Core class that represents a stack allocation
+	* \class Nz::StackArray
+	* \brief Core class that represents a stack-allocated (if alloca is present) array
 	*/
 
+	template<typename T>
+	StackArray<T>::StackArray(T* stackMemory, std::size_t size) :
+	m_size(size),
+	m_ptr(stackMemory)
+	{
+		for (std::size_t i = 0; i < m_size; ++i)
+			PlacementNew(&m_ptr[i]);
+	}
 
-	/*!
-	* \brief Constructs a StackAllocation object with a pointer to a memory allocated with NAZARA_ALLOCA or OperatorNew is alloca is not supported
-	*
-	* \param ptr Pointer to raw memory
-	*/
-	inline StackAllocation::StackAllocation(void* stackMemory) :
+	template<typename T>
+	StackArray<T>::StackArray(T* stackMemory, std::size_t size, NoInitTag) :
+	m_size(size),
 	m_ptr(stackMemory)
 	{
 	}
 
-	/*!
-	* \brief Destructs the object and release memory if necessary
-	*/
-	inline StackAllocation::~StackAllocation()
+	template<typename T>
+	StackArray<T>::~StackArray()
 	{
+		for (std::size_t i = 0; i < m_size; ++i)
+			m_ptr[i].~T();
+
 		#ifndef NAZARA_ALLOCA_SUPPORT
 		OperatorDelete(m_ptr);
 		#endif
 	}
 
-	/*!
-	* \brief Access the internal pointer
-	* \return internal memory pointer
-	*/
-	inline void* StackAllocation::GetPtr()
+	template<typename T>
+	typename StackArray<T>::reference StackArray<T>::back()
+	{
+		assert(m_size != 0);
+		return m_ptr[m_size - 1];
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reference StackArray<T>::back() const
+	{
+		assert(m_size != 0);
+		return m_ptr[m_size - 1];
+	}
+
+	template<typename T>
+	typename StackArray<T>::iterator StackArray<T>::begin() noexcept
+	{
+		return iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_iterator StackArray<T>::begin() const noexcept
+	{
+		return const_iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_iterator StackArray<T>::cbegin() const noexcept
+	{
+		return const_iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_iterator StackArray<T>::cend() const noexcept
+	{
+		return const_iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::crbegin() const noexcept
+	{
+		return const_reverse_iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::crend() const noexcept
+	{
+		return const_reverse_iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	T* StackArray<T>::data() noexcept
 	{
 		return m_ptr;
 	}
 
-	/*!
-	* \brief Access the internal pointer
-	* \return internal memory pointer
-	*/
-	inline StackAllocation::operator void*()
+	template<typename T>
+	const T* StackArray<T>::data() const noexcept
 	{
 		return m_ptr;
+	}
+
+	template<typename T>
+	bool StackArray<T>::empty() const noexcept
+	{
+		return m_size == 0;
+	}
+
+	template<typename T>
+	typename StackArray<T>::iterator StackArray<T>::end() noexcept
+	{
+		return iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_iterator StackArray<T>::end() const noexcept
+	{
+		return const_iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	void StackArray<T>::fill(const T& value)
+	{
+		std::fill(begin(), end(), value);
+	}
+
+	template<typename T>
+	typename StackArray<T>::reference StackArray<T>::front() noexcept
+	{
+		return m_ptr[0];
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reference StackArray<T>::front() const noexcept
+	{
+		return m_ptr[0];
+	}
+
+	template<typename T>
+	typename StackArray<T>::size_type StackArray<T>::max_size() const noexcept
+	{
+		return size();
+	}
+
+	template<typename T>
+	typename StackArray<T>::reverse_iterator StackArray<T>::rbegin() noexcept
+	{
+		return reverse_iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::rbegin() const noexcept
+	{
+		return reverse_iterator(&m_ptr[m_size]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::reverse_iterator StackArray<T>::rend() noexcept
+	{
+		return reverse_iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reverse_iterator StackArray<T>::rend() const noexcept
+	{
+		return reverse_iterator(&m_ptr[0]);
+	}
+
+	template<typename T>
+	typename StackArray<T>::size_type StackArray<T>::size() const noexcept
+	{
+		return m_size;
+	}
+
+	template<typename T>
+	typename StackArray<T>::reference StackArray<T>::operator[](size_type pos)
+	{
+		assert(pos < m_size);
+		return m_ptr[pos];
+	}
+
+	template<typename T>
+	typename StackArray<T>::const_reference StackArray<T>::operator[](size_type pos) const
+	{
+		assert(pos < m_size);
+		return m_ptr[pos];
 	}
 }
 

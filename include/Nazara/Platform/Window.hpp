@@ -9,8 +9,9 @@
 #ifndef NAZARA_WINDOW_HPP
 #define NAZARA_WINDOW_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -26,7 +27,6 @@
 
 namespace Nz
 {
-	class Image;
 	class WindowImpl;
 
 	class NAZARA_PLATFORM_API Window
@@ -40,7 +40,7 @@ namespace Nz
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline explicit Window(WindowHandle handle);
 			Window(const Window&) = delete;
-			inline Window(Window&& window) noexcept;
+			Window(Window&&) = default;
 			virtual ~Window();
 
 			inline void Close();
@@ -62,12 +62,10 @@ namespace Nz
 			inline CursorController& GetCursorController();
 			inline EventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
-			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			String GetTitle() const;
-			unsigned int GetWidth() const;
 
 			bool HasFocus() const;
 
@@ -103,14 +101,14 @@ namespace Nz
 			bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
-			inline Window& operator=(Window&& window);
+			Window& operator=(Window&&) = default;
 
 		protected:
 			virtual bool OnWindowCreated();
 			virtual void OnWindowDestroy();
 			virtual void OnWindowResized();
 
-			WindowImpl* m_impl;
+			MovablePtr<WindowImpl> m_impl;
 
 		private:
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;

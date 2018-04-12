@@ -3,8 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ColorBackground.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <memory>
+#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -48,6 +50,7 @@ namespace Nz
 
 		ParameterList list;
 		list.SetParameter("UNIFORM_VERTEX_DEPTH", true);
+
 		m_uberShaderInstance = m_uberShader->Get(list);
 
 		const Shader* shader = m_uberShaderInstance->GetShader();

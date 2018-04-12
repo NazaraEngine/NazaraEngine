@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <Nazara/Math/Algorithm.hpp>
-#include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_private.h>
@@ -22,51 +20,38 @@ namespace Nz
 	m_geom(),
 	m_userData(nullptr),
 	m_world(world),
+	m_isRegistered(false),
+	m_isSimulationEnabled(true),
+	m_isStatic(false),
 	m_gravityFactor(1.f),
-	m_mass(1.f)
+	m_mass(mass)
 	{
 		NazaraAssert(m_world, "Invalid world");
 
-		Create();
-
+		m_handle = Create(mass);
 		SetGeom(geom);
-		SetMass(mass);
 	}
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
 	m_geom(object.m_geom),
 	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_isRegistered(false),
+	m_isSimulationEnabled(true),
+	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
-	m_mass(0.f)
+	m_mass(object.GetMass())
 	{
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		Create();
+		m_handle = Create(m_mass, object.GetMomentOfInertia());
+		SetGeom(object.GetGeom(), false);
 
-		cpBodySetMass(m_handle, cpBodyGetMass(object.GetHandle()));
-		cpBodySetMoment(m_handle, cpBodyGetMoment(object.GetHandle()));
+		CopyBodyData(object.GetHandle(), m_handle);
 
-		SetGeom(object.GetGeom());
-		SetMass(object.GetMass());
-
-		cpBodySetForce(m_handle, cpBodyGetForce(object.GetHandle()));
-		cpBodySetTorque(m_handle, cpBodyGetTorque(object.GetHandle()));
-
-		cpBodySetAngle(m_handle, cpBodyGetAngle(object.GetHandle()));
-		cpBodySetAngularVelocity(m_handle, cpBodyGetAngularVelocity(object.GetHandle()));
-		cpBodySetCenterOfGravity(m_handle, cpBodyGetCenterOfGravity(object.GetHandle()));
-		cpBodySetPosition(m_handle, cpBodyGetPosition(object.GetHandle()));
-		cpBodySetVelocity(m_handle, cpBodyGetVelocity(object.GetHandle()));
-
-		for (int i = 0; i != m_shapes.size(); ++i)
+		for (std::size_t i = 0; i < m_shapes.size(); ++i)
 			m_shapes[i]->bb = cpShapeCacheBB(object.m_shapes[i]);
-
-		cpBodySetMass(m_handle, cpBodyGetMass(object.GetHandle()));
-		cpBodySetMoment(m_handle, cpBodyGetMoment(object.GetHandle()));
-
-		m_handle->m = object.GetHandle()->m;
 	}
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
@@ -74,9 +59,12 @@ namespace Nz
 	OnRigidBody2DRelease(std::move(object.OnRigidBody2DRelease)),
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
-	m_userData(object.m_userData),
 	m_handle(object.m_handle),
+	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_isRegistered(object.m_isRegistered),
+	m_isSimulationEnabled(object.m_isSimulationEnabled),
+	m_isStatic(object.m_isStatic),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
@@ -139,6 +127,19 @@ namespace Nz
 		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + ToRadians(torque));
 	}
 
+	void RigidBody2D::EnableSimulation(bool simulation)
+	{
+		if (m_isRegistered != simulation)
+		{
+			m_isRegistered = simulation;
+
+			if (simulation)
+				RegisterToSpace();
+			else
+				UnregisterFromSpace();
+		}
+	}
+
 	Rectf RigidBody2D::GetAABB() const
 	{
 		if (m_shapes.empty())
@@ -172,6 +173,11 @@ namespace Nz
 		return m_mass;
 	}
 
+	float RigidBody2D::GetMomentOfInertia() const
+	{
+		return float(cpBodyGetMoment(m_handle));
+	}
+
 	Vector2f RigidBody2D::GetCenterOfGravity(CoordSys coordSys) const
 	{
 		cpVect cog = cpBodyGetCenterOfGravity(m_handle);
@@ -200,6 +206,15 @@ namespace Nz
 		return FromRadians(static_cast<float>(cpBodyGetAngle(m_handle)));
 	}
 
+	std::size_t RigidBody2D::GetShapeIndex(cpShape* shape) const
+	{
+		auto it = std::find(m_shapes.begin(), m_shapes.end(), shape);
+		if (it == m_shapes.end())
+			return InvalidShapeIndex;
+
+		return std::distance(m_shapes.begin(), it);
+	}
+
 	void* RigidBody2D::GetUserdata() const
 	{
 		return m_userData;
@@ -216,9 +231,14 @@ namespace Nz
 		return m_world;
 	}
 
-	bool RigidBody2D::IsMoveable() const
+	bool RigidBody2D::IsKinematic() const
 	{
-		return m_mass > 0.f;
+		return m_mass <= 0.f;
+	}
+
+	bool RigidBody2D::IsSimulationEnabled() const
+	{
+		return m_isRegistered;
 	}
 
 	bool RigidBody2D::IsSleeping() const
@@ -226,12 +246,17 @@ namespace Nz
 		return cpBodyIsSleeping(m_handle) != 0;
 	}
 
+	bool RigidBody2D::IsStatic() const
+	{
+		return m_isStatic;
+	}
+
 	void RigidBody2D::SetAngularVelocity(float angularVelocity)
 	{
 		cpBodySetAngularVelocity(m_handle, ToRadians(angularVelocity));
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom)
+	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment)
 	{
 		// We have no public way of getting rid of an existing geom without removing the whole body
 		// So let's save some attributes of the body, destroy it and rebuild it
@@ -240,8 +265,13 @@ namespace Nz
 			cpFloat mass = cpBodyGetMass(m_handle);
 			cpFloat moment = cpBodyGetMoment(m_handle);
 
+			cpBody* newHandle = Create(static_cast<float>(mass), static_cast<float>(moment));
+
+			CopyBodyData(m_handle, newHandle);
+
 			Destroy();
-			Create(static_cast<float>(mass), static_cast<float>(moment));
+
+			m_handle = newHandle;
 		}
 
 		if (geom)
@@ -253,38 +283,46 @@ namespace Nz
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
-		{
 			cpShapeSetUserData(shape, this);
-			cpSpaceAddShape(space, shape);
-		}
 
-		cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+		if (m_isSimulationEnabled)
+			RegisterToSpace();
+
+		if (recomputeMoment)
+		{
+			if (!IsStatic() && !IsKinematic())
+				cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+		}
 	}
 
-	void RigidBody2D::SetMass(float mass)
+	void RigidBody2D::SetMass(float mass, bool recomputeMoment)
 	{
 		if (m_mass > 0.f)
 		{
 			if (mass > 0.f)
 			{
-				m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
+				m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
 				{
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+
+					if (recomputeMoment)
+						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				});
 			}
 			else
-				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), CP_BODY_TYPE_STATIC); } );
+				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), (body->IsStatic()) ? CP_BODY_TYPE_STATIC : CP_BODY_TYPE_KINEMATIC); } );
 		}
 		else if (mass > 0.f)
 		{
-			m_world->RegisterPostStep(this, [mass](Nz::RigidBody2D* body)
+			m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
 			{
-				if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_STATIC)
+				if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_DYNAMIC)
 				{
 					cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
 					cpBodySetMass(body->GetHandle(), mass);
-					cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+
+					if (recomputeMoment)
+						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
 				}
 			});
 		}
@@ -294,12 +332,12 @@ namespace Nz
 
 	void RigidBody2D::SetMassCenter(const Vector2f& center)
 	{
-		if (m_mass > 0.f)
-			cpBodySetCenterOfGravity(m_handle, cpv(center.x, center.y));
+		cpBodySetCenterOfGravity(m_handle, cpv(center.x, center.y));
 	}
 
 	void RigidBody2D::SetMomentOfInertia(float moment)
 	{
+		// Even though Chipmunk allows us to change this anytime, we need to do it in a post-step to prevent other post-steps to override this
 		m_world->RegisterPostStep(this, [moment] (Nz::RigidBody2D* body)
 		{
 			cpBodySetMoment(body->GetHandle(), moment);
@@ -309,13 +347,42 @@ namespace Nz
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
 		cpBodySetPosition(m_handle, cpv(position.x, position.y));
-		if (cpBodyGetType(m_handle) == CP_BODY_TYPE_STATIC)
-			cpSpaceReindexShapesForBody(m_world->GetHandle(), m_handle);
+		if (m_isStatic)
+		{
+			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			{
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			});
+		}
 	}
 
 	void RigidBody2D::SetRotation(float rotation)
 	{
 		cpBodySetAngle(m_handle, ToRadians(rotation));
+		if (m_isStatic)
+		{
+			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			{
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			});
+		}
+	}
+
+	void RigidBody2D::SetStatic(bool setStaticBody)
+	{
+		m_isStatic = setStaticBody;
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (body->IsStatic())
+			{
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_STATIC);
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			}
+			else if (cpBodyGetMass(body->GetHandle()) > 0.f)
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_KINEMATIC);
+			else
+				cpBodySetType(body->GetHandle(), CP_BODY_TYPE_DYNAMIC);
+		});
 	}
 
 	void RigidBody2D::SetUserdata(void* ud)
@@ -341,13 +408,16 @@ namespace Nz
 		OnRigidBody2DMove    = std::move(object.OnRigidBody2DMove);
 		OnRigidBody2DRelease = std::move(object.OnRigidBody2DRelease);
 
-		m_handle             = object.m_handle;
-		m_geom               = std::move(object.m_geom);
-		m_gravityFactor      = object.m_gravityFactor;
-		m_mass               = object.m_mass;
-		m_shapes             = std::move(object.m_shapes);
-		m_userData           = object.m_userData;
-		m_world              = object.m_world;
+		m_handle              = object.m_handle;
+		m_isRegistered        = object.m_isRegistered;
+		m_isSimulationEnabled = object.m_isSimulationEnabled;
+		m_isStatic            = object.m_isStatic;
+		m_geom                = std::move(object.m_geom);
+		m_gravityFactor       = object.m_gravityFactor;
+		m_mass                = object.m_mass;
+		m_shapes              = std::move(object.m_shapes);
+		m_userData            = object.m_userData;
+		m_world               = object.m_world;
 
 		cpBodySetUserData(m_handle, this);
 		for (cpShape* shape : m_shapes)
@@ -360,28 +430,77 @@ namespace Nz
 		return *this;
 	}
 
-	void RigidBody2D::Create(float mass, float moment)
+	cpBody* RigidBody2D::Create(float mass, float moment)
 	{
-		m_handle = cpBodyNew(mass, moment);
-		cpBodySetUserData(m_handle, this);
+		cpBody* handle;
+		if (IsKinematic())
+		{
+			if (IsStatic())
+				handle = cpBodyNewStatic();
+			else
+				handle = cpBodyNewKinematic();
+		}
+		else
+			handle = cpBodyNew(mass, moment);
 
-		cpSpaceAddBody(m_world->GetHandle(), m_handle);
+		cpBodySetUserData(handle, this);
+
+		return handle;
 	}
 
 	void RigidBody2D::Destroy()
 	{
+		UnregisterFromSpace();
+
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
-		{
-			cpSpaceRemoveShape(space, shape);
 			cpShapeFree(shape);
-		}
 
 		if (m_handle)
-		{
-			cpSpaceRemoveBody(space, m_handle);
 			cpBodyFree(m_handle);
-		}
+
 		m_shapes.clear();
 	}
+
+	void RigidBody2D::RegisterToSpace()
+	{
+		if (!m_isRegistered)
+		{
+			cpSpace* space = m_world->GetHandle();
+			for (cpShape* shape : m_shapes)
+				cpSpaceAddShape(space, shape);
+
+			if (m_handle)
+				cpSpaceAddBody(space, m_handle);
+
+			m_isRegistered = true;
+		}
+	}
+
+	void RigidBody2D::UnregisterFromSpace()
+	{
+		if (m_isRegistered)
+		{
+			cpSpace* space = m_world->GetHandle();
+			for (cpShape* shape : m_shapes)
+				cpSpaceRemoveShape(space, shape);
+
+			if (m_handle)
+				cpSpaceRemoveBody(space, m_handle);
+
+			m_isRegistered = false;
+		}
+	}
+
+	void RigidBody2D::CopyBodyData(cpBody* from, cpBody* to)
+	{
+		cpBodySetAngle(to, cpBodyGetAngle(from));
+		cpBodySetAngularVelocity(to, cpBodyGetAngularVelocity(from));
+		cpBodySetCenterOfGravity(to, cpBodyGetCenterOfGravity(from));
+		cpBodySetForce(to, cpBodyGetForce(from));
+		cpBodySetPosition(to, cpBodyGetPosition(from));
+		cpBodySetTorque(to, cpBodyGetTorque(from));
+		cpBodySetVelocity(to, cpBodyGetVelocity(from));
+	}
+
 }

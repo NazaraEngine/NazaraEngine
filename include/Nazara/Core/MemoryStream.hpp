@@ -7,7 +7,7 @@
 #ifndef NAZARA_MEMORYSTREAM_HPP
 #define NAZARA_MEMORYSTREAM_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz

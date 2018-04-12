@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_VERTEXDECLARATION_HPP
 #define NAZARA_VERTEXDECLARATION_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -38,6 +38,8 @@ namespace Nz
 			void EnableComponent(VertexComponent component, ComponentType type, std::size_t offset);
 
 			void GetComponent(VertexComponent component, bool* enabled, ComponentType* type, std::size_t* offset) const;
+			bool HasComponent(VertexComponent component) const;
+			template<typename T> bool HasComponentOfType(VertexComponent component) const;
 			std::size_t GetStride() const;
 
 			void SetStride(std::size_t stride);

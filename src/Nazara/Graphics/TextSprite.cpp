@@ -6,9 +6,9 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
-#include <memory>
+#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -26,11 +26,8 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
-		if (!m_material)
-			return;
-
 		for (auto& pair : m_renderInfos)
 		{
 			Texture* overlay = pair.first;
@@ -39,7 +36,7 @@ namespace Nz
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(instanceData.renderOrder, m_material, &vertices[indices.first * 4], indices.count, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, scissorRect, overlay);
 			}
 		}
 	}

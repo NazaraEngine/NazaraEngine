@@ -17,7 +17,7 @@ BaseState::~BaseState()
 {
 }
 
-void BaseState::Enter(Ndk::StateMachine& fsm)
+void BaseState::Enter(Ndk::StateMachine& /*fsm*/)
 {
 	m_text.SetVisible(true);
 	DrawMenu();

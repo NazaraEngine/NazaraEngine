@@ -7,7 +7,6 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 

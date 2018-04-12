@@ -2,6 +2,8 @@
 #include <Catch/catch.hpp>
 
 #include <NDK/Application.hpp>
+#include <Nazara/Core/AbstractLogger.hpp>
+#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Network.hpp>
 

@@ -7,11 +7,10 @@
 #ifndef NAZARA_DEPTHRENDERTECHNIQUE_HPP
 #define NAZARA_DEPTHRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthRenderQueue.hpp>
-#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -36,9 +35,12 @@ namespace Nz
 		private:
 			struct ShaderUniforms;
 
-			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Billboard>& billboards) const;
+			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::BillboardChain>& billboards) const;
+			void DrawCustomDrawables(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::CustomDrawable>& customDrawables) const;
+			void DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Model>& models) const;
+			void DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& sprites) const;
+
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
 
@@ -60,11 +62,14 @@ namespace Nz
 			};
 
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
+			mutable std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> m_spriteChains;
 			Buffer m_vertexBuffer;
-			mutable DepthRenderQueue m_renderQueue;
+			RenderStates m_clearStates;
+			ShaderRef m_clearShader;
 			Texture m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
+			mutable DepthRenderQueue m_renderQueue;
 
 			static IndexBuffer s_quadIndexBuffer;
 			static VertexBuffer s_quadVertexBuffer;

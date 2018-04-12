@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -8,9 +8,7 @@
 #define NDK_BASESYSTEM_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <NDK/Entity.hpp>
 #include <NDK/EntityList.hpp>
-#include <vector>
 
 namespace Ndk
 {
@@ -24,28 +22,28 @@ namespace Ndk
 
 		public:
 			inline BaseSystem(SystemIndex systemId);
-			inline BaseSystem(const BaseSystem&);
+			BaseSystem(const BaseSystem&) = delete;
 			BaseSystem(BaseSystem&&) noexcept = default;
 			virtual ~BaseSystem();
 
 			inline void Enable(bool enable = true);
 
-			virtual std::unique_ptr<BaseSystem> Clone() const = 0;
-
 			bool Filters(const Entity* entity) const;
 
 			inline const EntityList& GetEntities() const;
+			inline float GetFixedUpdateRate() const;
 			inline SystemIndex GetIndex() const;
+			inline float GetMaximumUpdateRate() const;
 			inline int GetUpdateOrder() const;
-			inline float GetUpdateRate() const;
 			inline World& GetWorld() const;
 
 			inline bool IsEnabled() const;
 
 			inline bool HasEntity(const Entity* entity) const;
 
+			inline void SetFixedUpdateRate(float updatePerSecond);
+			inline void SetMaximumUpdateRate(float updatePerSecond);
 			void SetUpdateOrder(int updateOrder);
-			inline void SetUpdateRate(float updatePerSecond);
 
 			inline void Update(float elapsedTime);
 
@@ -93,8 +91,9 @@ namespace Ndk
 			SystemIndex m_systemIndex;
 			World* m_world;
 			bool m_updateEnabled;
+			float m_fixedUpdateRate;
+			float m_maxUpdateRate;
 			float m_updateCounter;
-			float m_updateRate;
 			int m_updateOrder;
 
 			static SystemIndex s_nextIndex;

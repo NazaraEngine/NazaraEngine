@@ -7,16 +7,15 @@
 #ifndef NAZARA_TCPCLIENT_HPP
 #define NAZARA_TCPCLIENT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetBuffer.hpp>
 
 namespace Nz
 {
+	struct NetBuffer;
 	class NetPacket;
 
 	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream

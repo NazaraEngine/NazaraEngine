@@ -7,7 +7,8 @@
 #ifndef NAZARA_DYNLIB_HPP
 #define NAZARA_DYNLIB_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -28,7 +29,7 @@
 
 namespace Nz
 {
-	using DynLibFunc = int (*)(); // "Generic" type of poiter to function
+	using DynLibFunc = int (*)(); // "Generic" type of pointer to function
 
 	class DynLibImpl;
 
@@ -37,7 +38,7 @@ namespace Nz
 		public:
 			DynLib();
 			DynLib(const DynLib&) = delete;
-			DynLib(DynLib&& lib);
+			DynLib(DynLib&&) noexcept = default;
 			~DynLib();
 
 			String GetLastError() const;
@@ -49,13 +50,13 @@ namespace Nz
 			void Unload();
 
 			DynLib& operator=(const DynLib&) = delete;
-			DynLib& operator=(DynLib&& lib);
+			DynLib& operator=(DynLib&& lib) noexcept = default;
 
 		private:
 			NazaraMutexAttrib(m_mutex, mutable)
 
 			mutable String m_lastError;
-			DynLibImpl* m_impl;
+			MovablePtr<DynLibImpl> m_impl;
 	};
 }
 

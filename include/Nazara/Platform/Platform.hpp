@@ -7,8 +7,7 @@
 #ifndef NAZARA_PLATFORM_HPP
 #define NAZARA_PLATFORM_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
 
 namespace Nz

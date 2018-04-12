@@ -64,8 +64,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<BufferUsage>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max   = BufferUsage_Max;
+		static constexpr BufferUsage max = BufferUsage_Max;
 	};
 
 	using BufferUsageFlags = Flags<BufferUsage>;

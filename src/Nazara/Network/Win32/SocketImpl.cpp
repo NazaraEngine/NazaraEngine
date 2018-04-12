@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2018 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,8 +8,17 @@
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
-#if defined(NAZARA_COMPILER_MINGW) && __GNUC__ < 5
-// Some compilers (olders versions of MinGW) are lacking Mstcpip.h which defines the following struct/#define
+// Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
+#if defined(__has_include)
+	#define NZ_HAS_MSTCPIP_HEADER __has_include(<mstcpip.h>)
+#else
+	// If this version of MinGW doesn't support __has_include, assume it hasn't Mstcpip.h
+	#define NZ_HAS_MSTCPIP_HEADER !defined(NAZARA_COMPILER_MINGW)
+#endif
+
+#if NZ_HAS_MSTCPIP_HEADER
+#include <mstcpip.h>
+#else
 struct tcp_keepalive
 {
 	u_long onoff;
@@ -18,8 +27,6 @@ struct tcp_keepalive
 };
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
-#else
-#include <Mstcpip.h>
 #endif
 
 #include <Winsock2.h>
@@ -33,6 +40,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		SocketHandle newClient = accept(handle, reinterpret_cast<sockaddr*>(&nameBuffer), &bufferLength);
@@ -392,6 +401,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		if (getpeername(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
@@ -413,6 +424,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		if (getsockname(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
@@ -537,6 +550,8 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		IpAddress senderIp;
@@ -592,12 +607,13 @@ namespace Nz
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
 		IpAddress senderIp;
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
-		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -606,7 +622,7 @@ namespace Nz
 
 		DWORD flags = 0;
 		DWORD byteRead;
-		if (WSARecvFrom(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteRead, &flags, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		if (WSARecvFrom(handle, winBuffers.data(), static_cast<DWORD>(bufferCount), &byteRead, &flags, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
 			switch (errorCode)
@@ -696,8 +712,7 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 
-		StackAllocation memory = NazaraStackAllocation(bufferCount * sizeof(WSABUF));
-		WSABUF* winBuffers = static_cast<WSABUF*>(memory.GetPtr());
+		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -705,7 +720,7 @@ namespace Nz
 		}
 
 		DWORD byteSent;
-		if (WSASendTo(handle, winBuffers, static_cast<DWORD>(bufferCount), &byteSent, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength, nullptr, nullptr) == SOCKET_ERROR)
+		if (WSASendTo(handle, winBuffers.data(), static_cast<DWORD>(bufferCount), &byteSent, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			int errorCode = WSAGetLastError();
 			switch (errorCode)
@@ -810,6 +825,32 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return true;
+	}
+
+	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
+	{
+#if NAZARA_CORE_WINDOWS_NT6
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = ipv6Only;
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+#else
+		if (error)
+			*error = SocketError_NotSupported;
+
+		return false;
+#endif
 	}
 
 	bool SocketImpl::SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error)

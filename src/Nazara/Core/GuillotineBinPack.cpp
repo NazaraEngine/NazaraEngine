@@ -9,8 +9,6 @@
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <algorithm>
-#include <cstdlib>
-#include <cmath>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
 
@@ -295,7 +293,7 @@ namespace Nz
 	*
 	* \param rects List of rectangles
 	* \param flipped List of flipped rectangles
-	* \param flipped List of inserted rectangles
+	* \param inserted List of inserted rectangles
 	* \param count Count of rectangles
 	* \param merge Merge possible
 	* \param rectChoice Heuristic to use to free

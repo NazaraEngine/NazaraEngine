@@ -37,7 +37,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToReadSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToReadSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToReadSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -46,7 +46,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToWriteSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToWriteSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToWriteSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -55,8 +55,9 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_allSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readSockets) != 0 ||
-		       FD_ISSET(socket, &m_writeSockets) != 0;
+		// FD_ISSET is not const-correct
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readSockets)) != 0 || 
+		       FD_ISSET(socket, const_cast<fd_set*>(&m_writeSockets)) != 0;
 		#endif
 	}
 
@@ -143,12 +144,15 @@ namespace Nz
 			int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)
 			{
-				if (entry.revents != 0)
+				if (!entry.revents)
+					continue;
+
+				if (entry.revents & (POLLRDNORM | POLLWRNORM | POLLHUP | POLLERR))
 				{
-					if (entry.revents & POLLRDNORM)
+					if (entry.revents & (POLLRDNORM | POLLHUP | POLLERR))
 						m_readyToReadSockets.insert(entry.fd);
 
-					if (entry.revents & POLLWRNORM)
+					if (entry.revents & (POLLWRNORM | POLLERR))
 						m_readyToWriteSockets.insert(entry.fd);
 
 					entry.revents = 0;
@@ -156,9 +160,13 @@ namespace Nz
 					if (--socketRemaining == 0)
 						break;
 				}
+				else
+				{
+					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					activeSockets--;
+				}
 			}
 		}
-
 		#else
 		fd_set* readSet = nullptr;
 		fd_set* writeSet = nullptr;

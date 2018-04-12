@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -11,6 +11,7 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <memory>
 #include <vector>
 
@@ -40,7 +41,8 @@ namespace Ndk
 
 			const EntityHandle& Clone() const;
 
-			inline void Enable(bool enable = true);
+			inline void Disable();
+			void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();

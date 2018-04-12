@@ -7,7 +7,7 @@
 #ifndef NAZARA_STRINGSTREAM_HPP
 #define NAZARA_STRINGSTREAM_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <string>
 #include <vector>
@@ -17,8 +17,8 @@ namespace Nz
 	class NAZARA_CORE_API StringStream
 	{
 		public:
-			StringStream();
-			StringStream(const String& str);
+			StringStream() = default;
+			StringStream(String str);
 			StringStream(const StringStream&) = default;
 			StringStream(StringStream&&) noexcept = default;
 
@@ -53,8 +53,7 @@ namespace Nz
 			operator String() const;
 
 		private:
-			std::vector<String> m_strings;
-			std::size_t m_bufferSize;
+			String m_result;
 	};
 }
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_RUDPSERVER_HPP
 #define NAZARA_RUDPSERVER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -22,8 +22,6 @@
 
 namespace Nz
 {
-	class RUdpClient;
-
 	class NAZARA_NETWORK_API RUdpConnection
 	{
 		friend class Network;

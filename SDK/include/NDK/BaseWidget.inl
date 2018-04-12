@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -44,6 +44,24 @@ namespace Ndk
 		Nz::Vector2f parentSize = m_widgetParent->GetSize();
 		Nz::Vector2f mySize = GetSize();
 		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
+	}
+
+	inline void BaseWidget::CenterHorizontal()
+	{
+		NazaraAssert(m_widgetParent, "Widget has no parent");
+
+		Nz::Vector2f parentSize = m_widgetParent->GetSize();
+		Nz::Vector2f mySize = GetSize();
+		SetPosition((parentSize.x - mySize.x) / 2.f, GetPosition(Nz::CoordSys_Local).y);
+	}
+
+	inline void BaseWidget::CenterVertical()
+	{
+		NazaraAssert(m_widgetParent, "Widget has no parent");
+
+		Nz::Vector2f parentSize = m_widgetParent->GetSize();
+		Nz::Vector2f mySize = GetSize();
+		SetPosition(GetPosition(Nz::CoordSys_Local).x, (parentSize.y - mySize.y) / 2.f);
 	}
 
 	inline const Nz::Color& BaseWidget::GetBackgroundColor() const

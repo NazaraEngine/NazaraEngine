@@ -10,14 +10,13 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -94,35 +93,33 @@ namespace Nz
 
 		m_renderQueue.Sort(sceneData.viewer);
 
-		for (auto& pair : m_renderQueue.layers)
-		{
-			ForwardRenderQueue::Layer& layer = pair.second;
+		if (!m_renderQueue.models.empty())
+			DrawModels(sceneData, m_renderQueue, m_renderQueue.models);
 
-			if (!layer.opaqueModels.empty())
-				DrawOpaqueModels(sceneData, layer);
+		if (!m_renderQueue.basicSprites.empty())
+			DrawSprites(sceneData, m_renderQueue, m_renderQueue.basicSprites);
 
-			if (!layer.depthSortedMeshes.empty())
-				DrawTransparentModels(sceneData, layer);
+		if (!m_renderQueue.billboards.empty())
+			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.billboards);
 
-			if (!layer.opaqueSprites.empty())
-				DrawBasicSprites(sceneData, layer);
+		if (!m_renderQueue.depthSortedModels.empty())
+			DrawModels(sceneData, m_renderQueue, m_renderQueue.depthSortedModels);
 
-			if (!layer.depthSortedSprites.empty())
-				DrawOrderedSprites(sceneData, layer);
+		if (!m_renderQueue.depthSortedSprites.empty())
+			DrawSprites(sceneData, m_renderQueue, m_renderQueue.depthSortedSprites);
 
-			if (!layer.billboards.empty())
-				DrawBillboards(sceneData, layer);
+		if (!m_renderQueue.depthSortedBillboards.empty())
+			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.depthSortedBillboards);
 
-			for (const Drawable* drawable : layer.otherDrawables)
-				drawable->Draw();
-		}
+		if (!m_renderQueue.customDrawables.empty())
+			DrawCustomDrawables(sceneData, m_renderQueue, m_renderQueue.customDrawables);
 
 		return true;
 	}
 
 	/*!
 	* \brief Gets the maximum number of lights available per pass per object
-	* \return Maximum number of light simulatenously per object
+	* \return Maximum number of light simultaneously per object
 	*/
 
 	unsigned int ForwardRenderTechnique::GetMaxLightPassPerObject() const
@@ -213,12 +210,19 @@ namespace Nz
 
 			// Declaration used when rendering the billboards with intancing
 			// The main advantage is the direct copy (std::memcpy) of data in the RenderQueue to the GPU buffer
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(ForwardRenderQueue::BillboardData, center));
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(ForwardRenderQueue::BillboardData, size)); // Englobe sincos
-			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(ForwardRenderQueue::BillboardData, color));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData0, ComponentType_Float3, NazaraOffsetOf(BasicRenderQueue::BillboardData, center));
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData1, ComponentType_Float4, NazaraOffsetOf(BasicRenderQueue::BillboardData, size)); // Englobe sincos
+			s_billboardInstanceDeclaration.EnableComponent(VertexComponent_InstanceData2, ComponentType_Color,  NazaraOffsetOf(BasicRenderQueue::BillboardData, color));
+
+			s_reflectionSampler.SetFilterMode(SamplerFilter_Bilinear);
+			s_reflectionSampler.SetWrapMode(SamplerWrap_Clamp);
 
 			s_shadowSampler.SetFilterMode(SamplerFilter_Bilinear);
 			s_shadowSampler.SetWrapMode(SamplerWrap_Clamp);
+
+			std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
+			s_dummyReflection.Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
+			s_dummyReflection.Update(whitePixels.data());
 		}
 		catch (const std::exception& e)
 		{
@@ -235,6 +239,7 @@ namespace Nz
 
 	void ForwardRenderTechnique::Uninitialize()
 	{
+		s_dummyReflection.Destroy();
 		s_quadIndexBuffer.Reset();
 		s_quadVertexBuffer.Reset();
 	}
@@ -284,41 +289,225 @@ namespace Nz
 		});
 	}
 
-	/*!
-	* \brief Draws basic sprites
-	*
-	* \param sceneData Data of the scene
-	* \param layer Layer of the rendering
-	*
-	* \remark Produces a NazaraAssert is viewer is invalid
-	*/
-
-	void ForwardRenderTechnique::DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Billboard>& billboards) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
+		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
 
+		Renderer::SetVertexBuffer(&s_quadVertexBuffer);
+
+		Nz::BufferMapper<VertexBuffer> instanceBufferMapper;
+		std::size_t billboardCount = 0;
+		std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+
+		auto Commit = [&]()
+		{
+			if (billboardCount > 0)
+			{
+				instanceBufferMapper.Unmap();
+
+				Renderer::DrawPrimitivesInstanced(billboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+
+				billboardCount = 0;
+			}
+		};
+
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
+		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
 
-		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
-		Renderer::SetVertexBuffer(&m_spriteBuffer);
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
-		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
-
-		for (auto& pipelinePair : layer.opaqueSprites)
+		for (const BasicRenderQueue::Billboard& billboard : billboards)
 		{
-			const MaterialPipeline* pipeline = pipelinePair.first;
-			auto& pipelineEntry = pipelinePair.second;
+			const Nz::Recti& scissorRect = (billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect;
 
-			if (pipelineEntry.enabled)
+			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
 			{
-				const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+				Commit();
 
-				const Shader* shader = pipelineInstance.uberInstance->GetShader();
+				const MaterialPipeline* pipeline = billboard.material->GetPipeline();
+				if (lastPipeline != pipeline)
+				{
+					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
-				// Uniforms are conserved in our program, there's no point to send them back until they change
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
+
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				if (lastMaterial != billboard.material)
+				{
+					billboard.material->Apply(*pipelineInstance);
+					lastMaterial = billboard.material;
+				}
+
+				if (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
+				}
+			}
+
+			if (!instanceBufferMapper.GetBuffer())
+				instanceBufferMapper.Map(instanceBuffer, BufferAccess_DiscardAndWrite);
+
+			std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(BasicRenderQueue::BillboardData) * billboardCount, &billboard.data, sizeof(BasicRenderQueue::BillboardData));
+			if (++billboardCount >= maxBillboardPerDraw)
+				Commit();
+		}
+
+		Commit();
+	}
+	
+	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::BillboardChain>& billboards) const
+	{
+		VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
+		instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
+
+		Renderer::SetVertexBuffer(&s_quadVertexBuffer);
+
+		Nz::BufferMapper<VertexBuffer> instanceBufferMapper;
+		std::size_t billboardCount = 0;
+		std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
+
+		auto Commit = [&]()
+		{
+			if (billboardCount > 0)
+			{
+				instanceBufferMapper.Unmap();
+
+				Renderer::DrawPrimitivesInstanced(billboardCount, PrimitiveMode_TriangleStrip, 0, 4);
+
+				billboardCount = 0;
+			}
+		};
+
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		for (const BasicRenderQueue::BillboardChain& billboard : billboards)
+		{
+			const Nz::Recti& scissorRect = (billboard.scissorRect.width > 0) ? billboard.scissorRect : fullscreenScissorRect;
+
+			if (billboard.material != lastMaterial || (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
+			{
+				Commit();
+
+				const MaterialPipeline* pipeline = billboard.material->GetPipeline();
+				if (lastPipeline != pipeline)
+				{
+					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
+
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
+
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				if (lastMaterial != billboard.material)
+				{
+					billboard.material->Apply(*pipelineInstance);
+					lastMaterial = billboard.material;
+				}
+
+				if (billboard.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
+				}
+			}
+
+			std::size_t billboardRemaining = billboard.billboardCount;
+			const BasicRenderQueue::BillboardData* billboardData = renderQueue.GetBillboardData(billboard.billboardIndex);
+			do
+			{
+				std::size_t renderedBillboardCount = std::min(billboardRemaining, maxBillboardPerDraw - billboardCount);
+				billboardRemaining -= renderedBillboardCount;
+
+				if (!instanceBufferMapper.GetBuffer())
+					instanceBufferMapper.Map(instanceBuffer, BufferAccess_DiscardAndWrite);
+
+				std::memcpy(static_cast<Nz::UInt8*>(instanceBufferMapper.GetPointer()) + sizeof(BasicRenderQueue::BillboardData) * billboardCount, billboardData, renderedBillboardCount * sizeof(BasicRenderQueue::BillboardData));
+				billboardCount += renderedBillboardCount;
+				billboardData += renderedBillboardCount;
+
+				if (billboardCount >= maxBillboardPerDraw)
+					Commit();
+			}
+			while (billboardRemaining > 0);
+		}
+
+		Commit();
+	}
+
+	void ForwardRenderTechnique::DrawCustomDrawables(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::CustomDrawable>& customDrawables) const
+	{
+		for (const BasicRenderQueue::CustomDrawable& customDrawable : customDrawables)
+			customDrawable.drawable->Draw();
+	}
+	
+	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const Nz::RenderQueue<Nz::BasicRenderQueue::Model>& models) const
+	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		///TODO: Reimplement instancing
+
+		for (const BasicRenderQueue::Model& model : models)
+		{
+			const MaterialPipeline* pipeline = model.material->GetPipeline();
+			if (lastPipeline != pipeline)
+			{
+				pipelineInstance = &model.material->GetPipeline()->Apply();
+
+				const Shader* shader = pipelineInstance->uberInstance->GetShader();
 				if (shader != lastShader)
 				{
 					// Index of uniforms in the shader
@@ -329,548 +518,196 @@ namespace Nz
 					// Position of the camera
 					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-					// Overlay texture unit
-					shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
-
 					lastShader = shader;
 				}
 
-				for (auto& materialPair : pipelineEntry.materialMap)
+				lastPipeline = pipeline;
+			}
+
+			if (lastMaterial != model.material)
+			{
+				model.material->Apply(*pipelineInstance);
+				lastMaterial = model.material;
+			}
+
+			if (model.material->IsScissorTestEnabled())
+			{
+				const Nz::Recti& scissorRect = (model.scissorRect.width > 0) ? model.scissorRect : fullscreenScissorRect;
+				if (scissorRect != lastScissorRect)
 				{
-					const Material* material = materialPair.first;
-					auto& matEntry = materialPair.second;
-
-					if (matEntry.enabled)
-					{
-						material->Apply(pipelineInstance);
-
-						Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
-
-						auto& overlayMap = matEntry.overlayMap;
-						for (auto& overlayIt : overlayMap)
-						{
-							const Texture* overlay = overlayIt.first;
-							auto& spriteChainVector = overlayIt.second.spriteChains;
-
-							std::size_t spriteChainCount = spriteChainVector.size();
-							if (spriteChainCount > 0)
-							{
-								Renderer::SetTexture(overlayTextureUnit, (overlay) ? overlay : &m_whiteTexture);
-
-								std::size_t spriteChain = 0; // Which chain of sprites are we treating
-								std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
-
-								do
-								{
-									// We open the buffer in writing mode
-									BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-									VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
-
-									std::size_t spriteCount = 0;
-
-									do
-									{
-										ForwardRenderQueue::SpriteChain_XYZ_Color_UV& currentChain = spriteChainVector[spriteChain];
-										std::size_t count = std::min(maxSpriteCount - spriteCount, currentChain.spriteCount - spriteChainOffset);
-
-										std::memcpy(vertices, currentChain.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
-										vertices += count * 4;
-
-										spriteCount += count;
-										spriteChainOffset += count;
-
-										// Have we treated the entire chain ?
-										if (spriteChainOffset == currentChain.spriteCount)
-										{
-											spriteChain++;
-											spriteChainOffset = 0;
-										}
-									} while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
-
-									vertexMapper.Unmap();
-
-									Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
-								}
-								while (spriteChain < spriteChainCount);
-							}
-						}
-					}
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
 				}
+			}
+
+			if (shaderUniforms->reflectionMap != -1)
+			{
+				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
+
+				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
+				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
+			}
+
+			// Handle draw call before rendering loop
+			Renderer::DrawCall drawFunc;
+			Renderer::DrawCallInstanced instancedDrawFunc;
+			unsigned int indexCount;
+
+			if (model.meshData.indexBuffer)
+			{
+				drawFunc = Renderer::DrawIndexedPrimitives;
+				instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
+				indexCount = model.meshData.indexBuffer->GetIndexCount();
+			}
+			else
+			{
+				drawFunc = Renderer::DrawPrimitives;
+				instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
+				indexCount = model.meshData.vertexBuffer->GetVertexCount();
+			}
+
+			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
+			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
+
+			if (shaderUniforms->hasLightUniforms)
+			{
+				ChooseLights(model.obbSphere);
+
+				std::size_t lightCount = m_lights.size();
+
+				Nz::Renderer::SetMatrix(Nz::MatrixType_World, model.matrix);
+				std::size_t lightIndex = 0;
+				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
+
+				std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+				for (std::size_t pass = 0; pass < passCount; ++pass)
+				{
+					lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
+
+					if (pass == 1)
+					{
+						// To add the result of light computations
+						// We won't interfere with materials parameters because we only render opaques objects
+						// (A.K.A., without blending)
+						// About the depth function, it must be applied only the first time
+						Renderer::Enable(RendererParameter_Blend, true);
+						Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
+						Renderer::SetDepthFunc(RendererComparison_Equal);
+					}
+
+					// Sends the light uniforms to the shader
+					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
+						SendLightUniforms(lastShader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
+
+					// And we draw
+					drawFunc(model.meshData.primitiveMode, 0, indexCount);
+				}
+
+				Renderer::Enable(RendererParameter_Blend, false);
+				Renderer::SetDepthFunc(oldDepthFunc);
+			}
+			else
+			{
+				Renderer::SetMatrix(MatrixType_World, model.matrix);
+				drawFunc(model.meshData.primitiveMode, 0, indexCount);
 			}
 		}
 	}
 
-	/*!
-	* \brief Draws billboards
-	*
-	* \param sceneData Data of the scene
-	* \param layer Layer of the rendering
-	*
-	* \remark Produces a NazaraAssert is viewer is invalid
-	*/
-
-	void ForwardRenderTechnique::DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
+	void ForwardRenderTechnique::DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& spriteList) const
 	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
-		const Shader* lastShader = nullptr;
-		const ShaderUniforms* shaderUniforms = nullptr;
-
-		if (m_instancingEnabled && Renderer::HasCapability(RendererCap_Instancing))
-		{
-			VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-			instanceBuffer->SetVertexDeclaration(&s_billboardInstanceDeclaration);
-
-			Renderer::SetVertexBuffer(&s_quadVertexBuffer);
-
-			for (auto& pipelinePair : layer.billboards)
-			{
-				const MaterialPipeline* pipeline = pipelinePair.first;
-				auto& pipelineEntry = pipelinePair.second;
-
-				if (pipelineEntry.enabled)
-				{
-					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance.uberInstance->GetShader();
-
-					// Uniforms are conserved in our program, there's no point to send them back until they change
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambiant color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
-					}
-
-					for (auto& matIt : pipelinePair.second.materialMap)
-					{
-						const Material* material = matIt.first;
-						auto& entry = matIt.second;
-						auto& billboardVector = entry.billboards;
-
-						std::size_t billboardCount = billboardVector.size();
-						if (billboardCount > 0)
-						{
-							// We begin to apply the material (and get the shader activated doing so)
-							material->Apply(pipelineInstance);
-
-							const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-							std::size_t maxBillboardPerDraw = instanceBuffer->GetVertexCount();
-							do
-							{
-								std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-								billboardCount -= renderedBillboardCount;
-
-								instanceBuffer->Fill(data, 0, renderedBillboardCount);
-								data += renderedBillboardCount;
-
-								Renderer::DrawPrimitivesInstanced(renderedBillboardCount, PrimitiveMode_TriangleStrip, 0, 4);
-							}
-							while (billboardCount > 0);
-
-							billboardVector.clear();
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-			Renderer::SetVertexBuffer(&m_billboardPointBuffer);
-
-			for (auto& pipelinePair : layer.billboards)
-			{
-				const MaterialPipeline* pipeline = pipelinePair.first;
-				auto& pipelineEntry = pipelinePair.second;
-
-				if (pipelineEntry.enabled)
-				{
-					const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply(ShaderFlags_Billboard | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance.uberInstance->GetShader();
-
-					// Uniforms are conserved in our program, there's no point to send them back until they change
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambiant color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
-					}
-
-					for (auto& matIt : pipelinePair.second.materialMap)
-					{
-						auto& entry = matIt.second;
-						auto& billboardVector = entry.billboards;
-
-						const ForwardRenderQueue::BillboardData* data = &billboardVector[0];
-						std::size_t maxBillboardPerDraw = std::min<std::size_t>(s_maxQuads, m_billboardPointBuffer.GetVertexCount() / 4);
-
-						std::size_t billboardCount = billboardVector.size();
-						do
-						{
-							std::size_t renderedBillboardCount = std::min(billboardCount, maxBillboardPerDraw);
-							billboardCount -= renderedBillboardCount;
-
-							BufferMapper<VertexBuffer> vertexMapper(m_billboardPointBuffer, BufferAccess_DiscardAndWrite, 0, renderedBillboardCount * 4);
-							BillboardPoint* vertices = static_cast<BillboardPoint*>(vertexMapper.GetPointer());
-
-							for (unsigned int i = 0; i < renderedBillboardCount; ++i)
-							{
-								const ForwardRenderQueue::BillboardData& billboard = *data++;
-
-								vertices->color = billboard.color;
-								vertices->position = billboard.center;
-								vertices->sinCos = billboard.sinCos;
-								vertices->size = billboard.size;
-								vertices->uv.Set(0.f, 1.f);
-								vertices++;
-
-								vertices->color = billboard.color;
-								vertices->position = billboard.center;
-								vertices->sinCos = billboard.sinCos;
-								vertices->size = billboard.size;
-								vertices->uv.Set(1.f, 1.f);
-								vertices++;
-
-								vertices->color = billboard.color;
-								vertices->position = billboard.center;
-								vertices->sinCos = billboard.sinCos;
-								vertices->size = billboard.size;
-								vertices->uv.Set(0.f, 0.f);
-								vertices++;
-
-								vertices->color = billboard.color;
-								vertices->position = billboard.center;
-								vertices->sinCos = billboard.sinCos;
-								vertices->size = billboard.size;
-								vertices->uv.Set(1.f, 0.f);
-								vertices++;
-							}
-
-							vertexMapper.Unmap();
-
-							Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, renderedBillboardCount * 6);
-						}
-						while (billboardCount > 0);
-					}
-				}
-			}
-		}
-	}
-
-	/*!
-	* \brief Draws opaques models
-	*
-	* \param sceneData Data of the scene
-	* \param layer Layer of the rendering
-	*
-	* \remark Produces a NazaraAssert is viewer is invalid
-	*/
-
-	void ForwardRenderTechnique::DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
-	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
-		const Shader* lastShader = nullptr;
-		const ShaderUniforms* shaderUniforms = nullptr;
-
-		for (auto& pipelinePair : layer.opaqueModels)
-		{
-			const MaterialPipeline* pipeline = pipelinePair.first;
-			auto& pipelineEntry = pipelinePair.second;
-
-			if (pipelineEntry.maxInstanceCount > 0)
-			{
-				bool instancing = m_instancingEnabled && (pipelineEntry.maxInstanceCount > NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT);
-				const MaterialPipeline::Instance& pipelineInstance = pipeline->Apply((instancing) ? ShaderFlags_Instancing : 0);
-
-				const Shader* shader = pipelineInstance.uberInstance->GetShader();
-
-				// Uniforms are conserved in our program, there's no point to send them back until they change
-				if (shader != lastShader)
-				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
-
-					// Ambiant color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-					lastShader = shader;
-				}
-
-				for (auto& materialPair : pipelineEntry.materialMap)
-				{
-					const Material* material = materialPair.first;
-					auto& matEntry = materialPair.second;
-
-					if (matEntry.enabled)
-					{
-						material->Apply(pipelineInstance);
-
-						ForwardRenderQueue::MeshInstanceContainer& meshInstances = matEntry.meshMap;
-
-						// Meshes
-						for (auto& meshIt : meshInstances)
-						{
-							const MeshData& meshData = meshIt.first;
-							auto& meshEntry = meshIt.second;
-
-							const Spheref& squaredBoundingSphere = meshEntry.squaredBoundingSphere;
-							std::vector<Matrix4f>& instances = meshEntry.instances;
-
-							if (!instances.empty())
-							{
-								const IndexBuffer* indexBuffer = meshData.indexBuffer;
-								const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
-
-								// Handle draw call before rendering loop
-								Renderer::DrawCall drawFunc;
-								Renderer::DrawCallInstanced instancedDrawFunc;
-								unsigned int indexCount;
-
-								if (indexBuffer)
-								{
-									drawFunc = Renderer::DrawIndexedPrimitives;
-									instancedDrawFunc = Renderer::DrawIndexedPrimitivesInstanced;
-									indexCount = indexBuffer->GetIndexCount();
-								}
-								else
-								{
-									drawFunc = Renderer::DrawPrimitives;
-									instancedDrawFunc = Renderer::DrawPrimitivesInstanced;
-									indexCount = vertexBuffer->GetVertexCount();
-								}
-
-								Renderer::SetIndexBuffer(indexBuffer);
-								Renderer::SetVertexBuffer(vertexBuffer);
-
-								if (instancing)
-								{
-									// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-									VertexBuffer* instanceBuffer = Renderer::GetInstanceBuffer();
-									instanceBuffer->SetVertexDeclaration(VertexDeclaration::Get(VertexLayout_Matrix4));
-
-									// With instancing, impossible to select the lights for each object
-									// So, it's only activated for directional lights
-									std::size_t lightCount = m_renderQueue.directionalLights.size();
-									std::size_t lightIndex = 0;
-									RendererComparison oldDepthFunc = Renderer::GetDepthFunc();
-
-									std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-									for (std::size_t pass = 0; pass < passCount; ++pass)
-									{
-										if (shaderUniforms->hasLightUniforms)
-										{
-											std::size_t renderedLightCount = std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-											lightCount -= renderedLightCount;
-
-											if (pass == 1)
-											{
-												// To add the result of light computations
-												// We won't interfeer with materials parameters because we only render opaques objects
-												// (A.K.A., without blending)
-												// About the depth function, it must be applied only the first time
-												Renderer::Enable(RendererParameter_Blend, true);
-												Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
-												Renderer::SetDepthFunc(RendererComparison_Equal);
-											}
-
-											// Sends the uniforms
-											for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-												SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset * i);
-										}
-
-										const Matrix4f* instanceMatrices = &instances[0];
-										std::size_t instanceCount = instances.size();
-										std::size_t maxInstanceCount = instanceBuffer->GetVertexCount(); // Maximum number of instance in one batch
-
-										while (instanceCount > 0)
-										{
-											// We compute the number of instances that we will be able to draw this time (depending on the instancing buffer size)
-											std::size_t renderedInstanceCount = std::min(instanceCount, maxInstanceCount);
-											instanceCount -= renderedInstanceCount;
-
-											// We fill the instancing buffer with our world matrices
-											instanceBuffer->Fill(instanceMatrices, 0, renderedInstanceCount);
-											instanceMatrices += renderedInstanceCount;
-
-											// And we draw
-											instancedDrawFunc(renderedInstanceCount, meshData.primitiveMode, 0, indexCount);
-										}
-									}
-
-									// We don't forget to disable the blending to avoid to interferering with the rest of the rendering
-									Renderer::Enable(RendererParameter_Blend, false);
-									Renderer::SetDepthFunc(oldDepthFunc);
-								}
-								else
-								{
-									if (shaderUniforms->hasLightUniforms)
-									{
-										for (const Matrix4f& matrix : instances)
-										{
-											// Choose the lights depending on an object position and apparent radius
-											ChooseLights(Spheref(matrix.GetTranslation() + squaredBoundingSphere.GetPosition(), squaredBoundingSphere.radius));
-
-											std::size_t lightCount = m_lights.size();
-
-											Renderer::SetMatrix(MatrixType_World, matrix);
-											std::size_t lightIndex = 0;
-											RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
-
-											std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
-											for (std::size_t pass = 0; pass < passCount; ++pass)
-											{
-												lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-
-												if (pass == 1)
-												{
-													// To add the result of light computations
-													// We won't interfeer with materials parameters because we only render opaques objects
-													// (A.K.A., without blending)
-													// About the depth function, it must be applied only the first time
-													Renderer::Enable(RendererParameter_Blend, true);
-													Renderer::SetBlendFunc(BlendFunc_One, BlendFunc_One);
-													Renderer::SetDepthFunc(RendererComparison_Equal);
-												}
-
-												// Sends the light uniforms to the shader
-												for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-													SendLightUniforms(shader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
-
-												// And we draw
-												drawFunc(meshData.primitiveMode, 0, indexCount);
-											}
-
-											Renderer::Enable(RendererParameter_Blend, false);
-											Renderer::SetDepthFunc(oldDepthFunc);
-										}
-									}
-									else
-									{
-										// Without instancing, we must do a draw call for each instance
-										// This may be faster than instancing under a certain number
-										// Due to the time to modify the instancing buffer
-										for (const Matrix4f& matrix : instances)
-										{
-											Renderer::SetMatrix(MatrixType_World, matrix);
-											drawFunc(meshData.primitiveMode, 0, indexCount);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	void ForwardRenderTechnique::DrawOrderedSprites(const SceneData & sceneData, ForwardRenderQueue::Layer & layer) const
-	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
+		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+
+		m_spriteChains.clear();
+
+		auto Commit = [&]()
+		{
+			std::size_t spriteChainCount = m_spriteChains.size();
+			if (spriteChainCount > 0)
+			{
+				std::size_t spriteChain = 0; // Which chain of sprites are we treating
+				std::size_t spriteChainOffset = 0; // Where was the last offset where we stopped in the last chain
+
+				do
+				{
+					// We open the buffer in writing mode
+					BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+					VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+
+					std::size_t spriteCount = 0;
+
+					do
+					{
+						const VertexStruct_XYZ_Color_UV* currentChain = m_spriteChains[spriteChain].first;
+						std::size_t currentChainSpriteCount = m_spriteChains[spriteChain].second;
+						std::size_t count = std::min(maxSpriteCount - spriteCount, currentChainSpriteCount - spriteChainOffset);
+
+						std::memcpy(vertices, currentChain + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
+						vertices += count * 4;
+
+						spriteCount += count;
+						spriteChainOffset += count;
+
+						// Have we treated the entire chain ?
+						if (spriteChainOffset == currentChainSpriteCount)
+						{
+							spriteChain++;
+							spriteChainOffset = 0;
+						}
+					}
+					while (spriteCount < maxSpriteCount && spriteChain < spriteChainCount);
+
+					vertexMapper.Unmap();
+
+					Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, spriteCount * 6);
+				}
+				while (spriteChain < spriteChainCount);
+			}
+
+			m_spriteChains.clear();
+		};
+
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
-		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
-
-		bool updateVertexBuffer = true;
-		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
-
-		std::size_t alreadyDrawnCount = 0;
-		std::size_t spriteIndex = 0;
-		std::size_t spriteChainOffset = 0;
-		auto splitChainIt = layer.depthSortedSprites.end();
-
-		for (auto it = layer.depthSortedSprites.begin(); it != layer.depthSortedSprites.end();)
+		for (const BasicRenderQueue::SpriteChain& basicSprites : spriteList)
 		{
-			if (updateVertexBuffer)
+			const Nz::Recti& scissorRect = (basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect;
+
+			if (basicSprites.material != lastMaterial || basicSprites.overlay != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
 			{
-				// We open the buffer in writing mode
-				BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-				VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+				Commit();
 
-				std::size_t availableSpriteSpace = maxSpriteCount;
-				bool split = false;
-				for (auto it2 = it; it2 != layer.depthSortedSprites.end(); ++it2)
+				const MaterialPipeline* pipeline = basicSprites.material->GetPipeline();
+				if (lastPipeline != pipeline)
 				{
-					const ForwardRenderQueue::UnbatchedSpriteData& spriteData = layer.depthSortedSpriteData[*it2];
-
-					std::size_t count = std::min(availableSpriteSpace, spriteData.spriteCount - spriteChainOffset);
-
-					std::memcpy(vertices, spriteData.vertices + spriteChainOffset * 4, 4 * count * sizeof(VertexStruct_XYZ_Color_UV));
-					vertices += count * 4;
-
-					availableSpriteSpace -= count;
-
-					// Have we treated the entire chain ?
-					if (count != spriteData.spriteCount)
-					{
-						// Oops, not enough space to store current chain
-						spriteChainOffset += count;
-						splitChainIt = it2;
-						split = true;
-						break;
-					}
-
-					// Switch to next sprite chain, if any
-					spriteChainOffset = 0;
-				}
-
-				spriteIndex = 0;
-				updateVertexBuffer = false;
-
-				if (!split)
-					splitChainIt = layer.depthSortedSprites.end();
-			}
-
-			std::size_t index = *it;
-
-			const ForwardRenderQueue::UnbatchedSpriteData& spriteData = layer.depthSortedSpriteData[index];
-
-			const Material* material = spriteData.material;
-			if (material != lastMaterial)
-			{
-				const MaterialPipeline* pipeline = material->GetPipeline();
-				if (pipeline != lastPipeline)
-				{
-					pipelineInstance = &pipeline->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+					pipelineInstance = &basicSprites.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
 
 					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-
-					// Uniforms are conserved in our program, there's no point to send them back until they change
 					if (shader != lastShader)
 					{
 						// Index of uniforms in the shader
-						const ShaderUniforms* shaderUniforms = GetShaderUniforms(shader);
+						shaderUniforms = GetShaderUniforms(shader);
 
 						// Ambient color of the scene
 						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
 						// Position of the camera
 						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+
 						// Overlay texture unit
 						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
 
@@ -880,150 +717,34 @@ namespace Nz
 					lastPipeline = pipeline;
 				}
 
-				material->Apply(*pipelineInstance);
-
-				Renderer::SetTextureSampler(overlayTextureUnit, material->GetDiffuseSampler());
-
-				lastMaterial = material;
-			}
-
-			const Texture* overlay = (spriteData.overlay) ? spriteData.overlay : &m_whiteTexture;
-			if (overlay != lastOverlay)
-			{
-				Renderer::SetTexture(overlayTextureUnit, overlay);
-				lastOverlay = overlay;
-			}
-
-			std::size_t spriteCount;
-			if (it != splitChainIt)
-			{
-				spriteCount = spriteData.spriteCount - alreadyDrawnCount;
-				alreadyDrawnCount = 0;
-
-				++it;
-			}
-			else
-			{
-				spriteCount = spriteChainOffset;
-
-				alreadyDrawnCount = spriteCount;
-				updateVertexBuffer = true;
-
-				// Restart at current iterator next time
-			}
-
-			Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, spriteIndex * 6, spriteCount * 6);
-			spriteIndex += spriteCount;
-		}
-	}
-
-	/*!
-	* \brief Draws transparent models
-	*
-	* \param sceneData Data of the scene
-	* \param layer Layer of the rendering
-	*
-	* \remark Produces a NazaraAssert is viewer is invalid
-	*/
-
-	void ForwardRenderTechnique::DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const
-	{
-		NazaraAssert(sceneData.viewer, "Invalid viewer");
-
-		const MaterialPipeline* lastPipeline = nullptr;
-		const MaterialPipeline::Instance* pipelineInstance = nullptr;
-		const Shader* lastShader = nullptr;
-		const ShaderUniforms* shaderUniforms = nullptr;
-		unsigned int lightCount = 0;
-
-		for (std::size_t index : layer.depthSortedMeshes)
-		{
-			const ForwardRenderQueue::UnbatchedModelData& modelData = layer.depthSortedMeshData[index];
-
-			// Material
-			const Material* material = modelData.material;
-
-			const MaterialPipeline* pipeline = material->GetPipeline();
-			if (pipeline != lastPipeline)
-			{
-				pipelineInstance = &pipeline->Apply();
-				lastPipeline = pipeline;
-			}
-
-			// We begin to apply the material
-			material->Apply(*pipelineInstance);
-
-			// Uniforms are conserved in our program, there's no point to send them back until they change
-			const Shader* shader = pipelineInstance->uberInstance->GetShader();
-			if (shader != lastShader)
-			{
-				// Index of uniforms in the shader
-				shaderUniforms = GetShaderUniforms(shader);
-
-				// Ambiant color of the scene
-				shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-				// Position of the camera
-				shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-				// We send the directional lights if there is one (same for all)
-				if (shaderUniforms->hasLightUniforms)
+				if (lastMaterial != basicSprites.material)
 				{
-					lightCount = std::min(m_renderQueue.directionalLights.size(), static_cast<decltype(m_renderQueue.directionalLights.size())>(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
+					basicSprites.material->Apply(*pipelineInstance);
 
-					for (std::size_t i = 0; i < lightCount; ++i)
-						SendLightUniforms(shader, shaderUniforms->lightUniforms, i, i, shaderUniforms->lightOffset * i);
+					Renderer::SetTextureSampler(overlayTextureUnit, basicSprites.material->GetDiffuseSampler());
+
+					lastMaterial = basicSprites.material;
 				}
 
-				lastShader = shader;
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : &m_whiteTexture;
+				if (overlayTexture != lastOverlay)
+				{
+					Renderer::SetTexture(overlayTextureUnit, overlayTexture);
+					lastOverlay = overlayTexture;
+				}
+
+				if (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(scissorRect);
+					lastScissorRect = scissorRect;
+				}
 			}
 
-			// Mesh
-			const Matrix4f& matrix = modelData.transformMatrix;
-			const MeshData& meshData = modelData.meshData;
-
-			const IndexBuffer* indexBuffer = meshData.indexBuffer;
-			const VertexBuffer* vertexBuffer = meshData.vertexBuffer;
-
-			// Handle draw call before the rendering loop
-			Renderer::DrawCall drawFunc;
-			unsigned int indexCount;
-
-			if (indexBuffer)
-			{
-				drawFunc = Renderer::DrawIndexedPrimitives;
-				indexCount = indexBuffer->GetIndexCount();
-			}
-			else
-			{
-				drawFunc = Renderer::DrawPrimitives;
-				indexCount = vertexBuffer->GetVertexCount();
-			}
-
-			Renderer::SetIndexBuffer(indexBuffer);
-			Renderer::SetVertexBuffer(vertexBuffer);
-
-			if (shaderUniforms->hasLightUniforms && lightCount < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS)
-			{
-				// Compute the closest lights
-				Vector3f position = matrix.GetTranslation() + modelData.obbSphere.GetPosition();
-				float radius = modelData.obbSphere.radius;
-				ChooseLights(Spheref(position, radius), false);
-
-				for (std::size_t i = lightCount; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-					SendLightUniforms(shader, shaderUniforms->lightUniforms, i, i, shaderUniforms->lightOffset*i);
-			}
-
-			Renderer::SetMatrix(MatrixType_World, matrix);
-			drawFunc(meshData.primitiveMode, 0, indexCount);
+			m_spriteChains.emplace_back(basicSprites.vertices, basicSprites.spriteCount);
 		}
-	}
 
-	/*!
-	* \brief Gets the shader uniforms
-	* \return Uniforms of the shader
-	*
-	* \param shader Shader to get uniforms from
-	*/
+		Commit();
+	}
 
 	const ForwardRenderTechnique::ShaderUniforms* ForwardRenderTechnique::GetShaderUniforms(const Shader* shader) const
 	{
@@ -1035,6 +756,7 @@ namespace Nz
 			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &ForwardRenderTechnique::OnShaderInvalidated);
 
 			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
+			uniforms.reflectionMap = shader->GetUniformLocation("ReflectionMap");
 			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
 			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
 
@@ -1175,6 +897,8 @@ namespace Nz
 	}
 
 	IndexBuffer ForwardRenderTechnique::s_quadIndexBuffer;
+	Texture ForwardRenderTechnique::s_dummyReflection;
+	TextureSampler ForwardRenderTechnique::s_reflectionSampler;
 	TextureSampler ForwardRenderTechnique::s_shadowSampler;
 	VertexBuffer ForwardRenderTechnique::s_quadVertexBuffer;
 	VertexDeclaration ForwardRenderTechnique::s_billboardInstanceDeclaration;

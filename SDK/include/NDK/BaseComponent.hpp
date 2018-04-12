@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -50,6 +50,8 @@ namespace Ndk
 			virtual void OnComponentDetached(BaseComponent& component);
 			virtual void OnDetached();
 			virtual void OnEntityDestruction();
+			virtual void OnEntityDisabled();
+			virtual void OnEntityEnabled();
 
 			void SetEntity(Entity* entity);
 

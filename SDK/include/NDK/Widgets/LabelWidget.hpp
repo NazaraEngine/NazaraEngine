@@ -1,21 +1,23 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_WIDGETS_LABELWIDGET_HPP
 #define NDK_WIDGETS_LABELWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+
+namespace Nz
+{
+	class AbstractTextDrawer;
+}
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API LabelWidget : public BaseWidget
 	{
 		public:
@@ -26,7 +28,7 @@ namespace Ndk
 
 			//virtual LabelWidget* Clone() const = 0;
 
-			void ResizeToContent();
+			void ResizeToContent() override;
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
@@ -34,6 +36,8 @@ namespace Ndk
 			LabelWidget& operator=(LabelWidget&&) = default;
 
 		private:
+			void Layout() override;
+
 			EntityHandle m_textEntity;
 			Nz::TextSpriteRef m_textSprite;
 	};

@@ -96,7 +96,7 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 				REQUIRE(tmp.roll == Approx(0.f));
 				tmp = Nz::Quaternionf(euler30.ToQuaternion()).ToEulerAngles();
 				REQUIRE(tmp.pitch == Approx(30.f));
-				REQUIRE(tmp.yaw == Approx(0.f));
+				REQUIRE(tmp.yaw == Approx(0.f).margin(0.0001f));
 				REQUIRE(tmp.roll == Approx(30.f));
 			}
 		}

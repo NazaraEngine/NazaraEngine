@@ -9,7 +9,7 @@
 #ifndef NAZARA_KEYBOARD_HPP
 #define NAZARA_KEYBOARD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Platform/Config.hpp>
 

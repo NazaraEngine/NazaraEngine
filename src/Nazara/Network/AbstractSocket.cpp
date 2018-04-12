@@ -4,8 +4,7 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <utility>
-#include <Nazara/Network/Debug.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -14,6 +13,8 @@
 #else
 #error Missing implementation: Socket
 #endif
+
+#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
@@ -188,9 +189,22 @@ namespace Nz
 	{
 		if (m_handle == SocketImpl::InvalidHandle || m_protocol != protocol)
 		{
-			SocketHandle handle = SocketImpl::Create(protocol, m_type, &m_lastError);
+			SocketHandle handle = SocketImpl::Create((protocol == NetProtocol_Any) ? NetProtocol_IPv6 : protocol, m_type, &m_lastError);
 			if (handle == SocketImpl::InvalidHandle)
 				return false;
+
+			if (protocol == NetProtocol_Any)
+			{
+				if (!SocketImpl::SetIPv6Only(handle, false, &m_lastError))
+				{
+					SocketImpl::Close(handle);
+
+					NazaraError("Failed to open a dual-stack socket: " + Nz::String(ErrorToString(m_lastError)));
+					return false;
+				}
+
+				protocol = NetProtocol_IPv6;
+			}
 
 			m_protocol = protocol;
 			Open(handle);

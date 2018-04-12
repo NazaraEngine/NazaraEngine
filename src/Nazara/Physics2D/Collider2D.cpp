@@ -143,9 +143,9 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
-	float NullCollider2D::ComputeMomentOfInertia(float /*mass*/) const
+	float NullCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return 0.f;
+		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
 	}
 
 	void NullCollider2D::CreateShapes(RigidBody2D* /*body*/, std::vector<cpShape*>& /*shapes*/) const

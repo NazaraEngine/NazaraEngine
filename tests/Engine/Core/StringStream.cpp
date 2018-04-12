@@ -49,13 +49,22 @@ SCENARIO("StringStream", "[CORE][STRINGSTREAM]")
 			REQUIRE(stringStream.ToString() == "default-33-33");
 		}
 
-		AND_WHEN("We add floating points")
+		AND_WHEN("We add round floating points")
 		{
 			stringStream << 3.f;
 			stringStream << 3.0;
 			stringStream << 3.0L;
 
-			REQUIRE(stringStream.ToString() == "default333");
+			REQUIRE(stringStream.ToString() == "default3.0000003.0000003.000000");
+		}
+
+		AND_WHEN("We add floating points")
+		{
+			stringStream << 3.5f << ' ';
+			stringStream << 3.65 << ' ';
+			stringStream << 3.6478L;
+
+			REQUIRE(stringStream.ToString() == "default3.500000 3.650000 3.647800");
 		}
 
 		AND_WHEN("We add string and pointer")

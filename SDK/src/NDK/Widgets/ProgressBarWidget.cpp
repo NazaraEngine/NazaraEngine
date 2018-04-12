@@ -1,10 +1,8 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/World.hpp>
 #include <NDK/Widgets/ProgressBarWidget.hpp>
-#include <Nazara/Utility/Image.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 
@@ -32,11 +30,11 @@ namespace Ndk
 		SetBarColor(s_barColor, s_barCornerColor);
 
 
-		m_borderEntity = CreateEntity();
+		m_borderEntity = CreateEntity(false);
 		m_borderEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_borderEntity->AddComponent<GraphicsComponent>().Attach(m_borderSprite);
 
-		m_barEntity = CreateEntity();
+		m_barEntity = CreateEntity(true);
 		m_barEntity->AddComponent<NodeComponent>().SetParent(this);
 		GraphicsComponent& graphics = m_barEntity->AddComponent<GraphicsComponent>();
 
@@ -45,7 +43,7 @@ namespace Ndk
 
 
 		m_textSprite = Nz::TextSprite::New();
-		m_textEntity = CreateEntity();
+		m_textEntity = CreateEntity(true);
 
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);

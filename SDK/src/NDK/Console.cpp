@@ -1,10 +1,11 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Lua/LuaInstance.hpp>
+#include <Nazara/Lua/LuaState.hpp>
+#include <Nazara/Platform/Event.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Widgets.hpp>

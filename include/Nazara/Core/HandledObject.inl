@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
@@ -86,6 +86,8 @@ namespace Nz
 	template<typename T>
 	HandledObject<T>& HandledObject<T>::operator=(HandledObject&& object)
 	{
+		UnregisterAllHandles();
+
 		m_handles = std::move(object.m_handles);
 		for (ObjectHandle<T>* handle : m_handles)
 			handle->OnObjectMoved(static_cast<T*>(this));

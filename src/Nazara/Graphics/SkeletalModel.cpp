@@ -6,8 +6,8 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -53,7 +53,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		if (!m_mesh)
 			return;
@@ -62,14 +62,14 @@ namespace Nz
 		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
 			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
-			const Material* material = m_materials[mesh->GetMaterialIndex()];
+			const Material* material = GetMaterial(mesh->GetMaterialIndex());
 
 			MeshData meshData;
 			meshData.indexBuffer = mesh->GetIndexBuffer();
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
 	}
 
@@ -259,17 +259,6 @@ namespace Nz
 	bool SkeletalModel::LoadFromStream(Stream& stream, const SkeletalModelParameters& params)
 	{
 		return SkeletalModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
-	* \brief Resets the model
-	*/
-
-	void SkeletalModel::Reset()
-	{
-		Model::Reset();
-
-		m_skeleton.Destroy();
 	}
 
 	/*!

@@ -5,10 +5,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

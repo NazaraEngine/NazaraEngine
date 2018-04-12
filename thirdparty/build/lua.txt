@@ -1,0 +1,95 @@
+﻿Changement:
+----------------------------Erreurs via exceptions-----------------------------
+Remplacement de l'extension de tous les fichiers .c en .cpp
+
+---------------------------------Compatibilité---------------------------------
+-Dans tous les fichiers:
+  Remplacement des lignes:
+    #include "lauxlib.h"
+    #include "lua.h"
+    #include "luaconf.h"
+    #include "lualib.h"
+
+  Par les lignes:
+    #include <Lua/lauxlib.h>
+    #include <Lua/lua.h>
+    #include <Lua/luaconf.h>
+    #include <Lua/lualib.h>
+
+---------------------Support des commentaires longs du C++----------------------
+-Fichier llex.cpp (Aux alentours de la ligne 468)
+static int llex (LexState *ls, SemInfo *seminfo) {
++#if defined(LUA_CPPCOMT_LONG)
++  int last;
++#endif
+  luaZ_resetbuffer(ls->buff);
+  for (;;) {
+-Fichier llex.cpp (Aux alentours de la ligne 530):
+      case '/': {
+        next(ls);
+        if (check_next1(ls, '/')) return TK_IDIV;
++#if defined(LUA_CPPCOMT_LONG)
++        /* bn 01/2012: added C++-style comments */
++        /* Lynix 02/2015: Fixed it for Lua 5.3.0 */
++        else if (check_next1('*')) {
++          last = 0;
++          while (ls->current != EOZ) {
++            if (last == '*' && ls->current == '/') break;
++            last = ls->current;
++            next(ls); /* skip until closing marker (or end of file) */
++          }
++          if (ls->current == EOZ)
++            lexerror(ls, "unfinished long comment", TK_EOS);
++          else next(ls);
++		}
++#endif /* LUA_CPPCOMT_LONG */
+        else return '/';
+      }
+
+-Fichier llex.h (Aux alentours de la ligne 20):
+ 
++/* bn 01/2012: added C++-style comments */
++#define LUA_CPPCOMT_LONG
++/* end changes */
++
+ /*
+ * WARNING: if you change the order of this enumeration,
+ * grep "ORDER RESERVED"
+
+---------------------Support de la négation du C/C++ (!=)----------------------
+-Fichier llex.h (Aux alentours de la ligne 15):
++#define LUA_CPPNEG
+
+ /*
+ * WARNING: if you change the order of this enumeration,
+ * grep "ORDER RESERVED"
+-Fichier llex.h (Aux alentours de la ligne 37)
+  TK_SHL, TK_SHR,
+  TK_DBCOLON, TK_EOS,
++#ifdef LUA_CPPNEG
++  TK_CNE,
++#endif
+  TK_FLT, TK_INT, TK_NAME, TK_STRING
+
+-Fichier llex.cpp (Aux alentours de la ligne 44)
+    "//", "..", "...", "==", ">=", "<=", "~=",
+    "<<", ">>", "::", "<eof>",
++#ifdef LUA_CPPNEG
++    "!=",
++#endif
+    "<number>", "<integer>", "<name>", "<string>"
+-Fichier llex.cpp (Aux alentours de la ligne 556)
+        if (check_next1(ls, '/')) return TK_IDIV;
+        else return '/';
+      }
++#ifdef LUA_CPPNEG
++      case '!': {
++        next(ls);
++        if (check_next1(ls, '=')) return TK_NE;
++        else return '!';
++      }
++#endif
+      case '~': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_NE;
+
