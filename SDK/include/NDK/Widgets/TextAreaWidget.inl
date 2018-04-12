@@ -119,6 +119,8 @@ namespace Ndk
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
 	{
 		m_drawer.SetCharacterSize(characterSize);
+
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
