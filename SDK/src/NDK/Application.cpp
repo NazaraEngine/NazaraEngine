@@ -147,10 +147,7 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-		{
 			windowDimensions = info.window->GetSize();
-			windowDimensions.y /= 4;
-		}
 		else
 			windowDimensions.MakeZero();
 
