@@ -68,7 +68,7 @@ namespace Ndk
 
 		m_input->OnTextAreaKeyBackspace.Connect([](const TextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
-			if (textArea->GetGlyphUnderCursor() <= s_inputPrefixSize)
+			if (textArea->GetGlyphIndex() <= s_inputPrefixSize)
 				*ignoreDefaultAction = true;
 		});
 
