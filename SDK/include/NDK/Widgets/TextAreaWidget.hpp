@@ -34,7 +34,8 @@ namespace Ndk
 			inline const Nz::Vector2ui& GetCursorPosition() const;
 			inline const Nz::String& GetDisplayText() const;
 			inline EchoMode GetEchoMode() const;
-			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition);
+			inline std::size_t GetGlyphIndex() const;
+			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 
