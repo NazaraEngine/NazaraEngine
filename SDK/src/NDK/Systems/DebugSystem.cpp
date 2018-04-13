@@ -130,8 +130,8 @@ namespace Ndk
 				}
 			};
 
-			m_boxMeshIndexBuffer = Nz::IndexBuffer::New(false, indices.size(), Nz::DataStorage_Hardware, 0);
-			m_boxMeshIndexBuffer->Fill(indices.data(), 0, indices.size());
+			m_boxMeshIndexBuffer = Nz::IndexBuffer::New(false, Nz::UInt32(indices.size()), Nz::DataStorage_Hardware, 0);
+			m_boxMeshIndexBuffer->Fill(indices.data(), 0, Nz::UInt32(indices.size()));
 		}
 
 		if (!m_boxMeshVertexBuffer)
@@ -151,8 +151,8 @@ namespace Ndk
 				}
 			};
 
-			m_boxMeshVertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), positions.size(), Nz::DataStorage_Hardware, 0);
-			m_boxMeshVertexBuffer->Fill(positions.data(), 0, positions.size());
+			m_boxMeshVertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), Nz::UInt32(positions.size()), Nz::DataStorage_Hardware, 0);
+			m_boxMeshVertexBuffer->Fill(positions.data(), 0, Nz::UInt32(positions.size()));
 		}
 
 		return { m_boxMeshIndexBuffer, m_boxMeshVertexBuffer };
@@ -282,7 +282,7 @@ namespace Ndk
 				indices.push_back(firstIndex);
 			});
 
-			Nz::IndexBufferRef indexBuffer = Nz::IndexBuffer::New(vertices.size() > 0xFFFF, indices.size(), Nz::DataStorage_Hardware, 0);
+			Nz::IndexBufferRef indexBuffer = Nz::IndexBuffer::New(vertices.size() > 0xFFFF, Nz::UInt32(indices.size()), Nz::DataStorage_Hardware, 0);
 			Nz::IndexMapper indexMapper(indexBuffer, Nz::BufferAccess_WriteOnly);
 
 			Nz::IndexIterator indexPtr = indexMapper.begin();
@@ -291,8 +291,8 @@ namespace Ndk
 
 			indexMapper.Unmap();
 
-			Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), vertices.size(), Nz::DataStorage_Hardware, 0);
-			vertexBuffer->Fill(vertices.data(), 0, vertices.size());
+			Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), Nz::UInt32(vertices.size()), Nz::DataStorage_Hardware, 0);
+			vertexBuffer->Fill(vertices.data(), 0, Nz::UInt32(vertices.size()));
 
 			Nz::MeshRef mesh = Nz::Mesh::New();
 			mesh->CreateStatic();
