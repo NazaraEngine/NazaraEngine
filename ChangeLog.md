@@ -88,6 +88,7 @@ Nazara Engine:
 - Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
 - Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
 - Fixed Font handling of whitespace glyphs (which were triggering an error)
+- ⚠️ Translucent2D pipeline no longer has depth sorting
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -132,6 +133,8 @@ Nazara Development Kit:
 - ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
 - ⚠️ All widgets are now bound to a scissor box when rendering
 - Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- ⚠️ TextAreaWidget now support text selection (WIP)
+- ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 
 # 0.4:
 
