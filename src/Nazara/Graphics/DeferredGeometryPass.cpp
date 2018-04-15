@@ -85,6 +85,7 @@ namespace Nz
 
 		m_GBufferRTT->SetColorTargets({0, 1, 2}); // G-Buffer
 		Renderer::SetTarget(m_GBufferRTT);
+		Renderer::SetScissorRect(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 
 		Renderer::SetRenderStates(m_clearStates);

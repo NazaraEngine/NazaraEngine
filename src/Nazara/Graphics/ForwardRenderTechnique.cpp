@@ -69,6 +69,11 @@ namespace Nz
 
 	void ForwardRenderTechnique::Clear(const SceneData& sceneData) const
 	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		Renderer::SetScissorRect(fullscreenScissorRect);
+
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
 		Renderer::Clear(RendererBuffer_Depth);

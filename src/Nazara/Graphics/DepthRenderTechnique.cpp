@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -63,15 +64,20 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	void DepthRenderTechnique::Clear(const SceneData& /*sceneData*/) const
+	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
 	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		Renderer::SetScissorRect(fullscreenScissorRect);
+
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
 		Renderer::Clear(RendererBuffer_Depth);
 
 		// Just in case the background does render depth
-		//if (sceneData.background)
-		//	sceneData.background->Draw(sceneData.viewer);
+		if (sceneData.background)
+			sceneData.background->Draw(sceneData.viewer);
 	}
 
 	/*!
