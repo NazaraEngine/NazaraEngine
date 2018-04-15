@@ -89,6 +89,7 @@ Nazara Engine:
 - Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
 - Fixed Font handling of whitespace glyphs (which were triggering an error)
 - ⚠️ Translucent2D pipeline no longer has depth sorting
+- Fixed SimpleTextDrawer line bounds
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
