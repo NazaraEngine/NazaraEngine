@@ -225,7 +225,7 @@ namespace Ndk
 					return true;
 
 				const auto& lineInfo = m_drawer.GetLine(m_cursorPositionEnd.y);
-				SetCursorPosition({ m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y), m_cursorPositionEnd.y });
+				SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
 				return true;
 			}
 
@@ -437,7 +437,7 @@ namespace Ndk
 			Nz::SpriteRef& cursorSprite = m_cursorSprites[i - m_cursorPositionBegin.y];
 			if (i == m_cursorPositionBegin.y || i == m_cursorPositionEnd.y)
 			{
-				auto GetGlyphPos = [&](std::size_t localGlyphPos)
+				auto GetGlyphPos = [&](unsigned int localGlyphPos)
 				{
 					std::size_t cursorGlyph = GetGlyphIndex({ localGlyphPos, i });
 
