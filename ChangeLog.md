@@ -86,6 +86,8 @@ Nazara Engine:
 - Fixed Billboard bounding volume
 - Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
 - Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
+- Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
+- Fixed Font handling of whitespace glyphs (which were triggering an error)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

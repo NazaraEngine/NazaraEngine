@@ -514,8 +514,16 @@ namespace Nz
 			FontGlyph fontGlyph;
 			if (ExtractGlyph(characterSize, character, style, &fontGlyph))
 			{
-				glyph.atlasRect.width = fontGlyph.image.GetWidth();
-				glyph.atlasRect.height = fontGlyph.image.GetHeight();
+				if (fontGlyph.image.IsValid())
+				{
+					glyph.atlasRect.width = fontGlyph.image.GetWidth();
+					glyph.atlasRect.height = fontGlyph.image.GetHeight();
+				}
+				else
+				{
+					glyph.atlasRect.width = 0;
+					glyph.atlasRect.height = 0;
+				}
 
 				// Insertion du rectangle dans l'un des atlas
 				if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
