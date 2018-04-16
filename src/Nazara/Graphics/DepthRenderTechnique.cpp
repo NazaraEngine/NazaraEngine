@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
+#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -49,9 +50,7 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		std::array<UInt8, 4> whitePixel = { {255, 255, 255, 255} };
-		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
-		m_whiteTexture.Update(whitePixel.data());
+		m_whiteTexture = Nz::TextureLibrary::Get("White2D");
 
 		m_vertexBuffer.Create(s_vertexBufferSize, DataStorage_Hardware, BufferUsage_Dynamic);
 
@@ -65,15 +64,20 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	void DepthRenderTechnique::Clear(const SceneData& /*sceneData*/) const
+	void DepthRenderTechnique::Clear(const SceneData& sceneData) const
 	{
+		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
+		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
+
+		Renderer::SetScissorRect(fullscreenScissorRect);
+
 		Renderer::Enable(RendererParameter_DepthBuffer, true);
 		Renderer::Enable(RendererParameter_DepthWrite, true);
 		Renderer::Clear(RendererBuffer_Depth);
 
 		// Just in case the background does render depth
-		//if (sceneData.background)
-		//	sceneData.background->Draw(sceneData.viewer);
+		if (sceneData.background)
+			sceneData.background->Draw(sceneData.viewer);
 	}
 
 	/*!
@@ -587,7 +591,7 @@ namespace Nz
 					lastMaterial = basicSprites.material;
 				}
 
-				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : &m_whiteTexture;
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
 				if (overlayTexture != lastOverlay)
 				{
 					Renderer::SetTexture(overlayTextureUnit, overlayTexture);

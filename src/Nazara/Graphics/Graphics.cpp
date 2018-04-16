@@ -156,6 +156,21 @@ namespace Nz
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>());
 
+		// Textures
+		std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
+
+		Nz::TextureRef whiteTexture = Nz::Texture::New();
+		whiteTexture->Create(ImageType_2D, PixelFormatType_L8, 1, 1);
+		whiteTexture->Update(whitePixels.data());
+
+		TextureLibrary::Register("White2D", std::move(whiteTexture));
+
+		Nz::TextureRef whiteCubemap = Nz::Texture::New();
+		whiteCubemap->Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
+		whiteCubemap->Update(whitePixels.data());
+
+		TextureLibrary::Register("WhiteCubemap", std::move(whiteCubemap));
+
 		onExit.Reset();
 
 		NazaraNotice("Initialized: Graphics module");
@@ -216,6 +231,10 @@ namespace Nz
 		}
 
 		defaultAtlas.reset();
+
+		// Textures
+		TextureLibrary::Unregister("White2D");
+		TextureLibrary::Unregister("WhiteCubemap");
 
 		// Loaders
 		Loaders::UnregisterMesh();

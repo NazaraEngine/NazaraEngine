@@ -56,7 +56,7 @@ namespace Nz
 			Buffer m_vertexBuffer;
 			RenderStates m_clearStates;
 			ShaderRef m_clearShader;
-			Texture m_whiteTexture;
+			TextureRef m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
 
