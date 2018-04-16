@@ -199,7 +199,7 @@ namespace Nz
 		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
-		pipelineInfo.depthSorting = true;
+		pipelineInfo.depthSorting = false;
 		pipelineInfo.scissorTest = true;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;

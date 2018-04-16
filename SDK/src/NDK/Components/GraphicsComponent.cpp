@@ -277,7 +277,8 @@ namespace Ndk
 			{
 				Nz::Boxf localBox = boundingVolume.obb.localBox;
 				Nz::Vector3f newPos = r.data.localMatrix * localBox.GetPosition();
-				Nz::Vector3f newLengths = r.data.localMatrix * localBox.GetLengths();
+				Nz::Vector3f newCorner = r.data.localMatrix * (localBox.GetPosition() + localBox.GetLengths());
+				Nz::Vector3f newLengths = newCorner - newPos;
 
 				boundingVolume.Set(Nz::Boxf(newPos.x, newPos.y, newPos.z, newLengths.x, newLengths.y, newLengths.z));
 			}
