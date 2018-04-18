@@ -86,6 +86,8 @@ namespace Nz
 
 					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
 						NazaraWarning("Failed to reset cursor pos");
+
+					break;
 				}
 				else
 				{
