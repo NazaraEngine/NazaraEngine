@@ -52,7 +52,7 @@ namespace Nz
 	* 
 	* \param lineSize Maximum number of characters to read, or zero for no limit
 	*
-	* \return Line containing characters
+	* \return Line read from file
 	*
 	* \remark With the text stream option, "\r\n" is treated as "\n"
 	* \remark The line separator character is not returned as part of the string
@@ -86,9 +86,6 @@ namespace Nz
 
 					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
 						NazaraWarning("Failed to reset cursor pos");
-
-					if (!line.IsEmpty())
-						break;
 				}
 				else
 				{
