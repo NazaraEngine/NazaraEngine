@@ -220,7 +220,7 @@ namespace Nz
 		T norm = SquaredMagnitude();
 		if (norm > F(0.0))
 		{
-			T invNorm = F(1.0) / norm;
+			T invNorm = F(1.0) / std::sqrt(norm);
 
 			w *= invNorm;
 			x *= -invNorm;
