@@ -181,9 +181,12 @@ namespace Ndk
 						const Nz::Boxf& obb = entityGfx.GetBoundingVolume().obb.localBox;
 
 						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
-						renderable->SetPersistent(false);
+						if (renderable)
+						{
+							renderable->SetPersistent(false);
 
-						entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter()), DebugDrawOrder);
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter()), DebugDrawOrder);
+						}
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
 						break;
