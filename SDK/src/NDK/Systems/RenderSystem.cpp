@@ -206,7 +206,7 @@ namespace Ndk
 			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
 
 			// Always regenerate renderqueue if particle groups are present for now (FIXME)
-			if (!m_particleGroups.empty())
+			if (!m_lights.empty() || !m_particleGroups.empty())
 				forceInvalidation = true;
 
 			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
