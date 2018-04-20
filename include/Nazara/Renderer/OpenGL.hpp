@@ -38,6 +38,7 @@ namespace Nz
 		OpenGLExtension_FP64,
 		OpenGLExtension_GetProgramBinary,
 		OpenGLExtension_SeparateShaderObjects,
+		OpenGLExtension_SeamlessCubeMap,
 		OpenGLExtension_Shader_ImageLoadStore,
 		OpenGLExtension_TextureCompression_s3tc,
 		OpenGLExtension_TextureStorage,

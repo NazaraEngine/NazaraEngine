@@ -92,6 +92,7 @@ Nazara Engine:
 - ⚠️ Translucent2D pipeline no longer has depth sorting
 - Fixed SimpleTextDrawer line bounds
 - ⚠️ Stream::ReadLine will now returns empty lines if present in the file
+- Fixed cubemaps seams with OpenGL
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

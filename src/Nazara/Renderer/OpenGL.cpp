@@ -1174,6 +1174,9 @@ namespace Nz
 			}
 		}
 
+		// Seamless Cubemap Filtering
+		s_openGLextensions[OpenGLExtension_SeamlessCubeMap] = (s_openglVersion >= 320 || IsSupported("GL_ARB_seamless_cube_map"));
+
 		// Shader_ImageLoadStore
 		s_openGLextensions[OpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));
 
