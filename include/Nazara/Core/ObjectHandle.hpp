@@ -49,8 +49,8 @@ namespace Nz
 			static const ObjectHandle InvalidHandle;
 
 		protected:
-			void OnObjectDestroyed();
-			void OnObjectMoved(T* newObject);
+			void OnObjectDestroyed() noexcept;
+			void OnObjectMoved(T* newObject) noexcept;
 
 			T* m_object;
 	};

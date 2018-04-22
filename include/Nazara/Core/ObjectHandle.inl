@@ -268,7 +268,7 @@ namespace Nz
 	* \brief Action to do on object destruction
 	*/
 	template<typename T>
-	void ObjectHandle<T>::OnObjectDestroyed()
+	void ObjectHandle<T>::OnObjectDestroyed() noexcept
 	{
 		// Shortcut
 		m_object = nullptr;
@@ -278,7 +278,7 @@ namespace Nz
 	* \brief Action to do on object move
 	*/
 	template<typename T>
-	void ObjectHandle<T>::OnObjectMoved(T* newObject)
+	void ObjectHandle<T>::OnObjectMoved(T* newObject) noexcept
 	{
 		// The object has been moved, update our pointer
 		m_object = newObject;

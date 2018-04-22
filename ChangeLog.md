@@ -93,6 +93,7 @@ Nazara Engine:
 - Fixed SimpleTextDrawer line bounds
 - ⚠️ Stream::ReadLine will now returns empty lines if present in the file
 - Fixed cubemaps seams with OpenGL
+- HandledObject movement constructor/assignement operator are now marked noexcept
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
