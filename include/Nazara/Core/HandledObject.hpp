@@ -23,16 +23,16 @@ namespace Nz
 		public:
 			HandledObject() = default;
 			HandledObject(const HandledObject& object);
-			HandledObject(HandledObject&& object);
+			HandledObject(HandledObject&& object) noexcept;
 			~HandledObject();
 
 			ObjectHandle<T> CreateHandle();
 
 			HandledObject& operator=(const HandledObject& object);
-			HandledObject& operator=(HandledObject&& object);
+			HandledObject& operator=(HandledObject&& object) noexcept;
 
 		protected:
-			void UnregisterAllHandles();
+			void UnregisterAllHandles() noexcept;
 
 		private:
 			void RegisterHandle(ObjectHandle<T>* handle);
