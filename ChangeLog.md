@@ -140,6 +140,7 @@ Nazara Development Kit:
 - Add DebugComponent (a component able to show aabb/obb/collision mesh)
 - ⚠️ TextAreaWidget now support text selection (WIP)
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
+- Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 
 # 0.4:
 
