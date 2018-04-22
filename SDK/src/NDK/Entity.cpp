@@ -14,26 +14,8 @@ namespace Ndk
 	* \brief NDK class that represents an entity in a world
 	*/
 
-	/*!
-	* \brief Constructs a Entity object by move semantic
-	*
-	* \param entity Entity to move into this
-	*/
-
-	Entity::Entity(Entity&& entity) :
-	HandledObject(std::move(entity)),
-	m_components(std::move(entity.m_components)),
-	m_containedInLists(std::move(entity.m_containedInLists)),
-	m_componentBits(std::move(entity.m_componentBits)),
-	m_removedComponentBits(std::move(entity.m_removedComponentBits)),
-	m_systemBits(std::move(entity.m_systemBits)),
-	m_id(entity.m_id),
-	m_world(entity.m_world),
-	m_enabled(entity.m_enabled),
-	m_valid(entity.m_valid)
-	{
-		entity.m_world = nullptr;
-	}
+	// Must exists in .cpp file because of BaseComponent unique_ptr
+	Entity::Entity(Entity&&) noexcept = default;
 
 	/*!
 	* \brief Constructs a Entity object linked to a world and with an id
@@ -41,7 +23,6 @@ namespace Ndk
 	* \param world World in which the entity interact
 	* \param id Identifier of the entity
 	*/
-
 	Entity::Entity(World* world, EntityId id) :
 	m_id(id),
 	m_world(world)
@@ -53,7 +34,6 @@ namespace Ndk
 	*
 	* \see Destroy
 	*/
-
 	Entity::~Entity()
 	{
 		if (m_world && m_valid)
