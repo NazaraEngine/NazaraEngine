@@ -25,7 +25,7 @@ namespace Ndk
 
 			EntityOwner& operator=(Entity* entity);
 			EntityOwner& operator=(const EntityOwner& handle) = delete;
-			EntityOwner& operator=(EntityOwner&& handle) noexcept = default;
+			EntityOwner& operator=(EntityOwner&& handle) noexcept;
 	};
 }
 
