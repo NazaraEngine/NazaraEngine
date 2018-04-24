@@ -141,6 +141,7 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget now support text selection (WIP)
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
+- Fixed EntityOwner move assignment which was losing entity ownership
 
 # 0.4:
 

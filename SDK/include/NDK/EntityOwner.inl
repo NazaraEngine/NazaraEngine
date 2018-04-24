@@ -31,7 +31,6 @@ namespace Ndk
 	*
 	* \see Reset
 	*/
-
 	inline EntityOwner::~EntityOwner()
 	{
 		Reset(nullptr);
@@ -68,10 +67,23 @@ namespace Ndk
 	*
 	* \param entity Entity to own
 	*/
-
 	inline EntityOwner& EntityOwner::operator=(Entity* entity)
 	{
 		Reset(entity);
+
+		return *this;
+	}
+
+	/*!
+	* \brief Steals ownership of a EntityOwner
+	*
+	* \param handle Handle to the new entity to own, or an invalid handle
+	*/
+	inline EntityOwner& EntityOwner::operator=(EntityOwner&& handle) noexcept
+	{
+		Reset(); //< Kill previously owned entity, if any
+
+		EntityHandle::operator=(std::move(handle));
 
 		return *this;
 	}
