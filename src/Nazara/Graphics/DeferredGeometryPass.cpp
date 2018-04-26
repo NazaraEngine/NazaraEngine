@@ -649,15 +649,15 @@ namespace Nz
 
 			mapper.Unmap(); // No point to keep the buffer open any longer
 
-							// Quad buffer (used for instancing of billboards and sprites)
-							//Note: UV are computed in the shader
+			// Quad buffer (used for instancing of billboards and sprites)
+			//Note: UV are computed in the shader
 			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, 0);
 
 			float vertices[2 * 4] = {
 				-0.5f, -0.5f,
-				0.5f, -0.5f,
+				 0.5f, -0.5f,
 				-0.5f, 0.5f,
-				0.5f, 0.5f,
+				 0.5f, 0.5f,
 			};
 
 			s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));
