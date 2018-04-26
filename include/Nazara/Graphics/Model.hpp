@@ -11,6 +11,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -44,8 +45,8 @@ namespace Nz
 			Model(Model&& model) = default;
 			virtual ~Model();
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
-			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder = 0);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
 
 			using InstancedRenderable::GetMaterial;
 			const MaterialRef& GetMaterial(const String& subMeshName) const;

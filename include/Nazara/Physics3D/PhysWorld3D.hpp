@@ -8,6 +8,7 @@
 #define NAZARA_PHYSWORLD_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -26,22 +27,22 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
 		public:
-			using BodyIterator = std::function<bool(const RigidBody3D& body)>;
+			using BodyIterator = std::function<bool(RigidBody3D& body)>;
 			using AABBOverlapCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 			using CollisionCallback = std::function<bool(const RigidBody3D& firstBody, const RigidBody3D& secondBody)>;
 
 			PhysWorld3D();
 			PhysWorld3D(const PhysWorld3D&) = delete;
-			PhysWorld3D(PhysWorld3D&&) = delete; ///TODO
+			PhysWorld3D(PhysWorld3D&&) = default;
 			~PhysWorld3D();
 
-			int CreateMaterial(Nz::String name = Nz::String());
+			int CreateMaterial(String name = String());
 
-			void ForEachBodyInAABB(const Nz::Boxf& box, const BodyIterator& iterator);
+			void ForEachBodyInAABB(const Boxf& box, const BodyIterator& iterator);
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
-			int GetMaterial(const Nz::String& name);
+			int GetMaterial(const String& name);
 			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
@@ -60,7 +61,7 @@ namespace Nz
 			void Step(float timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
-			PhysWorld3D& operator=(PhysWorld3D&&) = delete; ///TODO
+			PhysWorld3D& operator=(PhysWorld3D&&) = default;
 
 		private:
 			struct Callback
@@ -75,8 +76,8 @@ namespace Nz
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<Nz::String, int> m_materialIds;
 			std::size_t m_maxStepCount;
+			MovablePtr<NewtonWorld> m_world;
 			Vector3f m_gravity;
-			NewtonWorld* m_world;
 			float m_stepSize;
 			float m_timestepAccumulator;
 	};

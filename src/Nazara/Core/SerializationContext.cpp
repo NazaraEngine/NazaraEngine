@@ -28,7 +28,7 @@ namespace Nz
 			ResetBitPosition();
 
 			// Serialize will reset the bit position
-			if (!Serialize<UInt8>(*this, currentByte))
+			if (!Serialize(*this, currentByte))
 				NazaraWarning("Failed to flush bits");
 		}
 	}

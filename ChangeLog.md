@@ -15,6 +15,7 @@ Miscellaneous:
 - Fix compilation with some MinGW distributions
 - Add Lua unit tests
 - NDEBUG is now defined in Release
+- Replaced typedefs keywords with modern using keywords
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -66,6 +67,33 @@ Nazara Engine:
 - Add PhysWorld2D::[Get|Set]IterationCount to control how many iterations chipmunk will perform per step.
 - Add PhysWorld2D::UseSpatialHash to use spatial hashing instead of bounding box trees, which may speedup simulation in some cases.
 - Add PhysWorld[2D|3D] max step count per Step call (default: 50), to avoid spirals of death when the physics engine simulation time is over step size.
+- Fix Window triggering KeyPressed event after triggering a resize/movement event on Windows
+- (WIP) Add support for materials and callbacks to Physics3D module.
+- PhysWorld3D class is now movable
+- ⚠️ Removed array/pointer constructor from Vector classes
+- Fixed Platform module not being classified as client-only
+- ⚠️ Renamed Bitset::Read to Bitset::Write
+- Fixed ENetCompressor class destructor not being virtual
+- ⚠️ Added a type tag parameter to Serialize and Unserialize functions, to prevent implicit conversions with overloads
+- Added Collider3D::ForEachPolygon method, allowing construction of a debug mesh based on the physics collider
+- Fixed ConvexCollider3D::GetType returning Compound instead of ConvexHull.
+- Dual-stack sockets are now supported (by using NetProtocol_Any at creation/opening)
+- Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
+- Fix copy and move semantic on HandledObject and ObjectHandle
+- Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
+- Music, Sound and SoundEmitter are now movable
+- Fixed Sound copy which was not copying looping state
+- Fixed Billboard bounding volume
+- Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
+- Fixed Quaternion::Inverse which was not correctly normalizing quaternions
+- Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
+- Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
+- Fixed Font handling of whitespace glyphs (which were triggering an error)
+- ⚠️ Translucent2D pipeline no longer has depth sorting
+- Fixed SimpleTextDrawer line bounds
+- ⚠️ Stream::ReadLine will now returns empty lines if present in the file
+- Fixed cubemaps seams with OpenGL
+- HandledObject movement constructor/assignement operator are now marked noexcept
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -101,6 +129,19 @@ Nazara Development Kit:
 - ⚠️ Renamed World::Update() to World::Refresh() for more clarity and to differentiate it from World::Update(elapsedTime)
 - World entity ids are now reused from lowest to highest (they were previously reused in reverse order of death)
 - World now has an internal profiler, allowing to measure the refresh and system update time
+- CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
+- Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
+- ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
+- World now has const getters for systems
+- Add World::ForEachSystem method, allowing iteration on every active system on a specific world
+- Fix GraphicsComponent bounding volume not taking local matrix in account
+- ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
+- ⚠️ All widgets are now bound to a scissor box when rendering
+- Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- ⚠️ TextAreaWidget now support text selection (WIP)
+- ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
+- Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
+- Fixed EntityOwner move assignment which was losing entity ownership
 
 # 0.4:
 

@@ -90,7 +90,7 @@ namespace Nz
 		{
 			m_context.currentBitPos = 8; //< To prevent Serialize to flush bits itself
 
-			if (!Serialize<UInt8>(m_context, m_context.currentByte))
+			if (!Serialize(m_context, m_context.currentByte))
 				return false;
 		}
 

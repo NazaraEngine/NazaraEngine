@@ -29,7 +29,7 @@ namespace Nz
 			Billboard(Billboard&&) = delete;
 			~Billboard() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline const Color& GetColor() const;
 			inline float GetRotation() const;

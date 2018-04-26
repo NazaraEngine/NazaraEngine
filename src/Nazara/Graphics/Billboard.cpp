@@ -21,10 +21,10 @@ namespace Nz
 	* \param instanceData Data used for instance
 	*/
 
-	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		Nz::Vector3f position = instanceData.transformMatrix.GetTranslation();
-		renderQueue->AddBillboards(instanceData.renderOrder, GetMaterial(), 1, &position, &m_size, &m_sinCos, &m_color);
+		renderQueue->AddBillboards(instanceData.renderOrder, GetMaterial(), 1, scissorRect, &position, &m_size, &m_sinCos, &m_color);
 	}
 
 	/*
@@ -33,9 +33,12 @@ namespace Nz
 
 	void Billboard::MakeBoundingVolume() const
 	{
-		constexpr float sqrt2 = float(M_SQRT2);
+		// As billboard always face the screen, we must take its maximum size in account on every axis
+		float maxSize = float(M_SQRT2) * std::max(m_size.x, m_size.y);
 
-		m_boundingVolume.Set(Vector3f(0.f), sqrt2 * m_size.x * Vector3f::Right() + sqrt2 * m_size.y * Vector3f::Down());
+		Nz::Vector3f halfSize = (maxSize * Vector3f::Right() + maxSize * Vector3f::Down() + maxSize * Vector3f::Forward()) / 2.f;
+
+		m_boundingVolume.Set(-halfSize, halfSize);
 	}
 
 	BillboardLibrary::LibraryMap Billboard::s_library;

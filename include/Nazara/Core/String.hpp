@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <cstdarg>
 #include <iosfwd>
 #include <memory>
@@ -188,10 +189,10 @@ namespace Nz
 			//char* rend();
 			//const char* rend() const;
 
-			typedef const char& const_reference;
-			typedef char* iterator;
-			//typedef char* reverse_iterator;
-			typedef char value_type;
+			using const_reference = const char&;
+			using iterator = char*;
+			//using reverse_iterator = char*;
+			using value_type = char;
 			// Méthodes STD
 
 			char& operator[](std::size_t pos);
@@ -328,8 +329,8 @@ namespace Nz
 	class AbstractHash;
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string, TypeTag<String>);
+	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string, TypeTag<String>);
 }
 
 namespace std

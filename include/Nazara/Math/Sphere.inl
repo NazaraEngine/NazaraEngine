@@ -623,7 +623,7 @@ namespace Nz
 	* \param sphere Input Sphere
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Sphere<T>& sphere)
+	bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>)
 	{
 		if (!Serialize(context, sphere.x))
 			return false;
@@ -648,7 +648,7 @@ namespace Nz
 	* \param sphere Output Sphere
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Sphere<T>* sphere)
+	bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>)
 	{
 		if (!Unserialize(context, &sphere->x))
 			return false;

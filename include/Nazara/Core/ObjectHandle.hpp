@@ -49,8 +49,8 @@ namespace Nz
 			static const ObjectHandle InvalidHandle;
 
 		protected:
-			void OnObjectDestroyed();
-			void OnObjectMoved(T* newObject);
+			void OnObjectDestroyed() noexcept;
+			void OnObjectMoved(T* newObject) noexcept;
 
 			T* m_object;
 	};
@@ -81,8 +81,8 @@ namespace Nz
 	template<typename T> bool operator>=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const T& rhs);
 
-	template<typename T> struct PointedType<ObjectHandle<T>> { typedef T type; };
-	template<typename T> struct PointedType<const ObjectHandle<T>> { typedef T type; };
+	template<typename T> struct PointedType<ObjectHandle<T>> { using type = T; };
+	template<typename T> struct PointedType<const ObjectHandle<T>> { using type = T; };
 }
 
 namespace std

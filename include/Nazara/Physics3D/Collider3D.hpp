@@ -54,6 +54,8 @@ namespace Nz
 			virtual void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const;
 			virtual float ComputeVolume() const;
 
+			virtual void ForEachPolygon(const std::function<void(const float* vertices, std::size_t vertexCount)>& callback) const;
+
 			NewtonCollision* GetHandle(PhysWorld3D* world) const;
 			virtual ColliderType3D GetType() const = 0;
 

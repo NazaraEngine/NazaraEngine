@@ -59,24 +59,13 @@ namespace Nz
 
 		IpAddress::IPv6 convertSockaddr6ToIPv6(const in6_addr& addr)
 		{
-			union byteToInt
-			{
-				UInt8 b[sizeof(uint32_t)];
-				uint32_t i;
-			};
+			auto& rawIpV6 = addr.s6_addr;
 
-			IpAddress::IPv6 ipv6Addr;
+			IpAddress::IPv6 ipv6;
+			for (unsigned int i = 0; i < 8; ++i)
+				ipv6[i] = rawIpV6[i * 2] << 8 | rawIpV6[i * 2 + 1];
 
-			for (auto i = 0; i < 4; ++i)
-			{
-				byteToInt hostOrder;
-				hostOrder.i = 0;
-				std::copy(addr.s6_addr + 4 * i, addr.s6_addr + 4 * (i + 1), hostOrder.b);
-				ipv6Addr[2 * i] = (hostOrder.b[3] << 8) + hostOrder.b[2];
-				ipv6Addr[2 * i + 1] = (hostOrder.b[1] << 8) + hostOrder.b[0];
-			}
-
-			return ipv6Addr;
+			return ipv6;
 		}
 	}
 
@@ -218,9 +207,9 @@ namespace Nz
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
 					{
-						UInt16 networkOrder = htons(address[i]);
-						socketAddress->sin6_addr.s6_addr[2 * i] = networkOrder / 256;
-						socketAddress->sin6_addr.s6_addr[2 * i + 1] = networkOrder % 256;
+						u_short addressPart = htons(address[i]);
+						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = addressPart >> 0;
+						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = addressPart >> 8;
 					}
 
 					return sizeof(sockaddr_in6);

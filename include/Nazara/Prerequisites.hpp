@@ -166,17 +166,17 @@ static_assert(sizeof(uint64_t) == 8, "uint64_t is not of the correct size");
 
 namespace Nz
 {
-	typedef int8_t Int8;
-	typedef uint8_t UInt8;
+	using Int8 = int8_t;
+	using UInt8 = uint8_t;
 
-	typedef int16_t Int16;
-	typedef uint16_t UInt16;
+	using Int16 = int16_t;
+	using UInt16 = uint16_t;
 
-	typedef int32_t Int32;
-	typedef uint32_t UInt32;
+	using Int32 = int32_t;
+	using UInt32 = uint32_t;
 
-	typedef int64_t Int64;
-	typedef uint64_t UInt64;
+	using Int64 = int64_t;
+	using UInt64 = uint64_t;
 }
 
 #endif // NAZARA_PREREQUISITES_HPP

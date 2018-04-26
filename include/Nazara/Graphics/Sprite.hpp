@@ -33,7 +33,7 @@ namespace Nz
 			Sprite(Sprite&&) = delete;
 			~Sprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;
