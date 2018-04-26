@@ -16,6 +16,7 @@
 #include <Nazara/Graphics/DeferredForwardPass.hpp>
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
 #include <Nazara/Graphics/DeferredGeometryPass.hpp>
+#include <Nazara/Graphics/DeferredLightScatteringPass.hpp>
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -60,15 +61,16 @@ namespace Nz
 
 		unsigned int RenderPassPriority[] =
 		{
-			6,    // RenderPassType_AA
-			4,    // RenderPassType_Bloom
-			7,    // RenderPassType_DOF
+			7,    // RenderPassType_AA
+			5,    // RenderPassType_Bloom
+			8,    // RenderPassType_DOF
 			0xFF, // RenderPassType_Final
-			5,    // RenderPassType_Fog
+			6,    // RenderPassType_Fog
 			2,    // RenderPassType_Forward
 			1,    // RenderPassType_Lighting
+			3,    // RenderPassType_LightScattering
 			0,    // RenderPassType_Geometry
-			3,    // RenderPassType_SSAO
+			4,    // RenderPassType_SSAO
 		};
 
 		static_assert(sizeof(RenderPassPriority) / sizeof(unsigned int) == RenderPassType_Max + 1, "Render pass priority array is incomplete");
@@ -206,6 +208,17 @@ namespace Nz
 		catch (const std::exception& e)
 		{
 			NazaraWarning("Failed to add forward pass: " + String(e.what()));
+		}
+		try
+		{
+			ErrorFlags errFlags(ErrorFlag_ThrowException);
+
+			DeferredRenderPass* lightScatteringPass = ResetPass(RenderPassType_LightScattering, 0);
+			lightScatteringPass->Enable(false);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning("Failed to add light scattering pass: " + String(e.what()));
 		}
 
 		try
@@ -486,8 +499,15 @@ namespace Nz
 				smartPtr = std::make_unique<DeferredPhongLightingPass>();
 				break;
 
+			case RenderPassType_LightScattering:
+				smartPtr = std::make_unique<DeferredLightScatteringPass>();
+				break;
+
 			case RenderPassType_SSAO:
 				//smartPtr.reset(new DeferredSSAOPass);
+				break;
+
+			default:
 				break;
 		}
 

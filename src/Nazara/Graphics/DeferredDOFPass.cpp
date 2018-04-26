@@ -28,8 +28,8 @@ namespace Nz
 			"uniform sampler2D GBuffer1;\n"
 			"uniform vec2 InvTargetSize;" "\n"
 
-			"float Distance = 30.0;\n"
-			"float Range = 10.0;\n"
+			"float Distance = 10.0;\n"
+			"float Range = 3.0;\n"
 			"float Near = 0.1;\n"
 			"float Far = (1000.0) / (1000.0 - 0.1);\n"
 			//"float Far = 50.0;\n"
