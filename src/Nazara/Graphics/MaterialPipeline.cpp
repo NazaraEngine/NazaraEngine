@@ -160,7 +160,7 @@ namespace Nz
 			OverrideShader("Shaders/Basic/core.vert", &vertexShader);
 			#endif
 
-			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING");
+			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING TEXTURE_MAPPING");
 			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_INSTANCING FLAG_VERTEXCOLOR TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 			UberShaderLibrary::Register("Basic", uberShader);
@@ -188,17 +188,19 @@ namespace Nz
 		MaterialPipelineInfo pipelineInfo;
 		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
-		// Basic 2D - No depth write/face culling
+		// Basic 2D - No depth write/face culling with scissoring
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
+		pipelineInfo.scissorTest = true;
 
 		MaterialPipelineLibrary::Register("Basic2D", GetPipeline(pipelineInfo));
 
-		// Translucent 2D - Alpha blending with no depth write/face culling
+		// Translucent 2D - Alpha blending with no depth write/face culling and scissoring
 		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
-		pipelineInfo.depthSorting = true;
+		pipelineInfo.depthSorting = false;
+		pipelineInfo.scissorTest = true;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
 
@@ -210,6 +212,7 @@ namespace Nz
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
 		pipelineInfo.depthSorting = true;
+		pipelineInfo.scissorTest = false;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;
 

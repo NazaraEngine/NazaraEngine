@@ -340,7 +340,7 @@ namespace Nz
 	* \param angles Input euler angles
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles)
+	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Serialize(context, angles.pitch))
 			return false;
@@ -362,7 +362,7 @@ namespace Nz
 	* \param angles Output euler angles
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles)
+	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Unserialize(context, &angles->pitch))
 			return false;

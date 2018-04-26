@@ -45,6 +45,8 @@ namespace Nz
 				String decalMap;
 				String diffuseMap;
 				String displacementMap;
+				String emissiveMap; //< <!> Custom addition: not present in MTL
+				String normalMap; //< <!> Custom addition: not present in MTL
 				String reflectionMap;
 				String shininessMap;
 				String specularMap;

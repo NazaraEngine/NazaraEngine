@@ -59,17 +59,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3 object from an array of three elements
-	*
-	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
-	*/
-	template<typename T>
-	Vector3<T>::Vector3(const T vec[3])
-	{
-		Set(vec);
-	}
-
-	/*!
 	* \brief Constructs a Vector3 object from a Vector2<T> and a component
 	*
 	* \param vec vec.X = X component and vec.y = Y component
@@ -522,7 +511,9 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const T vec[3])
 	{
-		std::memcpy(&x, vec, 3*sizeof(T));
+		x = vec[0];
+		y = vec[1];
+		z = vec[2];
 
 		return *this;
 	}
@@ -1257,7 +1248,7 @@ namespace Nz
 	* \param vector Input Vector3
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Vector3<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -1279,7 +1270,7 @@ namespace Nz
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector3<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;

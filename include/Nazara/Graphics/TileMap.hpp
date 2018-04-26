@@ -33,7 +33,7 @@ namespace Nz
 			TileMap(TileMap&&) = delete;
 			~TileMap() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline void DisableTile(const Vector2ui& tilePos);
 			inline void DisableTiles();

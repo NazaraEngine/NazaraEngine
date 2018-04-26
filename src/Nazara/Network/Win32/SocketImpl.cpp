@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2018 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,13 +10,15 @@
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
 #if defined(__has_include)
-	#define NZ_HAS_MSTCPIP_HEADER __has_include(<Mstcpip.h>)
+	#define NZ_HAS_MSTCPIP_HEADER __has_include(<mstcpip.h>)
 #else
 	// If this version of MinGW doesn't support __has_include, assume it hasn't Mstcpip.h
 	#define NZ_HAS_MSTCPIP_HEADER !defined(NAZARA_COMPILER_MINGW)
 #endif
 
 #if NZ_HAS_MSTCPIP_HEADER
+#include <mstcpip.h>
+#else
 struct tcp_keepalive
 {
 	u_long onoff;
@@ -25,8 +27,6 @@ struct tcp_keepalive
 };
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
-#else
-#include <Mstcpip.h>
 #endif
 
 #include <Winsock2.h>
@@ -825,6 +825,32 @@ namespace Nz
 			*error = SocketError_NoError;
 
 		return true;
+	}
+
+	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
+	{
+#if NAZARA_CORE_WINDOWS_NT6
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		DWORD option = ipv6Only;
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+#else
+		if (error)
+			*error = SocketError_NotSupported;
+
+		return false;
+#endif
 	}
 
 	bool SocketImpl::SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error)

@@ -27,7 +27,7 @@ namespace Nz
 		NewtonDestroy(m_world);
 	}
 
-	int PhysWorld3D::CreateMaterial(Nz::String name)
+	int PhysWorld3D::CreateMaterial(String name)
 	{
 		NazaraAssert(m_materialIds.find(name) == m_materialIds.end(), "Material \"" + name + "\" already exists");
 
@@ -37,13 +37,12 @@ namespace Nz
 		return materialId;
 	}
 
-	void PhysWorld3D::ForEachBodyInAABB(const Nz::Boxf& box, const BodyIterator& iterator)
+	void PhysWorld3D::ForEachBodyInAABB(const Boxf& box, const BodyIterator& iterator)
 	{
 		auto NewtonCallback = [](const NewtonBody* const body, void* const userdata) -> int
 		{
-			const BodyIterator& iterator = *static_cast<BodyIterator*>(userdata);
-			RigidBody3D* nzBody = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
-			return iterator(*nzBody);
+			const BodyIterator& bodyIterator = *static_cast<BodyIterator*>(userdata);
+			return bodyIterator(*static_cast<RigidBody3D*>(NewtonBodyGetUserData(body)));
 		};
 
 		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
@@ -59,7 +58,7 @@ namespace Nz
 		return m_world;
 	}
 
-	int PhysWorld3D::GetMaterial(const Nz::String& name)
+	int PhysWorld3D::GetMaterial(const String& name)
 	{
 		auto it = m_materialIds.find(name);
 		NazaraAssert(it != m_materialIds.end(), "Material \"" + name + "\" does not exists");
@@ -99,7 +98,7 @@ namespace Nz
 
 	void PhysWorld3D::SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback)
 	{
-		static_assert(sizeof(Nz::UInt64) >= 2 * sizeof(int), "Oops");
+		static_assert(sizeof(UInt64) >= 2 * sizeof(int), "Oops");
 
 		auto callbackPtr = std::make_unique<Callback>();
 		callbackPtr->aabbOverlapCallback = std::move(aabbOverlapCallback);
@@ -107,10 +106,10 @@ namespace Nz
 
 		NewtonMaterialSetCollisionCallback(m_world, firstMaterial, secondMaterial, callbackPtr.get(), (callbackPtr->aabbOverlapCallback) ? OnAABBOverlap : nullptr, (callbackPtr->collisionCallback) ? ProcessContact : nullptr);
 
-		Nz::UInt64 firstMaterialId(firstMaterial);
-		Nz::UInt64 secondMaterialId(secondMaterial);
+		UInt64 firstMaterialId(firstMaterial);
+		UInt64 secondMaterialId(secondMaterial);
 
-		Nz::UInt64 callbackIndex = firstMaterialId << 32 | secondMaterialId;
+		UInt64 callbackIndex = firstMaterialId << 32 | secondMaterialId;
 		m_callbacks[callbackIndex] = std::move(callbackPtr);
 	}
 
@@ -154,8 +153,8 @@ namespace Nz
 
 	int PhysWorld3D::OnAABBOverlap(const NewtonMaterial* const material, const NewtonBody* const body0, const NewtonBody* const body1, int threadIndex)
 	{
-		Nz::RigidBody3D* bodyA = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(body0));
-		Nz::RigidBody3D* bodyB = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(body1));
+		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body0));
+		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body1));
 		assert(bodyA && bodyB);
 
 		Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
@@ -167,14 +166,14 @@ namespace Nz
 
 	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
 	{
-		Nz::RigidBody3D* bodyA = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
-		Nz::RigidBody3D* bodyB = static_cast<Nz::RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
+		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
+		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
 		assert(bodyA && bodyB);
 
 		using ContactJoint = void*;
 
 		// Query all joints first, to prevent removing a joint from the list while iterating on it
-		Nz::StackArray<ContactJoint> contacts = NazaraStackAllocationNoInit(ContactJoint, NewtonContactJointGetContactCount(contactJoint));
+		StackArray<ContactJoint> contacts = NazaraStackAllocationNoInit(ContactJoint, NewtonContactJointGetContactCount(contactJoint));
 		std::size_t contactIndex = 0;
 		for (ContactJoint contact = NewtonContactJointGetFirstContact(contactJoint); contact; contact = NewtonContactJointGetNextContact(contactJoint, contact))
 		{

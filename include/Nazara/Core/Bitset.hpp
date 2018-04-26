@@ -51,9 +51,6 @@ namespace Nz
 			std::size_t GetCapacity() const;
 			std::size_t GetSize() const;
 
-			PointerSequence Read(const void* ptr, std::size_t bitCount);
-			PointerSequence Read(const PointerSequence& sequence, std::size_t bitCount);
-
 			void PerformsAND(const Bitset& a, const Bitset& b);
 			void PerformsNOT(const Bitset& a);
 			void PerformsOR(const Bitset& a, const Bitset& b);
@@ -89,6 +86,9 @@ namespace Nz
 			void UnboundedReset(std::size_t bit);
 			void UnboundedSet(std::size_t bit, bool val = true);
 			bool UnboundedTest(std::size_t bit) const;
+
+			PointerSequence Write(const void* ptr, std::size_t bitCount);
+			PointerSequence Write(const PointerSequence& sequence, std::size_t bitCount);
 
 			Bit operator[](std::size_t index);
 			bool operator[](std::size_t index) const;

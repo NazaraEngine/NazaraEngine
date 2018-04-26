@@ -110,14 +110,7 @@ namespace Nz
 
 	inline void TextSprite::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New();
-		material->EnableBlending(true);
-		material->EnableDepthWrite(false);
-		material->EnableFaceCulling(false);
-		material->SetDstBlend(BlendFunc_InvSrcAlpha);
-		material->SetSrcBlend(BlendFunc_SrcAlpha);
-
-		SetMaterial(material);
+		SetMaterial(Material::New("Translucent2D"));
 	}
 
 	/*!

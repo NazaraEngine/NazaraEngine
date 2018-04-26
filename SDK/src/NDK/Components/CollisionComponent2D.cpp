@@ -59,6 +59,7 @@ namespace Ndk
 		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
 
 		m_staticBody = std::make_unique<Nz::RigidBody2D>(&physWorld, 0.f, m_geom);
+		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())

@@ -37,7 +37,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&& renderable) = delete;
 			virtual ~InstancedRenderable();
 
-			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const = 0;
+			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const = 0;
 
 			virtual bool Cull(const Frustumf& frustum, const InstanceData& instanceData) const;
 

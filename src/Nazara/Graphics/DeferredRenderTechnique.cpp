@@ -127,7 +127,7 @@ namespace Nz
 	*/
 
 	DeferredRenderTechnique::DeferredRenderTechnique() :
-	m_renderQueue(static_cast<ForwardRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
+	m_renderQueue(&m_deferredRenderQueue, static_cast<BasicRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
 	m_GBufferSize(0U)
 	{
 		m_depthStencilTexture = Texture::New();
@@ -455,35 +455,35 @@ namespace Nz
 		switch (renderPass)
 		{
 			case RenderPassType_AA:
-				smartPtr.reset(new DeferredFXAAPass);
+				smartPtr = std::make_unique<DeferredFXAAPass>();
 				break;
 
 			case RenderPassType_Bloom:
-				smartPtr.reset(new DeferredBloomPass);
+				smartPtr = std::make_unique<DeferredBloomPass>();
 				break;
 
 			case RenderPassType_DOF:
-				smartPtr.reset(new DeferredDOFPass);
+				smartPtr = std::make_unique<DeferredDOFPass>();
 				break;
 
 			case RenderPassType_Final:
-				smartPtr.reset(new DeferredFinalPass);
+				smartPtr = std::make_unique<DeferredFinalPass>();
 				break;
 
 			case RenderPassType_Fog:
-				smartPtr.reset(new DeferredFogPass);
+				smartPtr = std::make_unique<DeferredFogPass>();
 				break;
 
 			case RenderPassType_Forward:
-				smartPtr.reset(new DeferredForwardPass);
+				smartPtr = std::make_unique<DeferredForwardPass>();
 				break;
 
 			case RenderPassType_Geometry:
-				smartPtr.reset(new DeferredGeometryPass);
+				smartPtr = std::make_unique<DeferredGeometryPass>();
 				break;
 
 			case RenderPassType_Lighting:
-				smartPtr.reset(new DeferredPhongLightingPass);
+				smartPtr = std::make_unique<DeferredPhongLightingPass>();
 				break;
 
 			case RenderPassType_SSAO:
@@ -701,6 +701,12 @@ namespace Nz
 			NazaraWarning("Failed to register gaussian blur shader, certain features will not work: " + error);
 		}
 
+		if (!DeferredGeometryPass::Initialize())
+		{
+			NazaraError("Failed to initialize geometry pass");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -710,6 +716,8 @@ namespace Nz
 
 	void DeferredRenderTechnique::Uninitialize()
 	{
+		DeferredGeometryPass::Uninitialize();
+
 		ShaderLibrary::Unregister("DeferredGBufferClear");
 		ShaderLibrary::Unregister("DeferredDirectionnalLight");
 		ShaderLibrary::Unregister("DeferredPointSpotLight");

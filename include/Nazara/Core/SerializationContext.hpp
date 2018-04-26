@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 
 namespace Nz
 {
