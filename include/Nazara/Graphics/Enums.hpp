@@ -104,7 +104,6 @@ namespace Nz
 		RenderPassType_Fog,
 		RenderPassType_Forward,
 		RenderPassType_Lighting,
-		RenderPassType_LightScattering,
 		RenderPassType_Geometry,
 		RenderPassType_SSAO,
 
