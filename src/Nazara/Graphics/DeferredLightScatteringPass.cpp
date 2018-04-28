@@ -192,7 +192,7 @@ void main()
 	DeferredLightScatteringPass::DeferredLightScatteringPass() :
 	m_billboardInstanceData(Nz::Matrix4f::Identity()),
 	m_billboardInstanceData2(Nz::Matrix4f::Identity()),
-	m_blurPassCount(0)
+	m_blurPassCount(3)
 	{
 		m_pointSampler.SetAnisotropyLevel(1);
 		m_pointSampler.SetFilterMode(SamplerFilter_Nearest);
@@ -237,6 +237,11 @@ void main()
 	}
 
 	DeferredLightScatteringPass::~DeferredLightScatteringPass() = default;
+
+	unsigned int DeferredLightScatteringPass::GetBlurPassCount() const
+	{
+		return m_blurPassCount;
+	}
 
 	/*!
 	* \brief Processes the work on the data while working with textures
@@ -301,11 +306,8 @@ void main()
 
 		Renderer::DrawFullscreenQuad();
 
-		m_lightScatteringShader->SendVector(m_lightScatteringLightPositionLocation, Nz::Vector2f(Project(Nz::Vector3f::Left() * 10.f)));
-
-		Renderer::DrawFullscreenQuad();
-
 		// Apply some blur
+		Renderer::SetShader(m_gaussianBlurShader);
 		Renderer::SetTextureSampler(0, m_bilinearSampler);
 
 		for (unsigned int i = 0; i < m_blurPassCount; ++i)
@@ -416,5 +418,10 @@ void main()
 		}
 
 		return true;
+	}
+
+	void DeferredLightScatteringPass::SetBlurPassCount(unsigned int passCount)
+	{
+		m_blurPassCount = passCount;
 	}
 }

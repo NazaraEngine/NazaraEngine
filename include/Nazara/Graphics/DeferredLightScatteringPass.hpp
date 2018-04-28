@@ -29,8 +29,12 @@ namespace Nz
 			DeferredLightScatteringPass();
 			virtual ~DeferredLightScatteringPass();
 
+			unsigned int GetBlurPassCount() const;
+
 			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
 			bool Resize(const Vector2ui& GBufferSize) override;
+
+			void SetBlurPassCount(unsigned int passCount);
 
 		protected:
 			Billboard m_test;
