@@ -184,7 +184,7 @@ SCENARIO("LuaState", "[LUA][LUASTATE]")
 			}
 		}
 
-		/*WHEN("We push a std::vector locally")
+		WHEN("We push a std::vector locally")
 		{
 			std::vector<int> vec { 1, 5, -8, 6, -4 };
 			luaInstance.Push(std::vector<int> { vec });
@@ -211,6 +211,6 @@ SCENARIO("LuaState", "[LUA][LUASTATE]")
 				for (std::size_t i {}; i < otherVec.size(); ++i)
 					CHECK(otherVec[i] == vec[i]);
 			}
-		}*/
+		}
 	}
 }
