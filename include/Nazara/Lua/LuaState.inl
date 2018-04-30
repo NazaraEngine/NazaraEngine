@@ -184,6 +184,7 @@ namespace Nz
 			}
 
 			container->push_back(arg);
+			instance.Pop();
 		}
 
 		return 1;
