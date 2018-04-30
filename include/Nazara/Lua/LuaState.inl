@@ -170,11 +170,11 @@ namespace Nz
 	unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::vector<T>* container, TypeTag<std::vector<T>>)
 	{
 		instance.CheckType(index, Nz::LuaType_Table);
-		std::size_t index = 1;
+		std::size_t pos = 1;
 
 		for (;;)
 		{
-			instance.PushInteger(index++);
+			instance.PushInteger(pos++);
 
 			if (instance.GetTable() == Nz::LuaType_Nil)
 			{
