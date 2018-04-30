@@ -36,7 +36,7 @@ namespace Nz
 			static void DrawCone(const Vector3f& origin, const Quaternionf& rotation, float angle, float length);
 			static void DrawLine(const Vector3f& p1, const Vector3f& p2);
 			static void DrawPoints(const Vector3f* ptr, unsigned int pointCount);
-			static void DrawNormals(const StaticMesh* subMesh);
+			static void DrawNormals(const StaticMesh* subMesh, float normalLength = 0.01f);
 			static void DrawTangents(const StaticMesh* subMesh);
 
 			static void EnableDepthBuffer(bool depthBuffer);
