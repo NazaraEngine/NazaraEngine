@@ -9,7 +9,7 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -38,6 +38,7 @@ namespace Nz
 		OpenGLExtension_FP64,
 		OpenGLExtension_GetProgramBinary,
 		OpenGLExtension_SeparateShaderObjects,
+		OpenGLExtension_SeamlessCubeMap,
 		OpenGLExtension_Shader_ImageLoadStore,
 		OpenGLExtension_TextureCompression_s3tc,
 		OpenGLExtension_TextureStorage,

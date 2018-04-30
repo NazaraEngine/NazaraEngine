@@ -46,18 +46,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector2 object from an array of two elements
-	*
-	* \param vec[2] vec[0] is X component and vec[1] is Y component
-	*/
-
-	template<typename T>
-	Vector2<T>::Vector2(const T vec[2])
-	{
-		Set(vec);
-	}
-
-	/*!
 	* \brief Constructs a Vector2 object from another type of Vector2
 	*
 	* \param vec Vector of type U to convert to type T
@@ -607,7 +595,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -633,7 +621,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -692,7 +680,7 @@ namespace Nz
 	* \brief Multiplies the components of other vector with a scalar
 	* \return A reference to this vector where components are the product of this vector and the scalar
 	*
-	* \param vec The other vector to multiply components with
+	* \param scale The scalar to multiply components with
 	*/
 
 	template<typename T>
@@ -723,7 +711,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -737,7 +725,7 @@ namespace Nz
 	* \brief Divides the components of other vector with a scalar
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
-	* \param vec The other vector to divide components with
+	* \param scale The scalar to divide components with
 	*
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
@@ -752,7 +740,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -973,7 +961,7 @@ namespace Nz
 	* \param vector Input Vector2
 	*/
 	template<typename T> 
-	bool Serialize(SerializationContext& context, const Vector2<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -992,7 +980,7 @@ namespace Nz
 	* \param vector Output Vector2
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector2<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector2<T>* vector, TypeTag<Vector2<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;
@@ -1050,7 +1038,7 @@ Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 

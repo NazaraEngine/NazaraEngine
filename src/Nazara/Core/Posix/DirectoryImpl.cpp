@@ -3,8 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/DirectoryImpl.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/String.hpp>
+#include <cstring>
 #include <errno.h>
 #include <sys/param.h>
 #include <sys/stat.h>
@@ -13,9 +16,9 @@
 
 namespace Nz
 {
-	DirectoryImpl::DirectoryImpl(const Directory* parent)
+	DirectoryImpl::DirectoryImpl(const Directory* parent) :
+	m_parent(parent)
 	{
-		NazaraUnused(parent);
 	}
 
 	void DirectoryImpl::Close()
@@ -30,19 +33,29 @@ namespace Nz
 
 	UInt64 DirectoryImpl::GetResultSize() const
 	{
-		struct stat64 resulststat;
-		stat64(m_result->d_name, &resulststat);
+		String path = m_parent->GetPath();
+		std::size_t pathSize = path.GetSize();
 
-		return static_cast<UInt64>(resulststat.st_size);
+		std::size_t resultNameSize = std::strlen(m_result->d_name);
+
+		std::size_t fullNameSize = pathSize + 1 + resultNameSize;
+		StackArray<char> fullName = NazaraStackAllocationNoInit(char, fullNameSize + 1);
+		std::memcpy(&fullName[0], path.GetConstBuffer(), pathSize * sizeof(char));
+		fullName[pathSize] = '/';
+		std::memcpy(&fullName[pathSize + 1], m_result->d_name, resultNameSize * sizeof(char));
+		fullName[fullNameSize] = '\0';
+
+		struct stat64 results;
+		stat64(fullName.data(), &results);
+
+		return results.st_size;
 	}
 
 	bool DirectoryImpl::IsResultDirectory() const
 	{
-		struct stat64 filestats;
-		if (stat64(m_result->d_name, &filestats) == -1) // error
-			return false;
+		//TODO: Fix d_type handling (field can be missing or be a symbolic link, both cases which must be handled by calling stat)
 
-		return S_ISDIR(filestats.st_mode);
+		return m_result->d_type == DT_DIR;
 	}
 
 	bool DirectoryImpl::NextResult()
@@ -72,7 +85,7 @@ namespace Nz
 
 	bool DirectoryImpl::Create(const String& dirPath)
 	{
-		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH; // TODO: check permissions, no right to execute but read and write for every others.
+		mode_t permissions = S_IRWXU | S_IRWXG | S_IRWXO; // 777
 		return mkdir(dirPath.GetConstBuffer(), permissions) != -1;
 	}
 

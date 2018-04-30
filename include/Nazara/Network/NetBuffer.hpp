@@ -7,7 +7,7 @@
 #ifndef NAZARA_NETBUFFER_HPP
 #define NAZARA_NETBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -17,6 +17,7 @@ namespace Ndk
 	class NDK_API CollisionComponent2D : public Component<CollisionComponent2D>
 	{
 		friend class PhysicsSystem2D;
+		friend class ConstraintComponent2D;
 
 		public:
 			CollisionComponent2D(Nz::Collider2DRef geom = Nz::Collider2DRef());

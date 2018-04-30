@@ -13,10 +13,10 @@ namespace Nz
 {
 	MD5MeshParser::MD5MeshParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_lineCount(0),
-	m_meshIndex(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_meshIndex(0)
 	{
 		m_stream.EnableTextMode(true);
 	}
@@ -182,6 +182,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_stream.ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 				m_currentLine.Trim();

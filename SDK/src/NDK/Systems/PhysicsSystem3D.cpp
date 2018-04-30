@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
@@ -47,16 +47,32 @@ namespace Ndk
 
 	void PhysicsSystem3D::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		// It's possible our entity got revalidated because of the addition/removal of a PhysicsComponent3D
-		if (!justAdded)
+		if (entity->HasComponent<PhysicsComponent3D>())
 		{
-			// We take the opposite array from which the entity should belong to
-			auto& entities = (entity->HasComponent<PhysicsComponent3D>()) ? m_staticObjects : m_dynamicObjects;
-			entities.Remove(entity);
-		}
+			if (entity->GetComponent<PhysicsComponent3D>().IsNodeSynchronizationEnabled())
+				m_dynamicObjects.Insert(entity);
+			else
+				m_dynamicObjects.Remove(entity);
 
-		auto& entities = (entity->HasComponent<PhysicsComponent3D>()) ? m_dynamicObjects : m_staticObjects;
-		entities.Insert(entity);
+			m_staticObjects.Remove(entity);
+		}
+		else
+		{
+			m_dynamicObjects.Remove(entity);
+			m_staticObjects.Insert(entity);
+
+			// If entities just got added to the system, teleport them to their NodeComponent position/rotation
+			// This will prevent the physics engine to mess with the scene while correcting position/rotation
+			if (justAdded)
+			{
+				auto& collision = entity->GetComponent<CollisionComponent3D>();
+				auto& node = entity->GetComponent<NodeComponent>();
+
+				Nz::RigidBody3D* physObj = collision.GetStaticBody();
+				physObj->SetPosition(node.GetPosition());
+				physObj->SetRotation(node.GetRotation());
+			}
+		}
 
 		if (!m_world)
 			CreatePhysWorld();
@@ -80,9 +96,9 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			PhysicsComponent3D& phys = entity->GetComponent<PhysicsComponent3D>();
 
-			Nz::RigidBody3D& physObj = phys.GetRigidBody();
-			node.SetRotation(physObj.GetRotation(), Nz::CoordSys_Global);
-			node.SetPosition(physObj.GetPosition(), Nz::CoordSys_Global);
+			Nz::RigidBody3D* physObj = phys.GetRigidBody();
+			node.SetRotation(physObj->GetRotation(), Nz::CoordSys_Global);
+			node.SetPosition(physObj->GetPosition(), Nz::CoordSys_Global);
 		}
 
 		float invElapsedTime = 1.f / elapsedTime;
@@ -103,10 +119,10 @@ namespace Ndk
 			if (newPosition != oldPosition)
 			{
 				physObj->SetPosition(newPosition);
-				physObj->SetVelocity((newPosition - oldPosition) * invElapsedTime);
+				physObj->SetLinearVelocity((newPosition - oldPosition) * invElapsedTime);
 			}
 			else
-				physObj->SetVelocity(Nz::Vector3f::Zero());
+				physObj->SetLinearVelocity(Nz::Vector3f::Zero());
 
 			if (newRotation != oldRotation)
 			{

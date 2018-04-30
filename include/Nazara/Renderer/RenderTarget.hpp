@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERTARGET_HPP
 #define NAZARA_RENDERTARGET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>

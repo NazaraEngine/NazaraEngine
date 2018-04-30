@@ -7,7 +7,7 @@
 #ifndef NAZARA_SKELETALMODEL_HPP
 #define NAZARA_SKELETALMODEL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Model.hpp>
@@ -38,7 +38,7 @@ namespace Nz
 			SkeletalModel(SkeletalModel&& model) = default;
 			~SkeletalModel() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 			void AdvanceAnimation(float elapsedTime);
 
 			SkeletalModel* Clone() const;

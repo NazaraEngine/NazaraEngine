@@ -7,7 +7,7 @@
 #ifndef NAZARA_TEXTUREBACKGROUND_HPP
 #define NAZARA_TEXTUREBACKGROUND_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Texture.hpp>

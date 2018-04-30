@@ -59,7 +59,7 @@ int main()
 	shared.particleCount->Update(Nz::SimpleTextDrawer::Draw("XXXXX particles", 36));
 
 	world2D.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
-	//world3D.GetSystem<Ndk::RenderSystem>().ChangeRenderTechnique<Nz::DeferredRenderTechnique>();
+	world3D.GetSystem<Ndk::RenderSystem>().ChangeRenderTechnique<Nz::DeferredRenderTechnique>();
 
 
 	Ndk::EntityHandle viewEntity = world2D.CreateEntity();
@@ -126,7 +126,7 @@ int main()
 					switch (event.key.code)
 					{
 						case Nz::Keyboard::Backspace:
-							stateMachine.ChangeState(stateMachine.GetCurrentState());
+							stateMachine.ChangeState(shared.demos[demoIndex]);
 							break;
 
 						case Nz::Keyboard::Escape:

@@ -1,13 +1,13 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_BASEWIDGET_HPP
 #define NDK_BASEWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
@@ -42,7 +42,7 @@ namespace Ndk
 
 			void ClearFocus();
 
-			inline void Destroy();
+			void Destroy();
 
 			void EnableBackground(bool enable);
 
@@ -55,6 +55,8 @@ namespace Ndk
 			inline Nz::Vector2f GetContentOrigin() const;
 			inline const Nz::Vector2f& GetContentSize() const;
 			inline Nz::Vector2f GetSize() const;
+
+			bool HasFocus() const;
 
 			inline bool IsVisible() const;
 
@@ -81,14 +83,16 @@ namespace Ndk
 			};
 
 		protected:
-			const EntityHandle& CreateEntity();
+			const EntityHandle& CreateEntity(bool isContentEntity);
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
+
 			void InvalidateNode() override;
 
+			virtual bool IsFocusable() const;
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
-			virtual void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
+			virtual bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
@@ -108,11 +112,18 @@ namespace Ndk
 			void RegisterToCanvas();
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
+			void UpdatePositionAndSize();
+
+			struct WidgetEntity
+			{
+				EntityOwner handle;
+				bool isContent;
+			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
 
 			std::size_t m_canvasIndex;
-			std::vector<EntityOwner> m_entities;
+			std::vector<WidgetEntity> m_entities;
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			Canvas* m_canvas;
 			EntityOwner m_backgroundEntity;

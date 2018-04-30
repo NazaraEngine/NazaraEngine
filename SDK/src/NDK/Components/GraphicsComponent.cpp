@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/World.hpp>
@@ -35,7 +35,7 @@ namespace Ndk
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
 		}
 	}
 
@@ -277,12 +277,13 @@ namespace Ndk
 			{
 				Nz::Boxf localBox = boundingVolume.obb.localBox;
 				Nz::Vector3f newPos = r.data.localMatrix * localBox.GetPosition();
-				Nz::Vector3f newLengths = r.data.localMatrix * localBox.GetLengths();
+				Nz::Vector3f newCorner = r.data.localMatrix * (localBox.GetPosition() + localBox.GetLengths());
+				Nz::Vector3f newLengths = newCorner - newPos;
 
 				boundingVolume.Set(Nz::Boxf(newPos.x, newPos.y, newPos.z, newLengths.x, newLengths.y, newLengths.z));
 			}
 
-			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
+			m_boundingVolume.ExtendTo(boundingVolume);
 		}
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();

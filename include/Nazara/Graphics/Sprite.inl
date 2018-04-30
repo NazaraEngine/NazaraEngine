@@ -172,6 +172,7 @@ namespace Nz
 	{
 		MaterialRef material = Material::New();
 		material->EnableFaceCulling(false);
+		material->EnableScissorTest(true);
 
 		SetMaterial(std::move(material));
 	}

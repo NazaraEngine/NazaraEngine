@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Canvas.hpp>
@@ -79,9 +79,9 @@ namespace Ndk
 		{
 			m_backgroundSprite = Nz::Sprite::New();
 			m_backgroundSprite->SetColor(m_backgroundColor);
-			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D"));
+			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
-			m_backgroundEntity = CreateEntity();
+			m_backgroundEntity = CreateEntity(false);
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
 			m_backgroundEntity->AddComponent<NodeComponent>().SetParent(this);
 
@@ -92,6 +92,18 @@ namespace Ndk
 			m_backgroundEntity->Kill();
 			m_backgroundSprite.Reset();
 		}
+	}
+
+	/*!
+	* \brief Checks if this widget has keyboard focus
+	* \return true if widget has keyboard focus, false otherwhise
+	*/
+	bool BaseWidget::HasFocus() const
+	{
+		if (!IsRegisteredToCanvas())
+			return false;
+
+		return m_canvas->IsKeyboardOwner(m_canvasIndex);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -135,26 +147,30 @@ namespace Ndk
 			else
 				UnregisterFromCanvas();
 
-			for (const EntityHandle& entity : m_entities)
-				entity->Enable(show);
+			for (WidgetEntity& entity : m_entities)
+				entity.handle->Enable(show);
 
 			for (const auto& widgetPtr : m_children)
 				widgetPtr->Show(show);
 		}
 	}
 
-	const Ndk::EntityHandle& BaseWidget::CreateEntity()
+	const Ndk::EntityHandle& BaseWidget::CreateEntity(bool isContentEntity)
 	{
 		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
 
-		m_entities.emplace_back(newEntity);
+		m_entities.emplace_back();
+		WidgetEntity& widgetEntity = m_entities.back();
+		widgetEntity.handle = newEntity;
+		widgetEntity.isContent = isContentEntity;
+
 		return newEntity;
 	}
 
 	void BaseWidget::DestroyEntity(Entity* entity)
 	{
-		auto it = std::find(m_entities.begin(), m_entities.end(), entity);
+		auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
 		NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
 
 		m_entities.erase(it);
@@ -162,19 +178,22 @@ namespace Ndk
 
 	void BaseWidget::Layout()
 	{
-		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
-
 		if (m_backgroundEntity)
 			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
+
+		UpdatePositionAndSize();
 	}
 
 	void BaseWidget::InvalidateNode()
 	{
 		Node::InvalidateNode();
 
-		if (IsRegisteredToCanvas())
-			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+		UpdatePositionAndSize();
+	}
+
+	bool BaseWidget::IsFocusable() const
+	{
+		return false;
 	}
 
 	void BaseWidget::OnFocusLost()
@@ -185,8 +204,9 @@ namespace Ndk
 	{
 	}
 
-	void BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& /*key*/)
+	bool BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
 	{
+		return false;
 	}
 
 	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
@@ -251,6 +271,27 @@ namespace Ndk
 		{
 			m_canvas->UnregisterWidget(m_canvasIndex);
 			m_canvasIndex = InvalidCanvasIndex;
+		}
+	}
+
+	void BaseWidget::UpdatePositionAndSize()
+	{
+		if (IsRegisteredToCanvas())
+			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
+
+		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
+		Nz::Vector2f widgetSize = GetSize();
+
+		Nz::Vector2f contentPos = widgetPos + GetContentOrigin();
+		Nz::Vector2f contentSize = GetContentSize();
+
+		Nz::Recti fullBounds(Nz::Rectf(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y));
+		Nz::Recti contentBounds(Nz::Rectf(contentPos.x, contentPos.y, contentSize.x, contentSize.y));
+		for (WidgetEntity& widgetEntity : m_entities)
+		{
+			const Ndk::EntityHandle& entity = widgetEntity.handle;
+			if (entity->HasComponent<GraphicsComponent>())
+				entity->GetComponent<GraphicsComponent>().SetScissorRect((widgetEntity.isContent) ? contentBounds : fullBounds);
 		}
 	}
 }

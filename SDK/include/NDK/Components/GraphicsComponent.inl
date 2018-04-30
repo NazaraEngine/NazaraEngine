@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/World.hpp>
@@ -9,12 +9,16 @@
 
 namespace Ndk
 {
+	inline GraphicsComponent::GraphicsComponent() :
+	m_scissorRect(-1, -1)
+	{
+	}
+
 	/*!
 	* \brief Constructs a GraphicsComponent object by copy semantic
 	*
 	* \param graphicsComponent GraphicsComponent to copy
 	*/
-
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
@@ -25,7 +29,7 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable, r.data.renderOrder);
+			Attach(r.renderable, r.data.localMatrix, r.data.renderOrder);
 	}
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
@@ -55,7 +59,14 @@ namespace Ndk
 
 	inline void GraphicsComponent::Clear()
 	{
+		m_materialEntries.clear();
 		m_renderables.clear();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			m_reflectiveMaterialCount = 0;
+			InvalidateReflectionMap();
+		}
 
 		InvalidateBoundingVolume();
 	}
@@ -168,6 +179,14 @@ namespace Ndk
 				break;
 			}
 		}
+	}
+
+	inline void GraphicsComponent::SetScissorRect(const Nz::Recti& scissorRect)
+	{
+		m_scissorRect = scissorRect;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
 	}
 
 	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)

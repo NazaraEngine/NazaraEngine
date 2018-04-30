@@ -267,6 +267,8 @@ ParticleDemo("Space battle", sharedData)
 	if (!m_spacestationModel.LoadFromFile("resources/SpaceStation/space_station.obj", parameters))
 		NazaraWarning("Failed to load space_station.obj");
 
+	m_spacestationModel.GetMesh()->GenerateNormalsAndTangents();
+
 	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
@@ -343,7 +345,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	CreateSpaceShip();
 	CreateTurret();
 
-	Ndk::EntityHandle light = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& light = m_shared.world3D->CreateEntity();
 	Ndk::NodeComponent& lightNode = light->AddComponent<Ndk::NodeComponent>();
 	Ndk::LightComponent& lightComp = light->AddComponent<Ndk::LightComponent>(Nz::LightType_Directional);
 	lightNode.SetRotation(Nz::EulerAnglesf(-30.f, 0.f, 0.f));
@@ -360,7 +362,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretCannonBaseRotation = 0.f;
 	m_turretShootTimer = 0.f;
 
-	Ndk::EntityHandle torpedoGroupEntity = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& torpedoGroupEntity = m_shared.world3D->CreateEntity();
 	m_torpedoGroup = torpedoGroupEntity->AddComponent<Ndk::ParticleGroupComponent>(200, m_torpedoDeclaration).CreateHandle();
 	RegisterParticleGroup(torpedoGroupEntity);
 
@@ -471,7 +473,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotationPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr     = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, positionPtr, sizePtr, rotationPtr);
+		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, Nz::Recti(-1, -1), positionPtr, sizePtr, rotationPtr);
 		for (unsigned int i = startId; i <= endId; ++i)
 		{
 			Nz::AbstractRenderQueue::PointLight pointLight;
@@ -607,6 +609,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	fireMat->EnableFaceCulling(true);
 	fireMat->SetDiffuseMap("resources/fire_particle.png");
 	// Additive blending for fire
+	fireMat->EnableDepthSorting(false); //< No need for depth sort
 	fireMat->SetDstBlend(Nz::BlendFunc_One);
 	fireMat->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
@@ -622,7 +625,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
 	m_smokeGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([smokeMat] (const Nz::ParticleGroup& /*group*/, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
@@ -632,7 +635,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
 	//////////////////////////////////////////////////////////////////////////
@@ -647,6 +650,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	//////////////////////////////////////////////////////////////////////////
 
 	Nz::TextSpriteRef introText = Nz::TextSprite::New();
+	introText->SetMaterial(Nz::Material::New("Translucent3D"));
 	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nLa souris contrôle l'orientation de la tourelle, cliquez pour tirer.\n", 72));
 	introText->SetScale(0.5f);
 

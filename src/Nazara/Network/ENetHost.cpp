@@ -13,7 +13,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/ENetHost.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
@@ -199,7 +198,7 @@ namespace Nz
 
 	void ENetHost::Flush()
 	{
-		m_serviceTime = GetElapsedMilliseconds();
+		UpdateServiceTime();
 
 		SendOutgoingCommands(nullptr, false);
 	}
@@ -216,7 +215,8 @@ namespace Nz
 				return 1;
 		}
 
-		m_serviceTime = GetElapsedMilliseconds();
+		UpdateServiceTime();
+
 		timeout += m_serviceTime;
 
 		do
@@ -279,7 +279,7 @@ namespace Nz
 
 			for (;;)
 			{
-				m_serviceTime = GetElapsedMilliseconds();
+				UpdateServiceTime();
 
 				if (ENetTimeGreaterEqual(m_serviceTime, timeout))
 					return 0;
@@ -288,7 +288,7 @@ namespace Nz
 					break;
 			}
 
-			m_serviceTime = GetElapsedMilliseconds();
+			UpdateServiceTime();
 		}
 		while (m_poller.IsReadyToRead(m_socket));
 
@@ -320,7 +320,7 @@ namespace Nz
 
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
-		if (!m_socket.Create(address.GetProtocol()))
+		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol_Any : address.GetProtocol()))
 			return false;
 
 		m_socket.EnableBlocking(false);
@@ -894,6 +894,8 @@ namespace Nz
 				break;
 			}
 
+			++currentCommand;
+
 			if (channel && outgoingCommand->sendAttempts < 1)
 			{
 				channel->usedReliableWindows |= 1 << reliableWindow;
@@ -912,8 +914,8 @@ namespace Nz
 				peer->m_nextTimeout = m_serviceTime + outgoingCommand->roundTripTimeout;
 
 			peer->m_sentReliableCommands.emplace_back(std::move(*outgoingCommand));
-			currentCommand = peer->m_outgoingReliableCommands.erase(outgoingCommand);
 
+			peer->m_outgoingReliableCommands.erase(outgoingCommand);
 			outgoingCommand = peer->m_sentReliableCommands.end();
 			--outgoingCommand;
 

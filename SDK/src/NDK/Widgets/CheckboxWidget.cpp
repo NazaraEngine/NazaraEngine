@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/CheckboxWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
@@ -28,19 +28,19 @@ namespace Ndk
 		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
 		m_textSprite = Nz::TextSprite::New();
 
-		m_checkboxBorderEntity = CreateEntity();
+		m_checkboxBorderEntity = CreateEntity(false);
 		m_checkboxBorderEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_checkboxBorderEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxBorderSprite);
 
-		m_checkboxBackgroundEntity = CreateEntity();
+		m_checkboxBackgroundEntity = CreateEntity(false);
 		m_checkboxBackgroundEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_checkboxBackgroundEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxBackgroundSprite, 1);
 
-		m_checkboxContentEntity = CreateEntity();
+		m_checkboxContentEntity = CreateEntity(true);
 		m_checkboxContentEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_checkboxContentEntity->AddComponent<GraphicsComponent>().Attach(m_checkboxContentSprite, 2);
 
-		m_textEntity = CreateEntity();
+		m_textEntity = CreateEntity(true);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 
@@ -134,7 +134,7 @@ namespace Ndk
 
 		Nz::Vector3f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
-																origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
+		                                                        origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
 	}
 
 	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)

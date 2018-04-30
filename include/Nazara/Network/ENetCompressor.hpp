@@ -17,7 +17,7 @@
 #ifndef NAZARA_ENETCOMPRESSOR_HPP
 #define NAZARA_ENETCOMPRESSOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 
@@ -29,7 +29,7 @@ namespace Nz
 	{
 		public:
 			ENetCompressor() = default;
-			~ENetCompressor();
+			virtual ~ENetCompressor();
 
 			virtual std::size_t Compress(const ENetPeer* peer, const NetBuffer* buffers, std::size_t bufferCount, std::size_t totalInputSize, UInt8* output, std::size_t maxOutputSize) = 0;
 			virtual std::size_t Decompress(const ENetPeer* peer, const UInt8* input, std::size_t inputSize, UInt8* output, std::size_t maxOutputSize) = 0;

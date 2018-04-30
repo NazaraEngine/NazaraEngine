@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Entity.hpp>
 #include <NDK/BaseComponent.hpp>
@@ -14,26 +14,8 @@ namespace Ndk
 	* \brief NDK class that represents an entity in a world
 	*/
 
-	/*!
-	* \brief Constructs a Entity object by move semantic
-	*
-	* \param entity Entity to move into this
-	*/
-
-	Entity::Entity(Entity&& entity) :
-	HandledObject(std::move(entity)),
-	m_components(std::move(entity.m_components)),
-	m_containedInLists(std::move(entity.m_containedInLists)),
-	m_componentBits(std::move(entity.m_componentBits)),
-	m_removedComponentBits(std::move(entity.m_removedComponentBits)),
-	m_systemBits(std::move(entity.m_systemBits)),
-	m_id(entity.m_id),
-	m_world(entity.m_world),
-	m_enabled(entity.m_enabled),
-	m_valid(entity.m_valid)
-	{
-		entity.m_world = nullptr;
-	}
+	// Must exists in .cpp file because of BaseComponent unique_ptr
+	Entity::Entity(Entity&&) noexcept = default;
 
 	/*!
 	* \brief Constructs a Entity object linked to a world and with an id
@@ -41,7 +23,6 @@ namespace Ndk
 	* \param world World in which the entity interact
 	* \param id Identifier of the entity
 	*/
-
 	Entity::Entity(World* world, EntityId id) :
 	m_id(id),
 	m_world(world)
@@ -53,10 +34,9 @@ namespace Ndk
 	*
 	* \see Destroy
 	*/
-
 	Entity::~Entity()
 	{
-		if (m_world)
+		if (m_world && m_valid)
 			Destroy();
 	}
 
@@ -96,6 +76,10 @@ namespace Ndk
 				m_components[i]->OnComponentAttached(component);
 		}
 
+		// If we are currently disabled, inform the component
+		if (!m_enabled)
+			component.OnEntityDisabled();
+
 		return component;
 	}
 
@@ -106,7 +90,6 @@ namespace Ndk
 	* \remark The close is enable by default, even if the original is disabled
 	* \remark Produces a NazaraAssert if the entity is not valid
 	*/
-
 	const EntityHandle& Entity::Clone() const
 	{
 		NazaraAssert(IsValid(), "Invalid entity");
@@ -115,9 +98,33 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Enables the entity
+	*
+	* \param enable Should the entity be enabled
+	*/
+	void Entity::Enable(bool enable)
+	{
+		if (m_enabled != enable)
+		{
+			m_enabled = enable;
+			if (m_enabled)
+			{
+				for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+					m_components[i]->OnEntityEnabled();
+			}
+			else
+			{
+				for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+					m_components[i]->OnEntityDisabled();
+			}
+
+			Invalidate();
+		}
+	}
+
+	/*!
 	* \brief Kills the entity
 	*/
-
 	void Entity::Kill()
 	{
 		m_world->KillEntity(this);

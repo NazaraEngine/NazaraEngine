@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -70,11 +70,14 @@ namespace Nz
 	* \brief Calls the object destructor explicitly
 	*
 	* \param ptr Pointer to a previously constructed pointer on raw memory
+	*
+	* \remark This does not deallocate memory, and is a no-op on a null pointer
 	*/
 	template<typename T>
 	void PlacementDestroy(T* ptr)
 	{
-		ptr->~T();
+		if (ptr)
+			ptr->~T();
 	}
 
 	/*!

@@ -7,7 +7,7 @@
 #ifndef NAZARA_RESOURCEREF_HPP
 #define NAZARA_RESOURCEREF_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>
@@ -69,8 +69,8 @@ namespace Nz
 	template<typename T> bool operator>=(const ObjectRef<T>& lhs, const T& rhs);
 
 
-	template<typename T> struct PointedType<ObjectRef<T>> { typedef T type; };
-	template<typename T> struct PointedType<ObjectRef<T> const> { typedef T type; };
+	template<typename T> struct PointedType<ObjectRef<T>> { using type = T; };
+	template<typename T> struct PointedType<ObjectRef<T> const> { using type = T; };
 }
 
 #include <Nazara/Core/ObjectRef.inl>

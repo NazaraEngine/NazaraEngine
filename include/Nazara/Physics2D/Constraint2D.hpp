@@ -7,7 +7,7 @@
 #ifndef NAZARA_CONSTRAINT2D_HPP
 #define NAZARA_CONSTRAINT2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
@@ -18,7 +18,13 @@ struct cpConstraint;
 
 namespace Nz
 {
-	class NAZARA_PHYSICS2D_API Constraint2D
+	class Constraint2D;
+
+	using Constraint2DConstRef = ObjectRef<const Constraint2D>;
+	using Constraint2DLibrary = ObjectLibrary<Constraint2D>;
+	using Constraint2DRef = ObjectRef<Constraint2D>;
+
+	class NAZARA_PHYSICS2D_API Constraint2D : public RefCounted
 	{
 		public:
 			Constraint2D(const Constraint2D&) = delete;
@@ -47,16 +53,24 @@ namespace Nz
 			Constraint2D& operator=(Constraint2D&& rhs);
 
 		protected:
-			Constraint2D(PhysWorld2D& world, cpConstraint* constraint);
+			Constraint2D(Nz::PhysWorld2D* world, cpConstraint* constraint);
 
 			MovablePtr<cpConstraint> m_constraint;
+
+		private:
+			static Constraint2DLibrary s_library;
 	};
+
+	class DampedSpringConstraint2D;
+
+	using DampedSpringConstraint2DConstRef = ObjectRef<const DampedSpringConstraint2D>;
+	using DampedSpringConstraint2DRef = ObjectRef<DampedSpringConstraint2D>;
 	
-	class NAZARA_PHYSICS2D_API DampedSpring2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API DampedSpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedSpring2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
-			~DampedSpring2D() = default;
+			DampedSpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float restLength, float stiffness, float damping);
+			~DampedSpringConstraint2D() = default;
 
 			float GetDamping() const;
 			Vector2f GetFirstAnchor() const;
@@ -69,13 +83,20 @@ namespace Nz
 			void SetRestLength(float newLength);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
 			void SetStiffness(float newStiffness);
+
+			template<typename... Args> static DampedSpringConstraint2DRef New(Args&&... args);
 	};
 
-	class NAZARA_PHYSICS2D_API DampedRotarySpring2D : public Constraint2D
+	class DampedRotarySpringConstraint2D;
+
+	using DampedRotarySpringConstraint2DConstRef = ObjectRef<const DampedRotarySpringConstraint2D>;
+	using DampedRotarySpringConstraint2DRef = ObjectRef<DampedRotarySpringConstraint2D>;
+
+	class NAZARA_PHYSICS2D_API DampedRotarySpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedRotarySpring2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping);
-			~DampedRotarySpring2D() = default;
+			DampedRotarySpringConstraint2D(RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping);
+			~DampedRotarySpringConstraint2D() = default;
 
 			float GetDamping() const;
 			float GetRestAngle() const;
@@ -84,36 +105,57 @@ namespace Nz
 			void SetDamping(float newDamping);
 			void SetRestAngle(float newAngle);
 			void SetStiffness(float newStiffness);
+
+			template<typename... Args> static DampedRotarySpringConstraint2DRef New(Args&&... args);
 	};
+
+	class GearConstraint2D;
+
+	using GearConstraint2DConstRef = ObjectRef<const GearConstraint2D>;
+	using GearConstraint2DRef = ObjectRef<GearConstraint2D>;
 	
-	class NAZARA_PHYSICS2D_API GearJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API GearConstraint2D : public Constraint2D
 	{
 		public:
-			GearJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratio);
-			~GearJoint2D() = default;
+			GearConstraint2D(RigidBody2D& first, RigidBody2D& second, float phase, float ratio);
+			~GearConstraint2D() = default;
 
 			float GetPhase() const;
 			float GetRatio() const;
 
 			void SetPhase(float phase);
 			void SetRatio(float ratio);
+
+			template<typename... Args> static GearConstraint2DRef New(Args&&... args);
 	};
+
+	class MotorConstraint2D;
+
+	using MotorConstraint2DConstRef = ObjectRef<const MotorConstraint2D>;
+	using MotorConstraint2DRef = ObjectRef<MotorConstraint2D>;
 	
-	class NAZARA_PHYSICS2D_API MotorJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API MotorConstraint2D : public Constraint2D
 	{
 		public:
-			MotorJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float rate);
-			~MotorJoint2D() = default;
+			MotorConstraint2D(RigidBody2D& first, RigidBody2D& second, float rate);
+			~MotorConstraint2D() = default;
 
 			float GetRate() const;
 			void SetRate(float rate);
+
+			template<typename... Args> static MotorConstraint2DRef New(Args&&... args);
 	};
 
-	class NAZARA_PHYSICS2D_API PinJoint2D : public Constraint2D
+	class PinConstraint2D;
+
+	using PinConstraint2DConstRef = ObjectRef<const PinConstraint2D>;
+	using PinConstraint2DRef = ObjectRef<PinConstraint2D>;
+
+	class NAZARA_PHYSICS2D_API PinConstraint2D : public Constraint2D
 	{
 		public:
-			PinJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
-			~PinJoint2D() = default;
+			PinConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
+			~PinConstraint2D() = default;
 
 			float GetDistance() const;
 			Vector2f GetFirstAnchor() const;
@@ -122,27 +164,41 @@ namespace Nz
 			void SetDistance(float newDistance);
 			void SetFirstAnchor(const Vector2f& firstAnchor);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static PinConstraint2DRef New(Args&&... args);
 	};
+
+	class PivotConstraint2D;
+
+	using PivotConstraint2DConstRef = ObjectRef<const PivotConstraint2D>;
+	using PivotConstraint2DRef = ObjectRef<PivotConstraint2D>;
 	
-	class NAZARA_PHYSICS2D_API PivotJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API PivotConstraint2D : public Constraint2D
 	{
 		public:
-			PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor);
-			PivotJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor);
-			~PivotJoint2D() = default;
+			PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& anchor);
+			PivotConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
+			~PivotConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;
 			Vector2f GetSecondAnchor() const;
 
 			void SetFirstAnchor(const Vector2f& firstAnchor);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static PivotConstraint2DRef New(Args&&... args);
 	};
+
+	class RatchetConstraint2D;
+
+	using RatchetConstraint2DConstRef = ObjectRef<const RatchetConstraint2D>;
+	using RatchetConstraint2DRef = ObjectRef<RatchetConstraint2D>;
 	
-	class NAZARA_PHYSICS2D_API RatchetJoint2D : public Constraint2D
+	class NAZARA_PHYSICS2D_API RatchetConstraint2D : public Constraint2D
 	{
 		public:
-			RatchetJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float phase, float ratchet);
-			~RatchetJoint2D() = default;
+			RatchetConstraint2D(RigidBody2D& first, RigidBody2D& second, float phase, float ratchet);
+			~RatchetConstraint2D() = default;
 
 			float GetAngle() const;
 			float GetPhase() const;
@@ -151,26 +207,40 @@ namespace Nz
 			void SetAngle(float angle);
 			void SetPhase(float phase);
 			void SetRatchet(float ratchet);
+
+			template<typename... Args> static RatchetConstraint2DRef New(Args&&... args);
 	};
 
-	class NAZARA_PHYSICS2D_API RotaryLimitJoint2D : public Constraint2D
+	class RotaryLimitConstraint2D;
+
+	using RotaryLimitConstraint2DConstRef = ObjectRef<const RotaryLimitConstraint2D>;
+	using RotaryLimitConstraint2DRef = ObjectRef<RotaryLimitConstraint2D>;
+
+	class NAZARA_PHYSICS2D_API RotaryLimitConstraint2D : public Constraint2D
 	{
 		public:
-			RotaryLimitJoint2D(PhysWorld2D& world, RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle);
-			~RotaryLimitJoint2D() = default;
+			RotaryLimitConstraint2D(RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle);
+			~RotaryLimitConstraint2D() = default;
 
 			float GetMaxAngle() const;
 			float GetMinAngle() const;
 
 			void SetMaxAngle(float maxAngle);
 			void SetMinAngle(float minAngle);
+
+			template<typename... Args> static RotaryLimitConstraint2DRef New(Args&&... args);
 	};
 
-	class NAZARA_PHYSICS2D_API SlideJoint2D : public Constraint2D
+	class SlideConstraint2D;
+
+	using SlideConstraint2DConstRef = ObjectRef<const SlideConstraint2D>;
+	using SlideConstraint2DRef = ObjectRef<SlideConstraint2D>;
+
+	class NAZARA_PHYSICS2D_API SlideConstraint2D : public Constraint2D
 	{
 		public:
-			SlideJoint2D(PhysWorld2D& world, RigidBody2D& first, const Vector2f& firstAnchor, RigidBody2D& second, const Vector2f& secondAnchor, float min, float max);
-			~SlideJoint2D() = default;
+			SlideConstraint2D(RigidBody2D& first, RigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor, float min, float max);
+			~SlideConstraint2D() = default;
 
 			Vector2f GetFirstAnchor() const;
 			float GetMaxDistance() const;
@@ -181,6 +251,8 @@ namespace Nz
 			void SetMaxDistance(float newMaxDistance);
 			void SetMinDistance(float newMinDistance);
 			void SetSecondAnchor(const Vector2f& firstAnchor);
+
+			template<typename... Args> static SlideConstraint2DRef New(Args&&... args);
 	};
 }
 

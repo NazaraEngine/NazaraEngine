@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <type_traits>
@@ -164,8 +164,10 @@ namespace Ndk
 				}
 				else
 				{
-					OnUpdate(m_maxUpdateRate);
-					m_updateCounter -= m_maxUpdateRate;
+					float updateRate = std::max(elapsedTime, m_maxUpdateRate);
+
+					OnUpdate(updateRate);
+					m_updateCounter -= updateRate;
 				}
 			}
 		}

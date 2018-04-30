@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEGENERATOR_HPP
 #define NAZARA_PARTICLEGENERATOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>

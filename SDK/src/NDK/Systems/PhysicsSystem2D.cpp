@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -80,9 +80,9 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			PhysicsComponent2D& phys = entity->GetComponent<PhysicsComponent2D>();
 
-			Nz::RigidBody2D& body = phys.GetRigidBody();
-			node.SetRotation(Nz::EulerAnglesf(0.f, 0.f, body.GetRotation()), Nz::CoordSys_Global);
-			node.SetPosition(Nz::Vector3f(body.GetPosition(), node.GetPosition(Nz::CoordSys_Global).z), Nz::CoordSys_Global);
+			Nz::RigidBody2D* body = phys.GetRigidBody();
+			node.SetRotation(Nz::EulerAnglesf(0.f, 0.f, body->GetRotation()), Nz::CoordSys_Global);
+			node.SetPosition(Nz::Vector3f(body->GetPosition(), node.GetPosition(Nz::CoordSys_Global).z), Nz::CoordSys_Global);
 		}
 
 		float invElapsedTime = 1.f / elapsedTime;

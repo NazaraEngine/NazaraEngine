@@ -12,11 +12,11 @@ namespace Nz
 {
 	MD5AnimParser::MD5AnimParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_frameIndex(0),
 	m_frameRate(0),
-	m_lineCount(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_lineCount(0)
 	{
 		m_stream.EnableTextMode(true);
 	}
@@ -250,6 +250,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_stream.ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 			}

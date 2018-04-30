@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -8,6 +8,7 @@
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <memory>
 
 namespace Ndk
 {
@@ -40,8 +41,9 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::RigidBody2D(&world, 1.f, geom));
+		m_object = std::make_unique<Nz::RigidBody2D>(&world, 1.f, geom);
 		m_object->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
+		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 	}
 
 	/*!

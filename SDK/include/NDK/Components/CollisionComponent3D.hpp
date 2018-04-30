@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -40,6 +40,8 @@ namespace Ndk
 			void OnComponentAttached(BaseComponent& component) override;
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
+			void OnEntityDisabled() override;
+			void OnEntityEnabled() override;
 
 			std::unique_ptr<Nz::RigidBody3D> m_staticBody;
 			Nz::Collider3DRef m_geom;

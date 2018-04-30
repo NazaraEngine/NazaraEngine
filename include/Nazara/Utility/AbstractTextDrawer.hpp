@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTTEXTDRAWER_HPP
 #define NAZARA_ABSTRACTTEXTDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -34,6 +34,7 @@ namespace Nz
 			virtual std::size_t GetGlyphCount() const = 0;
 			virtual const Line& GetLine(std::size_t index) const = 0;
 			virtual std::size_t GetLineCount() const = 0;
+			inline std::size_t GetLineGlyphCount(std::size_t index) const;
 
 			struct Glyph
 			{
@@ -52,5 +53,7 @@ namespace Nz
 			};
 	};
 }
+
+#include <Nazara/Utility/AbstractTextDrawer.inl>
 
 #endif // NAZARA_ABSTRACTTEXTDRAWER_HPP

@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -107,8 +107,7 @@ namespace Ndk
 		if (m_shouldQuit)
 			return false;
 
-		m_updateTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
 
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);
@@ -165,6 +164,7 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
+		overlay->lua.LoadLibraries();
 		LuaAPI::RegisterClasses(overlay->lua);
 
 		// Override "print" function to add a line in the console

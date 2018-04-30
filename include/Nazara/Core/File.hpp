@@ -7,7 +7,7 @@
 #ifndef NAZARA_FILE_HPP
 #define NAZARA_FILE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/MovablePtr.hpp>

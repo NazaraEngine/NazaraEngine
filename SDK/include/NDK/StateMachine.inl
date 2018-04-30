@@ -1,7 +1,8 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <NDK/StateMachine.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <utility>
 
@@ -16,57 +17,47 @@ namespace Ndk
 	/*!
 	* \brief Constructs a StateMachine object with an original state
 	*
-	* \param originalState State which is the entry point of the application
-	*
-	* \remark Calls "Enter" on the state
-	* \remark Produces a NazaraAssert if nullptr is given
+	* \param originalState State which is the entry point of the application, a nullptr will create an empty state machine
 	*/
-
 	inline StateMachine::StateMachine(std::shared_ptr<State> originalState)
 	{
-		NazaraAssert(originalState, "StateMachine must have a state to begin with");
-		PushState(std::move(originalState));
+		if (originalState)
+			PushState(std::move(originalState));
 	}
 
 	/*!
 	* \brief Destructs the object
 	*
-	* \remark Calls "Leave" on all the states
+	* \remark Calls "Leave" on all the states from top to bottom
 	*/
-
 	inline StateMachine::~StateMachine()
 	{
-		for (std::shared_ptr<State>& state : m_states)
-			state->Leave(*this);
+		// Leave state from top to bottom (as if states were popped out)
+		for (auto it = m_states.rbegin(); it != m_states.rend(); ++it)
+			(*it)->Leave(*this);
 	}
 
 	/*!
 	* \brief Replaces the current state on the top of the machine
 	*
 	* \param state State to replace the top one if it is nullptr, no action is performed
+	*
+	* \remark It is forbidden for a state machine to have (at any moment) the same state in its list multiple times
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-
 	inline void StateMachine::ChangeState(std::shared_ptr<State> state)
 	{
 		if (state)
 		{
-			PopState();
-			PushState(std::move(state));
+			// Change state is just a pop followed by a push
+			StateTransition transition;
+			transition.type = TransitionType::Pop;
+			m_transitions.emplace_back(std::move(transition));
+
+			transition.state = std::move(state);
+			transition.type = TransitionType::Push;
+			m_transitions.emplace_back(std::move(transition));
 		}
-	}
-
-	/*!
-	* \brief Gets the current state on the top of the machine
-	* \return A constant reference to the state
-	*
-	* \remark The stack is supposed to be non empty, otherwise it is undefined behaviour
-	*
-	* \see PopStatesUntil
-	*/
-
-	inline const std::shared_ptr<State>& StateMachine::GetCurrentState() const
-	{
-		return m_states.back();
 	}
 
 	/*!
@@ -74,8 +65,8 @@ namespace Ndk
 	* \return true If it is the case
 	*
 	* \param state State to compare the top with
+	* \remark Because all actions popping or pushing a state don't take effect until next state machine update, this can return false on a just pushed state
 	*/
-
 	inline bool StateMachine::IsTopState(const State* state) const
 	{
 		if (m_states.empty())
@@ -86,40 +77,36 @@ namespace Ndk
 
 	/*!
 	* \brief Pops the state on the top of the machine
-	* \return Old state on the top, nullptr if stack was empty
 	*
 	* \remark This method can completely empty the stack
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-
-	inline std::shared_ptr<State> StateMachine::PopState()
+	inline void StateMachine::PopState()
 	{
-		if (m_states.empty())
-			return nullptr;
+		StateTransition transition;
+		transition.type = TransitionType::Pop;
 
-		m_states.back()->Leave(*this);
-		std::shared_ptr<State> oldTopState = std::move(m_states.back());
-		m_states.pop_back();
-		return oldTopState;
+		m_transitions.emplace_back(std::move(transition));
 	}
 
 	/*!
-	* \brief Pops all the states of the machine until a specific one is reached
-	* \return true If that specific state is on top, false if stack is empty
+	* \brief Pops all states of the machine until a specific one is reached
 	*
-	* \param state State to find on the stack if it is nullptr, no action is performed
+	* \param state State to find on the stack. If nullptr is passed, no action is performed
 	*
-	* \remark This method can completely empty the stack
+	* \remark This method will completely empty the stack if state is not present
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-
-	inline bool StateMachine::PopStatesUntil(std::shared_ptr<State> state)
+	inline void StateMachine::PopStatesUntil(std::shared_ptr<State> state)
 	{
-		if (!state)
-			return false;
+		if (state)
+		{
+			StateTransition transition;
+			transition.state = std::move(state);
+			transition.type = TransitionType::PopUntil;
 
-		while (!m_states.empty() && !IsTopState(state.get()))
-			PopState();
-
-		return !m_states.empty();
+			m_transitions.emplace_back(std::move(transition));
+		}
 	}
 
 	/*!
@@ -127,34 +114,40 @@ namespace Ndk
 	*
 	* \param state Next state to represent if it is nullptr, it performs no action
 	*
-	* \remark Produces a NazaraAssert if the same state is pushed two times on the stack
+	* \remark It is forbidden for a state machine to have (at any moment) the same state in its list multiple times
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-
 	inline void StateMachine::PushState(std::shared_ptr<State> state)
 	{
 		if (state)
 		{
-			NazaraAssert(std::find(m_states.begin(), m_states.end(), state) == m_states.end(), "The same state was pushed two times");
+			StateTransition transition;
+			transition.state = std::move(state);
+			transition.type = TransitionType::Push;
 
-			m_states.push_back(std::move(state));
-			m_states.back()->Enter(*this);
+			m_transitions.emplace_back(std::move(transition));
 		}
 	}
 
 	/*!
 	* \brief Pops every states of the machine to put a new one
 	*
-	* \param state State to reset the stack with if it is nullptr, no action is performed
+	* \param state State to reset the stack with. If state is invalid, this will clear the state machine
+	*
+	* \remark It is forbidden for a state machine to have (at any moment) the same state in its list multiple times
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-
-	inline void StateMachine::SetState(std::shared_ptr<State> state)
+	inline void StateMachine::ResetState(std::shared_ptr<State> state)
 	{
+		StateTransition transition;
+		transition.type = TransitionType::PopUntil; //< Pop until nullptr, which basically clears the state machine
+		m_transitions.emplace_back(std::move(transition));
+
 		if (state)
 		{
-			while (!m_states.empty())
-				PopState();
-
-			PushState(std::move(state));
+			transition.state = std::move(state);
+			transition.type = TransitionType::Push;
+			m_transitions.emplace_back(std::move(transition));
 		}
 	}
 
@@ -164,9 +157,41 @@ namespace Ndk
 	*
 	* \param elapsedTime Delta time used for the update
 	*/
-
 	inline bool StateMachine::Update(float elapsedTime)
 	{
+		for (StateTransition& transition : m_transitions)
+		{
+			switch (transition.type)
+			{
+				case TransitionType::Pop:
+				{
+					std::shared_ptr<State>& topState = m_states.back();
+					topState->Leave(*this); //< Call leave before popping to ensure consistent IsTopState behavior
+
+					m_states.pop_back();
+					break;
+				}
+
+				case TransitionType::PopUntil:
+				{
+					while (!m_states.empty() && m_states.back() != transition.state)
+					{
+						m_states.back()->Leave(*this);
+						m_states.pop_back();
+					}
+					break;
+				}
+
+				case TransitionType::Push:
+				{
+					m_states.emplace_back(std::move(transition.state));
+					m_states.back()->Enter(*this);
+					break;
+				}
+			}
+		}
+		m_transitions.clear();
+
 		return std::all_of(m_states.begin(), m_states.end(), [=](std::shared_ptr<State>& state) {
 			return state->Update(*this, elapsedTime);
 		});

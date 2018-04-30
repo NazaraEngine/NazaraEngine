@@ -9,6 +9,7 @@ namespace Nz
 {
 	inline ENetHost::ENetHost() :
 	m_packetPool(sizeof(ENetPacket)),
+	m_isUsingDualStack(false),
 	m_isSimulationEnabled(false)
 	{
 	}
@@ -20,21 +21,22 @@ namespace Nz
 
 	inline bool ENetHost::Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount)
 	{
-		NazaraAssert(protocol != NetProtocol_Any, "Any protocol not supported for Listen"); //< TODO
 		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
 
 		IpAddress any;
 		switch (protocol)
 		{
-			case NetProtocol_Any:
 			case NetProtocol_Unknown:
-				NazaraInternalError("Invalid protocol Any at this point");
+				NazaraInternalError("Invalid protocol");
 				return false;
 
 			case NetProtocol_IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
+			case NetProtocol_Any:
+				m_isUsingDualStack = true;
+				// fallthrough
 			case NetProtocol_IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
@@ -72,6 +74,12 @@ namespace Nz
 		ref->data = std::move(data);
 
 		return ref;
+	}
+
+	inline void ENetHost::UpdateServiceTime()
+	{
+		// Compute service time as microseconds for extra precision
+		m_serviceTime = static_cast<UInt32>(GetElapsedMicroseconds() / 1000);
 	}
 }
 

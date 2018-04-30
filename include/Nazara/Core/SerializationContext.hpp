@@ -7,9 +7,10 @@
 #ifndef NAZARA_SERIALIZATION_HPP
 #define NAZARA_SERIALIZATION_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 
 namespace Nz
 {

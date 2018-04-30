@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -17,14 +17,17 @@ namespace Ndk
 	{
 		friend class CollisionComponent2D;
 		friend class PhysicsSystem2D;
+		friend class ConstraintComponent2D;
 
 		public:
 			PhysicsComponent2D() = default;
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
-
+			
 			void AddForce(const Nz::Vector2f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddTorque(float torque);
 
 			Nz::Rectf GetAABB() const;
@@ -47,7 +50,7 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
-			Nz::RigidBody2D& GetRigidBody();
+			Nz::RigidBody2D* GetRigidBody();
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;

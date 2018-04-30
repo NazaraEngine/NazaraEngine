@@ -25,6 +25,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		socklen_t bufferLength = sizeof(sockaddr_in);
 
 		SocketHandle newClient = accept(handle, reinterpret_cast<sockaddr*>(&nameBuffer), &bufferLength);
@@ -150,7 +152,7 @@ namespace Nz
 			tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 			tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-			int ret = select(0, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
+			int ret = select(handle + 1, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
 			if (ret == SOCKET_ERROR)
 			{
 				int code = GetLastErrorCode(handle, error);
@@ -376,7 +378,9 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		socklen_t bufferLength = sizeof(sockaddr_in);
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
+		socklen_t bufferLength = sizeof(nameBuffer.size());
 
 		if (getpeername(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
 		{
@@ -416,6 +420,8 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		socklen_t bufferLength = sizeof(sockaddr_in);
 
 		if (getsockname(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
@@ -509,6 +515,8 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		socklen_t bufferLength = static_cast<socklen_t>(nameBuffer.size());
 
 		IpAddress senderIp;
@@ -580,6 +588,8 @@ namespace Nz
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
+		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+
 		if (from)
 		{
 			msgHdr.msg_name = nameBuffer.data();
@@ -799,8 +809,27 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		bool option = broadcasting;
+		int option = broadcasting;
 		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToResolveError(GetLastErrorCode());
+
+			return false; //< Error
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return true;
+	}
+
+	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
+	{
+		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+
+		int option = ipv6Only;
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
 				*error = TranslateErrnoToResolveError(GetLastErrorCode());

@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSWORLD2D_HPP
 #define NAZARA_PHYSWORLD2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -54,6 +54,8 @@ namespace Nz
 			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
+			std::size_t GetIterationCount() const;
+			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
@@ -69,9 +71,13 @@ namespace Nz
 
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
+			void SetIterationCount(std::size_t iterationCount);
+			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);
+
+			void UseSpatialHash(float cellSize, std::size_t entityCount);
 
 			PhysWorld2D& operator=(const PhysWorld2D&) = delete;
 			PhysWorld2D& operator=(PhysWorld2D&&) = delete; ///TODO
@@ -117,8 +123,8 @@ namespace Nz
 				float fraction;
 			};
 
-			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/);
-			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/);
+			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
+			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
@@ -140,6 +146,7 @@ namespace Nz
 
 			static_assert(std::is_nothrow_move_constructible<PostStepContainer>::value, "PostStepContainer should be noexcept MoveConstructible");
 
+			std::size_t m_maxStepCount;
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;

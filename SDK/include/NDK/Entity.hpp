@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -9,9 +9,10 @@
 
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <memory>
 #include <vector>
 
@@ -33,7 +34,7 @@ namespace Ndk
 
 		public:
 			Entity(const Entity&) = delete;
-			Entity(Entity&& entity);
+			Entity(Entity&& entity) noexcept;
 			~Entity();
 
 			BaseComponent& AddComponent(std::unique_ptr<BaseComponent>&& component);
@@ -41,7 +42,8 @@ namespace Ndk
 
 			const EntityHandle& Clone() const;
 
-			inline void Enable(bool enable = true);
+			inline void Disable();
+			void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
 			template<typename ComponentType> ComponentType& GetComponent();
@@ -95,8 +97,8 @@ namespace Ndk
 			Nz::Bitset<> m_componentBits;
 			Nz::Bitset<> m_removedComponentBits;
 			Nz::Bitset<> m_systemBits;
+			Nz::MovablePtr<World> m_world;
 			EntityId m_id;
-			World* m_world;
 			bool m_enabled;
 			bool m_valid;
 	};

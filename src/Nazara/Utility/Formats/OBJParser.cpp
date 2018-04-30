@@ -227,35 +227,41 @@ namespace Nz
 
 						if (p < 0)
 						{
-							p += static_cast<int>(m_positions.size() - 1);
+							p += static_cast<int>(m_positions.size());
 							if (p < 0)
 							{
 								Error("Vertex index out of range (" + String::Number(p) + " < 0");
 								error = true;
 								break;
 							}
+
+							++p;
 						}
 
 						if (n < 0)
 						{
-							n += static_cast<int>(m_normals.size() - 1);
+							n += static_cast<int>(m_normals.size());
 							if (n < 0)
 							{
 								Error("Normal index out of range (" + String::Number(n) + " < 0");
 								error = true;
 								break;
 							}
+
+							++n;
 						}
 
 						if (t < 0)
 						{
-							t += static_cast<int>(m_texCoords.size() - 1);
+							t += static_cast<int>(m_texCoords.size());
 							if (t < 0)
 							{
 								Error("Texture coordinates index out of range (" + String::Number(t) + " < 0");
 								error = true;
 								break;
 							}
+
+							++t;
 						}
 
 						if (static_cast<std::size_t>(p) > m_positions.size())
@@ -611,6 +617,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine.Simplify(); // Simplify lines (convert multiple blanks into a single space and trims)
 			}
 			while (m_currentLine.IsEmpty());

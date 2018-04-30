@@ -1,15 +1,18 @@
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Catch/catch.hpp>
+#include <limits>
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world);
 void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right);
+void EQUALITY(const Nz::Rectf& left, const Nz::Rectf& right);
 
 SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 {
 	GIVEN("A physic world and a rigid body")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
@@ -65,16 +68,15 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We set a new geometry")
 		{
 			float radius = 5.f;
-			Nz::Vector2f positionCircle(0.f, 0.f);
-			Nz::Collider2DRef circle = Nz::CircleCollider2D::New(radius, position);
-			body.SetGeom(circle);
+			body.SetGeom(Nz::CircleCollider2D::New(radius));
 
 			world.Step(1.f);
 
 			THEN("The aabb should be updated")
 			{
+				position = body.GetPosition();
 				Nz::Rectf circleAABB(position.x - radius, position.y - radius, 2.f * radius, 2.f* radius);
-				REQUIRE(body.GetAABB() == circleAABB);
+				EQUALITY(body.GetAABB(), circleAABB);
 			}
 		}
 	}
@@ -82,6 +84,8 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+
 		Nz::Rectf aabb(3.f, 4.f, 1.f, 2.f);
 
 		WHEN("We get a rigid body from a function")
@@ -102,6 +106,8 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world and a rigid body")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
 		Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
@@ -200,6 +206,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world and a rigid body of circle")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		Nz::Vector2f position(3.f, 4.f);
 		float radius = 5.f;
@@ -221,6 +228,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world and a rigid body of compound")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		Nz::Rectf aabb(0.f, 0.f, 1.f, 1.f);
 		Nz::BoxCollider2DRef box1 = Nz::BoxCollider2D::New(aabb);
@@ -249,6 +257,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world and a rigid body of circle")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		std::vector<Nz::Vector2f> vertices;
 		vertices.push_back(Nz::Vector2f(0.f, 0.f));
@@ -275,6 +284,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	GIVEN("A physic world and a rigid body of segment")
 	{
 		Nz::PhysWorld2D world;
+		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		Nz::Vector2f positionA(3.f, 4.f);
 		Nz::Vector2f positionB(1.f, -4.f);
@@ -306,13 +316,21 @@ Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world)
 void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 {
 	CHECK(left.GetAABB() == right.GetAABB());
-	CHECK(left.GetAngularVelocity() == right.GetAngularVelocity());
+	CHECK(left.GetAngularVelocity() == Approx(right.GetAngularVelocity()));
 	CHECK(left.GetCenterOfGravity() == right.GetCenterOfGravity());
 	CHECK(left.GetGeom() == right.GetGeom());
 	CHECK(left.GetHandle() != right.GetHandle());
-	CHECK(left.GetMass() == right.GetMass());
+	CHECK(left.GetMass() == Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
-	CHECK(left.GetRotation() == right.GetRotation());
+	CHECK(left.GetRotation() == Approx(right.GetRotation()));
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
+}
+
+void EQUALITY(const Nz::Rectf& left, const Nz::Rectf& right)
+{
+	CHECK(left.x == Approx(right.x));
+	CHECK(left.y == Approx(right.y));
+	CHECK(left.width == Approx(right.width));
+	CHECK(left.height == Approx(right.height));
 }

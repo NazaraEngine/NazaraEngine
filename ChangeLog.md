@@ -1,5 +1,22 @@
 # Upcoming version:
 
+Miscellaneous:
+- Add possibility to excludes with one commande all tests/examples/tools/etc.
+- Units tests are now part of the "test" exclusion category
+- Fix project exclusion not working (but correctly excluding projects relying upon it)
+- Upgraded Catch to v2.0.1
+- ⚠️ Merged NazaraExtlibs workspace to main workspace (allowing `make` command to work without -f parameter) and removed extern libraries precompiled
+- Updated stb_image to version 2.16 and stb_image_write to version 1.07 (allowing support for JPEG writing)
+- ⚠️ Renamed extlibs folder to thirdparty
+- Partial fix for Premake regenerating projects for no reason
+- FirstScene now uses the EventHandler (#151)
+- ⚠️ Rename Prerequesites.hpp to Prerequisites.hpp (#153)
+- Updated premake5-linux64 with a nightly to fix a build error when a previous version of Nazara was installed on the system.
+- Fix compilation with some MinGW distributions
+- Add Lua unit tests
+- NDEBUG is now defined in Release
+- Replaced typedefs keywords with modern using keywords
+
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
 - Bitset swap operation is now correctly marked as noexcept`
@@ -10,7 +27,74 @@ Nazara Engine:
 - Fix reflection sometimes being enabled by default for Materials
 - Fix built-in unserialization of std::string which was corruption memory
 - Fix Buffer::Destroy() not really destroying buffer
-
+- Fix Bitset::TestAll() returned wrong result on full of '1' bitset
+- ByteStream now returns the number of bytes written as the other streams
+- Total rewriting of the color conversions
+- Fix NormalizeAngle to the correct range
+- Fix BoundingVolume::Lerp() with Extend_Null
+- Simplification of methods Matrix4::SetRotation() and Quaternion::MakeRotationBetween()
+- Fix mouve moved event generated on X11 platform when doing Mouse::SetPosition()
+- EnumAsFlags specialization no longer require a `value` field to enable flags operators
+- EnumAsFlags specialization `max` field can be of the same type as the enum
+- Flags class now use an UInt8 or UInt16 to store the value if possible.
+- Flags class is now explicitly convertible to any integer type of the same size (or greater size) than the internal size.
+- Fix String movement constructor, which was leaving a null shared string (which was not reusable)
+- Add Flags<E>::Test method, in order to test one or multiple flags at once.
+- ⚠️ Vector2, Vector3 and Vector4 array/pointer constructor is now explicit to prevent some mistakes as `Vector2 vec2; vec2 = 0;`
+- Fix RigidBody2D::SetGeom attribute copy and possible crash with static objects
+- Fix error when opening a non-existent file on Posix
+- Fix Directory::Create not working on Posix systems when recursive option was enabled
+- Fix default directory permission (now created with 777)
+- Add linear and angular damping accessor to RigidBody3D
+- Fix MemoryStream::WriteBlock "Invalid buffer" assertion triggering when writing a zero-sized block
+- ⚠️ Rename RigidBody3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
+- Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
+- Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- Fix some uninitialized values (found by Valgrind) in Network module
+- Fix possible infinite recursion when outputting a Thread::Id object 
+- ⚠️ Replaced implicit conversion from a Nz::String to a std::string by an explicit method ToStdString()
+- Fix LuaInstance movement constructor/assignment operator which was corrupting Lua memory
+- Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
+- It is now possible to initialize a StackArray with a size of zero on every platforms (this was not possible on non-Windows platforms before)
+- Calling PlacementDestroy on a null pointer is now a no-op (was triggering an undefined behavior)
+- Fix OBJParser relative offsets handling
+- Add JPEG image saver
+- Update Constraint2Ds classes (Add : Ref, Library, ConstRef, New function and Update : ctors)
+- Fix LuaClass not working correctly when Lua stack wasn't empty
+- Add RigidBody2D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
+- ⚠️ LuaInstance no longer load all lua libraries on construction, this is done in the new LoadLibraries method which allows you to excludes some libraries
+- Clock::Restart now returns the elapsed microseconds since construction or last Restart call
+- Add PhysWorld2D::[Get|Set]IterationCount to control how many iterations chipmunk will perform per step.
+- Add PhysWorld2D::UseSpatialHash to use spatial hashing instead of bounding box trees, which may speedup simulation in some cases.
+- Add PhysWorld[2D|3D] max step count per Step call (default: 50), to avoid spirals of death when the physics engine simulation time is over step size.
+- Fix Window triggering KeyPressed event after triggering a resize/movement event on Windows
+- (WIP) Add support for materials and callbacks to Physics3D module.
+- PhysWorld3D class is now movable
+- ⚠️ Removed array/pointer constructor from Vector classes
+- Fixed Platform module not being classified as client-only
+- ⚠️ Renamed Bitset::Read to Bitset::Write
+- Fixed ENetCompressor class destructor not being virtual
+- ⚠️ Added a type tag parameter to Serialize and Unserialize functions, to prevent implicit conversions with overloads
+- Added Collider3D::ForEachPolygon method, allowing construction of a debug mesh based on the physics collider
+- Fixed ConvexCollider3D::GetType returning Compound instead of ConvexHull.
+- Dual-stack sockets are now supported (by using NetProtocol_Any at creation/opening)
+- Fixed IPv6 addresses not being correctly encoded/decoded from the socket API.
+- Fix copy and move semantic on HandledObject and ObjectHandle
+- Add support for emissive and normal maps in .mtl loader using custom keywords ([map_]emissive and [map_]normal)
+- Music, Sound and SoundEmitter are now movable
+- Fixed Sound copy which was not copying looping state
+- Fixed Billboard bounding volume
+- Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
+- Fixed Quaternion::Inverse which was not correctly normalizing quaternions
+- Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
+- Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
+- Fixed Font handling of whitespace glyphs (which were triggering an error)
+- ⚠️ Translucent2D pipeline no longer has depth sorting
+- Fixed SimpleTextDrawer line bounds
+- ⚠️ Stream::ReadLine will now returns empty lines if present in the file
+- Fixed cubemaps seams with OpenGL
+- HandledObject movement constructor/assignement operator are now marked noexcept
+- ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -24,6 +108,41 @@ Nazara Development Kit:
 - ⚠️ Renamed BaseWidget::GrabKeyboard method to SetFocus
 - Added BaseWidget::ClearFocus method and OnFocus[Lost|Received] virtual methods
 - TextAreaWidget will now show a cursor as long as it has focus
+- Fix BaseWidget linking error on Linux
+- ⚠️ Rewrite StateMachine to fix instantaneous state changing (state change is no longer effective until the next update call)
+- Fix entities destruction when coming from World::Clear() (also called by destructor), which invalidated world entities handles before destroying entities (preventing destruction callback to get valid entities handles from world)
+- Add Entity::Disable method, which is a shortcut to Enable(false)
+- Add BaseWidget::HasFocus
+- Fix TextAreaWidget cursor sometimes showing up in readonly mode
+- ⚠️ BaseWidget::OnKeyPressed now returns a boolean to indicate if it should block default action (such as tab to switch to the previous/next widget)
+- Pressing tab/shift-tab will now move to the next/previous widget able to be focused on
+- Fix GraphicsComponent::Clear method now clearing reflective states
+- Add linear and angular damping accessor to PhysicsComponent3D
+- Fix GraphicsComponent cloning not copying renderable local matrices
+- ⚠️ Rename PhysicsComponent3D::[Get|Set]Velocity to [Get|Set]LinearVelocity
+- Add OnEntityDisabled and OnEntityEnabled callbacks to BaseComponent
+- Disabling an entity with a CollisionComponent3D or PhysicsComponent3D will properly disable it from the physics simulation
+- It is now possible to disable synchronization between a PhysicsComponent3D and the NodeComponent
+- Fix PhysicsComponent3D copy which was not copying physics state (such as mass, mass center, damping values, gravity factor and auto-sleep mode)
+- Fix TextAreaWidget::Clear crash
+- Add ConstraintComponent2D class
+- Fix CollisionComponent3D initialization (teleportation to their real coordinates) which could sometimes mess up the physics scene.
+- ⚠️ Renamed World::Update() to World::Refresh() for more clarity and to differentiate it from World::Update(elapsedTime)
+- World entity ids are now reused from lowest to highest (they were previously reused in reverse order of death)
+- World now has an internal profiler, allowing to measure the refresh and system update time
+- CollisionComponent[2D|3D] and PhysicsComponent[2D|3D] now configures their internal RigidBody userdata to the entity ID they belong to (useful for callbacks).
+- Fixed EntityList copy/movement assignment operator which was not properly unregistering contained entities.
+- ListenerSystem now handles velocity in a generic way (no longer require a VelocityComponent and is compatible with physics)
+- World now has const getters for systems
+- Add World::ForEachSystem method, allowing iteration on every active system on a specific world
+- Fix GraphicsComponent bounding volume not taking local matrix in account
+- ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
+- ⚠️ All widgets are now bound to a scissor box when rendering
+- Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- ⚠️ TextAreaWidget now support text selection (WIP)
+- ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
+- Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
+- Fixed EntityOwner move assignment which was losing entity ownership
 
 # 0.4:
 

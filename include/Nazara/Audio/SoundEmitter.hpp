@@ -7,10 +7,11 @@
 #ifndef NAZARA_SOUNDEMITTER_HPP
 #define NAZARA_SOUNDEMITTER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <limits>
 
 ///TODO: Inherit SoundEmitter from Node
 
@@ -19,6 +20,7 @@ namespace Nz
 	class NAZARA_AUDIO_API SoundEmitter
 	{
 		public:
+			SoundEmitter(SoundEmitter&& emitter) noexcept;
 			virtual ~SoundEmitter();
 
 			virtual void EnableLooping(bool loop) = 0;
@@ -51,15 +53,16 @@ namespace Nz
 
 			virtual void Stop() = 0;
 
-			SoundEmitter& operator=(const SoundEmitter&) = delete; ///TODO
-			SoundEmitter& operator=(SoundEmitter&&) = delete;
+			SoundEmitter& operator=(const SoundEmitter&) = delete;
+			SoundEmitter& operator=(SoundEmitter&&) noexcept;
 
 		protected:
 			SoundEmitter();
 			SoundEmitter(const SoundEmitter& emitter);
-			SoundEmitter(SoundEmitter&&) = delete;
 
 			SoundStatus GetInternalStatus() const;
+
+			static constexpr unsigned int InvalidSource = std::numeric_limits<unsigned int>::max();
 
 			unsigned int m_source;
 	};

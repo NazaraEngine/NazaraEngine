@@ -27,7 +27,6 @@ namespace Nz
 			Vector4(T X, const Vector2<T>& vec, T W);
 			Vector4(T X, const Vector3<T>& vec);
 			explicit Vector4(T scale);
-			Vector4(const T vec[4]);
 			Vector4(const Vector2<T>& vec, T Z = 0.0, T W = 1.0);
 			Vector4(const Vector3<T>& vec, T W = 1.0);
 			template<typename U> explicit Vector4(const Vector4<U>& vec);
@@ -102,15 +101,15 @@ namespace Nz
 			T x, y, z, w;
 	};
 
-	typedef Vector4<double> Vector4d;
-	typedef Vector4<float> Vector4f;
-	typedef Vector4<int> Vector4i;
-	typedef Vector4<unsigned int> Vector4ui;
-	typedef Vector4<Int32> Vector4i32;
-	typedef Vector4<UInt32> Vector4ui32;
+	using Vector4d = Vector4<double>;
+	using Vector4f = Vector4<float>;
+	using Vector4i = Vector4<int>;
+	using Vector4ui = Vector4<unsigned int>;
+	using Vector4i32 = Vector4<Int32>;
+	using Vector4ui32 = Vector4<UInt32>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec);

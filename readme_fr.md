@@ -1,6 +1,6 @@
 ﻿Platforme | Build Status | Nightlies
 ------------ | ------------- | -------------
-Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/dj5qx7axym4uakmy/branch/master?svg=true)](https://ci.appveyor.com/project/DPSLynix/nazaraengine/branch/master) | MSVC14:  [x86](https://ci.appveyor.com/api/projects/DPSLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20Win32)   [x86_64](https://ci.appveyor.com/api/projects/DPSLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20x64)
+Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/rqxfj343mh3ab2we/branch/master?svg=true)](https://ci.appveyor.com/project/DrLynix/nazaraengine/branch/master) | MSVC14:  [x86](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20Win32)   [x86_64](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2015%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20x64)
 Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg?branch=master)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine) | Non
 
 # Nazara Engine  
@@ -15,7 +15,7 @@ Vous pouvez également l'utiliser pour toute application commerciale sans aucune
 ## Auteurs
 
 Jérôme "Lynix" Leclercq - développeur principal (<lynix680@gmail.com>)  
-Rémi "overdrivr" Bèges - développeur & aide - module Noise - (<remi.beges@laposte.net>)
+Full Cycle Games - sponsor et contributeur depuis Janvier 2017.
 
 ## Installation
 
@@ -39,13 +39,14 @@ Vous pouvez lire des tutoriaux sur l'installation, la compilation et l'utilisati
 
 [Website](https://nazara.digitalpulsesoftware.net)  
 [Documentation](https://nazara.digitalpulsesoftware.net/doc)  
-[Mattermost](https://mattermost.digitalpulsesoftware.net)  
+[Discord](https://discord.gg/MvwNx73)  
 [Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
 [Forum](https://forum.digitalpulsesoftware.net)  
 
 ### Remerciements:
 
-- **RafBill** et **Raakz:** Recherche de bugs et/ou tests  
-- **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur  
-- **Alexandre "Danman" Janniaux**: Aide sur l'implémentation POSIX
+- **RafBill** et **Raakz:** Recherche de bugs et/ou tests.
+- **Fissal "DrFisher" Hannoun**: Aide et conseils lors de la conception de l'architecture du moteur.
+- **Alexandre "Danman" Janniaux**: Aide sur l'implémentation POSIX.
 - **Youri "Gawaboumga" Hubaut**: Amélioration du moteur tant au niveau du code que de sa documentation et du projet en général.
+- **Rémi "overdrivr" Bèges**: Développement du module Noise.

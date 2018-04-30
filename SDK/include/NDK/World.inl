@@ -1,7 +1,8 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <NDK/World.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <type_traits>
 
@@ -13,7 +14,9 @@ namespace Ndk
 	* \param addDefaultSystems Should default provided systems be used
 	*/
 
-	inline World::World(bool addDefaultSystems)
+	inline World::World(bool addDefaultSystems) :
+	m_orderedSystemsUpdated(false),
+	m_isProfilerEnabled(false)
 	{
 		if (addDefaultSystems)
 			AddDefaultSystems();
@@ -46,7 +49,10 @@ namespace Ndk
 
 		// We must ensure that the vector is big enough to hold the new system
 		if (index >= m_systems.size())
+		{
 			m_systems.resize(index + 1);
+			m_profilerData.updateTime.resize(index + 1, 0);
+		}
 
 		// Affectation and return of system
 		m_systems[index] = std::move(system);
@@ -81,7 +87,6 @@ namespace Ndk
 	*
 	* \param count Number of entities to create
 	*/
-
 	inline World::EntityVector World::CreateEntities(unsigned int count)
 	{
 		EntityVector list;
@@ -94,13 +99,110 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Disables the profiler, clearing up results
+	*
+	* This is just a shortcut to EnableProfiler(false)
+	*
+	* \param enable Should the entity be enabled
+	*
+	* \see EnableProfiler
+	*/
+	inline void World::DisableProfiler()
+	{
+		EnableProfiler(false);
+	}
+
+	/*!
+	* \brief Enables/Disables the internal profiler
+	*
+	* Worlds come with a built-in profiler, allowing to measure update count along with time passed in refresh and system updates.
+	* This is disabled by default as it adds an small overhead to the update process.
+	*
+	* \param enable Should the profiler be enabled
+	*
+	* \remark Disabling the profiler clears up results, as if ResetProfiler has been called
+	*/
+	inline void World::EnableProfiler(bool enable)
+	{
+		if (m_isProfilerEnabled != enable)
+		{
+			m_isProfilerEnabled = enable;
+
+			if (enable)
+				ResetProfiler();
+		}
+	}
+
+	/*!
+	* \brief Executes a function on every present system
+	*
+	* Calls iterationFunc on every previously added system, in the same order as their indexes
+	*
+	* \param iterationFunc Function to be called
+	*/
+	template<typename F>
+	void World::ForEachSystem(const F& iterationFunc)
+	{
+		for (const auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				iterationFunc(*systemPtr);
+		}
+	}
+
+	/*!
+	* \brief Executes a function on every present system
+	*
+	* Calls iterationFunc on every previously added system, in the same order as their indexes
+	*
+	* \param iterationFunc Function to be called
+	*/
+	template<typename F>
+	void World::ForEachSystem(const F& iterationFunc) const
+	{
+		for (const auto& systemPtr : m_systems)
+		{
+			if (systemPtr)
+				iterationFunc(static_cast<const Ndk::BaseSystem&>(*systemPtr)); //< Force const reference
+		}
+	}
+
+	/*!
+	* \brief Gets an entity
+	* \return A constant reference to a handle of the entity
+	*
+	* \param id Identifier of the entity
+	*
+	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a handle reference from a world update to another
+	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
+	*/
+	inline const EntityHandle& World::GetEntity(EntityId id)
+	{
+		if (IsEntityIdValid(id))
+			return m_entityBlocks[id]->handle;
+		else
+		{
+			NazaraError("Invalid ID");
+			return EntityHandle::InvalidHandle;
+		}
+	}
+
+	/*!
 	* \brief Gets every entities in the world
 	* \return A constant reference to the entities
 	*/
-
 	inline const EntityList& World::GetEntities() const
 	{
 		return m_aliveEntities;
+	}
+
+	/*!
+	* \brief Gets the latest profiler data
+	* \return A constant reference to the profiler data
+	*/
+	inline const World::ProfilerData& World::GetProfilerData() const
+	{
+		return m_profilerData;
 	}
 
 	/*!
@@ -109,9 +211,8 @@ namespace Ndk
 	*
 	* \param index Index of the system
 	*
-	* \remark Produces a NazaraAssert if system is not available in this world
+	* \remark The world must have the system before calling this function
 	*/
-
 	inline BaseSystem& World::GetSystem(SystemIndex index)
 	{
 		NazaraAssert(HasSystem(index), "This system is not part of the world");
@@ -123,12 +224,29 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets a system in the world by index
+	* \return A const reference to the system
+	*
+	* \param index Index of the system
+	*
+	* \remark The world must have the system before calling this function
+	*/
+	inline const BaseSystem& World::GetSystem(SystemIndex index) const
+	{
+		NazaraAssert(HasSystem(index), "This system is not part of the world");
+
+		const BaseSystem* system = m_systems[index].get();
+		NazaraAssert(system, "Invalid system pointer");
+
+		return *system;
+	}
+
+	/*!
 	* \brief Gets a system in the world by type
 	* \return A reference to the system
 	*
 	* \remark Produces a NazaraAssert if system is not available in this world
 	*/
-
 	template<typename SystemType>
 	SystemType& World::GetSystem()
 	{
@@ -136,6 +254,21 @@ namespace Ndk
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		return static_cast<SystemType&>(GetSystem(index));
+	}
+
+	/*!
+	* \brief Gets a system in the world by type
+	* \return A const reference to the system
+	*
+	* \remark Produces a NazaraAssert if system is not available in this world
+	*/
+	template<typename SystemType>
+	const SystemType& World::GetSystem() const
+	{
+		static_assert(std::is_base_of<BaseSystem, SystemType>::value, "SystemType is not a system");
+
+		SystemIndex index = GetSystemIndex<SystemType>();
+		return static_cast<const SystemType&>(GetSystem(index));
 	}
 
 	/*!
@@ -192,26 +325,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets an entity
-	* \return A constant reference to a handle of the entity
-	*
-	* \param id Identifier of the entity
-	*
-	* \remark Handle referenced by this function can move in memory when updating the world, do not keep a reference to a handle from a world update to another
-	* \remark If an invalid identifier is provided, an error got triggered and an invalid handle is returned
-	*/
-	inline const EntityHandle& World::GetEntity(EntityId id)
-	{
-		if (IsEntityIdValid(id))
-			return m_entityBlocks[id]->handle;
-		else
-		{
-			NazaraError("Invalid ID");
-			return EntityHandle::InvalidHandle;
-		}
-	}
-
-	/*!
 	* \brief Checks whether or not an entity is valid
 	* \return true If it is the case
 	*
@@ -229,10 +342,20 @@ namespace Ndk
 	*
 	* \param id Identifier of the entity
 	*/
-
 	inline bool World::IsEntityIdValid(EntityId id) const
 	{
 		return id < m_entityBlocks.size() && m_entityBlocks[id]->entity.IsValid();
+	}
+
+	/*!
+	* \brief Checks whether or not the profiler is enabled
+	* \return true If it is the case
+	*
+	* \see EnableProfiler
+	*/
+	inline bool World::IsProfilerEnabled() const
+	{
+		return m_isProfilerEnabled;
 	}
 
 	/*!
@@ -265,9 +388,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Clear profiler results
+	*
+	* This reset the profiler results, filling all counters with zero
+	*/
+	inline void World::ResetProfiler()
+	{
+		m_profilerData.refreshTime = 0;
+		m_profilerData.updateCount = 0;
+		std::fill(m_profilerData.updateTime.begin(), m_profilerData.updateTime.end(), 0);
+	}
+
+	/*!
 	* \brief Removes a system from the world by type
 	*/
-
 	template<typename SystemType>
 	void World::RemoveSystem()
 	{
@@ -275,21 +409,6 @@ namespace Ndk
 
 		SystemIndex index = GetSystemIndex<SystemType>();
 		RemoveSystem(index);
-	}
-
-	/*!
-	* \brief Updates the world
-	*
-	* \param elapsedTime Delta time used for the update
-	*/
-
-	inline void World::Update(float elapsedTime)
-	{
-		Update(); //< Update entities
-
-		// And then update systems
-		for (auto& systemPtr : m_orderedSystems)
-			systemPtr->Update(elapsedTime);
 	}
 
 	/*!
@@ -302,10 +421,12 @@ namespace Ndk
 		m_aliveEntities         = std::move(world.m_aliveEntities);
 		m_dirtyEntities         = std::move(world.m_dirtyEntities);
 		m_entityBlocks          = std::move(world.m_entityBlocks);
-		m_freeIdList            = std::move(world.m_freeIdList);
+		m_freeEntityIds         = std::move(world.m_freeEntityIds);
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
+		m_profilerData          = std::move(world.m_profilerData);
+		m_isProfilerEnabled     = world.m_isProfilerEnabled;
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)

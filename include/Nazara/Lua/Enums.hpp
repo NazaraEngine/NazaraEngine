@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_LUA_HPP
 #define NAZARA_ENUMS_LUA_HPP
 
+#include <Nazara/Core/Flags.hpp>
+
 namespace Nz
 {
 	enum LuaBindMode
@@ -24,6 +26,21 @@ namespace Nz
 		LuaComparison_LessOrEqual,
 
 		LuaComparison_Max = LuaComparison_LessOrEqual
+	};
+
+	enum LuaLib
+	{
+		LuaLib_Coroutine,
+		LuaLib_Debug,
+		LuaLib_Math,
+		LuaLib_Io,
+		LuaLib_Package,
+		LuaLib_Os,
+		LuaLib_String,
+		LuaLib_Table,
+		LuaLib_Utf8,
+
+		LuaLib_Max = LuaLib_Utf8
 	};
 
 	enum LuaOperation
@@ -61,6 +78,16 @@ namespace Nz
 
 		LuaType_Max = LuaType_Userdata
 	};
+
+	template<>
+	struct EnumAsFlags<LuaLib>
+	{
+		static constexpr LuaLib max = LuaLib_Max;
+	};
+
+	using LuaLibFlags = Flags<LuaLib>;
+
+	constexpr LuaLibFlags LuaLib_All = LuaLibFlags(LuaLibFlags::ValueMask);
 }
 
 #endif // NAZARA_ENUMS_LUA_HPP

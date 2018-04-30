@@ -7,7 +7,7 @@
 #ifndef NAZARA_BILLBOARD_HPP
 #define NAZARA_BILLBOARD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 
@@ -29,7 +29,7 @@ namespace Nz
 			Billboard(Billboard&&) = delete;
 			~Billboard() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline const Color& GetColor() const;
 			inline float GetRotation() const;

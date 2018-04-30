@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
+// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Lua/LuaBinding_SDK.hpp>
 #include <NDK/LuaAPI.hpp>
@@ -179,6 +179,12 @@ namespace Ndk
 			world.BindMethod("CreateEntity", &World::CreateEntity);
 			world.BindMethod("CreateEntities", &World::CreateEntities);
 			world.BindMethod("Clear", &World::Clear);
+			world.BindMethod("DisableProfiler", &World::DisableProfiler);
+			world.BindMethod("EnableProfiler", &World::EnableProfiler);
+			world.BindMethod("IsProfilerEnabled", &World::IsProfilerEnabled);
+			world.BindMethod("Refresh", &World::Refresh);
+			world.BindMethod("ResetProfiler", &World::ResetProfiler);
+			world.BindMethod("Update", &World::Update);
 
 			world.BindMethod("IsValidHandle", &WorldHandle::IsValid);
 		}

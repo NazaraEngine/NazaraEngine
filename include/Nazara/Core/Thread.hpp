@@ -7,7 +7,7 @@
 #ifndef NAZARA_THREAD_HPP
 #define NAZARA_THREAD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <iosfwd>
@@ -64,7 +64,7 @@ namespace Nz
 			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
 		private:
-			Id(ThreadImpl* thread);
+			explicit Id(ThreadImpl* thread);
 
 			ThreadImpl* m_id = nullptr;
 	};

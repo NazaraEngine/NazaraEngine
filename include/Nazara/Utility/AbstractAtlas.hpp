@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTATLAS_HPP
 #define NAZARA_ABSTRACTATLAS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>

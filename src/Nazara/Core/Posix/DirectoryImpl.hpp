@@ -7,7 +7,7 @@
 #ifndef NAZARA_DIRECTORYIMPL_HPP
 #define NAZARA_DIRECTORYIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <dirent.h>
 
 namespace Nz
@@ -43,6 +43,7 @@ namespace Nz
 			static bool Remove(const String& dirPath);
 
 		private:
+			const Directory* m_parent;
 			DIR* m_handle;
 			dirent64* m_result;
 	};

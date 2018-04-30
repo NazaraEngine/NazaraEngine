@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -23,16 +23,16 @@ namespace Nz
 		public:
 			HandledObject() = default;
 			HandledObject(const HandledObject& object);
-			HandledObject(HandledObject&& object);
+			HandledObject(HandledObject&& object) noexcept;
 			~HandledObject();
 
 			ObjectHandle<T> CreateHandle();
 
 			HandledObject& operator=(const HandledObject& object);
-			HandledObject& operator=(HandledObject&& object);
+			HandledObject& operator=(HandledObject&& object) noexcept;
 
 		protected:
-			void UnregisterAllHandles();
+			void UnregisterAllHandles() noexcept;
 
 		private:
 			void RegisterHandle(ObjectHandle<T>* handle);

@@ -17,8 +17,9 @@
 #ifndef NAZARA_ENETHOST_HPP
 #define NAZARA_ENETHOST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
@@ -95,6 +96,8 @@ namespace Nz
 
 			void ThrottleBandwidth();
 
+			inline void UpdateServiceTime();
+
 			static std::size_t GetCommandSize(UInt8 commandNumber);
 			static bool Initialize();
 			static void Uninitialize();
@@ -153,6 +156,7 @@ namespace Nz
 			UInt64 m_totalReceivedData;
 			bool m_allowsIncomingConnections;
 			bool m_continueSending;
+			bool m_isUsingDualStack;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;
 

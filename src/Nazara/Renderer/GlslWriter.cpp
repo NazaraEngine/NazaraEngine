@@ -89,7 +89,7 @@ namespace Nz
 							if (varPtr->type != type)
 							{
 								//TODO: AstParseError
-								throw std::runtime_error("Function uses parameter \"" + name + "\" with a different type than specified in the function arguments");
+								throw std::runtime_error("Function uses parameter \"" + name.ToStdString() + "\" with a different type than specified in the function arguments");
 							}
 
 							break;
@@ -98,7 +98,7 @@ namespace Nz
 
 					if (!found)
 						//TODO: AstParseError
-						throw std::runtime_error("Function has no parameter \"" + name + "\"");
+						throw std::runtime_error("Function has no parameter \"" + name.ToStdString() + "\"");
 				}
 
 				break;

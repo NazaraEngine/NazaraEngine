@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/ImageWidget.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -11,7 +11,7 @@ namespace Ndk
 	ImageWidget::ImageWidget(BaseWidget* parent) :
 	BaseWidget(parent)
 	{
-		m_entity = CreateEntity();
+		m_entity = CreateEntity(true);
 		m_entity->AddComponent<NodeComponent>();
 		auto& gfx = m_entity->AddComponent<GraphicsComponent>();
 

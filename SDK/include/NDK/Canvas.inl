@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Canvas.hpp>
 #include <Nazara/Platform/Cursor.hpp>
@@ -8,8 +8,8 @@
 namespace Ndk
 {
 	inline Canvas::Canvas(WorldHandle world, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController) :
-	m_hoveredWidget(InvalidCanvasIndex),
 	m_keyboardOwner(InvalidCanvasIndex),
+	m_hoveredWidget(InvalidCanvasIndex),
 	m_cursorController(cursorController),
 	m_world(std::move(world))
 	{
@@ -52,19 +52,24 @@ namespace Ndk
 			SetKeyboardOwner(InvalidCanvasIndex);
 	}
 
+	inline bool Canvas::IsKeyboardOwner(std::size_t canvasIndex) const
+	{
+		return m_keyboardOwner == canvasIndex;
+	}
+
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
-		WidgetBox& entry = m_widgetBoxes[index];
+		WidgetEntry& entry = m_widgetEntries[index];
 
 		Nz::Vector3f pos = entry.widget->GetPosition();
-		Nz::Vector2f size = entry.widget->GetContentSize();
+		Nz::Vector2f size = entry.widget->GetSize();
 
 		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
 	}
 
 	inline void Canvas::NotifyWidgetCursorUpdate(std::size_t index)
 	{
-		WidgetBox& entry = m_widgetBoxes[index];
+		WidgetEntry& entry = m_widgetEntries[index];
 
 		entry.cursor = entry.widget->GetCursor();
 		if (m_cursorController && m_hoveredWidget == index)
@@ -73,12 +78,15 @@ namespace Ndk
 
 	inline void Canvas::SetKeyboardOwner(std::size_t canvasIndex)
 	{
-		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_keyboardOwner].widget->OnFocusLost();
+		if (m_keyboardOwner != canvasIndex)
+		{
+			if (m_keyboardOwner != InvalidCanvasIndex)
+				m_widgetEntries[m_keyboardOwner].widget->OnFocusLost();
 
-		m_keyboardOwner = canvasIndex;
+			m_keyboardOwner = canvasIndex;
 
-		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetBoxes[m_keyboardOwner].widget->OnFocusReceived();
+			if (m_keyboardOwner != InvalidCanvasIndex)
+				m_widgetEntries[m_keyboardOwner].widget->OnFocusReceived();
+		}
 	}
 }

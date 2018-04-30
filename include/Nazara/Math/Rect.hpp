@@ -87,15 +87,15 @@ namespace Nz
 			T x, y, width, height;
 	};
 
-	typedef Rect<double> Rectd;
-	typedef Rect<float> Rectf;
-	typedef Rect<int> Recti;
-	typedef Rect<unsigned int> Rectui;
-	typedef Rect<Int32> Recti32;
-	typedef Rect<UInt32> Rectui32;
+	using Rectd = Rect<double>;
+	using Rectf = Rect<float>;
+	using Recti = Rect<int>;
+	using Rectui = Rect<unsigned int>;
+	using Recti32 = Rect<Int32>;
+	using Rectui32 = Rect<UInt32>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect);
-	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect);
+	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
 }
 
 template<typename T>

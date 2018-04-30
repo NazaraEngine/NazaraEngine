@@ -90,7 +90,7 @@ namespace Nz
 		{
 			m_context.currentBitPos = 8; //< To prevent Serialize to flush bits itself
 
-			if (!Serialize<UInt8>(m_context, m_context.currentByte))
+			if (!Serialize(m_context, m_context.currentByte))
 				return false;
 		}
 
@@ -101,7 +101,7 @@ namespace Nz
 	* \brief Reads data
 	* \return Number of data read
 	*
-	* \param buffer Preallocated buffer to contain information read
+	* \param ptr Preallocated buffer to contain information read
 	* \param size Size of the read and thus of the buffer
 	*/
 
@@ -117,7 +117,7 @@ namespace Nz
 	/*!
 	* \brief Sets the stream endianness
 	*
-	* \param Type of the endianness
+	* \param endiannes Type of the endianness
 	*/
 
 	inline void ByteStream::SetDataEndianness(Endianness endiannes)
@@ -154,13 +154,13 @@ namespace Nz
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	*/
 
-	inline void ByteStream::Write(const void* data, std::size_t size)
+	inline std::size_t ByteStream::Write(const void* data, std::size_t size)
 	{
 		if (!m_context.stream)
 			OnEmptyStream();
 
 		FlushBits();
-		m_context.stream->Write(data, size);
+		return m_context.stream->Write(data, size);
 	}
 
 	/*!
