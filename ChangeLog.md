@@ -94,6 +94,7 @@ Nazara Engine:
 - ⚠️ Stream::ReadLine will now returns empty lines if present in the file
 - Fixed cubemaps seams with OpenGL
 - HandledObject movement constructor/assignement operator are now marked noexcept
+- ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
