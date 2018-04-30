@@ -187,7 +187,7 @@ SCENARIO("LuaState", "[LUA][LUASTATE]")
 		WHEN("We push a std::vector locally")
 		{
 			std::vector<int> vec { 1, 5, -8, 6, -4 };
-			luaInstance.Push(vec);
+			luaInstance.Push(std::vector<int> { vec });
 
 			THEN("We can retrieve it with correct values")
 			{
@@ -202,7 +202,7 @@ SCENARIO("LuaState", "[LUA][LUASTATE]")
 		WHEN("We push a std::vector globally")
 		{
 			std::vector<int> vec { 1, 5, -8, 6, -4 };
-			luaInstance.PushGlobal("vector", vec);
+			luaInstance.PushGlobal("vector", std::vector<int> { vec });
 
 			THEN("We can retrieve it with correct values")
 			{
