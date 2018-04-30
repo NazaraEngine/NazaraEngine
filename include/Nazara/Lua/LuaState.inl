@@ -159,36 +159,6 @@ namespace Nz
 		return LuaImplQueryArg(instance, index, arg, defValue, TypeTag<T>());
 	}
 
-	template<typename T>
-	unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::vector<T>* container, TypeTag<std::vector<T>>)
-	{
-		instance.CheckType(index, Nz::LuaType_Table);
-		std::size_t index = 1;
-
-		for (;;)
-		{
-			instance.PushInteger(index++);
-
-			if (instance.GetTable() == Nz::LuaType_Nil)
-			{
-				instance.Pop();
-				break;
-			}
-
-			T arg {};
-
-			if (LuaImplQueryArg(instance, -1, &arg, TypeTag<T>()) != 1)
-			{
-				instance.Error("Type needs more than one place to be initialized");
-				return 0;
-			}
-
-			container->push_back(arg);
-		}
-
-		return 1;
-	}
-
 	// Function returns
 	inline int LuaImplReplyVal(const LuaState& instance, bool val, TypeTag<bool>)
 	{
