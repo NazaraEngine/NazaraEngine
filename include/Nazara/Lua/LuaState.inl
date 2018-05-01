@@ -706,7 +706,7 @@ namespace Nz
 	template<typename T>
 	void LuaState::PushField(const char* name, T&& arg, int tableIndex) const
 	{
-		Push<T>(std::forward<T>(arg));
+		Push(std::forward<T>(arg));
 		SetField(name, tableIndex);
 	}
 
@@ -732,7 +732,7 @@ namespace Nz
 	template<typename T>
 	void LuaState::PushGlobal(const char* name, T&& arg)
 	{
-		Push<T>(std::forward<T>(arg));
+		Push(std::forward<T>(arg));
 		SetGlobal(name);
 	}
 
