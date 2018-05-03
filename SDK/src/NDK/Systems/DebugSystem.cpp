@@ -62,9 +62,11 @@ namespace Ndk
 					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
+					Nz::Boxf aabb = entityGfx.GetBoundingVolume().aabb;
+
 					Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
-					transformMatrix.SetScale(entityGfx.GetBoundingVolume().aabb.GetLengths());
-					transformMatrix.SetTranslation(entityGfx.GetBoundingVolume().aabb.GetCenter());
+					transformMatrix.SetScale(aabb.GetLengths());
+					transformMatrix.SetTranslation(aabb.GetCenter());
 
 					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
 				}
@@ -82,8 +84,13 @@ namespace Ndk
 					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
+					Nz::Boxf obb = entityGfx.GetBoundingVolume().obb.localBox;
+
 					Nz::Matrix4f transformMatrix = instanceData.transformMatrix;
-					transformMatrix.ApplyScale(entityGfx.GetBoundingVolume().obb.localBox.GetLengths());
+					Nz::Vector3f obbCenter = transformMatrix.Transform(obb.GetCenter(), 0.f); //< Apply rotation/scale to obb center, to display it at a correct position
+
+					transformMatrix.ApplyScale(obb.GetLengths());
+					transformMatrix.ApplyTranslation(obbCenter);
 
 					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
 				}
