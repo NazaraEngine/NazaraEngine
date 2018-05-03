@@ -10,8 +10,16 @@
 
 namespace Nz
 {
-	StaticMesh::StaticMesh(const Mesh* parent) :
-	SubMesh(parent)
+	StaticMesh::StaticMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer) :
+	m_aabb(Nz::Boxf::Zero()),
+	m_indexBuffer(indexBuffer),
+	m_vertexBuffer(vertexBuffer)
+	{
+		NazaraAssert(m_vertexBuffer, "Invalid vertex buffer");
+	}
+
+	StaticMesh::StaticMesh(const Mesh* /*parent*/) :
+	m_aabb(Nz::Boxf::Zero())
 	{
 	}
 
@@ -69,7 +77,7 @@ namespace Nz
 	{
 		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
 		VertexMapper mapper(m_vertexBuffer, BufferAccess_ReadOnly);
-		m_aabb = ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent_Position), m_vertexBuffer->GetVertexCount());
+		SetAABB(ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent_Position), m_vertexBuffer->GetVertexCount()));
 
 		return true;
 	}
@@ -117,10 +125,12 @@ namespace Nz
 	void StaticMesh::SetAABB(const Boxf& aabb)
 	{
 		m_aabb = aabb;
+
+		OnSubMeshInvalidateAABB(this);
 	}
 
 	void StaticMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)
 	{
 		m_indexBuffer = indexBuffer;
-}
+	}
 }

@@ -279,10 +279,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				vertexMapper.Unmap();
 
 				// Submesh
-				StaticMeshRef subMesh = StaticMesh::New(mesh);
-				subMesh->Create(vertexBuffer);
-
-				subMesh->SetIndexBuffer(indexBuffer);
+				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 

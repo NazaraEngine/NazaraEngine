@@ -202,13 +202,9 @@ namespace Nz
 					mesh->SetMaterialData(i, std::move(matData));
 
 					// Submesh
-					SkeletalMeshRef subMesh = SkeletalMesh::New(mesh);
-					subMesh->Create(vertexBuffer);
-
-					subMesh->SetIndexBuffer(indexBuffer);
+					SkeletalMeshRef subMesh = SkeletalMesh::New(vertexBuffer, indexBuffer);
 					subMesh->GenerateNormalsAndTangents();
 					subMesh->SetMaterialIndex(i);
-					subMesh->SetPrimitiveMode(PrimitiveMode_TriangleList);
 
 					mesh->AddSubMesh(subMesh);
 
@@ -255,6 +251,9 @@ namespace Nz
 					}
 					indexMapper.Unmap();
 
+					if (parameters.optimizeIndexBuffers)
+						indexBuffer->Optimize();
+
 					// Vertex buffer
 					VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
@@ -287,13 +286,7 @@ namespace Nz
 					vertexMapper.Unmap();
 
 					// Submesh
-					StaticMeshRef subMesh = StaticMesh::New(mesh);
-					subMesh->Create(vertexBuffer);
-
-					if (parameters.optimizeIndexBuffers)
-						indexBuffer->Optimize();
-
-					subMesh->SetIndexBuffer(indexBuffer);
+					StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 					subMesh->GenerateAABB();
 					subMesh->SetMaterialIndex(i);
 

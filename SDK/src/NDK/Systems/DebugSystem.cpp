@@ -300,9 +300,7 @@ namespace Ndk
 			Nz::MeshRef mesh = Nz::Mesh::New();
 			mesh->CreateStatic();
 
-			Nz::StaticMeshRef subMesh = Nz::StaticMesh::New(mesh);
-			subMesh->Create(vertexBuffer);
-			subMesh->SetIndexBuffer(indexBuffer);
+			Nz::StaticMeshRef subMesh = Nz::StaticMesh::New(vertexBuffer, indexBuffer);
 			subMesh->SetPrimitiveMode(Nz::PrimitiveMode_LineList);
 			subMesh->SetMaterialIndex(0);
 			subMesh->GenerateAABB();
