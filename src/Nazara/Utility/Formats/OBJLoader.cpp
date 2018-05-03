@@ -313,7 +313,6 @@ namespace Nz
 
 				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
-				subMesh->SetAABB(subMesh->GetAABB() * 0.5f);
 				subMesh->SetMaterialIndex(meshes[i].material);
 
 				// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
