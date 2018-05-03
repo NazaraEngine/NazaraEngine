@@ -743,15 +743,6 @@ namespace Nz
 	}
 
 	template<typename T>
-	void LuaState::PushInstance(const char* tname, const T& instance) const
-	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
-		PlacementNew(userdata, instance);
-
-		SetMetatable(tname);
-	}
-
-	template<typename T>
 	void LuaState::PushInstance(const char* tname, T&& instance) const
 	{
 		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));

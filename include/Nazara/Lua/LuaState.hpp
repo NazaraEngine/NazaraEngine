@@ -134,7 +134,6 @@ namespace Nz
 			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const;
 			template<typename T> void PushGlobal(const char* name, T&& arg);
 			template<typename T> void PushGlobal(const String& name, T&& arg);
-			template<typename T> void PushInstance(const char* tname, const T& instance) const;
 			template<typename T> void PushInstance(const char* tname, T&& instance) const;
 			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args) const;
 			void PushInteger(long long value) const;
