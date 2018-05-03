@@ -252,9 +252,15 @@ namespace Nz
 		m_mesh = mesh;
 
 		if (m_mesh)
+		{
 			ResetMaterials(mesh->GetMaterialCount());
+			m_meshAABBInvalidationSlot.Connect(m_mesh->OnMeshInvalidateAABB, [this](const Nz::Mesh*) { InvalidateBoundingVolume(); });
+		}
 		else
+		{
 			ResetMaterials(0);
+			m_meshAABBInvalidationSlot.Disconnect();
+		}
 
 		InvalidateBoundingVolume();
 	}
