@@ -311,20 +311,10 @@ namespace Nz
 
 				vertexMapper.Unmap();
 
-				StaticMeshRef subMesh = StaticMesh::New(mesh);
-				if (!subMesh->Create(vertexBuffer))
-				{
-					NazaraError("Failed to create StaticMesh");
-					continue;
-				}
-
-				if (parameters.optimizeIndexBuffers)
-					indexBuffer->Optimize();
-
+				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
-				subMesh->SetIndexBuffer(indexBuffer);
+				subMesh->SetAABB(subMesh->GetAABB() * 0.5f);
 				subMesh->SetMaterialIndex(meshes[i].material);
-				subMesh->SetPrimitiveMode(PrimitiveMode_TriangleList);
 
 				// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 				if (hasNormals && hasTexCoords)

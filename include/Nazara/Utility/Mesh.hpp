@@ -20,8 +20,12 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
@@ -56,7 +60,6 @@ namespace Nz
 	class Mesh;
 	struct Primitive;
 	class PrimitiveList;
-	class Skeleton;
 	class SubMesh;
 
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
@@ -80,8 +83,10 @@ namespace Nz
 		friend class Utility;
 
 		public:
-			Mesh() = default;
-			~Mesh();
+			inline Mesh();
+			Mesh(const Mesh&) = delete;
+			Mesh(Mesh&&) = delete;
+			inline ~Mesh();
 
 			void AddSubMesh(SubMesh* subMesh);
 			void AddSubMesh(const String& identifier, SubMesh* subMesh);
@@ -141,14 +146,34 @@ namespace Nz
 
 			void Transform(const Matrix4f& matrix);
 
+			Mesh& operator=(const Mesh&) = delete;
+			Mesh& operator=(Mesh&&) = delete;
+
 			template<typename... Args> static MeshRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnMeshDestroy, const Mesh* /*mesh*/);
+			NazaraSignal(OnMeshInvalidateAABB, const Mesh* /*mesh*/);
 			NazaraSignal(OnMeshRelease, const Mesh* /*mesh*/);
 
 		private:
-			MeshImpl* m_impl = nullptr;
+			struct SubMeshData
+			{
+				SubMeshRef subMesh;
+
+				NazaraSlot(SubMesh, OnSubMeshInvalidateAABB, onSubMeshInvalidated);
+			};
+
+			std::unordered_map<String, UInt32> m_subMeshMap;
+			std::vector<ParameterList> m_materialData;
+			std::vector<SubMeshData> m_subMeshes;
+			AnimationType m_animationType;
+			mutable Boxf m_aabb;
+			Skeleton m_skeleton; // Only used by skeletal meshes
+			String m_animationPath;
+			mutable bool m_aabbUpdated;
+			bool m_isValid;
+			UInt32 m_jointCount; // Only used by skeletal meshes
 
 			static bool Initialize();
 			static void Uninitialize();

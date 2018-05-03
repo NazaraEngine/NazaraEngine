@@ -95,6 +95,9 @@ Nazara Engine:
 - Fixed cubemaps seams with OpenGL
 - HandledObject movement constructor/assignement operator are now marked noexcept
 - ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
+- ⚠️ Refactored Mesh/SubMesh, allowing a submesh to be attached to multiple meshes, deprecating Create/Destroy methods
+- SubMesh class now has a OnSubMeshInvalidateAABB signal, triggered when a new AABB is set to the submesh
+- Mesh class now has a OnMeshInvalidateAABB signal, triggered when a mesh invalidates its AABB, which is also submesh updates its AABB
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
