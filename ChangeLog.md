@@ -192,7 +192,7 @@ Nazara Engine:
 - Added VertexMapper::GetVertexCount()
 - Added VertexMapper::HasComponentOfType()
 - Fixed SimpleTextDrawer bounds computation
-
+- Added LuaState::Load methods which allows to load (compile) lua code to function without executing it.
 
 Nazara Development Kit:
 - ⚠️ Components no longer need to be copyable by assignation
