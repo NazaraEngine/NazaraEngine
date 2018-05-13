@@ -193,6 +193,7 @@ Nazara Engine:
 - Added VertexMapper::HasComponentOfType()
 - Fixed SimpleTextDrawer bounds computation
 - Added LuaState::Load methods which allows to load (compile) lua code to function without executing it.
+- Added ENetPeer::GetLastReceiveTime() which gives the last time a reliable packet was received.
 
 Nazara Development Kit:
 - ⚠️ Components no longer need to be copyable by assignation
