@@ -28,7 +28,7 @@ namespace Ndk
 
 			//virtual LabelWidget* Clone() const = 0;
 
-			void ResizeToContent() override;
+			void ResizeToContent();
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 

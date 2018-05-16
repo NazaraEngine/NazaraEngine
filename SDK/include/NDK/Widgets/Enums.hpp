@@ -9,6 +9,12 @@
 
 namespace Ndk
 {
+	enum BoxLayoutOrientation
+	{
+		BoxLayoutOrientation_Horizontal,
+		BoxLayoutOrientation_Vertical
+	};
+
 	enum CheckboxState
 	{
 		CheckboxState_Checked,

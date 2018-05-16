@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -53,7 +53,7 @@ namespace Ndk
 			void SetState(CheckboxState state);
 			inline void SetTextMargin(float margin);
 
-			void ResizeToContent() override;
+			void ResizeToContent();
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 

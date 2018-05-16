@@ -22,7 +22,7 @@ namespace Ndk
 	void ImageWidget::ResizeToContent()
 	{
 		Nz::Vector3ui textureSize = m_sprite->GetMaterial()->GetDiffuseMap()->GetSize();
-		SetSize({ static_cast<float>(textureSize.x), static_cast<float>(textureSize.y) });
+		Resize({ static_cast<float>(textureSize.x), static_cast<float>(textureSize.y) });
 	}
 
 	void ImageWidget::Layout()

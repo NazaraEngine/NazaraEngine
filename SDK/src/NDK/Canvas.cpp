@@ -7,10 +7,6 @@
 
 namespace Ndk
 {
-	void Canvas::ResizeToContent()
-	{
-	}
-
 	std::size_t Canvas::RegisterWidget(BaseWidget* widget)
 	{
 		WidgetEntry box;

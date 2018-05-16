@@ -14,6 +14,9 @@ namespace Ndk
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_cursor(Nz::SystemCursor_Default),
 	m_contentSize(50.f, 50.f),
+	m_maximumSize(std::numeric_limits<float>::infinity()),
+	m_minimumSize(0.f),
+	m_preferredSize(-1),
 	m_widgetParent(nullptr),
 	m_visible(true)
 	{
@@ -64,6 +67,20 @@ namespace Ndk
 		SetPosition(GetPosition(Nz::CoordSys_Local).x, (parentSize.y - mySize.y) / 2.f);
 	}
 
+	template<typename F>
+	inline void BaseWidget::ForEachWidgetChild(F iterator)
+	{
+		for (const auto& child : m_children)
+			iterator(child.get());
+	}
+
+	template<typename F>
+	inline void BaseWidget::ForEachWidgetChild(F iterator) const
+	{
+		for (const auto& child : m_children)
+			iterator(static_cast<const BaseWidget*>(child.get()));
+	}
+
 	inline const Nz::Color& BaseWidget::GetBackgroundColor() const
 	{
 		return m_backgroundColor;
@@ -79,11 +96,6 @@ namespace Ndk
 		return m_cursor;
 	}
 
-	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
-	{
-		return m_padding;
-	}
-
 	inline Nz::Vector2f BaseWidget::GetContentOrigin() const
 	{
 		return { m_padding.left, m_padding.top };
@@ -94,9 +106,44 @@ namespace Ndk
 		return m_contentSize;
 	}
 
+	inline float BaseWidget::GetHeight() const
+	{
+		return m_contentSize.y + m_padding.top + m_padding.bottom;
+	}
+
+	inline Nz::Vector2f BaseWidget::GetMaximumSize() const
+	{
+		return m_maximumSize;
+	}
+
+	inline Nz::Vector2f BaseWidget::GetMinimumSize() const
+	{
+		return m_minimumSize;
+	}
+
+	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
+	{
+		return m_padding;
+	}
+
+	inline Nz::Vector2f BaseWidget::GetPreferredSize() const
+	{
+		return m_preferredSize;
+	}
+
 	inline Nz::Vector2f BaseWidget::GetSize() const
 	{
-		return Nz::Vector2f(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
+		return Nz::Vector2f(GetWidth(), GetHeight());
+	}
+
+	inline float BaseWidget::GetWidth() const
+	{
+		return m_contentSize.x + m_padding.left + m_padding.right;
+	}
+
+	inline std::size_t BaseWidget::GetWidgetChildCount() const
+	{
+		return m_children.size();
 	}
 
 	inline bool BaseWidget::IsVisible() const
@@ -120,6 +167,21 @@ namespace Ndk
 		m_padding.right = right;
 
 		Layout();
+	}
+
+	inline void Ndk::BaseWidget::SetMaximumSize(const Nz::Vector2f& maximumSize)
+	{
+		m_maximumSize = maximumSize;
+	}
+
+	inline void BaseWidget::SetMinimumSize(const Nz::Vector2f& minimumSize)
+	{
+		m_minimumSize = minimumSize;
+	}
+
+	inline void BaseWidget::SetPreferredSize(const Nz::Vector2f& preferredSize)
+	{
+		m_preferredSize = preferredSize;
 	}
 
 	inline bool BaseWidget::IsRegisteredToCanvas() const

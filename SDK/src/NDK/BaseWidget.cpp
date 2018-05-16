@@ -96,7 +96,7 @@ namespace Ndk
 
 	/*!
 	* \brief Checks if this widget has keyboard focus
-	* \return true if widget has keyboard focus, false otherwhise
+	* \return true if widget has keyboard focus, false otherwise
 	*/
 	bool BaseWidget::HasFocus() const
 	{
@@ -104,6 +104,16 @@ namespace Ndk
 			return false;
 
 		return m_canvas->IsKeyboardOwner(m_canvasIndex);
+	}
+
+	void BaseWidget::Resize(const Nz::Vector2f& size)
+	{
+		// Adjust new size
+		Nz::Vector2f newSize = size;
+		newSize.Maximize(m_minimumSize);
+		newSize.Minimize(m_maximumSize);
+
+		SetContentSize({ std::max(newSize.x - m_padding.left - m_padding.right, 0.f), std::max(newSize.y - m_padding.top - m_padding.bottom, 0.f) });
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -129,11 +139,6 @@ namespace Ndk
 	{
 		if (IsRegisteredToCanvas())
 			m_canvas->SetKeyboardOwner(m_canvasIndex);
-	}
-
-	void BaseWidget::SetSize(const Nz::Vector2f& size)
-	{
-		SetContentSize({std::max(size.x - m_padding.left - m_padding.right, 0.f), std::max(size.y - m_padding.top - m_padding.bottom, 0.f)});
 	}
 
 	void BaseWidget::Show(bool show)

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -66,8 +66,6 @@ namespace Ndk
 			inline void SetPercentageValue(unsigned percentage);
 			inline void SetTextMargin(float margin);
 			inline void SetTextColor(const Nz::Color& color);
-
-			inline void ResizeToContent() override {}
 
 			NazaraSignal(OnValueChanged, const ProgressBarWidget* /*progressBar*/);
 

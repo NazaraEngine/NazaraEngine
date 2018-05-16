@@ -26,7 +26,7 @@ namespace Ndk
 
 			//virtual ImageWidget* Clone() const = 0;
 
-			void ResizeToContent() override;
+			void ResizeToContent();
 
 			inline const Nz::Color& GetColor() const;
 			inline const Nz::TextureRef& GetTexture() const;

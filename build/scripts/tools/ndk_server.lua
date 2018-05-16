@@ -36,6 +36,7 @@ TOOL.FilesExcluded = {
 	"../SDK/**/Particle*Component.*",
 	"../SDK/**/ParticleSystem.*",
 	"../SDK/**/RenderSystem.*",
+	"../SDK/**/*Layout*.*",
 	"../SDK/**/*Widget*.*",
 	"../SDK/**/LuaBinding_Audio.*",
 	"../SDK/**/LuaBinding_Graphics.*",

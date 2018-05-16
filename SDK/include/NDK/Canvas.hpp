@@ -28,8 +28,6 @@ namespace Ndk
 
 			inline const WorldHandle& GetWorld() const;
 
-			void ResizeToContent() override;
-
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
 
