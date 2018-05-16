@@ -100,6 +100,7 @@ Nazara Engine:
 - SubMesh class now has a OnSubMeshInvalidateAABB signal, triggered when a new AABB is set to the submesh
 - Mesh class now has a OnMeshInvalidateAABB signal, triggered when a mesh invalidates its AABB, which is also submesh updates its AABB
 - Model now invalidate properly their bounding volume when their mesh AABB is updated
+- Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
