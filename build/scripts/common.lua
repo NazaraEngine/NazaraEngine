@@ -71,10 +71,21 @@ function NazaraBuild:Execute()
 			configurations(configs)
 		end
 
+		if (self.Config["PremakeProject"] and os.ishost("windows")) then
+			group("_Premake")
+			
+			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
+			project("Regenerate premake")
+				kind("Utility")
+				prebuildcommands("cd .. && " .. commandLine)
+		end
+
 		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
 			self:FilterLibDirectory("../thirdparty/genlib/", targetdir) -- For generated libraries
 
+			group("Thirdparties")
+			
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
 
@@ -112,14 +123,9 @@ function NazaraBuild:Execute()
 			end
 		end
 		
-		if (self.Config["PremakeProject"] and os.ishost("windows")) then
-			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
-			project("_PremakeProject")
-				kind("Utility")
-				prebuildcommands("cd .. && " .. commandLine)
-		end
-
 		-- Modules
+		group("Engine Modules")
+
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
 
@@ -175,6 +181,8 @@ function NazaraBuild:Execute()
 		end
 
 		-- Tools
+		group("Engine SDK - Tools")
+
 		for k, toolTable in ipairs(self.OrderedTools) do
 			local prefix = "Nazara"
 			if (toolTable.Kind == "plugin") then
@@ -242,6 +250,8 @@ function NazaraBuild:Execute()
 
 			filter({})
 		end
+
+		group("Examples")
 
 		for k, exampleTable in ipairs(self.OrderedExamples) do
 			local destPath = "../examples/bin"
