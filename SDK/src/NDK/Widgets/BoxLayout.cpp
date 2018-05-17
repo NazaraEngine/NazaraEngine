@@ -42,41 +42,49 @@ namespace Ndk
 			auto& info = m_childInfos.back();
 			info.maximumSize = child->GetMaximumSize()[axis1];
 			info.minimumSize = child->GetMinimumSize()[axis1];
-			info.size = -1.f; //< Undecided
+			info.size = info.minimumSize; //< Undecided
 			info.widget = child;
 		});
 
 		Nz::Vector2f layoutSize = GetContentSize();
 
-		float remainingSize = layoutSize[axis1] - m_spacing * (m_childInfos.size() - 2); //< FIXME: Why -2 instead of -1?
+		float availableSpace = layoutSize[axis1] - m_spacing * (m_childInfos.size() - 1);
+		float remainingSize = availableSpace;
 		for (auto& info : m_childInfos)
 			remainingSize -= info.minimumSize;
 
-		if (remainingSize > 0.f)
+		// Okay this algo is FAR from perfect but I couldn't figure a way other than this one
+		bool hasUnconstrainedChilds = false;
+		for (std::size_t i = 0; i < m_childInfos.size(); ++i)
 		{
-			// Take maximum size into account
+			if (remainingSize <= 0.0001f)
+				break;
+
 			float evenSize = remainingSize / m_childInfos.size();
+			remainingSize = availableSpace;
 
 			std::size_t unconstrainedChildCount = m_childInfos.size();
 			for (auto& info : m_childInfos)
 			{
-				float widgetSize = info.minimumSize + evenSize;
-				if (widgetSize > info.maximumSize)
+				info.size += evenSize;
+				if (info.size > info.maximumSize)
 				{
 					unconstrainedChildCount--;
 
-					evenSize += (widgetSize - info.maximumSize) / unconstrainedChildCount;
+					evenSize += (info.size - info.maximumSize) / unconstrainedChildCount;
 					info.size = info.maximumSize;
 				}
+				else
+					hasUnconstrainedChilds = true;
+
+				remainingSize -= info.size;
 			}
 
-			// Resize widgets which are not constrained
-			for (auto& info : m_childInfos)
-			{
-				if (info.size < 0.f)
-					info.size = info.minimumSize + evenSize;
-			}
+			if (!hasUnconstrainedChilds)
+				break;
 		}
+
+		float spacing = m_spacing + remainingSize / (m_childInfos.size() - 1);
 
 		for (auto& info : m_childInfos)
 		{
@@ -94,16 +102,14 @@ namespace Ndk
 			if (first)
 				first = false;
 			else
-				cursor += m_spacing;
+				cursor += spacing;
 
-			Nz::Vector2f widgetSize = info.widget->GetSize();
 			Nz::Vector2f position = GetContentOrigin();
-
 			position[axis1] = cursor;
 
 			info.widget->SetPosition(position);
 
-			cursor += widgetSize[axis1];
+			cursor += info.size;
 		};
 	}
 
