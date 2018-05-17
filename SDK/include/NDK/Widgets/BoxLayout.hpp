@@ -30,10 +30,11 @@ namespace Ndk
 		private:
 			struct ChildInfo
 			{
+				BaseWidget* widget;
+				bool isConstrained;
 				float maximumSize;
 				float minimumSize;
 				float size;
-				BaseWidget* widget;
 			};
 
 			void OnParentResized(const Nz::Vector2f& newSize) override;

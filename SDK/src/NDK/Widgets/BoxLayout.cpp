@@ -40,9 +40,10 @@ namespace Ndk
 
 			m_childInfos.emplace_back();
 			auto& info = m_childInfos.back();
+			info.isConstrained = false;
 			info.maximumSize = child->GetMaximumSize()[axis1];
 			info.minimumSize = child->GetMinimumSize()[axis1];
-			info.size = info.minimumSize; //< Undecided
+			info.size = info.minimumSize;
 			info.widget = child;
 		});
 
@@ -53,31 +54,37 @@ namespace Ndk
 		for (auto& info : m_childInfos)
 			remainingSize -= info.minimumSize;
 
-		// Okay this algo is FAR from perfect but I couldn't figure a way other than this one
+		// Okay this algorithm is FAR from perfect but I couldn't figure a way other than this one
+		std::size_t unconstrainedChildCount = m_childInfos.size();
+
 		bool hasUnconstrainedChilds = false;
 		for (std::size_t i = 0; i < m_childInfos.size(); ++i)
 		{
 			if (remainingSize <= 0.0001f)
 				break;
 
-			float evenSize = remainingSize / m_childInfos.size();
-			remainingSize = availableSpace;
+			float evenSize = remainingSize / unconstrainedChildCount;
 
-			std::size_t unconstrainedChildCount = m_childInfos.size();
 			for (auto& info : m_childInfos)
 			{
+				if (info.isConstrained)
+					continue;
+
+				float previousSize = info.size;
+
 				info.size += evenSize;
 				if (info.size > info.maximumSize)
 				{
 					unconstrainedChildCount--;
 
 					evenSize += (info.size - info.maximumSize) / unconstrainedChildCount;
+					info.isConstrained = true;
 					info.size = info.maximumSize;
 				}
 				else
 					hasUnconstrainedChilds = true;
 
-				remainingSize -= info.size;
+				remainingSize -= info.size - previousSize;
 			}
 
 			if (!hasUnconstrainedChilds)
