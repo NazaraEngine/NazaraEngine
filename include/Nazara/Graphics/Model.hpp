@@ -41,8 +41,8 @@ namespace Nz
 
 		public:
 			inline Model();
-			Model(const Model& model) = default;
-			Model(Model&& model) = default;
+			Model(const Model& model);
+			Model(Model&& model) = delete;
 			virtual ~Model();
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
@@ -66,7 +66,7 @@ namespace Nz
 			virtual void SetMesh(Mesh* mesh);
 
 			Model& operator=(const Model& node) = default;
-			Model& operator=(Model&& node) = default;
+			Model& operator=(Model&& node) = delete;
 
 			template<typename... Args> static ModelRef New(Args&&... args);
 
@@ -74,6 +74,8 @@ namespace Nz
 			void MakeBoundingVolume() const override;
 
 			MeshRef m_mesh;
+
+			NazaraSlot(Mesh, OnMeshInvalidateAABB, m_meshAABBInvalidationSlot);
 
 			static ModelLoader::LoaderList s_loaders;
 	};

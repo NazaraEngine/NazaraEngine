@@ -355,39 +355,18 @@ namespace Nz
 		if (code.IsEmpty())
 			return true;
 
-		if (luaL_loadstring(m_state, code.GetConstBuffer()) != 0)
-		{
-			m_lastError = lua_tostring(m_state, -1);
-			lua_pop(m_state, 1);
-
+		if (!Load(code))
 			return false;
-		}
 
-		return Run(0, LUA_MULTRET);
+		return Call(0);
 	}
 
 	bool LuaState::ExecuteFromFile(const String& filePath)
 	{
-		File file(filePath);
-		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
-		{
-			NazaraError("Failed to open file");
+		if (!LoadFromFile(filePath))
 			return false;
-		}
 
-		std::size_t length = static_cast<std::size_t>(file.GetSize());
-
-		String source(length, '\0');
-
-		if (file.Read(&source[0], length) != length)
-		{
-			NazaraError("Failed to read file");
-			return false;
-		}
-
-		file.Close();
-
-		return Execute(source);
+		return Call(0);
 	}
 
 	bool LuaState::ExecuteFromMemory(const void* data, std::size_t size)
@@ -398,18 +377,10 @@ namespace Nz
 
 	bool LuaState::ExecuteFromStream(Stream& stream)
 	{
-		StreamData data;
-		data.stream = &stream;
-
-		if (lua_load(m_state, StreamReader, &data, "C++", nullptr) != 0)
-		{
-			m_lastError = lua_tostring(m_state, -1);
-			lua_pop(m_state, 1);
-
+		if (!LoadFromStream(stream))
 			return false;
-		}
 
-		return Run(0, LUA_MULTRET);
+		return Call(0);
 	}
 
 	int LuaState::GetAbsIndex(int index) const
@@ -543,6 +514,65 @@ namespace Nz
 	bool LuaState::IsValid(int index) const
 	{
 		return lua_isnoneornil(m_state, index) == 0;
+	}
+
+	bool LuaState::Load(const String& code)
+	{
+		if (luaL_loadstring(m_state, code.GetConstBuffer()) != 0)
+		{
+			m_lastError = lua_tostring(m_state, -1);
+			lua_pop(m_state, 1);
+
+			return false;
+		}
+
+		return true;
+	}
+
+	bool LuaState::LoadFromFile(const String& filePath)
+	{
+		File file(filePath);
+		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
+		{
+			NazaraError("Failed to open file");
+			return false;
+		}
+
+		std::size_t length = static_cast<std::size_t>(file.GetSize());
+
+		String source(length, '\0');
+
+		if (file.Read(&source[0], length) != length)
+		{
+			NazaraError("Failed to read file");
+			return false;
+		}
+
+		file.Close();
+
+		return Load(source);
+	}
+
+	bool LuaState::LoadFromMemory(const void* data, std::size_t size)
+	{
+		MemoryView stream(data, size);
+		return LoadFromStream(stream);
+	}
+
+	bool LuaState::LoadFromStream(Stream& stream)
+	{
+		StreamData data;
+		data.stream = &stream;
+
+		if (lua_load(m_state, StreamReader, &data, "C++", nullptr) != 0)
+		{
+			m_lastError = lua_tostring(m_state, -1);
+			lua_pop(m_state, 1);
+
+			return false;
+		}
+
+		return true;
 	}
 
 	long long LuaState::Length(int index) const

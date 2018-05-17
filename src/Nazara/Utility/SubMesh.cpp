@@ -12,11 +12,15 @@
 
 namespace Nz
 {
-	SubMesh::SubMesh(const Mesh* parent) :
-	RefCounted(false), // Un SubMesh n'est pas persistant par défaut
+	SubMesh::SubMesh() :
+	RefCounted(false), // wut
 	m_primitiveMode(PrimitiveMode_TriangleList),
-	m_parent(parent),
 	m_matIndex(0)
+	{
+	}
+
+	SubMesh::SubMesh(const Mesh* /*parent*/) :
+	SubMesh()
 	{
 	}
 
@@ -158,11 +162,6 @@ namespace Nz
 			}
 		}
 		while (iterator.Advance());
-	}
-
-	const Mesh* SubMesh::GetParent() const
-	{
-		return m_parent;
 	}
 
 	PrimitiveMode SubMesh::GetPrimitiveMode() const

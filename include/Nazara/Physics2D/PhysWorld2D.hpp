@@ -123,8 +123,8 @@ namespace Nz
 				float fraction;
 			};
 
-			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/);
-			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/);
+			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
+			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);

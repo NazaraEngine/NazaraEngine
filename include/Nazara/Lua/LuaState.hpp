@@ -112,6 +112,11 @@ namespace Nz
 			bool IsOfType(int index, const String& tname) const;
 			bool IsValid(int index) const;
 
+			bool Load(const String& code);
+			bool LoadFromFile(const String& filePath);
+			bool LoadFromMemory(const void* data, std::size_t size);
+			bool LoadFromStream(Stream& stream);
+
 			long long Length(int index) const;
 			std::size_t LengthRaw(int index) const;
 
