@@ -11,6 +11,5 @@ namespace Ndk
 	m_orientation(orientation),
 	m_spacing(5.f)
 	{
-		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 }

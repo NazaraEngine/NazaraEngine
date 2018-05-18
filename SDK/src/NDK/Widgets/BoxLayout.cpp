@@ -47,7 +47,7 @@ namespace Ndk
 			info.widget = child;
 		});
 
-		Nz::Vector2f layoutSize = GetContentSize();
+		Nz::Vector2f layoutSize = GetSize();
 
 		float availableSpace = layoutSize[axis1] - m_spacing * (m_childInfos.size() - 1);
 		float remainingSize = availableSpace;
@@ -111,7 +111,7 @@ namespace Ndk
 			else
 				cursor += spacing;
 
-			Nz::Vector2f position = GetContentOrigin();
+			Nz::Vector2f position = Nz::Vector2f(0.f, 0.f);
 			position[axis1] = cursor;
 
 			info.widget->SetPosition(position);

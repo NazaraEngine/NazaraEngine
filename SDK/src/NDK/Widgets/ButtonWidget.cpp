@@ -30,13 +30,13 @@ namespace Ndk
 		m_gradientSprite->SetCornerColor(Nz::RectCorner_RightBottom, m_cornerColor);
 		m_gradientSprite->SetMaterial(Nz::Material::New("Basic2D"));
 
-		m_gradientEntity = CreateEntity(false);
+		m_gradientEntity = CreateEntity();
 		m_gradientEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_gradientEntity->AddComponent<GraphicsComponent>().Attach(m_gradientSprite);
 
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity(true);
+		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite, 1);
 
@@ -73,22 +73,15 @@ namespace Ndk
 		return s_pressCornerColor;
 	}
 
-	void ButtonWidget::ResizeToContent()
-	{
-		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
-	}
-
 	void ButtonWidget::Layout()
 	{
 		BaseWidget::Layout();
 
-		m_gradientSprite->SetSize(GetSize());
-
-		Nz::Vector2f origin = GetContentOrigin();
-		const Nz::Vector2f& contentSize = GetContentSize();
+		Nz::Vector2f size = GetSize();
+		m_gradientSprite->SetSize(size);
 
 		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().obb.localBox;
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + contentSize.x / 2 - textBox.width / 2, origin.y + contentSize.y / 2 - textBox.height / 2);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
 	}
 
 	void ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button)

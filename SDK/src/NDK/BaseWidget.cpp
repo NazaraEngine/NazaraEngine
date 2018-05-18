@@ -81,7 +81,7 @@ namespace Ndk
 			m_backgroundSprite->SetColor(m_backgroundColor);
 			m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
-			m_backgroundEntity = CreateEntity(false);
+			m_backgroundEntity = CreateEntity();
 			m_backgroundEntity->AddComponent<GraphicsComponent>().Attach(m_backgroundSprite, -1);
 			m_backgroundEntity->AddComponent<NodeComponent>().SetParent(this);
 
@@ -113,7 +113,10 @@ namespace Ndk
 		newSize.Maximize(m_minimumSize);
 		newSize.Minimize(m_maximumSize);
 
-		SetContentSize({ std::max(newSize.x - m_padding.left - m_padding.right, 0.f), std::max(newSize.y - m_padding.top - m_padding.bottom, 0.f) });
+		NotifyParentResized(newSize);
+		m_size = newSize;
+
+		Layout();
 	}
 
 	void BaseWidget::SetBackgroundColor(const Nz::Color& color)
@@ -160,7 +163,7 @@ namespace Ndk
 		}
 	}
 
-	const Ndk::EntityHandle& BaseWidget::CreateEntity(bool isContentEntity)
+	const Ndk::EntityHandle& BaseWidget::CreateEntity()
 	{
 		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
@@ -168,7 +171,6 @@ namespace Ndk
 		m_entities.emplace_back();
 		WidgetEntity& widgetEntity = m_entities.back();
 		widgetEntity.handle = newEntity;
-		widgetEntity.isContent = isContentEntity;
 
 		return newEntity;
 	}
@@ -184,7 +186,7 @@ namespace Ndk
 	void BaseWidget::Layout()
 	{
 		if (m_backgroundEntity)
-			m_backgroundSprite->SetSize(m_contentSize.x + m_padding.left + m_padding.right, m_contentSize.y + m_padding.top + m_padding.bottom);
+			m_backgroundSprite->SetSize(m_size.x, m_size.y);
 
 		UpdatePositionAndSize();
 	}
@@ -287,16 +289,12 @@ namespace Ndk
 		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
 		Nz::Vector2f widgetSize = GetSize();
 
-		Nz::Vector2f contentPos = widgetPos + GetContentOrigin();
-		Nz::Vector2f contentSize = GetContentSize();
-
 		Nz::Recti fullBounds(Nz::Rectf(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y));
-		Nz::Recti contentBounds(Nz::Rectf(contentPos.x, contentPos.y, contentSize.x, contentSize.y));
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;
 			if (entity->HasComponent<GraphicsComponent>())
-				entity->GetComponent<GraphicsComponent>().SetScissorRect((widgetEntity.isContent) ? contentBounds : fullBounds);
+				entity->GetComponent<GraphicsComponent>().SetScissorRect(fullBounds);
 		}
 	}
 }

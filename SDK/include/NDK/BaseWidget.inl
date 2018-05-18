@@ -13,14 +13,13 @@ namespace Ndk
 	m_canvas(nullptr),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_cursor(Nz::SystemCursor_Default),
-	m_contentSize(50.f, 50.f),
+	m_size(50.f, 50.f),
 	m_maximumSize(std::numeric_limits<float>::infinity()),
 	m_minimumSize(0.f),
 	m_preferredSize(-1),
 	m_widgetParent(nullptr),
 	m_visible(true)
 	{
-		SetPadding(5.f, 5.f, 5.f, 5.f);
 	}
 
 	template<typename T, typename... Args>
@@ -96,19 +95,9 @@ namespace Ndk
 		return m_cursor;
 	}
 
-	inline Nz::Vector2f BaseWidget::GetContentOrigin() const
-	{
-		return { m_padding.left, m_padding.top };
-	}
-
-	inline const Nz::Vector2f& BaseWidget::GetContentSize() const
-	{
-		return m_contentSize;
-	}
-
 	inline float BaseWidget::GetHeight() const
 	{
-		return m_contentSize.y + m_padding.top + m_padding.bottom;
+		return m_size.y;
 	}
 
 	inline Nz::Vector2f BaseWidget::GetMaximumSize() const
@@ -119,11 +108,6 @@ namespace Ndk
 	inline Nz::Vector2f BaseWidget::GetMinimumSize() const
 	{
 		return m_minimumSize;
-	}
-
-	inline const BaseWidget::Padding& BaseWidget::GetPadding() const
-	{
-		return m_padding;
 	}
 
 	inline Nz::Vector2f BaseWidget::GetPreferredSize() const
@@ -138,7 +122,7 @@ namespace Ndk
 
 	inline float BaseWidget::GetWidth() const
 	{
-		return m_contentSize.x + m_padding.left + m_padding.right;
+		return m_size.x;
 	}
 
 	inline std::size_t BaseWidget::GetWidgetChildCount() const
@@ -151,32 +135,29 @@ namespace Ndk
 		return m_visible;
 	}
 
-	inline void BaseWidget::SetContentSize(const Nz::Vector2f& size)
+	inline void BaseWidget::SetFixedSize(const Nz::Vector2f& fixedSize)
 	{
-		NotifyParentResized(size);
-		m_contentSize = size;
-
-		Layout();
+		SetMaximumSize(fixedSize);
+		SetMinimumSize(fixedSize);
+		Resize(fixedSize);
 	}
 
-	inline void BaseWidget::SetPadding(float left, float top, float right, float bottom)
-	{
-		m_padding.left = left;
-		m_padding.top = top;
-		m_padding.bottom = bottom;
-		m_padding.right = right;
-
-		Layout();
-	}
-
-	inline void Ndk::BaseWidget::SetMaximumSize(const Nz::Vector2f& maximumSize)
+	inline void BaseWidget::SetMaximumSize(const Nz::Vector2f& maximumSize)
 	{
 		m_maximumSize = maximumSize;
+
+		Nz::Vector2f size = GetSize();
+		if (size.x > m_maximumSize.x || size.y > m_maximumSize.y)
+			Resize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetMinimumSize(const Nz::Vector2f& minimumSize)
 	{
 		m_minimumSize = minimumSize;
+
+		Nz::Vector2f size = GetSize();
+		if (size.x < m_minimumSize.x || size.y < m_minimumSize.y)
+			Resize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetPreferredSize(const Nz::Vector2f& preferredSize)

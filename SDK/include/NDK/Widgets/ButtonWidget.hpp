@@ -28,10 +28,6 @@ namespace Ndk
 			ButtonWidget(ButtonWidget&&) = default;
 			~ButtonWidget() = default;
 
-			//virtual ButtonWidget* Clone() const = 0;
-
-			void ResizeToContent();
-
 			inline const Nz::Color& GetColor() const;
 			inline const Nz::Color& GetCornerColor() const;
 			inline const Nz::Color& GetHoverColor() const;

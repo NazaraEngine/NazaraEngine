@@ -18,19 +18,20 @@ namespace Ndk
 	m_multiLineEnabled(false),
 	m_readOnly(false)
 	{
-		m_cursorEntity = CreateEntity(true);
+		m_cursorEntity = CreateEntity();
 		m_cursorEntity->AddComponent<GraphicsComponent>();
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_cursorEntity->Enable(false);
 
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity(true);
+		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
 		SetCursor(Nz::SystemCursor_Text);
 
+		EnableBackground(true);
 		Layout();
 	}
 
@@ -123,11 +124,6 @@ namespace Ndk
 		return Nz::Vector2ui::Zero();
 	}
 
-	void TextAreaWidget::ResizeToContent()
-	{
-		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
-	}
-
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
 		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPositionBegin);
@@ -150,7 +146,7 @@ namespace Ndk
 	{
 		BaseWidget::Layout();
 
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(Nz::Vector2f(5.f));
 
 		RefreshCursor();
 	}
@@ -303,8 +299,7 @@ namespace Ndk
 		{
 			SetFocus();
 
-			const Padding& padding = GetPadding();
-			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x - padding.left), float(y - padding.top));
+			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
 
 			// Shift extends selection
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
@@ -334,10 +329,7 @@ namespace Ndk
 	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
 		if (m_isMouseButtonDown)
-		{
-			const Padding& padding = GetPadding();
-			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x - padding.left), float(y - padding.top)));
-		}
+			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
@@ -410,8 +402,6 @@ namespace Ndk
 	{
 		if (m_readOnly)
 			return;
-
-		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
 
 		std::size_t selectionLineCount = m_cursorPositionEnd.y - m_cursorPositionBegin.y + 1;
 		std::size_t oldSpriteCount = m_cursorSprites.size();

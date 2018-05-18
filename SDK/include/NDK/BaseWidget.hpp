@@ -54,12 +54,9 @@ namespace Ndk
 			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline Nz::SystemCursor GetCursor() const;
-			inline Nz::Vector2f GetContentOrigin() const;
-			inline const Nz::Vector2f& GetContentSize() const;
 			inline float GetHeight() const;
 			inline Nz::Vector2f GetMaximumSize() const;
 			inline Nz::Vector2f GetMinimumSize() const;
-			inline const Padding& GetPadding() const;
 			inline Nz::Vector2f GetPreferredSize() const;
 			inline Nz::Vector2f GetSize() const;
 			inline float GetWidth() const;
@@ -73,27 +70,18 @@ namespace Ndk
 
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
-			inline void SetContentSize(const Nz::Vector2f& size);
 			void SetFocus();
+			inline void SetFixedSize(const Nz::Vector2f& fixedSize);
 			inline void SetMaximumSize(const Nz::Vector2f& maximumSize);
 			inline void SetMinimumSize(const Nz::Vector2f& minimumSize);
-			inline void SetPadding(float left, float top, float right, float bottom);
 
 			void Show(bool show = true);
 
 			BaseWidget& operator=(const BaseWidget&) = delete;
 			BaseWidget& operator=(BaseWidget&&) = default;
 
-			struct Padding
-			{
-				float left;
-				float top;
-				float right;
-				float bottom;
-			};
-
 		protected:
-			const EntityHandle& CreateEntity(bool isContentEntity);
+			const EntityHandle& CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
 
@@ -129,7 +117,6 @@ namespace Ndk
 			struct WidgetEntity
 			{
 				EntityOwner handle;
-				bool isContent;
 			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
@@ -139,15 +126,14 @@ namespace Ndk
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			Canvas* m_canvas;
 			EntityOwner m_backgroundEntity;
-			Padding m_padding;
 			WorldHandle m_world;
 			Nz::Color m_backgroundColor;
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::SystemCursor m_cursor;
-			Nz::Vector2f m_contentSize;
 			Nz::Vector2f m_maximumSize;
 			Nz::Vector2f m_minimumSize;
 			Nz::Vector2f m_preferredSize;
+			Nz::Vector2f m_size;
 			BaseWidget* m_widgetParent;
 			bool m_visible;
 	};

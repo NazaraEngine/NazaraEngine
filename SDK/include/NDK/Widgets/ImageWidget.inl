@@ -26,12 +26,12 @@ namespace Ndk
 		m_sprite->SetColor(color);
 	}
 
-	inline void ImageWidget::SetTexture(const Nz::TextureRef& texture, bool resizeToContent)
+	inline void ImageWidget::SetTexture(const Nz::TextureRef& texture)
 	{
 		m_sprite->SetTexture(texture, false);
 
-		if (resizeToContent)
-			ResizeToContent();
+		Nz::Vector3ui textureSize = m_sprite->GetMaterial()->GetDiffuseMap()->GetSize();
+		SetPreferredSize({ static_cast<float>(textureSize.x), static_cast<float>(textureSize.y) });
 	}
 
 	inline void ImageWidget::SetTextureCoords(const Nz::Rectf& coords)
