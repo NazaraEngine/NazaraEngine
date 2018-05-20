@@ -163,6 +163,8 @@ namespace Ndk
 	inline void BaseWidget::SetPreferredSize(const Nz::Vector2f& preferredSize)
 	{
 		m_preferredSize = preferredSize;
+
+		Resize(m_preferredSize);
 	}
 
 	inline bool BaseWidget::IsRegisteredToCanvas() const

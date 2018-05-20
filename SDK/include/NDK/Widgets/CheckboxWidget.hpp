@@ -53,7 +53,6 @@ namespace Ndk
 			void SetState(CheckboxState state);
 			inline void SetTextMargin(float margin);
 
-			void ResizeToContent();
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 
@@ -68,6 +67,7 @@ namespace Ndk
 
 			void Layout() override;
 			void UpdateCheckbox();
+			void UpdateSize();
 
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;

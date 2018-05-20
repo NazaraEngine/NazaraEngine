@@ -89,7 +89,7 @@ namespace Ndk
 		}
 		else
 		{
-			m_backgroundEntity->Kill();
+			m_backgroundEntity.Reset();
 			m_backgroundSprite.Reset();
 		}
 	}

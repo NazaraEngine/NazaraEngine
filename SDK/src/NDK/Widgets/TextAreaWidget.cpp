@@ -299,7 +299,7 @@ namespace Ndk
 		{
 			SetFocus();
 
-			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
+			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x) - 5.f, float(y) - 5.f);
 
 			// Shift extends selection
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
@@ -329,7 +329,7 @@ namespace Ndk
 	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
 		if (m_isMouseButtonDown)
-			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));
+			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x) - 5.f, float(y) - 5.f));
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)

@@ -30,8 +30,9 @@ namespace Ndk
 	{
 		m_sprite->SetTexture(texture, false);
 
-		Nz::Vector3ui textureSize = m_sprite->GetMaterial()->GetDiffuseMap()->GetSize();
-		SetPreferredSize({ static_cast<float>(textureSize.x), static_cast<float>(textureSize.y) });
+		Nz::Vector2f textureSize = Nz::Vector2f(Nz::Vector2ui(m_sprite->GetMaterial()->GetDiffuseMap()->GetSize()));
+		SetMinimumSize(textureSize);
+		SetPreferredSize(textureSize);
 	}
 
 	inline void ImageWidget::SetTextureCoords(const Nz::Rectf& coords)

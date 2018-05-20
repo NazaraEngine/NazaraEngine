@@ -94,8 +94,8 @@ namespace Ndk
 		m_textSprite->Update(drawer);
 
 		Nz::Vector2f textSize = Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths());
-		SetPreferredSize(textSize + Nz::Vector2f(10.f));
 		SetMinimumSize(textSize);
+		SetPreferredSize(textSize + Nz::Vector2f(20.f, 10.f));
 
 		Layout();
 	}

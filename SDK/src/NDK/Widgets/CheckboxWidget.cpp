@@ -169,4 +169,14 @@ namespace Ndk
 			m_checkboxContentSprite->SetTexture(Nz::TextureRef {});
 		}
 	}
+
+	void CheckboxWidget::UpdateSize()
+	{
+		Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
+		Nz::Vector2f checkboxSize = GetCheckboxSize();
+
+		Nz::Vector2f finalSize{ checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
+		SetMinimumSize(finalSize);
+		SetPreferredSize(finalSize);
+	}
 }
