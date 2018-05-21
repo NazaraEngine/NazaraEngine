@@ -101,6 +101,8 @@ Nazara Engine:
 - Mesh class now has a OnMeshInvalidateAABB signal, triggered when a mesh invalidates its AABB, which is also submesh updates its AABB
 - Model now invalidate properly their bounding volume when their mesh AABB is updated
 - Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
+- Added LuaState::CallWithHandler methods, allowing to setup a error handler function
+- Added LuaState::Traceback method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
