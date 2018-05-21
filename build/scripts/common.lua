@@ -82,8 +82,6 @@ function NazaraBuild:Execute()
 
 		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
-			self:FilterLibDirectory("../thirdparty/genlib/", targetdir) -- For generated libraries
-
 			group("Thirdparties")
 			
 			for k, libTable in ipairs(self.OrderedExtLibs) do
@@ -104,6 +102,8 @@ function NazaraBuild:Execute()
 				includedirs(libTable.Includes)
 				links(libTable.Libraries)
 				libdirs("../thirdparty/lib/common")
+
+				self:FilterLibDirectory("../thirdparty/genlib/", targetdir) -- For generated libraries
 
 				filter(clangGccActions)
 					buildoptions("-U__STRICT_ANSI__")
