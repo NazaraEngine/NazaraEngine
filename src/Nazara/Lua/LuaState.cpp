@@ -144,12 +144,22 @@ namespace Nz
 
 	bool LuaState::Call(unsigned int argCount)
 	{
-		return Run(argCount, LUA_MULTRET);
+		return Run(argCount, LUA_MULTRET, 0);
 	}
 
 	bool LuaState::Call(unsigned int argCount, unsigned int resultCount)
 	{
-		return Run(argCount, resultCount);
+		return Run(argCount, resultCount, 0);
+	}
+
+	bool LuaState::CallWithHandler(int errorHandler, unsigned int argCount)
+	{
+		return Run(argCount, LUA_MULTRET, errorHandler);
+	}
+
+	bool LuaState::CallWithHandler(int errorHandler, unsigned int argCount, unsigned int resultCount)
+	{
+		return Run(argCount, resultCount, errorHandler);
 	}
 
 	void LuaState::CheckAny(int index) const
@@ -350,7 +360,7 @@ namespace Nz
 		luaL_error(m_state, message.GetConstBuffer());
 	}
 
-	bool LuaState::Execute(const String& code)
+	bool LuaState::Execute(const String& code, int errorHandler)
 	{
 		if (code.IsEmpty())
 			return true;
@@ -358,29 +368,29 @@ namespace Nz
 		if (!Load(code))
 			return false;
 
-		return Call(0);
+		return CallWithHandler(errorHandler, 0);
 	}
 
-	bool LuaState::ExecuteFromFile(const String& filePath)
+	bool LuaState::ExecuteFromFile(const String& filePath, int errorHandler)
 	{
 		if (!LoadFromFile(filePath))
 			return false;
 
-		return Call(0);
+		return CallWithHandler(errorHandler, 0);
 	}
 
-	bool LuaState::ExecuteFromMemory(const void* data, std::size_t size)
+	bool LuaState::ExecuteFromMemory(const void* data, std::size_t size, int errorHandler)
 	{
 		MemoryView stream(data, size);
-		return ExecuteFromStream(stream);
+		return ExecuteFromStream(stream, errorHandler);
 	}
 
-	bool LuaState::ExecuteFromStream(Stream& stream)
+	bool LuaState::ExecuteFromStream(Stream& stream, int errorHandler)
 	{
 		if (!LoadFromStream(stream))
 			return false;
 
-		return Call(0);
+		return CallWithHandler(errorHandler, 0);
 	}
 
 	int LuaState::GetAbsIndex(int index) const
@@ -809,14 +819,19 @@ namespace Nz
 		return luaL_testudata(m_state, index, tname.GetConstBuffer());
 	}
 
-	bool LuaState::Run(int argCount, int resultCount)
+	void LuaState::Traceback(const char* message, int level)
+	{
+		luaL_traceback(m_state, m_state, message, level);
+	}
+
+	bool LuaState::Run(int argCount, int resultCount, int errHandler)
 	{
 		LuaInstance& instance = GetInstance(m_state);
 
 		if (instance.m_level++ == 0)
 			instance.m_clock.Restart();
 
-		int status = lua_pcall(m_state, argCount, resultCount, 0);
+		int status = lua_pcall(m_state, argCount, resultCount, errHandler);
 
 		instance.m_level--;
 

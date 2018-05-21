@@ -43,6 +43,8 @@ namespace Nz
 
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
+			bool CallWithHandler(unsigned int argCount, int errorHandler);
+			bool CallWithHandler(unsigned int argCount, unsigned int resultCount, int errorHandler);
 
 			template<typename T> T Check(int* index) const;
 			template<typename T> T Check(int* index, T defValue) const;
@@ -84,10 +86,10 @@ namespace Nz
 			void Error(const char* message) const;
 			void Error(const String& message) const;
 
-			bool Execute(const String& code);
-			bool ExecuteFromFile(const String& filePath);
-			bool ExecuteFromMemory(const void* data, std::size_t size);
-			bool ExecuteFromStream(Stream& stream);
+			bool Execute(const String& code, int errorHandler = 0);
+			bool ExecuteFromFile(const String& filePath, int errorHandler = 0);
+			bool ExecuteFromMemory(const void* data, std::size_t size, int errorHandler = 0);
+			bool ExecuteFromStream(Stream& stream, int errorHandler = 0);
 
 			int GetAbsIndex(int index) const;
 			LuaType GetField(const char* fieldName, int tableIndex = -1) const;
@@ -178,6 +180,8 @@ namespace Nz
 			void* ToUserdata(int index, const char* tname) const;
 			void* ToUserdata(int index, const String& tname) const;
 
+			void Traceback(const char* message = nullptr, int level = 0);
+
 			LuaState& operator=(const LuaState&) = default;
 			LuaState& operator=(LuaState&& instance) = default;
 
@@ -190,7 +194,7 @@ namespace Nz
 
 			template<typename T> std::enable_if_t<std::is_signed<T>::value, T> CheckBounds(int index, long long value) const;
 			template<typename T> std::enable_if_t<std::is_unsigned<T>::value, T> CheckBounds(int index, long long value) const;
-			virtual bool Run(int argCount, int resultCount);
+			virtual bool Run(int argCount, int resultCount, int errHandler);
 
 			static int ProxyFunc(lua_State* internalState);
 
