@@ -152,12 +152,12 @@ namespace Nz
 		return Run(argCount, resultCount, 0);
 	}
 
-	bool LuaState::CallWithHandler(int errorHandler, unsigned int argCount)
+	bool LuaState::CallWithHandler(unsigned int argCount, int errorHandler)
 	{
 		return Run(argCount, LUA_MULTRET, errorHandler);
 	}
 
-	bool LuaState::CallWithHandler(int errorHandler, unsigned int argCount, unsigned int resultCount)
+	bool LuaState::CallWithHandler(unsigned int argCount, unsigned int resultCount, int errorHandler)
 	{
 		return Run(argCount, resultCount, errorHandler);
 	}
