@@ -4,6 +4,7 @@
 
 #include <NDK/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
@@ -30,6 +31,7 @@ namespace Ndk
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
 		SetCursor(Nz::SystemCursor_Text);
+		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
 
 		EnableBackground(true);
 		Layout();
@@ -124,6 +126,27 @@ namespace Ndk
 		return Nz::Vector2ui::Zero();
 	}
 
+	void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
+	{
+		m_drawer.SetCharacterSize(characterSize);
+
+		std::size_t fontCount = m_drawer.GetFontCount();
+		unsigned int lineHeight = 0;
+		int spaceAdvance = 0;
+		for (std::size_t i = 0; i < fontCount; ++i)
+		{
+			Nz::Font* font = m_drawer.GetFont(i);
+
+			const Nz::Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+			lineHeight = std::max(lineHeight, sizeInfo.lineHeight);
+			spaceAdvance = std::max(spaceAdvance, sizeInfo.spaceAdvance);
+		}
+
+		Nz::Vector2f size = { float(spaceAdvance), float(lineHeight) + 5.f };
+		SetMinimumSize(size);
+		SetPreferredSize({ size.x * 6.f, size.y });
+	}
+
 	void TextAreaWidget::Write(const Nz::String& text)
 	{
 		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPositionBegin);
@@ -146,7 +169,7 @@ namespace Ndk
 	{
 		BaseWidget::Layout();
 
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(Nz::Vector2f(5.f));
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(Nz::Vector2f(5.f, 3.f));
 
 		RefreshCursor();
 	}
@@ -329,7 +352,7 @@ namespace Ndk
 	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
 		if (m_isMouseButtonDown)
-			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x) - 5.f, float(y) - 5.f));
+			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x) - 5.f, float(y) - 3.f));
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)

@@ -140,11 +140,6 @@ namespace Ndk
 		SetCursorPosition(cursorPosition);
 	}
 
-	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
-	{
-		m_drawer.SetCharacterSize(characterSize);
-	}
-
 	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
 	{
 		OnTextAreaCursorMove(this, &glyphIndex);

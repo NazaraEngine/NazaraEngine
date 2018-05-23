@@ -52,7 +52,7 @@ namespace Ndk
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
 
-			inline void SetCharacterSize(unsigned int characterSize);
+			void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
 			inline void SetEchoMode(EchoMode echoMode);
