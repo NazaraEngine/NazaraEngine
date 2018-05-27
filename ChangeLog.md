@@ -20,7 +20,7 @@ Miscellaneous:
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- Bitset swap operation is now correctly marked as noexcept`
+- Bitset swap operation is now correctly marked as noexcept
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
@@ -104,6 +104,7 @@ Nazara Engine:
 - Added LuaState::CallWithHandler methods, allowing to setup a error handler function
 - Added LuaState::Traceback method
 - Added ModelLibrary, ModelManager and ModelSaver
+- Added AbstractViewer::Project and AbstractViewer::Unproject methods
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
