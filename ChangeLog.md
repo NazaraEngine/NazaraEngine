@@ -103,6 +103,7 @@ Nazara Engine:
 - Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
 - Added LuaState::CallWithHandler methods, allowing to setup a error handler function
 - Added LuaState::Traceback method
+- Added ModelLibrary, ModelManager and ModelSaver
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
