@@ -8,9 +8,11 @@
 #define NAZARA_MODEL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -32,12 +34,18 @@ namespace Nz
 	class Model;
 
 	using ModelConstRef = ObjectRef<const Model>;
+	using ModelLibrary = ObjectLibrary<Model>;
 	using ModelLoader = ResourceLoader<Model, ModelParameters>;
+	using ModelManager = ResourceManager<Model, ModelParameters>;
 	using ModelRef = ObjectRef<Model>;
+	using ModelSaver = ResourceSaver<Model, ModelParameters>;
 
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
 	{
+		friend ModelLibrary;
 		friend ModelLoader;
+		friend ModelManager;
+		friend ModelSaver;
 
 		public:
 			inline Model();
@@ -77,7 +85,11 @@ namespace Nz
 
 			NazaraSlot(Mesh, OnMeshInvalidateAABB, m_meshAABBInvalidationSlot);
 
+			static ModelLibrary::LibraryMap s_library;
 			static ModelLoader::LoaderList s_loaders;
+			static ModelManager::ManagerMap s_managerMap;
+			static ModelManager::ManagerParams s_managerParameters;
+			static ModelSaver::SaverList s_savers;
 	};
 }
 
