@@ -55,9 +55,19 @@ namespace Ndk
 			inline Canvas* GetCanvas();
 			inline Nz::SystemCursor GetCursor() const;
 			inline float GetHeight() const;
+
+			inline float GetMaximumHeight() const;
 			inline Nz::Vector2f GetMaximumSize() const;
+			inline float GetMaximumWidth() const;
+
+			inline float GetMinimumHeight() const;
 			inline Nz::Vector2f GetMinimumSize() const;
+			inline float GetMinimumWidth() const;
+
+			inline float GetPreferredHeight() const;
 			inline Nz::Vector2f GetPreferredSize() const;
+			inline float GetPreferredWidth() const;
+
 			inline Nz::Vector2f GetSize() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
@@ -71,9 +81,18 @@ namespace Ndk
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
 			void SetFocus();
+
+			inline void SetFixedHeight(float fixedHeight);
 			inline void SetFixedSize(const Nz::Vector2f& fixedSize);
+			inline void SetFixedWidth(float fixedWidth);
+
+			inline void SetMaximumHeight(float maximumHeight);
 			inline void SetMaximumSize(const Nz::Vector2f& maximumSize);
+			inline void SetMaximumWidth(float maximumWidth);
+
+			inline void SetMinimumHeight(float minimumHeight);
 			inline void SetMinimumSize(const Nz::Vector2f& minimumSize);
+			inline void SetMinimumWidth(float minimumWidth);
 
 			void Show(bool show = true);
 

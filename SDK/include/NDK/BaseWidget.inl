@@ -100,9 +100,24 @@ namespace Ndk
 		return m_size.y;
 	}
 
+	inline float BaseWidget::GetMaximumHeight() const
+	{
+		return m_maximumSize.y;
+	}
+
 	inline Nz::Vector2f BaseWidget::GetMaximumSize() const
 	{
 		return m_maximumSize;
+	}
+
+	inline float BaseWidget::GetMaximumWidth() const
+	{
+		return m_maximumSize.x;
+	}
+
+	inline float BaseWidget::GetMinimumHeight() const
+	{
+		return m_minimumSize.y;
 	}
 
 	inline Nz::Vector2f BaseWidget::GetMinimumSize() const
@@ -110,9 +125,24 @@ namespace Ndk
 		return m_minimumSize;
 	}
 
+	inline float BaseWidget::GetMinimumWidth() const
+	{
+		return m_minimumSize.x;
+	}
+
+	inline float BaseWidget::GetPreferredHeight() const
+	{
+		return m_preferredSize.y;
+	}
+
 	inline Nz::Vector2f BaseWidget::GetPreferredSize() const
 	{
 		return m_preferredSize;
+	}
+
+	inline float BaseWidget::GetPreferredWidth() const
+	{
+		return m_preferredSize.x;
 	}
 
 	inline Nz::Vector2f BaseWidget::GetSize() const
@@ -135,11 +165,30 @@ namespace Ndk
 		return m_visible;
 	}
 
+	inline void BaseWidget::SetFixedHeight(float fixedHeight)
+	{
+		SetMaximumHeight(fixedHeight);
+		SetMinimumHeight(fixedHeight);
+	}
+
 	inline void BaseWidget::SetFixedSize(const Nz::Vector2f& fixedSize)
 	{
 		SetMaximumSize(fixedSize);
 		SetMinimumSize(fixedSize);
-		Resize(fixedSize);
+	}
+
+	inline void BaseWidget::SetFixedWidth(float fixedWidth)
+	{
+		SetMaximumWidth(fixedWidth);
+		SetMinimumWidth(fixedWidth);
+	}
+
+	inline void BaseWidget::SetMaximumHeight(float maximumHeight)
+	{
+		Nz::Vector2f maximumSize = GetMaximumSize();
+		maximumSize.y = maximumHeight;
+
+		SetMaximumSize(maximumSize);
 	}
 
 	inline void BaseWidget::SetMaximumSize(const Nz::Vector2f& maximumSize)
@@ -151,6 +200,22 @@ namespace Ndk
 			Resize(size); //< Will clamp automatically
 	}
 
+	inline void BaseWidget::SetMaximumWidth(float maximumWidth)
+	{
+		Nz::Vector2f maximumSize = GetMaximumSize();
+		maximumSize.x = maximumWidth;
+
+		SetMaximumSize(maximumSize);
+	}
+
+	inline void BaseWidget::SetMinimumHeight(float minimumHeight)
+	{
+		Nz::Vector2f minimumSize = GetMinimumSize();
+		minimumSize.y = minimumHeight;
+
+		SetMinimumSize(minimumSize);
+	}
+
 	inline void BaseWidget::SetMinimumSize(const Nz::Vector2f& minimumSize)
 	{
 		m_minimumSize = minimumSize;
@@ -158,6 +223,14 @@ namespace Ndk
 		Nz::Vector2f size = GetSize();
 		if (size.x < m_minimumSize.x || size.y < m_minimumSize.y)
 			Resize(size); //< Will clamp automatically
+	}
+
+	inline void BaseWidget::SetMinimumWidth(float minimumWidth)
+	{
+		Nz::Vector2f minimumSize = GetMinimumSize();
+		minimumSize.x = minimumWidth;
+
+		SetMinimumSize(minimumSize);
 	}
 
 	inline void BaseWidget::SetPreferredSize(const Nz::Vector2f& preferredSize)
