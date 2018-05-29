@@ -105,6 +105,7 @@ Nazara Engine:
 - Added LuaState::Traceback method
 - Added ModelLibrary, ModelManager and ModelSaver
 - Added AbstractViewer::Project and AbstractViewer::Unproject methods
+- Added AbstractViewer::ProjectDepth method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
