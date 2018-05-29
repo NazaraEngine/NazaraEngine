@@ -41,6 +41,8 @@ namespace Nz
 			virtual float GetZNear() const = 0;
 
 			Nz::Vector3f Project(const Nz::Vector3f& worldPosition) const;
+			float ProjectDepth(float depth);
+
 			Nz::Vector3f Unproject(const Nz::Vector3f& screenPos) const;
 
 			AbstractViewer& operator=(const AbstractViewer&) = default;

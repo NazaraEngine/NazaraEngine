@@ -34,6 +34,15 @@ namespace Nz
 		return screenPosition;
 	}
 
+	float AbstractViewer::ProjectDepth(float depth)
+	{
+		const Matrix4f& projectionMatrix = GetProjectionMatrix();
+		float a = projectionMatrix(2, 2);
+		float b = projectionMatrix(2, 3);
+
+		return (0.5f * (-a * depth + b) / depth + 0.5f);
+	}
+
 	Vector3f AbstractViewer::Unproject(const Nz::Vector3f& screenPos) const
 	{
 		Rectf viewport = Rectf(GetViewport());
