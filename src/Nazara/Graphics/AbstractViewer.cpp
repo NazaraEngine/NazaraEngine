@@ -44,6 +44,8 @@ namespace Nz
 		normalizedPosition.z = screenPos.z * 2.f - 1.f;
 		normalizedPosition.w = 1.f;
 
+		normalizedPosition.y = -normalizedPosition.y;
+
 		Nz::Matrix4f invMatrix = GetViewMatrix() * GetProjectionMatrix();
 		invMatrix.Inverse();
 
