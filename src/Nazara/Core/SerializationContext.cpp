@@ -19,16 +19,16 @@ namespace Nz
 	/*!
 	 * Write bits to the stream (if any) and reset the current bit cursor
 	
-	* \see ResetBitPosition
+	* \see ResetWriteBitPosition
 	*/
 	void SerializationContext::FlushBits()
 	{
-		if (currentBitPos != 8)
+		if (writeBitPos != 8)
 		{
-			ResetBitPosition();
+			ResetWriteBitPosition();
 
 			// Serialize will reset the bit position
-			if (!Serialize(*this, currentByte))
+			if (!Serialize(*this, writeByte))
 				NazaraWarning("Failed to flush bits");
 		}
 	}
