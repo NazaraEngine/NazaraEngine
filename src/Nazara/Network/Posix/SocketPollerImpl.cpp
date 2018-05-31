@@ -100,17 +100,17 @@ namespace Nz
 
 					if (entry.revents & (POLLWRNORM | POLLERR))
 						m_readyToWriteSockets.insert(entry.fd);
-
-					entry.revents = 0;
-
-					if (--socketRemaining == 0)
-						break;
 				}
 				else
 				{
 					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
 					activeSockets--;
 				}
+
+				entry.revents = 0;
+
+				if (--socketRemaining == 0)
+					break;
 			}
 		}
 

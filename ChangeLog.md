@@ -106,6 +106,7 @@ Nazara Engine:
 - Added ModelLibrary, ModelManager and ModelSaver
 - Added AbstractViewer::Project and AbstractViewer::Unproject methods
 - Added AbstractViewer::ProjectDepth method
+- Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
