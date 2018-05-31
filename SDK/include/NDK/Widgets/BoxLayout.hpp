@@ -37,8 +37,6 @@ namespace Ndk
 				float size;
 			};
 
-			void OnParentResized(const Nz::Vector2f& newSize) override;
-
 			std::vector<ChildInfo> m_childInfos;
 			BoxLayoutOrientation m_orientation;
 			float m_spacing;

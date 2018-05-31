@@ -119,9 +119,4 @@ namespace Ndk
 			cursor += info.size;
 		};
 	}
-
-	void BoxLayout::OnParentResized(const Nz::Vector2f& /*newSize*/)
-	{
-		Layout();
-	}
 }
