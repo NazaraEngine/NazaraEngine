@@ -21,7 +21,8 @@ namespace Nz
 	*
 	* \param model Model to copy
 	*/
-	inline Model::Model(const Model& model)
+	inline Model::Model(const Model& model) :
+	InstancedRenderable(model)
 	{
 		SetMesh(model.m_mesh);
 	}

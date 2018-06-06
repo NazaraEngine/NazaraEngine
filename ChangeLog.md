@@ -107,9 +107,12 @@ Nazara Engine:
 - Added AbstractViewer::Project and AbstractViewer::Unproject methods
 - Added AbstractViewer::ProjectDepth method
 - Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
-- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing.
 - Add LuaImplQuery implementation for std::vector
 - Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- InstancedRenderable::SetMaterial methods are now public.
+- Fixed Model copy constructor not copying materials
+- ⚠️ Added InstancedRenderable::Clone() method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -158,6 +161,7 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
+- Add GraphicsComponent:ForEachRenderable method
 
 # 0.4:
 

@@ -35,6 +35,8 @@ namespace Nz
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
 			inline void DisableTile(const Vector2ui& tilePos);
 			inline void DisableTiles();
 			inline void DisableTiles(const Vector2ui* tilesPos, std::size_t tileCount);

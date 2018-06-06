@@ -27,6 +27,14 @@ namespace Nz
 		renderQueue->AddBillboards(instanceData.renderOrder, GetMaterial(), 1, scissorRect, &position, &m_size, &m_sinCos, &m_color);
 	}
 
+	/*!
+	* \brief Clones this billboard
+	*/
+	std::unique_ptr<InstancedRenderable> Billboard::Clone() const
+	{
+		return std::make_unique<Billboard>(*this);
+	}
+
 	/*
 	* \brief Makes the bounding volume of this billboard
 	*/
