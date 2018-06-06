@@ -885,6 +885,7 @@ namespace Nz
 			glBeginQuery = reinterpret_cast<PFNGLBEGINQUERYPROC>(LoadEntry("glBeginQuery"));
 			glBindAttribLocation = reinterpret_cast<PFNGLBINDATTRIBLOCATIONPROC>(LoadEntry("glBindAttribLocation"));
 			glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(LoadEntry("glBindBuffer"));
+			glBindBufferRange = reinterpret_cast<PFNGLBINDBUFFERRANGEPROC>(LoadEntry("glBindBufferRange"));
 			glBindFragDataLocation = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONPROC>(LoadEntry("glBindFragDataLocation"));
 			glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(LoadEntry("glBindFramebuffer"));
 			glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(LoadEntry("glBindRenderbuffer"));
@@ -1896,19 +1897,12 @@ namespace Nz
 
 	GLenum OpenGL::BufferTarget[] =
 	{
-		GL_ELEMENT_ARRAY_BUFFER, // BufferType_Index,
-		GL_ARRAY_BUFFER,		 // BufferType_Vertex
+		GL_ELEMENT_ARRAY_BUFFER, // BufferType_Index
+		GL_ARRAY_BUFFER,         // BufferType_Vertex
+		GL_UNIFORM_BUFFER        // BufferType_Uniform
 	};
 
-	static_assert(BufferType_Max + 1 == 2, "Buffer target array is incomplete");
-
-	GLenum OpenGL::BufferTargetBinding[] =
-	{
-		GL_ELEMENT_ARRAY_BUFFER_BINDING, // BufferType_Index,
-		GL_ARRAY_BUFFER_BINDING,		 // BufferType_Vertex
-	};
-
-	static_assert(BufferType_Max + 1 == 2, "Buffer target binding array is incomplete");
+	static_assert(BufferType_Max + 1 == 3, "Buffer target array is incomplete");
 
 	GLenum OpenGL::ComponentType[] =
 	{
@@ -2117,6 +2111,7 @@ PFNGLBEGINCONDITIONALRENDERPROC   glBeginConditionalRender   = nullptr;
 PFNGLBEGINQUERYPROC               glBeginQuery               = nullptr;
 PFNGLBINDATTRIBLOCATIONPROC       glBindAttribLocation       = nullptr;
 PFNGLBINDBUFFERPROC               glBindBuffer               = nullptr;
+PFNGLBINDBUFFERRANGEPROC          glBindBufferRange          = nullptr;
 PFNGLBINDFRAMEBUFFERPROC          glBindFramebuffer          = nullptr;
 PFNGLBINDFRAGDATALOCATIONPROC     glBindFragDataLocation     = nullptr;
 PFNGLBINDRENDERBUFFERPROC         glBindRenderbuffer         = nullptr;

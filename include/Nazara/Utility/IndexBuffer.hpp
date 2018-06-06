@@ -38,7 +38,6 @@ namespace Nz
 			inline const BufferRef& GetBuffer() const;
 			inline UInt32 GetEndOffset() const;
 			inline UInt32 GetIndexCount() const;
-			inline DataStorage GetStorage() const;
 			inline UInt32 GetStride() const;
 			inline UInt32 GetStartOffset() const;
 

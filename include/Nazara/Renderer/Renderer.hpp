@@ -25,6 +25,7 @@ namespace Nz
 	class Shader;
 	class Texture;
 	class TextureSampler;
+	class UniformBuffer;
 	class VertexBuffer;
 	class VertexDeclaration;
 
@@ -40,6 +41,8 @@ namespace Nz
 			~Renderer() = delete;
 
 			static void BeginCondition(const GpuQuery& query, GpuQueryCondition condition);
+
+			static void BindUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer);
 
 			static void Clear(UInt32 flags = RendererBuffer_Color | RendererBuffer_Depth);
 
