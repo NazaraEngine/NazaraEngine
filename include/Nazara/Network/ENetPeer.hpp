@@ -47,6 +47,7 @@ namespace Nz
 			void DisconnectNow(UInt32 data);
 
 			inline const IpAddress& GetAddress() const;
+			inline UInt32 GetLastReceiveTime() const;
 			inline UInt32 GetMtu() const;
 			inline UInt32 GetPacketThrottleAcceleration() const;
 			inline UInt32 GetPacketThrottleDeceleration() const;

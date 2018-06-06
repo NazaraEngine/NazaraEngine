@@ -158,12 +158,7 @@ namespace Nz
 			#endif
 
 			VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, header.num_vertices, parameters.storage, parameters.vertexBufferFlags);
-			StaticMeshRef subMesh = StaticMesh::New(mesh);
-			if (!subMesh->Create(vertexBuffer))
-			{
-				NazaraError("Failed to create SubMesh");
-				return false;
-			}
+			StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 
 			// Extracting vertices
 			stream.SetCursorPos(header.offset_frames);

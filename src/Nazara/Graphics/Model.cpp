@@ -252,9 +252,15 @@ namespace Nz
 		m_mesh = mesh;
 
 		if (m_mesh)
+		{
 			ResetMaterials(mesh->GetMaterialCount());
+			m_meshAABBInvalidationSlot.Connect(m_mesh->OnMeshInvalidateAABB, [this](const Nz::Mesh*) { InvalidateBoundingVolume(); });
+		}
 		else
+		{
 			ResetMaterials(0);
+			m_meshAABBInvalidationSlot.Disconnect();
+		}
 
 		InvalidateBoundingVolume();
 	}
@@ -271,5 +277,9 @@ namespace Nz
 			m_boundingVolume.MakeNull();
 	}
 
+	ModelLibrary::LibraryMap Model::s_library;
 	ModelLoader::LoaderList Model::s_loaders;
+	ModelManager::ManagerMap Model::s_managerMap;
+	ModelManager::ManagerParams Model::s_managerParameters;
+	ModelSaver::SaverList Model::s_savers;
 }

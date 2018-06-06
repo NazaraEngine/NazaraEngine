@@ -16,10 +16,11 @@ Miscellaneous:
 - Add Lua unit tests
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
+- When supported, projects are now parts of a virtual "workspace group" according to their kind
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- Bitset swap operation is now correctly marked as noexcept`
+- Bitset swap operation is now correctly marked as noexcept
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
@@ -95,6 +96,18 @@ Nazara Engine:
 - Fixed cubemaps seams with OpenGL
 - HandledObject movement constructor/assignement operator are now marked noexcept
 - ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
+- ⚠️ Refactored Mesh/SubMesh, allowing a submesh to be attached to multiple meshes, deprecating Create/Destroy methods
+- SubMesh class now has a OnSubMeshInvalidateAABB signal, triggered when a new AABB is set to the submesh
+- Mesh class now has a OnMeshInvalidateAABB signal, triggered when a mesh invalidates its AABB, which is also submesh updates its AABB
+- Model now invalidate properly their bounding volume when their mesh AABB is updated
+- Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
+- Added LuaState::CallWithHandler methods, allowing to setup a error handler function
+- Added LuaState::Traceback method
+- Added ModelLibrary, ModelManager and ModelSaver
+- Added AbstractViewer::Project and AbstractViewer::Unproject methods
+- Added AbstractViewer::ProjectDepth method
+- Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing.
 - Add LuaImplQuery implementation for std::vector
 - Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
 
@@ -190,7 +203,8 @@ Nazara Engine:
 - Added VertexMapper::GetVertexCount()
 - Added VertexMapper::HasComponentOfType()
 - Fixed SimpleTextDrawer bounds computation
-
+- Added LuaState::Load methods which allows to load (compile) lua code to function without executing it.
+- Added ENetPeer::GetLastReceiveTime() which gives the last time a reliable packet was received.
 
 Nazara Development Kit:
 - ⚠️ Components no longer need to be copyable by assignation
