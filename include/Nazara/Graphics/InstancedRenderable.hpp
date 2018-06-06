@@ -39,6 +39,8 @@ namespace Nz
 
 			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const = 0;
 
+			virtual std::unique_ptr<InstancedRenderable> Clone() const = 0;
+
 			virtual bool Cull(const Frustumf& frustum, const InstanceData& instanceData) const;
 
 			inline void EnsureBoundingVolumeUpdated() const;

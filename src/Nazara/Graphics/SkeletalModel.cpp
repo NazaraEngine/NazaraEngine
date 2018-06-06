@@ -126,10 +126,9 @@ namespace Nz
 	* \brief Clones this skeletal model
 	* \return Pointer to newly allocated SkeletalModel
 	*/
-
-	SkeletalModel* SkeletalModel::Clone() const
+	std::unique_ptr<InstancedRenderable> SkeletalModel::Clone() const
 	{
-		return new SkeletalModel(*this);
+		return std::make_unique<SkeletalModel>(*this);
 	}
 
 	/*!
