@@ -36,6 +36,8 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
+		RegisterLayer(renderOrder);
+
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
@@ -103,6 +105,8 @@ namespace Nz
 	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		RegisterLayer(renderOrder);
 
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -174,6 +178,8 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
+		RegisterLayer(renderOrder);
+
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
@@ -241,6 +247,8 @@ namespace Nz
 	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		RegisterLayer(renderOrder);
 
 		float defaultRotation = 0.f;
 
@@ -312,6 +320,8 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
+		RegisterLayer(renderOrder);
+
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
 		if (!sinCosPtr)
@@ -379,6 +389,8 @@ namespace Nz
 	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		RegisterLayer(renderOrder);
 
 		Vector2f defaultSinCos(0.f, 1.f); // sin(0) = 0, cos(0) = 1
 
@@ -450,6 +462,8 @@ namespace Nz
 	{
 		NazaraAssert(material, "Invalid material");
 
+		RegisterLayer(renderOrder);
+
 		float defaultRotation = 0.f;
 
 		if (!anglePtr)
@@ -517,6 +531,8 @@ namespace Nz
 	void BasicRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
+
+		RegisterLayer(renderOrder);
 
 		float defaultRotation = 0.f;
 
