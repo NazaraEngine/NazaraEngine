@@ -56,6 +56,8 @@ namespace Nz
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
 
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
 			using InstancedRenderable::GetMaterial;
 			const MaterialRef& GetMaterial(const String& subMeshName) const;
 			const MaterialRef& GetMaterial(std::size_t skinIndex, const String& subMeshName) const;
