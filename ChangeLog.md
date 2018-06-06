@@ -108,6 +108,7 @@ Nazara Engine:
 - Added AbstractViewer::ProjectDepth method
 - Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
 - ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- InstancedRenderable::SetMaterial methods are now public.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

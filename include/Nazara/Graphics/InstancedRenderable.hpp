@@ -53,6 +53,8 @@ namespace Nz
 
 			virtual void InvalidateData(InstanceData* instanceData, UInt32 flags) const;
 
+			inline void SetMaterial(std::size_t matIndex, MaterialRef material);
+			inline void SetMaterial(std::size_t skinIndex, std::size_t matIndex, MaterialRef material);
 			inline void SetSkin(std::size_t skinIndex);
 			inline void SetSkinCount(std::size_t skinCount);
 
@@ -107,9 +109,6 @@ namespace Nz
 			virtual void MakeBoundingVolume() const = 0;
 
 			inline void ResetMaterials(std::size_t matCount, std::size_t skinCount = 1);
-
-			inline void SetMaterial(std::size_t matIndex, MaterialRef material);
-			inline void SetMaterial(std::size_t skinIndex, std::size_t matIndex, MaterialRef material);
 
 			mutable BoundingVolumef m_boundingVolume;
 
