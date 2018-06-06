@@ -95,6 +95,7 @@ Nazara Engine:
 - Fixed cubemaps seams with OpenGL
 - HandledObject movement constructor/assignement operator are now marked noexcept
 - ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
+- Add LuaImplQuery implementation for std::vector
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
