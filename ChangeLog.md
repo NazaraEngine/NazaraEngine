@@ -96,6 +96,7 @@ Nazara Engine:
 - HandledObject movement constructor/assignement operator are now marked noexcept
 - ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
 - Add LuaImplQuery implementation for std::vector
+- Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
