@@ -106,6 +106,7 @@ namespace Nz
 	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(buffer->GetType() == BufferType_Index, "Buffer must be an index buffer");
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 

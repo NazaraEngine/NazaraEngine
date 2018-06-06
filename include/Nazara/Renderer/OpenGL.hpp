@@ -132,7 +132,6 @@ namespace Nz
 			static GLenum BufferLock[BufferAccess_Max+1];
 			static GLenum BufferLockRange[BufferAccess_Max+1];
 			static GLenum BufferTarget[BufferType_Max+1];
-			static GLenum BufferTargetBinding[BufferType_Max+1];
 			static GLenum ComponentType[ComponentType_Max+1];
 			static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 			static GLenum FaceFilling[FaceFilling_Max+1];
@@ -161,6 +160,7 @@ NAZARA_RENDERER_API extern PFNGLBEGINCONDITIONALRENDERPROC   glBeginConditionalR
 NAZARA_RENDERER_API extern PFNGLBEGINQUERYPROC               glBeginQuery;
 NAZARA_RENDERER_API extern PFNGLBINDATTRIBLOCATIONPROC       glBindAttribLocation;
 NAZARA_RENDERER_API extern PFNGLBINDBUFFERPROC               glBindBuffer;
+NAZARA_RENDERER_API extern PFNGLBINDBUFFERRANGEPROC          glBindBufferRange;
 NAZARA_RENDERER_API extern PFNGLBINDFRAMEBUFFERPROC          glBindFramebuffer;
 NAZARA_RENDERER_API extern PFNGLBINDFRAGDATALOCATIONPROC     glBindFragDataLocation;
 NAZARA_RENDERER_API extern PFNGLBINDRENDERBUFFERPROC         glBindRenderbuffer;

@@ -98,6 +98,7 @@ namespace Nz
 	void VertexBuffer::Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(buffer->GetType() == BufferType_Vertex, "Buffer must be a vertex buffer");
 
 		UInt32 size = buffer->GetSize();
 		Reset(std::move(vertexDeclaration), std::move(buffer), 0, size);
