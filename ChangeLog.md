@@ -160,6 +160,7 @@ Nazara Development Kit:
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
 - Add GraphicsComponent:ForEachRenderable method
+- Fixed GraphicsComponent reflective material count which was not initialized
 
 # 0.4:
 
