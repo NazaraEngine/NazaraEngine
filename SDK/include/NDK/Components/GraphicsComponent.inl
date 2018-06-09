@@ -10,6 +10,7 @@
 namespace Ndk
 {
 	inline GraphicsComponent::GraphicsComponent() :
+	m_reflectiveMaterialCount(0),
 	m_scissorRect(-1, -1)
 	{
 	}
@@ -22,6 +23,7 @@ namespace Ndk
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
+	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
