@@ -70,6 +70,11 @@ namespace Ndk
 
 					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
 				}
+
+				std::unique_ptr<InstancedRenderable> Clone() const override
+				{
+					return nullptr;
+				}
 		};
 
 		class OBBDebugRenderable : public DebugRenderable
@@ -93,6 +98,11 @@ namespace Ndk
 					transformMatrix.ApplyTranslation(obbCenter);
 
 					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+				}
+
+				std::unique_ptr<InstancedRenderable> Clone() const override
+				{
+					return nullptr;
 				}
 		};
 	}

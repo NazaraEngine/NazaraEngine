@@ -10,6 +10,7 @@
 namespace Ndk
 {
 	inline GraphicsComponent::GraphicsComponent() :
+	m_reflectiveMaterialCount(0),
 	m_scissorRect(-1, -1)
 	{
 	}
@@ -22,6 +23,7 @@ namespace Ndk
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
+	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
@@ -105,6 +107,18 @@ namespace Ndk
 	inline bool GraphicsComponent::DoesRequireRealTimeReflections() const
 	{
 		return m_reflectiveMaterialCount != 0 && m_reflectionMap;
+	}
+
+	/*!
+	* \brief Calls a function for every renderable attached to this component
+	*
+	* \param func Callback function which will be called with renderable data
+	*/
+	template<typename Func>
+	void GraphicsComponent::ForEachRenderable(const Func& func) const
+	{
+		for (const auto& renderableData : m_renderables)
+			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
 	}
 
 	/*!

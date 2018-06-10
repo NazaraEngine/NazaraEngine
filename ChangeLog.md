@@ -20,7 +20,7 @@ Miscellaneous:
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- Bitset swap operation is now correctly marked as noexcept`
+- Bitset swap operation is now correctly marked as noexcept
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
@@ -103,6 +103,14 @@ Nazara Engine:
 - Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
 - Added LuaState::CallWithHandler methods, allowing to setup a error handler function
 - Added LuaState::Traceback method
+- Added ModelLibrary, ModelManager and ModelSaver
+- Added AbstractViewer::Project and AbstractViewer::Unproject methods
+- Added AbstractViewer::ProjectDepth method
+- Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- InstancedRenderable::SetMaterial methods are now public.
+- Fixed Model copy constructor not copying materials
+- ⚠️ Added InstancedRenderable::Clone() method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -151,6 +159,8 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
+- Add GraphicsComponent:ForEachRenderable method
+- Fixed GraphicsComponent reflective material count which was not initialized
 
 # 0.4:
 

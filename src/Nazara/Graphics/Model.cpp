@@ -51,7 +51,6 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data used for this instance
 	*/
-
 	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
@@ -67,6 +66,14 @@ namespace Nz
 
 			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
+	}
+
+	/*!
+	* \brief Clones this model
+	*/
+	std::unique_ptr<InstancedRenderable> Model::Clone() const
+	{
+		return std::make_unique<Model>(*this);
 	}
 
 	/*!
@@ -277,5 +284,9 @@ namespace Nz
 			m_boundingVolume.MakeNull();
 	}
 
+	ModelLibrary::LibraryMap Model::s_library;
 	ModelLoader::LoaderList Model::s_loaders;
+	ModelManager::ManagerMap Model::s_managerMap;
+	ModelManager::ManagerParams Model::s_managerParameters;
+	ModelSaver::SaverList Model::s_savers;
 }

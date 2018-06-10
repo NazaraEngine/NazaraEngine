@@ -86,11 +86,11 @@ namespace Nz
 		if (!m_context.stream)
 			return true;
 
-		if (m_context.currentBitPos != 8)
+		if (m_context.writeBitPos != 8)
 		{
-			m_context.currentBitPos = 8; //< To prevent Serialize to flush bits itself
+			m_context.writeBitPos = 8; //< To prevent Serialize to flush bits itself
 
-			if (!Serialize(m_context, m_context.currentByte))
+			if (!Serialize(m_context, m_context.writeByte))
 				return false;
 		}
 
