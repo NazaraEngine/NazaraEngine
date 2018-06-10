@@ -1,13 +1,13 @@
 // Copyright (C) 2016 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit Qt Layer"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_QT_CANVAS_HPP
 #define NDK_QT_CANVAS_HPP
 
-#include <NdkQt/Prerequesites.hpp>
+#include <NdkQt/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <QtWidgets/QWidget>
 
@@ -18,8 +18,7 @@ namespace Ndk
 		public:
 			QtCanvas(QWidget* parent);
 
-			unsigned int GetHeight() const;
-			unsigned int GetWidth() const;
+			Nz::Vector2ui GetSize() const override;
 
 			virtual QSize minimumSizeHint() const override;
 			virtual QSize sizeHint() const override;

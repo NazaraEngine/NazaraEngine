@@ -26,6 +26,7 @@ TOOL.Libraries = {
 	"Qt5Core",
 	"Qt5Gui",
 	"Qt5Widgets",
+	"NazaraPlatform",
 	"NazaraRenderer",
 	"NazaraUtility"
 }

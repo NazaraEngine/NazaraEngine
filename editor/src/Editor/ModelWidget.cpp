@@ -45,8 +45,9 @@ m_cameraDistance(5)
 	m_grid->AddComponent<Ndk::GraphicsComponent>().Attach(m_gridModel);
 
 	m_modelEntity = m_world.CreateEntity();
-	m_modelEntity->AddComponent<Ndk::NodeComponent>().SetParent(m_grid);
+	m_modelEntity->AddComponent<Ndk::DebugComponent>();
 	m_modelEntity->AddComponent<Ndk::GraphicsComponent>();
+	m_modelEntity->AddComponent<Ndk::NodeComponent>().SetParent(m_grid);
 
 	Ndk::CameraComponent& viewer = m_camera->AddComponent<Ndk::CameraComponent>();
 	viewer.SetTarget(this);
@@ -115,6 +116,17 @@ void ModelWidget::ResetCamera()
 	UpdateCamera();
 }
 
+void ModelWidget::ShowAABB(bool showAABB)
+{
+	if (!m_modelEntity)
+		return;
+
+	if (showAABB)
+		m_modelEntity->GetComponent<Ndk::DebugComponent>().Enable(Ndk::DebugDraw::GraphicsAABB);
+	else
+		m_modelEntity->GetComponent<Ndk::DebugComponent>().Disable(Ndk::DebugDraw::GraphicsAABB);
+}
+
 void ModelWidget::ShowNormals(bool normals)
 {
 	if (!m_model)
@@ -132,7 +144,7 @@ void ModelWidget::ShowNormals(bool normals)
 			Nz::StaticMesh* submesh = static_cast<Nz::StaticMesh*>(mesh->GetSubMesh(i));
 			unsigned int vertexCount = submesh->GetVertexCount();
 
-			Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), vertexCount * 2, Nz::DataStorage_Hardware);
+			Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), vertexCount * 2, Nz::DataStorage_Hardware, 0U);
 			Nz::VertexMapper originalMapper(submesh);
 			Nz::VertexMapper normalMapper(vertexBuffer);
 
@@ -152,8 +164,7 @@ void ModelWidget::ShowNormals(bool normals)
 			originalMapper.Unmap();
 			normalMapper.Unmap();
 
-			Nz::StaticMeshRef normalSubmesh = Nz::StaticMesh::New(normalMesh);
-			normalSubmesh->Create(vertexBuffer);
+			Nz::StaticMeshRef normalSubmesh = Nz::StaticMesh::New(vertexBuffer, nullptr);
 			normalSubmesh->GenerateAABB();
 			normalSubmesh->SetPrimitiveMode(Nz::PrimitiveMode_LineList);
 			normalSubmesh->SetMaterialIndex(0);
@@ -185,8 +196,8 @@ Nz::MeshRef ModelWidget::CreateGridMesh(unsigned int size)
 	unsigned int indexCount = size * 2 * 2;
 	unsigned int vertexCount = size * 2 * 2;
 
-	Nz::IndexBufferRef indexBuffer   = Nz::IndexBuffer::New(vertexCount > std::numeric_limits<Nz::UInt16>::max(), indexCount, Nz::DataStorage_Hardware, Nz::BufferUsage_Static);
-	Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(declaration, vertexCount, Nz::DataStorage_Hardware, Nz::BufferUsage_Static);
+	Nz::IndexBufferRef indexBuffer   = Nz::IndexBuffer::New(vertexCount > std::numeric_limits<Nz::UInt16>::max(), indexCount, Nz::DataStorage_Hardware, 0U);
+	Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(declaration, vertexCount, Nz::DataStorage_Hardware, 0U);
 
 	Nz::VertexMapper vertexMapper(vertexBuffer, Nz::BufferAccess_WriteOnly);
 
@@ -222,15 +233,8 @@ Nz::MeshRef ModelWidget::CreateGridMesh(unsigned int size)
 	Nz::MeshRef gridMesh = Nz::Mesh::New();
 	gridMesh->CreateStatic();
 
-	Nz::StaticMeshRef subMesh = Nz::StaticMesh::New(gridMesh);
-	if (!subMesh->Create(vertexBuffer))
-	{
-		NazaraError("Failed to create StaticMesh");
-		return nullptr;
-	}
-
+	Nz::StaticMeshRef subMesh = Nz::StaticMesh::New(vertexBuffer, indexBuffer);
 	subMesh->GenerateAABB();
-	subMesh->SetIndexBuffer(indexBuffer);
 	subMesh->SetMaterialIndex(0);
 	subMesh->SetPrimitiveMode(Nz::PrimitiveMode_LineList);
 
@@ -246,7 +250,7 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 	{
 		case Nz::WindowEventType_MouseLeft:
 			m_mouseControl = MouseControl::None;
-			SetCursor(Nz::WindowCursor_Default);
+			SetCursor(Nz::SystemCursor_Default);
 			break;
 
 		case Nz::WindowEventType_MouseWheelMoved:
@@ -262,12 +266,12 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 			switch (event.mouseButton.button)
 			{
 				case Nz::Mouse::Left:
-					SetCursor(Nz::WindowCursor_None);
+					SetCursor(Nz::SystemCursor_None);
 					m_mouseControl = MouseControl::Camera;
 					break;
 
 				case Nz::Mouse::Right:
-					SetCursor(Nz::WindowCursor_Move);
+					SetCursor(Nz::SystemCursor_Move);
 					m_mouseControl = MouseControl::Movement;
 					break;
 			}
@@ -281,7 +285,7 @@ void ModelWidget::HandleEvent(const Nz::WindowEvent& event)
 				case Nz::Mouse::Left:
 				case Nz::Mouse::Right:
 					m_mouseControl = MouseControl::None;
-					SetCursor(Nz::WindowCursor_Default);
+					SetCursor(Nz::SystemCursor_Default);
 					break;
 			}
 			break;
@@ -371,7 +375,7 @@ bool ModelWidget::OnWindowCreated()
 {
 	QtCanvas::OnWindowCreated();
 
-	SetCursor(Nz::WindowCursor_Default);
+	SetCursor(Nz::SystemCursor_Default);
 	SetEventListener(true);
 
 	return true;
@@ -418,6 +422,7 @@ void ModelWidget::Update()
 		UpdateCamera();
 	}
 
+	Nz::Renderer::SetMatrix(Nz::MatrixType_World, Nz::Matrix4f::Identity());
 	Nz::DebugDrawer::DrawAxes();
 
 	Nz::WindowEvent event;

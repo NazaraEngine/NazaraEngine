@@ -136,7 +136,7 @@ void EditorWindow::BuildMenu()
 	menuEdition->addAction("Re-center", this, &EditorWindow::OnRecenter);
 	menuEdition->addAction("Regenerate normals/tangents", this, &EditorWindow::OnRegenerateNormals);
 
-	QAction* flipUVs = menuEdition->addAction("Inverser les coordonnées de texture");
+	QAction* flipUVs = menuEdition->addAction("Flip texture coordinatives");
 	connect(flipUVs, &QAction::triggered, this, &EditorWindow::OnFlipUVs);
 
 	QMenu* drawMenu = menuBar()->addMenu("&View");
@@ -153,10 +153,15 @@ void EditorWindow::BuildMenu()
 
 	drawMenu->addSection("Model");
 
+	QAction* showAABB = new QAction("Draw AABB", drawMenu);
+	showAABB->setCheckable(true);
+	drawMenu->addAction(showAABB);
+	connect(showAABB, &QAction::toggled, this, &EditorWindow::OnDrawAABB);
+
 	m_showNormalButton = new QAction("Draw normals", drawMenu);
 	m_showNormalButton->setCheckable(true);
 	drawMenu->addAction(m_showNormalButton);
-	connect(m_showNormalButton, &QAction::toggled, this, &EditorWindow::OnNormalToggled);
+	connect(m_showNormalButton, &QAction::toggled, this, &EditorWindow::OnDrawNormalToggled);
 
 	QMenu* fillModeMenu = drawMenu->addMenu("&Fill mode");
 
@@ -260,6 +265,16 @@ void EditorWindow::BuildTransformDialogs()
 
 		ApplyTransform(Nz::Matrix4f::Scale(scale));
 	});
+}
+
+void EditorWindow::OnDrawAABB(bool active)
+{
+	m_modelWidget->ShowAABB(active);
+}
+
+void EditorWindow::OnDrawNormalToggled(bool active)
+{
+	m_modelWidget->ShowNormals(active);
 }
 
 void EditorWindow::SetModel(Nz::ModelRef model)
@@ -501,11 +516,6 @@ void EditorWindow::OnMaterialSelected()
 		m_subMeshListOnSelectionChange = connect(m_subMeshList, &QListWidget::itemSelectionChanged, this, &EditorWindow::OnSubmeshSelected);
 		OnSubmeshSelected();
 	}
-}
-
-void EditorWindow::OnNormalToggled(bool active)
-{
-	m_modelWidget->ShowNormals(active);
 }
 
 void EditorWindow::OnRecenter()

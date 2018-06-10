@@ -1,6 +1,6 @@
 // Copyright (C) 2016 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit Qt Layer"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NdkQt/QtCanvas.hpp>
 #include <QtGui/QKeyEvent>
@@ -24,14 +24,9 @@ namespace Ndk
 		setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 	}
 
-	unsigned int QtCanvas::GetHeight() const
+	Nz::Vector2ui QtCanvas::GetSize() const
 	{
-		return height();
-	}
-
-	unsigned int QtCanvas::GetWidth() const
-	{
-		return width();
+		return Nz::Vector2ui(Nz::Vector2i(width(), height()));
 	}
 
 	QSize QtCanvas::minimumSizeHint() const

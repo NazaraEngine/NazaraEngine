@@ -36,6 +36,8 @@ class EditorWindow : public QMainWindow
 		void BuildMenu();
 		QPushButton* BuildTransformDialog(QDialog*& dialog, const QString& name, const QString& unitName, const QString& buttonName, std::size_t valueCount, QDoubleSpinBox** spinBoxes, const char* const* valueNames);
 		void BuildTransformDialogs();
+		void OnDrawAABB(bool active);
+		void OnDrawNormalToggled(bool active);
 		void OnEditMaterial(std::size_t matIndex);
 		void OnExport();
 		void OnFlipUVs();
@@ -44,7 +46,6 @@ class EditorWindow : public QMainWindow
 		void OnRegenerateNormals();
 		void OnMaterialEdited(MaterialEditor* editor, std::size_t matIndex, const Nz::ParameterList& materialParameters);
 		void OnMaterialSelected();
-		void OnNormalToggled(bool active);
 		void OnRecenter();
 		void OnSubmeshSelected();
 		void ShowMaterialContextMenu(const QPoint& location);

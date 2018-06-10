@@ -22,10 +22,10 @@
 	SOFTWARE.
 */
 
-#ifndef NDK_QT_PREREQUESITES_HPP
-#define NDK_QT_PREREQUESITES_HPP
+#ifndef NDK_QT_PREREQUISITES_HPP
+#define NDK_QT_PREREQUISITES_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 // Importation/Exportation de l'API
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -51,4 +51,4 @@
 	#define NDK_API
 #endif
 
-#endif // NDK_QT_PREREQUESITES_HPP
+#endif // NDK_QT_PREREQUISITES_HPP

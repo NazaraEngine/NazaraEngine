@@ -21,6 +21,7 @@ class ModelWidget : public Ndk::QtCanvas
 
 		void ResetCamera();
 
+		void ShowAABB(bool showAABB = true);
 		void ShowNormals(bool normals = true);
 		void ShowSubmeshes(const Nz::Bitset<>& submeshes);
 
