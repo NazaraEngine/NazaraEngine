@@ -32,13 +32,14 @@ SCENARIO("BaseSystem", "[NDK][BASESYSTEM]")
 {
 	GIVEN("Our TestSystem")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
+
 		Ndk::BaseSystem& system = world.AddSystem<TestSystem>();
 		REQUIRE(&system.GetWorld() == &world);
 
 		WHEN("We add an entity")
 		{
-			const Ndk::EntityHandle& entity = world.CreateEntity();
+			Ndk::EntityHandle entity = world.CreateEntity();
 			entity->AddComponent<Ndk::VelocityComponent>();
 
 			THEN("System should have it")
@@ -50,7 +51,7 @@ SCENARIO("BaseSystem", "[NDK][BASESYSTEM]")
 
 		WHEN("We add an entity with excluded component")
 		{
-			const Ndk::EntityHandle& entity = world.CreateEntity();
+			Ndk::EntityHandle entity = world.CreateEntity();
 			entity->AddComponent<Ndk::VelocityComponent>();
 			entity->AddComponent<Ndk::NodeComponent>();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -65,7 +65,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if byteArray is nullptr
 	*/
 
-	void MemoryStream::SetBuffer(ByteArray* byteArray, UInt32 openMode)
+	void MemoryStream::SetBuffer(ByteArray* byteArray, OpenModeFlags openMode)
 	{
 		NazaraAssert(byteArray, "Invalid ByteArray");
 
@@ -130,15 +130,19 @@ namespace Nz
 
 	std::size_t MemoryStream::WriteBlock(const void* buffer, std::size_t size)
 	{
-		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
-		if (endPos > m_buffer->GetSize())
-			m_buffer->Resize(endPos);
+		if (size > 0)
+		{
+			std::size_t endPos = static_cast<std::size_t>(m_pos + size);
+			if (endPos > m_buffer->GetSize())
+				m_buffer->Resize(endPos);
 
-		NazaraAssert(buffer, "Invalid buffer");
+			NazaraAssert(buffer, "Invalid buffer");
 
-		std::memcpy(m_buffer->GetBuffer() + m_pos, buffer, size);
+			std::memcpy(m_buffer->GetBuffer() + m_pos, buffer, size);
 
-		m_pos = endPos;
+			m_pos = endPos;
+		}
+
 		return size;
 	}
 }

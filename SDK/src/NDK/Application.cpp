@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -12,6 +12,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
 
@@ -106,8 +107,7 @@ namespace Ndk
 		if (m_shouldQuit)
 			return false;
 
-		m_updateTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
 
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);
@@ -147,12 +147,15 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-			windowDimensions.Set(info.window->GetWidth(), info.window->GetHeight() / 4);
+		{
+			windowDimensions = info.window->GetSize();
+			windowDimensions.y /= 4;
+		}
 		else
 			windowDimensions.MakeZero();
 
 		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(windowDimensions), overlay->lua);
-		
+
 		Console& consoleRef = *overlay->console;
 
 		// Redirect logs toward the console
@@ -161,28 +164,29 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
+		overlay->lua.LoadLibraries();
 		LuaAPI::RegisterClasses(overlay->lua);
 
 		// Override "print" function to add a line in the console
-		overlay->lua.PushFunction([&consoleRef] (Nz::LuaInstance& instance)
+		overlay->lua.PushFunction([&consoleRef] (Nz::LuaState& state)
 		{
 			Nz::StringStream stream;
 
-			unsigned int argCount = instance.GetStackTop();
-			instance.GetGlobal("tostring");
+			unsigned int argCount = state.GetStackTop();
+			state.GetGlobal("tostring");
 			for (unsigned int i = 1; i <= argCount; ++i)
 			{
-				instance.PushValue(-1); // tostring function
-				instance.PushValue(i);  // argument
-				instance.Call(1, 1);
+				state.PushValue(-1); // tostring function
+				state.PushValue(i);  // argument
+				state.Call(1, 1);
 
 				std::size_t length;
-				const char* str = instance.CheckString(-1, &length);
+				const char* str = state.CheckString(-1, &length);
 				if (i > 1)
 					stream << '\t';
 
 				stream << Nz::String(str, length);
-				instance.Pop(1);
+				state.Pop(1);
 			}
 
 			consoleRef.AddLine(stream);
@@ -211,7 +215,8 @@ namespace Ndk
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
-			consoleRef.SetSize({float(renderTarget->GetWidth()), renderTarget->GetHeight() / 4.f});
+			Nz::Vector2ui size = renderTarget->GetSize();
+			consoleRef.SetSize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);

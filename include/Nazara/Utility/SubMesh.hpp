@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,14 +7,13 @@
 #ifndef NAZARA_SUBMESH_HPP
 #define NAZARA_SUBMESH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 
 namespace Nz
 {
@@ -29,7 +28,13 @@ namespace Nz
 		friend Mesh;
 
 		public:
+			SubMesh();
+
+			NAZARA_DEPRECATED("Submesh constructor taking a mesh is deprecated, submeshes no longer require to be part of a single mesh")
 			SubMesh(const Mesh* parent);
+
+			SubMesh(const SubMesh&) = delete;
+			SubMesh(SubMesh&&) = delete;
 			virtual ~SubMesh();
 
 			void GenerateNormals();
@@ -40,7 +45,6 @@ namespace Nz
 			virtual AnimationType GetAnimationType() const = 0;
 			virtual const IndexBuffer* GetIndexBuffer() const = 0;
 			UInt32 GetMaterialIndex() const;
-			const Mesh* GetParent() const;
 			PrimitiveMode GetPrimitiveMode() const;
 			UInt32 GetTriangleCount() const;
 			virtual UInt32 GetVertexCount() const = 0;
@@ -50,12 +54,15 @@ namespace Nz
 			void SetMaterialIndex(UInt32 matIndex);
 			void SetPrimitiveMode(PrimitiveMode mode);
 
+			SubMesh& operator=(const SubMesh&) = delete;
+			SubMesh& operator=(SubMesh&&) = delete;
+
 			// Signals:
+			NazaraSignal(OnSubMeshInvalidateAABB, const SubMesh* /*subMesh*/);
 			NazaraSignal(OnSubMeshRelease, const SubMesh* /*subMesh*/);
 
 		protected:
 			PrimitiveMode m_primitiveMode;
-			const Mesh* m_parent;
 			UInt32 m_matIndex;
 	};
 }

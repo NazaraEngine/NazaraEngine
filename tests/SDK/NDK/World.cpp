@@ -55,7 +55,7 @@ SCENARIO("World", "[NDK][WORLD]")
 {
 	GIVEN("A brave new world and the update system")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
 
 		WHEN("We had a new entity with an updatable component and a system")
@@ -79,7 +79,7 @@ SCENARIO("World", "[NDK][WORLD]")
 		AND_WHEN("We update our world with our entity")
 		{
 			REQUIRE(&world.GetSystem(UpdateSystem::systemIndex) == &world.GetSystem<UpdateSystem>());
-			const Ndk::EntityHandle& entity = world.CreateEntity();
+			Ndk::EntityHandle entity = world.CreateEntity();
 			UpdatableComponent& component = entity->AddComponent<UpdatableComponent>();
 
 			THEN("Our entity component must be updated")

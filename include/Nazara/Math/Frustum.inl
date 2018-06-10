@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -684,7 +684,7 @@ namespace Nz
 	* \param matrix Input frustum
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Frustum<T>& frustum)
+	bool Serialize(SerializationContext& context, const Frustum<T>& frustum, TypeTag<Frustum<T>>)
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{
@@ -709,7 +709,7 @@ namespace Nz
 	* \param matrix Output frustum
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Frustum<T>* frustum)
+	bool Unserialize(SerializationContext& context, Frustum<T>* frustum, TypeTag<Frustum<T>>)
 	{
 		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
 		{

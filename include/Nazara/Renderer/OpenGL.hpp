@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,11 +9,11 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 // Inclusion des headers OpenGL
@@ -38,6 +38,7 @@ namespace Nz
 		OpenGLExtension_FP64,
 		OpenGLExtension_GetProgramBinary,
 		OpenGLExtension_SeparateShaderObjects,
+		OpenGLExtension_SeamlessCubeMap,
 		OpenGLExtension_Shader_ImageLoadStore,
 		OpenGLExtension_TextureCompression_s3tc,
 		OpenGLExtension_TextureStorage,
@@ -46,6 +47,7 @@ namespace Nz
 	};
 
 	class Context;
+	struct RenderStates;
 	class RenderTarget;
 
 	using OpenGLFunc = void (*)();
@@ -131,7 +133,6 @@ namespace Nz
 			static GLenum BufferLockRange[BufferAccess_Max+1];
 			static GLenum BufferTarget[BufferType_Max+1];
 			static GLenum BufferTargetBinding[BufferType_Max+1];
-			static GLenum BufferUsage[BufferUsage_Max+1];
 			static GLenum ComponentType[ComponentType_Max+1];
 			static GLenum CubemapFace[6]; // Un cube possède six faces et ça n'est pas près de changer
 			static GLenum FaceFilling[FaceFilling_Max+1];
@@ -250,6 +251,8 @@ NAZARA_RENDERER_API extern PFNGLGETTEXLEVELPARAMETERFVPROC   glGetTexLevelParame
 NAZARA_RENDERER_API extern PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv;
 NAZARA_RENDERER_API extern PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv;
 NAZARA_RENDERER_API extern PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv;
+NAZARA_RENDERER_API extern PFNGLGETUNIFORMFVPROC             glGetUniformfv;
+NAZARA_RENDERER_API extern PFNGLGETUNIFORMIVPROC             glGetUniformiv;
 NAZARA_RENDERER_API extern PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation;
 NAZARA_RENDERER_API extern PFNGLINVALIDATEBUFFERDATAPROC     glInvalidateBufferData;
 NAZARA_RENDERER_API extern PFNGLISENABLEDPROC                glIsEnabled;

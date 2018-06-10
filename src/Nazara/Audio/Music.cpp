@@ -1,9 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Music.hpp>
-#include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
@@ -91,7 +90,7 @@ namespace Nz
 	{
 		if (m_impl)
 		{
-			Stop();
+			StopThread();
 
 			delete m_impl;
 			m_impl = nullptr;
@@ -263,6 +262,8 @@ namespace Nz
 	*/
 	void Music::Pause()
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcePause(m_source);
 	}
 
@@ -339,11 +340,8 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Music not created");
 
-		if (m_impl->streaming)
-		{
-			m_impl->streaming = false;
-			m_impl->thread.Join();
-		}
+		StopThread();
+		SetPlayingOffset(0);
 	}
 
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
@@ -440,6 +438,15 @@ namespace Nz
 			alSourceUnqueueBuffers(m_source, 1, &buffer);
 
 		alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
+	}
+
+	void Music::StopThread()
+	{
+		if (m_impl->streaming)
+		{
+			m_impl->streaming = false;
+			m_impl->thread.Join();
+		}
 	}
 
 	MusicLoader::LoaderList Music::s_loaders;

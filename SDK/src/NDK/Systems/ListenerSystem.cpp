@@ -1,12 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/VelocityComponent.hpp>
 
 namespace Ndk
 {
@@ -34,7 +33,7 @@ namespace Ndk
 	* \param elapsedTime Delta time used for the update
 	*/
 
-	void ListenerSystem::OnUpdate(float /*elapsedTime*/)
+	void ListenerSystem::OnUpdate(float elapsedTime)
 	{
 		std::size_t activeListenerCount = 0;
 
@@ -45,18 +44,18 @@ namespace Ndk
 			if (!listener.IsActive())
 				continue;
 
+			Nz::Vector3f oldPos = Nz::Audio::GetListenerPosition();
+
 			// We get the position and the rotation to affect these to the listener
 			const NodeComponent& node = entity->GetComponent<NodeComponent>();
-			Nz::Audio::SetListenerPosition(node.GetPosition(Nz::CoordSys_Global));
+			Nz::Vector3f newPos = node.GetPosition(Nz::CoordSys_Global);
+
+			Nz::Audio::SetListenerPosition(newPos);
 			Nz::Audio::SetListenerRotation(node.GetRotation(Nz::CoordSys_Global));
 
-			// We verify the presence of a component of velocity
-			// (The listener'speed does not move it, but disturbs the sound like Doppler effect)
-			if (entity->HasComponent<VelocityComponent>())
-			{
-				const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
-				Nz::Audio::SetListenerVelocity(velocity.linearVelocity);
-			}
+			// Compute listener velocity based on their old/new position
+			Nz::Vector3f velocity = (newPos - oldPos) / elapsedTime;
+			Nz::Audio::SetListenerVelocity(velocity);
 
 			activeListenerCount++;
 		}

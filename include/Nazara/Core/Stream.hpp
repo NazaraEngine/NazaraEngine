@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_STREAM_HPP
 #define NAZARA_STREAM_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
 
@@ -32,8 +32,8 @@ namespace Nz
 			virtual UInt64 GetCursorPos() const = 0;
 			virtual String GetDirectory() const;
 			virtual String GetPath() const;
-			inline UInt32 GetOpenMode() const;
-			inline UInt32 GetStreamOptions() const;
+			inline OpenModeFlags GetOpenMode() const;
+			inline StreamOptionFlags GetStreamOptions() const;
 
 			virtual UInt64 GetSize() const = 0;
 
@@ -55,14 +55,14 @@ namespace Nz
 			Stream& operator=(Stream&&) = default;
 
 		protected:
-			inline Stream(UInt32 streamOptions = StreamOption_None, UInt32 openMode = OpenMode_NotOpen);
+			inline Stream(StreamOptionFlags streamOptions = StreamOption_None, OpenModeFlags openMode = OpenMode_NotOpen);
 
 			virtual void FlushStream() = 0;
 			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;
 			virtual std::size_t WriteBlock(const void* buffer, std::size_t size) = 0;
 
-			UInt32 m_openMode;
-			UInt32 m_streamOptions;
+			OpenModeFlags m_openMode;
+			StreamOptionFlags m_streamOptions;
 	};
 }
 

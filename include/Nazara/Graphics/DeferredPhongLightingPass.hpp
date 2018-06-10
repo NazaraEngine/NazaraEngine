@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP
 #define NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>
@@ -28,7 +28,7 @@ namespace Nz
 
 			bool IsLightMeshesDrawingEnabled() const;
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
 
 		protected:
 			LightUniforms m_directionalLightUniforms;

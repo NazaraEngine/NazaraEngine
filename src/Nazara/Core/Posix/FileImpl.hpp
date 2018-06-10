@@ -11,13 +11,9 @@
 #define _LARGEFILE64_SOURCE
 #endif
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/File.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <ctime>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 namespace Nz
 {
@@ -36,7 +32,7 @@ namespace Nz
 			bool EndOfFile() const;
 			void Flush();
 			UInt64 GetCursorPos() const;
-			bool Open(const String& filePath, UInt32 mode);
+			bool Open(const String& filePath, OpenModeFlags mode);
 			std::size_t Read(void* buffer, std::size_t size);
 			bool SetCursorPos(CursorPosition pos, Int64 offset);
 			bool SetSize(UInt64 size);

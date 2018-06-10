@@ -1,27 +1,22 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <cstdio>
-#include <cstring>
-#include <limits>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
 	MD5AnimParser::MD5AnimParser(Stream& stream) :
 	m_stream(stream),
+	m_streamFlags(stream.GetStreamOptions()), //< Saves stream flags
 	m_keepLastLine(false),
 	m_frameIndex(0),
 	m_frameRate(0),
-	m_lineCount(0),
-	m_streamFlags(stream.GetStreamOptions()) //< Saves stream flags
+	m_lineCount(0)
 	{
 		m_stream.EnableTextMode(true);
 	}
@@ -255,6 +250,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_stream.ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 			}

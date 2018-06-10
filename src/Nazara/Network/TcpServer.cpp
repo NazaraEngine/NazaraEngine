@@ -1,12 +1,10 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/TcpServer.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Network/TcpClient.hpp>
-#include <limits>
 #include <Nazara/Network/Debug.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_TEXTUREBACKGROUND_HPP
 #define NAZARA_TEXTUREBACKGROUND_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -24,9 +24,9 @@ namespace Nz
 		public:
 			TextureBackground(TextureRef texture = TextureRef());
 
-			void Draw(const AbstractViewer* viewer) const;
+			void Draw(const AbstractViewer* viewer) const override;
 
-			BackgroundType GetBackgroundType() const;
+			BackgroundType GetBackgroundType() const override;
 			inline const TextureRef& GetTexture() const;
 
 			inline void SetTexture(TextureRef texture);

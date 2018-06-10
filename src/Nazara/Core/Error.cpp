@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -148,7 +148,7 @@ namespace Nz
 
 		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
 			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error);
+			throw std::runtime_error(error.ToStdString());
 	}
 
 	/*!
@@ -183,7 +183,7 @@ namespace Nz
 
 		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
 			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error);
+			throw std::runtime_error(error.ToStdString());
 	}
 
 	UInt32 Error::s_flags = ErrorFlag_None;

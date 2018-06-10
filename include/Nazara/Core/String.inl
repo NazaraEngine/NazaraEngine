@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,16 +7,32 @@
 
 namespace Nz
 {
-	/*!
-	* \ingroup core
-	* \brief Constructs a String object with a shared string by move semantic
-	*
-	* \param sharedString Shared string to move into this
-	*/
+	inline Nz::String::String(String&& string) noexcept :
+	m_sharedString(std::move(string.m_sharedString))
+	{
+		string.m_sharedString = GetEmptyString();
+	}
 
 	inline String::String(std::shared_ptr<SharedString>&& sharedString) :
 	m_sharedString(std::move(sharedString))
 	{
+	}
+
+	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param ... Format arguments
+	*/
+	String String::Format(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		String result = FormatVA(format, args);
+		va_end(args);
+
+		return result;
 	}
 
 	/*!
@@ -104,7 +120,7 @@ namespace std
 				const char* ptr = str.GetConstBuffer();
 
 				do
-					h = ((h << 5) + h) + *ptr;
+					h = ((h << 5) + h) + static_cast<size_t>(*ptr);
 				while (*++ptr);
 			}
 

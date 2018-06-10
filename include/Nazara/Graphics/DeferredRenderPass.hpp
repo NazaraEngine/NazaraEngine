@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,21 +7,17 @@
 #ifndef NAZARA_DEFERREDRENDERPASS_HPP
 #define NAZARA_DEFERREDRENDERPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Math/Vector2.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
 	class DeferredRenderTechnique;
-	class DeferredRenderQueue;
-	class RenderBuffer;
+	class DeferredProxyRenderQueue;
 	class RenderTexture;
-	class Scene;
 	class Texture;
+	struct SceneData;
 
 	class NAZARA_GRAPHICS_API DeferredRenderPass
 	{
@@ -46,7 +42,7 @@ namespace Nz
 		protected:
 			Vector2ui m_dimensions;
 			DeferredRenderTechnique* m_deferredTechnique;
-			DeferredRenderQueue* m_renderQueue;
+			DeferredProxyRenderQueue* m_renderQueue;
 			RenderTexture* m_GBufferRTT;
 			RenderTexture* m_workRTT;
 			Texture* m_depthStencilTexture;

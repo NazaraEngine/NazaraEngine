@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,7 +38,7 @@ namespace Nz
 
 			Nz::String ToString() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T* operator->() const;
 
@@ -49,8 +49,8 @@ namespace Nz
 			static const ObjectHandle InvalidHandle;
 
 		protected:
-			void OnObjectDestroyed();
-			void OnObjectMoved(T* newObject);
+			void OnObjectDestroyed() noexcept;
+			void OnObjectMoved(T* newObject) noexcept;
 
 			T* m_object;
 	};
@@ -69,7 +69,7 @@ namespace Nz
 	template<typename T> bool operator<(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<(const ObjectHandle<T>& lhs, const T& rhs);
 
-	template<typename T> bool operator<=(const ObjectHandle<T>, const ObjectHandle<T>& rhs);
+	template<typename T> bool operator<=(const ObjectHandle<T>&, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator<=(const ObjectHandle<T>& lhs, const T& rhs);
 
@@ -81,8 +81,8 @@ namespace Nz
 	template<typename T> bool operator>=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const T& rhs);
 
-	template<typename T> struct PointedType<ObjectHandle<T>> { typedef T type; };
-	template<typename T> struct PointedType<const ObjectHandle<T>> { typedef T type; };
+	template<typename T> struct PointedType<ObjectHandle<T>> { using type = T; };
+	template<typename T> struct PointedType<const ObjectHandle<T>> { using type = T; };
 }
 
 namespace std

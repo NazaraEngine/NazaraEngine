@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -295,7 +295,7 @@ namespace Nz
 	}
 
 	/*!
-	* \Brief Checks whether the string contains the character
+	* \brief Checks whether the string contains the character
 	* \return true if found in the string
 	*
 	* \param character Single character
@@ -311,7 +311,7 @@ namespace Nz
 	}
 
 	/*!
-	* \Brief Checks whether the string contains the "C string"
+	* \brief Checks whether the string contains the "C string"
 	* \return true if found in the string
 	*
 	* \param string String to search
@@ -327,7 +327,7 @@ namespace Nz
 	}
 
 	/*!
-	* \Brief Checks whether the string contains the string
+	* \brief Checks whether the string contains the string
 	* \return true if found in the string
 	*
 	* \param string String to search
@@ -2095,6 +2095,43 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the index where a character begin
+	*
+	* Iterate through the string to find the starting position of a specific character index
+	* This is useful because non-ASCII characters may be encoded using multiple bytes.
+	*
+	* \param characterIndex Index of the character to search for
+	*
+	* \return Starting index
+	*/
+	std::size_t String::GetCharacterPosition(std::size_t characterIndex) const
+	{
+		const char* ptr = m_sharedString->string.get();
+		const char* end = &m_sharedString->string[m_sharedString->size];
+
+		try
+		{
+			utf8::advance(ptr, characterIndex, end);
+
+			return ptr - m_sharedString->string.get();
+		}
+		catch (utf8::not_enough_room& /*e*/)
+		{
+			// Returns npos
+		}
+		catch (utf8::exception& e)
+		{
+			NazaraError("UTF-8 error: " + String(e.what()));
+		}
+		catch (std::exception& e)
+		{
+			NazaraError(e.what());
+		}
+
+		return npos;
+	}
+
+	/*!
 	* \brief Gets the raw buffer
 	* \return Raw buffer
 	*/
@@ -2207,7 +2244,7 @@ namespace Nz
 	* \brief Gets the word until next separator
 	* \return Word string
 	*
-	* \param start Index to begin the search
+	* \param index Index to begin the search
 	* \param flags Flag for the look up
 	*/
 
@@ -2252,7 +2289,7 @@ namespace Nz
 	* \brief Gets the word position
 	* \return Position of the beginning of the word
 	*
-	* \param start Index to begin the search
+	* \param index Index to begin the search
 	* \param flags Flag for the look up
 	*/
 
@@ -2692,8 +2729,8 @@ namespace Nz
 	* \brief Replaces the old "C string" by the new one
 	* \return Number of changes
 	*
-	* \param oldCharacter Pattern to find
-	* \param newCharacter Pattern to change for
+	* \param oldString Pattern to find
+	* \param replaceString Pattern to change for
 	* \param start Index to begin the search
 	* \param flags Flag for the look up
 	*/
@@ -2707,10 +2744,10 @@ namespace Nz
 	* \brief Replaces the old "C string" by the new one
 	* \return Number of changes
 	*
-	* \param oldCharacter Pattern to find
+	* \param oldString Pattern to find
 	* \param oldLength Length of the old string
-	* \param newCharacter Pattern to change for
-	* \param Length of the new string
+	* \param replaceString Pattern to change for
+	* \param replaceLength of the new string
 	* \param start Index to begin the search
 	* \param flags Flag for the look up
 	*/
@@ -2785,8 +2822,8 @@ namespace Nz
 	* \brief Replaces the old string by the new one
 	* \return Number of changes
 	*
-	* \param oldCharacter Pattern to find
-	* \param newCharacter Pattern to change for
+	* \param oldString Pattern to find
+	* \param replaceString Pattern to change for
 	* \param start Index to begin the search
 	* \param flags Flag for the look up
 	*/
@@ -2801,7 +2838,7 @@ namespace Nz
 	* \return Number of changes
 	*
 	* \param oldCharacters Pattern to find
-	* \param newCharacter Pattern to change for
+	* \param replaceCharacter Pattern to change for
 	* \param start Index to begin the search
 	* \param flags Flag for the look up
 	*
@@ -3609,7 +3646,7 @@ namespace Nz
 	* \return The number of splits
 	*
 	* \param result Resulting tokens
-	* \param separation List of characters of separation
+	* \param separations List of characters for separation
 	* \param start Index for the beginning of the search
 	* \param flags Flag for the look up
 	*/
@@ -3650,7 +3687,7 @@ namespace Nz
 	* \return The number of splits
 	*
 	* \param result Resulting tokens
-	* \param separation List of characters of separation
+	* \param separations List of characters for separation
 	* \param start Index for the beginning of the search
 	* \param flags Flag for the look up
 	*/
@@ -3848,7 +3885,7 @@ namespace Nz
 	* \brief Returns a sub string of the string from a character
 	* \return SubString
 	*
-	* \param charater Pattern to find
+	* \param character Pattern to find
 	* \param startPos Index for the beginning of the search
 	* \param fromLast beginning by the end
 	* \param include Include the character
@@ -3938,7 +3975,7 @@ namespace Nz
 	* \brief Returns a sub string of the string up to a character
 	* \return SubString
 	*
-	* \param charater Pattern to find
+	* \param character Pattern to find
 	* \param startPos Index for the beginning of the search
 	* \param toLast beginning by the end
 	* \param include Include the character
@@ -4087,7 +4124,6 @@ namespace Nz
 	* \return true if successful
 	*
 	* \param value Double to convert to
-	* \param flags Flag for the look up
 	*/
 
 	bool String::ToDouble(double* value) const
@@ -4106,7 +4142,7 @@ namespace Nz
 	* \return true if successful
 	*
 	* \param value Integer to convert to
-	* \param flags Flag for the look up
+	* \param base Base to convert the integer to
 	*/
 
 	bool String::ToInteger(long long* value, UInt8 base) const
@@ -4162,12 +4198,20 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Converts the string to std::string
+	* \return std::string representation
+	*/
+	std::string String::ToStdString() const
+	{
+		return std::string(m_sharedString->string.get(), m_sharedString->size);
+	}
+
+	/*!
 	* \brief Converts the string to upper
 	* \return Upper string
 	*
 	* \param flags Flag for the look up
 	*/
-
 	String String::ToUpper(UInt32 flags) const
 	{
 		if (m_sharedString->size == 0)
@@ -4444,16 +4488,6 @@ namespace Nz
 		return &m_sharedString->string[-1];
 	}
 	*/
-
-	/*!
-	* \brief Converts the string to std::string
-	* \return std::string representation
-	*/
-
-	String::operator std::string() const
-	{
-		return std::string(m_sharedString->string.get(), m_sharedString->size);
-	}
 
 	/*!
 	* \brief Gets the ith character in the string
@@ -5042,7 +5076,7 @@ namespace Nz
 	* \return The expected result
 	*
 	* \param first First string to use for comparison
-	* \parma second Second string to use for comparison
+	* \param second Second string to use for comparison
 	*/
 
 	int String::Compare(const String& first, const String& second)
@@ -5054,6 +5088,27 @@ namespace Nz
 			return 1;
 
 		return std::strcmp(first.GetConstBuffer(), second.GetConstBuffer());
+	}
+
+	/*!
+	* \brief Build a string using a format and returns it
+	* \return Formatted string
+	*
+	* \param format String format
+	* \param args Format arguments
+	*/
+	String String::FormatVA(const char* format, va_list args)
+	{
+		// Copy va_list to use it twice
+		va_list args2;
+		va_copy(args2, args);
+
+		std::size_t length = std::vsnprintf(nullptr, 0, format, args);
+
+		auto str = std::make_shared<SharedString>(length);
+		std::vsnprintf(str->string.get(), length + 1, format, args2);
+
+		return String(std::move(str));
 	}
 
 	/*!
@@ -5425,7 +5480,7 @@ namespace Nz
 	* \brief Output operator
 	* \return The stream
 	*
-	* \param out The stream
+	* \param os The stream
 	* \param str The string to output
 	*/
 
@@ -5465,7 +5520,7 @@ namespace Nz
 	* \return String which is the result of the concatenation
 	*
 	* \param string String to add
-	* \param string String in the right hand side
+	* \param nstring String in the right hand side
 	*/
 
 	String operator+(const char* string, const String& nstring)
@@ -5491,7 +5546,7 @@ namespace Nz
 	* \return String which is the result of the concatenation
 	*
 	* \param string String to add
-	* \param string String in the right hand side
+	* \param nstring String in the right hand side
 	*/
 
 	String operator+(const std::string& string, const String& nstring)
@@ -5609,7 +5664,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator==(char character, const String& nstring)
@@ -5622,7 +5677,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator==(const char* string, const String& nstring)
@@ -5635,7 +5690,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator==(const std::string& string, const String& nstring)
@@ -5648,7 +5703,7 @@ namespace Nz
 	* \return false if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator!=(char character, const String& nstring)
@@ -5661,7 +5716,7 @@ namespace Nz
 	* \return false if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator!=(const char* string, const String& nstring)
@@ -5674,7 +5729,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator!=(const std::string& string, const String& nstring)
@@ -5687,7 +5742,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<(char character, const String& nstring)
@@ -5700,7 +5755,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<(const char* string, const String& nstring)
@@ -5713,7 +5768,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<(const std::string& string, const String& nstring)
@@ -5726,7 +5781,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<=(char character, const String& nstring)
@@ -5739,7 +5794,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<=(const char* string, const String& nstring)
@@ -5752,7 +5807,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator<=(const std::string& string, const String& nstring)
@@ -5765,7 +5820,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>(char character, const String& nstring)
@@ -5778,7 +5833,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>(const char* string, const String& nstring)
@@ -5791,7 +5846,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>(const std::string& string, const String& nstring)
@@ -5804,7 +5859,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param character Single character in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>=(char character, const String& nstring)
@@ -5817,7 +5872,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>=(const char* string, const String& nstring)
@@ -5830,7 +5885,7 @@ namespace Nz
 	* \return true if it is the case
 	*
 	* \param string String to compare in left hand side
-	* \param second String to compare in right hand side
+	* \param nstring String to compare in right hand side
 	*/
 
 	bool operator>=(const std::string& string, const String& nstring)
@@ -5877,7 +5932,7 @@ namespace Nz
 	* \param context Context of serialization
 	* \param string String to serialize
 	*/
-	bool Serialize(SerializationContext& context, const String& string)
+	bool Serialize(SerializationContext& context, const String& string, TypeTag<String>)
 	{
 		if (!Serialize(context, UInt32(string.GetSize())))
 			return false;
@@ -5892,7 +5947,7 @@ namespace Nz
 	* \param context Context of unserialization
 	* \param string String to unserialize
 	*/
-	bool Unserialize(SerializationContext& context, String* string)
+	bool Unserialize(SerializationContext& context, String* string, TypeTag<String>)
 	{
 		UInt32 size;
 		if (!Unserialize(context, &size))
@@ -5917,20 +5972,7 @@ namespace std
 
 	istream& getline(istream& is, Nz::String& str)
 	{
-		str.Clear();
-
-		char c;
-
-		for (;;)
-                {
-			is.get(c);
-			if (c != '\n' && c != '\0')
-				str += c;
-			else
-				break;
-		}
-
-		return is;
+		return getline(is, str, is.widen('\n'));
 	}
 
 	/*!
@@ -5948,13 +5990,17 @@ namespace std
 
 		char c;
 
-		for (;;) 
+		for (;;)
 		{
 			is.get(c);
 			if (c != delim && c != '\0')
 				str += c;
 			else
+			{
+				if (c == '\0')
+					is.setstate(std::ios_base::eofbit);
 				break;
+			}
 		}
 
 		return is;

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,9 +7,9 @@
 #ifndef NAZARA_SOCKETPOLLER_HPP
 #define NAZARA_SOCKETPOLLER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
-#include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {
@@ -19,23 +19,24 @@ namespace Nz
 	{
 		public:
 			SocketPoller();
-			inline SocketPoller(SocketPoller&& socketPoller);
+			SocketPoller(SocketPoller&&) noexcept = default;
 			~SocketPoller();
 
 			void Clear();
 
-			bool IsReady(const AbstractSocket& socket) const;
+			bool IsReadyToRead(const AbstractSocket& socket) const;
+			bool IsReadyToWrite(const AbstractSocket& socket) const;
 			bool IsRegistered(const AbstractSocket& socket) const;
 
-			bool RegisterSocket(AbstractSocket& socket);
+			bool RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(AbstractSocket& socket);
 
-			bool Wait(UInt64 msTimeout);
+			bool Wait(int msTimeout);
 
-			inline SocketPoller& operator=(SocketPoller&& socketPoller);
+			SocketPoller& operator=(SocketPoller&&) noexcept = default;
 
 		private:
-			SocketPollerImpl* m_impl;
+			MovablePtr<SocketPollerImpl> m_impl;
 	};
 }
 

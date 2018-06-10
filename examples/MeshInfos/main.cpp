@@ -2,8 +2,11 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/Sequence.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <cctype>
 #include <iostream>

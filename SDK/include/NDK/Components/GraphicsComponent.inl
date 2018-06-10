@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/World.hpp>
@@ -9,15 +9,21 @@
 
 namespace Ndk
 {
+	inline GraphicsComponent::GraphicsComponent() :
+	m_reflectiveMaterialCount(0),
+	m_scissorRect(-1, -1)
+	{
+	}
+
 	/*!
 	* \brief Constructs a GraphicsComponent object by copy semantic
 	*
 	* \param graphicsComponent GraphicsComponent to copy
 	*/
-
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
+	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
@@ -25,32 +31,17 @@ namespace Ndk
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
 		for (const Renderable& r : graphicsComponent.m_renderables)
-			Attach(r.renderable, r.data.renderOrder);
+			Attach(r.renderable, r.data.localMatrix, r.data.renderOrder);
 	}
 
-	/*!
-	* \brief Adds the renderable elements to the render queue
-	*
-	* \param renderQueue Queue to be added
-	*/
-
-	inline void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
+	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		EnsureTransformMatrixUpdate();
+		m_volumeCullingEntries.emplace_back(VolumeCullingEntry{});
+		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
+		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
+		entry.listEntry = cullingList->RegisterVolumeTest(this);
 
-		Ndk::RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<Ndk::RenderSystem>();
-
-		for (const Renderable& object : m_renderables)
-		{
-			if (!object.dataUpdated)
-			{
-				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
-				object.renderable->UpdateData(&object.data);
-				object.dataUpdated = true;
-			}
-
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
-		}
+		InvalidateBoundingVolume();
 	}
 
 	/*!
@@ -59,23 +50,9 @@ namespace Ndk
 	* \param renderable Reference to a renderable element
 	* \param renderOrder Render order of the element
 	*/
-
 	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
 	{
-		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
-	}
-
-	inline void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
-	{
-		m_renderables.emplace_back(m_transformMatrix);
-		Renderable& r = m_renderables.back();
-		r.data.localMatrix = localMatrix;
-		r.data.renderOrder = renderOrder;
-		r.renderable = std::move(renderable);
-		r.renderableInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
-		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
-
-		InvalidateBoundingVolume();
+		return Attach(std::move(renderable), Nz::Matrix4f::Identity(), renderOrder);
 	}
 
 	/*!
@@ -84,7 +61,14 @@ namespace Ndk
 
 	inline void GraphicsComponent::Clear()
 	{
+		m_materialEntries.clear();
 		m_renderables.clear();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			m_reflectiveMaterialCount = 0;
+			InvalidateReflectionMap();
+		}
 
 		InvalidateBoundingVolume();
 	}
@@ -102,10 +86,39 @@ namespace Ndk
 			if (it->renderable == renderable)
 			{
 				InvalidateBoundingVolume();
+
+				std::size_t materialCount = renderable->GetMaterialCount();
+				for (std::size_t i = 0; i < materialCount; ++i)
+					UnregisterMaterial(renderable->GetMaterial(i));
+
 				m_renderables.erase(it);
 				break;
 			}
 		}
+	}
+
+	/*!
+	* \brief Checks if this graphics component requires real-time reflections to be generated
+	*
+	* If any of the materials attached to a GraphicsComponent (via the attached instanced renderable) needs real-time reflections, this function will return true.
+	*
+	* \return True if real-time reflections needs to be generated or false
+	*/
+	inline bool GraphicsComponent::DoesRequireRealTimeReflections() const
+	{
+		return m_reflectiveMaterialCount != 0 && m_reflectionMap;
+	}
+
+	/*!
+	* \brief Calls a function for every renderable attached to this component
+	*
+	* \param func Callback function which will be called with renderable data
+	*/
+	template<typename Func>
+	void GraphicsComponent::ForEachRenderable(const Func& func) const
+	{
+		for (const auto& renderableData : m_renderables)
+			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
 	}
 
 	/*!
@@ -167,11 +180,60 @@ namespace Ndk
 		return m_boundingVolume;
 	}
 
+	inline void GraphicsComponent::RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const
+	{
+		for (auto it = m_volumeCullingEntries.begin(); it != m_volumeCullingEntries.end(); ++it)
+		{
+			if (it->listEntry.GetParent() == cullingList)
+			{
+				if (m_volumeCullingEntries.size() > 1)
+					*it = std::move(m_volumeCullingEntries.back());
+
+				m_volumeCullingEntries.pop_back();
+				break;
+			}
+		}
+	}
+
+	inline void GraphicsComponent::SetScissorRect(const Nz::Recti& scissorRect)
+	{
+		m_scissorRect = scissorRect;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
+	}
+
+	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.localMatrix = localMatrix;
+
+				InvalidateBoundingVolume();
+				break;
+			}
+		}
+	}
+
+	inline void GraphicsComponent::UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder)
+	{
+		for (auto& renderable : m_renderables)
+		{
+			if (renderable.renderable == instancedRenderable)
+			{
+				renderable.data.renderOrder = renderOrder;
+				break;
+			}
+		}
+	}
+
 	/*!
 	* \brief Invalidates the bounding volume
 	*/
 
-	inline void GraphicsComponent::InvalidateBoundingVolume()
+	inline void GraphicsComponent::InvalidateBoundingVolume() const
 	{
 		m_boundingVolumeUpdated = false;
 	}
@@ -192,9 +254,9 @@ namespace Ndk
 
 	inline void GraphicsComponent::InvalidateTransformMatrix()
 	{
-		m_boundingVolumeUpdated = false;
 		m_transformMatrixUpdated = false;
 
+		InvalidateBoundingVolume();
 		InvalidateRenderables();
 	}
 }

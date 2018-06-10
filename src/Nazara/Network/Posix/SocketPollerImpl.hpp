@@ -7,7 +7,6 @@
 #ifndef NAZARA_SOCKETPOLLERIMPL_HPP
 #define NAZARA_SOCKETPOLLERIMPL_HPP
 
-#include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <unordered_map>
@@ -27,13 +26,14 @@ namespace Nz
 			bool IsReady(SocketHandle socket) const;
 			bool IsRegistered(SocketHandle socket) const;
 
-			bool RegisterSocket(SocketHandle socket);
+			bool RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(SocketHandle socket);
 
-			int Wait(UInt64 msTimeout, SocketError* error);
+			int Wait(int msTimeout, SocketError* error);
 
 		private:
-			std::unordered_set<SocketHandle> m_activeSockets;
+			std::unordered_set<SocketHandle> m_readyToReadSockets;
+			std::unordered_set<SocketHandle> m_readyToWriteSockets;
 			std::unordered_map<SocketHandle, std::size_t> m_allSockets;
 			std::vector<PollSocket> m_sockets;
 	};

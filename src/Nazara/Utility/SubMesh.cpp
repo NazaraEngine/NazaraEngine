@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,19 +6,21 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	SubMesh::SubMesh(const Mesh* parent) :
-	RefCounted(false), // Un SubMesh n'est pas persistant par défaut
+	SubMesh::SubMesh() :
+	RefCounted(false), // wut
 	m_primitiveMode(PrimitiveMode_TriangleList),
-	m_parent(parent),
 	m_matIndex(0)
+	{
+	}
+
+	SubMesh::SubMesh(const Mesh* /*parent*/) :
+	SubMesh()
 	{
 	}
 
@@ -30,12 +32,14 @@ namespace Nz
 	void SubMesh::GenerateNormals()
 	{
 		VertexMapper mapper(this);
-		unsigned int vertexCount = GetVertexCount();
+		UInt32 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+		if (!normals || !positions)
+			return;
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 			normals[i].MakeZero();
 
 		TriangleIterator iterator(this);
@@ -54,21 +58,23 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 			normals[i].Normalize();
 	}
 
 	void SubMesh::GenerateNormalsAndTangents()
 	{
 		VertexMapper mapper(this);
-		unsigned int vertexCount = GetVertexCount();
+		UInt32 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		if (!normals || !positions || !tangents || !texCoords)
+			return;
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 		{
 			normals[i].MakeZero();
 			tangents[i].MakeZero();
@@ -107,7 +113,7 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		for (UInt32 i = 0; i < vertexCount; ++i)
 		{
 			normals[i].Normalize();
 			tangents[i].Normalize();
@@ -122,6 +128,8 @@ namespace Nz
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		if (!normals || !positions || !tangents || !texCoords)
+			return;
 
 		TriangleIterator iterator(this);
 		do
@@ -154,11 +162,6 @@ namespace Nz
 			}
 		}
 		while (iterator.Advance());
-	}
-
-	const Mesh* SubMesh::GetParent() const
-	{
-		return m_parent;
 	}
 
 	PrimitiveMode SubMesh::GetPrimitiveMode() const

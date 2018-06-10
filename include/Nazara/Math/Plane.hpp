@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -59,11 +59,11 @@ namespace Nz
 			T distance;
 	};
 
-	typedef Plane<double> Planed;
-	typedef Plane<float> Planef;
+	using Planed = Plane<double>;
+	using Planef = Plane<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane);
-	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane);
+	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);
 }
 
 template<typename T>

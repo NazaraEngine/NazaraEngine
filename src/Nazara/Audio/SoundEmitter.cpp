@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,7 +23,6 @@ namespace Nz
 	/*!
 	* \brief Constructs a SoundEmitter object
 	*/
-
 	SoundEmitter::SoundEmitter()
 	{
 		alGenSources(1, &m_source);
@@ -39,22 +38,40 @@ namespace Nz
 
 	SoundEmitter::SoundEmitter(const SoundEmitter& emitter)
 	{
-		alGenSources(1, &m_source);
+		if (emitter.m_source != InvalidSource)
+		{
+			alGenSources(1, &m_source);
 
-		SetAttenuation(emitter.GetAttenuation());
-		SetMinDistance(emitter.GetMinDistance());
-		SetPitch(emitter.GetPitch());
-		// No copy for position or velocity
-		SetVolume(emitter.GetVolume());
+			SetAttenuation(emitter.GetAttenuation());
+			SetMinDistance(emitter.GetMinDistance());
+			SetPitch(emitter.GetPitch());
+			// No copy for position or velocity
+			SetVolume(emitter.GetVolume());
+		}
+		else
+			m_source = InvalidSource;
+	}
+
+	/*!
+	* \brief Constructs a SoundEmitter object by moving another
+	*
+	* \param emitter SoundEmitter to move
+	*
+	* \remark The moved sound emitter cannot be used after being moved
+	*/
+	SoundEmitter::SoundEmitter(SoundEmitter&& emitter) noexcept :
+	m_source(emitter.m_source)
+	{
+		emitter.m_source = InvalidSource;
 	}
 
 	/*!
 	* \brief Destructs the object
 	*/
-
 	SoundEmitter::~SoundEmitter()
 	{
-		alDeleteSources(1, &m_source);
+		if (m_source != InvalidSource)
+			alDeleteSources(1, &m_source);
 	}
 
 	/*!
@@ -65,6 +82,8 @@ namespace Nz
 
 	void SoundEmitter::EnableSpatialization(bool spatialization)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcei(m_source, AL_SOURCE_RELATIVE, !spatialization);
 	}
 
@@ -75,6 +94,8 @@ namespace Nz
 
 	float SoundEmitter::GetAttenuation() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALfloat attenuation;
 		alGetSourcef(m_source, AL_ROLLOFF_FACTOR, &attenuation);
 
@@ -88,6 +109,8 @@ namespace Nz
 
 	float SoundEmitter::GetMinDistance() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALfloat distance;
 		alGetSourcef(m_source, AL_REFERENCE_DISTANCE, &distance);
 
@@ -101,6 +124,8 @@ namespace Nz
 
 	float SoundEmitter::GetPitch() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALfloat pitch;
 		alGetSourcef(m_source, AL_PITCH, &pitch);
 
@@ -114,6 +139,8 @@ namespace Nz
 
 	Vector3f SoundEmitter::GetPosition() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		Vector3f position;
 		alGetSourcefv(m_source, AL_POSITION, position);
 
@@ -127,6 +154,8 @@ namespace Nz
 
 	Vector3f SoundEmitter::GetVelocity() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		Vector3f velocity;
 		alGetSourcefv(m_source, AL_VELOCITY, velocity);
 
@@ -140,6 +169,8 @@ namespace Nz
 
 	float SoundEmitter::GetVolume() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALfloat gain;
 		alGetSourcef(m_source, AL_GAIN, &gain);
 
@@ -153,6 +184,8 @@ namespace Nz
 
 	bool SoundEmitter::IsSpatialized() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALint relative;
 		alGetSourcei(m_source, AL_SOURCE_RELATIVE, &relative);
 
@@ -167,6 +200,8 @@ namespace Nz
 
 	void SoundEmitter::SetAttenuation(float attenuation)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcef(m_source, AL_ROLLOFF_FACTOR, attenuation);
 	}
 
@@ -178,6 +213,8 @@ namespace Nz
 
 	void SoundEmitter::SetMinDistance(float minDistance)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcef(m_source, AL_REFERENCE_DISTANCE, minDistance);
 	}
 
@@ -189,6 +226,8 @@ namespace Nz
 
 	void SoundEmitter::SetPitch(float pitch)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcef(m_source, AL_PITCH, pitch);
 	}
 
@@ -200,6 +239,8 @@ namespace Nz
 
 	void SoundEmitter::SetPosition(const Vector3f& position)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcefv(m_source, AL_POSITION, position);
 	}
 
@@ -211,6 +252,8 @@ namespace Nz
 
 	void SoundEmitter::SetPosition(float x, float y, float z)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSource3f(m_source, AL_POSITION, x, y, z);
 	}
 
@@ -222,6 +265,8 @@ namespace Nz
 
 	void SoundEmitter::SetVelocity(const Vector3f& velocity)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcefv(m_source, AL_VELOCITY, velocity);
 	}
 
@@ -233,6 +278,8 @@ namespace Nz
 
 	void SoundEmitter::SetVelocity(float velX, float velY, float velZ)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSource3f(m_source, AL_VELOCITY, velX, velY, velZ);
 	}
 
@@ -244,7 +291,23 @@ namespace Nz
 
 	void SoundEmitter::SetVolume(float volume)
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		alSourcef(m_source, AL_GAIN, volume * 0.01f);
+	}
+
+	/*!
+	* \brief Assign a sound emitter by moving it
+	*
+	* \param emitter SoundEmitter to move
+	*
+	* \return *this
+	*/
+	SoundEmitter& SoundEmitter::operator=(SoundEmitter&& emitter) noexcept
+	{
+		std::swap(m_source, emitter.m_source);
+
+		return *this;
 	}
 
 	/*!
@@ -254,6 +317,8 @@ namespace Nz
 
 	SoundStatus SoundEmitter::GetInternalStatus() const
 	{
+		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
+
 		ALint state;
 		alGetSourcei(m_source, AL_SOURCE_STATE, &state);
 

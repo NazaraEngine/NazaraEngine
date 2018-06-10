@@ -1,5 +1,5 @@
 
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,7 +8,7 @@
 #ifndef NAZARA_ALGORITHM_MATH_HPP
 #define NAZARA_ALGORITHM_MATH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <cmath>
 #include <limits>
@@ -53,7 +53,7 @@ namespace Nz
 	unsigned int GetNumberLength(long double number, UInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 	template<typename T> /*constexpr*/ unsigned int IntegralLog2(T number);
 	template<typename T> /*constexpr*/ unsigned int IntegralLog2Pot(T pot);
-	/*constexpr*/ unsigned int IntegralPow(unsigned int base, unsigned int exponent);
+	template<typename T> /*constexpr*/ T IntegralPow(T base, unsigned int exponent);
 	template<typename T, typename T2> constexpr T Lerp(const T& from, const T& to, const T2& interpolation);
 	template<typename T> constexpr T MultiplyAdd(T x, T y, T z);
 	template<typename T> /*constexpr*/ T NormalizeAngle(T angle);

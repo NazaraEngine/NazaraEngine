@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,10 +7,9 @@
 #ifndef NAZARA_SPRITE_HPP
 #define NAZARA_SPRITE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
 
 namespace Nz
@@ -34,11 +33,12 @@ namespace Nz
 			Sprite(Sprite&&) = delete;
 			~Sprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;
-			inline const MaterialRef& GetMaterial() const;
 			inline const Vector3f& GetOrigin() const;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTextureCoords() const;
@@ -48,11 +48,15 @@ namespace Nz
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeSprite = true);
 			bool SetMaterial(String materialName, bool resizeSprite = true);
+			inline void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite = true);
+			bool SetMaterial(std::size_t skinIndex, String materialName, bool resizeSprite = true);
 			inline void SetOrigin(const Vector3f& origin);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
 			bool SetTexture(String textureName, bool resizeSprite = true);
 			inline void SetTexture(TextureRef texture, bool resizeSprite = true);
+			bool SetTexture(std::size_t skinIndex, String textureName, bool resizeSprite = true);
+			inline void SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite = true);
 			inline void SetTextureCoords(const Rectf& coords);
 			inline void SetTextureRect(const Rectui& rect);
 
@@ -71,7 +75,6 @@ namespace Nz
 
 			std::array<Color, 4> m_cornerColor;
 			Color m_color;
-			MaterialRef m_material;
 			Rectf m_textureCoords;
 			Vector2f m_size;
 			Vector3f m_origin;

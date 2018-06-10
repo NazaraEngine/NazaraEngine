@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -58,13 +58,10 @@ namespace Nz
 			Sphere& Set(const T sphere[4]);
 			template<typename U> Sphere& Set(const Sphere<U>& sphere);
 
-			T SquaredDistance(T X, T Y, T Z) const;
-			T SquaredDistance(const Vector3<T>& point) const;
-
 			String ToString() const;
 
-			T& operator[](unsigned int i);
-			T operator[](unsigned int i) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Sphere operator*(T scalar) const;
 			Sphere& operator=(const Sphere& other) = default;
@@ -81,11 +78,11 @@ namespace Nz
 			T x, y, z, radius;
 	};
 
-	typedef Sphere<double> Sphered;
-	typedef Sphere<float> Spheref;
+	using Sphered = Sphere<double>;
+	using Spheref = Sphere<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere);
-	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere);
+	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>);
 }
 
 template<typename T>

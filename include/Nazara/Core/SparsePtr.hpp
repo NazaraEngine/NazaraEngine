@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,7 +9,7 @@
 
 ///FIXME: Is SparsePtr a really good name for this class ?
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <cstddef>
 #include <type_traits>
 
@@ -25,6 +25,7 @@ namespace Nz
 			SparsePtr();
 			SparsePtr(T* ptr);
 			SparsePtr(VoidPtr ptr, int stride);
+			SparsePtr(VoidPtr ptr, std::size_t stride);
 			template<typename U> SparsePtr(const SparsePtr<U>& ptr);
 			SparsePtr(const SparsePtr& ptr) = default;
 			~SparsePtr() = default;
@@ -41,7 +42,7 @@ namespace Nz
 			void SetPtr(VoidPtr ptr);
 			void SetStride(int stride);
 
-			operator bool() const;
+			explicit operator bool() const;
 			operator T*() const;
 			T& operator*() const;
 			T* operator->() const;

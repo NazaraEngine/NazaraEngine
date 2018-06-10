@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,8 +6,8 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <ostream>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ThreadImpl.hpp>
@@ -34,18 +34,6 @@ namespace Nz
 	Thread::Thread() :
 	m_impl(nullptr)
 	{
-	}
-
-	/*!
-	* \brief Constructs a Thread<T> object by move semantic
-	*
-	* \param other Thread to move into this
-	*/
-
-	Thread::Thread(Thread&& other) noexcept :
-	m_impl(other.m_impl)
-	{
-		other.m_impl = nullptr;
 	}
 
 	/*!
@@ -118,37 +106,50 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Moves the other thread into this
-	* \return A reference to this
+	* \brief Changes the debugging name associated to a thread
 	*
-	* \param thread Thread to move in this
+	* Changes the debugging name associated with a particular thread, and may helps with debugging tools.
 	*
-	* \remark Produce a NazaraError if no functor was assigned and NAZARA_CORE_SAFE is defined
-	* \remark And call std::terminate if no functor was assigned and NAZARA_CORE_SAFE is defined
+	* \param name The new name of the thread
+	*
+	* \remark Due to system limitations, thread name cannot exceed 15 characters (excluding null-terminator)
+	*
+	* \see SetCurrentThreadName
 	*/
-
-	Thread& Thread::operator=(Thread&& thread)
+	void Thread::SetName(const String& name)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_impl)
-		{
-			NazaraError("This thread cannot be joined");
-			std::terminate();
-		}
-		#endif
+		NazaraAssert(m_impl, "Invalid thread");
+		NazaraAssert(name.GetSize() < 16, "Thread name is too long");
 
-		std::swap(m_impl, thread.m_impl);
-		return *this;
+		m_impl->SetName(name);
 	}
 
 	/*!
 	* \brief Gets the number of simulatenous threads that can run on the same cpu
 	* \return The number of simulatenous threads
 	*/
-
 	unsigned int Thread::HardwareConcurrency()
 	{
 		return HardwareInfo::GetProcessorCount();
+	}
+
+
+	/*!
+	* \brief Changes the debugging name associated to the calling thread
+	*
+	* Changes the debugging name associated with the calling thread, and may helps with debugging tools.
+	*
+	* \param name The new name associated with this thread
+	*
+	* \remark Due to system limitations, thread name cannot exceed 15 characters (excluding null-terminator)
+	*
+	* \see SetName
+	*/
+	void Thread::SetCurrentThreadName(const String& name)
+	{
+		NazaraAssert(name.GetSize() < 16, "Thread name is too long");
+
+		ThreadImpl::SetCurrentName(name);
 	}
 
 	/*!
@@ -156,7 +157,6 @@ namespace Nz
 	*
 	* \param milliseconds The number of milliseconds to sleep
 	*/
-
 	void Thread::Sleep(UInt32 milliseconds)
 	{
 		ThreadImpl::Sleep(milliseconds);

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -304,7 +304,7 @@ namespace Nz
 			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
 
 			NazaraError(ss);
-			throw std::out_of_range(ss.ToString());
+			throw std::out_of_range(ss.ToString().ToStdString());
 		}
 		#endif
 
@@ -329,7 +329,7 @@ namespace Nz
 			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
 
 			NazaraError(ss);
-			throw std::out_of_range(ss.ToString());
+			throw std::out_of_range(ss.ToString().ToStdString());
 		}
 		#endif
 
@@ -442,7 +442,7 @@ namespace Nz
 	* \remark Does not save OBB corners
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const OrientedBox<T>& obb)
+	bool Serialize(SerializationContext& context, const OrientedBox<T>& obb, TypeTag<OrientedBox<T>>)
 	{
 		if (!Serialize(context, obb.localBox))
 			return false;
@@ -460,7 +460,7 @@ namespace Nz
 	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb)
+	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>)
 	{
 		if (!Unserialize(context, &obb->localBox))
 			return false;

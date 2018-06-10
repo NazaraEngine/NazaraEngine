@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_RESOURCE_HPP
 #define NAZARA_RESOURCE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz
@@ -17,7 +17,7 @@ namespace Nz
 		public:
 			Resource() = default;
 			Resource(const Resource&) = default;
-			Resource(Resource&&) = default;
+			Resource(Resource&&) noexcept = default;
 			virtual ~Resource();
 
 			const String& GetFilePath() const;
@@ -25,7 +25,7 @@ namespace Nz
 			void SetFilePath(const String& filePath);
 
 			Resource& operator=(const Resource&) = default;
-			Resource& operator=(Resource&&) = default;
+			Resource& operator=(Resource&&) noexcept = default;
 
 		private:
 			String m_filePath;

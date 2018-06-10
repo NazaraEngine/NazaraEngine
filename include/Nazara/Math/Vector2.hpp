@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,7 +24,6 @@ namespace Nz
 			Vector2() = default;
 			Vector2(T X, T Y);
 			explicit Vector2(T scale);
-			Vector2(const T vec[2]);
 			template<typename U> explicit Vector2(const Vector2<U>& vec);
 			Vector2(const Vector2& vec) = default;
 			explicit Vector2(const Vector3<T>& vec);
@@ -104,15 +103,15 @@ namespace Nz
 			T x, y;
 	};
 
-	typedef Vector2<double> Vector2d;
-	typedef Vector2<float> Vector2f;
-	typedef Vector2<int> Vector2i;
-	typedef Vector2<unsigned int> Vector2ui;
-	typedef Vector2<Int32> Vector2i32;
-	typedef Vector2<UInt32> Vector2ui32;
+	using Vector2d = Vector2<double>;
+	using Vector2f = Vector2<float>;
+	using Vector2i = Vector2<int>;
+	using Vector2ui = Vector2<unsigned int>;
+	using Vector2i32 = Vector2<Int32>;
+	using Vector2ui32 = Vector2<UInt32>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector, TypeTag<Vector2<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec);

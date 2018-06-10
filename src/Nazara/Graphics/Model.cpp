@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -41,26 +41,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Model object by default
+	* \brief Destructs the object and cleans resources
 	*/
-
-	Model::Model() :
-	m_matCount(0),
-	m_skin(0),
-	m_skinCount(1)
-	{
-	}
-
-	/*!
-	* \brief Destructs the object and calls Reset
-	*
-	* \see Reset
-	*/
-
-	Model::~Model()
-	{
-		Reset();
-	}
+	Model::~Model() = default;
 
 	/*!
 	* \brief Adds this model to the render queue
@@ -68,8 +51,7 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data used for this instance
 	*/
-
-	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
 		for (unsigned int i = 0; i < submeshCount; ++i)
@@ -78,15 +60,23 @@ namespace Nz
 				continue;
 
 			const StaticMesh* mesh = static_cast<const StaticMesh*>(m_mesh->GetSubMesh(i));
-			Material* material = m_materials[mesh->GetMaterialIndex()];
+			const MaterialRef& material = GetMaterial(mesh->GetMaterialIndex());
 
 			MeshData meshData;
 			meshData.indexBuffer = mesh->GetIndexBuffer();
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = mesh->GetVertexBuffer();
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
+	}
+
+	/*!
+	* \brief Clones this model
+	*/
+	std::unique_ptr<InstancedRenderable> Model::Clone() const
+	{
+		return std::make_unique<Model>(*this);
 	}
 
 	/*!
@@ -99,54 +89,20 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material is invalid
 	*/
-
-	Material* Model::GetMaterial(const String& subMeshName) const
+	const MaterialRef& Model::GetMaterial(const String& subMeshName) const
 	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (!m_mesh)
-		{
-			NazaraError("Model has no mesh");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_mesh, "Model has no mesh");
 
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
 		{
 			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-			return nullptr;
+
+			static MaterialRef Invalid;
+			return Invalid;
 		}
 
-		unsigned int matIndex = subMesh->GetMaterialIndex();
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
-			return nullptr;
-		}
-
-		return m_materials[m_skin * m_matCount + matIndex];
-	}
-
-	/*!
-	* \brief Gets the material by index
-	* \return Pointer to the current material
-	*
-	* \param matIndex Index of the material
-	*
-	* \remark Produces a NazaraError if index is invalid
-	*/
-
-	Material* Model::GetMaterial(unsigned int matIndex) const
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
-			return nullptr;
-		}
-		#endif
-
-		return m_materials[m_skin * m_matCount + matIndex];
+		return GetMaterial(subMesh->GetMaterialIndex());
 	}
 
 	/*!
@@ -160,72 +116,20 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material index is invalid
 	*/
-
-	Material* Model::GetMaterial(unsigned int skinIndex, const String& subMeshName) const
+	const MaterialRef& Model::GetMaterial(std::size_t skinIndex, const String& subMeshName) const
 	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skinIndex >= m_skinCount)
-		{
-			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_mesh, "Model has no mesh");
 
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
 		{
 			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-			return nullptr;
+
+			static MaterialRef Invalid;
+			return Invalid;
 		}
 
-		unsigned int matIndex = subMesh->GetMaterialIndex();
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
-			return nullptr;
-		}
-
-		return m_materials[skinIndex * m_matCount + matIndex];
-	}
-
-	/*!
-	* \brief Gets the material by index with skin
-	* \return Pointer to the current material
-	*
-	* \param skinIndex Index of the skin
-	* \param matIndex Index of the material
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if skinIndex is invalid
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if matIndex is invalid
-	*/
-
-	Material* Model::GetMaterial(unsigned int skinIndex, unsigned int matIndex) const
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skinIndex >= m_skinCount)
-		{
-			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount) + ')');
-			return nullptr;
-		}
-
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
-			return nullptr;
-		}
-		#endif
-
-		return m_materials[skinIndex * m_matCount + matIndex];
-	}
-
-	/*!
-	* \brief Gets the number of materials
-	* \return Current number of materials
-	*/
-
-	unsigned int Model::GetMaterialCount() const
-	{
-		return m_matCount;
+		return GetMaterial(subMesh->GetMaterialIndex());
 	}
 
 	/*!
@@ -236,26 +140,6 @@ namespace Nz
 	Mesh* Model::GetMesh() const
 	{
 		return m_mesh;
-	}
-
-	/*!
-	* \brief Gets the skin
-	* \return Current skin
-	*/
-
-	unsigned int Model::GetSkin() const
-	{
-		return m_skin;
-	}
-
-	/*!
-	* \brief Gets the number of skins
-	* \return Current number of skins
-	*/
-
-	unsigned int Model::GetSkinCount() const
-	{
-		return m_skinCount;
 	}
 
 	/*!
@@ -309,22 +193,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Resets the model, cleans everything
-	*/
-
-	void Model::Reset()
-	{
-		m_matCount = 0;
-		m_skinCount = 0;
-
-		if (m_mesh)
-		{
-			m_mesh.Reset();
-			m_materials.clear();
-		}
-	}
-
-	/*!
 	* \brief Sets the material of the named submesh
 	* \return true If successful
 	*
@@ -335,7 +203,7 @@ namespace Nz
 	* \remark Produces a NazaraError if material index is invalid
 	*/
 
-	bool Model::SetMaterial(const String& subMeshName, Material* material)
+	bool Model::SetMaterial(const String& subMeshName, MaterialRef material)
 	{
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
@@ -344,49 +212,8 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int matIndex = subMesh->GetMaterialIndex();
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount) + ')');
-			return false;
-		}
-
-		unsigned int index = m_skin * m_matCount + matIndex;
-
-		if (material)
-			m_materials[index] = material;
-		else
-			m_materials[index] = Material::GetDefault();
-
+		SetMaterial(subMesh->GetMaterialIndex(), std::move(material));
 		return true;
-	}
-
-	/*!
-	* \brief Sets the material by index
-	* \return true If successful
-	*
-	* \param matIndex Index of the material
-	* \param material Pointer to the material
-	*
-	* \remark Produces a NazaraError with if NAZARA_GRAPHICS_SAFE defined index is invalid
-	*/
-
-	void Model::SetMaterial(unsigned int matIndex, Material* material)
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
-			return;
-		}
-		#endif
-
-		unsigned int index = m_skin * m_matCount + matIndex;
-
-		if (material)
-			m_materials[index] = material;
-		else
-			m_materials[index] = Material::GetDefault();
 	}
 
 	/*!
@@ -401,17 +228,8 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material index is invalid
 	*/
-
-	bool Model::SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material)
+	bool Model::SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material)
 	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skinIndex >= m_skinCount)
-		{
-			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount));
-			return false;
-		}
-		#endif
-
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
 		{
@@ -419,57 +237,8 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int matIndex = subMesh->GetMaterialIndex();
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
-			return false;
-		}
-
-		unsigned int index = skinIndex * m_matCount + matIndex;
-
-		if (material)
-			m_materials[index] = material;
-		else
-			m_materials[index] = Material::GetDefault();
-
+		SetMaterial(skinIndex, subMesh->GetMaterialIndex(), std::move(material));
 		return true;
-	}
-
-	/*!
-	* \brief Sets the material by index with skin
-	* \return true If successful
-	*
-	* \param skinIndex Index of the skin
-	* \param matIndex Index of the material
-	* \param material Pointer to the material
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if skinIndex is invalid
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if matIndex is invalid
-	*/
-
-	void Model::SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material)
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skinIndex >= m_skinCount)
-		{
-			NazaraError("Skin index out of range (" + String::Number(skinIndex) + " >= " + String::Number(m_skinCount));
-			return;
-		}
-
-		if (matIndex >= m_matCount)
-		{
-			NazaraError("Material index out of range (" + String::Number(matIndex) + " >= " + String::Number(m_matCount));
-			return;
-		}
-		#endif
-
-		unsigned int index = skinIndex * m_matCount + matIndex;
-
-		if (material)
-			m_materials[index] = material;
-		else
-			m_materials[index] = Material::GetDefault();
 	}
 
 	/*!
@@ -494,65 +263,19 @@ namespace Nz
 
 		if (m_mesh)
 		{
-			m_matCount = mesh->GetMaterialCount();
-			m_materials.clear();
-			m_materials.resize(m_matCount, Material::GetDefault());
-			m_skinCount = 1;
+			ResetMaterials(mesh->GetMaterialCount());
+			m_meshAABBInvalidationSlot.Connect(m_mesh->OnMeshInvalidateAABB, [this](const Nz::Mesh*) { InvalidateBoundingVolume(); });
 
 			m_enabledSubmeshes.Resize(mesh->GetSubMeshCount());
 			m_enabledSubmeshes.Set();
 		}
 		else
 		{
-			m_matCount = 0;
-			m_materials.clear();
-			m_skinCount = 0;
+			ResetMaterials(0);
+			m_meshAABBInvalidationSlot.Disconnect();
 		}
 
 		InvalidateBoundingVolume();
-	}
-
-	/*!
-	* \brief Sets the skin
-	*
-	* \param skin Skin to use
-	*
-	* \remark Produces a NazaraError if skin is invalid
-	*/
-
-	void Model::SetSkin(unsigned int skin)
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skin >= m_skinCount)
-		{
-			NazaraError("Skin index out of range (" + String::Number(skin) + " >= " + String::Number(m_skinCount) + ')');
-			return;
-		}
-		#endif
-
-		m_skin = skin;
-	}
-
-	/*!
-	* \brief Sets the number of skins
-	*
-	* \param skinCount Number of skins
-	*
-	* \remark Produces a NazaraError if skinCount equals zero
-	*/
-
-	void Model::SetSkinCount(unsigned int skinCount)
-	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (skinCount == 0)
-		{
-			NazaraError("Skin count must be over zero");
-			return;
-		}
-		#endif
-
-		m_materials.resize(m_matCount*skinCount, Material::GetDefault());
-		m_skinCount = skinCount;
 	}
 
 	/*
@@ -567,5 +290,9 @@ namespace Nz
 			m_boundingVolume.MakeNull();
 	}
 
+	ModelLibrary::LibraryMap Model::s_library;
 	ModelLoader::LoaderList Model::s_loaders;
+	ModelManager::ManagerMap Model::s_managerMap;
+	ModelManager::ManagerParams Model::s_managerParameters;
+	ModelSaver::SaverList Model::s_savers;
 }

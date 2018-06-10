@@ -1,14 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
-#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -254,6 +251,32 @@ namespace Nz
 					currentMaterial->reflectionMap = map;
 				}
 			}
+			else if (keyword == "map_normal" || keyword == "normal")
+			{
+				// <!> This is a custom keyword
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
+				if (mapPos != String::npos)
+				{
+					String map = m_currentLine.SubString(mapPos);
+					if (!currentMaterial)
+						currentMaterial = AddMaterial("default");
+
+					currentMaterial->normalMap = map;
+				}
+			}
+			else if (keyword == "map_emissive" || keyword == "emissive")
+			{
+				// <!> This is a custom keyword
+				std::size_t mapPos = m_currentLine.GetWordPosition(1);
+				if (mapPos != String::npos)
+				{
+					String map = m_currentLine.SubString(mapPos);
+					if (!currentMaterial)
+						currentMaterial = AddMaterial("default");
+
+					currentMaterial->emissiveMap = map;
+				}
+			}
 			else if (keyword == "newmtl")
 			{
 				String materialName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
@@ -427,6 +450,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 			}

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,8 +10,7 @@
 #ifndef NAZARA_GUILLOTINEBINPACK_HPP
 #define NAZARA_GUILLOTINEBINPACK_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 

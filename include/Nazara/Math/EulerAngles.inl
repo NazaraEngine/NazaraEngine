@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -77,7 +77,6 @@ namespace Nz
 
 	/*!
 	* \brief Makes the euler angle (0, 0, 0)
-	* \return A reference to this euler angle with components (0, 0, 0)
 	*
 	* \see Zero
 	*/
@@ -276,7 +275,7 @@ namespace Nz
 	* \brief Substracts the components of other euler angle to this euler angle
 	* \return A reference to this euler angle where components are the difference of this euler angle and the other one
 	*
-	* \param angle The other euler angle to substract components with
+	* \param angles The other euler angle to substract components with
 	*/
 
 	template<typename T>
@@ -341,7 +340,7 @@ namespace Nz
 	* \param angles Input euler angles
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles)
+	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Serialize(context, angles.pitch))
 			return false;
@@ -363,7 +362,7 @@ namespace Nz
 	* \param angles Output euler angles
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles)
+	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Unserialize(context, &angles->pitch))
 			return false;

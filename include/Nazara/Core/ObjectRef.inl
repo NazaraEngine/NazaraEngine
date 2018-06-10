@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -484,16 +484,17 @@ namespace Nz
 
 namespace std
 {
-	/*!
-	* \ingroup core
-	* \brief Gives a hash representation of the object, specialisation of std
-	* \return Hash of the ObjectRef
-	*
-	* \param object Object to hash
-	*/
 	template<typename T>
 	struct hash<Nz::ObjectRef<T>>
 	{
+		/*!
+		* \ingroup core
+		* \brief Gives a hash representation of the object, specialisation of std
+		* \return Hash of the ObjectRef
+		*
+		* \param object Object to hash
+		*/
+
 		size_t operator()(const Nz::ObjectRef<T>& object) const
 		{
 			hash<T*> h;

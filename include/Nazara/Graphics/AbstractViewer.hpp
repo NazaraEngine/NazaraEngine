@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTVIEWER_HPP
 #define NAZARA_ABSTRACTVIEWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -33,11 +33,17 @@ namespace Nz
 			virtual Vector3f GetForward() const = 0;
 			virtual const Frustumf& GetFrustum() const = 0;
 			virtual const Matrix4f& GetProjectionMatrix() const = 0;
+			virtual Nz::ProjectionType GetProjectionType() const = 0;
 			virtual const RenderTarget* GetTarget() const = 0;
 			virtual const Matrix4f& GetViewMatrix() const = 0;
 			virtual const Recti& GetViewport() const = 0;
 			virtual float GetZFar() const = 0;
 			virtual float GetZNear() const = 0;
+
+			Nz::Vector3f Project(const Nz::Vector3f& worldPosition) const;
+			float ProjectDepth(float depth);
+
+			Nz::Vector3f Unproject(const Nz::Vector3f& screenPos) const;
 
 			AbstractViewer& operator=(const AbstractViewer&) = default;
 			AbstractViewer& operator=(AbstractViewer&&) noexcept = default;

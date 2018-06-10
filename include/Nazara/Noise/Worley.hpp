@@ -1,16 +1,15 @@
-// Copyright (C) 2016 Rémi Bèges
+// Copyright (C) 2017 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_WORLEY_HPP
 #define NAZARA_WORLEY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Enums.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <initializer_list>
 #include <map>
 
 namespace Nz

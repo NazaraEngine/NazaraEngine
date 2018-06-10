@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,10 +7,12 @@
 #ifndef NAZARA_SKELETALMESH_HPP
 #define NAZARA_SKELETALMESH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
 
 namespace Nz
 {
@@ -22,20 +24,25 @@ namespace Nz
 	class NAZARA_UTILITY_API SkeletalMesh final : public SubMesh
 	{
 		public:
+			SkeletalMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
+
+			NAZARA_DEPRECATED("SkeletalMesh constructor taking a mesh is deprecated, submeshes no longer require to be part of a single mesh")
 			SkeletalMesh(const Mesh* parent);
+
 			~SkeletalMesh();
 
+			NAZARA_DEPRECATED("SkeletalMesh create/destroy functions are deprecated, please use constructor")
 			bool Create(VertexBuffer* vertexBuffer);
 			void Destroy();
 
 			const Boxf& GetAABB() const override;
-			AnimationType GetAnimationType() const final;
+			AnimationType GetAnimationType() const final override;
 			const IndexBuffer* GetIndexBuffer() const override;
 			VertexBuffer* GetVertexBuffer();
 			const VertexBuffer* GetVertexBuffer() const;
 			unsigned int GetVertexCount() const override;
 
-			bool IsAnimated() const final;
+			bool IsAnimated() const final override;
 			bool IsValid() const;
 
 			void SetAABB(const Boxf& aabb);
@@ -49,8 +56,8 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
-			IndexBufferConstRef m_indexBuffer = nullptr;
-			VertexBufferRef m_vertexBuffer = nullptr;
+			IndexBufferConstRef m_indexBuffer;
+			VertexBufferRef m_vertexBuffer;
 	};
 }
 

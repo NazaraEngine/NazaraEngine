@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
+// Copyright (C) 2017 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -74,11 +74,11 @@ namespace Nz
 			Vector3<T> direction, origin;
 	};
 
-	typedef Ray<double> Rayd;
-	typedef Ray<float> Rayf;
+	using Rayd = Ray<double>;
+	using Rayf = Ray<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray);
-	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray);
+	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray, TypeTag<Ray<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);

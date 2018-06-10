@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,26 +7,26 @@
 #ifndef NAZARA_RENDERER_HPP
 #define NAZARA_RENDERER_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/GpuQuery.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 
 namespace Nz
 {
 	class Color;
 	class Context;
+	class GpuQuery;
 	class IndexBuffer;
 	class RenderTarget;
+	struct RenderStates;
 	class Shader;
 	class Texture;
+	class TextureSampler;
 	class VertexBuffer;
+	class VertexDeclaration;
 
 	class NAZARA_RENDERER_API Renderer
 	{
@@ -102,8 +102,8 @@ namespace Nz
 			static void SetStencilReferenceValue(unsigned int refValue, FaceSide faceSide = FaceSide_FrontAndBack);
 			static void SetStencilZFailOperation(StencilOperation zfailOperation, FaceSide faceSide = FaceSide_FrontAndBack);
 			static bool SetTarget(const RenderTarget* target);
-			static void SetTexture(UInt8 unit, const Texture* texture);
-			static void SetTextureSampler(UInt8 textureUnit, const TextureSampler& sampler);
+			static void SetTexture(unsigned int unit, const Texture* texture);
+			static void SetTextureSampler(unsigned int textureUnit, const TextureSampler& sampler);
 			static void SetVertexBuffer(const VertexBuffer* vertexBuffer);
 			static void SetViewport(const Recti& viewport);
 
@@ -112,6 +112,7 @@ namespace Nz
 		private:
 			static void EnableInstancing(bool instancing);
 			static bool EnsureStateUpdate();
+			static bool GenerateDebugShader();
 			static void OnContextRelease(const Context* context);
 			static void OnIndexBufferRelease(const IndexBuffer* indexBuffer);
 			static void OnShaderReleased(const Shader* shader);

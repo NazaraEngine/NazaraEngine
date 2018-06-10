@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,7 +10,6 @@
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/RUdpConnection.hpp>
-#include <Nazara/Network/Debug.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>

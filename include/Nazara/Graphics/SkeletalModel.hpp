@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,14 +7,12 @@
 #ifndef NAZARA_SKELETALMODEL_HPP
 #define NAZARA_SKELETALMODEL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Utility/Animation.hpp>
-#include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
-#include <vector>
+#include <Nazara/Utility/Skeleton.hpp>
 
 namespace Nz
 {
@@ -40,10 +38,10 @@ namespace Nz
 			SkeletalModel(SkeletalModel&& model) = default;
 			~SkeletalModel() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 			void AdvanceAnimation(float elapsedTime);
 
-			SkeletalModel* Clone() const;
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 			SkeletalModel* Create() const;
 
 			void EnableAnimation(bool animation);
@@ -60,8 +58,6 @@ namespace Nz
 			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
 			bool LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
-
-			void Reset();
 
 			bool SetAnimation(Animation* animation);
 			void SetMesh(Mesh* mesh) override;

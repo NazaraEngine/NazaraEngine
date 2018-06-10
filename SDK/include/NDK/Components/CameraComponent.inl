@@ -1,8 +1,7 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/Components/CameraComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 
@@ -13,6 +12,7 @@ namespace Ndk
 	*/
 
 	inline CameraComponent::CameraComponent() :
+	m_visibilityHash(0U),
 	m_projectionType(Nz::ProjectionType_Perspective),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_target(nullptr),
@@ -38,6 +38,8 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	AbstractViewer(camera),
+	HandledObject(camera),
+	m_visibilityHash(camera.m_visibilityHash),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
 	m_target(nullptr),
@@ -112,16 +114,6 @@ namespace Ndk
 	inline unsigned int CameraComponent::GetLayer() const
 	{
 		return m_layer;
-	}
-
-	/*!
-	* \brief Gets the projection type of the camera
-	* \return Projection type of the camera
-	*/
-
-	inline Nz::ProjectionType CameraComponent::GetProjectionType() const
-	{
-		return m_projectionType;
 	}
 
 	/*!
@@ -245,10 +237,9 @@ namespace Ndk
 		NazaraAssert(m_target, "Component has no render target");
 
 		// We compute the region necessary to make this view port with the actual size of the target
-		float invWidth = 1.f / m_target->GetWidth();
-		float invHeight = 1.f / m_target->GetHeight();
+		Nz::Vector2f invSize = 1.f / Nz::Vector2f(m_target->GetSize());
 
-		SetTargetRegion(Nz::Rectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
+		SetTargetRegion(Nz::Rectf(invSize.x * viewport.x, invSize.y * viewport.y, invSize.x * viewport.width, invSize.y * viewport.height));
 	}
 
 	/*!
@@ -278,6 +269,26 @@ namespace Ndk
 		m_zNear = zNear;
 
 		InvalidateProjectionMatrix();
+	}
+
+	/*!
+	* \brief Update the camera component visibility hash
+	*
+	* This is used with CullingList (which produce a visibility hash)
+	*
+	* \param visibilityHash New visibility hash
+	*
+	* \return True if the visibility hash is not the same as before
+	*/
+	inline bool CameraComponent::UpdateVisibility(std::size_t visibilityHash)
+	{
+		if (m_visibilityHash != visibilityHash)
+		{
+			m_visibilityHash = visibilityHash;
+			return true;
+		}
+
+		return false;
 	}
 
 	/*!

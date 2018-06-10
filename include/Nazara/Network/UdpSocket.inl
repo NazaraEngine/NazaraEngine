@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -51,15 +51,15 @@ namespace Nz
 		IpAddress any;
 		switch (m_protocol)
 		{
-			case NetProtocol_Any:
 			case NetProtocol_Unknown:
-				NazaraInternalError("Invalid protocol Any at this point");
+				NazaraInternalError("Invalid protocol");
 				return SocketState_NotConnected;
 
 			case NetProtocol_IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
+			case NetProtocol_Any:
 			case NetProtocol_IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
@@ -101,16 +101,6 @@ namespace Nz
 	inline UInt16 UdpSocket::GetBoundPort() const
 	{
 		return m_boundAddress.GetPort();
-	}
-
-	/*!
-	* \brief Gets the state of the socket
-	* \return State of the socket
-	*/
-
-	inline SocketState UdpSocket::GetState() const
-	{
-		return m_state;
 	}
 
 	/*!

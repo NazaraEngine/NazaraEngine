@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_BILLBOARD_HPP
 #define NAZARA_BILLBOARD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 
@@ -29,20 +29,23 @@ namespace Nz
 			Billboard(Billboard&&) = delete;
 			~Billboard() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline const Color& GetColor() const;
-			inline const MaterialRef& GetMaterial() const;
 			inline float GetRotation() const;
 			inline const Vector2f& GetSize() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeBillboard = true);
+			inline void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard = true);
 			inline void SetRotation(float rotation);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
 			inline void SetTexture(TextureRef texture, bool resizeBillboard = true);
+			inline void SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard = true);
 
 			inline Billboard& operator=(const Billboard& billboard);
 			Billboard& operator=(Billboard&&) = delete;
@@ -53,7 +56,6 @@ namespace Nz
 			void MakeBoundingVolume() const override;
 
 			Color m_color;
-			MaterialRef m_material;
 			Vector2f m_sinCos;
 			Vector2f m_size;
 			float m_rotation;

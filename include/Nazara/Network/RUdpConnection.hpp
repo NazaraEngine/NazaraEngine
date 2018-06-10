@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_RUDPSERVER_HPP
 #define NAZARA_RUDPSERVER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -22,8 +22,6 @@
 
 namespace Nz
 {
-	class RUdpClient;
-
 	class NAZARA_NETWORK_API RUdpConnection
 	{
 		friend class Network;

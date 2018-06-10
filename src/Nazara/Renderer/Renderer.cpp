@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,26 +8,30 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <map>
 #include <memory>
-#include <set>
-#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -39,14 +43,6 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_coreFragmentShader[] = {
-			#include <Nazara/Renderer/Resources/Shaders/Debug/core.frag.h>
-		};
-
-		const UInt8 r_coreVertexShader[] = {
-			#include <Nazara/Renderer/Resources/Shaders/Debug/core.vert.h>
-		};
-
 		enum ObjectType
 		{
 			ObjectType_Context,
@@ -578,9 +574,9 @@ namespace Nz
 		}
 
 		// Initialisation des dépendances
-		if (!Utility::Initialize())
+		if (!Platform::Initialize())
 		{
-			NazaraError("Failed to initialize Utility module");
+			NazaraError("Failed to initialize Platform module");
 			return false;
 		}
 
@@ -656,7 +652,7 @@ namespace Nz
 		s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
 		s_vertexBuffer = nullptr;
 
-		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, BufferUsage_Static);
+		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, 0);
 
 		float vertices[4 * 2 * 2] =
 		{
@@ -718,33 +714,11 @@ namespace Nz
 			return false;
 		}
 
-		// Création du shader de Debug
-		ShaderRef debugShader = Shader::New();
-		if (!debugShader->Create())
+		if (!GenerateDebugShader())
 		{
-			NazaraError("Failed to create debug shader");
+			NazaraError("Failed to generate debug shader");
 			return false;
 		}
-
-		if (!debugShader->AttachStageFromSource(ShaderStageType_Fragment, reinterpret_cast<const char*>(r_coreFragmentShader), sizeof(r_coreFragmentShader)))
-		{
-			NazaraError("Failed to attach fragment stage");
-			return false;
-		}
-
-		if (!debugShader->AttachStageFromSource(ShaderStageType_Vertex, reinterpret_cast<const char*>(r_coreVertexShader), sizeof(r_coreVertexShader)))
-		{
-			NazaraError("Failed to attach vertex stage");
-			return false;
-		}
-
-		if (!debugShader->Link())
-		{
-			NazaraError("Failed to link shader");
-			return false;
-		}
-
-		ShaderLibrary::Register("DebugSimple", debugShader);
 
 		onExit.Reset();
 
@@ -939,14 +913,6 @@ namespace Nz
 
 	void Renderer::SetIndexBuffer(const IndexBuffer* indexBuffer)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (indexBuffer && !indexBuffer->IsHardware())
-		{
-			NazaraError("Buffer must be hardware");
-			return;
-		}
-		#endif
-
 		if (s_indexBuffer != indexBuffer)
 		{
 			s_indexBuffer = indexBuffer;
@@ -1302,7 +1268,7 @@ namespace Nz
 		return true;
 	}
 
-	void Renderer::SetTexture(UInt8 unit, const Texture* texture)
+	void Renderer::SetTexture(unsigned int unit, const Texture* texture)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (unit >= s_maxTextureUnit)
@@ -1327,7 +1293,7 @@ namespace Nz
 		}
 	}
 
-	void Renderer::SetTextureSampler(UInt8 unit, const TextureSampler& sampler)
+	void Renderer::SetTextureSampler(unsigned int unit, const TextureSampler& sampler)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (unit >= s_maxTextureUnit)
@@ -1349,15 +1315,7 @@ namespace Nz
 
 	void Renderer::SetVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (vertexBuffer && !vertexBuffer->IsHardware())
-		{
-			NazaraError("Buffer must be hardware");
-			return;
-		}
-		#endif
-
-		if (vertexBuffer && s_vertexBuffer != vertexBuffer)
+		if (s_vertexBuffer != vertexBuffer)
 		{
 			s_vertexBuffer = vertexBuffer;
 			s_updateFlags |= Update_VAO;
@@ -1417,7 +1375,7 @@ namespace Nz
 		NazaraNotice("Uninitialized: Renderer module");
 
 		// Libération des dépendances
-		Utility::Uninitialize();
+		Platform::Uninitialize();
 	}
 
 	void Renderer::EnableInstancing(bool instancing)
@@ -1486,7 +1444,7 @@ namespace Nz
 		}
 
 		// Envoi des uniformes liées au Renderer
-		Vector2ui targetSize(s_target->GetWidth(), s_target->GetHeight());
+		Vector2ui targetSize = s_target->GetSize();
 		if (s_targetSize != targetSize)
 		{
 			int location;
@@ -1540,13 +1498,17 @@ namespace Nz
 
 			if (s_updateFlags & Update_VAO)
 			{
-				#if NAZARA_RENDERER_SAFE
-				if (!s_vertexBuffer)
+				if (!s_vertexBuffer || !s_vertexBuffer->IsValid())
 				{
-					NazaraError("No vertex buffer");
+					NazaraError("Invalid vertex buffer");
 					return false;
 				}
-				#endif
+
+				if (s_vertexBuffer->GetBuffer()->GetStorage() != DataStorage_Hardware)
+				{
+					NazaraError("Vertex buffer storage is not hardware");
+					return false;
+				}
 
 				// Note: Les VAOs ne sont pas partagés entre les contextes, nous avons donc un tableau de VAOs par contexte
 				const Context* context = Context::GetCurrent();
@@ -1712,6 +1674,18 @@ namespace Nz
 					// Et on active l'index buffer (Un seul index buffer par VAO)
 					if (s_indexBuffer)
 					{
+						if (!s_indexBuffer->IsValid())
+						{
+							NazaraError("Invalid index buffer");
+							return false;
+						}
+
+						if (s_vertexBuffer->GetBuffer()->GetStorage() != DataStorage_Hardware)
+						{
+							NazaraError("Index buffer storage is not hardware");
+							return false;
+						}
+
 						HardwareBuffer* indexBufferImpl = static_cast<HardwareBuffer*>(s_indexBuffer->GetBuffer()->GetImpl());
 						glBindBuffer(OpenGL::BufferTarget[BufferType_Index], indexBufferImpl->GetOpenGLID());
 					}
@@ -1775,9 +1749,161 @@ namespace Nz
 		if (!s_shader->Validate())
 		{
 			NazaraError(Error::GetLastError());
+
+			GLuint program = s_shader->GetOpenGLID();
+
+			StringStream dump;
+
+			GLint count;
+			glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+			dump << "Active uniforms: " << count << '\n';
+
+			GLint maxLength;
+			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+			maxLength++;
+
+			StackArray<GLchar> nameBuffer = NazaraStackAllocation(GLchar, maxLength + 1);
+			for (GLint i = 0; i < count; i++)
+			{
+				GLint size;
+				GLenum type;
+
+				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer.data());
+
+				dump << "Uniform #" << i << ": " << nameBuffer.data() << "(Type: 0x" << String::Number(type, 16);
+
+				GLint location = glGetUniformLocation(program, nameBuffer.data());
+				switch (type)
+				{
+					case GL_FLOAT:
+					{
+						GLfloat value;
+						glGetUniformfv(program, location, &value);
+
+						dump << ", Value = " << value << ')';
+						break;
+					}
+					case GL_FLOAT_VEC2:
+					{
+						GLfloat values[2];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec2(" << values[0] << ',' << values[1] << ')';
+						break;
+					}
+					case GL_FLOAT_VEC3:
+					{
+						GLfloat values[3];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec4(" << values[0] << ',' << values[1] << ',' << values[2] << ')';
+						break;
+					}
+					case GL_FLOAT_VEC4:
+					{
+						GLfloat values[4];
+						glGetUniformfv(program, location, &values[0]);
+
+						dump << ", Value = vec4(" << values[0] << ',' << values[1] << ',' << values[2] << ',' << values[3] << ')';
+						break;
+					}
+					case GL_INT:
+					{
+						GLint value;
+						glGetUniformiv(program, location, &value);
+
+						dump << ", Value = " << value;
+						break;
+					}
+					case GL_SAMPLER_2D:
+					case GL_SAMPLER_2D_SHADOW:
+					case GL_SAMPLER_CUBE:
+					case GL_SAMPLER_CUBE_SHADOW:
+					{
+						GLint value;
+						glGetUniformiv(program, location, &value);
+
+						dump << ", Unit = " << value;
+						break;
+					}
+				}
+
+				dump << ")\n";
+			}
+
+			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString());
+
 			return false;
 		}
 		#endif
+
+		return true;
+	}
+
+	bool Renderer::GenerateDebugShader()
+	{
+		GlslWriter writer;
+		writer.SetGlslVersion(OpenGL::GetGLSLVersion());
+
+		String fragmentShader;
+		String vertexShader;
+
+		try
+		{
+			using namespace ShaderBuilder;
+			using ShaderAst::BuiltinEntry;
+			using ShaderAst::ExpressionType;
+
+			// Fragment shader
+			{
+				auto rt0 = Output("RenderTarget0", ExpressionType::Float4);
+				auto color = Uniform("Color", ExpressionType::Float4);
+
+				fragmentShader = writer.Generate(ExprStatement(Assign(rt0, color)));
+			}
+
+			// Vertex shader
+			{
+				auto vertexPosition = Input("VertexPosition", ExpressionType::Float3);
+				auto wvpMatrix = Uniform("WorldViewProjMatrix", ExpressionType::Mat4x4);
+				auto builtinPos = Builtin(BuiltinEntry::VertexPosition);
+
+				vertexShader = writer.Generate(ExprStatement(Assign(builtinPos, Multiply(wvpMatrix, Cast<ExpressionType::Float4>(vertexPosition, Constant(1.f))))));
+			}
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to generate shader code: " + String(e.what()));
+			return false;
+		}
+
+
+		ShaderRef debugShader = Shader::New();
+		if (!debugShader->Create())
+		{
+			NazaraError("Failed to create debug shader");
+			return false;
+		}
+
+		if (!debugShader->AttachStageFromSource(ShaderStageType_Fragment, fragmentShader))
+		{
+			NazaraError("Failed to attach fragment stage");
+			return false;
+		}
+
+		if (!debugShader->AttachStageFromSource(ShaderStageType_Vertex, vertexShader))
+		{
+			NazaraError("Failed to attach vertex stage");
+			return false;
+		}
+
+		if (!debugShader->Link())
+		{
+			NazaraError("Failed to link shader");
+			return false;
+		}
+
+		ShaderLibrary::Register("DebugSimple", debugShader);
 
 		return true;
 	}

@@ -1,13 +1,12 @@
-// Copyright (C) 2016 Rémi Bèges
+// Copyright (C) 2017 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_MIXERBASE_HPP
 #define NAZARA_MIXERBASE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <array>
 
 namespace Nz
 {
@@ -15,7 +14,7 @@ namespace Nz
 	{
 		public:
 			MixerBase();
-			~MixerBase() = default;
+			virtual ~MixerBase() = default;
 
 			virtual float Get(float x, float y, float scale) const = 0;
 			virtual float Get(float x, float y, float z, float scale) const = 0;

@@ -2,7 +2,7 @@
 
 #include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <NDK/LuaBinding.hpp>
+#include <NDK/Lua/LuaBinding.hpp>
 
 namespace Ndk
 {
@@ -44,10 +44,10 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the engine & SDK
 	*/
 
-	void LuaAPI::RegisterClasses(Nz::LuaInstance& instance)
+	void LuaAPI::RegisterClasses(Nz::LuaState& state)
 	{
 		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
-		GetBinding()->RegisterClasses(instance);
+		GetBinding()->RegisterClasses(state);
 	}
 
 	/*!

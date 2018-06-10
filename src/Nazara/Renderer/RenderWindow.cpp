@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,13 +9,11 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	RenderWindow::RenderWindow(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters) :
+	RenderWindow::RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters) :
 	RenderTarget(), Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -121,7 +119,7 @@ namespace Nz
 		return true;
 	}
 
-	bool RenderWindow::Create(VideoMode mode, const String& title, UInt32 style, const ContextParameters& parameters)
+	bool RenderWindow::Create(VideoMode mode, const String& title, WindowStyleFlags style, const ContextParameters& parameters)
 	{
 		m_parameters = parameters;
 		return Window::Create(mode, title, style);
@@ -164,11 +162,6 @@ namespace Nz
 			NazaraError("No context");
 	}
 
-	unsigned int RenderWindow::GetHeight() const
-	{
-		return Window::GetHeight();
-	}
-
 	RenderTargetParameters RenderWindow::GetParameters() const
 	{
 		if (m_context)
@@ -183,9 +176,9 @@ namespace Nz
 		}
 	}
 
-	unsigned int RenderWindow::GetWidth() const
+	Vector2ui RenderWindow::GetSize() const
 	{
-		return Window::GetWidth();
+		return Window::GetSize();
 	}
 
 	bool RenderWindow::IsRenderable() const

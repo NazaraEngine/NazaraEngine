@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,6 +8,15 @@
 #include <Nazara/Network/Win32/SocketImpl.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
+
+// some MinGW distributions seem to lack some defines
+#ifndef ERROR_NOT_ENOUGH_MEMORY
+#define ERROR_NOT_ENOUGH_MEMORY 8L
+#endif
+
+#ifndef WSA_NOT_ENOUGH_MEMORY
+#define WSA_NOT_ENOUGH_MEMORY (ERROR_NOT_ENOUGH_MEMORY)
+#endif
 
 namespace Nz
 {
@@ -84,21 +93,14 @@ namespace Nz
 			{
 				sockaddr_in* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
 
-				auto& rawIpV4 = ipv4->sin_addr;
-				return IpAddress(rawIpV4.s_net, rawIpV4.s_host, rawIpV4.s_lh, rawIpV4.s_impno, ntohs(ipv4->sin_port));
+				return FromSockAddr(ipv4);
 			}
 
 			case AF_INET6:
 			{
 				sockaddr_in6* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
 
-				auto& rawIpV6 = ipv6->sin6_addr.s6_addr;
-
-				IpAddress::IPv6 structIpV6;
-				for (unsigned int i = 0; i < 8; ++i)
-					structIpV6[i] = UInt16(rawIpV6[i * 2]) << 8 | UInt16(rawIpV6[i * 2 + 1]);
-
-				return IpAddress(structIpV6, ntohs(ipv6->sin6_port));
+				return FromSockAddr(ipv6);
 			}
 		}
 
@@ -155,7 +157,7 @@ namespace Nz
 
 		IpAddress::IPv6 ipv6;
 		for (unsigned int i = 0; i < 8; ++i)
-			ipv6[i] = rawIpV6[i*2] << 8 | rawIpV6[i*2+1];
+			ipv6[i] = rawIpV6[i * 2] << 8 | rawIpV6[i * 2 + 1];
 
 		return IpAddress(ipv6, ntohs(addressv6->sin6_port));
 	}
@@ -249,8 +251,9 @@ namespace Nz
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
 					{
-						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = htons(address[i]) >> 8;
-						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = htons(address[i]) >> 0;
+						u_short addressPart = htons(address[i]);
+						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = addressPart >> 0;
+						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = addressPart >> 8;
 					}
 
 					return sizeof(sockaddr_in6);

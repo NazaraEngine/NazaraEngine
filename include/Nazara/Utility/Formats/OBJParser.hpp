@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,8 +7,7 @@
 #ifndef NAZARA_FORMATS_OBJPARSER_HPP
 #define NAZARA_FORMATS_OBJPARSER_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -20,8 +19,6 @@ namespace Nz
 	class NAZARA_UTILITY_API OBJParser
 	{
 		public:
-			struct Face;
-			struct FaceVertex;
 			struct Mesh;
 
 			OBJParser() = default;

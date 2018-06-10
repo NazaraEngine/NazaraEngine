@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_SIMPLETEXTDRAWER_HPP
 #define NAZARA_SIMPLETEXTDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -36,6 +36,8 @@ namespace Nz
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
 			std::size_t GetGlyphCount() const override;
+			const Line& GetLine(std::size_t index) const override;
+			std::size_t GetLineCount() const override;
 			UInt32 GetStyle() const;
 			const String& GetText() const;
 
@@ -68,6 +70,7 @@ namespace Nz
 			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
 
 			mutable std::vector<Glyph> m_glyphs;
+			mutable std::vector<Line> m_lines;
 			Color m_color;
 			FontRef m_font;
 			mutable Rectf m_workingBounds;

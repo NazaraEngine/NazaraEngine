@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -19,7 +19,6 @@
 namespace Ndk
 {
 	class CameraComponent;
-	class Entity;
 
 	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
 
@@ -44,7 +43,7 @@ namespace Ndk
 			const Nz::Frustumf& GetFrustum() const override;
 			inline unsigned int GetLayer() const;
 			const Nz::Matrix4f& GetProjectionMatrix() const override;
-			inline Nz::ProjectionType GetProjectionType() const;
+			Nz::ProjectionType GetProjectionType() const override;
 			inline const Nz::Vector2f& GetSize() const;
 			const Nz::RenderTarget* GetTarget() const override;
 			inline const Nz::Rectf& GetTargetRegion() const;
@@ -63,6 +62,8 @@ namespace Ndk
 			inline void SetViewport(const Nz::Recti& viewport);
 			inline void SetZFar(float zFar);
 			inline void SetZNear(float zNear);
+
+			inline bool UpdateVisibility(std::size_t visibilityHash);
 
 			static ComponentIndex componentIndex;
 
@@ -89,6 +90,7 @@ namespace Ndk
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetRelease, m_targetReleaseSlot);
 			NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, m_targetResizeSlot);
 
+			std::size_t m_visibilityHash;
 			Nz::ProjectionType m_projectionType;
 			mutable Nz::Frustumf m_frustum;
 			mutable Nz::Matrix4f m_projectionMatrix;

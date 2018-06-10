@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Endianness.hpp>
 
@@ -21,7 +21,7 @@ namespace Ndk
 		static_assert(N-1 <= sizeof(ComponentId), "Name too long for this size of component id");
 
 		ComponentId componentId = 0;
-		for (unsigned int i = 0; i < N; ++i)
+		for (unsigned int i = 0; i < N - 1; ++i)
 			componentId |= static_cast<ComponentId>(name[i]) << i*8;
 
 		return componentId;

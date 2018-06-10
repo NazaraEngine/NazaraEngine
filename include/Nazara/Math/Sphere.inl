@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -94,7 +94,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(T X, T Y, T Z) const
 	{
-		return SquaredDistance(X, Y, Z) <= radius * radius;
+		return Contains(Vector3<T>(X, Y, Z));
 	}
 
 	/*!
@@ -109,11 +109,8 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(const Box<T>& box) const
 	{
-		if (box.GetMinimum().SquaredDistance(GetPosition()) <= radius * radius)
-		{
-			if (box.GetMaximum().SquaredDistance(GetPosition()) <= radius * radius)
-				return true;
-		}
+		if (Contains(box.GetMinimum()) && Contains(box.GetMaximum()))
+			return true;
 
 		return false;
 	}
@@ -128,7 +125,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Contains(const Vector3<T>& point) const
 	{
-		return Contains(point.x, point.y, point.z);
+		return GetPosition().SquaredDistance(point) <= radius * radius;
 	}
 
 	/*!
@@ -138,8 +135,6 @@ namespace Nz
 	* \param X X position of the point
 	* \param Y Y position of the point
 	* \param Z Z position of the point
-	*
-	* \see SquaredDistance
 	*/
 
 	template<typename T>
@@ -153,8 +148,6 @@ namespace Nz
 	* \return Distance to the point
 	*
 	* \param point Position of the point
-	*
-	* \see SquaredDistance
 	*/
 
 	template<typename T>
@@ -177,9 +170,7 @@ namespace Nz
 	template<typename T>
 	Sphere<T>& Sphere<T>::ExtendTo(T X, T Y, T Z)
 	{
-		T distance = SquaredDistance(X, Y, Z);
-		if (distance > radius*radius)
-			radius = std::sqrt(distance);
+		radius = std::max(radius, radius + Distance(X, Y, Z));
 
 		return *this;
 	}
@@ -304,7 +295,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::Intersect(const Sphere& sphere) const
 	{
-		return SquaredDistance(sphere.x, sphere.y, sphere.z) <= sphere.radius * sphere.radius;
+		return GetPosition().SquaredDistance(Vector3<T>(sphere.x, sphere.y, sphere.z)) <= IntegralPow(radius + sphere.radius, 2);
 	}
 
 	/*!
@@ -459,36 +450,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
-	* \return Squared distance to the point
-	*
-	* \param X X position of the point
-	* \param Y Y position of the point
-	* \param Z Z position of the point
-	*
-	* \see Distance
-	*/
-	template<typename T>
-	T Sphere<T>::SquaredDistance(T X, T Y, T Z) const
-	{
-		return SquaredDistance({X, Y, Z});
-	}
-
-	/*!
-	* \brief Returns the squared distance from the sphere to the point (can be negative if the point is inside the sphere)
-	* \return Squared distance to the point
-	*
-	* \param point Position of the point
-	*
-	* \see Distance
-	*/
-	template<typename T>
-	T Sphere<T>::SquaredDistance(const Vector3<T>& point) const
-	{
-		return Vector3f::SquaredDistance(point, GetPosition() + (point - GetPosition()).Normalize() * radius);
-	}
-
-	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Sphere(x, y, z; radius)"
 	*/
@@ -505,24 +466,15 @@ namespace Nz
 	* \brief Returns the ith element of the sphere
 	* \return A reference to the ith element of the sphere
 	*
-	* \remark Access to index greather than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 4 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 4 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 
 	template<typename T>
-	T& Sphere<T>::operator[](unsigned int i)
+	T& Sphere<T>::operator[](std::size_t i)
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 4)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 4)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 4, "Index out of range");
 
 		return *(&x+i);
 	}
@@ -531,24 +483,15 @@ namespace Nz
 	* \brief Returns the ith element of the sphere
 	* \return A value to the ith element of the sphere
 	*
-	* \remark Access to index greather than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 4 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 4 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 
 	template<typename T>
-	T Sphere<T>::operator[](unsigned int i) const
+	T Sphere<T>::operator[](std::size_t i) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 4)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 4)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 4, "Index out of range");
 
 		return *(&x+i);
 	}
@@ -557,7 +500,7 @@ namespace Nz
 	* \brief Multiplies the radius of the sphere with a scalar
 	* \return A sphere where the center is the same and radius is the product of this radius and the scalar
 	*
-	* \param scale The scalar to multiply radius with
+	* \param scalar The scalar to multiply radius with
 	*/
 
 	template<typename T>
@@ -570,7 +513,7 @@ namespace Nz
 	* \brief Multiplies the radius of other sphere with a scalar
 	* \return A reference to this sphere where the center is the same and radius is the product of this radius and the scalar
 	*
-	* \param scale The scalar to multiply radius with
+	* \param scalar The scalar to multiply radius with
 	*/
 
 	template<typename T>
@@ -680,7 +623,7 @@ namespace Nz
 	* \param sphere Input Sphere
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Sphere<T>& sphere)
+	bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>)
 	{
 		if (!Serialize(context, sphere.x))
 			return false;
@@ -705,7 +648,7 @@ namespace Nz
 	* \param sphere Output Sphere
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Sphere<T>* sphere)
+	bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>)
 	{
 		if (!Unserialize(context, &sphere->x))
 			return false;

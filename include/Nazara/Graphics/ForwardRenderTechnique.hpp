@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,10 +7,10 @@
 #ifndef NAZARA_FORWARDRENDERTECHNIQUE_HPP
 #define NAZARA_FORWARDRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
+#include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -40,13 +40,15 @@ namespace Nz
 			struct ShaderUniforms;
 
 			void ChooseLights(const Spheref& object, bool includeDirectionalLights = true) const;
-			void DrawBasicSprites(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawBillboards(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawOpaqueModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
-			void DrawTransparentModels(const SceneData& sceneData, ForwardRenderQueue::Layer& layer) const;
+			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Billboard>& billboards) const;
+			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::BillboardChain>& billboards) const;
+			void DrawCustomDrawables(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::CustomDrawable>& customDrawables) const;
+			void DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Model>& models) const;
+			void DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& sprites) const;
+
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
-			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int uniformOffset, UInt8 availableTextureUnit) const;
+			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const;
 
 			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
 			static float ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light);
@@ -76,20 +78,32 @@ namespace Nz
 
 				// Other uniforms
 				int eyePosition;
+				int reflectionMap;
 				int sceneAmbient;
 				int textureOverlay;
 			};
 
+			struct SpriteBatch
+			{
+				std::size_t spriteCount;
+				const Material* material;
+				const Texture* overlayTexture;
+				Recti scissorRect;
+			};
+
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			mutable std::vector<LightIndex> m_lights;
+			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
-			mutable ForwardRenderQueue m_renderQueue;
-			Texture m_whiteTexture;
+			mutable BasicRenderQueue m_renderQueue;
+			TextureRef m_whiteCubemap;
+			TextureRef m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
 			unsigned int m_maxLightPassPerObject;
 
 			static IndexBuffer s_quadIndexBuffer;
+			static TextureSampler s_reflectionSampler;
 			static TextureSampler s_shadowSampler;
 			static VertexBuffer s_quadVertexBuffer;
 			static VertexDeclaration s_billboardInstanceDeclaration;

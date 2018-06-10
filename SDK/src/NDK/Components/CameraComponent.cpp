@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/CameraComponent.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -93,6 +93,17 @@ namespace Ndk
 		return m_projectionMatrix;
 	}
 
+
+	/*!
+	* \brief Gets the projection type of the camera
+	* \return Projection type of the camera
+	*/
+	Nz::ProjectionType CameraComponent::GetProjectionType() const
+	{
+		return m_projectionType;
+	}
+
+
 	/*!
 	* \brief Gets the target of the camera
 	* \return A constant reference to the render target of the camera
@@ -141,6 +152,7 @@ namespace Ndk
 	{
 		return m_zNear;
 	}
+
 	/*!
 	* \brief Sets the layer of the camera in case of multiples fields
 	*
@@ -322,15 +334,15 @@ namespace Ndk
 	{
 		NazaraAssert(m_target, "CameraComponent has no target");
 
-		unsigned int targetWidth = m_target->GetWidth();
-		unsigned int targetHeight = std::max(m_target->GetHeight(), 1U); // Let's make sure we won't divide by zero
+		Nz::Vector2ui targetSize = m_target->GetSize();
+		targetSize.y = std::max(targetSize.y, 1U); // Let's make sure we won't divide by zero
 
 		// Our target region is expressed as % of the viewport dimensions, let's compute it in pixels
 		Nz::Rectf fViewport(m_targetRegion);
-		fViewport.x *= targetWidth;
-		fViewport.y *= targetHeight;
-		fViewport.width *= targetWidth;
-		fViewport.height *= targetHeight;
+		fViewport.x *= targetSize.x;
+		fViewport.y *= targetSize.y;
+		fViewport.width *= targetSize.x;
+		fViewport.height *= targetSize.y;
 
 		// Compute the new aspect ratio, if it's different we need to invalidate the projection matrix
 		float aspectRatio = fViewport.width/fViewport.height;

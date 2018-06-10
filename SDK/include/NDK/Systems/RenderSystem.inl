@@ -1,20 +1,9 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 namespace Ndk
 {
-	/*!
-	* \brief Constructs a RenderSystem object by copy semantic
-	*
-	* \param renderSystem RenderSystem to copy
-	*/
-
-	inline RenderSystem::RenderSystem(const RenderSystem& renderSystem) :
-	System(renderSystem)
-	{
-	}
-
 	/*!
 	* \brief Changes the render technique used for the system
 	* \return A reference to the render technique type

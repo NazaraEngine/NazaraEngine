@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,17 +7,14 @@
 #ifndef NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 #define NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Color.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/SceneData.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
-	class Background;
+	class AbstractRenderQueue;
 	struct SceneData;
 
 	class NAZARA_GRAPHICS_API AbstractRenderTechnique

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,9 +8,6 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Sphere.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <cstring>
 #include <Nazara/Graphics/Debug.hpp>
 
 ///TODO: Use of UBOs

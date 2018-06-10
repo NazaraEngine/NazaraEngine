@@ -1,23 +1,30 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
 	/*!
-	* \brief Reset the current bit cursor
+	* \brief Reset the current read bit cursor
+	*/
+	inline void SerializationContext::ResetReadBitPosition()
+	{
+		readBitPos = 8;
+	}
+
+	/*!
+	* \brief Reset the current read bit cursor
 
 	* \remark This function only reset the cursor position, it doesn't do any writing
-	          if you wish to write all bits and reset bit position, call FlushBits
+	if you wish to write all bits and reset bit position, call FlushBits
 
-	  \see FlushBits
+	\see FlushBits
 	*/
-	inline void SerializationContext::ResetBitPosition()
+	inline void SerializationContext::ResetWriteBitPosition()
 	{
-		currentBitPos = 8;
+		writeBitPos = 8;
 	}
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,8 @@
 #ifndef NAZARA_DIRECTORY_HPP
 #define NAZARA_DIRECTORY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -35,7 +36,7 @@ namespace Nz
 			Directory();
 			Directory(const String& dirPath);
 			Directory(const Directory&) = delete;
-			Directory(Directory&&) = delete; ///TODO
+			Directory(Directory&&) noexcept = default;
 			~Directory();
 
 			void Close();
@@ -67,14 +68,14 @@ namespace Nz
 			static bool SetCurrent(const String& dirPath);
 
 			Directory& operator=(const Directory&) = delete;
-			Directory& operator=(Directory&&) = delete; ///TODO
+			Directory& operator=(Directory&&) noexcept = delete;
 
 		private:
 			NazaraMutexAttrib(m_mutex, mutable)
 
 			String m_dirPath;
 			String m_pattern;
-			DirectoryImpl* m_impl;
+			MovablePtr<DirectoryImpl> m_impl;
 	};
 }
 

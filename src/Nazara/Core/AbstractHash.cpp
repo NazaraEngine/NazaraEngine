@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Hash/CRC32.hpp>
+#include <Nazara/Core/Hash/CRC64.hpp>
 #include <Nazara/Core/Hash/Fletcher16.hpp>
 #include <Nazara/Core/Hash/MD5.hpp>
 #include <Nazara/Core/Hash/SHA1.hpp>
@@ -47,6 +48,9 @@ namespace Nz
 
 			case HashType_CRC32:
 				return std::make_unique<HashCRC32>();
+
+			case HashType_CRC64:
+				return std::make_unique<HashCRC64>();
 
 			case HashType_MD5:
 				return std::make_unique<HashMD5>();

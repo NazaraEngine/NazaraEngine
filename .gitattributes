@@ -1,4 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-extlibs/* linguist-vendored
+thirdparty/* linguist-vendored
 NazaraModuleTemplate/* linguist-vendored

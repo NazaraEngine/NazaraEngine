@@ -1,8 +1,7 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/BaseComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 
 namespace Ndk
@@ -20,10 +19,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the entity owning this component
+	* \return A handle to the entity owning this component, may be invalid if no entity owns it.
+	*/
+	inline const EntityHandle& BaseComponent::GetEntity() const
+	{
+		return m_entity;
+	}
+
+	/*!
 	* \brief Gets the index of the component
 	* \return Index of the component
 	*/
-
 	inline ComponentIndex BaseComponent::GetIndex() const
 	{
 		return m_componentIndex;

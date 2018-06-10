@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -156,6 +156,21 @@ namespace Nz
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>());
 
+		// Textures
+		std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
+
+		Nz::TextureRef whiteTexture = Nz::Texture::New();
+		whiteTexture->Create(ImageType_2D, PixelFormatType_L8, 1, 1);
+		whiteTexture->Update(whitePixels.data());
+
+		TextureLibrary::Register("White2D", std::move(whiteTexture));
+
+		Nz::TextureRef whiteCubemap = Nz::Texture::New();
+		whiteCubemap->Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
+		whiteCubemap->Update(whitePixels.data());
+
+		TextureLibrary::Register("WhiteCubemap", std::move(whiteCubemap));
+
 		onExit.Reset();
 
 		NazaraNotice("Initialized: Graphics module");
@@ -173,7 +188,7 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Uninitializes the Core module
+	* \brief Uninitializes the Graphics module
 	*
 	* \remark Produces a NazaraNotice
 	*/
@@ -194,7 +209,7 @@ namespace Nz
 
 		// Free of atlas if it is ours
 		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
-		if (defaultAtlas && defaultAtlas->GetStorage() & DataStorage_Hardware)
+		if (defaultAtlas && defaultAtlas->GetStorage() == DataStorage_Hardware)
 		{
 			Font::SetDefaultAtlas(nullptr);
 
@@ -217,6 +232,10 @@ namespace Nz
 
 		defaultAtlas.reset();
 
+		// Textures
+		TextureLibrary::Unregister("White2D");
+		TextureLibrary::Unregister("WhiteCubemap");
+
 		// Loaders
 		Loaders::UnregisterMesh();
 		Loaders::UnregisterTexture();
@@ -235,7 +254,7 @@ namespace Nz
 		DepthRenderTechnique::Uninitialize();
 		ForwardRenderTechnique::Uninitialize();
 		SkinningManager::Uninitialize();
-		
+
 		// Materials
 		Material::Uninitialize();
 		MaterialPipeline::Uninitialize();

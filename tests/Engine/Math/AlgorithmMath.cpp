@@ -1,5 +1,6 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Catch/catch.hpp>
+#include <limits>
 
 TEST_CASE("Approach", "[MATH][ALGORITHM]")
 {
@@ -47,6 +48,11 @@ TEST_CASE("CountBits", "[MATH][ALGORITHM]")
 	SECTION("Number 0 has 0 bit set to 1")
 	{
 		REQUIRE(Nz::CountBits(0) == 0);
+	}
+
+	SECTION("Number 0xFFFFFFFF has 32 bit set to 1")
+	{
+		REQUIRE(Nz::CountBits(0xFFFFFFFF) == 32);
 	}
 }
 
@@ -198,6 +204,69 @@ TEST_CASE("MultiplyAdd", "[MATH][ALGORITHM]")
 	}
 }
 
+TEST_CASE("NormalizeAngle", "[MATH][ALGORITHM]")
+{
+	SECTION("-90 should be normalized to +270")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90.f)) == Nz::FromDegrees(270.f));
+	}
+
+	SECTION("-540 should be normalized to +180")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-540.f)) == Nz::FromDegrees(180.f));
+	}
+
+	SECTION("0 should remain 0")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(0.f)) == Nz::FromDegrees(0.f));
+	}
+
+	SECTION("90 should remain 90")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(90.f)) == Nz::FromDegrees(90.f));
+	}
+
+	SECTION("360 should be normalized to 0")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(360.f)) == Nz::FromDegrees(0.f));
+	}
+
+	SECTION("450 should be normalized to 90")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(450.f)) == Nz::FromDegrees(90.f));
+	}
+
+	SECTION("-90 should be normalized to +270")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90)) == Nz::FromDegrees(270));
+	}
+
+	SECTION("-540 should be normalized to +180")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-540)) == Nz::FromDegrees(180));
+	}
+
+	SECTION("0 should remain 0")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(0)) == Nz::FromDegrees(0));
+	}
+
+	SECTION("90 should remain 90")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(90)) == Nz::FromDegrees(90));
+	}
+
+	SECTION("360 should be normalized to 0")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(360)) == Nz::FromDegrees(0));
+	}
+
+	SECTION("450 should be normalized to 90")
+	{
+		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(450)) == Nz::FromDegrees(90));
+	}
+}
+
 TEST_CASE("NumberEquals", "[MATH][ALGORITHM]")
 {
 	SECTION("2.35 and 2.351 should be the same at 0.01")
@@ -205,14 +274,34 @@ TEST_CASE("NumberEquals", "[MATH][ALGORITHM]")
 		CHECK(Nz::NumberEquals(2.35, 2.35, 0.01));
 	}
 
-	SECTION("3 and 4 unsigned should be the same at 1")
+	SECTION("0 and 4 unsigned should be the same at 4")
 	{
-		CHECK(Nz::NumberEquals(3U, 4U, 1U));
+		CHECK(Nz::NumberEquals(0U, 4U, 4U));
+	}
+
+	SECTION("1 and -1 signed should be the same at 2")
+	{
+		CHECK(Nz::NumberEquals(1, -1, 2));
+	}
+
+	SECTION("Maximum integer and -1 should not be equal")
+	{
+		CHECK_FALSE(Nz::NumberEquals(std::numeric_limits<int>::max(), -1));
+	}
+
+	SECTION("Maximum integer and minimum integer should not be equal")
+	{
+		CHECK_FALSE(Nz::NumberEquals(std::numeric_limits<int>::max(), std::numeric_limits<int>::min()));
 	}
 }
 
 TEST_CASE("NumberToString", "[MATH][ALGORITHM]")
 {
+	SECTION("0 to string")
+	{
+		REQUIRE(Nz::NumberToString(0) == "0");
+	}
+
 	SECTION("235 to string")
 	{
 		REQUIRE(Nz::NumberToString(235) == "235");
@@ -249,8 +338,20 @@ TEST_CASE("StringToNumber", "[MATH][ALGORITHM]")
 		REQUIRE(Nz::StringToNumber("-235") == -235);
 	}
 
+	SECTION("235 157 in string")
+	{
+		REQUIRE(Nz::StringToNumber("235 157") == 235157);
+	}
+
 	SECTION("16 in base 16 in string")
 	{
 		REQUIRE(Nz::StringToNumber("10", 16) == 16);
+	}
+
+	SECTION("8 in base 4 in string should not be valid")
+	{
+		bool ok = true;
+		REQUIRE(Nz::StringToNumber("8", 4, &ok) == 0);
+		REQUIRE(!ok);
 	}
 }

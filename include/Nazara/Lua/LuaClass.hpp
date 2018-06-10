@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_LUACLASS_HPP
 #define NAZARA_LUACLASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
@@ -26,13 +26,13 @@ namespace Nz
 		friend class LuaClass;
 
 		public:
-			using ClassFunc = std::function<int(LuaInstance& lua, T& instance, std::size_t argumentCount)>;
-			using ClassIndexFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using ConstructorFunc = std::function<bool(LuaInstance& lua, T* instance, std::size_t argumentCount)>;
+			using ClassFunc = std::function<int(LuaState& state, T& instance, std::size_t argumentCount)>;
+			using ClassIndexFunc = std::function<bool(LuaState& state, T& instance)>;
+			using ConstructorFunc = std::function<bool(LuaState& state, T* instance, std::size_t argumentCount)>;
 			template<typename P> using ConvertToParent = std::function<P*(T*)>;
-			using FinalizerFunc = std::function<bool(LuaInstance& lua, T& instance)>;
-			using StaticIndexFunc = std::function<bool(LuaInstance& lua)>;
-			using StaticFunc = std::function<int(LuaInstance& lua)>;
+			using FinalizerFunc = std::function<bool(LuaState& state, T& instance)>;
+			using StaticIndexFunc = std::function<bool(LuaState& state)>;
+			using StaticFunc = std::function<int(LuaState& state)>;
 
 			LuaClass() = default;
 			LuaClass(const String& name);
@@ -54,9 +54,9 @@ namespace Nz
 			void Reset();
 			void Reset(const String& name);
 
-			void Register(LuaInstance& lua);
+			void Register(LuaState& state);
 
-			void PushGlobalTable(LuaInstance& lua);
+			void PushGlobalTable(LuaState& state);
 
 			void SetConstructor(ConstructorFunc constructor);
 			void SetFinalizer(FinalizerFunc finalizer);
@@ -69,18 +69,18 @@ namespace Nz
 			template<typename U, bool HasDestructor>
 			friend struct LuaClassImplFinalizerSetupProxy;
 
-			void PushClassInfo(LuaInstance& lua);
-			void SetupConstructor(LuaInstance& lua);
-			void SetupDefaultToString(LuaInstance& lua);
-			void SetupFinalizer(LuaInstance& lua);
-			void SetupGetter(LuaInstance& lua, LuaCFunction proxy);
-			void SetupGlobalTable(LuaInstance& lua);
-			void SetupMetatable(LuaInstance& lua);
-			void SetupMethod(LuaInstance& lua, LuaCFunction proxy, const String& name, std::size_t methodIndex);
-			void SetupSetter(LuaInstance& lua, LuaCFunction proxy);
+			int PushClassInfo(LuaState& state);
+			void SetupConstructor(LuaState& state, int classInfoRef);
+			void SetupDefaultToString(LuaState& state, int classInfoRef);
+			void SetupFinalizer(LuaState& state, int classInfoRef);
+			void SetupGetter(LuaState& state, LuaCFunction proxy, int classInfoRef);
+			void SetupGlobalTable(LuaState& state, int classInfoRef);
+			void SetupMetatable(LuaState& state, int classInfoRef);
+			void SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex, int classInfoRef);
+			void SetupSetter(LuaState& state, LuaCFunction proxy, int classInfoRef);
 
-			using ParentFunc = std::function<void(LuaInstance& lua, T* instance)>;
-			using InstanceGetter = std::function<T*(LuaInstance& lua)>;
+			using ParentFunc = std::function<void(LuaState& state, T* instance)>;
+			using InstanceGetter = std::function<T*(LuaState& state)>;
 
 			struct ClassInfo
 			{
@@ -98,17 +98,17 @@ namespace Nz
 				int globalTableRef = -1;
 			};
 
-			static int ConstructorProxy(lua_State* state);
-			static int FinalizerProxy(lua_State* state);
-			static int InfoDestructor(lua_State* state);
-			static void Get(const std::shared_ptr<ClassInfo>& info, LuaInstance& lua, T* instance);
-			static int GetterProxy(lua_State* state);
-			static int MethodProxy(lua_State* state);
-			static int SetterProxy(lua_State* state);
-			static int StaticGetterProxy(lua_State* state);
-			static int StaticMethodProxy(lua_State* state);
-			static int StaticSetterProxy(lua_State* state);
-			static int ToStringProxy(lua_State* state);
+			static int ConstructorProxy(lua_State* internalState);
+			static int FinalizerProxy(lua_State* internalState);
+			static int InfoDestructor(lua_State* internalState);
+			static void Get(const std::shared_ptr<ClassInfo>& info, LuaState& state, T* instance);
+			static int GetterProxy(lua_State* internalState);
+			static int MethodProxy(lua_State* internalState);
+			static int SetterProxy(lua_State* internalState);
+			static int StaticGetterProxy(lua_State* internalState);
+			static int StaticMethodProxy(lua_State* internalState);
+			static int StaticSetterProxy(lua_State* internalState);
+			static int ToStringProxy(lua_State* internalState);
 
 			std::map<String, ClassFunc> m_methods;
 			std::map<String, StaticFunc> m_staticMethods;

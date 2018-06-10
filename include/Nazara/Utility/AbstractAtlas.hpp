@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,13 +7,11 @@
 #ifndef NAZARA_ABSTRACTATLAS_HPP
 #define NAZARA_ABSTRACTATLAS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <unordered_map>
 
 namespace Nz
 {

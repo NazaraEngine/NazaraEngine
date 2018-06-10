@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_MEMORYPOOL_HPP
 #define NAZARA_MEMORYPOOL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
 
@@ -22,12 +22,14 @@ namespace Nz
 			~MemoryPool() = default;
 
 			void* Allocate(unsigned int size);
+
 			template<typename T> void Delete(T* ptr);
+
 			void Free(void* ptr);
 
-			unsigned int GetBlockSize() const;
-			unsigned int GetFreeBlocks() const;
-			unsigned int GetSize() const;
+			inline unsigned int GetBlockSize() const;
+			inline unsigned int GetFreeBlocks() const;
+			inline unsigned int GetSize() const;
 
 			template<typename T, typename... Args> T* New(Args&&... args);
 

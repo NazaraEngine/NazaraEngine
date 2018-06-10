@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,8 +7,7 @@
 #ifndef NAZARA_COLLIDER3D_HPP
 #define NAZARA_COLLIDER3D_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/PrimitiveList.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -32,6 +31,7 @@ namespace Nz
 	///TODO: TreeGeom
 
 	class Collider3D;
+	class PrimitiveList;
 	class PhysWorld3D;
 
 	using Collider3DConstRef = ObjectRef<const Collider3D>;
@@ -53,6 +53,8 @@ namespace Nz
 			virtual Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const;
 			virtual void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const;
 			virtual float ComputeVolume() const;
+
+			virtual void ForEachPolygon(const std::function<void(const float* vertices, std::size_t vertexCount)>& callback) const;
 
 			NewtonCollision* GetHandle(PhysWorld3D* world) const;
 			virtual ColliderType3D GetType() const = 0;
@@ -135,7 +137,7 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API CompoundCollider3D : public Collider3D
 	{
 		public:
-			CompoundCollider3D(Collider3D** geoms, std::size_t geomCount);
+			CompoundCollider3D(std::vector<Collider3DRef> geoms);
 
 			const std::vector<Collider3DRef>& GetGeoms() const;
 			ColliderType3D GetType() const override;

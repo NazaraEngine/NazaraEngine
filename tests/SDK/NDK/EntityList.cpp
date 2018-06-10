@@ -6,7 +6,8 @@ SCENARIO("EntityList", "[NDK][ENTITYLIST]")
 {
 	GIVEN("A world & a set of entities")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
+
 		const Ndk::EntityHandle& entity = world.CreateEntity();
 		Ndk::EntityList entityList;
 		entityList.Insert(entity);
@@ -16,8 +17,8 @@ SCENARIO("EntityList", "[NDK][ENTITYLIST]")
 			THEN("These results are expected")
 			{
 				REQUIRE(entityList.Has(entity->GetId()));
-				const Ndk::EntityHandle& entity = world.CreateEntity();
-				REQUIRE(!entityList.Has(entity->GetId()));
+				const Ndk::EntityHandle& newEntity = world.CreateEntity();
+				REQUIRE(!entityList.Has(newEntity->GetId()));
 			}
 		}
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,9 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
@@ -835,14 +833,13 @@ namespace Nz
 		if (!PixelFormat::IsCompressed(m_sharedImage->format))
 		{
 			const PixelFormatInfo& info = PixelFormat::GetInfo(m_sharedImage->format);
-			const UInt8* pixel = GetConstPixels();
 
 			Bitset<> workingBitset;
 			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth);
 			if (pixelCount == 0)
 				return false;
 
-			auto seq = workingBitset.Read(GetConstPixels(), info.bitsPerPixel);
+			auto seq = workingBitset.Write(GetConstPixels(), info.bitsPerPixel);
 			do
 			{
 				workingBitset &= info.alphaMask;
@@ -850,7 +847,7 @@ namespace Nz
 					return true;
 
 				workingBitset.Clear();
-				workingBitset.Read(seq, info.bitsPerPixel);
+				workingBitset.Write(seq, info.bitsPerPixel);
 			}
 			while (--pixelCount > 0);
 

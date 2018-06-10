@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_JOINT_HPP
 #define NAZARA_JOINT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Node.hpp>
@@ -35,7 +35,7 @@ namespace Nz
 			void SetName(const String& name);
 
 		private:
-			void InvalidateNode();
+			void InvalidateNode() override;
 			void UpdateSkinningMatrix() const;
 
 			Matrix4f m_inverseBindMatrix;

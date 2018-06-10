@@ -1,13 +1,13 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <algorithm>
-#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -85,7 +85,18 @@ namespace Nz
 							code << shaderStage.source;
 
 							stage.SetSource(code);
-							stage.Compile();
+
+							try
+							{
+								stage.Compile();
+							}
+							catch (const std::exception&)
+							{
+								ErrorFlags errFlags2(ErrorFlag_ThrowExceptionDisabled);
+
+								NazaraError("Shader code failed to compile (" + stage.GetLog() + ")\n" + code.ToString());
+								throw;
+							}
 
 							stageIt = shaderStage.cache.emplace(flags, std::move(stage)).first;
 						}

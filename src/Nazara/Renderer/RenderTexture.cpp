@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -36,7 +36,7 @@ namespace Nz
 			unsigned int width;
 		};
 
-		unsigned int attachmentIndex[AttachmentPoint_Max+1] =
+		unsigned int s_attachmentIndex[AttachmentPoint_Max+1] =
 		{
 			3, // AttachmentPoint_Color
 			0, // AttachmentPoint_Depth
@@ -117,7 +117,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depthStencilIndex = attachmentIndex[AttachmentPoint_DepthStencil];
+		unsigned int depthStencilIndex = s_attachmentIndex[AttachmentPoint_DepthStencil];
 		if (m_impl->attachments.size() > depthStencilIndex && m_impl->attachments[depthStencilIndex].isUsed)
 		{
 			if (attachmentPoint == AttachmentPoint_Depth)
@@ -154,7 +154,7 @@ namespace Nz
 
 		Unlock();
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			m_impl->attachments.resize(attachIndex+1);
 
@@ -223,7 +223,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depthStencilIndex = attachmentIndex[AttachmentPoint_DepthStencil];
+		unsigned int depthStencilIndex = s_attachmentIndex[AttachmentPoint_DepthStencil];
 		if (attachmentPoint == AttachmentPoint_Depth && m_impl->attachments.size() > depthStencilIndex &&
 			m_impl->attachments[depthStencilIndex].isUsed)
 		{
@@ -288,7 +288,7 @@ namespace Nz
 
 		Unlock();
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			m_impl->attachments.resize(attachIndex+1);
 
@@ -394,7 +394,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int attachIndex = attachmentIndex[attachmentPoint] + index;
+		unsigned int attachIndex = s_attachmentIndex[attachmentPoint] + index;
 		if (attachIndex >= m_impl->attachments.size())
 			return;
 
@@ -438,16 +438,6 @@ namespace Nz
 		m_checked = false;
 	}
 
-	unsigned int RenderTexture::GetHeight() const
-	{
-		NazaraAssert(m_impl, "Invalid render texture");
-
-		if (!m_sizeUpdated)
-			UpdateSize();
-
-		return m_impl->height;
-	}
-
 	RenderTargetParameters RenderTexture::GetParameters() const
 	{
 		NazaraAssert(m_impl, "Invalid render texture");
@@ -464,16 +454,6 @@ namespace Nz
 			UpdateSize();
 
 		return Vector2ui(m_impl->width, m_impl->height);
-	}
-
-	unsigned int RenderTexture::GetWidth() const
-	{
-		NazaraAssert(m_impl, "Invalid render texture");
-
-		if (!m_sizeUpdated)
-			UpdateSize();
-
-		return m_impl->width;
 	}
 
 	bool RenderTexture::IsComplete() const
@@ -575,7 +555,7 @@ namespace Nz
 		#if NAZARA_RENDERER_SAFE
 		for (unsigned int i = 0; i < targetCount; ++i)
 		{
-			unsigned int index = attachmentIndex[AttachmentPoint_Color] + targets[i];
+			unsigned int index = s_attachmentIndex[AttachmentPoint_Color] + targets[i];
 			if (index >= m_impl->attachments.size() || !m_impl->attachments[index].isUsed)
 			{
 				NazaraError("Target " + String::Number(targets[i]) + " not attached");
@@ -598,7 +578,7 @@ namespace Nz
 		#if NAZARA_RENDERER_SAFE
 		for (UInt8 target : targets)
 		{
-			unsigned int index = attachmentIndex[AttachmentPoint_Color] + target;
+			unsigned int index = s_attachmentIndex[AttachmentPoint_Color] + target;
 			if (index >= m_impl->attachments.size() || !m_impl->attachments[index].isUsed)
 			{
 				NazaraError("Target " + String::Number(target) + " not attached");
@@ -665,13 +645,15 @@ namespace Nz
 		NazaraAssert(dst && dst->IsValid(), "Invalid destination render texture");
 
 		#if NAZARA_RENDERER_SAFE
-		if (srcRect.x+srcRect.width > src->GetWidth() || srcRect.y+srcRect.height > src->GetHeight())
+		Vector2ui srcSize = src->GetSize();
+		if (srcRect.x+srcRect.width > srcSize.x || srcRect.y+srcRect.height > srcSize.y)
 		{
 			NazaraError("Source rectangle dimensions are out of bounds");
 			return;
 		}
 
-		if (dstRect.x+dstRect.width > dst->GetWidth() || dstRect.y+dstRect.height > dst->GetHeight())
+		Vector2ui dstSize = dst->GetSize();
+		if (dstRect.x+dstRect.width > dstSize.x || dstRect.y+dstRect.height > dstSize.y)
 		{
 			NazaraError("Destination rectangle dimensions are out of bounds");
 			return;
@@ -752,7 +734,7 @@ namespace Nz
 
 		for (UInt8 index : m_impl->colorTargets)
 		{
-			Attachment& attachment = m_impl->attachments[attachmentIndex[AttachmentPoint_Color] + index];
+			Attachment& attachment = m_impl->attachments[s_attachmentIndex[AttachmentPoint_Color] + index];
 			if (!attachment.isBuffer)
 				attachment.texture->InvalidateMipmaps();
 		}
@@ -833,7 +815,7 @@ namespace Nz
 			m_impl->colorTargets.clear();
 
 			unsigned int colorIndex = 0;
-			for (unsigned int index = attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
+			for (unsigned int index = s_attachmentIndex[AttachmentPoint_Color]; index < m_impl->attachments.size(); ++index)
 				m_impl->colorTargets.push_back(colorIndex++);
 		}
 

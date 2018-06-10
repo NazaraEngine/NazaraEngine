@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Assimp Plugin"
 // For conditions of distribution and use, see copyright notice in Plugin.cpp
 
@@ -69,7 +69,7 @@ size_t StreamWrite(aiFile* file, const char* buffer, size_t size, size_t count)
 
 aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMode)
 {
-    FileIOUserdata* fileIOUserdata = reinterpret_cast<FileIOUserdata*>(fileIO->UserData);
+	FileIOUserdata* fileIOUserdata = reinterpret_cast<FileIOUserdata*>(fileIO->UserData);
 
 	bool isOriginalStream = (std::strcmp(filePath, fileIOUserdata->originalFilePath) == 0);
 	if (!isOriginalStream && strstr(filePath, StreamPath) != 0)
@@ -83,13 +83,13 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled, true);
 
 		///TODO: Move to File::DecodeOpenMode
-		UInt32 openModeEnum = 0;
+		OpenModeFlags openModeEnum = 0;
 
 		if (std::strchr(openMode, 'r'))
 		{
 			openModeEnum |= OpenMode_ReadOnly;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExit;
+				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExist;
 		}
 		else if (std::strchr(openMode, 'w'))
 		{
@@ -133,10 +133,10 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 
 void StreamCloser(aiFileIO* fileIO, aiFile* file)
 {
-    FileIOUserdata* fileIOUserdata = reinterpret_cast<FileIOUserdata*>(fileIO->UserData);
-    Stream* fileUserdata = reinterpret_cast<Stream*>(file->UserData);
-    
-    if (fileUserdata != fileIOUserdata->originalStream)
+	FileIOUserdata* fileIOUserdata = reinterpret_cast<FileIOUserdata*>(fileIO->UserData);
+	Stream* fileUserdata = reinterpret_cast<Stream*>(file->UserData);
+
+	if (fileUserdata != fileIOUserdata->originalStream)
 		delete reinterpret_cast<File*>(file->UserData);
 
 	delete file;

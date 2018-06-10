@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -81,7 +81,7 @@ namespace Nz
 		{
 			static_assert(sizeof(T) % sizeof(UInt32) == 0, "Assertion failed");
 
-			// The algorithm for logarithm in base 2 only works with numbers greather than 32 bits
+			// The algorithm for logarithm in base 2 only works with numbers greater than 32 bits
 			// This code subdivides the biggest number into 32 bits ones
 			for (int i = sizeof(T)-sizeof(UInt32); i >= 0; i -= sizeof(UInt32))
 			{
@@ -96,6 +96,30 @@ namespace Nz
 			}
 
 			return 0;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_floating_point<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			T diff = std::abs(a - b);
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<!std::is_signed<T>::value || (!std::is_integral<T>::value && !std::is_floating_point<T>::value), bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			T diff = a - b;
+			return diff <= maxDifference;
+		}
+
+		template<typename T> /*constexpr*/ std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		{
+			if (b > a)
+				std::swap(a, b);
+
+			using UnsignedT = std::make_unsigned_t<T>;
+			return static_cast<UnsignedT>(a) - static_cast<UnsignedT>(b) <= static_cast<UnsignedT>(maxDifference);
 		}
 	}
 
@@ -436,9 +460,10 @@ namespace Nz
 	*/
 
 	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline unsigned int IntegralPow(unsigned int base, unsigned int exponent)
+	template<typename T>
+	/*constexpr*/ T IntegralPow(T base, unsigned int exponent)
 	{
-		unsigned int r = 1;
+		T r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
 			r *= base;
 
@@ -463,7 +488,7 @@ namespace Nz
 	template<typename T, typename T2>
 	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
-		return from + interpolation * (to - from);
+		return static_cast<T>(from + interpolation * (to - from));
 	}
 
 	/*!
@@ -527,11 +552,11 @@ namespace Nz
 		#endif
 		const T twoLimit = limit * T(2);
 
-		angle = std::fmod(angle + limit, twoLimit);
+		angle = std::fmod(angle, twoLimit);
 		if (angle < T(0))
 			angle += twoLimit;
 
-		return angle - limit;
+		return angle;
 	}
 
 	/*!
@@ -564,11 +589,7 @@ namespace Nz
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
 	{
-		if (b > a)
-			std::swap(a, b);
-
-		T diff = a - b;
-		return diff <= maxDifference;
+		return Detail::NumberEquals(a, b, maxDifference);
 	}
 
 	/*!

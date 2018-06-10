@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -38,19 +38,6 @@ namespace Nz
 	DynLib::DynLib() :
 	m_impl(nullptr)
 	{
-	}
-
-	/*!
-	* \brief Constructs a DynLib object by move semantic
-	*
-	* \param lib DynLib to move into this
-	*/
-
-	DynLib::DynLib(DynLib&& lib) :
-	m_lastError(std::move(lib.m_lastError)),
-	m_impl(lib.m_impl)
-	{
-		lib.m_impl = nullptr;
 	}
 
 	/*!
@@ -149,24 +136,5 @@ namespace Nz
 			delete m_impl;
 			m_impl = nullptr;
 		}
-	}
-
-	/*!
-	* \brief Moves the other lib into this
-	* \return A reference to this
-	*
-	* \param lib DynLib to move in this
-	*/
-
-	DynLib& DynLib::operator=(DynLib&& lib)
-	{
-		Unload();
-
-		m_impl = lib.m_impl;
-		m_lastError = std::move(lib.m_lastError);
-
-		lib.m_impl = nullptr;
-
-		return *this;
 	}
 }

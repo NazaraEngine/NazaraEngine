@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDFORWARDPASS_HPP
 #define NAZARA_DEFERREDFORWARDPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 
 namespace Nz
@@ -20,8 +20,8 @@ namespace Nz
 			DeferredForwardPass();
 			virtual ~DeferredForwardPass();
 
-			void Initialize(DeferredRenderTechnique* technique);
-			bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned int sceneTexture) const;
+			void Initialize(DeferredRenderTechnique* technique) override;
+			bool Process(const SceneData& sceneData, unsigned int workTexture, unsigned int sceneTexture) const override;
 
 		protected:
 			const ForwardRenderTechnique* m_forwardTechnique;

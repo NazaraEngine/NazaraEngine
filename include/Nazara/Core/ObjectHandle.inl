@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -128,6 +128,9 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(ObjectHandle&& handle) noexcept
 	{
+		if (this == &handle)
+			return;
+
 		if (m_object)
 			m_object->UnregisterHandle(this);
 
@@ -265,7 +268,7 @@ namespace Nz
 	* \brief Action to do on object destruction
 	*/
 	template<typename T>
-	void ObjectHandle<T>::OnObjectDestroyed()
+	void ObjectHandle<T>::OnObjectDestroyed() noexcept
 	{
 		// Shortcut
 		m_object = nullptr;
@@ -275,7 +278,7 @@ namespace Nz
 	* \brief Action to do on object move
 	*/
 	template<typename T>
-	void ObjectHandle<T>::OnObjectMoved(T* newObject)
+	void ObjectHandle<T>::OnObjectMoved(T* newObject) noexcept
 	{
 		// The object has been moved, update our pointer
 		m_object = newObject;

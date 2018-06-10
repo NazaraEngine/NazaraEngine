@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,16 +19,16 @@ namespace Nz
 	/*!
 	 * Write bits to the stream (if any) and reset the current bit cursor
 	
-	* \see ResetBitPosition
+	* \see ResetWriteBitPosition
 	*/
 	void SerializationContext::FlushBits()
 	{
-		if (currentBitPos != 8)
+		if (writeBitPos != 8)
 		{
-			ResetBitPosition();
+			ResetWriteBitPosition();
 
 			// Serialize will reset the bit position
-			if (!Serialize<UInt8>(*this, currentByte))
+			if (!Serialize(*this, writeByte))
 				NazaraWarning("Failed to flush bits");
 		}
 	}

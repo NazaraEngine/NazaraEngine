@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,13 +6,12 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #if defined(NAZARA_PLATFORM_GLX)
-#include <Nazara/Utility/X11/Display.hpp>
+#include <Nazara/Platform/X11/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
-#include <cstring>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -403,7 +402,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 				s_contextStates->scissorBoxUpdated = true;
 			}
@@ -495,7 +494,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 				s_contextStates->viewportUpdated = true;
 			}
@@ -969,6 +968,8 @@ namespace Nz
 			glGetTexLevelParameteriv = reinterpret_cast<PFNGLGETTEXLEVELPARAMETERIVPROC>(LoadEntry("glGetTexLevelParameteriv"));
 			glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(LoadEntry("glGetTexParameterfv"));
 			glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(LoadEntry("glGetTexParameteriv"));
+			glGetUniformfv = reinterpret_cast<PFNGLGETUNIFORMFVPROC>(LoadEntry("glGetUniformfv"));
+			glGetUniformiv = reinterpret_cast<PFNGLGETUNIFORMIVPROC>(LoadEntry("glGetUniformiv"));
 			glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(LoadEntry("glGetUniformLocation"));
 			glIsEnabled = reinterpret_cast<PFNGLISENABLEDPROC>(LoadEntry("glIsEnabled"));
 			glLineWidth = reinterpret_cast<PFNGLLINEWIDTHPROC>(LoadEntry("glLineWidth"));
@@ -1173,6 +1174,9 @@ namespace Nz
 			}
 		}
 
+		// Seamless Cubemap Filtering
+		s_openGLextensions[OpenGLExtension_SeamlessCubeMap] = (s_openglVersion >= 320 || IsSupported("GL_ARB_seamless_cube_map"));
+
 		// Shader_ImageLoadStore
 		s_openGLextensions[OpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));
 
@@ -1286,7 +1290,7 @@ namespace Nz
 			{
 				const Recti& scissorBox = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 
 				s_contextStates->scissorBoxUpdated = true;
@@ -1296,7 +1300,7 @@ namespace Nz
 			{
 				const Recti& viewport = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 
 				s_contextStates->viewportUpdated = true;
@@ -1906,16 +1910,6 @@ namespace Nz
 
 	static_assert(BufferType_Max + 1 == 2, "Buffer target binding array is incomplete");
 
-	GLenum OpenGL::BufferUsage[] =
-	{
-		// D'après la documentation, GL_STREAM_DRAW semble être plus adapté à notre cas (ratio modification/rendu 1:2-3)
-		// Source: http://www.opengl.org/sdk/docs/man/html/glBufferData.xhtml
-		GL_STREAM_DRAW, // BufferUsage_Dynamic
-		GL_STATIC_DRAW  // BufferUsage_Static
-	};
-
-	static_assert(BufferUsage_Max + 1 == 2, "Buffer usage array is incomplete");
-
 	GLenum OpenGL::ComponentType[] =
 	{
 		GL_UNSIGNED_BYTE, // ComponentType_Color
@@ -2213,6 +2207,8 @@ PFNGLGETTEXLEVELPARAMETERFVPROC   glGetTexLevelParameterfv   = nullptr;
 PFNGLGETTEXLEVELPARAMETERIVPROC   glGetTexLevelParameteriv   = nullptr;
 PFNGLGETTEXPARAMETERFVPROC        glGetTexParameterfv        = nullptr;
 PFNGLGETTEXPARAMETERIVPROC        glGetTexParameteriv        = nullptr;
+PFNGLGETUNIFORMFVPROC             glGetUniformfv             = nullptr;
+PFNGLGETUNIFORMIVPROC             glGetUniformiv             = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC       glGetUniformLocation       = nullptr;
 PFNGLINVALIDATEBUFFERDATAPROC     glInvalidateBufferData     = nullptr;
 PFNGLISENABLEDPROC                glIsEnabled                = nullptr;

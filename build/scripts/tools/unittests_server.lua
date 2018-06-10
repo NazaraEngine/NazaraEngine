@@ -1,5 +1,6 @@
 TOOL.Name = "UnitTestsServer"
 
+TOOL.Category = "Test"
 TOOL.Directory = "../tests"
 TOOL.EnableConsole = true
 TOOL.Kind = "Application"
@@ -25,7 +26,7 @@ TOOL.Files = {
 TOOL.FilesExcluded = {
 	"../tests/Engine/Audio/**",
 	"../tests/Engine/Graphics/**",
-	"../tests/Engine/Utility/**",
+	"../tests/Engine/Platform/**",
 	"../tests/SDK/NDK/Application.cpp",
 	"../tests/SDK/NDK/Systems/ListenerSystem.cpp",
 	"../tests/SDK/NDK/Systems/RenderSystem.cpp"

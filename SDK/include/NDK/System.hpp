@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -16,11 +16,9 @@ namespace Ndk
 	{
 		public:
 			System();
-			System(const System&) = default;
+			System(const System&) = delete;
 			System(System&&) = default;
 			virtual ~System();
-
-			std::unique_ptr<BaseSystem> Clone() const override;
 
 			System& operator=(const System&) = delete;
 			System& operator=(System&&) = default;

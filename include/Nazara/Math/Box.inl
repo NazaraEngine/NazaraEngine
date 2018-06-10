@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -133,9 +133,9 @@ namespace Nz
 	template<typename T>
 	bool Box<T>::Contains(T X, T Y, T Z) const
 	{
-		return X >= x && X <= x + width &&
-		       Y >= y && Y <= y + height &&
-		       Z >= z && Z <= z + depth;
+		return X >= x && X < x + width &&
+		       Y >= y && Y < y + height &&
+		       Z >= z && Z < z + depth;
 	}
 
 	/*!
@@ -735,24 +735,15 @@ namespace Nz
 	* \brief Returns the ith element of the box
 	* \return A reference to the ith element of the box
 	*
-	* \remark Access to index greather than 6 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 6 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 6 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 6 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 6
 	*/
 
 	template<typename T>
-	T& Box<T>::operator[](unsigned int i)
+	T& Box<T>::operator[](std::size_t i)
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 6)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 6)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 6, "Index out of range");
 
 		return *(&x+i);
 	}
@@ -761,24 +752,15 @@ namespace Nz
 	* \brief Returns the ith element of the box
 	* \return A value to the ith element of the box
 	*
-	* \remark Access to index greather than 6 is undefined behavior
-	* \remark Produce a NazaraError if you try to acces to index greather than 6 with NAZARA_MATH_SAFE defined
+	* \remark Access to index greater than 6 is undefined behavior
+	* \remark Produce a NazaraError if you try to access to index greater than 6 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 6
 	*/
 
 	template<typename T>
-	T Box<T>::operator[](unsigned int i) const
+	T Box<T>::operator[](std::size_t i) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= 6)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 6)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 6, "Index out of range");
 
 		return *(&x+i);
 	}
@@ -930,7 +912,7 @@ namespace Nz
 	* \param box Input Box
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Box<T>& box)
+	bool Serialize(SerializationContext& context, const Box<T>& box, TypeTag<Box<T>>)
 	{
 		if (!Serialize(context, box.x))
 			return false;
@@ -961,7 +943,7 @@ namespace Nz
 	* \param box Output Box
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Box<T>* box)
+	bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>)
 	{
 		if (!Unserialize(context, &box->x))
 			return false;

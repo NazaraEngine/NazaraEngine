@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -68,11 +68,11 @@ namespace Nz
 			Vector3<T> m_corners[BoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
 	};
 
-	typedef OrientedBox<double> OrientedBoxd;
-	typedef OrientedBox<float> OrientedBoxf;
+	using OrientedBoxd = OrientedBox<double>;
+	using OrientedBoxf = OrientedBox<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb);
-	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb);
+	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb, TypeTag<OrientedBox<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>);
 }
 
 template<typename T>

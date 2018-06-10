@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,7 +8,6 @@
 
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DeferredBloomPass.hpp>
 #include <Nazara/Graphics/DeferredDOFPass.hpp>
@@ -18,18 +17,13 @@
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
 #include <Nazara/Graphics/DeferredGeometryPass.hpp>
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
-#include <Nazara/Graphics/Drawable.hpp>
-#include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
-#include <limits>
 #include <memory>
-#include <random>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -133,7 +127,7 @@ namespace Nz
 	*/
 
 	DeferredRenderTechnique::DeferredRenderTechnique() :
-	m_renderQueue(static_cast<ForwardRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
+	m_renderQueue(&m_deferredRenderQueue, static_cast<BasicRenderQueue*>(m_forwardTechnique.GetRenderQueue())),
 	m_GBufferSize(0U)
 	{
 		m_depthStencilTexture = Texture::New();
@@ -461,35 +455,35 @@ namespace Nz
 		switch (renderPass)
 		{
 			case RenderPassType_AA:
-				smartPtr.reset(new DeferredFXAAPass);
+				smartPtr = std::make_unique<DeferredFXAAPass>();
 				break;
 
 			case RenderPassType_Bloom:
-				smartPtr.reset(new DeferredBloomPass);
+				smartPtr = std::make_unique<DeferredBloomPass>();
 				break;
 
 			case RenderPassType_DOF:
-				smartPtr.reset(new DeferredDOFPass);
+				smartPtr = std::make_unique<DeferredDOFPass>();
 				break;
 
 			case RenderPassType_Final:
-				smartPtr.reset(new DeferredFinalPass);
+				smartPtr = std::make_unique<DeferredFinalPass>();
 				break;
 
 			case RenderPassType_Fog:
-				smartPtr.reset(new DeferredFogPass);
+				smartPtr = std::make_unique<DeferredFogPass>();
 				break;
 
 			case RenderPassType_Forward:
-				smartPtr.reset(new DeferredForwardPass);
+				smartPtr = std::make_unique<DeferredForwardPass>();
 				break;
 
 			case RenderPassType_Geometry:
-				smartPtr.reset(new DeferredGeometryPass);
+				smartPtr = std::make_unique<DeferredGeometryPass>();
 				break;
 
 			case RenderPassType_Lighting:
-				smartPtr.reset(new DeferredPhongLightingPass);
+				smartPtr = std::make_unique<DeferredPhongLightingPass>();
 				break;
 
 			case RenderPassType_SSAO:
@@ -707,6 +701,12 @@ namespace Nz
 			NazaraWarning("Failed to register gaussian blur shader, certain features will not work: " + error);
 		}
 
+		if (!DeferredGeometryPass::Initialize())
+		{
+			NazaraError("Failed to initialize geometry pass");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -716,6 +716,8 @@ namespace Nz
 
 	void DeferredRenderTechnique::Uninitialize()
 	{
+		DeferredGeometryPass::Uninitialize();
+
 		ShaderLibrary::Unregister("DeferredGBufferClear");
 		ShaderLibrary::Unregister("DeferredDirectionnalLight");
 		ShaderLibrary::Unregister("DeferredPointSpotLight");

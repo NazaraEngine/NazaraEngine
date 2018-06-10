@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -69,11 +69,11 @@ namespace Nz
 			OrientedBox<T> obb;
 	};
 
-	typedef BoundingVolume<double> BoundingVolumed;
-	typedef BoundingVolume<float> BoundingVolumef;
+	using BoundingVolumed = BoundingVolume<double>;
+	using BoundingVolumef = BoundingVolume<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume);
-	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume);
+	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume, TypeTag<BoundingVolume<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>);
 }
 
 template<typename T>

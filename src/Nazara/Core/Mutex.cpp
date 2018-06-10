@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -76,19 +76,5 @@ namespace Nz
 	{
 		NazaraAssert(m_impl, "Cannot unlock a moved mutex");
 		m_impl->Unlock();
-	}
-
-	/*!
-	* \brief Moves a mutex to another mutex object
-	* \return A reference to the object
-	*/
-	Mutex& Mutex::operator=(Mutex&& mutex) noexcept
-	{
-		delete m_impl;
-
-		m_impl = mutex.m_impl;
-		mutex.m_impl = nullptr;
-
-		return *this;
 	}
 }

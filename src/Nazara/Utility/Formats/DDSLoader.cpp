@@ -1,15 +1,13 @@
-// Copyright (C) 2015 Jérôme Leclercq - 2009 Cruden BV
+// Copyright (C) 2017 Jérôme Leclercq - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Formats/DDSConstants.hpp>
-#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

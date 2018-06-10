@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,8 +6,8 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -53,7 +53,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		if (!m_mesh)
 			return;
@@ -65,14 +65,14 @@ namespace Nz
 				continue;
 
 			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
-			const Material* material = m_materials[mesh->GetMaterialIndex()];
+			const Material* material = GetMaterial(mesh->GetMaterialIndex());
 
 			MeshData meshData;
 			meshData.indexBuffer = mesh->GetIndexBuffer();
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
 	}
 
@@ -129,10 +129,9 @@ namespace Nz
 	* \brief Clones this skeletal model
 	* \return Pointer to newly allocated SkeletalModel
 	*/
-
-	SkeletalModel* SkeletalModel::Clone() const
+	std::unique_ptr<InstancedRenderable> SkeletalModel::Clone() const
 	{
-		return new SkeletalModel(*this);
+		return std::make_unique<SkeletalModel>(*this);
 	}
 
 	/*!
@@ -262,17 +261,6 @@ namespace Nz
 	bool SkeletalModel::LoadFromStream(Stream& stream, const SkeletalModelParameters& params)
 	{
 		return SkeletalModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
-	* \brief Resets the model
-	*/
-
-	void SkeletalModel::Reset()
-	{
-		Model::Reset();
-
-		m_skeleton.Destroy();
 	}
 
 	/*!

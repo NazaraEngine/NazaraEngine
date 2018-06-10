@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,23 +7,20 @@
 #ifndef NAZARA_DEFERREDRENDERTECHNIQUE_HPP
 #define NAZARA_DEFERREDRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
-#include <Nazara/Graphics/DeferredRenderPass.hpp>
-#include <Nazara/Graphics/DeferredRenderQueue.hpp>
+#include <Nazara/Graphics/DeferredProxyRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <map>
 #include <memory>
 
 namespace Nz
 {
+	class DeferredRenderPass;
+
 	class NAZARA_GRAPHICS_API DeferredRenderTechnique : public AbstractRenderTechnique
 	{
 		friend class Graphics;
@@ -67,8 +64,9 @@ namespace Nz
 			};
 
 			std::map<RenderPassType, std::map<int, std::unique_ptr<DeferredRenderPass>>, RenderPassComparator> m_passes;
-			ForwardRenderTechnique m_forwardTechnique; // Must be initialized before the RenderQueue
-			DeferredRenderQueue m_renderQueue;
+			BasicRenderQueue m_deferredRenderQueue; // Must be initialized before the ProxyRenderQueue
+			ForwardRenderTechnique m_forwardTechnique; // Must be initialized before the ProxyRenderQueue
+			DeferredProxyRenderQueue m_renderQueue;
 			mutable TextureRef m_depthStencilTexture;
 			mutable RenderTexture m_GBufferRTT;
 			mutable RenderTexture m_workRTT;

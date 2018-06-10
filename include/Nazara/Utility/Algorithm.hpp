@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,18 +7,26 @@
 #ifndef NAZARA_ALGORITHM_UTILITY_HPP
 #define NAZARA_ALGORITHM_UTILITY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
 
 namespace Nz
 {
+	class Joint;
+	struct VertexStruct_XYZ_Normal_UV_Tangent;
+	struct VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
+
+	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
+
 	struct SkinningData
 	{
 		const Joint* joints;
@@ -57,6 +65,10 @@ namespace Nz
 	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, unsigned int startVertex, unsigned int vertexCount);
 
 	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix);
+
+	template<typename T> constexpr ComponentType ComponentTypeId();
+	template<typename T> constexpr ComponentType GetComponentTypeOf();
 }
+#include <Nazara/Utility/Algorithm.inl>
 
 #endif // NAZARA_ALGORITHM_UTILITY_HPP

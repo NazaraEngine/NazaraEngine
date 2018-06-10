@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -66,18 +66,9 @@ namespace Nz
 		return true;
 	}
 
-	UInt32 TriangleIterator::operator[](unsigned int i) const
+	UInt32 TriangleIterator::operator[](std::size_t i) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (i >= 3)
-		{
-			StringStream ss;
-			ss << "Index out of range: (" << i << " >= 3)";
-
-			NazaraError(ss);
-			throw std::domain_error(ss.ToString());
-		}
-		#endif
+		NazaraAssert(i < 3, "Index out of range");
 
 		return m_triangleIndices[i];
 	}

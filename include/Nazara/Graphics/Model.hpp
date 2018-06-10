@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,11 +7,14 @@
 #ifndef NAZARA_MODEL_HPP
 #define NAZARA_MODEL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -32,29 +35,33 @@ namespace Nz
 	class Model;
 
 	using ModelConstRef = ObjectRef<const Model>;
+	using ModelLibrary = ObjectLibrary<Model>;
 	using ModelLoader = ResourceLoader<Model, ModelParameters>;
+	using ModelManager = ResourceManager<Model, ModelParameters>;
 	using ModelRef = ObjectRef<Model>;
+	using ModelSaver = ResourceSaver<Model, ModelParameters>;
 
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
 	{
+		friend ModelLibrary;
 		friend ModelLoader;
+		friend ModelManager;
+		friend ModelSaver;
 
 		public:
-			Model();
-			Model(const Model& model) = default;
-			Model(Model&& model) = default;
+			inline Model();
+			Model(const Model& model);
+			Model(Model&& model) = delete;
 			virtual ~Model();
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
-			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder = 0);
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
 
-			Material* GetMaterial(const String& subMeshName) const;
-			Material* GetMaterial(unsigned int matIndex) const;
-			Material* GetMaterial(unsigned int skinIndex, const String& subMeshName) const;
-			Material* GetMaterial(unsigned int skinIndex, unsigned int matIndex) const;
-			unsigned int GetMaterialCount() const;
-			unsigned int GetSkin() const;
-			unsigned int GetSkinCount() const;
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
+			using InstancedRenderable::GetMaterial;
+			const MaterialRef& GetMaterial(const String& subMeshName) const;
+			const MaterialRef& GetMaterial(std::size_t skinIndex, const String& subMeshName) const;
 			Mesh* GetMesh() const;
 
 			virtual bool IsAnimated() const;
@@ -63,34 +70,32 @@ namespace Nz
 			bool LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
 			bool LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 
-			void Reset();
+			using InstancedRenderable::SetMaterial;
+			bool SetMaterial(const String& subMeshName, MaterialRef material);
+			bool SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material);
 
-			bool SetMaterial(const String& subMeshName, Material* material);
-			void SetMaterial(unsigned int matIndex, Material* material);
-			bool SetMaterial(unsigned int skinIndex, const String& subMeshName, Material* material);
-			void SetMaterial(unsigned int skinIndex, unsigned int matIndex, Material* material);
 			virtual void SetMesh(Mesh* mesh);
-			void SetSkin(unsigned int skin);
-			void SetSkinCount(unsigned int skinCount);
 
 			inline void ShowSubmeshes(Bitset<> enabledSubmeshes);
 
 			Model& operator=(const Model& node) = default;
-			Model& operator=(Model&& node) = default;
+			Model& operator=(Model&& node) = delete;
 
 			template<typename... Args> static ModelRef New(Args&&... args);
 
 		protected:
 			void MakeBoundingVolume() const override;
 
-			std::vector<MaterialRef> m_materials;
 			Bitset<> m_enabledSubmeshes;
 			MeshRef m_mesh;
-			unsigned int m_matCount;
-			unsigned int m_skin;
-			unsigned int m_skinCount;
 
+			NazaraSlot(Mesh, OnMeshInvalidateAABB, m_meshAABBInvalidationSlot);
+
+			static ModelLibrary::LibraryMap s_library;
 			static ModelLoader::LoaderList s_loaders;
+			static ModelManager::ManagerMap s_managerMap;
+			static ModelManager::ManagerParams s_managerParameters;
+			static ModelSaver::SaverList s_savers;
 	};
 }
 

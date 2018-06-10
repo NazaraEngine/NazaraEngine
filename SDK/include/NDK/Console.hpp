@@ -1,9 +1,10 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
+#ifndef NDK_SERVER
 #ifndef NDK_CONSOLE_HPP
 #define NDK_CONSOLE_HPP
 
@@ -11,27 +12,26 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Utility/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/EntityOwner.hpp>
 
 namespace Nz
 {
-	class LuaInstance;
+	class LuaState;
+	struct WindowEvent;
 }
 
 namespace Ndk
 {
 	class Console;
-	class Entity;
 
 	using ConsoleHandle = Nz::ObjectHandle<Console>;
 
 	class NDK_API Console : public Nz::Node, public Nz::HandledObject<Console>
 	{
 		public:
-			Console(World& world, const Nz::Vector2f& size, Nz::LuaInstance& instance);
+			Console(World& world, const Nz::Vector2f& size, Nz::LuaState& state);
 			Console(const Console& console) = delete;
 			Console(Console&& console) = default;
 			~Console() = default;
@@ -82,7 +82,7 @@ namespace Ndk
 			EntityOwner m_input;
 			EntityOwner m_inputBackground;
 			Nz::FontRef m_defaultFont;
-			Nz::LuaInstance& m_instance;
+			Nz::LuaState& m_state;
 			Nz::SpriteRef m_historyBackgroundSprite;
 			Nz::SpriteRef m_inputBackgroundSprite;
 			Nz::SimpleTextDrawer m_historyDrawer;
@@ -99,3 +99,4 @@ namespace Ndk
 #include <NDK/Console.inl>
 
 #endif // NDK_CONSOLE_HPP
+#endif // NDK_SERVER

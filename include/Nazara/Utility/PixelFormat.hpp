@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_PIXELFORMAT_HPP
 #define NAZARA_PIXELFORMAT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -65,7 +65,7 @@ namespace Nz
 			static inline bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* src, void* dst);
 			static inline bool Convert(PixelFormatType srcFormat, PixelFormatType dstFormat, const void* start, const void* end, void* dst);
 
-			static inline bool Flip(PixelFlipping flipping, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
+			static bool Flip(PixelFlipping flipping, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
 
 			static inline UInt8 GetBitsPerPixel(PixelFormatType format);
 			static inline PixelFormatContent GetContent(PixelFormatType format);

@@ -1,11 +1,10 @@
-// Copyright (C) 2015 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <utility>
-#include <Nazara/Network/Debug.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -14,6 +13,8 @@
 #else
 #error Missing implementation: Socket
 #endif
+
+#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
@@ -112,6 +113,52 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Queries the maximum socket receive buffer size
+	* \return The size of the receive buffer in bytes.
+	*/
+	std::size_t AbstractSocket::QueryReceiveBufferSize() const
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+
+		return SocketImpl::QueryReceiveBufferSize(m_handle);
+	}
+
+	/*!
+	* \brief Queries the maximum socket send buffer size
+	* \return The size of the send buffer in bytes.
+	*/
+	std::size_t AbstractSocket::QuerySendBufferSize() const
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+
+		return SocketImpl::QuerySendBufferSize(m_handle);
+	}
+
+	/*!
+	* \brief Sets the maximum receive buffer size
+	*
+	* \param size The new maximum receive buffer size in bytes
+	*/
+	void AbstractSocket::SetReceiveBufferSize(std::size_t size)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+		
+		SocketImpl::SetReceiveBufferSize(m_handle, size);
+	}
+
+	/*!
+	* \brief Sets the maximum send buffer size
+	*
+	* \param size The new maximum send buffer size in bytes
+	*/
+	void AbstractSocket::SetSendBufferSize(std::size_t size)
+	{
+		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket must be created first");
+		
+		SocketImpl::SetSendBufferSize(m_handle, size);
+	}
+
+	/*!
 	* \brief Operation to do when closing socket
 	*/
 
@@ -142,9 +189,22 @@ namespace Nz
 	{
 		if (m_handle == SocketImpl::InvalidHandle || m_protocol != protocol)
 		{
-			SocketHandle handle = SocketImpl::Create(protocol, m_type, &m_lastError);
+			SocketHandle handle = SocketImpl::Create((protocol == NetProtocol_Any) ? NetProtocol_IPv6 : protocol, m_type, &m_lastError);
 			if (handle == SocketImpl::InvalidHandle)
 				return false;
+
+			if (protocol == NetProtocol_Any)
+			{
+				if (!SocketImpl::SetIPv6Only(handle, false, &m_lastError))
+				{
+					SocketImpl::Close(handle);
+
+					NazaraError("Failed to open a dual-stack socket: " + Nz::String(ErrorToString(m_lastError)));
+					return false;
+				}
+
+				protocol = NetProtocol_IPv6;
+			}
 
 			m_protocol = protocol;
 			Open(handle);

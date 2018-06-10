@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,6 +12,7 @@ namespace Nz
 	enum ColliderType2D
 	{
 		ColliderType2D_Box,
+		ColliderType2D_Compound,
 		ColliderType2D_Convex,
 		ColliderType2D_Circle,
 		ColliderType2D_Null,

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -121,9 +121,7 @@ namespace Nz
 					break;
 
 				default:
-					// Peut être rajouté par une extension
-					ss << "Unknown";
-					break;
+					return; //< Block NVidia buffer usage hint for now
 			}
 			ss << '\n';
 
@@ -164,6 +162,9 @@ namespace Nz
 			NazaraError("Failed to activate context");
 			return false;
 		}
+
+		if (OpenGL::IsSupported(OpenGLExtension_SeamlessCubeMap))
+			glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 		if (m_parameters.antialiasingLevel > 0)
 			glEnable(GL_MULTISAMPLE);

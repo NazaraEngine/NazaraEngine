@@ -1,10 +1,9 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
@@ -34,7 +33,7 @@ namespace Ndk
 		{
 			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent2D
 			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
-			physComponent.GetRigidBody().SetGeom(m_geom);
+			physComponent.GetRigidBody()->SetGeom(m_geom);
 		}
 		else
 		{
@@ -59,7 +58,8 @@ namespace Ndk
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
 		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
 
-		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, 0.f, m_geom));
+		m_staticBody = std::make_unique<Nz::RigidBody2D>(&physWorld, 0.f, m_geom);
+		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())

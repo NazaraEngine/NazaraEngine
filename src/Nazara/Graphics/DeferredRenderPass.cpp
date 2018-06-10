@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
-#include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/DeferredProxyRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -46,7 +47,7 @@ namespace Nz
 	void DeferredRenderPass::Initialize(DeferredRenderTechnique* technique)
 	{
 		m_deferredTechnique = technique;
-		m_renderQueue = static_cast<DeferredRenderQueue*>(technique->GetRenderQueue());
+		m_renderQueue = static_cast<DeferredProxyRenderQueue*>(technique->GetRenderQueue());
 
 		m_depthStencilTexture = technique->GetDepthStencilTexture();
 

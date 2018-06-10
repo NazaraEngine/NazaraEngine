@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,7 +31,7 @@ namespace Nz
 	namespace
 	{
 		//FIXME: MinGW seems to dislike thread_local shared_ptr.. (using a std::string is a working hackfix)
-		thread_local std::string currentPath(DirectoryImpl::GetCurrent());
+		thread_local std::string currentPath(DirectoryImpl::GetCurrent().ToStdString());
 	}
 
 	/*!
@@ -312,7 +312,7 @@ namespace Nz
 	/*!
 	* \brief Sets the pattern of the directory
 	*
-	* \param dirPath Pattern of the directory
+	* \param pattern Pattern of the directory
 	*/
 
 	void Directory::SetPattern(const String& pattern)
@@ -327,7 +327,7 @@ namespace Nz
 	* \return true if copy is successful
 	*
 	* \param sourcePath Path of the original directory
-	* \param targetPath Path of the copied directory
+	* \param destPath Path of the copied directory
 	*
 	* \remark Produces a NazaraError if could not create destination directory
 	* \remark Produces a NazaraError if could not open origin directory
@@ -395,7 +395,7 @@ namespace Nz
 				return false;
 
 			#ifdef NAZARA_PLATFORM_WINDOWS
-			// Unlike to disk (Ex: "C:"), the netwrok path is not considered as a directory (Ex: "\\Laptop")
+			// Unlike to disk (Ex: "C:"), the network path is not considered as a directory (Ex: "\\Laptop")
 			if (path.Match("\\\\*"))
 			{
 				foundPos = path.Find('\\', 2);
@@ -414,11 +414,14 @@ namespace Nz
 				if (p.EndsWith(NAZARA_DIRECTORY_SEPARATOR))
 					p = p.SubString(0, -2);
 
-				if (!DirectoryImpl::Exists(p) && !DirectoryImpl::Create(p))
-					return false;
+				if (!p.IsEmpty())
+				{
+					if (!DirectoryImpl::Exists(p) && !DirectoryImpl::Create(p))
+						return false;
 
-				if (foundPos == String::npos)
-					break;
+					if (foundPos == String::npos)
+						break;
+				}
 
 				foundPos = path.Find(NAZARA_DIRECTORY_SEPARATOR, foundPos + 1);
 			}
@@ -523,7 +526,7 @@ namespace Nz
 		String path = File::AbsolutePath(dirPath);
 		if (DirectoryImpl::Exists(path))
 		{
-			currentPath = path;
+			currentPath = path.ToStdString();
 			return true;
 		}
 		else

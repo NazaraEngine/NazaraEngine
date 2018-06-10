@@ -1,13 +1,13 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Entity.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
+#include <cassert>
 #include <type_traits>
-#include <utility>
 
 namespace Ndk
 {
@@ -29,18 +29,13 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Enables the entity
+	* \brief Disables the entity
 	*
-	* \param enable Should the entity be enabled
+	* This is just a shortcut to Enable(false)
 	*/
-
-	inline void Entity::Enable(bool enable)
+	inline void Entity::Disable()
 	{
-		if (m_enabled != enable)
-		{
-			m_enabled = enable;
-			Invalidate();
-		}
+		Enable(false);
 	}
 
 	/*!
@@ -257,11 +252,10 @@ namespace Ndk
 		return m_removedComponentBits;
 	}
 
-	/*!
-	* \brief Registers a system for the entity
-	*
-	* \param index Index of the system
-	*/
+	inline void Entity::RegisterEntityList(EntityList* list)
+	{
+		m_containedInLists.push_back(list);
+	}
 
 	inline void Entity::RegisterSystem(SystemIndex index)
 	{
@@ -288,6 +282,16 @@ namespace Ndk
 	*
 	* \param index Index of the system
 	*/
+
+	inline void Entity::UnregisterEntityList(EntityList* list)
+	{
+		auto it = std::find(m_containedInLists.begin(), m_containedInLists.end(), list);
+		assert(it != m_containedInLists.end());
+
+		// Swap and pop idiom
+		*it = m_containedInLists.back();
+		m_containedInLists.pop_back();
+	}
 
 	inline void Entity::UnregisterSystem(SystemIndex index)
 	{

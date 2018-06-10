@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -220,7 +220,7 @@ namespace Nz
 		T norm = SquaredMagnitude();
 		if (norm > F(0.0))
 		{
-			T invNorm = F(1.0) / norm;
+			T invNorm = F(1.0) / std::sqrt(norm);
 
 			w *= invNorm;
 			x *= -invNorm;
@@ -251,35 +251,19 @@ namespace Nz
 	* \param from Initial vector
 	* \param to Target vector
 	*
+	* \remark Vectors are not required to be normalized
+	*
 	* \see RotationBetween
 	*/
 
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to)
 	{
-		// TODO (Gawaboumga): Replace by http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors ?
-
-		T dot = from.DotProduct(to);
-		if (NumberEquals(dot, F(-1.0)))
-		{
-			Vector3<T> cross = Vector3<T>::CrossProduct(Vector3<T>::UnitX(), from);
-			if (NumberEquals(cross.GetLength(), F(0.0)))
-				cross = Vector3<T>::CrossProduct(Vector3<T>::UnitY(), from);
-
-			return Set(F(180.0), cross);
-		}
-		else if (NumberEquals(dot, F(1.0)))
-			return MakeIdentity();
-		else
-		{
-			Vector3<T> a = from.CrossProduct(to);
-			x = a.x;
-			y = a.y;
-			z = a.z;
-			w = T(1.0) + dot;
-
-			return Normalize();
-		}
+		// Based on: http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
+		T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
+		Vector3<T> crossProduct = from.CrossProduct(to);
+		Set(norm + from.DotProduct(to), crossProduct.x, crossProduct.y, crossProduct.z);
+		return Normalize();
 	}
 
 	/*!
@@ -425,7 +409,7 @@ namespace Nz
 	* \brief Sets the components of the quaternion from another quaternion
 	* \return A reference to this quaternion
 	*
-	* \param vec The other quaternion
+	* \param quat The other quaternion
 	*/
 
 	template<typename T>
@@ -481,11 +465,11 @@ namespace Nz
 		T test = x * y + z * w;
 		if (test > F(0.499))
 			// singularity at north pole
-			return EulerAngles<T>(FromDegrees(F(90.0)), FromRadians(F(2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(2.0) * std::atan2(x, w)), FromDegrees(F(90.0)));
 
 		if (test < F(-0.499))
 			// singularity at south pole
-			return EulerAngles<T>(FromDegrees(F(-90.0)), FromRadians(F(-2.0) * std::atan2(x, w)), F(0.0));
+			return EulerAngles<T>(F(0.0), FromRadians(F(-2.0) * std::atan2(x, w)), FromDegrees(F(-90.0)));
 
 		return EulerAngles<T>(FromRadians(std::atan2(F(2.0) * x * w - F(2.0) * y * z, F(1.0) - F(2.0) * x * x - F(2.0) * z * z)),
 		                      FromRadians(std::atan2(F(2.0) * y * w - F(2.0) * x * z, F(1.0) - F(2.0) * y * y - F(2.0) * z * z)),
@@ -647,7 +631,7 @@ namespace Nz
 	* \brief Compares the quaternion to other one
 	* \return true if the quaternions are the same
 	*
-	* \param vec Other quaternion to compare with
+	* \param quat Other quaternion to compare with
 	*/
 
 	template<typename T>
@@ -663,7 +647,7 @@ namespace Nz
 	* \brief Compares the quaternion to other one
 	* \return false if the quaternions are the same
 	*
-	* \param vec Other quaternion to compare with
+	* \param quat Other quaternion to compare with
 	*/
 
 	template<typename T>
@@ -842,7 +826,7 @@ namespace Nz
 	* \param quat Input Quaternion
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Quaternion<T>& quat)
+	bool Serialize(SerializationContext& context, const Quaternion<T>& quat, TypeTag<Quaternion<T>>)
 	{
 		if (!Serialize(context, quat.x))
 			return false;
@@ -867,7 +851,7 @@ namespace Nz
 	* \param quat Output Quaternion
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Quaternion<T>* quat)
+	bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>)
 	{
 		if (!Unserialize(context, &quat->x))
 			return false;

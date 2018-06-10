@@ -1,8 +1,7 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/BaseSystem.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <type_traits>
 
@@ -20,24 +19,8 @@ namespace Ndk
 	m_updateEnabled(true),
 	m_updateOrder(0)
 	{
-		SetUpdateRate(30);
-	}
-
-	/*!
-	* \brief Constructs a BaseSystem object by copy semantic
-	*
-	* \param system System to copy
-	*/
-
-	inline BaseSystem::BaseSystem(const BaseSystem& system) :
-	m_excludedComponents(system.m_excludedComponents),
-	m_requiredComponents(system.m_requiredComponents),
-	m_systemIndex(system.m_systemIndex),
-	m_updateEnabled(system.m_updateEnabled),
-	m_updateCounter(0.f),
-	m_updateRate(system.m_updateRate),
-	m_updateOrder(system.m_updateOrder)
-	{
+		SetFixedUpdateRate(0);
+		SetMaximumUpdateRate(30);
 	}
 
 	/*!
@@ -56,9 +39,27 @@ namespace Ndk
 	* \return A constant reference to the list of entities
 	*/
 
-	inline const std::vector<EntityHandle>& BaseSystem::GetEntities() const
+	inline const EntityList& BaseSystem::GetEntities() const
 	{
 		return m_entities;
+	}
+
+	/*!
+	* \brief Gets the maximum rate of update of the system
+	* \return Update rate
+	*/
+	inline float BaseSystem::GetFixedUpdateRate() const
+	{
+		return (m_fixedUpdateRate > 0.f) ? 1.f / m_fixedUpdateRate : 0.f;
+	}
+
+	/*!
+	* \brief Gets the maximum rate of update of the system
+	* \return Update rate
+	*/
+	inline float BaseSystem::GetMaximumUpdateRate() const
+	{
+		return (m_maxUpdateRate > 0.f) ? 1.f / m_maxUpdateRate : 0.f;
 	}
 
 	/*!
@@ -80,16 +81,6 @@ namespace Ndk
 	inline int BaseSystem::GetUpdateOrder() const
 	{
 		return m_updateOrder;
-	}
-
-	/*!
-	* \brief Gets the rate of update of the system
-	* \return Update rate
-	*/
-
-	inline float BaseSystem::GetUpdateRate() const
-	{
-		return (m_updateRate > 0.f) ? 1.f / m_updateRate : 0.f;
 	}
 
 	/*!
@@ -121,22 +112,29 @@ namespace Ndk
 
 	inline bool BaseSystem::HasEntity(const Entity* entity) const
 	{
-		if (!entity)
-			return false;
-
-		return m_entityBits.UnboundedTest(entity->GetId());
+		return m_entities.Has(entity);
 	}
 
 	/*!
-	* \brief Sets the rate of update for the system
+	* \brief Sets the fixed update rate for the system
+	*
+	* \param updatePerSecond Update rate, 0 means update rate is not fixed
+	*/
+	inline void BaseSystem::SetFixedUpdateRate(float updatePerSecond)
+	{
+		m_updateCounter = 0.f;
+		m_fixedUpdateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
+	}
+
+	/*!
+	* \brief Sets the maximum update rate for the system
 	*
 	* \param updatePerSecond Update rate, 0 means as much as possible
 	*/
-
-	inline void BaseSystem::SetUpdateRate(float updatePerSecond)
+	inline void BaseSystem::SetMaximumUpdateRate(float updatePerSecond)
 	{
 		m_updateCounter = 0.f;
-		m_updateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
+		m_maxUpdateRate = (updatePerSecond > 0.f) ? 1.f / updatePerSecond : 0.f; // 0.f means no limit
 	}
 
 	/*!
@@ -150,18 +148,42 @@ namespace Ndk
 		if (!IsEnabled())
 			return;
 
-		if (m_updateRate > 0.f)
-		{
-			m_updateCounter += elapsedTime;
+		m_updateCounter += elapsedTime;
 
-			while (m_updateCounter >= m_updateRate)
+		if (m_maxUpdateRate > 0.f)
+		{
+			if (m_updateCounter >= m_maxUpdateRate)
 			{
-				OnUpdate(m_updateRate);
-				m_updateCounter -= m_updateRate;
+				if (m_fixedUpdateRate > 0.f)
+				{
+					while (m_updateCounter >= m_fixedUpdateRate)
+					{
+						OnUpdate(m_fixedUpdateRate);
+						m_updateCounter -= m_fixedUpdateRate;
+					}
+				}
+				else
+				{
+					float updateRate = std::max(elapsedTime, m_maxUpdateRate);
+
+					OnUpdate(updateRate);
+					m_updateCounter -= updateRate;
+				}
 			}
 		}
 		else
-			OnUpdate(elapsedTime);
+		{
+			if (m_fixedUpdateRate > 0.f)
+			{
+				while (m_updateCounter >= m_fixedUpdateRate)
+				{
+					OnUpdate(m_fixedUpdateRate);
+					m_updateCounter -= m_fixedUpdateRate;
+				}
+			}
+			else
+				OnUpdate(elapsedTime);
+		}
 	}
 
 	/*!
@@ -288,9 +310,7 @@ namespace Ndk
 	{
 		NazaraAssert(entity, "Invalid entity");
 
-		m_entities.emplace_back(entity);
-		m_entityBits.UnboundedSet(entity->GetId(), true);
-
+		m_entities.Insert(entity);
 		entity->RegisterSystem(m_systemIndex);
 
 		OnEntityAdded(entity);
@@ -308,14 +328,7 @@ namespace Ndk
 	{
 		NazaraAssert(entity, "Invalid entity");
 
-		auto it = std::find(m_entities.begin(), m_entities.end(), *entity);
-		NazaraAssert(it != m_entities.end(), "Entity is not part of this system");
-
-		// To avoid moving a lot of handles, we swap and pop
-		std::swap(*it, m_entities.back());
-		m_entities.pop_back(); // We get it out of the vector
-
-		m_entityBits.Reset(entity->GetId());
+		m_entities.Remove(entity);
 		entity->UnregisterSystem(m_systemIndex);
 
 		OnEntityRemoved(entity); // And we alert our callback
@@ -360,7 +373,7 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Uninitializes the BaseSystem
+	* \brief Uninitialize the BaseSystem
 	*/
 
 	inline void BaseSystem::Uninitialize()

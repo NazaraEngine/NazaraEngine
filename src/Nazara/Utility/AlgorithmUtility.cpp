@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,11 +26,13 @@
  */
 
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <algorithm>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
+#include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/SkeletalMesh.hpp>
 
 namespace Nz
 {
@@ -1162,6 +1164,6 @@ namespace Nz
 
 			if (vertexPointers.tangentPtr)
 				*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
-			}
+		}
 	}
 }

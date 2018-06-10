@@ -1,20 +1,25 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	StaticMesh::StaticMesh(const Mesh* parent) :
-	SubMesh(parent)
+	StaticMesh::StaticMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer) :
+	m_aabb(Nz::Boxf::Zero()),
+	m_indexBuffer(indexBuffer),
+	m_vertexBuffer(vertexBuffer)
+	{
+		NazaraAssert(m_vertexBuffer, "Invalid vertex buffer");
+	}
+
+	StaticMesh::StaticMesh(const Mesh* /*parent*/) :
+	m_aabb(Nz::Boxf::Zero())
 	{
 	}
 
@@ -72,7 +77,7 @@ namespace Nz
 	{
 		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
 		VertexMapper mapper(m_vertexBuffer, BufferAccess_ReadOnly);
-		m_aabb = ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent_Position), m_vertexBuffer->GetVertexCount());
+		SetAABB(ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent_Position), m_vertexBuffer->GetVertexCount()));
 
 		return true;
 	}
@@ -120,10 +125,12 @@ namespace Nz
 	void StaticMesh::SetAABB(const Boxf& aabb)
 	{
 		m_aabb = aabb;
+
+		OnSubMeshInvalidateAABB(this);
 	}
 
 	void StaticMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)
 	{
 		m_indexBuffer = indexBuffer;
-}
+	}
 }

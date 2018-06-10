@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,17 +7,18 @@
 #ifndef NAZARA_UBERSHADER_HPP
 #define NAZARA_UBERSHADER_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Renderer/UberShaderInstance.hpp>
-#include <unordered_map>
+#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Renderer/Config.hpp>
 
 namespace Nz
 {
+	class ParameterList;
 	class UberShader;
+	class UberShaderInstance;
 
 	using UberShaderConstRef = ObjectRef<const UberShader>;
 	using UberShaderLibrary = ObjectLibrary<UberShader>;

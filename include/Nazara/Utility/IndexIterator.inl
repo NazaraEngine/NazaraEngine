@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,7 +20,7 @@ namespace Nz
 	{
 	}
 
-	inline IndexIterator::IndexIterator(IndexMapper* mapper, unsigned int index) :
+	inline IndexIterator::IndexIterator(IndexMapper* mapper, std::size_t index) :
 	m_mapper(mapper),
 	m_index(index)
 	{
@@ -31,7 +31,7 @@ namespace Nz
 		return Reference(m_mapper, m_index);
 	}
 
-	inline IndexIterator::Reference IndexIterator::operator[](unsigned int index) const
+	inline IndexIterator::Reference IndexIterator::operator[](std::size_t index) const
 	{
 		return Reference(m_mapper, m_index+index);
 	}
@@ -44,24 +44,24 @@ namespace Nz
 		return *this;
 	}
 
-	inline IndexIterator IndexIterator::operator+(unsigned int indexCount) const
+	inline IndexIterator IndexIterator::operator+(std::size_t indexCount) const
 	{
 		return IndexIterator(m_mapper, m_index + indexCount);
 	}
 
-	inline IndexIterator IndexIterator::operator-(unsigned int indexCount) const
+	inline IndexIterator IndexIterator::operator-(std::size_t indexCount) const
 	{
 		return IndexIterator(m_mapper, m_index - indexCount);
 	}
 
-	inline IndexIterator& IndexIterator::operator+=(unsigned int indexCount)
+	inline IndexIterator& IndexIterator::operator+=(std::size_t indexCount)
 	{
 		m_index += indexCount;
 
 		return *this;
 	}
 
-	inline IndexIterator& IndexIterator::operator-=(unsigned int indexCount)
+	inline IndexIterator& IndexIterator::operator-=(std::size_t indexCount)
 	{
 		m_index += indexCount;
 
@@ -133,7 +133,7 @@ namespace Nz
 
 	/**************************IndexIterator::Reference*************************/
 
-	inline IndexIterator::Reference::Reference(IndexMapper* mapper, unsigned int index) :
+	inline IndexIterator::Reference::Reference(IndexMapper* mapper, std::size_t index) :
 	m_mapper(mapper),
 	m_index(index)
 	{
@@ -148,7 +148,7 @@ namespace Nz
 
 	inline IndexIterator::Reference& IndexIterator::Reference::operator=(const IndexIterator::Reference& reference)
 	{
-		m_mapper->Set(m_index, reference); // Conversion implicite en UInt32
+		m_mapper->Set(m_index, reference); // Implicit conversion to UInt32
 
 		return *this;
 	}

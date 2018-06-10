@@ -1,20 +1,20 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 ///TODO: Améliorer
@@ -556,7 +556,7 @@ namespace Nz
 		}
 	}
 
-	void DebugDrawer::DrawNormals(const StaticMesh* subMesh)
+	void DebugDrawer::DrawNormals(const StaticMesh* subMesh, float normalLength)
 	{
 		if (!s_initialized && !Initialize())
 		{
@@ -583,7 +583,7 @@ namespace Nz
 			outputVertex->position = inputVertex->position;
 			outputVertex++;
 
-			outputVertex->position = inputVertex->position + inputVertex->normal*0.01f;
+			outputVertex->position = inputVertex->position + inputVertex->normal*normalLength;
 			outputVertex++;
 
 			inputVertex++;

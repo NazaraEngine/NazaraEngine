@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Rémi Bèges - Jérôme Leclercq
+// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -17,7 +17,7 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::Vector4
 	* \brief Math class that represents an element of the three dimensional vector space with the notion of projectivity. When the fourth component is 1, it describes an 'usual' point and when it is 0, it represents the point at infinity
 	*/
@@ -88,18 +88,6 @@ namespace Nz
 	Vector4<T>::Vector4(T scale)
 	{
 		Set(scale);
-	}
-
-	/*!
-	* \brief Constructs a Vector4 object from an array of four elements
-	*
-	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
-	*/
-
-	template<typename T>
-	Vector4<T>::Vector4(const T vec[4])
-	{
-		Set(vec);
 	}
 
 	/*!
@@ -637,7 +625,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -663,7 +651,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -728,7 +716,7 @@ namespace Nz
 	* \brief Multiplies the components of other vector with a scalar
 	* \return A reference to this vector where components are the product of this vector and the scalar
 	*
-	* \param vec The other vector to multiply components with
+	* \param scale The scalar to multiply components with
 	*/
 
 	template<typename T>
@@ -761,7 +749,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -777,7 +765,7 @@ namespace Nz
 	* \brief Divides the components of other vector with a scalar
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
-	* \param vec The other vector to divide components with
+	* \param scale The scalar to divide components with
 	*
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
@@ -792,7 +780,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -1023,7 +1011,7 @@ namespace Nz
 	* \param vector Input Vector3
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Vector4<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -1048,7 +1036,7 @@ namespace Nz
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector4<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;
@@ -1113,7 +1101,7 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 

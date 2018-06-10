@@ -1,10 +1,9 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -41,8 +40,13 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::RigidBody3D(&world, geom, matrix));
-		m_object->SetMass(1.f);
+		m_object = std::make_unique<Nz::RigidBody3D>(&world, geom, matrix);
+		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
+
+		if (m_pendingStates.valid)
+			ApplyPhysicsState(*m_object);
+		else
+			m_object->SetMass(1.f);
 	}
 
 	/*!
@@ -58,6 +62,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(static_cast<CollisionComponent3D&>(component).GetGeom());
 		}
 	}
@@ -75,6 +80,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent3D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
+
 			m_object->SetGeom(Nz::NullCollider3D::New());
 		}
 	}
@@ -85,7 +91,31 @@ namespace Ndk
 
 	void PhysicsComponent3D::OnDetached()
 	{
+		if (m_object)
+		{
+			CopyPhysicsState(*m_object);
+			m_object.reset();
+		}
+	}
+
+	void PhysicsComponent3D::OnEntityDestruction()
+	{
+		// Kill rigid body before entity destruction to force contact callbacks to be called while the entity is still valid
 		m_object.reset();
+	}
+
+	void PhysicsComponent3D::OnEntityDisabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(false);
+	}
+
+	void PhysicsComponent3D::OnEntityEnabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(true);
 	}
 
 	ComponentIndex PhysicsComponent3D::componentIndex;

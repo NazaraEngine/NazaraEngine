@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
@@ -34,7 +34,7 @@ namespace Nz
 	* \param object HandledObject to move into this
 	*/
 	template<typename T>
-	HandledObject<T>::HandledObject(HandledObject&& object) :
+	HandledObject<T>::HandledObject(HandledObject&& object) noexcept :
 	m_handles(std::move(object.m_handles))
 	{
 		for (ObjectHandle<T>* handle : m_handles)
@@ -84,8 +84,10 @@ namespace Nz
 	* \param object HandledObject to move in this
 	*/
 	template<typename T>
-	HandledObject<T>& HandledObject<T>::operator=(HandledObject&& object)
+	HandledObject<T>& HandledObject<T>::operator=(HandledObject&& object) noexcept
 	{
+		UnregisterAllHandles();
+
 		m_handles = std::move(object.m_handles);
 		for (ObjectHandle<T>* handle : m_handles)
 			handle->OnObjectMoved(static_cast<T*>(this));
@@ -110,7 +112,7 @@ namespace Nz
 	* \brief Unregisters all handles
 	*/
 	template<typename T>
-	void HandledObject<T>::UnregisterAllHandles()
+	void HandledObject<T>::UnregisterAllHandles() noexcept
 	{
 		// Tell every handle we got destroyed, to null them
 		for (ObjectHandle<T>* handle : m_handles)

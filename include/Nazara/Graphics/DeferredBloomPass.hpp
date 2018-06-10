@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDBLOOMPASS_HPP
 #define NAZARA_DEFERREDBLOOMPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
@@ -29,8 +29,8 @@ namespace Nz
 			float GetBrightThreshold() const;
 			Texture* GetTexture(unsigned int i) const;
 
-			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const;
-			bool Resize(const Vector2ui& dimensions);
+			bool Process(const SceneData& sceneData, unsigned int firstWorkTexture, unsigned int secondWorkTexture) const override;
+			bool Resize(const Vector2ui& dimensions) override;
 
 			void SetBlurPassCount(unsigned int passCount);
 			void SetBrightLuminance(float luminance);

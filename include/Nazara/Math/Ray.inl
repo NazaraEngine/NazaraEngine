@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
+// Copyright (C) 2017 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -579,7 +579,7 @@ namespace Nz
 			String error("Planes are parallel");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -772,7 +772,7 @@ namespace Nz
 	* \param ray Input Ray
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Ray<T>& ray)
+	bool Serialize(SerializationContext& context, const Ray<T>& ray, TypeTag<Ray<T>>)
 	{
 		if (!Serialize(context, ray.origin))
 			return false;
@@ -791,7 +791,7 @@ namespace Nz
 	* \param ray Output Ray
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Ray<T>* ray)
+	bool Unserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>)
 	{
 		if (!Unserialize(context, &ray->origin))
 			return false;

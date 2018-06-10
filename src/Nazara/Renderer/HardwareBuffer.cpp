@@ -1,27 +1,35 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/HardwareBuffer.hpp>
-#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <cstring>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
 	HardwareBuffer::HardwareBuffer(Buffer* parent, BufferType type) :
+	m_buffer(0),
 	m_type(type),
 	m_parent(parent)
 	{
 	}
 
-	HardwareBuffer::~HardwareBuffer() = default;
+	HardwareBuffer::~HardwareBuffer()
+	{
+		if (m_buffer)
+		{
+			Context::EnsureContext();
 
-	bool HardwareBuffer::Create(unsigned int size, BufferUsage usage)
+			OpenGL::DeleteBuffer(m_type, m_buffer);
+		}
+	}
+
+	bool HardwareBuffer::Initialize(UInt32 size, BufferUsageFlags usage)
 	{
 		Context::EnsureContext();
 
@@ -29,37 +37,29 @@ namespace Nz
 		glGenBuffers(1, &m_buffer);
 
 		OpenGL::BindBuffer(m_type, m_buffer);
-
-		glBufferData(OpenGL::BufferTarget[m_type], size, nullptr, OpenGL::BufferUsage[usage]);
+		glBufferData(OpenGL::BufferTarget[m_type], size, nullptr, (usage & BufferUsage_Dynamic) ? GL_STREAM_DRAW : GL_STATIC_DRAW);
 
 		return true;
 	}
 
-	void HardwareBuffer::Destroy()
+	bool HardwareBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
 	{
 		Context::EnsureContext();
 
-		OpenGL::DeleteBuffer(m_type, m_buffer);
-	}
+		UInt32 totalSize = m_parent->GetSize();
 
-	bool HardwareBuffer::Fill(const void* data, unsigned int offset, unsigned int size, bool forceDiscard)
-	{
-		Context::EnsureContext();
-
-		unsigned int totalSize = m_parent->GetSize();
-
-		if (!forceDiscard)
-			forceDiscard = (size == totalSize);
+		//bool forceDiscard = (size == totalSize);
+		bool forceDiscard = true;
 
 		OpenGL::BindBuffer(m_type, m_buffer);
 
-		// Il semblerait que glBuffer(Sub)Data soit plus performant que glMapBuffer(Range) en dessous d'un certain seuil
+		// It seems glBuffer(Sub)Data performs faster than glMapBuffer under a specific range
 		// http://www.stevestreeting.com/2007/03/17/glmapbuffer-vs-glbuffersubdata-the-return/
 		if (size < 32*1024)
 		{
 			// http://www.opengl.org/wiki/Buffer_Object_Streaming
 			if (forceDiscard)
-				glBufferData(OpenGL::BufferTarget[m_type], totalSize, nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
+				glBufferData(OpenGL::BufferTarget[m_type], totalSize, nullptr, (m_parent->GetUsage() & BufferUsage_Dynamic) ? GL_STREAM_DRAW : GL_STATIC_DRAW); // Discard
 
 			glBufferSubData(OpenGL::BufferTarget[m_type], offset, size, data);
 		}
@@ -80,12 +80,12 @@ namespace Nz
 		return true;
 	}
 
-	bool HardwareBuffer::IsHardware() const
+	DataStorage HardwareBuffer::GetStorage() const
 	{
-		return true;
+		return DataStorage_Hardware;
 	}
 
-	void* HardwareBuffer::Map(BufferAccess access, unsigned int offset, unsigned int size)
+	void* HardwareBuffer::Map(BufferAccess access, UInt32 offset, UInt32 size)
 	{
 		Context::EnsureContext();
 
@@ -97,7 +97,7 @@ namespace Nz
 		{
 			// http://www.opengl.org/wiki/Buffer_Object_Streaming
 			if (access == BufferAccess_DiscardAndWrite)
-				glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]); // Discard
+				glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, (m_parent->GetUsage() & BufferUsage_Dynamic) ? GL_STREAM_DRAW : GL_STATIC_DRAW); // Discard
 
 			UInt8* ptr = static_cast<UInt8*>(glMapBuffer(OpenGL::BufferTarget[m_type], OpenGL::BufferLock[access]));
 			if (ptr)
@@ -115,10 +115,10 @@ namespace Nz
 
 		if (glUnmapBuffer(OpenGL::BufferTarget[m_type]) != GL_TRUE)
 		{
-			glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, OpenGL::BufferUsage[m_parent->GetUsage()]);
+			// An error occured, we have to reset the buffer
+			glBufferData(OpenGL::BufferTarget[m_type], m_parent->GetSize(), nullptr, (m_parent->GetUsage() & BufferUsage_Dynamic) ? GL_STREAM_DRAW : GL_STATIC_DRAW);
 
-			// Une erreur rare est survenue, nous devons réinitialiser le buffer
-			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error : 0x" + String::Number(glGetError(), 16) + ')');
+			NazaraError("Failed to unmap buffer, reinitialising content... (OpenGL error: 0x" + String::Number(glGetError(), 16) + ')');
 			return false;
 		}
 
@@ -130,8 +130,8 @@ namespace Nz
 		OpenGL::BindBuffer(m_type, m_buffer);
 	}
 
-	unsigned int HardwareBuffer::GetOpenGLID() const
+	GLuint HardwareBuffer::GetOpenGLID() const
 	{
 		return m_buffer;
-}
+	}
 }

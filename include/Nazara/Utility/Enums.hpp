@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,8 @@
 
 #ifndef NAZARA_ENUMS_UTILITY_HPP
 #define NAZARA_ENUMS_UTILITY_HPP
+
+#include <Nazara/Core/Flags.hpp>
 
 namespace Nz
 {
@@ -54,10 +56,18 @@ namespace Nz
 	enum BufferUsage
 	{
 		BufferUsage_Dynamic,
-		BufferUsage_Static,
+		BufferUsage_FastRead,
 
-		BufferUsage_Max = BufferUsage_Static
+		BufferUsage_Max = BufferUsage_FastRead
 	};
+
+	template<>
+	struct EnumAsFlags<BufferUsage>
+	{
+		static constexpr BufferUsage max = BufferUsage_Max;
+	};
+
+	using BufferUsageFlags = Flags<BufferUsage>;
 
 	enum ComponentType
 	{
@@ -81,8 +91,8 @@ namespace Nz
 
 	enum CubemapFace
 	{
-		// Cette énumération est prévue pour remplacer l'argument "z" des méthodes de Image contenant un cubemap
-		// L'ordre est X, -X, Y, -Y, Z, -Z
+		// This enumeration is intended to replace the "z" argument of Image's methods containing cubemap
+		// The order is X, -X, Y, -Y, Z, -Z
 		CubemapFace_PositiveX = 0,
 		CubemapFace_PositiveY = 2,
 		CubemapFace_PositiveZ = 4,
@@ -93,14 +103,12 @@ namespace Nz
 		CubemapFace_Max = CubemapFace_NegativeZ
 	};
 
-	enum DataStorageFlags
+	enum DataStorage
 	{
-		DataStorage_Hardware = 0x1,
-		DataStorage_Software = 0x2,
+		DataStorage_Hardware,
+		DataStorage_Software,
 
-		DataStorage_Both = DataStorage_Hardware | DataStorage_Software,
-
-		DataStorage_Max = DataStorage_Software*2-1
+		DataStorage_Max = DataStorage_Software
 	};
 
 	enum FaceFilling
@@ -337,7 +345,7 @@ namespace Nz
 	{
 		VertexComponent_Unused = -1,
 
-		// Nous nous limitons à 16 composants de sommets car c'est le minimum supporté par le GPU
+		// We limit to 16 components by vertex since it's the minimal number supported by the GPU
 		VertexComponent_InstanceData0,
 		VertexComponent_InstanceData1,
 		VertexComponent_InstanceData2,
@@ -365,7 +373,7 @@ namespace Nz
 
 	enum VertexLayout
 	{
-		// Déclarations destinées au rendu
+		// Declarations meant for the rendering
 		VertexLayout_XY,
 		VertexLayout_XY_Color,
 		VertexLayout_XY_UV,
@@ -378,71 +386,10 @@ namespace Nz
 		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 		VertexLayout_XYZ_UV,
 
-		// Déclarations destinées à l'instancing
+		// Declarations meant for the instancing
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4
-	};
-
-	enum WindowCursor
-	{
-		WindowCursor_None,
-		WindowCursor_Default,
-
-		WindowCursor_Crosshair,
-		WindowCursor_Hand,
-		WindowCursor_Help,
-		WindowCursor_Move,
-		WindowCursor_Pointer,
-		WindowCursor_Progress,
-		WindowCursor_ResizeE,
-		WindowCursor_ResizeN,
-		WindowCursor_ResizeNE,
-		WindowCursor_ResizeNW,
-		WindowCursor_ResizeS,
-		WindowCursor_ResizeSE,
-		WindowCursor_ResizeSW,
-		WindowCursor_ResizeW,
-		WindowCursor_Text,
-		WindowCursor_Wait,
-
-		WindowCursor_Max = WindowCursor_Wait
-	};
-
-	enum WindowEventType
-	{
-		WindowEventType_GainedFocus,
-		WindowEventType_LostFocus,
-		WindowEventType_KeyPressed,
-		WindowEventType_KeyReleased,
-		WindowEventType_MouseButtonDoubleClicked,
-		WindowEventType_MouseButtonPressed,
-		WindowEventType_MouseButtonReleased,
-		WindowEventType_MouseEntered,
-		WindowEventType_MouseLeft,
-		WindowEventType_MouseMoved,
-		WindowEventType_MouseWheelMoved,
-		WindowEventType_Moved,
-		WindowEventType_Quit,
-		WindowEventType_Resized,
-		WindowEventType_TextEntered,
-
-		WindowEventType_Max = WindowEventType_TextEntered
-	};
-
-	enum WindowStyleFlags
-	{
-		WindowStyle_None       = 0x0,  ///< Window has no border nor titlebar.
-		WindowStyle_Fullscreen = 0x1,  ///< At the window creation, the OS tries to set it in fullscreen.
-
-		WindowStyle_Closable   = 0x2,  ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
-		WindowStyle_Resizable  = 0x4,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
-		WindowStyle_Titlebar   = 0x8,  ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
-
-		WindowStyle_Threaded   = 0x10, ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
-
-		WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar,
-		WindowStyle_Max = WindowStyle_Threaded*2-1
 	};
 }
 

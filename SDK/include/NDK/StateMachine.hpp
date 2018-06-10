@@ -1,15 +1,16 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_STATEMACHINE_HPP
 #define NDK_STATEMACHINE_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <NDK/State.hpp>
 #include <memory>
+#include <vector>
 
 namespace Ndk
 {
@@ -23,7 +24,13 @@ namespace Ndk
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
-			inline const std::shared_ptr<State>& GetCurrentState() const;
+			inline bool IsTopState(const State* state) const;
+
+			inline void PopState();
+			inline void PopStatesUntil(std::shared_ptr<State> state);
+			inline void PushState(std::shared_ptr<State> state);
+
+			inline void ResetState(std::shared_ptr<State> state);
 
 			inline bool Update(float elapsedTime);
 
@@ -31,8 +38,21 @@ namespace Ndk
 			StateMachine& operator=(const StateMachine&) = delete;
 
 		private:
-			std::shared_ptr<State> m_currentState;
-			std::shared_ptr<State> m_nextState;
+			enum class TransitionType
+			{
+				Pop,
+				PopUntil,
+				Push,
+			};
+
+			struct StateTransition
+			{
+				TransitionType type;
+				std::shared_ptr<State> state;
+			};
+
+			std::vector<std::shared_ptr<State>> m_states;
+			std::vector<StateTransition> m_transitions;
 	};
 }
 

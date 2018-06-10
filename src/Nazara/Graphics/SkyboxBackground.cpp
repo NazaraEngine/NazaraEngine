@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,10 +6,12 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -51,6 +53,11 @@ namespace Nz
 
 	void SkyboxBackground::Draw(const AbstractViewer* viewer) const
 	{
+		const Nz::RenderTarget* target = viewer->GetTarget();
+		Nz::Vector2ui targetSize = target->GetSize();
+
+		Matrix4f projectionMatrix = Nz::Matrix4f::Perspective(45.f, float(targetSize.x) / targetSize.y, viewer->GetZNear(), viewer->GetZFar());
+
 		Matrix4f skyboxMatrix(viewer->GetViewMatrix());
 		skyboxMatrix.SetTranslation(Vector3f::Zero());
 
@@ -70,6 +77,7 @@ namespace Nz
 		world.SetTranslation(offset);
 
 		Renderer::SetIndexBuffer(s_indexBuffer);
+		Renderer::SetMatrix(MatrixType_Projection, projectionMatrix);
 		Renderer::SetMatrix(MatrixType_View, skyboxMatrix);
 		Renderer::SetMatrix(MatrixType_World, world);
 		Renderer::SetRenderStates(s_renderStates);
@@ -80,6 +88,7 @@ namespace Nz
 
 		Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, 36);
 
+		Renderer::SetMatrix(MatrixType_Projection, viewer->GetProjectionMatrix());
 		Renderer::SetMatrix(MatrixType_View, viewer->GetViewMatrix());
 	}
 
@@ -154,7 +163,7 @@ namespace Nz
 		"{\n"
 		"    vec4 WVPVertex = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
 		"    gl_Position = WVPVertex.xyww;\n"
-		"    vTexCoord = vec3(VertexPosition.x, VertexPosition.y, -VertexPosition.z);\n"
+		"    vTexCoord = VertexPosition;\n"
 		"}\n";
 
 		try
@@ -162,11 +171,11 @@ namespace Nz
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
 			// Index buffer
-			IndexBufferRef indexBuffer = IndexBuffer::New(false, 36, DataStorage_Hardware, BufferUsage_Static);
+			IndexBufferRef indexBuffer = IndexBuffer::New(false, 36, DataStorage_Hardware, 0);
 			indexBuffer->Fill(indices, 0, 36);
 
 			// Vertex buffer
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ), 8, DataStorage_Hardware, BufferUsage_Static);
+			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ), 8, DataStorage_Hardware, 0);
 			vertexBuffer->Fill(vertices, 0, 8);
 
 			// Shader

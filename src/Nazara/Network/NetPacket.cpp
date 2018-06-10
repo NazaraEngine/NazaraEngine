@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -127,7 +127,7 @@ namespace Nz
 	* \remark Produces a NazaraAssert if cursor position is greather than the capacity
 	*/
 
-	void NetPacket::InitStream(std::size_t minCapacity, UInt64 cursorPos, UInt32 openMode)
+	void NetPacket::InitStream(std::size_t minCapacity, UInt64 cursorPos, OpenModeFlags openMode)
 	{
 		NazaraAssert(minCapacity >= cursorPos, "Cannot init stream with a smaller capacity than wanted cursor pos");
 

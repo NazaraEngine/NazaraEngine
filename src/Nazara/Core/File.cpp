@@ -1,16 +1,15 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringStream.hpp>
-#include <cstring>
 #include <memory>
-#include <utility>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/FileImpl.hpp>
@@ -64,24 +63,10 @@ namespace Nz
 	* \param openMode Flag of the file
 	*/
 
-	File::File(const String& filePath, UInt32 openMode) :
+	File::File(const String& filePath, OpenModeFlags openMode) :
 	File()
 	{
 		Open(filePath, openMode);
-	}
-
-	/*!
-	* \brief Constructs a File object by move semantic
-	*
-	* \param file File to move into this
-	*/
-
-	File::File(File&& file) noexcept :
-	Stream(std::move(file)),
-	m_filePath(std::move(file.m_filePath)),
-	m_impl(file.m_impl)
-	{
-		file.m_impl = nullptr;
 	}
 
 	/*!
@@ -311,7 +296,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(unsigned int openMode)
+	bool File::Open(OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 
@@ -352,7 +337,7 @@ namespace Nz
 	* \remark Produces a NazaraError if OS error to open a file
 	*/
 
-	bool File::Open(const String& filePath, unsigned int openMode)
+	bool File::Open(const String& filePath, OpenModeFlags openMode)
 	{
 		NazaraLock(m_mutex)
 
@@ -483,23 +468,6 @@ namespace Nz
 	File& File::operator=(const String& filePath)
 	{
 		SetFile(filePath);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Moves the other file into this
-	* \return A reference to this
-	*
-	* \param file File to move in this
-	*/
-
-	File& File::operator=(File&& file) noexcept
-	{
-		NazaraLock(m_mutex)
-
-		std::swap(m_filePath, file.m_filePath);
-		std::swap(m_impl, file.m_impl);
 
 		return *this;
 	}

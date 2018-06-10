@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/BaseComponent.hpp>
 
@@ -51,6 +51,35 @@ namespace Ndk
 	*/
 
 	void BaseComponent::OnDetached()
+	{
+	}
+
+	/*!
+	* \brief Operation to perform when the entity is destroyed and we're still attached to it
+	*
+	* \remark This is always called before the entity proper destruction, and thus its components.
+	*/
+	void BaseComponent::OnEntityDestruction()
+	{
+	}
+
+	/*!
+	* \brief Operation to perform when the entity is disabled
+	*
+	* \remark Disabling an entity will remove it from systems it belongs to, but sometimes the entity will need to do
+	*         additional work in order to be properly disabled (i.e.: disabling physics simulation & collisions)
+	*/
+	void BaseComponent::OnEntityDisabled()
+	{
+	}
+
+	/*!
+	* \brief Operation to perform when the entity is disabled
+	*
+	* \remark Enabling an entity will add it back to systems it belongs to, but sometimes the entity will need to do
+	*         additional work in order to be properly re-enabled (i.e.: enabling physics simulation & collisions)
+	*/
+	void BaseComponent::OnEntityEnabled()
 	{
 	}
 

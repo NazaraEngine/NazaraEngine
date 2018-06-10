@@ -1,10 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/TextureBackground.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <memory>
+#include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

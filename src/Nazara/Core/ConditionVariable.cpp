@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -101,19 +101,5 @@ namespace Nz
 	{
 		NazaraAssert(mutex != nullptr, "Mutex must be valid");
 		return m_impl->Wait(mutex->m_impl, timeout);
-	}
-
-	/*!
-	* \brief Moves a condition to another ConditionVariable object
-	* \return A reference to the object
-	*/
-	ConditionVariable& ConditionVariable::operator=(ConditionVariable&& condition) noexcept
-	{
-		delete m_impl;
-
-		m_impl = condition.m_impl;
-		condition.m_impl = nullptr;
-
-		return *this;
 	}
 }

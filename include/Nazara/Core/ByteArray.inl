@@ -1,9 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -422,7 +421,6 @@ namespace Nz
 
 	/*!
 	* \brief Resizes the string
-	* \return A reference to this
 	*
 	* \param newSize Target size
 	*/
@@ -434,7 +432,6 @@ namespace Nz
 
 	/*!
 	* \brief Resizes the string
-	* \return A reference to this
 	*
 	* \param newSize Target size
 	* \param byte Byte to add if newSize is greather than actual size

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,10 +7,10 @@
 #ifndef NAZARA_STRING_HPP
 #define NAZARA_STRING_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/SerializationContext.hpp>
-#include <atomic>
+#include <Nazara/Core/TypeTag.hpp>
+#include <cstdarg>
 #include <iosfwd>
 #include <memory>
 #include <string>
@@ -18,6 +18,8 @@
 
 namespace Nz
 {
+	struct SerializationContext;
+
 	class NAZARA_CORE_API String
 	{
 		public:
@@ -40,7 +42,7 @@ namespace Nz
 			String(const char* string, std::size_t length);
 			String(const std::string& string);
 			String(const String& string) = default;
-			String(String&& string) noexcept = default;
+			inline String(String&& string) noexcept;
 			~String() = default;
 
 			String& Append(char character);
@@ -82,6 +84,7 @@ namespace Nz
 
 			char* GetBuffer();
 			std::size_t GetCapacity() const;
+			std::size_t GetCharacterPosition(std::size_t characterIndex) const;
 			const char* GetConstBuffer() const;
 			std::size_t GetLength() const;
 			std::size_t GetSize() const;
@@ -166,6 +169,7 @@ namespace Nz
 			bool ToDouble(double* value) const;
 			bool ToInteger(long long* value, UInt8 radix = 10) const;
 			String ToLower(UInt32 flags = None) const;
+			std::string ToStdString() const;
 			String ToUpper(UInt32 flags = None) const;
 
 			String& Trim(UInt32 flags = None);
@@ -185,13 +189,11 @@ namespace Nz
 			//char* rend();
 			//const char* rend() const;
 
-			typedef const char& const_reference;
-			typedef char* iterator;
-			//typedef char* reverse_iterator;
-			typedef char value_type;
+			using const_reference = const char&;
+			using iterator = char*;
+			//using reverse_iterator = char*;
+			using value_type = char;
 			// Méthodes STD
-
-			operator std::string() const;
 
 			char& operator[](std::size_t pos);
 			char operator[](std::size_t pos) const;
@@ -238,6 +240,8 @@ namespace Nz
 
 			static String Boolean(bool boolean);
 			static int Compare(const String& first, const String& second);
+			static inline String Format(const char* format, ...);
+			static String FormatVA(const char* format, va_list arg);
 			static String Number(float number);
 			static String Number(double number);
 			static String Number(long double number);
@@ -325,8 +329,8 @@ namespace Nz
 	class AbstractHash;
 
 	inline bool HashAppend(AbstractHash* hash, const String& string);
-	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string);
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string, TypeTag<String>);
+	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string, TypeTag<String>);
 }
 
 namespace std

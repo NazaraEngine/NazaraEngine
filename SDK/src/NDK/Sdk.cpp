@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Sdk.hpp>
 #include <Nazara/Audio/Audio.hpp>
@@ -11,6 +11,7 @@
 #include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/BaseSystem.hpp>
@@ -20,20 +21,24 @@
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
+#include <NDK/Components/ConstraintComponent2D.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/DebugComponent.hpp>
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/ParticleEmitterComponent.hpp>
 #include <NDK/Components/ParticleGroupComponent.hpp>
+#include <NDK/Systems/DebugSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
 #endif
 
 namespace Ndk
@@ -63,13 +68,6 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
-			#ifdef NDK_SERVER
-			Nz::ParameterList parameters;
-			parameters.SetParameter("NoWindowSystem", true);
-
-			Nz::Utility::SetParameters(parameters);
-			#endif
-
 			Nz::Lua::Initialize();
 			Nz::Noise::Initialize();
 			Nz::Physics2D::Initialize();
@@ -94,10 +92,12 @@ namespace Ndk
 			InitializeComponent<PhysicsComponent2D>("NdkPhys2");
 			InitializeComponent<PhysicsComponent3D>("NdkPhys3");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
+			InitializeComponent<VelocityComponent>("NdkCons2");
 
 			#ifndef NDK_SERVER
 			// Client components
 			InitializeComponent<CameraComponent>("NdkCam");
+			InitializeComponent<DebugComponent>("NdkDebug");
 			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<GraphicsComponent>("NdkGfx");
@@ -116,9 +116,17 @@ namespace Ndk
 
 			#ifndef NDK_SERVER
 			// Client systems
+			InitializeSystem<DebugSystem>();
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();
+
+			// Widgets
+			if (!CheckboxWidget::Initialize())
+			{
+				NazaraError("Failed to initialize Checkbox Widget");
+				return false;
+			}
 			#endif
 
 			NazaraNotice("Initialized: SDK");
@@ -127,7 +135,6 @@ namespace Ndk
 		catch (const std::exception& e)
 		{
 			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
-
 			return false;
 		}
 	}
@@ -172,6 +179,11 @@ namespace Ndk
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
+
+		#ifndef NDK_SERVER
+		// Widgets
+		CheckboxWidget::Uninitialize();
+		#endif
 
 		NazaraNotice("Uninitialized: SDK");
 	}

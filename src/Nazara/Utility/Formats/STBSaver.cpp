@@ -1,8 +1,7 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <stb/stb_image_write.h>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -162,6 +161,38 @@ namespace Nz
 			return true;
 		}
 
+		bool SaveJPEG(const Image& image, const ImageParams& parameters, Stream& stream)
+		{
+			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
+
+			int componentCount = ConvertToIntegerFormat(tempImage);
+			if (componentCount == 0)
+			{
+				NazaraError("Failed to convert image to suitable format");
+				return false;
+			}
+
+			long long imageQuality;
+			if (parameters.custom.GetIntegerParameter("NativeJPEGSaver_Quality", &imageQuality))
+			{
+				if (imageQuality <= 0 || imageQuality > 100)
+				{
+					NazaraError("NativeJPEGSaver_Quality value (" + Nz::String::Number(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
+					imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
+				}
+			}
+			else
+				imageQuality = 100;
+
+			if (!stbi_write_jpg_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels(), int(imageQuality)))
+			{
+				NazaraError("Failed to write JPEG to stream");
+				return false;
+			}
+
+			return true;
+		}
+
 		bool SaveHDR(const Image& image, const ImageParams& parameters, Stream& stream)
 		{
 			NazaraUnused(parameters);
@@ -233,10 +264,12 @@ namespace Nz
 	{
 		void RegisterSTBSaver()
 		{
-			s_formatHandlers["bmp"] = &SaveBMP;
-			s_formatHandlers["hdr"] = &SaveHDR;
-			s_formatHandlers["png"] = &SavePNG;
-			s_formatHandlers["tga"] = &SaveTGA;
+			s_formatHandlers["bmp"]  = &SaveBMP;
+			s_formatHandlers["hdr"]  = &SaveHDR;
+			s_formatHandlers["jpg"]  = &SaveJPEG;
+			s_formatHandlers["jpeg"] = &SaveJPEG;
+			s_formatHandlers["png"]  = &SavePNG;
+			s_formatHandlers["tga"]  = &SaveTGA;
 
 			ImageSaver::RegisterSaver(FormatQuerier, SaveToStream);
 		}

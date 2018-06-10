@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -55,20 +55,20 @@ namespace Nz
 		return position.QuadPart;
 	}
 
-	bool FileImpl::Open(const String& filePath, UInt32 mode)
+	bool FileImpl::Open(const String& filePath, OpenModeFlags mode)
 	{
 		DWORD access = 0;
 		DWORD shareMode = FILE_SHARE_READ;
 		DWORD openMode = 0;
-		
+
 		if (mode & OpenMode_ReadOnly)
 		{
 			access |= GENERIC_READ;
 
-			if (mode & OpenMode_MustExit || (mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode_MustExist || (mode & OpenMode_WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
-		
+
 		if (mode & OpenMode_WriteOnly)
 		{
 			if (mode & OpenMode_Append)
@@ -78,7 +78,7 @@ namespace Nz
 
 			if (mode & OpenMode_Truncate)
 				openMode |= CREATE_ALWAYS;
-			else if (mode & OpenMode_MustExit)
+			else if (mode & OpenMode_MustExist)
 				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
@@ -191,9 +191,7 @@ namespace Nz
 		LARGE_INTEGER cursorPos;
 		cursorPos.QuadPart = GetCursorPos();
 
-		LockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 		WriteFile(m_handle, buffer, static_cast<DWORD>(size), &written, nullptr);
-		UnlockFile(m_handle, cursorPos.LowPart, cursorPos.HighPart, static_cast<DWORD>(size), 0);
 
 		m_endOfFileUpdated = false;
 

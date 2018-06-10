@@ -1,9 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Error.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/ClockImpl.hpp>
@@ -68,7 +67,7 @@ namespace Nz
 	*/
 	float Clock::GetSeconds() const
 	{
-		return GetMicroseconds()/1000000.f;
+		return GetMicroseconds()/1'000'000.f;
 	}
 
 	/*!
@@ -133,15 +132,26 @@ namespace Nz
 
 	/*!
 	* \brief Restart the clock
+	* \return Microseconds elapsed
+	*
 	* Restarts the clock, putting it's time counter back to zero (as if the clock got constructed).
+	* It also compute the elapsed microseconds since the last Restart() call without any time loss (a problem that the combination of GetElapsedMicroseconds and Restart have).
 	*/
-	void Clock::Restart()
+	UInt64 Clock::Restart()
 	{
 		NazaraLock(m_mutex);
 
+		Nz::UInt64 now = GetElapsedMicroseconds();
+
+		Nz::UInt64 elapsedTime = m_elapsedTime;
+		if (!m_paused)
+			elapsedTime += (now - m_refTime);
+
 		m_elapsedTime = 0;
-		m_refTime = GetElapsedMicroseconds();
+		m_refTime = now;
 		m_paused = false;
+
+		return elapsedTime;
 	}
 
 	/*!

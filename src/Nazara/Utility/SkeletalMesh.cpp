@@ -1,18 +1,23 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <memory>
-#include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	SkeletalMesh::SkeletalMesh(const Mesh* parent) :
-	SubMesh(parent)
+	SkeletalMesh::SkeletalMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer) :
+	m_aabb(Nz::Boxf::Zero()),
+	m_indexBuffer(indexBuffer),
+	m_vertexBuffer(vertexBuffer)
+	{
+		NazaraAssert(m_vertexBuffer, "Invalid vertex buffer");
+	}
+
+	SkeletalMesh::SkeletalMesh(const Mesh* /*parent*/) :
+	m_aabb(Nz::Boxf::Zero())
 	{
 	}
 
@@ -93,6 +98,8 @@ namespace Nz
 	void SkeletalMesh::SetAABB(const Boxf& aabb)
 	{
 		m_aabb = aabb;
+
+		OnSubMeshInvalidateAABB(this);
 	}
 
 	void SkeletalMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,12 +7,11 @@
 #ifndef NAZARA_FORMATS_MD5ANIMPARSER_HPP
 #define NAZARA_FORMATS_MD5ANIMPARSER_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utility/Animation.hpp>
 #include <vector>
 
 namespace Nz
@@ -70,12 +69,12 @@ namespace Nz
 			std::vector<Frame> m_frames;
 			std::vector<Joint> m_joints;
 			Stream& m_stream;
+			StreamOptionFlags m_streamFlags;
 			String m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_frameIndex;
 			unsigned int m_frameRate;
 			unsigned int m_lineCount;
-			unsigned int m_streamFlags;
 	};
 }
 

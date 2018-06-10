@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -161,7 +161,7 @@ namespace Nz
 		#endif
 
 		const char* tmp = source.GetConstBuffer();
-		GLint length = source.GetSize();
+		GLint length = static_cast<GLint>(source.GetSize());
 		glShaderSource(m_id, 1, &tmp, &length);
 	}
 

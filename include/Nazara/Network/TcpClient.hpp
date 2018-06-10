@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,15 +7,15 @@
 #ifndef NAZARA_TCPCLIENT_HPP
 #define NAZARA_TCPCLIENT_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 
 namespace Nz
 {
+	struct NetBuffer;
 	class NetPacket;
 
 	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream
@@ -49,6 +49,7 @@ namespace Nz
 			bool ReceivePacket(NetPacket* packet);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
+			bool SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const NetPacket& packet);
 
 			bool SetCursorPos(UInt64 offset) override;

@@ -1,12 +1,32 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/Model.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
+	/*!
+	* \brief Constructs a Model object by default
+	*/
+	inline Model::Model()
+	{
+		ResetMaterials(0);
+	}
+
+	/*!
+	* \brief Constructs a Model object by copying another
+	*
+	* \param model Model to copy
+	*/
+	inline Model::Model(const Model& model) :
+	InstancedRenderable(model)
+	{
+		SetMesh(model.m_mesh);
+	}
+
 	/*!
 	* \brief Adds this model to a render queue, using user-specified transform matrix and render order
 	*
@@ -14,14 +34,15 @@ namespace Nz
 	*
 	* \param renderQueue Queue to be added
 	* \param transformMatrix Transform matrix to be used for rendering the model
-	* \param renderOrder Specify the renderqueue layer to be used
+	* \param renderOrder Specify the render queue layer to be used
+	* \param scissorRect The Scissor rect to uses for rendering
 	*/
-	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, unsigned int renderOrder)
+	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder, const Recti& scissorRect) const
 	{
 		InstanceData instanceData(Nz::Matrix4f::Identity());
 		instanceData.renderOrder = renderOrder;
 		instanceData.transformMatrix = transformMatrix;
-		return AddToRenderQueue(renderQueue, instanceData);
+		return AddToRenderQueue(renderQueue, instanceData, scissorRect);
 	}
 
 	/*!

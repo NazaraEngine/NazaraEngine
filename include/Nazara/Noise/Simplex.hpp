@@ -1,14 +1,13 @@
-// Copyright (C) 2016 Rémi Bèges
+// Copyright (C) 2017 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_SIMPLEX_HPP
 #define NAZARA_SIMPLEX_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <initializer_list>
 
 namespace Nz
 {

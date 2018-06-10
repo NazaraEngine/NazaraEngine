@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,22 +7,25 @@
 #ifndef NAZARA_MESH_HPP
 #define NAZARA_MESH_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
+#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
@@ -30,22 +33,37 @@ namespace Nz
 	{
 		MeshParams();
 
-		Matrix4f matrix = Matrix4f::Identity(); ///< A matrix which will transform every vertex position
-		UInt32 storage = DataStorage_Hardware;  ///< The place where the buffers will be allocated
-		Vector2f texCoordOffset = {0.f, 0.f};   ///< Offset to apply on the texture coordinates (not scaled)
-		Vector2f texCoordScale  = {1.f, 1.f};   ///< Scale to apply on the texture coordinates
-		bool animated = true;                   ///< If true, will load an animated version of the model if possible
-		bool center = false;                    ///< If true, will center the mesh vertices around the origin
-		bool optimizeIndexBuffers = true;       ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+		BufferUsageFlags indexBufferFlags = 0;      ///< Buffer usage flags used to build the index buffers
+		BufferUsageFlags vertexBufferFlags = 0;     ///< Buffer usage flags used to build the vertex buffers
+		Matrix4f matrix = Matrix4f::Identity();     ///< A matrix which will transform every vertex position
+		DataStorage storage = DataStorage_Hardware; ///< The place where the buffers will be allocated
+		Vector2f texCoordOffset = {0.f, 0.f};       ///< Offset to apply on the texture coordinates (not scaled)
+		Vector2f texCoordScale  = {1.f, 1.f};       ///< Scale to apply on the texture coordinates
+		bool animated = true;                       ///< If true, will load an animated version of the model if possible
+		bool center = false;                        ///< If true, will center the mesh vertices around the origin
+		#ifndef NAZARA_DEBUG
+		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+		#else
+		bool optimizeIndexBuffers = false;          ///< Since this optimization take a lot of time, especially in debug mode, don't enable it by default in debug.
+		#endif
+
+		/* The declaration must have a Vector3f position component enabled
+		 * If the declaration has a Vector2f UV component enabled, UV are generated
+		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.
+		 * If the declaration has a Vector3f Tangents component enabled, Tangents are generated.
+		 */
+		VertexDeclaration* vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
 
 		bool IsValid() const;
 	};
 
 	class Mesh;
+	struct Primitive;
 	class PrimitiveList;
+	class SubMesh;
 
-	typedef VertexStruct_XYZ_Normal_UV_Tangent MeshVertex;
-	typedef VertexStruct_XYZ_Normal_UV_Tangent_Skinning SkeletalMeshVertex;
+	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
+	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	using MeshConstRef = ObjectRef<const Mesh>;
 	using MeshLibrary = ObjectLibrary<Mesh>;
@@ -65,8 +83,10 @@ namespace Nz
 		friend class Utility;
 
 		public:
-			Mesh() = default;
-			~Mesh();
+			inline Mesh();
+			Mesh(const Mesh&) = delete;
+			Mesh(Mesh&&) = delete;
+			inline ~Mesh();
 
 			void AddSubMesh(SubMesh* subMesh);
 			void AddSubMesh(const String& identifier, SubMesh* subMesh);
@@ -126,14 +146,34 @@ namespace Nz
 
 			void Transform(const Matrix4f& matrix);
 
+			Mesh& operator=(const Mesh&) = delete;
+			Mesh& operator=(Mesh&&) = delete;
+
 			template<typename... Args> static MeshRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnMeshDestroy, const Mesh* /*mesh*/);
+			NazaraSignal(OnMeshInvalidateAABB, const Mesh* /*mesh*/);
 			NazaraSignal(OnMeshRelease, const Mesh* /*mesh*/);
 
 		private:
-			MeshImpl* m_impl = nullptr;
+			struct SubMeshData
+			{
+				SubMeshRef subMesh;
+
+				NazaraSlot(SubMesh, OnSubMeshInvalidateAABB, onSubMeshInvalidated);
+			};
+
+			std::unordered_map<String, UInt32> m_subMeshMap;
+			std::vector<ParameterList> m_materialData;
+			std::vector<SubMeshData> m_subMeshes;
+			AnimationType m_animationType;
+			mutable Boxf m_aabb;
+			Skeleton m_skeleton; // Only used by skeletal meshes
+			String m_animationPath;
+			mutable bool m_aabbUpdated;
+			bool m_isValid;
+			UInt32 m_jointCount; // Only used by skeletal meshes
 
 			static bool Initialize();
 			static void Uninitialize();

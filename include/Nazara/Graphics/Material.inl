@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -146,7 +146,7 @@ namespace Nz
 	/*!
 	* \brief Enable/Disable alpha test for this material
 	*
-	* When enabled, all objects using this material will be rendered using alpha testing, 
+	* When enabled, all objects using this material will be rendered using alpha testing,
 	* rejecting pixels if their alpha component is under a defined threshold.
 	* This allows some kind of transparency with a much cheaper cost as it doesn't prevent any optimization (as deferred rendering or batching).
 	*
@@ -252,7 +252,7 @@ namespace Nz
 	* When enabled, and if depth buffer is enabled and present, all fragments generated with this material will write
 	* to the depth buffer if they pass depth test.
 	*
-	* This is usually disabled with translucent objects, as depth test is wanted to prevent them from rendering on top of opaque objects but 
+	* This is usually disabled with translucent objects, as depth test is wanted to prevent them from rendering on top of opaque objects but
 	* not depth writing (which could make other translucent fragments to fail depth test)
 	*
 	* \param depthBuffer Defines if this material will use depth write
@@ -287,6 +287,31 @@ namespace Nz
 	inline void Material::EnableFaceCulling(bool faceCulling)
 	{
 		m_pipelineInfo.faceCulling = faceCulling;
+
+		InvalidatePipeline();
+	}
+
+	/*!
+	* \brief Enable/Disable reflection mapping for this material
+	*
+	* When enabled, the material will render reflections from the object environment according to the reflection mode.
+	* Whether or not this is expensive depends of the reflection mode and size.
+	*
+	* Please note this is only a hint for the render technique, and reflections can be forcefully enabled or disabled depending on the material shader.
+	*
+	* Use SetReflectionMode and SetReflectionSize to control reflection quality.
+	*
+	* \param reflection Defines if this material should use reflection mapping
+	*
+	* \remark May invalidates the pipeline
+	*
+	* \see IsReflectionMappingEnabled
+	* \see SetReflectionMode
+	* \see SetReflectionSize
+	*/
+	inline void Material::EnableReflectionMapping(bool reflection)
+	{
+		m_pipelineInfo.reflectionMapping = reflection;
 
 		InvalidatePipeline();
 	}
@@ -594,6 +619,18 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the reflection mode of the material
+	*
+	* \return Current reflection mode
+	*
+	* \see SetReflectionMode
+	*/
+	inline ReflectionMode Material::GetReflectionMode() const
+	{
+		return m_reflectionMode;
+	}
+
+	/*!
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
@@ -780,6 +817,17 @@ namespace Nz
 	inline bool Material::IsFaceCullingEnabled() const
 	{
 		return m_pipelineInfo.faceCulling;
+	}
+
+	/*!
+	* \brief Checks whether this material has reflection mapping enabled
+	* \return true If it is the case
+	*
+	* \see EnableReflectionMapping
+	*/
+	inline bool Material::IsReflectionMappingEnabled() const
+	{
+		return m_pipelineInfo.reflectionMapping;
 	}
 
 	/*!
@@ -1208,6 +1256,34 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Changes reflection mode of the material
+	*
+	* When reflections are enabled, the material will render reflections from the object environment according to the reflection mode.
+	* This function does change the reflection mode used by the material.
+	*
+	* Skyboxes reflections are the cheapest but are static and thus can't reflect other objects.
+	* Probes reflections are cheap, depending on probes reflection mode, but require regular probe finding from objects using it.
+	* Real-time reflections are expensive but provide the most accurate reflection map (and can reflect other objects around).
+	*
+	* \param reflectionMode The new reflection mode this material should use
+	*
+	* \remark May invalidates the pipeline
+	*
+	* \see EnableReflectionMapping
+	* \see IsReflectionMappingEnabled
+	* \see SetReflectionSize
+	*/
+	inline void Material::SetReflectionMode(ReflectionMode reflectionMode)
+	{
+		if (m_reflectionMode != reflectionMode)
+		{
+			OnMaterialReflectionModeChange(this, reflectionMode);
+
+			m_reflectionMode = reflectionMode;
+		}
+	}
+
+	/*!
 	* \brief Sets the shader with a constant reference to a ubershader
 	*
 	* \param uberShader Uber shader to apply
@@ -1356,6 +1432,11 @@ namespace Nz
 		return s_defaultMaterial;
 	}
 
+	inline int Material::GetTextureUnit(TextureMap textureMap)
+	{
+		return s_textureUnits[textureMap];
+	}
+
 	inline void Material::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;
@@ -1384,4 +1465,3 @@ namespace Nz
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
-#include "Material.hpp"

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,7 +6,6 @@
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <algorithm>
-#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -24,7 +23,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	ByteStream::ByteStream(ByteArray* byteArray, UInt32 openMode) :
+	ByteStream::ByteStream(ByteArray* byteArray, OpenModeFlags openMode) :
 	ByteStream()
 	{
 		SetStream(byteArray, openMode);
@@ -67,7 +66,7 @@ namespace Nz
 	* \param openMode Reading/writing mode for the stream
 	*/
 
-	void ByteStream::SetStream(ByteArray* byteArray, UInt32 openMode)
+	void ByteStream::SetStream(ByteArray* byteArray, OpenModeFlags openMode)
 	{
 		std::unique_ptr<Stream> stream(new MemoryStream(byteArray, openMode));
 

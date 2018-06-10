@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,9 +6,9 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
-#include <memory>
+#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -26,11 +26,8 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
-		if (!m_material)
-			return;
-
 		for (auto& pair : m_renderInfos)
 		{
 			Texture* overlay = pair.first;
@@ -39,9 +36,17 @@ namespace Nz
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(instanceData.renderOrder, m_material, &vertices[indices.first * 4], indices.count, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, scissorRect, overlay);
 			}
 		}
+	}
+
+	/*!
+	* \brief Clones this text sprite
+	*/
+	std::unique_ptr<InstancedRenderable> TextSprite::Clone() const
+	{
+		return std::make_unique<TextSprite>(*this);
 	}
 
 	/*!
@@ -69,7 +74,7 @@ namespace Nz
 		{
 			Font* font = drawer.GetFont(i);
 			const AbstractAtlas* atlas = font->GetAtlas().get();
-			NazaraAssert(atlas->GetStorage() & DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
+			NazaraAssert(atlas->GetStorage() == DataStorage_Hardware, "Font uses a non-hardware atlas which cannot be used by text sprites");
 
 			auto it = m_atlases.find(atlas);
 			if (it == m_atlases.end())
@@ -108,6 +113,8 @@ namespace Nz
 		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)
@@ -149,6 +156,8 @@ namespace Nz
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
+			if (!glyph.atlas)
+				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
 			if (lastTexture != texture)

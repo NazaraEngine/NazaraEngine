@@ -10,6 +10,9 @@ editor/bin/*.so
 # Nazara libraries
 lib/*
 
+# Self-hosted thirdparty libraries binaries
+thirdparty/genlib/*
+
 # Nazara plugin libraries
 plugins/lib/*
 
@@ -21,12 +24,17 @@ examples/bin/*.exe
 examples/bin/*.pdb
 examples/bin/*.dll
 examples/bin/*.so
+examples/bin/Demo*
 
 # Unit tests
 tests/*.exe
 tests/*.pdb
 tests/*.dll
 tests/*.so
+tests/NazaraUnitTests*
+
+# Example generated files
+examples/bin/HardwareInfo.txt
 
 # Example generated files
 examples/bin/HardwareInfo.txt
@@ -52,6 +60,7 @@ build/**/*.project
 
 # GMake
 build/**/*.make
+build/**/*.d
 
 # Visual Studio
 build/**/*.pdb
@@ -63,7 +72,7 @@ build/**/*.vcxprojResolveAssemblyReference.cache
 build/**/*.nativecodeanalysis.all.xml
 build/**/*.nativecodeanalysis.xml
 build/**/*.VC.opendb
-build/**/*.VC.db
+build/**/*.VC.db*
 
 # Compiled Object files
 build/**/*.slo

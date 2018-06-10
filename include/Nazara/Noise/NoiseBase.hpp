@@ -1,11 +1,11 @@
-// Copyright (C) 2016 Rémi Bèges
+// Copyright (C) 2017 Rémi Bèges
 // This file is part of the "Nazara Engine - Noise module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_NOISEBASE_HPP
 #define NAZARA_NOISEBASE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			NoiseBase(unsigned int seed = 0);
-			~NoiseBase() = default;
+			virtual ~NoiseBase() = default;
 
 			virtual float Get(float x, float y, float scale) const = 0;
 			virtual float Get(float x, float y, float z, float scale) const = 0;
@@ -40,7 +40,7 @@ namespace Nz
 			static std::array<Vector4f, 2 * 2 * 2 * 2 * 2> s_gradients4;
 
 		private:
-			std::default_random_engine m_randomEngine;
+			std::mt19937 m_randomEngine;
 	};
 }
 

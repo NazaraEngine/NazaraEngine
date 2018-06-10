@@ -1,9 +1,8 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include "PhysicsComponent2D.hpp"
 
 namespace Ndk
 {
@@ -51,7 +50,38 @@ namespace Ndk
 
 		m_object->AddForce(force, point, coordSys);
 	}
-
+	
+	/*!
+	* \brief Applies a impulse to the entity
+	*
+	* \param impulse Impulse to apply on the entity
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	
+	inline void PhysicsComponent2D::AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		
+		m_object->AddImpulse(impulse, coordSys);
+	}
+	
+	/*!
+	* \brief Applies a impulse to the entity
+	*
+	* \param impulse Impulse to apply on the entity
+	* \param point Point where the impulse is applied
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	
+	inline void PhysicsComponent2D::AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		
+		m_object->AddImpulse(impulse, point, coordSys);
+	}
+	
 	/*!
 	* \brief Applies a torque to the entity
 	*
@@ -277,8 +307,8 @@ namespace Ndk
 	* \return A reference to the physics object
 	*/
 
-	inline Nz::RigidBody2D& PhysicsComponent2D::GetRigidBody()
+	inline Nz::RigidBody2D* PhysicsComponent2D::GetRigidBody()
 	{
-		return *m_object.get();
+		return m_object.get();
 	}
 }

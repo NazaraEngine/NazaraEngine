@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_TRIANGLEITERATOR_HPP
 #define NAZARA_TRIANGLEITERATOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 
@@ -24,7 +24,7 @@ namespace Nz
 
 			bool Advance();
 
-			UInt32 operator[](unsigned int i) const;
+			UInt32 operator[](std::size_t i) const;
 
 			void Unmap();
 
@@ -32,8 +32,8 @@ namespace Nz
 			PrimitiveMode m_primitiveMode;
 			UInt32 m_triangleIndices[3];
 			IndexMapper m_indexMapper;
-			unsigned int m_currentIndex;
-			unsigned int m_indexCount;
+			std::size_t m_currentIndex;
+			std::size_t m_indexCount;
 	};
 }
 
