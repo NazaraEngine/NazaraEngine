@@ -7,6 +7,7 @@
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_private.h>
 #include <algorithm>
+#include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
@@ -125,6 +126,37 @@ namespace Nz
 	void RigidBody2D::AddTorque(float torque)
 	{
 		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + ToRadians(torque));
+	}
+
+	bool RigidBody2D::ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const
+	{
+		cpVect pos = cpv(cpFloat(position.x), cpFloat(position.y));
+
+		float minDistance = std::numeric_limits<float>::infinity();
+		Nz::Vector2f closest;
+		for (cpShape* shape : m_shapes)
+		{
+			cpPointQueryInfo result;
+			cpShapePointQuery(shape, pos, &result);
+
+			float resultDistance = float(result.distance);
+			if (resultDistance < minDistance)
+			{
+				closest.Set(float(result.point.x), float(result.point.y));
+				minDistance = resultDistance;
+			}
+		}
+
+		if (std::isinf(minDistance))
+			return false;
+
+		if (closestPoint)
+			*closestPoint = closest;
+
+		if (minDistance)
+			*closestDistance = minDistance;
+
+		return true;
 	}
 
 	void RigidBody2D::EnableSimulation(bool simulation)
