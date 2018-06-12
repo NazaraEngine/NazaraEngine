@@ -111,6 +111,7 @@ Nazara Engine:
 - InstancedRenderable::SetMaterial methods are now public.
 - Fixed Model copy constructor not copying materials
 - ⚠️ Added InstancedRenderable::Clone() method
+- Fixed a lot of classes not having their move constructor/assignation operator marked noexcept
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
