@@ -49,8 +49,9 @@ namespace Nz
 	{
 		BufferType_Index,
 		BufferType_Vertex,
+		BufferType_Uniform,
 
-		BufferType_Max = BufferType_Vertex
+		BufferType_Max = BufferType_Uniform
 	};
 
 	enum BufferUsage

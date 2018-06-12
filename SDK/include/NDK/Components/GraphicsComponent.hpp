@@ -44,6 +44,8 @@ namespace Ndk
 
 			inline bool DoesRequireRealTimeReflections() const;
 
+			template<typename Func> void ForEachRenderable(const Func& func) const;
+
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 

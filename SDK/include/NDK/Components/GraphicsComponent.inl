@@ -108,6 +108,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Calls a function for every renderable attached to this component
+	*
+	* \param func Callback function which will be called with renderable data
+	*/
+	template<typename Func>
+	void GraphicsComponent::ForEachRenderable(const Func& func) const
+	{
+		for (const auto& renderableData : m_renderables)
+			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
+	}
+
+	/*!
 	* \brief Ensures the bounding volume is up to date
 	*/
 

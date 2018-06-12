@@ -22,11 +22,6 @@ namespace Nz
 		return m_indexCount;
 	}
 
-	inline DataStorage IndexBuffer::GetStorage() const
-	{
-		return DataStorage();
-	}
-
 	inline UInt32 IndexBuffer::GetStride() const
 	{
 		return static_cast<UInt32>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
