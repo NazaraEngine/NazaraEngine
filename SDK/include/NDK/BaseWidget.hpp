@@ -30,7 +30,7 @@ namespace Ndk
 
 			BaseWidget(BaseWidget* parent);
 			BaseWidget(const BaseWidget&) = delete;
-			BaseWidget(BaseWidget&&) = default;
+			BaseWidget(BaseWidget&&) = delete;
 			virtual ~BaseWidget();
 
 			template<typename T, typename... Args> T* Add(Args&&... args);
@@ -72,7 +72,7 @@ namespace Ndk
 			void Show(bool show = true);
 
 			BaseWidget& operator=(const BaseWidget&) = delete;
-			BaseWidget& operator=(BaseWidget&&) = default;
+			BaseWidget& operator=(BaseWidget&&) = delete;
 
 			struct Padding
 			{

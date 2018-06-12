@@ -32,7 +32,7 @@ namespace Nz
 			inline explicit IpAddress(const char* address);
 			inline explicit IpAddress(const String& address);
 			IpAddress(const IpAddress&) = default;
-			IpAddress(IpAddress&&) = default;
+			IpAddress(IpAddress&&) noexcept = default;
 			~IpAddress() = default;
 
 			bool BuildFromAddress(const char* address);
@@ -53,7 +53,7 @@ namespace Nz
 			inline explicit operator bool() const;
 
 			IpAddress& operator=(const IpAddress&) = default;
-			IpAddress& operator=(IpAddress&&) = default;
+			IpAddress& operator=(IpAddress&&) noexcept = default;
 
 			static String ResolveAddress(const IpAddress& address, String* service = nullptr, ResolveError* error = nullptr);
 			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& protocol = "http", ResolveError* error = nullptr);

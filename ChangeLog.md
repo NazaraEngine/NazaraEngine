@@ -111,6 +111,10 @@ Nazara Engine:
 - InstancedRenderable::SetMaterial methods are now public.
 - Fixed Model copy constructor not copying materials
 - ⚠️ Added InstancedRenderable::Clone() method
+- Fixed a lot of classes not having their move constructor/assignation operator marked noexcept
+- ⚠️ SocketPoller::Wait now returns the number of socket marked as ready, and takes an additional optional parameter allowing to query the last error.
+- SocketPoller will now silently ignore "interrupt errors"
+- Added RigidBody2D::ClosestPointQuery
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -160,6 +164,8 @@ Nazara Development Kit:
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
 - Add GraphicsComponent:ForEachRenderable method
+- Fixed GraphicsComponent reflective material count which was not initialized
+- Added PhysicsComponent2D::ClosestPointQuery
 
 # 0.4:
 

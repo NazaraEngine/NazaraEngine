@@ -20,7 +20,7 @@ namespace Nz
 	{
 		public:
 			Stream(const Stream&) = default;
-			Stream(Stream&&) = default;
+			Stream(Stream&&) noexcept = default;
 			virtual ~Stream();
 
 			virtual bool EndOfStream() const = 0;
@@ -52,7 +52,7 @@ namespace Nz
 			inline std::size_t Write(const void* buffer, std::size_t size);
 
 			Stream& operator=(const Stream&) = default;
-			Stream& operator=(Stream&&) = default;
+			Stream& operator=(Stream&&) noexcept = default;
 
 		protected:
 			inline Stream(StreamOptionFlags streamOptions = StreamOption_None, OpenModeFlags openMode = OpenMode_NotOpen);
