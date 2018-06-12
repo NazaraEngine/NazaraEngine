@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/TypeTag.hpp>
 
 namespace Nz
@@ -18,7 +19,7 @@ namespace Nz
 
 	struct NAZARA_CORE_API SerializationContext
 	{
-		Stream* stream;
+		MovablePtr<Stream> stream;
 		Endianness endianness = Endianness_BigEndian; //< Default to Big Endian encoding
 		UInt8 readBitPos = 8; //< 8 means no bit is currently read
 		UInt8 readByte; //< Undefined value, will be initialized at the first bit read

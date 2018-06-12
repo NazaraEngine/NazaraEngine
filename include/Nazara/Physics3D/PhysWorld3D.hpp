@@ -33,7 +33,7 @@ namespace Nz
 
 			PhysWorld3D();
 			PhysWorld3D(const PhysWorld3D&) = delete;
-			PhysWorld3D(PhysWorld3D&&) = default;
+			PhysWorld3D(PhysWorld3D&&) noexcept = default;
 			~PhysWorld3D();
 
 			int CreateMaterial(String name = String());
@@ -61,7 +61,7 @@ namespace Nz
 			void Step(float timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
-			PhysWorld3D& operator=(PhysWorld3D&&) = default;
+			PhysWorld3D& operator=(PhysWorld3D&&) noexcept = default;
 
 		private:
 			struct Callback

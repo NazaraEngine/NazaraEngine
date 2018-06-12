@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 #include <atomic>
 #include <unordered_map>
@@ -72,7 +73,7 @@ namespace Nz
 
 					std::atomic_uint counter;
 					Destructor destructor;
-					void* ptr;
+					MovablePtr<void> ptr;
 				};
 
 				ParameterType type;
@@ -81,6 +82,7 @@ namespace Nz
 					// We define an empty constructor/destructor, to be able to put classes in the union
 					Value() {}
 					Value(const Value&) {} // Placeholder
+					Value(Value&&) noexcept {} // Placeholder
 					~Value() {}
 
 					bool boolVal;

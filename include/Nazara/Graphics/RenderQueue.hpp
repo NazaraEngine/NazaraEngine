@@ -19,7 +19,12 @@ namespace Nz
 			using Index = Nz::UInt64;
 
 			RenderQueueInternal() = default;
+			RenderQueueInternal(const RenderQueueInternal&) = default;
+			RenderQueueInternal(RenderQueueInternal&&) = default;
 			~RenderQueueInternal() = default;
+
+			RenderQueueInternal& operator=(const RenderQueueInternal&) = default;
+			RenderQueueInternal& operator=(RenderQueueInternal&&) = default;
 
 		protected:
 			using RenderDataPair = std::pair<Index, std::size_t>;
@@ -39,7 +44,7 @@ namespace Nz
 
 			RenderQueue() = default;
 			RenderQueue(const RenderQueue&) = default;
-			RenderQueue(RenderQueue&&) = default;
+			RenderQueue(RenderQueue&&) noexcept = default;
 			~RenderQueue() = default;
 
 			void Clear();
@@ -55,7 +60,7 @@ namespace Nz
 			inline size_type size() const;
 
 			RenderQueue& operator=(const RenderQueue&) = default;
-			RenderQueue& operator=(RenderQueue&&) = default;
+			RenderQueue& operator=(RenderQueue&&) noexcept = default;
 
 		private:
 			const RenderData& GetData(std::size_t i) const;
