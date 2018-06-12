@@ -15,23 +15,8 @@
 
 namespace Nz
 {
-<<<<<<< HEAD
 	class AbstractBuffer;
 	class Buffer;
-=======
-	class Color;
-	class Context;
-	class GpuQuery;
-	class IndexBuffer;
-	class RenderTarget;
-	struct RenderStates;
-	class Shader;
-	class Texture;
-	class TextureSampler;
-	class UniformBuffer;
-	class VertexBuffer;
-	class VertexDeclaration;
->>>>>>> ubo
 
 	class NAZARA_RENDERER_API Renderer
 	{
@@ -39,46 +24,7 @@ namespace Nz
 			Renderer() = delete;
 			~Renderer() = delete;
 
-<<<<<<< HEAD
 			static inline RendererImpl* GetRendererImpl();
-=======
-			static void BeginCondition(const GpuQuery& query, GpuQueryCondition condition);
-
-			static void BindUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer);
-
-			static void Clear(UInt32 flags = RendererBuffer_Color | RendererBuffer_Depth);
-
-			static void DrawFullscreenQuad();
-			static void DrawIndexedPrimitives(PrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
-			static void DrawIndexedPrimitivesInstanced(unsigned int instanceCount, PrimitiveMode mode, unsigned int firstIndex, unsigned int indexCount);
-			static void DrawPrimitives(PrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
-			static void DrawPrimitivesInstanced(unsigned int instanceCount, PrimitiveMode mode, unsigned int firstVertex, unsigned int vertexCount);
-
-			static void Enable(RendererParameter parameter, bool enable);
-
-			static void EndCondition();
-
-			static void Flush();
-
-			static RendererComparison GetDepthFunc();
-			static VertexBuffer* GetInstanceBuffer();
-			static float GetLineWidth();
-			static Matrix4f GetMatrix(MatrixType type);
-			static UInt8 GetMaxAnisotropyLevel();
-			static unsigned int GetMaxColorAttachments();
-			static unsigned int GetMaxRenderTargets();
-			static unsigned int GetMaxTextureSize();
-			static unsigned int GetMaxTextureUnits();
-			static unsigned int GetMaxVertexAttribs();
-			static float GetPointSize();
-			static const RenderStates& GetRenderStates();
-			static Recti GetScissorRect();
-			static const Shader* GetShader();
-			static const RenderTarget* GetTarget();
-			static Recti GetViewport();
-
-			static bool HasCapability(RendererCap capability);
->>>>>>> ubo
 
 			static bool Initialize();
 
