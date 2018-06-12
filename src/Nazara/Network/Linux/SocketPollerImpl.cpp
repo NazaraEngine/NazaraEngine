@@ -81,7 +81,7 @@ namespace Nz
 			NazaraWarning("An error occured while removing socket from epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 	}
 
-	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
+	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 
@@ -93,7 +93,7 @@ namespace Nz
 		if (activeSockets == -1)
 		{
 			if (error)
-				*error = SocketImpl::TranslateErrnoToResolveError(errno);
+				*error = SocketImpl::TranslateErrnoToSocketError(errno);
 
 			return 0;
 		}

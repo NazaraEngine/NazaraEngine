@@ -31,7 +31,7 @@ namespace Nz
 			bool RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags);
 			void UnregisterSocket(AbstractSocket& socket);
 
-			bool Wait(int msTimeout);
+			unsigned int Wait(int msTimeout, SocketError* error = nullptr);
 
 			SocketPoller& operator=(SocketPoller&&) noexcept = default;
 

@@ -76,9 +76,9 @@ namespace Nz
 		m_readyToWriteSockets.erase(socket);
 	}
 
-	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
+	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
-		int activeSockets;
+		unsigned int activeSockets;
 
 		// Reset status of sockets
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
@@ -87,7 +87,7 @@ namespace Nz
 		m_readyToWriteSockets.clear();
 		if (activeSockets > 0U)
 		{
-			int socketRemaining = activeSockets;
+			unsigned int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)
 			{
 				if (!entry.revents)
@@ -103,7 +103,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by poll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
 					activeSockets--;
 				}
 
