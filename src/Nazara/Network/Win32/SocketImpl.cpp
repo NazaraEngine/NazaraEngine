@@ -467,7 +467,7 @@ namespace Nz
 		return code;
 	}
 
-	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
+	unsigned int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
 	{
 		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
 
@@ -484,10 +484,12 @@ namespace Nz
 			return 0;
 		}
 
+		assert(result >= 0);
+
 		if (error)
 			*error = SocketError_NoError;
 
-		return result;
+		return static_cast<unsigned int>(result);
 		#else
 		NazaraUnused(fdarray);
 		NazaraUnused(nfds);

@@ -112,6 +112,8 @@ Nazara Engine:
 - Fixed Model copy constructor not copying materials
 - ⚠️ Added InstancedRenderable::Clone() method
 - Fixed a lot of classes not having their move constructor/assignation operator marked noexcept
+- ⚠️ SocketPoller::Wait now returns the number of socket marked as ready, and takes an additional optional parameter allowing to query the last error.
+- SocketPoller will now silently ignore "interrupt errors"
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
