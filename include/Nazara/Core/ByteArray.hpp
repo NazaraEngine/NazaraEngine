@@ -41,7 +41,7 @@ namespace Nz
 			inline ByteArray(size_type n, value_type value);
 			template <class InputIterator> ByteArray(InputIterator first, InputIterator last);
 			ByteArray(const ByteArray& other) = default;
-			ByteArray(ByteArray&& other) = default;
+			ByteArray(ByteArray&& other) noexcept = default;
 			~ByteArray() = default;
 
 			inline iterator Append(const void* buffer, size_type size);

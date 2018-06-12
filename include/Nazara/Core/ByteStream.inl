@@ -17,19 +17,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a ByteStream object by move semantic
-	*
-	* \param stream ByteStream to move into this
-	*/
-
-	inline ByteStream::ByteStream(ByteStream&& stream) :
-	m_ownedStream(std::move(stream.m_ownedStream)),
-	m_context(stream.m_context)
-	{
-		stream.m_context.stream = nullptr;
-	}
-
-	/*!
 	* \brief Destructs the object and calls FlushBits
 	*
 	* \remark Produces a NazaraWarning if flush did not work
@@ -201,23 +188,6 @@ namespace Nz
 
 		if (!Serialize(m_context, value))
 			NazaraError("Failed to serialize value");
-
-		return *this;
-	}
-
-	/*!
-	* \brief Moves the other byte stream into this
-	* \return A reference to this
-	*
-	* \param stream ByteStream to move in this
-	*/
-
-	inline ByteStream& ByteStream::operator=(ByteStream&& stream)
-	{
-		m_context = stream.m_context;
-		m_ownedStream = std::move(stream.m_ownedStream);
-		
-		stream.m_context.stream = nullptr;
 
 		return *this;
 	}
