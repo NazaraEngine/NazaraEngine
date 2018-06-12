@@ -37,6 +37,14 @@ namespace Nz
 		}
 	}
 
+	/*!
+	* \brief Clones this tilemap
+	*/
+	std::unique_ptr<InstancedRenderable> TileMap::Clone() const
+	{
+		return std::make_unique<TileMap>(*this);
+	}
+
 	void TileMap::MakeBoundingVolume() const
 	{
 		Nz::Vector2f size = GetSize();

@@ -34,11 +34,14 @@ namespace Nz
 
 			inline void Clear();
 
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
 			inline const Color& GetColor() const;
 			inline float GetScale() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
+			using InstancedRenderable::SetMaterial;
 			inline void SetMaterial(MaterialRef material);
 			inline void SetMaterial(std::size_t skinIndex, MaterialRef material);
 			inline void SetScale(float scale);

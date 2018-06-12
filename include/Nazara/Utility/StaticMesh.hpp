@@ -21,11 +21,16 @@ namespace Nz
 	class NAZARA_UTILITY_API StaticMesh final : public SubMesh
 	{
 		public:
+			StaticMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
+
+			NAZARA_DEPRECATED("StaticMesh constructor taking a mesh is deprecated, submeshes no longer require to be part of a single mesh")
 			StaticMesh(const Mesh* parent);
+
 			~StaticMesh();
 
 			void Center();
 
+			NAZARA_DEPRECATED("StaticMesh create/destroy functions are deprecated, please use constructor")
 			bool Create(VertexBuffer* vertexBuffer);
 			void Destroy();
 
@@ -52,8 +57,8 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
-			IndexBufferConstRef m_indexBuffer = nullptr;
-			VertexBufferRef m_vertexBuffer = nullptr;
+			IndexBufferConstRef m_indexBuffer;
+			VertexBufferRef m_vertexBuffer;
 	};
 }
 
