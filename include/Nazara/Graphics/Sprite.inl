@@ -63,6 +63,10 @@ namespace Nz
 	m_size(sprite.m_size),
 	m_origin(sprite.m_origin)
 	{
+		SetCornerColor(Nz::RectCorner_LeftBottom, sprite.GetCornerColor(Nz::RectCorner_LeftBottom));
+		SetCornerColor(Nz::RectCorner_LeftTop, sprite.GetCornerColor(Nz::RectCorner_LeftTop));
+		SetCornerColor(Nz::RectCorner_RightBottom, sprite.GetCornerColor(Nz::RectCorner_RightBottom));
+		SetCornerColor(Nz::RectCorner_RightTop, sprite.GetCornerColor(Nz::RectCorner_RightTop));
 	}
 
 	/*!
