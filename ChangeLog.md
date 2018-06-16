@@ -115,6 +115,7 @@ Nazara Engine:
 - ⚠️ SocketPoller::Wait now returns the number of socket marked as ready, and takes an additional optional parameter allowing to query the last error.
 - SocketPoller will now silently ignore "interrupt errors"
 - Added RigidBody2D::ClosestPointQuery
+- Fix Sprite copy constructor not copying corner colors
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
