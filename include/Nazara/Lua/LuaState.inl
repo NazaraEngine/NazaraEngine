@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
@@ -167,13 +168,11 @@ namespace Nz
 
 		for (;;)
 		{
+			Nz::CallOnExit popStack { [&instance]() { instance.Pop(); } };
 			instance.PushInteger(pos++);
 
 			if (instance.GetTable() == Nz::LuaType_Nil)
-			{
-				instance.Pop();
 				break;
-			}
 
 			T arg {};
 
@@ -184,7 +183,6 @@ namespace Nz
 			}
 
 			container->push_back(arg);
-			instance.Pop();
 		}
 
 		return 1;
