@@ -107,6 +107,8 @@ Nazara Engine:
 - Added AbstractViewer::Project and AbstractViewer::Unproject methods
 - Added AbstractViewer::ProjectDepth method
 - Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
+- Add LuaImplQuery implementation for std::vector
+- Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
 - ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
 - InstancedRenderable::SetMaterial methods are now public.
 - Fixed Model copy constructor not copying materials
