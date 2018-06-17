@@ -51,25 +51,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Sprite object by assignation
-	*
-	* \param sprite Sprite to copy into this
-	*/
-
-	inline Sprite::Sprite(const Sprite& sprite) :
-	InstancedRenderable(sprite),
-	m_color(sprite.m_color),
-	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size),
-	m_origin(sprite.m_origin)
-	{
-		SetCornerColor(Nz::RectCorner_LeftBottom, sprite.GetCornerColor(Nz::RectCorner_LeftBottom));
-		SetCornerColor(Nz::RectCorner_LeftTop, sprite.GetCornerColor(Nz::RectCorner_LeftTop));
-		SetCornerColor(Nz::RectCorner_RightBottom, sprite.GetCornerColor(Nz::RectCorner_RightBottom));
-		SetCornerColor(Nz::RectCorner_RightTop, sprite.GetCornerColor(Nz::RectCorner_RightTop));
-	}
-
-	/*!
 	* \brief Gets the color of the sprite
 	*
 	* This is the global color of the sprite, independent from corner colors
