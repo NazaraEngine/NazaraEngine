@@ -116,7 +116,6 @@ Nazara Engine:
 - SocketPoller will now silently ignore "interrupt errors"
 - Added RigidBody2D::ClosestPointQuery
 - Fix Sprite copy constructor not copying corner colors
-- Fix GraphicsComponent copy constructor not copying scissor rect
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -168,6 +167,7 @@ Nazara Development Kit:
 - Add GraphicsComponent:ForEachRenderable method
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
+- Fix GraphicsComponent copy constructor not copying scissor rect
 
 # 0.4:
 
