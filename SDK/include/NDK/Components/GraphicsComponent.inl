@@ -26,6 +26,7 @@ namespace Ndk
 	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
+	m_scissorRect(graphicsComponent.m_scissorRect),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
 	m_transformMatrixUpdated(graphicsComponent.m_transformMatrixUpdated)
 	{
