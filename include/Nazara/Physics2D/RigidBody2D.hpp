@@ -36,6 +36,8 @@ namespace Nz
 			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys_Global);
 			void AddTorque(float torque);
 
+			bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint = nullptr, float* closestDistance = nullptr) const;
+
 			void EnableSimulation(bool simulation);
 
 			Rectf GetAABB() const;

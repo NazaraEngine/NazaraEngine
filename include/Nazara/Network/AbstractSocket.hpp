@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			AbstractSocket(const AbstractSocket&) = delete;
-			AbstractSocket(AbstractSocket&& abstractSocket);
+			AbstractSocket(AbstractSocket&& abstractSocket) noexcept;
 			virtual ~AbstractSocket();
 
 			void Close();

@@ -28,7 +28,7 @@ namespace Ndk
 		public:
 			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
 
-			GraphicsComponent();
+			inline GraphicsComponent();
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 

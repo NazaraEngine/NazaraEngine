@@ -393,6 +393,25 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Enable/Disable vertex coloring on this material
+	*
+	* This is a temporary option, until the new material pipeline system is ready, allowing to enable vertex coloring.
+	* This option only works with meshes using vertex colors.
+	*
+	* \param vertexColor Defines if this material will use vertex color or not
+	*
+	* \remark Invalidates the pipeline
+	*
+	* \see HasVertexColor
+	*/
+	inline void Material::EnableVertexColor(bool vertexColor)
+	{
+		m_pipelineInfo.hasVertexColor = vertexColor;
+
+		InvalidatePipeline();
+	}
+
+	/*!
 	* \brief Ensures the pipeline gets updated
 	*
 	* When the pipeline gets invalidated, it's not updated until required (per example by calling GetPipeline).
@@ -754,6 +773,15 @@ namespace Nz
 	inline bool Material::HasSpecularMap() const
 	{
 		return m_specularMap.IsValid();
+	}
+
+	/*!
+	* \brief Checks whether this material uses vertex coloring
+	* \return true If it is the case
+	*/
+	inline bool Material::HasVertexColor() const
+	{
+		return m_pipelineInfo.hasVertexColor;
 	}
 
 	/*!

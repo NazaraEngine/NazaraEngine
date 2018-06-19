@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -45,7 +45,7 @@ namespace Nz
 	* \param abstractSocket AbstractSocket to move into this
 	*/
 
-	AbstractSocket::AbstractSocket(AbstractSocket&& abstractSocket) :
+	AbstractSocket::AbstractSocket(AbstractSocket&& abstractSocket) noexcept :
 	m_protocol(abstractSocket.m_protocol),
 	m_lastError(abstractSocket.m_lastError),
 	m_handle(abstractSocket.m_handle),

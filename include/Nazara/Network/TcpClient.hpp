@@ -24,7 +24,7 @@ namespace Nz
 
 		public:
 			inline TcpClient();
-			TcpClient(TcpClient&& tcpClient) = default;
+			TcpClient(TcpClient&& tcpClient) noexcept = default;
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);

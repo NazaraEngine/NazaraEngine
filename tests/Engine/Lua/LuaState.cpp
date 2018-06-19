@@ -183,5 +183,34 @@ SCENARIO("LuaState", "[LUA][LUASTATE]")
 				CHECK(luaInstance.ToNumber(1) == Approx(-4.09).margin(0.1));
 			}
 		}
+
+		WHEN("We push a std::vector locally")
+		{
+			std::vector<int> vec { 1, 5, -8, 6, -4 };
+			luaInstance.Push(std::vector<int> { vec });
+
+			THEN("We can retrieve it with correct values")
+			{
+				int index = 1;
+				std::vector<int> otherVec = luaInstance.Check<std::vector<int>>(&index);
+
+				for (std::size_t i {}; i < otherVec.size(); ++i)
+					CHECK(otherVec[i] == vec[i]);
+			}
+		}
+
+		WHEN("We push a std::vector globally")
+		{
+			std::vector<int> vec { 1, 5, -8, 6, -4 };
+			luaInstance.PushGlobal("vector", std::vector<int> { vec });
+
+			THEN("We can retrieve it with correct values")
+			{
+				std::vector<int> otherVec = luaInstance.CheckGlobal<std::vector<int>>("vector");
+
+				for (std::size_t i {}; i < otherVec.size(); ++i)
+					CHECK(otherVec[i] == vec[i]);
+			}
+		}
 	}
 }
