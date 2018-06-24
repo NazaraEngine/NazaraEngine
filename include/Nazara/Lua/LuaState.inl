@@ -166,12 +166,13 @@ namespace Nz
 		instance.CheckType(index, Nz::LuaType_Table);
 		std::size_t pos = 1;
 
+		container->clear();
 		for (;;)
 		{
 			Nz::CallOnExit popStack { [&instance]() { instance.Pop(); } };
 			instance.PushInteger(pos++);
 
-			if (instance.GetTable() == Nz::LuaType_Nil)
+			if (instance.GetTable(index) == Nz::LuaType_Nil)
 				break;
 
 			T arg {};
