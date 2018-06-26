@@ -97,16 +97,15 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	fileIO.OpenProc = StreamOpener;
 	fileIO.UserData = reinterpret_cast<char*>(&userdata);
 
-	unsigned int postProcess = aiProcess_CalcTangentSpace     | aiProcess_JoinIdenticalVertices
-	                         | aiProcess_MakeLeftHanded       | aiProcess_Triangulate
-	                         | aiProcess_RemoveComponent      | aiProcess_GenSmoothNormals
-	                         | aiProcess_SplitLargeMeshes     | aiProcess_LimitBoneWeights
-	                         | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials
-	                         | aiProcess_FixInfacingNormals   | aiProcess_SortByPType
-	                         | aiProcess_FindInvalidData      | aiProcess_GenUVCoords
-	                         | aiProcess_TransformUVCoords    | aiProcess_OptimizeMeshes
-	                         | aiProcess_OptimizeGraph        | aiProcess_FlipWindingOrder
-	                         | aiProcess_Debone;
+	unsigned int postProcess = aiProcess_CalcTangentSpace  | aiProcess_Debone
+	                         | aiProcess_FindInvalidData   | aiProcess_FixInfacingNormals
+	                         | aiProcess_FlipWindingOrder  | aiProcess_GenSmoothNormals
+	                         | aiProcess_GenUVCoords       | aiProcess_JoinIdenticalVertices
+	                         | aiProcess_LimitBoneWeights  | aiProcess_MakeLeftHanded
+	                         | aiProcess_OptimizeGraph     | aiProcess_OptimizeMeshes
+	                         | aiProcess_RemoveComponent   | aiProcess_RemoveRedundantMaterials
+	                         | aiProcess_SortByPType       | aiProcess_SplitLargeMeshes
+	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
 
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
@@ -280,10 +279,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				vertexMapper.Unmap();
 
 				// Submesh
-				StaticMeshRef subMesh = StaticMesh::New(mesh);
-				subMesh->Create(vertexBuffer);
-
-				subMesh->SetIndexBuffer(indexBuffer);
+				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 

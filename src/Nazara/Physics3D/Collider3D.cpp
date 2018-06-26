@@ -50,7 +50,7 @@ namespace Nz
 	{
 		Vector3f min, max;
 
-		// Si nous n'avons aucune instance, nous en cr�ons une temporaire
+		// Check for existing collision handles, and create a temporary one if none is available
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -61,7 +61,7 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute fa�on)
+		else
 			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, min, max);
 
 		return Boxf(scale * min, scale * max);
@@ -72,7 +72,7 @@ namespace Nz
 		float inertiaMatrix[3];
 		float origin[3];
 
-		// Si nous n'avons aucune instance, nous en cr�ons une temporaire
+		// Check for existing collision handles, and create a temporary one if none is available
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -83,7 +83,7 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute fa�on)
+		else
 			NewtonConvexCollisionCalculateInertialMatrix(m_handles.begin()->second, inertiaMatrix, origin);
 
 		if (inertia)
@@ -97,7 +97,7 @@ namespace Nz
 	{
 		float volume;
 
-		// Si nous n'avons aucune instance, nous en cr�ons une temporaire
+		// Check for existing collision handles, and create a temporary one if none is available
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
@@ -108,10 +108,33 @@ namespace Nz
 			}
 			NewtonDestroyCollision(collision);
 		}
-		else // Sinon on utilise une instance au hasard (elles sont toutes identiques de toute fa�on)
+		else
 			volume = NewtonConvexCollisionCalculateVolume(m_handles.begin()->second);
 
 		return volume;
+	}
+
+	void Collider3D::ForEachPolygon(const std::function<void(const float* vertices, std::size_t vertexCount)>& callback) const
+	{
+		auto newtCallback = [](void* const userData, int vertexCount, const dFloat* const faceArray, int /*faceId*/)
+		{
+			const auto& cb = *static_cast<std::add_pointer_t<decltype(callback)>>(userData);
+			cb(faceArray, vertexCount);
+		};
+
+		// Check for existing collision handles, and create a temporary one if none is available
+		if (m_handles.empty())
+		{
+			PhysWorld3D world;
+
+			NewtonCollision* collision = CreateHandle(&world);
+			{
+				NewtonCollisionForEachPolygonDo(collision, Nz::Matrix4f::Identity(), newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
+			}
+			NewtonDestroyCollision(collision);
+		}
+		else
+			NewtonCollisionForEachPolygonDo(m_handles.begin()->second, Nz::Matrix4f::Identity(), newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
 	}
 
 	NewtonCollision* Collider3D::GetHandle(PhysWorld3D* world) const
@@ -332,7 +355,7 @@ namespace Nz
 
 	ColliderType3D ConvexCollider3D::GetType() const
 	{
-		return ColliderType3D_Compound;
+		return ColliderType3D_ConvexHull;
 	}
 
 	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const

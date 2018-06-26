@@ -1,28 +1,29 @@
 NazaraBuild = {}
 
 -- I wish Premake had a way to know the compiler in advance
-local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake", "xcode3", "xcode4"}, " or ")
+local clangGccActions = "action:" .. table.concat({"codeblocks", "codelite", "gmake*", "xcode3", "xcode4"}, " or ")
 
 function NazaraBuild:AddExecutablePath(path)
-	table.insert(self.ExecutableDir, path)
+	self.ExecutableDir[path] = true
+
 	self:AddInstallPath(path)
 end
 
 function NazaraBuild:AddInstallPath(path)
-	table.insert(self.InstallDir, path)
+	self.InstallDir[path] = true
 end
 
 function NazaraBuild:FilterLibDirectory(prefix, func)
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86", "system:Windows"})
 		func(prefix .. "mingw/x86")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86_64", "system:Windows"})
 		func(prefix .. "mingw/x64")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86", "system:not Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86", "system:not Windows"})
 		func(prefix .. "gmake/x86")
 
-	filter({"action:codeblocks or codelite or gmake", "architecture:x86_64", "system:not Windows"})
+	filter({"action:codeblocks or codelite or gmake*", "architecture:x86_64", "system:not Windows"})
 		func(prefix .. "gmake/x64")
 
 	filter({"action:vs*", "architecture:x86"})
@@ -71,10 +72,19 @@ function NazaraBuild:Execute()
 			configurations(configs)
 		end
 
+		if (self.Config["PremakeProject"] and os.ishost("windows")) then
+			group("_Premake")
+			
+			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
+			project("Regenerate premake")
+				kind("Utility")
+				prebuildcommands("cd .. && " .. commandLine)
+		end
+
 		-- Extern libraries
 		if (self.Config["BuildDependencies"]) then
-			self:FilterLibDirectory("../thirdparty/lib/", targetdir)
-
+			group("Thirdparties")
+			
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
 
@@ -94,6 +104,8 @@ function NazaraBuild:Execute()
 				links(libTable.Libraries)
 				libdirs("../thirdparty/lib/common")
 
+				self:FilterLibDirectory("../thirdparty/genlib/", targetdir) -- For generated libraries
+
 				filter(clangGccActions)
 					buildoptions("-U__STRICT_ANSI__")
 
@@ -112,14 +124,9 @@ function NazaraBuild:Execute()
 			end
 		end
 		
-		if (self.Config["PremakeProject"] and os.ishost("windows")) then
-			local commandLine = "premake5.exe " .. table.concat(_ARGV, ' ')
-			project("_PremakeProject")
-				kind("Utility")
-				prebuildcommands("cd .. && " .. commandLine)
-		end
-
 		-- Modules
+		group("Engine Modules")
+
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
 
@@ -175,6 +182,8 @@ function NazaraBuild:Execute()
 		end
 
 		-- Tools
+		group("Engine SDK - Tools")
+
 		for k, toolTable in ipairs(self.OrderedTools) do
 			local prefix = "Nazara"
 			if (toolTable.Kind == "plugin") then
@@ -242,6 +251,8 @@ function NazaraBuild:Execute()
 
 			filter({})
 		end
+
+		group("Examples")
 
 		for k, exampleTable in ipairs(self.OrderedExamples) do
 			local destPath = "../examples/bin"
@@ -603,9 +614,15 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
 
 		-- Copy built file to install directory
-		for k,installPath in pairs(self.InstallDir) do
+		local installCommands = {}
+		for installPath,_ in pairs(self.InstallDir) do
 			local destPath = path.translate(path.isabsolute(installPath) and installPath or "../../" .. installPath)
-			postbuildcommands({[[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]]})
+			table.insert(installCommands, [[xcopy "%{path.translate(cfg.buildtarget.relpath)}" "]] .. destPath .. [[\" /E /Y]])
+		end
+		table.sort(installCommands)
+
+		for k,command in pairs(installCommands) do
+			postbuildcommands({command})
 		end
 
 		-- Copy additional dependencies to executable directories too
@@ -631,10 +648,17 @@ function NazaraBuild:MakeInstallCommands(infoTable)
 
 					filter("architecture:" .. arch)
 					
-					for k,execPath in pairs(self.ExecutableDir) do
+					local executableCommands = {}
+					for execPath,_ in pairs(self.ExecutableDir) do
 						local srcPath = path.isabsolute(srcPath) and path.translate(srcPath) or [[%{path.translate(cfg.linktarget.relpath:sub(1, -#cfg.linktarget.name - 1) .. "../../]] .. srcPath .. [[")}]]
 						local destPath = path.translate(path.isabsolute(execPath) and execPath or "../../" .. execPath)
-						postbuildcommands({[[xcopy "]] .. srcPath .. [[" "]] .. destPath .. [[\" /E /Y]]})
+						table.insert(executableCommands, [[xcopy "]] .. srcPath .. [[" "]] .. destPath .. [[\" /E /Y]])
+					end
+
+					table.sort(executableCommands)
+
+					for k,command in pairs(executableCommands) do
+						postbuildcommands({command})
 					end
 				end
 			end
@@ -788,6 +812,7 @@ function NazaraBuild:PrepareGeneric()
 	
 	cppdialect("C++14")
 
+	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
 
 	-- Fixes Premake stuff
@@ -820,6 +845,7 @@ function NazaraBuild:PrepareGeneric()
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
+		defines("NDEBUG")
 		optimize("Speed")
 		vectorextensions("SSE2")
 

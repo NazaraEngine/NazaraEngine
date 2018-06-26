@@ -80,6 +80,7 @@ namespace Nz
 	}
 
 	PhysWorld2D::PhysWorld2D() :
+	m_maxStepCount(50),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -142,6 +143,16 @@ namespace Nz
 	cpSpace* PhysWorld2D::GetHandle() const
 	{
 		return m_handle;
+	}
+
+	std::size_t PhysWorld2D::GetIterationCount() const
+	{
+		return cpSpaceGetIterations(m_handle);
+	}
+
+	std::size_t PhysWorld2D::GetMaxStepCount() const
+	{
+		return m_maxStepCount;
 	}
 
 	float PhysWorld2D::GetStepSize() const
@@ -281,6 +292,16 @@ namespace Nz
 		cpSpaceSetGravity(m_handle, cpv(gravity.x, gravity.y));
 	}
 
+	void PhysWorld2D::SetIterationCount(std::size_t iterationCount)
+	{
+		cpSpaceSetIterations(m_handle, int(iterationCount));
+	}
+
+	void PhysWorld2D::SetMaxStepCount(std::size_t maxStepCount)
+	{
+		m_maxStepCount = maxStepCount;
+	}
+
 	void PhysWorld2D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
@@ -290,13 +311,15 @@ namespace Nz
 	{
 		m_timestepAccumulator += timestep;
 
-		while (m_timestepAccumulator >= m_stepSize)
+		std::size_t stepCount = std::min(static_cast<std::size_t>(m_timestepAccumulator / m_stepSize), m_maxStepCount);
+		float invStepCount = 1.f / stepCount;
+		for (std::size_t i = 0; i < stepCount; ++i)
 		{
-			OnPhysWorld2DPreStep(this);
+			OnPhysWorld2DPreStep(this, invStepCount);
 
 			cpSpaceStep(m_handle, m_stepSize);
 
-			OnPhysWorld2DPostStep(this);
+			OnPhysWorld2DPostStep(this, invStepCount);
 			if (!m_rigidPostSteps.empty())
 			{
 				for (const auto& pair : m_rigidPostSteps)
@@ -310,6 +333,11 @@ namespace Nz
 
 			m_timestepAccumulator -= m_stepSize;
 		}
+	}
+
+	void PhysWorld2D::UseSpatialHash(float cellSize, std::size_t entityCount)
+	{
+		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
 	}
 
 	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks)

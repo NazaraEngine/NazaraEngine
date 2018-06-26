@@ -839,7 +839,7 @@ namespace Nz
 			if (pixelCount == 0)
 				return false;
 
-			auto seq = workingBitset.Read(GetConstPixels(), info.bitsPerPixel);
+			auto seq = workingBitset.Write(GetConstPixels(), info.bitsPerPixel);
 			do
 			{
 				workingBitset &= info.alphaMask;
@@ -847,7 +847,7 @@ namespace Nz
 					return true;
 
 				workingBitset.Clear();
-				workingBitset.Read(seq, info.bitsPerPixel);
+				workingBitset.Write(seq, info.bitsPerPixel);
 			}
 			while (--pixelCount > 0);
 

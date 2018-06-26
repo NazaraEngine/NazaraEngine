@@ -30,15 +30,18 @@ namespace Nz
 			inline TextSprite(const TextSprite& sprite);
 			~TextSprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline void Clear();
+
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline const Color& GetColor() const;
 			inline float GetScale() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
+			using InstancedRenderable::SetMaterial;
 			inline void SetMaterial(MaterialRef material);
 			inline void SetMaterial(std::size_t skinIndex, MaterialRef material);
 			inline void SetScale(float scale);

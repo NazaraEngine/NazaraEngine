@@ -51,21 +51,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Sprite object by assignation
-	*
-	* \param sprite Sprite to copy into this
-	*/
-
-	inline Sprite::Sprite(const Sprite& sprite) :
-	InstancedRenderable(sprite),
-	m_color(sprite.m_color),
-	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size),
-	m_origin(sprite.m_origin)
-	{
-	}
-
-	/*!
 	* \brief Gets the color of the sprite
 	*
 	* This is the global color of the sprite, independent from corner colors
@@ -172,6 +157,7 @@ namespace Nz
 	{
 		MaterialRef material = Material::New();
 		material->EnableFaceCulling(false);
+		material->EnableScissorTest(true);
 
 		SetMaterial(std::move(material));
 	}

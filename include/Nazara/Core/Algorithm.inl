@@ -12,6 +12,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <climits>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -194,10 +195,17 @@ namespace Nz
 		return reversed;
 	}
 
-	template<typename T> struct PointedType<T*>                {typedef T type;};
-	template<typename T> struct PointedType<T* const>          {typedef T type;};
-	template<typename T> struct PointedType<T* volatile>       {typedef T type;};
-	template<typename T> struct PointedType<T* const volatile> {typedef T type;};
+	template<typename T> struct PointedType<T*>                { using type = T; };
+	template<typename T> struct PointedType<T* const>          { using type = T; };
+	template<typename T> struct PointedType<T* volatile>       { using type = T; };
+	template<typename T> struct PointedType<T* const volatile> { using type = T; };
+
+
+	template<typename T>
+	bool Serialize(SerializationContext& context, T&& value)
+	{
+		return Serialize(context, std::forward<T>(value), TypeTag<std::decay_t<T>>());
+	}
 
 	/*!
 	* \ingroup core
@@ -209,19 +217,19 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-	inline bool Serialize(SerializationContext& context, bool value)
+	inline bool Serialize(SerializationContext& context, bool value, TypeTag<bool>)
 	{
-		if (context.currentBitPos == 8)
+		if (context.writeBitPos == 8)
 		{
-			context.currentBitPos = 0;
-			context.currentByte = 0;
+			context.writeBitPos = 0;
+			context.writeByte = 0;
 		}
 
 		if (value)
-			context.currentByte |= 1 << context.currentBitPos;
+			context.writeByte |= 1 << context.writeBitPos;
 
-		if (++context.currentBitPos >= 8)
-			return Serialize<UInt8>(context, context.currentByte);
+		if (++context.writeBitPos >= 8)
+			return Serialize(context, context.writeByte, TypeTag<UInt8>());
 		else
 			return true;
 	}
@@ -234,9 +242,9 @@ namespace Nz
 	* \param context Context for the serialization
 	* \param value String to serialize
 	*/
-	bool Serialize(SerializationContext& context, const std::string& value)
+	bool Serialize(SerializationContext& context, const std::string& value, TypeTag<std::string>)
 	{
-		if (!Serialize(context, UInt32(value.size())))
+		if (!Serialize(context, UInt32(value.size()), TypeTag<UInt32>()))
 			return false;
 
 		return context.stream->Write(value.data(), value.size()) == value.size();
@@ -253,7 +261,7 @@ namespace Nz
 	* \see Serialize, Unserialize
 	*/
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value, TypeTag<T>)
 	{
 		// Flush bits in case a writing is in progress
 		context.FlushBits();
@@ -262,6 +270,13 @@ namespace Nz
 			SwapBytes(&value, sizeof(T));
 
 		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
+	}
+
+
+	template<typename T>
+	bool Unserialize(SerializationContext& context, T* value)
+	{
+		return Unserialize(context, value, TypeTag<T>());
 	}
 
 	/*!
@@ -274,20 +289,20 @@ namespace Nz
 	*
 	* \see Serialize, Unserialize
 	*/
-	inline bool Unserialize(SerializationContext& context, bool* value)
+	inline bool Unserialize(SerializationContext& context, bool* value, TypeTag<bool>)
 	{
-		if (context.currentBitPos == 8)
+		if (context.readBitPos == 8)
 		{
-			if (!Unserialize(context, &context.currentByte))
+			if (!Unserialize(context, &context.readByte, TypeTag<UInt8>()))
 				return false;
 
-			context.currentBitPos = 0;
+			context.readBitPos = 0;
 		}
 
 		if (value)
-			*value = (context.currentByte & (1 << context.currentBitPos)) != 0;
+			*value = (context.readByte & (1 << context.readBitPos)) != 0;
 
-		context.currentBitPos++;
+		context.readBitPos++;
 
 		return true;
 	}
@@ -299,10 +314,10 @@ namespace Nz
 	* \param context Context of unserialization
 	* \param string std::string to unserialize
 	*/
-	bool Unserialize(SerializationContext& context, std::string* string)
+	bool Unserialize(SerializationContext& context, std::string* string, TypeTag<std::string>)
 	{
 		UInt32 size;
-		if (!Unserialize(context, &size))
+		if (!Unserialize(context, &size, TypeTag<UInt32>()))
 			return false;
 
 		string->resize(size);
@@ -322,11 +337,11 @@ namespace Nz
 	* \see Serialize, Unserialize
 	*/
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value, TypeTag<T>)
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
-		context.ResetBitPosition();
+		context.ResetReadBitPosition();
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{

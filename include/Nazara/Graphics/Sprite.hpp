@@ -29,11 +29,13 @@ namespace Nz
 			inline Sprite();
 			inline Sprite(MaterialRef material);
 			inline Sprite(Texture* texture);
-			inline Sprite(const Sprite& sprite);
+			Sprite(const Sprite&) = default;
 			Sprite(Sprite&&) = delete;
 			~Sprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;

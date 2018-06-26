@@ -14,6 +14,7 @@ namespace Nz
 
 	inline TextSprite::TextSprite() :
 	m_color(Color::White),
+	m_localBounds(Nz::Recti::Zero()),
 	m_scale(1.f)
 	{
 		ResetMaterials(1U);
@@ -110,14 +111,7 @@ namespace Nz
 
 	inline void TextSprite::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New();
-		material->EnableBlending(true);
-		material->EnableDepthWrite(false);
-		material->EnableFaceCulling(false);
-		material->SetDstBlend(BlendFunc_InvSrcAlpha);
-		material->SetSrcBlend(BlendFunc_SrcAlpha);
-
-		SetMaterial(material);
+		SetMaterial(Material::New("Translucent2D"));
 	}
 
 	/*!

@@ -29,11 +29,13 @@ namespace Nz
 			struct Tile;
 
 			inline TileMap(const Nz::Vector2ui& mapSize, const Nz::Vector2f& tileSize, std::size_t materialCount = 1);
-			TileMap(const TileMap& TileMap) = default;
+			TileMap(const TileMap&) = default;
 			TileMap(TileMap&&) = delete;
 			~TileMap() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline void DisableTile(const Vector2ui& tilePos);
 			inline void DisableTiles();

@@ -21,17 +21,23 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data for the instance
 	*/
-
-	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void Sprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-		renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), vertices, 1);
+		renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), vertices, 1, scissorRect);
+	}
+
+	/*!
+	* \brief Clones this sprite
+	*/
+	std::unique_ptr<InstancedRenderable> Sprite::Clone() const
+	{
+		return std::make_unique<Sprite>(*this);
 	}
 
 	/*!
 	* \brief Makes the bounding volume of this text
 	*/
-
 	void Sprite::MakeBoundingVolume() const
 	{
 		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);

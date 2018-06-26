@@ -53,7 +53,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		if (!m_mesh)
 			return;
@@ -69,7 +69,7 @@ namespace Nz
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
 	}
 
@@ -126,10 +126,9 @@ namespace Nz
 	* \brief Clones this skeletal model
 	* \return Pointer to newly allocated SkeletalModel
 	*/
-
-	SkeletalModel* SkeletalModel::Clone() const
+	std::unique_ptr<InstancedRenderable> SkeletalModel::Clone() const
 	{
-		return new SkeletalModel(*this);
+		return std::make_unique<SkeletalModel>(*this);
 	}
 
 	/*!

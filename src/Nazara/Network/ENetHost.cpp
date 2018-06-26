@@ -320,7 +320,7 @@ namespace Nz
 
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
-		if (!m_socket.Create(address.GetProtocol()))
+		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol_Any : address.GetProtocol()))
 			return false;
 
 		m_socket.EnableBlocking(false);
@@ -489,7 +489,7 @@ namespace Nz
 		if (m_receivedDataLength < NazaraOffsetOf(ENetProtocolHeader, sentTime))
 			return false;
 
-		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData);
+		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData.Get());
 
 		UInt16 peerID = NetToHost(header->peerID);
 		UInt8  sessionID = (peerID & ENetProtocolHeaderSessionMask) >> ENetProtocolHeaderSessionShift;

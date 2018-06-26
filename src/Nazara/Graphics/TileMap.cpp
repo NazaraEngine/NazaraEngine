@@ -23,7 +23,7 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data for the instance
 	*/
-	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 
@@ -31,10 +31,18 @@ namespace Nz
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size());
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}
+	}
+
+	/*!
+	* \brief Clones this tilemap
+	*/
+	std::unique_ptr<InstancedRenderable> TileMap::Clone() const
+	{
+		return std::make_unique<TileMap>(*this);
 	}
 
 	void TileMap::MakeBoundingVolume() const

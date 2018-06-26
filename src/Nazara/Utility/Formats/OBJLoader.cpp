@@ -107,6 +107,24 @@ namespace Nz
 						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
 					}
 
+					if (!mtlMat->emissiveMap.IsEmpty())
+					{
+						String fullPath = mtlMat->emissiveMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::EmissiveTexturePath, fullPath);
+					}
+
+					if (!mtlMat->normalMap.IsEmpty())
+					{
+						String fullPath = mtlMat->normalMap;
+						if (!Nz::File::IsAbsolute(fullPath))
+							fullPath.Prepend(baseDir);
+
+						data.SetParameter(MaterialData::NormalTexturePath, fullPath);
+					}
+
 					if (!mtlMat->specularMap.IsEmpty())
 					{
 						String fullPath = mtlMat->specularMap;
@@ -241,6 +259,9 @@ namespace Nz
 
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
+				if (parameters.optimizeIndexBuffers)
+					indexBuffer->Optimize();
+
 				// Remplissage des vertices
 
 				// Make sure the normal matrix won't rescale our normals
@@ -293,20 +314,9 @@ namespace Nz
 
 				vertexMapper.Unmap();
 
-				StaticMeshRef subMesh = StaticMesh::New(mesh);
-				if (!subMesh->Create(vertexBuffer))
-				{
-					NazaraError("Failed to create StaticMesh");
-					continue;
-				}
-
-				if (parameters.optimizeIndexBuffers)
-					indexBuffer->Optimize();
-
+				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
-				subMesh->SetIndexBuffer(indexBuffer);
 				subMesh->SetMaterialIndex(meshes[i].material);
-				subMesh->SetPrimitiveMode(PrimitiveMode_TriangleList);
 
 				// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 				if (hasNormals && hasTexCoords)

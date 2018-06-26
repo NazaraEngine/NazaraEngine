@@ -9,17 +9,24 @@
 
 namespace Ndk
 {
+	inline GraphicsComponent::GraphicsComponent() :
+	m_reflectiveMaterialCount(0),
+	m_scissorRect(-1, -1)
+	{
+	}
+
 	/*!
 	* \brief Constructs a GraphicsComponent object by copy semantic
 	*
 	* \param graphicsComponent GraphicsComponent to copy
 	*/
-
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
 	HandledObject(graphicsComponent),
+	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
+	m_scissorRect(graphicsComponent.m_scissorRect),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
 	m_transformMatrixUpdated(graphicsComponent.m_transformMatrixUpdated)
 	{
@@ -104,6 +111,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Calls a function for every renderable attached to this component
+	*
+	* \param func Callback function which will be called with renderable data
+	*/
+	template<typename Func>
+	void GraphicsComponent::ForEachRenderable(const Func& func) const
+	{
+		for (const auto& renderableData : m_renderables)
+			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
+	}
+
+	/*!
 	* \brief Ensures the bounding volume is up to date
 	*/
 
@@ -175,6 +194,14 @@ namespace Ndk
 				break;
 			}
 		}
+	}
+
+	inline void GraphicsComponent::SetScissorRect(const Nz::Recti& scissorRect)
+	{
+		m_scissorRect = scissorRect;
+
+		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
 	}
 
 	inline void GraphicsComponent::UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix)

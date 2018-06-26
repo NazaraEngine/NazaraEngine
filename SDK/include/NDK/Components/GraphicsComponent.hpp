@@ -28,7 +28,7 @@ namespace Ndk
 		public:
 			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
 
-			GraphicsComponent() = default;
+			inline GraphicsComponent();
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 
@@ -44,6 +44,8 @@ namespace Ndk
 
 			inline bool DoesRequireRealTimeReflections() const;
 
+			template<typename Func> void ForEachRenderable(const Func& func) const;
+
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
@@ -53,6 +55,8 @@ namespace Ndk
 			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
 
 			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
+
+			inline void SetScissorRect(const Nz::Recti& scissorRect);
 
 			inline void UpdateLocalMatrix(const Nz::InstancedRenderable* instancedRenderable, const Nz::Matrix4f& localMatrix);
 			inline void UpdateRenderOrder(const Nz::InstancedRenderable* instancedRenderable, int renderOrder);
@@ -144,6 +148,7 @@ namespace Ndk
 			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
 			mutable Nz::BoundingVolumef m_boundingVolume;
 			mutable Nz::Matrix4f m_transformMatrix;
+			Nz::Recti m_scissorRect;
 			Nz::TextureRef m_reflectionMap;
 			mutable bool m_boundingVolumeUpdated;
 			mutable bool m_transformMatrixUpdated;

@@ -47,7 +47,7 @@ namespace Nz
 		}
 	}
 
-	bool LuaCoroutine::Run(int argCount, int /*resultCount*/)
+	bool LuaCoroutine::Run(int argCount, int /*resultCount*/, int /*errHandler*/)
 	{
 		return Resume(argCount) != Ternary_False;
 	}

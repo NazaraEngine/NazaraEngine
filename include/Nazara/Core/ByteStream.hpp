@@ -24,7 +24,7 @@ namespace Nz
 			ByteStream(void* ptr, Nz::UInt64 size);
 			ByteStream(const void* ptr, Nz::UInt64 size);
 			ByteStream(const ByteStream&) = delete;
-			inline ByteStream(ByteStream&& stream);
+			ByteStream(ByteStream&& stream) noexcept = default;
 			virtual ~ByteStream();
 
 			inline Endianness GetDataEndianness() const;
@@ -50,7 +50,7 @@ namespace Nz
 			ByteStream& operator<<(const T& value);
 
 			ByteStream& operator=(const ByteStream&) = delete;
-			inline ByteStream& operator=(ByteStream&&);
+			ByteStream& operator=(ByteStream&&) noexcept = default;
 
 		private:
 			virtual void OnEmptyStream();

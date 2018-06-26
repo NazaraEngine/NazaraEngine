@@ -4,6 +4,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <Catch/catch.hpp>
+#include <limits>
 
 Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf AABB);
 
@@ -19,8 +20,9 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
-		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
-
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaximumUpdateRate(0.f);
+		world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+		
 		WHEN("We update the world")
 		{
 			world.Update(1.f);
@@ -43,7 +45,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 			world.Update(1.f);
 
-			THEN("It should moved freely")
+			THEN("It should move freely")
 			{
 				REQUIRE(nodeComponent.GetPosition() == position);
 				movingAABB.Translate(position);

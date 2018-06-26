@@ -113,7 +113,7 @@ class SpriteRenderer : public Nz::ParticleRenderer
 			Nz::SparsePtr<const Nz::Vector2f> sizePtr(&size, 0);
 			Nz::SparsePtr<const Nz::Vector2f> sinCosPtr(nullptr, 0);
 
-			renderQueue->AddBillboards(0, m_material, endId - startId + 1, mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Position), sizePtr, sinCosPtr, mapper.GetComponentPtr<const Nz::Color>(Nz::ParticleComponent_Color));
+			renderQueue->AddBillboards(0, m_material, endId - startId + 1, Nz::Recti(-1, -1), mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Position), sizePtr, sinCosPtr, mapper.GetComponentPtr<const Nz::Color>(Nz::ParticleComponent_Color));
 		}
 
 	private:

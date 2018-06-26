@@ -22,6 +22,11 @@ namespace Nz
 		return m_address;
 	}
 
+	inline UInt32 ENetPeer::GetLastReceiveTime() const
+	{
+		return m_lastReceiveTime;
+	}
+
 	inline UInt32 ENetPeer::GetMtu() const
 	{
 		return m_mtu;

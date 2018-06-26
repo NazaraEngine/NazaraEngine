@@ -26,7 +26,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TextSprite::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		for (auto& pair : m_renderInfos)
 		{
@@ -36,9 +36,17 @@ namespace Nz
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, scissorRect, overlay);
 			}
 		}
+	}
+
+	/*!
+	* \brief Clones this text sprite
+	*/
+	std::unique_ptr<InstancedRenderable> TextSprite::Clone() const
+	{
+		return std::make_unique<TextSprite>(*this);
 	}
 
 	/*!

@@ -135,7 +135,7 @@ namespace Nz
 			std::vector<ENetPeer> m_peers;
 			std::vector<PendingIncomingPacket> m_pendingIncomingPackets;
 			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;
-			UInt8* m_receivedData;
+			MovablePtr<UInt8> m_receivedData;
 			Bitset<UInt64> m_dispatchQueue;
 			MemoryPool m_packetPool;
 			IpAddress m_address;
@@ -156,6 +156,7 @@ namespace Nz
 			UInt64 m_totalReceivedData;
 			bool m_allowsIncomingConnections;
 			bool m_continueSending;
+			bool m_isUsingDualStack;
 			bool m_isSimulationEnabled;
 			bool m_recalculateBandwidthLimits;
 

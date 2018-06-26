@@ -164,8 +164,10 @@ namespace Ndk
 				}
 				else
 				{
-					OnUpdate(m_maxUpdateRate);
-					m_updateCounter -= m_maxUpdateRate;
+					float updateRate = std::max(elapsedTime, m_maxUpdateRate);
+
+					OnUpdate(updateRate);
+					m_updateCounter -= updateRate;
 				}
 			}
 		}

@@ -41,6 +41,7 @@ namespace Ndk
 			matrix.MakeIdentity();
 
 		m_object = std::make_unique<Nz::RigidBody3D>(&world, geom, matrix);
+		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 
 		if (m_pendingStates.valid)
 			ApplyPhysicsState(*m_object);
