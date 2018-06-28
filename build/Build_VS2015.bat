@@ -1,1 +1,1 @@
-premake5 vs2015
+.\premake5.exe vs2015
