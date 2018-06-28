@@ -172,6 +172,7 @@ void LogoExample::Enter(Ndk::StateMachine& fsm)
 	ParticleDemo::Enter(fsm);
 
 	m_shared.world3D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(nullptr);
+	m_shared.target->SetCursor(Nz::SystemCursor_Default);
 
 	Nz::TextureRef backgroundTexture = Nz::Texture::New();
 	if (backgroundTexture->LoadFromFile("resources/stars-background.jpg"))
