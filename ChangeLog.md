@@ -118,6 +118,7 @@ Nazara Engine:
 - SocketPoller will now silently ignore "interrupt errors"
 - Added RigidBody2D::ClosestPointQuery
 - Fix Sprite copy constructor not copying corner colors
+- Added ObjectLibrary::Clear method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
