@@ -5,7 +5,7 @@
 #include <Nazara/Core/Posix/DirectoryImpl.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/String.hpp>
 #include <cstring>
 #include <errno.h>
@@ -39,7 +39,7 @@ namespace Nz
 		std::size_t resultNameSize = std::strlen(m_result->d_name);
 
 		std::size_t fullNameSize = pathSize + 1 + resultNameSize;
-		StackArray<char> fullName = NazaraStackAllocationNoInit(char, fullNameSize + 1);
+		StackArray<char> fullName = NazaraStackArrayNoInit(char, fullNameSize + 1);
 		std::memcpy(&fullName[0], path.GetConstBuffer(), pathSize * sizeof(char));
 		fullName[pathSize] = '/';
 		std::memcpy(&fullName[pathSize + 1], m_result->d_name, resultNameSize * sizeof(char));
