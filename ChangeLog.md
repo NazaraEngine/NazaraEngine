@@ -121,6 +121,9 @@ Nazara Engine:
 - Added ObjectLibrary::Clear method
 - ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
 - ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
+- Added StackVector class
+- ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
+- Added Vector2::Distance static method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
