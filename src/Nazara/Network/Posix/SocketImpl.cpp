@@ -4,7 +4,7 @@
 
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <netinet/tcp.h>
@@ -574,7 +574,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
-		StackArray<iovec> sysBuffers = NazaraStackAllocation(iovec, bufferCount);
+		StackArray<iovec> sysBuffers = NazaraStackArray(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			sysBuffers[i].iov_base = buffers[i].data;
@@ -698,7 +698,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
 
-		StackArray<iovec> sysBuffers = NazaraStackAllocation(iovec, bufferCount);
+		StackArray<iovec> sysBuffers = NazaraStackArray(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			sysBuffers[i].iov_base = buffers[i].data;

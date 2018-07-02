@@ -119,6 +119,8 @@ Nazara Engine:
 - Added RigidBody2D::ClosestPointQuery
 - Fix Sprite copy constructor not copying corner colors
 - Added ObjectLibrary::Clear method
+- ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
+- ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
