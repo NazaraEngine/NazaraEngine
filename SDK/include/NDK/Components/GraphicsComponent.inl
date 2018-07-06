@@ -37,10 +37,10 @@ namespace Ndk
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		m_volumeCullingEntries.emplace_back(VolumeCullingEntry{});
+		m_volumeCullingEntries.emplace_back();
 		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
 		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
-		entry.listEntry = cullingList->RegisterVolumeTest(this);
+		cullingList->RegisterVolumeTest(this, &entry.listEntry);
 
 		InvalidateBoundingVolume();
 	}
