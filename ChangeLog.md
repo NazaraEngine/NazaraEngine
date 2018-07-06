@@ -124,6 +124,7 @@ Nazara Engine:
 - Added StackVector class
 - ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
 - Added Vector2::Distance static method
+- ⚠️ Fixed compilation error on MSVC with flag /permissive- on CullingList class
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
