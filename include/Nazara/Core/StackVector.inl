@@ -255,7 +255,7 @@ namespace Nz
 		else if (count < m_size)
 		{
 			for (std::size_t i = count; i < m_size; ++i)
-				PlacementNew(&m_ptr[i]);
+				PlacementDestroy(&m_ptr[i]);
 
 			m_size = count;
 		}
