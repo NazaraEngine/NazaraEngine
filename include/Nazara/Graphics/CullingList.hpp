@@ -41,9 +41,9 @@ namespace Nz
 
 			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation = nullptr);
 
-			void RegisterNoTest(const T* renderable, NoTestEntry* entry);
-			void RegisterSphereTest(const T* renderable, SphereEntry* entry);
-			void RegisterVolumeTest(const T* renderable, VolumeEntry* entry);
+			NoTestEntry RegisterNoTest(const T* renderable);
+			SphereEntry RegisterSphereTest(const T* renderable);
+			VolumeEntry RegisterVolumeTest(const T* renderable);
 
 			CullingList& operator=(const CullingList& renderable) = delete;
 			CullingList& operator=(CullingList&& renderable) = delete;
