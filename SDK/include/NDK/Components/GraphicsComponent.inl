@@ -40,7 +40,7 @@ namespace Ndk
 		m_volumeCullingEntries.emplace_back();
 		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
 		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
-		cullingList->RegisterVolumeTest(this, &entry.listEntry);
+		entry.listEntry = cullingList->RegisterVolumeTest(this);
 
 		InvalidateBoundingVolume();
 	}
