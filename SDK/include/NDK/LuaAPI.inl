@@ -556,6 +556,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, Vector2i&& val, TypeTag<Vector2i>)
+	{
+		state.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, Vector3d&& val, TypeTag<Vector3d>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
@@ -569,6 +575,12 @@ namespace Nz
 	}
 
 	inline int LuaImplReplyVal(const LuaState& state, Vector3ui&& val, TypeTag<Vector3ui>)
+	{
+		state.PushInstance<Vector3d>("Vector3", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, Vector3i&& val, TypeTag<Vector3i>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
 		return 1;
