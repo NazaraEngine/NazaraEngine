@@ -269,6 +269,15 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector2i* vec, TypeTag<Vector2i>)
+	{
+		Vector2d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector2d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3d* vec, TypeTag<Vector3d>)
 	{
 		switch (state.GetType(index))
@@ -300,6 +309,15 @@ namespace Nz
 	}
 
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3ui* vec, TypeTag<Vector3ui>)
+	{
+		Vector3d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3i* vec, TypeTag<Vector3i>)
 	{
 		Vector3d vecDouble;
 		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
