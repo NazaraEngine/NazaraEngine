@@ -347,7 +347,7 @@ namespace Nz
 		{
 			IncomingCommmand& incomingCommand = *currentCommand;
 
-			if (incomingCommand.fragmentsRemaining > 0 || incomingCommand.reliableSequenceNumber != (channel.incomingReliableSequenceNumber + 1))
+			if (incomingCommand.fragmentsRemaining > 0 || incomingCommand.reliableSequenceNumber != Nz::UInt16(channel.incomingReliableSequenceNumber + 1))
 				break;
 
 			channel.incomingReliableSequenceNumber = incomingCommand.reliableSequenceNumber;
