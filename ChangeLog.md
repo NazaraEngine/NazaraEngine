@@ -125,6 +125,7 @@ Nazara Engine:
 - ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
 - Added Vector2::Distance static method
 - ⚠️ Fixed compilation error on MSVC with flag /permissive- on CullingList class
+- Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
