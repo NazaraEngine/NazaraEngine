@@ -126,6 +126,8 @@ Nazara Engine:
 - Added Vector2::Distance static method
 - ⚠️ Fixed compilation error on MSVC with flag /permissive- on CullingList class
 - Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
+- Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
+
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
