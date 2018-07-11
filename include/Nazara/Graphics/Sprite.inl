@@ -280,8 +280,10 @@ namespace Nz
 		else
 		{
 			material->SetDiffuseMap(std::move(texture));
-			if (resizeSprite && texture && texture->IsValid())
-				SetSize(Vector2f(Vector2ui(texture->GetSize())));
+			const TextureRef& newTexture = material->GetDiffuseMap();
+
+			if (resizeSprite && newTexture && newTexture->IsValid())
+				SetSize(Vector2f(Vector2ui(newTexture->GetSize())));
 		}
 	}
 
