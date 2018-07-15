@@ -76,6 +76,11 @@ namespace Nz
 		return m_stepSize;
 	}
 
+	unsigned int PhysWorld3D::GetThreadCount() const
+	{
+		return NewtonGetThreadsCount(m_world);
+	}
+
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_gravity = gravity;
@@ -94,6 +99,11 @@ namespace Nz
 	void PhysWorld3D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
+	}
+
+	void PhysWorld3D::SetThreadCount(unsigned int threadCount)
+	{
+		NewtonSetThreadsCount(m_world, threadCount);
 	}
 
 	void PhysWorld3D::SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback)

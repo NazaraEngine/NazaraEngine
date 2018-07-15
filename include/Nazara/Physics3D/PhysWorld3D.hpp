@@ -45,11 +45,13 @@ namespace Nz
 			int GetMaterial(const String& name);
 			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
+			unsigned int GetThreadCount() const;
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
+			void SetThreadCount(unsigned int threadCount);
 
 			void SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback);
 			void SetMaterialDefaultCollidable(int firstMaterial, int secondMaterial, bool collidable);
