@@ -18,7 +18,7 @@ namespace Ndk
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:
-			TextAreaWidget(BaseWidget* parent = nullptr);
+			TextAreaWidget(BaseWidget* parent);
 			TextAreaWidget(const TextAreaWidget&) = delete;
 			TextAreaWidget(TextAreaWidget&&) = default;
 			~TextAreaWidget() = default;
