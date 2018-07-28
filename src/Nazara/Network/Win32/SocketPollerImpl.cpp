@@ -130,9 +130,9 @@ namespace Nz
 		#endif
 	}
 
-	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
+	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
-		int activeSockets;
+		unsigned int activeSockets;
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
@@ -187,14 +187,17 @@ namespace Nz
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
-		if (activeSockets == SOCKET_ERROR)
+		int selectValue = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+		if (selectValue == SOCKET_ERROR)
 		{
 			if (error)
 				*error = SocketImpl::TranslateWSAErrorToSocketError(WSAGetLastError());
 
 			return 0;
 		}
+
+		assert(selectValue >= 0);
+		activeSockets = static_cast<unsigned int>(selectValue);
 
 		if (error)
 			*error = SocketError_NoError;

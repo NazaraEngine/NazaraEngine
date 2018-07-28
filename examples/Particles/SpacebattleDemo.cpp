@@ -669,6 +669,8 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
 	m_ambientMusic.Stop();
+	m_onMouseMoved.Disconnect();
+	m_shared.target->SetCursor(Nz::SystemCursor_Default);
 	m_shared.world3D->RemoveSystem<LaserBeamSystem>();
 	m_shared.world3D->RemoveSystem<SpaceshipSystem>();
 	m_turretFireSound.Stop();

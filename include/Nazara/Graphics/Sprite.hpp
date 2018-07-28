@@ -29,7 +29,7 @@ namespace Nz
 			inline Sprite();
 			inline Sprite(MaterialRef material);
 			inline Sprite(Texture* texture);
-			inline Sprite(const Sprite& sprite);
+			Sprite(const Sprite&) = default;
 			Sprite(Sprite&&) = delete;
 			~Sprite() = default;
 

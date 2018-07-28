@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <NDK/Components/PhysicsComponent2D.hpp>
 #include <Nazara/Core/Error.hpp>
 
 namespace Ndk
@@ -95,6 +96,23 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->AddTorque(torque);
+	}
+
+	/*!
+	* \brief Finds the closest point on the entity relative to a position
+	* \return True if such a point exists (will return false if no collider exists)
+	*
+	* \param position The starting point which will be used for the query
+	* \param closestPoint The closest point on entity surface
+	* \param closestDistance The distance between the closest point and the starting point, may be negative if starting point is inside the entity
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline bool PhysicsComponent2D::ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ClosestPointQuery(position, closestPoint, closestDistance);
 	}
 
 	/*!

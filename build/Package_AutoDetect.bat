@@ -1,2 +1,2 @@
-premake5 package
+.\premake5.exe package
 pause

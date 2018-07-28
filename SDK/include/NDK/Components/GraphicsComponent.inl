@@ -26,6 +26,7 @@ namespace Ndk
 	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
+	m_scissorRect(graphicsComponent.m_scissorRect),
 	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
 	m_transformMatrixUpdated(graphicsComponent.m_transformMatrixUpdated)
 	{
@@ -36,7 +37,7 @@ namespace Ndk
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		m_volumeCullingEntries.emplace_back(VolumeCullingEntry{});
+		m_volumeCullingEntries.emplace_back();
 		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
 		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
 		entry.listEntry = cullingList->RegisterVolumeTest(this);

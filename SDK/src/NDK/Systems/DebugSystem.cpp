@@ -59,7 +59,6 @@ namespace Ndk
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
-					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
 					Nz::Boxf aabb = entityGfx.GetBoundingVolume().aabb;
@@ -86,16 +85,14 @@ namespace Ndk
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
-					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::Boxf obb = entityGfx.GetBoundingVolume().obb.localBox;
+					Nz::OrientedBoxf entityObb = entityGfx.GetBoundingVolume().obb;
+					Nz::Boxf obb(entityObb.GetCorner(Nz::BoxCorner_NearLeftTop), entityObb.GetCorner(Nz::BoxCorner_FarRightBottom));
 
-					Nz::Matrix4f transformMatrix = instanceData.transformMatrix;
-					Nz::Vector3f obbCenter = transformMatrix.Transform(obb.GetCenter(), 0.f); //< Apply rotation/scale to obb center, to display it at a correct position
-
-					transformMatrix.ApplyScale(obb.GetLengths());
-					transformMatrix.ApplyTranslation(obbCenter);
+					Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
+					transformMatrix.SetScale(obb.GetLengths());
+					transformMatrix.SetTranslation(obb.GetCenter());
 
 					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
 				}

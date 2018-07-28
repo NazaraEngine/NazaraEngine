@@ -33,8 +33,8 @@ namespace Nz
 			T AbsDotProduct(const Vector2& vec) const;
 			T AngleBetween(const Vector2& vec) const;
 
-			T Distance(const Vector2& vec) const;
-			float Distancef(const Vector2& vec) const;
+			template<typename U = T>
+			U Distance(const Vector2& vec) const;
 			T DotProduct(const Vector2& vec) const;
 
 			T GetLength() const;
@@ -92,6 +92,7 @@ namespace Nz
 			bool operator>(const Vector2& vec) const;
 			bool operator>=(const Vector2& vec) const;
 
+			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
 			static T DotProduct(const Vector2& vec1, const Vector2& vec2);
 			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
 			static Vector2 Normalize(const Vector2& vec);

@@ -17,7 +17,7 @@ namespace Nz
 		public:
 			StdLogger() = default;
 			StdLogger(const StdLogger&) = default;
-			StdLogger(StdLogger&&) = default;
+			StdLogger(StdLogger&&) noexcept = default;
 			~StdLogger();
 
 			void EnableStdReplication(bool enable) override;
@@ -28,7 +28,7 @@ namespace Nz
 			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			StdLogger& operator=(const StdLogger&) = default;
-			StdLogger& operator=(StdLogger&&) = default;
+			StdLogger& operator=(StdLogger&&) noexcept = default;
 	};
 }
 

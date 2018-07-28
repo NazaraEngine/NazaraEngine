@@ -33,7 +33,7 @@ namespace Nz
 			Buffer(BufferType type);
 			Buffer(BufferType type, UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
 			Buffer(const Buffer&) = delete;
-			Buffer(Buffer&&) = default;
+			Buffer(Buffer&&) = delete;
 			~Buffer();
 
 			bool CopyContent(const BufferRef& buffer);
@@ -61,7 +61,7 @@ namespace Nz
 			void Unmap() const;
 
 			Buffer& operator=(const Buffer&) = delete;
-			Buffer& operator=(Buffer&&) = default;
+			Buffer& operator=(Buffer&&) = delete;
 
 			static bool IsStorageSupported(DataStorage storage);
 			template<typename... Args> static BufferRef New(Args&&... args);

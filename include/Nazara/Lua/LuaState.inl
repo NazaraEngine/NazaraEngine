@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
@@ -157,6 +158,35 @@ namespace Nz
 	unsigned int LuaImplQueryArg(const LuaState& instance, int index, T* arg, const T& defValue, TypeTag<const T&>)
 	{
 		return LuaImplQueryArg(instance, index, arg, defValue, TypeTag<T>());
+	}
+
+	template<typename T>
+	unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::vector<T>* container, TypeTag<std::vector<T>>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+		std::size_t pos = 1;
+
+		container->clear();
+		for (;;)
+		{
+			Nz::CallOnExit popStack { [&instance]() { instance.Pop(); } };
+			instance.PushInteger(pos++);
+
+			int tableIndex = (index < 0) ? index - 1 : index;
+			if (instance.GetTable(tableIndex) == Nz::LuaType_Nil)
+				break;
+
+			T arg;
+			if (LuaImplQueryArg(instance, -1, &arg, TypeTag<T>()) != 1)
+			{
+				instance.Error("Type needs more than one place to be initialized");
+				return 0;
+			}
+
+			container->push_back(arg);
+		}
+
+		return 1;
 	}
 
 	// Function returns

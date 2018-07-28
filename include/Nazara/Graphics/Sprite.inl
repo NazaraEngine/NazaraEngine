@@ -51,21 +51,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Sprite object by assignation
-	*
-	* \param sprite Sprite to copy into this
-	*/
-
-	inline Sprite::Sprite(const Sprite& sprite) :
-	InstancedRenderable(sprite),
-	m_color(sprite.m_color),
-	m_textureCoords(sprite.m_textureCoords),
-	m_size(sprite.m_size),
-	m_origin(sprite.m_origin)
-	{
-	}
-
-	/*!
 	* \brief Gets the color of the sprite
 	*
 	* This is the global color of the sprite, independent from corner colors
@@ -295,8 +280,10 @@ namespace Nz
 		else
 		{
 			material->SetDiffuseMap(std::move(texture));
-			if (resizeSprite && texture && texture->IsValid())
-				SetSize(Vector2f(Vector2ui(texture->GetSize())));
+			const TextureRef& newTexture = material->GetDiffuseMap();
+
+			if (resizeSprite && newTexture && newTexture->IsValid())
+				SetSize(Vector2f(Vector2ui(newTexture->GetSize())));
 		}
 	}
 

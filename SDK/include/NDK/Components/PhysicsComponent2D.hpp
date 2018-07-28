@@ -30,6 +30,8 @@ namespace Ndk
 			void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			void AddTorque(float torque);
 
+			bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
+
 			Nz::Rectf GetAABB() const;
 			float GetAngularVelocity() const;
 			Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
