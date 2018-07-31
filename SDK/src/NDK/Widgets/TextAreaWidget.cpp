@@ -395,7 +395,7 @@ namespace Ndk
 			default:
 			{
 				Nz::Unicode::Category category = Nz::Unicode::GetCategory(character);
-				if (category == Nz::Unicode::Category_Other_Control || !(m_acceptedCharacters == Nz::Unicode::Category_NoCategory || category == m_acceptedCharacters))
+				if (category == Nz::Unicode::Category_Other_Control || !(m_acceptedCharacters == Nz::Unicode::Category_NoCategory || (category & m_acceptedCharacters ) == m_acceptedCharacters))
 					break;
 
 				if (HasSelection())
