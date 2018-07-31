@@ -19,7 +19,7 @@ namespace Ndk
 	class NDK_API ImageWidget : public BaseWidget
 	{
 		public:
-			ImageWidget(BaseWidget* parent = nullptr);
+			ImageWidget(BaseWidget* parent);
 			ImageWidget(const ImageWidget&) = delete;
 			ImageWidget(ImageWidget&&) = default;
 			~ImageWidget() = default;
