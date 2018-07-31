@@ -179,6 +179,7 @@ Nazara Development Kit:
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
 - Fix GraphicsComponent copy constructor not copying scissor rect
+- Force parent parameter to be present in widgets constructor
 
 # 0.4:
 
