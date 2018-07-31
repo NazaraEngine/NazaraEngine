@@ -23,6 +23,11 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline Nz::Unicode::Category TextAreaWidget::GetAcceptedCharacters() const
+	{
+		return m_acceptedCharacters;
+	}
+
 	inline unsigned int TextAreaWidget::GetCharacterSize() const
 	{
 		return m_drawer.GetCharacterSize();
@@ -138,6 +143,11 @@ namespace Ndk
 		cursorPosition.y = ClampOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
 
 		SetCursorPosition(cursorPosition);
+	}
+
+	inline void TextAreaWidget::SetAcceptedCharacters(Nz::Unicode::Category category)
+	{
+		m_acceptedCharacters = category;
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)

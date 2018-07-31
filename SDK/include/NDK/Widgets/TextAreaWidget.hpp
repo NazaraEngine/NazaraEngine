@@ -9,6 +9,7 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/Core/Unicode.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
 #include <vector>
@@ -33,6 +34,7 @@ namespace Ndk
 
 			void EraseSelection();
 
+			inline Nz::Unicode::Category GetAcceptedCharacters() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
 			inline Nz::Vector2ui GetCursorPosition(std::size_t glyphIndex) const;
@@ -54,6 +56,7 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline void SetAcceptedCharacters(Nz::Unicode::Category category);
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
@@ -96,6 +99,7 @@ namespace Ndk
 			void RefreshCursor();
 			void UpdateDisplayText();
 
+			Nz::Unicode::Category m_acceptedCharacters;
 			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
