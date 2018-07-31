@@ -41,6 +41,7 @@ namespace Nz
 			void EnableSimulation(bool simulation);
 
 			Rectf GetAABB() const;
+			inline float GetAngularDamping() const;
 			float GetAngularVelocity() const;
 			Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
 			const Collider2DRef& GetGeom() const;
@@ -59,6 +60,7 @@ namespace Nz
 			bool IsSleeping() const;
 			bool IsStatic() const;
 
+			inline void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(float angularVelocity);
 			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
 			void SetMass(float mass, bool recomputeMoment = true);
@@ -98,5 +100,7 @@ namespace Nz
 			float m_mass;
 	};
 }
+
+#include <Nazara/Physics2D/RigidBody2D.inl>
 
 #endif // NAZARA_RIGIDBODY2D_HPP
