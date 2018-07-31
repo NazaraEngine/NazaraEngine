@@ -175,11 +175,12 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
-- Add GraphicsComponent:ForEachRenderable method
+- Added GraphicsComponent:ForEachRenderable method
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
-- Fix GraphicsComponent copy constructor not copying scissor rect
+- Fixed GraphicsComponent copy constructor not copying scissor rect
 - Force parent parameter to be present in widgets constructor
+- Added the possibility to write only specific characters with a predicate in TextAreaWidget
 
 # 0.4:
 
