@@ -23,7 +23,7 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
-	inline Nz::Unicode::Category TextAreaWidget::GetAcceptedCharacters() const
+	inline std::function<bool(char32_t)> TextAreaWidget::GetAcceptedCharacters() const
 	{
 		return m_acceptedCharacters;
 	}
@@ -145,9 +145,9 @@ namespace Ndk
 		SetCursorPosition(cursorPosition);
 	}
 
-	inline void TextAreaWidget::SetAcceptedCharacters(Nz::Unicode::Category category)
+	inline void TextAreaWidget::SetAcceptedCharacters(std::function<bool(char32_t)> predicate)
 	{
-		m_acceptedCharacters = category;
+		m_acceptedCharacters = predicate;
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)

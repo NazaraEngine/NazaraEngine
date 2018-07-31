@@ -5,12 +5,13 @@
 #include <NDK/Widgets/TextAreaWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <Nazara/Core/Unicode.hpp>
 
 namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
-	m_acceptedCharacters(Nz::Unicode::Category_NoCategory),
+	m_acceptedCharacters([] (char32_t) { return true; }),
 	m_echoMode(EchoMode_Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
@@ -394,8 +395,7 @@ namespace Ndk
 
 			default:
 			{
-				Nz::Unicode::Category category = Nz::Unicode::GetCategory(character);
-				if (category == Nz::Unicode::Category_Other_Control || !(m_acceptedCharacters == Nz::Unicode::Category_NoCategory || (category & m_acceptedCharacters ) == m_acceptedCharacters))
+				if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || !m_acceptedCharacters(character))
 					break;
 
 				if (HasSelection())
