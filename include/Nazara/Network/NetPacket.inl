@@ -195,7 +195,7 @@ namespace Nz
 	* \param packet NetPacket to move in this
 	*/
 
-	inline NetPacket& Nz::NetPacket::operator=(NetPacket&& packet)
+	inline NetPacket& NetPacket::operator=(NetPacket&& packet)
 	{
 		FreeStream();
 

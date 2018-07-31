@@ -118,6 +118,15 @@ Nazara Engine:
 - SocketPoller will now silently ignore "interrupt errors"
 - Added RigidBody2D::ClosestPointQuery
 - Fix Sprite copy constructor not copying corner colors
+- Added ObjectLibrary::Clear method
+- ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
+- ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
+- Added StackVector class
+- ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
+- Added Vector2::Distance static method
+- ⚠️ Fixed compilation errors on MSVC with flag /permissive- on CullingList class
+- Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
+- Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -135,40 +135,52 @@ namespace Nz
 	};
 
 	template<typename T>
-	class CullingList<T>::NoTestEntry : public CullingList::template Entry<CullTest::NoTest>
+	class CullingList<T>::NoTestEntry : public CullingList<T>::template Entry<CullTest::NoTest>
 	{
 		friend CullingList;
 
 		public:
 			NoTestEntry();
+			NoTestEntry(NoTestEntry&&) = default;
+			~NoTestEntry() = default;
+
+			NoTestEntry& operator=(NoTestEntry&&) = default;
 
 		private:
 			NoTestEntry(CullingList* parent, std::size_t index);
 	};
 
 	template<typename T>
-	class CullingList<T>::SphereEntry : public CullingList::template Entry<CullTest::Sphere>
+	class CullingList<T>::SphereEntry : public CullingList<T>::template Entry<CullTest::Sphere>
 	{
 		friend CullingList;
 
 		public:
 			SphereEntry();
+			SphereEntry(SphereEntry&&) = default;
+			~SphereEntry() = default;
 
 			void UpdateSphere(const Spheref& sphere);
+
+			SphereEntry& operator=(SphereEntry&&) = default;
 
 		private:
 			SphereEntry(CullingList* parent, std::size_t index);
 	};
 
 	template<typename T>
-	class CullingList<T>::VolumeEntry : public CullingList::template Entry<CullTest::Volume>
+	class CullingList<T>::VolumeEntry : public CullingList<T>::template Entry<CullTest::Volume>
 	{
 		friend CullingList;
 
 		public:
 			VolumeEntry();
+			VolumeEntry(VolumeEntry&&) = default;
+			~VolumeEntry() = default;
 
 			void UpdateVolume(const BoundingVolumef& sphere);
+
+			VolumeEntry& operator=(VolumeEntry&&) = default;
 
 		private:
 			VolumeEntry(CullingList* parent, std::size_t index);

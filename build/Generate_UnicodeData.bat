@@ -1,2 +1,2 @@
-premake5 parseunicode
+.\premake5.exe parseunicode
 pause

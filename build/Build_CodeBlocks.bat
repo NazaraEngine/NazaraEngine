@@ -1,1 +1,1 @@
-premake5 codeblocks
+.\premake5.exe codeblocks

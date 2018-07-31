@@ -8,8 +8,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
@@ -1762,7 +1762,7 @@ namespace Nz
 			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 			maxLength++;
 
-			StackArray<GLchar> nameBuffer = NazaraStackAllocation(GLchar, maxLength + 1);
+			StackArray<GLchar> nameBuffer = NazaraStackArray(GLchar, maxLength + 1);
 			for (GLint i = 0; i < count; i++)
 			{
 				GLint size;
