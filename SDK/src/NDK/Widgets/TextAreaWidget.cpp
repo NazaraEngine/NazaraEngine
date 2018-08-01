@@ -253,17 +253,6 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					return true;
 
-				/*if (HasSelection())
-					SetCursorPosition(m_cursorPositionBegin);
-				else
-					if (key.control)
-					{
-						std::size_t index = GetGlyphIndex(m_cursorPositionBegin);
-						std::size_t spaceIndex = m_text.Find(' ', index);
-					}
-					else
-						MoveCursor(-1);*/
-
 				if (HasSelection())
 					SetCursorPosition(m_cursorPositionBegin);
 				else
