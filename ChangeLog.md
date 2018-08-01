@@ -184,6 +184,7 @@ Nazara Development Kit:
 - Fixed GraphicsComponent copy constructor not copying scissor rect
 - Force parent parameter to be present in widgets constructor
 - Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- Enable write of Tab character in TextAreaWidget
 
 # 0.4:
 
