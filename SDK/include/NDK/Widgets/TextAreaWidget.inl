@@ -23,7 +23,7 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
-	inline void TextAreaWidget::EnableTab(bool enable)
+	inline void TextAreaWidget::EnableTabWriting(bool enable)
 	{
 		m_tabEnabled = enable;
 	}
@@ -107,7 +107,7 @@ namespace Ndk
 		return m_multiLineEnabled;
 	}
 
-	inline bool TextAreaWidget::IsTabEnabled() const
+	inline bool TextAreaWidget::IsTabWritingEnabled() const
 	{
 		return m_tabEnabled;
 	}

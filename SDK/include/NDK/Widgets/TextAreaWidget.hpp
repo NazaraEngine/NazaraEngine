@@ -33,7 +33,7 @@ namespace Ndk
 			//virtual TextAreaWidget* Clone() const = 0;
 
 			inline void EnableMultiline(bool enable = true);
-			inline void EnableTab(bool enable = true);
+			inline void EnableTabWriting(bool enable = true);
 
 			void EraseSelection();
 
@@ -53,7 +53,7 @@ namespace Ndk
 
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
-			inline bool IsTabEnabled() const;
+			inline bool IsTabWritingEnabled() const;
 
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
