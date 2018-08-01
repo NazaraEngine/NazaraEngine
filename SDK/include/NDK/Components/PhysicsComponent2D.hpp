@@ -39,9 +39,11 @@ namespace Ndk
 			Nz::Vector2f GetPosition() const;
 			float GetRotation() const;
 			Nz::Vector2f GetVelocity() const;
+			inline float GetAngularDamping() const;
 			NAZARA_DEPRECATED("Name error, please use GetMassCenter");
 			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline float GetMomentOfInertia() const;
 
 			bool IsSleeping() const;
 
@@ -51,6 +53,8 @@ namespace Ndk
 			void SetPosition(const Nz::Vector2f& position);
 			void SetRotation(float rotation);
 			void SetVelocity(const Nz::Vector2f& velocity);
+			inline void SetAngularDamping(float angularDamping);
+			inline void SetMomentOfInertia(float moment);
 
 			static ComponentIndex componentIndex;
 
