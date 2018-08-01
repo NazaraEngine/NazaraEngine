@@ -35,7 +35,7 @@ namespace Ndk
 			inline Nz::Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
 			inline float GetAngularVelocity() const;
-			NAZARA_DEPRECATED("Name error, please use GetMassCenter");
+			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
 			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			inline float GetMass() const;
 			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
