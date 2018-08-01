@@ -338,6 +338,21 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetMassCenter(center);
+	/*!
+	* \brief Sets the angular damping or moment of inertia of the physics object
+	*
+	* \param moment Moment of inertia of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*
+	* \see SetAngularDamping
+	*/
+
+	inline void PhysicsComponent2D::SetMomentOfInertia(float moment)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetMomentOfInertia(moment);
 	}
 
 	/*!
