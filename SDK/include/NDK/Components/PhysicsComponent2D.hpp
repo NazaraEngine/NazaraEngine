@@ -39,6 +39,9 @@ namespace Ndk
 			Nz::Vector2f GetPosition() const;
 			float GetRotation() const;
 			Nz::Vector2f GetVelocity() const;
+			NAZARA_DEPRECATED("Name error, please use GetMassCenter");
+			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 
 			bool IsSleeping() const;
 

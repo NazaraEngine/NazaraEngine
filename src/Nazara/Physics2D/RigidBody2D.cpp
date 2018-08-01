@@ -87,7 +87,7 @@ namespace Nz
 
 	void RigidBody2D::AddForce(const Vector2f& force, CoordSys coordSys)
 	{
-		return AddForce(force, GetCenterOfGravity(coordSys), coordSys);
+		return AddForce(force, GetMassCenter(coordSys), coordSys);
 	}
 
 	void RigidBody2D::AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys)
@@ -106,7 +106,7 @@ namespace Nz
 
 	void RigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
 	{
-		return AddImpulse(impulse, GetCenterOfGravity(coordSys), coordSys);
+		return AddImpulse(impulse, GetMassCenter(coordSys), coordSys);
 	}
 
 	void RigidBody2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys)
@@ -203,6 +203,23 @@ namespace Nz
 	float RigidBody2D::GetMass() const
 	{
 		return m_mass;
+	}
+
+	Vector2f RigidBody2D::GetMassCenter(CoordSys coordSys) const
+	{
+		cpVect massCenter = cpBodyGetCenterOfGravity(m_handle);
+
+		switch (coordSys)
+		{
+		case CoordSys_Global:
+			massCenter = cpBodyLocalToWorld(m_handle, massCenter);
+			break;
+
+		case CoordSys_Local:
+			break; // Nothing to do
+		}
+
+		return Vector2f(static_cast<float>(massCenter.x), static_cast<float>(massCenter.y));
 	}
 
 	float RigidBody2D::GetMomentOfInertia() const

@@ -173,6 +173,21 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the gravity center of the physics object
+	* \return Gravity center of the object
+	*
+	* \param coordSys System coordinates to consider
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+
+	inline Nz::Vector2f PhysicsComponent2D::GetMassCenter(Nz::CoordSys coordSys) const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetMassCenter(coordSys);
+	}
+	/*!
 	* \brief Gets the position of the physics object
 	* \return Position of the object
 	*
