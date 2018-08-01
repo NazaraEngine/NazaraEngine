@@ -338,6 +338,25 @@ namespace Ndk
 				return true;
 			}
 
+			case Nz::Keyboard::Tab:
+			{
+				if (HasSelection())
+					EraseSelection();
+
+				if (!key.shift)
+					Write(Nz::String('\t'));
+				else
+				{
+					std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+
+					if (cursorGlyphEnd > 0)
+						if (m_text[cursorGlyphEnd - 1] == '\t')
+							OnTextEntered('\b', false);
+				}
+
+				return true;
+			}
+
 			default:
 				return false;
 		}
@@ -437,6 +456,9 @@ namespace Ndk
 
 				if (ignoreDefaultAction || !m_multiLineEnabled)
 					break;
+
+				if (HasSelection())
+					EraseSelection();
 
 				Write(Nz::String('\n'));
 				break;
