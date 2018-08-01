@@ -333,11 +333,12 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent2D::SetMassCenter(const Nz::Vector2f& center)
+	inline void PhysicsComponent2D::SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
-		m_object->SetMassCenter(center);
+		m_object->SetMassCenter(center, coordSys);
+	}
 	/*!
 	* \brief Sets the angular damping or moment of inertia of the physics object
 	*

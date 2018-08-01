@@ -379,9 +379,21 @@ namespace Nz
 		m_mass = mass;
 	}
 
-	void RigidBody2D::SetMassCenter(const Vector2f& center)
+	void RigidBody2D::SetMassCenter(const Vector2f& center, CoordSys coordSys)
 	{
-		cpBodySetCenterOfGravity(m_handle, cpv(center.x, center.y));
+		cpVect massCenter = cpv(center.x, center.y);
+
+		switch (coordSys)
+		{
+		case CoordSys_Global:
+			massCenter = cpBodyWorldToLocal(m_handle, massCenter);
+			break;
+
+		case CoordSys_Local:
+			break; // Nothing to do
+		}
+
+		cpBodySetCenterOfGravity(m_handle, massCenter);
 	}
 
 	void RigidBody2D::SetMomentOfInertia(float moment)

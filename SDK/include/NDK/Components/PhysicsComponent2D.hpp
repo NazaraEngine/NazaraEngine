@@ -54,6 +54,7 @@ namespace Ndk
 			void SetRotation(float rotation);
 			void SetVelocity(const Nz::Vector2f& velocity);
 			inline void SetAngularDamping(float angularDamping);
+			inline void SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys = Nz::CoordSys_Local);
 			inline void SetMomentOfInertia(float moment);
 
 			static ComponentIndex componentIndex;

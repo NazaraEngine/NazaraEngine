@@ -66,7 +66,7 @@ namespace Nz
 			void SetAngularVelocity(float angularVelocity);
 			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
 			void SetMass(float mass, bool recomputeMoment = true);
-			void SetMassCenter(const Vector2f& center);
+			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
 			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
 			void SetRotation(float rotation);
