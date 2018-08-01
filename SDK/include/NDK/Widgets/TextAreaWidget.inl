@@ -23,6 +23,11 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline void TextAreaWidget::EnableTab(bool enable)
+	{
+		m_tabEnabled = enable;
+	}
+
 	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
 	{
 		return m_characterFilter;
@@ -100,6 +105,11 @@ namespace Ndk
 	inline bool TextAreaWidget::IsMultilineEnabled() const
 	{
 		return m_multiLineEnabled;
+	}
+
+	inline bool TextAreaWidget::IsTabEnabled() const
+	{
+		return m_tabEnabled;
 	}
 
 	inline bool TextAreaWidget::IsReadOnly() const

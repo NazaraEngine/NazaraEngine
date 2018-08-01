@@ -17,7 +17,8 @@ namespace Ndk
 	m_cursorPositionEnd(0U, 0U),
 	m_isMouseButtonDown(false),
 	m_multiLineEnabled(false),
-	m_readOnly(false)
+	m_readOnly(false),
+	m_tabEnabled(false)
 	{
 		m_cursorEntity = CreateEntity(true);
 		m_cursorEntity->AddComponent<GraphicsComponent>();
@@ -340,6 +341,9 @@ namespace Ndk
 
 			case Nz::Keyboard::Tab:
 			{
+				if (!m_tabEnabled)
+					return false;
+
 				if (HasSelection())
 					EraseSelection();
 

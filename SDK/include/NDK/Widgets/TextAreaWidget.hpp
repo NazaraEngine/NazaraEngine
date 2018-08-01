@@ -33,6 +33,7 @@ namespace Ndk
 			//virtual TextAreaWidget* Clone() const = 0;
 
 			inline void EnableMultiline(bool enable = true);
+			inline void EnableTab(bool enable = true);
 
 			void EraseSelection();
 
@@ -52,6 +53,7 @@ namespace Ndk
 
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
+			inline bool IsTabEnabled() const;
 
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
@@ -115,6 +117,7 @@ namespace Ndk
 			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
+			bool m_tabEnabled; // writes (Shift+)Tab character if set to true
 	};
 }
 
