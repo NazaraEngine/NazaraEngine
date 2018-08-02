@@ -157,7 +157,7 @@ namespace Nz
 			case 'X':
 			case 'Y':
 			case 'Z':
-				return Category_Number_DecimalDigit;
+				return Category_Letter_Uppercase;
 
 			case '_':
 				return Category_Punctuation_Connector;
@@ -192,7 +192,7 @@ namespace Nz
 			case 'x':
 			case 'y':
 			case 'z':
-				return Category_Number_DecimalDigit;
+				return Category_Letter_Lowercase;
 
 			default:
 				break;

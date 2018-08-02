@@ -127,6 +127,7 @@ Nazara Engine:
 - ⚠️ Fixed compilation errors on MSVC with flag /permissive- on CullingList class
 - Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
 - Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
+- Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -179,6 +180,7 @@ Nazara Development Kit:
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
 - Fix GraphicsComponent copy constructor not copying scissor rect
+- Force parent parameter to be present in widgets constructor
 
 # 0.4:
 

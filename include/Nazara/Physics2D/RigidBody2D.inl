@@ -12,14 +12,14 @@ namespace Nz
 		return GetMomentOfInertia();
 	}
 
-	inline void RigidBody2D::SetAngularDamping(float angularDamping)
-	{
-		SetMomentOfInertia(angularDamping);
-	}
-
 	inline Vector2f RigidBody2D::GetCenterOfGravity(CoordSys coordSys) const
 	{
 		return GetMassCenter(coordSys);
+	}
+
+	inline void RigidBody2D::SetAngularDamping(float angularDamping)
+	{
+		SetMomentOfInertia(angularDamping);
 	}
 }
 
