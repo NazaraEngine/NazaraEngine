@@ -131,29 +131,29 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 
 		int statusTriggerCollision = 0;
 		Nz::PhysWorld2D::Callback characterTriggerCallback;
-		characterTriggerCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+		characterTriggerCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
 			statusTriggerCollision = statusTriggerCollision | 1 << 0;
 			return true;
 		};
-		characterTriggerCallback.preSolveCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+		characterTriggerCallback.preSolveCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
 			statusTriggerCollision = statusTriggerCollision | 1 << 1;
 			return true;
 		};
-		characterTriggerCallback.postSolveCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+		characterTriggerCallback.postSolveCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
 			statusTriggerCollision = statusTriggerCollision | 1 << 2;
 		};
-		characterTriggerCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+		characterTriggerCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
 			statusTriggerCollision = statusTriggerCollision | 1 << 3;
 		};
 		world.RegisterCallbacks(CHARACTER_COLLISION_ID, TRIGGER_COLLISION_ID, characterTriggerCallback);
 
 		int statusWallCollision = 0;
 		Nz::PhysWorld2D::Callback characterWallCallback;
-		characterWallCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
+		characterWallCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
 			statusWallCollision = statusWallCollision | 1 << 0;
 			return true;
 		};
-		characterWallCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
+		characterWallCallback.endCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) {
 			statusWallCollision = statusWallCollision | 1 << 1;
 		};
 		world.RegisterCallbacks(CHARACTER_COLLISION_ID, WALL_COLLISION_ID, characterWallCallback);
