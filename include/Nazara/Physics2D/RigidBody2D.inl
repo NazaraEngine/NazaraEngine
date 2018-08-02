@@ -16,6 +16,11 @@ namespace Nz
 	{
 		SetMomentOfInertia(angularDamping);
 	}
+
+	inline Vector2f RigidBody2D::GetCenterOfGravity(CoordSys coordSys) const
+	{
+		return GetMassCenter(coordSys);
+	}
 }
 
 #include <Nazara/Physics2D/DebugOff.hpp>

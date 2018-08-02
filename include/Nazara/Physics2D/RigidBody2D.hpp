@@ -44,7 +44,7 @@ namespace Nz
 			inline float GetAngularDamping() const;
 			float GetAngularVelocity() const;
 			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
-			Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
+			inline Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
 			const Collider2DRef& GetGeom() const;
 			cpBody* GetHandle() const;
 			float GetMass() const;

@@ -211,12 +211,12 @@ namespace Nz
 
 		switch (coordSys)
 		{
-		case CoordSys_Global:
-			massCenter = cpBodyLocalToWorld(m_handle, massCenter);
-			break;
+			case CoordSys_Global:
+				massCenter = cpBodyLocalToWorld(m_handle, massCenter);
+				break;
 
-		case CoordSys_Local:
-			break; // Nothing to do
+			case CoordSys_Local:
+				break; // Nothing to do
 		}
 
 		return Vector2f(static_cast<float>(massCenter.x), static_cast<float>(massCenter.y));
@@ -385,12 +385,12 @@ namespace Nz
 
 		switch (coordSys)
 		{
-		case CoordSys_Global:
-			massCenter = cpBodyWorldToLocal(m_handle, massCenter);
-			break;
+			case CoordSys_Global:
+				massCenter = cpBodyWorldToLocal(m_handle, massCenter);
+				break;
 
-		case CoordSys_Local:
-			break; // Nothing to do
+			case CoordSys_Local:
+				break; // Nothing to do
 		}
 
 		cpBodySetCenterOfGravity(m_handle, massCenter);
