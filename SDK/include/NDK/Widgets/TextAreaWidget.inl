@@ -23,9 +23,9 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
-	inline std::function<bool(char32_t)> TextAreaWidget::GetAcceptedCharacters() const
+	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
 	{
-		return m_acceptedCharacters;
+		return m_characterFilter;
 	}
 
 	inline unsigned int TextAreaWidget::GetCharacterSize() const
@@ -145,9 +145,9 @@ namespace Ndk
 		SetCursorPosition(cursorPosition);
 	}
 
-	inline void TextAreaWidget::SetAcceptedCharacters(std::function<bool(char32_t)> predicate)
+	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
 	{
-		m_acceptedCharacters = predicate;
+		m_characterFilter = filter;
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
