@@ -227,23 +227,6 @@ namespace Nz
 		return float(cpBodyGetMoment(m_handle));
 	}
 
-	Vector2f RigidBody2D::GetCenterOfGravity(CoordSys coordSys) const
-	{
-		cpVect cog = cpBodyGetCenterOfGravity(m_handle);
-
-		switch (coordSys)
-		{
-			case CoordSys_Global:
-				cog = cpBodyLocalToWorld(m_handle, cog);
-				break;
-
-			case CoordSys_Local:
-				break; // Nothing to do
-		}
-
-		return Vector2f(static_cast<float>(cog.x), static_cast<float>(cog.y));
-	}
-
 	Vector2f RigidBody2D::GetPosition() const
 	{
 		cpVect pos = cpBodyGetPosition(m_handle);
