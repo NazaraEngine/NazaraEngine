@@ -245,7 +245,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Left: //avant
+			case Nz::Keyboard::Left:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyLeft(this, &ignoreDefaultAction);
@@ -255,31 +255,30 @@ namespace Ndk
 
 				if (HasSelection())
 					SetCursorPosition(m_cursorPositionBegin);
-				else
-					if (key.control)
+				else if (key.control)
+				{
+					std::size_t index = GetGlyphIndex(m_cursorPositionBegin);
+
+					if (index == 0)
+						return true;
+
+					std::size_t spaceIndex = m_text.FindLast(' ', index - 2);
+					std::size_t endlIndex = m_text.FindLast('\n', index - 1);
+
+					if ((spaceIndex > endlIndex || endlIndex == Nz::String::npos) && spaceIndex != Nz::String::npos)
+						SetCursorPosition(spaceIndex + 1);
+					else if (endlIndex != Nz::String::npos)
 					{
-						std::size_t index = GetGlyphIndex(m_cursorPositionBegin);
-
-						if (index == 0)
-							return true;
-
-						std::size_t spaceIndex = m_text.FindLast(' ', index - 2);
-						std::size_t endlIndex = m_text.FindLast('\n', index - 1);
-
-						if ((spaceIndex > endlIndex || endlIndex == Nz::String::npos) && spaceIndex != Nz::String::npos)
-							SetCursorPosition(spaceIndex + 1);
-						else if (endlIndex != Nz::String::npos)
-						{
-							if (index == endlIndex + 1)
-								SetCursorPosition(endlIndex);
-							else
-								SetCursorPosition(endlIndex + 1);
-						}
+						if (index == endlIndex + 1)
+							SetCursorPosition(endlIndex);
 						else
-							SetCursorPosition({ 0U, m_cursorPositionBegin.y });
+							SetCursorPosition(endlIndex + 1);
 					}
 					else
-						MoveCursor(-1);
+						SetCursorPosition({ 0U, m_cursorPositionBegin.y });
+				}
+				else
+					MoveCursor(-1);
 
 				return true;
 			}
@@ -294,32 +293,31 @@ namespace Ndk
 
 				if (HasSelection())
 					SetCursorPosition(m_cursorPositionEnd);
-				else
-					if (key.control)
-					{
-						std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
-						std::size_t spaceIndex = m_text.Find(' ', index);
-						std::size_t endlIndex = m_text.Find('\n', index);
+				else if (key.control)
+				{
+					std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
+					std::size_t spaceIndex = m_text.Find(' ', index);
+					std::size_t endlIndex = m_text.Find('\n', index);
 
-						if (spaceIndex < endlIndex && spaceIndex != Nz::String::npos)
-						{
-							if (m_text.GetSize() > spaceIndex)
-								SetCursorPosition(spaceIndex + 1);
-							else
-								SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
-						}
-						else if (endlIndex != Nz::String::npos)
-						{
-							if (index == endlIndex)
-								SetCursorPosition(endlIndex + 1);
-							else
-								SetCursorPosition(endlIndex);
-						}
+					if (spaceIndex < endlIndex && spaceIndex != Nz::String::npos)
+					{
+						if (m_text.GetSize() > spaceIndex)
+							SetCursorPosition(spaceIndex + 1);
 						else
 							SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
 					}
+					else if (endlIndex != Nz::String::npos)
+					{
+						if (index == endlIndex)
+							SetCursorPosition(endlIndex + 1);
+						else
+							SetCursorPosition(endlIndex);
+					}
 					else
-						MoveCursor(1);
+						SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
+				}
+				else
+					MoveCursor(1);
 
 				return true;
 			}
