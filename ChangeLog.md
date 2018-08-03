@@ -130,6 +130,9 @@ Nazara Engine:
 - Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
 - Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
 - Added movement with Ctrl in TextAreaWidget
+- Added Unicode Data downloader/parser
+- Integrated Unicode Data
+- Fixed Flags operator |=/&=/^= not being constexpr
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
