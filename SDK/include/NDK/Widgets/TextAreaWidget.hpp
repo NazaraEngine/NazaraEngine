@@ -32,12 +32,12 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
-			inline void Delete(std::size_t glyphPosition);
-			void Delete(std::size_t firstGlyph, std::size_t lastGlyph);
 
 			inline void EnableMultiline(bool enable = true);
 			inline void EnableTabWriting(bool enable = true);
 
+			inline void Erase(std::size_t glyphPosition);
+			void Erase(std::size_t firstGlyph, std::size_t lastGlyph);
 			void EraseSelection();
 
 			inline CharacterFilter GetCharacterFilter() const;

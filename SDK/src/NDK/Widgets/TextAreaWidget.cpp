@@ -72,7 +72,7 @@ namespace Ndk
 		OnTextChanged(this, m_text);
 	}
 
-	void TextAreaWidget::Delete(std::size_t firstGlyph, std::size_t lastGlyph)
+	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
 	{
 		if (firstGlyph > lastGlyph)
 			std::swap(firstGlyph, lastGlyph);
@@ -96,7 +96,7 @@ namespace Ndk
 		if (!HasSelection())
 			return;
 
-		Delete(GetGlyphIndex(m_cursorPositionBegin), GetGlyphIndex(m_cursorPositionEnd));
+		Erase(GetGlyphIndex(m_cursorPositionBegin), GetGlyphIndex(m_cursorPositionEnd));
 	}
 
 	Nz::Vector2ui TextAreaWidget::GetHoveredGlyph(float x, float y) const
@@ -185,7 +185,7 @@ namespace Ndk
 				if (HasSelection())
 					EraseSelection();
 				else
-					Delete(GetGlyphIndex(m_cursorPositionBegin));
+					Erase(GetGlyphIndex(m_cursorPositionBegin));
 
 				return true;
 			}
@@ -333,7 +333,7 @@ namespace Ndk
 
 				if (HasSelection())
 				{
-					for(unsigned line = m_cursorPositionBegin.y;; ++line)
+					for(unsigned line = m_cursorPositionBegin.y; line <= m_cursorPositionEnd.y; ++line)
 					{
 						const Nz::Vector2ui cursorPositionBegin = m_cursorPositionBegin;
 						const Nz::Vector2ui cursorPositionEnd = m_cursorPositionEnd;
@@ -344,7 +344,7 @@ namespace Ndk
 
 							if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
 							{
-								Delete(firstGlyph);
+								Erase(firstGlyph);
 								SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}),
 											 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}));
 							}
@@ -355,17 +355,17 @@ namespace Ndk
 							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
 										 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
 						}
-
-						if (line == m_cursorPositionEnd.y)
-							break;
 					}
 				}
 				else if (key.shift)
 				{
-					std::size_t previousGlyph = GetGlyphIndex(m_cursorPositionBegin);
+					std::size_t currentGlyph = GetGlyphIndex(m_cursorPositionBegin);
 
-					if (previousGlyph > 0 && m_text[m_text.GetCharacterPosition(previousGlyph - 1)] == '\t')
-						OnTextEntered('\b', false);
+					if (currentGlyph > 0 && m_text[m_text.GetCharacterPosition(currentGlyph - 1U)] == '\t') // Check if previous glyph is a tab
+						Erase(currentGlyph - 1U);
+
+					if (m_cursorPositionBegin.x < static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionBegin.y)))
+						MoveCursor(-1);
 				}
 				else
 					Write(Nz::String('\t'));

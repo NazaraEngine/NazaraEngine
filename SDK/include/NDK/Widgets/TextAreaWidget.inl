@@ -18,11 +18,6 @@ namespace Ndk
 		OnTextChanged(this, m_text);
 	}
 
-	inline void TextAreaWidget::Delete(std::size_t glyphPosition)
-	{
-		Delete(glyphPosition, glyphPosition + 1U);
-	}
-
 	inline void TextAreaWidget::EnableMultiline(bool enable)
 	{
 		m_multiLineEnabled = enable;
@@ -31,6 +26,11 @@ namespace Ndk
 	inline void TextAreaWidget::EnableTabWriting(bool enable)
 	{
 		m_tabEnabled = enable;
+	}
+
+	inline void TextAreaWidget::Erase(std::size_t glyphPosition)
+	{
+		Erase(glyphPosition, glyphPosition + 1U);
 	}
 
 	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
