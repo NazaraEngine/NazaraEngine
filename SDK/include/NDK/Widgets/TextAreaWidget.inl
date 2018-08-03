@@ -18,6 +18,11 @@ namespace Ndk
 		OnTextChanged(this, m_text);
 	}
 
+	inline void TextAreaWidget::Delete(std::size_t glyphPosition)
+	{
+		Delete(glyphPosition, glyphPosition);
+	}
+
 	inline void TextAreaWidget::EnableMultiline(bool enable)
 	{
 		m_multiLineEnabled = enable;
@@ -242,5 +247,15 @@ namespace Ndk
 		m_drawer.SetColor(text);
 
 		m_textSprite->Update(m_drawer);
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text)
+	{
+		Write(text, GetGlyphIndex(m_cursorPositionBegin));
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text, Nz::Vector2ui glyphPosition)
+	{
+		Write(text, GetGlyphIndex(glyphPosition));
 	}
 }

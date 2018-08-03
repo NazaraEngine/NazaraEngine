@@ -32,6 +32,9 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
+			inline void Delete(std::size_t glyphPosition);
+			void Delete(std::size_t firstGlyph, std::size_t lastGlyph);
+
 			inline void EnableMultiline(bool enable = true);
 			inline void EnableTabWriting(bool enable = true);
 
@@ -70,7 +73,9 @@ namespace Ndk
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
 
-			void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text, Nz::Vector2ui glyphPosition);
+			void Write(const Nz::String& text, std::size_t glyphPosition);
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
