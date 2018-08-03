@@ -74,7 +74,7 @@ namespace Ndk
 			inline void SetTextColor(const Nz::Color& text);
 
 			inline void Write(const Nz::String& text);
-			inline void Write(const Nz::String& text, Nz::Vector2ui glyphPosition);
+			inline void Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition);
 			void Write(const Nz::String& text, std::size_t glyphPosition);
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;

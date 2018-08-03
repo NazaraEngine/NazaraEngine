@@ -331,19 +331,54 @@ namespace Ndk
 				if (!m_tabEnabled)
 					return false;
 
+				// gérer mode sélection ou non
+				/*
+				si sélectionné:
+					- une seule ligne: on met un tab au début, si shift on enlève un tab si y'a
+					- plusieurs lignes: pareil pour chaque lignes
+				si pas sélectionné:
+					- si pas de shift: on met un tab
+					- si shift: on enlève un tab si y'en a un juste avant
+				*/
+
 				if (HasSelection())
-					EraseSelection();
-
-				if (!key.shift)
-					Write(Nz::String('\t'));
-				else
 				{
-					std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+					for(unsigned line = m_cursorPositionBegin.y;; ++line)
+					{
+						const Nz::Vector2ui cursorPositionBegin = m_cursorPositionBegin;
+						const Nz::Vector2ui cursorPositionEnd = m_cursorPositionEnd;
 
-					if (cursorGlyphEnd > 0)
-						if (m_text[cursorGlyphEnd - 1] == '\t')
-							OnTextEntered('\b', false);
+						if (key.shift)
+						{
+							std::size_t firstGlyph = GetGlyphIndex({ 0U, line });
+
+							if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
+							{
+								Delete(firstGlyph);
+								SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}),
+											 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}));
+							}
+						}
+						else
+						{
+							Write(Nz::String('\t'), { 0U, line });
+							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
+										 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
+						}
+
+						if (line == m_cursorPositionEnd.y)
+							break;
+					}
 				}
+				else if (key.shift)
+				{
+					std::size_t previousGlyph = GetGlyphIndex(m_cursorPositionBegin);
+
+					if (previousGlyph > 0 && m_text[m_text.GetCharacterPosition(previousGlyph - 1)] == '\t')
+						OnTextEntered('\b', false);
+				}
+				else
+					Write(Nz::String('\t'));
 
 				return true;
 			}

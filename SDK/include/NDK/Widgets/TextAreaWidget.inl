@@ -20,7 +20,7 @@ namespace Ndk
 
 	inline void TextAreaWidget::Delete(std::size_t glyphPosition)
 	{
-		Delete(glyphPosition, glyphPosition);
+		Delete(glyphPosition, glyphPosition + 1U);
 	}
 
 	inline void TextAreaWidget::EnableMultiline(bool enable)
@@ -254,7 +254,7 @@ namespace Ndk
 		Write(text, GetGlyphIndex(m_cursorPositionBegin));
 	}
 
-	inline void TextAreaWidget::Write(const Nz::String& text, Nz::Vector2ui glyphPosition)
+	inline void TextAreaWidget::Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition)
 	{
 		Write(text, GetGlyphIndex(glyphPosition));
 	}
