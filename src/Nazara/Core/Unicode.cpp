@@ -5,6 +5,7 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <algorithm>
+#include <iterator>
 #include <Nazara/Core/Debug.hpp>
 
 #if NAZARA_CORE_INCLUDE_UNICODEDATA
