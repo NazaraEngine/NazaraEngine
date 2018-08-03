@@ -23,7 +23,7 @@ namespace Ndk
 	class NDK_API ButtonWidget : public BaseWidget
 	{
 		public:
-			ButtonWidget(BaseWidget* parent = nullptr);
+			ButtonWidget(BaseWidget* parent);
 			ButtonWidget(const ButtonWidget&) = delete;
 			ButtonWidget(ButtonWidget&&) = default;
 			~ButtonWidget() = default;

@@ -4,22 +4,140 @@
 
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <algorithm>
+#include <iterator>
 #include <Nazara/Core/Debug.hpp>
 
 #if NAZARA_CORE_INCLUDE_UNICODEDATA
 namespace Nz
 {
-	struct Character
+	struct UnicodeCharacter
 	{
-		UInt16 category;	// The type of the character
-		UInt8	 direction;	// The reading way of the character
-		UInt32 lowerCase;	// The corresponding lower character
-		UInt32 titleCase;	// The corresponding title character
-		UInt32 upperCase;	// The corresponding upper character
+		UInt32 codepoint;
+		Unicode::Category category;  // The type of the character
+		Unicode::Direction direction; // The reading way of the character
 	};
-}
+
+	struct UnicodeSet
+	{
+		UInt32 firstCodepoint;
+		UInt32 lastCodepoint;
+		UnicodeCharacter character;
+	};
+
+	struct UnicodeCharacterSimpleMapping
+	{
+		UInt32 codepoint;
+		UInt32 character;
+	};
 
 #include <Nazara/Core/UnicodeData.hpp>
+
+	namespace
+	{
+		const UnicodeCharacter* GetCharacter(Nz::UInt32 codepoint)
+		{
+			auto it = std::lower_bound(std::begin(unicodeCharacters), std::end(unicodeCharacters), codepoint, [](const UnicodeCharacter& character, Nz::UInt32 codepoint) { return character.codepoint < codepoint; });
+			if (it != std::end(unicodeCharacters) && it->codepoint == codepoint)
+				return &*it;
+			else
+			{
+				// Character is not part of the common character array, search in set
+				auto itSet = std::lower_bound(std::begin(unicodeSets), std::end(unicodeSets), codepoint, [](const UnicodeSet& character, Nz::UInt32 codepoint) { return character.firstCodepoint < codepoint; });
+				if (itSet != std::begin(unicodeSets))
+				{
+					--itSet;
+					if (itSet != std::end(unicodeSets) && codepoint >= itSet->firstCodepoint && codepoint <= itSet->lastCodepoint)
+						return &itSet->character;
+				}
+			}
+
+			return nullptr;
+		}
+
+		template<std::size_t N>
+		const UnicodeCharacterSimpleMapping* GetCharacterMapping(Nz::UInt32 codepoint, const UnicodeCharacterSimpleMapping(&mapping)[N])
+		{
+			auto it = std::lower_bound(std::begin(mapping), std::end(mapping), codepoint, [](const UnicodeCharacterSimpleMapping& character, Nz::UInt32 codepoint) { return character.codepoint < codepoint; });
+			if (it != std::end(mapping) && it->codepoint == codepoint)
+				return &*it;
+			else
+				return nullptr;
+		}
+	}
+
+	/*!
+	* \brief Gets the category of the character
+	* \return Unicode category
+	*
+	* \param character Character to get assignated category
+	*/
+	Unicode::Category Unicode::GetCategory(char32_t character)
+	{
+		if (const UnicodeCharacter* characterData = GetCharacter(character))
+			return characterData->category;
+		else
+			return Category_NoCategory;
+	}
+
+	/*!
+	* \brief Gets the direction of reading of the character
+	* \return Unicode direction
+	*
+	* \param character Character to get assignated direction
+	*/
+
+	Unicode::Direction Unicode::GetDirection(char32_t character)
+	{
+		if (const UnicodeCharacter* characterData = GetCharacter(character))
+			return characterData->direction;
+		else
+			return Direction_Boundary_Neutral;
+	}
+
+	/*!
+	* \brief Gets the lower case of the character
+	* \return Unicode lower
+	*
+	* \param character Character to get assignated lower case
+	*/
+
+	char32_t Unicode::GetLowercase(char32_t character)
+	{
+		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeLower))
+			return characterMapping->character;
+		else
+			return character;
+	}
+
+	/*!
+	* \brief Gets the title case of the character
+	* \return Unicode title
+	*
+	* \param character Character to get assignated title case
+	*/
+	char32_t Unicode::GetTitlecase(char32_t character)
+	{
+		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeTitle))
+			return characterMapping->character;
+		else
+			return character;
+	}
+
+	/*!
+	* \brief Gets the upper case of the character
+	* \return Unicode upper
+	*
+	* \param character Character to get assignated upper case
+	*/
+	char32_t Unicode::GetUppercase(char32_t character)
+	{
+		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeUpper))
+			return characterMapping->character;
+		else
+			return character;
+	}
+}
 
 #else // Implementation handling ASCII table
 
@@ -157,7 +275,7 @@ namespace Nz
 			case 'X':
 			case 'Y':
 			case 'Z':
-				return Category_Number_DecimalDigit;
+				return Category_Letter_Uppercase;
 
 			case '_':
 				return Category_Punctuation_Connector;
@@ -192,7 +310,7 @@ namespace Nz
 			case 'x':
 			case 'y':
 			case 'z':
-				return Category_Number_DecimalDigit;
+				return Category_Letter_Lowercase;
 
 			default:
 				break;

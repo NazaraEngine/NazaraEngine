@@ -325,12 +325,33 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Checks whether or not an entity is dying (has been killed this update)
+	* \return true If the entity exists and is dying
+	*
+	* \param entity Pointer to the entity
+	*/
+	inline bool World::IsEntityDying(const Entity* entity) const
+	{
+		return entity && IsEntityDying(entity->GetId());
+	}
+
+	/*!
+	* \brief Checks whether or not an entity is dying (has been killed this update)
+	* \return true If it is the case, false if the entity is alive (and hasn't been killed yet) or if the entity id is invalid
+	*
+	* \param id Identifier of the entity
+	*/
+	inline bool World::IsEntityDying(EntityId id) const
+	{
+		return m_killedEntities.UnboundedTest(id);
+	}
+
+	/*!
 	* \brief Checks whether or not an entity is valid
 	* \return true If it is the case
 	*
 	* \param entity Pointer to the entity
 	*/
-
 	inline bool World::IsEntityValid(const Entity* entity) const
 	{
 		return entity && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());

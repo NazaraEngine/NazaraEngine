@@ -133,11 +133,20 @@ namespace Ndk
 	/*!
 	* \brief Invalidates the entity
 	*/
-
 	void Entity::Invalidate()
 	{
 		// We alert everyone that we have been updated
 		m_world->Invalidate(m_id);
+	}
+
+
+	/*!
+	* \brief Checks if the entity has been killed this update
+	* \return True if the entity is currently dying and will be dead at next world refresh
+	*/
+	bool Entity::IsDying() const
+	{
+		return m_world->IsEntityDying(m_id);
 	}
 
 	/*!

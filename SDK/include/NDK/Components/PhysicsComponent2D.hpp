@@ -24,30 +24,36 @@ namespace Ndk
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
 			
-			void AddForce(const Nz::Vector2f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			void AddTorque(float torque);
+			inline void AddForce(const Nz::Vector2f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			inline void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			inline void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			inline void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			inline void AddTorque(float torque);
 
-			bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
+			inline bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
 
-			Nz::Rectf GetAABB() const;
-			float GetAngularVelocity() const;
-			Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
-			float GetMass() const;
-			Nz::Vector2f GetPosition() const;
-			float GetRotation() const;
-			Nz::Vector2f GetVelocity() const;
+			inline Nz::Rectf GetAABB() const;
+			inline float GetAngularDamping() const;
+			inline float GetAngularVelocity() const;
+			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
+			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline float GetMass() const;
+			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline float GetMomentOfInertia() const;
+			inline Nz::Vector2f GetPosition() const;
+			inline float GetRotation() const;
+			inline Nz::Vector2f GetVelocity() const;
 
-			bool IsSleeping() const;
+			inline bool IsSleeping() const;
 
-			void SetAngularVelocity(float angularVelocity);
-			void SetMass(float mass);
-			void SetMassCenter(const Nz::Vector2f& center);
-			void SetPosition(const Nz::Vector2f& position);
-			void SetRotation(float rotation);
-			void SetVelocity(const Nz::Vector2f& velocity);
+			inline void SetAngularDamping(float angularDamping);
+			inline void SetAngularVelocity(float angularVelocity);
+			inline void SetMass(float mass);
+			inline void SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys = Nz::CoordSys_Local);
+			inline void SetMomentOfInertia(float moment);
+			inline void SetPosition(const Nz::Vector2f& position);
+			inline void SetRotation(float rotation);
+			inline void SetVelocity(const Nz::Vector2f& velocity);
 
 			static ComponentIndex componentIndex;
 

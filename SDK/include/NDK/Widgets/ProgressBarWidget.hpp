@@ -23,7 +23,7 @@ namespace Ndk
 		friend class Sdk;
 
 		public:
-			ProgressBarWidget(BaseWidget* parent = nullptr);
+			ProgressBarWidget(BaseWidget* parent);
 			ProgressBarWidget(const ProgressBarWidget&) = delete;
 			ProgressBarWidget(ProgressBarWidget&&) = default;
 			~ProgressBarWidget() = default;
