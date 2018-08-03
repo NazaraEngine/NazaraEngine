@@ -362,10 +362,12 @@ namespace Ndk
 					std::size_t currentGlyph = GetGlyphIndex(m_cursorPositionBegin);
 
 					if (currentGlyph > 0 && m_text[m_text.GetCharacterPosition(currentGlyph - 1U)] == '\t') // Check if previous glyph is a tab
+					{
 						Erase(currentGlyph - 1U);
 
-					if (m_cursorPositionBegin.x < static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionBegin.y)))
-						MoveCursor(-1);
+						if (m_cursorPositionBegin.x < static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionBegin.y)))
+							MoveCursor(-1);
+					}
 				}
 				else
 					Write(Nz::String('\t'));
