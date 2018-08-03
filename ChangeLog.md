@@ -129,6 +129,7 @@ Nazara Engine:
 - Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
 - Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
 - Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
+- Added movement with Ctrl in TextAreaWidget
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
