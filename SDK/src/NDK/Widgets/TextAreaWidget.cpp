@@ -331,16 +331,6 @@ namespace Ndk
 				if (!m_tabEnabled)
 					return false;
 
-				// gérer mode sélection ou non
-				/*
-				si sélectionné:
-					- une seule ligne: on met un tab au début, si shift on enlève un tab si y'a
-					- plusieurs lignes: pareil pour chaque lignes
-				si pas sélectionné:
-					- si pas de shift: on met un tab
-					- si shift: on enlève un tab si y'en a un juste avant
-				*/
-
 				if (HasSelection())
 				{
 					for(unsigned line = m_cursorPositionBegin.y;; ++line)
