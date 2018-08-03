@@ -23,6 +23,11 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
+	{
+		return m_characterFilter;
+	}
+
 	inline unsigned int TextAreaWidget::GetCharacterSize() const
 	{
 		return m_drawer.GetCharacterSize();
@@ -138,6 +143,11 @@ namespace Ndk
 		cursorPosition.y = ClampOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
 
 		SetCursorPosition(cursorPosition);
+	}
+
+	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
+	{
+		m_characterFilter = filter;
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)

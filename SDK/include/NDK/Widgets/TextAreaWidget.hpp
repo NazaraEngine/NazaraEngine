@@ -12,12 +12,15 @@
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
 #include <vector>
+#include <functional>
 
 namespace Ndk
 {
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:
+			using CharacterFilter = std::function<bool(char32_t)>;
+
 			TextAreaWidget(BaseWidget* parent);
 			TextAreaWidget(const TextAreaWidget&) = delete;
 			TextAreaWidget(TextAreaWidget&&) = default;
@@ -33,6 +36,7 @@ namespace Ndk
 
 			void EraseSelection();
 
+			inline CharacterFilter GetCharacterFilter() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
 			inline Nz::Vector2ui GetCursorPosition(std::size_t glyphIndex) const;
@@ -54,6 +58,7 @@ namespace Ndk
 
 			void ResizeToContent() override;
 
+			inline void SetCharacterFilter(CharacterFilter filter);
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
@@ -96,6 +101,7 @@ namespace Ndk
 			void RefreshCursor();
 			void UpdateDisplayText();
 
+			std::function<bool(char32_t)> m_characterFilter;
 			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
