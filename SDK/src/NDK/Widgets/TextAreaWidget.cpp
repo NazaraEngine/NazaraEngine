@@ -365,7 +365,7 @@ namespace Ndk
 						else
 						{
 							Write(Nz::String('\t'), { 0U, line });
-							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
+							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
 										 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
 						}
 					}
