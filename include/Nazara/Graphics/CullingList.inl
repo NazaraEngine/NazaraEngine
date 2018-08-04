@@ -71,6 +71,33 @@ namespace Nz
 	}
 
 	template<typename T>
+	std::size_t CullingList<T>::FillWithAllEntries()
+	{
+		m_results.clear();
+
+		std::size_t visibleHash = 0U;
+		for (NoTestVisibilityEntry& entry : m_noTestList)
+		{
+			m_results.push_back(entry.renderable);
+			Nz::HashCombine(visibleHash, entry.renderable);
+		}
+
+		for (SphereVisibilityEntry& entry : m_sphereTestList)
+		{
+			m_results.push_back(entry.renderable);
+			Nz::HashCombine(visibleHash, entry.renderable);
+		}
+
+		for (VolumeVisibilityEntry& entry : m_volumeTestList)
+		{
+			m_results.push_back(entry.renderable);
+			Nz::HashCombine(visibleHash, entry.renderable);
+		}
+
+		return visibleHash;
+	}
+
+	template<typename T>
 	auto CullingList<T>::RegisterNoTest(const T* renderable) -> NoTestEntry
 	{
 		NoTestEntry newEntry(this, m_volumeTestList.size());
