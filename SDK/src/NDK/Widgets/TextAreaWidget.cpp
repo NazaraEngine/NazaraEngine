@@ -348,8 +348,11 @@ namespace Ndk
 						const Nz::Vector2ui cursorPositionBegin = m_cursorPositionBegin;
 						const Nz::Vector2ui cursorPositionEnd = m_cursorPositionEnd;
 
-						if (key.shift && m_drawer.GetLineGlyphCount(line) != 0)
+						if (key.shift)
 						{
+							if (m_drawer.GetLineGlyphCount(line) == 0)
+								continue;
+
 							std::size_t firstGlyph = GetGlyphIndex({ 0U, line });
 
 							if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
