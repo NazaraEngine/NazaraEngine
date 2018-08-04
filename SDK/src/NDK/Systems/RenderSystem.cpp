@@ -34,7 +34,8 @@ namespace Ndk
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true),
-	m_forceRenderQueueInvalidation(false)
+	m_forceRenderQueueInvalidation(false),
+	m_isCullingEnabled(true)
 	{
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
@@ -203,7 +204,11 @@ namespace Ndk
 
 			bool forceInvalidation = false;
 
-			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
+			std::size_t visibilityHash;
+			if (m_isCullingEnabled)
+				visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
+			else
+				visibilityHash = m_drawableCulling.FillWithAllEntries();
 
 			// Always regenerate renderqueue if particle groups are present for now (FIXME)
 			if (!m_lights.empty() || !m_particleGroups.empty())
