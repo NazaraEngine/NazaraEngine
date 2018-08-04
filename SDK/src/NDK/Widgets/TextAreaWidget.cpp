@@ -83,10 +83,20 @@ namespace Ndk
 
 		Nz::String newText;
 		if (firstGlyph > 0)
-			newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(firstGlyph) - 1));
+		{
+			std::size_t characterPosition = m_text.GetCharacterPosition(firstGlyph - 1);
+			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
+
+			newText.Append(m_text.SubString(0, characterPosition));
+		}
 
 		if (lastGlyph < textLength)
-			newText.Append(m_text.SubString(m_text.GetCharacterPosition(lastGlyph)));
+		{
+			std::size_t characterPosition = m_text.GetCharacterPosition(lastGlyph);
+			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
+
+			newText.Append(m_text.SubString(characterPosition));
+		}
 
 		SetText(newText);
 	}
@@ -338,15 +348,15 @@ namespace Ndk
 						const Nz::Vector2ui cursorPositionBegin = m_cursorPositionBegin;
 						const Nz::Vector2ui cursorPositionEnd = m_cursorPositionEnd;
 
-						if (key.shift)
+						if (key.shift && m_drawer.GetLineGlyphCount(line) != 0)
 						{
 							std::size_t firstGlyph = GetGlyphIndex({ 0U, line });
 
 							if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
 							{
 								Erase(firstGlyph);
-								SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}),
-											 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { -1U, 0U } : Nz::Vector2ui {}));
+								SetSelection(cursorPositionBegin - (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
+											 cursorPositionEnd - (cursorPositionEnd.y == line && cursorPositionEnd.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
 							}
 						}
 						else
