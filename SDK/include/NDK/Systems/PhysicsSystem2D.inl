@@ -9,7 +9,7 @@ namespace Ndk
 	* \return A reference to the physical world
 	*/
 
-	inline Nz::PhysWorld2D& PhysicsSystem2D::GetWorld()
+	inline Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld()
 	{
 		if (!m_physWorld)
 			CreatePhysWorld();
@@ -22,7 +22,7 @@ namespace Ndk
 	* \return A constant reference to the physical world
 	*/
 
-	inline const Nz::PhysWorld2D& PhysicsSystem2D::GetWorld() const
+	inline const Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld() const
 	{
 		if (!m_physWorld)
 			CreatePhysWorld();

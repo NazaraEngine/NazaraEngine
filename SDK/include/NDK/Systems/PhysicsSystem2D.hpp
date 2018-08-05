@@ -21,8 +21,8 @@ namespace Ndk
 			PhysicsSystem2D(const PhysicsSystem2D& system);
 			~PhysicsSystem2D() = default;
 
-			Nz::PhysWorld2D& GetWorld();
-			const Nz::PhysWorld2D& GetWorld() const;
+			Nz::PhysWorld2D& GetPhysWorld();
+			const Nz::PhysWorld2D& GetPhysWorld() const;
 
 			static SystemIndex systemIndex;
 
