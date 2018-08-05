@@ -48,15 +48,19 @@ local DirectionToString = {}
 	DirectionToString["EN"]  = "Direction_European_Number"
 	DirectionToString["ES"]  = "Direction_European_Separator"
 	DirectionToString["ET"]  = "Direction_European_Terminator"
+	DirectionToString["FSI"]  = "Direction_First_Strong_Isolate"
 	DirectionToString["L"]	 = "Direction_Left_To_Right"
 	DirectionToString["LRE"] = "Direction_Left_To_Right_Embedding"
+	DirectionToString["LRI"] = "Direction_Left_To_Right_Isolate"
 	DirectionToString["LRO"] = "Direction_Left_To_Right_Override"
 	DirectionToString["NSM"] = "Direction_Nonspacing_Mark"
 	DirectionToString["ON"]	 = "Direction_Other_Neutral"
 	DirectionToString["B"]	 = "Direction_Paragraph_Separator"
-	DirectionToString["PDF"] = "Direction_Pop_Directional_Format"
+	DirectionToString["PDF"] = "Direction_Pop_Directional_Formatting"
+	DirectionToString["PDI"] = "Direction_Pop_Directional_Isolate"
 	DirectionToString["R"]	 = "Direction_Right_To_Left"
 	DirectionToString["RLE"] = "Direction_Right_To_Left_Embedding"
+	DirectionToString["RLI"] = "Direction_Right_To_Left_Isolate"
 	DirectionToString["RLO"] = "Direction_Right_To_Left_Override"
 	DirectionToString["S"]	 = "Direction_Segment_Separator"
 	DirectionToString["WS"]  = "Direction_White_Space"
@@ -69,7 +73,7 @@ table.maxn = table.maxn or function (tab) -- Compatibilité Lua 5.2
 		end
 	end
 end
-	
+
 local function getCharacter(tab, first, index)
 	local character = {}
 	character.Category  = CategoryToString[tab[3]] or "Category_NoCategory"
@@ -83,112 +87,179 @@ end
 
 ACTION.Function = function ()
 	local unicodeSet = {}
+	if (not os.isdir("scripts/data") and not os.mkdir("scripts/data")) then
+		print("Failed to create scripts/data folder")
+	end
 
-	file = io.open ("scripts/data/UnicodeData.txt", "r")
+	local filepath = "scripts/data/UnicodeData.txt"
+
+	print("Downloading UnicodeData.txt...")
+
+	local t1 = os.clock()
+
+	local result_str, response_code = http.download("https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt", filepath, {
+		headers = { "From: Premake", "Referer: Premake" }
+	})
+
+	if (response_code ~= 200) then
+		error("Failed to download UnicodeData.txt")
+	end
+
+	local fileInfo = os.stat(filepath)
+
+	local t2 = os.clock()
+
+	print(string.format("Download succeeded (%.3f MiB) in %fs (%d KiB/s)", fileInfo.size / (1024 * 1024), t2 - t1, math.floor((fileInfo.size / (t2 - t1)) / 1024)))
+
+	file = io.open (filepath, "r")
 	if (not file) then
 		error("Unable to open Unicode Data file")
 		return
 	end
 
-	local t1 = os.clock()
+	local characters = {}
+	local characterSets = {}
+	local lowercaseCharacters = {}
+	local titlecaseCharacters = {}
+	local uppercaseCharacters = {}
+	local currentBlock
+	local currentBlockStartCodepoint
+	local lineIndex = 1
+
+	t1 = os.clock()
+
 	print("Parsing UnicodeData.txt...")
-	local first = 0
-	local last = 0
-	unicodeSet[0] = {}
-	unicodeSet[0].First = 0
-	unicodeSet[0].Characters = {}
-	local currentSet = 0
-	local inblock = false
-	local blockData = nil
-	local unusedIndex = 0
-	local c = 0
 	for line in file:lines() do
-		local old = 0
-		local start = string.find(line, ';', old)
-		local tab = {}
-		while (start) do
-			tab[#tab+1] = string.sub(line, old, start-1, old)
-			old = start+1
-			start = string.find(line, ';', old)
-		end
-		tab[#tab+1] = string.sub(line, old)
-		
-		local index = tonumber(tab[1], 16)
-		if (index > 0 and not inblock) then
-			if (index-last > 1000) then
-				unicodeSet[currentSet].Last = last
-				currentSet = currentSet + 1
-				unicodeSet[currentSet] = {}
-				unicodeSet[currentSet].First = index
-				unicodeSet[currentSet].Characters = {}
-				print("Set detected (Begin at " .. first .. ", end at " .. last .. ")")
-				first = index
+		local parts = line:explode(";")
+
+		local codepoint = tonumber(parts[1], 16)
+		local characterName = parts[2]
+		local category = parts[3]
+		local direction = parts[5]
+		local uppercaseMapping = tonumber(parts[13], 16)
+		local lowercaseMapping = tonumber(parts[14], 16)
+		local titlecaseMapping = tonumber(parts[15], 16)
+
+		local blockName, blockId = string.match(characterName, "<(.+), (%w+)>")
+		if (currentBlock) then
+			if (blockId ~= "Last") then
+				error("Parsing error: expected last block at line " .. lineIndex)
+			end
+
+			print("Detected set " .. blockName .. " from codepoint " .. currentBlockStartCodepoint .. " to " .. codepoint)
+
+			table.insert(characterSets, {
+				startCodepoint = currentBlockStartCodepoint,
+				endCodepoint = codepoint,
+				name = "<" .. blockName .. ">",
+				category = category,
+				direction = direction
+			})
+
+			currentBlock = nil
+		else
+			if (blockName) then
+				if (blockId ~= "First") then
+					error("Parsing error: expected first block at line " .. lineIndex)
+				end
+
+				currentBlock = blockName
+				currentBlockStartCodepoint = codepoint
 			else
-				unusedIndex = unusedIndex + index-last-1
-			end
-		end
-		
-		local blockName, blockId = string.match(tab[2], "<(.+), (%w+)>")
-		if (blockName ~= nil and blockId ~= nil) then
-			if (blockId == "First") then
-				if (inblock) then
-					error("Already in block (" .. tab[1] .. ")")
+				table.insert(characters, {
+					codepoint = codepoint,
+					name = characterName,
+					category = category,
+					direction = direction,
+					upper = uppercaseMapping,
+					lower = lowercaseMapping,
+					title = titlecaseMapping
+				})
+
+				if (lowercaseMapping) then
+					table.insert(lowercaseCharacters, {codepoint = codepoint, lower = lowercaseMapping})
 				end
-				inblock = true
-				blockCharacter = getCharacter(tab, first)
-			elseif (blockId == "Last") then
-				if (not inblock) then
-					error("Not in block (" .. tab[1] .. ")")
+
+				if (titlecaseMapping) then
+					table.insert(titlecaseCharacters, {codepoint = codepoint, title = titlecaseMapping})
 				end
-				inblock = false
-				for i=first, index do
-					unicodeSet[currentSet].Characters[i] = getCharacter(tab, first, i)
+
+				if (uppercaseMapping) then
+					table.insert(uppercaseCharacters, {codepoint = codepoint, upper = uppercaseMapping})
 				end
 			end
 		end
 
-		unicodeSet[currentSet].Characters[index - first] = getCharacter(tab, first, index)
-		if (unicodeSet[currentSet].Characters[index - first].LowerCase ~= (index - first) or 
-			unicodeSet[currentSet].Characters[index - first].UpperCase ~= (index - first) or
-			unicodeSet[currentSet].Characters[index - first].TitleCase ~= (index - first)) then
-			c = c + 1
-		end
-
-		last = index
+		lineIndex = lineIndex + 1
 	end
-	unicodeSet[currentSet].Last = last
-	print("Set detected (Begin at " .. first .. ", end at " .. last .. ")")
-	file:close()
 
-	print("Parsed " .. last+1 .. " characters in " .. #unicodeSet .. " sets, " .. unusedIndex .. " unused indices (took " .. os.difftime(os.clock(), t1) .. " sec)")
+	t2 = os.clock()
+
+	print("Parsed " .. #characters .. " characters in " .. (t2 - t1) .. " seconds")
+
+	print("Writting Unicode Data to header...")
 
 	file = io.open("../src/Nazara/Core/UnicodeData.hpp", "w+")
 	if (not file) then
-		error("Unable to create Unicode Data header")
+		error("Failed to open Unicode Data header")
 		return
 	end
 
-	print("Writting Unicode Data to header...")
-	
 	t1 = os.clock()
-	for i=0, #unicodeSet do
-		local maxn = table.maxn(unicodeSet[i].Characters)
-		file:write(string.format("Character unicodeSet%d[%d] = {\n", i, maxn+1))
 
-		for j=0, maxn do
-			local v = unicodeSet[i].Characters[j]
-			if (v) then
-				file:write(string.format("\t{%s,%s,%d,%d,%d},\n", v.Category, v.Direction, v.LowerCase, v.TitleCase, v.UpperCase))
-			else
-				file:write(string.format("\t{Category_NoCategory,Direction_Boundary_Neutral,%d,%d,%d},\n", j, j, j))
-			end
+	file:write(string.format("UnicodeCharacter unicodeCharacters[%d] = {\n", #characters))
+
+	for _, data in pairs(characters) do
+		local category = CategoryToString[data.category]
+		if (not category) then
+			error("Unknown category " .. data.category .. " for character " .. data.codepoint)
 		end
-		
-		file:write("};\n\n")
+
+		local direction = DirectionToString[data.direction]
+		if (not direction) then
+			error("Unknown direction " .. data.direction .. " for character " .. data.codepoint)
+		end
+
+		file:write(string.format("\t{%d, Unicode::%s, Unicode::%s},\n", data.codepoint, category, direction))
 	end
+	file:write("};\n\n")
+
+	file:write(string.format("UnicodeSet unicodeSets[%d] = {\n", #characterSets))
+
+	for _, data in pairs(characterSets) do
+		local category = CategoryToString[data.category]
+		if (not category) then
+			error("Unknown category " .. data.category .. " for character " .. data.codepoint)
+		end
+
+		local direction = DirectionToString[data.direction]
+		if (not direction) then
+			error("Unknown direction " .. data.direction .. " for character " .. data.codepoint)
+		end
+
+		file:write(string.format("\t{%d, %d, {%d, Unicode::%s, Unicode::%s}},\n", data.startCodepoint, data.endCodepoint, data.startCodepoint, category, direction))
+	end
+	file:write("};\n\n")
+
+	file:write(string.format("UnicodeCharacterSimpleMapping unicodeLower[%d] = {\n", #lowercaseCharacters))
+	for _, data in pairs(lowercaseCharacters) do
+		file:write(string.format("\t{%d, %d},\n", data.codepoint, data.lower))
+	end
+	file:write("};\n\n")
+
+	file:write(string.format("UnicodeCharacterSimpleMapping unicodeTitle[%d] = {\n", #titlecaseCharacters))
+	for _, data in pairs(titlecaseCharacters) do
+		file:write(string.format("\t{%d, %d},\n", data.codepoint, data.title))
+	end
+	file:write("};\n\n")
+
+	file:write(string.format("UnicodeCharacterSimpleMapping unicodeUpper[%d] = {\n", #uppercaseCharacters))
+	for _, data in pairs(uppercaseCharacters) do
+		file:write(string.format("\t{%d, %d},\n", data.codepoint, data.upper))
+	end
+	file:write("};\n\n")
+
 	file:close()
 
-	print("Took " .. os.difftime(os.clock(), t1) .. "sec.")
+	print("Succeeded in " .. (os.clock() - t1) .. "sec.")
 end
---print(string.match("<Plane 15 Private Use, First>", "<.+, (%w+)>"))
-

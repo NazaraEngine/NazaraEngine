@@ -128,6 +128,11 @@ Nazara Engine:
 - Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
 - Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
 - Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
+- Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
+- Added movement with Ctrl in TextAreaWidget
+- Added Unicode Data downloader/parser
+- Integrated Unicode Data
+- Added CullingList::FillWithAllEntries method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -176,11 +181,13 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
-- Add GraphicsComponent:ForEachRenderable method
+- Added GraphicsComponent:ForEachRenderable method
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
-- Fix GraphicsComponent copy constructor not copying scissor rect
+- Fixed GraphicsComponent copy constructor not copying scissor rect
 - Force parent parameter to be present in widgets constructor
+- Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- It is now possible to disable object culling in the RenderSystem
 
 # 0.4:
 

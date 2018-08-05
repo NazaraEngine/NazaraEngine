@@ -171,7 +171,7 @@ namespace Ndk
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
-		return m_object->GetCenterOfGravity(coordSys);
+		return m_object->GetMassCenter(coordSys);
 	}
 
 	/*!
