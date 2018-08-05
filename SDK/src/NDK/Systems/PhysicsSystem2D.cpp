@@ -33,9 +33,9 @@ namespace Ndk
 
 	void PhysicsSystem2D::CreatePhysWorld() const
 	{
-		NazaraAssert(!m_world, "Physics world should not be created twice");
+		NazaraAssert(!m_physWorld, "Physics world should not be created twice");
 
-		m_world = std::make_unique<Nz::PhysWorld2D>();
+		m_physWorld = std::make_unique<Nz::PhysWorld2D>();
 	}
 
 	/*!

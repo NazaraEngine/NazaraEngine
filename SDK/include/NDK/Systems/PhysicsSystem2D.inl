@@ -11,10 +11,10 @@ namespace Ndk
 
 	inline Nz::PhysWorld2D& PhysicsSystem2D::GetWorld()
 	{
-		if (!m_world)
+		if (!m_physWorld)
 			CreatePhysWorld();
 
-		return *m_world;
+		return *m_physWorld;
 	}
 
 	/*!
@@ -24,9 +24,9 @@ namespace Ndk
 
 	inline const Nz::PhysWorld2D& PhysicsSystem2D::GetWorld() const
 	{
-		if (!m_world)
+		if (!m_physWorld)
 			CreatePhysWorld();
 
-		return *m_world;
+		return *m_physWorld;
 	}
 }
