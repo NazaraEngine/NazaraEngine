@@ -4,6 +4,7 @@
 
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <NDK/World.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
@@ -38,6 +39,105 @@ namespace Ndk
 		m_physWorld = std::make_unique<Nz::PhysWorld2D>();
 	}
 
+	void PhysicsSystem2D::DebugDraw(const DebugDrawOptions& options, bool drawShapes, bool drawConstraints, bool drawCollisions)
+	{
+		Nz::PhysWorld2D::DebugDrawOptions worldOptions{ options.constraintColor, options.collisionPointColor, options.shapeOutlineColor };
+
+		if (options.colorCallback)
+		{
+			worldOptions.colorCallback = [&options, this](Nz::RigidBody2D& body, std::size_t shapeIndex, void* userdata)
+			{
+				return options.colorCallback(GetPhysicsComponentFromBody(body), shapeIndex, userdata);
+			};
+		}
+
+		worldOptions.circleCallback = options.circleCallback;
+		worldOptions.dotCallback = options.dotCallback;
+		worldOptions.polygonCallback = options.polygonCallback;
+		worldOptions.segmentCallback = options.segmentCallback;
+		worldOptions.thickSegmentCallback = options.thickSegmentCallback;
+
+		worldOptions.userdata = options.userdata;
+
+		m_physWorld->DebugDraw(worldOptions, drawShapes, drawConstraints, drawCollisions);
+	}
+
+	PhysicsComponent2D& PhysicsSystem2D::GetPhysicsComponentFromBody(Nz::RigidBody2D& body) const
+	{
+		auto entityId = static_cast<EntityId>(reinterpret_cast<std::uintptr_t>(body.GetUserdata()));
+
+		auto& world = GetWorld();
+
+		NazaraAssert(world.IsEntityIdValid(entityId), "All Bodies of this world must be part of the physics world by using PhysicsComponent");
+
+		return world.GetEntity(entityId)->GetComponent<PhysicsComponent2D>();
+	}
+
+	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, PhysicsComponent2D** nearestBody)
+	{
+		Nz::RigidBody2D* body;
+		bool res = m_physWorld->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &body);
+
+		(*nearestBody) = &GetPhysicsComponentFromBody(*body);
+
+		return res;
+	}
+
+	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
+	{
+		Nz::PhysWorld2D::NearestQueryResult queryResult;
+		bool res = m_physWorld->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult);
+
+		result->nearestBody = &GetPhysicsComponentFromBody(*queryResult.nearestBody);
+		result->closestPoint = std::move(queryResult.closestPoint);
+		result->fraction = std::move(queryResult.fraction);
+		result->distance = queryResult.distance;
+
+		return res;
+	}
+
+	bool PhysicsSystem2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
+	{
+		std::vector<Nz::PhysWorld2D::RaycastHit> queryResult;
+		bool res = m_physWorld->RaycastQuery(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+
+		for (auto& hitResult : queryResult)
+		{
+			hitInfos->push_back({
+				&GetPhysicsComponentFromBody(*hitResult.nearestBody),
+				std::move(hitResult.hitPos),
+				std::move(hitResult.hitNormal),
+				hitResult.fraction
+				});
+		}
+
+		return res;
+	}
+
+	bool PhysicsSystem2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
+	{
+		Nz::PhysWorld2D::RaycastHit queryResult;
+		bool res = m_physWorld->RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+
+		hitInfo->body = &GetPhysicsComponentFromBody(*queryResult.nearestBody);
+		hitInfo->hitPos = std::move(queryResult.hitPos);
+		hitInfo->hitNormal = std::move(queryResult.hitNormal);
+		hitInfo->fraction = queryResult.fraction;
+
+		return res;
+	}
+
+	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<PhysicsComponent2D*>* bodies)
+	{
+		std::vector<Nz::RigidBody2D*> queryResult;
+		m_physWorld->RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, &queryResult);
+
+		for (auto& body : queryResult)
+		{
+			bodies->emplace_back(&GetPhysicsComponentFromBody(*body));
+		}
+	}
+
 	/*!
 	* \brief Operation to perform when entity is validated for the system
 	*
@@ -58,7 +158,7 @@ namespace Ndk
 		auto& entities = (entity->HasComponent<PhysicsComponent2D>()) ? m_dynamicObjects : m_staticObjects;
 		entities.Insert(entity);
 
-		if (!m_world)
+		if (!m_physWorld)
 			CreatePhysWorld();
 	}
 
@@ -70,10 +170,10 @@ namespace Ndk
 
 	void PhysicsSystem2D::OnUpdate(float elapsedTime)
 	{
-		if (!m_world)
+		if (!m_physWorld)
 			return;
 
-		m_world->Step(elapsedTime);
+		m_physWorld->Step(elapsedTime);
 
 		for (const Ndk::EntityHandle& entity : m_dynamicObjects)
 		{
@@ -122,6 +222,82 @@ namespace Ndk
 				physObj->SetAngularVelocity(Nz::Vector3f::Zero());
 */
 		}
+	}
+
+	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
+	{
+		Nz::PhysWorld2D::Callback worldCallbacks;
+
+		if (callbacks.endCallback)
+		{
+			worldCallbacks.endCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				callbacks.endCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.preSolveCallback)
+		{
+			worldCallbacks.preSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				return callbacks.preSolveCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.postSolveCallback)
+		{
+			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				callbacks.preSolveCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.startCallback)
+		{
+			worldCallbacks.startCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				return callbacks.startCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+
+		worldCallbacks.userdata = callbacks.userdata;
+
+		m_physWorld->RegisterCallbacks(collisionId, worldCallbacks);
+	}
+
+	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks)
+	{
+		Nz::PhysWorld2D::Callback worldCallbacks{};
+
+		if (callbacks.endCallback)
+		{
+			worldCallbacks.endCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				callbacks.endCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.preSolveCallback)
+		{
+			worldCallbacks.preSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				return callbacks.preSolveCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.postSolveCallback)
+		{
+			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				callbacks.preSolveCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+		if (callbacks.startCallback)
+		{
+			worldCallbacks.startCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			{
+				return callbacks.startCallback(*this, arbiter, GetPhysicsComponentFromBody(bodyA), GetPhysicsComponentFromBody(bodyB), userdata);
+			};
+		}
+
+		worldCallbacks.userdata = callbacks.userdata;
+
+		m_physWorld->RegisterCallbacks(collisionIdA, collisionIdB, worldCallbacks);
 	}
 
 	SystemIndex PhysicsSystem2D::systemIndex;
