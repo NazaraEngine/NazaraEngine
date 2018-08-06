@@ -8,7 +8,6 @@
 #define NDK_SYSTEMS_PHYSICSSYSTEM2D_HPP
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <memory>
@@ -17,17 +16,17 @@ namespace Ndk
 {
 	class NDK_API PhysicsSystem2D : public System<PhysicsSystem2D>
 	{
-		using ContactEndCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, PhysicsComponent2D& bodyA, PhysicsComponent2D& bodyB, void* userdata)>;
-		using ContactPreSolveCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, PhysicsComponent2D& bodyA, PhysicsComponent2D& bodyB, void* userdata)>;
-		using ContactPostSolveCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, PhysicsComponent2D& bodyA, PhysicsComponent2D& bodyB, void* userdata)>;
-		using ContactStartCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, PhysicsComponent2D& bodyA, PhysicsComponent2D& bodyB, void* userdata)>;
+		using ContactEndCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
+		using ContactPreSolveCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
+		using ContactPostSolveCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
+		using ContactStartCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
 
 		using DebugDrawCircleCallback = std::function<void(const Nz::Vector2f& origin, float rotation, float radius, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
 		using DebugDrawDotCallback = std::function<void(const Nz::Vector2f& origin, float radius, Nz::Color color, void* userdata)>;
 		using DebugDrawPolygonCallback = std::function<void(const Nz::Vector2f* vertices, std::size_t vertexCount, float radius, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
 		using DebugDrawSegmentCallback = std::function<void(const Nz::Vector2f& first, const Nz::Vector2f& second, Nz::Color color, void* userdata)>;
 		using DebugDrawTickSegmentCallback = std::function<void(const Nz::Vector2f& first, const Nz::Vector2f& second, float thickness, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
-		using DebugDrawGetColorCallback = std::function<Nz::Color(PhysicsComponent2D& body, std::size_t shapeIndex, void* userdata)>;
+		using DebugDrawGetColorCallback = std::function<Nz::Color(const EntityHandle& body, std::size_t shapeIndex, void* userdata)>;
 
 		public:
 			struct Callback;
@@ -50,13 +49,13 @@ namespace Ndk
 			Nz::PhysWorld2D& GetPhysWorld();
 			const Nz::PhysWorld2D& GetPhysWorld() const;
 
-			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, PhysicsComponent2D** nearestBody = nullptr);
+			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, EntityHandle* nearestBody = nullptr);
 			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
 			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
 			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
-			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<PhysicsComponent2D*>* bodies);
+			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies);
 
 			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
@@ -96,7 +95,7 @@ namespace Ndk
 
 			struct NearestQueryResult
 			{
-				PhysicsComponent2D* nearestBody;
+				EntityHandle nearestBody;
 				Nz::Vector2f closestPoint;
 				Nz::Vector2f fraction;
 				float distance;
@@ -104,7 +103,7 @@ namespace Ndk
 
 			struct RaycastHit
 			{
-				PhysicsComponent2D* body;
+				EntityHandle body;
 				Nz::Vector2f hitPos;
 				Nz::Vector2f hitNormal;
 				float fraction;
@@ -115,7 +114,7 @@ namespace Ndk
 		private:
 
 			void CreatePhysWorld() const;
-			PhysicsComponent2D& GetPhysicsComponentFromBody(Nz::RigidBody2D& body) const;
+			const EntityHandle& GetEntityFromBody(const Nz::RigidBody2D& body) const;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
