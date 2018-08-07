@@ -16,8 +16,8 @@ namespace Ndk
 {
 	class NDK_API PhysicsSystem2D : public System<PhysicsSystem2D>
 	{
-		friend class PhysicsComponent2D;
 		friend class CollisionComponent2D;
+		friend class PhysicsComponent2D;
 		
 		using ContactEndCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
 		using ContactPreSolveCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
