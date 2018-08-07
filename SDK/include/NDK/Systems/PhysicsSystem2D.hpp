@@ -46,9 +46,6 @@ namespace Ndk
 			inline std::size_t GetMaxStepCount() const;
 			inline float GetStepSize() const;
 
-			Nz::PhysWorld2D& GetPhysWorld();
-			const Nz::PhysWorld2D& GetPhysWorld() const;
-
 			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, EntityHandle* nearestBody = nullptr);
 			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
@@ -115,6 +112,8 @@ namespace Ndk
 
 			void CreatePhysWorld() const;
 			const EntityHandle& GetEntityFromBody(const Nz::RigidBody2D& body) const;
+			Nz::PhysWorld2D& GetPhysWorld();
+			const Nz::PhysWorld2D& GetPhysWorld() const;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
