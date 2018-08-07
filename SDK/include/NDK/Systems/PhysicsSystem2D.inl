@@ -39,32 +39,6 @@ namespace Ndk
 		return m_physWorld->GetStepSize();
 	}
 
-	/*!
-	* \brief Gets the physical world
-	* \return A reference to the physical world
-	*/
-
-	inline Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld()
-	{
-		if (!m_physWorld)
-			CreatePhysWorld();
-
-		return *m_physWorld;
-	}
-
-	/*!
-	* \brief Gets the physical world
-	* \return A constant reference to the physical world
-	*/
-
-	inline const Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld() const
-	{
-		if (!m_physWorld)
-			CreatePhysWorld();
-
-		return *m_physWorld;
-	}
-
 	inline void PhysicsSystem2D::SetDamping(float dampingValue)
 	{
 		NazaraAssert(m_physWorld, "Invalid physics world");
@@ -105,5 +79,31 @@ namespace Ndk
 		NazaraAssert(m_physWorld, "Invalid physics world");
 
 		m_physWorld->UseSpatialHash(cellSize, entityCount);
+	}
+
+	/*!
+	* \brief Gets the physical world
+	* \return A reference to the physical world
+	*/
+
+	inline Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld()
+	{
+		if (!m_physWorld)
+			CreatePhysWorld();
+
+		return *m_physWorld;
+	}
+
+	/*!
+	* \brief Gets the physical world
+	* \return A constant reference to the physical world
+	*/
+
+	inline const Nz::PhysWorld2D& PhysicsSystem2D::GetPhysWorld() const
+	{
+		if (!m_physWorld)
+			CreatePhysWorld();
+
+		return *m_physWorld;
 	}
 }
