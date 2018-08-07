@@ -112,7 +112,6 @@ namespace Ndk
 			static SystemIndex systemIndex;
 
 		private:
-
 			void CreatePhysWorld() const;
 			const EntityHandle& GetEntityFromBody(const Nz::RigidBody2D& body) const;
 			Nz::PhysWorld2D& GetPhysWorld();
