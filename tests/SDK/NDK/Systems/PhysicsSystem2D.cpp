@@ -21,7 +21,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
 		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaximumUpdateRate(0.f);
-		world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 		
 		WHEN("We update the world")
 		{
@@ -100,7 +100,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 		WHEN("We put a force on it")
 		{
-			float stepSize = world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().GetStepSize();
+			float stepSize = world.GetSystem<Ndk::PhysicsSystem2D>().GetStepSize();
 			Nz::Vector2f velocity = Nz::Vector2f::UnitX();
 			physicsComponent2D.AddForce(velocity / stepSize);
 			world.Update(1.f);
