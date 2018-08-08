@@ -17,6 +17,7 @@ Miscellaneous:
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
 - When supported, projects are now parts of a virtual "workspace group" according to their kind
+- Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
