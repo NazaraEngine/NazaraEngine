@@ -17,6 +17,7 @@ Miscellaneous:
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
 - When supported, projects are now parts of a virtual "workspace group" according to their kind
+- Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -188,6 +189,8 @@ Nazara Development Kit:
 - Force parent parameter to be present in widgets constructor
 - Added the possibility to write only specific characters with a predicate in TextAreaWidget
 - It is now possible to disable object culling in the RenderSystem
+- Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
+- Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
 
 # 0.4:
 
