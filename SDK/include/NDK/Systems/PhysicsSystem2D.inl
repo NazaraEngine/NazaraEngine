@@ -6,79 +6,57 @@ namespace Ndk
 {
 	inline float PhysicsSystem2D::GetDamping() const
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		return m_physWorld->GetDamping();
+		return GetPhysWorld()->GetDamping();
 	}
 
 	inline Nz::Vector2f PhysicsSystem2D::GetGravity() const
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		return m_physWorld->GetGravity();
+		return GetPhysWorld()->GetGravity();
 	}
 
 	inline std::size_t PhysicsSystem2D::GetIterationCount() const
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		return m_physWorld->GetIterationCount();
+		return GetPhysWorld()->GetIterationCount();
 	}
 
 	inline std::size_t PhysicsSystem2D::GetMaxStepCount() const
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		return m_physWorld->GetMaxStepCount();
+		return GetPhysWorld()->GetMaxStepCount();
 	}
 
 	inline float PhysicsSystem2D::GetStepSize() const
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		return m_physWorld->GetStepSize();
+		return GetPhysWorld()->GetStepSize();
 	}
 
 	inline void PhysicsSystem2D::SetDamping(float dampingValue)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->SetDamping(dampingValue);
+		GetPhysWorld()->SetDamping(dampingValue);
 	}
 
 	inline void PhysicsSystem2D::SetGravity(const Nz::Vector2f& gravity)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->SetGravity(gravity);
+		GetPhysWorld()->SetGravity(gravity);
 	}
 
 	inline void PhysicsSystem2D::SetIterationCount(std::size_t iterationCount)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->SetIterationCount(iterationCount);
+		GetPhysWorld()->SetIterationCount(iterationCount);
 	}
 
 	inline void PhysicsSystem2D::SetMaxStepCount(std::size_t maxStepCount)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->SetMaxStepCount(maxStepCount);
+		GetPhysWorld()->SetMaxStepCount(maxStepCount);
 	}
 
 	inline void PhysicsSystem2D::SetStepSize(float stepSize)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->SetStepSize(stepSize);
+		GetPhysWorld()->SetStepSize(stepSize);
 	}
 
 	inline void PhysicsSystem2D::UseSpatialHash(float cellSize, std::size_t entityCount)
 	{
-		NazaraAssert(m_physWorld, "Invalid physics world");
-
-		m_physWorld->UseSpatialHash(cellSize, entityCount);
+		GetPhysWorld()->UseSpatialHash(cellSize, entityCount);
 	}
 
 	/*!

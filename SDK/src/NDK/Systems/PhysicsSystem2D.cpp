@@ -59,7 +59,7 @@ namespace Ndk
 
 		worldOptions.userdata = options.userdata;
 
-		m_physWorld->DebugDraw(worldOptions, drawShapes, drawConstraints, drawCollisions);
+		GetPhysWorld()->DebugDraw(worldOptions, drawShapes, drawConstraints, drawCollisions);
 	}
 
 	const EntityHandle& PhysicsSystem2D::GetEntityFromBody(const Nz::RigidBody2D& body) const
@@ -76,7 +76,7 @@ namespace Ndk
 	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, EntityHandle* nearestBody)
 	{
 		Nz::RigidBody2D* body;
-		bool res = m_physWorld->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &body);
+		bool res = GetPhysWorld()->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &body);
 
 		(*nearestBody) = GetEntityFromBody(*body);
 
@@ -86,7 +86,7 @@ namespace Ndk
 	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
 	{
 		Nz::PhysWorld2D::NearestQueryResult queryResult;
-		bool res = m_physWorld->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult);
+		bool res = GetPhysWorld()->NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult);
 
 		result->nearestBody = GetEntityFromBody(*queryResult.nearestBody);
 		result->closestPoint = std::move(queryResult.closestPoint);
@@ -99,7 +99,7 @@ namespace Ndk
 	bool PhysicsSystem2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
 		std::vector<Nz::PhysWorld2D::RaycastHit> queryResult;
-		bool res = m_physWorld->RaycastQuery(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+		bool res = GetPhysWorld()->RaycastQuery(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
 
 		for (auto& hitResult : queryResult)
 		{
@@ -117,7 +117,7 @@ namespace Ndk
 	bool PhysicsSystem2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
 	{
 		Nz::PhysWorld2D::RaycastHit queryResult;
-		bool res = m_physWorld->RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+		bool res = GetPhysWorld()->RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
 
 		hitInfo->body = GetEntityFromBody(*queryResult.nearestBody);
 		hitInfo->hitPos = std::move(queryResult.hitPos);
@@ -130,7 +130,7 @@ namespace Ndk
 	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies)
 	{
 		std::vector<Nz::RigidBody2D*> queryResult;
-		m_physWorld->RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, &queryResult);
+		GetPhysWorld()->RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, &queryResult);
 
 		for (auto& body : queryResult)
 		{
