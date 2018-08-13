@@ -29,7 +29,7 @@ struct tcp_keepalive
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
 #endif
 
-#include <Winsock2.h>
+#include <winsock2.h>
 
 #include <Nazara/Network/Debug.hpp>
 
