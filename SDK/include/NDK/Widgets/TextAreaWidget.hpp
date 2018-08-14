@@ -32,8 +32,12 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
-			inline void EnableMultiline(bool enable = true);
 
+			inline void EnableMultiline(bool enable = true);
+			inline void EnableTabWriting(bool enable = true);
+
+			inline void Erase(std::size_t glyphPosition);
+			void Erase(std::size_t firstGlyph, std::size_t lastGlyph);
 			void EraseSelection();
 
 			inline CharacterFilter GetCharacterFilter() const;
@@ -52,6 +56,7 @@ namespace Ndk
 
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
+			inline bool IsTabWritingEnabled() const;
 
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
@@ -68,7 +73,9 @@ namespace Ndk
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
 
-			void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition);
+			void Write(const Nz::String& text, std::size_t glyphPosition);
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
@@ -115,6 +122,7 @@ namespace Ndk
 			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
+			bool m_tabEnabled; // writes (Shift+)Tab character if set to true
 	};
 }
 
