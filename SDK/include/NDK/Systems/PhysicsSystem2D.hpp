@@ -114,8 +114,8 @@ namespace Ndk
 		private:
 			void CreatePhysWorld() const;
 			const EntityHandle& GetEntityFromBody(const Nz::RigidBody2D& body) const;
-			Nz::PhysWorld2D& GetPhysWorld();
-			const Nz::PhysWorld2D& GetPhysWorld() const;
+			inline Nz::PhysWorld2D& GetPhysWorld();
+			inline const Nz::PhysWorld2D& GetPhysWorld() const;
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
