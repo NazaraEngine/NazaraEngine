@@ -134,6 +134,7 @@ Nazara Engine:
 - Added Unicode Data downloader/parser
 - Integrated Unicode Data
 - Added CullingList::FillWithAllEntries method
+- Fixed ObjectHandle movement sometimes not resetting its internal pointer
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
