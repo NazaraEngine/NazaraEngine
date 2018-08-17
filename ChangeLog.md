@@ -135,6 +135,10 @@ Nazara Engine:
 - Integrated Unicode Data
 - Added CullingList::FillWithAllEntries method
 - Fixed ObjectHandle movement sometimes not resetting its internal pointer
+- Added BoxCollider2D::GetRadius
+- Added CircleCollider2D::GetOffset
+- Added ConvexCollider2D::GetVertices
+- Added SegmentCollider2D::GetThickness()
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
