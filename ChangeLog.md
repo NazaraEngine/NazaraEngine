@@ -134,6 +134,11 @@ Nazara Engine:
 - Added Unicode Data downloader/parser
 - Integrated Unicode Data
 - Added CullingList::FillWithAllEntries method
+- Fixed ObjectHandle movement sometimes not resetting its internal pointer
+- Added BoxCollider2D::GetRadius
+- Added CircleCollider2D::GetOffset
+- Added ConvexCollider2D::GetVertices
+- Added SegmentCollider2D::GetThickness()
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -188,6 +193,7 @@ Nazara Development Kit:
 - Fixed GraphicsComponent copy constructor not copying scissor rect
 - Force parent parameter to be present in widgets constructor
 - Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- Enable write of Tab character in TextAreaWidget
 - It is now possible to disable object culling in the RenderSystem
 - Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
 - Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
