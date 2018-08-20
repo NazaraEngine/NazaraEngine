@@ -12,7 +12,7 @@
 namespace Ndk
 {
 	template<typename ComponentType>
-	class Component : public BaseComponent
+	class Component : public BaseComponent, public Nz::HandledObject<ComponentType>
 	{
 		public:
 			Component();
