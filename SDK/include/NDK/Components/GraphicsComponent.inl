@@ -22,7 +22,6 @@ namespace Ndk
 	*/
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
-	HandledObject(graphicsComponent),
 	m_reflectiveMaterialCount(0),
 	m_boundingVolume(graphicsComponent.m_boundingVolume),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
