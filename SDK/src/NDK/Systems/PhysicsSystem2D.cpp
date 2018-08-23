@@ -246,7 +246,7 @@ namespace Ndk
 		{
 			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.preSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				callbacks.postSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
 		if (callbacks.startCallback)
@@ -284,7 +284,7 @@ namespace Ndk
 		{
 			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.preSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				callbacks.postSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
 		if (callbacks.startCallback)
