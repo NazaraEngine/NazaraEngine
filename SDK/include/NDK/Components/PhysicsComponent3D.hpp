@@ -13,6 +13,10 @@
 
 namespace Ndk
 {
+	class PhysicsComponent3D;
+
+	using PhysicsComponent3DHandle = Nz::ObjectHandle<PhysicsComponent3D>;
+
 	class NDK_API PhysicsComponent3D : public Component<PhysicsComponent3D>
 	{
 		friend class CollisionComponent3D;
