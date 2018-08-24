@@ -143,15 +143,21 @@ namespace Nz
 
 			float ComputeMomentOfInertia(float mass) const override;
 
+			inline bool DoesOverrideCollisionProperties() const;
+
 			inline const std::vector<Collider2DRef>& GetGeoms() const;
 			ColliderType2D GetType() const override;
+
+			inline void OverridesCollisionProperties(bool shouldOverride);
 
 			template<typename... Args> static CompoundCollider2DRef New(Args&&... args);
 
 		private:
 			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const override;
 
 			std::vector<Collider2DRef> m_geoms;
+			bool m_doesOverrideCollisionProperties;
 	};
 
 	class ConvexCollider2D;

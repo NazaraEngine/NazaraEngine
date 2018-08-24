@@ -13,11 +13,10 @@ namespace Nz
 
 	std::vector<cpShape*> Collider2D::GenerateShapes(RigidBody2D* body) const
 	{
-		cpShapeFilter filter = cpShapeFilterNew(m_collisionGroup, m_categoryMask, m_collisionMask);
-
 		std::vector<cpShape*> shapes;
 		CreateShapes(body, shapes);
 
+		cpShapeFilter filter = cpShapeFilterNew(m_collisionGroup, m_categoryMask, m_collisionMask);
 		for (cpShape* shape : shapes)
 		{
 			cpShapeSetFilter(shape, filter);
@@ -82,7 +81,8 @@ namespace Nz
 	/******************************** CompoundCollider2D *********************************/
 
 	CompoundCollider2D::CompoundCollider2D(std::vector<Collider2DRef> geoms) :
-	m_geoms(std::move(geoms))
+	m_geoms(std::move(geoms)),
+	m_doesOverrideCollisionProperties(true)
 	{
 	}
 
@@ -107,6 +107,20 @@ namespace Nz
 		// Since C++ does not allow protected call from other objects, we have to be a friend of Collider2D, yay
 		for (const auto& geom : m_geoms)
 			geom->CreateShapes(body, shapes);
+	}
+
+	std::vector<cpShape*> CompoundCollider2D::GenerateShapes(RigidBody2D* body) const
+	{
+		// This is our parent's default behavior
+		if (m_doesOverrideCollisionProperties)
+			return Collider2D::GenerateShapes(body);
+		else
+		{
+			std::vector<cpShape*> shapes;
+			CreateShapes(body, shapes);
+
+			return shapes;
+		}
 	}
 
 	/******************************** ConvexCollider2D *********************************/
