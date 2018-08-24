@@ -110,9 +110,19 @@ namespace Nz
 		return object.release();
 	}
 
+	inline bool Nz::CompoundCollider2D::DoesOverrideCollisionProperties() const
+	{
+		return m_doesOverrideCollisionProperties;
+	}
+
 	inline const std::vector<Collider2DRef>& CompoundCollider2D::GetGeoms() const
 	{
 		return m_geoms;
+	}
+
+	inline void Nz::CompoundCollider2D::OverridesCollisionProperties(bool shouldOverride)
+	{
+		m_doesOverrideCollisionProperties = shouldOverride;
 	}
 
 	template<typename... Args>
