@@ -71,28 +71,51 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::size_t CullingList<T>::FillWithAllEntries()
+	std::size_t CullingList<T>::FillWithAllEntries(bool* forceInvalidation)
 	{
 		m_results.clear();
+
+		bool forcedInvalidation = false;
 
 		std::size_t visibleHash = 0U;
 		for (NoTestVisibilityEntry& entry : m_noTestList)
 		{
 			m_results.push_back(entry.renderable);
 			Nz::HashCombine(visibleHash, entry.renderable);
+
+			if (entry.forceInvalidation)
+			{
+				forcedInvalidation = true;
+				entry.forceInvalidation = false;
+			}
 		}
 
 		for (SphereVisibilityEntry& entry : m_sphereTestList)
 		{
 			m_results.push_back(entry.renderable);
 			Nz::HashCombine(visibleHash, entry.renderable);
+
+			if (entry.forceInvalidation)
+			{
+				forcedInvalidation = true;
+				entry.forceInvalidation = false;
+			}
 		}
 
 		for (VolumeVisibilityEntry& entry : m_volumeTestList)
 		{
 			m_results.push_back(entry.renderable);
 			Nz::HashCombine(visibleHash, entry.renderable);
+
+			if (entry.forceInvalidation)
+			{
+				forcedInvalidation = true;
+				entry.forceInvalidation = false;
+			}
 		}
+
+		if (forceInvalidation)
+			*forceInvalidation = forcedInvalidation;
 
 		return visibleHash;
 	}
