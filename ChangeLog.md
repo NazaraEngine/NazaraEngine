@@ -138,7 +138,9 @@ Nazara Engine:
 - Added BoxCollider2D::GetRadius
 - Added CircleCollider2D::GetOffset
 - Added ConvexCollider2D::GetVertices
-- Added SegmentCollider2D::GetThickness()
+- Added SegmentCollider2D::GetThickness
+- Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
+- It is now possible to prevent CompoundCollider2D to override individual colliders properties
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

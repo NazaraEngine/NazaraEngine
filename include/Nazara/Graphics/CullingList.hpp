@@ -41,7 +41,7 @@ namespace Nz
 
 			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation = nullptr);
 
-			std::size_t FillWithAllEntries();
+			std::size_t FillWithAllEntries(bool* forceInvalidation = nullptr);
 
 			NoTestEntry RegisterNoTest(const T* renderable);
 			SphereEntry RegisterSphereTest(const T* renderable);

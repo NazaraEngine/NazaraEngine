@@ -208,7 +208,7 @@ namespace Ndk
 			if (m_isCullingEnabled)
 				visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
 			else
-				visibilityHash = m_drawableCulling.FillWithAllEntries();
+				visibilityHash = m_drawableCulling.FillWithAllEntries(&forceInvalidation);
 
 			// Always regenerate renderqueue if particle groups are present for now (FIXME)
 			if (!m_lights.empty() || !m_particleGroups.empty())

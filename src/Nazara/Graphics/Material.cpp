@@ -433,6 +433,8 @@ namespace Nz
 		m_normalMap     = material.m_normalMap;
 		m_specularMap   = material.m_specularMap;
 
+		SetReflectionMode(material.GetReflectionMode());
+
 		InvalidatePipeline();
 	}
 
