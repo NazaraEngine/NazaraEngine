@@ -38,7 +38,6 @@ namespace Ndk
 			struct RaycastHit;
 
 			PhysicsSystem2D();
-			PhysicsSystem2D(const PhysicsSystem2D& system);
 			~PhysicsSystem2D() = default;
 
 			void DebugDraw(const DebugDrawOptions& options, bool drawShapes = true, bool drawConstraints = true, bool drawCollisions = true);
