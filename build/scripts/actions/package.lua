@@ -1,6 +1,6 @@
 newoption({
 	trigger     = "pack-libdir",
-	description = "Specifiy the subdirectory in lib/ to be used when packaging the project"
+	description = "Specifies the subdirectory in lib/ to be used when packaging the project"
 })
 
 ACTION.Name = "Package"
