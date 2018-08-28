@@ -57,8 +57,8 @@ namespace Ndk
 
 			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies);
 
-			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
-			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
+			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
+			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
 
 			inline void SetDamping(float dampingValue);
 			inline void SetGravity(const Nz::Vector2f& gravity);
