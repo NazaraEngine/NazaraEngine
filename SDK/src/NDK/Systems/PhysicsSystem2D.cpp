@@ -268,30 +268,33 @@ namespace Ndk
 
 		if (callbacks.endCallback)
 		{
-			worldCallbacks.endCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.endCallback = [this, cb = callbacks.endCallback](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.endCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.preSolveCallback)
 		{
-			worldCallbacks.preSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.preSolveCallback = [this, cb = callbacks.preSolveCallback](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.preSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.postSolveCallback)
 		{
-			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.postSolveCallback = [this, cb = callbacks.postSolveCallback](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.postSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.startCallback)
 		{
-			worldCallbacks.startCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.startCallback = [this, cb = callbacks.startCallback](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.startCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
 
