@@ -311,7 +311,7 @@ namespace Nz
 		else
 			m_geom = NullCollider2D::New();
 
-		m_shapes = m_geom->GenerateShapes(this);
+		m_geom->GenerateShapes(this, &m_shapes);
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
