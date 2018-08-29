@@ -30,7 +30,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		m_handle = Create(mass);
-		SetGeom(geom);
+		SetGeom(std::move(geom));
 	}
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
