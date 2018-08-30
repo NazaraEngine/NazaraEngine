@@ -952,6 +952,11 @@ namespace Nz
 			case EFAULT:
 			case ENOTSOCK:
 			case EPROTOTYPE:
+			// Those are not errors and should have been handled
+			case EALREADY:
+			case EISCONN:
+			case EWOULDBLOCK:
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
 				return SocketError_Internal;
 
 			case EADDRNOTAVAIL:
@@ -964,12 +969,6 @@ namespace Nz
 			case EPROTONOSUPPORT:
 			case ESOCKTNOSUPPORT:
 				return SocketError_NotSupported;
-
-			// Those are not errors and should have been handled before the call
-			case EALREADY:
-			case EISCONN:
-			case EWOULDBLOCK:
-				return SocketError_Internal;
 
 			case ECONNREFUSED:
 				return SocketError_ConnectionRefused;
