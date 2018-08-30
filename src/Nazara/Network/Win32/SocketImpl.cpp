@@ -132,6 +132,7 @@ namespace Nz
 			switch (errorCode) //< Check for "normal errors" first
 			{
 				case WSAEALREADY:
+				case WSAEINVAL: //< In case of connect, WSAEINVAL may be returned instead of WSAEALREADY
 				case WSAEWOULDBLOCK:
 					return SocketState_Connecting;
 
