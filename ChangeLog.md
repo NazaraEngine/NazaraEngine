@@ -141,6 +141,7 @@ Nazara Engine:
 - Added SegmentCollider2D::GetThickness
 - Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
 - It is now possible to prevent CompoundCollider2D to override individual colliders properties
+- Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
