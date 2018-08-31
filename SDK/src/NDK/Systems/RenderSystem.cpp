@@ -217,7 +217,10 @@ namespace Ndk
 			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
 			{
 				renderQueue->Clear();
-				for (const GraphicsComponent* gfxComponent : m_drawableCulling)
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
+					gfxComponent->AddToRenderQueue(renderQueue);
+
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
 
 				for (const Ndk::EntityHandle& light : m_lights)
