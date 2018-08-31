@@ -44,15 +44,17 @@ namespace Ndk
 
 			inline bool DoesRequireRealTimeReflections() const;
 
+			inline void EnsureBoundingVolumesUpdate() const;
+			inline void EnsureTransformMatrixUpdate() const;
+
 			template<typename Func> void ForEachRenderable(const Func& func) const;
 
-			inline void EnsureBoundingVolumeUpdate() const;
-			inline void EnsureTransformMatrixUpdate() const;
+			inline const Nz::Boxf& GetAABB() const;
 
 			inline void GetAttachedRenderables(RenderableList* renderables) const;
 			inline std::size_t GetAttachedRenderableCount() const;
 
-			inline const Nz::BoundingVolumef& GetBoundingVolume() const;
+			inline const Nz::BoundingVolumef& GetBoundingVolume(std::size_t renderableIndex) const;
 
 			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
 
@@ -68,7 +70,7 @@ namespace Ndk
 
 			void ConnectInstancedRenderableSignals(Renderable& renderable);
 
-			inline void InvalidateBoundingVolume() const;
+			inline void InvalidateAABB() const;
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			void InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat);
 			inline void InvalidateRenderables();
@@ -89,10 +91,19 @@ namespace Ndk
 
 			void UnregisterMaterial(Nz::Material* material);
 
-			void UpdateBoundingVolume() const;
+			void UpdateBoundingVolumes() const;
 			void UpdateTransformMatrix() const;
 
 			NazaraSlot(Nz::Node, OnNodeInvalidation, m_nodeInvalidationSlot);
+
+			using CullingListBoxEntry = GraphicsComponentCullingList::BoxEntry;
+
+			struct CullingBoxEntry
+			{
+				CullingListBoxEntry listEntry;
+
+				NazaraSlot(GraphicsComponentCullingList, OnCullingListRelease, cullingListReleaseSlot);
+			};
 
 			struct MaterialEntry
 			{
@@ -128,29 +139,21 @@ namespace Ndk
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableResetMaterials, renderableResetMaterialsSlot);
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableSkinChange, renderableSkinChangeSlot);
 
+				mutable Nz::BoundingVolumef boundingVolume;
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;
 				mutable bool dataUpdated;
 			};
 
-			using VolumeCullingListEntry = GraphicsComponentCullingList::VolumeEntry;
-
-			struct VolumeCullingEntry
-			{
-				VolumeCullingListEntry listEntry;
-
-				NazaraSlot(GraphicsComponentCullingList, OnCullingListRelease, cullingListReleaseSlot);
-			};
-
 			std::size_t m_reflectiveMaterialCount;
-			mutable std::vector<VolumeCullingEntry> m_volumeCullingEntries;
+			mutable std::vector<CullingBoxEntry> m_cullingBoxEntries;
 			std::vector<Renderable> m_renderables;
 			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
-			mutable Nz::BoundingVolumef m_boundingVolume;
+			mutable Nz::Boxf m_aabb;
 			mutable Nz::Matrix4f m_transformMatrix;
 			Nz::Recti m_scissorRect;
 			Nz::TextureRef m_reflectionMap;
-			mutable bool m_boundingVolumeUpdated;
+			mutable bool m_boundingVolumesUpdated;
 			mutable bool m_transformMatrixUpdated;
 			unsigned int m_reflectionMapSize;
 	};
