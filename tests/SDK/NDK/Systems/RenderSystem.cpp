@@ -76,7 +76,7 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 			{
 				CHECK(nodeComponent.GetPosition() == position + velocity);
 				CHECK(physicsComponent2D.GetAABB() == aabb.Translate(position + velocity));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 			}
 		}
 
@@ -91,17 +91,17 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 				CHECK(physicsComponent2D.GetAngularVelocity() == Approx(angularSpeed));
 				CHECK(physicsComponent2D.GetRotation() == Approx(angularSpeed));
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(1.f, 4.f, 2.f, 1.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
 				CHECK(physicsComponent2D.GetRotation() == Approx(2.f * angularSpeed));
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.f, 2.f, 1.f, 2.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
 				CHECK(physicsComponent2D.GetRotation() == Approx(3.f * angularSpeed));
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(3.f, 3.f, 2.f, 1.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
 				CHECK(physicsComponent2D.GetRotation() == Approx(4.f * angularSpeed));
