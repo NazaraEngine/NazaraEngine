@@ -22,6 +22,7 @@ namespace Ndk
 	*/
 	void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
 	{
+		EnsureBoundingVolumesUpdate();
 		EnsureTransformMatrixUpdate();
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
@@ -30,12 +31,39 @@ namespace Ndk
 		{
 			if (!object.dataUpdated)
 			{
-				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
 				object.renderable->UpdateData(&object.data);
 				object.dataUpdated = true;
 			}
 
 			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
+		}
+	}
+
+	/*!
+	* \brief Adds the renderable elements to the render queue if their bounding volume intersects with the frustum
+	*
+	* \param frustum Queue to be added
+	* \param renderQueue Queue to be added
+	*/
+	void GraphicsComponent::AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue) const
+	{
+		EnsureBoundingVolumesUpdate();
+		EnsureTransformMatrixUpdate();
+
+		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
+
+		for (const Renderable& object : m_renderables)
+		{
+			if (frustum.Contains(object.boundingVolume))
+			{
+				if (!object.dataUpdated)
+				{
+					object.renderable->UpdateData(&object.data);
+					object.dataUpdated = true;
+				}
+
+				object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
+			}
 		}
 	}
 
@@ -274,9 +302,10 @@ namespace Ndk
 		{
 			const Renderable& r = m_renderables[i];
 			r.boundingVolume = r.renderable->GetBoundingVolume();
+			r.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(r.data.localMatrix, m_transformMatrix));
 			if (r.boundingVolume.IsFinite())
 			{
-				r.boundingVolume.Update(Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(r.data.localMatrix, m_transformMatrix)));
+				r.boundingVolume.Update(r.data.transformMatrix);
 
 				if (i > 0)
 					m_aabb.ExtendTo(r.boundingVolume.aabb);

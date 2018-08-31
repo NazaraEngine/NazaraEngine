@@ -10,6 +10,7 @@
 
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
 #include <unordered_map>
@@ -34,6 +35,7 @@ namespace Ndk
 
 			inline void AddToCullingList(GraphicsComponentCullingList* cullingList) const;
 			void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
+			void AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue) const;
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);

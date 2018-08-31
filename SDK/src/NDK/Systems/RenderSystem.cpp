@@ -204,9 +204,11 @@ namespace Ndk
 
 			bool forceInvalidation = false;
 
+			const Nz::Frustumf& frustum = camComponent.GetFrustum();
+
 			std::size_t visibilityHash;
 			if (m_isCullingEnabled)
-				visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
+				visibilityHash = m_drawableCulling.Cull(frustum, &forceInvalidation);
 			else
 				visibilityHash = m_drawableCulling.FillWithAllEntries(&forceInvalidation);
 
@@ -220,9 +222,8 @@ namespace Ndk
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
 
-				// FIXME: We should cull individual renderables here
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
-					gfxComponent->AddToRenderQueue(renderQueue);
+					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue);
 
 				for (const Ndk::EntityHandle& light : m_lights)
 				{
