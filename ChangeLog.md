@@ -142,6 +142,8 @@ Nazara Engine:
 - Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
 - It is now possible to prevent CompoundCollider2D to override individual colliders properties
 - Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
+- CullingList now handles box tests
+- ⚠️ CullingList now handles full and partial visibility testing
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -200,6 +202,8 @@ Nazara Development Kit:
 - It is now possible to disable object culling in the RenderSystem
 - Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
 - Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
+- ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
+- RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
 
 # 0.4:
 
