@@ -57,6 +57,8 @@ namespace Ndk
 			inline std::size_t GetAttachedRenderableCount() const;
 
 			inline const Nz::BoundingVolumef& GetBoundingVolume(std::size_t renderableIndex) const;
+			inline const Nz::Matrix4f& GetLocalMatrix(std::size_t renderableIndex) const;
+			inline const Nz::Matrix4f& GetTransformMatrix(std::size_t renderableIndex) const;
 
 			inline void RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const;
 

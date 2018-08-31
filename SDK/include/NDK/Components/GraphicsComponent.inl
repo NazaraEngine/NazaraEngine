@@ -176,6 +176,20 @@ namespace Ndk
 		return m_renderables[renderableIndex].boundingVolume;
 	}
 
+	inline const Nz::Matrix4f& GraphicsComponent::GetLocalMatrix(std::size_t renderableIndex) const
+	{
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex].data.localMatrix;
+	}
+
+	inline const Nz::Matrix4f& GraphicsComponent::GetTransformMatrix(std::size_t renderableIndex) const
+	{
+		EnsureBoundingVolumesUpdate();
+
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex].data.transformMatrix;
+	}
+
 	/*!
 	* \brief Calls a function for every renderable attached to this component
 	*

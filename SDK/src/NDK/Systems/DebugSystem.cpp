@@ -39,7 +39,9 @@ namespace Ndk
 
 				void MakeBoundingVolume() const override
 				{
-					m_boundingVolume.MakeNull();
+					// We generate an infinite bounding volume so that we're always considered for rendering when culling does occurs
+					// (bounding volume culling happens only if GraphicsComponent AABB partially fail)
+					m_boundingVolume.MakeInfinite();
 				}
 
 			protected:
@@ -71,7 +73,9 @@ namespace Ndk
 						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
 					};
 
+					// Maybe we should draw the global AABB (using another color)
 					//DrawBox(entityGfx.GetAABB());
+
 					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)
 					{
 						const Nz::BoundingVolumef& boundingVolume = entityGfx.GetBoundingVolume(i);
@@ -95,19 +99,25 @@ namespace Ndk
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
-					// TODO
-					/*const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
+					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::Boxf obb = entityGfx.GetAABB().obb.localBox;
+					auto DrawBox = [&](const Nz::Boxf& box, const Nz::Matrix4f& transformMatrix)
+					{
+						Nz::Matrix4f boxMatrix = Nz::Matrix4f::Identity();
+						boxMatrix.SetScale(box.GetLengths());
+						boxMatrix.SetTranslation(box.GetCenter());
+						boxMatrix.ConcatenateAffine(transformMatrix);
 
-					Nz::Matrix4f transformMatrix = instanceData.transformMatrix;
-					Nz::Vector3f obbCenter = transformMatrix.Transform(obb.GetCenter(), 0.f); //< Apply rotation/scale to obb center, to display it at a correct position
+						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), boxMatrix, scissorRect);
+					};
 
-					transformMatrix.ApplyScale(obb.GetLengths());
-					transformMatrix.ApplyTranslation(obbCenter);
-
-					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);*/
+					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)
+					{
+						const Nz::BoundingVolumef& boundingVolume = entityGfx.GetBoundingVolume(i);
+						if (boundingVolume.IsFinite())
+							DrawBox(boundingVolume.obb.localBox, entityGfx.GetTransformMatrix(i));
+					}
 				}
 
 				std::unique_ptr<InstancedRenderable> Clone() const override
