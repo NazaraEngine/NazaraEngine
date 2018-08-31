@@ -378,6 +378,7 @@ namespace Ndk
 			m_globalAabbMaterial->EnableDepthBuffer(true);
 			m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
 			m_globalAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_globalAabbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_globalAabbMaterial;
@@ -392,6 +393,7 @@ namespace Ndk
 			m_localAabbMaterial->EnableDepthBuffer(true);
 			m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
 			m_localAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_localAabbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_localAabbMaterial;
@@ -406,6 +408,7 @@ namespace Ndk
 			m_collisionMaterial->EnableDepthBuffer(true);
 			m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
 			m_collisionMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_collisionMaterial->SetLineWidth(2.f);
 		}
 
 		return m_collisionMaterial;
@@ -420,6 +423,7 @@ namespace Ndk
 			m_obbMaterial->EnableDepthBuffer(true);
 			m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
 			m_obbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_obbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_obbMaterial;
