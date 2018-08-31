@@ -195,11 +195,11 @@ namespace Ndk
 
 			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
 
-			// To make sure the bounding volume used by the culling list is updated
+			// To make sure the bounding volumes used by the culling list is updated
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				graphicsComponent.EnsureBoundingVolumeUpdate();
+				graphicsComponent.EnsureBoundingVolumesUpdate();
 			}
 
 			bool forceInvalidation = false;
@@ -220,6 +220,7 @@ namespace Ndk
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
 
+				// FIXME: We should cull individual renderables here
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
 

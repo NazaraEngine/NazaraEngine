@@ -62,13 +62,22 @@ namespace Ndk
 					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::Boxf aabb = entityGfx.GetBoundingVolume().aabb;
+					auto DrawBox = [&](const Nz::Boxf& box)
+					{
+						Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
+						transformMatrix.SetScale(box.GetLengths());
+						transformMatrix.SetTranslation(box.GetCenter());
 
-					Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
-					transformMatrix.SetScale(aabb.GetLengths());
-					transformMatrix.SetTranslation(aabb.GetCenter());
+						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					};
 
-					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					//DrawBox(entityGfx.GetAABB());
+					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)
+					{
+						const Nz::BoundingVolumef& boundingVolume = entityGfx.GetBoundingVolume(i);
+						if (boundingVolume.IsFinite())
+							DrawBox(boundingVolume.aabb);
+					}
 				}
 
 				std::unique_ptr<InstancedRenderable> Clone() const override
@@ -86,10 +95,11 @@ namespace Ndk
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
-					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
+					// TODO
+					/*const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::Boxf obb = entityGfx.GetBoundingVolume().obb.localBox;
+					Nz::Boxf obb = entityGfx.GetAABB().obb.localBox;
 
 					Nz::Matrix4f transformMatrix = instanceData.transformMatrix;
 					Nz::Vector3f obbCenter = transformMatrix.Transform(obb.GetCenter(), 0.f); //< Apply rotation/scale to obb center, to display it at a correct position
@@ -97,7 +107,7 @@ namespace Ndk
 					transformMatrix.ApplyScale(obb.GetLengths());
 					transformMatrix.ApplyTranslation(obbCenter);
 
-					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);*/
 				}
 
 				std::unique_ptr<InstancedRenderable> Clone() const override
@@ -120,7 +130,7 @@ namespace Ndk
 	*/
 	DebugSystem::DebugSystem()
 	{
-		Requires<DebugComponent, GraphicsComponent>();
+		Requires<DebugComponent, GraphicsComponent, NodeComponent>();
 		SetUpdateOrder(1000); //< Update last
 	}
 
@@ -181,6 +191,7 @@ namespace Ndk
 
 		DebugComponent& entityDebug = entity->GetComponent<DebugComponent>();
 		GraphicsComponent& entityGfx = entity->GetComponent<GraphicsComponent>();
+		NodeComponent& entityNode = entity->GetComponent<NodeComponent>();
 
 		DebugDrawFlags enabledFlags = entityDebug.GetEnabledFlags();
 		DebugDrawFlags flags = entityDebug.GetFlags();
@@ -195,14 +206,14 @@ namespace Ndk
 				{
 					case DebugDraw::Collider3D:
 					{
-						const Nz::Boxf& obb = entityGfx.GetBoundingVolume().obb.localBox;
+						const Nz::Boxf& obb = entityGfx.GetAABB();
 
 						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
 						if (renderable)
 						{
 							renderable->SetPersistent(false);
 
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter()), DebugDrawOrder);
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter() - entityNode.GetPosition()), DebugDrawOrder);
 						}
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
