@@ -65,7 +65,7 @@ namespace Nz
 			NazaraSignal(OnColliderRelease, const Collider2D* /*collider*/);
 
 		protected:
-			virtual void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const = 0;
+			virtual std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const = 0;
 
 			bool m_trigger;
 			UInt32 m_categoryMask;
@@ -74,7 +74,7 @@ namespace Nz
 			UInt32 m_collisionMask;
 
 		private:
-			virtual std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const;
+			virtual std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const;
 
 			static Collider2DLibrary::LibraryMap s_library;
 	};
@@ -100,7 +100,7 @@ namespace Nz
 			template<typename... Args> static BoxCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Rectf m_rect;
 			float m_radius;
@@ -125,7 +125,7 @@ namespace Nz
 			template<typename... Args> static CircleCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_offset;
 			float m_radius;
@@ -153,8 +153,8 @@ namespace Nz
 			template<typename... Args> static CompoundCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
-			std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			std::vector<Collider2DRef> m_geoms;
 			bool m_doesOverrideCollisionProperties;
@@ -178,7 +178,7 @@ namespace Nz
 			template<typename... Args> static ConvexCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			std::vector<Vector2d> m_vertices;
 			float m_radius;
@@ -201,7 +201,7 @@ namespace Nz
 			template<typename... Args> static NullCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 	};
 
 	class SegmentCollider2D;
@@ -225,7 +225,7 @@ namespace Nz
 			template<typename... Args> static SegmentCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_first;
 			Vector2f m_second;

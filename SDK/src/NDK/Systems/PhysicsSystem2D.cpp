@@ -224,36 +224,39 @@ namespace Ndk
 		}
 	}
 
-	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
+	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionId, Callback callbacks)
 	{
 		Nz::PhysWorld2D::Callback worldCallbacks;
 
 		if (callbacks.endCallback)
 		{
-			worldCallbacks.endCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.endCallback = [this, cb = std::move(callbacks.endCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.endCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.preSolveCallback)
 		{
-			worldCallbacks.preSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.preSolveCallback = [this, cb = std::move(callbacks.preSolveCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.preSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.postSolveCallback)
 		{
-			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.postSolveCallback = [this, cb = std::move(callbacks.postSolveCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.postSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.startCallback)
 		{
-			worldCallbacks.startCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.startCallback = [this, cb = std::move(callbacks.startCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.startCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
 
@@ -262,36 +265,39 @@ namespace Ndk
 		m_physWorld->RegisterCallbacks(collisionId, worldCallbacks);
 	}
 
-	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks)
+	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
 	{
 		Nz::PhysWorld2D::Callback worldCallbacks{};
 
 		if (callbacks.endCallback)
 		{
-			worldCallbacks.endCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.endCallback = [this, cb = std::move(callbacks.endCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.endCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.preSolveCallback)
 		{
-			worldCallbacks.preSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.preSolveCallback = [this, cb = std::move(callbacks.preSolveCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.preSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.postSolveCallback)
 		{
-			worldCallbacks.postSolveCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.postSolveCallback = [this, cb = std::move(callbacks.postSolveCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				callbacks.postSolveCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
+
 		if (callbacks.startCallback)
 		{
-			worldCallbacks.startCallback = [&callbacks, this](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
+			worldCallbacks.startCallback = [this, cb = std::move(callbacks.startCallback)](Nz::PhysWorld2D& world, Nz::Arbiter2D& arbiter, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void* userdata)
 			{
-				return callbacks.startCallback(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
+				return cb(*this, arbiter, GetEntityFromBody(bodyA), GetEntityFromBody(bodyB), userdata);
 			};
 		}
 
