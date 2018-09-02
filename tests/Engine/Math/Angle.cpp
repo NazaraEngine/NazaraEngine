@@ -1,0 +1,128 @@
+#include <Nazara/Math/Angle.hpp>
+#include <Catch/catch.hpp>
+
+SCENARIO("Angle", "[MATH][ANGLE]")
+{
+	GIVEN("A degree angle of 90deg")
+	{
+		Nz::DegreeAnglef angle(90.f);
+
+		WHEN("We convert it to degrees")
+		{
+			Nz::DegreeAnglef copyAngle = angle.ToDegrees();
+
+			THEN("It should compare to itself")
+			{
+				CHECK(angle == copyAngle);
+			}
+		}
+
+		WHEN("We convert it to radians")
+		{
+			Nz::RadianAnglef radAngle(angle);
+
+			THEN("It should be equal to pi/2")
+			{
+				Nz::RadianAnglef expectedResult(float(M_PI_2));
+
+				CHECK(radAngle == expectedResult);
+				CHECK(angle.ToRadians() == expectedResult);
+			}
+		}
+	}
+
+	GIVEN("A degree angle of 480deg")
+	{
+		Nz::DegreeAnglef angle(480.f);
+
+		WHEN("We normalize it")
+		{
+			angle.Normalize();
+
+			THEN("It should be equal to a normalized version of itself")
+			{
+				Nz::DegreeAnglef expectedResult(120.f);
+
+				CHECK(angle == expectedResult);
+			}
+		}
+	}
+
+	GIVEN("A degree angle of -270deg")
+	{
+		Nz::DegreeAnglef angle(-270.f);
+
+		WHEN("We normalize it")
+		{
+			angle.Normalize();
+
+			THEN("It should be equal to a normalized version of itself")
+			{
+				Nz::DegreeAnglef expectedResult(90.f);
+
+				CHECK(angle == expectedResult);
+			}
+		}
+	}
+
+	GIVEN("A radian angle of -M_PI")
+	{
+		Nz::RadianAnglef angle(float(-M_PI));
+
+		WHEN("We convert it to radians")
+		{
+			Nz::RadianAnglef copyAngle = angle.ToRadians();
+
+			THEN("It should compare to itself")
+			{
+				CHECK(angle == copyAngle);
+			}
+		}
+
+		WHEN("We convert it to degrees")
+		{
+			Nz::DegreeAnglef degAngle(angle);
+
+			THEN("It should be equal to pi/2")
+			{
+				Nz::DegreeAnglef expectedResult(-180.f);
+
+				CHECK(degAngle == expectedResult);
+				CHECK(angle.ToDegrees() == expectedResult);
+			}
+		}
+	}
+	GIVEN("A radian angle of 7pi")
+	{
+		Nz::RadianAnglef angle(float(7 * M_PI));
+
+		WHEN("We normalize it")
+		{
+			angle.Normalize();
+
+			THEN("It should be equal to a normalized version of itself")
+			{
+				Nz::RadianAnglef expectedResult(float(M_PI));
+
+				CHECK(angle == expectedResult);
+			}
+		}
+	}
+
+	GIVEN("A radian angle of -4pi")
+	{
+		Nz::RadianAnglef angle(float(-4 * M_PI));
+
+		WHEN("We normalize it")
+		{
+			angle.Normalize();
+
+			THEN("It should be equal to a normalized version of itself")
+			{
+				Nz::RadianAnglef expectedResult(0.f);
+
+				CHECK(angle == expectedResult);
+			}
+		}
+	}
+}
