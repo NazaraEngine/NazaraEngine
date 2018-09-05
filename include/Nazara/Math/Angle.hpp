@@ -10,6 +10,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Enums.hpp>
+#include <ostream>
 #include <type_traits>
 #include <utility>
 

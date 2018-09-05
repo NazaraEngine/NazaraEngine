@@ -118,7 +118,7 @@ namespace Nz
 		}
 
 		template<typename T>
-		void SinCos(std::enable_if_t<std::is_same<T, float>::value, float> x, float* s, float* cos)
+		void SinCos(std::enable_if_t<std::is_same<T, float>::value, float> x, float* s, float* c)
 		{
 			::sincosf(x, s, c);
 		}
@@ -228,7 +228,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	void Angle<Unit, T>::Normalize()
 	{
-		constexpr T limit = Detail::AngleUtils<Unit>::GetLimit<T>();
+		constexpr T limit = Detail::AngleUtils<Unit>::template GetLimit<T>();
 		constexpr T twoLimit = limit * T(2);
 
 		angle = std::fmod(angle, twoLimit);
@@ -404,7 +404,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	bool Angle<Unit, T>::operator==(const Angle& other) const
 	{
-		return NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
+		return NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
 
 	/*!
@@ -416,7 +416,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	bool Angle<Unit, T>::operator!=(const Angle& other) const
 	{
-		return !NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
+		return !NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
 
 	/*!
