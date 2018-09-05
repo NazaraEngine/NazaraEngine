@@ -144,6 +144,7 @@ Nazara Engine:
 - Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
 - CullingList now handles box tests
 - ⚠️ CullingList now handles full and partial visibility testing
+- Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
