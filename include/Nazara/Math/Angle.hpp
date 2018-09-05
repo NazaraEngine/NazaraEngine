@@ -22,9 +22,9 @@ namespace Nz
 	{
 		public:
 			Angle() = default;
-			Angle(T Angle);
-			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& Angle) { Set(Angle); }
-			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& Angle) { Set(Angle); }
+			Angle(T value);
+			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& value) { Set(value); }
+			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& value) { Set(value); }
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
 			Angle(const Angle&) = default;
 			~Angle() = default;
@@ -49,16 +49,16 @@ namespace Nz
 
 			Angle& operator=(const Angle&) = default;
 
-			Angle operator+(const Angle& Angle) const;
-			Angle operator-(const Angle& Angle) const;
+			Angle operator+(const Angle& other) const;
+			Angle operator-(const Angle& other) const;
 
-			Angle& operator+=(const Angle& Angle);
-			Angle& operator-=(const Angle& Angle);
+			Angle& operator+=(const Angle& other);
+			Angle& operator-=(const Angle& other);
 			Angle& operator*=(T scalar);
 			Angle& operator/=(T divider);
 
-			bool operator==(const Angle& Angle) const;
-			bool operator!=(const Angle& Angle) const;
+			bool operator==(const Angle& other) const;
+			bool operator!=(const Angle& other) const;
 
 			static Angle Zero();
 
