@@ -147,11 +147,11 @@ namespace Nz
 	/*!
 	* \brief Constructs an Angle object with an angle value
 	*
-	* \param Angle value of the angle
+	* \param value value of the angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::Angle(T Angle) :
-	angle(Angle)
+	Angle<Unit, T>::Angle(T value) :
+	angle(value)
 	{
 	}
 
@@ -323,10 +323,10 @@ namespace Nz
 	* \brief Addition operator
 	* \return Adds two angles together
 	*
-	* \param angle Angle to add
+	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& Angle) const
+	Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& other) const
 	{
 		return Angle(angle + Angle.angle);
 	}
@@ -335,10 +335,10 @@ namespace Nz
 	* \brief Subtraction operator
 	* \return Subtracts two angles together
 	*
-	* \param angle Angle to subtract
+	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& Angle) const
+	Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
 	{
 		return Angle(angle - Angle.angle);
 	}
@@ -347,10 +347,10 @@ namespace Nz
 	* \brief Adds an angle by another
 	* \return A reference to the angle
 	*
-	* \param angle Angle to add
+	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& other)
 	{
 		angle += Angle.angle;
 		return *this;
@@ -360,10 +360,10 @@ namespace Nz
 	* \brief Subtract an angle by another
 	* \return A reference to the angle
 	*
-	* \param angle Angle to subtract
+	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& other)
 	{
 		angle -= Angle.angle;
 		return *this;
@@ -399,24 +399,24 @@ namespace Nz
 	* \brief Compares the angle to another for equality
 	* \return True if both angles are equal
 	*
-	* \param Angle The other angle to compare to
+	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Angle<Unit, T>::operator==(const Angle& Angle) const
+	bool Angle<Unit, T>::operator==(const Angle& other) const
 	{
-		return NumberEquals(angle, Angle.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
+		return NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
 	}
 
 	/*!
 	* \brief Compares the angle to another for inequality
 	* \return True if both angles are equal
 	*
-	* \param Angle The other angle to compare to
+	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Angle<Unit, T>::operator!=(const Angle& Angle) const
+	bool Angle<Unit, T>::operator!=(const Angle& other) const
 	{
-		return !NumberEquals(angle, Angle.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
+		return !NumberEquals(angle, other.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
 	}
 
 	/*!
