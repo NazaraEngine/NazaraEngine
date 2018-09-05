@@ -29,6 +29,26 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 				CHECK(angle.ToRadians() == expectedResult);
 			}
 		}
+
+		WHEN("We compute its sinus/cosinus separatly")
+		{
+			THEN("It should be equal to 1 and 0")
+			{
+				CHECK(angle.GetSin() == Approx(1.f).margin(0.0001f));
+				CHECK(angle.GetCos() == Approx(0.f).margin(0.0001f));
+			}
+
+		}
+		AND_WHEN("We compute it at the same time")
+		{
+			auto sincos = angle.GetSinCos();
+
+			THEN("It should also be equal to 1 and 0")
+			{
+				CHECK(sincos.first == Approx(1.f).margin(0.0001f));
+				CHECK(sincos.second == Approx(0.f).margin(0.0001f));
+			}
+		}
 	}
 
 	GIVEN("A degree angle of 480deg")
@@ -48,9 +68,9 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 		}
 	}
 
-	GIVEN("A degree angle of -270deg")
+	GIVEN("A degree angle of -300deg")
 	{
-		Nz::DegreeAnglef angle(-270.f);
+		Nz::DegreeAnglef angle(-300.f);
 
 		WHEN("We normalize it")
 		{
@@ -58,7 +78,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should be equal to a normalized version of itself")
 			{
-				Nz::DegreeAnglef expectedResult(90.f);
+				Nz::DegreeAnglef expectedResult(60.f);
 
 				CHECK(angle == expectedResult);
 			}
@@ -91,7 +111,28 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 				CHECK(angle.ToDegrees() == expectedResult);
 			}
 		}
+
+		WHEN("We compute its sinus/cosinus separatly")
+		{
+			THEN("It should be equal to 0 and -1")
+			{
+				CHECK(angle.GetSin() == Approx(0.f).margin(0.0001f));
+				CHECK(angle.GetCos() == Approx(-1.f).margin(0.0001f));
+			}
+
+		}
+		AND_WHEN("We compute it at the same time")
+		{
+			auto sincos = angle.GetSinCos();
+
+			THEN("It should also be equal to 0 and -1")
+			{
+				CHECK(sincos.first == Approx(0.f).margin(0.0001f));
+				CHECK(sincos.second == Approx(-1.f).margin(0.0001f));
+			}
+		}
 	}
+
 	GIVEN("A radian angle of 7pi")
 	{
 		Nz::RadianAnglef angle(float(7 * M_PI));

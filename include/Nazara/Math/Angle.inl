@@ -16,6 +16,11 @@ namespace Nz
 		template<>
 		struct AngleUtils<AngleUnit::Degree>
 		{
+			template<typename T> static constexpr T GetEpsilon()
+			{
+				return T(1e-4);
+			}
+
 			template<typename T> static constexpr T GetLimit()
 			{
 				return 180;
@@ -55,9 +60,14 @@ namespace Nz
 		template<>
 		struct AngleUtils<AngleUnit::Radian>
 		{
+			template<typename T> static constexpr T GetEpsilon()
+			{
+				return T(1e-5);
+			}
+
 			template<typename T> static constexpr T GetLimit()
 			{
-				return M_PI;
+				return T(M_PI);
 			}
 
 			template<typename T> static T FromDegrees(T degrees)
@@ -90,6 +100,14 @@ namespace Nz
 				return out << "Angle(" << value << "rad)";
 			}
 		};
+
+		// Naive implementation, hopefully optimized by the compiler
+		template<typename T>
+		void SinCos(T x, T* sin, T* cos)
+		{
+			*sin = std::sin(x);
+			*cos = std::cos(x);
+		}
 	}
 	/*!
 	* \ingroup math
@@ -109,12 +127,66 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Computes the cosine of the angle
+	* \return Cosine of angle
+	*
+	* \see GetSinCos
+	*/
+	template<AngleUnit Unit, typename T>
+	T Angle<Unit, T>::GetCos() const
+	{
+		return std::cos(ToRadians().angle);
+	}
+
+	/*!
+	* \brief Computes the sine of the angle
+	* \return Sine of angle
+	*
+	* \see GetSinCos
+	*/
+	template<AngleUnit Unit, typename T>
+	T Angle<Unit, T>::GetSin() const
+	{
+		return std::sin(ToRadians().angle);
+	}
+
+	/*!
+	* \brief Computes both sines and cosines of the angle
+	* \return Sine and cosine of the angle
+	*
+	* \remark This is potentially faster than calling both GetSin and GetCos separately as it can computes both values at the same time.
+	*
+	* \see GetCos, GetSin
+	*/
+	template<AngleUnit Unit, typename T>
+	std::pair<T, T> Angle<Unit, T>::GetSinCos() const
+	{
+		T sin, cos;
+		Detail::SinCos<T>(ToRadians().angle, &sin, &cos);
+
+		return std::make_pair(sin, cos);
+	}
+
+	/*!
+	* \brief Computes the tangent of the angle
+	* \return Tangent value of the angle
+	*
+	* \see GetCos, GetSin
+	*/
+	template<AngleUnit Unit, typename T>
+	T Angle<Unit, T>::GetTan() const
+	{
+		return std::tan(ToRadians().angle);
+	}
+
+	/*!
 	* \brief Changes the angle value to zero
 	*/
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T>& Angle<Unit, T>::MakeZero()
 	{
 		angle = T(0);
+		return *this;
 	}
 
 	/*!
@@ -303,7 +375,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	bool Angle<Unit, T>::operator==(const Angle& Angle) const
 	{
-		return NumberEquals(angle, Angle.angle);
+		return NumberEquals(angle, Angle.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
 	}
 
 	/*!
@@ -315,7 +387,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	bool Angle<Unit, T>::operator!=(const Angle& Angle) const
 	{
-		return !NumberEquals(angle, Angle.angle);
+		return !NumberEquals(angle, Angle.angle, Detail::AngleUtils<Unit>::GetEpsilon<T>());
 	}
 
 	/*!
