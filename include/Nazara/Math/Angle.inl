@@ -320,6 +320,58 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Shortcut allowing implicit conversion to Euler angles
+	* \return Euler Angles representing a 2D rotation by this angle
+	*
+	* \see ToEulerAngles
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::operator EulerAngles<T>() const
+	{
+		return ToEulerAngles();
+	}
+
+	/*!
+	* \brief Shortcut allowing implicit conversion to Quaternion
+	* \return Quaternion representing a 2D rotation by this angle
+	*
+	* \see ToQuaternion
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::operator Quaternion<T>() const
+	{
+		return ToQuaternion();
+	}
+
+	/*!
+	* \brief Converts the angle to an Euler Angles representation
+	* \return A 2D rotation expressed in Euler angles
+	*
+	* This will assume two-dimensional usage, and will set the angle value (as degrees) as the roll value of the Euler Angles, leaving pitch and yaw to zero
+	*/
+	template<AngleUnit Unit, typename T>
+	EulerAngles<T> Angle<Unit, T>::ToEulerAngles() const
+	{
+		return EulerAngles<T>(0, 0, ToDegrees().angle);
+	}
+
+	/*!
+	* \brief Converts the angle to a Quaternion representation
+	* \return A 2D rotation expressed with Quaternion
+	*
+	* This will assume two-dimensional usage, as if the angle was first converted to Euler Angles and then to a Quaternion
+	*
+	* \see ToEulerAngles
+	*/
+	template<AngleUnit Unit, typename T>
+	Quaternion<T> Angle<Unit, T>::ToQuaternion() const
+	{
+		auto halfAngle = Angle(*this) / 2.f;
+		auto sincos = halfAngle.GetSinCos();
+		return Quaternion<T>(sincos.second, 0, 0, sincos.first);
+	}
+
+	/*!
 	* \brief Addition operator
 	* \return Adds two angles together
 	*
@@ -341,6 +393,30 @@ namespace Nz
 	Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
 	{
 		return Angle(angle - other.angle);
+	}
+
+	/*!
+	* \brief Multiplication operator
+	* \return A copy of the angle, scaled by the multiplier
+	*
+	* \param scalar Multiplier
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> Angle<Unit, T>::operator*(T scalar) const
+	{
+		return Angle(angle * scalar);
+	}
+
+	/*!
+	* \brief Divides the angle by a scalar
+	* \return A copy of the angle, divided by the divider
+	*
+	* \param divider Divider
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> Angle<Unit, T>::operator/(T divider) const
+	{
+		return Angle(angle / divider);
 	}
 
 	/*!
