@@ -11,6 +11,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <type_traits>
+#include <utility>
 
 namespace Nz
 {
@@ -27,6 +28,11 @@ namespace Nz
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
 			Angle(const Angle&) = default;
 			~Angle() = default;
+
+			T GetCos() const;
+			T GetSin() const;
+			std::pair<T, T> GetSinCos() const;
+			T GetTan() const;
 
 			Angle& MakeZero();
 
