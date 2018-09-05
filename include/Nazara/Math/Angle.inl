@@ -5,6 +5,11 @@
 #include <Nazara/Math/Angle.hpp>
 #include <algorithm>
 #include <cstring>
+
+#ifdef NAZARA_PLATFORM_POSIX
+#include <math.h> //< sincos
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -101,6 +106,29 @@ namespace Nz
 			}
 		};
 
+#ifdef NAZARA_PLATFORM_POSIX
+		template<typename T>
+		void SinCos(std::enable_if_t<!std::is_same<T, float>::value && !std::is_same<T, long double>::value, double> x, T* sin, T* cos)
+		{
+			double s, c;
+			::sincos(x, &s, &c);
+
+			*sin = static_cast<T>(s);
+			*cos = static_cast<T>(c);
+		}
+
+		template<typename T>
+		void SinCos(std::enable_if_t<std::is_same<T, float>::value, float> x, float* s, float* cos)
+		{
+			::sincosf(x, s, c);
+		}
+
+		template<typename T>
+		void SinCos(std::enable_if_t<std::is_same<T, long double>::value, long double> x, long double* s, long double* c)
+		{
+			::sincosl(x, sin, cos);
+		}
+#else
 		// Naive implementation, hopefully optimized by the compiler
 		template<typename T>
 		void SinCos(T x, T* sin, T* cos)
@@ -108,6 +136,7 @@ namespace Nz
 			*sin = std::sin(x);
 			*cos = std::cos(x);
 		}
+#endif
 	}
 	/*!
 	* \ingroup math

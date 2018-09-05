@@ -19,5 +19,6 @@ MODULE.OsFiles.Posix = {
 
 MODULE.OsLibraries.Posix = {
 	"dl",
+	"m", -- Math library (for sincos())
 	"pthread"
 }
