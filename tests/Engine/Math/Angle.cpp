@@ -1,4 +1,6 @@
 #include <Nazara/Math/Angle.hpp>
+#include <Nazara/Math/EulerAngles.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("Angle", "[MATH][ANGLE]")
@@ -37,16 +39,33 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 				CHECK(angle.GetSin() == Approx(1.f).margin(0.0001f));
 				CHECK(angle.GetCos() == Approx(0.f).margin(0.0001f));
 			}
-
-		}
-		AND_WHEN("We compute it at the same time")
-		{
-			auto sincos = angle.GetSinCos();
-
-			THEN("It should also be equal to 1 and 0")
+			AND_WHEN("We compute sin/cos at the same time")
 			{
-				CHECK(sincos.first == Approx(1.f).margin(0.0001f));
-				CHECK(sincos.second == Approx(0.f).margin(0.0001f));
+				auto sincos = angle.GetSinCos();
+
+				THEN("It should also be equal to 1 and 0")
+				{
+					CHECK(sincos.first == Approx(1.f).margin(0.0001f));
+					CHECK(sincos.second == Approx(0.f).margin(0.0001f));
+				}
+			}
+		}
+
+		WHEN("We get the Euler Angles representation of this angle")
+		{
+			Nz::EulerAnglesf eulerAngles = angle;
+			THEN("It should be equivalent to a 2D rotation by this angle")
+			{
+				CHECK(eulerAngles == Nz::EulerAnglesf(0.f, 0.f, 90.f));
+			}
+			AND_WHEN("We get the Quaternion representation of this angle")
+			{
+				Nz::Quaternionf quat = angle;
+
+				THEN("It should be equivalent to a 2D rotation by this angle")
+				{
+					CHECK(quat == eulerAngles.ToQuaternion());
+				}
 			}
 		}
 	}
@@ -129,6 +148,24 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			{
 				CHECK(sincos.first == Approx(0.f).margin(0.0001f));
 				CHECK(sincos.second == Approx(-1.f).margin(0.0001f));
+			}
+		}
+
+		WHEN("We get the Euler Angles representation of this angle")
+		{
+			Nz::EulerAnglesf eulerAngles = angle;
+			THEN("It should be equivalent to a 2D rotation by this angle")
+			{
+				CHECK(eulerAngles == Nz::EulerAnglesf(0.f, 0.f, -180.f));
+			}
+			AND_WHEN("We get the Quaternion representation of this angle")
+			{
+				Nz::Quaternionf quat = angle;
+
+				THEN("It should be equivalent to a 2D rotation by this angle")
+				{
+					CHECK(quat == eulerAngles.ToQuaternion());
+				}
 			}
 		}
 	}

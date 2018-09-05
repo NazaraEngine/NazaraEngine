@@ -18,6 +18,9 @@ namespace Nz
 {
 	struct SerializationContext;
 
+	template<typename T> class EulerAngles;
+	template<typename T> class Quaternion;
+
 	template<AngleUnit Unit, typename T>
 	class Angle
 	{
@@ -45,13 +48,20 @@ namespace Nz
 			template<typename U> Angle& Set(const Angle<Unit, U>& Angle);
 
 			Angle<AngleUnit::Degree, T> ToDegrees() const;
+			EulerAngles<T> ToEulerAngles() const;
+			Quaternion<T> ToQuaternion() const;
 			Angle<AngleUnit::Radian, T> ToRadians() const;
 			String ToString() const;
+
+			operator EulerAngles<T>() const;
+			operator Quaternion<T>() const;
 
 			Angle& operator=(const Angle&) = default;
 
 			Angle operator+(const Angle& other) const;
 			Angle operator-(const Angle& other) const;
+			Angle operator*(T scalar) const;
+			Angle operator/(T divider) const;
 
 			Angle& operator+=(const Angle& other);
 			Angle& operator-=(const Angle& other);
