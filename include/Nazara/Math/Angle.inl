@@ -328,7 +328,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& other) const
 	{
-		return Angle(angle + Angle.angle);
+		return Angle(angle + other.angle);
 	}
 
 	/*!
@@ -340,7 +340,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
 	{
-		return Angle(angle - Angle.angle);
+		return Angle(angle - other.angle);
 	}
 
 	/*!
@@ -352,7 +352,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& other)
 	{
-		angle += Angle.angle;
+		angle += other.angle;
 		return *this;
 	}
 
@@ -365,7 +365,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& other)
 	{
-		angle -= Angle.angle;
+		angle -= other.angle;
 		return *this;
 	}
 

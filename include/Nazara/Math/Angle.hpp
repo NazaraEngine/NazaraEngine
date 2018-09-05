@@ -24,8 +24,8 @@ namespace Nz
 		public:
 			Angle() = default;
 			Angle(T value);
-			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& value) { Set(value); }
-			template<AngleUnit U = Unit, typename C = std::enable_if_t<Unit == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& value) { Set(value); }
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& value) { Set(value); }
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& value) { Set(value); }
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
 			Angle(const Angle&) = default;
 			~Angle() = default;
