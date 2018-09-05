@@ -6,7 +6,7 @@
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Catch/catch.hpp>
 
-void CompareAABB(const Nz::Rectf& aabb, const Nz::BoundingVolumef& boundingVolume);
+void CompareAABB(const Nz::Rectf& aabb, const Nz::Boxf& box);
 
 SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 {
@@ -110,9 +110,8 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 	}
 }
 
-void CompareAABB(const Nz::Rectf& aabb, const Nz::BoundingVolumef& boundingVolume)
+void CompareAABB(const Nz::Rectf& aabb, const Nz::Boxf& box)
 {
-	Nz::Boxf box = boundingVolume.aabb;
 	CHECK(aabb.x == Approx(box.x));
 	CHECK(aabb.y == Approx(box.y));
 	CHECK(aabb.width == Approx(box.width));
