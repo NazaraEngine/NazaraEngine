@@ -140,6 +140,8 @@ namespace Nz
 			handle.m_object = nullptr;
 			object->UpdateHandle(&handle, this);
 		}
+		else
+			m_object = nullptr;
 	}
 
 	/*!

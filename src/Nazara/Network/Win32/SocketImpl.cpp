@@ -29,7 +29,7 @@ struct tcp_keepalive
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
 #endif
 
-#include <Winsock2.h>
+#include <winsock2.h>
 
 #include <Nazara/Network/Debug.hpp>
 
@@ -132,6 +132,7 @@ namespace Nz
 			switch (errorCode) //< Check for "normal errors" first
 			{
 				case WSAEALREADY:
+				case WSAEINVAL: //< In case of connect, WSAEINVAL may be returned instead of WSAEALREADY
 				case WSAEWOULDBLOCK:
 					return SocketState_Connecting;
 
@@ -951,6 +952,11 @@ namespace Nz
 			case WSAENOTSOCK:
 			case WSAEPROTOTYPE:
 			case WSA_INVALID_HANDLE:
+			// Those are not errors and should have been handled
+			case WSAEALREADY:
+			case WSAEISCONN:
+			case WSAEWOULDBLOCK:
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
 				return SocketError_Internal;
 
 			case WSAEADDRNOTAVAIL:
@@ -963,12 +969,6 @@ namespace Nz
 			case WSAEPROTONOSUPPORT:
 			case WSAESOCKTNOSUPPORT:
 				return SocketError_NotSupported;
-
-			// Those are not errors and should have been handled before the call
-			case WSAEALREADY:
-			case WSAEISCONN:
-			case WSAEWOULDBLOCK:
-				return SocketError_Internal;
 
 			case WSAECONNREFUSED:
 				return SocketError_ConnectionRefused;

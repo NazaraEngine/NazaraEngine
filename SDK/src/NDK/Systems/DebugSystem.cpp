@@ -20,9 +20,8 @@ namespace Ndk
 		class DebugRenderable : public Nz::InstancedRenderable
 		{
 			public:
-				DebugRenderable(Ndk::Entity* owner, Nz::MaterialRef mat, Nz::IndexBufferRef indexBuffer, Nz::VertexBufferRef vertexBuffer) :
+				DebugRenderable(Ndk::Entity* owner, Nz::IndexBufferRef indexBuffer, Nz::VertexBufferRef vertexBuffer) :
 				m_entityOwner(owner),
-				m_material(std::move(mat)),
 				m_indexBuffer(std::move(indexBuffer)),
 				m_vertexBuffer(std::move(vertexBuffer))
 				{
@@ -33,19 +32,20 @@ namespace Ndk
 					m_meshData.vertexBuffer = m_vertexBuffer;
 				}
 
-				void UpdateBoundingVolume(InstanceData* instanceData) const override
+				void UpdateBoundingVolume(InstanceData* /*instanceData*/) const override
 				{
 				}
 
 				void MakeBoundingVolume() const override
 				{
-					m_boundingVolume.MakeNull();
+					// We generate an infinite bounding volume so that we're always considered for rendering when culling does occurs
+					// (bounding volume culling happens only if GraphicsComponent AABB partially fail)
+					m_boundingVolume.MakeInfinite();
 				}
 
 			protected:
 				Ndk::EntityHandle m_entityOwner;
 				Nz::IndexBufferRef m_indexBuffer;
-				Nz::MaterialRef m_material;
 				Nz::MeshData m_meshData;
 				Nz::VertexBufferRef m_vertexBuffer;
 		};
@@ -53,54 +53,90 @@ namespace Ndk
 		class AABBDebugRenderable : public DebugRenderable
 		{
 			public:
-				using DebugRenderable::DebugRenderable;
+				AABBDebugRenderable(Ndk::Entity* owner, Nz::MaterialRef globalMaterial, Nz::MaterialRef localMaterial, Nz::IndexBufferRef indexBuffer, Nz::VertexBufferRef vertexBuffer) :
+				DebugRenderable(owner, std::move(indexBuffer), std::move(vertexBuffer)),
+				m_globalMaterial(std::move(globalMaterial)),
+				m_localMaterial(std::move(localMaterial))
+				{
+				}
 
 				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Nz::Recti& scissorRect) const override
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
+					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::Boxf aabb = entityGfx.GetBoundingVolume().aabb;
+					auto DrawBox = [&](const Nz::Boxf& box, const Nz::MaterialRef& mat)
+					{
+						Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
+						transformMatrix.SetScale(box.GetLengths());
+						transformMatrix.SetTranslation(box.GetCenter());
 
-					Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
-					transformMatrix.SetScale(aabb.GetLengths());
-					transformMatrix.SetTranslation(aabb.GetCenter());
+						renderQueue->AddMesh(0, mat, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					};
 
-					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					DrawBox(entityGfx.GetAABB(), m_globalMaterial);
+
+					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)
+					{
+						const Nz::BoundingVolumef& boundingVolume = entityGfx.GetBoundingVolume(i);
+						if (boundingVolume.IsFinite())
+							DrawBox(boundingVolume.aabb, m_localMaterial);
+					}
 				}
 
 				std::unique_ptr<InstancedRenderable> Clone() const override
 				{
 					return nullptr;
 				}
+
+			private:
+				Nz::MaterialRef m_globalMaterial;
+				Nz::MaterialRef m_localMaterial;
 		};
 
 		class OBBDebugRenderable : public DebugRenderable
 		{
 			public:
-				using DebugRenderable::DebugRenderable;
+				OBBDebugRenderable(Ndk::Entity* owner, Nz::MaterialRef material, Nz::IndexBufferRef indexBuffer, Nz::VertexBufferRef vertexBuffer) :
+				DebugRenderable(owner, std::move(indexBuffer), std::move(vertexBuffer)),
+				m_material(std::move(material))
+				{
+				}
 
 				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Nz::Recti& scissorRect) const override
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
+					const DebugComponent& entityDebug = m_entityOwner->GetComponent<DebugComponent>();
 					const GraphicsComponent& entityGfx = m_entityOwner->GetComponent<GraphicsComponent>();
 
-					Nz::OrientedBoxf entityObb = entityGfx.GetBoundingVolume().obb;
-					Nz::Boxf obb(entityObb.GetCorner(Nz::BoxCorner_NearLeftTop), entityObb.GetCorner(Nz::BoxCorner_FarRightBottom));
+					auto DrawBox = [&](const Nz::Boxf& box, const Nz::Matrix4f& transformMatrix)
+					{
+						Nz::Matrix4f boxMatrix = Nz::Matrix4f::Identity();
+						boxMatrix.SetScale(box.GetLengths());
+						boxMatrix.SetTranslation(box.GetCenter());
+						boxMatrix.ConcatenateAffine(transformMatrix);
 
-					Nz::Matrix4f transformMatrix = Nz::Matrix4f::Identity();
-					transformMatrix.SetScale(obb.GetLengths());
-					transformMatrix.SetTranslation(obb.GetCenter());
+						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), boxMatrix, scissorRect);
+					};
 
-					renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)
+					{
+						const Nz::BoundingVolumef& boundingVolume = entityGfx.GetBoundingVolume(i);
+						if (boundingVolume.IsFinite())
+							DrawBox(boundingVolume.obb.localBox, entityGfx.GetTransformMatrix(i));
+					}
 				}
 
 				std::unique_ptr<InstancedRenderable> Clone() const override
 				{
 					return nullptr;
 				}
+
+			private:
+				Nz::MaterialRef m_material;
 		};
 	}
 
@@ -117,7 +153,7 @@ namespace Ndk
 	*/
 	DebugSystem::DebugSystem()
 	{
-		Requires<DebugComponent, GraphicsComponent>();
+		Requires<DebugComponent, GraphicsComponent, NodeComponent>();
 		SetUpdateOrder(1000); //< Update last
 	}
 
@@ -178,6 +214,7 @@ namespace Ndk
 
 		DebugComponent& entityDebug = entity->GetComponent<DebugComponent>();
 		GraphicsComponent& entityGfx = entity->GetComponent<GraphicsComponent>();
+		NodeComponent& entityNode = entity->GetComponent<NodeComponent>();
 
 		DebugDrawFlags enabledFlags = entityDebug.GetEnabledFlags();
 		DebugDrawFlags flags = entityDebug.GetFlags();
@@ -192,14 +229,14 @@ namespace Ndk
 				{
 					case DebugDraw::Collider3D:
 					{
-						const Nz::Boxf& obb = entityGfx.GetBoundingVolume().obb.localBox;
+						const Nz::Boxf& obb = entityGfx.GetAABB();
 
 						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
 						if (renderable)
 						{
 							renderable->SetPersistent(false);
 
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter()), DebugDrawOrder);
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter() - entityNode.GetPosition()), DebugDrawOrder);
 						}
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
@@ -210,7 +247,7 @@ namespace Ndk
 					{
 						auto indexVertexBuffers = GetBoxMesh();
 
-						Nz::InstancedRenderableRef renderable = new AABBDebugRenderable(entity, GetAABBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
+						Nz::InstancedRenderableRef renderable = new AABBDebugRenderable(entity, GetGlobalAABBMaterial(), GetLocalAABBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
 						renderable->SetPersistent(false);
 
 						entityGfx.Attach(renderable, Nz::Matrix4f::Identity(), DebugDrawOrder);
@@ -332,18 +369,34 @@ namespace Ndk
 			return nullptr;
 	}
 
-	Nz::MaterialRef DebugSystem::GetAABBMaterial()
+	Nz::MaterialRef DebugSystem::GetGlobalAABBMaterial()
 	{
-		if (!m_aabbMaterial)
+		if (!m_globalAabbMaterial)
 		{
-			m_aabbMaterial = Nz::Material::New();
-			m_aabbMaterial->EnableFaceCulling(false);
-			m_aabbMaterial->EnableDepthBuffer(true);
-			m_aabbMaterial->SetDiffuseColor(Nz::Color::Red);
-			m_aabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_globalAabbMaterial = Nz::Material::New();
+			m_globalAabbMaterial->EnableFaceCulling(false);
+			m_globalAabbMaterial->EnableDepthBuffer(true);
+			m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
+			m_globalAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_globalAabbMaterial->SetLineWidth(2.f);
 		}
 
-		return m_aabbMaterial;
+		return m_globalAabbMaterial;
+	}
+
+	Nz::MaterialRef DebugSystem::GetLocalAABBMaterial()
+	{
+		if (!m_localAabbMaterial)
+		{
+			m_localAabbMaterial = Nz::Material::New();
+			m_localAabbMaterial->EnableFaceCulling(false);
+			m_localAabbMaterial->EnableDepthBuffer(true);
+			m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
+			m_localAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_localAabbMaterial->SetLineWidth(2.f);
+		}
+
+		return m_localAabbMaterial;
 	}
 
 	Nz::MaterialRef DebugSystem::GetCollisionMaterial()
@@ -355,6 +408,7 @@ namespace Ndk
 			m_collisionMaterial->EnableDepthBuffer(true);
 			m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
 			m_collisionMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_collisionMaterial->SetLineWidth(2.f);
 		}
 
 		return m_collisionMaterial;
@@ -369,6 +423,7 @@ namespace Ndk
 			m_obbMaterial->EnableDepthBuffer(true);
 			m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
 			m_obbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
+			m_obbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_obbMaterial;

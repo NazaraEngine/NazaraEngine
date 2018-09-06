@@ -31,6 +31,7 @@
 #define NAZARA_GLOBAL_MATH_HPP
 
 #include <Nazara/Math/Algorithm.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Config.hpp>

@@ -28,8 +28,9 @@ namespace Ndk
 			Nz::InstancedRenderableRef GenerateBox(Nz::Boxf box);
 			Nz::InstancedRenderableRef GenerateCollision3DMesh(Entity* entity);
 
-			Nz::MaterialRef GetAABBMaterial();
 			Nz::MaterialRef GetCollisionMaterial();
+			Nz::MaterialRef GetGlobalAABBMaterial();
+			Nz::MaterialRef GetLocalAABBMaterial();
 			Nz::MaterialRef GetOBBMaterial();
 			std::pair<Nz::IndexBufferRef, Nz::VertexBufferRef> GetBoxMesh();
 
@@ -37,7 +38,8 @@ namespace Ndk
 
 			void OnUpdate(float elapsedTime) override;
 
-			Nz::MaterialRef m_aabbMaterial;
+			Nz::MaterialRef m_globalAabbMaterial;
+			Nz::MaterialRef m_localAabbMaterial;
 			Nz::MaterialRef m_collisionMaterial;
 			Nz::MaterialRef m_obbMaterial;
 			Nz::IndexBufferRef m_boxMeshIndexBuffer;

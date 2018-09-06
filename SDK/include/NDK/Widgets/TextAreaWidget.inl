@@ -23,6 +23,16 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline void TextAreaWidget::EnableTabWriting(bool enable)
+	{
+		m_tabEnabled = enable;
+	}
+
+	inline void TextAreaWidget::Erase(std::size_t glyphPosition)
+	{
+		Erase(glyphPosition, glyphPosition + 1U);
+	}
+
 	inline const TextAreaWidget::CharacterFilter& TextAreaWidget::GetCharacterFilter() const
 	{
 		return m_characterFilter;
@@ -100,6 +110,11 @@ namespace Ndk
 	inline bool TextAreaWidget::IsMultilineEnabled() const
 	{
 		return m_multiLineEnabled;
+	}
+
+	inline bool TextAreaWidget::IsTabWritingEnabled() const
+	{
+		return m_tabEnabled;
 	}
 
 	inline bool TextAreaWidget::IsReadOnly() const
@@ -227,5 +242,15 @@ namespace Ndk
 		m_drawer.SetColor(text);
 
 		m_textSprite->Update(m_drawer);
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text)
+	{
+		Write(text, GetGlyphIndex(m_cursorPositionBegin));
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition)
+	{
+		Write(text, GetGlyphIndex(glyphPosition));
 	}
 }

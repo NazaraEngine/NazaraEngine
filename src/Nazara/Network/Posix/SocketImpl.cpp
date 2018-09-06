@@ -153,7 +153,7 @@ namespace Nz
 			tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
 			int ret = select(handle + 1, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
-			if (ret == SOCKET_ERROR)
+			if (ret > 0)
 			{
 				int code = GetLastErrorCode(handle, error);
 				if (code < 0) //< GetLastErrorCode() failed
@@ -952,6 +952,11 @@ namespace Nz
 			case EFAULT:
 			case ENOTSOCK:
 			case EPROTOTYPE:
+			// Those are not errors and should have been handled
+			case EALREADY:
+			case EISCONN:
+			case EWOULDBLOCK:
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
 				return SocketError_Internal;
 
 			case EADDRNOTAVAIL:
@@ -964,12 +969,6 @@ namespace Nz
 			case EPROTONOSUPPORT:
 			case ESOCKTNOSUPPORT:
 				return SocketError_NotSupported;
-
-			// Those are not errors and should have been handled before the call
-			case EALREADY:
-			case EISCONN:
-			case EWOULDBLOCK:
-				return SocketError_Internal;
 
 			case ECONNREFUSED:
 				return SocketError_ConnectionRefused;

@@ -662,7 +662,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 
 	Ndk::NodeComponent& cannonNode = m_turret.cannonEntity->GetComponent<Ndk::NodeComponent>();
 
-	Nz::Boxf introAABB = introGfx.GetBoundingVolume().aabb;
+	Nz::Boxf introAABB = introGfx.GetAABB();
 	introNode.SetPosition(cannonNode.GetForward() * 500.f + introNode.GetLeft() * introAABB.width / 2.f + introNode.GetUp() * introAABB.height / 2.f);
 }
 

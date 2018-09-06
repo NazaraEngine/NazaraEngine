@@ -126,7 +126,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			{
 				CHECK(body.GetAABB() == aabb);
 				CHECK(body.GetAngularVelocity() == Approx(0.f));
-				CHECK(body.GetCenterOfGravity() == Nz::Vector2f::Zero());
+				CHECK(body.GetMassCenter() == Nz::Vector2f::Zero());
 				CHECK(body.GetGeom() == box);
 				CHECK(body.GetMass() == Approx(mass));
 				CHECK(body.GetPosition() == position);
@@ -150,7 +150,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			{
 				aabb.Translate(velocity);
 				CHECK(body.GetAABB() == aabb);
-				CHECK(body.GetCenterOfGravity() == Nz::Vector2f::Zero());
+				CHECK(body.GetMassCenter() == Nz::Vector2f::Zero());
 				CHECK(body.GetPosition() == position);
 				CHECK(body.GetVelocity() == velocity);
 			}

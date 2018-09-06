@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
 	graphicsComponent.Attach(textSprite);
 
-	Nz::Boxf textBox = graphicsComponent.GetBoundingVolume().aabb;
+	Nz::Boxf textBox = graphicsComponent.GetAABB();
 	Nz::Vector2ui windowSize = mainWindow.GetSize();
 	nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
 

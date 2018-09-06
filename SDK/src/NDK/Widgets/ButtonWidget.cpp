@@ -80,7 +80,7 @@ namespace Ndk
 		Nz::Vector2f size = GetSize();
 		m_gradientSprite->SetSize(size);
 
-		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().obb.localBox;
+		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetAABB();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
 	}
 

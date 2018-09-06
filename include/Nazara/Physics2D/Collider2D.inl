@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Physics2D/Collider2D.hpp>
 #include <memory>
 #include <Nazara/Physics2D/Debug.hpp>
 
@@ -16,12 +17,12 @@ namespace Nz
 	{
 	}
 
-	inline Nz::UInt32 Collider2D::GetCategoryMask() const
+	inline UInt32 Collider2D::GetCategoryMask() const
 	{
 		return m_categoryMask;
 	}
 
-	inline Nz::UInt32 Collider2D::GetCollisionGroup() const
+	inline UInt32 Collider2D::GetCollisionGroup() const
 	{
 		return m_collisionGroup;
 	}
@@ -31,7 +32,7 @@ namespace Nz
 		return m_collisionId;
 	}
 
-	inline Nz::UInt32 Collider2D::GetCollisionMask() const
+	inline UInt32 Collider2D::GetCollisionMask() const
 	{
 		return m_collisionMask;
 	}
@@ -41,12 +42,12 @@ namespace Nz
 		return m_trigger;
 	}
 
-	inline void Collider2D::SetCategoryMask(Nz::UInt32 categoryMask)
+	inline void Collider2D::SetCategoryMask(UInt32 categoryMask)
 	{
 		m_categoryMask = categoryMask;
 	}
 
-	inline void Collider2D::SetCollisionGroup(Nz::UInt32 groupId)
+	inline void Collider2D::SetCollisionGroup(UInt32 groupId)
 	{
 		m_collisionGroup = groupId;
 	}
@@ -56,7 +57,7 @@ namespace Nz
 		m_collisionId = typeId;
 	}
 
-	inline void Collider2D::SetCollisionMask(Nz::UInt32 mask)
+	inline void Collider2D::SetCollisionMask(UInt32 mask)
 	{
 		m_collisionMask = mask;
 	}
@@ -64,6 +65,11 @@ namespace Nz
 	inline void Collider2D::SetTrigger(bool trigger)
 	{
 		m_trigger = trigger;
+	}
+
+	inline float BoxCollider2D::GetRadius() const
+	{
+		return m_radius;
 	}
 
 	inline const Rectf& BoxCollider2D::GetRect() const
@@ -85,6 +91,11 @@ namespace Nz
 		return object.release();
 	}
 
+	inline const Vector2f& CircleCollider2D::GetOffset() const
+	{
+		return m_offset;
+	}
+
 	inline float CircleCollider2D::GetRadius() const
 	{
 		return m_radius;
@@ -99,9 +110,19 @@ namespace Nz
 		return object.release();
 	}
 
-	inline const std::vector<Collider2DRef>& Nz::CompoundCollider2D::GetGeoms() const
+	inline bool Nz::CompoundCollider2D::DoesOverrideCollisionProperties() const
+	{
+		return m_doesOverrideCollisionProperties;
+	}
+
+	inline const std::vector<Collider2DRef>& CompoundCollider2D::GetGeoms() const
 	{
 		return m_geoms;
+	}
+
+	inline void Nz::CompoundCollider2D::OverridesCollisionProperties(bool shouldOverride)
+	{
+		m_doesOverrideCollisionProperties = shouldOverride;
 	}
 
 	template<typename... Args>
@@ -111,6 +132,11 @@ namespace Nz
 		object->SetPersistent(false);
 
 		return object.release();
+	}
+
+	inline const std::vector<Vector2d>& ConvexCollider2D::GetVertices() const
+	{
+		return m_vertices;
 	}
 
 	template<typename... Args>
@@ -151,6 +177,11 @@ namespace Nz
 	inline const Vector2f& SegmentCollider2D::GetSecondPoint() const
 	{
 		return m_second;
+	}
+
+	inline float SegmentCollider2D::GetThickness() const
+	{
+		return m_thickness;
 	}
 
 	template<typename... Args>

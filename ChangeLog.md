@@ -17,6 +17,7 @@ Miscellaneous:
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
 - When supported, projects are now parts of a virtual "workspace group" according to their kind
+- Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -132,7 +133,18 @@ Nazara Engine:
 - Added movement with Ctrl in TextAreaWidget
 - Added Unicode Data downloader/parser
 - Integrated Unicode Data
-- Fixed Flags operator |=/&=/^= not being constexpr
+- Added CullingList::FillWithAllEntries method
+- Fixed ObjectHandle movement sometimes not resetting its internal pointer
+- Added BoxCollider2D::GetRadius
+- Added CircleCollider2D::GetOffset
+- Added ConvexCollider2D::GetVertices
+- Added SegmentCollider2D::GetThickness
+- Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
+- It is now possible to prevent CompoundCollider2D to override individual colliders properties
+- Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
+- CullingList now handles box tests
+- ⚠️ CullingList now handles full and partial visibility testing
+- Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -187,6 +199,12 @@ Nazara Development Kit:
 - Fixed GraphicsComponent copy constructor not copying scissor rect
 - Force parent parameter to be present in widgets constructor
 - Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- Enable write of Tab character in TextAreaWidget
+- It is now possible to disable object culling in the RenderSystem
+- Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
+- Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
+- ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
+- RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
 
 # 0.4:
 
