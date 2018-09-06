@@ -320,30 +320,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Shortcut allowing implicit conversion to Euler angles
-	* \return Euler Angles representing a 2D rotation by this angle
-	*
-	* \see ToEulerAngles
-	*/
-	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::operator EulerAngles<T>() const
-	{
-		return ToEulerAngles();
-	}
-
-	/*!
-	* \brief Shortcut allowing implicit conversion to Quaternion
-	* \return Quaternion representing a 2D rotation by this angle
-	*
-	* \see ToQuaternion
-	*/
-	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::operator Quaternion<T>() const
-	{
-		return ToQuaternion();
-	}
-
-	/*!
 	* \brief Converts the angle to an Euler Angles representation
 	* \return A 2D rotation expressed in Euler angles
 	*

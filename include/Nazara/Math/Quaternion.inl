@@ -40,13 +40,24 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a Quaternion object from an angle
+	*
+	* \param angle Angle representing a 2D rotation
+	*/
+	template<typename T>
+	template<AngleUnit Unit>
+	Quaternion<T>::Quaternion(const Angle<Unit, T>& angle)
+	{
+		Set(angle);
+	}
+
+	/*!
 	* \brief Constructs a Quaternion object from a EulerAngles
 	*
 	* \param angles Easier representation of rotation of space
 	*
 	* \see EulerAngles
 	*/
-
 	template<typename T>
 	Quaternion<T>::Quaternion(const EulerAngles<T>& angles)
 	{
@@ -344,6 +355,21 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets this quaternion from a 2D rotation specified by an Angle
+	* \return A reference to this quaternion
+	*
+	* \param angle 2D angle
+	*
+	* \see Angle
+	*/
+	template<typename T>
+	template<AngleUnit Unit>
+	Quaternion<T>& Quaternion<T>::Set(const Angle<Unit, T>& angle)
+	{
+		return Set(angle.ToQuaternion());
+	}
+
+	/*!
 	* \brief Sets this quaternion from rotation specified by Euler angle
 	* \return A reference to this quaternion
 	*
@@ -351,7 +377,6 @@ namespace Nz
 	*
 	* \see EulerAngles
 	*/
-
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::Set(const EulerAngles<T>& angles)
 	{
@@ -886,3 +911,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat)
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Quaternion.hpp"

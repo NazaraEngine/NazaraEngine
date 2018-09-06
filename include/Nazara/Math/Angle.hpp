@@ -53,9 +53,6 @@ namespace Nz
 			Angle<AngleUnit::Radian, T> ToRadians() const;
 			String ToString() const;
 
-			operator EulerAngles<T>() const;
-			operator Quaternion<T>() const;
-
 			Angle& operator=(const Angle&) = default;
 
 			Angle operator+(const Angle& other) const;
