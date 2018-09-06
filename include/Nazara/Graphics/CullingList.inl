@@ -71,30 +71,30 @@ namespace Nz
 	}
 
 	template<typename T>
-	typename CullingList<T>::NoTestEntry CullingList<T>::RegisterNoTest(const T* renderable)
+	auto CullingList<T>::RegisterNoTest(const T* renderable) -> NoTestEntry
 	{
-		NoTestEntry entry(this, m_noTestList.size());
-		m_noTestList.emplace_back(NoTestVisibilityEntry{&entry, renderable, false}); //< Address of entry will be updated when moving
+		NoTestEntry newEntry(this, m_volumeTestList.size());
+		m_noTestList.emplace_back(NoTestVisibilityEntry{&newEntry, renderable, false}); //< Address of entry will be updated when moving
 
-		return entry;
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::SphereEntry CullingList<T>::RegisterSphereTest(const T* renderable)
+	auto CullingList<T>::RegisterSphereTest(const T* renderable) -> SphereEntry
 	{
-		SphereEntry entry(this, m_sphereTestList.size());
-		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &entry, renderable, false}); //< Address of entry will be updated when moving
+		SphereEntry newEntry(this, m_sphereTestList.size() - 1);
+		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &newEntry, renderable, false}); //< Address of entry will be updated when moving
 
-		return entry;
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::VolumeEntry CullingList<T>::RegisterVolumeTest(const T* renderable)
+	auto CullingList<T>::RegisterVolumeTest(const T* renderable) -> VolumeEntry
 	{
-		VolumeEntry entry(this, m_volumeTestList.size());
-		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &entry, renderable, false}); //< Address of entry will be updated when moving
+		VolumeEntry newEntry(this, m_volumeTestList.size());
+		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &newEntry, renderable, false}); //< Address of entry will be updated when moving
 
-		return entry;
+		return newEntry;
 	}
 
 	// Interface STD

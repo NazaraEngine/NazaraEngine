@@ -19,14 +19,14 @@ namespace Nz
 		public:
 			CallOnExit(Func func = nullptr);
 			CallOnExit(const CallOnExit&) = delete;
-			CallOnExit(CallOnExit&&) = delete;
+			CallOnExit(CallOnExit&&) noexcept = delete;
 			~CallOnExit();
 
 			void CallAndReset(Func func = nullptr);
 			void Reset(Func func = nullptr);
 
 			CallOnExit& operator=(const CallOnExit&) = delete;
-			CallOnExit& operator=(CallOnExit&&) = default;
+			CallOnExit& operator=(CallOnExit&&) noexcept = default;
 
 		private:
 			Func m_func;

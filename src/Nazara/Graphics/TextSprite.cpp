@@ -42,6 +42,14 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Clones this text sprite
+	*/
+	std::unique_ptr<InstancedRenderable> TextSprite::Clone() const
+	{
+		return std::make_unique<TextSprite>(*this);
+	}
+
+	/*!
 	* \brief Updates the text
 	*
 	* \param drawer Drawer used to compose the text

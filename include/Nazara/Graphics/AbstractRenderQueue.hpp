@@ -32,7 +32,7 @@ namespace Nz
 
 			AbstractRenderQueue() = default;
 			AbstractRenderQueue(const AbstractRenderQueue&) = delete;
-			AbstractRenderQueue(AbstractRenderQueue&&) = default;
+			AbstractRenderQueue(AbstractRenderQueue&&) noexcept = default;
 			virtual ~AbstractRenderQueue();
 
 			// Je ne suis vraiment pas fan du nombre de surcharges pour AddBillboards,
@@ -55,7 +55,7 @@ namespace Nz
 			virtual void Clear(bool fully = false);
 
 			AbstractRenderQueue& operator=(const AbstractRenderQueue&) = delete;
-			AbstractRenderQueue& operator=(AbstractRenderQueue&&) = default;
+			AbstractRenderQueue& operator=(AbstractRenderQueue&&) noexcept = default;
 
 			struct DirectionalLight
 			{

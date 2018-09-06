@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Copyright(c) 2002 - 2016 Lee Salzman
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions :
@@ -19,6 +19,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -176,8 +177,8 @@ namespace Nz
 
 			static constexpr std::size_t unsequencedWindow = ENetPeer_ReliableWindowSize / 32;
 
-			ENetHost*                             m_host;
-			IpAddress                             m_address; /**< Internet address of the peer */
+			MovablePtr<ENetHost>                  m_host;
+			IpAddress                             m_address; //< Internet address of the peer
 			std::array<UInt32, unsequencedWindow> m_unsequencedWindow;
 			std::bernoulli_distribution           m_packetLossProbability;
 			std::list<IncomingCommmand>           m_dispatchedCommands;

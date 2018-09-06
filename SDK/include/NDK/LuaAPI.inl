@@ -269,6 +269,15 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector2i* vec, TypeTag<Vector2i>)
+	{
+		Vector2d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector2d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3d* vec, TypeTag<Vector3d>)
 	{
 		switch (state.GetType(index))
@@ -300,6 +309,15 @@ namespace Nz
 	}
 
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3ui* vec, TypeTag<Vector3ui>)
+	{
+		Vector3d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3i* vec, TypeTag<Vector3i>)
 	{
 		Vector3d vecDouble;
 		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
@@ -538,6 +556,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, Vector2i&& val, TypeTag<Vector2i>)
+	{
+		state.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, Vector3d&& val, TypeTag<Vector3d>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
@@ -551,6 +575,12 @@ namespace Nz
 	}
 
 	inline int LuaImplReplyVal(const LuaState& state, Vector3ui&& val, TypeTag<Vector3ui>)
+	{
+		state.PushInstance<Vector3d>("Vector3", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, Vector3i&& val, TypeTag<Vector3i>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
 		return 1;

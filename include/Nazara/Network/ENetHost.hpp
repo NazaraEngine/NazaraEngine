@@ -135,7 +135,7 @@ namespace Nz
 			std::vector<ENetPeer> m_peers;
 			std::vector<PendingIncomingPacket> m_pendingIncomingPackets;
 			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;
-			UInt8* m_receivedData;
+			MovablePtr<UInt8> m_receivedData;
 			Bitset<UInt64> m_dispatchQueue;
 			MemoryPool m_packetPool;
 			IpAddress m_address;

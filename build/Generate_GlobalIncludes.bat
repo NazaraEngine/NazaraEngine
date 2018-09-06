@@ -1,2 +1,2 @@
-premake5 generateheaders
+.\premake5.exe generateheaders
 pause

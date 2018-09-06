@@ -60,7 +60,7 @@ namespace Nz
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
 			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
-			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static unsigned int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);

@@ -5,7 +5,7 @@
 #include <Nazara/Network/Win32/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
@@ -467,7 +467,7 @@ namespace Nz
 		return code;
 	}
 
-	int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
+	unsigned int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
 	{
 		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
 
@@ -484,10 +484,12 @@ namespace Nz
 			return 0;
 		}
 
+		assert(result >= 0);
+
 		if (error)
 			*error = SocketError_NoError;
 
-		return result;
+		return static_cast<unsigned int>(result);
 		#else
 		NazaraUnused(fdarray);
 		NazaraUnused(nfds);
@@ -613,7 +615,7 @@ namespace Nz
 
 		IpAddress senderIp;
 
-		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
+		StackArray<WSABUF> winBuffers = NazaraStackArray(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -712,7 +714,7 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 
-		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
+		StackArray<WSABUF> winBuffers = NazaraStackArray(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);

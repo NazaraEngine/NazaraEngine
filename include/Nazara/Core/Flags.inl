@@ -166,7 +166,7 @@ namespace Nz
 	* This will enable flags which are enabled in parameter object and not in Flag object.
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator|=(const Flags& rhs)
+	constexpr Flags<E>& Flags<E>::operator|=(const Flags& rhs)
 	{
 		m_value |= rhs.m_value;
 
@@ -182,7 +182,7 @@ namespace Nz
 	* This will disable flags which are disabled in parameter object and enabled in Flag object (and vice-versa).
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator&=(const Flags& rhs)
+	constexpr Flags<E>& Flags<E>::operator&=(const Flags& rhs)
 	{
 		m_value &= rhs.m_value;
 
@@ -199,7 +199,7 @@ namespace Nz
 	* This will disable flags enabled in both Flags objects and enable those enabled in only one of the Flags objects.
 	*/
 	template<typename E>
-	/*constexpr*/ Flags<E>& Flags<E>::operator^=(const Flags& rhs)
+	constexpr Flags<E>& Flags<E>::operator^=(const Flags& rhs)
 	{
 		m_value ^= rhs.m_value;
 		m_value &= ValueMask;

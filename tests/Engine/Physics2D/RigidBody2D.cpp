@@ -317,7 +317,7 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 {
 	CHECK(left.GetAABB() == right.GetAABB());
 	CHECK(left.GetAngularVelocity() == Approx(right.GetAngularVelocity()));
-	CHECK(left.GetCenterOfGravity() == right.GetCenterOfGravity());
+	CHECK(left.GetMassCenter() == right.GetMassCenter());
 	CHECK(left.GetGeom() == right.GetGeom());
 	CHECK(left.GetHandle() != right.GetHandle());
 	CHECK(left.GetMass() == Approx(right.GetMass()));

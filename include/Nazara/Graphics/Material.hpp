@@ -83,6 +83,7 @@ namespace Nz
 			inline void EnableShadowCasting(bool castShadows);
 			inline void EnableShadowReceive(bool receiveShadows);
 			inline void EnableStencilTest(bool stencilTest);
+			inline void EnableVertexColor(bool vertexColor);
 
 			inline void EnsurePipelineUpdate() const;
 
@@ -121,6 +122,7 @@ namespace Nz
 			inline bool HasHeightMap() const;
 			inline bool HasNormalMap() const;
 			inline bool HasSpecularMap() const;
+			inline bool HasVertexColor() const;
 
 			inline bool IsAlphaTestEnabled() const;
 			inline bool IsBlendingEnabled() const;

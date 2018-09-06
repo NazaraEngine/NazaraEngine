@@ -17,11 +17,11 @@ namespace Ndk
 		public:
 			System();
 			System(const System&) = delete;
-			System(System&&) = default;
+			System(System&&) noexcept = default;
 			virtual ~System();
 
 			System& operator=(const System&) = delete;
-			System& operator=(System&&) = default;
+			System& operator=(System&&) noexcept = default;
 
 			static SystemIndex RegisterSystem();
 	};

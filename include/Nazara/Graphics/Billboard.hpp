@@ -31,6 +31,8 @@ namespace Nz
 
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
 			inline const Color& GetColor() const;
 			inline float GetRotation() const;
 			inline const Vector2f& GetSize() const;

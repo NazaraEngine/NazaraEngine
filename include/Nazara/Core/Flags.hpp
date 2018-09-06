@@ -61,9 +61,9 @@ namespace Nz
 			constexpr bool operator==(const Flags& rhs) const;
 			constexpr bool operator!=(const Flags& rhs) const;
 
-			/*constexpr*/ Flags& operator|=(const Flags& rhs);
-			/*constexpr*/ Flags& operator&=(const Flags& rhs);
-			/*constexpr*/ Flags& operator^=(const Flags& rhs);
+			constexpr Flags& operator|=(const Flags& rhs);
+			constexpr Flags& operator&=(const Flags& rhs);
+			constexpr Flags& operator^=(const Flags& rhs);
 
 			static constexpr BitField GetFlagValue(E enumValue);
 

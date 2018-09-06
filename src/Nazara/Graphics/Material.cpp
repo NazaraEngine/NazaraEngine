@@ -183,6 +183,9 @@ namespace Nz
 		if (matData.GetBooleanParameter(MaterialData::StencilTest, &isEnabled))
 			EnableStencilTest(isEnabled);
 
+		if (matData.GetBooleanParameter(MaterialData::VertexColor, &isEnabled))
+			EnableVertexColor(isEnabled);
+
 		// Samplers
 		if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
 			m_diffuseSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
@@ -296,6 +299,7 @@ namespace Nz
 		matData->SetParameter(MaterialData::FaceCulling, IsFaceCullingEnabled());
 		matData->SetParameter(MaterialData::ScissorTest, IsScissorTestEnabled());
 		matData->SetParameter(MaterialData::StencilTest, IsStencilTestEnabled());
+		matData->SetParameter(MaterialData::VertexColor, HasVertexColor());
 
 		// Samplers
 		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));

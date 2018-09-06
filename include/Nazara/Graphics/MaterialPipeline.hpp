@@ -26,6 +26,7 @@ namespace Nz
 		bool hasHeightMap      = false;
 		bool hasNormalMap      = false;
 		bool hasSpecularMap    = false;
+		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
 

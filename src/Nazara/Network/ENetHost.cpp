@@ -489,7 +489,7 @@ namespace Nz
 		if (m_receivedDataLength < NazaraOffsetOf(ENetProtocolHeader, sentTime))
 			return false;
 
-		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData);
+		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData.Get());
 
 		UInt16 peerID = NetToHost(header->peerID);
 		UInt8  sessionID = (peerID & ENetProtocolHeaderSessionMask) >> ENetProtocolHeaderSessionShift;

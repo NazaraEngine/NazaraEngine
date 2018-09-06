@@ -20,7 +20,7 @@ Miscellaneous:
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- Bitset swap operation is now correctly marked as noexcept`
+- Bitset swap operation is now correctly marked as noexcept
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
@@ -103,6 +103,36 @@ Nazara Engine:
 - Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
 - Added LuaState::CallWithHandler methods, allowing to setup a error handler function
 - Added LuaState::Traceback method
+- Added ModelLibrary, ModelManager and ModelSaver
+- Added AbstractViewer::Project and AbstractViewer::Unproject methods
+- Added AbstractViewer::ProjectDepth method
+- Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
+- Add LuaImplQuery implementation for std::vector
+- Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- InstancedRenderable::SetMaterial methods are now public.
+- Fixed Model copy constructor not copying materials
+- ⚠️ Added InstancedRenderable::Clone() method
+- Fixed a lot of classes not having their move constructor/assignation operator marked noexcept
+- ⚠️ SocketPoller::Wait now returns the number of socket marked as ready, and takes an additional optional parameter allowing to query the last error.
+- SocketPoller will now silently ignore "interrupt errors"
+- Added RigidBody2D::ClosestPointQuery
+- Fix Sprite copy constructor not copying corner colors
+- Added ObjectLibrary::Clear method
+- ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
+- ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
+- Added StackVector class
+- ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
+- Added Vector2::Distance static method
+- ⚠️ Fixed compilation errors on MSVC with flag /permissive- on CullingList class
+- Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
+- Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
+- Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
+- Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
+- Added movement with Ctrl in TextAreaWidget
+- Added Unicode Data downloader/parser
+- Integrated Unicode Data
+- Fixed Flags operator |=/&=/^= not being constexpr
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -151,6 +181,12 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
+- Added GraphicsComponent:ForEachRenderable method
+- Fixed GraphicsComponent reflective material count which was not initialized
+- Added PhysicsComponent2D::ClosestPointQuery
+- Fixed GraphicsComponent copy constructor not copying scissor rect
+- Force parent parameter to be present in widgets constructor
+- Added the possibility to write only specific characters with a predicate in TextAreaWidget
 
 # 0.4:
 

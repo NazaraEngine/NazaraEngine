@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			AbstractHash() = default;
 			AbstractHash(const AbstractHash&) = delete;
-			AbstractHash(AbstractHash&&) = default;
+			AbstractHash(AbstractHash&&) noexcept = default;
 			virtual ~AbstractHash();
 
 			virtual void Append(const UInt8* data, std::size_t len) = 0;
@@ -31,7 +31,7 @@ namespace Nz
 			virtual const char* GetHashName() const = 0;
 
 			AbstractHash& operator=(const AbstractHash&) = delete;
-			AbstractHash& operator=(AbstractHash&&) = default;
+			AbstractHash& operator=(AbstractHash&&) noexcept = default;
 
 			static std::unique_ptr<AbstractHash> Get(HashType hash);
 	};

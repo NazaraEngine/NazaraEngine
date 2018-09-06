@@ -28,7 +28,7 @@ namespace Ndk
 		public:
 			using RenderableList = std::vector<Nz::InstancedRenderableRef>;
 
-			GraphicsComponent();
+			inline GraphicsComponent();
 			inline GraphicsComponent(const GraphicsComponent& graphicsComponent);
 			~GraphicsComponent() = default;
 
@@ -43,6 +43,8 @@ namespace Ndk
 			inline void Detach(const Nz::InstancedRenderable* renderable);
 
 			inline bool DoesRequireRealTimeReflections() const;
+
+			template<typename Func> void ForEachRenderable(const Func& func) const;
 
 			inline void EnsureBoundingVolumeUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;

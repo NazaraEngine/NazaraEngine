@@ -21,9 +21,18 @@ namespace Nz
 	*
 	* \param model Model to copy
 	*/
-	inline Model::Model(const Model& model)
+	inline Model::Model(const Model& model) :
+	InstancedRenderable(model)
 	{
 		SetMesh(model.m_mesh);
+		
+		// Since SetMesh does reset materials, we need reapply them
+		SetSkinCount(model.GetSkinCount());
+		for (std::size_t skin = 0; skin < model.GetSkinCount(); ++skin)
+		{
+			for (std::size_t matIndex = 0; matIndex < model.GetMaterialCount(); ++matIndex)
+				SetMaterial(skin, matIndex, model.GetMaterial(skin, matIndex));
+		}
 	}
 
 	/*!

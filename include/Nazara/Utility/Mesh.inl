@@ -10,7 +10,8 @@ namespace Nz
 {
 	Mesh::Mesh() :
 	m_materialData(1),
-	m_aabbUpdated(false)
+	m_aabbUpdated(false),
+	m_isValid(false)
 	{
 	}
 

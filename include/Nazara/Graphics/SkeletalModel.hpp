@@ -41,7 +41,7 @@ namespace Nz
 			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 			void AdvanceAnimation(float elapsedTime);
 
-			SkeletalModel* Clone() const;
+			std::unique_ptr<InstancedRenderable> Clone() const override;
 			SkeletalModel* Create() const;
 
 			void EnableAnimation(bool animation);

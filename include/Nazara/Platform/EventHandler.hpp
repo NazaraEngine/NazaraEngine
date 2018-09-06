@@ -25,13 +25,13 @@ namespace Nz
 		public:
 			EventHandler() = default;
 			explicit EventHandler(const EventHandler&);
-			EventHandler(EventHandler&&) = default;
+			EventHandler(EventHandler&&) noexcept = default;
 			~EventHandler() = default;
 
 			inline void Dispatch(const WindowEvent& event);
 
 			EventHandler& operator=(const EventHandler&) = delete;
-			EventHandler& operator=(EventHandler&&) = default;
+			EventHandler& operator=(EventHandler&&) noexcept = default;
 
 			NazaraSignal(OnEvent, const EventHandler* /*eventHandler*/, const WindowEvent& /*event*/);
 			NazaraSignal(OnGainedFocus, const EventHandler* /*eventHandler*/);
