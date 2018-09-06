@@ -300,26 +300,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Returns the radian angle that is equivalent to this angle
-	* \return Equivalent radian angle
-	*/
-	template<AngleUnit Unit, typename T>
-	Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadians() const
-	{
-		return RadianAngle<T>(Detail::AngleUtils<Unit>::ToRadians(angle));
-	}
-
-	/*!
-	* \brief Converts the angle to a string representation
-	* \return String representation of the angle
-	*/
-	template<AngleUnit Unit, typename T>
-	String Angle<Unit, T>::ToString() const
-	{
-		return Detail::AngleUtils<Unit>::ToString(angle);
-	}
-
-	/*!
 	* \brief Converts the angle to an Euler Angles representation
 	* \return A 2D rotation expressed in Euler angles
 	*
@@ -345,6 +325,26 @@ namespace Nz
 		auto halfAngle = Angle(*this) / 2.f;
 		auto sincos = halfAngle.GetSinCos();
 		return Quaternion<T>(sincos.second, 0, 0, sincos.first);
+	}
+
+	/*!
+	* \brief Returns the radian angle that is equivalent to this angle
+	* \return Equivalent radian angle
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadians() const
+	{
+		return RadianAngle<T>(Detail::AngleUtils<Unit>::ToRadians(angle));
+	}
+
+	/*!
+	* \brief Converts the angle to a string representation
+	* \return String representation of the angle
+	*/
+	template<AngleUnit Unit, typename T>
+	String Angle<Unit, T>::ToString() const
+	{
+		return Detail::AngleUtils<Unit>::ToString(angle);
 	}
 
 	/*!
