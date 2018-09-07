@@ -89,6 +89,7 @@ namespace Ndk
 			RegisterMaterial(entry.renderable->GetMaterial(i));
 
 		InvalidateAABB();
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::ConnectInstancedRenderableSignals(Renderable& entry)
@@ -110,8 +111,7 @@ namespace Ndk
 		r.dataUpdated = false;
 		r.renderable->InvalidateData(&r.data, flags);
 
-		for (CullingBoxEntry& entry : m_cullingBoxEntries)
-			entry.listEntry.ForceInvalidation();
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat)
@@ -265,8 +265,7 @@ namespace Ndk
 		InvalidateAABB();
 		InvalidateTransformMatrix();
 
-		for (CullingBoxEntry& entry : m_cullingBoxEntries)
-			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
+		ForceCullingInvalidation(); //< Force invalidation on movement for now (FIXME)
 	}
 
 	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)

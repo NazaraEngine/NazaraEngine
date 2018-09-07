@@ -74,6 +74,7 @@ namespace Ndk
 
 			void ConnectInstancedRenderableSignals(Renderable& renderable);
 
+			inline void ForceCullingInvalidation();
 			inline void InvalidateAABB() const;
 			void InvalidateRenderableData(const Nz::InstancedRenderable* renderable, Nz::UInt32 flags, std::size_t index);
 			void InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat);
