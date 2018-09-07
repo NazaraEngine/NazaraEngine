@@ -297,17 +297,16 @@ namespace Ndk
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
-		m_aabb.MakeZero();
-		for (std::size_t i = 0; i < m_renderables.size(); ++i)
+		m_aabb.Set(-1.f, -1.f, -1.f);
+		for (const Renderable& r : m_renderables)
 		{
-			const Renderable& r = m_renderables[i];
 			r.boundingVolume = r.renderable->GetBoundingVolume();
 			r.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(r.data.localMatrix, m_transformMatrix));
 			if (r.boundingVolume.IsFinite())
 			{
 				r.boundingVolume.Update(r.data.transformMatrix);
 
-				if (i > 0)
+				if (m_aabb.IsValid())
 					m_aabb.ExtendTo(r.boundingVolume.aabb);
 				else
 					m_aabb.Set(r.boundingVolume.aabb);
