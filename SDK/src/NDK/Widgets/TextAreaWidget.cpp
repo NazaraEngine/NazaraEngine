@@ -24,6 +24,7 @@ namespace Ndk
 		m_cursorEntity = CreateEntity();
 		m_cursorEntity->AddComponent<GraphicsComponent>();
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
 		m_cursorEntity->Enable(false);
 
 		m_textSprite = Nz::TextSprite::New();
@@ -31,6 +32,7 @@ namespace Ndk
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
 
 		SetCursor(Nz::SystemCursor_Text);
 		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
@@ -183,8 +185,6 @@ namespace Ndk
 	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
-
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(Nz::Vector2f(5.f, 3.f));
 
 		RefreshCursor();
 	}
