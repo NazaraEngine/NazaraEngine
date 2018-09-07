@@ -93,6 +93,8 @@ namespace Ndk
 					UnregisterMaterial(renderable->GetMaterial(i));
 
 				m_renderables.erase(it);
+
+				ForceCullingInvalidation();
 				break;
 			}
 		}
@@ -254,6 +256,12 @@ namespace Ndk
 	/*!
 	* \brief Invalidates the bounding volume
 	*/
+
+	inline void GraphicsComponent::ForceCullingInvalidation()
+	{
+		for (CullingBoxEntry& entry : m_cullingBoxEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
+	}
 
 	inline void GraphicsComponent::InvalidateAABB() const
 	{
