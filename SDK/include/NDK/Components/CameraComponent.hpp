@@ -22,7 +22,7 @@ namespace Ndk
 
 	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer, public Nz::HandledObject<CameraComponent>
+	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
 	{
 		public:
 			inline CameraComponent();

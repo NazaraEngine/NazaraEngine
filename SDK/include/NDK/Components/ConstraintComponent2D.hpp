@@ -11,6 +11,10 @@
 
 namespace Ndk
 {
+	class ConstraintComponent2D;
+
+	using ConstraintComponent2DHandle = Nz::ObjectHandle<ConstraintComponent2D>;
+
 	class NDK_API ConstraintComponent2D : public Component<ConstraintComponent2D>
 	{
 		public:

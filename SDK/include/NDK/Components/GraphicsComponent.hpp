@@ -22,7 +22,7 @@ namespace Ndk
 	using GraphicsComponentCullingList = Nz::CullingList<GraphicsComponent>;
 	using GraphicsComponentHandle = Nz::ObjectHandle<GraphicsComponent>;
 
-	class NDK_API GraphicsComponent : public Component<GraphicsComponent>, public Nz::HandledObject<GraphicsComponent>
+	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
 	{
 		friend class RenderSystem;
 
