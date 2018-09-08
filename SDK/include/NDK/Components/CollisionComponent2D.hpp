@@ -14,6 +14,10 @@
 
 namespace Ndk
 {
+	class CollisionComponent2D;
+
+	using CollisionComponent2DHandle = Nz::ObjectHandle<CollisionComponent2D>;
+
 	class NDK_API CollisionComponent2D : public Component<CollisionComponent2D>
 	{
 		friend class PhysicsSystem2D;

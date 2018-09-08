@@ -22,7 +22,6 @@ namespace Ndk
 	*/
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
-	HandledObject(graphicsComponent),
 	m_reflectiveMaterialCount(0),
 	m_aabb(graphicsComponent.m_aabb),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
@@ -93,6 +92,8 @@ namespace Ndk
 					UnregisterMaterial(renderable->GetMaterial(i));
 
 				m_renderables.erase(it);
+
+				ForceCullingInvalidation();
 				break;
 			}
 		}
@@ -254,6 +255,12 @@ namespace Ndk
 	/*!
 	* \brief Invalidates the bounding volume
 	*/
+
+	inline void GraphicsComponent::ForceCullingInvalidation()
+	{
+		for (CullingBoxEntry& entry : m_cullingBoxEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
+	}
 
 	inline void GraphicsComponent::InvalidateAABB() const
 	{

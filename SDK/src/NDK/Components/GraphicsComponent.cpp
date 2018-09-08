@@ -89,6 +89,7 @@ namespace Ndk
 			RegisterMaterial(entry.renderable->GetMaterial(i));
 
 		InvalidateAABB();
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::ConnectInstancedRenderableSignals(Renderable& entry)
@@ -110,8 +111,7 @@ namespace Ndk
 		r.dataUpdated = false;
 		r.renderable->InvalidateData(&r.data, flags);
 
-		for (CullingBoxEntry& entry : m_cullingBoxEntries)
-			entry.listEntry.ForceInvalidation();
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat)
@@ -265,8 +265,7 @@ namespace Ndk
 		InvalidateAABB();
 		InvalidateTransformMatrix();
 
-		for (CullingBoxEntry& entry : m_cullingBoxEntries)
-			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
+		ForceCullingInvalidation(); //< Force invalidation on movement for now (FIXME)
 	}
 
 	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)
@@ -297,17 +296,16 @@ namespace Ndk
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
-		m_aabb.MakeZero();
-		for (std::size_t i = 0; i < m_renderables.size(); ++i)
+		m_aabb.Set(-1.f, -1.f, -1.f);
+		for (const Renderable& r : m_renderables)
 		{
-			const Renderable& r = m_renderables[i];
 			r.boundingVolume = r.renderable->GetBoundingVolume();
 			r.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(r.data.localMatrix, m_transformMatrix));
 			if (r.boundingVolume.IsFinite())
 			{
 				r.boundingVolume.Update(r.data.transformMatrix);
 
-				if (i > 0)
+				if (m_aabb.IsValid())
 					m_aabb.ExtendTo(r.boundingVolume.aabb);
 				else
 					m_aabb.Set(r.boundingVolume.aabb);

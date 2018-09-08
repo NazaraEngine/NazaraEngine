@@ -9,6 +9,12 @@
 
 namespace Nz
 {
+	enum class AngleUnit
+	{
+		Degree,
+		Radian
+	};
+
 	enum BoxCorner
 	{
 		BoxCorner_FarLeftBottom,
