@@ -17,11 +17,11 @@ namespace Nz
 	{
 	}
 
-	inline bool RenderPipeline::Create(const RenderPipelineInfo& pipelineInfo)
+	inline bool RenderPipeline::Create(RenderPipelineInfo pipelineInfo)
 	{
 		NazaraAssert(pipelineInfo.shader, "Invalid shader");
 
-		m_pipelineInfo = pipelineInfo;
+		m_pipelineInfo = std::move(pipelineInfo);
 		m_valid = true;
 
 		return true;

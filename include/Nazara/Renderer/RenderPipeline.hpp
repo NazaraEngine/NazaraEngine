@@ -15,6 +15,7 @@ namespace Nz
 {
 	struct RenderPipelineInfo : RenderStates
 	{
+		RenderPipelineLayoutRef layout;
 		ShaderConstRef shader;
 	};
 
@@ -24,7 +25,7 @@ namespace Nz
 			inline RenderPipeline();
 			inline ~RenderPipeline();
 
-			inline bool Create(const RenderPipelineInfo& pipelineInfo);
+			inline bool Create(RenderPipelineInfo pipelineInfo);
 			inline void Destroy();
 
 			inline const RenderPipelineInfo& GetInfo() const;
