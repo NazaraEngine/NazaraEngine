@@ -40,6 +40,10 @@ namespace Ndk
 
 	constexpr DebugDrawFlags DebugDraw_None = 0;
 
+	class DebugComponent;
+
+	using DebugComponentHandle = Nz::ObjectHandle<DebugComponent>;
+
 	class NDK_API DebugComponent : public Component<DebugComponent>
 	{
 		friend class DebugSystem;
