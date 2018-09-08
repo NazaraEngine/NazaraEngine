@@ -3,7 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Physics2D/Arbiter2D.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
 #include <Nazara/Physics2D/Debug.hpp>
 
@@ -44,7 +45,7 @@ namespace Nz
 			{
 				//TODO: constexpr if to prevent copy/cast if sizeof(cpVect) == sizeof(Vector2f)
 
-				StackArray<Vector2f> nVertices = NazaraStackAllocation(Vector2f, vertexCount);
+				StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
 				for (int i = 0; i < vertexCount; ++i)
 					nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
 
@@ -358,8 +359,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				if (customCallbacks->startCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
+				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 				{
 					cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
 					cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
@@ -382,8 +385,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				customCallbacks->endCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
+				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 
 				cpArbiterCallWildcardSeparateA(arb, space);
 				cpArbiterCallWildcardSeparateB(arb, space);
@@ -402,8 +407,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				if (customCallbacks->preSolveCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
+				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 				{
 					cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
 					cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
@@ -426,8 +433,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				customCallbacks->postSolveCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
+				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 
 				cpArbiterCallWildcardPostSolveA(arb, space);
 				cpArbiterCallWildcardPostSolveB(arb, space);

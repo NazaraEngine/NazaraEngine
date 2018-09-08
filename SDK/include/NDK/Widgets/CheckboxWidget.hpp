@@ -28,7 +28,7 @@ namespace Ndk
 		friend class Sdk;
 
 		public:
-			CheckboxWidget(BaseWidget* parent = nullptr);
+			CheckboxWidget(BaseWidget* parent);
 			CheckboxWidget(const CheckboxWidget&) = delete;
 			CheckboxWidget(CheckboxWidget&&) = default;
 			~CheckboxWidget() = default;

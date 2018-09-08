@@ -67,6 +67,8 @@ namespace Ndk
 			inline void KillEntity(Entity* entity);
 			inline void KillEntities(const EntityVector& list);
 
+			inline bool IsEntityDying(const Entity* entity) const;
+			inline bool IsEntityDying(EntityId id) const;
 			inline bool IsEntityValid(const Entity* entity) const;
 			inline bool IsEntityIdValid(EntityId id) const;
 			inline bool IsProfilerEnabled() const;

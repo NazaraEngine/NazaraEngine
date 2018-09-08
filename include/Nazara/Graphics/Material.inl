@@ -72,7 +72,8 @@ namespace Nz
 	*/
 	inline Material::Material(const Material& material) :
 	RefCounted(),
-	Resource(material)
+	Resource(material),
+	m_reflectionMode(ReflectionMode_Skybox)
 	{
 		Copy(material);
 	}

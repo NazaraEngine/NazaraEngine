@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -23,7 +23,7 @@ namespace Ndk
 		friend class Sdk;
 
 		public:
-			ProgressBarWidget(BaseWidget* parent = nullptr);
+			ProgressBarWidget(BaseWidget* parent);
 			ProgressBarWidget(const ProgressBarWidget&) = delete;
 			ProgressBarWidget(ProgressBarWidget&&) = default;
 			~ProgressBarWidget() = default;

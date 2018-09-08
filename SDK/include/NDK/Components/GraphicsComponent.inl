@@ -22,12 +22,11 @@ namespace Ndk
 	*/
 	inline GraphicsComponent::GraphicsComponent(const GraphicsComponent& graphicsComponent) :
 	Component(graphicsComponent),
-	HandledObject(graphicsComponent),
 	m_reflectiveMaterialCount(0),
-	m_boundingVolume(graphicsComponent.m_boundingVolume),
+	m_aabb(graphicsComponent.m_aabb),
 	m_transformMatrix(graphicsComponent.m_transformMatrix),
 	m_scissorRect(graphicsComponent.m_scissorRect),
-	m_boundingVolumeUpdated(graphicsComponent.m_boundingVolumeUpdated),
+	m_boundingVolumesUpdated(graphicsComponent.m_boundingVolumesUpdated),
 	m_transformMatrixUpdated(graphicsComponent.m_transformMatrixUpdated)
 	{
 		m_renderables.reserve(graphicsComponent.m_renderables.size());
@@ -37,12 +36,12 @@ namespace Ndk
 
 	inline void GraphicsComponent::AddToCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		m_volumeCullingEntries.emplace_back(VolumeCullingEntry{});
-		VolumeCullingEntry& entry = m_volumeCullingEntries.back();
+		m_cullingBoxEntries.emplace_back();
+		CullingBoxEntry& entry = m_cullingBoxEntries.back();
 		entry.cullingListReleaseSlot.Connect(cullingList->OnCullingListRelease, this, &GraphicsComponent::RemoveFromCullingList);
-		entry.listEntry = cullingList->RegisterVolumeTest(this);
+		entry.listEntry = cullingList->RegisterBoxTest(this);
 
-		InvalidateBoundingVolume();
+		InvalidateAABB();
 	}
 
 	/*!
@@ -71,7 +70,7 @@ namespace Ndk
 			InvalidateReflectionMap();
 		}
 
-		InvalidateBoundingVolume();
+		InvalidateAABB();
 	}
 
 	/*!
@@ -86,13 +85,15 @@ namespace Ndk
 		{
 			if (it->renderable == renderable)
 			{
-				InvalidateBoundingVolume();
+				InvalidateAABB();
 
 				std::size_t materialCount = renderable->GetMaterialCount();
 				for (std::size_t i = 0; i < materialCount; ++i)
 					UnregisterMaterial(renderable->GetMaterial(i));
 
 				m_renderables.erase(it);
+
+				ForceCullingInvalidation();
 				break;
 			}
 		}
@@ -111,25 +112,13 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Calls a function for every renderable attached to this component
-	*
-	* \param func Callback function which will be called with renderable data
-	*/
-	template<typename Func>
-	void GraphicsComponent::ForEachRenderable(const Func& func) const
-	{
-		for (const auto& renderableData : m_renderables)
-			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
-	}
-
-	/*!
 	* \brief Ensures the bounding volume is up to date
 	*/
 
-	inline void GraphicsComponent::EnsureBoundingVolumeUpdate() const
+	inline void GraphicsComponent::EnsureBoundingVolumesUpdate() const
 	{
-		if (!m_boundingVolumeUpdated)
-			UpdateBoundingVolume();
+		if (!m_boundingVolumesUpdated)
+			UpdateBoundingVolumes();
 	}
 
 	/*!
@@ -140,6 +129,17 @@ namespace Ndk
 	{
 		if (!m_transformMatrixUpdated)
 			UpdateTransformMatrix();
+	}
+
+	/*!
+	* \brief Gets the axis-aligned bounding box of the entity
+	* \return A constant reference to the AABB
+	*/
+	inline const Nz::Boxf& GraphicsComponent::GetAABB() const
+	{
+		EnsureBoundingVolumesUpdate();
+
+		return m_aabb;
 	}
 
 	/*!
@@ -169,28 +169,50 @@ namespace Ndk
 		return m_renderables.size();
 	}
 
-	/*!
-	* \brief Gets the bouding volume of the entity
-	* \return A constant reference to the bounding volume
-	*/
-
-	inline const Nz::BoundingVolumef& GraphicsComponent::GetBoundingVolume() const
+	inline const Nz::BoundingVolumef& GraphicsComponent::GetBoundingVolume(std::size_t renderableIndex) const
 	{
-		EnsureBoundingVolumeUpdate();
+		EnsureBoundingVolumesUpdate();
 
-		return m_boundingVolume;
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex].boundingVolume;
+	}
+
+	inline const Nz::Matrix4f& GraphicsComponent::GetLocalMatrix(std::size_t renderableIndex) const
+	{
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex].data.localMatrix;
+	}
+
+	inline const Nz::Matrix4f& GraphicsComponent::GetTransformMatrix(std::size_t renderableIndex) const
+	{
+		EnsureBoundingVolumesUpdate();
+
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex].data.transformMatrix;
+	}
+
+	/*!
+	* \brief Calls a function for every renderable attached to this component
+	*
+	* \param func Callback function which will be called with renderable data
+	*/
+	template<typename Func>
+	void GraphicsComponent::ForEachRenderable(const Func& func) const
+	{
+		for (const auto& renderableData : m_renderables)
+			func(renderableData.renderable, renderableData.data.localMatrix, renderableData.data.renderOrder);
 	}
 
 	inline void GraphicsComponent::RemoveFromCullingList(GraphicsComponentCullingList* cullingList) const
 	{
-		for (auto it = m_volumeCullingEntries.begin(); it != m_volumeCullingEntries.end(); ++it)
+		for (auto it = m_cullingBoxEntries.begin(); it != m_cullingBoxEntries.end(); ++it)
 		{
 			if (it->listEntry.GetParent() == cullingList)
 			{
-				if (m_volumeCullingEntries.size() > 1)
-					*it = std::move(m_volumeCullingEntries.back());
+				if (m_cullingBoxEntries.size() > 1)
+					*it = std::move(m_cullingBoxEntries.back());
 
-				m_volumeCullingEntries.pop_back();
+				m_cullingBoxEntries.pop_back();
 				break;
 			}
 		}
@@ -200,7 +222,7 @@ namespace Ndk
 	{
 		m_scissorRect = scissorRect;
 
-		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
+		for (CullingBoxEntry& entry : m_cullingBoxEntries)
 			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
 	}
 
@@ -212,7 +234,7 @@ namespace Ndk
 			{
 				renderable.data.localMatrix = localMatrix;
 
-				InvalidateBoundingVolume();
+				InvalidateAABB();
 				break;
 			}
 		}
@@ -234,9 +256,15 @@ namespace Ndk
 	* \brief Invalidates the bounding volume
 	*/
 
-	inline void GraphicsComponent::InvalidateBoundingVolume() const
+	inline void GraphicsComponent::ForceCullingInvalidation()
 	{
-		m_boundingVolumeUpdated = false;
+		for (CullingBoxEntry& entry : m_cullingBoxEntries)
+			entry.listEntry.ForceInvalidation(); //< Invalidate render queues
+	}
+
+	inline void GraphicsComponent::InvalidateAABB() const
+	{
+		m_boundingVolumesUpdated = false;
 	}
 
 	/*!
@@ -257,7 +285,7 @@ namespace Ndk
 	{
 		m_transformMatrixUpdated = false;
 
-		InvalidateBoundingVolume();
+		InvalidateAABB();
 		InvalidateRenderables();
 	}
 }

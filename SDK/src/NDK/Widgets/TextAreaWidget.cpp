@@ -11,12 +11,14 @@ namespace Ndk
 {
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
+	m_characterFilter(),
 	m_echoMode(EchoMode_Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
 	m_isMouseButtonDown(false),
 	m_multiLineEnabled(false),
-	m_readOnly(false)
+	m_readOnly(false),
+	m_tabEnabled(false)
 	{
 		m_cursorEntity = CreateEntity(true);
 		m_cursorEntity->AddComponent<GraphicsComponent>();
@@ -70,26 +72,41 @@ namespace Ndk
 		OnTextChanged(this, m_text);
 	}
 
+	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
+	{
+		if (firstGlyph > lastGlyph)
+			std::swap(firstGlyph, lastGlyph);
+
+		std::size_t textLength = m_text.GetLength();
+		if (firstGlyph > textLength)
+			return;
+
+		Nz::String newText;
+		if (firstGlyph > 0)
+		{
+			std::size_t characterPosition = m_text.GetCharacterPosition(firstGlyph - 1);
+			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
+
+			newText.Append(m_text.SubString(0, characterPosition));
+		}
+
+		if (lastGlyph < textLength)
+		{
+			std::size_t characterPosition = m_text.GetCharacterPosition(lastGlyph);
+			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
+
+			newText.Append(m_text.SubString(characterPosition));
+		}
+
+		SetText(newText);
+	}
+
 	void TextAreaWidget::EraseSelection()
 	{
 		if (!HasSelection())
 			return;
 
-		std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
-		std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
-
-		std::size_t textLength = m_text.GetLength();
-		if (cursorGlyphBegin > textLength)
-			return;
-
-		Nz::String newText;
-		if (cursorGlyphBegin > 0)
-			newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin) - 1));
-
-		if (cursorGlyphEnd < textLength)
-			newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd)));
-
-		SetText(newText);
+		Erase(GetGlyphIndex(m_cursorPositionBegin), GetGlyphIndex(m_cursorPositionEnd));
 	}
 
 	Nz::Vector2ui TextAreaWidget::GetHoveredGlyph(float x, float y) const
@@ -128,21 +145,19 @@ namespace Ndk
 		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 
-	void TextAreaWidget::Write(const Nz::String& text)
+	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
 	{
-		std::size_t cursorGlyph = GetGlyphIndex(m_cursorPositionBegin);
-
-		if (cursorGlyph >= m_drawer.GetGlyphCount())
+		if (glyphPosition >= m_drawer.GetGlyphCount())
 		{
 			AppendText(text);
 			SetCursorPosition(m_drawer.GetGlyphCount());
 		}
 		else
 		{
-			m_text.Insert(m_text.GetCharacterPosition(cursorGlyph), text);
+			m_text.Insert(m_text.GetCharacterPosition(glyphPosition), text);
 			SetText(m_text);
 
-			SetCursorPosition(cursorGlyph + text.GetLength());
+			SetCursorPosition(glyphPosition + text.GetLength());
 		}
 	}
 
@@ -180,23 +195,7 @@ namespace Ndk
 				if (HasSelection())
 					EraseSelection();
 				else
-				{
-					std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
-					std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
-
-					std::size_t textLength = m_text.GetLength();
-					if (cursorGlyphBegin > textLength)
-						return true;
-
-					Nz::String newText;
-					if (cursorGlyphBegin > 0)
-						newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin) - 1));
-
-					if (cursorGlyphEnd < textLength)
-						newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd + 1)));
-
-					SetText(newText);
-				}
+					Erase(GetGlyphIndex(m_cursorPositionBegin));
 
 				return true;
 			}
@@ -224,8 +223,12 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					return true;
 
-				const auto& lineInfo = m_drawer.GetLine(m_cursorPositionEnd.y);
-				SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
+				std::size_t lineCount = m_drawer.GetLineCount();
+				if (key.control && lineCount > 0)
+					SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(lineCount - 1)), static_cast<unsigned int>(lineCount - 1) });
+				else
+					SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
+
 				return true;
 			}
 
@@ -237,7 +240,7 @@ namespace Ndk
 				if (ignoreDefaultAction)
 					return true;
 
-				SetCursorPosition({ 0U, m_cursorPositionEnd.y });
+				SetCursorPosition({ 0U, key.control ? 0U : m_cursorPositionEnd.y });
 				return true;
 			}
 
@@ -251,6 +254,28 @@ namespace Ndk
 
 				if (HasSelection())
 					SetCursorPosition(m_cursorPositionBegin);
+				else if (key.control)
+				{
+					std::size_t index = GetGlyphIndex(m_cursorPositionBegin);
+
+					if (index == 0)
+						return true;
+
+					std::size_t spaceIndex = m_text.FindLast(' ', index - 2);
+					std::size_t endlIndex = m_text.FindLast('\n', index - 1);
+
+					if ((spaceIndex > endlIndex || endlIndex == Nz::String::npos) && spaceIndex != Nz::String::npos)
+						SetCursorPosition(spaceIndex + 1);
+					else if (endlIndex != Nz::String::npos)
+					{
+						if (index == endlIndex + 1)
+							SetCursorPosition(endlIndex);
+						else
+							SetCursorPosition(endlIndex + 1);
+					}
+					else
+						SetCursorPosition({ 0U, m_cursorPositionBegin.y });
+				}
 				else
 					MoveCursor(-1);
 
@@ -267,6 +292,29 @@ namespace Ndk
 
 				if (HasSelection())
 					SetCursorPosition(m_cursorPositionEnd);
+				else if (key.control)
+				{
+					std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
+					std::size_t spaceIndex = m_text.Find(' ', index);
+					std::size_t endlIndex = m_text.Find('\n', index);
+
+					if (spaceIndex < endlIndex && spaceIndex != Nz::String::npos)
+					{
+						if (m_text.GetSize() > spaceIndex)
+							SetCursorPosition(spaceIndex + 1);
+						else
+							SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
+					}
+					else if (endlIndex != Nz::String::npos)
+					{
+						if (index == endlIndex)
+							SetCursorPosition(endlIndex + 1);
+						else
+							SetCursorPosition(endlIndex);
+					}
+					else
+						SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
+				}
 				else
 					MoveCursor(1);
 
@@ -285,6 +333,58 @@ namespace Ndk
 					SetCursorPosition(m_cursorPositionBegin);
 
 				MoveCursor({0, -1});
+				return true;
+			}
+
+			case Nz::Keyboard::Tab:
+			{
+				if (!m_tabEnabled)
+					return false;
+
+				if (HasSelection())
+				{
+					for(unsigned line = m_cursorPositionBegin.y; line <= m_cursorPositionEnd.y; ++line)
+					{
+						const Nz::Vector2ui cursorPositionBegin = m_cursorPositionBegin;
+						const Nz::Vector2ui cursorPositionEnd = m_cursorPositionEnd;
+
+						if (key.shift)
+						{
+							if (m_drawer.GetLineGlyphCount(line) == 0)
+								continue;
+
+							std::size_t firstGlyph = GetGlyphIndex({ 0U, line });
+
+							if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
+							{
+								Erase(firstGlyph);
+								SetSelection(cursorPositionBegin - (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
+											 cursorPositionEnd - (cursorPositionEnd.y == line && cursorPositionEnd.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
+							}
+						}
+						else
+						{
+							Write(Nz::String('\t'), { 0U, line });
+							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
+										 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
+						}
+					}
+				}
+				else if (key.shift)
+				{
+					std::size_t currentGlyph = GetGlyphIndex(m_cursorPositionBegin);
+
+					if (currentGlyph > 0 && m_text[m_text.GetCharacterPosition(currentGlyph - 1U)] == '\t') // Check if previous glyph is a tab
+					{
+						Erase(currentGlyph - 1U);
+
+						if (m_cursorPositionBegin.x < static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionBegin.y)))
+							MoveCursor(-1);
+					}
+				}
+				else
+					Write(Nz::String('\t'));
+
 				return true;
 			}
 
@@ -388,13 +488,16 @@ namespace Ndk
 				if (ignoreDefaultAction || !m_multiLineEnabled)
 					break;
 
+				if (HasSelection())
+					EraseSelection();
+
 				Write(Nz::String('\n'));
 				break;
 			}
 
 			default:
 			{
-				if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control)
+				if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
 					break;
 
 				if (HasSelection())

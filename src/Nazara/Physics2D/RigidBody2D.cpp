@@ -30,7 +30,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		m_handle = Create(mass);
-		SetGeom(geom);
+		SetGeom(std::move(geom));
 	}
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
@@ -87,7 +87,7 @@ namespace Nz
 
 	void RigidBody2D::AddForce(const Vector2f& force, CoordSys coordSys)
 	{
-		return AddForce(force, GetCenterOfGravity(coordSys), coordSys);
+		return AddForce(force, GetMassCenter(coordSys), coordSys);
 	}
 
 	void RigidBody2D::AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys)
@@ -106,7 +106,7 @@ namespace Nz
 
 	void RigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
 	{
-		return AddImpulse(impulse, GetCenterOfGravity(coordSys), coordSys);
+		return AddImpulse(impulse, GetMassCenter(coordSys), coordSys);
 	}
 
 	void RigidBody2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys)
@@ -205,26 +205,26 @@ namespace Nz
 		return m_mass;
 	}
 
-	float RigidBody2D::GetMomentOfInertia() const
+	Vector2f RigidBody2D::GetMassCenter(CoordSys coordSys) const
 	{
-		return float(cpBodyGetMoment(m_handle));
-	}
-
-	Vector2f RigidBody2D::GetCenterOfGravity(CoordSys coordSys) const
-	{
-		cpVect cog = cpBodyGetCenterOfGravity(m_handle);
+		cpVect massCenter = cpBodyGetCenterOfGravity(m_handle);
 
 		switch (coordSys)
 		{
 			case CoordSys_Global:
-				cog = cpBodyLocalToWorld(m_handle, cog);
+				massCenter = cpBodyLocalToWorld(m_handle, massCenter);
 				break;
 
 			case CoordSys_Local:
 				break; // Nothing to do
 		}
 
-		return Vector2f(static_cast<float>(cog.x), static_cast<float>(cog.y));
+		return Vector2f(static_cast<float>(massCenter.x), static_cast<float>(massCenter.y));
+	}
+
+	float RigidBody2D::GetMomentOfInertia() const
+	{
+		return float(cpBodyGetMoment(m_handle));
 	}
 
 	Vector2f RigidBody2D::GetPosition() const
@@ -311,7 +311,7 @@ namespace Nz
 		else
 			m_geom = NullCollider2D::New();
 
-		m_shapes = m_geom->GenerateShapes(this);
+		m_geom->GenerateShapes(this, &m_shapes);
 
 		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
@@ -362,9 +362,21 @@ namespace Nz
 		m_mass = mass;
 	}
 
-	void RigidBody2D::SetMassCenter(const Vector2f& center)
+	void RigidBody2D::SetMassCenter(const Vector2f& center, CoordSys coordSys)
 	{
-		cpBodySetCenterOfGravity(m_handle, cpv(center.x, center.y));
+		cpVect massCenter = cpv(center.x, center.y);
+
+		switch (coordSys)
+		{
+			case CoordSys_Global:
+				massCenter = cpBodyWorldToLocal(m_handle, massCenter);
+				break;
+
+			case CoordSys_Local:
+				break; // Nothing to do
+		}
+
+		cpBodySetCenterOfGravity(m_handle, massCenter);
 	}
 
 	void RigidBody2D::SetMomentOfInertia(float moment)

@@ -166,16 +166,17 @@ namespace Nz
 		instance.CheckType(index, Nz::LuaType_Table);
 		std::size_t pos = 1;
 
+		container->clear();
 		for (;;)
 		{
 			Nz::CallOnExit popStack { [&instance]() { instance.Pop(); } };
 			instance.PushInteger(pos++);
 
-			if (instance.GetTable() == Nz::LuaType_Nil)
+			int tableIndex = (index < 0) ? index - 1 : index;
+			if (instance.GetTable(tableIndex) == Nz::LuaType_Nil)
 				break;
 
-			T arg {};
-
+			T arg;
 			if (LuaImplQueryArg(instance, -1, &arg, TypeTag<T>()) != 1)
 			{
 				instance.Error("Type needs more than one place to be initialized");

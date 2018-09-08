@@ -34,7 +34,8 @@ namespace Ndk
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true),
-	m_forceRenderQueueInvalidation(false)
+	m_forceRenderQueueInvalidation(false),
+	m_isCullingEnabled(true)
 	{
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
@@ -194,16 +195,22 @@ namespace Ndk
 
 			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
 
-			// To make sure the bounding volume used by the culling list is updated
+			// To make sure the bounding volumes used by the culling list is updated
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				graphicsComponent.EnsureBoundingVolumeUpdate();
+				graphicsComponent.EnsureBoundingVolumesUpdate();
 			}
 
 			bool forceInvalidation = false;
 
-			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
+			const Nz::Frustumf& frustum = camComponent.GetFrustum();
+
+			std::size_t visibilityHash;
+			if (m_isCullingEnabled)
+				visibilityHash = m_drawableCulling.Cull(frustum, &forceInvalidation);
+			else
+				visibilityHash = m_drawableCulling.FillWithAllEntries(&forceInvalidation);
 
 			// Always regenerate renderqueue if particle groups are present for now (FIXME)
 			if (!m_lights.empty() || !m_particleGroups.empty())
@@ -212,8 +219,11 @@ namespace Ndk
 			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
 			{
 				renderQueue->Clear();
-				for (const GraphicsComponent* gfxComponent : m_drawableCulling)
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
+
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
+					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue);
 
 				for (const Ndk::EntityHandle& light : m_lights)
 				{

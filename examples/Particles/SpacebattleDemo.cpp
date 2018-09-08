@@ -662,13 +662,15 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 
 	Ndk::NodeComponent& cannonNode = m_turret.cannonEntity->GetComponent<Ndk::NodeComponent>();
 
-	Nz::Boxf introAABB = introGfx.GetBoundingVolume().aabb;
+	Nz::Boxf introAABB = introGfx.GetAABB();
 	introNode.SetPosition(cannonNode.GetForward() * 500.f + introNode.GetLeft() * introAABB.width / 2.f + introNode.GetUp() * introAABB.height / 2.f);
 }
 
 void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
 	m_ambientMusic.Stop();
+	m_onMouseMoved.Disconnect();
+	m_shared.target->SetCursor(Nz::SystemCursor_Default);
 	m_shared.world3D->RemoveSystem<LaserBeamSystem>();
 	m_shared.world3D->RemoveSystem<SpaceshipSystem>();
 	m_turretFireSound.Stop();

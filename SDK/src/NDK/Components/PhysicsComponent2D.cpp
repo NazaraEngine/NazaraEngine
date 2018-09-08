@@ -29,7 +29,7 @@ namespace Ndk
 		World* entityWorld = m_entity->GetWorld();
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a 2D physics system");
 
-		Nz::PhysWorld2D& world = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
+		Nz::PhysWorld2D& world = entityWorld->GetSystem<PhysicsSystem2D>().GetPhysWorld();
 
 		Nz::Collider2DRef geom;
 		if (m_entity->HasComponent<CollisionComponent2D>())

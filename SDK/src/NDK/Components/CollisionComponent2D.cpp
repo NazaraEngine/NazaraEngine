@@ -56,7 +56,7 @@ namespace Ndk
 
 		NazaraAssert(entityWorld, "Entity must have world");
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
-		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
+		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetPhysWorld();
 
 		m_staticBody = std::make_unique<Nz::RigidBody2D>(&physWorld, 0.f, m_geom);
 		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));

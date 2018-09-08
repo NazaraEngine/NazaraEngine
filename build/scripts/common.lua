@@ -608,7 +608,7 @@ function NazaraBuild:LoadConfig()
 end
 
 function NazaraBuild:MakeInstallCommands(infoTable)
-	if (os.istarget("windows")) then
+	if (os.ishost("windows")) then
 		filter("kind:SharedLib")
 
 		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")

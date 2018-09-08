@@ -61,6 +61,7 @@ namespace Ndk
 
 			void Invalidate();
 			inline bool IsEnabled() const;
+			bool IsDying() const;
 			inline bool IsValid() const;
 
 			inline void RemoveAllComponents();

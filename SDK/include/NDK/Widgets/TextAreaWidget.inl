@@ -23,6 +23,21 @@ namespace Ndk
 		m_multiLineEnabled = enable;
 	}
 
+	inline void TextAreaWidget::EnableTabWriting(bool enable)
+	{
+		m_tabEnabled = enable;
+	}
+
+	inline void TextAreaWidget::Erase(std::size_t glyphPosition)
+	{
+		Erase(glyphPosition, glyphPosition + 1U);
+	}
+
+	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
+	{
+		return m_characterFilter;
+	}
+
 	inline unsigned int TextAreaWidget::GetCharacterSize() const
 	{
 		return m_drawer.GetCharacterSize();
@@ -97,6 +112,11 @@ namespace Ndk
 		return m_multiLineEnabled;
 	}
 
+	inline bool TextAreaWidget::IsTabWritingEnabled() const
+	{
+		return m_tabEnabled;
+	}
+
 	inline bool TextAreaWidget::IsReadOnly() const
 	{
 		return m_readOnly;
@@ -138,6 +158,11 @@ namespace Ndk
 		cursorPosition.y = ClampOffset(static_cast<unsigned int>(cursorPosition.y), offset.y);
 
 		SetCursorPosition(cursorPosition);
+	}
+
+	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
+	{
+		m_characterFilter = filter;
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
@@ -222,5 +247,15 @@ namespace Ndk
 		m_drawer.SetColor(text);
 
 		m_textSprite->Update(m_drawer);
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text)
+	{
+		Write(text, GetGlyphIndex(m_cursorPositionBegin));
+	}
+
+	inline void TextAreaWidget::Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition)
+	{
+		Write(text, GetGlyphIndex(glyphPosition));
 	}
 }

@@ -36,8 +36,8 @@ namespace Nz
 
 			Vector3 CrossProduct(const Vector3& vec) const;
 
-			T Distance(const Vector3& vec) const;
-			float Distancef(const Vector3& vec) const;
+			template<typename U = T>
+			U Distance(const Vector3& vec) const;
 			T DotProduct(const Vector3& vec) const;
 
 			T GetLength() const;
@@ -106,8 +106,7 @@ namespace Nz
 			static Vector3 Backward();
 			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
 			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
-			static T Distance(const Vector3& vec1, const Vector3& vec2);
-			static float Distancef(const Vector3& vec1, const Vector3& vec2);
+			template<typename U = T> static U Distance(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Down();
 			static Vector3 Forward();
 			static Vector3 Left();

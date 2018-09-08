@@ -12,13 +12,16 @@
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
 #include <vector>
+#include <functional>
 
 namespace Ndk
 {
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:
-			TextAreaWidget(BaseWidget* parent = nullptr);
+			using CharacterFilter = std::function<bool(char32_t)>;
+
+			TextAreaWidget(BaseWidget* parent);
 			TextAreaWidget(const TextAreaWidget&) = delete;
 			TextAreaWidget(TextAreaWidget&&) = default;
 			~TextAreaWidget() = default;
@@ -29,10 +32,15 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
-			inline void EnableMultiline(bool enable = true);
 
+			inline void EnableMultiline(bool enable = true);
+			inline void EnableTabWriting(bool enable = true);
+
+			inline void Erase(std::size_t glyphPosition);
+			void Erase(std::size_t firstGlyph, std::size_t lastGlyph);
 			void EraseSelection();
 
+			inline CharacterFilter GetCharacterFilter() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
 			inline Nz::Vector2ui GetCursorPosition(std::size_t glyphIndex) const;
@@ -48,12 +56,14 @@ namespace Ndk
 
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
+			inline bool IsTabWritingEnabled() const;
 
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
 
 			void ResizeToContent() override;
 
+			inline void SetCharacterFilter(CharacterFilter filter);
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
@@ -63,7 +73,9 @@ namespace Ndk
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
 
-			void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition);
+			void Write(const Nz::String& text, std::size_t glyphPosition);
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
@@ -96,6 +108,7 @@ namespace Ndk
 			void RefreshCursor();
 			void UpdateDisplayText();
 
+			std::function<bool(char32_t)> m_characterFilter;
 			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
@@ -109,6 +122,7 @@ namespace Ndk
 			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
+			bool m_tabEnabled; // writes (Shift+)Tab character if set to true
 	};
 }
 

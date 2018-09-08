@@ -17,6 +17,8 @@ Miscellaneous:
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
 - When supported, projects are now parts of a virtual "workspace group" according to their kind
+- Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
+- ⚠ Appveyor nightlies are now compiled with VS2017
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -118,6 +120,32 @@ Nazara Engine:
 - SocketPoller will now silently ignore "interrupt errors"
 - Added RigidBody2D::ClosestPointQuery
 - Fix Sprite copy constructor not copying corner colors
+- Added ObjectLibrary::Clear method
+- ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
+- ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
+- Added StackVector class
+- ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
+- Added Vector2::Distance static method
+- ⚠️ Fixed compilation errors on MSVC with flag /permissive- on CullingList class
+- Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
+- Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
+- Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
+- Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
+- Added movement with Ctrl in TextAreaWidget
+- Added Unicode Data downloader/parser
+- Integrated Unicode Data
+- Added CullingList::FillWithAllEntries method
+- Fixed ObjectHandle movement sometimes not resetting its internal pointer
+- Added BoxCollider2D::GetRadius
+- Added CircleCollider2D::GetOffset
+- Added ConvexCollider2D::GetVertices
+- Added SegmentCollider2D::GetThickness
+- Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
+- It is now possible to prevent CompoundCollider2D to override individual colliders properties
+- Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
+- CullingList now handles box tests
+- ⚠️ CullingList now handles full and partial visibility testing
+- Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -166,10 +194,18 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
 - Fixed EntityOwner move assignment which was losing entity ownership
-- Add GraphicsComponent:ForEachRenderable method
+- Added GraphicsComponent:ForEachRenderable method
 - Fixed GraphicsComponent reflective material count which was not initialized
 - Added PhysicsComponent2D::ClosestPointQuery
-- Fix GraphicsComponent copy constructor not copying scissor rect
+- Fixed GraphicsComponent copy constructor not copying scissor rect
+- Force parent parameter to be present in widgets constructor
+- Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- Enable write of Tab character in TextAreaWidget
+- It is now possible to disable object culling in the RenderSystem
+- Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
+- Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
+- ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
+- RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
 
 # 0.4:
 

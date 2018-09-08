@@ -129,6 +129,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the angular damping or moment of inertia of the physics object
+	* \return Angular damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*
+	* \see GetMomentOfInertia
+	*/
+
+	inline float PhysicsComponent2D::GetAngularDamping() const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetAngularDamping();
+	}
+
+	/*!
 	* \brief Gets the angular velocity of the physics object
 	* \return Angular velocity of the object
 	*
@@ -155,7 +171,7 @@ namespace Ndk
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
-		return m_object->GetCenterOfGravity(coordSys);
+		return m_object->GetMassCenter(coordSys);
 	}
 
 	/*!
@@ -170,6 +186,38 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetMass();
+	}
+
+	/*!
+	* \brief Gets the gravity center of the physics object
+	* \return Gravity center of the object
+	*
+	* \param coordSys System coordinates to consider
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+
+	inline Nz::Vector2f PhysicsComponent2D::GetMassCenter(Nz::CoordSys coordSys) const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetMassCenter(coordSys);
+	}
+
+	/*!
+	* \brief Gets the angular damping or moment of inertia of the physics object
+	* \return Moment of inertia of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*
+	* \see GetAngularDamping
+	*/
+
+	inline float PhysicsComponent2D::GetMomentOfInertia() const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetMomentOfInertia();
 	}
 
 	/*!
@@ -229,6 +277,23 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the angular damping or moment of inertia of the physics object
+	*
+	* \param angularDamping Angular damping of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*
+	* \see SetMomentOfInertia
+	*/
+
+	inline void PhysicsComponent2D::SetAngularDamping(float angularDamping)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetAngularDamping(angularDamping);
+	}
+
+	/*!
 	* \brief Sets the angular velocity of the physics object
 	*
 	* \param angularVelocity Angular velocity of the object
@@ -268,11 +333,27 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent2D::SetMassCenter(const Nz::Vector2f& center)
+	inline void PhysicsComponent2D::SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
-		m_object->SetMassCenter(center);
+		m_object->SetMassCenter(center, coordSys);
+	}
+	/*!
+	* \brief Sets the angular damping or moment of inertia of the physics object
+	*
+	* \param moment Moment of inertia of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*
+	* \see SetAngularDamping
+	*/
+
+	inline void PhysicsComponent2D::SetMomentOfInertia(float moment)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetMomentOfInertia(moment);
 	}
 
 	/*!
