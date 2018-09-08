@@ -87,7 +87,7 @@ namespace Ndk
 		Nz::Vector2f origin = GetContentOrigin();
 		const Nz::Vector2f& contentSize = GetContentSize();
 
-		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetBoundingVolume().obb.localBox;
+		Nz::Boxf textBox = m_textEntity->GetComponent<GraphicsComponent>().GetAABB();
 		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + contentSize.x / 2 - textBox.width / 2, origin.y + contentSize.y / 2 - textBox.height / 2);
 	}
 

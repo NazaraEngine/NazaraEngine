@@ -38,7 +38,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		WHEN("We make it collide with a wall")
 		{
 			int rawDistance = 3;
-			Nz::Vector2f distance(rawDistance, 0.f);
+			Nz::Vector2f distance(float(rawDistance), 0.f);
 			Nz::Vector2f wallPosition = position + Nz::Vector2f(movingAABB.width, 0.f) + distance;
 			Nz::Rectf wallAABB(0.f, 0.f, 100.f, 100.f);
 			Ndk::EntityHandle wallEntity = CreateBaseEntity(world, wallPosition, wallAABB);

@@ -97,8 +97,8 @@ int main()
 	particleCountGfx.Attach(shared.particleCount, 1);
 
 
-	Nz::Boxf fpsCountBox = fpsGfx.GetBoundingVolume().aabb;
-	Nz::Boxf particleCountBox = particleCountGfx.GetBoundingVolume().aabb;
+	Nz::Boxf fpsCountBox = fpsGfx.GetAABB();
+	Nz::Boxf particleCountBox = particleCountGfx.GetAABB();
 
 	Nz::Vector2ui windowSize = window.GetSize();
 	demoNameNode.SetPosition(5.f, 5.f);
