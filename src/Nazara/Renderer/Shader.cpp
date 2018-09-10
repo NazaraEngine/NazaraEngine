@@ -26,6 +26,61 @@ namespace Nz
 		Destroy();
 	}
 
+	auto Shader::ApplyLayout(const RenderPipelineLayoutRef& pipelineLayout) -> LayoutBindings
+	{
+		NazaraAssert(m_linked, "Program should be linked");
+
+		Context::EnsureContext();
+
+		LayoutBindings bindings;
+
+		for (const auto& binding : pipelineLayout->GetInfo().bindings)
+		{
+			switch (binding.type)
+			{
+				case ShaderBindingType_Texture:
+				{
+					auto it = m_textureUniformName.find(binding.name);
+					if (it == m_textureUniformName.end())
+					{
+						unsigned int textureId = m_textureUniformName.size();
+
+						unsigned int uniformLocation = glGetUniformLocation(m_program, binding.name.data());
+						SendInteger(uniformLocation, textureId);
+
+						it = m_textureUniformName.emplace(binding.name, textureId).first;
+					}
+
+					bindings.emplace(binding.index, it->second);
+					break;
+				}
+
+				case ShaderBindingType_UniformBuffer:
+				{
+					auto it = m_uniformBlockName.find(binding.name);
+					if (it == m_uniformBlockName.end())
+					{
+						unsigned int blockBinding = m_uniformBlockName.size();
+
+						unsigned int blockIndex = glGetUniformBlockIndex(m_program, binding.name.data());
+						glUniformBlockBinding(m_program, blockIndex, blockBinding);
+
+						it = m_uniformBlockName.emplace(binding.name, blockBinding).first;
+					}
+
+					bindings.emplace(binding.index, it->second);
+					break;
+				}
+
+				default:
+					break;
+
+			}
+		}
+
+		return bindings;
+	}
+
 	void Shader::AttachStage(ShaderStageType stage, const ShaderStage& shaderStage)
 	{
 		#if NAZARA_RENDERER_SAFE
@@ -199,7 +254,7 @@ namespace Nz
 
 		if (binaryLength > 0)
 		{
-			byteArray.Reserve(sizeof(UInt64) + binaryLength);
+			byteArray.Resize(sizeof(UInt64) + binaryLength);
 
 			UInt8* buffer = byteArray.GetBuffer();
 
@@ -791,6 +846,18 @@ namespace Nz
 		m_linked = (success == GL_TRUE);
 		if (m_linked)
 		{
+			for (const auto& pair : m_textureUniformName)
+			{
+				unsigned int uniformLocation = glGetUniformLocation(m_program, pair.first.data());
+				SendInteger(uniformLocation, pair.second);
+			}
+
+			for (const auto& pair : m_uniformBlockName)
+			{
+				unsigned int blockIndex = glGetUniformBlockIndex(m_program, pair.first.data());
+				glUniformBlockBinding(m_program, blockIndex, pair.second);
+			}
+
 			// Pour éviter de se tromper entre le nom et la constante
 			#define CacheUniform(name) m_uniformLocations[ShaderUniform_##name] = glGetUniformLocation(m_program, #name)
 

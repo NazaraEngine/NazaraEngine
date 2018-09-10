@@ -21,13 +21,13 @@ namespace Nz
 	{
 		// Première étape, transformer les paramètres en un flag
 		UInt32 flags = 0;
-		for (auto it = m_flags.begin(); it != m_flags.end(); ++it)
+		for (const auto& flag : m_flags)
 		{
-			if (parameters.HasParameter(it->first))
+			if (parameters.HasParameter(flag.first))
 			{
 				bool value;
-				if (parameters.GetBooleanParameter(it->first, &value) && value)
-					flags |= it->second;
+				if (parameters.GetBooleanParameter(flag.first, &value) && value)
+					flags |= flag.second;
 			}
 		}
 
@@ -53,13 +53,13 @@ namespace Nz
 					if (shaderStage.present && (flags & shaderStage.requiredFlags) == shaderStage.requiredFlags)
 					{
 						UInt32 stageFlags = 0;
-						for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
+						for (const auto& flag : shaderStage.flags)
 						{
-							if (parameters.HasParameter(it->first))
+							if (parameters.HasParameter(flag.first))
 							{
 								bool value;
-								if (parameters.GetBooleanParameter(it->first, &value) && value)
-									stageFlags |= it->second;
+								if (parameters.GetBooleanParameter(flag.first, &value) && value)
+									stageFlags |= flag.second;
 							}
 						}
 
@@ -78,8 +78,8 @@ namespace Nz
 
 							code << "#define EARLY_FRAGMENT_TESTS " << ((glslVersion >= 420 || OpenGL::IsSupported(OpenGLExtension_Shader_ImageLoadStore)) ? '1' : '0') << "\n\n";
 
-							for (auto it = shaderStage.flags.begin(); it != shaderStage.flags.end(); ++it)
-								code << "#define " << it->first << ' ' << ((stageFlags & it->second) ? '1' : '0') << '\n';
+							for (const auto& flag : shaderStage.flags)
+								code << "#define " << flag.first << ' ' << ((stageFlags & flag.second) ? '1' : '0') << '\n';
 
 							code << "\n#line 1\n"; // Pour que les éventuelles erreurs du shader se réfèrent à la bonne ligne
 							code << shaderStage.source;

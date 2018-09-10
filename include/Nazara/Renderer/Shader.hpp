@@ -20,6 +20,8 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -37,10 +39,14 @@ namespace Nz
 		friend class Renderer;
 
 		public:
+			using LayoutBindings = std::unordered_map<unsigned int /*pipelineBinding*/, unsigned int /*shaderBinding*/>;
+
 			Shader();
 			Shader(const Shader&) = delete;
 			Shader(Shader&&) = delete;
 			~Shader();
+
+			LayoutBindings ApplyLayout(const RenderPipelineLayoutRef& pipelineLayout);
 
 			void AttachStage(ShaderStageType stage, const ShaderStage& shaderStage);
 			bool AttachStageFromFile(ShaderStageType stage, const String& filePath);
@@ -120,6 +126,8 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
+			std::unordered_map<std::string /*textureName*/, unsigned int /*textureId*/> m_textureUniformName;
+			std::unordered_map<std::string /*uniformBlockName*/, unsigned int /*bindingPoint*/> m_uniformBlockName;
 			std::vector<unsigned int> m_attachedShaders[ShaderStageType_Max+1];
 			bool m_linked;
 			int m_uniformLocations[ShaderUniform_Max+1];

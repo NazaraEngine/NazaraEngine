@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_RENDERER_HPP
 #define NAZARA_ENUMS_RENDERER_HPP
 
+#include <Nazara/Core/Flags.hpp>
+
 namespace Nz
 {
 	enum AttachmentPoint
@@ -90,6 +92,14 @@ namespace Nz
 		RendererBuffer_Max = RendererBuffer_Stencil*2-1
 	};
 
+	enum ShaderBindingType
+	{
+		ShaderBindingType_Texture,
+		ShaderBindingType_UniformBuffer,
+
+		ShaderBindingType_Max = ShaderBindingType_UniformBuffer
+	};
+
 	enum ShaderUniform
 	{
 		ShaderUniform_InvProjMatrix,
@@ -117,6 +127,14 @@ namespace Nz
 		ShaderStageType_Vertex,
 
 		ShaderStageType_Max = ShaderStageType_Vertex
+	};
+
+	using ShaderStageTypeFlags = Nz::Flags<ShaderStageType>;
+
+	template<>
+	struct EnumAsFlags<ShaderStageType>
+	{
+		static constexpr ShaderStageType max = ShaderStageType_Max;
 	};
 }
 
