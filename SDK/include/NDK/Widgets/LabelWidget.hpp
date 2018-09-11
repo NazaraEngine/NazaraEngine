@@ -26,10 +26,6 @@ namespace Ndk
 			LabelWidget(LabelWidget&&) = default;
 			~LabelWidget() = default;
 
-			//virtual LabelWidget* Clone() const = 0;
-
-			void ResizeToContent() override;
-
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 			LabelWidget& operator=(const LabelWidget&) = delete;

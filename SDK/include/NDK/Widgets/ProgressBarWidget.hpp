@@ -67,8 +67,6 @@ namespace Ndk
 			inline void SetTextMargin(float margin);
 			inline void SetTextColor(const Nz::Color& color);
 
-			inline void ResizeToContent() override {}
-
 			NazaraSignal(OnValueChanged, const ProgressBarWidget* /*progressBar*/);
 
 		private:
