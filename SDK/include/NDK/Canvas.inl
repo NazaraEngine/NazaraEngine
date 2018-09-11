@@ -27,9 +27,6 @@ namespace Ndk
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnEventMouseLeft);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
-
-		// Disable padding by default
-		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	inline Canvas::~Canvas()

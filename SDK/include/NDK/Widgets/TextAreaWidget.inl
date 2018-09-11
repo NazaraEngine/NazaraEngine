@@ -33,7 +33,7 @@ namespace Ndk
 		Erase(glyphPosition, glyphPosition + 1U);
 	}
 
-	inline TextAreaWidget::CharacterFilter TextAreaWidget::GetCharacterFilter() const
+	inline const TextAreaWidget::CharacterFilter& TextAreaWidget::GetCharacterFilter() const
 	{
 		return m_characterFilter;
 	}
@@ -162,12 +162,7 @@ namespace Ndk
 
 	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
 	{
-		m_characterFilter = filter;
-	}
-
-	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
-	{
-		m_drawer.SetCharacterSize(characterSize);
+		m_characterFilter = std::move(filter);
 	}
 
 	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
