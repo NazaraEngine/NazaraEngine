@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERPIPELINELAYOUT_HPP
 #define NAZARA_RENDERPIPELINELAYOUT_HPP
 
-#include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -33,7 +33,7 @@ namespace Nz
 
 	using RenderPipelineLayoutRef = ObjectRef<RenderPipelineLayout>;
 
-	class RenderPipelineLayout : public HandledObject<RenderPipelineLayout>
+	class RenderPipelineLayout : public RefCounted
 	{
 		public:
 			inline RenderPipelineLayout();
