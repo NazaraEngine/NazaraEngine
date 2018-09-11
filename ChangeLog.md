@@ -146,6 +146,10 @@ Nazara Engine:
 - CullingList now handles box tests
 - ⚠️ CullingList now handles full and partial visibility testing
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
+- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
+- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
+- Added BaseWidget::ForEachWidgetChild
+- Added experimental BoxLayout class
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
