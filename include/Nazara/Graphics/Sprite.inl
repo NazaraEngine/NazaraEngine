@@ -155,7 +155,7 @@ namespace Nz
 
 	inline void Sprite::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New();
+		MaterialRef material = BaseMaterial::New();
 		material->EnableFaceCulling(false);
 		material->EnableScissorTest(true);
 
@@ -272,7 +272,7 @@ namespace Nz
 
 		if (material->GetReferenceCount() > 1)
 		{
-			MaterialRef newMat = Material::New(*material); // Copy
+			MaterialRef newMat = BaseMaterial::New(*material); // Copy
 			newMat->SetDiffuseMap(std::move(texture));
 
 			SetMaterial(skinIndex, std::move(newMat), resizeSprite);

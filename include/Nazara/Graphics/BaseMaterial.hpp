@@ -40,15 +40,15 @@ namespace Nz
 		bool IsValid() const;
 	};
 
-	class Material;
+	class BaseMaterial;
 
-	using MaterialConstRef = ObjectRef<const Material>;
-	using MaterialLibrary = ObjectLibrary<Material>;
-	using MaterialLoader = ResourceLoader<Material, MaterialParams>;
-	using MaterialManager = ResourceManager<Material, MaterialParams>;
-	using MaterialRef = ObjectRef<Material>;
+	using MaterialConstRef = ObjectRef<const BaseMaterial>;
+	using MaterialLibrary = ObjectLibrary<BaseMaterial>;
+	using MaterialLoader = ResourceLoader<BaseMaterial, MaterialParams>;
+	using MaterialManager = ResourceManager<BaseMaterial, MaterialParams>;
+	using MaterialRef = ObjectRef<BaseMaterial>;
 
-	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
+	class NAZARA_GRAPHICS_API BaseMaterial : public RefCounted, public Resource
 	{
 		friend MaterialLibrary;
 		friend MaterialLoader;
@@ -56,12 +56,12 @@ namespace Nz
 		friend class Graphics;
 
 		public:
-			inline Material();
-			inline Material(const MaterialPipeline* pipeline);
-			inline Material(const MaterialPipelineInfo& pipelineInfo);
-			inline Material(const String& pipelineName);
-			inline Material(const Material& material);
-			inline ~Material();
+			inline BaseMaterial();
+			inline BaseMaterial(const MaterialPipeline* pipeline);
+			inline BaseMaterial(const MaterialPipelineInfo& pipelineInfo);
+			inline BaseMaterial(const String& pipelineName);
+			inline BaseMaterial(const BaseMaterial& material);
+			inline ~BaseMaterial();
 
 			void Apply(const MaterialPipeline::Instance& instance) const;
 
@@ -176,19 +176,19 @@ namespace Nz
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 			inline void SetSrcBlend(BlendFunc func);
 
-			inline Material& operator=(const Material& material);
+			inline BaseMaterial& operator=(const BaseMaterial& material);
 
 			inline static MaterialRef GetDefault();
 			inline static int GetTextureUnit(TextureMap textureMap);
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
-			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
-			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
-			NazaraSignal(OnMaterialReset, const Material* /*material*/);
+			NazaraSignal(OnMaterialReflectionModeChange, const BaseMaterial* /*material*/, ReflectionMode /*newReflectionMode*/);
+			NazaraSignal(OnMaterialRelease, const BaseMaterial* /*material*/);
+			NazaraSignal(OnMaterialReset, const BaseMaterial* /*material*/);
 
 		private:
-			void Copy(const Material& material);
+			void Copy(const BaseMaterial& material);
 			inline void InvalidatePipeline();
 			inline void UpdatePipeline() const;
 
@@ -225,6 +225,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/Material.inl>
+#include <Nazara/Graphics/BaseMaterial.inl>
 
 #endif // NAZARA_MATERIAL_HPP

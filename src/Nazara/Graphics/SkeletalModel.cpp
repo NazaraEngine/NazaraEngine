@@ -62,7 +62,7 @@ namespace Nz
 		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
 			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
-			const Material* material = GetMaterial(mesh->GetMaterialIndex());
+			const BaseMaterial* material = GetMaterial(mesh->GetMaterialIndex());
 
 			MeshData meshData;
 			meshData.indexBuffer = mesh->GetIndexBuffer();

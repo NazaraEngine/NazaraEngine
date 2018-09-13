@@ -21,9 +21,9 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_value { 0u }
 	{
-		m_borderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_borderSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
+		m_barBackgroundSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
+		m_barSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
 
 		m_borderSprite->SetColor(s_borderColor);
 		SetBarBackgroundColor(s_barBackgroundColor, s_barBackgroundCornerColor);

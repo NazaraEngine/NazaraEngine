@@ -82,7 +82,7 @@ namespace Ndk
 			void InvalidateReflectionMap();
 			inline void InvalidateTransformMatrix();
 
-			void RegisterMaterial(Nz::Material* material, std::size_t count = 1);
+			void RegisterMaterial(Nz::BaseMaterial* material, std::size_t count = 1);
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -91,10 +91,10 @@ namespace Ndk
 
 			void OnInstancedRenderableResetMaterials(const Nz::InstancedRenderable* renderable, std::size_t newMaterialCount);
 			void OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex);
-			void OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode);
+			void OnMaterialReflectionChange(const Nz::BaseMaterial* material, Nz::ReflectionMode reflectionMode);
 			void OnNodeInvalidated(const Nz::Node* node);
 
-			void UnregisterMaterial(Nz::Material* material);
+			void UnregisterMaterial(Nz::BaseMaterial* material);
 
 			void UpdateBoundingVolumes() const;
 			void UpdateTransformMatrix() const;
@@ -112,7 +112,7 @@ namespace Ndk
 
 			struct MaterialEntry
 			{
-				NazaraSlot(Nz::Material, OnMaterialReflectionModeChange, reflectionModelChangeSlot);
+				NazaraSlot(Nz::BaseMaterial, OnMaterialReflectionModeChange, reflectionModelChangeSlot);
 
 				std::size_t renderableCounter;
 			};
@@ -153,7 +153,7 @@ namespace Ndk
 			std::size_t m_reflectiveMaterialCount;
 			mutable std::vector<CullingBoxEntry> m_cullingBoxEntries;
 			std::vector<Renderable> m_renderables;
-			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
+			std::unordered_map<const Nz::BaseMaterial*, MaterialEntry> m_materialEntries;
 			mutable Nz::Boxf m_aabb;
 			mutable Nz::Matrix4f m_transformMatrix;
 			Nz::Recti m_scissorRect;

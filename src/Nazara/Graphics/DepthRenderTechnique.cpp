@@ -8,7 +8,7 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -236,7 +236,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const Material* lastMaterial = nullptr;
+		const BaseMaterial* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -323,7 +323,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const Material* lastMaterial = nullptr;
+		const BaseMaterial* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -407,7 +407,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const Material* lastMaterial = nullptr;
+		const BaseMaterial* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -490,7 +490,7 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
+		const unsigned int overlayTextureUnit = BaseMaterial::GetTextureUnit(TextureMap_Overlay);
 		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 		m_spriteChains.clear();
@@ -542,7 +542,7 @@ namespace Nz
 			m_spriteChains.clear();
 		};
 
-		const Material* lastMaterial = nullptr;
+		const BaseMaterial* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
