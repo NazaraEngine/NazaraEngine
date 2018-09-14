@@ -27,7 +27,7 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -49,7 +49,7 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -71,7 +71,7 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -93,7 +93,7 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -115,7 +115,7 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -137,7 +137,7 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -159,7 +159,7 @@ namespace Nz
 	* \param colorPtr Color of the billboards if null, Color::White is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -181,7 +181,7 @@ namespace Nz
 	* \param alphaPtr Alpha parameters of the billboards if null, 1.f is used
 	*/
 
-	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
+	void DeferredProxyRenderQueue::AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -215,7 +215,7 @@ namespace Nz
 	* \param transformMatrix Matrix of the mesh
 	*/
 
-	void DeferredProxyRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
+	void DeferredProxyRenderQueue::AddMesh(int renderOrder, const BaseMaterial* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -235,7 +235,7 @@ namespace Nz
 	* \param overlay Texture of the sprites
 	*/
 
-	void DeferredProxyRenderQueue::AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay)
+	void DeferredProxyRenderQueue::AddSprites(int renderOrder, const BaseMaterial* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay)
 	{
 		NazaraAssert(material, "Invalid material");
 

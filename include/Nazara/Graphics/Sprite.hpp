@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <array>
 
 namespace Nz

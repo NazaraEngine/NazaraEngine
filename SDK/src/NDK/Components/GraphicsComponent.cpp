@@ -146,7 +146,7 @@ namespace Ndk
 			m_reflectionMap.Reset();
 	}
 
-	void GraphicsComponent::RegisterMaterial(Nz::Material* material, std::size_t count)
+	void GraphicsComponent::RegisterMaterial(Nz::BaseMaterial* material, std::size_t count)
 	{
 		auto it = m_materialEntries.find(material);
 		if (it == m_materialEntries.end())
@@ -225,7 +225,7 @@ namespace Ndk
 
 	void GraphicsComponent::OnInstancedRenderableResetMaterials(const Nz::InstancedRenderable* renderable, std::size_t newMaterialCount)
 	{
-		RegisterMaterial(Nz::Material::GetDefault(), newMaterialCount);
+		RegisterMaterial(Nz::BaseMaterial::GetDefault(), newMaterialCount);
 
 		std::size_t materialCount = renderable->GetMaterialCount();
 		for (std::size_t i = 0; i < materialCount; ++i)
@@ -242,7 +242,7 @@ namespace Ndk
 			UnregisterMaterial(renderable->GetMaterial(i));
 	}
 
-	void GraphicsComponent::OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode)
+	void GraphicsComponent::OnMaterialReflectionChange(const Nz::BaseMaterial* material, Nz::ReflectionMode reflectionMode)
 	{
 		// Since this signal is only called when the new reflection mode is different from the current one, no need to compare both
 		if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
@@ -268,7 +268,7 @@ namespace Ndk
 		ForceCullingInvalidation(); //< Force invalidation on movement for now (FIXME)
 	}
 
-	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)
+	void GraphicsComponent::UnregisterMaterial(Nz::BaseMaterial* material)
 	{
 		auto it = m_materialEntries.find(material);
 		NazaraAssert(it != m_materialEntries.end(), "Material not registered");

@@ -1115,6 +1115,7 @@ namespace Nz
 				glUniform2dv = reinterpret_cast<PFNGLUNIFORM2DVPROC>(LoadEntry("glUniform2dv"));
 				glUniform3dv = reinterpret_cast<PFNGLUNIFORM3DVPROC>(LoadEntry("glUniform3dv"));
 				glUniform4dv = reinterpret_cast<PFNGLUNIFORM4DVPROC>(LoadEntry("glUniform4dv"));
+				glUniformMatrix4dv = reinterpret_cast<PFNGLUNIFORMMATRIX4DVPROC>(LoadEntry("glUniformMatrix4dv"));
 
 				s_openGLextensions[OpenGLExtension_FP64] = true;
 			}

@@ -126,7 +126,7 @@ int main()
 	// En revanche, le format OBJ ne précise pas l'utilisation d'une normal map, nous devons donc la charger manuellement
 	// Pour commencer on récupère le matériau du mesh, celui-ci en possède plusieurs mais celui qui nous intéresse,
 	// celui de la coque, est le second (Cela est bien entendu lié au modèle en lui-même)
-	Nz::Material* material = spaceshipModel->GetMaterial(1); // Encore une fois nous ne faisons qu'un accès direct.
+	Nz::BaseMaterial* material = spaceshipModel->GetMaterial(1); // Encore une fois nous ne faisons qu'un accès direct.
 
 	// On lui indique ensuite le chemin vers la normal map
 	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
@@ -139,7 +139,7 @@ int main()
 	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
 	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.
 	Ndk::EntityHandle spaceship = world->CreateEntity();
-
+	spaceship->AddComponent<Ndk::DebugComponent>(Ndk::DebugDraw::GraphicsAABB | Ndk::DebugDraw::GraphicsOBB);
 	// Note: Nous ne récupérons pas l'entité directement mais un "handle" vers elle, ce dernier est un pointeur intelligent non-propriétaire.
 	// Pour des raisons techniques, le pointeur de l'entité peut venir à changer, ou l'entité être simplement détruite pour n'importe quelle raison.
 	// Le Handle nous permet de maintenir un pointeur valide vers notre entité, et invalidé automatiquement à sa mort.
@@ -150,7 +150,7 @@ int main()
 	// Un NodeComponent donne à notre entité une position, rotation, échelle, et nous permet de l'attacher à d'autres entités (ce que nous ne ferons pas ici).
 	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient,
 	// nous n'avons pas besoin d'agir sur le composant créé.
-	spaceship->AddComponent<Ndk::NodeComponent>();
+	spaceship->AddComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(-33.f, 21.f, 74.f));
 	//spaceship->AddComponent<Ndk::VelocityComponent>().linearVelocity.Set(-1.f, 0.f, 0.f);
 
 	// Bien, notre entité nouvellement créé dispose maintenant d'une position dans la scène, mais est toujours invisible

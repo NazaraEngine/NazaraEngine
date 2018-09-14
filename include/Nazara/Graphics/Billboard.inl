@@ -116,7 +116,7 @@ namespace Nz
 
 	inline void Billboard::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New();
+		MaterialRef material = BaseMaterial::New();
 		material->EnableFaceCulling(true);
 
 		SetMaterial(std::move(material));
@@ -222,7 +222,7 @@ namespace Nz
 
 		if (material->GetReferenceCount() > 1)
 		{
-			MaterialRef newMat = Material::New(*material); // Copy
+			MaterialRef newMat = BaseMaterial::New(*material); // Copy
 			newMat->SetDiffuseMap(std::move(texture));
 
 			SetMaterial(skinIndex, std::move(newMat));

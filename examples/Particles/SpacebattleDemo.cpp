@@ -306,13 +306,13 @@ ParticleDemo("Space battle", sharedData)
 	Nz::TextureSampler diffuseSampler;
 	diffuseSampler.SetWrapMode(Nz::SamplerWrap_Repeat);
 
-	Nz::MaterialRef material = Nz::Material::New("Translucent3D");
+	Nz::MaterialRef material = Nz::BaseMaterial::New("Translucent3D");
 	material->SetDiffuseMap("resources/LaserBeam.png");
 	material->SetDiffuseSampler(diffuseSampler);
 
 	Nz::MaterialLibrary::Register("LaserBeam", std::move(material));
 
-	Nz::MaterialRef sparkleMat1 = Nz::Material::New("Translucent3D");
+	Nz::MaterialRef sparkleMat1 = Nz::BaseMaterial::New("Translucent3D");
 
 	sparkleMat1->SetDiffuseMap("resources/flare1.png");
 	Nz::MaterialLibrary::Register("TorpedoFlare1", std::move(sparkleMat1));
@@ -605,7 +605,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		}
 	}));
 
-	Nz::MaterialRef fireMat = Nz::Material::New("Translucent3D");
+	Nz::MaterialRef fireMat = Nz::BaseMaterial::New("Translucent3D");
 	fireMat->EnableFaceCulling(true);
 	fireMat->SetDiffuseMap("resources/fire_particle.png");
 	// Additive blending for fire
@@ -613,7 +613,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	fireMat->SetDstBlend(Nz::BlendFunc_One);
 	fireMat->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
-	Nz::MaterialRef smokeMat = Nz::Material::New("Translucent3D");
+	Nz::MaterialRef smokeMat = Nz::BaseMaterial::New("Translucent3D");
 	smokeMat->EnableFaceCulling(true);
 	smokeMat->SetDiffuseColor(Nz::Color(128, 128, 128));
 	smokeMat->SetDiffuseMap("resources/smoke.png");
@@ -650,7 +650,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	//////////////////////////////////////////////////////////////////////////
 
 	Nz::TextSpriteRef introText = Nz::TextSprite::New();
-	introText->SetMaterial(Nz::Material::New("Translucent3D"));
+	introText->SetMaterial(Nz::BaseMaterial::New("Translucent3D"));
 	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nLa souris contrôle l'orientation de la tourelle, cliquez pour tirer.\n", 72));
 	introText->SetScale(0.5f);
 

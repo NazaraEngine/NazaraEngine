@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -35,7 +35,7 @@ namespace Nz
 	* \param textureUnit Unit for the texture GL_TEXTURE"i"
 	* \param lastUsedUnit Optional argument to get the last texture unit
 	*/
-	void Material::Apply(const MaterialPipeline::Instance& instance) const
+	void BaseMaterial::Apply(const MaterialPipeline::Instance& instance) const
 	{
 		const Shader* shader = instance.renderPipeline.GetInfo().shader;
 
@@ -109,7 +109,7 @@ namespace Nz
 	* \param matData Data information for the material
 	* \param matParams Additional parameters for the material
 	*/
-	void Material::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
+	void BaseMaterial::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
 	{
 		Color color;
 		bool isEnabled;
@@ -272,7 +272,7 @@ namespace Nz
 	*
 	* \param matData Destination parameter list which will receive material data
 	*/
-	void Material::SaveToParameters(ParameterList* matData)
+	void BaseMaterial::SaveToParameters(ParameterList* matData)
 	{
 		NazaraAssert(matData, "Invalid ParameterList");
 
@@ -375,7 +375,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	void Material::Reset()
+	void BaseMaterial::Reset()
 	{
 		OnMaterialReset(this);
 
@@ -411,7 +411,7 @@ namespace Nz
 	*
 	* \param material Material to copy into this
 	*/
-	void Material::Copy(const Material& material)
+	void BaseMaterial::Copy(const BaseMaterial& material)
 	{
 		// Copy of base states
 		m_alphaThreshold       = material.m_alphaThreshold;
@@ -444,7 +444,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if the material library failed to be initialized
 	*/
-	bool Material::Initialize()
+	bool BaseMaterial::Initialize()
 	{
 		if (!MaterialLibrary::Initialize())
 		{
@@ -486,7 +486,7 @@ namespace Nz
 	/*!
 	* \brief Uninitializes the material librairies
 	*/
-	void Material::Uninitialize()
+	void BaseMaterial::Uninitialize()
 	{
 		s_defaultMaterial.Reset();
 
@@ -494,10 +494,10 @@ namespace Nz
 		MaterialLibrary::Uninitialize();
 	}
 
-	std::array<int, TextureMap_Max + 1> Material::s_textureUnits;
-	MaterialLibrary::LibraryMap Material::s_library;
-	MaterialLoader::LoaderList Material::s_loaders;
-	MaterialManager::ManagerMap Material::s_managerMap;
-	MaterialManager::ManagerParams Material::s_managerParameters;
-	MaterialRef Material::s_defaultMaterial = nullptr;
+	std::array<int, TextureMap_Max + 1> BaseMaterial::s_textureUnits;
+	MaterialLibrary::LibraryMap BaseMaterial::s_library;
+	MaterialLoader::LoaderList BaseMaterial::s_loaders;
+	MaterialManager::ManagerMap BaseMaterial::s_managerMap;
+	MaterialManager::ManagerParams BaseMaterial::s_managerParameters;
+	MaterialRef BaseMaterial::s_defaultMaterial = nullptr;
 }

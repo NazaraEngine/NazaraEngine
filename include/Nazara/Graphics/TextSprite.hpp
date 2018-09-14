@@ -8,7 +8,7 @@
 #define NAZARA_TEXTSPRITE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>

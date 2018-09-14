@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -31,7 +31,7 @@ namespace Nz
 						filePath += ".tga";
 					}
 
-					MaterialRef material = Material::New();
+					MaterialRef material = BaseMaterial::New();
 					if (material->LoadFromFile(filePath, parameters.material))
 						model->SetMaterial(i, std::move(material));
 					else
@@ -39,7 +39,7 @@ namespace Nz
 				}
 				else
 				{
-					MaterialRef material = Material::New();
+					MaterialRef material = BaseMaterial::New();
 					material->BuildFromParameters(matData, parameters.material);
 
 					model->SetMaterial(i, std::move(material));

@@ -9,7 +9,7 @@
 
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/BaseMaterial.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>

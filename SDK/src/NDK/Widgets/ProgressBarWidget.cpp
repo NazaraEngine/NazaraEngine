@@ -21,20 +21,20 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_value { 0u }
 	{
-		m_borderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_borderSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
+		m_barBackgroundSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
+		m_barSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
 
 		m_borderSprite->SetColor(s_borderColor);
 		SetBarBackgroundColor(s_barBackgroundColor, s_barBackgroundCornerColor);
 		SetBarColor(s_barColor, s_barCornerColor);
 
 
-		m_borderEntity = CreateEntity(false);
+		m_borderEntity = CreateEntity();
 		m_borderEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_borderEntity->AddComponent<GraphicsComponent>().Attach(m_borderSprite);
 
-		m_barEntity = CreateEntity(true);
+		m_barEntity = CreateEntity();
 		m_barEntity->AddComponent<NodeComponent>().SetParent(this);
 		GraphicsComponent& graphics = m_barEntity->AddComponent<GraphicsComponent>();
 
@@ -43,7 +43,7 @@ namespace Ndk
 
 
 		m_textSprite = Nz::TextSprite::New();
-		m_textEntity = CreateEntity(true);
+		m_textEntity = CreateEntity();
 
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
@@ -76,8 +76,8 @@ namespace Ndk
 
 	void ProgressBarWidget::Layout()
 	{
-		Nz::Vector2f origin = GetContentOrigin();
-		Nz::Vector2f size = GetContentSize();
+		Nz::Vector2f origin = Nz::Vector2f(0.f);
+		Nz::Vector2f size = GetSize();
 		Nz::Vector2f progressBarSize = size;
 
 		if (IsTextEnabled())
