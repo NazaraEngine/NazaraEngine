@@ -244,7 +244,7 @@ namespace Nz
 			NazaraAssert(m_pendingPacket.received <= NetPacket::HeaderSize, "Received more data than header size");
 			if (m_pendingPacket.received >= NetPacket::HeaderSize)
 			{
-				UInt16 size;
+				UInt32 size;
 				if (!NetPacket::DecodeHeader(m_pendingPacket.data.GetConstBuffer(), &size, &m_pendingPacket.netcode))
 				{
 					m_lastError = SocketError_Packet;
@@ -261,7 +261,7 @@ namespace Nz
 		// We may have just received the header now
 		if (m_pendingPacket.headerReceived)
 		{
-			UInt16 packetSize = static_cast<UInt16>(m_pendingPacket.data.GetSize()); //< Total packet size
+			UInt32 packetSize = static_cast<UInt32>(m_pendingPacket.data.GetSize()); //< Total packet size
 			if (packetSize == 0)
 			{
 				// Special case: our packet carry no data

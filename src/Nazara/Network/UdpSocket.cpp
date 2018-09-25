@@ -182,7 +182,7 @@ namespace Nz
 			return false; //< No datagram received
 
 		Nz::UInt16 netCode;
-		Nz::UInt16 packetSize;
+		Nz::UInt32 packetSize;
 		if (!NetPacket::DecodeHeader(packet->GetConstData(), &packetSize, &netCode))
 		{
 			m_lastError = SocketError_Packet;
