@@ -42,10 +42,10 @@ namespace Nz
 
 			void Normalize();
 
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> Angle& Set(const Angle<AngleUnit::Radian, T>& Angle);
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> Angle& Set(const Angle<AngleUnit::Degree, T>& Angle);
-			Angle& Set(const Angle& Angle);
-			template<typename U> Angle& Set(const Angle<Unit, U>& Angle);
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> Angle& Set(const Angle<AngleUnit::Radian, T>& ang);
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> Angle& Set(const Angle<AngleUnit::Degree, T>& ang);
+			Angle& Set(const Angle& ang);
+			template<typename U> Angle& Set(const Angle<Unit, U>& ang);
 
 			Angle<AngleUnit::Degree, T> ToDegrees() const;
 			EulerAngles<T> ToEulerAngles() const;
