@@ -27,6 +27,8 @@ namespace Nz
 			ByteStream(ByteStream&& stream) noexcept = default;
 			virtual ~ByteStream();
 
+			inline void ClearStream();
+
 			inline Endianness GetDataEndianness() const;
 			inline Nz::UInt64 GetSize() const;
 			inline Stream* GetStream() const;
