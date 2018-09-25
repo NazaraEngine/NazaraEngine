@@ -46,7 +46,7 @@ namespace Nz
 			Shader(Shader&&) = delete;
 			~Shader();
 
-			LayoutBindings ApplyLayout(const RenderPipelineLayoutRef& pipelineLayout);
+			LayoutBindings ApplyLayout(const RenderPipelineLayout* pipelineLayout) const;
 
 			void AttachStage(ShaderStageType stage, const ShaderStage& shaderStage);
 			bool AttachStageFromFile(ShaderStageType stage, const String& filePath);
@@ -126,8 +126,8 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			std::unordered_map<std::string /*textureName*/, unsigned int /*textureId*/> m_textureUniformName;
-			std::unordered_map<std::string /*uniformBlockName*/, unsigned int /*bindingPoint*/> m_uniformBlockName;
+			mutable std::unordered_map<std::string /*textureName*/, unsigned int /*textureId*/> m_textureUniformName;
+			mutable std::unordered_map<std::string /*uniformBlockName*/, unsigned int /*bindingPoint*/> m_uniformBlockName;
 			std::vector<unsigned int> m_attachedShaders[ShaderStageType_Max+1];
 			bool m_linked;
 			int m_uniformLocations[ShaderUniform_Max+1];

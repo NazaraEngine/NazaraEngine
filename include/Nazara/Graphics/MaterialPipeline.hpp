@@ -20,12 +20,6 @@ namespace Nz
 	{
 		bool alphaTest         = false;
 		bool depthSorting      = false;
-		bool hasAlphaMap       = false;
-		bool hasDiffuseMap     = false;
-		bool hasEmissiveMap    = false;
-		bool hasHeightMap      = false;
-		bool hasNormalMap      = false;
-		bool hasSpecularMap    = false;
 		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;

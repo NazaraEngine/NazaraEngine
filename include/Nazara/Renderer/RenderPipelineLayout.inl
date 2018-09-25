@@ -87,6 +87,15 @@ namespace Nz
 	{
 		return !operator==(rhs);
 	}
+
+	template<typename... Args>
+	RenderPipelineLayoutRef RenderPipelineLayout::New(Args&&... args)
+	{
+		std::unique_ptr<RenderPipelineLayout> object(new RenderPipelineLayout(std::forward<Args>(args)...));
+		object->SetPersistent(false);
+
+		return object.release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

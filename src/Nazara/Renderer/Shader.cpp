@@ -26,7 +26,7 @@ namespace Nz
 		Destroy();
 	}
 
-	auto Shader::ApplyLayout(const RenderPipelineLayoutRef& pipelineLayout) -> LayoutBindings
+	auto Shader::ApplyLayout(const RenderPipelineLayout* pipelineLayout) const -> LayoutBindings
 	{
 		NazaraAssert(m_linked, "Program should be linked");
 

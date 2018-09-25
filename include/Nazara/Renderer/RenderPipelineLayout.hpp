@@ -49,6 +49,8 @@ namespace Nz
 			inline bool operator==(const RenderPipelineLayout& rhs) const;
 			inline bool operator!=(const RenderPipelineLayout& rhs) const;
 
+			template<typename... Args> static RenderPipelineLayoutRef New(Args&&... args);
+
 		private:
 			RenderPipelineLayoutInfo m_layoutInfo;
 			bool m_valid;
