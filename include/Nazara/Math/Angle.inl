@@ -243,9 +243,9 @@ namespace Nz
 	*/
 	template<AngleUnit Unit, typename T>
 	template<AngleUnit U, typename>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Radian, T>& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Radian, T>& angle)
 	{
-		angle = RadianToDegree(Angle.angle);
+		angle = RadianToDegree(angle.angle);
 		return *this;
 	}
 
@@ -256,9 +256,9 @@ namespace Nz
 	*/
 	template<AngleUnit Unit, typename T>
 	template<AngleUnit U, typename>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Degree, T>& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Degree, T>& angle)
 	{
-		angle = DegreeToRadian(Angle.angle);
+		angle = DegreeToRadian(angle.angle);
 		return *this;
 	}
 
@@ -268,9 +268,9 @@ namespace Nz
 	* \param Angle Angle which will be copied
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle& angle)
 	{
-		angle = Angle.angle;
+		angle = angle.angle;
 		return *this;
 	}
 
@@ -283,9 +283,9 @@ namespace Nz
 	*/
 	template<AngleUnit Unit, typename T>
 	template<typename U>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<Unit, U>& Angle)
+	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<Unit, U>& angle)
 	{
-		angle = static_cast<T>(Angle.angle);
+		angle = static_cast<T>(angle.angle);
 		return *this;
 	}
 
