@@ -68,7 +68,7 @@ namespace Nz
 		{
 			SocketState oldState = m_state;
 			m_state = newState;
-			OnStateChange(this, oldState, newState);
+			OnStateChanged(this, oldState, newState);
 		}
 	}
 }
