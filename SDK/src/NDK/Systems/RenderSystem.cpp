@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
+#include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -183,6 +184,8 @@ namespace Ndk
 
 			m_coordinateSystemInvalidated = false;
 		}
+
+		Nz::SkinningManager::Skin();
 
 		UpdateDynamicReflections();
 		UpdatePointSpotShadowMaps();

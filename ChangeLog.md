@@ -211,6 +211,7 @@ Nazara Development Kit:
 - ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
 - Added BaseWidget::ForEachWidgetChild
 - Added experimental BoxLayout class
+- RenderSystem now resolve skinning before render
 
 # 0.4:
 
