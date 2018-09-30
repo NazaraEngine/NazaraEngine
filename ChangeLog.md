@@ -146,10 +146,6 @@ Nazara Engine:
 - CullingList now handles box tests
 - ⚠️ CullingList now handles full and partial visibility testing
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
-- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
-- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
-- Added BaseWidget::ForEachWidgetChild
-- Added experimental BoxLayout class
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
 
 Nazara Development Kit:
@@ -211,6 +207,10 @@ Nazara Development Kit:
 - Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
 - ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
 - RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
+- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
+- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
+- Added BaseWidget::ForEachWidgetChild
+- Added experimental BoxLayout class
 
 # 0.4:
 
