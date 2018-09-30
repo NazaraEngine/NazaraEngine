@@ -150,6 +150,7 @@ Nazara Engine:
 - ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
 - Added BaseWidget::ForEachWidgetChild
 - Added experimental BoxLayout class
+- ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
