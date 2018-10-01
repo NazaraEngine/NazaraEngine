@@ -502,7 +502,10 @@ namespace Nz
 
 				// Prevent valid stats in non-connected state
 				if (newState == SocketState_NotConnected)
-					Close();
+				{
+					m_openMode = OpenMode_NotOpen;
+					m_peerAddress = IpAddress::Invalid;
+				}
 
 				UpdateState(newState);
 				return newState;
