@@ -54,7 +54,7 @@ namespace Nz
 
 			bool SetCursorPos(UInt64 offset) override;
 
-			bool WaitForConnected(UInt64 msTimeout = 3000);
+			SocketState WaitForConnected(UInt64 msTimeout = 3000);
 
 			inline TcpClient& operator=(TcpClient&& tcpClient) = default;
 
