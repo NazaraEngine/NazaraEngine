@@ -148,6 +148,7 @@ Nazara Engine:
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
 - ⚠️ TcpClient::WaitForconnected now closes the socket on failure. 
+- ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

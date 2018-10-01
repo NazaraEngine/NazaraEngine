@@ -432,24 +432,18 @@ namespace Nz
 
 	/*!
 	* \brief Waits for being connected before time out
-	* \return true If connection is successful
+	* \return The new socket state, either Connected if connection did succeed or NotConnected if an error occurred
 	*
-	* \param msTimeout Time in milliseconds before time out
+	* This functions waits for the pending connection to either succeed or fail for a specific duration before failing.
 	*
-	* \remark Produces a NazaraAssert if socket is invalid
+	* \param msTimeout Time in milliseconds before time out (0 for system-specific duration, like a blocking connect would)
+	*
+	* \remark This function doesn't do anything if the socket is not currently connecting.
 	*/
-
-	bool TcpClient::WaitForConnected(UInt64 msTimeout)
+	SocketState TcpClient::WaitForConnected(UInt64 msTimeout)
 	{
 		switch (m_state)
 		{
-			case SocketState_Bound:
-			case SocketState_Resolving:
-				break;
-
-			case SocketState_Connected:
-				return true;
-
 			case SocketState_Connecting:
 			{
 				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
@@ -472,15 +466,20 @@ namespace Nz
 					Close();
 
 				UpdateState(newState);
-				return newState == SocketState_Connected;
+				return newState;
 			}
 
+			case SocketState_Connected:
 			case SocketState_NotConnected:
-				return false;
+				return m_state;
+
+			case SocketState_Bound:
+			case SocketState_Resolving:
+				break;
 		}
 
 		NazaraInternalError("Unhandled socket state (0x" + String::Number(m_state, 16) + ')');
-		return false;
+		return m_state;
 	}
 
 	/*!
