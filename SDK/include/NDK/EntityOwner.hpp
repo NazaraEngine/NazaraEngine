@@ -15,7 +15,7 @@ namespace Ndk
 	{
 		public:
 			EntityOwner() = default;
-			explicit EntityOwner(Entity* entity);
+			EntityOwner(Entity* entity);
 			EntityOwner(const EntityOwner& handle) = delete;
 			EntityOwner(EntityOwner&& handle) noexcept = default;
 			~EntityOwner();
