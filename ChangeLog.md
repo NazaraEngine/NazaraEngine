@@ -149,6 +149,7 @@ Nazara Engine:
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
 - ⚠️ TcpClient::WaitForconnected now closes the socket on failure. 
 - ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
+- Added TcpClient::PollForConnected 
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -174,6 +174,50 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Polls the connection status of the currently connecting socket
+	* \return New socket state, which maybe unchanged (if connecting is still pending), SocketState_Connected if connection is successful or SocketState_NotConnected if connection failed
+	*
+	* This functions checks if the pending connection has either succeeded, failed or is still processing at the time of the call.
+	*
+	* \remark This function doesn't do anything if the socket is not currently connecting.
+	*
+	* \see WaitForConnected
+	*/
+	SocketState TcpClient::PollForConnected(UInt64 waitDuration)
+	{
+		switch (m_state)
+		{
+			case SocketState_Connecting:
+			{
+				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, waitDuration, &m_lastError);
+
+				// Prevent valid peer address in non-connected state
+				if (newState == SocketState_NotConnected)
+				{
+					m_openMode = OpenMode_NotOpen;
+					m_peerAddress = IpAddress::Invalid;
+				}
+
+				UpdateState(newState);
+				return newState;
+			}
+
+			case SocketState_Connected:
+			case SocketState_NotConnected:
+				return m_state;
+
+			case SocketState_Bound:
+			case SocketState_Resolving:
+				break;
+		}
+
+		NazaraInternalError("Unexpected socket state (0x" + String::Number(m_state, 16) + ')');
+		return m_state;
+	}
+
+	/*!
 	* \brief Receives the data available
 	* \return true If data received
 	*
@@ -439,6 +483,8 @@ namespace Nz
 	* \param msTimeout Time in milliseconds before time out (0 for system-specific duration, like a blocking connect would)
 	*
 	* \remark This function doesn't do anything if the socket is not currently connecting.
+	*
+	* \see PollForConnected
 	*/
 	SocketState TcpClient::WaitForConnected(UInt64 msTimeout)
 	{
@@ -448,18 +494,11 @@ namespace Nz
 			{
 				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
-				CallOnExit restoreBlocking;
-				if (m_isBlockingEnabled)
-				{
-					SocketImpl::SetBlocking(m_handle, false);
-					restoreBlocking.Reset([this] ()
-					{
-						SocketImpl::SetBlocking(m_handle, true);
-					});
-				}
+				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, (msTimeout > 0) ? msTimeout : std::numeric_limits<UInt64>::max(), &m_lastError);
 
-				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
-				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return"); //< Connect cannot return Connecting is a timeout was specified
+				// If connection is still pending after waiting, cancel it
+				if (newState == SocketState_Connecting)
+					newState = SocketState_NotConnected;
 
 				// Prevent valid stats in non-connected state
 				if (newState == SocketState_NotConnected)
