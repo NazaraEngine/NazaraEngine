@@ -467,9 +467,9 @@ namespace Nz
 				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
 				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return"); //< Connect cannot return Connecting is a timeout was specified
 
-				// Prevent valid peer address in non-connected state
+				// Prevent valid stats in non-connected state
 				if (newState == SocketState_NotConnected)
-					m_peerAddress = IpAddress::Invalid;
+					Close();
 
 				UpdateState(newState);
 				return newState == SocketState_Connected;
