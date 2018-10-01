@@ -420,7 +420,7 @@ namespace Nz
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		int ret = ::select(0, nullptr, &localSet, &localSet, (msTimeout >= 0 && msTimeout != std::numeric_limits<UInt64>::max()) ? &tv : nullptr);
+		int ret = ::select(0, nullptr, &localSet, &localSet, (msTimeout != std::numeric_limits<UInt64>::max()) ? &tv : nullptr);
 		if (ret > 0)
 		{
 			int code = GetLastErrorCode(handle, error);
@@ -430,7 +430,7 @@ namespace Nz
 			if (code)
 			{
 				if (error)
-					*error = TranslateWSAErrorToSocketError(code);
+					*error = TranslateErrnoToSocketError(code);
 
 				return SocketState_NotConnected;
 			}
@@ -450,7 +450,7 @@ namespace Nz
 		else
 		{
 			if (error)
-				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+				*error = TranslateErrnoToSocketError(GetLastErrorCode());
 
 			return SocketState_NotConnected;
 		}
