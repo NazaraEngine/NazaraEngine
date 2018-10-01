@@ -214,6 +214,7 @@ Nazara Development Kit:
 - Added BaseWidget::ForEachWidgetChild
 - Added experimental BoxLayout class
 - RenderSystem now resolve skinning before render
+- EntityOwner constructor taking a Entity* is no longer explicit
 
 # 0.4:
 
