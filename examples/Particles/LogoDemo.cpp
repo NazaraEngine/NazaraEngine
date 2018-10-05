@@ -107,7 +107,7 @@ class SpriteRenderer : public Nz::ParticleRenderer
 		{
 		}
 
-		void Render(const Nz::ParticleGroup& system, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
+		void Render(const Nz::ParticleGroup& system, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue) override
 		{
 			Nz::Vector2f size(1.f, 1.f);
 			Nz::SparsePtr<const Nz::Vector2f> sizePtr(&size, 0);
@@ -126,18 +126,19 @@ ParticleDemo("Logo", sharedData)
 	Nz::ImageParams params;
 	params.loadFormat = Nz::PixelFormatType_RGBA8;
 
-	if (!m_logo.LoadFromFile("resources/Logo.png", params))
+	m_logo = Nz::Image::LoadFromFile("resources/Logo.png", params);
+	if (!m_logo)
 		NazaraError("Failed to load logo!");
 
-	unsigned int width = m_logo.GetWidth();
-	unsigned int height = m_logo.GetHeight();
+	unsigned int width = m_logo->GetWidth();
+	unsigned int height = m_logo->GetHeight();
 	m_pixels.reserve(width * height);
 
 	for (unsigned int x = 0; x < width; ++x)
 	{
 		for (unsigned int y = 0; y < height; ++y)
 		{
-			Nz::Color color = m_logo.GetPixelColor(x, y);
+			Nz::Color color = m_logo->GetPixelColor(x, y);
 			if (color.a == 0)
 				continue;
 

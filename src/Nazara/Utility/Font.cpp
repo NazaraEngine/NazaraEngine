@@ -280,21 +280,6 @@ namespace Nz
 		return true;
 	}
 
-	bool Font::OpenFromFile(const String& filePath, const FontParams& params)
-	{
-		return FontLoader::LoadFromFile(this, filePath, params);
-	}
-
-	bool Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
-	{
-		return FontLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	bool Font::OpenFromStream(Stream& stream, const FontParams& params)
-	{
-		return FontLoader::LoadFromStream(this, stream, params);
-	}
-
 	void Font::SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas)
 	{
 		if (m_atlas != atlas)
@@ -345,6 +330,21 @@ namespace Nz
 		}
 	}
 
+	bool Font::OpenFromFile(const String& filePath, const FontParams& params)
+	{
+		return FontLoader::LoadFromFile(this, filePath, params);
+	}
+
+	bool Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
+	{
+		return FontLoader::LoadFromMemory(this, data, size, params);
+	}
+
+	bool Font::OpenFromStream(Stream& stream, const FontParams& params)
+	{
+		return FontLoader::LoadFromStream(this, stream, params);
+	}
+
 	std::shared_ptr<AbstractAtlas> Font::GetDefaultAtlas()
 	{
 		return s_defaultAtlas;
@@ -360,7 +360,7 @@ namespace Nz
 		{
 			FontRef cabin = Font::New();
 			if (cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
-                s_defaultFont = cabin;
+				s_defaultFont = cabin;
 			else
 				NazaraError("Failed to open default font");
 		}

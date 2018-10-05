@@ -71,15 +71,15 @@ int main()
 		if (iChoice == 0)
 			break;
 
-		Nz::Mesh mesh;
-		if (!mesh.LoadFromFile(resourceDirectory.GetPath() + '/' + models[iChoice-1]))
+		Nz::MeshRef mesh = Nz::Mesh::LoadFromFile(resourceDirectory.GetPath() + '/' + models[iChoice-1]);
+		if (!mesh)
 		{
 			std::cout << "Failed to load mesh" << std::endl;
 			std::getchar();
 			return EXIT_FAILURE;
 		}
 
-		switch (mesh.GetAnimationType())
+		switch (mesh->GetAnimationType())
 		{
 			case Nz::AnimationType_Skeletal:
 				std::cout << "This is a skeletal-animated mesh" << std::endl;
@@ -92,13 +92,13 @@ int main()
 			// Inutile de faire un case default (GetAnimationType renverra toujours une valeur correcte)
 		}
 
-		std::cout << "It has a total of " << mesh.GetVertexCount() << " vertices for " << mesh.GetSubMeshCount() << " submesh(es)." << std::endl;
+		std::cout << "It has a total of " << mesh->GetVertexCount() << " vertices for " << mesh->GetSubMeshCount() << " submesh(es)." << std::endl;
 
-		if (mesh.IsAnimable())
+		if (mesh->IsAnimable())
 		{
-			if (mesh.GetAnimationType() == Nz::AnimationType_Skeletal)
+			if (mesh->GetAnimationType() == Nz::AnimationType_Skeletal)
 			{
-				const Nz::Skeleton* skeleton = mesh.GetSkeleton();
+				const Nz::Skeleton* skeleton = mesh->GetSkeleton();
 				unsigned int jointCount = skeleton->GetJointCount();
 				std::cout << "It has a skeleton made of " << skeleton->GetJointCount() << " joint(s)." << std::endl;
 				std::cout << "Print joints ? (Y/N) ";
@@ -123,11 +123,11 @@ int main()
 				}
 			}
 
-			Nz::String animationPath = mesh.GetAnimation();
+			Nz::String animationPath = mesh->GetAnimation();
 			if (!animationPath.IsEmpty())
 			{
-				Nz::Animation animation;
-				if (animation.LoadFromFile(animationPath))
+				Nz::AnimationRef animation = Nz::Animation::LoadFromFile(animationPath);
+				if (animation)
 				{
 					unsigned int sequenceCount = animation.GetSequenceCount();
 					std::cout << "It has an animation made of " << animation.GetFrameCount() << " frame(s) for " << sequenceCount << " sequence(s)." << std::endl;
@@ -157,10 +157,10 @@ int main()
 				std::cout << "It's animable but has no animation information" << std::endl;
 		}
 
-		Nz::Boxf cube = mesh.GetAABB();
+		Nz::Boxf cube = mesh->GetAABB();
 		std::cout << "Mesh is " << cube.width << " units wide, " << cube.height << " units height and " << cube.depth << " units depth" << std::endl;
 
-		unsigned int materialCount = mesh.GetMaterialCount();
+		unsigned int materialCount = mesh->GetMaterialCount();
 		std::cout << "It has " << materialCount << " materials registred" << std::endl;
 		std::cout << "Print materials ? (Y/N) ";
 
@@ -172,7 +172,7 @@ int main()
 		{
 			for (unsigned int i = 0; i < materialCount; ++i)
 			{
-				const Nz::ParameterList& matData = mesh.GetMaterialData(i);
+				const Nz::ParameterList& matData = mesh->GetMaterialData(i);
 
 				Nz::String data;
 				if (!matData.GetStringParameter(Nz::MaterialData::FilePath, &data))

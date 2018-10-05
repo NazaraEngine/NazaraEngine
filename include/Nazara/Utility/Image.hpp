@@ -93,11 +93,6 @@ namespace Nz
 
 			bool IsValid() const;
 
-			// Load
-			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
-			bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
-
 			// LoadArray
 			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
@@ -133,6 +128,11 @@ namespace Nz
 			static void Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
+
+			static ImageRef LoadFromFile(const String& filePath, const ImageParams& params = ImageParams());
+			static ImageRef LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
+			static ImageRef LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
+
 			template<typename... Args> static ImageRef New(Args&&... args);
 
 			struct SharedImage

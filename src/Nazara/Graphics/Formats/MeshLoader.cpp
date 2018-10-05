@@ -31,8 +31,7 @@ namespace Nz
 						filePath += ".tga";
 					}
 
-					MaterialRef material = Material::New();
-					if (material->LoadFromFile(filePath, parameters.material))
+					if (MaterialRef material = Material::LoadFromFile(filePath, parameters.material))
 						model->SetMaterial(i, std::move(material));
 					else
 						NazaraWarning("Failed to load material from file " + String::Number(i));

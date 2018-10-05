@@ -104,7 +104,8 @@ int main()
 
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
-	if (!spaceshipModel->LoadFromFile("resources/Spaceship/spaceship.obj", params))
+	Nz::ModelRef spaceshipModel = Nz::Model::LoadFromFile("resources/Spaceship/spaceship.obj", params);
+	if (!spaceshipModel)
 	{
 		// Si le chargement a échoué (fichier inexistant/invalide), il ne sert à rien de continuer
 		std::cout << "Failed to load spaceship" << std::endl;

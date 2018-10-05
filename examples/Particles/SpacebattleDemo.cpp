@@ -234,52 +234,59 @@ ParticleDemo("Space battle", sharedData)
 
 	Nz::Color grey(100, 100, 100);
 
-	if (!m_turret.baseModel.LoadFromFile("resources/Turret/base.obj", parameters))
+	m_turret.baseModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
+	if (!m_turret.baseModel)
 		NazaraWarning("Failed to load base.obj");
 
-	for (unsigned int i = 0; i < m_turret.baseModel.GetMaterialCount(); ++i)
-		m_turret.baseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.baseModel->GetMaterialCount(); ++i)
+		m_turret.baseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
-	if (!m_turret.rotatingBaseModel.LoadFromFile("resources/Turret/rotating_base.obj", parameters))
+	m_turret.rotatingBaseModel = Nz::Model::LoadFromFile("resources/Turret/rotating_base.obj", parameters);
+	if (!m_turret.rotatingBaseModel)
 		NazaraWarning("Failed to load rotating_base.obj");
 
-	for (unsigned int i = 0; i < m_turret.rotatingBaseModel.GetMaterialCount(); ++i)
-		m_turret.rotatingBaseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.rotatingBaseModel->GetMaterialCount(); ++i)
+		m_turret.rotatingBaseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
-	if (!m_turret.cannonBaseModel.LoadFromFile("resources/Turret/cannon_base.obj", parameters))
+	m_turret.baseModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
+	if (!m_turret.baseModel)
 		NazaraWarning("Failed to load cannon_base.obj");
 
-	for (unsigned int i = 0; i < m_turret.cannonBaseModel.GetMaterialCount(); ++i)
-		m_turret.cannonBaseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.cannonBaseModel->GetMaterialCount(); ++i)
+		m_turret.cannonBaseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
 	parameters.mesh.texCoordScale.Set(40.f, 40.f);
 	parameters.mesh.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 180.f, 0.f));
-	if (!m_turret.cannonModel.LoadFromFile("resources/Turret/cannon.obj", parameters))
+
+	m_turret.cannonModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
+	if (!m_turret.cannonModel)
 		NazaraWarning("Failed to load cannon.obj");
 
-	// Since OBJ don't support normal maps..
-	m_turret.cannonModel.GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
+	// Since OBJ doesn't support normal maps..
+	m_turret.cannonModel->GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
 
 	parameters.mesh.matrix.MakeIdentity();
 	parameters.mesh.texCoordScale.Set(1.f, 1.f);
 
 	parameters.mesh.center = true;
-	if (!m_spacestationModel.LoadFromFile("resources/SpaceStation/space_station.obj", parameters))
+	m_spacestationModel = Nz::Model::LoadFromFile("resources/SpaceStation/space_station.obj", parameters);
+	if (!m_spacestationModel)
 		NazaraWarning("Failed to load space_station.obj");
 
-	m_spacestationModel.GetMesh()->GenerateNormalsAndTangents();
+	m_spacestationModel->GetMesh()->GenerateNormalsAndTangents();
 
 	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
-	if (!m_spaceshipModel.LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters))
+	m_spaceshipModel = Nz::Model::LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters);
+	if (!m_spaceshipModel)
 		NazaraWarning("Failed to load space_frigate_6.obj");
 
-	// Since OBJ don't support normal maps..
-	for (unsigned int i = 0; i < m_spaceshipModel.GetMaterialCount(); ++i)
+	// Since OBJ doesn't support normal maps..
+	for (unsigned int i = 0; i < m_spaceshipModel->GetMaterialCount(); ++i)
 	{
-		m_spaceshipModel.GetMaterial(i)->SetEmissiveMap("resources/space_frigate_6/space_frigate_6_illumination.jpg");
-		m_spaceshipModel.GetMaterial(i)->SetNormalMap("resources/space_frigate_6/space_frigate_6_normal.png");
+		m_spaceshipModel->GetMaterial(i)->SetEmissiveMap("resources/space_frigate_6/space_frigate_6_illumination.jpg");
+		m_spaceshipModel->GetMaterial(i)->SetNormalMap("resources/space_frigate_6/space_frigate_6_normal.png");
 	}
 
 	Nz::TextureRef skyboxCubemap = Nz::Texture::New();
@@ -324,7 +331,7 @@ ParticleDemo("Space battle", sharedData)
 	m_spaceshipTemplate->AddComponent<Ndk::VelocityComponent>();
 	m_spaceshipTemplate->AddComponent<SpaceshipComponent>();
 	auto& gfxComponent = m_spaceshipTemplate->AddComponent<Ndk::GraphicsComponent>();
-	gfxComponent.Attach(&m_spaceshipModel);
+	gfxComponent.Attach(m_spaceshipModel);
 
 	m_ambientMusic.OpenFromFile("resources/ambience.ogg");
 	m_ambientMusic.SetVolume(60.f);
@@ -762,7 +769,7 @@ void SpacebattleExample::CreateSpaceShip()
 	spacestationNode.SetScale(0.1f);
 
 	Ndk::GraphicsComponent& spacestationGfx = m_spacestationEntity->AddComponent<Ndk::GraphicsComponent>();
-	spacestationGfx.Attach(&m_spacestationModel);
+	spacestationGfx.Attach(m_spacestationModel);
 }
 
 void SpacebattleExample::CreateTurret()
@@ -776,7 +783,7 @@ void SpacebattleExample::CreateTurret()
 	baseNode.SetRotation(Nz::EulerAnglesf(0.f, 180.f, 0.f));
 
 	Ndk::GraphicsComponent& baseGfx = m_turret.baseEntity->AddComponent<Ndk::GraphicsComponent>();
-	baseGfx.Attach(&m_turret.baseModel);
+	baseGfx.Attach(m_turret.baseModel);
 
 	// Rotating base
 	m_turret.rotatingBaseEntity = m_shared.world3D->CreateEntity();
@@ -786,7 +793,7 @@ void SpacebattleExample::CreateTurret()
 	rotatingBaseNode.SetParent(m_turret.baseEntity);
 
 	Ndk::GraphicsComponent& rotatingBaseGfx = m_turret.rotatingBaseEntity->AddComponent<Ndk::GraphicsComponent>();
-	rotatingBaseGfx.Attach(&m_turret.rotatingBaseModel);
+	rotatingBaseGfx.Attach(m_turret.rotatingBaseModel);
 
 	// Cannon base
 	m_turret.cannonBaseEntity = m_shared.world3D->CreateEntity();
@@ -797,7 +804,7 @@ void SpacebattleExample::CreateTurret()
 	cannonBaseNode.SetParent(m_turret.rotatingBaseEntity);
 
 	Ndk::GraphicsComponent& cannonBaseGfx = m_turret.cannonBaseEntity->AddComponent<Ndk::GraphicsComponent>();
-	cannonBaseGfx.Attach(&m_turret.cannonBaseModel);
+	cannonBaseGfx.Attach(m_turret.cannonBaseModel);
 
 	// Cannon anchor
 	m_turret.cannonAnchorEntity = m_shared.world3D->CreateEntity();
@@ -816,7 +823,7 @@ void SpacebattleExample::CreateTurret()
 	cannonNode.SetRotation(Nz::EulerAnglesf(0.f, 180.f, 0.f));
 
 	Ndk::GraphicsComponent& cannonGfx = m_turret.cannonEntity->AddComponent<Ndk::GraphicsComponent>();
-	cannonGfx.Attach(&m_turret.cannonModel);
+	cannonGfx.Attach(m_turret.cannonModel);
 }
 
 void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)

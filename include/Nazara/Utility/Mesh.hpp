@@ -128,10 +128,6 @@ namespace Nz
 			bool IsAnimable() const;
 			bool IsValid() const;
 
-			bool LoadFromFile(const String& filePath, const MeshParams& params = MeshParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
-			bool LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
-
 			void Recenter();
 
 			void RemoveSubMesh(const String& identifier);
@@ -148,6 +144,10 @@ namespace Nz
 
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator=(Mesh&&) = delete;
+
+			static MeshRef LoadFromFile(const String& filePath, const MeshParams& params = MeshParams());
+			static MeshRef LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
+			static MeshRef LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
 
 			template<typename... Args> static MeshRef New(Args&&... args);
 

@@ -53,7 +53,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromFile(Type* resource, const String& filePath, const Parameters& parameters)
+	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const String& filePath, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
@@ -84,7 +84,7 @@ namespace Nz
 				if (!file.Open(OpenMode_ReadOnly))
 				{
 					NazaraError("Failed to load file: unable to open \"" + filePath + '"');
-					return false;
+					return nullptr;
 				}
 			}
 
@@ -107,10 +107,11 @@ namespace Nz
 					found = true;
 				}
 
-				if (fileLoader(resource, filePath, parameters))
+				ObjectRef<Type> resource = fileLoader(filePath, parameters);
+				if (resource)
 				{
 					resource->SetFilePath(filePath);
-					return true;
+					return resource;
 				}
 			}
 			else
@@ -125,10 +126,11 @@ namespace Nz
 
 				file.SetCursorPos(0);
 
-				if (streamLoader(resource, file, parameters))
+				ObjectRef<Type> resource = streamLoader(file, parameters);
+				if (resource)
 				{
 					resource->SetFilePath(filePath);
-					return true;
+					return resource;
 				}
 			}
 
@@ -141,7 +143,7 @@ namespace Nz
 		else
 			NazaraError("Failed to load file: no loader found for extension \"" + ext + '"');
 
-		return false;
+		return nullptr;
 	}
 
 	/*!
@@ -160,7 +162,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromMemory(Type* resource, const void* data, std::size_t size, const Parameters& parameters)
+	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(data, "Invalid data pointer");
@@ -195,8 +197,9 @@ namespace Nz
 					found = true;
 				}
 
-				if (memoryLoader(resource, data, size, parameters))
-					return true;
+				ObjectRef<Type> resource = memoryLoader(data, size, parameters);
+				if (resource)
+					return resource;
 			}
 			else
 			{
@@ -210,8 +213,9 @@ namespace Nz
 
 				stream.SetCursorPos(0);
 
-				if (streamLoader(resource, stream, parameters))
-					return true;
+				ObjectRef<Type> resource = streamLoader(stream, parameters);
+				if (resource)
+					return resource;
 			}
 
 			if (recognized == Ternary_True)
@@ -223,7 +227,7 @@ namespace Nz
 		else
 			NazaraError("Failed to load file: no loader found");
 
-		return false;
+		return nullptr;
 	}
 
 	/*!
@@ -241,7 +245,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::LoadFromStream(Type* resource, Stream& stream, const Parameters& parameters)
+	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters)
 	{
 		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
@@ -267,8 +271,9 @@ namespace Nz
 			stream.SetCursorPos(streamPos);
 
 			// Load of the resource
-			if (streamLoader(resource, stream, parameters))
-				return true;
+			ObjectRef<Type> resource = streamLoader(stream, parameters);
+			if (resource)
+				return resource;
 
 			if (recognized == Ternary_True)
 				NazaraWarning("Loader failed");
@@ -279,7 +284,7 @@ namespace Nz
 		else
 			NazaraError("Failed to load file: no loader found");
 
-		return false;
+		return nullptr;
 	}
 
 	/*!

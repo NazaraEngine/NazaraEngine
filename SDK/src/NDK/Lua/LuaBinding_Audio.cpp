@@ -99,7 +99,7 @@ namespace Ndk
 			sound.BindMethod("IsPlayable", &Nz::Sound::IsPlayable);
 			sound.BindMethod("IsPlaying", &Nz::Sound::IsPlaying);
 
-			sound.BindMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
+			sound.BindStaticMethod("LoadFromFile", &Nz::Sound::LoadFromFile, Nz::SoundBufferParams());
 
 			sound.BindMethod("SetPlayingOffset", &Nz::Sound::SetPlayingOffset);
 

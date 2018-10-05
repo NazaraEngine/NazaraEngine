@@ -865,21 +865,6 @@ namespace Nz
 		return m_sharedImage != &emptyImage;
 	}
 
-	bool Image::LoadFromFile(const String& filePath, const ImageParams& params)
-	{
-		return ImageLoader::LoadFromFile(this, filePath, params);
-	}
-
-	bool Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& params)
-	{
-		return ImageLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	bool Image::LoadFromStream(Stream& stream, const ImageParams& params)
-	{
-		return ImageLoader::LoadFromStream(this, stream, params);
-	}
-
 	// LoadArray
 	bool Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
@@ -1463,7 +1448,21 @@ namespace Nz
 
 		NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
 		return 0;
+	}
 
+	ImageRef Image::LoadFromFile(const String& filePath, const ImageParams& params)
+	{
+		return ImageLoader::LoadFromFile(filePath, params);
+	}
+
+	ImageRef Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& params)
+	{
+		return ImageLoader::LoadFromMemory(data, size, params);
+	}
+
+	ImageRef Image::LoadFromStream(Stream& stream, const ImageParams& params)
+	{
+		return ImageLoader::LoadFromStream(stream, params);
 	}
 
 	void Image::EnsureOwnership()

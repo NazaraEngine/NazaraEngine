@@ -5,21 +5,20 @@ SCENARIO("SkeletalModel", "[GRAPHICS][SKELETALMODEL]")
 {
 	GIVEN("A default skeletal model")
 	{
-		Nz::SkeletalModel skeletalModel;
-		Nz::AnimationRef animation = Nz::Animation::New();
-
 		WHEN("We can load the bob lamp")
 		{
-			REQUIRE(skeletalModel.LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5mesh"));
-			REQUIRE(animation->LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5anim"));
-			skeletalModel.SetAnimation(animation);
+			Nz::AnimationRef animation = Nz::Animation::LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5anim");
+			Nz::SkeletalModelRef skeletalModel = Nz::SkeletalModel::LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5mesh");
+			REQUIRE(skeletalModel);
+			REQUIRE(animation);
+			skeletalModel->SetAnimation(animation);
 
 			THEN("We can enable its animation")
 			{
-				REQUIRE(skeletalModel.HasAnimation());
-				skeletalModel.EnableAnimation(true);
-				skeletalModel.AdvanceAnimation(0.10f);
-				REQUIRE(skeletalModel.IsAnimationEnabled());
+				REQUIRE(skeletalModel->HasAnimation());
+				skeletalModel->EnableAnimation(true);
+				skeletalModel->AdvanceAnimation(0.10f);
+				REQUIRE(skeletalModel->IsAnimationEnabled());
 			}
 		}
 	}
