@@ -35,7 +35,7 @@ namespace Nz
 			{
 				case IntersectionSide_Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
-					CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
@@ -43,7 +43,7 @@ namespace Nz
 
 				case IntersectionSide_Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
-					CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
@@ -72,7 +72,7 @@ namespace Nz
 			{
 				case IntersectionSide_Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
-					CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
@@ -80,7 +80,7 @@ namespace Nz
 
 				case IntersectionSide_Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
-					CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
@@ -97,7 +97,7 @@ namespace Nz
 			{
 				case IntersectionSide_Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
-					CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
@@ -105,7 +105,7 @@ namespace Nz
 
 				case IntersectionSide_Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
-					CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
