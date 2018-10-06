@@ -23,7 +23,6 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	class ResourceLoader
 	{
-		static_assert(std::is_base_of<RefCounted, Type>::value, "ResourceParameters must be a base of Parameters");
 		static_assert(std::is_base_of<ResourceParameters, Parameters>::value, "ResourceParameters must be a base of Parameters");
 
 		friend Type;

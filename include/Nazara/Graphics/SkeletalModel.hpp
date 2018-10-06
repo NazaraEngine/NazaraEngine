@@ -26,7 +26,6 @@ namespace Nz
 
 	class SkeletalModel;
 
-	using SkeletalModelLoader = ResourceLoader<SkeletalModel, SkeletalModelParameters>;
 	using SkeletalModelRef = ObjectRef<SkeletalModel>;
 
 	class NAZARA_GRAPHICS_API SkeletalModel : public Model, Updatable
@@ -64,10 +63,6 @@ namespace Nz
 			SkeletalModel& operator=(const SkeletalModel& node) = default;
 			SkeletalModel& operator=(SkeletalModel&& node) = default;
 
-			SkeletalModelRef LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
-			SkeletalModelRef LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
-			SkeletalModelRef LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
-
 		private:
 			void MakeBoundingVolume() const override;
 			/*void Register() override;
@@ -81,8 +76,6 @@ namespace Nz
 			float m_interpolation;
 			unsigned int m_currentFrame;
 			unsigned int m_nextFrame;
-
-			static SkeletalModelLoader::LoaderList s_loaders;
 	};
 }
 

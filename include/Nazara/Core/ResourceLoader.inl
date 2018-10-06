@@ -55,7 +55,6 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const String& filePath, const Parameters& parameters)
 	{
-		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		String path = File::NormalizePath(filePath);
@@ -164,7 +163,6 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters)
 	{
-		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(data, "Invalid data pointer");
 		NazaraAssert(size, "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
@@ -247,7 +245,6 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters)
 	{
-		NazaraAssert(resource, "Invalid resource");
 		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 

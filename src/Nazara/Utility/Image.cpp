@@ -106,7 +106,7 @@ namespace Nz
 		for (unsigned int i = 0; i < levels.size(); ++i)
 		{
 			unsigned int pixelsPerFace = width * height;
-			levels[i].reset(new UInt8[pixelsPerFace * depth * PixelFormat::GetBytesPerPixel(newFormat)]);
+			levels[i] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormat::GetBytesPerPixel(newFormat));
 
 			UInt8* dst = levels[i].get();
 			UInt8* src = m_sharedImage->levels[i].get();
@@ -143,7 +143,7 @@ namespace Nz
 		return true;
 	}
 
-	void Image::Copy(const Image& source, const Boxui& srcBox, const Vector3ui& dstPos)
+	void Image::Copy(const ImageRef& source, const Boxui& srcBox, const Vector3ui& dstPos)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (m_sharedImage == &emptyImage)
@@ -158,14 +158,14 @@ namespace Nz
 			return;
 		}
 
-		if (source.GetFormat() != m_sharedImage->format)
+		if (source->GetFormat() != m_sharedImage->format)
 		{
 			NazaraError("Source image format does not match destination image format");
 			return;
 		}
 		#endif
 
-		const UInt8* srcPtr = source.GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
+		const UInt8* srcPtr = source->GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
 		#if NAZARA_UTILITY_SAFE
 		if (!srcPtr)
 		{
@@ -177,7 +177,7 @@ namespace Nz
 		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
-		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
+		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source->GetWidth(), source->GetHeight());
 	}
 
 	bool Image::Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
@@ -271,7 +271,7 @@ namespace Nz
 			// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 			try
 			{
-				levels[i].reset(new UInt8[PixelFormat::ComputeSize(format, w, h, d)]);
+				levels[i] = std::make_unique<UInt8[]>(PixelFormat::ComputeSize(format, w, h, d));
 
 				if (w > 1)
 					w >>= 1;
@@ -337,12 +337,12 @@ namespace Nz
 		// Les images 3D et cubemaps sont stockés de la même façon
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
 
-		for (unsigned int i = 0; i < levels.size(); ++i)
+		for (auto & level : levels)
 		{
 			std::size_t size = PixelFormat::ComputeSize(m_sharedImage->format, width, height, depth);
-			levels[i].reset(new UInt8[size]);
+			level = std::make_unique<UInt8[]>(size);
 
-			UInt8* ptr = levels[i].get();
+			UInt8* ptr = level.get();
 			UInt8* end = &ptr[size];
 
 			while (ptr < end)
@@ -514,9 +514,9 @@ namespace Nz
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
-		for (unsigned int level = 0; level < m_sharedImage->levels.size(); ++level)
+		for (auto& level : m_sharedImage->levels)
 		{
-			UInt8* ptr = m_sharedImage->levels[level].get();
+			UInt8* ptr = level.get();
 			if (!PixelFormat::Flip(PixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
@@ -557,9 +557,9 @@ namespace Nz
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
-		for (unsigned int level = 0; level < m_sharedImage->levels.size(); ++level)
+		for (auto& level : m_sharedImage->levels)
 		{
-			UInt8* ptr = m_sharedImage->levels[level].get();
+			UInt8* ptr = level.get();
 			if (!PixelFormat::Flip(PixelFlipping_Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
@@ -805,7 +805,7 @@ namespace Nz
 		return Vector3ui(GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), GetLevelSize(m_sharedImage->depth, level));
 	}
 
-	ImageType	Image::GetType() const
+	ImageType Image::GetType() const
 	{
 		return m_sharedImage->type;
 	}
@@ -868,8 +868,8 @@ namespace Nz
 	// LoadArray
 	bool Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		Image image;
-		if (!image.LoadFromFile(filePath, imageParams))
+		ImageRef image = Image::LoadFromFile(filePath, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -878,7 +878,7 @@ namespace Nz
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize)
+	bool Image::LoadArrayFromImage(const ImageRef& image, const Vector2ui& atlasSize)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!image.IsValid())
@@ -900,7 +900,7 @@ namespace Nz
 		}
 		#endif
 
-		ImageType type = image.GetType();
+		ImageType type = image->GetType();
 
 		#if NAZARA_UTILITY_SAFE
 		if (type != ImageType_1D && type != ImageType_2D)
@@ -910,7 +910,7 @@ namespace Nz
 		}
 		#endif
 
-		Vector2ui imageSize(image.GetWidth(), image.GetHeight());
+		Vector2ui imageSize(image->GetWidth(), image->GetHeight());
 
 		if (imageSize.x % atlasSize.x != 0)
 		{
@@ -928,9 +928,9 @@ namespace Nz
 
 		// Selon le type de l'image de base, on va créer un array d'images 2D ou 1D
 		if (type == ImageType_2D)
-			Create(ImageType_2D_Array, image.GetFormat(), faceSize.x, faceSize.y, layerCount);
+			Create(ImageType_2D_Array, image->GetFormat(), faceSize.x, faceSize.y, layerCount);
 		else
-			Create(ImageType_1D_Array, image.GetFormat(), faceSize.x, layerCount);
+			Create(ImageType_1D_Array, image->GetFormat(), faceSize.x, layerCount);
 
 		unsigned int layer = 0;
 		for (unsigned int j = 0; j < atlasSize.y; ++j)
@@ -942,8 +942,8 @@ namespace Nz
 
 	bool Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		Image image;
-		if (!image.LoadFromMemory(data, size, imageParams))
+		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -954,8 +954,8 @@ namespace Nz
 
 	bool Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		Image image;
-		if (!image.LoadFromStream(stream, imageParams))
+		ImageRef image = Image::LoadFromStream(stream, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -966,8 +966,8 @@ namespace Nz
 
 	bool Image::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		Image image;
-		if (!image.LoadFromFile(filePath, imageParams))
+		ImageRef image = Image::LoadFromFile(filePath, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -976,7 +976,7 @@ namespace Nz
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadCubemapFromImage(const Image& image, const CubemapParams& params)
+	bool Image::LoadCubemapFromImage(const ImageRef& image, const CubemapParams& params)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!image.IsValid())
@@ -985,7 +985,7 @@ namespace Nz
 			return false;
 		}
 
-		ImageType type = image.GetType();
+		ImageType type = image->GetType();
 		if (type != ImageType_2D)
 		{
 			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
@@ -993,8 +993,8 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int width = image.GetWidth();
-		unsigned int height = image.GetHeight();
+		unsigned int width = image->GetWidth();
+		unsigned int height = image->GetHeight();
 		unsigned int faceSize = (params.faceSize == 0) ? std::max(width, height)/4 : params.faceSize;
 
 		// Sans cette vérification, celles des rectangles pourrait réussir via un overflow
@@ -1050,7 +1050,7 @@ namespace Nz
 			return false;
 		}
 
-		Create(ImageType_Cubemap, image.GetFormat(), faceSize, faceSize);
+		Create(ImageType_Cubemap, image->GetFormat(), faceSize, faceSize);
 
 		#ifdef NAZARA_DEBUG
 		// Les paramètres sont valides, que Create ne fonctionne pas relèverait d'un bug
@@ -1073,8 +1073,8 @@ namespace Nz
 
 	bool Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		Image image;
-		if (!image.LoadFromMemory(data, size, imageParams))
+		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -1085,8 +1085,8 @@ namespace Nz
 
 	bool Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		Image image;
-		if (!image.LoadFromStream(stream, imageParams))
+		ImageRef image = Image::LoadFromStream(stream, imageParams);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
@@ -1099,21 +1099,21 @@ namespace Nz
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		Image image;
-		if (!image.LoadFromFile(filePath, params))
+		ImageRef image = Image::LoadFromFile(filePath, params);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
 		}
 
-		if (!image.Convert(GetFormat()))
+		if (!image->Convert(GetFormat()))
 		{
 			NazaraError("Failed to convert image to texture format");
 			return false;
 		}
 
 		unsigned int faceSize = GetWidth();
-		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
 		{
 			NazaraError("Image size must match texture face size");
 			return false;
@@ -1127,21 +1127,21 @@ namespace Nz
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		Image image;
-		if (!image.LoadFromMemory(data, size, params))
+		ImageRef image = Image::LoadFromMemory(data, size, params);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
 		}
 
-		if (!image.Convert(GetFormat()))
+		if (!image->Convert(GetFormat()))
 		{
 			NazaraError("Failed to convert image to texture format");
 			return false;
 		}
 
 		unsigned int faceSize = GetWidth();
-		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
 		{
 			NazaraError("Image size must match texture face size");
 			return false;
@@ -1155,21 +1155,21 @@ namespace Nz
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		Image image;
-		if (!image.LoadFromStream(stream, params))
+		ImageRef image = Image::LoadFromStream(stream, params);
+		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return false;
 		}
 
-		if (!image.Convert(GetFormat()))
+		if (!image->Convert(GetFormat()))
 		{
 			NazaraError("Failed to convert image to texture format");
 			return false;
 	}
 
 		unsigned int faceSize = GetWidth();
-		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
+		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
 		{
 			NazaraError("Image size must match texture face size");
 			return false;
@@ -1217,7 +1217,7 @@ namespace Nz
 
 		m_sharedImage->levels.resize(levelCount);
 		for (UInt8 i = oldLevelCount; i < maxLevelCount; ++i)
-			m_sharedImage->levels[i].reset(new UInt8[GetMemoryUsage(i)]);
+			m_sharedImage->levels[i] = std::make_unique<UInt8[]>(GetMemoryUsage(i));
 	}
 
 	bool Image::SetPixelColor(const Color& color, unsigned int x, unsigned int y, unsigned int z)
@@ -1476,7 +1476,7 @@ namespace Nz
 			for (unsigned int i = 0; i < levels.size(); ++i)
 			{
 				std::size_t size = GetMemoryUsage(i);
-				levels[i].reset(new UInt8[size]);
+				levels[i] = std::make_unique<UInt8[]>(size);
 				std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 			}
 
