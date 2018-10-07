@@ -215,6 +215,7 @@ Nazara Development Kit:
 - Added experimental BoxLayout class
 - RenderSystem now resolve skinning before render
 - EntityOwner constructor taking a Entity* is no longer explicit
+- PhysicsComponent2D now allows massless bodies (zero mass)
 
 # 0.4:
 

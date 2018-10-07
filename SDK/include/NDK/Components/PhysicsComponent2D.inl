@@ -320,7 +320,7 @@ namespace Ndk
 	inline void PhysicsComponent2D::SetMass(float mass)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
-		NazaraAssert(mass > 0.f, "Mass should be positive");
+		NazaraAssert(mass >= 0.f, "Mass should be positive");
 
 		m_object->SetMass(mass);
 	}
