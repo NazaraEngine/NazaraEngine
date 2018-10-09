@@ -32,8 +32,6 @@ namespace Ndk
 			LabelWidget& operator=(LabelWidget&&) = default;
 
 		private:
-			void Layout() override;
-
 			EntityHandle m_textEntity;
 			Nz::TextSpriteRef m_textSprite;
 	};
