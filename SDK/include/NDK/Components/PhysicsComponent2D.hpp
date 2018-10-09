@@ -41,22 +41,32 @@ namespace Ndk
 			inline Nz::RadianAnglef GetAngularVelocity() const;
 			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
 			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline float GetElasticity(std::size_t shapeIndex = 0) const;
+			inline float GetFriction(std::size_t shapeIndex = 0) const;
 			inline float GetMass() const;
 			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			inline float GetMomentOfInertia() const;
 			inline Nz::Vector2f GetPosition() const;
 			inline Nz::RadianAnglef GetRotation() const;
+			inline Nz::Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
+			inline std::size_t GetShapeCount() const;
 			inline Nz::Vector2f GetVelocity() const;
 
 			inline bool IsSleeping() const;
 
 			inline void SetAngularDamping(float angularDamping);
 			inline void SetAngularVelocity(const Nz::RadianAnglef& angularVelocity);
+			inline void SetElasticity(float elasticity);
+			inline void SetElasticity(std::size_t shapeIndex, float friction);
+			inline void SetFriction(float friction);
+			inline void SetFriction(std::size_t shapeIndex, float friction);
 			inline void SetMass(float mass);
 			inline void SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys = Nz::CoordSys_Local);
 			inline void SetMomentOfInertia(float moment);
 			inline void SetPosition(const Nz::Vector2f& position);
 			inline void SetRotation(const Nz::RadianAnglef& rotation);
+			inline void SetSurfaceVelocity(const Nz::Vector2f& velocity);
+			inline void SetSurfaceVelocity(std::size_t shapeIndex, const Nz::Vector2f& velocity);
 			inline void SetVelocity(const Nz::Vector2f& velocity);
 
 			static ComponentIndex componentIndex;
