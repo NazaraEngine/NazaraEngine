@@ -175,6 +175,36 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the elasticity of a shape belonging to this physics object
+	* \return Elasticity of the shape
+	*
+	* \param shapeIndex Shape index of the collider we're interested
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline float PhysicsComponent2D::GetElasticity(std::size_t shapeIndex) const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetElasticity(shapeIndex);
+	}
+
+	/*!
+	* \brief Gets the friction of a shape belonging to this physics object
+	* \return Friction of the shape
+	*
+	* \param shapeIndex Shape index of the collider we're interested
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline float PhysicsComponent2D::GetFriction(std::size_t shapeIndex) const
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetFriction(shapeIndex);
+	}
+
+	/*!
 	* \brief Gets the mass of the physics object
 	* \return Mass of the object
 	*
@@ -247,6 +277,30 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the surface velocity of a shape belonging to this physics object
+	* \return Surface velocity of the shape
+	*
+	* \param shapeIndex Shape index of the collider we're interested
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline Nz::Vector2f PhysicsComponent2D::GetSurfaceVelocity(std::size_t shapeIndex) const
+{
+		return m_object->GetSurfaceVelocity(shapeIndex);
+	}
+
+	/*!
+	* \brief Gets the rotation of the physics object
+	* \return Shape count of the object
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline std::size_t PhysicsComponent2D::GetShapeCount() const
+	{
+		return m_object->GetShapeCount();
+	}
+
+	/*!
 	* \brief Gets the velocity of the physics object
 	* \return Velocity of the object
 	*
@@ -303,6 +357,72 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetAngularVelocity(angularVelocity);
+	}
+
+	/*!
+	* \brief Sets the elasticity of the whole physics object
+	*
+	* Overrides all shapes elasticity with a single value
+	*
+	* \param elasticity Elasticity to be applied
+	*
+	* \remark Elasticity must be positive or zero
+	*/
+	inline void PhysicsComponent2D::SetElasticity(float elasticity)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		NazaraAssert(elasticity >= 0.f, "Friction must be positive");
+
+		m_object->SetElasticity(elasticity);
+	}
+
+	/*!
+	* \brief Sets the elasticity of a single shape of the physics object
+	*
+	* \param shapeIndex Target shape index
+	* \param elasticity Elasticity to be applied
+	*
+	* \remark Elasticity must be positive or zero
+	*/
+	inline void PhysicsComponent2D::SetElasticity(std::size_t shapeIndex, float elasticity)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		NazaraAssert(elasticity >= 0.f, "Friction must be positive");
+
+		m_object->SetElasticity(shapeIndex, elasticity);
+	}
+
+	/*!
+	* \brief Sets the friction of the whole physics object
+	*
+	* Overrides all shapes friction with a single value
+	*
+	* \param friction Friction to be applied
+	*
+	* \remark Friction must be positive or zero
+	*/
+	inline void PhysicsComponent2D::SetFriction(float friction)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		NazaraAssert(friction >= 0.f, "Friction must be positive");
+
+		m_object->SetFriction(friction);
+	}
+
+	/*!
+	* \brief Sets the friction of a single shape of the physics object
+	*
+	* \param shapeIndex Target shape index
+	* \param friction Friction to be applied
+	*
+	* \remark Friction must be positive or zero
+	*/
+	inline void PhysicsComponent2D::SetFriction(std::size_t shapeIndex, float friction)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+		NazaraAssert(friction >= 0.f, "Friction must be positive");
+
+		m_object->SetFriction(shapeIndex, friction);
 	}
 
 	/*!
@@ -379,13 +499,37 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the surface velocity of the whole physics object
+	*
+	* Overrides all shapes surface velocity with a single value
+	*
+	* \param velocity Surface velocity to be applied
+	*/
+	inline void PhysicsComponent2D::SetSurfaceVelocity(const Nz::Vector2f& velocity)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetSurfaceVelocity(velocity);
+	}
+
+	/*!
+	* \brief Sets the surface velocity of a single shape of the physics object
+	*
+	* \param shapeIndex Target shape index
+	* \param velocity Surface velocity to be applied
+	*/
+	inline void PhysicsComponent2D::SetSurfaceVelocity(std::size_t shapeIndex, const Nz::Vector2f& velocity)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetSurfaceVelocity(shapeIndex, velocity);
+	}
+
+	/*!
 	* \brief Sets the velocity of the physics object
 	*
 	* \param velocity Velocity of the object
-	*
-	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent2D::SetVelocity(const Nz::Vector2f& velocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");

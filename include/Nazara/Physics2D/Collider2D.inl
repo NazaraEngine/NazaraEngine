@@ -9,11 +9,14 @@
 namespace Nz
 {
 	inline Collider2D::Collider2D() :
-	m_trigger(false),
 	m_categoryMask(0xFFFFFFFF),
 	m_collisionGroup(0),
-	m_collisionId(0),
-	m_collisionMask(0xFFFFFFFF)
+	m_collisionMask(0xFFFFFFFF),
+	m_trigger(false),
+	m_elasticity(0.f),
+	m_friction(0.f),
+	m_surfaceVelocity(Vector2f::Zero()),
+	m_collisionId(0)
 	{
 	}
 
@@ -35,6 +38,21 @@ namespace Nz
 	inline UInt32 Collider2D::GetCollisionMask() const
 	{
 		return m_collisionMask;
+	}
+
+	inline float Collider2D::GetElasticity() const
+	{
+		return m_elasticity;
+	}
+
+	inline float Collider2D::GetFriction() const
+	{
+		return m_friction;
+	}
+
+	inline Vector2f Collider2D::GetSurfaceVelocity() const
+	{
+		return m_surfaceVelocity;
 	}
 
 	inline bool Collider2D::IsTrigger() const
@@ -60,6 +78,21 @@ namespace Nz
 	inline void Collider2D::SetCollisionMask(UInt32 mask)
 	{
 		m_collisionMask = mask;
+	}
+
+	inline void Collider2D::SetElasticity(float elasticity)
+	{
+		m_elasticity = elasticity;
+	}
+
+	inline void Collider2D::SetFriction(float friction)
+	{
+		m_friction = friction;
+	}
+
+	inline void Collider2D::SetSurfaceVelocity(const Vector2f& surfaceVelocity)
+	{
+		m_surfaceVelocity = surfaceVelocity;
 	}
 
 	inline void Collider2D::SetTrigger(bool trigger)
