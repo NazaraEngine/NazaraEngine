@@ -20,7 +20,7 @@ SCENARIO("Billboard", "[GRAPHICS][BILLBOARD]")
 			{
 				REQUIRE(billboard.GetColor() == materialColor);
 				REQUIRE(billboard.GetMaterial().Get() == materialRef.Get());
-				REQUIRE(billboard.GetRotation() == Approx(0.f));
+				REQUIRE(billboard.GetRotation().angle == Approx(0.f));
 				REQUIRE(billboard.GetSize() == Nz::Vector2f(64.f, 64.f)); // Default sizes
 			}
 

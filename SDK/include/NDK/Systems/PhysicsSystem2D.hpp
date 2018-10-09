@@ -24,7 +24,7 @@ namespace Ndk
 		using ContactPostSolveCallback = std::function<void(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
 		using ContactStartCallback = std::function<bool(PhysicsSystem2D& world, Nz::Arbiter2D& arbiter, const EntityHandle& bodyA, const EntityHandle& bodyB, void* userdata)>;
 
-		using DebugDrawCircleCallback = std::function<void(const Nz::Vector2f& origin, float rotation, float radius, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
+		using DebugDrawCircleCallback = std::function<void(const Nz::Vector2f& origin, const Nz::RadianAnglef& rotation, float radius, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
 		using DebugDrawDotCallback = std::function<void(const Nz::Vector2f& origin, float radius, Nz::Color color, void* userdata)>;
 		using DebugDrawPolygonCallback = std::function<void(const Nz::Vector2f* vertices, std::size_t vertexCount, float radius, Nz::Color outlineColor, Nz::Color fillColor, void* userdata)>;
 		using DebugDrawSegmentCallback = std::function<void(const Nz::Vector2f& first, const Nz::Vector2f& second, Nz::Color color, void* userdata)>;

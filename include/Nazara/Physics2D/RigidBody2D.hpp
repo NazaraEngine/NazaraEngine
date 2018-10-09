@@ -64,6 +64,7 @@ namespace Nz
 
 			inline void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(float angularVelocity);
+			void SetFriction(std::size_t shapeIndex, float friction);
 			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
 			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
