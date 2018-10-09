@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -33,7 +34,7 @@ namespace Nz
 		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 		using ContactStartCallback = std::function<bool(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 
-		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, float rotation, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, const RadianAnglef& rotation, float radius, Color outlineColor, Color fillColor, void* userdata)>;
 		using DebugDrawDotCallback = std::function<void(const Vector2f& origin, float radius, Color color, void* userdata)>;
 		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
 		using DebugDrawSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, Color color, void* userdata)>;

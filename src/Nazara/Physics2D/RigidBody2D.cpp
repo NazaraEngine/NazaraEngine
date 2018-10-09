@@ -185,9 +185,9 @@ namespace Nz
 		return Rectf(Rect<cpFloat>(bb.l, bb.b, bb.r - bb.l, bb.t - bb.b));
 	}
 
-	float RigidBody2D::GetAngularVelocity() const
+	RadianAnglef RigidBody2D::GetAngularVelocity() const
+		return float(cpBodyGetAngularVelocity(m_handle));
 	{
-		return FromRadians(static_cast<float>(cpBodyGetAngularVelocity(m_handle)));
 	}
 
 	const Collider2DRef& RigidBody2D::GetGeom() const
@@ -233,9 +233,9 @@ namespace Nz
 		return Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y));
 	}
 
-	float RigidBody2D::GetRotation() const
+	RadianAnglef RigidBody2D::GetRotation() const
 	{
-		return FromRadians(static_cast<float>(cpBodyGetAngle(m_handle)));
+		return float(cpBodyGetAngle(m_handle));
 	}
 
 	std::size_t RigidBody2D::GetShapeIndex(cpShape* shape) const
@@ -283,9 +283,11 @@ namespace Nz
 		return m_isStatic;
 	}
 
-	void RigidBody2D::SetAngularVelocity(float angularVelocity)
+	void RigidBody2D::SetAngularVelocity(const RadianAnglef& angularVelocity)
 	{
-		cpBodySetAngularVelocity(m_handle, ToRadians(angularVelocity));
+		cpBodySetAngularVelocity(m_handle, angularVelocity.angle);
+	{
+		assert(shapeIndex < m_shapes.size());
 	}
 
 	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment)
@@ -400,9 +402,9 @@ namespace Nz
 		}
 	}
 
-	void RigidBody2D::SetRotation(float rotation)
+	void RigidBody2D::SetRotation(const RadianAnglef& rotation)
 	{
-		cpBodySetAngle(m_handle, ToRadians(rotation));
+		cpBodySetAngle(m_handle, rotation.angle);
 		if (m_isStatic)
 		{
 			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)

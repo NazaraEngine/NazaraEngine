@@ -151,7 +151,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline float PhysicsComponent2D::GetAngularVelocity() const
+	inline Nz::RadianAnglef PhysicsComponent2D::GetAngularVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -180,7 +180,6 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline float PhysicsComponent2D::GetMass() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -240,8 +239,7 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
-	inline float PhysicsComponent2D::GetRotation() const
+	inline Nz::RadianAnglef PhysicsComponent2D::GetRotation() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -300,8 +298,7 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
-	inline void PhysicsComponent2D::SetAngularVelocity(float angularVelocity)
+	inline void PhysicsComponent2D::SetAngularVelocity(const Nz::RadianAnglef& angularVelocity)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -313,10 +310,8 @@ namespace Ndk
 	*
 	* \param mass Mass of the object
 	*
-	* \remark Produces a NazaraAssert if the physics object is invalid
-	* \remark Produces a NazaraAssert if the mass is negative
+	* \remark Mass must be positive or zero
 	*/
-
 	inline void PhysicsComponent2D::SetMass(float mass)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -332,13 +327,13 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent2D::SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetMassCenter(center, coordSys);
 	}
+
 	/*!
 	* \brief Sets the angular damping or moment of inertia of the physics object
 	*
@@ -348,7 +343,6 @@ namespace Ndk
 	*
 	* \see SetAngularDamping
 	*/
-
 	inline void PhysicsComponent2D::SetMomentOfInertia(float moment)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -363,7 +357,6 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline void PhysicsComponent2D::SetPosition(const Nz::Vector2f& position)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -378,8 +371,7 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
-	inline void PhysicsComponent2D::SetRotation(float rotation)
+	inline void PhysicsComponent2D::SetRotation(const Nz::RadianAnglef& rotation)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
@@ -405,7 +397,6 @@ namespace Ndk
 	* \brief Gets the underlying physics object
 	* \return A reference to the physics object
 	*/
-
 	inline Nz::RigidBody2D* PhysicsComponent2D::GetRigidBody()
 	{
 		return m_object.get();
