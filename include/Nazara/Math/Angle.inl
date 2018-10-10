@@ -164,7 +164,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetCos() const
 	{
-		return std::cos(ToRadianAngle().angle);
+		return std::cos(ToRadians());
 	}
 
 	/*!
@@ -176,7 +176,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetSin() const
 	{
-		return std::sin(ToRadianAngle().angle);
+		return std::sin(ToRadians());
 	}
 
 	/*!
@@ -191,7 +191,7 @@ namespace Nz
 	std::pair<T, T> Angle<Unit, T>::GetSinCos() const
 	{
 		T sin, cos;
-		Detail::SinCos<T>(ToRadianAngle().angle, &sin, &cos);
+		Detail::SinCos<T>(ToRadians(), &sin, &cos);
 
 		return std::make_pair(sin, cos);
 	}
@@ -205,7 +205,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetTan() const
 	{
-		return std::tan(ToRadianAngle().angle);
+		return std::tan(ToRadians());
 	}
 
 	/*!
