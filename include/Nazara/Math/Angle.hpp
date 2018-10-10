@@ -27,8 +27,6 @@ namespace Nz
 		public:
 			Angle() = default;
 			Angle(T value);
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& value) { Set(value); }
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& value) { Set(value); }
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
 			Angle(const Angle&) = default;
 			~Angle() = default;
@@ -42,8 +40,6 @@ namespace Nz
 
 			void Normalize();
 
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> Angle& Set(const Angle<AngleUnit::Radian, T>& ang);
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> Angle& Set(const Angle<AngleUnit::Degree, T>& ang);
 			Angle& Set(const Angle& ang);
 			template<typename U> Angle& Set(const Angle<Unit, U>& ang);
 
@@ -54,6 +50,9 @@ namespace Nz
 			T ToRadians() const;
 			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			String ToString() const;
+
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Degree>> operator Angle<AngleUnit::Degree, T>();
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Radian>> operator Angle<AngleUnit::Radian, T>();
 
 			Angle& operator=(const Angle&) = default;
 
