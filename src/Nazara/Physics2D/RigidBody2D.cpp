@@ -126,9 +126,9 @@ namespace Nz
 		}
 	}
 
-	void RigidBody2D::AddTorque(float torque)
+	void RigidBody2D::AddTorque(const RadianAnglef& torque)
 	{
-		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + ToRadians(torque));
+		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + torque.value);
 	}
 
 	bool RigidBody2D::ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const

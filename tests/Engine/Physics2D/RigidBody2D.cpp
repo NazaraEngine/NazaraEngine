@@ -191,7 +191,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		WHEN("We apply a torque")
 		{
-			body.AddTorque(Nz::DegreeToRadian(90.f));
+			body.AddTorque(Nz::DegreeAnglef(90.f));
 			world.Step(1.f);
 
 			THEN("It is also counter-clockwise")

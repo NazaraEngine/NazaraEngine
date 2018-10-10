@@ -91,7 +91,7 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
 
-	inline void PhysicsComponent2D::AddTorque(float torque)
+	inline void PhysicsComponent2D::AddTorque(const Nz::RadianAnglef& torque)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
