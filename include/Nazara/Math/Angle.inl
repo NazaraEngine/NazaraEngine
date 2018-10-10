@@ -164,7 +164,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetCos() const
 	{
-		return std::cos(ToRadians().angle);
+		return std::cos(ToRadianAngle().angle);
 	}
 
 	/*!
@@ -176,7 +176,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetSin() const
 	{
-		return std::sin(ToRadians().angle);
+		return std::sin(ToRadianAngle().angle);
 	}
 
 	/*!
@@ -191,7 +191,7 @@ namespace Nz
 	std::pair<T, T> Angle<Unit, T>::GetSinCos() const
 	{
 		T sin, cos;
-		Detail::SinCos<T>(ToRadians().angle, &sin, &cos);
+		Detail::SinCos<T>(ToRadianAngle().angle, &sin, &cos);
 
 		return std::make_pair(sin, cos);
 	}
@@ -205,7 +205,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	T Angle<Unit, T>::GetTan() const
 	{
-		return std::tan(ToRadians().angle);
+		return std::tan(ToRadianAngle().angle);
 	}
 
 	/*!
@@ -291,12 +291,22 @@ namespace Nz
 
 	/*!
 	* \brief Returns the degree angle that is equivalent to this one
+	* \return Equivalent degree angle value
+	*/
+	template<AngleUnit Unit, typename T>
+	T Angle<Unit, T>::ToDegrees() const
+	{
+		return Detail::AngleUtils<Unit>::ToDegrees(angle);
+	}
+
+	/*!
+	* \brief Returns the degree angle that is equivalent to this one
 	* \return Equivalent degree angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<AngleUnit::Degree, T> Angle<Unit, T>::ToDegrees() const
+	Angle<AngleUnit::Degree, T> Angle<Unit, T>::ToDegreeAngle() const
 	{
-		return DegreeAngle<T>(Detail::AngleUtils<Unit>::ToDegrees(angle));
+		return DegreeAngle<T>(ToDegrees());
 	}
 
 	/*!
@@ -308,7 +318,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	EulerAngles<T> Angle<Unit, T>::ToEulerAngles() const
 	{
-		return EulerAngles<T>(0, 0, ToDegrees().angle);
+		return EulerAngles<T>(0, 0, ToDegreeAngle().angle);
 	}
 
 	/*!
@@ -329,12 +339,22 @@ namespace Nz
 
 	/*!
 	* \brief Returns the radian angle that is equivalent to this angle
+	* \return Equivalent radian angle value
+	*/
+	template<AngleUnit Unit, typename T>
+	T Angle<Unit, T>::ToRadians() const
+	{
+		return Detail::AngleUtils<Unit>::ToRadians(angle);
+	}
+
+	/*!
+	* \brief Returns the radian angle that is equivalent to this angle
 	* \return Equivalent radian angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadians() const
+	Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadianAngle() const
 	{
-		return RadianAngle<T>(Detail::AngleUtils<Unit>::ToRadians(angle));
+		return RadianAngle<T>(ToRadians());
 	}
 
 	/*!
