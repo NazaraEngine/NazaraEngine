@@ -164,7 +164,7 @@ namespace Nz
 
 	
 	DampedRotarySpringConstraint2D::DampedRotarySpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const RadianAnglef& restAngle, float stiffness, float damping) :
-	Constraint2D(first.GetWorld(), cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle.angle, stiffness, damping))
+	Constraint2D(first.GetWorld(), cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle.value, stiffness, damping))
 	{
 	}
 
@@ -190,7 +190,7 @@ namespace Nz
 
 	void DampedRotarySpringConstraint2D::SetRestAngle(const RadianAnglef& newAngle)
 	{
-		cpDampedRotarySpringSetRestAngle(m_constraint, newAngle.angle);
+		cpDampedRotarySpringSetRestAngle(m_constraint, newAngle.value);
 	}
 
 	void DampedRotarySpringConstraint2D::SetStiffness(float newStiffness)
@@ -334,7 +334,7 @@ namespace Nz
 
 	void RatchetConstraint2D::SetAngle(const RadianAnglef& angle)
 	{
-		cpRatchetJointSetAngle(m_constraint, angle.angle);
+		cpRatchetJointSetAngle(m_constraint, angle.value);
 	}
 
 	void RatchetConstraint2D::SetPhase(float phase)
@@ -349,7 +349,7 @@ namespace Nz
 
 
 	RotaryLimitConstraint2D::RotaryLimitConstraint2D(RigidBody2D& first, RigidBody2D& second, const RadianAnglef& minAngle, const RadianAnglef& maxAngle) :
-	Constraint2D(first.GetWorld(), cpRotaryLimitJointNew(first.GetHandle(), second.GetHandle(), minAngle.angle, maxAngle.angle))
+	Constraint2D(first.GetWorld(), cpRotaryLimitJointNew(first.GetHandle(), second.GetHandle(), minAngle.value, maxAngle.value))
 	{
 	}
 
@@ -365,12 +365,12 @@ namespace Nz
 
 	void RotaryLimitConstraint2D::SetMaxAngle(const RadianAnglef& maxAngle)
 	{
-		cpRotaryLimitJointSetMax(m_constraint, maxAngle.angle);
+		cpRotaryLimitJointSetMax(m_constraint, maxAngle.value);
 	}
 
 	void RotaryLimitConstraint2D::SetMinAngle(const RadianAnglef& minAngle)
 	{
-		cpRotaryLimitJointSetMin(m_constraint, minAngle.angle);
+		cpRotaryLimitJointSetMin(m_constraint, minAngle.value);
 	}
 
 

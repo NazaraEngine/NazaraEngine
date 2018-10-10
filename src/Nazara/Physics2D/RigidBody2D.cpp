@@ -307,7 +307,7 @@ namespace Nz
 
 	void RigidBody2D::SetAngularVelocity(const RadianAnglef& angularVelocity)
 	{
-		cpBodySetAngularVelocity(m_handle, angularVelocity.angle);
+		cpBodySetAngularVelocity(m_handle, angularVelocity.value);
 	}
 
 	void RigidBody2D::SetElasticity(float friction)
@@ -450,7 +450,7 @@ namespace Nz
 
 	void RigidBody2D::SetRotation(const RadianAnglef& rotation)
 	{
-		cpBodySetAngle(m_handle, rotation.angle);
+		cpBodySetAngle(m_handle, rotation.value);
 		if (m_isStatic)
 		{
 			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)

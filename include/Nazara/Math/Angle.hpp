@@ -74,7 +74,7 @@ namespace Nz
 			static Angle FromRadians(T ang);
 			static Angle Zero();
 
-			T angle;
+			T value;
 	};
 
 	template<typename T>

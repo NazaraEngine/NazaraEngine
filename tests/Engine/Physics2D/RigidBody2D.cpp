@@ -130,7 +130,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetGeom() == box);
 				CHECK(body.GetMass() == Approx(mass));
 				CHECK(body.GetPosition() == position);
-				CHECK(body.GetRotation().angle == Approx(0.f));
+				CHECK(body.GetRotation().value == Approx(0.f));
 				CHECK(body.GetUserdata() == &userData);
 				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
 
@@ -196,8 +196,8 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 			THEN("It is also counter-clockwise")
 			{
-				CHECK(body.GetAngularVelocity().angle >= 0.f);
-				CHECK(body.GetRotation().angle >= 0.f);
+				CHECK(body.GetAngularVelocity().value >= 0.f);
+				CHECK(body.GetRotation().value >= 0.f);
 			}
 		}
 	}
@@ -321,7 +321,7 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 	CHECK(left.GetHandle() != right.GetHandle());
 	CHECK(left.GetMass() == Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
-	CHECK(left.GetRotation().angle == Approx(right.GetRotation().angle));
+	CHECK(left.GetRotation().value == Approx(right.GetRotation().value));
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }
