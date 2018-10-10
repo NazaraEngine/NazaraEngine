@@ -85,7 +85,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 		WHEN("We make rotate our entity")
 		{
-			Nz::RadianAnglef angularSpeed = Nz::DegreeToRadian(45.f);
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(45.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(2.f);
 
@@ -93,7 +93,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 			{
 				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(-2.f, 0.f, 2.f, 1.f));
-				CHECK(physicsComponent2D.GetRotation() == Nz::RadianAnglef(Nz::DegreeToRadian(90.f)));
+				CHECK(physicsComponent2D.GetRotation() == Nz::RadianAnglef::FromDegrees(90.f));
 				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
 			}
 		}
@@ -129,7 +129,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 
 		WHEN("We make rotate our entity")
 		{
-			Nz::RadianAnglef angularSpeed(Nz::DegreeToRadian(45.f));
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(45.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(2.f);
 

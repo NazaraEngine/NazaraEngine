@@ -68,6 +68,8 @@ namespace Nz
 			bool operator==(const Angle& other) const;
 			bool operator!=(const Angle& other) const;
 
+			static Angle FromDegrees(T ang);
+			static Angle FromRadians(T ang);
 			static Angle Zero();
 
 			T angle;

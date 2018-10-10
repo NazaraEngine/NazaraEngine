@@ -472,6 +472,30 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Builds an Angle instance using a degree angle, converting if needed
+	* \return An angle describing the degree angle as Unit
+	*
+	* \param ang Degree angle
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> Angle<Unit, T>::FromDegrees(T ang)
+	{
+		return Angle(Detail::AngleUtils<Unit>::FromDegrees(ang));
+	}
+
+	/*!
+	* \brief Builds an Angle instance using a radian angle, converting if needed
+	* \return An angle describing the radian angle as Unit
+	*
+	* \param ang Radian angle
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> Angle<Unit, T>::FromRadians(T ang)
+	{
+		return Angle(Detail::AngleUtils<Unit>::FromRadians(ang));
+	}
+
+	/*!
 	* \brief Returns an angle with an angle of zero
 	* \return Zero angle
 	*/
