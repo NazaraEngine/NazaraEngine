@@ -237,32 +237,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Changes the angle value by converting a radian angle
-	*
-	* \param Angle Radian angle which will be converted
-	*/
-	template<AngleUnit Unit, typename T>
-	template<AngleUnit U, typename>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Radian, T>& ang)
-	{
-		value = RadianToDegree(ang.value);
-		return *this;
-	}
-
-	/*!
-	* \brief Changes the angle value by converting a degree angle
-	*
-	* \param Angle Degree angle which will be converted
-	*/
-	template<AngleUnit Unit, typename T>
-	template<AngleUnit U, typename>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<AngleUnit::Degree, T>& ang)
-	{
-		value = DegreeToRadian(ang.value);
-		return *this;
-	}
-
-	/*!
 	* \brief Copies the angle value of an angle
 	*
 	* \param Angle Angle which will be copied
@@ -365,6 +339,28 @@ namespace Nz
 	String Angle<Unit, T>::ToString() const
 	{
 		return Detail::AngleUtils<Unit>::ToString(value);
+	}
+
+	/*!
+	* \brief Returns the degree angle that is equivalent to this one
+	* \return Equivalent degree angle
+	*/
+	template<AngleUnit Unit, typename T>
+	template<AngleUnit U, typename>
+	Angle<Unit, T>::operator Angle<AngleUnit::Degree, T>()
+	{
+		return ToDegreeAngle();
+	}
+
+	/*!
+	* \brief Converts the angle to a string representation
+	* \return String representation of the angle
+	*/
+	template<AngleUnit Unit, typename T>
+	template<AngleUnit U, typename>
+	Angle<Unit, T>::operator Angle<AngleUnit::Radian, T>()
+	{
+		return ToRadianAngle();
 	}
 
 	/*!
