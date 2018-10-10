@@ -47,10 +47,12 @@ namespace Nz
 			Angle& Set(const Angle& ang);
 			template<typename U> Angle& Set(const Angle<Unit, U>& ang);
 
-			Angle<AngleUnit::Degree, T> ToDegrees() const;
+			T ToDegrees() const;
+			Angle<AngleUnit::Degree, T> ToDegreeAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			Quaternion<T> ToQuaternion() const;
-			Angle<AngleUnit::Radian, T> ToRadians() const;
+			T ToRadians() const;
+			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			String ToString() const;
 
 			Angle& operator=(const Angle&) = default;
