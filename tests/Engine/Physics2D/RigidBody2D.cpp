@@ -166,7 +166,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		WHEN("We set an angular velocity")
 		{
-			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef(Nz::DegreeToRadian(90.f));
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(90.f);
 			body.SetAngularVelocity(angularSpeed);
 			world.Step(1.f);
 

@@ -82,7 +82,7 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 
 		WHEN("We set an angular velocity")
 		{
-			Nz::RadianAnglef angularSpeed(Nz::DegreeToRadian(90.f));
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(90.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(1.f);
 
