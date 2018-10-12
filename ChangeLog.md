@@ -151,6 +151,7 @@ Nazara Engine:
 - Added TcpClient::PollForConnected 
 - ⚠️ Use of the new Angle class instead of floating point angle
 - It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
+- ObjectHandle were remade and should be way more optimized now
  
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -219,6 +220,7 @@ Nazara Development Kit:
 - EntityOwner constructor taking a Entity* is no longer explicit
 - PhysicsComponent2D now allows massless bodies (zero mass)
 - ⚠️ Use of the new Angle class instead of floating point angle
+- Added EntityOwner::Release
 
 # 0.4:
 

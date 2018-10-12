@@ -8,8 +8,8 @@
 #define NDK_ENTITY_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/Prerequisites.hpp>

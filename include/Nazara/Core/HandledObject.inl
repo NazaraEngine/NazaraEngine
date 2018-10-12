@@ -2,9 +2,10 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ObjectHandle.hpp>
 #include <algorithm>
+#include <cassert>
 #include <type_traits>
 #include <utility>
 
@@ -35,10 +36,10 @@ namespace Nz
 	*/
 	template<typename T>
 	HandledObject<T>::HandledObject(HandledObject&& object) noexcept :
-	m_handles(std::move(object.m_handles))
+	m_handleData(std::move(object.m_handleData))
 	{
-		for (ObjectHandle<T>* handle : m_handles)
-			handle->OnObjectMoved(static_cast<T*>(this));
+		if (m_handleData)
+			m_handleData->object = static_cast<T*>(this);
 	}
 
 	/*!
@@ -74,7 +75,7 @@ namespace Nz
 		NazaraUnused(object);
 
 		// Nothing to do
-		return *this; 
+		return *this;
 	}
 
 	/*!
@@ -88,24 +89,12 @@ namespace Nz
 	{
 		UnregisterAllHandles();
 
-		m_handles = std::move(object.m_handles);
-		for (ObjectHandle<T>* handle : m_handles)
-			handle->OnObjectMoved(static_cast<T*>(this));
+		m_handleData = std::move(object.m_handleData);
+
+		if (m_handleData)
+			m_handleData->object = static_cast<T*>(this);
 
 		return *this;
-	}
-
-	/*!
-	* \brief Registers a handle
-	*
-	* \param handle Handle to register
-	*
-	* \remark One handle can only be registered once, errors can occur if it's more than once
-	*/
-	template<typename T>
-	void HandledObject<T>::RegisterHandle(ObjectHandle<T>* handle)
-	{
-		m_handles.push_back(handle);
 	}
 
 	/*!
@@ -114,47 +103,28 @@ namespace Nz
 	template<typename T>
 	void HandledObject<T>::UnregisterAllHandles() noexcept
 	{
-		// Tell every handle we got destroyed, to null them
-		for (ObjectHandle<T>* handle : m_handles)
-			handle->OnObjectDestroyed();
-
-		m_handles.clear();
+		if (m_handleData)
+		{
+			m_handleData->object = nullptr;
+			m_handleData.reset();
+		}
 	}
 
-	/*!
-	* \brief Unregisters a handle
-	*
-	* \param handle Handle to unregister
-	*
-	* \remark One handle can only be unregistered once, crash can occur if it's more than once
-	* \remark Produces a NazaraAssert if handle not registered
-	*/
 	template<typename T>
-	void HandledObject<T>::UnregisterHandle(ObjectHandle<T>* handle) noexcept
+	std::shared_ptr<const Detail::HandleData> HandledObject<T>::GetHandleData()
 	{
-		auto it = std::find(m_handles.begin(), m_handles.end(), handle);
-		NazaraAssert(it != m_handles.end(), "Handle not registered");
+		if (!m_handleData)
+			InitHandleData();
 
-		// Swap and pop idiom, more efficient than vector::erase
-		std::swap(*it, m_handles.back());
-		m_handles.pop_back();
+		return std::shared_ptr<const Detail::HandleData>(m_handleData);
 	}
 
-	/*!
-	* \brief Updates one handle with another
-	*
-	* \param oldHandle Old handle to replace
-	* \param newHandle New handle to take place
-	*
-	* \remark Produces a NazaraAssert if handle not registered
-	*/
 	template<typename T>
-	void HandledObject<T>::UpdateHandle(ObjectHandle<T>* oldHandle, ObjectHandle<T>* newHandle) noexcept
+	void HandledObject<T>::InitHandleData()
 	{
-		auto it = std::find(m_handles.begin(), m_handles.end(), oldHandle);
-		NazaraAssert(it != m_handles.end(), "Handle not registered");
+		assert(!m_handleData);
 
-		// Simply update the handle
-		*it = newHandle;
+		m_handleData = std::make_shared<Detail::HandleData>();
+		m_handleData->object = static_cast<T*>(this);
 	}
 }
