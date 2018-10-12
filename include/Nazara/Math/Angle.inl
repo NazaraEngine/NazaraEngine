@@ -150,8 +150,8 @@ namespace Nz
 	* \param value value of the angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::Angle(T value) :
-	value(value)
+	Angle<Unit, T>::Angle(T angle) :
+	value(angle)
 	{
 	}
 
@@ -345,23 +345,23 @@ namespace Nz
 	* \brief Returns the degree angle that is equivalent to this one
 	* \return Equivalent degree angle
 	*/
-	template<AngleUnit Unit, typename T>
+	/*template<AngleUnit Unit, typename T>
 	template<AngleUnit U, typename>
-	Angle<Unit, T>::operator Angle<AngleUnit::Degree, T>()
+	Angle<Unit, T>::operator Angle<AngleUnit::Degree, T>() const
 	{
 		return ToDegreeAngle();
-	}
+	}*/
 
 	/*!
 	* \brief Converts the angle to a string representation
 	* \return String representation of the angle
 	*/
-	template<AngleUnit Unit, typename T>
+	/*template<AngleUnit Unit, typename T>
 	template<AngleUnit U, typename>
-	Angle<Unit, T>::operator Angle<AngleUnit::Radian, T>()
+	Angle<Unit, T>::operator Angle<AngleUnit::Radian, T>() const
 	{
 		return ToRadianAngle();
-	}
+	}*/
 
 	/*!
 	* \brief Addition operator
