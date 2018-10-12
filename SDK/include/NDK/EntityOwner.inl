@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <NDK/EntityOwner.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <functional>
 #include <limits>
@@ -37,15 +38,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Release the ownership of the entity without killing it
+	*/
+	inline void EntityOwner::Release()
+	{
+		EntityHandle::Reset(nullptr);
+	}
+
+	/*!
 	* \brief Resets the ownership of the entity, previous is killed
 	*
 	* \param entity Entity to own
 	*/
-
 	inline void EntityOwner::Reset(Entity* entity)
 	{
-		if (m_object)
-			m_object->Kill();
+		if (IsValid())
+			GetObject()->Kill();
 
 		EntityHandle::Reset(entity);
 	}
@@ -55,11 +63,10 @@ namespace Ndk
 	*
 	* \param handle EntityOwner to move into this
 	*/
-
 	inline void EntityOwner::Reset(EntityOwner&& handle)
 	{
 		Reset(handle.GetObject());
-		handle.m_object = nullptr;
+		handle.Release();
 	}
 
 	/*!
