@@ -24,7 +24,6 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the entity has no physics component and has no static body
 	*/
-
 	void CollisionComponent2D::SetGeom(Nz::Collider2DRef geom)
 	{
 		m_geom = std::move(geom);

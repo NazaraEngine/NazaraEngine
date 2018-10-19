@@ -149,7 +149,10 @@ Nazara Engine:
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
 - ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
 - Added TcpClient::PollForConnected 
-
+- ⚠️ Use of the new Angle class instead of floating point angle
+- It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
+- ObjectHandle were remade and should be way more optimized now
+ 
 Nazara Development Kit:
 - Added ImageWidget (#139)
 - ⚠️ Removed TextAreaWidget::GetLineCount
@@ -215,6 +218,9 @@ Nazara Development Kit:
 - Added experimental BoxLayout class
 - RenderSystem now resolve skinning before render
 - EntityOwner constructor taking a Entity* is no longer explicit
+- PhysicsComponent2D now allows massless bodies (zero mass)
+- ⚠️ Use of the new Angle class instead of floating point angle
+- Added EntityOwner::Release
 
 # 0.4:
 

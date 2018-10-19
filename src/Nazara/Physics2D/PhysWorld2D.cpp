@@ -26,7 +26,7 @@ namespace Nz
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->circleCallback)
-				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), float(angle), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), RadianAnglef(float(angle)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 		}
 
 		void DrawDot(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)

@@ -181,7 +181,7 @@ namespace Ndk
 			PhysicsComponent2D& phys = entity->GetComponent<PhysicsComponent2D>();
 
 			Nz::RigidBody2D* body = phys.GetRigidBody();
-			node.SetRotation(Nz::EulerAnglesf(0.f, 0.f, body->GetRotation()), Nz::CoordSys_Global);
+			node.SetRotation(body->GetRotation(), Nz::CoordSys_Global);
 			node.SetPosition(Nz::Vector3f(body->GetPosition(), node.GetPosition(Nz::CoordSys_Global).z), Nz::CoordSys_Global);
 		}
 

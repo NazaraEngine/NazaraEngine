@@ -26,9 +26,7 @@ namespace Nz
 	{
 		public:
 			Angle() = default;
-			Angle(T value);
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> explicit Angle(const Angle<AngleUnit::Radian, T>& value) { Set(value); }
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> explicit Angle(const Angle<AngleUnit::Degree, T>& value) { Set(value); }
+			Angle(T angle);
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
 			Angle(const Angle&) = default;
 			~Angle() = default;
@@ -42,16 +40,19 @@ namespace Nz
 
 			void Normalize();
 
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Degree>> Angle& Set(const Angle<AngleUnit::Radian, T>& ang);
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U == AngleUnit::Radian>> Angle& Set(const Angle<AngleUnit::Degree, T>& ang);
 			Angle& Set(const Angle& ang);
 			template<typename U> Angle& Set(const Angle<Unit, U>& ang);
 
-			Angle<AngleUnit::Degree, T> ToDegrees() const;
+			T ToDegrees() const;
+			Angle<AngleUnit::Degree, T> ToDegreeAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			Quaternion<T> ToQuaternion() const;
-			Angle<AngleUnit::Radian, T> ToRadians() const;
+			T ToRadians() const;
+			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			String ToString() const;
+
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Degree>> operator Angle<AngleUnit::Degree, T>() const { return ToDegreeAngle(); } // GCC < 8 bug
+			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Radian>> operator Angle<AngleUnit::Radian, T>() const { return ToRadianAngle(); } // GCC < 8 bug
 
 			Angle& operator=(const Angle&) = default;
 
@@ -68,9 +69,11 @@ namespace Nz
 			bool operator==(const Angle& other) const;
 			bool operator!=(const Angle& other) const;
 
+			static Angle FromDegrees(T ang);
+			static Angle FromRadians(T ang);
 			static Angle Zero();
 
-			T angle;
+			T value;
 	};
 
 	template<typename T>

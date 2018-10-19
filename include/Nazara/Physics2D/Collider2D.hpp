@@ -47,6 +47,9 @@ namespace Nz
 			inline UInt32 GetCollisionGroup() const;
 			inline unsigned int GetCollisionId() const;
 			inline UInt32 GetCollisionMask() const;
+			inline float GetElasticity() const;
+			inline float GetFriction() const;
+			inline Vector2f GetSurfaceVelocity() const;
 
 			virtual ColliderType2D GetType() const = 0;
 
@@ -56,6 +59,9 @@ namespace Nz
 			inline void SetCollisionGroup(UInt32 groupId);
 			inline void SetCollisionId(unsigned int typeId);
 			inline void SetCollisionMask(UInt32 mask);
+			inline void SetElasticity(float elasticity);
+			inline void SetFriction(float friction);
+			inline void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			inline void SetTrigger(bool trigger);
 
 			Collider2D& operator=(const Collider2D&) = delete;
@@ -67,11 +73,14 @@ namespace Nz
 		protected:
 			virtual std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const = 0;
 
-			bool m_trigger;
 			UInt32 m_categoryMask;
 			UInt32 m_collisionGroup;
-			unsigned int m_collisionId;
 			UInt32 m_collisionMask;
+			Vector2f m_surfaceVelocity;
+			bool m_trigger;
+			float m_elasticity;
+			float m_friction;
+			unsigned int m_collisionId;
 
 		private:
 			virtual std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const;

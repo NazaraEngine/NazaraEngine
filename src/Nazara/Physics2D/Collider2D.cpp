@@ -20,9 +20,12 @@ namespace Nz
 		{
 			cpShape* shape = (*shapes)[i];
 
+			cpShapeSetCollisionType(shape, cpFloat(m_collisionId));
+			cpShapeSetElasticity(shape, cpFloat(m_elasticity));
 			cpShapeSetFilter(shape, filter);
-			cpShapeSetCollisionType(shape, m_collisionId);
+			cpShapeSetFriction(shape, cpFloat(m_friction));
 			cpShapeSetSensor(shape, (m_trigger) ? cpTrue : cpFalse);
+			cpShapeSetSurfaceVelocity(shape, cpv(cpFloat(m_surfaceVelocity.x), cpFloat(m_surfaceVelocity.y)));
 		}
 
 		return shapeCount;

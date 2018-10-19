@@ -11,7 +11,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 		WHEN("We convert it to degrees")
 		{
-			Nz::DegreeAnglef copyAngle = angle.ToDegrees();
+			Nz::DegreeAnglef copyAngle = angle.ToDegreeAngle();
 
 			THEN("It should compare to itself")
 			{
@@ -28,7 +28,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 				Nz::RadianAnglef expectedResult(float(M_PI_2));
 
 				CHECK(radAngle == expectedResult);
-				CHECK(angle.ToRadians() == expectedResult);
+				CHECK(angle.ToRadianAngle() == expectedResult);
 			}
 		}
 
@@ -110,7 +110,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 		WHEN("We convert it to radians")
 		{
-			Nz::RadianAnglef copyAngle = angle.ToRadians();
+			Nz::RadianAnglef copyAngle = angle.ToRadianAngle();
 
 			THEN("It should compare to itself")
 			{
@@ -127,7 +127,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 				Nz::DegreeAnglef expectedResult(-180.f);
 
 				CHECK(degAngle == expectedResult);
-				CHECK(angle.ToDegrees() == expectedResult);
+				CHECK(angle.ToDegreeAngle() == expectedResult);
 			}
 		}
 

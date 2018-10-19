@@ -19,9 +19,4 @@ namespace Ndk
 
 		Layout();
 	}
-
-	void LabelWidget::Layout()
-	{
-		BaseWidget::Layout();
-	}
 }
