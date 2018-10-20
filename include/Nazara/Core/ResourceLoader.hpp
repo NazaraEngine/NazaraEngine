@@ -8,6 +8,7 @@
 #define NAZARA_RESOURCELOADER_HPP
 
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
