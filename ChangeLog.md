@@ -221,6 +221,7 @@ Nazara Development Kit:
 - PhysicsComponent2D now allows massless bodies (zero mass)
 - ⚠️ Use of the new Angle class instead of floating point angle
 - Added EntityOwner::Release
+- Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
 
 # 0.4:
 

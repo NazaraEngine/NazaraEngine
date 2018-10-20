@@ -429,15 +429,16 @@ namespace Ndk
 	* \brief Sets the mass of the physics object
 	*
 	* \param mass Mass of the object
+	* \param recomputeMoment Should the moment of inertia be recomputed according to the new mass
 	*
 	* \remark Mass must be positive or zero
 	*/
-	inline void PhysicsComponent2D::SetMass(float mass)
+	inline void PhysicsComponent2D::SetMass(float mass, bool recomputeMoment)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 		NazaraAssert(mass >= 0.f, "Mass should be positive");
 
-		m_object->SetMass(mass);
+		m_object->SetMass(mass, recomputeMoment);
 	}
 
 	/*!
