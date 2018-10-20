@@ -54,7 +54,7 @@ namespace Nz
 		Create(type, format, width, height, depth, levelCount);
 	}
 
-	Texture::Texture(const Image& image)
+	Texture::Texture(const Image* image)
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException);
 		LoadFromImage(image);
@@ -498,21 +498,15 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(image, generateMipmaps);
+		return LoadFromImage(&image, generateMipmaps);
 	}
 
-	bool Texture::LoadFromImage(const Image& image, bool generateMipmaps)
+	bool Texture::LoadFromImage(const Image* image, bool generateMipmaps)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
-		#endif
+		NazaraAssert(image && image->IsValid(), "Invalid image");
 
-		// Vive le Copy-On-Write
-		Image newImage(image);
+		// Make use of COW
+		Image newImage(*image);
 
 		PixelFormatType format = newImage.GetFormat();
 		if (!IsFormatSupported(format))
@@ -581,7 +575,7 @@ namespace Nz
 		}
 
 		// Keep resource path info
-		SetFilePath(image.GetFilePath());
+		SetFilePath(image->GetFilePath());
 
 		destroyOnExit.Reset();
 
@@ -597,7 +591,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(image, generateMipmaps);
+		return LoadFromImage(&image, generateMipmaps);
 	}
 
 	bool Texture::LoadFromStream(Stream& stream, const ImageParams& params, bool generateMipmaps)
@@ -609,7 +603,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(image, generateMipmaps);
+		return LoadFromImage(&image, generateMipmaps);
 	}
 
 	bool Texture::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
@@ -621,10 +615,10 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
-	bool Texture::LoadArrayFromImage(const Image& image, bool generateMipmaps, const Vector2ui& atlasSize)
+	bool Texture::LoadArrayFromImage(const Image* image, bool generateMipmaps, const Vector2ui& atlasSize)
 	{
 		Image cubemap;
 		if (!cubemap.LoadArrayFromImage(image, atlasSize))
@@ -633,7 +627,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
@@ -645,7 +639,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
@@ -657,7 +651,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
@@ -669,10 +663,10 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
-	bool Texture::LoadCubemapFromImage(const Image& image, bool generateMipmaps, const CubemapParams& params)
+	bool Texture::LoadCubemapFromImage(const Image* image, bool generateMipmaps, const CubemapParams& params)
 	{
 		Image cubemap;
 		if (!cubemap.LoadCubemapFromImage(image, params))
@@ -681,7 +675,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
@@ -693,7 +687,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
@@ -705,7 +699,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFromImage(cubemap, generateMipmaps);
+		return LoadFromImage(&cubemap, generateMipmaps);
 	}
 
 	bool Texture::LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params)
@@ -744,7 +738,7 @@ namespace Nz
 			return false;
 		}
 
-		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
+		return Update(&image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
 	bool Texture::LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params)
@@ -783,7 +777,7 @@ namespace Nz
 			return false;
 		}
 
-		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
+		return Update(&image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
 	bool Texture::LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params)
@@ -823,7 +817,7 @@ namespace Nz
 			return false;
 		}
 
-		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
+		return Update(&image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
 	bool Texture::SaveToFile(const String& filePath, const ImageParams& params)
@@ -879,82 +873,49 @@ namespace Nz
 		return true;
 	}
 
-	bool Texture::Update(const Image& image, UInt8 level)
+	bool Texture::Update(const Image* image, UInt8 level)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
+		NazaraAssert(image && image->IsValid(), "Invalid image");
+		NazaraAssert(image->GetFormat() == m_impl->format, "Image format doesn't match texture format");
 
-		if (image.GetFormat() != m_impl->format)
-		{
-			NazaraError("Image format does not match texture format");
-			return false;
-		}
-		#endif
-
-		const UInt8* pixels = image.GetConstPixels(0, 0, 0, level);
+		const UInt8* pixels = image->GetConstPixels(0, 0, 0, level);
 		if (!pixels)
 		{
 			NazaraError("Failed to access image's pixels");
 			return false;
 		}
 
-		return Update(pixels, image.GetWidth(level), image.GetHeight(level), level);
+		return Update(pixels, image->GetWidth(level), image->GetHeight(level), level);
 	}
 
-	bool Texture::Update(const Image& image, const Boxui& box, UInt8 level)
+	bool Texture::Update(const Image* image, const Boxui& box, UInt8 level)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
+		NazaraAssert(image && image->IsValid(), "Invalid image");
+		NazaraAssert(image->GetFormat() == m_impl->format, "Image format doesn't match texture format");
 
-		if (image.GetFormat() != m_impl->format)
-		{
-			NazaraError("Image format does not match texture format");
-			return false;
-		}
-		#endif
-
-		const UInt8* pixels = image.GetConstPixels(0, 0, 0, level);
+		const UInt8* pixels = image->GetConstPixels(0, 0, 0, level);
 		if (!pixels)
 		{
 			NazaraError("Failed to access image's pixels");
 			return false;
 		}
 
-		return Update(pixels, box, image.GetWidth(level), image.GetHeight(level), level);
+		return Update(pixels, box, image->GetWidth(level), image->GetHeight(level), level);
 	}
 
-	bool Texture::Update(const Image& image, const Rectui& rect, unsigned int z, UInt8 level)
+	bool Texture::Update(const Image* image, const Rectui& rect, unsigned int z, UInt8 level)
 	{
-		#if NAZARA_RENDERER_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
+		NazaraAssert(image && image->IsValid(), "Invalid image");
+		NazaraAssert(image->GetFormat() == m_impl->format, "Image format doesn't match texture format");
 
-		if (image.GetFormat() != m_impl->format)
-		{
-			NazaraError("Image format does not match texture format");
-			return false;
-		}
-		#endif
-
-		const UInt8* pixels = image.GetConstPixels(0, 0, 0, level);
+		const UInt8* pixels = image->GetConstPixels(0, 0, 0, level);
 		if (!pixels)
 		{
 			NazaraError("Failed to access image's pixels");
 			return false;
 		}
 
-		return Update(pixels, rect, z, image.GetWidth(level), image.GetHeight(level), level);
+		return Update(pixels, rect, z, image->GetWidth(level), image->GetHeight(level), level);
 	}
 
 	bool Texture::Update(const UInt8* pixels, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)

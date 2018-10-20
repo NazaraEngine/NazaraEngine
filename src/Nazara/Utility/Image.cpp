@@ -143,27 +143,11 @@ namespace Nz
 		return true;
 	}
 
-	void Image::Copy(const ImageRef& source, const Boxui& srcBox, const Vector3ui& dstPos)
+	void Image::Copy(const Image* source, const Boxui& srcBox, const Vector3ui& dstPos)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("Image must be valid");
-			return;
-		}
-
-		if (!source.IsValid())
-		{
-			NazaraError("Source image must be valid");
-			return;
-		}
-
-		if (source->GetFormat() != m_sharedImage->format)
-		{
-			NazaraError("Source image format does not match destination image format");
-			return;
-		}
-		#endif
+		NazaraAssert(IsValid(), "Invalid image");
+		NazaraAssert(source && source->IsValid(), "Invalid source image");
+		NazaraAssert(source->GetFormat() == m_sharedImage->format, "Image formats don't match");
 
 		const UInt8* srcPtr = source->GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
 		#if NAZARA_UTILITY_SAFE
@@ -878,15 +862,11 @@ namespace Nz
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadArrayFromImage(const ImageRef& image, const Vector2ui& atlasSize)
+	bool Image::LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
+		NazaraAssert(image && image->IsValid(), "Invalid image");
 
+		#if NAZARA_UTILITY_SAFE
 		if (atlasSize.x == 0)
 		{
 			NazaraError("Atlas width must be over zero");
@@ -976,15 +956,11 @@ namespace Nz
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadCubemapFromImage(const ImageRef& image, const CubemapParams& params)
+	bool Image::LoadCubemapFromImage(const Image* image, const CubemapParams& params)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!image.IsValid())
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
+		NazaraAssert(image && image->IsValid(), "Invalid image");
 
+		#if NAZARA_UTILITY_SAFE
 		ImageType type = image->GetType();
 		if (type != ImageType_2D)
 		{

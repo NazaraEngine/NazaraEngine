@@ -22,7 +22,7 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool Load(Material* material, Stream& stream, const MaterialParams& parameters)
+		MaterialRef Load(Stream& stream, const MaterialParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -30,14 +30,14 @@ namespace Nz
 			if (!texture->LoadFromStream(stream))
 			{
 				NazaraError("Failed to load diffuse map");
-				return false;
+				return nullptr;
 			}
 
-			material->Reset();
+			MaterialRef material = Material::New();
 			material->SetDiffuseMap(texture);
 			material->SetShader(parameters.shaderName);
 
-			return true;
+			return material;
 		}
 	}
 

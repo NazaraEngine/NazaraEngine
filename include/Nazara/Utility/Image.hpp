@@ -63,7 +63,7 @@ namespace Nz
 
 			bool Convert(PixelFormatType format);
 
-			void Copy(const ImageRef& source, const Boxui& srcBox, const Vector3ui& dstPos);
+			void Copy(const Image* source, const Boxui& srcBox, const Vector3ui& dstPos);
 
 			bool Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
 			void Destroy();
@@ -95,13 +95,13 @@ namespace Nz
 
 			// LoadArray
 			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromImage(const ImageRef& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			bool LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 			bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 
 			// LoadCubemap
 			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			bool LoadCubemapFromImage(const ImageRef& image, const CubemapParams& params = CubemapParams());
+			bool LoadCubemapFromImage(const Image* image, const CubemapParams& params = CubemapParams());
 			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 

@@ -30,8 +30,6 @@ namespace Nz
 
 	class NAZARA_GRAPHICS_API SkeletalModel : public Model, Updatable
 	{
-		friend SkeletalModelLoader;
-
 		public:
 			SkeletalModel();
 			SkeletalModel(const SkeletalModel& model) = default;
