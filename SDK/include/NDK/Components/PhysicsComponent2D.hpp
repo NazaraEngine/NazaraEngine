@@ -60,7 +60,7 @@ namespace Ndk
 			inline void SetElasticity(std::size_t shapeIndex, float friction);
 			inline void SetFriction(float friction);
 			inline void SetFriction(std::size_t shapeIndex, float friction);
-			inline void SetMass(float mass);
+			inline void SetMass(float mass, bool recomputeMoment = true);
 			inline void SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys = Nz::CoordSys_Local);
 			inline void SetMomentOfInertia(float moment);
 			inline void SetPosition(const Nz::Vector2f& position);
