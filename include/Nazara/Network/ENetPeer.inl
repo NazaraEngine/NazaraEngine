@@ -62,6 +62,16 @@ namespace Nz
 		return m_state;
 	}
 
+	inline UInt32 ENetPeer::GetTotalPacketLost() const
+	{
+		return m_totalPacketLost;
+	}
+
+	inline UInt32 ENetPeer::GetTotalPacketSent() const
+	{
+		return m_totalPacketSent;
+	}
+
 	inline bool ENetPeer::HasPendingCommands()
 	{
 		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty();
@@ -94,3 +104,4 @@ namespace Nz
 }
 
 #include <Nazara/Network/DebugOff.hpp>
+#include "ENetPeer.hpp"
