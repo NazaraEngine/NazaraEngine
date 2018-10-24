@@ -24,7 +24,7 @@ namespace Ndk
 		friend class ConstraintComponent2D;
 
 		public:
-			PhysicsComponent2D() = default;
+			PhysicsComponent2D();
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
 			
@@ -35,6 +35,8 @@ namespace Ndk
 			inline void AddTorque(const Nz::RadianAnglef& torque);
 
 			inline bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
+
+			inline void EnableNodeSynchronization(bool nodeSynchronization);
 
 			inline Nz::Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
@@ -52,6 +54,7 @@ namespace Ndk
 			inline std::size_t GetShapeCount() const;
 			inline Nz::Vector2f GetVelocity() const;
 
+			inline bool IsNodeSynchronizationEnabled() const;
 			inline bool IsSleeping() const;
 
 			inline void SetAngularDamping(float angularDamping);
@@ -81,6 +84,7 @@ namespace Ndk
 			void OnEntityDestruction() override;
 
 			std::unique_ptr<Nz::RigidBody2D> m_object;
+			bool m_nodeSynchronizationEnabled;
 	};
 }
 
