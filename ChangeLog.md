@@ -223,6 +223,7 @@ Nazara Development Kit:
 - ⚠️ Use of the new Angle class instead of floating point angle
 - Added EntityOwner::Release
 - Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
+- Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 
 # 0.4:
 
