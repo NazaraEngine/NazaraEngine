@@ -56,8 +56,8 @@ namespace Nz
 			inline UInt16 GetPeerId() const;
 			inline UInt32 GetRoundTripTime() const;
 			inline ENetPeerState GetState() const;
-			inline UInt32 GetTotalPacketLost() const;
-			inline UInt32 GetTotalPacketSent() const;
+			inline UInt64 GetTotalPacketLost() const;
+			inline UInt64 GetTotalPacketSent() const;
 
 			inline bool HasPendingCommands();
 
