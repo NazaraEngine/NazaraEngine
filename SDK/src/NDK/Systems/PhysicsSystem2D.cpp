@@ -161,6 +161,17 @@ namespace Ndk
 			m_dynamicObjects.Remove(entity);
 			m_staticObjects.Insert(entity);
 
+			// If entities just got added to the system, teleport them to their NodeComponent position/rotation
+			// This will prevent the physics engine to mess with the scene while correcting position/rotation
+			if (justAdded)
+			{
+				auto& collision = entity->GetComponent<CollisionComponent2D>();
+				auto& node = entity->GetComponent<NodeComponent>();
+
+				Nz::RigidBody2D* physObj = collision.GetStaticBody();
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition()));
+				//physObj->SetRotation(node.GetRotation());
+			}
 		}
 
 		if (!m_physWorld)
