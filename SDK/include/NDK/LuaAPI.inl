@@ -402,7 +402,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, MusicParams* params, TypeTag<MusicParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -411,7 +411,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundStreamParams* params, TypeTag<SoundStreamParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -635,9 +635,21 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, ModelRef&& handle, TypeTag<ModelRef>)
+	{
+		state.PushInstance<ModelRef>("Model", handle);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		state.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, SoundBufferRef&& handle, TypeTag<SoundBufferRef>)
+	{
+		state.PushInstance<SoundBufferRef>("SoundBuffer", handle);
 		return 1;
 	}
 

@@ -5,8 +5,7 @@ SCENARIO("SkyboxBackground", "[GRAPHICS][SKYBOXBACKGROUND]")
 {
 	GIVEN("A skybox background with a loaded image")
 	{
-		Nz::TextureRef textureRef = Nz::Texture::New();
-		textureRef->LoadCubemapFromFile("resources/Engine/Graphics/skybox.png");
+		Nz::TextureRef textureRef = Nz::Texture::LoadCubemapFromFile("resources/Engine/Graphics/skybox.png");
 		Nz::SkyboxBackgroundRef skyboxBackgroundRef = Nz::SkyboxBackground::New(textureRef);
 
 		WHEN("We assign it parameters")

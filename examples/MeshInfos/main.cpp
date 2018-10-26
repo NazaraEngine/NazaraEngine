@@ -129,8 +129,8 @@ int main()
 				Nz::AnimationRef animation = Nz::Animation::LoadFromFile(animationPath);
 				if (animation)
 				{
-					unsigned int sequenceCount = animation.GetSequenceCount();
-					std::cout << "It has an animation made of " << animation.GetFrameCount() << " frame(s) for " << sequenceCount << " sequence(s)." << std::endl;
+					unsigned int sequenceCount = animation->GetSequenceCount();
+					std::cout << "It has an animation made of " << animation->GetFrameCount() << " frame(s) for " << sequenceCount << " sequence(s)." << std::endl;
 					std::cout << "Print sequences ? (Y/N) ";
 
 					char cChoice;
@@ -141,7 +141,7 @@ int main()
 					{
 						for (unsigned int i = 0; i < sequenceCount; ++i)
 						{
-							const Nz::Sequence* sequence = animation.GetSequence(i);
+							const Nz::Sequence* sequence = animation->GetSequence(i);
 							std::cout << "\t" << (i+1) << ": " << sequence->name << std::endl;
 							std::cout << "\t\tStart frame: " << sequence->firstFrame << std::endl;
 							std::cout << "\t\tFrame count: " << sequence->frameCount << std::endl;

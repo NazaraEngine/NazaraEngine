@@ -26,8 +26,8 @@ namespace Nz
 		{
 			NazaraUnused(parameters);
 
-			TextureRef texture = Texture::New();
-			if (!texture->LoadFromStream(stream))
+			TextureRef texture = Texture::LoadFromStream(stream);
+			if (!texture)
 			{
 				NazaraError("Failed to load diffuse map");
 				return nullptr;

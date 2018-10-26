@@ -850,19 +850,19 @@ namespace Nz
 	}
 
 	// LoadArray
-	bool Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	ImageRef Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		ImageRef image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize)
+	ImageRef Image::LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize)
 	{
 		NazaraAssert(image && image->IsValid(), "Invalid image");
 
@@ -870,13 +870,13 @@ namespace Nz
 		if (atlasSize.x == 0)
 		{
 			NazaraError("Atlas width must be over zero");
-			return false;
+			return nullptr;
 		}
 
 		if (atlasSize.y == 0)
 		{
 			NazaraError("Atlas height must be over zero");
-			return false;
+			return nullptr;
 		}
 		#endif
 
@@ -886,7 +886,7 @@ namespace Nz
 		if (type != ImageType_1D && type != ImageType_2D)
 		{
 			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
-			return false;
+			return nullptr;
 		}
 		#endif
 
@@ -906,57 +906,64 @@ namespace Nz
 
 		unsigned int layerCount = atlasSize.x*atlasSize.y;
 
+		ImageRef arrayImage = New();
 		// Selon le type de l'image de base, on va créer un array d'images 2D ou 1D
 		if (type == ImageType_2D)
-			Create(ImageType_2D_Array, image->GetFormat(), faceSize.x, faceSize.y, layerCount);
+			arrayImage->Create(ImageType_2D_Array, image->GetFormat(), faceSize.x, faceSize.y, layerCount);
 		else
-			Create(ImageType_1D_Array, image->GetFormat(), faceSize.x, layerCount);
+			arrayImage->Create(ImageType_1D_Array, image->GetFormat(), faceSize.x, layerCount);
+
+		if (!arrayImage->IsValid())
+		{
+			NazaraError("Failed to create image");
+			return nullptr;
+		}
 
 		unsigned int layer = 0;
 		for (unsigned int j = 0; j < atlasSize.y; ++j)
 			for (unsigned int i = 0; i < atlasSize.x; ++i)
-				Copy(image, Rectui(i*faceSize.x, j*faceSize.y, faceSize.x, faceSize.y), Vector3ui(0, 0, layer++));
+				arrayImage->Copy(image, Rectui(i*faceSize.x, j*faceSize.y, faceSize.x, faceSize.y), Vector3ui(0, 0, layer++));
 
-		return true;
+		return arrayImage;
 	}
 
-	bool Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	ImageRef Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	ImageRef Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		ImageRef image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	bool Image::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	ImageRef Image::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		ImageRef image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadCubemapFromImage(const Image* image, const CubemapParams& params)
+	ImageRef Image::LoadCubemapFromImage(const Image* image, const CubemapParams& params)
 	{
 		NazaraAssert(image && image->IsValid(), "Invalid image");
 
@@ -965,7 +972,7 @@ namespace Nz
 		if (type != ImageType_2D)
 		{
 			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
-			return false;
+			return nullptr;
 		}
 		#endif
 
@@ -977,7 +984,7 @@ namespace Nz
 		if (width < faceSize || height < faceSize)
 		{
 			NazaraError("Image is too small for this face size");
-			return false;
+			return nullptr;
 		}
 
 		// Calcul et vérification des surfaces
@@ -988,84 +995,80 @@ namespace Nz
 		if (backPos.x > limitX || backPos.y > limitY)
 		{
 			NazaraError("Back rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
 		Vector2ui downPos = params.downPosition * faceSize;
 		if (downPos.x > limitX || downPos.y > limitY)
 		{
 			NazaraError("Down rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
 		Vector2ui forwardPos = params.forwardPosition * faceSize;
 		if (forwardPos.x > limitX || forwardPos.y > limitY)
 		{
 			NazaraError("Forward rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
 		Vector2ui leftPos = params.leftPosition * faceSize;
 		if (leftPos.x > limitX || leftPos.y > limitY)
 		{
 			NazaraError("Left rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
 		Vector2ui rightPos = params.rightPosition * faceSize;
 		if (rightPos.x > limitX || rightPos.y > limitY)
 		{
 			NazaraError("Right rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
 		Vector2ui upPos = params.upPosition * faceSize;
 		if (upPos.x > limitX || upPos.y > limitY)
 		{
 			NazaraError("Up rectangle is out of image");
-			return false;
+			return nullptr;
 		}
 
-		Create(ImageType_Cubemap, image->GetFormat(), faceSize, faceSize);
-
-		#ifdef NAZARA_DEBUG
-		// Les paramètres sont valides, que Create ne fonctionne pas relèverait d'un bug
-		if (m_sharedImage == &emptyImage)
+		ImageRef cubemap = New();
+		if (!cubemap->Create(ImageType_Cubemap, image->GetFormat(), faceSize, faceSize))
 		{
-			NazaraInternalError("Failed to create cubemap");
-			return false;
+			NazaraError("Failed to create cubemap");
+			return nullptr;
 		}
-		#endif
 
-		Copy(image, Rectui(backPos.x, backPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeZ));
-		Copy(image, Rectui(downPos.x, downPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeY));
-		Copy(image, Rectui(forwardPos.x, forwardPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveZ));
-		Copy(image, Rectui(leftPos.x, leftPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeX));
-		Copy(image, Rectui(rightPos.x, rightPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveX));
-		Copy(image, Rectui(upPos.x, upPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveY));
+		cubemap->Copy(image, Rectui(backPos.x, backPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeZ));
+		cubemap->Copy(image, Rectui(downPos.x, downPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeY));
+		cubemap->Copy(image, Rectui(forwardPos.x, forwardPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveZ));
+		cubemap->Copy(image, Rectui(leftPos.x, leftPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeX));
+		cubemap->Copy(image, Rectui(rightPos.x, rightPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveX));
+		cubemap->Copy(image, Rectui(upPos.x, upPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveY));
 
-		return true;
+		return cubemap;
 	}
 
-	bool Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	ImageRef Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	ImageRef Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		ImageRef image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
-			return false;
+			return nullptr;
 		}
 
 		return LoadCubemapFromImage(image, cubemapParams);

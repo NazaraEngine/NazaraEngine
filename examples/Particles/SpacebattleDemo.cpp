@@ -248,8 +248,8 @@ ParticleDemo("Space battle", sharedData)
 	for (unsigned int i = 0; i < m_turret.rotatingBaseModel->GetMaterialCount(); ++i)
 		m_turret.rotatingBaseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
-	m_turret.baseModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
-	if (!m_turret.baseModel)
+	m_turret.cannonBaseModel = Nz::Model::LoadFromFile("resources/Turret/cannon_base.obj", parameters);
+	if (!m_turret.cannonBaseModel)
 		NazaraWarning("Failed to load cannon_base.obj");
 
 	for (unsigned int i = 0; i < m_turret.cannonBaseModel->GetMaterialCount(); ++i)
@@ -258,7 +258,7 @@ ParticleDemo("Space battle", sharedData)
 	parameters.mesh.texCoordScale.Set(40.f, 40.f);
 	parameters.mesh.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 180.f, 0.f));
 
-	m_turret.cannonModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
+	m_turret.cannonModel = Nz::Model::LoadFromFile("resources/Turret/cannon.obj", parameters);
 	if (!m_turret.cannonModel)
 		NazaraWarning("Failed to load cannon.obj");
 

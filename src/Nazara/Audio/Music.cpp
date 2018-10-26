@@ -7,7 +7,9 @@
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
+#include <atomic>
 #include <memory>
+#include <iostream>
 #include <vector>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -21,24 +23,15 @@ namespace Nz
 	* \remark Module Audio needs to be initialized to use this class
 	*/
 
-	/*!
-	* \brief Checks whether the parameters for the loading of the music are correct
-	* \return true If parameters are valid
-	*/
-
-	bool MusicParams::IsValid() const
-	{
-		return true;
-	}
-
 	struct MusicImpl
 	{
 		ALenum audioFormat;
-		std::unique_ptr<SoundStream> stream;
+		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
 		Mutex bufferLock;
+		SoundStreamRef stream;
 		Thread thread;
-		UInt64 processedSamples;
+		UInt64 playingOffset;
 		bool loop = false;
 		bool streaming = false;
 		unsigned int sampleRate;
@@ -74,7 +67,7 @@ namespace Nz
 		m_impl->sampleRate = soundStream->GetSampleRate();
 		m_impl->audioFormat = OpenAL::AudioFormat[format];
 		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
-		m_impl->stream.reset(soundStream);
+		m_impl->stream = soundStream;
 
 		SetPlayingOffset(0);
 
@@ -221,9 +214,12 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the music
 	*/
-	bool Music::OpenFromFile(const String& filePath, const MusicParams& params)
+	bool Music::OpenFromFile(const String& filePath, const SoundStreamParams& params)
 	{
-		return MusicLoader::LoadFromFile(this, filePath, params);
+		if (SoundStreamRef soundStream = SoundStream::OpenFromFile(filePath, params))
+			return Create(soundStream);
+		else
+			return false;
 	}
 
 	/*!
@@ -236,9 +232,12 @@ namespace Nz
 	*
 	* \remark The memory pointer must stay valid (accessible) as long as the music is playing
 	*/
-	bool Music::OpenFromMemory(const void* data, std::size_t size, const MusicParams& params)
+	bool Music::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
 	{
-		return MusicLoader::LoadFromMemory(this, data, size, params);
+		if (SoundStreamRef soundStream = SoundStream::OpenFromMemory(data, size, params))
+			return Create(soundStream);
+		else
+			return false;
 	}
 
 	/*!
@@ -250,9 +249,12 @@ namespace Nz
 	*
 	* \remark The stream must stay valid as long as the music is playing
 	*/
-	bool Music::OpenFromStream(Stream& stream, const MusicParams& params)
+	bool Music::OpenFromStream(Stream& stream, const SoundStreamParams& params)
 	{
-		return MusicLoader::LoadFromStream(this, stream, params);
+		if (SoundStreamRef soundStream = SoundStream::OpenFromStream(stream, params))
+			return Create(soundStream);
+		else
+			return false;
 	}
 
 	/*!
@@ -324,7 +326,7 @@ namespace Nz
 		if (isPlaying)
 			Stop();
 
-		m_impl->stream->Seek(offset);
+		m_impl->playingOffset = offset;
 		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
 
 		if (isPlaying)
@@ -349,9 +351,12 @@ namespace Nz
 		std::size_t sampleCount = m_impl->chunkSamples.size();
 		std::size_t sampleRead = 0;
 
+		m_impl->stream->Seek(m_impl->playingOffset);
+
 		// Fill the buffer by reading from the stream
 		for (;;)
 		{
+			Nz::UInt64 expecting = sampleCount - sampleRead;
 			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
 			if (sampleRead < sampleCount && m_impl->loop)
 			{
@@ -363,6 +368,8 @@ namespace Nz
 			// Either we read the size we wanted, either we're not looping
 			break;
 		}
+
+		m_impl->playingOffset = m_impl->stream->Tell();
 
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
@@ -380,9 +387,9 @@ namespace Nz
 		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 
-		for (unsigned int i = 0; i < NAZARA_AUDIO_STREAMED_BUFFER_COUNT; ++i)
+		for (unsigned int buffer : buffers)
 		{
-			if (FillAndQueueBuffer(buffers[i]))
+			if (FillAndQueueBuffer(buffer))
 				break; // We have reached the end of the stream, there is no use to add new buffers
 		}
 
@@ -448,6 +455,4 @@ namespace Nz
 			m_impl->thread.Join();
 		}
 	}
-
-	MusicLoader::LoaderList Music::s_loaders;
 }

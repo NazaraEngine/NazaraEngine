@@ -148,14 +148,14 @@ namespace Ndk
 
 			font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::UInt32, const Nz::String&) const) &Nz::Font::Precache);
 
-			font.BindMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
-
 			font.BindMethod("SetGlyphBorder", &Nz::Font::SetGlyphBorder);
 			font.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);
 
 			font.BindStaticMethod("GetDefault", &Nz::Font::GetDefault);
 			font.BindStaticMethod("GetDefaultGlyphBorder", &Nz::Font::GetDefaultGlyphBorder);
 			font.BindStaticMethod("GetDefaultMinimumStepSize", &Nz::Font::GetDefaultMinimumStepSize);
+
+			font.BindStaticMethod("OpenFromFile", &Nz::Font::OpenFromFile, Nz::FontParams());
 
 			font.BindStaticMethod("SetDefaultGlyphBorder", &Nz::Font::SetDefaultGlyphBorder);
 			font.BindStaticMethod("SetDefaultMinimumStepSize", &Nz::Font::SetDefaultMinimumStepSize);

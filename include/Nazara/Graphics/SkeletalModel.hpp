@@ -61,6 +61,8 @@ namespace Nz
 			SkeletalModel& operator=(const SkeletalModel& node) = default;
 			SkeletalModel& operator=(SkeletalModel&& node) = default;
 
+			template<typename... Args> static SkeletalModelRef New(Args&&... args);
+
 		private:
 			void MakeBoundingVolume() const override;
 			/*void Register() override;
@@ -76,5 +78,7 @@ namespace Nz
 			unsigned int m_nextFrame;
 	};
 }
+
+#include <Nazara/Graphics/SkeletalModel.inl>
 
 #endif // NAZARA_SKELETALMODEL_HPP
