@@ -62,7 +62,7 @@ namespace Nz
 		if (ext.IsEmpty())
 		{
 			NazaraError("Failed to get file extension from \"" + filePath + '"');
-			return false;
+			return nullptr;
 		}
 
 		File file(path); // Open only if needed
