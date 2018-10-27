@@ -8,7 +8,7 @@ SCENARIO("SkeletalModel", "[GRAPHICS][SKELETALMODEL]")
 		WHEN("We can load the bob lamp")
 		{
 			Nz::AnimationRef animation = Nz::Animation::LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5anim");
-			Nz::SkeletalModelRef skeletalModel(static_cast<Nz::SkeletalModel*>(Nz::SkeletalModel::LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5mesh").Get()));
+			Nz::SkeletalModelRef skeletalModel = Nz::StaticRefCast<Nz::SkeletalModel>(Nz::SkeletalModel::LoadFromFile("resources/Engine/Graphics/Bob lamp/bob_lamp_update.md5mesh"));
 			REQUIRE(skeletalModel);
 			REQUIRE(animation);
 			skeletalModel->SetAnimation(animation);
