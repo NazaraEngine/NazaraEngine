@@ -152,6 +152,7 @@ Nazara Engine:
 - ⚠️ Use of the new Angle class instead of floating point angle
 - It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
 - ObjectHandle were remade and should be way more optimized now
+ - Added ENetHost and ENetPeer accessor to total packet/data received/sent/lost
 - ⚠ **Changed the way resources were Loaded, almost every LoadFromX and OpenFromX methods are now static and create the object themselves.**
 - ⚠ SoundStream is now responsible for loaders instead of Music, and is now threadsafe (you can now load a stream only once and play it multiple times at the same time)
 
@@ -223,6 +224,8 @@ Nazara Development Kit:
 - PhysicsComponent2D now allows massless bodies (zero mass)
 - ⚠️ Use of the new Angle class instead of floating point angle
 - Added EntityOwner::Release
+- Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
+- Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 
 # 0.4:
 

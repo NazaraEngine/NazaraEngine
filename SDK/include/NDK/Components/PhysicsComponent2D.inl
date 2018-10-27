@@ -8,11 +8,18 @@
 namespace Ndk
 {
 	/*!
+	* \brief Constructs a PhysicsComponent2D object by default
+	*/
+	inline PhysicsComponent2D::PhysicsComponent2D() :
+	m_nodeSynchronizationEnabled(true)
+	{
+	}
+
+	/*!
 	* \brief Constructs a PhysicsComponent2D object by copy semantic
 	*
 	* \param physics PhysicsComponent2D to copy
 	*/
-
 	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics)
 	{
 		// No copy of physical object (because we only create it when attached to an entity)
@@ -113,6 +120,22 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->ClosestPointQuery(position, closestPoint, closestDistance);
+	}
+
+	/*!
+	* \brief Enables position/rotation synchronization with the NodeComponent
+	*
+	* By default, at every update of the PhysicsSystem2D, the NodeComponent's position and rotation (if any) will be synchronized with
+	* the values of the PhysicsComponent2D. This function allows to enable/disable this behavior on a per-entity basis.
+	*
+	* \param nodeSynchronization Should synchronization occur between NodeComponent and PhysicsComponent2D
+	*/
+	inline void PhysicsComponent2D::EnableNodeSynchronization(bool nodeSynchronization)
+	{
+		m_nodeSynchronizationEnabled = nodeSynchronization;
+
+		if (m_entity)
+			m_entity->Invalidate();
 	}
 
 	/*!
@@ -315,12 +338,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Checks if position & rotation are synchronized with NodeComponent
+	* \return true If synchronization is enabled
+	*
+	* \see EnableNodeSynchronization
+	*/
+	inline bool PhysicsComponent2D::IsNodeSynchronizationEnabled() const
+	{
+		return m_nodeSynchronizationEnabled;
+	}
+
+	/*!
 	* \brief Checks whether the entity is currently sleeping
 	* \return true If it is the case
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline bool PhysicsComponent2D::IsSleeping() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -429,15 +462,16 @@ namespace Ndk
 	* \brief Sets the mass of the physics object
 	*
 	* \param mass Mass of the object
+	* \param recomputeMoment Should the moment of inertia be recomputed according to the new mass
 	*
 	* \remark Mass must be positive or zero
 	*/
-	inline void PhysicsComponent2D::SetMass(float mass)
+	inline void PhysicsComponent2D::SetMass(float mass, bool recomputeMoment)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 		NazaraAssert(mass >= 0.f, "Mass should be positive");
 
-		m_object->SetMass(mass);
+		m_object->SetMass(mass, recomputeMoment);
 	}
 
 	/*!
