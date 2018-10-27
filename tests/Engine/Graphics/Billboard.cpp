@@ -9,8 +9,7 @@ SCENARIO("Billboard", "[GRAPHICS][BILLBOARD]")
 
 		WHEN("We assign it to another")
 		{
-			Nz::MaterialRef materialRef = Nz::Material::New();
-			materialRef->LoadFromFile("resources/Engine/Graphics/Nazara.png");
+			Nz::MaterialRef materialRef = Nz::Material::LoadFromFile("resources/Engine/Graphics/Nazara.png");
 			Nz::Color materialColor = materialRef->GetDiffuseColor();
 			Nz::BillboardRef otherBillboard = Nz::Billboard::New(materialRef);
 		

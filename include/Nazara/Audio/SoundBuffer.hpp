@@ -66,15 +66,16 @@ namespace Nz
 
 			bool IsValid() const;
 
-			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
-			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
-
-			static bool IsFormatSupported(AudioFormat format);
-			template<typename... Args> static SoundBufferRef New(Args&&... args);
-
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
 			SoundBuffer& operator=(SoundBuffer&&) = delete;
+
+			static bool IsFormatSupported(AudioFormat format);
+
+			static SoundBufferRef LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			static SoundBufferRef LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
+			static SoundBufferRef LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
+
+			template<typename... Args> static SoundBufferRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);

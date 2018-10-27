@@ -14,7 +14,9 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <iostream>
 #include <memory>
 #include <set>
 #include <vector>
@@ -97,6 +99,11 @@ namespace Nz
 						return m_format;
 				}
 
+				Mutex& GetMutex() override
+				{
+					return m_mutex;
+				}
+
 				UInt64 GetSampleCount() const override
 				{
 					return m_sampleCount;
@@ -124,7 +131,7 @@ namespace Nz
 
 				bool Open(const void* data, std::size_t size, bool forceMono)
 				{
-					m_ownedStream.reset(new MemoryView(data, size));
+					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					return Open(*m_ownedStream, forceMono);
 				}
 
@@ -201,12 +208,18 @@ namespace Nz
 					sf_seek(m_handle, offset*m_sampleRate / 1000, SEEK_SET);
 				}
 
+				UInt64 Tell() override
+				{
+					return sf_seek(m_handle, 0, SEEK_CUR) * 1000 / m_sampleRate;
+				}
+
 			private:
 				std::vector<Int16> m_mixBuffer;
 				std::unique_ptr<Stream> m_ownedStream;
 				AudioFormat m_format;
 				SNDFILE* m_handle;
 				bool m_mixToMono;
+				Mutex m_mutex;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_sampleCount;
@@ -222,7 +235,7 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary CheckMusic(Stream& stream, const MusicParams& parameters)
+		Ternary CheckSoundStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -240,67 +253,43 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool LoadMusicFile(Music* music, const String& filePath, const MusicParams& parameters)
+		SoundStreamRef LoadSoundStreamFile(const String& filePath, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
-			if (!musicStream->Open(filePath, parameters.forceMono))
+			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			if (!soundStream->Open(filePath, parameters.forceMono))
 			{
-				NazaraError("Failed to open music stream");
-				return false;
+				NazaraError("Failed to open sound stream");
+				return nullptr;
 			}
 
-			if (!music->Create(musicStream.get())) // Transfert de propriété
-			{
-				NazaraError("Failed to create music");
-				return false;
-			}
-
-			// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
-			musicStream.release();
-
-			return true;
+			soundStream->SetPersistent(false);
+			return soundStream.release();
 		}
 
-		bool LoadMusicMemory(Music* music, const void* data, std::size_t size, const MusicParams& parameters)
+		SoundStreamRef LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
-			if (!musicStream->Open(data, size, parameters.forceMono))
+			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			if (!soundStream->Open(data, size, parameters.forceMono))
 			{
 				NazaraError("Failed to open music stream");
-				return false;
+				return nullptr;
 			}
 
-			if (!music->Create(musicStream.get())) // Transfert de propriété
-			{
-				NazaraError("Failed to create music");
-				return false;
-			}
-
-			// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
-			musicStream.release();
-
-			return true;
+			soundStream->SetPersistent(false);
+			return soundStream.release();
 		}
 
-		bool LoadMusicStream(Music* music, Stream& stream, const MusicParams& parameters)
+		SoundStreamRef LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> musicStream(new sndfileStream);
-			if (!musicStream->Open(stream, parameters.forceMono))
+			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			if (!soundStream->Open(stream, parameters.forceMono))
 			{
 				NazaraError("Failed to open music stream");
-				return false;
+				return nullptr;
 			}
 
-			if (!music->Create(musicStream.get())) // Transfert de propriété
-			{
-				NazaraError("Failed to create music");
-				return false;
-			}
-
-			// Le pointeur a été transféré avec succès, nous pouvons laisser tomber la propriété
-			musicStream.release();
-
-			return true;
+			soundStream->SetPersistent(false);
+			return soundStream.release();
 		}
 
 		Ternary CheckSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
@@ -320,7 +309,7 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool LoadSoundBuffer(SoundBuffer* soundBuffer, Stream& stream, const SoundBufferParams& parameters)
+		SoundBufferRef LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			SF_INFO info;
 			info.format = 0;
@@ -329,7 +318,7 @@ namespace Nz
 			if (!file)
 			{
 				NazaraError("Failed to load sound file: " + String(sf_strerror(file)));
-				return false;
+				return nullptr;
 			}
 
 			// Lynix utilise RAII...
@@ -344,7 +333,7 @@ namespace Nz
 			if (format == AudioFormat_Unknown)
 			{
 				NazaraError("Channel count not handled");
-				return false;
+				return nullptr;
 			}
 
 			// https://github.com/LaurentGomila/SFML/issues/271
@@ -359,7 +348,7 @@ namespace Nz
 			if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
 			{
 				NazaraError("Failed to read samples");
-				return false;
+				return nullptr;
 			}
 
 			// Une conversion en mono est-elle nécessaire ?
@@ -372,13 +361,7 @@ namespace Nz
 				sampleCount = static_cast<unsigned int>(info.frames);
 			}
 
-			if (!soundBuffer->Create(format, sampleCount, info.samplerate, samples.get()))
-			{
-				NazaraError("Failed to create sound buffer");
-				return false;
-			}
-
-			return true;
+			return SoundBuffer::New(format, sampleCount, info.samplerate, samples.get());
 		}
 	}
 
@@ -386,14 +369,14 @@ namespace Nz
 	{
 		void Register_sndfile()
 		{
-			MusicLoader::RegisterLoader(Detail::IsSupported, Detail::CheckMusic, Detail::LoadMusicStream, Detail::LoadMusicFile, Detail::LoadMusicMemory);
 			SoundBufferLoader::RegisterLoader(Detail::IsSupported, Detail::CheckSoundBuffer, Detail::LoadSoundBuffer);
+			SoundStreamLoader::RegisterLoader(Detail::IsSupported, Detail::CheckSoundStream, Detail::LoadSoundStreamStream, Detail::LoadSoundStreamFile, Detail::LoadSoundStreamMemory);
 		}
 
 		void Unregister_sndfile()
 		{
-			MusicLoader::UnregisterLoader(Detail::IsSupported, Detail::CheckMusic, Detail::LoadMusicStream, Detail::LoadMusicFile, Detail::LoadMusicMemory);
 			SoundBufferLoader::UnregisterLoader(Detail::IsSupported, Detail::CheckSoundBuffer, Detail::LoadSoundBuffer);
+			SoundStreamLoader::UnregisterLoader(Detail::IsSupported, Detail::CheckSoundStream, Detail::LoadSoundStreamStream, Detail::LoadSoundStreamFile, Detail::LoadSoundStreamMemory);
 		}
 	}
 }

@@ -150,46 +150,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Loads the model from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromFile(const String& filePath, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the model from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the model from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the model
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromStream(Stream& stream, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
 	* \brief Sets the material of the named submesh
 	* \return true If successful
 	*
@@ -270,6 +230,43 @@ namespace Nz
 		}
 
 		InvalidateBoundingVolume();
+	}
+
+	/*!
+	* \brief Loads the model from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromFile(const String& filePath, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromFile(filePath, params);
+	}
+
+	/*!
+	* \brief Loads the model from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromMemory(data, size, params);
+	}
+
+	/*!
+	* \brief Loads the model from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the model
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromStream(Stream& stream, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromStream(stream, params);
 	}
 
 	/*
