@@ -152,7 +152,8 @@ Nazara Engine:
 - ⚠️ Use of the new Angle class instead of floating point angle
 - It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
 - ObjectHandle were remade and should be way more optimized now
- 
+ - ⚠ **Changed the way resources were Loaded, almost every LoadFromX and OpenFromX methods are now static and create the object themselves.**
+
 Nazara Development Kit:
 - Added ImageWidget (#139)
 - ⚠️ Removed TextAreaWidget::GetLineCount
