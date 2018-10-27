@@ -24,6 +24,7 @@ namespace Nz
 		bool IsValid() const;
 	};
 
+	class Mutex;
 	class SoundStream;
 
 	using SoundStreamLoader = ResourceLoader<SoundStream, SoundStreamParams>;
@@ -39,6 +40,7 @@ namespace Nz
 
 			virtual UInt32 GetDuration() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
+			virtual Mutex& GetMutex() = 0;
 			virtual UInt64 GetSampleCount() const = 0;
 			virtual UInt32 GetSampleRate() const = 0;
 

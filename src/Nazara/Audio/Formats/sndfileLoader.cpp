@@ -14,6 +14,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <iostream>
 #include <memory>
@@ -96,6 +97,11 @@ namespace Nz
 						return AudioFormat_Mono;
 					else
 						return m_format;
+				}
+
+				Mutex& GetMutex() override
+				{
+					return m_mutex;
 				}
 
 				UInt64 GetSampleCount() const override
@@ -213,6 +219,7 @@ namespace Nz
 				AudioFormat m_format;
 				SNDFILE* m_handle;
 				bool m_mixToMono;
+				Mutex m_mutex;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_sampleCount;

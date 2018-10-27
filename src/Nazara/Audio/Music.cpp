@@ -5,6 +5,7 @@
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <atomic>
@@ -351,12 +352,13 @@ namespace Nz
 		std::size_t sampleCount = m_impl->chunkSamples.size();
 		std::size_t sampleRead = 0;
 
+		Nz::LockGuard lock(m_impl->stream->GetMutex());
+
 		m_impl->stream->Seek(m_impl->playingOffset);
 
 		// Fill the buffer by reading from the stream
 		for (;;)
 		{
-			Nz::UInt64 expecting = sampleCount - sampleRead;
 			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
 			if (sampleRead < sampleCount && m_impl->loop)
 			{
@@ -370,6 +372,8 @@ namespace Nz
 		}
 
 		m_impl->playingOffset = m_impl->stream->Tell();
+
+		lock.Unlock();
 
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
