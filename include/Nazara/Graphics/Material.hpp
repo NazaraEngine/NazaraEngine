@@ -137,10 +137,6 @@ namespace Nz
 			inline bool IsShadowCastingEnabled() const;
 			inline bool IsShadowReceiveEnabled() const;
 
-			inline bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
-			inline bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
-			inline bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
-
 			void Reset();
 
 			void SaveToParameters(ParameterList* matData);
@@ -180,6 +176,11 @@ namespace Nz
 
 			inline static MaterialRef GetDefault();
 			inline static int GetTextureUnit(TextureMap textureMap);
+
+			static inline MaterialRef LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
+			static inline MaterialRef LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
+			static inline MaterialRef LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
+
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:

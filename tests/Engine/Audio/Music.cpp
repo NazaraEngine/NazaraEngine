@@ -16,22 +16,22 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 			THEN("We can ask the informations of the file")
 			{
-				REQUIRE(music.GetDuration() <= 64000); // 1 min 03 = 63s = 63000ms
-				REQUIRE(music.GetDuration() >= 63000);
-				REQUIRE(music.GetFormat() == Nz::AudioFormat_Stereo);
-				REQUIRE(music.GetPlayingOffset() == 0);
-				REQUIRE(music.GetSampleCount() <= 5644800); // 64s * 44100 Hz * 2 (stereo)
-				REQUIRE(music.GetSampleCount() >= 5556600); // 63s * 44100 Hz * 2 (stereo)
-				REQUIRE(music.GetSampleRate() == 44100 /* Hz */);
-				REQUIRE(music.GetStatus() == Nz::SoundStatus_Stopped);
-				REQUIRE(music.IsLooping() == false);
+				CHECK(music.GetDuration() <= 64000); // 1 min 03 = 63s = 63000ms
+				CHECK(music.GetDuration() >= 63000);
+				CHECK(music.GetFormat() == Nz::AudioFormat_Stereo);
+				CHECK(music.GetPlayingOffset() == 0);
+				CHECK(music.GetSampleCount() <= 5644800); // 64s * 44100 Hz * 2 (stereo)
+				CHECK(music.GetSampleCount() >= 5556600); // 63s * 44100 Hz * 2 (stereo)
+				CHECK(music.GetSampleRate() == 44100 /* Hz */);
+				CHECK(music.GetStatus() == Nz::SoundStatus_Stopped);
+				CHECK(music.IsLooping() == false);
 			}
 
 			THEN("We can play it and get the time offset")
 			{
 				Nz::Audio::SetGlobalVolume(0.f);
 
-				music.Play();				
+				music.Play();
 				Nz::Thread::Sleep(1000);
 				REQUIRE(music.GetPlayingOffset() >= 950);
 				Nz::Thread::Sleep(200);

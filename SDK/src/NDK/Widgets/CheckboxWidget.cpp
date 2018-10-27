@@ -57,14 +57,14 @@ namespace Ndk
 			#include <NDK/Resources/checkmark.png.h>
 		};
 
-		Nz::TextureRef checkmarkTexture = Nz::Texture::New();
-		if (!checkmarkTexture->LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0])))
+		Nz::TextureRef checkmarkTexture = Nz::Texture::LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0]));
+		if (!checkmarkTexture)
 		{
 			NazaraError("Failed to load embedded checkmark");
 			return false;
 		}
 
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkmark", checkmarkTexture);
+		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkmark", std::move(checkmarkTexture));
 		return true;
 	}
 	

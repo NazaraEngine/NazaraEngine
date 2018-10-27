@@ -26,12 +26,10 @@ namespace Nz
 
 	class SkeletalModel;
 
-	using SkeletalModelLoader = ResourceLoader<SkeletalModel, SkeletalModelParameters>;
+	using SkeletalModelRef = ObjectRef<SkeletalModel>;
 
 	class NAZARA_GRAPHICS_API SkeletalModel : public Model, Updatable
 	{
-		friend SkeletalModelLoader;
-
 		public:
 			SkeletalModel();
 			SkeletalModel(const SkeletalModel& model) = default;
@@ -55,10 +53,6 @@ namespace Nz
 			bool IsAnimated() const override;
 			bool IsAnimationEnabled() const;
 
-			bool LoadFromFile(const String& filePath, const SkeletalModelParameters& params = SkeletalModelParameters());
-			bool LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params = SkeletalModelParameters());
-			bool LoadFromStream(Stream& stream, const SkeletalModelParameters& params = SkeletalModelParameters());
-
 			bool SetAnimation(Animation* animation);
 			void SetMesh(Mesh* mesh) override;
 			bool SetSequence(const String& sequenceName);
@@ -66,6 +60,8 @@ namespace Nz
 
 			SkeletalModel& operator=(const SkeletalModel& node) = default;
 			SkeletalModel& operator=(SkeletalModel&& node) = default;
+
+			template<typename... Args> static SkeletalModelRef New(Args&&... args);
 
 		private:
 			void MakeBoundingVolume() const override;
@@ -80,9 +76,9 @@ namespace Nz
 			float m_interpolation;
 			unsigned int m_currentFrame;
 			unsigned int m_nextFrame;
-
-			static SkeletalModelLoader::LoaderList s_loaders;
 	};
 }
+
+#include <Nazara/Graphics/SkeletalModel.inl>
 
 #endif // NAZARA_SKELETALMODEL_HPP
