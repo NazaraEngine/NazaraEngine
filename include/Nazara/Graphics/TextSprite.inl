@@ -14,6 +14,7 @@ namespace Nz
 
 	inline TextSprite::TextSprite() :
 	m_color(Color::White),
+	m_localBounds(Nz::Recti::Zero()),
 	m_scale(1.f)
 	{
 		ResetMaterials(1U);

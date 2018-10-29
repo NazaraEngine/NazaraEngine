@@ -450,6 +450,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
 				m_currentLine.Simplify(); // Pour un traitement plus simple
 			}

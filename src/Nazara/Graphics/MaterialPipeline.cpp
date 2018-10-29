@@ -98,7 +98,7 @@ namespace Nz
 		list.SetParameter("FLAG_DEFERRED",       static_cast<bool>((flags & ShaderFlags_Deferred) != 0));
 		list.SetParameter("FLAG_INSTANCING",     static_cast<bool>((flags & ShaderFlags_Instancing) != 0));
 		list.SetParameter("FLAG_TEXTUREOVERLAY", static_cast<bool>((flags & ShaderFlags_TextureOverlay) != 0));
-		list.SetParameter("FLAG_VERTEXCOLOR",    static_cast<bool>((flags & ShaderFlags_VertexColor) != 0));
+		list.SetParameter("FLAG_VERTEXCOLOR",    m_pipelineInfo.hasVertexColor || static_cast<bool>((flags & ShaderFlags_VertexColor) != 0));
 
 		Instance& instance = m_instances[flags];
 		instance.uberInstance = m_pipelineInfo.uberShader->Get(list);
@@ -199,7 +199,7 @@ namespace Nz
 		pipelineInfo.blending = true;
 		pipelineInfo.depthWrite = false;
 		pipelineInfo.faceCulling = false;
-		pipelineInfo.depthSorting = true;
+		pipelineInfo.depthSorting = false;
 		pipelineInfo.scissorTest = true;
 		pipelineInfo.dstBlend = BlendFunc_InvSrcAlpha;
 		pipelineInfo.srcBlend = BlendFunc_SrcAlpha;

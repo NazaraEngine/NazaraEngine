@@ -17,11 +17,11 @@ skip_commits:
     - NazaraModuleTemplate/*
 
 os:
-  - Visual Studio 2015
+  - Visual Studio 2017
 
 environment:
   matrix:
-  - TOOLSET: vs2015
+  - TOOLSET: vs2017
 
 install:
   - cd build && "./premake5.exe" %TOOLSET% && cd ..
@@ -41,9 +41,9 @@ after_build:
   - cd build && "./premake5.exe" package && cd ../package
   - 7z a NazaraEngine.7z * && cd ..
   
-#artifacts:
-#  - path: package/NazaraEngine.7z
-#    name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
+artifacts:
+  - path: package/NazaraEngine.7z
+    name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
 
 on_success:
   - cd tests && "./NazaraUnitTestsServer.exe"

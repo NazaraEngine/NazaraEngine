@@ -55,7 +55,7 @@ namespace Nz
 				Category_Other_PrivateUse		  = Category_Other | 0x0800,	   // Co
 				Category_Other_Surrogate		  = Category_Other | 0x1000,	   // Cs
 
-				// Ponctuations
+				// Punctuations
 				Category_Punctuation			  = 0x10,						   // P
 				Category_Punctuation_Close		  = Category_Punctuation | 0x0100, // Pe
 				Category_Punctuation_Connector	  = Category_Punctuation | 0x0200, // Pc
@@ -81,25 +81,29 @@ namespace Nz
 
 			enum Direction : UInt8
 			{
-				Direction_Arabic_Letter,		   // AL
-				Direction_Arabic_Number,		   // AN
-				Direction_Boundary_Neutral,		   // BN
-				Direction_Common_Separator,		   // CS
-				Direction_European_Number,		   // EN
-				Direction_European_Separator,	   // ES
-				Direction_European_Terminator,	   // ET
-				Direction_Left_To_Right,		   // L
-				Direction_Left_To_Right_Embedding, // LRE
-				Direction_Left_To_Right_Override,  // LRO
-				Direction_Nonspacing_Mark,		   // NSM
-				Direction_Other_Neutral,		   // ON
-				Direction_Paragraph_Separator,	   // B
-				Direction_Pop_Directional_Format,  // PDF
-				Direction_Right_To_Left,		   // R
-				Direction_Right_To_Left_Embedding, // RLE
-				Direction_Right_To_Left_Override,  // RLO
-				Direction_Segment_Separator,	   // S
-				Direction_White_Space			   // WS
+				Direction_Arabic_Letter,              // AL
+				Direction_Arabic_Number,              // AN
+				Direction_Boundary_Neutral,           // BN
+				Direction_Common_Separator,           // CS
+				Direction_European_Number,            // EN
+				Direction_European_Separator,         // ES
+				Direction_European_Terminator,        // ET
+				Direction_First_Strong_Isolate,       // FSI
+				Direction_Left_To_Right,              // L
+				Direction_Left_To_Right_Embedding,    // LRE
+				Direction_Left_To_Right_Isolate,      // LRI
+				Direction_Left_To_Right_Override,     // LRO
+				Direction_Nonspacing_Mark,            // NSM
+				Direction_Other_Neutral,              // ON
+				Direction_Paragraph_Separator,        // B
+				Direction_Pop_Directional_Formatting, // PDF
+				Direction_Pop_Directional_Isolate,    // PDI
+				Direction_Right_To_Left,              // R
+				Direction_Right_To_Left_Embedding,    // RLE
+				Direction_Right_To_Left_Isolate,      // RLI
+				Direction_Right_To_Left_Override,     // RLO
+				Direction_Segment_Separator,          // S
+				Direction_White_Space                 // WS
 			};
 
 			static Category GetCategory(char32_t character);

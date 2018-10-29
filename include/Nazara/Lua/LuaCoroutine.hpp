@@ -31,7 +31,7 @@ namespace Nz
 		private:
 			LuaCoroutine(lua_State* internalState, int refIndex);
 
-			bool Run(int argCount, int resultCount) override;
+			bool Run(int argCount, int resultCount, int errHandler) override;
 
 			int m_ref;
 	};

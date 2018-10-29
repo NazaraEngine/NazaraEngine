@@ -12,6 +12,10 @@
 
 namespace Ndk
 {
+	class ListenerComponent;
+
+	using ListenerComponentHandle = Nz::ObjectHandle<ListenerComponent>;
+
 	class NDK_API ListenerComponent : public Component<ListenerComponent>
 	{
 		public:

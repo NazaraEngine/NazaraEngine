@@ -24,9 +24,14 @@ namespace Nz
 	class NAZARA_UTILITY_API SkeletalMesh final : public SubMesh
 	{
 		public:
+			SkeletalMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
+
+			NAZARA_DEPRECATED("SkeletalMesh constructor taking a mesh is deprecated, submeshes no longer require to be part of a single mesh")
 			SkeletalMesh(const Mesh* parent);
+
 			~SkeletalMesh();
 
+			NAZARA_DEPRECATED("SkeletalMesh create/destroy functions are deprecated, please use constructor")
 			bool Create(VertexBuffer* vertexBuffer);
 			void Destroy();
 
@@ -51,8 +56,8 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
-			IndexBufferConstRef m_indexBuffer = nullptr;
-			VertexBufferRef m_vertexBuffer = nullptr;
+			IndexBufferConstRef m_indexBuffer;
+			VertexBufferRef m_vertexBuffer;
 	};
 }
 

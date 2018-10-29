@@ -1,2 +1,2 @@
-premake5 --pack-libdir=mingw package
+.\premake5.exe --pack-libdir=mingw package
 pause

@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			inline UdpSocket();
 			inline UdpSocket(NetProtocol protocol);
-			inline UdpSocket(UdpSocket&& udpSocket);
+			inline UdpSocket(UdpSocket&& udpSocket) noexcept;
 			~UdpSocket() = default;
 
 			inline SocketState Bind(UInt16 port);

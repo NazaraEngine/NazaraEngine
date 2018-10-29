@@ -219,17 +219,17 @@ namespace Nz
 	*/
 	inline bool Serialize(SerializationContext& context, bool value, TypeTag<bool>)
 	{
-		if (context.currentBitPos == 8)
+		if (context.writeBitPos == 8)
 		{
-			context.currentBitPos = 0;
-			context.currentByte = 0;
+			context.writeBitPos = 0;
+			context.writeByte = 0;
 		}
 
 		if (value)
-			context.currentByte |= 1 << context.currentBitPos;
+			context.writeByte |= 1 << context.writeBitPos;
 
-		if (++context.currentBitPos >= 8)
-			return Serialize(context, context.currentByte, TypeTag<UInt8>());
+		if (++context.writeBitPos >= 8)
+			return Serialize(context, context.writeByte, TypeTag<UInt8>());
 		else
 			return true;
 	}
@@ -291,18 +291,18 @@ namespace Nz
 	*/
 	inline bool Unserialize(SerializationContext& context, bool* value, TypeTag<bool>)
 	{
-		if (context.currentBitPos == 8)
+		if (context.readBitPos == 8)
 		{
-			if (!Unserialize(context, &context.currentByte, TypeTag<UInt8>()))
+			if (!Unserialize(context, &context.readByte, TypeTag<UInt8>()))
 				return false;
 
-			context.currentBitPos = 0;
+			context.readBitPos = 0;
 		}
 
 		if (value)
-			*value = (context.currentByte & (1 << context.currentBitPos)) != 0;
+			*value = (context.readByte & (1 << context.readBitPos)) != 0;
 
-		context.currentBitPos++;
+		context.readBitPos++;
 
 		return true;
 	}
@@ -341,7 +341,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid data pointer");
 
-		context.ResetBitPosition();
+		context.ResetReadBitPosition();
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{

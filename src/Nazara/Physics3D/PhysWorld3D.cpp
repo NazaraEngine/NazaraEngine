@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <Newton/Newton.h>
 #include <cassert>
 #include <Nazara/Physics3D/Debug.hpp>
@@ -76,6 +76,11 @@ namespace Nz
 		return m_stepSize;
 	}
 
+	unsigned int PhysWorld3D::GetThreadCount() const
+	{
+		return NewtonGetThreadsCount(m_world);
+	}
+
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_gravity = gravity;
@@ -94,6 +99,11 @@ namespace Nz
 	void PhysWorld3D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
+	}
+
+	void PhysWorld3D::SetThreadCount(unsigned int threadCount)
+	{
+		NewtonSetThreadsCount(m_world, threadCount);
 	}
 
 	void PhysWorld3D::SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback)
@@ -173,13 +183,9 @@ namespace Nz
 		using ContactJoint = void*;
 
 		// Query all joints first, to prevent removing a joint from the list while iterating on it
-		StackArray<ContactJoint> contacts = NazaraStackAllocationNoInit(ContactJoint, NewtonContactJointGetContactCount(contactJoint));
-		std::size_t contactIndex = 0;
+		StackVector<ContactJoint> contacts = NazaraStackVector(ContactJoint, NewtonContactJointGetContactCount(contactJoint));
 		for (ContactJoint contact = NewtonContactJointGetFirstContact(contactJoint); contact; contact = NewtonContactJointGetNextContact(contactJoint, contact))
-		{
-			assert(contactIndex < contacts.size());
-			contacts[contactIndex++] = contact;
-		}
+			contacts.push_back(contact);
 
 		for (ContactJoint contact : contacts)
 		{

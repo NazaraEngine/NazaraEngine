@@ -100,4 +100,30 @@ SCENARIO("World", "[NDK][WORLD]")
 			}
 		}
 	}
+
+	GIVEN("A newly created entity")
+	{
+		Ndk::World world(false);
+		Ndk::EntityHandle entity = world.CreateEntity();
+
+		REQUIRE(entity.IsValid());
+		REQUIRE(entity->IsValid());
+		CHECK_FALSE(entity->IsDying());
+
+		WHEN("We kill it")
+		{
+			entity->Kill();
+
+			CHECK(entity.IsValid());
+			CHECK(entity->IsValid());
+			CHECK(entity->IsDying());
+
+			THEN("We refresh the world")
+			{
+				world.Refresh();
+
+				CHECK_FALSE(entity.IsValid());
+			}
+		}
+	}
 }

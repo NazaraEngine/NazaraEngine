@@ -617,6 +617,9 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
+				if (m_currentLine.IsEmpty())
+					continue;
+
 				m_currentLine.Simplify(); // Simplify lines (convert multiple blanks into a single space and trims)
 			}
 			while (m_currentLine.IsEmpty());

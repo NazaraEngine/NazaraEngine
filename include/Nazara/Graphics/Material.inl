@@ -72,7 +72,8 @@ namespace Nz
 	*/
 	inline Material::Material(const Material& material) :
 	RefCounted(),
-	Resource(material)
+	Resource(material),
+	m_reflectionMode(ReflectionMode_Skybox)
 	{
 		Copy(material);
 	}
@@ -388,6 +389,25 @@ namespace Nz
 	inline void Material::EnableStencilTest(bool stencilTest)
 	{
 		m_pipelineInfo.stencilTest = stencilTest;
+
+		InvalidatePipeline();
+	}
+
+	/*!
+	* \brief Enable/Disable vertex coloring on this material
+	*
+	* This is a temporary option, until the new material pipeline system is ready, allowing to enable vertex coloring.
+	* This option only works with meshes using vertex colors.
+	*
+	* \param vertexColor Defines if this material will use vertex color or not
+	*
+	* \remark Invalidates the pipeline
+	*
+	* \see HasVertexColor
+	*/
+	inline void Material::EnableVertexColor(bool vertexColor)
+	{
+		m_pipelineInfo.hasVertexColor = vertexColor;
 
 		InvalidatePipeline();
 	}
@@ -757,6 +777,15 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Checks whether this material uses vertex coloring
+	* \return true If it is the case
+	*/
+	inline bool Material::HasVertexColor() const
+	{
+		return m_pipelineInfo.hasVertexColor;
+	}
+
+	/*!
 	* \brief Checks whether this material has alpha test enabled
 	* \return true If it is the case
 	*/
@@ -864,43 +893,6 @@ namespace Nz
 	inline bool Material::IsShadowReceiveEnabled() const
 	{
 		return m_pipelineInfo.shadowReceive;
-	}
-
-	/*!
-	* \brief Loads the material from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the material
-	*/
-	inline bool Material::LoadFromFile(const String& filePath, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the material from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the material
-	*/
-	inline bool Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the material from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the material
-	* \param params Parameters for the material
-	*/
-	inline bool Material::LoadFromStream(Stream& stream, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromStream(this, stream, params);
 	}
 
 	/*!
@@ -1435,6 +1427,43 @@ namespace Nz
 	inline int Material::GetTextureUnit(TextureMap textureMap)
 	{
 		return s_textureUnits[textureMap];
+	}
+
+	/*!
+	* \brief Loads the material from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromFile(const String& filePath, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromFile(filePath, params);
+	}
+
+	/*!
+	* \brief Loads the material from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromMemory(data, size, params);
+	}
+
+	/*!
+	* \brief Loads the material from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the material
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromStream(Stream& stream, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromStream(stream, params);
 	}
 
 	inline void Material::InvalidatePipeline()

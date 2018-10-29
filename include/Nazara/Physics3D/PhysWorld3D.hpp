@@ -33,7 +33,7 @@ namespace Nz
 
 			PhysWorld3D();
 			PhysWorld3D(const PhysWorld3D&) = delete;
-			PhysWorld3D(PhysWorld3D&&) = default;
+			PhysWorld3D(PhysWorld3D&&) noexcept = default;
 			~PhysWorld3D();
 
 			int CreateMaterial(String name = String());
@@ -45,11 +45,13 @@ namespace Nz
 			int GetMaterial(const String& name);
 			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
+			unsigned int GetThreadCount() const;
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
+			void SetThreadCount(unsigned int threadCount);
 
 			void SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback);
 			void SetMaterialDefaultCollidable(int firstMaterial, int secondMaterial, bool collidable);
@@ -61,7 +63,7 @@ namespace Nz
 			void Step(float timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
-			PhysWorld3D& operator=(PhysWorld3D&&) = default;
+			PhysWorld3D& operator=(PhysWorld3D&&) noexcept = default;
 
 		private:
 			struct Callback

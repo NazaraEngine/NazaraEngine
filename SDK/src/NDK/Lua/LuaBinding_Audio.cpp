@@ -67,7 +67,7 @@ namespace Ndk
 
 			music.BindMethod("IsLooping", &Nz::Music::IsLooping);
 
-			music.BindMethod("OpenFromFile", &Nz::Music::OpenFromFile, Nz::MusicParams());
+			music.BindMethod("OpenFromFile", &Nz::Music::OpenFromFile, Nz::SoundStreamParams());
 
 			music.BindMethod("Pause", &Nz::Music::Pause);
 			music.BindMethod("Play", &Nz::Music::Play);
@@ -138,7 +138,7 @@ namespace Ndk
 
 			soundBuffer.BindMethod("IsValid", &Nz::SoundBuffer::IsValid);
 
-			soundBuffer.BindMethod("LoadFromFile", &Nz::SoundBuffer::LoadFromFile, Nz::SoundBufferParams());
+			soundBuffer.BindStaticMethod("LoadFromFile", &Nz::SoundBuffer::LoadFromFile, Nz::SoundBufferParams());
 
 			soundBuffer.BindStaticMethod("IsFormatSupported", &Nz::SoundBuffer::IsFormatSupported);
 

@@ -8,6 +8,7 @@
 #define NAZARA_MEMORYSTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz
@@ -20,7 +21,7 @@ namespace Nz
 			inline MemoryStream();
 			inline MemoryStream(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 			MemoryStream(const MemoryStream&) = default;
-			MemoryStream(MemoryStream&&) = default;
+			MemoryStream(MemoryStream&&) noexcept = default;
 			~MemoryStream() = default;
 
 			void Clear();
@@ -36,14 +37,14 @@ namespace Nz
 			bool SetCursorPos(UInt64 offset) override;
 
 			MemoryStream& operator=(const MemoryStream&) = default;
-			MemoryStream& operator=(MemoryStream&&) = default;
+			MemoryStream& operator=(MemoryStream&&) noexcept = default;
 
 		private:
 			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
-			ByteArray* m_buffer;
+			MovablePtr<ByteArray> m_buffer;
 			UInt64 m_pos;
 	};
 }

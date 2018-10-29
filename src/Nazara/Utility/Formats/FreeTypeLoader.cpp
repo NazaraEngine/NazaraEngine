@@ -361,7 +361,7 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool LoadFile(Font* font, const String& filePath, const FontParams& parameters)
+		FontRef LoadFile(const String& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -370,25 +370,26 @@ namespace Nz
 			if (!face->SetFile(filePath))
 			{
 				NazaraError("Failed to open file");
-				return false;
+				return nullptr;
 			}
 
 			if (!face->Open())
 			{
 				NazaraError("Failed to open face");
-				return false;
+				return nullptr;
 			}
 
+			FontRef font = Font::New();
 			if (font->Create(face.get()))
 			{
 				face.release();
-				return true;
+				return font;
 			}
 			else
-				return false;
+				return nullptr;
 		}
 
-		bool LoadMemory(Font* font, const void* data, std::size_t size, const FontParams& parameters)
+		FontRef LoadMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -398,19 +399,20 @@ namespace Nz
 			if (!face->Open())
 			{
 				NazaraError("Failed to open face");
-				return false;
+				return nullptr;
 			}
 
+			FontRef font = Font::New();
 			if (font->Create(face.get()))
 			{
 				face.release();
-				return true;
+				return font;
 			}
 			else
-				return false;
+				return nullptr;
 		}
 
-		bool LoadStream(Font* font, Stream& stream, const FontParams& parameters)
+		FontRef LoadStream(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -420,16 +422,17 @@ namespace Nz
 			if (!face->Open())
 			{
 				NazaraError("Failed to open face");
-				return false;
+				return nullptr;
 			}
 
+			FontRef font = Font::New();
 			if (font->Create(face.get()))
 			{
 				face.release();
-				return true;
+				return font;
 			}
 			else
-				return false;
+				return nullptr;
 		}
 	}
 
@@ -439,7 +442,7 @@ namespace Nz
 		{
 			if (FT_Init_FreeType(&s_library) == 0)
 			{
-				s_libraryOwner.reset(new FreeTypeLibrary);
+				s_libraryOwner = std::make_shared<FreeTypeLibrary>();
 				FontLoader::RegisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
 			}
 			else

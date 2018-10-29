@@ -84,35 +84,35 @@ namespace Nz
 	*
 	* \param resolveError Error enumeration
 	*/
-	const char* ErrorToString(Nz::ResolveError resolveError)
+	const char* ErrorToString(ResolveError resolveError)
 	{
 		switch (resolveError)
 		{
-			case Nz::ResolveError_NoError:
+			case ResolveError_NoError:
 				return "No error";
 
-			case Nz::ResolveError_Internal:
+			case ResolveError_Internal:
 				return "An internal error occurred";
 
-			case Nz::ResolveError_ResourceError:
+			case ResolveError_ResourceError:
 				return "The operating system lacks the resources to proceed";
 
-			case Nz::ResolveError_NonRecoverable:
+			case ResolveError_NonRecoverable:
 				return "A nonrecoverable error occurred";
 
-			case Nz::ResolveError_NotFound:
+			case ResolveError_NotFound:
 				return "No such host is known";
 
-			case Nz::ResolveError_NotInitialized:
+			case ResolveError_NotInitialized:
 				return "Nazara Network has not been initialized";
 
-			case Nz::ResolveError_ProtocolNotSupported:
+			case ResolveError_ProtocolNotSupported:
 				return "A specified protocol is not supported by the server";
 
-			case Nz::ResolveError_TemporaryFailure:
+			case ResolveError_TemporaryFailure:
 				return "A temporary failure occurred, try again";
 
-			case Nz::ResolveError_Unknown:
+			case ResolveError_Unknown:
 				return "An unknown error occurred";
 
 			default:
@@ -127,53 +127,56 @@ namespace Nz
 	*
 	* \param socketError Error enumeration
 	*/
-	const char* ErrorToString(Nz::SocketError socketError)
+	const char* ErrorToString(SocketError socketError)
 	{
 		switch (socketError)
 		{
-			case Nz::SocketError_NoError:
+			case SocketError_NoError:
 				return "No error";
 
-			case Nz::SocketError_AddressNotAvailable:
+			case SocketError_AddressNotAvailable:
 				return "The address is already in use";
 
-			case Nz::SocketError_ConnectionClosed:
+			case SocketError_ConnectionClosed:
 				return "The connection has been closed";
 
-			case Nz::SocketError_ConnectionRefused:
+			case SocketError_ConnectionRefused:
 				return "The connection attempt was refused";
 
-			case Nz::SocketError_DatagramSize:
+			case SocketError_DatagramSize:
 				return "The datagram size is over the system limit";
 
-			case Nz::SocketError_Internal:
+			case SocketError_Internal:
 				return "An internal error occurred";
 
-			case Nz::SocketError_Packet:
+			case SocketError_Interrupted:
+				return "The operation was interrupted by a signal";
+
+			case SocketError_Packet:
 				return "Packet encoding or decoding failed";
 
-			case Nz::SocketError_NetworkError:
+			case SocketError_NetworkError:
 				return "Networking subsystem failed";
 
-			case Nz::SocketError_NotInitialized:
+			case SocketError_NotInitialized:
 				return "Network module has not been initialized";
 
-			case Nz::SocketError_NotSupported:
+			case SocketError_NotSupported:
 				return "This operation is not supported";
 
-			case Nz::SocketError_ResolveError:
+			case SocketError_ResolveError:
 				return "The hostname couldn't be resolved";
 
-			case Nz::SocketError_ResourceError:
+			case SocketError_ResourceError:
 				return "The operating system lacks the resources to proceed";
 
-			case Nz::SocketError_TimedOut:
+			case SocketError_TimedOut:
 				return "The operation timed out";
 
-			case Nz::SocketError_Unknown:
+			case SocketError_Unknown:
 				return "An unknown error occurred";
 
-			case Nz::SocketError_UnreachableHost:
+			case SocketError_UnreachableHost:
 				return "The host is not reachable";
 
 			default:

@@ -78,6 +78,7 @@ namespace Nz
 		SocketError_ConnectionRefused,   //< The connection attempt was refused
 		SocketError_DatagramSize,        //< The datagram size is over the system limit
 		SocketError_Internal,            //< The error is coming from the engine
+		SocketError_Interrupted,         //< The operation was interrupted by a signal
 		SocketError_Packet,              //< The packet encoding/decoding failed, probably because of corrupted data
 		SocketError_NetworkError,        //< The network system has failed (maybe network is down)
 		SocketError_NotInitialized,      //< Nazara network has not been initialized

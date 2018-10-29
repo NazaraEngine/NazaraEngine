@@ -28,11 +28,13 @@
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/DebugComponent.hpp>
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/ParticleEmitterComponent.hpp>
 #include <NDK/Components/ParticleGroupComponent.hpp>
+#include <NDK/Systems/DebugSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
@@ -95,6 +97,7 @@ namespace Ndk
 			#ifndef NDK_SERVER
 			// Client components
 			InitializeComponent<CameraComponent>("NdkCam");
+			InitializeComponent<DebugComponent>("NdkDebug");
 			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<GraphicsComponent>("NdkGfx");
@@ -113,6 +116,7 @@ namespace Ndk
 
 			#ifndef NDK_SERVER
 			// Client systems
+			InitializeSystem<DebugSystem>();
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();

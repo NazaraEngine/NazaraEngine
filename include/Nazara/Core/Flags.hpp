@@ -73,12 +73,16 @@ namespace Nz
 			BitField m_value;
 	};
 
+	template<typename E> constexpr Flags<E> operator&(E lhs, Flags<E> rhs);
+	template<typename E> constexpr Flags<E> operator|(E lhs, Flags<E> rhs);
+	template<typename E> constexpr Flags<E> operator^(E lhs, Flags<E> rhs);
+
 	// Little hack to have them in both Nz and global scope
 	namespace FlagsOperators
 	{
 		template<typename E> constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator~(E lhs);
-		template<typename E> constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator|(E lhs, E rhs);
 		template<typename E> constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator&(E lhs, E rhs);
+		template<typename E> constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator|(E lhs, E rhs);
 		template<typename E> constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator^(E lhs, E rhs);
 	}
 

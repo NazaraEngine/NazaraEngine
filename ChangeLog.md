@@ -16,10 +16,13 @@ Miscellaneous:
 - Add Lua unit tests
 - NDEBUG is now defined in Release
 - Replaced typedefs keywords with modern using keywords
+- When supported, projects are now parts of a virtual "workspace group" according to their kind
+- Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
+- ⚠ Appveyor nightlies are now compiled with VS2017
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
-- Bitset swap operation is now correctly marked as noexcept`
+- Bitset swap operation is now correctly marked as noexcept
 - Mesh loaders now takes MeshParams vertexDeclaration into account
 - ⚠️ Replaced RenderTarget::Get[Height|Width] by RenderTarget::GetSize
 - ⚠️ Removed Window::Get[Height|Width] methods
@@ -86,6 +89,72 @@ Nazara Engine:
 - Fixed Billboard bounding volume
 - Fixed Directory::GetResultSize and Directory::IsResultDirectory on Posix systems
 - Fixed Quaternion::Inverse which was not correctly normalizing quaternions
+- Graphics module now register "White2D" and "WhiteCubemap" textures to the TextureLibrary (respectively a 1x1 texture 2D and a 1x1 texture cubemap)
+- Added AbstractTextDrawer::GetLineGlyphCount, which returns the number of glyph part of the line
+- Fixed Font handling of whitespace glyphs (which were triggering an error)
+- ⚠️ Translucent2D pipeline no longer has depth sorting
+- Fixed SimpleTextDrawer line bounds
+- ⚠️ Stream::ReadLine will now returns empty lines if present in the file
+- Fixed cubemaps seams with OpenGL
+- HandledObject movement constructor/assignement operator are now marked noexcept
+- ⚠️ PhysWorld2D callbacks OnPhysWorld2DPreStep and OnPhysWorld2DPostStep now takes a invStepCount depending on the number of step taken this update, fixing force application and other
+- ⚠️ Refactored Mesh/SubMesh, allowing a submesh to be attached to multiple meshes, deprecating Create/Destroy methods
+- SubMesh class now has a OnSubMeshInvalidateAABB signal, triggered when a new AABB is set to the submesh
+- Mesh class now has a OnMeshInvalidateAABB signal, triggered when a mesh invalidates its AABB, which is also submesh updates its AABB
+- Model now invalidate properly their bounding volume when their mesh AABB is updated
+- Added operator&/|/^ taking an enumeration value and a Flags object using the same enumeration type.
+- Added LuaState::CallWithHandler methods, allowing to setup a error handler function
+- Added LuaState::Traceback method
+- Added ModelLibrary, ModelManager and ModelSaver
+- Added AbstractViewer::Project and AbstractViewer::Unproject methods
+- Added AbstractViewer::ProjectDepth method
+- Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
+- Add LuaImplQuery implementation for std::vector
+- Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- InstancedRenderable::SetMaterial methods are now public.
+- Fixed Model copy constructor not copying materials
+- ⚠️ Added InstancedRenderable::Clone() method
+- Fixed a lot of classes not having their move constructor/assignation operator marked noexcept
+- ⚠️ SocketPoller::Wait now returns the number of socket marked as ready, and takes an additional optional parameter allowing to query the last error.
+- SocketPoller will now silently ignore "interrupt errors"
+- Added RigidBody2D::ClosestPointQuery
+- Fix Sprite copy constructor not copying corner colors
+- Added ObjectLibrary::Clear method
+- ⚠️ StackArray class and macro was moved from Core/MemoryHelper.hpp to Core/StackArray.hpp
+- ⚠️ Renamed NazaraStackAllocation[NoInit] macro to NazaraStackArray[NoInit]
+- Added StackVector class
+- ⚠️ Removed Vector[2|3]::Distancef method and made Distance method templated
+- Added Vector2::Distance static method
+- ⚠️ Fixed compilation errors on MSVC with flag /permissive- on CullingList class
+- Added LuaImplQueryArg & LuaImplReplyVal functions for Vector[2|3]<int>
+- Fixed bug in ENet implementation causing legit reliable packets to be dropped on sequence number overflow
+- Fixed bug where index wouldn't be used in String::FindLast and String::FindWord
+- Physics 2D contact callbacks now include an arbiter allowing to query/set parameters about the collision
+- Added movement with Ctrl in TextAreaWidget
+- Added Unicode Data downloader/parser
+- Integrated Unicode Data
+- Added CullingList::FillWithAllEntries method
+- Fixed ObjectHandle movement sometimes not resetting its internal pointer
+- Added BoxCollider2D::GetRadius
+- Added CircleCollider2D::GetOffset
+- Added ConvexCollider2D::GetVertices
+- Added SegmentCollider2D::GetThickness
+- Fixed vertices generation/render queue submit when using multiples materials on a Tilemap
+- It is now possible to prevent CompoundCollider2D to override individual colliders properties
+- Fixed TcpClient::WaitForConnected possible failure (although connected) on Windows/Linux
+- CullingList now handles box tests
+- ⚠️ CullingList now handles full and partial visibility testing
+- Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
+- ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
+- ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
+- Added TcpClient::PollForConnected 
+- ⚠️ Use of the new Angle class instead of floating point angle
+- It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
+- ObjectHandle were remade and should be way more optimized now
+ - Added ENetHost and ENetPeer accessor to total packet/data received/sent/lost
+- ⚠ **Changed the way resources were Loaded, almost every LoadFromX and OpenFromX methods are now static and create the object themselves.**
+- ⚠ SoundStream is now responsible for loaders instead of Music, and is now threadsafe (you can now load a stream only once and play it multiple times at the same time)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -129,6 +198,34 @@ Nazara Development Kit:
 - Fix GraphicsComponent bounding volume not taking local matrix in account
 - ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
 - ⚠️ All widgets are now bound to a scissor box when rendering
+- Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- ⚠️ TextAreaWidget now support text selection (WIP)
+- ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
+- Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
+- Fixed EntityOwner move assignment which was losing entity ownership
+- Added GraphicsComponent:ForEachRenderable method
+- Fixed GraphicsComponent reflective material count which was not initialized
+- Added PhysicsComponent2D::ClosestPointQuery
+- Fixed GraphicsComponent copy constructor not copying scissor rect
+- Force parent parameter to be present in widgets constructor
+- Added the possibility to write only specific characters with a predicate in TextAreaWidget
+- Enable write of Tab character in TextAreaWidget
+- It is now possible to disable object culling in the RenderSystem
+- Make Nz::PhysWorld2D& Ndk::PhysicsSystem2D::GetWorld private and rename it into GetPhysWorld
+- Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
+- ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
+- RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
+- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
+- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
+- Added BaseWidget::ForEachWidgetChild
+- Added experimental BoxLayout class
+- RenderSystem now resolve skinning before render
+- EntityOwner constructor taking a Entity* is no longer explicit
+- PhysicsComponent2D now allows massless bodies (zero mass)
+- ⚠️ Use of the new Angle class instead of floating point angle
+- Added EntityOwner::Release
+- Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
+- Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 
 # 0.4:
 
@@ -174,7 +271,8 @@ Nazara Engine:
 - Added VertexMapper::GetVertexCount()
 - Added VertexMapper::HasComponentOfType()
 - Fixed SimpleTextDrawer bounds computation
-
+- Added LuaState::Load methods which allows to load (compile) lua code to function without executing it.
+- Added ENetPeer::GetLastReceiveTime() which gives the last time a reliable packet was received.
 
 Nazara Development Kit:
 - ⚠️ Components no longer need to be copyable by assignation

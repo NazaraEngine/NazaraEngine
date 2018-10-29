@@ -152,7 +152,7 @@ namespace Nz
 		m_impl->format = format;
 		m_impl->sampleCount = sampleCount;
 		m_impl->sampleRate = sampleRate;
-		m_impl->samples.reset(new Int16[sampleCount]);
+		m_impl->samples = std::make_unique<Int16[]>(sampleCount);
 		std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(Int16));
 
 		clearBufferOnExit.Reset();
@@ -252,15 +252,26 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Checks whether the format is supported by the engine
+	* \return true if it is the case
+	*
+	* \param format Format to check
+	*/
+	bool SoundBuffer::IsFormatSupported(AudioFormat format)
+	{
+		return Audio::IsFormatSupported(format);
+	}
+
+	/*!
 	* \brief Loads the sound buffer from file
 	* \return true if loading is successful
 	*
 	* \param filePath Path to the file
 	* \param params Parameters for the sound buffer
 	*/
-	bool SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	SoundBufferRef SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromFile(this, filePath, params);
+		return SoundBufferLoader::LoadFromFile(filePath, params);
 	}
 
 	/*!
@@ -271,9 +282,9 @@ namespace Nz
 	* \param size Size of the memory
 	* \param params Parameters for the sound buffer
 	*/
-	bool SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
+	SoundBufferRef SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromMemory(this, data, size, params);
+		return SoundBufferLoader::LoadFromMemory(data, size, params);
 	}
 
 	/*!
@@ -283,20 +294,9 @@ namespace Nz
 	* \param stream Stream to the sound buffer
 	* \param params Parameters for the sound buffer
 	*/
-	bool SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
+	SoundBufferRef SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
-	* \brief Checks whether the format is supported by the engine
-	* \return true if it is the case
-	*
-	* \param format Format to check
-	*/
-	bool SoundBuffer::IsFormatSupported(AudioFormat format)
-	{
-		return Audio::IsFormatSupported(format);
+		return SoundBufferLoader::LoadFromStream(stream, params);
 	}
 
 	/*!

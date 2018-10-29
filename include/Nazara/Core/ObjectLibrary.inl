@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
@@ -9,9 +10,18 @@ namespace Nz
 {
 	/*!
 	* \ingroup core
-	* \class Nz::ObjectRef
-	* \brief Core class that represents a reference to an object
+	* \class Nz::ObjectLibrary
+	* \brief Core class containing a collection of objects
 	*/
+
+	/*!
+	* \brief Clears the library, freeing every object it contains
+	*/
+	template<typename Type>
+	void ObjectLibrary<Type>::Clear()
+	{
+		Type::s_library.clear();
+	}
 
 	/*!
 	* \brief Gets the ObjectRef object by name

@@ -71,6 +71,7 @@ namespace Nz
 		NazaraPipelineBoolMember(hasHeightMap);
 		NazaraPipelineBoolMember(hasNormalMap);
 		NazaraPipelineBoolMember(hasSpecularMap);
+		NazaraPipelineBoolMember(hasVertexColor);
 		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
@@ -127,6 +128,7 @@ namespace std
 			NazaraPipelineBoolMember(hasHeightMap);
 			NazaraPipelineBoolMember(hasNormalMap);
 			NazaraPipelineBoolMember(hasSpecularMap);
+			NazaraPipelineBoolMember(hasVertexColor);
 			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
