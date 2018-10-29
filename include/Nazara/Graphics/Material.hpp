@@ -83,6 +83,7 @@ namespace Nz
 			inline void EnableShadowCasting(bool castShadows);
 			inline void EnableShadowReceive(bool receiveShadows);
 			inline void EnableStencilTest(bool stencilTest);
+			inline void EnableVertexColor(bool vertexColor);
 
 			inline void EnsurePipelineUpdate() const;
 
@@ -121,6 +122,7 @@ namespace Nz
 			inline bool HasHeightMap() const;
 			inline bool HasNormalMap() const;
 			inline bool HasSpecularMap() const;
+			inline bool HasVertexColor() const;
 
 			inline bool IsAlphaTestEnabled() const;
 			inline bool IsBlendingEnabled() const;
@@ -134,10 +136,6 @@ namespace Nz
 			inline bool IsStencilTestEnabled() const;
 			inline bool IsShadowCastingEnabled() const;
 			inline bool IsShadowReceiveEnabled() const;
-
-			inline bool LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
-			inline bool LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
-			inline bool LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
 
 			void Reset();
 
@@ -178,6 +176,11 @@ namespace Nz
 
 			inline static MaterialRef GetDefault();
 			inline static int GetTextureUnit(TextureMap textureMap);
+
+			static inline MaterialRef LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
+			static inline MaterialRef LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
+			static inline MaterialRef LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
+
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:

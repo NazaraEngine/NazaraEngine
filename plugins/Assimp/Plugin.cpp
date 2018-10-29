@@ -59,6 +59,8 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>&
 			                         node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3, node->mTransformation.c4,
 			                         node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3, node->mTransformation.d4);
 
+			transformMatrix.Transpose();
+
 			transformMatrix.InverseAffine();
 
 			joint->SetInverseBindMatrix(transformMatrix);
@@ -84,7 +86,7 @@ Ternary Check(Stream& /*stream*/, const MeshParams& parameters)
 	return Ternary_Unknown;
 }
 
-bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+MeshRef Load(Stream& stream, const MeshParams& parameters)
 {
 	Nz::String streamPath = stream.GetPath();
 
@@ -147,7 +149,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	if (!scene)
 	{
 		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
-		return false;
+		return nullptr;
 	}
 
 	std::set<Nz::String> joints;
@@ -167,6 +169,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		}
 	}
 
+	MeshRef mesh = Mesh::New();
 	if (animatedMesh)
 	{
 		mesh->CreateSkeletal(UInt32(joints.size()));
@@ -180,7 +183,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 		ProcessJoints(scene->mRootNode, skeleton, joints);
 
-		return false;
+		return nullptr;
 	}
 	else
 	{
@@ -279,10 +282,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				vertexMapper.Unmap();
 
 				// Submesh
-				StaticMeshRef subMesh = StaticMesh::New(mesh);
-				subMesh->Create(vertexBuffer);
-
-				subMesh->SetIndexBuffer(indexBuffer);
+				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 
@@ -378,7 +378,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	aiReleaseImport(scene);
 
-	return true;
+	return mesh;
 }
 
 extern "C"

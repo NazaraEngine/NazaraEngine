@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -13,6 +13,10 @@
 
 namespace Ndk
 {
+	class LightComponent;
+
+	using LightComponentHandle = Nz::ObjectHandle<LightComponent>;
+
 	class NDK_API LightComponent : public Component<LightComponent>, public Nz::Light
 	{
 		public:

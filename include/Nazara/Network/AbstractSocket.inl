@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 JÃ©rÃ´me Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -66,8 +66,9 @@ namespace Nz
 	{
 		if (m_state != newState)
 		{
-			OnStateChange(this, newState);
+			SocketState oldState = m_state;
 			m_state = newState;
+			OnStateChanged(this, oldState, newState);
 		}
 	}
 }

@@ -11,6 +11,7 @@
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
+#include <NDK/Systems/DebugSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
@@ -47,6 +48,7 @@ namespace Ndk
 		AddSystem<VelocitySystem>();
 
 		#ifndef NDK_SERVER
+		AddSystem<DebugSystem>();
 		AddSystem<ListenerSystem>();
 		AddSystem<ParticleSystem>();
 		AddSystem<RenderSystem>();

@@ -111,6 +111,51 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Changes the material used at the specified index by another one
+	*
+	* This function changes the active material at the specified index, depending on the current active skin, to the one passed as parameter.
+	*
+	* \param matIndex Material index
+	* \param material New material, cannot be null
+	*
+	* \remark If you wish to reset the material to the default one, use the default material (see Material::GetDefault)
+	*
+	* \see SetMaterial
+	*/
+	inline void InstancedRenderable::SetMaterial(std::size_t matIndex, MaterialRef material)
+	{
+		SetMaterial(m_skin, matIndex, std::move(material));
+	}
+
+	/*!
+	* \brief Changes the material used at the specified index by another one, independently from the active skin.
+	*
+	* This function changes the active material at the specified index and for the specified skin index, to the one passed as parameter.
+	*
+	* \param skinIndex Skin index
+	* \param matIndex Material index
+	* \param material New material, cannot be null
+	*
+	* \remark If you wish to reset the material to the default one, use the default material (see Material::GetDefault)
+	*
+	* \see SetMaterial
+	*/
+	inline void InstancedRenderable::SetMaterial(std::size_t skinIndex, std::size_t matIndex, MaterialRef material)
+	{
+		NazaraAssert(skinIndex < m_skinCount, "Skin index out of bounds");
+		NazaraAssert(matIndex < m_materials.size(), "Material index out of bounds");
+		NazaraAssert(material.IsValid(), "Material must be valid");
+
+		MaterialRef& matEntry = m_materials[m_matCount * skinIndex + matIndex];
+		if (matEntry != material)
+		{
+			OnInstancedRenderableInvalidateMaterial(this, skinIndex, matIndex, material);
+
+			matEntry = std::move(material);
+		}
+	}
+
+	/*!
 	* \brief Changes the active skin
 	*
 	* Each InstancedRenderable has the possibility to have multiples skins, which are sets of materials.
@@ -199,51 +244,6 @@ namespace Nz
 		m_matCount = matCount;
 		m_skinCount = skinCount;
 		m_skin = 0;
-	}
-
-	/*!
-	* \brief Changes the material used at the specified index by another one
-	*
-	* This function changes the active material at the specified index, depending on the current active skin, to the one passed as parameter.
-	*
-	* \param matIndex Material index
-	* \param material New material, cannot be null
-	*
-	* \remark If you wish to reset the material to the default one, use the default material (see Material::GetDefault)
-	*
-	* \see SetMaterial
-	*/
-	inline void InstancedRenderable::SetMaterial(std::size_t matIndex, MaterialRef material)
-	{
-		SetMaterial(m_skin, matIndex, std::move(material));
-	}
-
-	/*!
-	* \brief Changes the material used at the specified index by another one, independently from the active skin.
-	*
-	* This function changes the active material at the specified index and for the specified skin index, to the one passed as parameter.
-	*
-	* \param skinIndex Skin index
-	* \param matIndex Material index
-	* \param material New material, cannot be null
-	*
-	* \remark If you wish to reset the material to the default one, use the default material (see Material::GetDefault)
-	*
-	* \see SetMaterial
-	*/
-	inline void InstancedRenderable::SetMaterial(std::size_t skinIndex, std::size_t matIndex, MaterialRef material)
-	{
-		NazaraAssert(skinIndex < m_skinCount, "Skin index out of bounds");
-		NazaraAssert(matIndex < m_materials.size(), "Material index out of bounds");
-		NazaraAssert(material.IsValid(), "Material must be valid");
-
-		MaterialRef& matEntry = m_materials[m_matCount * skinIndex + matIndex];
-		if (matEntry != material)
-		{
-			OnInstancedRenderableInvalidateMaterial(this, skinIndex, matIndex, material);
-
-			matEntry = std::move(material);
-		}
 	}
 
 	/*!

@@ -31,10 +31,18 @@ namespace Nz
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size(), scissorRect);
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[4 * spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}
+	}
+
+	/*!
+	* \brief Clones this tilemap
+	*/
+	std::unique_ptr<InstancedRenderable> TileMap::Clone() const
+	{
+		return std::make_unique<TileMap>(*this);
 	}
 
 	void TileMap::MakeBoundingVolume() const
@@ -55,9 +63,9 @@ namespace Nz
 		spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			SparsePtr<Color> colorPtr(&vertices[spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector3f> posPtr(&vertices[spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector2f> texCoordPtr(&vertices[spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Color> colorPtr(&vertices[4 * spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector3f> posPtr(&vertices[4 * spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector2f> texCoordPtr(&vertices[4 * spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
 			for (std::size_t tileIndex : layer.tiles)
 			{

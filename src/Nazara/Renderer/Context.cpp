@@ -163,6 +163,9 @@ namespace Nz
 			return false;
 		}
 
+		if (OpenGL::IsSupported(OpenGLExtension_SeamlessCubeMap))
+			glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 		if (m_parameters.antialiasingLevel > 0)
 			glEnable(GL_MULTISAMPLE);
 

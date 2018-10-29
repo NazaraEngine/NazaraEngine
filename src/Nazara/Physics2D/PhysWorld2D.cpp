@@ -3,7 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Physics2D/Arbiter2D.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
 #include <Nazara/Physics2D/Debug.hpp>
 
@@ -25,7 +26,7 @@ namespace Nz
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->circleCallback)
-				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), float(angle), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), RadianAnglef(float(angle)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 		}
 
 		void DrawDot(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)
@@ -44,7 +45,7 @@ namespace Nz
 			{
 				//TODO: constexpr if to prevent copy/cast if sizeof(cpVect) == sizeof(Vector2f)
 
-				StackArray<Vector2f> nVertices = NazaraStackAllocation(Vector2f, vertexCount);
+				StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
 				for (int i = 0; i < vertexCount; ++i)
 					nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
 
@@ -311,14 +312,15 @@ namespace Nz
 	{
 		m_timestepAccumulator += timestep;
 
-		std::size_t stepCount = 0;
-		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
+		std::size_t stepCount = std::min(static_cast<std::size_t>(m_timestepAccumulator / m_stepSize), m_maxStepCount);
+		float invStepCount = 1.f / stepCount;
+		for (std::size_t i = 0; i < stepCount; ++i)
 		{
-			OnPhysWorld2DPreStep(this);
+			OnPhysWorld2DPreStep(this, invStepCount);
 
 			cpSpaceStep(m_handle, m_stepSize);
 
-			OnPhysWorld2DPostStep(this);
+			OnPhysWorld2DPostStep(this, invStepCount);
 			if (!m_rigidPostSteps.empty())
 			{
 				for (const auto& pair : m_rigidPostSteps)
@@ -331,7 +333,6 @@ namespace Nz
 			}
 
 			m_timestepAccumulator -= m_stepSize;
-			stepCount++;
 		}
 	}
 
@@ -358,8 +359,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				if (customCallbacks->startCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
+				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 				{
 					cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
 					cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
@@ -382,8 +385,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				customCallbacks->endCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
+				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 
 				cpArbiterCallWildcardSeparateA(arb, space);
 				cpArbiterCallWildcardSeparateB(arb, space);
@@ -402,8 +407,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				if (customCallbacks->preSolveCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
+				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 				{
 					cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
 					cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
@@ -426,8 +433,10 @@ namespace Nz
 				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
 				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
+				Arbiter2D arbiter(arb);
+
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
-				customCallbacks->postSolveCallback(*world, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
+				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 
 				cpArbiterCallWildcardPostSolveA(arb, space);
 				cpArbiterCallWildcardPostSolveB(arb, space);

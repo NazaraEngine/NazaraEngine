@@ -30,7 +30,7 @@ namespace Ndk
 
 			BaseWidget(BaseWidget* parent);
 			BaseWidget(const BaseWidget&) = delete;
-			BaseWidget(BaseWidget&&) = default;
+			BaseWidget(BaseWidget&&) = delete;
 			virtual ~BaseWidget();
 
 			template<typename T, typename... Args> T* Add(Args&&... args);
@@ -46,44 +46,61 @@ namespace Ndk
 
 			void EnableBackground(bool enable);
 
+			template<typename F> void ForEachWidgetChild(F iterator);
+			template<typename F> void ForEachWidgetChild(F iterator) const;
+
 			//virtual BaseWidget* Clone() const = 0;
 
 			inline const Nz::Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline Nz::SystemCursor GetCursor() const;
-			inline const Padding& GetPadding() const;
-			inline Nz::Vector2f GetContentOrigin() const;
-			inline const Nz::Vector2f& GetContentSize() const;
+			inline float GetHeight() const;
+
+			inline float GetMaximumHeight() const;
+			inline Nz::Vector2f GetMaximumSize() const;
+			inline float GetMaximumWidth() const;
+
+			inline float GetMinimumHeight() const;
+			inline Nz::Vector2f GetMinimumSize() const;
+			inline float GetMinimumWidth() const;
+
+			inline float GetPreferredHeight() const;
+			inline Nz::Vector2f GetPreferredSize() const;
+			inline float GetPreferredWidth() const;
+
 			inline Nz::Vector2f GetSize() const;
+			inline float GetWidth() const;
+			inline std::size_t GetWidgetChildCount() const;
 
 			bool HasFocus() const;
 
 			inline bool IsVisible() const;
 
-			virtual void ResizeToContent() = 0;
+			void Resize(const Nz::Vector2f& size);
 
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
-			inline void SetContentSize(const Nz::Vector2f& size);
 			void SetFocus();
-			inline void SetPadding(float left, float top, float right, float bottom);
-			void SetSize(const Nz::Vector2f& size);
+
+			inline void SetFixedHeight(float fixedHeight);
+			inline void SetFixedSize(const Nz::Vector2f& fixedSize);
+			inline void SetFixedWidth(float fixedWidth);
+
+			inline void SetMaximumHeight(float maximumHeight);
+			inline void SetMaximumSize(const Nz::Vector2f& maximumSize);
+			inline void SetMaximumWidth(float maximumWidth);
+
+			inline void SetMinimumHeight(float minimumHeight);
+			inline void SetMinimumSize(const Nz::Vector2f& minimumSize);
+			inline void SetMinimumWidth(float minimumWidth);
 
 			void Show(bool show = true);
 
 			BaseWidget& operator=(const BaseWidget&) = delete;
-			BaseWidget& operator=(BaseWidget&&) = default;
-
-			struct Padding
-			{
-				float left;
-				float top;
-				float right;
-				float bottom;
-			};
+			BaseWidget& operator=(BaseWidget&&) = delete;
 
 		protected:
-			const EntityHandle& CreateEntity(bool isContentEntity);
+			const EntityHandle& CreateEntity();
 			void DestroyEntity(Entity* entity);
 			virtual void Layout();
 
@@ -102,10 +119,12 @@ namespace Ndk
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
 
+			inline void SetPreferredSize(const Nz::Vector2f& preferredSize);
+
 		private:
 			inline BaseWidget();
 
-			inline void DestroyChild(BaseWidget* widget);
+			void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
 			inline bool IsRegisteredToCanvas() const;
 			inline void NotifyParentResized(const Nz::Vector2f& newSize);
@@ -117,7 +136,6 @@ namespace Ndk
 			struct WidgetEntity
 			{
 				EntityOwner handle;
-				bool isContent;
 			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
@@ -127,12 +145,14 @@ namespace Ndk
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			Canvas* m_canvas;
 			EntityOwner m_backgroundEntity;
-			Padding m_padding;
 			WorldHandle m_world;
 			Nz::Color m_backgroundColor;
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::SystemCursor m_cursor;
-			Nz::Vector2f m_contentSize;
+			Nz::Vector2f m_maximumSize;
+			Nz::Vector2f m_minimumSize;
+			Nz::Vector2f m_preferredSize;
+			Nz::Vector2f m_size;
 			BaseWidget* m_widgetParent;
 			bool m_visible;
 	};

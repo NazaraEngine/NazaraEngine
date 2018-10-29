@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			AbstractRenderTechnique();
 			AbstractRenderTechnique(const AbstractRenderTechnique&) = delete;
-			AbstractRenderTechnique(AbstractRenderTechnique&&) = default;
+			AbstractRenderTechnique(AbstractRenderTechnique&&) noexcept = default;
 			virtual ~AbstractRenderTechnique();
 
 			virtual void Clear(const SceneData& sceneData) const = 0;
@@ -37,7 +37,7 @@ namespace Nz
 			virtual bool IsInstancingEnabled() const;
 
 			AbstractRenderTechnique& operator=(const AbstractRenderTechnique&) = delete;
-			AbstractRenderTechnique& operator=(AbstractRenderTechnique&&) = default;
+			AbstractRenderTechnique& operator=(AbstractRenderTechnique&&) noexcept = default;
 
 		protected:
 			bool m_instancingEnabled;

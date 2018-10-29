@@ -24,7 +24,7 @@ namespace Nz
 
 		public:
 			inline TcpClient();
-			TcpClient(TcpClient&& tcpClient) = default;
+			TcpClient(TcpClient&& tcpClient) noexcept = default;
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);
@@ -45,6 +45,8 @@ namespace Nz
 			inline bool IsLowDelayEnabled() const;
 			inline bool IsKeepAliveEnabled() const;
 
+			SocketState PollForConnected(UInt64 waitDuration = 0);
+
 			bool Receive(void* buffer, std::size_t size, std::size_t* received);
 			bool ReceivePacket(NetPacket* packet);
 
@@ -54,7 +56,7 @@ namespace Nz
 
 			bool SetCursorPos(UInt64 offset) override;
 
-			bool WaitForConnected(UInt64 msTimeout = 3000);
+			SocketState WaitForConnected(UInt64 msTimeout = 3000);
 
 			inline TcpClient& operator=(TcpClient&& tcpClient) = default;
 

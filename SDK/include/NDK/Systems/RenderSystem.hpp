@@ -25,11 +25,12 @@ namespace Ndk
 	{
 		public:
 			RenderSystem();
-			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
 			template<typename T> T& ChangeRenderTechnique();
 			inline Nz::AbstractRenderTechnique& ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique);
+
+			inline void EnableCulling(bool enable);
 
 			inline const Nz::BackgroundRef& GetDefaultBackground() const;
 			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;
@@ -37,6 +38,8 @@ namespace Ndk
 			inline Nz::Vector3f GetGlobalRight() const;
 			inline Nz::Vector3f GetGlobalUp() const;
 			inline Nz::AbstractRenderTechnique& GetRenderTechnique() const;
+
+			inline bool IsCullingEnabled() const;
 
 			inline void SetDefaultBackground(Nz::BackgroundRef background);
 			inline void SetGlobalForward(const Nz::Vector3f& direction);
@@ -72,6 +75,7 @@ namespace Ndk
 			Nz::RenderTexture m_shadowRT;
 			bool m_coordinateSystemInvalidated;
 			bool m_forceRenderQueueInvalidation;
+			bool m_isCullingEnabled;
 	};
 }
 

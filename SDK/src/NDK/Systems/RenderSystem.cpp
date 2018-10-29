@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
+#include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -34,7 +35,8 @@ namespace Ndk
 	RenderSystem::RenderSystem() :
 	m_coordinateSystemMatrix(Nz::Matrix4f::Identity()),
 	m_coordinateSystemInvalidated(true),
-	m_forceRenderQueueInvalidation(false)
+	m_forceRenderQueueInvalidation(false),
+	m_isCullingEnabled(true)
 	{
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
@@ -183,6 +185,8 @@ namespace Ndk
 			m_coordinateSystemInvalidated = false;
 		}
 
+		Nz::SkinningManager::Skin();
+
 		UpdateDynamicReflections();
 		UpdatePointSpotShadowMaps();
 
@@ -194,26 +198,35 @@ namespace Ndk
 
 			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
 
-			// To make sure the bounding volume used by the culling list is updated
+			// To make sure the bounding volumes used by the culling list is updated
 			for (const Ndk::EntityHandle& drawable : m_drawables)
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				graphicsComponent.EnsureBoundingVolumeUpdate();
+				graphicsComponent.EnsureBoundingVolumesUpdate();
 			}
 
 			bool forceInvalidation = false;
 
-			std::size_t visibilityHash = m_drawableCulling.Cull(camComponent.GetFrustum(), &forceInvalidation);
+			const Nz::Frustumf& frustum = camComponent.GetFrustum();
+
+			std::size_t visibilityHash;
+			if (m_isCullingEnabled)
+				visibilityHash = m_drawableCulling.Cull(frustum, &forceInvalidation);
+			else
+				visibilityHash = m_drawableCulling.FillWithAllEntries(&forceInvalidation);
 
 			// Always regenerate renderqueue if particle groups are present for now (FIXME)
-			if (!m_particleGroups.empty())
+			if (!m_lights.empty() || !m_particleGroups.empty())
 				forceInvalidation = true;
 
 			if (camComponent.UpdateVisibility(visibilityHash) || m_forceRenderQueueInvalidation || forceInvalidation)
 			{
 				renderQueue->Clear();
-				for (const GraphicsComponent* gfxComponent : m_drawableCulling)
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
 					gfxComponent->AddToRenderQueue(renderQueue);
+
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
+					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue);
 
 				for (const Ndk::EntityHandle& light : m_lights)
 				{

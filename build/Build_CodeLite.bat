@@ -1,1 +1,1 @@
-premake5 codelite
+.\premake5.exe codelite

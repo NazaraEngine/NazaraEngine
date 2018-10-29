@@ -51,7 +51,6 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data used for this instance
 	*/
-
 	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
@@ -67,6 +66,14 @@ namespace Nz
 
 			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
+	}
+
+	/*!
+	* \brief Clones this model
+	*/
+	std::unique_ptr<InstancedRenderable> Model::Clone() const
+	{
+		return std::make_unique<Model>(*this);
 	}
 
 	/*!
@@ -143,46 +150,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Loads the model from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromFile(const String& filePath, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the model from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the model from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the model
-	* \param params Parameters for the model
-	*/
-
-	bool Model::LoadFromStream(Stream& stream, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
 	* \brief Sets the material of the named submesh
 	* \return true If successful
 	*
@@ -252,11 +219,54 @@ namespace Nz
 		m_mesh = mesh;
 
 		if (m_mesh)
+		{
 			ResetMaterials(mesh->GetMaterialCount());
+			m_meshAABBInvalidationSlot.Connect(m_mesh->OnMeshInvalidateAABB, [this](const Nz::Mesh*) { InvalidateBoundingVolume(); });
+		}
 		else
+		{
 			ResetMaterials(0);
+			m_meshAABBInvalidationSlot.Disconnect();
+		}
 
 		InvalidateBoundingVolume();
+	}
+
+	/*!
+	* \brief Loads the model from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromFile(const String& filePath, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromFile(filePath, params);
+	}
+
+	/*!
+	* \brief Loads the model from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromMemory(data, size, params);
+	}
+
+	/*!
+	* \brief Loads the model from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the model
+	* \param params Parameters for the model
+	*/
+	ModelRef Model::LoadFromStream(Stream& stream, const ModelParameters& params)
+	{
+		return ModelLoader::LoadFromStream(stream, params);
 	}
 
 	/*
@@ -271,5 +281,9 @@ namespace Nz
 			m_boundingVolume.MakeNull();
 	}
 
+	ModelLibrary::LibraryMap Model::s_library;
 	ModelLoader::LoaderList Model::s_loaders;
+	ModelManager::ManagerMap Model::s_managerMap;
+	ModelManager::ManagerParams Model::s_managerParameters;
+	ModelSaver::SaverList Model::s_savers;
 }

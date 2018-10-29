@@ -174,6 +174,50 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Polls the connection status of the currently connecting socket
+	* \return New socket state, which maybe unchanged (if connecting is still pending), SocketState_Connected if connection is successful or SocketState_NotConnected if connection failed
+	*
+	* This functions checks if the pending connection has either succeeded, failed or is still processing at the time of the call.
+	*
+	* \remark This function doesn't do anything if the socket is not currently connecting.
+	*
+	* \see WaitForConnected
+	*/
+	SocketState TcpClient::PollForConnected(UInt64 waitDuration)
+	{
+		switch (m_state)
+		{
+			case SocketState_Connecting:
+			{
+				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+
+				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, waitDuration, &m_lastError);
+
+				// Prevent valid peer address in non-connected state
+				if (newState == SocketState_NotConnected)
+				{
+					m_openMode = OpenMode_NotOpen;
+					m_peerAddress = IpAddress::Invalid;
+				}
+
+				UpdateState(newState);
+				return newState;
+			}
+
+			case SocketState_Connected:
+			case SocketState_NotConnected:
+				return m_state;
+
+			case SocketState_Bound:
+			case SocketState_Resolving:
+				break;
+		}
+
+		NazaraInternalError("Unexpected socket state (0x" + String::Number(m_state, 16) + ')');
+		return m_state;
+	}
+
+	/*!
 	* \brief Receives the data available
 	* \return true If data received
 	*
@@ -244,7 +288,7 @@ namespace Nz
 			NazaraAssert(m_pendingPacket.received <= NetPacket::HeaderSize, "Received more data than header size");
 			if (m_pendingPacket.received >= NetPacket::HeaderSize)
 			{
-				UInt16 size;
+				UInt32 size;
 				if (!NetPacket::DecodeHeader(m_pendingPacket.data.GetConstBuffer(), &size, &m_pendingPacket.netcode))
 				{
 					m_lastError = SocketError_Packet;
@@ -261,7 +305,7 @@ namespace Nz
 		// We may have just received the header now
 		if (m_pendingPacket.headerReceived)
 		{
-			UInt16 packetSize = static_cast<UInt16>(m_pendingPacket.data.GetSize()); //< Total packet size
+			UInt32 packetSize = static_cast<UInt32>(m_pendingPacket.data.GetSize()); //< Total packet size
 			if (packetSize == 0)
 			{
 				// Special case: our packet carry no data
@@ -432,55 +476,52 @@ namespace Nz
 
 	/*!
 	* \brief Waits for being connected before time out
-	* \return true If connection is successful
+	* \return The new socket state, either Connected if connection did succeed or NotConnected if an error occurred
 	*
-	* \param msTimeout Time in milliseconds before time out
+	* This functions waits for the pending connection to either succeed or fail for a specific duration before failing.
 	*
-	* \remark Produces a NazaraAssert if socket is invalid
+	* \param msTimeout Time in milliseconds before time out (0 for system-specific duration, like a blocking connect would)
+	*
+	* \remark This function doesn't do anything if the socket is not currently connecting.
+	*
+	* \see PollForConnected
 	*/
-
-	bool TcpClient::WaitForConnected(UInt64 msTimeout)
+	SocketState TcpClient::WaitForConnected(UInt64 msTimeout)
 	{
 		switch (m_state)
 		{
-			case SocketState_Bound:
-			case SocketState_Resolving:
-				break;
-
-			case SocketState_Connected:
-				return true;
-
 			case SocketState_Connecting:
 			{
 				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
-				CallOnExit restoreBlocking;
-				if (m_isBlockingEnabled)
+				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, (msTimeout > 0) ? msTimeout : std::numeric_limits<UInt64>::max(), &m_lastError);
+
+				// If connection is still pending after waiting, cancel it
+				if (newState == SocketState_Connecting)
+					newState = SocketState_NotConnected;
+
+				// Prevent valid stats in non-connected state
+				if (newState == SocketState_NotConnected)
 				{
-					SocketImpl::SetBlocking(m_handle, false);
-					restoreBlocking.Reset([this] ()
-					{
-						SocketImpl::SetBlocking(m_handle, true);
-					});
+					m_openMode = OpenMode_NotOpen;
+					m_peerAddress = IpAddress::Invalid;
 				}
 
-				SocketState newState = SocketImpl::Connect(m_handle, m_peerAddress, msTimeout, &m_lastError);
-				NazaraAssert(newState != SocketState_Connecting, "Invalid internal return"); //< Connect cannot return Connecting is a timeout was specified
-
-				// Prevent valid peer address in non-connected state
-				if (newState == SocketState_NotConnected)
-					m_peerAddress = IpAddress::Invalid;
-
 				UpdateState(newState);
-				return newState == SocketState_Connected;
+				return newState;
 			}
 
+			case SocketState_Connected:
 			case SocketState_NotConnected:
-				return false;
+				return m_state;
+
+			case SocketState_Bound:
+			case SocketState_Resolving:
+				break;
 		}
 
 		NazaraInternalError("Unhandled socket state (0x" + String::Number(m_state, 16) + ')');
-		return false;
+		return m_state;
 	}
 
 	/*!

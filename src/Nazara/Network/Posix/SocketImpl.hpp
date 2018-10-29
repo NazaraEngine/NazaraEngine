@@ -40,7 +40,6 @@ namespace Nz
 			static void Close(SocketHandle handle);
 
 			static SocketState Connect(SocketHandle handle, const IpAddress& address, SocketError* error);
-			static SocketState Connect(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Initialize();
 
@@ -60,7 +59,8 @@ namespace Nz
 			static std::size_t QueryReceiveBufferSize(SocketHandle handle, SocketError* error = nullptr);
 			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
-			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static unsigned int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static SocketState PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
@@ -78,7 +78,7 @@ namespace Nz
 			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 			static bool SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 
-			static SocketError TranslateErrnoToResolveError(int error);
+			static SocketError TranslateErrnoToSocketError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
 			static int TranslateSocketTypeToSock(SocketType type);
 

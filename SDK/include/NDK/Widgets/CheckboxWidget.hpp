@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -28,7 +28,7 @@ namespace Ndk
 		friend class Sdk;
 
 		public:
-			CheckboxWidget(BaseWidget* parent = nullptr);
+			CheckboxWidget(BaseWidget* parent);
 			CheckboxWidget(const CheckboxWidget&) = delete;
 			CheckboxWidget(CheckboxWidget&&) = default;
 			~CheckboxWidget() = default;
@@ -53,7 +53,6 @@ namespace Ndk
 			void SetState(CheckboxState state);
 			inline void SetTextMargin(float margin);
 
-			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 
@@ -68,6 +67,7 @@ namespace Ndk
 
 			void Layout() override;
 			void UpdateCheckbox();
+			void UpdateSize();
 
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;

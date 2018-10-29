@@ -15,17 +15,18 @@ namespace Ndk
 	{
 		public:
 			EntityOwner() = default;
-			explicit EntityOwner(Entity* entity);
+			EntityOwner(Entity* entity);
 			EntityOwner(const EntityOwner& handle) = delete;
 			EntityOwner(EntityOwner&& handle) noexcept = default;
 			~EntityOwner();
 
+			void Release();
 			void Reset(Entity* entity = nullptr);
 			void Reset(EntityOwner&& handle);
 
 			EntityOwner& operator=(Entity* entity);
 			EntityOwner& operator=(const EntityOwner& handle) = delete;
-			EntityOwner& operator=(EntityOwner&& handle) noexcept = default;
+			EntityOwner& operator=(EntityOwner&& handle) noexcept;
 	};
 }
 

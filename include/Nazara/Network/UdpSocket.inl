@@ -33,7 +33,7 @@ namespace Nz
 	* \param udpSocket UdpSocket to move into this
 	*/
 
-	inline UdpSocket::UdpSocket(UdpSocket&& udpSocket) :
+	inline UdpSocket::UdpSocket(UdpSocket&& udpSocket) noexcept :
 	AbstractSocket(std::move(udpSocket)),
 	m_boundAddress(std::move(udpSocket.m_boundAddress))
 	{

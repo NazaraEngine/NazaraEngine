@@ -247,7 +247,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-					NazaraError("Error receiving incoming packets");
+					//NazaraError("Error receiving incoming packets");
 					return -1;
 
 				default:
@@ -489,7 +489,7 @@ namespace Nz
 		if (m_receivedDataLength < NazaraOffsetOf(ENetProtocolHeader, sentTime))
 			return false;
 
-		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData);
+		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData.Get());
 
 		UInt16 peerID = NetToHost(header->peerID);
 		UInt8  sessionID = (peerID & ENetProtocolHeaderSessionMask) >> ENetProtocolHeaderSessionShift;
@@ -855,9 +855,9 @@ namespace Nz
 			if (channel)
 			{
 				if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENetPeer_ReliableWindowSize) &&
-					((channel->reliableWindows[(reliableWindow + ENetPeer_ReliableWindows - 1) % ENetPeer_ReliableWindows] >= ENetPeer_ReliableWindowSize) ||
-					channel->usedReliableWindows & ((((1 << ENetPeer_ReliableWindows) - 1) << reliableWindow) |
-					(((1 << ENetPeer_FreeReliableWindows) - 1) >> (ENetPeer_ReliableWindows - reliableWindow)))))
+				    ((channel->reliableWindows[(reliableWindow + ENetPeer_ReliableWindows - 1) % ENetPeer_ReliableWindows] >= ENetPeer_ReliableWindowSize) ||
+				    channel->usedReliableWindows & ((((1 << ENetPeer_ReliableWindows) - 1) << reliableWindow) |
+				    (((1 << ENetPeer_FreeReliableWindows) - 1) >> (ENetPeer_ReliableWindows - reliableWindow)))))
 					windowWrap = true;
 
 				if (windowWrap)

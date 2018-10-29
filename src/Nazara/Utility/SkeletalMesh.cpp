@@ -8,8 +8,16 @@
 
 namespace Nz
 {
-	SkeletalMesh::SkeletalMesh(const Mesh* parent) :
-	SubMesh(parent)
+	SkeletalMesh::SkeletalMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer) :
+	m_aabb(Nz::Boxf::Zero()),
+	m_indexBuffer(indexBuffer),
+	m_vertexBuffer(vertexBuffer)
+	{
+		NazaraAssert(m_vertexBuffer, "Invalid vertex buffer");
+	}
+
+	SkeletalMesh::SkeletalMesh(const Mesh* /*parent*/) :
+	m_aabb(Nz::Boxf::Zero())
 	{
 	}
 
@@ -90,6 +98,8 @@ namespace Nz
 	void SkeletalMesh::SetAABB(const Boxf& aabb)
 	{
 		m_aabb = aabb;
+
+		OnSubMeshInvalidateAABB(this);
 	}
 
 	void SkeletalMesh::SetIndexBuffer(const IndexBuffer* indexBuffer)

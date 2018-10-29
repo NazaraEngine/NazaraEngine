@@ -556,7 +556,7 @@ namespace Nz
 		}
 	}
 
-	void DebugDrawer::DrawNormals(const StaticMesh* subMesh)
+	void DebugDrawer::DrawNormals(const StaticMesh* subMesh, float normalLength)
 	{
 		if (!s_initialized && !Initialize())
 		{
@@ -583,7 +583,7 @@ namespace Nz
 			outputVertex->position = inputVertex->position;
 			outputVertex++;
 
-			outputVertex->position = inputVertex->position + inputVertex->normal*0.01f;
+			outputVertex->position = inputVertex->position + inputVertex->normal*normalLength;
 			outputVertex++;
 
 			inputVertex++;

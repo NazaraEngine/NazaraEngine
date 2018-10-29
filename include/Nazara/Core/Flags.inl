@@ -221,6 +221,51 @@ namespace Nz
 		return 1U << static_cast<BitField>(enumValue);
 	}
 
+	/*!
+	* \brief Compare flag states
+	* \return Compared flags
+	*
+	* This will returns a copy of the Flags object compared with the enum state.
+	*
+	* \param lhs Enum to compare with flags.
+	* \param rhs Flags object.
+	*/
+	template<typename E>
+	constexpr Flags<E> operator&(E lhs, Flags<E> rhs)
+	{
+		return rhs & lhs;
+	}
+
+	/*!
+	* \brief Combine flag states
+	* \return Combined flags
+	*
+	* This will returns a copy of the Flags object combined with the enum state.
+	*
+	* \param lhs Enum to combine with flags.
+	* \param rhs Flags object.
+	*/
+	template<typename E>
+	constexpr Flags<E> operator|(E lhs, Flags<E> rhs)
+	{
+		return rhs | lhs;
+	}
+
+	/*!
+	* \brief XOR flag states
+	* \return XORed flags
+	*
+	* This will returns a copy of the Flags object XORed with the enum state.
+	*
+	* \param lhs Enum to XOR with flags.
+	* \param rhs Flags object.
+	*/
+	template<typename E>
+	constexpr Flags<E> operator^(E lhs, Flags<E> rhs)
+	{
+		return rhs ^ lhs;
+	}
+
 
 	namespace FlagsOperators
 	{
@@ -239,21 +284,6 @@ namespace Nz
 		}
 
 		/*!
-		* \brief Override binary OR operator on enum to turns into a Flags object.
-		* \return A Flags object with combined enum states.
-		*
-		* \param lhs First enumeration value to combine.
-		* \param rhs Second enumeration value to combine.
-		*
-		* Returns a Flags object with combined states from the two enumeration values.
-		*/
-		template<typename E>
-		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator|(E lhs, E rhs)
-		{
-			return Flags<E>(lhs) | rhs;
-		}
-
-		/*!
 		* \brief Override binary AND operator on enum to turns into a Flags object.
 		* \return A Flags object with compare enum states.
 		*
@@ -267,6 +297,21 @@ namespace Nz
 		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator&(E lhs, E rhs)
 		{
 			return Flags<E>(lhs) & rhs;
+		}
+
+		/*!
+		* \brief Override binary OR operator on enum to turns into a Flags object.
+		* \return A Flags object with combined enum states.
+		*
+		* \param lhs First enumeration value to combine.
+		* \param rhs Second enumeration value to combine.
+		*
+		* Returns a Flags object with combined states from the two enumeration values.
+		*/
+		template<typename E>
+		constexpr std::enable_if_t<IsEnumFlag<E>::value, Flags<E>> operator|(E lhs, E rhs)
+		{
+			return Flags<E>(lhs) | rhs;
 		}
 
 		/*!

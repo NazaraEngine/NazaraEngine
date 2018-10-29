@@ -76,11 +76,6 @@ namespace Nz
 			bool Precache(unsigned int characterSize, UInt32 style, char32_t character) const;
 			bool Precache(unsigned int characterSize, UInt32 style, const String& characterSet) const;
 
-			// Open
-			bool OpenFromFile(const String& filePath, const FontParams& params = FontParams());
-			bool OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
-			bool OpenFromStream(Stream& stream, const FontParams& params = FontParams());
-
 			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			void SetGlyphBorder(unsigned int borderSize);
 			void SetMinimumStepSize(unsigned int minimumStepSize);
@@ -92,6 +87,10 @@ namespace Nz
 			static const FontRef& GetDefault();
 			static unsigned int GetDefaultGlyphBorder();
 			static unsigned int GetDefaultMinimumStepSize();
+
+			static FontRef OpenFromFile(const String& filePath, const FontParams& params = FontParams());
+			static FontRef OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
+			static FontRef OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 
 			template<typename... Args> static FontRef New(Args&&... args);
 

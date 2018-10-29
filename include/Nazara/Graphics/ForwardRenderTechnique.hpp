@@ -83,18 +83,26 @@ namespace Nz
 				int textureOverlay;
 			};
 
+			struct SpriteBatch
+			{
+				std::size_t spriteCount;
+				const Material* material;
+				const Texture* overlayTexture;
+				Recti scissorRect;
+			};
+
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			mutable std::vector<LightIndex> m_lights;
-			mutable std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> m_spriteChains;
+			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
 			mutable BasicRenderQueue m_renderQueue;
-			Texture m_whiteTexture;
+			TextureRef m_whiteCubemap;
+			TextureRef m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;
 			VertexBuffer m_spriteBuffer;
 			unsigned int m_maxLightPassPerObject;
 
 			static IndexBuffer s_quadIndexBuffer;
-			static Texture s_dummyReflection;
 			static TextureSampler s_reflectionSampler;
 			static TextureSampler s_shadowSampler;
 			static VertexBuffer s_quadVertexBuffer;

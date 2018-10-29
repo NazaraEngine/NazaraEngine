@@ -83,14 +83,14 @@ namespace Nz
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
-			bool LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
-			bool LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
-
 			void RemoveSequence(const String& sequenceName);
 			void RemoveSequence(UInt32 index);
 
 			template<typename... Args> static AnimationRef New(Args&&... args);
+
+			static AnimationRef LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
+			static AnimationRef LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
+			static AnimationRef LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 
 			// Signals:
 			NazaraSignal(OnAnimationDestroy, const Animation* /*animation*/);

@@ -48,9 +48,7 @@ namespace Nz
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-		std::array<UInt8, 4> whitePixel = { { 255, 255, 255, 255 } };
-		m_whiteTexture.Create(ImageType_2D, PixelFormatType_RGBA8, 1, 1);
-		m_whiteTexture.Update(whitePixel.data());
+		m_whiteTexture = Nz::TextureLibrary::Get("White2D");
 
 		m_vertexBuffer.Create(s_vertexBufferSize, DataStorage_Hardware, BufferUsage_Dynamic);
 
@@ -87,6 +85,7 @@ namespace Nz
 
 		m_GBufferRTT->SetColorTargets({0, 1, 2}); // G-Buffer
 		Renderer::SetTarget(m_GBufferRTT);
+		Renderer::SetScissorRect(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 		Renderer::SetViewport(Recti(0, 0, m_dimensions.x, m_dimensions.y));
 
 		Renderer::SetRenderStates(m_clearStates);
@@ -576,7 +575,7 @@ namespace Nz
 					lastMaterial = basicSprites.material;
 				}
 
-				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : &m_whiteTexture;
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
 				if (overlayTexture != lastOverlay)
 				{
 					Renderer::SetTexture(overlayTextureUnit, overlayTexture);
@@ -650,15 +649,15 @@ namespace Nz
 
 			mapper.Unmap(); // No point to keep the buffer open any longer
 
-							// Quad buffer (used for instancing of billboards and sprites)
-							//Note: UV are computed in the shader
+			// Quad buffer (used for instancing of billboards and sprites)
+			//Note: UV are computed in the shader
 			s_quadVertexBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY), 4, DataStorage_Hardware, 0);
 
 			float vertices[2 * 4] = {
 				-0.5f, -0.5f,
-				0.5f, -0.5f,
+				 0.5f, -0.5f,
 				-0.5f, 0.5f,
-				0.5f, 0.5f,
+				 0.5f, 0.5f,
 			};
 
 			s_quadVertexBuffer.FillRaw(vertices, 0, sizeof(vertices));

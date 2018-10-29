@@ -1112,6 +1112,7 @@ namespace Nz
 				glUniform2dv = reinterpret_cast<PFNGLUNIFORM2DVPROC>(LoadEntry("glUniform2dv"));
 				glUniform3dv = reinterpret_cast<PFNGLUNIFORM3DVPROC>(LoadEntry("glUniform3dv"));
 				glUniform4dv = reinterpret_cast<PFNGLUNIFORM4DVPROC>(LoadEntry("glUniform4dv"));
+				glUniformMatrix4dv = reinterpret_cast<PFNGLUNIFORMMATRIX4DVPROC>(LoadEntry("glUniformMatrix4dv"));
 
 				s_openGLextensions[OpenGLExtension_FP64] = true;
 			}
@@ -1173,6 +1174,9 @@ namespace Nz
 				NazaraWarning("Failed to load ARB_separate_shader_objects: (" + String(e.what()) + ")");
 			}
 		}
+
+		// Seamless Cubemap Filtering
+		s_openGLextensions[OpenGLExtension_SeamlessCubeMap] = (s_openglVersion >= 320 || IsSupported("GL_ARB_seamless_cube_map"));
 
 		// Shader_ImageLoadStore
 		s_openGLextensions[OpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));

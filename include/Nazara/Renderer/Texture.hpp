@@ -38,7 +38,7 @@ namespace Nz
 		public:
 			Texture() = default;
 			Texture(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
-			explicit Texture(const Image& image);
+			explicit Texture(const Image* image);
 			Texture(const Texture&) = delete;
 			Texture(Texture&&) = delete;
 			~Texture();
@@ -68,24 +68,6 @@ namespace Nz
 			void InvalidateMipmaps();
 			bool IsValid() const;
 
-			// Load
-			bool LoadFromFile(const String& filePath, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-			bool LoadFromImage(const Image& image, bool generateMipmaps = true);
-			bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-			bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-
-			// LoadArray
-			bool LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromImage(const Image& image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-
-			// LoadCubemap
-			bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-			bool LoadCubemapFromImage(const Image& image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
-			bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-			bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-
 			// LoadFace
 			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
 			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
@@ -97,9 +79,9 @@ namespace Nz
 
 			bool SetMipmapRange(UInt8 minLevel, UInt8 maxLevel);
 
-			bool Update(const Image& image, UInt8 level = 0);
-			bool Update(const Image& image, const Boxui& box, UInt8 level = 0);
-			bool Update(const Image& image, const Rectui& rect, unsigned int z = 0, UInt8 level = 0);
+			bool Update(const Image* image, UInt8 level = 0);
+			bool Update(const Image* image, const Boxui& box, UInt8 level = 0);
+			bool Update(const Image* image, const Rectui& rect, unsigned int z = 0, UInt8 level = 0);
 			bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 			bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
@@ -113,6 +95,25 @@ namespace Nz
 			static bool IsFormatSupported(PixelFormatType format);
 			static bool IsMipmappingSupported();
 			static bool IsTypeSupported(ImageType type);
+
+			// Load
+			static TextureRef LoadFromFile(const String& filePath, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			static TextureRef LoadFromImage(const Image* image, bool generateMipmaps = true);
+			static TextureRef LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			static TextureRef LoadFromStream(Stream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+
+			// LoadArray
+			static TextureRef LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static TextureRef LoadArrayFromImage(const Image* image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static TextureRef LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static TextureRef LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+
+			// LoadCubemap
+			static TextureRef LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			static TextureRef LoadCubemapFromImage(const Image* image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
+			static TextureRef LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			static TextureRef LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+
 			template<typename... Args> static TextureRef New(Args&&... args);
 
 			// Signals:

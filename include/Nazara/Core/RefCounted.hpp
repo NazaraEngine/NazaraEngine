@@ -23,7 +23,7 @@ namespace Nz
 		public:
 			RefCounted(bool persistent = true);
 			RefCounted(const RefCounted&) = delete;
-			RefCounted(RefCounted&&) = default;
+			RefCounted(RefCounted&&) = delete;
 			virtual ~RefCounted();
 
 			void AddReference() const;
@@ -37,7 +37,7 @@ namespace Nz
 			bool SetPersistent(bool persistent = true, bool checkReferenceCount = false);
 
 			RefCounted& operator=(const RefCounted&) = delete;
-			RefCounted& operator=(RefCounted&&) = default;
+			RefCounted& operator=(RefCounted&&) = delete;
 
 		private:
 			std::atomic_bool m_persistent;
