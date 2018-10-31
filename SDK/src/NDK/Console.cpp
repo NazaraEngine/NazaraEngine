@@ -47,14 +47,12 @@ namespace Ndk
 		m_history->EnableBackground(true);
 		m_history->SetReadOnly(true);
 		m_history->SetBackgroundColor(Nz::Color(80, 80, 160, 128));
-		m_history->SetPadding(0.f, 0.f, 0.f, 4.f);
 
 		// Input
 		m_input = Add<TextAreaWidget>();
 		m_input->EnableBackground(true);
 		m_input->SetText(s_inputPrefix);
 		m_input->SetTextColor(Nz::Color::Black);
-		m_input->SetPadding(0.f, 2.f, 0.f, 2.f);
 
 		m_input->OnTextAreaKeyReturn.Connect(this, &Console::ExecuteInput);
 
@@ -92,9 +90,6 @@ namespace Ndk
 
 			m_input->SetText(s_inputPrefix + m_commandHistory[m_historyPosition]);
 		});
-
-		// General
-		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	/*!
@@ -129,10 +124,6 @@ namespace Ndk
 	void Console::ClearFocus()
 	{
 		m_input->ClearFocus();
-	}
-
-	void Console::ResizeToContent()
-	{
 	}
 
 	/*!
@@ -206,8 +197,8 @@ namespace Ndk
 
 	void Console::Layout()
 	{
-		Nz::Vector2f origin = GetContentOrigin();
-		const Nz::Vector2f& size = GetContentSize();
+		Nz::Vector2f origin = Nz::Vector2f(GetPosition());
+		const Nz::Vector2f& size = GetSize();
 
 		unsigned int lineHeight = m_defaultFont->GetSizeInfo(m_characterSize).lineHeight;
 		float historyHeight = size.y - lineHeight;
@@ -215,10 +206,10 @@ namespace Ndk
 		m_maxHistoryLines = static_cast<unsigned int>(std::ceil(historyHeight / lineHeight));
 		float diff = historyHeight - m_maxHistoryLines * lineHeight;
 
+		m_history->Resize({ size.x, historyHeight - diff - 4.f });
 		m_history->SetPosition(origin.x, origin.y + diff);
-		m_history->SetSize({size.x, historyHeight - diff - 4.f});
 
-		m_input->SetContentSize({size.x, size.y - historyHeight});
+		m_input->Resize({size.x, size.y - historyHeight});
 		m_input->SetPosition(origin.x, origin.y + historyHeight);
 	}
 }

@@ -49,8 +49,6 @@ namespace Ndk
 			inline const TextAreaWidget* GetInput() const;
 			inline const Nz::FontRef& GetTextFont() const;
 
-			void ResizeToContent() override;
-
 			void SetCharacterSize(unsigned int size);
 			void SetFocus();
 			void SetTextFont(Nz::FontRef font);
