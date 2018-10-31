@@ -154,7 +154,7 @@ namespace Ndk
 		overlay->console = info.canvas->Add<Console>(overlay->lua);
 
 		Console& consoleRef = *overlay->console;
-		consoleRef.SetSize({float(windowDimensions.x), windowDimensions.y / 4.f});
+		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
 		consoleRef.Show(false);
 
 		// Redirect logs toward the console
@@ -227,7 +227,7 @@ namespace Ndk
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
 			Nz::Vector2ui size = renderTarget->GetSize();
-			consoleRef.SetSize({float(size.x), size.y / 4.f});
+			consoleRef.Resize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);

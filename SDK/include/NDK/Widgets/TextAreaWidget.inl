@@ -83,7 +83,7 @@ namespace Ndk
 
 	inline std::size_t TextAreaWidget::GetGlyphIndex() const
 	{
-		return GetGlyphIndex(m_cursorPosition);
+		return GetGlyphIndex(m_cursorPositionBegin);
 	}
 
 	inline std::size_t TextAreaWidget::GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const
