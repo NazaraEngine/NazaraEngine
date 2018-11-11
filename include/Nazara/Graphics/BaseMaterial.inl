@@ -896,6 +896,7 @@ namespace Nz
 	}
 
 	/*!
+<<<<<<< HEAD:include/Nazara/Graphics/BaseMaterial.inl
 	* \brief Loads the material from file
 	* \return true if loading is successful
 	*
@@ -933,6 +934,8 @@ namespace Nz
 	}
 
 	/*!
+=======
+>>>>>>> master:include/Nazara/Graphics/Material.inl
 	* \brief Sets the alpha map by name
 	* \return true If successful
 	*
@@ -1466,7 +1469,48 @@ namespace Nz
 		return s_textureUnits[textureMap];
 	}
 
+<<<<<<< HEAD:include/Nazara/Graphics/BaseMaterial.inl
 	inline void BaseMaterial::InvalidatePipeline()
+=======
+	/*!
+	* \brief Loads the material from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromFile(const String& filePath, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromFile(filePath, params);
+	}
+
+	/*!
+	* \brief Loads the material from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromMemory(data, size, params);
+	}
+
+	/*!
+	* \brief Loads the material from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the material
+	* \param params Parameters for the material
+	*/
+	inline MaterialRef Material::LoadFromStream(Stream& stream, const MaterialParams& params)
+	{
+		return MaterialLoader::LoadFromStream(stream, params);
+	}
+
+	inline void Material::InvalidatePipeline()
+>>>>>>> master:include/Nazara/Graphics/Material.inl
 	{
 		m_pipelineUpdated = false;
 	}

@@ -84,7 +84,7 @@ namespace Nz
 	* \return Current rotation
 	*/
 
-	inline float Billboard::GetRotation() const
+	inline const RadianAnglef& Billboard::GetRotation() const
 	{
 		return m_rotation;
 	}
@@ -161,10 +161,12 @@ namespace Nz
 	* \param rotation Rotation for the billboard
 	*/
 
-	inline void Billboard::SetRotation(float rotation)
+	inline void Billboard::SetRotation(const RadianAnglef& rotation)
 	{
 		m_rotation = rotation;
-		m_sinCos.Set(std::sin(m_rotation), std::cos(m_rotation));
+
+		auto sincos = rotation.GetSinCos();
+		m_sinCos.Set(sincos.first, sincos.second);
 	}
 
 	/*!

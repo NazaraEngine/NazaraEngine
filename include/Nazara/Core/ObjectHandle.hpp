@@ -8,12 +8,12 @@
 #define NAZARA_OBJECTHANDLE_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/HandledObject.hpp>
+#include <memory>
 #include <ostream>
 
 namespace Nz
 {
-	template<typename T> class HandledObject;
-
 	template<typename T>
 	class ObjectHandle
 	{
@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			ObjectHandle();
 			explicit ObjectHandle(T* object);
-			ObjectHandle(const ObjectHandle& handle);
+			ObjectHandle(const ObjectHandle& handle) = default;
 			ObjectHandle(ObjectHandle&& handle) noexcept;
 			~ObjectHandle();
 
@@ -43,16 +43,13 @@ namespace Nz
 			T* operator->() const;
 
 			ObjectHandle& operator=(T* object);
-			ObjectHandle& operator=(const ObjectHandle& handle);
+			ObjectHandle& operator=(const ObjectHandle& handle) = default;
 			ObjectHandle& operator=(ObjectHandle&& handle) noexcept;
 
 			static const ObjectHandle InvalidHandle;
 
 		protected:
-			void OnObjectDestroyed() noexcept;
-			void OnObjectMoved(T* newObject) noexcept;
-
-			T* m_object;
+			std::shared_ptr<const Detail::HandleData> m_handleData;
 	};
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const ObjectHandle<T>& handle);

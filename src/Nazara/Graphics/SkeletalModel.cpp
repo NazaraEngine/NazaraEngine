@@ -221,46 +221,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Loads the skeleton model from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromFile(const String& filePath, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the skeleton model from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the skeleton model from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the skeleton model
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromStream(Stream& stream, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
 	* \brief Sets the animation for the model
 	* \return true If successful
 	*
@@ -432,6 +392,4 @@ namespace Nz
 		/*if (m_animationEnabled && m_animation)
 			AdvanceAnimation(m_scene->GetUpdateTime());*/
 	}
-
-	SkeletalModelLoader::LoaderList SkeletalModel::s_loaders;
 }

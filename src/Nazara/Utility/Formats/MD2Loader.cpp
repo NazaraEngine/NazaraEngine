@@ -46,13 +46,13 @@ namespace Nz
 			return Ternary_False;
 		}
 
-		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+		MeshRef Load(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
 			{
 				NazaraError("Failed to read header");
-				return false;
+				return nullptr;
 			}
 
 			#ifdef NAZARA_BIG_ENDIAN
@@ -76,14 +76,15 @@ namespace Nz
 			if (stream.GetSize() < header.offset_end)
 			{
 				NazaraError("Incomplete MD2 file");
-				return false;
+				return nullptr;
 			}
 
 			// Since the engine no longer supports keyframe animations, let's make a static mesh
+			MeshRef mesh = Nz::Mesh::New();
 			if (!mesh->CreateStatic())
 			{
 				NazaraInternalError("Failed to create mesh");
-				return false;
+				return nullptr;
 			}
 
 			// Extract skins (texture name)
@@ -253,7 +254,7 @@ namespace Nz
 			if (parameters.center)
 				mesh->Recenter();
 
-			return true;
+			return mesh;
 		}
 	}
 

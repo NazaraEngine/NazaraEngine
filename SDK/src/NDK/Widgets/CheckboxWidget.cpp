@@ -57,14 +57,14 @@ namespace Ndk
 			#include <NDK/Resources/checkmark.png.h>
 		};
 
-		Nz::TextureRef checkmarkTexture = Nz::Texture::New();
-		if (!checkmarkTexture->LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0])))
+		Nz::TextureRef checkmarkTexture = Nz::Texture::LoadFromMemory(r_checkmark, sizeof(r_checkmark) / sizeof(r_checkmark[0]));
+		if (!checkmarkTexture)
 		{
 			NazaraError("Failed to load embedded checkmark");
 			return false;
 		}
 
-		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkmark", checkmarkTexture);
+		Nz::TextureLibrary::Register("Ndk::CheckboxWidget::checkmark", std::move(checkmarkTexture));
 		return true;
 	}
 	
@@ -112,20 +112,16 @@ namespace Ndk
 	{
 		BaseWidget::Layout();
 
-		Nz::Vector2f origin = Nz::Vector2f(0.f);
 		Nz::Vector2f checkboxSize = GetCheckboxSize();
 		Nz::Vector2f borderSize = GetCheckboxBorderSize();
 
-		m_checkboxBorderEntity->GetComponent<NodeComponent>().SetPosition(origin);
-		m_checkboxBackgroundEntity->GetComponent<NodeComponent>().SetPosition(origin + borderSize);
+		m_checkboxBackgroundEntity->GetComponent<NodeComponent>().SetPosition(borderSize);
 
 		Nz::Vector3f checkboxBox = m_checkboxContentSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x / 2.f - checkboxBox.x / 2.f,
-		                                                                   origin.y + checkboxSize.y / 2.f - checkboxBox.y / 2.f);
+		m_checkboxContentEntity->GetComponent<NodeComponent>().SetPosition(checkboxSize.x / 2.f - checkboxBox.x / 2.f, checkboxSize.y / 2.f - checkboxBox.y / 2.f);
 
 		Nz::Vector3f textBox = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin),
-		                                                        origin.y + checkboxSize.y / 2.f - textBox.y / 2.f);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin), checkboxSize.y / 2.f - textBox.y / 2.f);
 	}
 
 	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
@@ -175,7 +171,7 @@ namespace Ndk
 		Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
 		Nz::Vector2f checkboxSize = GetCheckboxSize();
 
-		Nz::Vector2f finalSize{ checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
+		Nz::Vector2f finalSize { checkboxSize.x + (m_adaptativeMargin ? checkboxSize.x / 2.f : m_textMargin) + textSize.x, std::max(textSize.y, checkboxSize.y) };
 		SetMinimumSize(finalSize);
 		SetPreferredSize(finalSize);
 	}

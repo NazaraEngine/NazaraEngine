@@ -138,59 +138,6 @@ namespace Nz
 		return SocketState_Connected;
 	}
 
-	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
-	{
-		SocketState state = Connect(handle, address, error);
-		if (state == SocketState_Connecting)
-		{
-			// http://developerweb.net/viewtopic.php?id=3196
-			fd_set localSet;
-			FD_ZERO(&localSet);
-			FD_SET(handle, &localSet);
-
-			timeval tv;
-			tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
-			tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
-
-			int ret = select(handle + 1, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
-			if (ret > 0)
-			{
-				int code = GetLastErrorCode(handle, error);
-				if (code < 0) //< GetLastErrorCode() failed
-					return SocketState_NotConnected;
-
-				if (code)
-				{
-					if (error)
-						*error = TranslateErrnoToSocketError(code);
-
-					return SocketState_NotConnected;
-				}
-			}
-			else if (ret == 0)
-			{
-				if (error)
-					*error = SocketError_TimedOut;
-
-				return SocketState_NotConnected;
-			}
-			else
-			{
-				if (error)
-					*error = TranslateErrnoToSocketError(GetLastErrorCode());
-
-				return SocketState_NotConnected;
-			}
-
-			if (error)
-				*error = SocketError_NoError;
-
-			state = SocketState_Connected;
-		}
-
-		return state;
-	}
-
 	bool SocketImpl::Initialize()
 	{
 		return true;
@@ -460,6 +407,58 @@ namespace Nz
 		}
 
 		return static_cast<unsigned int>(result);
+	}
+
+	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
+	{
+		// http://developerweb.net/viewtopic.php?id=3196
+		fd_set localSet;
+		FD_ZERO(&localSet);
+		FD_SET(handle, &localSet);
+
+		timeval tv;
+		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
+		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
+
+		int ret = ::select(0, nullptr, &localSet, &localSet, (msTimeout != std::numeric_limits<UInt64>::max()) ? &tv : nullptr);
+		if (ret > 0)
+		{
+			int code = GetLastErrorCode(handle, error);
+			if (code < 0) //< GetLastErrorCode() failed
+				return SocketState_NotConnected;
+
+			if (code)
+			{
+				if (error)
+					*error = TranslateErrnoToSocketError(code);
+
+				return SocketState_NotConnected;
+			}
+		}
+		else if (ret == 0)
+		{
+			if (error)
+			{
+				if (msTimeout > 0)
+					*error = SocketError_TimedOut;
+				else
+					*error = SocketError_NoError;
+			}
+
+			return SocketState_Connecting;
+		}
+		else
+		{
+			if (error)
+				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+
+			return SocketState_NotConnected;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return SocketState_Connected;
 	}
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)

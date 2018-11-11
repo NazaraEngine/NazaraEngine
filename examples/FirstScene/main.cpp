@@ -56,8 +56,8 @@ int main()
 	// En réalité les textures "cubemap" regroupent six faces en une, pour faciliter leur utilisation.
 
 	// Nous créons une nouvelle texture et prenons une référence sur celle-ci (à la manière des pointeurs intelligents)
-	Nz::TextureRef texture = Nz::Texture::New();
-	if (texture->LoadCubemapFromFile("resources/skybox-space.png"))
+	Nz::TextureRef texture = Nz::Texture::LoadCubemapFromFile("resources/skybox-space.png");
+	if (texture)
 	{
 		// Si la création du cubemap a fonctionné
 
@@ -83,9 +83,6 @@ int main()
 	// Les modèles représentent, globalement, tout ce qui est visible en trois dimensions.
 	// Nous choisirons ici un vaisseau spatial (Quoi de mieux pour une scène spatiale ?)
 
-	// Encore une fois, nous récupérons une référence plutôt que l'objet lui-même (cela va être très utile par la suite)
-	Nz::ModelRef spaceshipModel = Nz::Model::New();
-
 	// Nous allons charger notre modèle depuis un fichier, mais nous pouvons ajuster le modèle lors du chargement via
 	// une structure permettant de paramétrer le chargement des modèles
 	Nz::ModelParameters params;
@@ -104,7 +101,8 @@ int main()
 
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
-	if (!spaceshipModel->LoadFromFile("resources/Spaceship/spaceship.obj", params))
+	Nz::ModelRef spaceshipModel = Nz::Model::LoadFromFile("resources/Spaceship/spaceship.obj", params);
+	if (!spaceshipModel)
 	{
 		// Si le chargement a échoué (fichier inexistant/invalide), il ne sert à rien de continuer
 		std::cout << "Failed to load spaceship" << std::endl;

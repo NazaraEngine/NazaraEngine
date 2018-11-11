@@ -12,8 +12,8 @@ SCENARIO("Model", "[GRAPHICS][MODEL]")
 				Nz::ModelParameters params;
 				params.mesh.optimizeIndexBuffers = false;
 
-				Nz::ModelRef model = Nz::Model::New();
-				REQUIRE(model->LoadFromFile("resources/Engine/Graphics/dragon_recon/dragon_vrip_res4.obj", params));
+				Nz::ModelRef model = Nz::Model::LoadFromFile("resources/Engine/Graphics/dragon_recon/dragon_vrip_res4.obj", params);
+				REQUIRE(model);
 
 				REQUIRE(model->GetMaterialCount() == 1);
 				REQUIRE(model->GetSkin() == 0);

@@ -107,7 +107,7 @@ class SpriteRenderer : public Nz::ParticleRenderer
 		{
 		}
 
-		void Render(const Nz::ParticleGroup& system, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
+		void Render(const Nz::ParticleGroup& system, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue) override
 		{
 			Nz::Vector2f size(1.f, 1.f);
 			Nz::SparsePtr<const Nz::Vector2f> sizePtr(&size, 0);
@@ -126,18 +126,19 @@ ParticleDemo("Logo", sharedData)
 	Nz::ImageParams params;
 	params.loadFormat = Nz::PixelFormatType_RGBA8;
 
-	if (!m_logo.LoadFromFile("resources/Logo.png", params))
+	m_logo = Nz::Image::LoadFromFile("resources/Logo.png", params);
+	if (!m_logo)
 		NazaraError("Failed to load logo!");
 
-	unsigned int width = m_logo.GetWidth();
-	unsigned int height = m_logo.GetHeight();
+	unsigned int width = m_logo->GetWidth();
+	unsigned int height = m_logo->GetHeight();
 	m_pixels.reserve(width * height);
 
 	for (unsigned int x = 0; x < width; ++x)
 	{
 		for (unsigned int y = 0; y < height; ++y)
 		{
-			Nz::Color color = m_logo.GetPixelColor(x, y);
+			Nz::Color color = m_logo->GetPixelColor(x, y);
 			if (color.a == 0)
 				continue;
 
@@ -173,8 +174,8 @@ void LogoExample::Enter(Ndk::StateMachine& fsm)
 
 	m_shared.world3D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(nullptr);
 
-	Nz::TextureRef backgroundTexture = Nz::Texture::New();
-	if (backgroundTexture->LoadFromFile("resources/stars-background.jpg"))
+	Nz::TextureRef backgroundTexture = Nz::Texture::LoadFromFile("resources/stars-background.jpg");
+	if (backgroundTexture)
 		m_shared.world2D->GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::TextureBackground::New(std::move(backgroundTexture)));
 
 	Ndk::EntityHandle particleGroupEntity = m_shared.world2D->CreateEntity();
@@ -254,7 +255,7 @@ void LogoExample::ResetParticles(float elapsed)
 	Nz::Vector2ui size = m_shared.target->GetSize();
 
 	Nz::Vector2f center = {size.x / 2.f, size.y / 2.f};
-	Nz::Vector2f offset = center - Nz::Vector2f(Nz::Vector2ui(m_logo.GetSize()) / 2);
+	Nz::Vector2f offset = center - Nz::Vector2f(Nz::Vector2ui(m_logo->GetSize()) / 2);
 
 	std::uniform_real_distribution<float> disX(0.f, float(size.x));
 	std::uniform_real_distribution<float> disY(-float(size.y) * 0.5f, float(size.y) * 1.5f);

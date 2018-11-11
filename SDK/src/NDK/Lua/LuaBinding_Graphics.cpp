@@ -76,7 +76,7 @@ namespace Ndk
 				switch (argumentCount)
 				{
 					case 0:
-						Nz::PlacementNew(instance, Nz::BaseMaterial::New());
+						Nz::PlacementNew(instance, Nz::Material::New());
 						return true;
 
 					case 1:
@@ -84,17 +84,17 @@ namespace Ndk
 						int argIndex = 1;
 						if (lua.IsOfType(argIndex, "MaterialPipeline"))
 						{
-							Nz::PlacementNew(instance, Nz::BaseMaterial::New(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(argIndex))));
+							Nz::PlacementNew(instance, Nz::Material::New(*static_cast<Nz::MaterialPipelineRef*>(lua.ToUserdata(argIndex))));
 							return true;
 						}
 						else if (lua.IsOfType(argIndex, "Material"))
 						{
-							Nz::PlacementNew(instance, Nz::BaseMaterial::New(**static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex))));
+							Nz::PlacementNew(instance, Nz::Material::New(**static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex))));
 							return true;
 						}
 						else
 						{
-							Nz::PlacementNew(instance, Nz::BaseMaterial::New(lua.Check<Nz::String>(&argIndex)));
+							Nz::PlacementNew(instance, Nz::Material::New(lua.Check<Nz::String>(&argIndex)));
 							return true;
 						}
 					}
@@ -119,92 +119,92 @@ namespace Ndk
 				}
 			});
 
-			material.BindMethod("EnableAlphaTest", &Nz::BaseMaterial::EnableAlphaTest);
-			material.BindMethod("EnableBlending", &Nz::BaseMaterial::EnableBlending);
-			material.BindMethod("EnableColorWrite", &Nz::BaseMaterial::EnableColorWrite);
-			material.BindMethod("EnableDepthBuffer", &Nz::BaseMaterial::EnableDepthBuffer);
-			material.BindMethod("EnableDepthSorting", &Nz::BaseMaterial::EnableDepthSorting);
-			material.BindMethod("EnableDepthWrite", &Nz::BaseMaterial::EnableDepthWrite);
-			material.BindMethod("EnableFaceCulling", &Nz::BaseMaterial::EnableFaceCulling);
-			material.BindMethod("EnableReflectionMapping", &Nz::BaseMaterial::EnableReflectionMapping);
-			material.BindMethod("EnableScissorTest", &Nz::BaseMaterial::EnableScissorTest);
-			material.BindMethod("EnableShadowCasting", &Nz::BaseMaterial::EnableShadowCasting);
-			material.BindMethod("EnableShadowReceive", &Nz::BaseMaterial::EnableShadowReceive);
-			material.BindMethod("EnableStencilTest", &Nz::BaseMaterial::EnableStencilTest);
+			material.BindMethod("EnableAlphaTest", &Nz::Material::EnableAlphaTest);
+			material.BindMethod("EnableBlending", &Nz::Material::EnableBlending);
+			material.BindMethod("EnableColorWrite", &Nz::Material::EnableColorWrite);
+			material.BindMethod("EnableDepthBuffer", &Nz::Material::EnableDepthBuffer);
+			material.BindMethod("EnableDepthSorting", &Nz::Material::EnableDepthSorting);
+			material.BindMethod("EnableDepthWrite", &Nz::Material::EnableDepthWrite);
+			material.BindMethod("EnableFaceCulling", &Nz::Material::EnableFaceCulling);
+			material.BindMethod("EnableReflectionMapping", &Nz::Material::EnableReflectionMapping);
+			material.BindMethod("EnableScissorTest", &Nz::Material::EnableScissorTest);
+			material.BindMethod("EnableShadowCasting", &Nz::Material::EnableShadowCasting);
+			material.BindMethod("EnableShadowReceive", &Nz::Material::EnableShadowReceive);
+			material.BindMethod("EnableStencilTest", &Nz::Material::EnableStencilTest);
 
-			material.BindMethod("EnsurePipelineUpdate", &Nz::BaseMaterial::EnsurePipelineUpdate);
+			material.BindMethod("EnsurePipelineUpdate", &Nz::Material::EnsurePipelineUpdate);
 
-			material.BindMethod("GetAlphaMap", &Nz::BaseMaterial::GetAlphaMap);
-			material.BindMethod("GetAlphaThreshold", &Nz::BaseMaterial::GetAlphaThreshold);
-			material.BindMethod("GetAmbientColor", &Nz::BaseMaterial::GetAmbientColor);
-			material.BindMethod("GetDepthFunc", &Nz::BaseMaterial::GetDepthFunc);
-			material.BindMethod("GetDepthMaterial", &Nz::BaseMaterial::GetDepthMaterial);
-			material.BindMethod("GetDiffuseColor", &Nz::BaseMaterial::GetDiffuseColor);
-			material.BindMethod("GetDiffuseMap", &Nz::BaseMaterial::GetDiffuseMap);
+			material.BindMethod("GetAlphaMap", &Nz::Material::GetAlphaMap);
+			material.BindMethod("GetAlphaThreshold", &Nz::Material::GetAlphaThreshold);
+			material.BindMethod("GetAmbientColor", &Nz::Material::GetAmbientColor);
+			material.BindMethod("GetDepthFunc", &Nz::Material::GetDepthFunc);
+			material.BindMethod("GetDepthMaterial", &Nz::Material::GetDepthMaterial);
+			material.BindMethod("GetDiffuseColor", &Nz::Material::GetDiffuseColor);
+			material.BindMethod("GetDiffuseMap", &Nz::Material::GetDiffuseMap);
 			//material.BindMethod("GetDiffuseSampler",    &Nz::Material::GetDiffuseSampler);
-			material.BindMethod("GetDstBlend", &Nz::BaseMaterial::GetDstBlend);
-			material.BindMethod("GetEmissiveMap", &Nz::BaseMaterial::GetEmissiveMap);
-			material.BindMethod("GetFaceCulling", &Nz::BaseMaterial::GetFaceCulling);
-			material.BindMethod("GetFaceFilling", &Nz::BaseMaterial::GetFaceFilling);
-			material.BindMethod("GetHeightMap", &Nz::BaseMaterial::GetHeightMap);
-			material.BindMethod("GetLineWidth", &Nz::BaseMaterial::GetLineWidth);
-			material.BindMethod("GetNormalMap", &Nz::BaseMaterial::GetNormalMap);
+			material.BindMethod("GetDstBlend", &Nz::Material::GetDstBlend);
+			material.BindMethod("GetEmissiveMap", &Nz::Material::GetEmissiveMap);
+			material.BindMethod("GetFaceCulling", &Nz::Material::GetFaceCulling);
+			material.BindMethod("GetFaceFilling", &Nz::Material::GetFaceFilling);
+			material.BindMethod("GetHeightMap", &Nz::Material::GetHeightMap);
+			material.BindMethod("GetLineWidth", &Nz::Material::GetLineWidth);
+			material.BindMethod("GetNormalMap", &Nz::Material::GetNormalMap);
 			//material.BindMethod("GetPipeline",            &Nz::Material::GetPipeline);
 			//material.BindMethod("GetPipelineInfo",        &Nz::Material::GetPipelineInfo);
-			material.BindMethod("GetPointSize", &Nz::BaseMaterial::GetPointSize);
-			material.BindMethod("GetReflectionMode", &Nz::BaseMaterial::GetReflectionMode);
+			material.BindMethod("GetPointSize", &Nz::Material::GetPointSize);
+			material.BindMethod("GetReflectionMode", &Nz::Material::GetReflectionMode);
 			//material.BindMethod("GetShader",              &Nz::Material::GetShader);
-			material.BindMethod("GetShininess", &Nz::BaseMaterial::GetShininess);
-			material.BindMethod("GetSpecularColor", &Nz::BaseMaterial::GetSpecularColor);
-			material.BindMethod("GetSpecularMap", &Nz::BaseMaterial::GetSpecularMap);
+			material.BindMethod("GetShininess", &Nz::Material::GetShininess);
+			material.BindMethod("GetSpecularColor", &Nz::Material::GetSpecularColor);
+			material.BindMethod("GetSpecularMap", &Nz::Material::GetSpecularMap);
 			//material.BindMethod("GetSpecularSampler",   &Nz::Material::GetSpecularSampler);
-			material.BindMethod("GetSrcBlend", &Nz::BaseMaterial::GetSrcBlend);
+			material.BindMethod("GetSrcBlend", &Nz::Material::GetSrcBlend);
 
-			material.BindMethod("HasAlphaMap", &Nz::BaseMaterial::HasAlphaMap);
-			material.BindMethod("HasDepthMaterial", &Nz::BaseMaterial::HasDepthMaterial);
-			material.BindMethod("HasDiffuseMap", &Nz::BaseMaterial::HasDiffuseMap);
-			material.BindMethod("HasEmissiveMap", &Nz::BaseMaterial::HasEmissiveMap);
-			material.BindMethod("HasHeightMap", &Nz::BaseMaterial::HasHeightMap);
-			material.BindMethod("HasNormalMap", &Nz::BaseMaterial::HasNormalMap);
-			material.BindMethod("HasSpecularMap", &Nz::BaseMaterial::HasSpecularMap);
+			material.BindMethod("HasAlphaMap", &Nz::Material::HasAlphaMap);
+			material.BindMethod("HasDepthMaterial", &Nz::Material::HasDepthMaterial);
+			material.BindMethod("HasDiffuseMap", &Nz::Material::HasDiffuseMap);
+			material.BindMethod("HasEmissiveMap", &Nz::Material::HasEmissiveMap);
+			material.BindMethod("HasHeightMap", &Nz::Material::HasHeightMap);
+			material.BindMethod("HasNormalMap", &Nz::Material::HasNormalMap);
+			material.BindMethod("HasSpecularMap", &Nz::Material::HasSpecularMap);
 
-			material.BindMethod("IsAlphaTestEnabled", &Nz::BaseMaterial::IsAlphaTestEnabled);
-			material.BindMethod("IsBlendingEnabled", &Nz::BaseMaterial::IsBlendingEnabled);
-			material.BindMethod("IsColorWriteEnabled", &Nz::BaseMaterial::IsColorWriteEnabled);
-			material.BindMethod("IsDepthBufferEnabled", &Nz::BaseMaterial::IsDepthBufferEnabled);
-			material.BindMethod("IsDepthSortingEnabled", &Nz::BaseMaterial::IsDepthSortingEnabled);
-			material.BindMethod("IsDepthWriteEnabled", &Nz::BaseMaterial::IsDepthWriteEnabled);
-			material.BindMethod("IsFaceCullingEnabled", &Nz::BaseMaterial::IsFaceCullingEnabled);
-			material.BindMethod("IsReflectionMappingEnabled", &Nz::BaseMaterial::IsReflectionMappingEnabled);
-			material.BindMethod("IsScissorTestEnabled", &Nz::BaseMaterial::IsScissorTestEnabled);
-			material.BindMethod("IsStencilTestEnabled", &Nz::BaseMaterial::IsStencilTestEnabled);
-			material.BindMethod("IsShadowCastingEnabled", &Nz::BaseMaterial::IsShadowCastingEnabled);
-			material.BindMethod("IsShadowReceiveEnabled", &Nz::BaseMaterial::IsShadowReceiveEnabled);
+			material.BindMethod("IsAlphaTestEnabled", &Nz::Material::IsAlphaTestEnabled);
+			material.BindMethod("IsBlendingEnabled", &Nz::Material::IsBlendingEnabled);
+			material.BindMethod("IsColorWriteEnabled", &Nz::Material::IsColorWriteEnabled);
+			material.BindMethod("IsDepthBufferEnabled", &Nz::Material::IsDepthBufferEnabled);
+			material.BindMethod("IsDepthSortingEnabled", &Nz::Material::IsDepthSortingEnabled);
+			material.BindMethod("IsDepthWriteEnabled", &Nz::Material::IsDepthWriteEnabled);
+			material.BindMethod("IsFaceCullingEnabled", &Nz::Material::IsFaceCullingEnabled);
+			material.BindMethod("IsReflectionMappingEnabled", &Nz::Material::IsReflectionMappingEnabled);
+			material.BindMethod("IsScissorTestEnabled", &Nz::Material::IsScissorTestEnabled);
+			material.BindMethod("IsStencilTestEnabled", &Nz::Material::IsStencilTestEnabled);
+			material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);
+			material.BindMethod("IsShadowReceiveEnabled", &Nz::Material::IsShadowReceiveEnabled);
 
-			material.BindMethod("LoadFromFile", &Nz::BaseMaterial::LoadFromFile, Nz::MaterialParams());
+			material.BindMethod("Reset", &Nz::Material::Reset);
 
-			material.BindMethod("Reset", &Nz::BaseMaterial::Reset);
+			material.BindMethod("SetAlphaThreshold", &Nz::Material::SetAlphaThreshold);
+			material.BindMethod("SetAmbientColor", &Nz::Material::SetAmbientColor);
+			material.BindMethod("SetDepthFunc", &Nz::Material::SetDepthFunc);
+			material.BindMethod("SetDepthFunc", &Nz::Material::SetDepthFunc);
+			material.BindMethod("SetDepthMaterial", &Nz::Material::SetDepthMaterial);
+			material.BindMethod("SetDiffuseColor", &Nz::Material::SetDiffuseColor);
 
-			material.BindMethod("SetAlphaThreshold", &Nz::BaseMaterial::SetAlphaThreshold);
-			material.BindMethod("SetAmbientColor", &Nz::BaseMaterial::SetAmbientColor);
-			material.BindMethod("SetDepthFunc", &Nz::BaseMaterial::SetDepthFunc);
-			material.BindMethod("SetDepthFunc", &Nz::BaseMaterial::SetDepthFunc);
-			material.BindMethod("SetDepthMaterial", &Nz::BaseMaterial::SetDepthMaterial);
-			material.BindMethod("SetDiffuseColor", &Nz::BaseMaterial::SetDiffuseColor);
 			//material.BindMethod("SetDiffuseSampler",      &Nz::Material::SetDiffuseSampler);
-			material.BindMethod("SetDstBlend", &Nz::BaseMaterial::SetDstBlend);
-			material.BindMethod("SetFaceCulling", &Nz::BaseMaterial::SetFaceCulling);
-			material.BindMethod("SetFaceFilling", &Nz::BaseMaterial::SetFaceFilling);
-			material.BindMethod("SetLineWidth", &Nz::BaseMaterial::SetLineWidth);
-			material.BindMethod("SetPointSize", &Nz::BaseMaterial::SetPointSize);
-			material.BindMethod("SetReflectionMode", &Nz::BaseMaterial::SetReflectionMode);
-			material.BindMethod("SetShininess", &Nz::BaseMaterial::SetShininess);
-			material.BindMethod("SetSpecularColor", &Nz::BaseMaterial::SetSpecularColor);
-			material.BindMethod("SetSpecularColor", &Nz::BaseMaterial::SetSpecularColor);
+			material.BindMethod("SetDstBlend", &Nz::Material::SetDstBlend);
+			material.BindMethod("SetFaceCulling", &Nz::Material::SetFaceCulling);
+			material.BindMethod("SetFaceFilling", &Nz::Material::SetFaceFilling);
+			material.BindMethod("SetLineWidth", &Nz::Material::SetLineWidth);
+			material.BindMethod("SetPointSize", &Nz::Material::SetPointSize);
+			material.BindMethod("SetReflectionMode", &Nz::Material::SetReflectionMode);
+			material.BindMethod("SetShininess", &Nz::Material::SetShininess);
+			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
+			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
 			//material.BindMethod("SetSpecularSampler",     &Nz::Material::SetSpecularSampler);
-			material.BindMethod("SetSrcBlend", &Nz::BaseMaterial::SetSrcBlend);
+			material.BindMethod("SetSrcBlend", &Nz::Material::SetSrcBlend);
 
-			material.BindStaticMethod("GetDefault", &Nz::BaseMaterial::GetDefault);
+			material.BindStaticMethod("GetDefault", &Nz::Material::GetDefault);
+			material.BindStaticMethod("LoadFromFile", &Nz::Material::LoadFromFile, Nz::MaterialParams());
 
 			material.BindMethod("SetAlphaMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
@@ -308,8 +308,6 @@ namespace Ndk
 			//modelClass.SetMethod("GetMesh", &Nz::Model::GetMesh);
 
 			model.BindMethod("IsAnimated", &Nz::Model::IsAnimated);
-			model.BindMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
-
 
 			model.BindMethod("SetMaterial", [] (Nz::LuaState& lua, Nz::Model* instance, std::size_t argumentCount) -> int
 			{
@@ -371,6 +369,8 @@ namespace Ndk
 
 			//modelClass.SetMethod("SetMesh", &Nz::Model::SetMesh);
 			//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
+
+			model.BindStaticMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
 		}
 
 		/*********************************** Nz::Sprite ***********************************/

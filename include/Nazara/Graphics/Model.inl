@@ -59,7 +59,6 @@ namespace Nz
 	*
 	* \param args Arguments for the model
 	*/
-
 	template<typename... Args>
 	ModelRef Model::New(Args&&... args)
 	{

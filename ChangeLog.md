@@ -146,10 +146,15 @@ Nazara Engine:
 - CullingList now handles box tests
 - ⚠️ CullingList now handles full and partial visibility testing
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
-- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
-- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
-- Added BaseWidget::ForEachWidgetChild
-- Added experimental BoxLayout class
+- ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
+- ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
+- Added TcpClient::PollForConnected 
+- ⚠️ Use of the new Angle class instead of floating point angle
+- It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
+- ObjectHandle were remade and should be way more optimized now
+ - Added ENetHost and ENetPeer accessor to total packet/data received/sent/lost
+- ⚠ **Changed the way resources were Loaded, almost every LoadFromX and OpenFromX methods are now static and create the object themselves.**
+- ⚠ SoundStream is now responsible for loaders instead of Music, and is now threadsafe (you can now load a stream only once and play it multiple times at the same time)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -210,6 +215,17 @@ Nazara Development Kit:
 - Make Ndk::PhysicsSystem2D an interface of Nz::PhysWorld2D
 - ⚠️ GraphicsComponent no longer has a BoundingVolume, it instead has only an AABB with its attached InstancedRenderable getting a BoundingVolume of their own, improving culling possibilities.
 - RenderSystem now does cull InstancedRenderables attached to a GraphicsComponent, improving performance.
+- ⚠️ Widgets have been reworked and no longer have padding, but instead have preferred, maximum and minimum size.
+- ⚠️ BaseWidget::SetSize has been renamed to BaseWidget::Resize
+- Added BaseWidget::ForEachWidgetChild
+- Added experimental BoxLayout class
+- RenderSystem now resolve skinning before render
+- EntityOwner constructor taking a Entity* is no longer explicit
+- PhysicsComponent2D now allows massless bodies (zero mass)
+- ⚠️ Use of the new Angle class instead of floating point angle
+- Added EntityOwner::Release
+- Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
+- Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 
 # 0.4:
 

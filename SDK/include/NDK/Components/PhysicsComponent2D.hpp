@@ -24,7 +24,7 @@ namespace Ndk
 		friend class ConstraintComponent2D;
 
 		public:
-			PhysicsComponent2D() = default;
+			PhysicsComponent2D();
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
 			
@@ -32,31 +32,44 @@ namespace Ndk
 			inline void AddForce(const Nz::Vector2f& force, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			inline void AddImpulse(const Nz::Vector2f& impulse, Nz::CoordSys coordSys = Nz::CoordSys_Global);
 			inline void AddImpulse(const Nz::Vector2f& impulse, const Nz::Vector2f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			inline void AddTorque(float torque);
+			inline void AddTorque(const Nz::RadianAnglef& torque);
 
 			inline bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
 
+			inline void EnableNodeSynchronization(bool nodeSynchronization);
+
 			inline Nz::Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
-			inline float GetAngularVelocity() const;
+			inline Nz::RadianAnglef GetAngularVelocity() const;
 			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
 			inline Nz::Vector2f GetCenterOfGravity(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline float GetElasticity(std::size_t shapeIndex = 0) const;
+			inline float GetFriction(std::size_t shapeIndex = 0) const;
 			inline float GetMass() const;
 			inline Nz::Vector2f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
 			inline float GetMomentOfInertia() const;
 			inline Nz::Vector2f GetPosition() const;
-			inline float GetRotation() const;
+			inline Nz::RadianAnglef GetRotation() const;
+			inline Nz::Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
+			inline std::size_t GetShapeCount() const;
 			inline Nz::Vector2f GetVelocity() const;
 
+			inline bool IsNodeSynchronizationEnabled() const;
 			inline bool IsSleeping() const;
 
 			inline void SetAngularDamping(float angularDamping);
-			inline void SetAngularVelocity(float angularVelocity);
-			inline void SetMass(float mass);
+			inline void SetAngularVelocity(const Nz::RadianAnglef& angularVelocity);
+			inline void SetElasticity(float elasticity);
+			inline void SetElasticity(std::size_t shapeIndex, float friction);
+			inline void SetFriction(float friction);
+			inline void SetFriction(std::size_t shapeIndex, float friction);
+			inline void SetMass(float mass, bool recomputeMoment = true);
 			inline void SetMassCenter(const Nz::Vector2f& center, Nz::CoordSys coordSys = Nz::CoordSys_Local);
 			inline void SetMomentOfInertia(float moment);
 			inline void SetPosition(const Nz::Vector2f& position);
-			inline void SetRotation(float rotation);
+			inline void SetRotation(const Nz::RadianAnglef& rotation);
+			inline void SetSurfaceVelocity(const Nz::Vector2f& velocity);
+			inline void SetSurfaceVelocity(std::size_t shapeIndex, const Nz::Vector2f& velocity);
 			inline void SetVelocity(const Nz::Vector2f& velocity);
 
 			static ComponentIndex componentIndex;
@@ -71,6 +84,7 @@ namespace Ndk
 			void OnEntityDestruction() override;
 
 			std::unique_ptr<Nz::RigidBody2D> m_object;
+			bool m_nodeSynchronizationEnabled;
 	};
 }
 

@@ -76,7 +76,6 @@ namespace Ndk
 
 	void ProgressBarWidget::Layout()
 	{
-		Nz::Vector2f origin = Nz::Vector2f(0.f);
 		Nz::Vector2f size = GetSize();
 		Nz::Vector2f progressBarSize = size;
 
@@ -85,7 +84,7 @@ namespace Ndk
 			UpdateText();
 
 			Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-			m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + size.x - textSize.x, origin.y + size.y / 2.f - textSize.y);
+			m_textEntity->GetComponent<NodeComponent>().SetPosition(size.x - textSize.x, size.y / 2.f - textSize.y);
 
 			progressBarSize -= { textSize.x + m_textMargin, 0.f };
 		}
@@ -96,7 +95,6 @@ namespace Ndk
 		m_barBackgroundSprite->SetSize(progressBarSize - (borderSize * 2.f));
 		m_barSprite->SetSize((progressBarSize.x - (borderSize.x * 2.f)) / 100.f * static_cast<float>(m_value), progressBarSize.y - (borderSize.y * 2.f));
 
-		m_borderEntity->GetComponent<NodeComponent>().SetPosition(origin.x, origin.y);
-		m_barEntity->GetComponent<NodeComponent>().SetPosition(origin.x + borderSize.x, origin.y + borderSize.y);
+		m_barEntity->GetComponent<NodeComponent>().SetPosition(borderSize.x, borderSize.y);
 	}
 }
