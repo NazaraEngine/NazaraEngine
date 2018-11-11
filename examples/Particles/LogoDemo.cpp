@@ -151,7 +151,7 @@ ParticleDemo("Logo", sharedData)
 	}
 
 
-	Nz::MaterialRef material = Nz::BaseMaterial::New();
+	Nz::MaterialRef material = Nz::Material::New();
 	material->EnableBlending(true);
 	material->EnableDepthWrite(false);
 	material->EnableFaceCulling(false);

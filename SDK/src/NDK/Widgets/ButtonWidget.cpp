@@ -28,7 +28,7 @@ namespace Ndk
 		m_gradientSprite->SetColor(m_color);
 		m_gradientSprite->SetCornerColor(Nz::RectCorner_LeftBottom, m_cornerColor);
 		m_gradientSprite->SetCornerColor(Nz::RectCorner_RightBottom, m_cornerColor);
-		m_gradientSprite->SetMaterial(Nz::BaseMaterial::New("Basic2D"));
+		m_gradientSprite->SetMaterial(Nz::Material::New("Basic2D"));
 
 		m_gradientEntity = CreateEntity();
 		m_gradientEntity->AddComponent<NodeComponent>().SetParent(this);

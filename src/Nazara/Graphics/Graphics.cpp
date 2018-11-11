@@ -11,7 +11,7 @@
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
 #include <Nazara/Graphics/ParticleGenerator.hpp>
@@ -70,7 +70,7 @@ namespace Nz
 			return false;
 		}
 
-		if (!BaseMaterial::Initialize())
+		if (!Material::Initialize())
 		{
 			NazaraError("Failed to initialize materials");
 			return false;
@@ -256,7 +256,7 @@ namespace Nz
 		SkinningManager::Uninitialize();
 
 		// Materials
-		BaseMaterial::Uninitialize();
+		Material::Uninitialize();
 		MaterialPipeline::Uninitialize();
 
 		NazaraNotice("Uninitialized: Graphics module");

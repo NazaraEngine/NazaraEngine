@@ -14,7 +14,7 @@ namespace Nz
 	* \param material Material to verify
 	*/
 
-	bool DepthRenderQueue::IsMaterialSuitable(const BaseMaterial* material) const
+	bool DepthRenderQueue::IsMaterialSuitable(const Material* material) const
 	{
 		NazaraAssert(material, "Invalid material");
 

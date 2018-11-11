@@ -192,7 +192,7 @@ namespace Nz
 	*/
 	inline void InstancedRenderable::SetSkinCount(std::size_t skinCount)
 	{
-		m_materials.resize(m_matCount * skinCount, BaseMaterial::GetDefault());
+		m_materials.resize(m_matCount * skinCount, Material::GetDefault());
 		m_skinCount = skinCount;
 	}
 
@@ -239,7 +239,7 @@ namespace Nz
 		OnInstancedRenderableResetMaterials(this, matCount);
 
 		m_materials.clear();
-		m_materials.resize(matCount * skinCount, BaseMaterial::GetDefault());
+		m_materials.resize(matCount * skinCount, Material::GetDefault());
 
 		m_matCount = matCount;
 		m_skinCount = skinCount;

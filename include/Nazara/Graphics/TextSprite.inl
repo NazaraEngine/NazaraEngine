@@ -111,7 +111,7 @@ namespace Nz
 
 	inline void TextSprite::SetDefaultMaterial()
 	{
-		SetMaterial(BaseMaterial::New("Translucent2D"));
+		SetMaterial(Material::New("Translucent2D"));
 	}
 
 	/*!

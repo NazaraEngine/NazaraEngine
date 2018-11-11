@@ -42,7 +42,7 @@ namespace Ndk
 	m_opened(false),
 	m_characterSize(24)
 	{
-		Nz::MaterialRef backgroundMaterial = Nz::BaseMaterial::New();
+		Nz::MaterialRef backgroundMaterial = Nz::Material::New();
 		backgroundMaterial->EnableBlending(true);
 		backgroundMaterial->EnableDepthBuffer(false);
 		backgroundMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);

@@ -86,7 +86,7 @@ namespace Nz
 			struct SpriteBatch
 			{
 				std::size_t spriteCount;
-				const BaseMaterial* material;
+				const Material* material;
 				const Texture* overlayTexture;
 				Recti scissorRect;
 			};

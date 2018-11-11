@@ -373,7 +373,7 @@ namespace Ndk
 	{
 		if (!m_globalAabbMaterial)
 		{
-			m_globalAabbMaterial = Nz::BaseMaterial::New();
+			m_globalAabbMaterial = Nz::Material::New();
 			m_globalAabbMaterial->EnableFaceCulling(false);
 			m_globalAabbMaterial->EnableDepthBuffer(true);
 			m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
@@ -388,7 +388,7 @@ namespace Ndk
 	{
 		if (!m_localAabbMaterial)
 		{
-			m_localAabbMaterial = Nz::BaseMaterial::New();
+			m_localAabbMaterial = Nz::Material::New();
 			m_localAabbMaterial->EnableFaceCulling(false);
 			m_localAabbMaterial->EnableDepthBuffer(true);
 			m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
@@ -403,7 +403,7 @@ namespace Ndk
 	{
 		if (!m_collisionMaterial)
 		{
-			m_collisionMaterial = Nz::BaseMaterial::New();
+			m_collisionMaterial = Nz::Material::New();
 			m_collisionMaterial->EnableFaceCulling(false);
 			m_collisionMaterial->EnableDepthBuffer(true);
 			m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
@@ -418,7 +418,7 @@ namespace Ndk
 	{
 		if (!m_obbMaterial)
 		{
-			m_obbMaterial = Nz::BaseMaterial::New();
+			m_obbMaterial = Nz::Material::New();
 			m_obbMaterial->EnableFaceCulling(false);
 			m_obbMaterial->EnableDepthBuffer(true);
 			m_obbMaterial->SetDiffuseColor(Nz::Color::Green);

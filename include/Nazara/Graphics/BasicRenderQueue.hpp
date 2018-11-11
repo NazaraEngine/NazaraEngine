@@ -11,7 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -37,17 +37,17 @@ namespace Nz
 			BasicRenderQueue() = default;
 			~BasicRenderQueue() = default;
 
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
-			void AddBillboards(int renderOrder, const BaseMaterial* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const Vector2f> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr = nullptr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const Vector2f> sinCosPtr, SparsePtr<const float> alphaPtr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
+			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
 			void AddDrawable(int renderOrder, const Drawable* drawable) override;
-			void AddMesh(int renderOrder, const BaseMaterial* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) override;
-			void AddSprites(int renderOrder, const BaseMaterial* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay = nullptr) override;
+			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) override;
+			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay = nullptr) override;
 
 			void Clear(bool fully = false) override;
 
@@ -66,7 +66,7 @@ namespace Nz
 			struct Billboard
 			{
 				int layerIndex;
-				MovablePtr<const Nz::BaseMaterial> material;
+				MovablePtr<const Nz::Material> material;
 				Nz::Recti scissorRect;
 				BillboardData data;
 			};
@@ -74,7 +74,7 @@ namespace Nz
 			struct BillboardChain
 			{
 				int layerIndex;
-				MovablePtr<const Nz::BaseMaterial> material;
+				MovablePtr<const Nz::Material> material;
 				Nz::Recti scissorRect;
 				std::size_t billboardCount;
 				std::size_t billboardIndex;
@@ -95,7 +95,7 @@ namespace Nz
 			{
 				int layerIndex;
 				MeshData meshData;
-				MovablePtr<const Nz::BaseMaterial> material;
+				MovablePtr<const Nz::Material> material;
 				Nz::Matrix4f matrix;
 				Nz::Recti scissorRect;
 				Nz::Spheref obbSphere;
@@ -108,7 +108,7 @@ namespace Nz
 			{
 				int layerIndex;
 				std::size_t spriteCount;
-				MovablePtr<const BaseMaterial> material;
+				MovablePtr<const Material> material;
 				MovablePtr<const Texture> overlay;
 				MovablePtr<const VertexStruct_XYZ_Color_UV> vertices;
 				Nz::Recti scissorRect;
@@ -125,7 +125,7 @@ namespace Nz
 			inline void RegisterLayer(int layerIndex);
 
 			std::unordered_map<const MaterialPipeline*, std::size_t> m_pipelineCache;
-			std::unordered_map<const BaseMaterial*, std::size_t> m_materialCache;
+			std::unordered_map<const Material*, std::size_t> m_materialCache;
 			std::unordered_map<const Texture*, std::size_t> m_overlayCache;
 			std::unordered_map<const UberShader*, std::size_t> m_shaderCache;
 			std::unordered_map<const Texture*, std::size_t> m_textureCache;

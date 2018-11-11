@@ -15,7 +15,7 @@
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 namespace Nz

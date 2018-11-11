@@ -4,7 +4,7 @@
 
 #include <NDK/Widgets/CheckboxWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <algorithm>
 
 namespace Ndk
@@ -23,9 +23,9 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_state	{ CheckboxState_Unchecked }
 	{
-		m_checkboxBorderSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
-		m_checkboxBackgroundSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Basic2D"));
-		m_checkboxContentSprite = Nz::Sprite::New(Nz::BaseMaterial::New("Translucent2D"));
+		m_checkboxBorderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_checkboxBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
 		m_textSprite = Nz::TextSprite::New();
 
 		m_checkboxBorderEntity = CreateEntity();

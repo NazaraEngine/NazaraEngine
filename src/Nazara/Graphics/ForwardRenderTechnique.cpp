@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -314,7 +314,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const BaseMaterial* lastMaterial = nullptr;
+		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -403,7 +403,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const BaseMaterial* lastMaterial = nullptr;
+		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -489,7 +489,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const BaseMaterial* lastMaterial = nullptr;
+		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -541,7 +541,7 @@ namespace Nz
 
 			if (shaderUniforms->reflectionMap != -1)
 			{
-				unsigned int textureUnit = BaseMaterial::GetTextureUnit(TextureMap_ReflectionCube);
+				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
 
 				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
 				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
@@ -618,7 +618,7 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const unsigned int overlayTextureUnit = BaseMaterial::GetTextureUnit(TextureMap_Overlay);
+		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
 
 		m_spriteBatches.clear();
@@ -628,7 +628,7 @@ namespace Nz
 
 			std::size_t remainingSprite = maxSpriteCount;
 
-			const BaseMaterial* lastMaterial = nullptr;
+			const Material* lastMaterial = nullptr;
 			const Texture* lastOverlay = nullptr;
 			Recti lastScissorRect = Recti(-1, -1);
 
@@ -664,7 +664,7 @@ namespace Nz
 			}
 		}
 
-		const BaseMaterial* lastMaterial = nullptr;
+		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
@@ -815,7 +815,7 @@ namespace Nz
 
 					if (light.shadowMap)
 					{
-						unsigned int textureUnit2D = BaseMaterial::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
 
 						Renderer::SetTexture(textureUnit2D, light.shadowMap);
 						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
@@ -840,7 +840,7 @@ namespace Nz
 
 					if (light.shadowMap)
 					{
-						unsigned int textureUnitCube = BaseMaterial::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
+						unsigned int textureUnitCube = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
 
 						Renderer::SetTexture(textureUnitCube, light.shadowMap);
 						Renderer::SetTextureSampler(textureUnitCube, s_shadowSampler);
@@ -863,7 +863,7 @@ namespace Nz
 
 					if (light.shadowMap)
 					{
-						unsigned int textureUnit2D = BaseMaterial::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
 
 						Renderer::SetTexture(textureUnit2D, light.shadowMap);
 						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);

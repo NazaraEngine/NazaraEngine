@@ -19,7 +19,7 @@ SCENARIO("Model", "[GRAPHICS][MODEL]")
 				REQUIRE(model->GetSkin() == 0);
 				REQUIRE(model->GetSkinCount() == 1);
 
-				Nz::BaseMaterial* material = model->GetMaterial(0);
+				Nz::Material* material = model->GetMaterial(0);
 				REQUIRE(material->GetAmbientColor() == Nz::Color::Black);
 			}
 		}

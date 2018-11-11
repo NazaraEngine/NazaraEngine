@@ -13,7 +13,7 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
