@@ -156,7 +156,7 @@ namespace Nz
 		if (closestPoint)
 			*closestPoint = closest;
 
-		if (minDistance)
+		if (closestDistance)
 			*closestDistance = minDistance;
 
 		return true;
