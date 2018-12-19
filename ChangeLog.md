@@ -156,6 +156,7 @@ Nazara Engine:
 - ⚠ **Changed the way resources were Loaded, almost every LoadFromX and OpenFromX methods are now static and create the object themselves.**
 - ⚠ SoundStream is now responsible for loaders instead of Music, and is now threadsafe (you can now load a stream only once and play it multiple times at the same time)
 - Added LuaState::RawEqual
+- Fixed LuaCoroutine movement assignation operator
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -15,8 +15,7 @@ namespace Nz
 	{
 		LuaState::operator=(std::move(instance));
 
-		m_ref = instance.m_ref;
-		instance.m_ref = -1;
+		std::swap(m_ref, instance.m_ref);
 
 		return *this;
 	}
