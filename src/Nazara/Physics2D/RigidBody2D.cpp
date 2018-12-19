@@ -105,7 +105,7 @@ namespace Nz
 				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 		}
-}
+	}
 
 	void RigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
 	{
