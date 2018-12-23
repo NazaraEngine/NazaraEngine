@@ -9,6 +9,7 @@
 
 #include <Nazara/Math/Vector3.hpp>
 #include <NDK/Component.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Ndk
 {
@@ -19,10 +20,11 @@ namespace Ndk
 	class NDK_API VelocityComponent : public Component<VelocityComponent>
 	{
 		public:
-			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());
+			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero(), Nz::CoordSys coordSystem = Nz::CoordSys_Global);
 			~VelocityComponent() = default;
 
 			Nz::Vector3f linearVelocity;
+			Nz::CoordSys coordSys;
 
 			VelocityComponent& operator=(const Nz::Vector3f& vel);
 
