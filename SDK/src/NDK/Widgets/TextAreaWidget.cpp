@@ -4,6 +4,7 @@
 
 #include <NDK/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
@@ -20,19 +21,23 @@ namespace Ndk
 	m_readOnly(false),
 	m_tabEnabled(false)
 	{
-		m_cursorEntity = CreateEntity(true);
+		m_cursorEntity = CreateEntity();
 		m_cursorEntity->AddComponent<GraphicsComponent>();
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
 		m_cursorEntity->Enable(false);
 
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity(true);
+		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
+		m_textEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
 
 		SetCursor(Nz::SystemCursor_Text);
+		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
 
+		EnableBackground(true);
 		Layout();
 	}
 
@@ -140,9 +145,25 @@ namespace Ndk
 		return Nz::Vector2ui::Zero();
 	}
 
-	void TextAreaWidget::ResizeToContent()
+	void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
 	{
-		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
+		m_drawer.SetCharacterSize(characterSize);
+
+		std::size_t fontCount = m_drawer.GetFontCount();
+		unsigned int lineHeight = 0;
+		int spaceAdvance = 0;
+		for (std::size_t i = 0; i < fontCount; ++i)
+		{
+			Nz::Font* font = m_drawer.GetFont(i);
+
+			const Nz::Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+			lineHeight = std::max(lineHeight, sizeInfo.lineHeight);
+			spaceAdvance = std::max(spaceAdvance, sizeInfo.spaceAdvance);
+		}
+
+		Nz::Vector2f size = { float(spaceAdvance), float(lineHeight) + 5.f };
+		SetMinimumSize(size);
+		SetPreferredSize({ size.x * 6.f, size.y });
 	}
 
 	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
@@ -164,8 +185,6 @@ namespace Ndk
 	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
-
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
 
 		RefreshCursor();
 	}
@@ -403,8 +422,7 @@ namespace Ndk
 		{
 			SetFocus();
 
-			const Padding& padding = GetPadding();
-			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x - padding.left), float(y - padding.top));
+			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x) - 5.f, float(y) - 5.f);
 
 			// Shift extends selection
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
@@ -434,10 +452,7 @@ namespace Ndk
 	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
 		if (m_isMouseButtonDown)
-		{
-			const Padding& padding = GetPadding();
-			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x - padding.left), float(y - padding.top)));
-		}
+			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x) - 5.f, float(y) - 3.f));
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
@@ -513,8 +528,6 @@ namespace Ndk
 	{
 		if (m_readOnly)
 			return;
-
-		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
 
 		std::size_t selectionLineCount = m_cursorPositionEnd.y - m_cursorPositionBegin.y + 1;
 		std::size_t oldSpriteCount = m_cursorSprites.size();

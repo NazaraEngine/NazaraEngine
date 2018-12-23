@@ -16,36 +16,14 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a ObjectHandle object by default
-	*/
-	template<typename T>
-	ObjectHandle<T>::ObjectHandle() :
-	m_object(nullptr)
-	{
-	}
-
-	/*!
 	* \brief Constructs a ObjectHandle object with a pointer to an object
 	*
 	* \param object Pointer to handle like an object (can be nullptr)
 	*/
 	template<typename T>
-	ObjectHandle<T>::ObjectHandle(T* object) :
-	ObjectHandle()
+	ObjectHandle<T>::ObjectHandle() :
+	m_handleData(Detail::HandleData::GetEmptyObject())
 	{
-		Reset(object);
-	}
-
-	/*!
-	* \brief Constructs a ObjectHandle object by assignation
-	*
-	* \param handle ObjectHandle to assign into this
-	*/
-	template<typename T>
-	ObjectHandle<T>::ObjectHandle(const ObjectHandle& handle) :
-	ObjectHandle()
-	{
-		Reset(handle);
 	}
 
 	/*!
@@ -54,10 +32,20 @@ namespace Nz
 	* \param handle ObjectHandle to move into this
 	*/
 	template<typename T>
-	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept :
-	ObjectHandle()
+	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept
 	{
 		Reset(std::move(handle));
+	}
+
+	/*!
+	* \brief Constructs a ObjectHandle object with a pointer to an object
+	*
+	* \param object Pointer to handle like an object (can be nullptr)
+	*/
+	template<typename T>
+	ObjectHandle<T>::ObjectHandle(T* object)
+	{
+		Reset(object);
 	}
 
 	/*!
@@ -78,7 +66,7 @@ namespace Nz
 	template<typename T>
 	T* ObjectHandle<T>::GetObject() const
 	{
-		return m_object;
+		return static_cast<T*>(m_handleData->object);
 	}
 
 	/*!
@@ -88,7 +76,7 @@ namespace Nz
 	template<typename T>
 	bool ObjectHandle<T>::IsValid() const
 	{
-		return m_object != nullptr;
+		return m_handleData->object != nullptr;
 	}
 
 	/*!
@@ -99,14 +87,10 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(T* object)
 	{
-		// If we already have an entity, we must alert it that we are not pointing to it anymore
-		if (m_object)
-			m_object->UnregisterHandle(this);
-
-		m_object = object;
-		if (m_object)
-			// We alert the new entity that we are pointing to it
-			m_object->RegisterHandle(this);
+		if (object)
+			m_handleData = object->GetHandleData();
+		else
+			m_handleData = Detail::HandleData::GetEmptyObject();
 	}
 
 	/*!
@@ -117,7 +101,7 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(const ObjectHandle& handle)
 	{
-		Reset(handle.GetObject());
+		m_handleData = handle.m_handleData;
 	}
 
 	/*!
@@ -128,20 +112,8 @@ namespace Nz
 	template<typename T>
 	void ObjectHandle<T>::Reset(ObjectHandle&& handle) noexcept
 	{
-		if (this == &handle)
-			return;
-
-		if (m_object)
-			m_object->UnregisterHandle(this);
-
-		if (T* object = handle.GetObject())
-		{
-			m_object = handle.m_object;
-			handle.m_object = nullptr;
-			object->UpdateHandle(&handle, this);
-		}
-		else
-			m_object = nullptr;
+		m_handleData = std::move(handle.m_handleData);
+		handle.m_handleData = Detail::HandleData::GetEmptyObject();
 	}
 
 	/*!
@@ -153,23 +125,8 @@ namespace Nz
 	template<typename T>
 	ObjectHandle<T>& ObjectHandle<T>::Swap(ObjectHandle& handle)
 	{
-		// As we swap the two handles, we must alert the entities
-		// The default version with swap (move) would be working,
-		// but will register handles one more time (due to temporary copy).
-		if (m_object)
-		{
-			m_object->UnregisterHandle(this);
-			m_object->RegisterHandle(&handle);
-		}
-
-		if (handle.m_object)
-		{
-			handle.m_object->UnregisterHandle(&handle);
-			handle.m_object->RegisterHandle(this);
-		}
-
 		// We do the swap
-		std::swap(m_object, handle.m_object);
+		std::swap(m_handleData, handle.m_handleData);
 		return *this;
 	}
 
@@ -183,7 +140,7 @@ namespace Nz
 		Nz::StringStream ss;
 		ss << "ObjectHandle(";
 		if (IsValid())
-			ss << m_object->ToString();
+			ss << GetObject()->ToString();
 		else
 			ss << "Null";
 
@@ -211,7 +168,7 @@ namespace Nz
 	template<typename T>
 	ObjectHandle<T>::operator T*() const
 	{
-		return m_object;
+		return GetObject();
 	}
 
 	/*!
@@ -221,7 +178,7 @@ namespace Nz
 	template<typename T>
 	T* ObjectHandle<T>::operator->() const
 	{
-		return m_object;
+		return GetObject();
 	}
 
 	/*!
@@ -231,23 +188,9 @@ namespace Nz
 	* \param entity Pointer to handle like an object (can be nullptr)
 	*/
 	template<typename T>
-	ObjectHandle<T>& ObjectHandle<T>::operator=(T* entity)
+	ObjectHandle<T>& ObjectHandle<T>::operator=(T* object)
 	{
-		Reset(entity);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the handle of the ObjectHandle with the handle from another
-	* \return A reference to this
-	*
-	* \param handle The other ObjectHandle
-	*/
-	template<typename T>
-	ObjectHandle<T>& ObjectHandle<T>::operator=(const ObjectHandle& handle)
-	{
-		Reset(handle);
+		Reset(object);
 
 		return *this;
 	}
@@ -264,26 +207,6 @@ namespace Nz
 		Reset(std::move(handle));
 
 		return *this;
-	}
-
-	/*!
-	* \brief Action to do on object destruction
-	*/
-	template<typename T>
-	void ObjectHandle<T>::OnObjectDestroyed() noexcept
-	{
-		// Shortcut
-		m_object = nullptr;
-	}
-
-	/*!
-	* \brief Action to do on object move
-	*/
-	template<typename T>
-	void ObjectHandle<T>::OnObjectMoved(T* newObject) noexcept
-	{
-		// The object has been moved, update our pointer
-		m_object = newObject;
 	}
 
 	/*!
@@ -388,7 +311,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs)
 	{
-		return lhs.m_object < rhs.m_object;
+		return lhs.GetObject() < rhs.GetObject();
 	}
 
 	/*!
@@ -401,7 +324,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const T& lhs, const ObjectHandle<T>& rhs)
 	{
-		return &lhs < rhs.m_object;
+		return &lhs < rhs.GetObject();
 	}
 
 	/*!
@@ -414,7 +337,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectHandle<T>& lhs, const T& rhs)
 	{
-		return lhs.m_object < &rhs;
+		return lhs.GetObject() < &rhs;
 	}
 
 	/*!

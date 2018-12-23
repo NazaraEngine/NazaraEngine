@@ -5,8 +5,7 @@ SCENARIO("TextureBackground", "[GRAPHICS][TEXTUREBACKGROUND]")
 {
 	GIVEN("A default texture background")
 	{
-		Nz::TextureRef textureRef = Nz::Texture::New();
-		textureRef->LoadFromFile("resources/Engine/Graphics/skybox.png");
+		Nz::TextureRef textureRef = Nz::Texture::LoadFromFile("resources/Engine/Graphics/skybox.png");
 		Nz::TextureBackgroundRef textureBackgroundRef = Nz::TextureBackground::New(textureRef);
 
 		WHEN("We assign it parameters")

@@ -261,21 +261,6 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	bool Animation::LoadFromFile(const String& filePath, const AnimationParams& params)
-	{
-		return AnimationLoader::LoadFromFile(this, filePath, params);
-	}
-
-	bool Animation::LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params)
-	{
-		return AnimationLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	bool Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
-	{
-		return AnimationLoader::LoadFromStream(this, stream, params);
-	}
-
 	void Animation::RemoveSequence(const String& identifier)
 	{
 		NazaraAssert(m_impl, "Animation not created");
@@ -302,6 +287,21 @@ namespace Nz
 		std::advance(it, index);
 
 		m_impl->sequences.erase(it);
+	}
+
+	AnimationRef Animation::LoadFromFile(const String& filePath, const AnimationParams& params)
+	{
+		return AnimationLoader::LoadFromFile(filePath, params);
+	}
+
+	AnimationRef Animation::LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params)
+	{
+		return AnimationLoader::LoadFromMemory(data, size, params);
+	}
+
+	AnimationRef Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
+	{
+		return AnimationLoader::LoadFromStream(stream, params);
 	}
 
 	bool Animation::Initialize()

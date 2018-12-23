@@ -58,8 +58,12 @@ namespace Nz
 
 			void Flush();
 
-			inline Nz::IpAddress GetBoundAddress() const;
+			inline IpAddress GetBoundAddress() const;
 			inline UInt32 GetServiceTime() const;
+			inline UInt32 GetTotalReceivedPackets() const;
+			inline UInt64 GetTotalReceivedData() const;
+			inline UInt64 GetTotalSentData() const;
+			inline UInt32 GetTotalSentPackets() const;
 
 			int Service(ENetEvent* event, UInt32 timeout);
 

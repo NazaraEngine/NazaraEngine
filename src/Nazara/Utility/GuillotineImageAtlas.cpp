@@ -166,8 +166,7 @@ namespace Nz
 		std::unique_ptr<Image> newImage(new Image(ImageType_2D, PixelFormatType_A8, size.x, size.y));
 		if (oldImage)
 		{
-			Image& image = *static_cast<Image*>(oldImage);
-			newImage->Copy(image, Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
+			newImage->Copy(static_cast<Image*>(oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
 		}
 
 		return newImage.release();

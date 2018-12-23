@@ -13,6 +13,16 @@
 
 namespace Nz
 {
+	namespace Detail
+	{
+		struct NAZARA_CORE_API HandleData
+		{
+			void* object;
+
+			static std::shared_ptr<HandleData> GetEmptyObject();
+		};
+	}
+
 	template<typename T> class ObjectHandle;
 
 	template<typename T>
@@ -35,11 +45,10 @@ namespace Nz
 			void UnregisterAllHandles() noexcept;
 
 		private:
-			void RegisterHandle(ObjectHandle<T>* handle);
-			void UnregisterHandle(ObjectHandle<T>* handle) noexcept;
-			void UpdateHandle(ObjectHandle<T>* oldHandle, ObjectHandle<T>* newHandle) noexcept;
+			std::shared_ptr<const Detail::HandleData> GetHandleData();
+			void InitHandleData();
 
-			std::vector<ObjectHandle<T>*> m_handles;
+			std::shared_ptr<Detail::HandleData> m_handleData;
 	};
 }
 

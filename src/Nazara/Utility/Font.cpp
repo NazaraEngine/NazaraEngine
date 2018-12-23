@@ -280,21 +280,6 @@ namespace Nz
 		return true;
 	}
 
-	bool Font::OpenFromFile(const String& filePath, const FontParams& params)
-	{
-		return FontLoader::LoadFromFile(this, filePath, params);
-	}
-
-	bool Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
-	{
-		return FontLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	bool Font::OpenFromStream(Stream& stream, const FontParams& params)
-	{
-		return FontLoader::LoadFromStream(this, stream, params);
-	}
-
 	void Font::SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas)
 	{
 		if (m_atlas != atlas)
@@ -358,10 +343,8 @@ namespace Nz
 
 		if (!s_defaultFont)
 		{
-			FontRef cabin = Font::New();
-			if (cabin->OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular)))
-                s_defaultFont = cabin;
-			else
+			s_defaultFont = Font::OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular));
+			if (!s_defaultFont)
 				NazaraError("Failed to open default font");
 		}
 
@@ -376,6 +359,21 @@ namespace Nz
 	unsigned int Font::GetDefaultMinimumStepSize()
 	{
 		return s_defaultMinimumStepSize;
+	}
+
+	FontRef Font::OpenFromFile(const String& filePath, const FontParams& params)
+	{
+		return FontLoader::LoadFromFile(filePath, params);
+	}
+
+	FontRef Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
+	{
+		return FontLoader::LoadFromMemory(data, size, params);
+	}
+
+	FontRef Font::OpenFromStream(Stream& stream, const FontParams& params)
+	{
+		return FontLoader::LoadFromStream(stream, params);
 	}
 
 	void Font::SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas)

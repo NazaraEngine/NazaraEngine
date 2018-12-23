@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -95,15 +96,15 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API DampedRotarySpringConstraint2D : public Constraint2D
 	{
 		public:
-			DampedRotarySpringConstraint2D(RigidBody2D& first, RigidBody2D& second, float restAngle, float stiffness, float damping);
+			DampedRotarySpringConstraint2D(RigidBody2D& first, RigidBody2D& second, const RadianAnglef& restAngle, float stiffness, float damping);
 			~DampedRotarySpringConstraint2D() = default;
 
 			float GetDamping() const;
-			float GetRestAngle() const;
+			RadianAnglef GetRestAngle() const;
 			float GetStiffness() const;
 
 			void SetDamping(float newDamping);
-			void SetRestAngle(float newAngle);
+			void SetRestAngle(const RadianAnglef& newAngle);
 			void SetStiffness(float newStiffness);
 
 			template<typename... Args> static DampedRotarySpringConstraint2DRef New(Args&&... args);
@@ -200,11 +201,11 @@ namespace Nz
 			RatchetConstraint2D(RigidBody2D& first, RigidBody2D& second, float phase, float ratchet);
 			~RatchetConstraint2D() = default;
 
-			float GetAngle() const;
+			RadianAnglef GetAngle() const;
 			float GetPhase() const;
 			float GetRatchet() const;
 
-			void SetAngle(float angle);
+			void SetAngle(const RadianAnglef& angle);
 			void SetPhase(float phase);
 			void SetRatchet(float ratchet);
 
@@ -219,14 +220,14 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API RotaryLimitConstraint2D : public Constraint2D
 	{
 		public:
-			RotaryLimitConstraint2D(RigidBody2D& first, RigidBody2D& second, float minAngle, float maxAngle);
+			RotaryLimitConstraint2D(RigidBody2D& first, RigidBody2D& second, const RadianAnglef& minAngle, const RadianAnglef& maxAngle);
 			~RotaryLimitConstraint2D() = default;
 
-			float GetMaxAngle() const;
-			float GetMinAngle() const;
+			RadianAnglef GetMaxAngle() const;
+			RadianAnglef GetMinAngle() const;
 
-			void SetMaxAngle(float maxAngle);
-			void SetMinAngle(float minAngle);
+			void SetMaxAngle(const RadianAnglef& maxAngle);
+			void SetMinAngle(const RadianAnglef& minAngle);
 
 			template<typename... Args> static RotaryLimitConstraint2DRef New(Args&&... args);
 	};

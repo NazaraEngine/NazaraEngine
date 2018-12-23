@@ -147,16 +147,32 @@ namespace Ndk
 
 	void PhysicsSystem2D::OnEntityValidation(Entity* entity, bool justAdded)
 	{
-		// It's possible our entity got revalidated because of the addition/removal of a PhysicsComponent3D
-		if (!justAdded)
+		if (entity->HasComponent<PhysicsComponent2D>())
 		{
-			// We take the opposite array from which the entity should belong to
-			auto& entities = (entity->HasComponent<PhysicsComponent2D>()) ? m_staticObjects : m_dynamicObjects;
-			entities.Remove(entity);
-		}
+			if (entity->GetComponent<PhysicsComponent2D>().IsNodeSynchronizationEnabled())
+				m_dynamicObjects.Insert(entity);
+			else
+				m_dynamicObjects.Remove(entity);
 
-		auto& entities = (entity->HasComponent<PhysicsComponent2D>()) ? m_dynamicObjects : m_staticObjects;
-		entities.Insert(entity);
+			m_staticObjects.Remove(entity);
+		}
+		else
+		{
+			m_dynamicObjects.Remove(entity);
+			m_staticObjects.Insert(entity);
+
+			// If entities just got added to the system, teleport them to their NodeComponent position/rotation
+			// This will prevent the physics engine to mess with the scene while correcting position/rotation
+			if (justAdded)
+			{
+				auto& collision = entity->GetComponent<CollisionComponent2D>();
+				auto& node = entity->GetComponent<NodeComponent>();
+
+				Nz::RigidBody2D* physObj = collision.GetStaticBody();
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition()));
+				//physObj->SetRotation(node.GetRotation());
+			}
+		}
 
 		if (!m_physWorld)
 			CreatePhysWorld();
@@ -181,7 +197,7 @@ namespace Ndk
 			PhysicsComponent2D& phys = entity->GetComponent<PhysicsComponent2D>();
 
 			Nz::RigidBody2D* body = phys.GetRigidBody();
-			node.SetRotation(Nz::EulerAnglesf(0.f, 0.f, body->GetRotation()), Nz::CoordSys_Global);
+			node.SetRotation(body->GetRotation(), Nz::CoordSys_Global);
 			node.SetPosition(Nz::Vector3f(body->GetPosition(), node.GetPosition(Nz::CoordSys_Global).z), Nz::CoordSys_Global);
 		}
 

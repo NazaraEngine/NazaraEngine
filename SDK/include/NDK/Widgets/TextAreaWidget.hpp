@@ -11,8 +11,8 @@
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
-#include <vector>
 #include <functional>
+#include <vector>
 
 namespace Ndk
 {
@@ -40,7 +40,7 @@ namespace Ndk
 			void Erase(std::size_t firstGlyph, std::size_t lastGlyph);
 			void EraseSelection();
 
-			inline CharacterFilter GetCharacterFilter() const;
+			inline const CharacterFilter& GetCharacterFilter() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
 			inline Nz::Vector2ui GetCursorPosition(std::size_t glyphIndex) const;
@@ -61,10 +61,8 @@ namespace Ndk
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
 
-			void ResizeToContent() override;
-
 			inline void SetCharacterFilter(CharacterFilter filter);
-			inline void SetCharacterSize(unsigned int characterSize);
+			void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
 			inline void SetEchoMode(EchoMode echoMode);
@@ -108,7 +106,7 @@ namespace Ndk
 			void RefreshCursor();
 			void UpdateDisplayText();
 
-			std::function<bool(char32_t)> m_characterFilter;
+			CharacterFilter m_characterFilter;
 			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
