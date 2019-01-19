@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Physics2D/Arbiter2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_private.h>
@@ -173,6 +174,21 @@ namespace Nz
 			else
 				UnregisterFromSpace();
 		}
+	}
+
+	void RigidBody2D::ForEachArbiter(std::function<void(Nz::Arbiter2D&)> callback)
+	{
+		using CallbackType = decltype(callback);
+
+		auto RealCallback = [](cpBody* body, cpArbiter* arbiter, void* data)
+		{
+			CallbackType& cb = *static_cast<CallbackType*>(data);
+
+			Arbiter2D nzArbiter(arbiter);
+			cb(nzArbiter);
+		};
+
+		cpBodyEachArbiter(m_handle, RealCallback, &callback);
 	}
 
 	Rectf RigidBody2D::GetAABB() const

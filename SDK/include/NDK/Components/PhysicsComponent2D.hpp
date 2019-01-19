@@ -38,6 +38,8 @@ namespace Ndk
 
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
 
+			inline void ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback);
+
 			inline Nz::Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
 			inline Nz::RadianAnglef GetAngularVelocity() const;
