@@ -14,17 +14,21 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <functional>
 #include <limits>
 
 struct cpBody;
 
 namespace Nz
 {
+	class Arbiter2D;
 	class PhysWorld2D;
 
 	class NAZARA_PHYSICS2D_API RigidBody2D
 	{
 		public:
+			using VelocityFunc = std::function<void(RigidBody2D& body2D, const Nz::Vector2f& gravity, float damping, float deltaTime)>;
+
 			RigidBody2D(PhysWorld2D* world, float mass);
 			RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom);
 			RigidBody2D(const RigidBody2D& object);
@@ -62,12 +66,15 @@ namespace Nz
 			Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			const VelocityFunc& GetVelocityFunction() const;
 			PhysWorld2D* GetWorld() const;
 
 			bool IsKinematic() const;
 			bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
 			bool IsStatic() const;
+
+			void ResetVelocityFunction();
 
 			inline void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const RadianAnglef& angularVelocity);
@@ -86,6 +93,9 @@ namespace Nz
 			void SetStatic(bool setStaticBody = true);
 			void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
+			void SetVelocityFunction(VelocityFunc velocityFunc);
+
+			void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
 
 			RigidBody2D& operator=(const RigidBody2D& object);
 			RigidBody2D& operator=(RigidBody2D&& object);
@@ -104,6 +114,7 @@ namespace Nz
 			static void CopyBodyData(cpBody* from, cpBody* to);
 			static void CopyShapeData(cpShape* from, cpShape* to);
 
+			VelocityFunc m_velocityFunc;
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
 			cpBody* m_handle;

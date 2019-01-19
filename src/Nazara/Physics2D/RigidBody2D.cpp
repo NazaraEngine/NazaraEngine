@@ -296,6 +296,11 @@ namespace Nz
 		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
 	}
 
+	const RigidBody2D::VelocityFunc& RigidBody2D::GetVelocityFunction() const
+	{
+		return m_velocityFunc;
+	}
+
 	PhysWorld2D* RigidBody2D::GetWorld() const
 	{
 		return m_world;
@@ -319,6 +324,11 @@ namespace Nz
 	bool RigidBody2D::IsStatic() const
 	{
 		return m_isStatic;
+	}
+
+	void RigidBody2D::ResetVelocityFunction()
+	{
+		m_handle->velocity_func = cpBodyUpdateVelocity;
 	}
 
 	void RigidBody2D::SetAngularVelocity(const RadianAnglef& angularVelocity)
@@ -516,6 +526,30 @@ namespace Nz
 		cpBodySetVelocity(m_handle, cpv(velocity.x, velocity.y));
 	}
 
+	void RigidBody2D::SetVelocityFunction(VelocityFunc velocityFunc)
+	{
+		m_velocityFunc = std::move(velocityFunc);
+
+		if (m_velocityFunc)
+		{
+			m_handle->velocity_func = [](cpBody* body, cpVect gravity, cpFloat damping, cpFloat dt)
+			{
+				RigidBody2D* rigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(body));
+				const auto& callback = rigidBody->GetVelocityFunction();
+				assert(callback);
+
+				callback(*rigidBody, Nz::Vector2f(float(gravity.x), float(gravity.y)), float(damping), float(dt));
+			};
+		}
+		else
+			m_handle->velocity_func = cpBodyUpdateVelocity;
+	}
+
+	void RigidBody2D::UpdateVelocity(const Nz::Vector2f & gravity, float damping, float deltaTime)
+	{
+		cpBodyUpdateVelocity(m_handle, cpv(gravity.x, gravity.y), damping, deltaTime);
+	}
+
 	RigidBody2D& RigidBody2D::operator=(const RigidBody2D& object)
 	{
 		RigidBody2D physObj(object);
@@ -538,6 +572,7 @@ namespace Nz
 		m_mass                = object.m_mass;
 		m_shapes              = std::move(object.m_shapes);
 		m_userData            = object.m_userData;
+		m_velocityFunc        = std::move(object.m_velocityFunc);
 		m_world               = object.m_world;
 
 		cpBodySetUserData(m_handle, this);
