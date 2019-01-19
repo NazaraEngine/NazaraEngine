@@ -159,6 +159,7 @@ Nazara Engine:
 - Fixed LuaCoroutine movement assignation operator
 - Added Arbiter2D::GetBodies
 - Added RigidBody2D::ForEachArbiter
+- Added possibility to change the RigidBody2D velocity function called by the physics engine
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
