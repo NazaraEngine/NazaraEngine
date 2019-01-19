@@ -157,6 +157,7 @@ Nazara Engine:
 - ⚠ SoundStream is now responsible for loaders instead of Music, and is now threadsafe (you can now load a stream only once and play it multiple times at the same time)
 - Added LuaState::RawEqual
 - Fixed LuaCoroutine movement assignation operator
+- Added Arbiter2D::GetBodies
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
