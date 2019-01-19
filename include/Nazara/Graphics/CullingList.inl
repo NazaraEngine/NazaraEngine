@@ -408,12 +408,7 @@ namespace Nz
 
 	template<typename T>
 	template<CullTest Type>
-	#ifdef NAZARA_COMPILER_MSVC
-	// MSVC bug
-	typename CullingList<T>::Entry<Type>& CullingList<T>::Entry<Type>::operator=(Entry&& entry)
-	#else
 	typename CullingList<T>::template Entry<Type>& CullingList<T>::Entry<Type>::operator=(Entry&& entry)
-	#endif
 	{
 		m_index = entry.m_index;
 		m_parent = entry.m_parent;
