@@ -139,6 +139,15 @@ namespace Ndk
 	}
 
 	/*!
+	TODO
+	*/
+	inline void PhysicsComponent2D::ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ForEachArbiter(callback);
+	}
+	/*!
 	* \brief Gets the AABB of the physics object
 	* \return AABB of the object
 	*

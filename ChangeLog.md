@@ -158,6 +158,7 @@ Nazara Engine:
 - Added LuaState::RawEqual
 - Fixed LuaCoroutine movement assignation operator
 - Added Arbiter2D::GetBodies
+- Added RigidBody2D::ForEachArbiter
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -41,6 +41,8 @@ namespace Nz
 
 			void EnableSimulation(bool simulation);
 
+			void ForEachArbiter(std::function<void(Nz::Arbiter2D& /*arbiter*/)> callback);
+
 			Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
 			RadianAnglef GetAngularVelocity() const;
