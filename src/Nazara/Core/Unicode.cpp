@@ -37,13 +37,13 @@ namespace Nz
 	{
 		const UnicodeCharacter* GetCharacter(Nz::UInt32 codepoint)
 		{
-			auto it = std::lower_bound(std::begin(unicodeCharacters), std::end(unicodeCharacters), codepoint, [](const UnicodeCharacter& character, Nz::UInt32 codepoint) { return character.codepoint < codepoint; });
+			auto it = std::lower_bound(std::begin(unicodeCharacters), std::end(unicodeCharacters), codepoint, [](const UnicodeCharacter& character, Nz::UInt32 otherCodepoint) { return character.codepoint < otherCodepoint; });
 			if (it != std::end(unicodeCharacters) && it->codepoint == codepoint)
 				return &*it;
 			else
 			{
 				// Character is not part of the common character array, search in set
-				auto itSet = std::lower_bound(std::begin(unicodeSets), std::end(unicodeSets), codepoint, [](const UnicodeSet& character, Nz::UInt32 codepoint) { return character.firstCodepoint < codepoint; });
+				auto itSet = std::lower_bound(std::begin(unicodeSets), std::end(unicodeSets), codepoint, [](const UnicodeSet& character, Nz::UInt32 otherCodepoint) { return character.firstCodepoint < otherCodepoint; });
 				if (itSet != std::begin(unicodeSets))
 				{
 					--itSet;
@@ -58,7 +58,7 @@ namespace Nz
 		template<std::size_t N>
 		const UnicodeCharacterSimpleMapping* GetCharacterMapping(Nz::UInt32 codepoint, const UnicodeCharacterSimpleMapping(&mapping)[N])
 		{
-			auto it = std::lower_bound(std::begin(mapping), std::end(mapping), codepoint, [](const UnicodeCharacterSimpleMapping& character, Nz::UInt32 codepoint) { return character.codepoint < codepoint; });
+			auto it = std::lower_bound(std::begin(mapping), std::end(mapping), codepoint, [](const UnicodeCharacterSimpleMapping& character, Nz::UInt32 otherCodepoint) { return character.codepoint < otherCodepoint; });
 			if (it != std::end(mapping) && it->codepoint == codepoint)
 				return &*it;
 			else

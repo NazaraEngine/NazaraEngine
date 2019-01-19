@@ -16,8 +16,9 @@ namespace Ndk
 	* \param velocity Linear velocity
 	*/
 
-	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity) :
-	linearVelocity(velocity)
+	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity, Nz::CoordSys coordSystem) :
+		linearVelocity(velocity),
+		coordSys(coordSystem)
 	{
 	}
 
