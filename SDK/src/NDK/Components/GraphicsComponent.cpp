@@ -297,6 +297,9 @@ namespace Ndk
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
 		m_aabb.Set(-1.f, -1.f, -1.f);
+
+		bool isAabbSet = false;
+
 		for (const Renderable& r : m_renderables)
 		{
 			r.boundingVolume = r.renderable->GetBoundingVolume();
@@ -305,10 +308,13 @@ namespace Ndk
 			{
 				r.boundingVolume.Update(r.data.transformMatrix);
 
-				if (m_aabb.IsValid())
+				if (isAabbSet)
 					m_aabb.ExtendTo(r.boundingVolume.aabb);
 				else
+				{
 					m_aabb.Set(r.boundingVolume.aabb);
+					isAabbSet = true;
+				}
 			}
 		}
 
