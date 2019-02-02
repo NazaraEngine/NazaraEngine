@@ -61,6 +61,7 @@ namespace Ndk
 
 			inline bool IsNodeSynchronizationEnabled() const;
 			inline bool IsSleeping() const;
+			inline bool IsValid() const;
 
 			inline void ResetVelocityFunction();
 

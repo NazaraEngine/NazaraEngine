@@ -383,6 +383,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Checks if this component is bound to a valid rigid body
+	*
+	* A component may not be bound to a rigid body if the component is not bound to an entity or if this entity is being destroyed
+	* 
+	* \return true If bound, false otherwise
+	*/
+	inline bool PhysicsComponent2D::IsValid() const
+	{
+		return bool(m_object);
+	}
+
+	/*!
 	* \brief Reset velocity function to default one
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
