@@ -855,6 +855,10 @@ function NazaraBuild:PrepareGeneric()
 	filter("configurations:*Dynamic")
 		kind("SharedLib")
 
+	-- Enable MSVC conformance (not required but better)
+	filter("action:vs*")
+		buildoptions({"/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew"})
+
 	-- Enable SSE math and vectorization optimizations
 	filter({"configurations:Release*", clangGccActions})
 		buildoptions("-mfpmath=sse")
