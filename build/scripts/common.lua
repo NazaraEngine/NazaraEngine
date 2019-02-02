@@ -841,7 +841,7 @@ function NazaraBuild:PrepareGeneric()
 		symbols("On")
 
 	filter("configurations:not *Debug*")
-		flags("NoFramePointer")
+		omitframepointer("On")
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
