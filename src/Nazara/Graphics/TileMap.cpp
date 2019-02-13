@@ -33,6 +33,7 @@ namespace Nz
 		{
 			if (layer.tiles.empty())
 				continue;
+
 			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[4 * spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
