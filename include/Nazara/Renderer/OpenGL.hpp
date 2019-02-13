@@ -17,16 +17,18 @@
 #include <Nazara/Utility/Enums.hpp>
 
 // Inclusion des headers OpenGL
-#include <GL3/glcorearb.h>
-#include <GL3/glext.h>
+
+#include <GL/glcorearb.h>
+#include <GL/glext.h>
+
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <GL3/wglext.h>
+	#include <GL/wglext.h>
 #elif defined(NAZARA_PLATFORM_GLX)
 namespace GLX
 {
 	#include <GL/glx.h> // Defined in a namespace to avoid conflict
 }
-	#include <GL3/glxext.h>
+	#include <GL/glxext.h>
 #endif
 
 namespace Nz
