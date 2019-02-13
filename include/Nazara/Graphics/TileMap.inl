@@ -149,8 +149,8 @@ namespace Nz
 			m_layers[materialIndex].tiles.insert(tileIndex);
 		else if (materialIndex != tile.layerIndex)
 		{
-			m_layers[materialIndex].tiles.erase(tileIndex);
-			m_layers[tile.layerIndex].tiles.insert(tileIndex);
+			m_layers[tile.layerIndex].tiles.erase(tileIndex);
+			m_layers[materialIndex].tiles.insert(tileIndex);
 
 			invalidatedLayers |= 1U << tile.layerIndex;
 		}
@@ -285,8 +285,8 @@ namespace Nz
 				m_layers[materialIndex].tiles.insert(tileIndex);
 			else if (materialIndex != tile.layerIndex)
 			{
-				m_layers[materialIndex].tiles.erase(tileIndex);
-				m_layers[tile.layerIndex].tiles.insert(tileIndex);
+				m_layers[tile.layerIndex].tiles.erase(tileIndex);
+				m_layers[materialIndex].tiles.insert(tileIndex);
 
 				invalidatedLayers |= 1U << tile.layerIndex;
 			}
