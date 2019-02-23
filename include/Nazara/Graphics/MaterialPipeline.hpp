@@ -10,9 +10,11 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/MaterialPipelineSettings.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <array>
+#include <memory>
 
 namespace Nz
 {
@@ -24,6 +26,8 @@ namespace Nz
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
 
+		RenderPipelineLayoutRef pipelineLayout;
+		std::shared_ptr<const MaterialSettings> settings;
 		UberShaderConstRef uberShader;
 	};
 
@@ -61,8 +65,8 @@ namespace Nz
 			struct Instance
 			{
 				RenderPipeline renderPipeline;
+				Shader::LayoutBindings bindings;
 				UberShaderInstance* uberInstance = nullptr;
-				std::array<int, MaterialUniform_Max + 1> uniforms;
 			};
 
 		private:

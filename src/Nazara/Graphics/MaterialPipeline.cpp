@@ -110,29 +110,8 @@ namespace Nz
 
 		instance.renderPipeline.Create(renderPipelineInfo);
 
-		#define CacheUniform(name) instance.uniforms[MaterialUniform_##name] = renderPipelineInfo.shader->GetUniformLocation("Material" #name)
-
-		CacheUniform(AlphaMap);
-		CacheUniform(AlphaThreshold);
-		CacheUniform(Ambient);
-		CacheUniform(Diffuse);
-		CacheUniform(DiffuseMap);
-		CacheUniform(EmissiveMap);
-		CacheUniform(HeightMap);
-		CacheUniform(NormalMap);
-		CacheUniform(Shininess);
-		CacheUniform(Specular);
-		CacheUniform(SpecularMap);
-
-		#undef CacheUniform
-
 		// Send texture units (those never changes)
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_AlphaMap],    Material::GetTextureUnit(TextureMap_Alpha));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_DiffuseMap],  Material::GetTextureUnit(TextureMap_Diffuse));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_EmissiveMap], Material::GetTextureUnit(TextureMap_Emissive));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_HeightMap],   Material::GetTextureUnit(TextureMap_Height));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_NormalMap],   Material::GetTextureUnit(TextureMap_Normal));
-		renderPipelineInfo.shader->SendInteger(instance.uniforms[MaterialUniform_SpecularMap], Material::GetTextureUnit(TextureMap_Specular));
+		instance.bindings = renderPipelineInfo.shader->ApplyLayout(m_pipelineInfo.pipelineLayout);
 
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("ReflectionMap"), Material::GetTextureUnit(TextureMap_ReflectionCube));
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("TextureOverlay"), Material::GetTextureUnit(TextureMap_Overlay));

@@ -40,15 +40,15 @@ namespace Nz
 		bool IsValid() const;
 	};
 
-	class BaseMaterial;
+	class Material;
 
-	using MaterialConstRef = ObjectRef<const BaseMaterial>;
-	using MaterialLibrary = ObjectLibrary<BaseMaterial>;
-	using MaterialLoader = ResourceLoader<BaseMaterial, MaterialParams>;
-	using MaterialManager = ResourceManager<BaseMaterial, MaterialParams>;
-	using MaterialRef = ObjectRef<BaseMaterial>;
+	using MaterialConstRef = ObjectRef<const Material>;
+	using MaterialLibrary = ObjectLibrary<Material>;
+	using MaterialLoader = ResourceLoader<Material, MaterialParams>;
+	using MaterialManager = ResourceManager<Material, MaterialParams>;
+	using MaterialRef = ObjectRef<Material>;
 
-	class NAZARA_GRAPHICS_API BaseMaterial : public RefCounted, public Resource
+	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
 	{
 		friend MaterialLibrary;
 		friend MaterialLoader;
@@ -56,12 +56,9 @@ namespace Nz
 		friend class Graphics;
 
 		public:
-			inline BaseMaterial();
-			inline BaseMaterial(const MaterialPipeline* pipeline);
-			inline BaseMaterial(const MaterialPipelineInfo& pipelineInfo);
-			inline BaseMaterial(const String& pipelineName);
-			inline BaseMaterial(const BaseMaterial& material);
-			inline ~BaseMaterial();
+			inline Material(std::shared_ptr<const MaterialSettings> settings);
+			inline Material(const Material& material);
+			inline ~Material();
 
 			virtual void Apply(const MaterialPipeline::Instance& instance) const;
 
@@ -87,7 +84,6 @@ namespace Nz
 
 			inline void EnsurePipelineUpdate() const;
 
-			inline float GetAlphaThreshold() const;
 			inline RendererComparison GetDepthFunc() const;
 			inline const MaterialRef& GetDepthMaterial() const;
 			inline BlendFunc GetDstBlend() const;
@@ -133,7 +129,7 @@ namespace Nz
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 			inline void SetSrcBlend(BlendFunc func);
 
-			inline BaseMaterial& operator=(const BaseMaterial& material);
+			inline Material& operator=(const Material& material);
 
 			inline static MaterialRef GetDefault();
 			inline static int GetTextureUnit(TextureMap textureMap);
@@ -145,18 +141,19 @@ namespace Nz
 			template<typename... Args> static MaterialRef New(Args&&... args);
 
 			// Signals:
-			NazaraSignal(OnMaterialReflectionModeChange, const BaseMaterial* /*material*/, ReflectionMode /*newReflectionMode*/);
-			NazaraSignal(OnMaterialRelease, const BaseMaterial* /*material*/);
-			NazaraSignal(OnMaterialReset, const BaseMaterial* /*material*/);
+			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
+			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
+			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
 		protected:
-			void Copy(const BaseMaterial& material);
+			void Copy(const Material& material);
 			inline void InvalidatePipeline();
 			inline void UpdatePipeline() const;
 
 			static bool Initialize();
 			static void Uninitialize();
 
+			std::shared_ptr<const MaterialSettings> m_settings;
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;

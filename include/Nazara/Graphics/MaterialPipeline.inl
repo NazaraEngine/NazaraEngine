@@ -63,18 +63,13 @@ namespace Nz
 		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
 		#define NazaraPipelineBoolMember NazaraPipelineMember
 
-		NazaraPipelineBoolMember(alphaTest);
 		NazaraPipelineBoolMember(depthSorting);
-		NazaraPipelineBoolMember(hasAlphaMap);
-		NazaraPipelineBoolMember(hasDiffuseMap);
-		NazaraPipelineBoolMember(hasEmissiveMap);
-		NazaraPipelineBoolMember(hasHeightMap);
-		NazaraPipelineBoolMember(hasNormalMap);
-		NazaraPipelineBoolMember(hasSpecularMap);
 		NazaraPipelineBoolMember(hasVertexColor);
 		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
+		NazaraPipelineMember(pipelineLayout);
+		NazaraPipelineMember(settings);
 		NazaraPipelineMember(uberShader);
 
 		#undef NazaraPipelineMember
@@ -122,16 +117,12 @@ namespace std
 
 			NazaraPipelineBoolMember(alphaTest);
 			NazaraPipelineBoolMember(depthSorting);
-			NazaraPipelineBoolMember(hasAlphaMap);
-			NazaraPipelineBoolMember(hasDiffuseMap);
-			NazaraPipelineBoolMember(hasEmissiveMap);
-			NazaraPipelineBoolMember(hasHeightMap);
-			NazaraPipelineBoolMember(hasNormalMap);
-			NazaraPipelineBoolMember(hasSpecularMap);
 			NazaraPipelineBoolMember(hasVertexColor);
 			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
+			NazaraPipelineMember(pipelineLayout.Get()); //< Hash pointer
+			NazaraPipelineMember(settings.get()); //< Hash pointer
 			NazaraPipelineMember(uberShader);
 
 			#undef NazaraPipelineMember

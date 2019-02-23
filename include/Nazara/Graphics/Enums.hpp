@@ -44,23 +44,6 @@ namespace Nz
 		LightType_Max = LightType_Spot
 	};
 
-	enum MaterialUniform
-	{
-		MaterialUniform_AlphaMap,
-		MaterialUniform_AlphaThreshold,
-		MaterialUniform_Ambient,
-		MaterialUniform_Diffuse,
-		MaterialUniform_DiffuseMap,
-		MaterialUniform_EmissiveMap,
-		MaterialUniform_HeightMap,
-		MaterialUniform_NormalMap,
-		MaterialUniform_Shininess,
-		MaterialUniform_Specular,
-		MaterialUniform_SpecularMap,
-
-		MaterialUniform_Max = MaterialUniform_SpecularMap
-	};
-
 	enum ParticleComponent
 	{
 		ParticleComponent_Unused = -1,
