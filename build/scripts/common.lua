@@ -876,6 +876,7 @@ function NazaraBuild:PrepareMainWorkspace()
 
 	-- Add lib/conf/arch to library search path
 	self:FilterLibDirectory("../lib/", libdirs)
+	self:FilterLibDirectory("../lib/", runpathdirs)
 
 	filter("action:vs*")
 		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj
