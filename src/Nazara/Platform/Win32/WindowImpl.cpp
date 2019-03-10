@@ -289,7 +289,9 @@ namespace Nz
 	{
 		m_cursor = cursor.m_impl->GetCursor();
 
-		::SetCursor(m_cursor);
+		// Applies cursor only if we have focus
+		if (GetForegroundWindow() == m_handle)
+			::SetCursor(m_cursor);
 	}
 
 	void WindowImpl::SetEventListener(bool listener)
@@ -653,7 +655,7 @@ namespace Nz
 					{
 						m_mouseInside = true;
 
-						// On créé un évènement pour être informé de la sortie de la fenêtre
+						// Track mouse event to be notified when mouse leaves window
 						TRACKMOUSEEVENT mouseEvent;
 						mouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
 						mouseEvent.dwFlags = TME_LEAVE;

@@ -162,6 +162,7 @@ Nazara Engine:
 - Added RigidBody2D::ForEachArbiter
 - Added possibility to change the RigidBody2D velocity function called by the physics engine
 - Fixed MouseButtonEvent and MouseMoveEvent mouse absolute position being unsigned (now signed)
+- Fixed Window::SetCursor changing cursor even if window was in foreground on Windows
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
