@@ -166,6 +166,7 @@ Nazara Engine:
 - Fixed SystemCursor_Move not showing up on Windows
 - Fixed Window movement constructor/assignation operator
 - Window::PushEvent is now public (useful for pushing external events ie. when using Qt or similar framework controlling window)
+- Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
