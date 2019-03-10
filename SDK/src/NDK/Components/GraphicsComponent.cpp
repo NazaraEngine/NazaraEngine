@@ -124,9 +124,11 @@ namespace Ndk
 
 		const Nz::MaterialRef& oldMat = renderable->GetMaterial(skinIndex, matIndex);
 		UnregisterMaterial(oldMat);
+
+		ForceCullingInvalidation();
 	}
 
-	void Ndk::GraphicsComponent::InvalidateReflectionMap()
+	void GraphicsComponent::InvalidateReflectionMap()
 	{
 		m_entity->Invalidate();
 
@@ -230,6 +232,8 @@ namespace Ndk
 		std::size_t materialCount = renderable->GetMaterialCount();
 		for (std::size_t i = 0; i < materialCount; ++i)
 			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex)
@@ -240,6 +244,8 @@ namespace Ndk
 
 		for (std::size_t i = 0; i < materialCount; ++i)
 			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode)
