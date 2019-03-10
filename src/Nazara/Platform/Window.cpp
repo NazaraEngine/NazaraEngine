@@ -122,8 +122,6 @@ namespace Nz
 		m_impl->SetMinimumSize(-1, -1);
 		m_impl->SetVisible(true);
 
-		SetCursor(Cursor::Get(SystemCursor_Default));
-
 		if (opened)
 			m_impl->SetPosition(position.x, position.y);
 

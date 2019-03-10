@@ -53,6 +53,7 @@ namespace Nz
 	m_smoothScrolling(false),
 	m_scrolling(0)
 	{
+		m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED));
 	}
 
 	bool WindowImpl::Create(const VideoMode& mode, const String& title, WindowStyleFlags style)
