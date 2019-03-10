@@ -269,6 +269,11 @@ namespace Nz
 		return IsWindowVisible(m_handle) == TRUE;
 	}
 
+	void WindowImpl::RefreshCursor()
+	{
+		::SetCursor(m_cursor);
+	}
+
 	void WindowImpl::ProcessEvents(bool block)
 	{
 		if (m_ownsWindow)
@@ -289,9 +294,8 @@ namespace Nz
 	{
 		m_cursor = cursor.m_impl->GetCursor();
 
-		// Applies cursor only if we have focus
-		if (GetForegroundWindow() == m_handle)
-			::SetCursor(m_cursor);
+		if (HasFocus())
+			RefreshCursor();
 	}
 
 	void WindowImpl::SetEventListener(bool listener)
@@ -405,12 +409,12 @@ namespace Nz
 
 				break;
 
-			case WM_SETCURSOR:
+			/*case WM_SETCURSOR:
 				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648382(v=vs.85).aspx
 				if (LOWORD(lParam) == HTCLIENT)
 					::SetCursor(m_cursor);
 
-				break;
+				break;*/
 
 			case WM_WINDOWPOSCHANGING:
 			{
