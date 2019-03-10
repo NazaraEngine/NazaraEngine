@@ -164,6 +164,8 @@ Nazara Engine:
 - Fixed MouseButtonEvent and MouseMoveEvent mouse absolute position being unsigned (now signed)
 - Fixed Window::SetCursor changing cursor even if window was in foreground on Windows
 - Fixed SystemCursor_Move not showing up on Windows
+- Fixed Window movement constructor/assignation operator
+- Window::PushEvent is now public (useful for pushing external events ie. when using Qt or similar framework controlling window)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

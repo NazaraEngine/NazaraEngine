@@ -40,7 +40,7 @@ namespace Nz
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
 			inline explicit Window(WindowHandle handle);
 			Window(const Window&) = delete;
-			Window(Window&&) = default;
+			Window(Window&& window);
 			virtual ~Window();
 
 			inline void Close();
@@ -78,6 +78,8 @@ namespace Nz
 			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
 			bool PollEvent(WindowEvent* event);
 
+			void PushEvent(const WindowEvent& event);
+
 			void ProcessEvents(bool block = false);
 
 			void SetCursor(CursorRef cursor);
@@ -101,7 +103,7 @@ namespace Nz
 			bool WaitEvent(WindowEvent* event);
 
 			Window& operator=(const Window&) = delete;
-			Window& operator=(Window&&) = default;
+			Window& operator=(Window&& window);
 
 		protected:
 			virtual bool OnWindowCreated();
@@ -111,12 +113,16 @@ namespace Nz
 			MovablePtr<WindowImpl> m_impl;
 
 		private:
+			void ConnectSlots();
+			void DisconnectSlots();
+
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
-			inline void HandleEvent(const WindowEvent& event);
-			inline void PushEvent(const WindowEvent& event);
+			void HandleEvent(const WindowEvent& event);
 
 			static bool Initialize();
 			static void Uninitialize();
+
+			NazaraSlot(CursorController, OnCursorUpdated, m_cursorUpdateSlot);
 
 			std::queue<WindowEvent> m_events;
 			std::vector<WindowEvent> m_pendingEvents;

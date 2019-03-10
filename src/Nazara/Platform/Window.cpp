@@ -33,11 +33,28 @@ namespace Nz
 	m_eventPolling(false),
 	m_waitForEvent(false)
 	{
-		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const CursorRef& cursor)
-		{
-			if (IsValid())
-				SetCursor(cursor);
-		});
+		ConnectSlots();
+	}
+
+	Window::Window(Window&& window) :
+	m_events(std::move(window.m_events)),
+	m_pendingEvents(std::move(window.m_pendingEvents)),
+	m_eventCondition(std::move(window.m_eventCondition)),
+	m_cursorController(std::move(window.m_cursorController)),
+	m_cursor(std::move(window.m_cursor)),
+	m_eventHandler(std::move(window.m_eventHandler)),
+	m_icon(std::move(window.m_icon)),
+	m_eventMutex(std::move(window.m_eventMutex)),
+	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
+	m_asyncWindow(window.m_asyncWindow),
+	m_closed(window.m_asyncWindow),
+	m_closeOnQuit(window.m_closeOnQuit),
+	m_eventPolling(window.m_eventPolling),
+	m_ownsWindow(window.m_asyncWindow),
+	m_waitForEvent(window.m_waitForEvent)
+	{
+		window.DisconnectSlots();
+		ConnectSlots();
 	}
 
 	Window::~Window()
@@ -582,6 +599,30 @@ namespace Nz
 		}
 	}
 
+	Window& Window::operator=(Window&& window)
+	{
+		m_events = std::move(window.m_events);
+		m_pendingEvents = std::move(window.m_pendingEvents);
+		m_eventCondition = std::move(window.m_eventCondition);
+		m_cursorController = std::move(window.m_cursorController);
+		m_cursor = std::move(window.m_cursor);
+		m_eventHandler = std::move(window.m_eventHandler);
+		m_icon = std::move(window.m_icon);
+		m_eventMutex = std::move(window.m_eventMutex);
+		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
+		m_asyncWindow = window.m_asyncWindow;
+		m_closed = window.m_asyncWindow;
+		m_closeOnQuit = window.m_closeOnQuit;
+		m_eventPolling = window.m_eventPolling;
+		m_ownsWindow = window.m_asyncWindow;
+		m_waitForEvent = window.m_waitForEvent;
+
+		window.DisconnectSlots();
+		ConnectSlots();
+
+		return *this;
+	}
+
 	bool Window::OnWindowCreated()
 	{
 		return true;
@@ -595,6 +636,20 @@ namespace Nz
 	{
 	}
 
+	void Window::ConnectSlots()
+	{
+		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const CursorRef& cursor)
+		{
+			if (IsValid())
+				SetCursor(cursor);
+		});
+	}
+
+	void Window::DisconnectSlots()
+	{
+		m_cursorUpdateSlot.Disconnect();
+	}
+
 	void Window::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -606,6 +661,34 @@ namespace Nz
 		#endif
 
 		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
+	}
+
+	void Window::HandleEvent(const WindowEvent& event)
+	{
+		if (m_eventPolling)
+			m_events.push(event);
+
+		m_eventHandler.Dispatch(event);
+
+		switch (event.type)
+		{
+			case WindowEventType_MouseEntered:
+				m_impl->RefreshCursor();
+				break;
+
+			case WindowEventType_Resized:
+				OnWindowResized();
+				break;
+
+			case WindowEventType_Quit:
+				if (m_closeOnQuit)
+					Close();
+
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	bool Window::Initialize()
