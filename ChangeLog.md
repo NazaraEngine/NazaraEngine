@@ -235,6 +235,7 @@ Nazara Development Kit:
 - Added EntityOwner::Release
 - Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
 - Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
+- Fixed GraphicsComponent not invalidating render queue on material change (causing crashes or visual errors)
 
 # 0.4:
 
