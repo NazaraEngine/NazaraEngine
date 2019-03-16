@@ -167,6 +167,7 @@ Nazara Engine:
 - Fixed Window movement constructor/assignation operator
 - Window::PushEvent is now public (useful for pushing external events ie. when using Qt or similar framework controlling window)
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
+- Added Vector[2|3|4](u)i64 typedefs
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
