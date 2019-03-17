@@ -169,6 +169,8 @@ Nazara Engine:
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
+- ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
+- ⚠ Added Collider2D::ComputeCenterOfMass
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

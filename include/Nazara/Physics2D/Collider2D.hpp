@@ -41,6 +41,7 @@ namespace Nz
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
 
+			virtual Nz::Vector2f ComputeCenterOfMass() const = 0;
 			virtual float ComputeMomentOfInertia(float mass) const = 0;
 
 			inline UInt32 GetCategoryMask() const;
@@ -99,6 +100,7 @@ namespace Nz
 			BoxCollider2D(const Vector2f& size, float radius = 0.f);
 			BoxCollider2D(const Rectf& rect, float radius = 0.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline float GetRadius() const;
@@ -125,6 +127,7 @@ namespace Nz
 		public:
 			CircleCollider2D(float radius, const Vector2f& offset = Vector2f::Zero());
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline const Vector2f& GetOffset() const;
@@ -150,6 +153,7 @@ namespace Nz
 		public:
 			CompoundCollider2D(std::vector<Collider2DRef> geoms);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline bool DoesOverrideCollisionProperties() const;
@@ -179,6 +183,7 @@ namespace Nz
 		public:
 			ConvexCollider2D(SparsePtr<const Vector2f> vertices, std::size_t vertexCount, float radius = 0.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			ColliderType2D GetType() const override;
@@ -203,6 +208,7 @@ namespace Nz
 		public:
 			NullCollider2D() = default;
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			ColliderType2D GetType() const override;
@@ -223,6 +229,7 @@ namespace Nz
 		public:
 			inline SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness = 1.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline const Vector2f& GetFirstPoint() const;
