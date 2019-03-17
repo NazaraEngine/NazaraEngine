@@ -171,6 +171,7 @@ Nazara Engine:
 - Fixed missing static Vector4::DotProduct implementation
 - ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
 - ⚠ Added Collider2D::ComputeCenterOfMass
+- Signal now implement a copy constructor and copy assignation operator for convenience
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
