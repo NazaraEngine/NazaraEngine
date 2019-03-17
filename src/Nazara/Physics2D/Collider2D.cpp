@@ -20,7 +20,7 @@ namespace Nz
 		{
 			cpShape* shape = (*shapes)[i];
 
-			cpShapeSetCollisionType(shape, cpFloat(m_collisionId));
+			cpShapeSetCollisionType(shape, m_collisionId);
 			cpShapeSetElasticity(shape, cpFloat(m_elasticity));
 			cpShapeSetFilter(shape, filter);
 			cpShapeSetFriction(shape, cpFloat(m_friction));
@@ -42,6 +42,11 @@ namespace Nz
 	m_rect(rect),
 	m_radius(radius)
 	{
+	}
+
+	Nz::Vector2f BoxCollider2D::ComputeCenterOfMass() const
+	{
+		return m_rect.GetCenter();
 	}
 
 	float BoxCollider2D::ComputeMomentOfInertia(float mass) const
@@ -68,6 +73,11 @@ namespace Nz
 	{
 	}
 
+	Nz::Vector2f CircleCollider2D::ComputeCenterOfMass() const
+	{
+		return m_offset + Nz::Vector2f(m_radius, m_radius);
+	}
+
 	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return static_cast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
@@ -90,6 +100,15 @@ namespace Nz
 	m_geoms(std::move(geoms)),
 	m_doesOverrideCollisionProperties(true)
 	{
+	}
+
+	Nz::Vector2f CompoundCollider2D::ComputeCenterOfMass() const
+	{
+		Nz::Vector2f centerOfMass = Nz::Vector2f::Zero();
+		for (const auto& geom : m_geoms)
+			centerOfMass += geom->ComputeCenterOfMass();
+
+		return centerOfMass / float(m_geoms.size());
 	}
 
 	float CompoundCollider2D::ComputeMomentOfInertia(float mass) const
@@ -144,6 +163,15 @@ namespace Nz
 			m_vertices[i].Set(*vertices++);
 	}
 
+	Nz::Vector2f ConvexCollider2D::ComputeCenterOfMass() const
+	{
+		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
+
+		cpVect center = cpCentroidForPoly(int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()));
+
+		return Nz::Vector2f(float(center.x), float(center.y));
+	}
+
 	float ConvexCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
@@ -169,6 +197,11 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
+	Nz::Vector2f NullCollider2D::ComputeCenterOfMass() const
+	{
+		return Nz::Vector2f::Zero();
+	}
+
 	float NullCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
@@ -180,6 +213,11 @@ namespace Nz
 	}
 
 	/******************************** SegmentCollider2D *********************************/
+
+	Nz::Vector2f SegmentCollider2D::ComputeCenterOfMass() const
+	{
+		return (m_first + m_second) / 2.f;
+	}
 
 	float SegmentCollider2D::ComputeMomentOfInertia(float mass) const
 	{

@@ -82,7 +82,7 @@ namespace Nz
 			void SetElasticity(std::size_t shapeIndex, float elasticity);
 			void SetFriction(float friction);
 			void SetFriction(std::size_t shapeIndex, float friction);
-			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
+			void SetGeom(Collider2DRef geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
 			void SetMomentOfInertia(float moment);
