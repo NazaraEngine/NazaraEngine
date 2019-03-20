@@ -170,6 +170,7 @@ Nazara Engine:
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
+- ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

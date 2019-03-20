@@ -1041,7 +1041,13 @@ namespace Nz
 
 	void ENetPeer::RemoveSentUnreliableCommands()
 	{
+		if (m_sentUnreliableCommands.empty())
+			return;
+
 		m_sentUnreliableCommands.clear();
+
+		if (m_state == ENetPeerState::DisconnectLater && !HasPendingCommands())
+			Disconnect(m_eventData);
 	}
 
 	void ENetPeer::ResetQueues()
