@@ -212,7 +212,7 @@ namespace Nz
 			if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_UnreliableFragment)) == ENetPacketFlag_UnreliableFragment &&
 				channel.outgoingUnreliableSequenceNumber < 0xFFFF)
 			{
-				commandNumber = ENetProtocolCommand_SendUnreliable;
+				commandNumber = ENetProtocolCommand_SendUnreliableFragment;
 				startSequenceNumber = HostToNet<UInt16>(channel.outgoingUnreliableSequenceNumber + 1);
 			}
 			else
@@ -770,7 +770,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -778,9 +778,10 @@ namespace Nz
 			}
 		}
 
-		if (startCommand)
+		if (!startCommand)
 		{
-			if (!QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount))
+			startCommand = QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount);
+			if (!startCommand)
 				return false;
 		}
 

@@ -169,6 +169,7 @@ Nazara Engine:
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
+- Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
