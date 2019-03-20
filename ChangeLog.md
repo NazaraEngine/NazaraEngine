@@ -172,6 +172,8 @@ Nazara Engine:
 - ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
 - ⚠ Added Collider2D::ComputeCenterOfMass
 - Signal now implement a copy constructor and copy assignation operator for convenience
+- Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
+- ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
