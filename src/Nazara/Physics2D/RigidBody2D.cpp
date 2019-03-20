@@ -48,7 +48,7 @@ namespace Nz
 		NazaraAssert(m_geom, "Invalid geometry");
 
 		m_handle = Create(m_mass, object.GetMomentOfInertia());
-		SetGeom(object.GetGeom(), false);
+		SetGeom(object.GetGeom(), false, false);
 
 		CopyBodyData(object.GetHandle(), m_handle);
 
@@ -362,7 +362,7 @@ namespace Nz
 		cpShapeSetFriction(m_shapes[shapeIndex], cpFloat(friction));
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment)
+	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment, bool recomputeMassCenter)
 	{
 		// We have no public way of getting rid of an existing geom without removing the whole body
 		// So let's save some attributes of the body, destroy it and rebuild it
@@ -399,6 +399,9 @@ namespace Nz
 			if (!IsStatic() && !IsKinematic())
 				cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
 		}
+
+		if (recomputeMassCenter)
+			SetMassCenter(m_geom->ComputeCenterOfMass());
 	}
 
 	void RigidBody2D::SetMass(float mass, bool recomputeMoment)
