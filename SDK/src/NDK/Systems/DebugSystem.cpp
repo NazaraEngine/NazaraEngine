@@ -232,11 +232,12 @@ namespace Ndk
 					case DebugDraw::Collider2D:
 					{
 						const Nz::Boxf& obb = entityGfx.GetAABB();
+						CollisionComponent2D& entityCollision2D = entity->GetComponent<CollisionComponent2D>();
 
 						Nz::Vector3f origin;
 						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &origin);
 						if (renderable)
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(origin - entityNode.GetPosition()), DebugDrawOrder);
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(origin - entityNode.GetPosition() + entityCollision2D.GetGeomOffset()), DebugDrawOrder);
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
 						break;
