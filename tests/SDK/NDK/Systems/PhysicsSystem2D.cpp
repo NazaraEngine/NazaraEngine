@@ -6,7 +6,7 @@
 #include <Catch/catch.hpp>
 #include <limits>
 
-Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf AABB);
+Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB);
 
 SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 {
@@ -80,6 +80,8 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::EntityHandle movingEntity = CreateBaseEntity(world, position, movingAABB);
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
+		physicsComponent2D.SetMassCenter(Nz::Vector2f::Zero());
+		physicsComponent2D.SetPosition(position);
 
 		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 
@@ -124,6 +126,8 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::EntityHandle movingEntity = CreateBaseEntity(world, position, movingAABB);
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
+		physicsComponent2D.SetMassCenter(Nz::Vector2f::Zero());
+		physicsComponent2D.SetPosition(position);
 
 		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 
@@ -145,7 +149,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	}
 }
 
-Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf AABB)
+Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB)
 {
 	Ndk::EntityHandle entity = world.CreateEntity();
 	Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
