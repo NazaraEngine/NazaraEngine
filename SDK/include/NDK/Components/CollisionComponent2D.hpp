@@ -28,11 +28,11 @@ namespace Ndk
 			CollisionComponent2D(const CollisionComponent2D& collision);
 			~CollisionComponent2D() = default;
 
-			void Align(const Nz::Rectf& aabb);
-
 			Nz::Rectf GetAABB() const;
 			const Nz::Collider2DRef& GetGeom() const;
 			const Nz::Vector2f& GetGeomOffset() const;
+
+			void Recenter(const Nz::Vector2f& origin);
 
 			void SetGeom(Nz::Collider2DRef geom);
 			void SetGeomOffset(const Nz::Vector2f& geomOffset);

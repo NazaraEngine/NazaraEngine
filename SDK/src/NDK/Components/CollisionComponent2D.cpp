@@ -17,12 +17,6 @@ namespace Ndk
 	* \brief NDK class that represents a two-dimensional collision geometry
 	*/
 
-	void CollisionComponent2D::Align(const Nz::Rectf& aabb)
-	{
-		const Nz::RigidBody2D* rigidBody = GetRigidBody();
-		SetGeomOffset(aabb.GetCenter() - rigidBody->GetAABB().GetCenter() + rigidBody->GetPositionOffset());
-	}
-
 	/*!
 	* \brief Gets the collision box representing the entity
 	* \return The physics collision box
@@ -32,9 +26,26 @@ namespace Ndk
 		return GetRigidBody()->GetAABB();
 	}
 
+	/*!
+	* \brief Gets the position offset between the actual rigid body center of mass position and the origin of the geometry
+	* \return Position offset
+	*/
 	const Nz::Vector2f& CollisionComponent2D::GetGeomOffset() const
 	{
 		return GetRigidBody()->GetPositionOffset();
+	}
+
+	/*!
+	* \brief Convenience function to align center of geometry to a specific point
+	*
+	* \param geomOffset Position offset
+	*
+	* \remark This does not change the center of mass
+	*/
+	void CollisionComponent2D::Recenter(const Nz::Vector2f& origin)
+	{
+		const Nz::RigidBody2D* rigidBody = GetRigidBody();
+		SetGeomOffset(origin - rigidBody->GetAABB().GetCenter() + rigidBody->GetPositionOffset());
 	}
 
 	/*!
@@ -49,6 +60,11 @@ namespace Ndk
 		GetRigidBody()->SetGeom(m_geom);
 	}
 
+	/*!
+	* \brief Sets the position offset between the actual rigid body center of mass position and the origin of the geometry
+	*
+	* \param geomOffset Position offset
+	*/
 	void CollisionComponent2D::SetGeomOffset(const Nz::Vector2f& geomOffset)
 	{
 		GetRigidBody()->SetPositionOffset(geomOffset);
