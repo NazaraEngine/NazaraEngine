@@ -234,10 +234,10 @@ namespace Ndk
 						const Nz::Boxf& obb = entityGfx.GetAABB();
 						CollisionComponent2D& entityCollision2D = entity->GetComponent<CollisionComponent2D>();
 
-						Nz::Vector3f origin;
-						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &origin);
+						Nz::Vector3f offset;
+						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &offset);
 						if (renderable)
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(origin - entityNode.GetPosition() + entityCollision2D.GetGeomOffset()), DebugDrawOrder);
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(offset), DebugDrawOrder);
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
 						break;
@@ -318,7 +318,7 @@ namespace Ndk
 		return model;
 	}
 	
-	Nz::InstancedRenderableRef DebugSystem::GenerateCollision2DMesh(Entity* entity, Nz::Vector3f* origin)
+	Nz::InstancedRenderableRef DebugSystem::GenerateCollision2DMesh(Entity* entity, Nz::Vector3f* offset)
 	{
 		if (entity->HasComponent<CollisionComponent2D>())
 		{
@@ -375,9 +375,12 @@ namespace Ndk
 
 			// Find center of mass
 			if (entity->HasComponent<PhysicsComponent2D>())
-				*origin = entity->GetComponent<PhysicsComponent2D>().GetMassCenter(Nz::CoordSys_Global);
+			{
+				const PhysicsComponent2D& entityPhys = entity->GetComponent<PhysicsComponent2D>();
+				*offset = entityPhys.GetMassCenter(Nz::CoordSys_Global) - entityPhys.GetPosition(); // GetPosition already takes GetGeomOffset into account
+			}
 			else
-				*origin = entity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Global);
+				*offset = entityCollision.GetGeomOffset();
 
 			return model;
 		}
