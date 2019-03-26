@@ -71,8 +71,8 @@ namespace Nz
 			win32Mode.dmBitsPerPel = mode.bitsPerPixel;
 			win32Mode.dmPelsHeight = mode.height;
 			win32Mode.dmPelsWidth  = mode.width;
-			win32Mode.dmFields	   = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			win32Mode.dmSize	   = sizeof(DEVMODE);
+			win32Mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+			win32Mode.dmSize       = sizeof(DEVMODE);
 
 			if (ChangeDisplaySettings(&win32Mode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 			{
