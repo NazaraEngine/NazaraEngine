@@ -175,6 +175,7 @@ Nazara Engine:
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
 - ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
 - ⚠ Collider3D::ForEachPolygon now takes a void(Vector3f\*, std::size_t) callback (instead of void(float\*, std::size_t))
+- Added Collider2D::ForEachPolygon
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
