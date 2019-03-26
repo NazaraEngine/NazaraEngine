@@ -28,10 +28,14 @@ namespace Ndk
 			CollisionComponent2D(const CollisionComponent2D& collision);
 			~CollisionComponent2D() = default;
 
+			void Align(const Nz::Rectf& aabb);
+
 			Nz::Rectf GetAABB() const;
 			const Nz::Collider2DRef& GetGeom() const;
+			const Nz::Vector2f& GetGeomOffset() const;
 
 			void SetGeom(Nz::Collider2DRef geom);
+			void SetGeomOffset(const Nz::Vector2f& geomOffset);
 
 			CollisionComponent2D& operator=(Nz::Collider2DRef geom);
 			CollisionComponent2D& operator=(CollisionComponent2D&& collision) = default;
@@ -40,6 +44,8 @@ namespace Ndk
 
 		private:
 			void InitializeStaticBody();
+			Nz::RigidBody2D* GetRigidBody();
+			const Nz::RigidBody2D* GetRigidBody() const;
 			Nz::RigidBody2D* GetStaticBody();
 
 			void OnAttached() override;

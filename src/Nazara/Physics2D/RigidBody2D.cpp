@@ -19,6 +19,7 @@ namespace Nz
 	}
 
 	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom) :
+	m_positionOffset(Vector2f::Zero()),
 	m_geom(),
 	m_userData(nullptr),
 	m_world(world),
@@ -35,6 +36,7 @@ namespace Nz
 	}
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
+	m_positionOffset(object.m_positionOffset),
 	m_geom(object.m_geom),
 	m_userData(object.m_userData),
 	m_world(object.m_world),
@@ -59,9 +61,10 @@ namespace Nz
 		}
 	}
 
-	RigidBody2D::RigidBody2D(RigidBody2D&& object) :
+	RigidBody2D::RigidBody2D(RigidBody2D&& object) noexcept :
 	OnRigidBody2DMove(std::move(object.OnRigidBody2DMove)),
 	OnRigidBody2DRelease(std::move(object.OnRigidBody2DRelease)),
+	m_positionOffset(std::move(object.m_positionOffset)),
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
 	m_handle(object.m_handle),
@@ -260,7 +263,7 @@ namespace Nz
 
 	Vector2f RigidBody2D::GetPosition() const
 	{
-		cpVect pos = cpBodyGetPosition(m_handle);
+		cpVect pos = cpBodyLocalToWorld(m_handle, cpv(-m_positionOffset.x, -m_positionOffset.y));
 		return Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y));
 	}
 
@@ -467,7 +470,9 @@ namespace Nz
 
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
-		cpBodySetPosition(m_handle, cpv(position.x, position.y));
+		cpVect oldPosition = cpBodyGetPosition(m_handle);
+
+		cpBodySetPosition(m_handle, cpBodyLocalToWorld(m_handle, cpv(position.x - oldPosition.x + m_positionOffset.x, position.y - oldPosition.y + m_positionOffset.y)));
 		if (m_isStatic)
 		{
 			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
@@ -475,6 +480,13 @@ namespace Nz
 				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
 			});
 		}
+	}
+
+	void RigidBody2D::SetPositionOffset(const Vector2f& offset)
+	{
+		Nz::Vector2f position = GetPosition();
+		m_positionOffset = offset;
+		SetPosition(position);
 	}
 
 	void RigidBody2D::SetRotation(const RadianAnglef& rotation)
@@ -573,6 +585,7 @@ namespace Nz
 		m_geom                = std::move(object.m_geom);
 		m_gravityFactor       = object.m_gravityFactor;
 		m_mass                = object.m_mass;
+		m_positionOffset      = object.m_positionOffset;
 		m_shapes              = std::move(object.m_shapes);
 		m_userData            = object.m_userData;
 		m_velocityFunc        = std::move(object.m_velocityFunc);
@@ -653,9 +666,10 @@ namespace Nz
 
 	void RigidBody2D::CopyBodyData(cpBody* from, cpBody* to)
 	{
+		cpBodySetCenterOfGravity(to, cpBodyGetCenterOfGravity(from));
+
 		cpBodySetAngle(to, cpBodyGetAngle(from));
 		cpBodySetAngularVelocity(to, cpBodyGetAngularVelocity(from));
-		cpBodySetCenterOfGravity(to, cpBodyGetCenterOfGravity(from));
 		cpBodySetForce(to, cpBodyGetForce(from));
 		cpBodySetPosition(to, cpBodyGetPosition(from));
 		cpBodySetTorque(to, cpBodyGetTorque(from));
