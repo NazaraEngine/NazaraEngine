@@ -26,6 +26,7 @@ namespace Ndk
 
 		private:
 			Nz::InstancedRenderableRef GenerateBox(Nz::Boxf box);
+			Nz::InstancedRenderableRef GenerateCollision2DMesh(Entity* entity, Nz::Vector3f* origin);
 			Nz::InstancedRenderableRef GenerateCollision3DMesh(Entity* entity);
 
 			Nz::MaterialRef GetCollisionMaterial();
