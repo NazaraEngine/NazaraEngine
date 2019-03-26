@@ -20,8 +20,9 @@ namespace Ndk
 
 	class NDK_API CollisionComponent2D : public Component<CollisionComponent2D>
 	{
-		friend class PhysicsSystem2D;
 		friend class ConstraintComponent2D;
+		friend class PhysicsComponent2D;
+		friend class PhysicsSystem2D;
 
 		public:
 			CollisionComponent2D(Nz::Collider2DRef geom = Nz::Collider2DRef());
@@ -47,6 +48,7 @@ namespace Ndk
 			Nz::RigidBody2D* GetRigidBody();
 			const Nz::RigidBody2D* GetRigidBody() const;
 			Nz::RigidBody2D* GetStaticBody();
+			const Nz::RigidBody2D* GetStaticBody() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
