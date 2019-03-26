@@ -41,8 +41,10 @@ namespace Nz
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
 
-			virtual Nz::Vector2f ComputeCenterOfMass() const = 0;
+			virtual Vector2f ComputeCenterOfMass() const = 0;
 			virtual float ComputeMomentOfInertia(float mass) const = 0;
+
+			virtual void ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const;
 
 			inline UInt32 GetCategoryMask() const;
 			inline UInt32 GetCollisionGroup() const;
