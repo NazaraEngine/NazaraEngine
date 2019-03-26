@@ -17,28 +17,41 @@ namespace Ndk
 	* \brief NDK class that represents a two-dimensional collision geometry
 	*/
 
+	void CollisionComponent2D::Align(const Nz::Rectf& aabb)
+	{
+		const Nz::RigidBody2D* rigidBody = GetRigidBody();
+		SetGeomOffset(aabb.GetCenter() - rigidBody->GetAABB().GetCenter() + rigidBody->GetPositionOffset());
+	}
+
+	/*!
+	* \brief Gets the collision box representing the entity
+	* \return The physics collision box
+	*/
+	Nz::Rectf CollisionComponent2D::GetAABB() const
+	{
+		return GetRigidBody()->GetAABB();
+	}
+
+	const Nz::Vector2f& CollisionComponent2D::GetGeomOffset() const
+	{
+		return GetRigidBody()->GetPositionOffset();
+	}
+
 	/*!
 	* \brief Sets geometry for the entity
 	*
 	* \param geom Geometry used for collisions
-	*
-	* \remark Produces a NazaraAssert if the entity has no physics component and has no static body
 	*/
 	void CollisionComponent2D::SetGeom(Nz::Collider2DRef geom)
 	{
 		m_geom = std::move(geom);
 
-		if (m_entity->HasComponent<PhysicsComponent2D>())
-		{
-			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent2D
-			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
-			physComponent.GetRigidBody()->SetGeom(m_geom);
-		}
-		else
-		{
-			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
-			m_staticBody->SetGeom(m_geom);
-		}
+		GetRigidBody()->SetGeom(m_geom);
+	}
+
+	void CollisionComponent2D::SetGeomOffset(const Nz::Vector2f& geomOffset)
+	{
+		GetRigidBody()->SetPositionOffset(geomOffset);
 	}
 
 	/*!
@@ -47,7 +60,6 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if entity is invalid
 	* \remark Produces a NazaraAssert if entity is not linked to a world, or the world has no physics system
 	*/
-
 	void CollisionComponent2D::InitializeStaticBody()
 	{
 		NazaraAssert(m_entity, "Invalid entity");
@@ -67,7 +79,34 @@ namespace Ndk
 			matrix.MakeIdentity();
 
 		m_staticBody->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
+	}
 
+	Nz::RigidBody2D* CollisionComponent2D::GetRigidBody()
+	{
+		if (m_entity->HasComponent<PhysicsComponent2D>())
+		{
+			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
+			return physComponent.GetRigidBody();
+		}
+		else
+		{
+			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
+			return m_staticBody.get();
+		}
+	}
+
+	const Nz::RigidBody2D* CollisionComponent2D::GetRigidBody() const
+	{
+		if (m_entity->HasComponent<PhysicsComponent2D>())
+		{
+			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
+			return physComponent.GetRigidBody();
+		}
+		else
+		{
+			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
+			return m_staticBody.get();
+		}
 	}
 
 	/*!
