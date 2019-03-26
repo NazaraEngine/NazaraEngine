@@ -175,7 +175,7 @@ Nazara Engine:
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
 - ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
 - ⚠ Collider3D::ForEachPolygon now takes a void(Vector3f\*, std::size_t) callback (instead of void(float\*, std::size_t))
-- Added Collider2D::ForEachPolygon
+- Added Collider2D::ForEachPolygon method
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -219,7 +219,7 @@ Nazara Development Kit:
 - Fix GraphicsComponent bounding volume not taking local matrix in account
 - ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
 - ⚠️ All widgets are now bound to a scissor box when rendering
-- Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- Add DebugComponent (a component able to show aabb/obb/collision mesh 2D and 3D)
 - ⚠️ TextAreaWidget now support text selection (WIP)
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.

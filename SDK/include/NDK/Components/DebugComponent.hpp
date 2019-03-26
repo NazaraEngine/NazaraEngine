@@ -16,7 +16,7 @@ namespace Ndk
 {
 	enum class DebugDraw
 	{
-		//TODO: Collider2D
+		Collider2D,
 		Collider3D,
 		GraphicsAABB,
 		GraphicsOBB,
