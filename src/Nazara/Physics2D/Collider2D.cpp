@@ -142,7 +142,7 @@ namespace Nz
 
 	Nz::Vector2f CircleCollider2D::ComputeCenterOfMass() const
 	{
-		return m_offset + Nz::Vector2f(m_radius, m_radius);
+		return m_offset;
 	}
 
 	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
