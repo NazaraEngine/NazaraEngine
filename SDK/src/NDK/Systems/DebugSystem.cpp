@@ -377,7 +377,7 @@ namespace Ndk
 			if (entity->HasComponent<PhysicsComponent2D>())
 			{
 				const PhysicsComponent2D& entityPhys = entity->GetComponent<PhysicsComponent2D>();
-				*offset = entityPhys.GetMassCenter(Nz::CoordSys_Global) - entityPhys.GetPosition(); // GetPosition already takes GetGeomOffset into account
+				*offset = entityPhys.GetMassCenter(Nz::CoordSys_Local) + entityCollision.GetGeomOffset();
 			}
 			else
 				*offset = entityCollision.GetGeomOffset();
