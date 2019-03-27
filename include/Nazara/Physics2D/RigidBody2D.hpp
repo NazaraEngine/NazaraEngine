@@ -32,7 +32,7 @@ namespace Nz
 			RigidBody2D(PhysWorld2D* world, float mass);
 			RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom);
 			RigidBody2D(const RigidBody2D& object);
-			RigidBody2D(RigidBody2D&& object);
+			RigidBody2D(RigidBody2D&& object) noexcept;
 			~RigidBody2D();
 
 			void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys_Global);
@@ -60,6 +60,7 @@ namespace Nz
 			Vector2f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
 			float GetMomentOfInertia() const;
 			Vector2f GetPosition() const;
+			inline const Vector2f& GetPositionOffset() const;
 			RadianAnglef GetRotation() const;
 			inline std::size_t GetShapeCount() const;
 			std::size_t GetShapeIndex(cpShape* shape) const;
@@ -87,6 +88,7 @@ namespace Nz
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
 			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
+			void SetPositionOffset(const Vector2f& offset);
 			void SetRotation(const RadianAnglef& rotation);
 			void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			void SetSurfaceVelocity(std::size_t shapeIndex, const Vector2f& surfaceVelocity);
@@ -114,6 +116,7 @@ namespace Nz
 			static void CopyBodyData(cpBody* from, cpBody* to);
 			static void CopyShapeData(cpShape* from, cpShape* to);
 
+			Vector2f m_positionOffset;
 			VelocityFunc m_velocityFunc;
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
