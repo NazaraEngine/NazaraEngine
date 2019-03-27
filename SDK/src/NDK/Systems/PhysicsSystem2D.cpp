@@ -213,7 +213,7 @@ namespace Ndk
 			Nz::Vector2f newPosition = Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global));
 
 			// To move static objects and ensure their collisions, we have to specify them a velocity
-			// (/!\: the physical motor does not apply the speed on static objects)
+			// (/!\: the physical engine does not apply the speed on static objects)
 			if (newPosition != oldPosition)
 			{
 				body->SetPosition(newPosition);
@@ -222,8 +222,7 @@ namespace Ndk
 			else
 				body->SetVelocity(Nz::Vector2f::Zero());
 
-/*
-			if (newRotation != oldRotation)
+			/*if (newRotation != oldRotation)
 			{
 				Nz::Quaternionf transition = newRotation * oldRotation.GetConjugate();
 				Nz::EulerAnglesf angles = transition.ToEulerAngles();
@@ -235,8 +234,7 @@ namespace Ndk
 				physObj->SetAngularVelocity(angularVelocity);
 			}
 			else
-				physObj->SetAngularVelocity(Nz::Vector3f::Zero());
-*/
+				physObj->SetAngularVelocity(Nz::Vector3f::Zero());*/
 		}
 	}
 

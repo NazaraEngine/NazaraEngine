@@ -176,6 +176,7 @@ Nazara Engine:
 - ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
 - ⚠ Collider3D::ForEachPolygon now takes a void(Vector3f\*, std::size_t) callback (instead of void(float\*, std::size_t))
 - Added Collider2D::ForEachPolygon method
+- Added RigidBody::[Get|Set]PositionOffset allowing set an offset between body logic position and body physics position (center of mass position)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -248,6 +249,7 @@ Nazara Development Kit:
 - Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
 - Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 - Fixed GraphicsComponent not invalidating render queue on material change (causing crashes or visual errors)
+- Added CollisionComponent2D::SetGeomOffset and CollisionComponent2D::Recenter
 
 # 0.4:
 
