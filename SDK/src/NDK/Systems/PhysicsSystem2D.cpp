@@ -86,14 +86,17 @@ namespace Ndk
 	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
 	{
 		Nz::PhysWorld2D::NearestQueryResult queryResult;
-		bool res = GetPhysWorld().NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult);
+		if (GetPhysWorld().NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult))
+		{
+			result->nearestBody = GetEntityFromBody(*queryResult.nearestBody);
+			result->closestPoint = std::move(queryResult.closestPoint);
+			result->fraction = std::move(queryResult.fraction);
+			result->distance = queryResult.distance;
 
-		result->nearestBody = GetEntityFromBody(*queryResult.nearestBody);
-		result->closestPoint = std::move(queryResult.closestPoint);
-		result->fraction = std::move(queryResult.fraction);
-		result->distance = queryResult.distance;
-
-		return res;
+			return true;
+		}
+		else
+			return false;
 	}
 
 	bool PhysicsSystem2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
@@ -108,7 +111,7 @@ namespace Ndk
 				std::move(hitResult.hitPos),
 				std::move(hitResult.hitNormal),
 				hitResult.fraction
-				});
+			});
 		}
 
 		return res;
@@ -117,14 +120,17 @@ namespace Ndk
 	bool PhysicsSystem2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
 	{
 		Nz::PhysWorld2D::RaycastHit queryResult;
-		bool res = GetPhysWorld().RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+		if (GetPhysWorld().RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult))
+		{
+			hitInfo->body = GetEntityFromBody(*queryResult.nearestBody);
+			hitInfo->hitPos = std::move(queryResult.hitPos);
+			hitInfo->hitNormal = std::move(queryResult.hitNormal);
+			hitInfo->fraction = queryResult.fraction;
 
-		hitInfo->body = GetEntityFromBody(*queryResult.nearestBody);
-		hitInfo->hitPos = std::move(queryResult.hitPos);
-		hitInfo->hitNormal = std::move(queryResult.hitNormal);
-		hitInfo->fraction = queryResult.fraction;
-
-		return res;
+			return true;
+		}
+		else
+			return false;
 	}
 
 	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies)
