@@ -387,6 +387,7 @@ function NazaraBuild:Initialize()
 		if (f) then
 			MODULE = {}
 			self:SetupModuleTable(MODULE)
+			Config = self.Config
 
 			f()
 
@@ -529,6 +530,7 @@ function NazaraBuild:LoadConfig()
 	AddBoolOption("PremakeProject", "premakeproject", "Add a PremakeProject as a shortcut to call Premake")
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
+	AddBoolOption("PlatformSDL2", "platform-sdl2", "Use SDL2 instead of native APIs")
 
 	-- AdditionalCompilationOptions
 	do

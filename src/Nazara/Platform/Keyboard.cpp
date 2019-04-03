@@ -4,7 +4,9 @@
 
 #include <Nazara/Platform/Keyboard.hpp>
 
-#if defined(NAZARA_PLATFORM_WINDOWS)
+#if defined(NAZARA_PLATFORM_SDL2)
+	#include <Nazara/Platform/SDL2/InputImpl.hpp>
+#elif defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Platform/Win32/InputImpl.hpp>
 #elif defined(NAZARA_PLATFORM_X11)
 	#include <Nazara/Platform/X11/InputImpl.hpp>

@@ -9,7 +9,9 @@
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
 
-#if defined(NAZARA_PLATFORM_WINDOWS)
+#if defined(NAZARA_PLATFORM_SDL2)
+	#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#elif defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Platform/Win32/WindowImpl.hpp>
 #elif defined(NAZARA_PLATFORM_X11)
 	#include <Nazara/Platform/X11/WindowImpl.hpp>
