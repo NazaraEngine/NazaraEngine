@@ -231,9 +231,6 @@ namespace Ndk
 				{
 					case DebugDraw::Collider2D:
 					{
-						const Nz::Boxf& obb = entityGfx.GetAABB();
-						CollisionComponent2D& entityCollision2D = entity->GetComponent<CollisionComponent2D>();
-
 						Nz::Vector3f offset;
 						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &offset);
 						if (renderable)
