@@ -470,9 +470,8 @@ namespace Nz
 
 	void RigidBody2D::SetPosition(const Vector2f& position)
 	{
-		cpVect oldPosition = cpBodyGetPosition(m_handle);
-
-		cpBodySetPosition(m_handle, cpBodyLocalToWorld(m_handle, cpv(position.x - oldPosition.x + m_positionOffset.x, position.y - oldPosition.y + m_positionOffset.y)));
+		// Use cpTransformVect to rotate/scale the position offset
+		cpBodySetPosition(m_handle, cpvadd(cpv(position.x, position.y), cpTransformVect(m_handle->transform, cpv(m_positionOffset.x, m_positionOffset.y))));
 		if (m_isStatic)
 		{
 			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
