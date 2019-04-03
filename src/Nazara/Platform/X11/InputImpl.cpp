@@ -79,6 +79,7 @@ namespace Nz
 				case Keyboard::Decimal: keysym = XK_KP_Decimal; break;
 				case Keyboard::Divide: keysym = XK_KP_Divide; break;
 				case Keyboard::Multiply: keysym = XK_KP_Multiply; break;
+				case Keyboard::NumpadReturn: keysym = XK_KP_Enter; break;
 				case Keyboard::Numpad0: keysym = XK_KP_0; break;
 				case Keyboard::Numpad1: keysym = XK_KP_1; break;
 				case Keyboard::Numpad2: keysym = XK_KP_2; break;
@@ -136,6 +137,8 @@ namespace Nz
 				case Keyboard::Space: keysym = XK_space; break;
 				case Keyboard::Tab: keysym = XK_Tab; break;
 				case Keyboard::Tilde: keysym = XK_grave; break;
+				case Keyboard::Menu: keysym = XK_Menu; break;
+				case Keyboard::ISOBackslash102: keysym = XK_less; break;
 
 				// Touches navigateur
 				case Keyboard::Browser_Back: keysym = XF86XK_Back; break;

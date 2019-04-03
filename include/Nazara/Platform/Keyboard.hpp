@@ -78,6 +78,7 @@ namespace Nz
 				Decimal,
 				Divide,
 				Multiply,
+				NumpadReturn,
 				Numpad0,
 				Numpad1,
 				Numpad2,
@@ -135,6 +136,8 @@ namespace Nz
 				Space,
 				Tab,
 				Tilde,
+				Menu,
+				ISOBackslash102,
 
 				// Navigator keys
 				Browser_Back,

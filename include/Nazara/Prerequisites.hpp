@@ -117,16 +117,19 @@
 	#endif
 #elif defined(__linux__) || defined(__unix__)
 	#define NAZARA_PLATFORM_LINUX
-	#define NAZARA_PLATFORM_GLX
 	#define NAZARA_PLATFORM_POSIX
-	#define NAZARA_PLATFORM_X11
+
+	#ifndef NAZARA_PLATFORM_SDL2
+		#define NAZARA_PLATFORM_GLX
+		#define NAZARA_PLATFORM_X11
+	#endif
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
 /*#elif defined(__APPLE__) && defined(__MACH__)
-	#define NAZARA_CORE_API
-	#define NAZARA_PLATFORM_MACOSX
-	#define NAZARA_PLATFORM_POSIX*/
+ #define NAZARA_CORE_API
+ #define NAZARA_PLATFORM_MACOSX
+ #define NAZARA_PLATFORM_POSIX*/
 #else
 	#error This operating system is not fully supported by the Nazara Engine
 
