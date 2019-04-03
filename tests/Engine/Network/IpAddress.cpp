@@ -40,7 +40,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 			Nz::IpAddress google(8, 8, 8, 8);
 			THEN("Google (DNS) is 8.8.8.8")
 			{
-				CHECK(Nz::IpAddress::ResolveAddress(google) == "dns.google");
+				CHECK(Nz::IpAddress::ResolveAddress(google) == "google-public-dns-a.google.com");
 			}
 		}
 	}

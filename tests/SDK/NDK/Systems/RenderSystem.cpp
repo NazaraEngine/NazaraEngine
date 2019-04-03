@@ -90,17 +90,17 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 			{
 				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
 				CHECK(physicsComponent2D.GetRotation() == angularSpeed);
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(1.f, 4.f, 2.f, 1.f));
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.5f, 4.5f, 2.f, 1.f));
 				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
 				CHECK(physicsComponent2D.GetRotation() == 2.f * angularSpeed);
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.f, 2.f, 1.f, 2.f));
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(3.f, 4.0f, 1.f, 2.f));
 				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
 				CHECK(physicsComponent2D.GetRotation() == 3.f * angularSpeed);
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(3.f, 3.f, 2.f, 1.f));
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.5f, 4.5f, 2.f, 1.f));
 				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
