@@ -177,6 +177,7 @@ Nazara Engine:
 - ⚠ Collider3D::ForEachPolygon now takes a void(Vector3f\*, std::size_t) callback (instead of void(float\*, std::size_t))
 - Added Collider2D::ForEachPolygon method
 - Added RigidBody::[Get|Set]PositionOffset allowing set an offset between body logic position and body physics position (center of mass position)
+- ⚠ Default TextureSampler WrapMode is now Clamp (instead of Repeat)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
