@@ -251,6 +251,7 @@ Nazara Development Kit:
 - Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 - Fixed GraphicsComponent not invalidating render queue on material change (causing crashes or visual errors)
 - Added CollisionComponent2D::SetGeomOffset and CollisionComponent2D::Recenter
+- Added LifetimeComponent and LifetimeSystem
 
 # 0.4:
 
