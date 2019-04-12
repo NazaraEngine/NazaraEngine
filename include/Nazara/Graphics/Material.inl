@@ -119,6 +119,14 @@ namespace Nz
 	{
 		m_pipelineInfo = pipelineInfo;
 
+		// Temp and dirty fix for pipeline overriding has*Map
+		m_pipelineInfo.hasAlphaMap = m_alphaMap.IsValid();
+		m_pipelineInfo.hasDiffuseMap = m_diffuseMap.IsValid();
+		m_pipelineInfo.hasEmissiveMap = m_emissiveMap.IsValid();
+		m_pipelineInfo.hasHeightMap = m_heightMap.IsValid();
+		m_pipelineInfo.hasNormalMap = m_normalMap.IsValid();
+		m_pipelineInfo.hasSpecularMap = m_specularMap.IsValid();
+
 		InvalidatePipeline();
 	}
 
