@@ -179,6 +179,7 @@ Nazara Engine:
 - Added RigidBody::[Get|Set]PositionOffset allowing set an offset between body logic position and body physics position (center of mass position)
 - ⚠ Default TextureSampler WrapMode is now Clamp (instead of Repeat)
 - Fixed StateMachine ignoring transitions made in Enter/Leave events of states
+- Fixed Material::Configure resetting textures
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
