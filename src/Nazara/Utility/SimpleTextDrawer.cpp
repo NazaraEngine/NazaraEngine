@@ -120,7 +120,7 @@ namespace Nz
 		return m_lines.size();
 	}
 
-	UInt32 SimpleTextDrawer::GetStyle() const
+	TextStyleFlags SimpleTextDrawer::GetStyle() const
 	{
 		return m_style;
 	}
@@ -159,7 +159,7 @@ namespace Nz
 		}
 	}
 
-	void SimpleTextDrawer::SetStyle(UInt32 style)
+	void SimpleTextDrawer::SetStyle(TextStyleFlags style)
 	{
 		m_style = style;
 
@@ -207,7 +207,7 @@ namespace Nz
 		return *this;
 	}
 
-	SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, UInt32 style, const Color& color)
+	SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -218,7 +218,7 @@ namespace Nz
 		return drawer;
 	}
 
-	SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style, const Color& color)
+	SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
