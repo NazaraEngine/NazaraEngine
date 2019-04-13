@@ -109,7 +109,7 @@ namespace Nz
 		}
 	}
 
-	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* glyph) const
+	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, FontGlyph* glyph) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
@@ -127,7 +127,7 @@ namespace Nz
 		return m_atlas;
 	}
 
-	std::size_t Font::GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const
+	std::size_t Font::GetCachedGlyphCount(unsigned int characterSize, TextStyleFlags style) const
 	{
 		UInt64 key = ComputeKey(characterSize, style);
 		auto it = m_glyphes.find(key);
@@ -187,7 +187,7 @@ namespace Nz
 			return it->second; // Présent dans le cache, tout va bien
 	}
 
-	const Font::Glyph& Font::GetGlyph(unsigned int characterSize, UInt32 style, char32_t character) const
+	const Font::Glyph& Font::GetGlyph(unsigned int characterSize, TextStyleFlags style, char32_t character) const
 	{
 		UInt64 key = ComputeKey(characterSize, style);
 		return PrecacheGlyph(m_glyphes[key], characterSize, style, character);
@@ -256,13 +256,13 @@ namespace Nz
 		return m_data != nullptr;
 	}
 
-	bool Font::Precache(unsigned int characterSize, UInt32 style, char32_t character) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, char32_t character) const
 	{
 		UInt64 key = ComputeKey(characterSize, style);
 		return PrecacheGlyph(m_glyphes[key], characterSize, style, character).valid;
 	}
 
-	bool Font::Precache(unsigned int characterSize, UInt32 style, const String& characterSet) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, const String& characterSet) const
 	{
 		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
 		std::u32string set = characterSet.GetUtf32String();
@@ -399,7 +399,7 @@ namespace Nz
 		s_defaultMinimumStepSize = minimumStepSize;
 	}
 
-	UInt64 Font::ComputeKey(unsigned int characterSize, UInt32 style) const
+	UInt64 Font::ComputeKey(unsigned int characterSize, TextStyleFlags style) const
 	{
 		// On prend le pas en compte
 		UInt64 sizePart = static_cast<UInt32>((characterSize/m_minimumStepSize)*m_minimumStepSize);
@@ -471,7 +471,7 @@ namespace Nz
 		NazaraError("Atlas has been released while in use");
 	}
 
-	const Font::Glyph& Font::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, UInt32 style, char32_t character) const
+	const Font::Glyph& Font::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, TextStyleFlags style, char32_t character) const
 	{
 		auto it = glyphMap.find(character);
 		if (it != glyphMap.end()) // Si le glyphe n'est pas déjà chargé
@@ -492,7 +492,7 @@ namespace Nz
 		glyph.requireFauxBold = false;
 		glyph.requireFauxItalic = false;
 
-		UInt32 supportedStyle = style;
+		TextStyleFlags supportedStyle = style;
 		if (style & TextStyle_Bold && !m_data->SupportsStyle(TextStyle_Bold))
 		{
 			glyph.requireFauxBold = true;

@@ -180,6 +180,8 @@ Nazara Engine:
 - ⚠ Default TextureSampler WrapMode is now Clamp (instead of Repeat)
 - Fixed StateMachine ignoring transitions made in Enter/Leave events of states
 - Fixed Material::Configure resetting textures
+- ⚠ Renamed TextStyleFlags enum to TextStyle, introduced Flags specialization of TextStyle as TextStyleFlags
+- ⚠ Font, FontData and SimpleTextDrawer now use a proper TextStyleFlags instead of a UInt32
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -25,7 +25,7 @@ namespace Nz
 
 		FT_Library s_library;
 		std::shared_ptr<FreeTypeLibrary> s_libraryOwner;
-		float s_invScaleFactor = 1.f / (1 << 6); // 1/64
+		constexpr float s_invScaleFactor = 1.f / (1 << 6); // 1/64
 
 		extern "C"
 		unsigned long FT_StreamRead(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count)
@@ -96,7 +96,7 @@ namespace Nz
 					return FT_Open_Face(s_library, &m_args, -1, nullptr) == 0;
 				}
 
-				bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* dst) override
+				bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, FontGlyph* dst) override
 				{
 					#ifdef NAZARA_DEBUG
 					if (!dst)
@@ -118,7 +118,7 @@ namespace Nz
 
 					const FT_Pos boldStrength = 2 << 6;
 
-					bool embolden = (style & TextStyle_Bold);
+					bool embolden = (style & TextStyle_Bold) != 0;
 
 					dst->advance = (embolden) ? boldStrength >> 6 : 0;
 
@@ -312,7 +312,7 @@ namespace Nz
 					m_args.stream = &m_stream;
 				}
 
-				bool SupportsStyle(UInt32 style) const override
+				bool SupportsStyle(TextStyleFlags style) const override
 				{
 					///TODO
 					return style == TextStyle_Regular || style == TextStyle_Bold;
