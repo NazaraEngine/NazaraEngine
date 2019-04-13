@@ -405,7 +405,7 @@ namespace Nz
 		UInt64 sizePart = static_cast<UInt32>((characterSize/m_minimumStepSize)*m_minimumStepSize);
 
 		// Ainsi que le style (uniquement le gras et l'italique, les autres sont gérés par un TextDrawer)
-		UInt64 stylePart = 0;
+		TextStyleFlags stylePart = 0;
 
 		if (style & TextStyle_Bold)
 			stylePart |= TextStyle_Bold;
@@ -413,7 +413,7 @@ namespace Nz
 		if (style & TextStyle_Italic)
 			stylePart |= TextStyle_Italic;
 
-		return (stylePart << 32) | sizePart;
+		return (static_cast<Nz::UInt64>(stylePart) << 32) | sizePart;
 	}
 
 	void Font::OnAtlasCleared(const AbstractAtlas* atlas)
