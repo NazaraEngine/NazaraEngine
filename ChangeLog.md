@@ -184,6 +184,10 @@ Nazara Engine:
 - ⚠ Font, FontData and SimpleTextDrawer now use a proper TextStyleFlags instead of a UInt32
 - Almost all Math algorithms are now constexpr
 - PhysWorld2D: Fixed callbacks not properly replacing each others when registering twice with the same collisionId (pair)
+- ⚠ **Font, FontData and SimpleTextDrawer now supports text outlining.**
+- Fixed TextSprite not handling multiple textures well
+- ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
+- ⚠ SimpleTextDrawer no longer supports faux bold rendering
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
