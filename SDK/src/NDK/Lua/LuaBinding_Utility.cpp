@@ -123,12 +123,13 @@ namespace Ndk
 						lua.Push(instance->GetCachedGlyphCount());
 						return 1;
 
-					case 2:
+					case 3:
 					{
 						unsigned int characterSize = lua.Check<unsigned int>(&argIndex);
 						Nz::TextStyleFlags style = lua.Check<Nz::TextStyleFlags>(&argIndex);
+						float outlineThickness = lua.Check<float>(&argIndex);
 
-						lua.Push(instance->GetCachedGlyphCount(characterSize, style));
+						lua.Push(instance->GetCachedGlyphCount(characterSize, style, outlineThickness));
 						return 1;
 					}
 				}
@@ -146,7 +147,7 @@ namespace Ndk
 
 			font.BindMethod("IsValid", &Nz::Font::IsValid);
 
-			font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::TextStyleFlags, const Nz::String&) const) &Nz::Font::Precache);
+			font.BindMethod("Precache", (bool(Nz::Font::*)(unsigned int, Nz::TextStyleFlags, float, const Nz::String&) const) &Nz::Font::Precache);
 
 			font.BindMethod("SetGlyphBorder", &Nz::Font::SetGlyphBorder);
 			font.BindMethod("SetMinimumStepSize", &Nz::Font::SetMinimumStepSize);

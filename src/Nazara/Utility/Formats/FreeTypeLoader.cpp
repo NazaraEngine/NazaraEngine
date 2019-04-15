@@ -6,7 +6,9 @@
 #include <freetype/ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
+#include FT_STROKER_H
 #include FT_OUTLINE_H
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
@@ -24,8 +26,10 @@ namespace Nz
 		class FreeTypeLibrary;
 
 		FT_Library s_library;
+		FT_Stroker s_stroker;
 		std::shared_ptr<FreeTypeLibrary> s_libraryOwner;
-		constexpr float s_invScaleFactor = 1.f / (1 << 6); // 1/64
+		constexpr float s_scaleFactor = 1 << 6;
+		constexpr float s_invScaleFactor = 1.f / s_scaleFactor;
 
 		extern "C"
 		unsigned long FT_StreamRead(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count)
@@ -66,9 +70,23 @@ namespace Nz
 			// pour ne libérer FreeType que lorsque plus personne ne l'utilise
 
 			public:
-				FreeTypeLibrary() = default;
+				FreeTypeLibrary()
+				{
+					if (FT_Stroker_New(s_library, &s_stroker) != 0)
+					{
+						NazaraWarning("Failed to load FreeType stroker, outline will not be possible");
+						s_stroker = nullptr; //< Just in case
+					}
+				}
+
 				~FreeTypeLibrary()
 				{
+					if (s_stroker)
+					{
+						FT_Stroker_Done(s_stroker);
+						s_stroker = nullptr;
+					}
+
 					FT_Done_FreeType(s_library);
 					s_library = nullptr;
 				}
@@ -96,7 +114,7 @@ namespace Nz
 					return FT_Open_Face(s_library, &m_args, -1, nullptr) == 0;
 				}
 
-				bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, FontGlyph* dst) override
+				bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* dst) override
 				{
 					#ifdef NAZARA_DEBUG
 					if (!dst)
@@ -114,61 +132,85 @@ namespace Nz
 						return false;
 					}
 
-					FT_GlyphSlot& glyph = m_face->glyph;
+					FT_GlyphSlot glyphSlot = m_face->glyph;
+
+					FT_Glyph glyph;
+					if (FT_Get_Glyph(glyphSlot, &glyph) != 0)
+					{
+						NazaraError("Failed to extract glyph");
+						return false;
+					}
+					CallOnExit destroyGlyph([&]() { FT_Done_Glyph(glyph); });
 
 					const FT_Pos boldStrength = 2 << 6;
 
 					bool embolden = (style & TextStyle_Bold) != 0;
+					bool hasOutlineFormat = (glyph->format == FT_GLYPH_FORMAT_OUTLINE);
 
 					dst->advance = (embolden) ? boldStrength >> 6 : 0;
 
-					if (embolden && glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+					if (hasOutlineFormat)
 					{
-						// http://www.freetype.org/freetype2/docs/reference/ft2-outline_processing.html#FT_Outline_Embolden
-						FT_Outline_Embolden(&glyph->outline, boldStrength);
-						embolden = false;
+						if (embolden)
+						{
+							// FT_Glyph can be casted to FT_OutlineGlyph if format is FT_GLYPH_FORMAT_OUTLINE
+							FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+							if (FT_Outline_Embolden(&outlineGlyph->outline, boldStrength) != 0)
+							{
+								NazaraError("Failed to embolden glyph");
+								return false;
+							}
+						}
+
+						if (outlineThickness > 0.f)
+						{
+							FT_Stroker_Set(s_stroker, static_cast<FT_Fixed>(s_scaleFactor * outlineThickness), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+							if (FT_Glyph_Stroke(&glyph, s_stroker, 1) != 0)
+							{
+								NazaraError("Failed to outline glyph");
+								return false;
+							}
+						}
 					}
 
-					// http://www.freetype.org/freetype2/docs/reference/ft2-glyph_management.html#FT_Glyph_To_Bitmap
-					// Conversion du glyphe vers le format bitmap
-					// Cette fonction ne fait rien dans le cas où le glyphe est déjà un bitmap
-					if (FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL) != 0)
+					if (FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, nullptr, 1) != 0)
 					{
 						NazaraError("Failed to convert glyph to bitmap");
 						return false;
 					}
+
+					FT_Bitmap& bitmap = reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
 
 					// Dans le cas où nous voulons des caractères gras mais que nous n'avons pas pu agir plus tôt
 					// nous demandons à FreeType d'agir directement sur le bitmap généré
 					if (embolden)
 					{
 						// http://www.freetype.org/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
-						// "If you want to embolden the bitmap owned by a FT_GlyphSlot_Rec, you should call FT_GlyphSlot_Own_Bitmap on the slot first"
-						FT_GlyphSlot_Own_Bitmap(glyph);
-						FT_Bitmap_Embolden(s_library, &glyph->bitmap, boldStrength, boldStrength);
+						FT_Bitmap_Embolden(s_library, &bitmap, boldStrength, boldStrength);
 					}
 
-					dst->advance += glyph->metrics.horiAdvance >> 6;
-					dst->aabb.x = glyph->metrics.horiBearingX >> 6;
-					dst->aabb.y = -(glyph->metrics.horiBearingY >> 6); // Inversion du repère
-					dst->aabb.width = glyph->metrics.width >> 6;
-					dst->aabb.height = glyph->metrics.height >> 6;
+					int outlineThicknessInt = static_cast<int>(outlineThickness * 2.f + 0.5f); //< round it
+					dst->advance += glyphSlot->metrics.horiAdvance >> 6;
+					dst->aabb.x = glyphSlot->metrics.horiBearingX >> 6;
+					dst->aabb.y = -(glyphSlot->metrics.horiBearingY >> 6); // Inversion du repère
+					dst->aabb.width = (glyphSlot->metrics.width >> 6) + outlineThicknessInt;
+					dst->aabb.height = (glyphSlot->metrics.height >> 6) + outlineThicknessInt;
 
-					unsigned int width = glyph->bitmap.width;
-					unsigned int height = glyph->bitmap.rows;
+					unsigned int width = bitmap.width;
+					unsigned int height = bitmap.rows;
 
 					if (width > 0 && height > 0)
 					{
 						dst->image.Create(ImageType_2D, PixelFormatType_A8, width, height);
 						UInt8* pixels = dst->image.GetPixels();
 
-						const UInt8* data = glyph->bitmap.buffer;
+						const UInt8* data = bitmap.buffer;
 
 						// Selon la documentation FreeType, le glyphe peut être encodé en format A8 (huit bits d'alpha par pixel)
 						// ou au format A1 (un bit d'alpha par pixel).
 						// Cependant dans un cas comme dans l'autre, il nous faut gérer le pitch (les données peuvent ne pas être contigues)
 						// ainsi que le padding dans le cas du format A1 (Chaque ligne prends un nombre fixe d'octets)
-						if (glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
+						if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
 						{
 							// Format A1
 							for (unsigned int y = 0; y < height; ++y)
@@ -176,20 +218,20 @@ namespace Nz
 								for (unsigned int x = 0; x < width; ++x)
 									*pixels++ = (data[x/8] & ((1 << (7 - x%8)) ? 255 : 0));
 
-								data += glyph->bitmap.pitch;
+								data += bitmap.pitch;
 							}
 						}
 						else
 						{
 							// Format A8
-							if (glyph->bitmap.pitch == static_cast<int>(width*sizeof(UInt8))) // Pouvons-nous copier directement ?
-								dst->image.Update(glyph->bitmap.buffer);
+							if (bitmap.pitch == static_cast<int>(width*sizeof(UInt8))) // Pouvons-nous copier directement ?
+								dst->image.Update(bitmap.buffer); //< Small optimization
 							else
 							{
 								for (unsigned int y = 0; y < height; ++y)
 								{
 									std::memcpy(pixels, data, width*sizeof(UInt8));
-									data += glyph->bitmap.pitch;
+									data += bitmap.pitch;
 									pixels += width*sizeof(UInt8);
 								}
 							}
@@ -310,6 +352,11 @@ namespace Nz
 					m_args.driver = 0;
 					m_args.flags = FT_OPEN_STREAM;
 					m_args.stream = &m_stream;
+				}
+
+				bool SupportsOutline(float /*outlineThickness*/) const override
+				{
+					return s_stroker != 0;
 				}
 
 				bool SupportsStyle(TextStyleFlags style) const override
