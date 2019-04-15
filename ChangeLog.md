@@ -182,6 +182,7 @@ Nazara Engine:
 - Fixed Material::Configure resetting textures
 - ⚠ Renamed TextStyleFlags enum to TextStyle, introduced Flags specialization of TextStyle as TextStyleFlags
 - ⚠ Font, FontData and SimpleTextDrawer now use a proper TextStyleFlags instead of a UInt32
+- Almost all Math algorithms are now constexpr
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
