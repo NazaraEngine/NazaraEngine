@@ -354,7 +354,7 @@ namespace Nz
 
 		if (callbackFunctions->startCallback)
 		{
-			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
+			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -389,7 +389,7 @@ namespace Nz
 
 		if (callbackFunctions->endCallback)
 		{
-			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
+			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void* data)
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
