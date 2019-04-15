@@ -273,14 +273,14 @@ namespace Nz
 		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, callback, bodies);
 	}
 
-	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
+	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, Callback callbacks)
 	{
-		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), callbacks);
+		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), std::move(callbacks));
 	}
 
-	void PhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks)
+	void PhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
 	{
-		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), callbacks);
+		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), std::move(callbacks));
 	}
 
 	void PhysWorld2D::SetDamping(float dampingValue)
@@ -341,15 +341,20 @@ namespace Nz
 		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
 	}
 
-	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks)
+	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, Callback callbacks)
 	{
-		auto it = m_callbacks.emplace(handler, std::make_unique<Callback>(callbacks)).first;
+		auto it = m_callbacks.find(handler);
+		if (it == m_callbacks.end())
+			it = m_callbacks.emplace(handler, std::make_unique<Callback>(std::move(callbacks))).first;
+		else
+			it->second = std::make_unique<Callback>(std::move(callbacks));
 
-		handler->userData = it->second.get();
+		Callback* callbackFunctions = it->second.get();
+		handler->userData = callbackFunctions;
 
-		if (callbacks.startCallback)
+		if (callbackFunctions->startCallback)
 		{
-			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void *data) -> cpBool
+			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -372,10 +377,19 @@ namespace Nz
 					return cpFalse;
 			};
 		}
-
-		if (callbacks.endCallback)
+		else
 		{
-			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void *data)
+			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
+			{
+				cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
+				cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
+				return retA && retB;
+			};
+		}
+
+		if (callbackFunctions->endCallback)
+		{
+			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -394,10 +408,18 @@ namespace Nz
 				cpArbiterCallWildcardSeparateB(arb, space);
 			};
 		}
-
-		if (callbacks.preSolveCallback)
+		else
 		{
-			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void *data) -> cpBool
+			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
+			{
+				cpArbiterCallWildcardSeparateA(arb, space);
+				cpArbiterCallWildcardSeparateB(arb, space);
+			};
+		}
+
+		if (callbackFunctions->preSolveCallback)
+		{
+			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -420,8 +442,17 @@ namespace Nz
 					return cpFalse;
 			};
 		}
+		else
+		{
+			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
+			{
+				cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
+				cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
+				return retA && retB;
+			};
+		}
 
-		if (callbacks.postSolveCallback)
+		if (callbackFunctions->postSolveCallback)
 		{
 			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void *data)
 			{
@@ -438,6 +469,14 @@ namespace Nz
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 
+				cpArbiterCallWildcardPostSolveA(arb, space);
+				cpArbiterCallWildcardPostSolveB(arb, space);
+			};
+		}
+		else
+		{
+			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data)
+			{
 				cpArbiterCallWildcardPostSolveA(arb, space);
 				cpArbiterCallWildcardPostSolveB(arb, space);
 			};

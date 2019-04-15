@@ -287,7 +287,7 @@ namespace Ndk
 
 	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
 	{
-		Nz::PhysWorld2D::Callback worldCallbacks{};
+		Nz::PhysWorld2D::Callback worldCallbacks;
 
 		if (callbacks.endCallback)
 		{

@@ -69,8 +69,8 @@ namespace Nz
 
 			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies);
 
-			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
-			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
+			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
+			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
 
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
@@ -91,7 +91,7 @@ namespace Nz
 				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactPostSolveCallback postSolveCallback = nullptr;
 				ContactStartCallback startCallback = nullptr;
-				void* userdata;
+				void* userdata = nullptr;
 			};
 
 			struct DebugDrawOptions
@@ -130,7 +130,7 @@ namespace Nz
 			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
-			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
+			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
 
 			using PostStep = std::function<void(Nz::RigidBody2D* body)>;
 
