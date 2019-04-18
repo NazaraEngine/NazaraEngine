@@ -24,6 +24,8 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
+#include <vector>
 
 namespace Nz
 {
@@ -60,7 +62,7 @@ namespace Nz
 			inline Material(const Material& material);
 			inline ~Material();
 
-			virtual void Apply(const MaterialPipeline::Instance& instance) const;
+			void Apply(const MaterialPipeline::Instance& instance) const;
 
 			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
 
@@ -94,9 +96,17 @@ namespace Nz
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline ReflectionMode GetReflectionMode() const;
+			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
 			inline const UberShader* GetShader() const;
 			inline BlendFunc GetSrcBlend() const;
+			inline UniformBuffer* GetSharedUniformBuffer(std::size_t bufferIndex) const;
+			inline Texture* GetTexture(std::size_t textureIndex) const;
+			inline TextureSampler& GetTextureSampler(std::size_t textureIndex);
+			inline const TextureSampler& GetTextureSampler(std::size_t textureIndex) const;
+			inline UniformBuffer* GetUniformBuffer(std::size_t bufferIndex);
+			inline const UniformBuffer* GetUniformBuffer(std::size_t bufferIndex) const;
 
+			inline bool HasTexture(std::size_t textureIndex) const;
 			inline bool HasVertexColor() const;
 
 			inline bool IsAlphaTestEnabled() const;
@@ -112,9 +122,7 @@ namespace Nz
 			inline bool IsShadowCastingEnabled() const;
 			inline bool IsShadowReceiveEnabled() const;
 
-			void Reset();
-
-			virtual void SaveToParameters(ParameterList* matData) = 0;
+			void SaveToParameters(ParameterList* matData);
 
 			inline void SetDepthFunc(RendererComparison depthFunc);
 			inline void SetDepthMaterial(MaterialRef depthMaterial);
@@ -126,8 +134,10 @@ namespace Nz
 			inline void SetReflectionMode(ReflectionMode reflectionMode);
 			inline void SetShader(UberShaderConstRef uberShader);
 			inline bool SetShader(const String& uberShaderName);
-			inline void SetSpecularSampler(const TextureSampler& sampler);
+			inline void SetSharedUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
+			inline void SetTexture(std::size_t textureIndex, Texture* texture);
+			inline void SetTextureSampler(std::size_t textureIndex, const TextureSampler& sampler);
 
 			inline Material& operator=(const Material& material);
 
@@ -143,17 +153,24 @@ namespace Nz
 			// Signals:
 			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
-			NazaraSignal(OnMaterialReset, const Material* /*material*/);
 
 		protected:
-			void Copy(const Material& material);
 			inline void InvalidatePipeline();
 			inline void UpdatePipeline() const;
 
 			static bool Initialize();
 			static void Uninitialize();
 
+			struct MaterialTexture
+			{
+				TextureSampler sampler;
+				TextureRef texture;
+			};
+
 			std::shared_ptr<const MaterialSettings> m_settings;
+			std::vector<MaterialTexture> m_textures;
+			std::vector<UniformBufferRef> m_sharedUniformBuffers;
+			std::vector<UniformBuffer> m_uniformBuffers;
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;
@@ -171,6 +188,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/BaseMaterial.inl>
+#include <Nazara/Graphics/Material.inl>
 
 #endif // NAZARA_BASE_MATERIAL_HPP

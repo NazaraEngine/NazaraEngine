@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,12 @@ namespace Nz
 {
 	struct MaterialSettings
 	{
+		inline std::size_t GetSharedUniformBlockIndex(const String& name) const;
+		inline std::size_t GetTextureIndex(const String& name) const;
+		inline std::size_t GetUniformBlockIndex(const String& name) const;
+
+		static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+
 		struct SharedUniformBlocks
 		{
 			String name;
@@ -42,5 +49,7 @@ namespace Nz
 		std::vector<UniformBlocks> uniformBlocks;
 	};
 }
+
+#include <Nazara/Graphics/MaterialPipelineSettings.inl>
 
 #endif // NAZARA_MATERIALPIPELINESETTINGS_HPP

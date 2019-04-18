@@ -25,6 +25,7 @@ namespace Nz
 		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
+		Nz::UInt64 textures    = 0;
 
 		RenderPipelineLayoutRef pipelineLayout;
 		std::shared_ptr<const MaterialSettings> settings;

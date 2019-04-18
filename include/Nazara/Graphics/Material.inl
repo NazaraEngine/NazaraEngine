@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -13,56 +14,19 @@ namespace Nz
 	*
 	* \see Reset
 	*/
-	inline BaseMaterial::BaseMaterial()
+	inline Material::Material(std::shared_ptr<const MaterialSettings> settings) :
+	m_settings(std::move(settings)),
+	m_reflectionMode(ReflectionMode_Skybox),
+	m_pipelineUpdated(false),
+	m_shadowCastingEnabled(true),
+	m_reflectionSize(256)
 	{
-		Reset();
-	}
+		m_sharedUniformBuffers.resize(m_settings->sharedUniformBlocks.size());
+		m_textures.resize(m_settings->textures.size());
 
-	/*!
-	* \brief Constructs a Material object using a MaterialPipeline
-	*
-	* Calls Configure with the pipeline parameter
-	*
-	* \see Configure
-	*/
-	inline BaseMaterial::BaseMaterial(const MaterialPipeline* pipeline)
-	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
-
-		Reset();
-		Configure(pipeline);
-	}
-
-	/*!
-	* \brief Constructs a Material object using a MaterialPipelineInfo
-	*
-	* Calls Configure with the pipelineInfo parameter
-	*
-	* \see Configure
-	*/
-	inline BaseMaterial::BaseMaterial(const MaterialPipelineInfo& pipelineInfo)
-	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
-
-		Reset();
-		Configure(pipelineInfo);
-	}
-
-	/*!
-	* \brief Constructs a Material object using a MaterialPipeline name
-	*
-	* Calls Configure with the pipelineName parameter
-	*
-	* \remark In case of error (ie. named pipeline is not registered), throw an exception
-	*
-	* \see Configure
-	*/
-	inline BaseMaterial::BaseMaterial(const String& pipelineName)
-	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
-
-		Reset();
-		Configure(pipelineName);
+		m_uniformBuffers.reserve(m_settings->uniformBlocks.size());
+		for (const auto& uniformBufferInfo : settings->uniformBlocks)
+			m_uniformBuffers.emplace_back(uniformBufferInfo.blockSize, DataStorage_Hardware, BufferUsage_Dynamic);
 	}
 
 	/*!
@@ -70,12 +34,12 @@ namespace Nz
 	*
 	* \param material Material to copy into this
 	*/
-	inline BaseMaterial::BaseMaterial(const BaseMaterial& material) :
+	inline Material::Material(const Material& material) :
 	RefCounted(),
 	Resource(material),
-	m_reflectionMode(ReflectionMode_Skybox)
+	m_reflectionMode(material.m_reflectionMode)
 	{
-		Copy(material);
+		operator=(material);
 	}
 
 	/*!
@@ -83,7 +47,7 @@ namespace Nz
 	*
 	* \see OnMaterialRelease
 	*/
-	inline BaseMaterial::~BaseMaterial()
+	inline Material::~Material()
 	{
 		OnMaterialRelease(this);
 	}
@@ -97,7 +61,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline void BaseMaterial::Configure(const MaterialPipeline* pipeline)
+	inline void Material::Configure(const MaterialPipeline* pipeline)
 	{
 		NazaraAssert(pipeline, "Invalid material pipeline");
 
@@ -115,7 +79,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline void BaseMaterial::Configure(const MaterialPipelineInfo& pipelineInfo)
+	inline void Material::Configure(const MaterialPipelineInfo& pipelineInfo)
 	{
 		m_pipelineInfo = pipelineInfo;
 
@@ -131,7 +95,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline bool BaseMaterial::Configure(const String& pipelineName)
+	inline bool Material::Configure(const String& pipelineName)
 	{
 		MaterialPipelineRef pipeline = MaterialPipelineLibrary::Query(pipelineName);
 		if (!pipeline)
@@ -158,7 +122,7 @@ namespace Nz
 	* \see IsAlphaTestEnabled
 	* \see SetAlphaThreshold
 	*/
-	inline void BaseMaterial::EnableAlphaTest(bool alphaTest)
+	inline void Material::EnableAlphaTest(bool alphaTest)
 	{
 		m_pipelineInfo.alphaTest = alphaTest;
 
@@ -179,7 +143,7 @@ namespace Nz
 	* \see SetDstBlend
 	* \see SetSrcBlend
 	*/
-	inline void BaseMaterial::EnableBlending(bool blending)
+	inline void Material::EnableBlending(bool blending)
 	{
 		m_pipelineInfo.blending = blending;
 
@@ -195,7 +159,7 @@ namespace Nz
 	*
 	* \see IsColorWritingEnabled
 	*/
-	inline void BaseMaterial::EnableColorWrite(bool colorWrite)
+	inline void Material::EnableColorWrite(bool colorWrite)
 	{
 		m_pipelineInfo.colorWrite = colorWrite;
 
@@ -220,7 +184,7 @@ namespace Nz
 	* \see IsDepthBufferEnabled
 	* \see SetDepthFunc
 	*/
-	inline void BaseMaterial::EnableDepthBuffer(bool depthBuffer)
+	inline void Material::EnableDepthBuffer(bool depthBuffer)
 	{
 		m_pipelineInfo.depthBuffer = depthBuffer;
 
@@ -240,7 +204,7 @@ namespace Nz
 	*
 	* \see IsDepthSortingEnabled
 	*/
-	inline void BaseMaterial::EnableDepthSorting(bool depthSorting)
+	inline void Material::EnableDepthSorting(bool depthSorting)
 	{
 		m_pipelineInfo.depthSorting = depthSorting;
 
@@ -263,7 +227,7 @@ namespace Nz
 	* \see EnableDepthBuffer
 	* \see IsDepthWriteEnabled
 	*/
-	inline void BaseMaterial::EnableDepthWrite(bool depthWrite)
+	inline void Material::EnableDepthWrite(bool depthWrite)
 	{
 		m_pipelineInfo.depthWrite = depthWrite;
 
@@ -285,7 +249,7 @@ namespace Nz
 	* \see IsFaceCullingEnabled
 	* \see SetFaceCulling
 	*/
-	inline void BaseMaterial::EnableFaceCulling(bool faceCulling)
+	inline void Material::EnableFaceCulling(bool faceCulling)
 	{
 		m_pipelineInfo.faceCulling = faceCulling;
 
@@ -310,7 +274,7 @@ namespace Nz
 	* \see SetReflectionMode
 	* \see SetReflectionSize
 	*/
-	inline void BaseMaterial::EnableReflectionMapping(bool reflection)
+	inline void Material::EnableReflectionMapping(bool reflection)
 	{
 		m_pipelineInfo.reflectionMapping = reflection;
 
@@ -329,7 +293,7 @@ namespace Nz
 	*
 	* \see IsScissorTestEnabled
 	*/
-	inline void BaseMaterial::EnableScissorTest(bool scissorTest)
+	inline void Material::EnableScissorTest(bool scissorTest)
 	{
 		m_pipelineInfo.scissorTest = scissorTest;
 
@@ -350,7 +314,7 @@ namespace Nz
 	* \see IsShadowCastingEnabled
 	* \see SetDepthMaterial
 	*/
-	inline void BaseMaterial::EnableShadowCasting(bool castShadows)
+	inline void Material::EnableShadowCasting(bool castShadows)
 	{
 		// Has no influence on pipeline
 		m_shadowCastingEnabled = castShadows;
@@ -368,7 +332,7 @@ namespace Nz
 	*
 	* \see IsShadowReceiveEnabled
 	*/
-	inline void BaseMaterial::EnableShadowReceive(bool receiveShadows)
+	inline void Material::EnableShadowReceive(bool receiveShadows)
 	{
 		m_pipelineInfo.shadowReceive = receiveShadows;
 
@@ -386,7 +350,7 @@ namespace Nz
 	*
 	* \see IsStencilTestEnabled
 	*/
-	inline void BaseMaterial::EnableStencilTest(bool stencilTest)
+	inline void Material::EnableStencilTest(bool stencilTest)
 	{
 		m_pipelineInfo.stencilTest = stencilTest;
 
@@ -405,7 +369,7 @@ namespace Nz
 	*
 	* \see HasVertexColor
 	*/
-	inline void BaseMaterial::EnableVertexColor(bool vertexColor)
+	inline void Material::EnableVertexColor(bool vertexColor)
 	{
 		m_pipelineInfo.hasVertexColor = vertexColor;
 
@@ -420,47 +384,10 @@ namespace Nz
 	*
 	* \see GetPipeline
 	*/
-	inline void BaseMaterial::EnsurePipelineUpdate() const
+	inline void Material::EnsurePipelineUpdate() const
 	{
 		if (!m_pipelineUpdated)
 			UpdatePipeline();
-	}
-
-	/*!
-	* \brief Gets the alpha map
-	*
-	* \return Constant reference to the current texture
-	*
-	* \see SetAlphaMap
-	*/
-	inline const TextureRef& BaseMaterial::GetAlphaMap() const
-	{
-		return m_alphaMap;
-	}
-
-	/*!
-	* \brief Gets the alpha test threshold
-	*
-	* \return The threshold value for the alpha test
-	*
-	* \see EnableAlphaTest
-	* \see SetAlphaThreshold
-	*/
-	inline float BaseMaterial::GetAlphaThreshold() const
-	{
-		return m_alphaThreshold;
-	}
-
-	/*!
-	* \brief Gets the ambient color
-	*
-	* \return Ambient color
-	*
-	* \see SetAmbientColor
-	*/
-	inline Color BaseMaterial::GetAmbientColor() const
-	{
-		return m_ambientColor;
 	}
 
 	/*!
@@ -471,7 +398,7 @@ namespace Nz
 	* \see EnableDepthTest
 	* \see SetAmbientColor
 	*/
-	inline RendererComparison BaseMaterial::GetDepthFunc() const
+	inline RendererComparison Material::GetDepthFunc() const
 	{
 		return m_pipelineInfo.depthFunc;
 	}
@@ -483,57 +410,9 @@ namespace Nz
 	*
 	* \see EnableShadowCasting
 	*/
-	inline const MaterialRef& BaseMaterial::GetDepthMaterial() const
+	inline const MaterialRef& Material::GetDepthMaterial() const
 	{
 		return m_depthMaterial;
-	}
-
-	/*!
-	* \brief Gets the diffuse color
-	*
-	* \return Diffuse color
-	*
-	* \see SetDiffuseColor
-	*/
-	inline Color BaseMaterial::GetDiffuseColor() const
-	{
-		return m_diffuseColor;
-	}
-
-	/*!
-	* \brief Gets the diffuse sampler
-	*
-	* \return Reference to the current texture sampler for the diffuse
-	*
-	* \see SetDiffuseSampler
-	*/
-	inline TextureSampler& BaseMaterial::GetDiffuseSampler()
-	{
-		return m_diffuseSampler;
-	}
-
-	/*!
-	* \brief Gets the diffuse sampler
-	*
-	* \return Constant reference to the current texture sampler for the diffuse
-	*
-	* \see SetDiffuseSampler
-	*/
-	inline const TextureSampler& BaseMaterial::GetDiffuseSampler() const
-	{
-		return m_diffuseSampler;
-	}
-
-	/*!
-	* \brief Gets the diffuse map
-	*
-	* \return Constant reference to the texture
-	*
-	* \see SetDiffuseMap
-	*/
-	const TextureRef& BaseMaterial::GetDiffuseMap() const
-	{
-		return m_diffuseMap;
 	}
 
 	/*!
@@ -543,21 +422,9 @@ namespace Nz
 	*
 	* \see SetDstBlend
 	*/
-	inline BlendFunc BaseMaterial::GetDstBlend() const
+	inline BlendFunc Material::GetDstBlend() const
 	{
 		return m_pipelineInfo.dstBlend;
-	}
-
-	/*!
-	* \brief Gets the emissive map
-	*
-	* \return Constant reference to the texture
-	*
-	* \see SetEmissiveMap
-	*/
-	inline const TextureRef& BaseMaterial::GetEmissiveMap() const
-	{
-		return m_emissiveMap;
 	}
 
 	/*!
@@ -567,7 +434,7 @@ namespace Nz
 	*
 	* \see SetFaceCulling
 	*/
-	inline FaceSide BaseMaterial::GetFaceCulling() const
+	inline FaceSide Material::GetFaceCulling() const
 	{
 		return m_pipelineInfo.cullingSide;
 	}
@@ -576,44 +443,25 @@ namespace Nz
 	* \brief Gets the face filling
 	* \return Current face filling
 	*/
-	inline FaceFilling BaseMaterial::GetFaceFilling() const
+	inline FaceFilling Material::GetFaceFilling() const
 	{
 		return m_pipelineInfo.faceFilling;
-	}
-
-	/*!
-	* \brief Gets the height map
-	* \return Constant reference to the texture
-	*/
-	inline const TextureRef& BaseMaterial::GetHeightMap() const
-	{
-		return m_heightMap;
 	}
 
 	/*!
 	* \brief Gets the line width of this material
 	* \return Line width
 	*/
-	inline float BaseMaterial::GetLineWidth() const
+	inline float Material::GetLineWidth() const
 	{
 		return m_pipelineInfo.lineWidth;
-	}
-
-	/*!
-	* \brief Gets the normal map
-	* \return Constant reference to the texture
-	*/
-
-	inline const TextureRef& BaseMaterial::GetNormalMap() const
-	{
-		return m_normalMap;
 	}
 
 	/*!
 	* \brief Gets the render states
 	* \return Constant reference to the render states
 	*/
-	inline const MaterialPipeline* BaseMaterial::GetPipeline() const
+	inline const MaterialPipeline* Material::GetPipeline() const
 	{
 		EnsurePipelineUpdate();
 
@@ -624,7 +472,7 @@ namespace Nz
 	* \brief Gets the pipeline informations
 	* \return Constant reference to the pipeline info
 	*/
-	inline const MaterialPipelineInfo& BaseMaterial::GetPipelineInfo() const
+	inline const MaterialPipelineInfo& Material::GetPipelineInfo() const
 	{
 		return m_pipelineInfo;
 	}
@@ -633,7 +481,7 @@ namespace Nz
 	* \brief Gets the point size of this material
 	* \return Point size
 	*/
-	inline float BaseMaterial::GetPointSize() const
+	inline float Material::GetPointSize() const
 	{
 		return m_pipelineInfo.pointSize;
 	}
@@ -645,142 +493,81 @@ namespace Nz
 	*
 	* \see SetReflectionMode
 	*/
-	inline ReflectionMode BaseMaterial::GetReflectionMode() const
+	inline ReflectionMode Material::GetReflectionMode() const
 	{
 		return m_reflectionMode;
+	}
+
+	inline const std::shared_ptr<const MaterialSettings>& Material::GetSettings() const
+	{
+		return m_settings;
 	}
 
 	/*!
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
-	inline const UberShader* BaseMaterial::GetShader() const
+	inline const UberShader* Material::GetShader() const
 	{
 		return m_pipelineInfo.uberShader;
-	}
-
-	/*!
-	* \brief Gets the shininess
-	* \return Current shininess
-	*/
-	inline float BaseMaterial::GetShininess() const
-	{
-		return m_shininess;
-	}
-
-	/*!
-	* \brief Gets the specular color
-	* \return Specular color
-	*/
-	inline Color BaseMaterial::GetSpecularColor() const
-	{
-		return m_specularColor;
-	}
-
-	/*!
-	* \brief Gets the specular map
-	* \return Constant reference to the texture
-	*/
-	inline const TextureRef& BaseMaterial::GetSpecularMap() const
-	{
-		return m_specularMap;
-	}
-
-	/*!
-	* \brief Gets the specular sampler
-	* \return Reference to the current texture sampler for the specular
-	*/
-	inline TextureSampler& BaseMaterial::GetSpecularSampler()
-	{
-		return m_specularSampler;
-	}
-
-	/*!
-	* \brief Gets the specular sampler
-	* \return Constant reference to the current texture sampler for the specular
-	*/
-	inline const TextureSampler& BaseMaterial::GetSpecularSampler() const
-	{
-		return m_specularSampler;
 	}
 
 	/*!
 	* \brief Gets the src in blend
 	* \return Function for src blending
 	*/
-	inline BlendFunc BaseMaterial::GetSrcBlend() const
+	inline BlendFunc Material::GetSrcBlend() const
 	{
 		return m_pipelineInfo.srcBlend;
 	}
 
-	/*!
-	* \brief Checks whether this material has an alpha map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasAlphaMap() const
+	inline UniformBuffer* Material::GetSharedUniformBuffer(std::size_t bufferIndex) const
 	{
-		return m_alphaMap.IsValid();
+		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
+		return m_sharedUniformBuffers[bufferIndex];
 	}
 
-	/*!
-	* \brief Checks whether this material has a depth material
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasDepthMaterial() const
+	inline Texture* Material::GetTexture(std::size_t textureIndex) const
 	{
-		return m_depthMaterial.IsValid();
+		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
+		return m_textures[textureIndex].texture;
 	}
 
-	/*!
-	* \brief Checks whether this material has a diffuse map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasDiffuseMap() const
+	inline TextureSampler& Material::GetTextureSampler(std::size_t textureIndex)
 	{
-		return m_diffuseMap.IsValid();
+		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
+		return m_textures[textureIndex].sampler;
 	}
 
-	/*!
-	* \brief Checks whether this material has a emissive map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasEmissiveMap() const
+	inline const TextureSampler& Material::GetTextureSampler(std::size_t textureIndex) const
 	{
-		return m_emissiveMap.IsValid();
+		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
+		return m_textures[textureIndex].sampler;
 	}
 
-	/*!
-	* \brief Checks whether this material has a height map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasHeightMap() const
+	inline UniformBuffer* Material::GetUniformBuffer(std::size_t bufferIndex)
 	{
-		return m_heightMap.IsValid();
+		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
+		return &m_uniformBuffers[bufferIndex];
 	}
 
-	/*!
-	* \brief Checks whether this material has a normal map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasNormalMap() const
+	inline const UniformBuffer* Material::GetUniformBuffer(std::size_t bufferIndex) const
 	{
-		return m_normalMap.IsValid();
+		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
+		return &m_uniformBuffers[bufferIndex];
 	}
 
-	/*!
-	* \brief Checks whether this material has a specular map
-	* \return true If it is the case
-	*/
-	inline bool BaseMaterial::HasSpecularMap() const
+	inline bool Material::HasTexture(std::size_t textureIndex) const
 	{
-		return m_specularMap.IsValid();
+		Texture* texture = GetTexture(textureIndex);
+		return texture && texture->IsValid();
 	}
 
 	/*!
 	* \brief Checks whether this material uses vertex coloring
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::HasVertexColor() const
+	inline bool Material::HasVertexColor() const
 	{
 		return m_pipelineInfo.hasVertexColor;
 	}
@@ -789,7 +576,7 @@ namespace Nz
 	* \brief Checks whether this material has alpha test enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsAlphaTestEnabled() const
+	inline bool Material::IsAlphaTestEnabled() const
 	{
 		return m_pipelineInfo.alphaTest;
 	}
@@ -798,7 +585,7 @@ namespace Nz
 	* \brief Checks whether this material has blending enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsBlendingEnabled() const
+	inline bool Material::IsBlendingEnabled() const
 	{
 		return m_pipelineInfo.blending;
 	}
@@ -807,7 +594,7 @@ namespace Nz
 	* \brief Checks whether this material has color write enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsColorWriteEnabled() const
+	inline bool Material::IsColorWriteEnabled() const
 	{
 		return m_pipelineInfo.colorWrite;
 	}
@@ -816,7 +603,7 @@ namespace Nz
 	* \brief Checks whether this material has depth buffer enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsDepthBufferEnabled() const
+	inline bool Material::IsDepthBufferEnabled() const
 	{
 		return m_pipelineInfo.depthBuffer;
 	}
@@ -825,7 +612,7 @@ namespace Nz
 	* \brief Checks whether this material has depth sorting enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsDepthSortingEnabled() const
+	inline bool Material::IsDepthSortingEnabled() const
 	{
 		return m_pipelineInfo.depthSorting;
 	}
@@ -834,7 +621,7 @@ namespace Nz
 	* \brief Checks whether this material has depth writing enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsDepthWriteEnabled() const
+	inline bool Material::IsDepthWriteEnabled() const
 	{
 		return m_pipelineInfo.depthWrite;
 	}
@@ -843,7 +630,7 @@ namespace Nz
 	* \brief Checks whether this material has face culling enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsFaceCullingEnabled() const
+	inline bool Material::IsFaceCullingEnabled() const
 	{
 		return m_pipelineInfo.faceCulling;
 	}
@@ -854,7 +641,7 @@ namespace Nz
 	*
 	* \see EnableReflectionMapping
 	*/
-	inline bool BaseMaterial::IsReflectionMappingEnabled() const
+	inline bool Material::IsReflectionMappingEnabled() const
 	{
 		return m_pipelineInfo.reflectionMapping;
 	}
@@ -863,7 +650,7 @@ namespace Nz
 	* \brief Checks whether this material has scissor test enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsScissorTestEnabled() const
+	inline bool Material::IsScissorTestEnabled() const
 	{
 		return m_pipelineInfo.scissorTest;
 	}
@@ -872,7 +659,7 @@ namespace Nz
 	* \brief Checks whether this material has stencil test enabled
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsStencilTestEnabled() const
+	inline bool Material::IsStencilTestEnabled() const
 	{
 		return m_pipelineInfo.stencilTest;
 	}
@@ -881,7 +668,7 @@ namespace Nz
 	* \brief Checks whether this material cast shadow
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsShadowCastingEnabled() const
+	inline bool Material::IsShadowCastingEnabled() const
 	{
 		return m_shadowCastingEnabled;
 	}
@@ -890,108 +677,9 @@ namespace Nz
 	* \brief Checks whether this material receive shadow
 	* \return true If it is the case
 	*/
-	inline bool BaseMaterial::IsShadowReceiveEnabled() const
+	inline bool Material::IsShadowReceiveEnabled() const
 	{
 		return m_pipelineInfo.shadowReceive;
-	}
-
-	/*!
-<<<<<<< HEAD:include/Nazara/Graphics/BaseMaterial.inl
-	* \brief Loads the material from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the material
-	*/
-	inline bool BaseMaterial::LoadFromFile(const String& filePath, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the material from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the material
-	*/
-	inline bool BaseMaterial::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the material from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the material
-	* \param params Parameters for the material
-	*/
-	inline bool BaseMaterial::LoadFromStream(Stream& stream, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
-=======
->>>>>>> master:include/Nazara/Graphics/Material.inl
-	* \brief Sets the alpha map by name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*/
-	inline bool BaseMaterial::SetAlphaMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get alpha map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetAlphaMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the alpha map with a reference to a texture
-	* \return true If successful
-	*
-	* \param alphaMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline void BaseMaterial::SetAlphaMap(TextureRef alphaMap)
-	{
-		m_alphaMap = std::move(alphaMap);
-		m_pipelineInfo.hasAlphaMap = m_alphaMap.IsValid();
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the alpha threshold
-	*
-	* \param alphaThreshold Threshold for the alpha
-	*/
-	inline void BaseMaterial::SetAlphaThreshold(float alphaThreshold)
-	{
-		m_alphaThreshold = alphaThreshold;
-	}
-
-	/*!
-	* \brief Sets the color for ambient
-	*
-	* \param ambient Color for ambient
-	*/
-	inline void BaseMaterial::SetAmbientColor(const Color& ambient)
-	{
-		m_ambientColor = ambient;
 	}
 
 	/*!
@@ -1001,7 +689,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void BaseMaterial::SetDepthFunc(RendererComparison depthFunc)
+	inline void Material::SetDepthFunc(RendererComparison depthFunc)
 	{
 		m_pipelineInfo.depthFunc = depthFunc;
 
@@ -1014,71 +702,9 @@ namespace Nz
 	*
 	* \param depthMaterial Material for depth
 	*/
-	inline void BaseMaterial::SetDepthMaterial(MaterialRef depthMaterial)
+	inline void Material::SetDepthMaterial(MaterialRef depthMaterial)
 	{
 		m_depthMaterial = std::move(depthMaterial);
-	}
-
-	/*!
-	* \brief Sets the color for diffuse
-	*
-	* \param diffuse Color for diffuse
-	*/
-	inline void BaseMaterial::SetDiffuseColor(const Color& diffuse)
-	{
-		m_diffuseColor = diffuse;
-	}
-
-	/*!
-	* \brief Sets the diffuse map by name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline bool BaseMaterial::SetDiffuseMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get diffuse map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetDiffuseMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the diffuse map with a reference to a texture
-	* \return true If successful
-	*
-	* \param diffuseMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline void BaseMaterial::SetDiffuseMap(TextureRef diffuseMap)
-	{
-		m_diffuseMap = std::move(diffuseMap);
-		m_pipelineInfo.hasDiffuseMap = m_diffuseMap.IsValid();
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the diffuse sampler
-	*
-	* \param sampler Diffuse sample
-	*/
-
-	inline void BaseMaterial::SetDiffuseSampler(const TextureSampler& sampler)
-	{
-		m_diffuseSampler = sampler;
 	}
 
 	/*!
@@ -1088,50 +714,9 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void BaseMaterial::SetDstBlend(BlendFunc func)
+	inline void Material::SetDstBlend(BlendFunc func)
 	{
 		m_pipelineInfo.dstBlend = func;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the emissive map by name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*
-	* \see GetEmissiveMap
-	*/
-	inline bool BaseMaterial::SetEmissiveMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get emissive map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetEmissiveMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the emissive map with a reference to a texture
-	* \return true If successful
-	*
-	* \param emissiveMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline void BaseMaterial::SetEmissiveMap(TextureRef emissiveMap)
-	{
-		m_emissiveMap = std::move(emissiveMap);
-		m_pipelineInfo.hasEmissiveMap = m_emissiveMap.IsValid();
 
 		InvalidatePipeline();
 	}
@@ -1143,7 +728,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void BaseMaterial::SetFaceCulling(FaceSide faceSide)
+	inline void Material::SetFaceCulling(FaceSide faceSide)
 	{
 		m_pipelineInfo.cullingSide = faceSide;
 
@@ -1157,51 +742,9 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void BaseMaterial::SetFaceFilling(FaceFilling filling)
+	inline void Material::SetFaceFilling(FaceFilling filling)
 	{
 		m_pipelineInfo.faceFilling = filling;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the height map by path or name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*
-	* \see GetHeightMap
-	*/
-	inline bool BaseMaterial::SetHeightMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get height map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetHeightMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the height map with a reference to a texture
-	*
-	* \param heightMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetHeightMap
-	*/
-	inline void BaseMaterial::SetHeightMap(TextureRef heightMap)
-	{
-		m_heightMap = std::move(heightMap);
-		m_pipelineInfo.hasHeightMap = m_heightMap.IsValid();
 
 		InvalidatePipeline();
 	}
@@ -1217,54 +760,9 @@ namespace Nz
 	*
 	* \see GetLineWidth
 	*/
-	inline void BaseMaterial::SetLineWidth(float lineWidth)
+	inline void Material::SetLineWidth(float lineWidth)
 	{
 		m_pipelineInfo.lineWidth = lineWidth;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the normal map by path or name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetNormalMap
-	*/
-	inline bool BaseMaterial::SetNormalMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get normal map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetNormalMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the normal map with a reference to a texture
-	* \return true If successful
-	*
-	* \param normalMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetNormalMap
-	*/
-	inline void BaseMaterial::SetNormalMap(TextureRef normalMap)
-	{
-		m_normalMap = std::move(normalMap);
-		m_pipelineInfo.hasNormalMap = m_normalMap.IsValid();
 
 		InvalidatePipeline();
 	}
@@ -1280,7 +778,7 @@ namespace Nz
 	*
 	* \see GetPointSize
 	*/
-	inline void BaseMaterial::SetPointSize(float pointSize)
+	inline void Material::SetPointSize(float pointSize)
 	{
 		m_pipelineInfo.pointSize = pointSize;
 
@@ -1305,7 +803,7 @@ namespace Nz
 	* \see IsReflectionMappingEnabled
 	* \see SetReflectionSize
 	*/
-	inline void BaseMaterial::SetReflectionMode(ReflectionMode reflectionMode)
+	inline void Material::SetReflectionMode(ReflectionMode reflectionMode)
 	{
 		if (m_reflectionMode != reflectionMode)
 		{
@@ -1324,7 +822,7 @@ namespace Nz
 	*
 	* \see GetShader
 	*/
-	inline void BaseMaterial::SetShader(UberShaderConstRef uberShader)
+	inline void Material::SetShader(UberShaderConstRef uberShader)
 	{
 		m_pipelineInfo.uberShader = std::move(uberShader);
 
@@ -1337,7 +835,7 @@ namespace Nz
 	*
 	* \param uberShaderName Named shader
 	*/
-	inline bool BaseMaterial::SetShader(const String& uberShaderName)
+	inline bool Material::SetShader(const String& uberShaderName)
 	{
 		UberShaderConstRef uberShader = UberShaderLibrary::Get(uberShaderName);
 		if (!uberShader)
@@ -1347,79 +845,29 @@ namespace Nz
 		return true;
 	}
 
-	/*!
-	* \brief Sets the shininess of the material
-	*
-	* \param shininess Value of the shininess
-	*/
-	inline void BaseMaterial::SetShininess(float shininess)
+	inline void Material::SetSharedUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer)
 	{
-		m_shininess = shininess;
+		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
+		m_sharedUniformBuffers[bufferIndex] = uniformBuffer;
 	}
 
-	/*!
-	* \brief Sets the color for specular
-	*
-	* \param specular Color
-	*/
-	inline void BaseMaterial::SetSpecularColor(const Color& specular)
+	inline void Material::SetTexture(std::size_t textureIndex, Texture* texture)
 	{
-		m_specularColor = specular;
-	}
+		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
+		m_textures[textureIndex].texture = texture;
 
-	/*!
-	* \brief Sets the specular map by name
-	* \return true If successful
-	*
-	* \param textureName Named texture
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline bool BaseMaterial::SetSpecularMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get specular map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetSpecularMap(std::move(texture));
-		return true;
-	}
-
-	/*!
-	* \brief Sets the specular map with a reference to a texture
-	* \return true If successful
-	*
-	* \param specularMap Texture
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetSpecularMap
-	*/
-	inline void BaseMaterial::SetSpecularMap(TextureRef specularMap)
-	{
-		m_specularMap = std::move(specularMap);
-		m_pipelineInfo.hasSpecularMap = m_specularMap.IsValid();
+		if (texture)
+			m_pipelineInfo.textures |= UInt64(1) << UInt64(textureIndex);
+		else
+			m_pipelineInfo.textures &= ~(UInt64(1) << UInt64(textureIndex));
 
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Sets the specular sampler
-	*
-	* \param sampler Specular sample
-	*
-	* \see GetSpecularSampler
-	*/
-	inline void BaseMaterial::SetSpecularSampler(const TextureSampler& sampler)
+	inline void Material::SetTextureSampler(std::size_t textureIndex, const TextureSampler& sampler)
 	{
-		m_specularSampler = sampler;
+		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
+		m_textures[textureIndex].sampler = sampler;
 	}
 
 	/*!
@@ -1431,7 +879,7 @@ namespace Nz
 	*
 	* \see GetSrcBlend
 	*/
-	inline void BaseMaterial::SetSrcBlend(BlendFunc func)
+	inline void Material::SetSrcBlend(BlendFunc func)
 	{
 		m_pipelineInfo.srcBlend = func;
 
@@ -1444,11 +892,29 @@ namespace Nz
 	*
 	* \param material The other Material
 	*/
-	inline BaseMaterial& BaseMaterial::operator=(const BaseMaterial& material)
+	inline Material& Material::operator=(const Material& material)
 	{
 		Resource::operator=(material);
 
-		Copy(material);
+		m_settings = material.m_settings;
+		m_textures = material.m_textures;
+		m_sharedUniformBuffers = material.m_sharedUniformBuffers;
+		m_depthMaterial = material.m_depthMaterial;
+		m_pipeline = material.m_pipeline;
+		m_pipelineInfo = material.m_pipelineInfo;
+		m_pipelineUpdated = material.m_pipelineUpdated;
+		m_shadowCastingEnabled = material.m_shadowCastingEnabled;
+		m_reflectionSize = material.m_reflectionSize;
+
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			const UniformBuffer* sourceBuffer = material.GetUniformBuffer(i);
+			UniformBuffer* targetBuffer = &m_uniformBuffers[i];
+			if (!targetBuffer->CopyContent(sourceBuffer))
+				NazaraError("Failed to copy uniform buffer content");
+		}
+
+		SetReflectionMode(material.GetReflectionMode());
 		return *this;
 	}
 
@@ -1459,19 +925,16 @@ namespace Nz
 	*
 	* \remark This material should NOT be modified as it would affect all objects using it
 	*/
-	inline MaterialRef BaseMaterial::GetDefault()
+	inline MaterialRef Material::GetDefault()
 	{
 		return s_defaultMaterial;
 	}
 
-	inline int BaseMaterial::GetTextureUnit(TextureMap textureMap)
+	inline int Material::GetTextureUnit(TextureMap textureMap)
 	{
 		return s_textureUnits[textureMap];
 	}
 
-<<<<<<< HEAD:include/Nazara/Graphics/BaseMaterial.inl
-	inline void BaseMaterial::InvalidatePipeline()
-=======
 	/*!
 	* \brief Loads the material from file
 	* \return true if loading is successful
@@ -1510,12 +973,11 @@ namespace Nz
 	}
 
 	inline void Material::InvalidatePipeline()
->>>>>>> master:include/Nazara/Graphics/Material.inl
 	{
 		m_pipelineUpdated = false;
 	}
 
-	inline void BaseMaterial::UpdatePipeline() const
+	inline void Material::UpdatePipeline() const
 	{
 		m_pipeline = MaterialPipeline::GetPipeline(m_pipelineInfo);
 		m_pipelineUpdated = true;
@@ -1528,9 +990,9 @@ namespace Nz
 	* \param args Arguments for the material
 	*/
 	template<typename... Args>
-	MaterialRef BaseMaterial::New(Args&&... args)
+	MaterialRef Material::New(Args&&... args)
 	{
-		std::unique_ptr<BaseMaterial> object(new BaseMaterial(std::forward<Args>(args)...));
+		std::unique_ptr<Material> object(new Material(std::forward<Args>(args)...));
 		object->SetPersistent(false);
 
 		return object.release();

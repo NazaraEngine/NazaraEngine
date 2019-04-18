@@ -30,6 +30,8 @@ namespace Nz
 			UniformBuffer(UniformBuffer&&) = delete;
 			~UniformBuffer();
 
+			bool CopyContent(const UniformBuffer* uniformBuffer);
+
 			bool Fill(const void* data, UInt32 offset, UInt32 size);
 
 			inline const BufferRef& GetBuffer() const;

@@ -5,6 +5,7 @@
 #include <Nazara/Utility/UniformBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -39,6 +40,14 @@ namespace Nz
 	UniformBuffer::~UniformBuffer()
 	{
 		OnUniformBufferRelease(this);
+	}
+
+	bool UniformBuffer::CopyContent(const UniformBuffer* uniformBuffer)
+	{
+		NazaraAssert(IsValid(), "Invalid buffer");
+
+		BufferMapper<UniformBuffer> mapper(uniformBuffer, BufferAccess_ReadOnly);
+		return Fill(mapper.GetPointer(), 0, uniformBuffer->GetEndOffset() - uniformBuffer->GetStartOffset());
 	}
 
 	bool UniformBuffer::Fill(const void* data, UInt32 offset, UInt32 size)

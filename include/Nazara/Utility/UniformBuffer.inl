@@ -25,7 +25,7 @@ namespace Nz
 
 	inline bool UniformBuffer::IsValid() const
 	{
-		return m_buffer.IsValid();
+		return m_buffer.IsValid() && m_buffer->IsValid();
 	}
 
 	template<typename... Args>

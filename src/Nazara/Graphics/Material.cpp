@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -35,11 +35,11 @@ namespace Nz
 	* \param textureUnit Unit for the texture GL_TEXTURE"i"
 	* \param lastUsedUnit Optional argument to get the last texture unit
 	*/
-	void BaseMaterial::Apply(const MaterialPipeline::Instance& instance) const
+	void Material::Apply(const MaterialPipeline::Instance& instance) const
 	{
 		const Shader* shader = instance.renderPipeline.GetInfo().shader;
 
-		if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)
+		/*if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)
 			shader->SendFloat(instance.uniforms[MaterialUniform_AlphaThreshold], m_alphaThreshold);
 
 		if (instance.uniforms[MaterialUniform_Ambient] != -1)
@@ -52,9 +52,9 @@ namespace Nz
 			shader->SendFloat(instance.uniforms[MaterialUniform_Shininess], m_shininess);
 
 		if (instance.uniforms[MaterialUniform_Specular] != -1)
-			shader->SendColor(instance.uniforms[MaterialUniform_Specular], m_specularColor);
+			shader->SendColor(instance.uniforms[MaterialUniform_Specular], m_specularColor);*/
 
-		if (m_alphaMap && instance.uniforms[MaterialUniform_AlphaMap] != -1)
+		/*if (m_alphaMap && instance.uniforms[MaterialUniform_AlphaMap] != -1)
 		{
 			unsigned int textureUnit = s_textureUnits[TextureMap_Alpha];
 
@@ -100,7 +100,7 @@ namespace Nz
 
 			Renderer::SetTexture(textureUnit, m_specularMap);
 			Renderer::SetTextureSampler(textureUnit, m_specularSampler);
-		}
+		}*/
 	}
 
 	/*!
@@ -109,7 +109,7 @@ namespace Nz
 	* \param matData Data information for the material
 	* \param matParams Additional parameters for the material
 	*/
-	void BaseMaterial::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
+	void Material::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
 	{
 		Color color;
 		bool isEnabled;
@@ -119,14 +119,14 @@ namespace Nz
 
 		ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled, true);
 
-		if (matData.GetDoubleParameter(MaterialData::AlphaThreshold, &dValue))
-			SetAlphaThreshold(float(dValue));
+		/*if (matData.GetDoubleParameter(MaterialData::AlphaThreshold, &dValue))
+			SetAlphaThreshold(float(dValue));*/
 
 		if (matData.GetBooleanParameter(MaterialData::AlphaTest, &isEnabled))
 			EnableAlphaTest(isEnabled);
 
-		if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
-			SetAmbientColor(color);
+		/*if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
+			SetAmbientColor(color);*/
 
 		if (matData.GetIntegerParameter(MaterialData::CullingSide, &iValue))
 			SetFaceCulling(static_cast<FaceSide>(iValue));
@@ -137,8 +137,8 @@ namespace Nz
 		if (matData.GetBooleanParameter(MaterialData::DepthSorting, &isEnabled))
 			EnableDepthSorting(isEnabled);
 
-		if (matData.GetColorParameter(MaterialData::DiffuseColor, &color))
-			SetDiffuseColor(color);
+		/*if (matData.GetColorParameter(MaterialData::DiffuseColor, &color))
+			SetDiffuseColor(color);*/
 
 		if (matData.GetIntegerParameter(MaterialData::DstBlend, &iValue))
 			SetDstBlend(static_cast<BlendFunc>(iValue));
@@ -152,11 +152,11 @@ namespace Nz
 		if (matData.GetDoubleParameter(MaterialData::PointSize, &dValue))
 			SetPointSize(float(dValue));
 
-		if (matData.GetColorParameter(MaterialData::SpecularColor, &color))
+		/*if (matData.GetColorParameter(MaterialData::SpecularColor, &color))
 			SetSpecularColor(color);
 
 		if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
-			SetShininess(float(dValue));
+			SetShininess(float(dValue));*/
 
 		if (matData.GetIntegerParameter(MaterialData::SrcBlend, &iValue))
 			SetSrcBlend(static_cast<BlendFunc>(iValue));
@@ -187,7 +187,7 @@ namespace Nz
 			EnableVertexColor(isEnabled);
 
 		// Samplers
-		if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
+		/*if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
 			m_diffuseSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
 
 		if (matData.GetIntegerParameter(MaterialData::DiffuseFilter, &iValue))
@@ -203,7 +203,7 @@ namespace Nz
 			m_specularSampler.SetFilterMode(static_cast<SamplerFilter>(iValue));
 
 		if (matData.GetIntegerParameter(MaterialData::SpecularWrap, &iValue))
-			m_specularSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));
+			m_specularSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));*/
 
 		// Stencil
 		if (matData.GetIntegerParameter(MaterialData::StencilCompare, &iValue))
@@ -246,7 +246,7 @@ namespace Nz
 		InvalidatePipeline();
 
 		// Textures
-		if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
+		/*if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
 			SetAlphaMap(path);
 
 		if (matParams.loadDiffuseMap && matData.GetStringParameter(MaterialData::DiffuseTexturePath, &path))
@@ -262,7 +262,7 @@ namespace Nz
 			SetNormalMap(path);
 
 		if (matParams.loadSpecularMap && matData.GetStringParameter(MaterialData::SpecularTexturePath, &path))
-			SetSpecularMap(path);
+			SetSpecularMap(path);*/
 
 		SetShader(matParams.shaderName);
 	}
@@ -272,23 +272,23 @@ namespace Nz
 	*
 	* \param matData Destination parameter list which will receive material data
 	*/
-	void BaseMaterial::SaveToParameters(ParameterList* matData)
+	void Material::SaveToParameters(ParameterList* matData)
 	{
 		NazaraAssert(matData, "Invalid ParameterList");
 
 		matData->SetParameter(MaterialData::AlphaTest, IsAlphaTestEnabled());
-		matData->SetParameter(MaterialData::AlphaThreshold, GetAlphaThreshold());
-		matData->SetParameter(MaterialData::AmbientColor, GetAmbientColor());
+		//matData->SetParameter(MaterialData::AlphaThreshold, GetAlphaThreshold());
+		//matData->SetParameter(MaterialData::AmbientColor, GetAmbientColor());
 		matData->SetParameter(MaterialData::CullingSide, static_cast<long long>(GetFaceCulling()));
 		matData->SetParameter(MaterialData::DepthFunc, static_cast<long long>(GetDepthFunc()));
 		matData->SetParameter(MaterialData::DepthSorting, IsDepthSortingEnabled());
-		matData->SetParameter(MaterialData::DiffuseColor, GetDiffuseColor());
+		//matData->SetParameter(MaterialData::DiffuseColor, GetDiffuseColor());
 		matData->SetParameter(MaterialData::DstBlend, static_cast<long long>(GetDstBlend()));
 		matData->SetParameter(MaterialData::FaceFilling, static_cast<long long>(GetFaceFilling()));
 		matData->SetParameter(MaterialData::LineWidth, GetLineWidth());
 		matData->SetParameter(MaterialData::PointSize, GetPointSize());
-		matData->SetParameter(MaterialData::Shininess, GetShininess());
-		matData->SetParameter(MaterialData::SpecularColor, GetSpecularColor());
+		//matData->SetParameter(MaterialData::Shininess, GetShininess());
+		//matData->SetParameter(MaterialData::SpecularColor, GetSpecularColor());
 		matData->SetParameter(MaterialData::SrcBlend, static_cast<long long>(GetSrcBlend()));
 
 		// RendererParameter
@@ -302,13 +302,13 @@ namespace Nz
 		matData->SetParameter(MaterialData::VertexColor, HasVertexColor());
 
 		// Samplers
-		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));
+		/*matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));
 		matData->SetParameter(MaterialData::DiffuseFilter, static_cast<long long>(GetDiffuseSampler().GetFilterMode()));
 		matData->SetParameter(MaterialData::DiffuseWrap, static_cast<long long>(GetDiffuseSampler().GetWrapMode()));
 
 		matData->SetParameter(MaterialData::SpecularAnisotropyLevel, static_cast<long long>(GetSpecularSampler().GetAnisotropicLevel()));
 		matData->SetParameter(MaterialData::SpecularFilter, static_cast<long long>(GetSpecularSampler().GetFilterMode()));
-		matData->SetParameter(MaterialData::SpecularWrap, static_cast<long long>(GetSpecularSampler().GetWrapMode()));
+		matData->SetParameter(MaterialData::SpecularWrap, static_cast<long long>(GetSpecularSampler().GetWrapMode()));*/
 
 		// Stencil
 		matData->SetParameter(MaterialData::StencilCompare,   static_cast<long long>(GetPipelineInfo().stencilCompare.front));
@@ -327,7 +327,7 @@ namespace Nz
 		matData->SetParameter(MaterialData::BackFaceStencilReference, static_cast<long long>(GetPipelineInfo().stencilReference.back));
 
 		// Textures
-		if (HasAlphaMap())
+		/*if (HasAlphaMap())
 		{
 			const String& path = GetAlphaMap()->GetFilePath();
 			if (!path.IsEmpty())
@@ -367,75 +367,7 @@ namespace Nz
 			const String& path = GetSpecularMap()->GetFilePath();
 			if (!path.IsEmpty())
 				matData->SetParameter(MaterialData::SpecularTexturePath, path);
-		}
-	}
-
-	/*!
-	* \brief Resets the material, cleans everything
-	*
-	* \remark Invalidates the pipeline
-	*/
-	void BaseMaterial::Reset()
-	{
-		OnMaterialReset(this);
-
-		m_alphaMap.Reset();
-		m_depthMaterial.Reset();
-		m_diffuseMap.Reset();
-		m_emissiveMap.Reset();
-		m_heightMap.Reset();
-		m_normalMap.Reset();
-		m_specularMap.Reset();
-
-		m_alphaThreshold = 0.2f;
-		m_ambientColor = Color(128, 128, 128);
-		m_diffuseColor = Color::White;
-		m_diffuseSampler = TextureSampler();
-		m_reflectionMode = ReflectionMode_Skybox;
-		m_shadowCastingEnabled = true;
-		m_shininess = 50.f;
-		m_specularColor = Color::White;
-		m_specularSampler = TextureSampler();
-		m_pipelineInfo = MaterialPipelineInfo();
-		m_pipelineInfo.depthBuffer = true;
-		m_pipelineInfo.faceCulling = true;
-		m_reflectionSize = 256;
-
-		SetShader("Basic");
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Copies the other material
-	*
-	* \param material Material to copy into this
-	*/
-	void BaseMaterial::Copy(const BaseMaterial& material)
-	{
-		// Copy of base states
-		m_alphaThreshold       = material.m_alphaThreshold;
-		m_ambientColor         = material.m_ambientColor;
-		m_diffuseColor         = material.m_diffuseColor;
-		m_diffuseSampler       = material.m_diffuseSampler;
-		m_pipelineInfo         = material.m_pipelineInfo;
-		m_shininess            = material.m_shininess;
-		m_shadowCastingEnabled = material.m_shadowCastingEnabled;
-		m_specularColor        = material.m_specularColor;
-		m_specularSampler      = material.m_specularSampler;
-
-		// Copy of reference to the textures
-		m_alphaMap      = material.m_alphaMap;
-		m_depthMaterial = material.m_depthMaterial;
-		m_diffuseMap    = material.m_diffuseMap;
-		m_emissiveMap   = material.m_emissiveMap;
-		m_heightMap     = material.m_heightMap;
-		m_normalMap     = material.m_normalMap;
-		m_specularMap   = material.m_specularMap;
-
-		SetReflectionMode(material.GetReflectionMode());
-
-		InvalidatePipeline();
+		}*/
 	}
 
 	/*!
@@ -444,7 +376,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if the material library failed to be initialized
 	*/
-	bool BaseMaterial::Initialize()
+	bool Material::Initialize()
 	{
 		if (!MaterialLibrary::Initialize())
 		{
@@ -486,7 +418,7 @@ namespace Nz
 	/*!
 	* \brief Uninitializes the material librairies
 	*/
-	void BaseMaterial::Uninitialize()
+	void Material::Uninitialize()
 	{
 		s_defaultMaterial.Reset();
 
@@ -494,10 +426,10 @@ namespace Nz
 		MaterialLibrary::Uninitialize();
 	}
 
-	std::array<int, TextureMap_Max + 1> BaseMaterial::s_textureUnits;
-	MaterialLibrary::LibraryMap BaseMaterial::s_library;
-	MaterialLoader::LoaderList BaseMaterial::s_loaders;
-	MaterialManager::ManagerMap BaseMaterial::s_managerMap;
-	MaterialManager::ManagerParams BaseMaterial::s_managerParameters;
-	MaterialRef BaseMaterial::s_defaultMaterial = nullptr;
+	std::array<int, TextureMap_Max + 1> Material::s_textureUnits;
+	MaterialLibrary::LibraryMap Material::s_library;
+	MaterialLoader::LoaderList Material::s_loaders;
+	MaterialManager::ManagerMap Material::s_managerMap;
+	MaterialManager::ManagerParams Material::s_managerParameters;
+	MaterialRef Material::s_defaultMaterial = nullptr;
 }

@@ -8,34 +8,14 @@
 #define NAZARA_PHONG_LIGHTING_MATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/BaseMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API PhongMaterialParams : ResourceParameters
-	{
-		bool loadAlphaMap = true;
-		bool loadDiffuseMap = true;
-		bool loadEmissiveMap = true;
-		bool loadHeightMap = true;
-		bool loadNormalMap = true;
-		bool loadSpecularMap = true;
-		String shaderName = "Basic";
-
-		bool IsValid() const;
-	};
-
-	class NAZARA_GRAPHICS_API PhongLightingMaterial : public BaseMaterial
+	class NAZARA_GRAPHICS_API PhongLightingMaterial
 	{
 		public:
-			inline PhongLightingMaterial();
-			inline PhongLightingMaterial(const MaterialPipeline* pipeline);
-			inline PhongLightingMaterial(const MaterialPipelineInfo& pipelineInfo);
-			inline PhongLightingMaterial(const String& pipelineName);
-			inline PhongLightingMaterial(const PhongLightingMaterial& material);
-			inline ~PhongLightingMaterial();
-
-			void Apply(const MaterialPipeline::Instance& instance) const override;
+			PhongLightingMaterial(Material* material);
 
 			inline const TextureRef& GetAlphaMap() const;
 			inline float GetAlphaThreshold() const;
@@ -54,18 +34,11 @@ namespace Nz
 			inline const TextureSampler& GetSpecularSampler() const;
 
 			inline bool HasAlphaMap() const;
-			inline bool HasDepthMaterial() const;
 			inline bool HasDiffuseMap() const;
 			inline bool HasEmissiveMap() const;
 			inline bool HasHeightMap() const;
 			inline bool HasNormalMap() const;
 			inline bool HasSpecularMap() const;
-
-			inline bool LoadFromFile(const String& filePath, const PhongMaterialParams& params = PhongMaterialParams());
-			inline bool LoadFromMemory(const void* data, std::size_t size, const PhongMaterialParams& params = PhongMaterialParams());
-			inline bool LoadFromStream(Stream& stream, const PhongMaterialParams& params = PhongMaterialParams());
-
-			void SaveToParameters(ParameterList* matData) override;
 
 			inline bool SetAlphaMap(const String& textureName);
 			inline void SetAlphaMap(TextureRef alphaMap);
@@ -87,46 +60,26 @@ namespace Nz
 			inline void SetSpecularMap(TextureRef specularMap);
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 
-			inline BaseMaterial& operator=(const BaseMaterial& material);
-
-			inline static MaterialRef GetDefault();
-			inline static int GetTextureUnit(TextureMap textureMap);
-			template<typename... Args> static MaterialRef New(Args&&... args);
-
 		private:
-			struct ShaderCache;
-
-			void Copy(const BaseMaterial& material);
-			const ShaderCache& GetShaderCache(const Shader* shader) const;
-			void InvalidateShader(Shader* shader);
+			struct TextureIndexes
+			{
+				std::size_t alpha;
+				std::size_t diffuse;
+				std::size_t emissive;
+				std::size_t height;
+				std::size_t normal;
+				std::size_t specular;
+			};
 
 			static bool Initialize();
 			static void Uninitialize();
 
-			struct ShaderCache
-			{
-				Shader::LayoutBindings bindings;
+			MaterialRef m_material;
+			TextureIndexes m_textureIndexes;
 
-				NazaraSlot(Shader, OnShaderDestroy, onDestroy);
-				NazaraSlot(Shader, OnShaderUniformInvalidated, onUniformInvalidated);
-			};
-
-			mutable std::unordered_map<const Shader*, ShaderCache> m_shaderCache;
-			Color m_ambientColor;
-			Color m_diffuseColor;
-			Color m_specularColor;
-			TextureSampler m_diffuseSampler;
-			TextureSampler m_specularSampler;
-			TextureRef m_alphaMap;
-			TextureRef m_diffuseMap;
-			TextureRef m_emissiveMap;
-			TextureRef m_heightMap;
-			TextureRef m_normalMap;
-			TextureRef m_specularMap;
-			float m_alphaThreshold;
-			float m_shininess;
-
+			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static RenderPipelineLayoutRef s_renderPipelineLayout;
+			static TextureIndexes s_textureIndexes;
 	};
 }
 

@@ -36,7 +36,7 @@ namespace Nz
 			Buffer(Buffer&&) = delete;
 			~Buffer();
 
-			bool CopyContent(const BufferRef& buffer);
+			bool CopyContent(const Buffer* buffer);
 
 			bool Create(UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
 			void Destroy();

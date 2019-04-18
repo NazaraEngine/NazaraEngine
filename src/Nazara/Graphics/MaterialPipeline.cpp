@@ -6,6 +6,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPipelineSettings.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -79,18 +80,18 @@ namespace Nz
 		NazaraAssert(m_pipelineInfo.uberShader, "Material pipeline has no uber shader");
 
 		ParameterList list;
-		list.SetParameter("ALPHA_MAPPING",      m_pipelineInfo.hasAlphaMap);
+		for (std::size_t i = 0, texCount = m_pipelineInfo.settings->textures.size(); i < texCount; ++i)
+		{
+			const auto& texture = m_pipelineInfo.settings->textures[i];
+			String parameterName = "HAS_" + texture.name.ToUpper() + "_TEXTURE";
+
+			list.SetParameter(parameterName, (m_pipelineInfo.textures & (1 << i)) != 0);
+		}
+
 		list.SetParameter("ALPHA_TEST",         m_pipelineInfo.alphaTest);
-		list.SetParameter("COMPUTE_TBNMATRIX",  m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap);
-		list.SetParameter("DIFFUSE_MAPPING",    m_pipelineInfo.hasDiffuseMap);
-		list.SetParameter("EMISSIVE_MAPPING",   m_pipelineInfo.hasEmissiveMap);
-		list.SetParameter("NORMAL_MAPPING",     m_pipelineInfo.hasNormalMap);
-		list.SetParameter("PARALLAX_MAPPING",   m_pipelineInfo.hasHeightMap);
 		list.SetParameter("REFLECTION_MAPPING", m_pipelineInfo.reflectionMapping);
 		list.SetParameter("SHADOW_MAPPING",     m_pipelineInfo.shadowReceive);
-		list.SetParameter("SPECULAR_MAPPING",   m_pipelineInfo.hasSpecularMap);
-		list.SetParameter("TEXTURE_MAPPING",    m_pipelineInfo.hasAlphaMap  || m_pipelineInfo.hasDiffuseMap || m_pipelineInfo.hasEmissiveMap ||
-		                                        m_pipelineInfo.hasNormalMap || m_pipelineInfo.hasHeightMap  || m_pipelineInfo.hasSpecularMap ||
+		list.SetParameter("TEXTURE_MAPPING",    m_pipelineInfo.textures != 0 || 
 		                                        m_pipelineInfo.reflectionMapping || flags & ShaderFlags_TextureOverlay);
 		list.SetParameter("TRANSFORM",          true);
 

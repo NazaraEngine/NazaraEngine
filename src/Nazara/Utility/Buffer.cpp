@@ -36,7 +36,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Buffer::CopyContent(const BufferRef& buffer)
+	bool Buffer::CopyContent(const Buffer* buffer)
 	{
 		NazaraAssert(m_impl, "Invalid buffer");
 		NazaraAssert(!buffer && !buffer->IsValid(), "Invalid source buffer");
