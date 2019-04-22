@@ -177,7 +177,7 @@ namespace Nz
 	{
 		m_outlineColor = color;
 
-		m_glyphUpdated = false;
+		m_colorUpdated = false;
 	}
 
 	void SimpleTextDrawer::SetOutlineThickness(float thickness)
@@ -430,7 +430,7 @@ namespace Nz
 			}
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);
-			
+
 			switch (character)
 			{
 				case '\n':
@@ -515,8 +515,22 @@ namespace Nz
 
 	void SimpleTextDrawer::UpdateGlyphColor() const
 	{
-		for (Glyph& glyph : m_glyphs)
-			glyph.color = m_color;
+		if (m_outlineThickness > 0.f)
+		{
+			for (std::size_t glyphIndex = 0; glyphIndex < m_glyphs.size(); ++glyphIndex)
+			{
+				Glyph& glyph = m_glyphs[glyphIndex];
+				if (glyphIndex % 2 == 0)
+					glyph.color = m_outlineColor;
+				else
+					glyph.color = m_color;
+			}
+		}
+		else
+		{
+			for (Glyph& glyph : m_glyphs)
+				glyph.color = m_color;
+		}
 
 		m_colorUpdated = true;
 	}
