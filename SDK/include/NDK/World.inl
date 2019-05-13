@@ -308,7 +308,7 @@ namespace Ndk
 	inline void World::KillEntity(Entity* entity)
 	{
 		if (IsEntityValid(entity))
-			m_killedEntities.UnboundedSet(entity->GetId(), true);
+			m_killedEntities.front.UnboundedSet(entity->GetId(), true);
 	}
 
 	/*!
@@ -343,7 +343,7 @@ namespace Ndk
 	*/
 	inline bool World::IsEntityDying(EntityId id) const
 	{
-		return m_killedEntities.UnboundedTest(id);
+		return m_killedEntities.front.UnboundedTest(id);
 	}
 
 	/*!
@@ -467,13 +467,13 @@ namespace Ndk
 
 	inline void World::Invalidate()
 	{
-		m_dirtyEntities.Resize(m_entityBlocks.size(), false);
-		m_dirtyEntities.Set(true); // Activation of all bits
+		m_dirtyEntities.front.Resize(m_entityBlocks.size(), false);
+		m_dirtyEntities.front.Set(true); // Activation of all bits
 	}
 
 	inline void World::Invalidate(EntityId id)
 	{
-		m_dirtyEntities.UnboundedSet(id, true);
+		m_dirtyEntities.front.UnboundedSet(id, true);
 	}
 
 	inline void World::InvalidateSystemOrder()

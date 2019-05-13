@@ -135,9 +135,9 @@ namespace Ndk
 		m_waitingEntities.clear();
 
 		m_aliveEntities.Clear();
-		m_dirtyEntities.Clear();
+		m_dirtyEntities.front.Clear();
 		m_freeEntityIds.Clear();
-		m_killedEntities.Clear();
+		m_killedEntities.front.Clear();
 	}
 
 	/*!
@@ -210,7 +210,8 @@ namespace Ndk
 		}
 
 		// Handle killed entities before last call
-		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
+		std::swap(m_killedEntities.front, m_killedEntities.back);
+		for (std::size_t i = m_killedEntities.back.FindFirst(); i != m_killedEntities.back.npos; i = m_killedEntities.back.FindNext(i))
 		{
 			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
@@ -220,12 +221,13 @@ namespace Ndk
 			entity->Destroy();
 
 			// Send back the identifier of the entity to the free queue
-			m_freeEntityIds.UnboundedSet(entity->GetId());
+			m_freeEntityIds.UnboundedSet(i);
 		}
-		m_killedEntities.Reset();
+		m_killedEntities.back.Clear();
 
 		// Handle of entities which need an update from the systems
-		for (std::size_t i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
+		std::swap(m_dirtyEntities.front, m_dirtyEntities.back);
+		for (std::size_t i = m_dirtyEntities.back.FindFirst(); i != m_dirtyEntities.back.npos; i = m_dirtyEntities.back.FindNext(i))
 		{
 			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
@@ -236,7 +238,7 @@ namespace Ndk
 				continue;
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
-			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
+			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.back.npos; j = removedComponents.FindNext(j))
 				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
 			removedComponents.Reset();
 
@@ -262,7 +264,7 @@ namespace Ndk
 				}
 			}
 		}
-		m_dirtyEntities.Reset();
+		m_dirtyEntities.back.Clear();
 	}
 
 	/*!
