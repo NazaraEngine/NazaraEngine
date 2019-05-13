@@ -262,6 +262,7 @@ Nazara Development Kit:
 - Fixed GraphicsComponent not invalidating render queue on material change (causing crashes or visual errors)
 - Added CollisionComponent2D::SetGeomOffset and CollisionComponent2D::Recenter
 - Added LifetimeComponent and LifetimeSystem
+- Fixed a subtle bug regarding entities invalidation and kill (ex: if an entity #2 kills entity #1 during Entity::Destroy callbacks, entity #1 will survive destruction).
 
 # 0.4:
 
