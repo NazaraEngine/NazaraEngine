@@ -105,4 +105,25 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 			}
 		}
 	}
+
+	GIVEN("A vector of EntityOwner")
+	{
+		Ndk::World world(false);
+
+		std::vector<Ndk::EntityOwner> entityOwners;
+		for (std::size_t i = 1; i <= 10; ++i)
+		{
+			for (const Ndk::EntityHandle& entity : world.CreateEntities(10 * i))
+				entityOwners.emplace_back(entity);
+
+			entityOwners.clear();
+			world.Refresh();
+
+			std::size_t aliveEntities = 0;
+			for (const Ndk::EntityHandle& entity : world.GetEntities())
+				aliveEntities++;
+
+			CHECK(aliveEntities == 0);
+		}
+	}
 }
