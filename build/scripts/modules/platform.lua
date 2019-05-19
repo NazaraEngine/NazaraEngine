@@ -7,7 +7,7 @@ MODULE.Libraries = {
 	"NazaraUtility"
 }
 
-if Config.PlatformSDL2 then
+if (Config.PlatformSDL2) then
 	table.insert(MODULE.Defines, "NAZARA_PLATFORM_SDL2")
 
 	table.insert(MODULE.Files, "../src/Nazara/Platform/SDL2/**.hpp")

@@ -4,7 +4,6 @@
 
 // Code inspiré de NeHe (Lesson1) et de la SFML par Laurent Gomila
 
-#include <cstring>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/LockGuard.hpp>
@@ -13,6 +12,9 @@
 #include <Nazara/Renderer/Debug.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/SDL2/ContextImpl.hpp>
+#include <array>
+#include <cstring>
+
 namespace Nz
 {
 	ContextImpl::ContextImpl()

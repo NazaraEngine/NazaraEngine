@@ -14,7 +14,6 @@
 
 #if defined(NAZARA_PLATFORM_SDL2)
 	#include <Nazara/Renderer/SDL2/ContextImpl.hpp>
-	#define CALLBACK
 #elif defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #elif defined(NAZARA_PLATFORM_GLX)

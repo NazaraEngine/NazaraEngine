@@ -22,7 +22,8 @@ namespace Nz
 		// -WindowEventType_KeyReleased
 		struct KeyEvent
 		{
-			Keyboard::Key code;
+			Keyboard::Scancode scancode;
+			Keyboard::VKey virtualKey;
 			bool alt;
 			bool control;
 			bool repeated;

@@ -85,7 +85,6 @@ namespace Nz
 
 			void PrepareWindow(bool fullscreen);
 
-			static Keyboard::Key SDLKeySymToNazaraKey(SDL_Keysym& keysym);
 			//static void WindowThread(SDL_Window* handle, /*DWORD styleEx,*/ const String& title, /*DWORD style,*/ bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
 
 			SDL_Cursor* m_cursor;

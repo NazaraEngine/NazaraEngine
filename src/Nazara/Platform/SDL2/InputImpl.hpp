@@ -17,13 +17,17 @@ namespace Nz
 	class EventImpl
 	{
 		public:
-			static String GetKeyName(Keyboard::Key key);
+			static String GetKeyName(Keyboard::Scancode scancode);
+			static String GetKeyName(Keyboard::VKey key);
 			static Vector2i GetMousePosition();
 			static Vector2i GetMousePosition(const Window& relativeTo);
-			static bool IsKeyPressed(Keyboard::Key key);
+			static bool IsKeyPressed(Keyboard::Scancode key);
+			static bool IsKeyPressed(Keyboard::VKey key);
 			static bool IsMouseButtonPressed(Mouse::Button button);
 			static void SetMousePosition(int x, int y);
 			static void SetMousePosition(int x, int y, const Window& relativeTo);
+			static Keyboard::Scancode ToScanCode(Keyboard::VKey key);
+			static Keyboard::VKey ToVirtualKey(Keyboard::Scancode scancode);
 	};
 }
 

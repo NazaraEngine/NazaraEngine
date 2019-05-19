@@ -1045,8 +1045,7 @@ namespace Nz
 		glInvalidateBufferData = reinterpret_cast<PFNGLINVALIDATEBUFFERDATAPROC>(LoadEntry("glInvalidateBufferData", false));
 		glVertexAttribLPointer = reinterpret_cast<PFNGLVERTEXATTRIBLPOINTERPROC>(LoadEntry("glVertexAttribLPointer", false));
 
-		#if defined(NAZARA_PLATFORM_SDL2)
-		#elif defined(NAZARA_PLATFORM_WINDOWS)
+		#if defined(NAZARA_PLATFORM_WINDOWS)
 		wglGetExtensionsStringARB = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGARBPROC>(LoadEntry("wglGetExtensionsStringARB", false));
 		wglGetExtensionsStringEXT = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGEXTPROC>(LoadEntry("wglGetExtensionsStringEXT", false));
 		wglSwapInterval = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(LoadEntry("wglSwapIntervalEXT", false));
@@ -1064,7 +1063,7 @@ namespace Nz
 				NazaraWarning("Failed to load extension system");
 		}
 
-		#ifdef NAZARA_PLATFORM_WINDOWS
+		#if defined(NAZARA_PLATFORM_WINDOWS) && !defined(NAZARA_PLATFORM_SDL2)
 		{
 			bool loaded;
 			if (wglGetExtensionsStringARB)
@@ -1247,7 +1246,11 @@ namespace Nz
 
 	bool OpenGL::IsSupported(const String& string)
 	{
+#ifdef NAZARA_PLATFORM_SDL2
+		return SDL_GL_ExtensionSupported(string.GetConstBuffer());
+#else
 		return s_openGLextensionSet.find(string) != s_openGLextensionSet.end();
+#endif
 	}
 
 	void OpenGL::SetBuffer(BufferType type, GLuint id)
@@ -2302,8 +2305,7 @@ namespace Nz
 	PFNGLVERTEXATTRIBLPOINTERPROC glVertexAttribLPointer     = nullptr;
 	PFNGLVIEWPORTPROC glViewport                 = nullptr;
 
-#if defined(NAZARA_PLATFORM_SDL2)
-#elif defined(NAZARA_PLATFORM_WINDOWS)
+#if defined(NAZARA_PLATFORM_WINDOWS)
 	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormat       = nullptr;
 	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribs    = nullptr;
 	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB  = nullptr;

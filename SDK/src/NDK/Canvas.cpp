@@ -144,7 +144,7 @@ namespace Ndk
 			if (m_widgetEntries[m_keyboardOwner].widget->OnKeyPressed(event))
 				return;
 
-			if (event.code == Nz::Keyboard::Tab)
+			if (event.virtualKey == Nz::Keyboard::VKey::Tab)
 			{
 				if (!event.shift)
 				{
