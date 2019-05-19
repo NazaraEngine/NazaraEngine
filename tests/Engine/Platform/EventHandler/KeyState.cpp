@@ -35,16 +35,16 @@ void KeyState::DrawMenu()
 
 void KeyState::ManageInput(KeyStatus /*isKeyPressed*/, const Nz::WindowEvent::KeyEvent& key, Ndk::StateMachine& fsm)
 {
-	if (key.code == Nz::Keyboard::Key::M && key.shift)
+	if (key.virtualKey == Nz::Keyboard::VKey::M && key.shift)
 		fsm.ChangeState(StateFactory::Get(EventStatus::Menu));
-	else if (key.code == Nz::Keyboard::Key::N && key.shift)
+	else if (key.virtualKey == Nz::Keyboard::VKey::N && key.shift)
 	{
 		if (m_keyStatus == KeyStatus::Pressed)
 			m_keyStatus = KeyStatus::Released;
 		else
 			m_keyStatus = KeyStatus::Pressed;
 	}
-	else 
+	else
 	{
 		Nz::String content;
 		if (m_keyStatus == KeyStatus::Pressed)
@@ -52,7 +52,7 @@ void KeyState::ManageInput(KeyStatus /*isKeyPressed*/, const Nz::WindowEvent::Ke
 		else
 			content = "Released: ";
 
-		Nz::String keyName = Nz::Keyboard::GetKeyName(key.code);
+		Nz::String keyName = Nz::Keyboard::GetKeyName(key.virtualKey) + " (" + Nz::Keyboard::GetKeyName(key.scancode) + ")";
 		if (keyName.IsEmpty())
 		{
 			m_text.SetContent("Unknown\nM for Menu");

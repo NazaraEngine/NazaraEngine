@@ -12,11 +12,13 @@ MODULE.Libraries = {
 	"NazaraPlatform"
 }
 
-if Config.PlatformSDL2 then
+if (Config.PlatformSDL2) then
     table.insert(MODULE.Defines, "NAZARA_PLATFORM_SDL2")
 
     table.insert(MODULE.Files, "../src/Nazara/Renderer/SDL2/**.hpp")
     table.insert(MODULE.Files, "../src/Nazara/Renderer/SDL2/**.cpp")
+
+    table.insert(MODULE.Libraries, "SDL2")
 
     MODULE.FilesExcluded = {
         "../src/Nazara/Renderer/Win32/**",

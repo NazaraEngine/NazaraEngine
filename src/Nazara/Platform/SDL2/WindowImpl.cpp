@@ -15,6 +15,7 @@
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
+#include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
@@ -315,7 +316,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->motion.windowID)
 						return 0;
 
-					if (window->m_ignoreNextMouseMove && event->motion.x == window->m_mousePos.x && event->motion.y == window->m_mousePos.y)
+					if (window->m_ignoreNextMouseMove /*&& event->motion.x == window->m_mousePos.x && event->motion.y == window->m_mousePos.y*/)
 					{
 						window->m_ignoreNextMouseMove = false;
 
@@ -378,7 +379,8 @@ namespace Nz
 
 					evt.type = WindowEventType_KeyPressed;
 
-					evt.key.code = SDLKeySymToNazaraKey(event->key.keysym);
+					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
+					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 					evt.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
 					evt.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
 					evt.key.repeated = event->key.repeat != 0;
@@ -393,7 +395,8 @@ namespace Nz
 
 					evt.type = WindowEventType_KeyReleased;
 
-					evt.key.code = SDLKeySymToNazaraKey(event->key.keysym);
+					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
+					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 					evt.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
 					evt.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
 					evt.key.repeated = event->key.repeat != 0;
@@ -531,144 +534,6 @@ namespace Nz
 	void WindowImpl::Uninitialize()
 	{
 		SDL_Quit();
-	}
-
-	Keyboard::Key WindowImpl::SDLKeySymToNazaraKey(SDL_Keysym& keysym)
-	{
-		auto key = keysym.scancode;
-
-		switch (key)
-		{
-			case SDL_SCANCODE_LCTRL:           return Keyboard::LControl;
-			case SDL_SCANCODE_RCTRL:           return Keyboard::RControl;
-			case SDL_SCANCODE_LALT:            return Keyboard::LAlt;
-			case SDL_SCANCODE_RALT:            return Keyboard::RAlt;
-			case SDL_SCANCODE_LSHIFT:          return Keyboard::LShift;
-			case SDL_SCANCODE_RSHIFT:          return Keyboard::RShift;
-
-			case SDL_SCANCODE_0:               return Keyboard::Num0;
-			case SDL_SCANCODE_1:               return Keyboard::Num1;
-			case SDL_SCANCODE_2:               return Keyboard::Num2;
-			case SDL_SCANCODE_3:               return Keyboard::Num3;
-			case SDL_SCANCODE_4:               return Keyboard::Num4;
-			case SDL_SCANCODE_5:               return Keyboard::Num5;
-			case SDL_SCANCODE_6:               return Keyboard::Num6;
-			case SDL_SCANCODE_7:               return Keyboard::Num7;
-			case SDL_SCANCODE_8:               return Keyboard::Num8;
-			case SDL_SCANCODE_9:               return Keyboard::Num9;
-			case SDL_SCANCODE_A:               return Keyboard::A;
-			case SDL_SCANCODE_B:               return Keyboard::B;
-			case SDL_SCANCODE_C:               return Keyboard::C;
-			case SDL_SCANCODE_D:               return Keyboard::D;
-			case SDL_SCANCODE_E:               return Keyboard::E;
-			case SDL_SCANCODE_F:               return Keyboard::F;
-			case SDL_SCANCODE_G:               return Keyboard::G;
-			case SDL_SCANCODE_H:               return Keyboard::H;
-			case SDL_SCANCODE_I:               return Keyboard::I;
-			case SDL_SCANCODE_J:               return Keyboard::J;
-			case SDL_SCANCODE_K:               return Keyboard::K;
-			case SDL_SCANCODE_L:               return Keyboard::L;
-			case SDL_SCANCODE_M:               return Keyboard::M;
-			case SDL_SCANCODE_N:               return Keyboard::N;
-			case SDL_SCANCODE_O:               return Keyboard::O;
-			case SDL_SCANCODE_P:               return Keyboard::P;
-			case SDL_SCANCODE_Q:               return Keyboard::Q;
-			case SDL_SCANCODE_R:               return Keyboard::R;
-			case SDL_SCANCODE_S:               return Keyboard::S;
-			case SDL_SCANCODE_T:               return Keyboard::T;
-			case SDL_SCANCODE_U:               return Keyboard::U;
-			case SDL_SCANCODE_V:               return Keyboard::V;
-			case SDL_SCANCODE_W:               return Keyboard::W;
-			case SDL_SCANCODE_X:               return Keyboard::X;
-			case SDL_SCANCODE_Y:               return Keyboard::Y;
-			case SDL_SCANCODE_Z:               return Keyboard::Z;
-			case SDL_SCANCODE_KP_PLUS:         return Keyboard::Add;
-			case SDL_SCANCODE_BACKSPACE:       return Keyboard::Backspace;
-			case SDL_SCANCODE_AC_BACK:         return Keyboard::Browser_Back;
-			case SDL_SCANCODE_AC_BOOKMARKS:    return Keyboard::Browser_Favorites;
-			case SDL_SCANCODE_AC_FORWARD:      return Keyboard::Browser_Forward;
-			case SDL_SCANCODE_AC_HOME:         return Keyboard::Browser_Home;
-			case SDL_SCANCODE_AC_REFRESH:      return Keyboard::Browser_Refresh;
-			case SDL_SCANCODE_AC_SEARCH:       return Keyboard::Browser_Search;
-			case SDL_SCANCODE_AC_STOP:         return Keyboard::Browser_Stop;
-			case SDL_SCANCODE_CAPSLOCK:        return Keyboard::CapsLock;
-			case SDL_SCANCODE_CLEAR:             return Keyboard::Clear;
-			case SDL_SCANCODE_KP_PERIOD:         return Keyboard::Decimal;
-			case SDL_SCANCODE_DELETE:            return Keyboard::Delete;
-			case SDL_SCANCODE_KP_DIVIDE:         return Keyboard::Divide;
-			case SDL_SCANCODE_DOWN:              return Keyboard::Down;
-			case SDL_SCANCODE_END:               return Keyboard::End;
-			case SDL_SCANCODE_ESCAPE:            return Keyboard::Escape;
-			case SDL_SCANCODE_F1:                return Keyboard::F1;
-			case SDL_SCANCODE_F2:                return Keyboard::F2;
-			case SDL_SCANCODE_F3:                return Keyboard::F3;
-			case SDL_SCANCODE_F4:                return Keyboard::F4;
-			case SDL_SCANCODE_F5:                return Keyboard::F5;
-			case SDL_SCANCODE_F6:                return Keyboard::F6;
-			case SDL_SCANCODE_F7:                return Keyboard::F7;
-			case SDL_SCANCODE_F8:                return Keyboard::F8;
-			case SDL_SCANCODE_F9:                return Keyboard::F9;
-			case SDL_SCANCODE_F10:               return Keyboard::F10;
-			case SDL_SCANCODE_F11:               return Keyboard::F11;
-			case SDL_SCANCODE_F12:               return Keyboard::F12;
-			case SDL_SCANCODE_F13:               return Keyboard::F13;
-			case SDL_SCANCODE_F14:               return Keyboard::F14;
-			case SDL_SCANCODE_F15:               return Keyboard::F15;
-			case SDL_SCANCODE_HOME:              return Keyboard::Home;
-			case SDL_SCANCODE_INSERT:            return Keyboard::Insert;
-			case SDL_SCANCODE_LEFT:              return Keyboard::Left;
-			case SDL_SCANCODE_LGUI:              return Keyboard::LSystem;
-			case SDL_SCANCODE_AUDIONEXT:         return Keyboard::Media_Next;
-			case SDL_SCANCODE_AUDIOPLAY:         return Keyboard::Media_Play;
-			case SDL_SCANCODE_AUDIOPREV:         return Keyboard::Media_Previous;
-			case SDL_SCANCODE_AUDIOSTOP:         return Keyboard::Media_Stop;
-			case SDL_SCANCODE_KP_MULTIPLY:       return Keyboard::Multiply;
-			case SDL_SCANCODE_PAGEDOWN:          return Keyboard::PageDown;
-			case SDL_SCANCODE_KP_0:              return Keyboard::Numpad0;
-			case SDL_SCANCODE_KP_1:              return Keyboard::Numpad1;
-			case SDL_SCANCODE_KP_2:              return Keyboard::Numpad2;
-			case SDL_SCANCODE_KP_3:              return Keyboard::Numpad3;
-			case SDL_SCANCODE_KP_4:              return Keyboard::Numpad4;
-			case SDL_SCANCODE_KP_5:              return Keyboard::Numpad5;
-			case SDL_SCANCODE_KP_6:              return Keyboard::Numpad6;
-			case SDL_SCANCODE_KP_7:              return Keyboard::Numpad7;
-			case SDL_SCANCODE_KP_8:              return Keyboard::Numpad8;
-			case SDL_SCANCODE_KP_9:              return Keyboard::Numpad9;
-			case SDL_SCANCODE_NUMLOCKCLEAR:      return Keyboard::NumLock;
-			case SDL_SCANCODE_SEMICOLON:         return Keyboard::Semicolon;
-			case SDL_SCANCODE_SLASH:             return Keyboard::Slash;
-			case SDL_SCANCODE_GRAVE:             return Keyboard::Tilde;
-			case SDL_SCANCODE_APPLICATION:       return Keyboard::Menu;
-			case SDL_SCANCODE_NONUSBACKSLASH:    return Keyboard::ISOBackslash102;
-			case SDL_SCANCODE_LEFTBRACKET:       return Keyboard::LBracket;
-			case SDL_SCANCODE_BACKSLASH:         return Keyboard::Backslash;
-			case SDL_SCANCODE_RIGHTBRACKET:      return Keyboard::RBracket;
-			case SDL_SCANCODE_APOSTROPHE:        return Keyboard::Quote;
-			case SDL_SCANCODE_COMMA:             return Keyboard::Comma;
-			case SDL_SCANCODE_MINUS:             return Keyboard::Dash;
-			case SDL_SCANCODE_PERIOD:            return Keyboard::Period;
-			case SDL_SCANCODE_EQUALS:            return Keyboard::Equal;
-			case SDL_SCANCODE_RIGHT:             return Keyboard::Right;
-			case SDL_SCANCODE_PAGEUP:            return Keyboard::PageUp;
-			case SDL_SCANCODE_PAUSE:             return Keyboard::Pause;
-			case SDL_SCANCODE_SYSREQ:            return Keyboard::Print;
-			case SDL_SCANCODE_SCROLLLOCK:        return Keyboard::ScrollLock;
-			case SDL_SCANCODE_PRINTSCREEN:       return Keyboard::PrintScreen;
-			case SDL_SCANCODE_KP_MINUS:          return Keyboard::Subtract;
-			case SDL_SCANCODE_RETURN:            return Keyboard::Return;
-			case SDL_SCANCODE_KP_ENTER:          return Keyboard::NumpadReturn;
-			case SDL_SCANCODE_RGUI:              return Keyboard::RSystem;
-			case SDL_SCANCODE_SPACE:             return Keyboard::Space;
-			case SDL_SCANCODE_TAB:               return Keyboard::Tab;
-			case SDL_SCANCODE_UP:                return Keyboard::Up;
-			case SDL_SCANCODE_VOLUMEDOWN:        return Keyboard::Volume_Down;
-			case SDL_SCANCODE_MUTE:              return Keyboard::Volume_Mute;
-			case SDL_SCANCODE_AUDIOMUTE:         return Keyboard::Volume_Mute;
-			case SDL_SCANCODE_VOLUMEUP:          return Keyboard::Volume_Up;
-
-			default:
-				return Keyboard::Undefined;
-		}
 	}
 
 	// not implemented for now, wait for mainloop friendly input

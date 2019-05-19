@@ -178,12 +178,12 @@ namespace Ndk
 
 			case Nz::WindowEventType_KeyPressed:
 			{
-				switch (event.key.code)
+				switch (event.key.virtualKey)
 				{
-					case Nz::Keyboard::Down:
-					case Nz::Keyboard::Up:
+					case Nz::Keyboard::VKey::Down:
+					case Nz::Keyboard::VKey::Up:
 					{
-						if (event.key.code == Nz::Keyboard::Up)
+						if (event.key.virtualKey == Nz::Keyboard::VKey::Up)
 							m_historyPosition = std::min<std::size_t>(m_commandHistory.size(), m_historyPosition + 1);
 						else
 						{

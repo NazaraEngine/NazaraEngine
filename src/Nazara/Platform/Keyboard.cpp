@@ -18,13 +18,33 @@
 
 namespace Nz
 {
-	String Keyboard::GetKeyName(Key key)
+	String Keyboard::GetKeyName(Scancode scancode)
+	{
+		return EventImpl::GetKeyName(scancode);
+	}
+
+	String Keyboard::GetKeyName(VKey key)
 	{
 		return EventImpl::GetKeyName(key);
 	}
 
-	bool Keyboard::IsKeyPressed(Key key)
+	bool Keyboard::IsKeyPressed(Scancode scancode)
+	{
+		return EventImpl::IsKeyPressed(scancode);
+	}
+
+	bool Keyboard::IsKeyPressed(VKey key)
 	{
 		return EventImpl::IsKeyPressed(key);
+	}
+
+	Keyboard::Scancode Keyboard::ToScanCode(VKey key)
+	{
+		return EventImpl::ToScanCode(key);
+	}
+
+	Keyboard::VKey Keyboard::ToVirtualKey(Scancode scancode)
+	{
+		return EventImpl::ToVirtualKey(scancode);
 	}
 }

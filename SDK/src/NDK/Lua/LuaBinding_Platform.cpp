@@ -17,8 +17,8 @@ namespace Ndk
 		/*********************************** Nz::Keyboard **********************************/
 		keyboard.Reset("Keyboard");
 		{
-			keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
-			keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
+			//keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
+			//keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
 		}
 	}
 
@@ -31,9 +31,9 @@ namespace Ndk
 	{
 		keyboard.Register(state);
 
-		keyboard.PushGlobalTable(state);
+		/*keyboard.PushGlobalTable(state);
 		{
-			static_assert(Nz::Keyboard::Count == 124, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
+			static_assert(Nz::Keyboard::Max == 123, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
 
 			state.PushField("Undefined", Nz::Keyboard::Undefined);
 
@@ -119,7 +119,7 @@ namespace Ndk
 			state.PushField("NumLock",           Nz::Keyboard::NumLock);
 			state.PushField("ScrollLock",        Nz::Keyboard::ScrollLock);
 		}
-		state.Pop();
+		state.Pop();*/
 
 		static_assert(Nz::WindowStyle_Max + 1 == 6, "Nz::WindowStyle has been updated but change was not reflected to Lua binding");
 		state.PushTable(0, Nz::WindowStyle_Max + 1);
