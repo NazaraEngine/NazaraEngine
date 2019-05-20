@@ -58,6 +58,7 @@ function NazaraBuild:Execute()
 		workspace("NazaraEngine")
 		platforms(platformData)
 
+		startproject "DemoFirstScene"
 		location(_ACTION)
 
 		do
