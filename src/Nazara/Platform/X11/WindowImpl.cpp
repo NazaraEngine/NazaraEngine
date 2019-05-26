@@ -557,6 +557,10 @@ namespace Nz
 		xcb_flush(connection);
 	}
 
+	void WindowImpl::SetMenu(Menu& menu)
+	{
+	}
+
 	void WindowImpl::SetMinimumSize(int width, int height)
 	{
 		xcb_icccm_size_hints_set_min_size(&m_size_hints, width, height);
