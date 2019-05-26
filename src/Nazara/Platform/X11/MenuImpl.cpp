@@ -19,7 +19,7 @@ namespace Nz
 
 	MenuButton& MenuImpl::AppendButton(String name)
 	{
-		static MenuButton btn = MenuButton(std::move(name), m_menu, nullptr, 0);
+		static MenuButton btn(std::move(name), m_menu, nullptr, 0);
 
 		return btn;
 	}
@@ -30,9 +30,9 @@ namespace Nz
 
 	SubMenu& MenuImpl::AppendSubMenu(String name)
 	{
-		static SubMenu subMenu = SubMenu(std::move(name), m_menu, nullptr, 0);
+		static SubMenu subMenu(std::move(name), m_menu, nullptr, 0);
 
-		return btn;
+		return subMenu;
 	}
 
 	MenuHandle MenuImpl::GetHandle() const
@@ -53,19 +53,14 @@ namespace Nz
 	{
 	}
 
-	MenuButtonImpl::MenuButtonImpl(String name, Menu & menu, MenuHandle parentMenu, uint32_t index) :
-	m_name(std::move(name)),
-	m_menu(menu),
-	m_parentMenu(parentMenu),
-	m_index(index),
-	m_checked(false),
-	m_enabled(false)
+	MenuButtonImpl::MenuButtonImpl(String name, Menu & menu, MenuHandle parentMenu, uint32_t index)
 	{
 	}
 
 	const String& MenuButtonImpl::GetName() const
 	{
-		return "";
+		static String str = "";
+		return str;
 	}
 
 	bool MenuButtonImpl::IsChecked() const
@@ -91,29 +86,26 @@ namespace Nz
 	}
 
 	SubMenuImpl::SubMenuImpl(String name, Menu& menu, MenuHandle parentMenu, uint32_t index) :
-	m_name(std::move(name))
+	m_menu(menu)
 	{
 	}
 
 	MenuButton& SubMenuImpl::AppendButton(String name)
 	{
-		static MenuButton btn = MenuButton(std::move(name), m_menu, nullptr, 0);
+		static MenuButton btn(std::move(name), m_menu, nullptr, 0);
 
 		return btn;
 	}
 
 	void SubMenuImpl::AppendSeparator()
 	{
-		static MenuButton subMenu = SubMenu(std::move(name), m_menu, nullptr, 0);
-
-		return btn;
 	}
 
 	SubMenu& SubMenuImpl::AppendSubMenu(String name)
 	{
-		static SubMenu subMenu = SubMenu(std::move(name), m_menu, nullptr, 0);
+		static SubMenu subMenu(std::move(name), m_menu, nullptr, 0);
 
-		return btn;
+		return subMenu;
 	}
 
 	MenuHandle SubMenuImpl::GetHandle() const
@@ -123,7 +115,8 @@ namespace Nz
 
 	const String& SubMenuImpl::GetName() const
 	{
-		return "";
+		static String str = "";
+		return str;
 	}
 
 	void SubMenuImpl::PressButtonAt(size_t index)
