@@ -18,7 +18,8 @@ namespace Nz
 	// http://msdn.microsoft.com/en-us/library/aa383751(v=vs.85).aspx
 	using MenuHandle = void*;
 	#elif defined(NAZARA_PLATFORM_X11)
-		#error Lack of implementation: MenuHandle
+	// temporary alias
+	using MenuHandle = void*;
 	#else
 		#error Lack of implementation: MenuHandle
 	#endif

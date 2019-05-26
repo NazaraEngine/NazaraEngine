@@ -7,7 +7,7 @@
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Platform/Win32/MenuImpl.hpp>
 #elif defined(NAZARA_PLATFORM_X11)
-#error Lack of implementation: Menu
+#include <Nazara/Platform/X11/MenuImpl.hpp>
 #else
 #error Lack of implementation: Menu
 #endif
