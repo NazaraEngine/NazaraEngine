@@ -38,7 +38,7 @@ namespace Nz
 	MenuButton& MenuImpl::AppendButton(String name)
 	{
 		//m_menu.SetDirty();
-		::AppendMenuA(m_handle, 0, 0, name.ToStdString().c_str());
+		::AppendMenuW(m_handle, 0, 0, name.GetWideString().c_str());
 		auto menuButton = std::make_unique<MenuButton>(std::move(name), m_menu, m_menu.GetHandle(), static_cast<uint32_t>(m_items.size()));
 		m_items.push_back(std::move(menuButton));
 		return *reinterpret_cast<MenuButton*>(m_items.back().get());
@@ -47,7 +47,7 @@ namespace Nz
 	void MenuImpl::AppendSeparator()
 	{
 		//m_menu.SetDirty();
-		::AppendMenuA(m_handle, MF_SEPARATOR, 0, nullptr);
+		::AppendMenuW(m_handle, MF_SEPARATOR, 0, nullptr);
 		m_items.push_back(nullptr);
 	}
 
@@ -55,7 +55,7 @@ namespace Nz
 	{
 		//m_menu.SetDirty();
 		auto subMenu = std::make_unique<SubMenu>(std::move(name), m_menu, m_menu.GetHandle(), static_cast<uint32_t>(m_items.size()));
-		::AppendMenuA(m_handle, MF_POPUP, reinterpret_cast<UINT_PTR>(subMenu->GetHandle()), subMenu->GetName().ToStdString().c_str());
+		::AppendMenuW(m_handle, MF_POPUP, reinterpret_cast<UINT_PTR>(subMenu->GetHandle()), subMenu->GetName().GetWideString().c_str());
 		m_items.push_back(std::move(subMenu));
 		return *reinterpret_cast<SubMenu*>(m_items.back().get());
 	}
@@ -139,10 +139,10 @@ namespace Nz
 	void MenuButtonImpl::SetName(String name)
 	{
 		m_name = std::move(name);
-		ModifyMenuA(static_cast<HMENU>(m_parentMenu), m_index,
+		ModifyMenuW(static_cast<HMENU>(m_parentMenu), m_index,
 			MF_BYPOSITION | (MF_CHECKED * m_checked) | (MF_DISABLED * m_enabled),
 			0,
-			m_name.ToStdString().c_str()
+			m_name.GetWideString().c_str()
 		);
 	}
 
@@ -168,7 +168,7 @@ namespace Nz
 	MenuButton& SubMenuImpl::AppendButton(String name)
 	{
 		//m_menu.SetDirty();
-		::AppendMenuA(m_handle, 0, 0, name.ToStdString().c_str());
+		::AppendMenuW(m_handle, 0, 0, name.GetWideString().c_str());
 		auto menuButton = std::make_unique<MenuButton>(std::move(name), m_menu, m_handle, static_cast<uint32_t>(m_items.size()));
 		m_items.push_back(std::move(menuButton));
 		return *reinterpret_cast<MenuButton*>(m_items.back().get());
@@ -177,7 +177,7 @@ namespace Nz
 	void SubMenuImpl::AppendSeparator()
 	{
 		//m_menu.SetDirty();
-		::AppendMenuA(m_handle, MF_SEPARATOR, 0, nullptr);
+		::AppendMenuW(m_handle, MF_SEPARATOR, 0, nullptr);
 		m_items.push_back(nullptr);
 	}
 
@@ -185,7 +185,7 @@ namespace Nz
 	{
 		//m_menu.SetDirty();
 		auto subMenu = std::make_unique<SubMenu>(std::move(name), m_menu, m_handle, static_cast<uint32_t>(m_items.size()));
-		::AppendMenuA(m_handle, MF_POPUP, reinterpret_cast<UINT_PTR>(subMenu->GetHandle()), subMenu->GetName().ToStdString().c_str());
+		::AppendMenuW(m_handle, MF_POPUP, reinterpret_cast<UINT_PTR>(subMenu->GetHandle()), subMenu->GetName().GetWideString().c_str());
 		m_items.push_back(std::move(subMenu));
 		return *reinterpret_cast<SubMenu*>(m_items.back().get());
 	}
