@@ -43,6 +43,8 @@ namespace Nz
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
+			void ForceDrawMenu();
+
 			WindowHandle GetHandle() const;
 			unsigned int GetHeight() const;
 			Vector2i GetPosition() const;

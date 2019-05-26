@@ -276,6 +276,10 @@ namespace Nz
 		m_smoothScrolling = enable;
 	}
 
+	void WindowImpl::ForceDrawMenu()
+	{
+	}
+
 	WindowHandle WindowImpl::GetHandle() const
 	{
 		return m_window;
