@@ -99,6 +99,19 @@ namespace Ndk
 			return false;
 	}
 
+	void PhysicsSystem2D::RaycastQuery(const Nz::Vector2f & from, const Nz::Vector2f & to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback)
+	{
+		return GetPhysWorld().RaycastQuery(from, to, radius, collisionGroup, categoryMask, collisionMask, [this, &callback](const Nz::PhysWorld2D::RaycastHit& hitInfo)
+		{
+			callback({
+				GetEntityFromBody(*hitInfo.nearestBody),
+				hitInfo.hitPos,
+				hitInfo.hitNormal,
+				hitInfo.fraction
+			});
+		});
+	}
+
 	bool PhysicsSystem2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
 		std::vector<Nz::PhysWorld2D::RaycastHit> queryResult;
@@ -131,6 +144,14 @@ namespace Ndk
 		}
 		else
 			return false;
+	}
+
+	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const EntityHandle&)>& callback)
+	{
+		return GetPhysWorld().RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, [this, &callback](Nz::RigidBody2D* body)
+		{
+			callback(GetEntityFromBody(*body));
+		});
 	}
 
 	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies)

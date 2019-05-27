@@ -205,6 +205,27 @@ namespace Nz
 		}
 	}
 
+	void PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback)
+	{
+		using CallbackType = const std::function<void(const RaycastHit&)>;
+
+		auto cpCallback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
+		{
+			CallbackType& callback = *static_cast<CallbackType*>(data);
+
+			RaycastHit hitInfo;
+			hitInfo.fraction = float(alpha);
+			hitInfo.hitNormal.Set(Nz::Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos.Set(Nz::Vector2<cpFloat>(point.x, point.y));
+			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+
+			callback(hitInfo);
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+		cpSpaceSegmentQuery(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
+	}
+
 	bool PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
 		using ResultType = decltype(hitInfos);
@@ -257,6 +278,20 @@ namespace Nz
 			else
 				return false;
 		}
+	}
+
+	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback)
+	{
+		using CallbackType = const std::function<void(Nz::RigidBody2D*)>;
+
+		auto cpCallback = [](cpShape* shape, void* data)
+		{
+			CallbackType& callback = *static_cast<CallbackType*>(data);
+			callback(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
 	}
 
 	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies)

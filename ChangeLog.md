@@ -188,6 +188,7 @@ Nazara Engine:
 - Fixed TextSprite not handling multiple textures well
 - ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
 - ⚠ SimpleTextDrawer no longer supports faux bold rendering
+- Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback 
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -263,6 +264,7 @@ Nazara Development Kit:
 - Added CollisionComponent2D::SetGeomOffset and CollisionComponent2D::Recenter
 - Added LifetimeComponent and LifetimeSystem
 - Fixed a subtle bug regarding entities invalidation and kill (ex: if an entity #2 kills entity #1 during Entity::Destroy callbacks, entity #1 will survive destruction).
+- Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
 
 # 0.4:
 
