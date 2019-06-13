@@ -55,7 +55,7 @@ Nazara Engine:
 - Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
 - Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 - Fix some uninitialized values (found by Valgrind) in Network module
-- Fix possible infinite recursion when outputting a Thread::Id object 
+- Fix possible infinite recursion when outputting a Thread::Id object
 - ⚠️ Replaced implicit conversion from a Nz::String to a std::string by an explicit method ToStdString()
 - Fix LuaInstance movement constructor/assignment operator which was corrupting Lua memory
 - Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
@@ -112,7 +112,7 @@ Nazara Engine:
 - Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
 - Add LuaImplQuery implementation for std::vector
 - Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
-- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing.
 - InstancedRenderable::SetMaterial methods are now public.
 - Fixed Model copy constructor not copying materials
 - ⚠️ Added InstancedRenderable::Clone() method
@@ -148,8 +148,8 @@ Nazara Engine:
 - ⚠️ CullingList now handles full and partial visibility testing
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
-- ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
-- Added TcpClient::PollForConnected 
+- ⚠️ TcpClient::WaitForconnected now returns the new socket state.
+- Added TcpClient::PollForConnected
 - ⚠️ Use of the new Angle class instead of floating point angle
 - It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
 - ObjectHandle were remade and should be way more optimized now
@@ -188,7 +188,7 @@ Nazara Engine:
 - Fixed TextSprite not handling multiple textures well
 - ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
 - ⚠ SimpleTextDrawer no longer supports faux bold rendering
-- Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback 
+- Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -265,6 +265,7 @@ Nazara Development Kit:
 - Added LifetimeComponent and LifetimeSystem
 - Fixed a subtle bug regarding entities invalidation and kill (ex: if an entity #2 kills entity #1 during Entity::Destroy callbacks, entity #1 will survive destruction).
 - Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
+- Added TextAreaWidget support for outline
 
 # 0.4:
 
@@ -352,8 +353,8 @@ Nazara Engine:
 - Added [Nz::TcpClient::SendMultiple](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_tcp_client.html#a495c32beb46ed9192699a3b82d358035) method, allowing to send multiple buffers at once.
 - Added [Nz::PlacementDestroy](https://nazara.digitalpulsesoftware.net/doc/namespace_nz.html#a27c8667def991fc896c5beff3e62668a). (ea985fa76586762f008e4054938db3234eeaf0cb)
 - Added [Nz::String::Format](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_string.html#a4b699982e7f9ea38f6d44b43ac1e2040) and [Nz::String::FormatVA](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_string.html#abe0fcbce11224b157ac756b60e8dee92) static methods. (cc6e4127dc6c61799a64404770992cef0804ad34).
-- Added [Nz::ParticleGroup::GetBuffer](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_particle_mapper.html#aefe1b251efc8c9b8668842275561be0c) method. (4dc85789b59e50d964c83321dbd4b6485c04bef6)  
-- Added Nz::ParticleMapper::GetPointer method. (1f4e6c2d1594b7bb9dd6f4ea5480fdd16cf5f208)  
+- Added [Nz::ParticleGroup::GetBuffer](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_particle_mapper.html#aefe1b251efc8c9b8668842275561be0c) method. (4dc85789b59e50d964c83321dbd4b6485c04bef6)
+- Added Nz::ParticleMapper::GetPointer method. (1f4e6c2d1594b7bb9dd6f4ea5480fdd16cf5f208)
 - ⚠️ Structures provied by ParticleStruct header now have a float life. (472d964d587d906764ad1e05bfcc9ab1bf979483)
 - Fixed scale property of Nz::TextSprite not affecting its bounding volume. (52b29bac775823294c4ad7de70f4dc3f4adfa743)
 - ⚠️ Nz:MeshParams::flipUVs has been replaced by texCoordOffset and texCoordScale. (a1a7d908adc060fd7a43491c903dfe3b501d98e5)
@@ -380,7 +381,7 @@ Nazara Engine:
 - All noises classes now uses std::mt19937 as a random number generator, to ensure the same results on every machine. (1f5ea9839016964c173d919263827dee69ecb65d)
 
 Nazara Development Kit:
-- **Added basic widgets**. (c8a12083b3133e946bf60dd060331a4b4631f8d8)  
+- **Added basic widgets**. (c8a12083b3133e946bf60dd060331a4b4631f8d8)
 - VelocitySystem will no longer affect entities with PhysicsComponent2D. (a6853234412c744cdcb28344f02f7b0c92704d77)
 - Fixed EulerAngles constructor in Lua. (d55149a0a70f6230b6f1c3fb50e37dc82a2feb9f)
 - Fixed Component::OnDetached not being called on entity destruction. (5b777eb4853639d7aeb232ca46d17f0d432f47ca)
@@ -391,7 +392,7 @@ Nazara Engine:
 
 Nazara Engine:
 - Nazara binaries are now compiled with Run-Time Type-Information. (a70acdc8f44010627a65282fd3099202116d3e13)
-- Nazara demos are now compiled with relative dependencies on Linux. 
+- Nazara demos are now compiled with relative dependencies on Linux.
   (d6fbb4c408d48c4a768fad7b43460c76a0df1777)
 - Added [**Nz::BitCount**](https://nazara.digitalpulsesoftware.net/doc/group__core.html#ga6bfbcff78eb6cfbe3ddaedcfc8c04196) function. (82e31a3ec8449da6618f41690164c2e1d883edb4)
 - Added [**Nz::Bitset::AppendBits**](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_bitset.html#a5ca8f365006c86d6d699d02471904f7e) method. (b018a400499a2356c4455a40d9f6a6c12b3cb36b)
