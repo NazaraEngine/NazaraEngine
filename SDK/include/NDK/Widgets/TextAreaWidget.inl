@@ -102,6 +102,16 @@ namespace Ndk
 		return m_drawer.GetColor();
 	}
 
+	inline const Nz::Color& TextAreaWidget::GetTextOulineColor() const
+	{
+		return m_drawer.GetOutlineColor();
+	}
+
+	inline float TextAreaWidget::GetTextOulineThickness() const
+	{
+		return m_drawer.GetOutlineThickness();
+	}
+
 	inline bool TextAreaWidget::HasSelection() const
 	{
 		return m_cursorPositionBegin != m_cursorPositionEnd;
@@ -241,7 +251,21 @@ namespace Ndk
 	{
 		m_drawer.SetColor(text);
 
-		m_textSprite->Update(m_drawer);
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetTextOutlineColor(const Nz::Color& color)
+	{
+		m_drawer.SetOutlineColor(color);
+
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetTextOutlineThickness(float thickness)
+	{
+		m_drawer.SetOutlineThickness(thickness);
+
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::Write(const Nz::String& text)
