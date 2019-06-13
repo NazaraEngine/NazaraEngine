@@ -17,19 +17,19 @@ namespace Nz
 		public:
 			PhongLightingMaterial(Material* material);
 
-			inline const TextureRef& GetAlphaMap() const;
+			inline const Texture* GetAlphaMap() const;
 			inline float GetAlphaThreshold() const;
 			inline Color GetAmbientColor() const;
 			inline Color GetDiffuseColor() const;
-			inline const TextureRef& GetDiffuseMap() const;
+			inline const Texture* GetDiffuseMap() const;
 			inline TextureSampler& GetDiffuseSampler();
 			inline const TextureSampler& GetDiffuseSampler() const;
-			inline const TextureRef& GetEmissiveMap() const;
-			inline const TextureRef& GetHeightMap() const;
-			inline const TextureRef& GetNormalMap() const;
+			inline const Texture* GetEmissiveMap() const;
+			inline const Texture* GetHeightMap() const;
+			inline const Texture* GetNormalMap() const;
 			inline float GetShininess() const;
 			inline Color GetSpecularColor() const;
-			inline const TextureRef& GetSpecularMap() const;
+			inline const Texture* GetSpecularMap() const;
 			inline TextureSampler& GetSpecularSampler();
 			inline const TextureSampler& GetSpecularSampler() const;
 
@@ -61,6 +61,15 @@ namespace Nz
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 
 		private:
+			struct UniformOffsets
+			{
+				std::size_t alphaThreshold;
+				std::size_t shininess;
+				std::size_t ambientColor;
+				std::size_t diffuseColor;
+				std::size_t specularColor;
+			};
+
 			struct TextureIndexes
 			{
 				std::size_t alpha;
@@ -76,10 +85,12 @@ namespace Nz
 
 			MaterialRef m_material;
 			TextureIndexes m_textureIndexes;
+			UniformOffsets m_uniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
+			static UniformOffsets s_uniformOffsets;
 	};
 }
 

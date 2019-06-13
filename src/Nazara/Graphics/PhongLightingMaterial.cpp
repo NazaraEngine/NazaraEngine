@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
@@ -21,22 +22,28 @@ namespace Nz
 		constexpr std::size_t SpecularMapBinding = 5;
 	}
 
-	inline PhongLightingMaterial::PhongLightingMaterial(Material* material)
+	PhongLightingMaterial::PhongLightingMaterial(Material* material)
 	{
 		NazaraAssert(material, "Invalid material");
 
 		// Most common case: don't fetch texture indexes as a little optimization
 		const std::shared_ptr<const MaterialSettings>& materialSettings = material->GetSettings();
 		if (materialSettings == s_materialSettings)
+		{
 			m_textureIndexes = s_textureIndexes;
+			m_uniformOffsets = s_uniformOffsets;
+		}
 		else
 		{
 			m_textureIndexes.alpha = materialSettings->GetTextureIndex("alpha");
-			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("height");
+			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("diffuse");
 			m_textureIndexes.emissive = materialSettings->GetTextureIndex("emissive");
 			m_textureIndexes.height = materialSettings->GetTextureIndex("height");
 			m_textureIndexes.normal = materialSettings->GetTextureIndex("normal");
 			m_textureIndexes.specular = materialSettings->GetTextureIndex("specular");
+
+			// TODO
+			m_uniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset();
 		}
 	}
 
@@ -86,6 +93,41 @@ namespace Nz
 		s_renderPipelineLayout->Create(info);
 
 		s_materialSettings = std::make_shared<MaterialSettings>();
+
+		FieldOffsets fieldOffsets(StructLayout_Std140);
+
+		std::vector<MaterialSettings::UniformVariable> variables;
+		variables.emplace_back({
+			"AlphaThreshold",
+			fieldOffsets.AddField(StructFieldType_Float1)
+		});
+
+		variables.emplace_back({
+			"Shininess",
+			fieldOffsets.AddField(StructFieldType_Float1)
+		});
+
+		variables.emplace_back({
+			"AmbientColor",
+			fieldOffsets.AddField(StructFieldType_Float4)
+		});
+
+		variables.emplace_back({
+			"DiffuseColor",
+			fieldOffsets.AddField(StructFieldType_Float4)
+		});
+
+		variables.emplace_back({
+			"SpecularColor",
+			fieldOffsets.AddField(StructFieldType_Float4)
+		});
+
+		s_materialSettings->uniformBlocks.emplace_back({
+			"PhongSettings",
+			fieldOffsets.GetSize(),
+			0,
+			std::move(variables)
+		});
 
 		s_textureIndexes.alpha = s_materialSettings->textures.size();
 		s_materialSettings->textures.push_back({

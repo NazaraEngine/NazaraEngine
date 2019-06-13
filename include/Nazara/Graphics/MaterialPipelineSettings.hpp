@@ -18,16 +18,25 @@ namespace Nz
 {
 	struct MaterialSettings
 	{
+		inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name);
 		inline std::size_t GetSharedUniformBlockIndex(const String& name) const;
 		inline std::size_t GetTextureIndex(const String& name) const;
 		inline std::size_t GetUniformBlockIndex(const String& name) const;
+		inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name);
 
 		static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+
+		struct UniformVariable
+		{
+			String name;
+			std::size_t offset;
+		};
 
 		struct SharedUniformBlocks
 		{
 			String name;
 			std::string bindingPoint;
+			std::vector<UniformVariable> uniforms;
 		};
 
 		struct Texture
@@ -42,6 +51,7 @@ namespace Nz
 			String name;
 			std::size_t blockSize;
 			std::string bindingPoint;
+			std::vector<UniformVariable> uniforms;
 		};
 
 		std::vector<SharedUniformBlocks> sharedUniformBlocks;
