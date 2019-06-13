@@ -266,6 +266,7 @@ Nazara Development Kit:
 - Fixed a subtle bug regarding entities invalidation and kill (ex: if an entity #2 kills entity #1 during Entity::Destroy callbacks, entity #1 will survive destruction).
 - Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added TextAreaWidget support for outline
+- Fixed possible crash when disabling BaseWidget background
 
 # 0.4:
 

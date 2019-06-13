@@ -89,6 +89,7 @@ namespace Ndk
 		}
 		else
 		{
+			DestroyEntity(m_backgroundEntity);
 			m_backgroundEntity.Reset();
 			m_backgroundSprite.Reset();
 		}
@@ -185,7 +186,7 @@ namespace Ndk
 
 	void BaseWidget::Layout()
 	{
-		if (m_backgroundEntity)
+		if (m_backgroundSprite)
 			m_backgroundSprite->SetSize(m_size.x, m_size.y);
 
 		UpdatePositionAndSize();
