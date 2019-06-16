@@ -403,11 +403,7 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
-				{
-					cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
-					cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
-					return retA && retB;
-				}
+					return cpTrue;
 				else
 					return cpFalse;
 			};
@@ -416,9 +412,7 @@ namespace Nz
 		{
 			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
 			{
-				cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
-				cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
-				return retA && retB;
+				return cpTrue;
 			};
 		}
 
@@ -438,17 +432,12 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
-
-				cpArbiterCallWildcardSeparateA(arb, space);
-				cpArbiterCallWildcardSeparateB(arb, space);
 			};
 		}
 		else
 		{
 			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
 			{
-				cpArbiterCallWildcardSeparateA(arb, space);
-				cpArbiterCallWildcardSeparateB(arb, space);
 			};
 		}
 
@@ -468,11 +457,7 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
-				{
-					cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
-					cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
-					return retA && retB;
-				}
+					return cpTrue;
 				else
 					return cpFalse;
 			};
@@ -481,9 +466,7 @@ namespace Nz
 		{
 			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
 			{
-				cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
-				cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
-				return retA && retB;
+				return cpTrue;
 			};
 		}
 
@@ -503,17 +486,12 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
-
-				cpArbiterCallWildcardPostSolveA(arb, space);
-				cpArbiterCallWildcardPostSolveB(arb, space);
 			};
 		}
 		else
 		{
 			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data)
 			{
-				cpArbiterCallWildcardPostSolveA(arb, space);
-				cpArbiterCallWildcardPostSolveB(arb, space);
 			};
 		}
 	}
