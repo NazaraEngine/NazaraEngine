@@ -14,37 +14,44 @@ namespace Nz
 {
 	class NAZARA_GRAPHICS_API PhongLightingMaterial
 	{
+		friend class Material;
+
 		public:
 			PhongLightingMaterial(Material* material);
 
-			inline const Texture* GetAlphaMap() const;
-			inline float GetAlphaThreshold() const;
-			inline Color GetAmbientColor() const;
-			inline Color GetDiffuseColor() const;
-			inline const Texture* GetDiffuseMap() const;
+			inline const TextureRef& GetAlphaMap() const;
+			float GetAlphaThreshold() const;
+			Color GetAmbientColor() const;
+			Color GetDiffuseColor() const;
+			inline const TextureRef& GetDiffuseMap() const;
 			inline TextureSampler& GetDiffuseSampler();
 			inline const TextureSampler& GetDiffuseSampler() const;
-			inline const Texture* GetEmissiveMap() const;
-			inline const Texture* GetHeightMap() const;
-			inline const Texture* GetNormalMap() const;
-			inline float GetShininess() const;
-			inline Color GetSpecularColor() const;
-			inline const Texture* GetSpecularMap() const;
+			inline const TextureRef& GetEmissiveMap() const;
+			inline const TextureRef& GetHeightMap() const;
+			inline const TextureRef& GetNormalMap() const;
+			float GetShininess() const;
+			Color GetSpecularColor() const;
+			inline const TextureRef& GetSpecularMap() const;
 			inline TextureSampler& GetSpecularSampler();
 			inline const TextureSampler& GetSpecularSampler() const;
 
 			inline bool HasAlphaMap() const;
+			inline bool HasAlphaThreshold() const;
+			inline bool HasAmbientColor() const;
+			inline bool HasDiffuseColor() const;
 			inline bool HasDiffuseMap() const;
 			inline bool HasEmissiveMap() const;
 			inline bool HasHeightMap() const;
 			inline bool HasNormalMap() const;
+			inline bool HasShininess() const;
+			inline bool HasSpecularColor() const;
 			inline bool HasSpecularMap() const;
 
 			inline bool SetAlphaMap(const String& textureName);
 			inline void SetAlphaMap(TextureRef alphaMap);
-			inline void SetAlphaThreshold(float alphaThreshold);
-			inline void SetAmbientColor(const Color& ambient);
-			inline void SetDiffuseColor(const Color& diffuse);
+			void SetAlphaThreshold(float alphaThreshold);
+			void SetAmbientColor(const Color& ambient);
+			void SetDiffuseColor(const Color& diffuse);
 			inline bool SetDiffuseMap(const String& textureName);
 			inline void SetDiffuseMap(TextureRef diffuseMap);
 			inline void SetDiffuseSampler(const TextureSampler& sampler);
@@ -54,11 +61,13 @@ namespace Nz
 			inline void SetHeightMap(TextureRef textureName);
 			inline bool SetNormalMap(const String& textureName);
 			inline void SetNormalMap(TextureRef textureName);
-			inline void SetShininess(float shininess);
-			inline void SetSpecularColor(const Color& specular);
+			void SetShininess(float shininess);
+			void SetSpecularColor(const Color& specular);
 			inline bool SetSpecularMap(const String& textureName);
 			inline void SetSpecularMap(TextureRef specularMap);
 			inline void SetSpecularSampler(const TextureSampler& sampler);
+
+			static const std::shared_ptr<MaterialSettings>& GetSettings();
 
 		private:
 			struct UniformOffsets
@@ -84,13 +93,14 @@ namespace Nz
 			static void Uninitialize();
 
 			MaterialRef m_material;
+			std::size_t m_phongUniformIndex;
 			TextureIndexes m_textureIndexes;
-			UniformOffsets m_uniformOffsets;
+			UniformOffsets m_phongUniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
-			static UniformOffsets s_uniformOffsets;
+			static UniformOffsets s_phongUniformOffsets;
 	};
 }
 

@@ -111,18 +111,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the default material of the billboard (just default material)
-	*/
-
-	inline void Billboard::SetDefaultMaterial()
-	{
-		MaterialRef material = Material::New();
-		material->EnableFaceCulling(true);
-
-		SetMaterial(std::move(material));
-	}
-
-	/*!
 	* \brief Sets the material of the billboard
 	*
 	* \param material Material for the billboard
@@ -131,28 +119,6 @@ namespace Nz
 	inline void Billboard::SetMaterial(MaterialRef material, bool resizeBillboard)
 	{
 		SetMaterial(GetSkin(), std::move(material), resizeBillboard);
-	}
-
-	/*!
-	* \brief Sets the material of the billboard
-	*
-	* \param skinIndex Skin index to change
-	* \param material Material for the billboard
-	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
-	*/
-	inline void Billboard::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard)
-	{
-		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
-
-		if (resizeBillboard)
-		{
-			if (const MaterialRef& newMat = GetMaterial())
-			{
-				const TextureRef& diffuseMap = newMat->GetDiffuseMap();
-				if (diffuseMap && diffuseMap->IsValid())
-					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
-			}
-		}
 	}
 
 	/*!
@@ -204,33 +170,6 @@ namespace Nz
 	inline void Billboard::SetTexture(TextureRef texture, bool resizeBillboard)
 	{
 		SetTexture(GetSkin(), std::move(texture), resizeBillboard);
-	}
-
-	/*!
-	* \brief Sets the texture of the billboard for a specific index
-	*
-	* This function changes the diffuse map of the material associated with the specified skin index
-	*
-	* \param skinIndex Skin index to change
-	* \param texture Texture for the billboard
-	* \param resizeBillboard Should billboard be resized to the texture size
-	*/
-	inline void Billboard::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard)
-	{
-		if (resizeBillboard && texture && texture->IsValid())
-			SetSize(Vector2f(Vector2ui(texture->GetSize())));
-
-		const MaterialRef& material = GetMaterial(skinIndex);
-
-		if (material->GetReferenceCount() > 1)
-		{
-			MaterialRef newMat = Material::New(*material); // Copy
-			newMat->SetDiffuseMap(std::move(texture));
-
-			SetMaterial(skinIndex, std::move(newMat));
-		}
-		else
-			material->SetDiffuseMap(std::move(texture));
 	}
 
 	/*!

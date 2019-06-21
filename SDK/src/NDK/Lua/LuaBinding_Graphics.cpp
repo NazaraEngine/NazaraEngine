@@ -71,7 +71,7 @@ namespace Ndk
 		/*********************************** Nz::Material ***********************************/
 		material.Reset("Material");
 		{
-			material.SetConstructor([] (Nz::LuaState& lua, Nz::MaterialRef* instance, std::size_t argumentCount)
+			/*material.SetConstructor([] (Nz::LuaState& lua, Nz::MaterialRef* instance, std::size_t argumentCount)
 			{
 				switch (argumentCount)
 				{
@@ -102,7 +102,7 @@ namespace Ndk
 
 				lua.Error("No matching overload for constructor");
 				return false;
-			});
+			});*/
 
 			material.BindMethod("Configure", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
@@ -134,32 +134,33 @@ namespace Ndk
 
 			material.BindMethod("EnsurePipelineUpdate", &Nz::Material::EnsurePipelineUpdate);
 
-			material.BindMethod("GetAlphaMap", &Nz::Material::GetAlphaMap);
-			material.BindMethod("GetAlphaThreshold", &Nz::Material::GetAlphaThreshold);
-			material.BindMethod("GetAmbientColor", &Nz::Material::GetAmbientColor);
+			//material.BindMethod("GetAlphaMap", &Nz::Material::GetAlphaMap);
+			//material.BindMethod("GetAlphaThreshold", &Nz::Material::GetAlphaThreshold);
+			//material.BindMethod("GetAmbientColor", &Nz::Material::GetAmbientColor);
 			material.BindMethod("GetDepthFunc", &Nz::Material::GetDepthFunc);
 			material.BindMethod("GetDepthMaterial", &Nz::Material::GetDepthMaterial);
-			material.BindMethod("GetDiffuseColor", &Nz::Material::GetDiffuseColor);
-			material.BindMethod("GetDiffuseMap", &Nz::Material::GetDiffuseMap);
+			//material.BindMethod("GetDiffuseColor", &Nz::Material::GetDiffuseColor);
+			//material.BindMethod("GetDiffuseMap", &Nz::Material::GetDiffuseMap);
 			//material.BindMethod("GetDiffuseSampler",    &Nz::Material::GetDiffuseSampler);
 			material.BindMethod("GetDstBlend", &Nz::Material::GetDstBlend);
-			material.BindMethod("GetEmissiveMap", &Nz::Material::GetEmissiveMap);
+			//material.BindMethod("GetEmissiveMap", &Nz::Material::GetEmissiveMap);
 			material.BindMethod("GetFaceCulling", &Nz::Material::GetFaceCulling);
 			material.BindMethod("GetFaceFilling", &Nz::Material::GetFaceFilling);
-			material.BindMethod("GetHeightMap", &Nz::Material::GetHeightMap);
+			//material.BindMethod("GetHeightMap", &Nz::Material::GetHeightMap);
 			material.BindMethod("GetLineWidth", &Nz::Material::GetLineWidth);
-			material.BindMethod("GetNormalMap", &Nz::Material::GetNormalMap);
+			//material.BindMethod("GetNormalMap", &Nz::Material::GetNormalMap);
 			//material.BindMethod("GetPipeline",            &Nz::Material::GetPipeline);
 			//material.BindMethod("GetPipelineInfo",        &Nz::Material::GetPipelineInfo);
 			material.BindMethod("GetPointSize", &Nz::Material::GetPointSize);
 			material.BindMethod("GetReflectionMode", &Nz::Material::GetReflectionMode);
 			//material.BindMethod("GetShader",              &Nz::Material::GetShader);
-			material.BindMethod("GetShininess", &Nz::Material::GetShininess);
-			material.BindMethod("GetSpecularColor", &Nz::Material::GetSpecularColor);
-			material.BindMethod("GetSpecularMap", &Nz::Material::GetSpecularMap);
+			//material.BindMethod("GetShininess", &Nz::Material::GetShininess);
+			//material.BindMethod("GetSpecularColor", &Nz::Material::GetSpecularColor);
+			//material.BindMethod("GetSpecularMap", &Nz::Material::GetSpecularMap);
 			//material.BindMethod("GetSpecularSampler",   &Nz::Material::GetSpecularSampler);
 			material.BindMethod("GetSrcBlend", &Nz::Material::GetSrcBlend);
 
+/*
 			material.BindMethod("HasAlphaMap", &Nz::Material::HasAlphaMap);
 			material.BindMethod("HasDepthMaterial", &Nz::Material::HasDepthMaterial);
 			material.BindMethod("HasDiffuseMap", &Nz::Material::HasDiffuseMap);
@@ -167,6 +168,7 @@ namespace Ndk
 			material.BindMethod("HasHeightMap", &Nz::Material::HasHeightMap);
 			material.BindMethod("HasNormalMap", &Nz::Material::HasNormalMap);
 			material.BindMethod("HasSpecularMap", &Nz::Material::HasSpecularMap);
+*/
 
 			material.BindMethod("IsAlphaTestEnabled", &Nz::Material::IsAlphaTestEnabled);
 			material.BindMethod("IsBlendingEnabled", &Nz::Material::IsBlendingEnabled);
@@ -181,14 +183,9 @@ namespace Ndk
 			material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);
 			material.BindMethod("IsShadowReceiveEnabled", &Nz::Material::IsShadowReceiveEnabled);
 
-			material.BindMethod("Reset", &Nz::Material::Reset);
-
-			material.BindMethod("SetAlphaThreshold", &Nz::Material::SetAlphaThreshold);
-			material.BindMethod("SetAmbientColor", &Nz::Material::SetAmbientColor);
 			material.BindMethod("SetDepthFunc", &Nz::Material::SetDepthFunc);
 			material.BindMethod("SetDepthFunc", &Nz::Material::SetDepthFunc);
 			material.BindMethod("SetDepthMaterial", &Nz::Material::SetDepthMaterial);
-			material.BindMethod("SetDiffuseColor", &Nz::Material::SetDiffuseColor);
 
 			//material.BindMethod("SetDiffuseSampler",      &Nz::Material::SetDiffuseSampler);
 			material.BindMethod("SetDstBlend", &Nz::Material::SetDstBlend);
@@ -197,98 +194,11 @@ namespace Ndk
 			material.BindMethod("SetLineWidth", &Nz::Material::SetLineWidth);
 			material.BindMethod("SetPointSize", &Nz::Material::SetPointSize);
 			material.BindMethod("SetReflectionMode", &Nz::Material::SetReflectionMode);
-			material.BindMethod("SetShininess", &Nz::Material::SetShininess);
-			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
-			material.BindMethod("SetSpecularColor", &Nz::Material::SetSpecularColor);
 			//material.BindMethod("SetSpecularSampler",     &Nz::Material::SetSpecularSampler);
 			material.BindMethod("SetSrcBlend", &Nz::Material::SetSrcBlend);
 
 			material.BindStaticMethod("GetDefault", &Nz::Material::GetDefault);
 			material.BindStaticMethod("LoadFromFile", &Nz::Material::LoadFromFile, Nz::MaterialParams());
-
-			material.BindMethod("SetAlphaMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetAlphaMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetDiffuseMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetDiffuseMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetEmissiveMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetEmissiveMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetHeightMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetHeightMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetNormalMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetNormalMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetShader", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "UberShader"))
-				{
-					instance->SetShader(*static_cast<Nz::UberShaderRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
-			});
-
-			material.BindMethod("SetSpecularMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
-			{
-				int argIndex = 2;
-				if (lua.IsOfType(argIndex, "Texture"))
-				{
-					instance->SetSpecularMap(*static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)));
-					return 0;
-				}
-				else
-					return lua.Push(instance->SetSpecularMap(lua.Check<Nz::String>(&argIndex)));
-			});
 		}
 
 		/*********************************** Nz::Model ***********************************/

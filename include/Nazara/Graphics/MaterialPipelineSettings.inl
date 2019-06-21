@@ -55,11 +55,11 @@ namespace Nz
 		return InvalidIndex;
 	}
 
-	inline std::size_t MaterialSettings::GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String & name)
+	inline std::size_t MaterialSettings::GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const
 	{
 		assert(uniformBlockIndex < uniformBlocks.size());
 
-		std::vector<UniformVariable>& variables = uniformBlocks[uniformBlockIndex].uniforms;
+		const std::vector<UniformVariable>& variables = uniformBlocks[uniformBlockIndex].uniforms;
 		for (std::size_t i = 0; i < variables.size(); ++i)
 		{
 			if (variables[i].name == name)

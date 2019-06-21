@@ -586,7 +586,7 @@ namespace Nz
 				{
 					basicSprites.material->Apply(*pipelineInstance);
 
-					Renderer::SetTextureSampler(overlayTextureUnit, basicSprites.material->GetDiffuseSampler());
+					//Renderer::SetTextureSampler(overlayTextureUnit, basicSprites.material->GetDiffuseSampler());
 
 					lastMaterial = basicSprites.material;
 				}

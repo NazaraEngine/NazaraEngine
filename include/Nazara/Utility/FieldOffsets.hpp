@@ -7,11 +7,12 @@
 #ifndef NAZARA_FIELDOFFSETS_HPP
 #define NAZARA_FIELDOFFSETS_HPP
 
+#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
-	class FieldOffsets
+	class NAZARA_UTILITY_API FieldOffsets
 	{
 		public:
 			inline FieldOffsets(StructLayout layout);
@@ -21,7 +22,7 @@ namespace Nz
 
 			std::size_t AddField(StructFieldType type);
 
-			std::size_t GetSize() const;
+			inline std::size_t GetSize() const;
 
 			FieldOffsets& operator=(const FieldOffsets&) = default;
 			FieldOffsets& operator=(FieldOffsets&&) = default;

@@ -4,6 +4,7 @@
 
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Platform/Event.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
@@ -42,7 +43,7 @@ namespace Ndk
 	m_opened(false),
 	m_characterSize(24)
 	{
-		Nz::MaterialRef backgroundMaterial = Nz::Material::New();
+		Nz::MaterialRef backgroundMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
 		backgroundMaterial->EnableBlending(true);
 		backgroundMaterial->EnableDepthBuffer(false);
 		backgroundMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);
@@ -291,7 +292,7 @@ namespace Ndk
 
 	void Console::AddLineInternal(const Nz::String& text, const Nz::Color& color)
 	{
-		m_historyLines.emplace_back(Line{color, text});
+		m_historyLines.emplace_back(Line{ color, text });
 	}
 
 	/*!

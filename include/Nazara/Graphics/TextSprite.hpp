@@ -40,7 +40,7 @@ namespace Nz
 			inline float GetScale() const;
 
 			inline void SetColor(const Color& color);
-			inline void SetDefaultMaterial();
+			void SetDefaultMaterial();
 			using InstancedRenderable::SetMaterial;
 			inline void SetMaterial(MaterialRef material);
 			inline void SetMaterial(std::size_t skinIndex, MaterialRef material);

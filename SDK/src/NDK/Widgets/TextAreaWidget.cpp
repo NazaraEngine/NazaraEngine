@@ -537,7 +537,7 @@ namespace Ndk
 			for (std::size_t i = oldSpriteCount; i < m_cursorSprites.size(); ++i)
 			{
 				m_cursorSprites[i] = Nz::Sprite::New();
-				m_cursorSprites[i]->SetMaterial(Nz::Material::New("Translucent2D"));
+				m_cursorSprites[i]->SetMaterial(Nz::Material::GetDefault());
 			}
 		}
 

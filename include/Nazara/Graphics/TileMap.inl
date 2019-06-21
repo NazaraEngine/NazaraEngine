@@ -164,36 +164,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Enable and sets the tile at position tilePos
-	*
-	* Setup the tile at position tilePos using color, unnormalized coordinates rect and materialIndex
-	*
-	* \param tilePos Position of the tile to enable
-	* \param coords Unnormalized coordinates ([0..size]) used to specify which region of the material textures will be used
-	* \param color The multiplicative color applied to the tile
-	* \param materialIndex The material which will be used for rendering this tile
-	*
-	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
-	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
-	*
-	* \see EnableTiles
-	*/
-	inline void TileMap::EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color, std::size_t materialIndex)
-	{
-		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
-
-		const MaterialRef& material = GetMaterial(materialIndex);
-		NazaraAssert(material->HasDiffuseMap(), "Material has no diffuse map");
-
-		Texture* diffuseMap = material->GetDiffuseMap();
-		float invWidth = 1.f / diffuseMap->GetWidth();
-		float invHeight = 1.f / diffuseMap->GetHeight();
-
-		Rectf unnormalizedCoords(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height);
-		EnableTile(tilePos, unnormalizedCoords, color, materialIndex);
-	}
-
-	/*!
 	* \brief Enable and sets all the tiles
 	*
 	* Setup all tiles using color, normalized coordinates coords and materialIndex
@@ -226,32 +196,6 @@ namespace Nz
 		}
 
 		InvalidateInstanceData(0xFFFFFFFF);
-	}
-
-	/*!
-	* \brief Enable and sets all the tiles
-	*
-	* Setup all tiles using color, unnormalized coordinates coords and materialIndex
-	*
-	* \param coords Unnormalized coordinates ([0..size]) used to specify which region of the material textures will be used
-	* \param color The multiplicative color applied to the tile
-	* \param materialIndex The material which will be used for rendering this tile
-	*
-	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
-	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
-	*
-	* \see EnableTile
-	*/
-	inline void TileMap::EnableTiles(const Rectui& rect, const Color& color, std::size_t materialIndex)
-	{
-		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
-
-		Texture* diffuseMap = GetMaterial(materialIndex)->GetDiffuseMap();
-		float invWidth = 1.f / diffuseMap->GetWidth();
-		float invHeight = 1.f / diffuseMap->GetHeight();
-
-		Rectf unnormalizedCoords(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height);
-		EnableTiles(unnormalizedCoords, color, materialIndex);
 	}
 
 	/*!
@@ -300,37 +244,6 @@ namespace Nz
 
 		if (tileCount > 0)
 			InvalidateInstanceData(invalidatedLayers);
-	}
-
-	/*!
-	* \brief Enable and sets tileCount tiles at positions contained at tilesPos location, enabling rendering at those locations
-	*
-	* Setup all tiles using color, unnormalized coordinates coords and materialIndex
-	*
-	* \param tilesPos Pointer to a valid array of at least tileCount positions
-	* \param tileCount Number of tiles to enable
-	* \param coords Unnormalized coordinates ([0..size]) used to specify which region of the material textures will be used
-	* \param color The multiplicative color applied to the tile
-	* \param materialIndex The material which will be used for rendering this tile
-	*
-	* \remark The material at [materialIndex] must have a valid diffuse map before using this function,
-	*         as the size of the material diffuse map is used to compute normalized texture coordinates before returning.
-	*
-	* \see EnableTile
-	*/
-	inline void TileMap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color, std::size_t materialIndex)
-	{
-		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
-
-		const MaterialRef& material = GetMaterial(materialIndex);
-		NazaraAssert(material->HasDiffuseMap(), "Material has no diffuse map");
-
-		Texture* diffuseMap = material->GetDiffuseMap();
-		float invWidth = 1.f / diffuseMap->GetWidth();
-		float invHeight = 1.f / diffuseMap->GetHeight();
-
-		Rectf unnormalizedCoords(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height);
-		EnableTiles(tilesPos, tileCount, unnormalizedCoords, color, materialIndex);
 	}
 
 	/*!

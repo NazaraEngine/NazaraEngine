@@ -709,7 +709,7 @@ namespace Nz
 			{
 				batch.material->Apply(*pipelineInstance);
 
-				Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
+				//Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
 
 				lastMaterial = batch.material;
 			}

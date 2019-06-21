@@ -5,6 +5,7 @@
 #include <NDK/Systems/DebugSystem.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -373,10 +374,10 @@ namespace Ndk
 	{
 		if (!m_globalAabbMaterial)
 		{
-			m_globalAabbMaterial = Nz::Material::New();
+			m_globalAabbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
 			m_globalAabbMaterial->EnableFaceCulling(false);
 			m_globalAabbMaterial->EnableDepthBuffer(true);
-			m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
+			//m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
 			m_globalAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_globalAabbMaterial->SetLineWidth(2.f);
 		}
@@ -388,10 +389,10 @@ namespace Ndk
 	{
 		if (!m_localAabbMaterial)
 		{
-			m_localAabbMaterial = Nz::Material::New();
+			m_localAabbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
 			m_localAabbMaterial->EnableFaceCulling(false);
 			m_localAabbMaterial->EnableDepthBuffer(true);
-			m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
+			//m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
 			m_localAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_localAabbMaterial->SetLineWidth(2.f);
 		}
@@ -403,10 +404,10 @@ namespace Ndk
 	{
 		if (!m_collisionMaterial)
 		{
-			m_collisionMaterial = Nz::Material::New();
+			m_collisionMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
 			m_collisionMaterial->EnableFaceCulling(false);
 			m_collisionMaterial->EnableDepthBuffer(true);
-			m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
+			//m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
 			m_collisionMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_collisionMaterial->SetLineWidth(2.f);
 		}
@@ -418,10 +419,10 @@ namespace Ndk
 	{
 		if (!m_obbMaterial)
 		{
-			m_obbMaterial = Nz::Material::New();
+			m_obbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
 			m_obbMaterial->EnableFaceCulling(false);
 			m_obbMaterial->EnableDepthBuffer(true);
-			m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
+			//m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
 			m_obbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_obbMaterial->SetLineWidth(2.f);
 		}

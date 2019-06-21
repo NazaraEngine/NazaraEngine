@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -33,6 +34,72 @@ namespace Nz
 	std::unique_ptr<InstancedRenderable> Billboard::Clone() const
 	{
 		return std::make_unique<Billboard>(*this);
+	}
+
+	/*!
+	* \brief Sets the default material of the billboard (just default material)
+	*/
+	void Billboard::SetDefaultMaterial()
+	{
+		MaterialRef material = Material::New(PhongLightingMaterial::GetSettings());
+		material->EnableFaceCulling(true);
+
+		SetMaterial(std::move(material));
+	}
+
+	/*!
+	* \brief Sets the material of the billboard
+	*
+	* \param skinIndex Skin index to change
+	* \param material Material for the billboard
+	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
+	*/
+	void Billboard::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard)
+	{
+		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
+
+		if (resizeBillboard)
+		{
+			if (const MaterialRef& newMat = GetMaterial())
+			{
+				PhongLightingMaterial phongMaterial(newMat);
+
+				const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
+				if (diffuseMap && diffuseMap->IsValid())
+					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			}
+		}
+	}
+
+	/*!
+	* \brief Sets the texture of the billboard for a specific index
+	*
+	* This function changes the diffuse map of the material associated with the specified skin index
+	*
+	* \param skinIndex Skin index to change
+	* \param texture Texture for the billboard
+	* \param resizeBillboard Should billboard be resized to the texture size
+	*/
+	void Billboard::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard)
+	{
+		if (resizeBillboard && texture && texture->IsValid())
+			SetSize(Vector2f(Vector2ui(texture->GetSize())));
+
+		const MaterialRef& material = GetMaterial(skinIndex);
+
+		if (material->GetReferenceCount() > 1)
+		{
+			MaterialRef newMat = Material::New(*material); // Copy
+			PhongLightingMaterial phongMaterial(newMat);
+			phongMaterial.SetDiffuseMap(std::move(texture));
+
+			SetMaterial(skinIndex, std::move(newMat));
+		}
+		else
+		{
+			PhongLightingMaterial phongMaterial(material);
+			phongMaterial.SetDiffuseMap(std::move(texture));
+		}
 	}
 
 	/*

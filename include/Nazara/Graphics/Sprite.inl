@@ -150,19 +150,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the default material of the sprite (just default material)
-	*/
-
-	inline void Sprite::SetDefaultMaterial()
-	{
-		MaterialRef material = Material::New();
-		material->EnableFaceCulling(false);
-		material->EnableScissorTest(true);
-
-		SetMaterial(std::move(material));
-	}
-
-	/*!
 	* \brief Changes the material of the sprite
 	*
 	* \param material Material for the sprite
@@ -171,28 +158,6 @@ namespace Nz
 	inline void Sprite::SetMaterial(MaterialRef material, bool resizeSprite)
 	{
 		SetMaterial(GetSkin(), std::move(material), resizeSprite);
-	}
-
-	/*!
-	* \brief Sets the material of the sprite
-	*
-	* \param skinIndex Skin index to change
-	* \param material Material for the sprite
-	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
-	*/
-	inline void Sprite::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite)
-	{
-		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
-
-		if (resizeSprite)
-		{
-			if (const MaterialRef& newMat = GetMaterial())
-			{
-				const TextureRef& diffuseMap = newMat->GetDiffuseMap();
-				if (diffuseMap && diffuseMap->IsValid())
-					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
-			}
-		}
 	}
 
 	/*!
@@ -256,38 +221,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the texture of the sprite for a specific skin
-	*
-	* This function changes the diffuse map of the material associated with the specified skin
-	*
-	* \param skinIndex Skin index to change
-	* \param texture Texture for the sprite
-	* \param resizeSprite Should the sprite be resized to the texture size?
-	*
-	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
-	*/
-	inline void Sprite::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite)
-	{
-		const MaterialRef& material = GetMaterial(skinIndex);
-
-		if (material->GetReferenceCount() > 1)
-		{
-			MaterialRef newMat = Material::New(*material); // Copy
-			newMat->SetDiffuseMap(std::move(texture));
-
-			SetMaterial(skinIndex, std::move(newMat), resizeSprite);
-		}
-		else
-		{
-			material->SetDiffuseMap(std::move(texture));
-			const TextureRef& newTexture = material->GetDiffuseMap();
-
-			if (resizeSprite && newTexture && newTexture->IsValid())
-				SetSize(Vector2f(Vector2ui(newTexture->GetSize())));
-		}
-	}
-
-	/*!
 	* \brief Sets the texture coordinates of the sprite
 	*
 	* \param coords Texture coordinates
@@ -298,28 +231,6 @@ namespace Nz
 		m_textureCoords = coords;
 
 		InvalidateVertices();
-	}
-
-	/*!
-	* \brief Sets the texture rectangle of the sprite
-	*
-	* \param rect Rectangles symbolizing the size of the texture
-	*
-	* \remark Produces a NazaraAssert if material is invalid
-	* \remark Produces a NazaraAssert if material has no diffuse map
-	*/
-
-	inline void Sprite::SetTextureRect(const Rectui& rect)
-	{
-		const MaterialRef& material = GetMaterial();
-		NazaraAssert(material->HasDiffuseMap(), "Sprite material has no diffuse map");
-
-		Texture* diffuseMap = material->GetDiffuseMap();
-
-		float invWidth = 1.f / diffuseMap->GetWidth();
-		float invHeight = 1.f / diffuseMap->GetHeight();
-
-		SetTextureCoords(Rectf(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height));
 	}
 
 	/*!

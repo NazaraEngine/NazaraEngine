@@ -9,37 +9,37 @@
 
 namespace Nz
 {
-	inline const Texture* PhongLightingMaterial::GetAlphaMap() const
+	inline const TextureRef& PhongLightingMaterial::GetAlphaMap() const
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.alpha);
 	}
 
-	inline const Texture* PhongLightingMaterial::GetDiffuseMap() const
+	inline const TextureRef& PhongLightingMaterial::GetDiffuseMap() const
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.diffuse);
 	}
 
-	inline const Texture* PhongLightingMaterial::GetEmissiveMap() const
+	inline const TextureRef& PhongLightingMaterial::GetEmissiveMap() const
 	{
 		NazaraAssert(HasEmissiveMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.emissive);
 	}
 
-	inline const Texture* PhongLightingMaterial::GetHeightMap() const
+	inline const TextureRef& PhongLightingMaterial::GetHeightMap() const
 	{
 		NazaraAssert(HasHeightMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.height);
 	}
 
-	inline const Texture* PhongLightingMaterial::GetNormalMap() const
+	inline const TextureRef& PhongLightingMaterial::GetNormalMap() const
 	{
 		NazaraAssert(HasNormalMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.normal);
 	}
 
-	inline const Texture* PhongLightingMaterial::GetSpecularMap() const
+	inline const TextureRef& PhongLightingMaterial::GetSpecularMap() const
 	{
 		NazaraAssert(HasSpecularMap(), "Material has no alpha map slot");
 		return m_material->GetTexture(m_textureIndexes.specular);
@@ -50,10 +50,66 @@ namespace Nz
 		return m_textureIndexes.alpha != MaterialSettings::InvalidIndex;
 	}
 
+	inline bool PhongLightingMaterial::HasAlphaThreshold() const
+	{
+		return m_phongUniformOffsets.alphaThreshold != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasAmbientColor() const
+	{
+		return m_phongUniformOffsets.ambientColor != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasDiffuseColor() const
+	{
+		return m_phongUniformOffsets.diffuseColor != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasDiffuseMap() const
+	{
+		return m_textureIndexes.diffuse != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasEmissiveMap() const
+	{
+		return m_textureIndexes.emissive != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasHeightMap() const
+	{
+		return m_textureIndexes.height != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasNormalMap() const
+	{
+		return m_textureIndexes.normal != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasShininess() const
+	{
+		return m_phongUniformOffsets.shininess != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasSpecularColor() const
+	{
+		return m_phongUniformOffsets.specularColor != MaterialSettings::InvalidIndex;
+	}
+
+	inline bool PhongLightingMaterial::HasSpecularMap() const
+	{
+		return m_textureIndexes.specular != MaterialSettings::InvalidIndex;
+	}
+
 	inline void PhongLightingMaterial::SetAlphaMap(TextureRef alphaMap)
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
 		m_material->SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
+	}
+
+	inline void Nz::PhongLightingMaterial::SetDiffuseMap(TextureRef diffuseMap)
+	{
+		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
+		m_material->SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
 	}
 }
 

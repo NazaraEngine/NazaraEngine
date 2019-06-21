@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/ButtonWidget.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 
@@ -28,7 +29,11 @@ namespace Ndk
 		m_gradientSprite->SetColor(m_color);
 		m_gradientSprite->SetCornerColor(Nz::RectCorner_LeftBottom, m_cornerColor);
 		m_gradientSprite->SetCornerColor(Nz::RectCorner_RightBottom, m_cornerColor);
-		m_gradientSprite->SetMaterial(Nz::Material::New("Basic2D"));
+
+		Nz::MaterialRef gradientMat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		gradientMat->Configure("Basic2D");
+
+		m_gradientSprite->SetMaterial(gradientMat);
 
 		m_gradientEntity = CreateEntity();
 		m_gradientEntity->AddComponent<NodeComponent>().SetParent(this);

@@ -22,7 +22,7 @@ namespace Nz
 		inline std::size_t GetSharedUniformBlockIndex(const String& name) const;
 		inline std::size_t GetTextureIndex(const String& name) const;
 		inline std::size_t GetUniformBlockIndex(const String& name) const;
-		inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name);
+		inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const;
 
 		static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
 

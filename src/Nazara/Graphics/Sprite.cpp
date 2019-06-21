@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -46,6 +47,18 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the default material of the sprite (just default material)
+	*/
+	inline void Sprite::SetDefaultMaterial()
+	{
+		MaterialRef material = Material::New(PhongLightingMaterial::GetSettings());
+		material->EnableFaceCulling(false);
+		material->EnableScissorTest(true);
+
+		SetMaterial(std::move(material));
+	}
+
+	/*!
 	* \brief Sets the material of the sprite from a name
 	*
 	* Tries to get a material from the MaterialLibrary and then the MaterialManager (which will treat the name as a path)
@@ -71,6 +84,30 @@ namespace Nz
 
 		SetMaterial(std::move(material), resizeSprite);
 		return true;
+	}
+
+	/*!
+	* \brief Sets the material of the sprite
+	*
+	* \param skinIndex Skin index to change
+	* \param material Material for the sprite
+	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
+	*/
+	void Sprite::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite)
+	{
+		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
+
+		if (resizeSprite)
+		{
+			if (const MaterialRef& newMat = GetMaterial())
+			{
+				PhongLightingMaterial phongMaterial(newMat);
+
+				const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
+				if (diffuseMap && diffuseMap->IsValid())
+					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			}
+		}
 	}
 
 	/*!
@@ -159,6 +196,64 @@ namespace Nz
 
 		SetTexture(skinIndex, std::move(texture), resizeSprite);
 		return true;
+	}
+
+	/*!
+	* \brief Sets the texture of the sprite for a specific skin
+	*
+	* This function changes the diffuse map of the material associated with the specified skin
+	*
+	* \param skinIndex Skin index to change
+	* \param texture Texture for the sprite
+	* \param resizeSprite Should the sprite be resized to the texture size?
+	*
+	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
+	*/
+	void Sprite::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite)
+	{
+		const MaterialRef& material = GetMaterial(skinIndex);
+
+		if (material->GetReferenceCount() > 1)
+		{
+			MaterialRef newMat = Material::New(*material); // Copy
+
+			PhongLightingMaterial phongMaterial(newMat);
+			phongMaterial.SetDiffuseMap(std::move(texture));
+
+			SetMaterial(skinIndex, std::move(newMat), resizeSprite);
+		}
+		else
+		{
+			PhongLightingMaterial phongMaterial(material);
+			phongMaterial.SetDiffuseMap(std::move(texture));
+
+			const Texture* newTexture = phongMaterial.GetDiffuseMap();
+
+			if (resizeSprite && newTexture && newTexture->IsValid())
+				SetSize(Vector2f(Vector2ui(newTexture->GetSize())));
+		}
+	}
+
+	/*!
+	* \brief Sets the texture rectangle of the sprite
+	*
+	* \param rect Rectangles symbolizing the size of the texture
+	*
+	* \remark Produces a NazaraAssert if material is invalid
+	* \remark Produces a NazaraAssert if material has no diffuse map
+	*/
+	void Sprite::SetTextureRect(const Rectui& rect)
+	{
+		const MaterialRef& material = GetMaterial();
+		PhongLightingMaterial phongMaterial(material);
+		NazaraAssert(phongMaterial.HasDiffuseMap(), "Sprite material has no diffuse map");
+
+		const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
+
+		float invWidth = 1.f / diffuseMap->GetWidth();
+		float invHeight = 1.f / diffuseMap->GetHeight();
+
+		SetTextureCoords(Rectf(invWidth * rect.x, invHeight * rect.y, invWidth * rect.width, invHeight * rect.height));
 	}
 
 	/*!

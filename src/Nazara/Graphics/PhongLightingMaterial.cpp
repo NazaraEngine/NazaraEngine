@@ -3,8 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <cassert>
@@ -22,7 +24,8 @@ namespace Nz
 		constexpr std::size_t SpecularMapBinding = 5;
 	}
 
-	PhongLightingMaterial::PhongLightingMaterial(Material* material)
+	PhongLightingMaterial::PhongLightingMaterial(Material* material) :
+	m_material(material)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -31,7 +34,7 @@ namespace Nz
 		if (materialSettings == s_materialSettings)
 		{
 			m_textureIndexes = s_textureIndexes;
-			m_uniformOffsets = s_uniformOffsets;
+			m_phongUniformOffsets = s_phongUniformOffsets;
 		}
 		else
 		{
@@ -42,9 +45,85 @@ namespace Nz
 			m_textureIndexes.normal = materialSettings->GetTextureIndex("normal");
 			m_textureIndexes.specular = materialSettings->GetTextureIndex("specular");
 
-			// TODO
-			m_uniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset();
+			m_phongUniformIndex = materialSettings->GetUniformBlockIndex("PhongSettings");
+
+			m_phongUniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset(m_phongUniformIndex, "AlphaThreshold");
+			m_phongUniformOffsets.ambientColor = materialSettings->GetUniformBlockVariableOffset(m_phongUniformIndex, "AmbientColor");
+			m_phongUniformOffsets.diffuseColor = materialSettings->GetUniformBlockVariableOffset(m_phongUniformIndex, "DiffuseColor");
+			m_phongUniformOffsets.shininess = materialSettings->GetUniformBlockVariableOffset(m_phongUniformIndex, "Shininess");
+			m_phongUniformOffsets.specularColor = materialSettings->GetUniformBlockVariableOffset(m_phongUniformIndex, "SpecularColor");
 		}
+	}
+
+	float PhongLightingMaterial::GetAlphaThreshold() const
+	{
+		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+		return *AccessByOffset<const float>(mapper.GetPointer(), m_phongUniformOffsets.alphaThreshold);
+	}
+
+	Color PhongLightingMaterial::GetAmbientColor() const
+	{
+		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+
+		const float* colorPtr = AccessByOffset<const float>(mapper.GetPointer(), m_phongUniformOffsets.ambientColor);
+		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+	}
+
+	Color PhongLightingMaterial::GetDiffuseColor() const
+	{
+		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+
+		const float* colorPtr = AccessByOffset<const float>(mapper.GetPointer(), m_phongUniformOffsets.diffuseColor);
+		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+	}
+
+	float Nz::PhongLightingMaterial::GetShininess() const
+	{
+		NazaraAssert(HasShininess(), "Material has no shininess uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+		return *AccessByOffset<const float>(mapper.GetPointer(), m_phongUniformOffsets.shininess);
+	}
+
+	Color PhongLightingMaterial::GetSpecularColor() const
+	{
+		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+
+		const float* colorPtr = AccessByOffset<const float>(mapper.GetPointer(), m_phongUniformOffsets.specularColor);
+		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+	}
+
+	void PhongLightingMaterial::SetAlphaThreshold(float alphaThreshold)
+	{
+		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
+		*AccessByOffset<float>(mapper.GetPointer(), m_phongUniformOffsets.alphaThreshold) = alphaThreshold;
+	}
+
+	void PhongLightingMaterial::SetAmbientColor(const Color& ambient)
+	{
+		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
+		float* colorPtr = AccessByOffset<float>(mapper.GetPointer(), m_phongUniformOffsets.ambientColor);
+		colorPtr[0] = ambient.r / 255.f;
+		colorPtr[1] = ambient.g / 255.f;
+		colorPtr[2] = ambient.b / 255.f;
+		colorPtr[3] = ambient.a / 255.f;
+	}
+
+	const std::shared_ptr<MaterialSettings>& PhongLightingMaterial::GetSettings()
+	{
+		return s_materialSettings;
 	}
 
 	bool PhongLightingMaterial::Initialize()
@@ -96,37 +175,43 @@ namespace Nz
 
 		FieldOffsets fieldOffsets(StructLayout_Std140);
 
+		s_phongUniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
+		s_phongUniformOffsets.shininess = fieldOffsets.AddField(StructFieldType_Float1);
+		s_phongUniformOffsets.ambientColor = fieldOffsets.AddField(StructFieldType_Float4);
+		s_phongUniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
+		s_phongUniformOffsets.specularColor = fieldOffsets.AddField(StructFieldType_Float4);
+
 		std::vector<MaterialSettings::UniformVariable> variables;
-		variables.emplace_back({
-			"AlphaThreshold",
-			fieldOffsets.AddField(StructFieldType_Float1)
+		variables.assign({
+			{
+				"AlphaThreshold",
+				s_phongUniformOffsets.alphaThreshold
+			},
+			{
+				"Shininess",
+				s_phongUniformOffsets.shininess
+			},
+			{
+				"AmbientColor",
+				s_phongUniformOffsets.ambientColor
+			},
+			{
+				"DiffuseColor",
+				s_phongUniformOffsets.diffuseColor
+			},
+			{
+				"SpecularColor",
+				s_phongUniformOffsets.specularColor
+			}
 		});
 
-		variables.emplace_back({
-			"Shininess",
-			fieldOffsets.AddField(StructFieldType_Float1)
-		});
-
-		variables.emplace_back({
-			"AmbientColor",
-			fieldOffsets.AddField(StructFieldType_Float4)
-		});
-
-		variables.emplace_back({
-			"DiffuseColor",
-			fieldOffsets.AddField(StructFieldType_Float4)
-		});
-
-		variables.emplace_back({
-			"SpecularColor",
-			fieldOffsets.AddField(StructFieldType_Float4)
-		});
-
-		s_materialSettings->uniformBlocks.emplace_back({
-			"PhongSettings",
-			fieldOffsets.GetSize(),
-			0,
-			std::move(variables)
+		s_materialSettings->uniformBlocks.assign({
+			{
+				"PhongSettings",
+				fieldOffsets.GetSize(),
+				"MaterialPhongSettings",
+				std::move(variables)
+			}
 		});
 
 		s_textureIndexes.alpha = s_materialSettings->textures.size();
@@ -183,4 +268,5 @@ namespace Nz
 	std::shared_ptr<MaterialSettings> PhongLightingMaterial::s_materialSettings;
 	RenderPipelineLayoutRef PhongLightingMaterial::s_renderPipelineLayout;
 	PhongLightingMaterial::TextureIndexes PhongLightingMaterial::s_textureIndexes;
+	PhongLightingMaterial::UniformOffsets PhongLightingMaterial::s_phongUniformOffsets;
 }

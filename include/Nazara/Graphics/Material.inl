@@ -21,12 +21,14 @@ namespace Nz
 	m_shadowCastingEnabled(true),
 	m_reflectionSize(256)
 	{
+		m_pipelineInfo.settings = settings;
+
 		m_sharedUniformBuffers.resize(m_settings->sharedUniformBlocks.size());
 		m_textures.resize(m_settings->textures.size());
 
 		m_uniformBuffers.reserve(m_settings->uniformBlocks.size());
-		for (const auto& uniformBufferInfo : settings->uniformBlocks)
-			m_uniformBuffers.emplace_back(uniformBufferInfo.blockSize, DataStorage_Hardware, BufferUsage_Dynamic);
+		for (const auto& uniformBufferInfo : m_settings->uniformBlocks)
+			m_uniformBuffers.emplace_back(UniformBuffer::New(static_cast<UInt32>(uniformBufferInfo.blockSize), DataStorage_Hardware, BufferUsage_Dynamic));
 	}
 
 	/*!
@@ -527,7 +529,7 @@ namespace Nz
 		return m_sharedUniformBuffers[bufferIndex];
 	}
 
-	inline Texture* Material::GetTexture(std::size_t textureIndex) const
+	inline const TextureRef& Material::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		return m_textures[textureIndex].texture;
@@ -545,16 +547,21 @@ namespace Nz
 		return m_textures[textureIndex].sampler;
 	}
 
-	inline UniformBuffer* Material::GetUniformBuffer(std::size_t bufferIndex)
+	inline UniformBufferRef& Material::GetUniformBuffer(std::size_t bufferIndex)
 	{
 		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
-		return &m_uniformBuffers[bufferIndex];
+		return m_uniformBuffers[bufferIndex];
 	}
 
-	inline const UniformBuffer* Material::GetUniformBuffer(std::size_t bufferIndex) const
+	inline const UniformBufferRef& Material::GetUniformBuffer(std::size_t bufferIndex) const
 	{
 		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
-		return &m_uniformBuffers[bufferIndex];
+		return m_uniformBuffers[bufferIndex];
+	}
+
+	inline bool Material::HasDepthMaterial() const
+	{
+		return m_depthMaterial.IsValid();
 	}
 
 	inline bool Material::HasTexture(std::size_t textureIndex) const
@@ -906,10 +913,12 @@ namespace Nz
 		m_shadowCastingEnabled = material.m_shadowCastingEnabled;
 		m_reflectionSize = material.m_reflectionSize;
 
+		m_pipelineInfo.settings = m_settings;
+
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
 		{
 			const UniformBuffer* sourceBuffer = material.GetUniformBuffer(i);
-			UniformBuffer* targetBuffer = &m_uniformBuffers[i];
+			UniformBuffer* targetBuffer = m_uniformBuffers[i] = UniformBuffer::New(sourceBuffer->GetEndOffset() - sourceBuffer->GetStartOffset(), DataStorage_Hardware, BufferUsage_Dynamic);
 			if (!targetBuffer->CopyContent(sourceBuffer))
 				NazaraError("Failed to copy uniform buffer content");
 		}

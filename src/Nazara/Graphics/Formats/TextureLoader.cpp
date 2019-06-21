@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -33,9 +34,11 @@ namespace Nz
 				return nullptr;
 			}
 
-			MaterialRef material = Material::New();
-			material->SetDiffuseMap(texture);
+			MaterialRef material = Material::New(PhongLightingMaterial::GetSettings());
 			material->SetShader(parameters.shaderName);
+
+			PhongLightingMaterial phongMaterial(material);
+			phongMaterial.SetDiffuseMap(texture);
 
 			return material;
 		}

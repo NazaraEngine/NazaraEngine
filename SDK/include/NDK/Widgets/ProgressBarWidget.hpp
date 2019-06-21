@@ -48,8 +48,8 @@ namespace Ndk
 			inline const Nz::Color& GetBarColor() const;
 			inline const Nz::Color& GetBarCornerColor() const;
 
-			inline const Nz::TextureRef& GetBarBackgroundTexture() const;
-			inline const Nz::TextureRef& GetBarTexture() const;
+			const Nz::TextureRef& GetBarBackgroundTexture() const;
+			const Nz::TextureRef& GetBarTexture() const;
 
 			static const Nz::Color& GetDefaultBarColor();
 			static const Nz::Color& GetDefaultBarCornerColor();

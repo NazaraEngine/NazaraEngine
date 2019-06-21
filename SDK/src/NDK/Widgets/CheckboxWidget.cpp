@@ -3,8 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/CheckboxWidget.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <NDK/Components/GraphicsComponent.hpp>
 #include <algorithm>
 
 namespace Ndk
@@ -23,9 +24,9 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_state	{ CheckboxState_Unchecked }
 	{
-		m_checkboxBorderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_checkboxBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::New("Translucent2D"));
+		m_checkboxBorderSprite = Nz::Sprite::New(Nz::Material::GetDefault());
+		m_checkboxBackgroundSprite = Nz::Sprite::New(Nz::Material::GetDefault());
+		m_checkboxContentSprite = Nz::Sprite::New(Nz::Material::GetDefault());
 		m_textSprite = Nz::TextSprite::New();
 
 		m_checkboxBorderEntity = CreateEntity();

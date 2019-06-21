@@ -11,11 +11,6 @@ namespace Ndk
 		return m_sprite->GetColor();
 	}
 
-	inline const Nz::TextureRef& ImageWidget::GetTexture() const
-	{
-		return m_sprite->GetMaterial()->GetDiffuseMap();
-	}
-
 	inline const Nz::Rectf& ImageWidget::GetTextureCoords() const
 	{
 		return m_sprite->GetTextureCoords();
@@ -24,15 +19,6 @@ namespace Ndk
 	inline void ImageWidget::SetColor(const Nz::Color& color)
 	{
 		m_sprite->SetColor(color);
-	}
-
-	inline void ImageWidget::SetTexture(const Nz::TextureRef& texture)
-	{
-		m_sprite->SetTexture(texture, false);
-
-		Nz::Vector2f textureSize = Nz::Vector2f(Nz::Vector2ui(m_sprite->GetMaterial()->GetDiffuseMap()->GetSize()));
-		SetMinimumSize(textureSize);
-		SetPreferredSize(textureSize);
 	}
 
 	inline void ImageWidget::SetTextureCoords(const Nz::Rectf& coords)

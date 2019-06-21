@@ -21,6 +21,8 @@ namespace Nz
 	class AbstractHash;
 	class ByteArray;
 
+	template<typename T> T* AccessByOffset(void* basePtr, std::size_t offset);
+	template<typename T> const T* AccessByOffset(const void* basePtr, std::size_t offset);
 	template<typename F, typename Tuple> decltype(auto) Apply(F&& fn, Tuple&& t);
 	template<typename O, typename F, typename Tuple> decltype(auto) Apply(O& object, F&& fn, Tuple&& t);
 	template<typename T> constexpr std::size_t BitCount();

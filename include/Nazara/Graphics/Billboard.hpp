@@ -39,14 +39,14 @@ namespace Nz
 			inline const Vector2f& GetSize() const;
 
 			inline void SetColor(const Color& color);
-			inline void SetDefaultMaterial();
+			void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeBillboard = true);
-			inline void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard = true);
+			void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard = true);
 			inline void SetRotation(const RadianAnglef& rotation);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
 			inline void SetTexture(TextureRef texture, bool resizeBillboard = true);
-			inline void SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard = true);
+			void SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard = true);
 
 			inline Billboard& operator=(const Billboard& billboard);
 			Billboard& operator=(Billboard&&) = delete;

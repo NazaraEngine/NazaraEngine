@@ -6,6 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <memory>
@@ -47,6 +48,17 @@ namespace Nz
 	std::unique_ptr<InstancedRenderable> TextSprite::Clone() const
 	{
 		return std::make_unique<TextSprite>(*this);
+	}
+
+	/*!
+	* \brief Sets the default material of the text sprite (just default material)
+	*/
+	void TextSprite::SetDefaultMaterial()
+	{
+		MaterialRef defaultMat = Material::New(PhongLightingMaterial::GetSettings());
+		defaultMat->Configure("Translucent2D");
+
+		SetMaterial(defaultMat);
 	}
 
 	/*!

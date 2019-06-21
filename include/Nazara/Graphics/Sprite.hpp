@@ -45,10 +45,10 @@ namespace Nz
 
 			inline void SetColor(const Color& color);
 			inline void SetCornerColor(RectCorner corner, const Color& color);
-			inline void SetDefaultMaterial();
+			void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeSprite = true);
 			bool SetMaterial(String materialName, bool resizeSprite = true);
-			inline void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite = true);
+			void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeSprite = true);
 			bool SetMaterial(std::size_t skinIndex, String materialName, bool resizeSprite = true);
 			inline void SetOrigin(const Vector3f& origin);
 			inline void SetSize(const Vector2f& size);
@@ -58,7 +58,7 @@ namespace Nz
 			bool SetTexture(std::size_t skinIndex, String textureName, bool resizeSprite = true);
 			inline void SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeSprite = true);
 			inline void SetTextureCoords(const Rectf& coords);
-			inline void SetTextureRect(const Rectui& rect);
+			void SetTextureRect(const Rectui& rect);
 
 			inline Sprite& operator=(const Sprite& sprite);
 			Sprite& operator=(Sprite&& sprite) = delete;

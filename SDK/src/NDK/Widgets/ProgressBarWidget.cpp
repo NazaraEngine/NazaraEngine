@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/ProgressBarWidget.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 
@@ -21,9 +22,16 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_value { 0u }
 	{
-		m_borderSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barBackgroundSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
-		m_barSprite = Nz::Sprite::New(Nz::Material::New("Basic2D"));
+		Nz::MaterialRef borderMat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		borderMat->Configure("Basic2D");
+		Nz::MaterialRef barBackgroundSprite = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		barBackgroundSprite->Configure("Basic2D");
+		Nz::MaterialRef barSprite = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		barSprite->Configure("Basic2D");
+
+		m_borderSprite = Nz::Sprite::New(borderMat);
+		m_barBackgroundSprite = Nz::Sprite::New(barBackgroundSprite);
+		m_barSprite = Nz::Sprite::New(barSprite);
 
 		m_borderSprite->SetColor(s_borderColor);
 		SetBarBackgroundColor(s_barBackgroundColor, s_barBackgroundCornerColor);
@@ -52,6 +60,17 @@ namespace Ndk
 		Layout();
 	}
 
+	const Nz::TextureRef& ProgressBarWidget::GetBarBackgroundTexture() const
+	{
+		Nz::PhongLightingMaterial phongMaterial(m_barBackgroundSprite->GetMaterial());
+		return phongMaterial.GetDiffuseMap();
+	}
+
+	const Nz::TextureRef& ProgressBarWidget::GetBarTexture() const
+	{
+		Nz::PhongLightingMaterial phongMaterial(m_barSprite->GetMaterial());
+		return phongMaterial.GetDiffuseMap();
+	}
 
 	const Nz::Color& ProgressBarWidget::GetDefaultBarColor()
 	{

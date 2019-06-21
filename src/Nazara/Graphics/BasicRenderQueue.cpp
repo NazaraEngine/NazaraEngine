@@ -723,7 +723,6 @@ namespace Nz
 	*
 	* \param viewer Viewer of the scene
 	*/
-
 	void BasicRenderQueue::Sort(const AbstractViewer* viewer)
 	{
 		m_layerCache.clear();
@@ -755,7 +754,7 @@ namespace Nz
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, vertices.material->GetPipeline());
 			UInt64 materialIndex = GetOrInsert(m_materialCache, vertices.material);
 			UInt64 shaderIndex = GetOrInsert(m_shaderCache, vertices.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(m_textureCache, vertices.material->GetDiffuseMap());
+			UInt64 textureIndex = 0;/* GetOrInsert(m_textureCache, vertices.material->GetDiffuseMap());*/
 			UInt64 overlayIndex = GetOrInsert(m_overlayCache, vertices.overlay);
 			UInt64 scissorIndex = 0; //< TODO
 
@@ -785,7 +784,7 @@ namespace Nz
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, billboard.material->GetPipeline());
 			UInt64 materialIndex = GetOrInsert(m_materialCache, billboard.material);
 			UInt64 shaderIndex = GetOrInsert(m_shaderCache, billboard.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(m_textureCache, billboard.material->GetDiffuseMap());
+			UInt64 textureIndex = 0; /*GetOrInsert(m_textureCache, billboard.material->GetDiffuseMap())*/;
 			UInt64 unknownIndex = 0; //< ???
 			UInt64 scissorIndex = 0; //< TODO
 
@@ -829,7 +828,7 @@ namespace Nz
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, renderData.material->GetPipeline());
 			UInt64 materialIndex = GetOrInsert(m_materialCache, renderData.material);
 			UInt64 shaderIndex = GetOrInsert(m_shaderCache, renderData.material->GetShader());
-			UInt64 textureIndex = GetOrInsert(m_textureCache, renderData.material->GetDiffuseMap());
+			UInt64 textureIndex = 0;/* GetOrInsert(m_textureCache, renderData.material->GetDiffuseMap()) */;
 			UInt64 bufferIndex = GetOrInsert(m_vertexBufferCache, renderData.meshData.vertexBuffer);
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO

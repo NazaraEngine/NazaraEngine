@@ -100,12 +100,13 @@ namespace Nz
 			inline const UberShader* GetShader() const;
 			inline BlendFunc GetSrcBlend() const;
 			inline UniformBuffer* GetSharedUniformBuffer(std::size_t bufferIndex) const;
-			inline Texture* GetTexture(std::size_t textureIndex) const;
+			inline const TextureRef& GetTexture(std::size_t textureIndex) const;
 			inline TextureSampler& GetTextureSampler(std::size_t textureIndex);
 			inline const TextureSampler& GetTextureSampler(std::size_t textureIndex) const;
-			inline UniformBuffer* GetUniformBuffer(std::size_t bufferIndex);
-			inline const UniformBuffer* GetUniformBuffer(std::size_t bufferIndex) const;
+			inline UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex);
+			inline const UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex) const;
 
+			inline bool HasDepthMaterial() const;
 			inline bool HasTexture(std::size_t textureIndex) const;
 			inline bool HasVertexColor() const;
 
@@ -154,7 +155,7 @@ namespace Nz
 			NazaraSignal(OnMaterialReflectionModeChange, const Material* /*material*/, ReflectionMode /*newReflectionMode*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 
-		protected:
+		private:
 			inline void InvalidatePipeline();
 			inline void UpdatePipeline() const;
 
@@ -170,7 +171,7 @@ namespace Nz
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBufferRef> m_sharedUniformBuffers;
-			std::vector<UniformBuffer> m_uniformBuffers;
+			std::vector<UniformBufferRef> m_uniformBuffers;
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;

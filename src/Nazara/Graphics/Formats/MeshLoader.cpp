@@ -38,10 +38,10 @@ namespace Nz
 				}
 				else
 				{
-					MaterialRef material = Material::New();
+					/*MaterialRef material = Material::New();
 					material->BuildFromParameters(matData, parameters.material);
 
-					model->SetMaterial(i, std::move(material));
+					model->SetMaterial(i, std::move(material));*/
 				}
 			}
 		}

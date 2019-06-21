@@ -10,11 +10,12 @@ namespace Nz
 {
 	inline FieldOffsets::FieldOffsets(StructLayout layout) :
 	m_offset(0),
+	m_previousType(StructFieldType_None),
 	m_layout(layout)
 	{
 	}
 
-	std::size_t Nz::FieldOffsets::GetSize() const
+	inline std::size_t FieldOffsets::GetSize() const
 	{
 		return m_offset + GetSize(m_previousType);
 	}

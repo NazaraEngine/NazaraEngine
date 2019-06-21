@@ -105,16 +105,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the default material of the text sprite (just default material)
-	*/
-
-
-	inline void TextSprite::SetDefaultMaterial()
-	{
-		SetMaterial(Material::New("Translucent2D"));
-	}
-
-	/*!
 	* \brief Sets the material of the text sprite
 	*
 	* \param material Material for the text sprite

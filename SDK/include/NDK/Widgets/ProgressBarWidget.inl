@@ -76,18 +76,6 @@ namespace Ndk
 		return m_barSprite->GetCornerColor(Nz::RectCorner_LeftTop);
 	}
 
-
-	inline const Nz::TextureRef& ProgressBarWidget::GetBarBackgroundTexture() const
-	{
-		return m_barBackgroundSprite->GetMaterial()->GetDiffuseMap();
-	}
-
-	inline const Nz::TextureRef& ProgressBarWidget::GetBarTexture() const
-	{
-		return m_barSprite->GetMaterial()->GetDiffuseMap();
-	}
-
-
 	inline void ProgressBarWidget::SetBarBackgroundColor(const Nz::Color& globalColor, const Nz::Color& cornerColor)
 	{
 		m_barBackgroundSprite->SetColor(globalColor);
