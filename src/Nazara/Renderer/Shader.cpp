@@ -62,8 +62,9 @@ namespace Nz
 					{
 						unsigned int blockBinding = m_uniformBlockName.size();
 
-						unsigned int blockIndex = glGetUniformBlockIndex(m_program, binding.name.data());
-						glUniformBlockBinding(m_program, blockIndex, blockBinding);
+						GLuint blockIndex = glGetUniformBlockIndex(m_program, binding.name.data());
+						if (blockIndex != GL_INVALID_INDEX)
+							glUniformBlockBinding(m_program, blockIndex, blockBinding);
 
 						it = m_uniformBlockName.emplace(binding.name, blockBinding).first;
 					}

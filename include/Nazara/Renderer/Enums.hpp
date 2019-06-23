@@ -136,6 +136,8 @@ namespace Nz
 	{
 		static constexpr ShaderStageType max = ShaderStageType_Max;
 	};
+
+	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType_Fragment | ShaderStageType_Geometry | ShaderStageType_Vertex;
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

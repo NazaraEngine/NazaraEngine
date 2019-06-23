@@ -8,11 +8,85 @@
 
 namespace Nz
 {
-	inline std::size_t MaterialSettings::GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String & name)
+	inline MaterialSettings::MaterialSettings() :
+	MaterialSettings({}, {}, {})
 	{
-		assert(uniformBlockIndex < sharedUniformBlocks.size());
+	}
 
-		std::vector<UniformVariable>& variables = sharedUniformBlocks[uniformBlockIndex].uniforms;
+	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks) :
+	m_sharedUniformBlocks(std::move(sharedUniformBlocks)),
+	m_textures(std::move(textures)),
+	m_uniformBlocks(std::move(uniformBlocks))
+	{
+		RenderPipelineLayoutInfo info;
+
+		unsigned int bindingIndex = 0;
+
+		for (const Texture& textureInfo : m_textures)
+		{
+			info.bindings.push_back({
+				textureInfo.bindingPoint,
+				ShaderBindingType_Texture,
+				ShaderStageType_All,
+				bindingIndex++
+			});
+		}
+
+		for (const UniformBlocks& ubo : m_uniformBlocks)
+		{
+			info.bindings.push_back({
+				ubo.bindingPoint,
+				ShaderBindingType_UniformBuffer,
+				ShaderStageType_All,
+				bindingIndex++
+			});
+		}
+
+		for (const SharedUniformBlocks& ubo : m_sharedUniformBlocks)
+		{
+			info.bindings.push_back({
+				ubo.bindingPoint,
+				ShaderBindingType_UniformBuffer,
+				ShaderStageType_All,
+				bindingIndex++
+			});
+		}
+
+		m_pipelineLayout = RenderPipelineLayout::New();
+		m_pipelineLayout->Create(info);
+	}
+
+	inline const RenderPipelineLayoutRef& MaterialSettings::GetRenderPipelineLayout() const
+	{
+		return m_pipelineLayout;
+	}
+
+	inline auto MaterialSettings::GetSharedUniformBlocks() const -> const std::vector<SharedUniformBlocks>&
+	{
+		return m_sharedUniformBlocks;
+	}
+
+	inline std::size_t MaterialSettings::GetSharedUniformBlockIndex(const String& name) const
+	{
+		for (std::size_t i = 0; i < m_sharedUniformBlocks.size(); ++i)
+		{
+			if (m_sharedUniformBlocks[i].name == name)
+				return i;
+		}
+
+		return InvalidIndex;
+	}
+
+	inline auto MaterialSettings::GetTextures() const -> const std::vector<Texture>&
+	{
+		return m_textures;
+	}
+
+	inline std::size_t MaterialSettings::GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const
+	{
+		assert(uniformBlockIndex < m_sharedUniformBlocks.size());
+
+		const std::vector<UniformVariable>& variables = m_sharedUniformBlocks[uniformBlockIndex].uniforms;
 		for (std::size_t i = 0; i < variables.size(); ++i)
 		{
 			if (variables[i].name == name)
@@ -22,33 +96,27 @@ namespace Nz
 		return InvalidIndex;
 	}
 
-	inline std::size_t MaterialSettings::GetSharedUniformBlockIndex(const String& name) const
+	inline std::size_t MaterialSettings::GetTextureIndex(const String& name) const
 	{
-		for (std::size_t i = 0; i < sharedUniformBlocks.size(); ++i)
+		for (std::size_t i = 0; i < m_textures.size(); ++i)
 		{
-			if (sharedUniformBlocks[i].name == name)
+			if (m_textures[i].name == name)
 				return i;
 		}
 
 		return InvalidIndex;
 	}
 
-	inline std::size_t MaterialSettings::GetTextureIndex(const String& name) const
+	inline auto MaterialSettings::GetUniformBlocks() const -> const std::vector<UniformBlocks>&
 	{
-		for (std::size_t i = 0; i < textures.size(); ++i)
-		{
-			if (textures[i].name == name)
-				return i;
-		}
-
-		return InvalidIndex;
+		return m_uniformBlocks;
 	}
 
 	inline std::size_t MaterialSettings::GetUniformBlockIndex(const String & name) const
 	{
-		for (std::size_t i = 0; i < uniformBlocks.size(); ++i)
+		for (std::size_t i = 0; i < m_uniformBlocks.size(); ++i)
 		{
-			if (uniformBlocks[i].name == name)
+			if (m_uniformBlocks[i].name == name)
 				return i;
 		}
 
@@ -57,9 +125,9 @@ namespace Nz
 
 	inline std::size_t MaterialSettings::GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const
 	{
-		assert(uniformBlockIndex < uniformBlocks.size());
+		assert(uniformBlockIndex < m_uniformBlocks.size());
 
-		const std::vector<UniformVariable>& variables = uniformBlocks[uniformBlockIndex].uniforms;
+		const std::vector<UniformVariable>& variables = m_uniformBlocks[uniformBlockIndex].uniforms;
 		for (std::size_t i = 0; i < variables.size(); ++i)
 		{
 			if (variables[i].name == name)

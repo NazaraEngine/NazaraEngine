@@ -127,12 +127,12 @@ int main()
 	Nz::Material* material = spaceshipModel->GetMaterial(1); // Encore une fois nous ne faisons qu'un accès direct.
 
 	// On lui indique ensuite le chemin vers la normal map
-	if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
+	/*if (!material->SetNormalMap("resources/Spaceship/Texture/normal.png"))
 	{
 		// Le chargement a échoué, peut-être le fichier n'existe pas, ou n'est pas reconnu par le moteur
 		// Mais ce n'est pas une erreur critique, le rendu peut quand même se faire (Mais sera moins détaillé)
 		std::cout << "Failed to load normal map" << std::endl;
-	}
+	}*/
 
 	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
 	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.

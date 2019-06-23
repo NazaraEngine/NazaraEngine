@@ -171,8 +171,6 @@ namespace Nz
 		s_renderPipelineLayout = RenderPipelineLayout::New();
 		s_renderPipelineLayout->Create(info);
 
-		s_materialSettings = std::make_shared<MaterialSettings>();
-
 		FieldOffsets fieldOffsets(StructLayout_Std140);
 
 		s_phongUniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
@@ -205,7 +203,8 @@ namespace Nz
 			}
 		});
 
-		s_materialSettings->uniformBlocks.assign({
+		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
+		uniformBlocks.assign({
 			{
 				"PhongSettings",
 				fieldOffsets.GetSize(),
@@ -214,47 +213,50 @@ namespace Nz
 			}
 		});
 
-		s_textureIndexes.alpha = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		std::vector<MaterialSettings::Texture> textures;
+		s_textureIndexes.alpha = textures.size();
+		textures.push_back({
 			"Alpha",
 			ImageType_2D,
 			"MaterialAlphaMap"
 		});
 		
-		s_textureIndexes.diffuse = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		s_textureIndexes.diffuse = textures.size();
+		textures.push_back({
 			"Diffuse",
 			ImageType_2D,
 			"MaterialDiffuseMap"
 		});
 
-		s_textureIndexes.emissive = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		s_textureIndexes.emissive = textures.size();
+		textures.push_back({
 			"Emissive",
 			ImageType_2D,
 			"MaterialEmissiveMap"
 		});
 
-		s_textureIndexes.height = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		s_textureIndexes.height = textures.size();
+		textures.push_back({
 			"Height",
 			ImageType_2D,
 			"MaterialHeightMap"
 		});
 
-		s_textureIndexes.normal = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		s_textureIndexes.normal = textures.size();
+		textures.push_back({
 			"Normal",
 			ImageType_2D,
 			"MaterialNormalMap"
 		});
 
-		s_textureIndexes.specular = s_materialSettings->textures.size();
-		s_materialSettings->textures.push_back({
+		s_textureIndexes.specular = textures.size();
+		textures.push_back({
 			"Specular",
 			ImageType_2D,
 			"MaterialSpecularMap"
 		});
+
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>());
 
 		return true;
 	}

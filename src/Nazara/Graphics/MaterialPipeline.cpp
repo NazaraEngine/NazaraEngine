@@ -77,12 +77,15 @@ namespace Nz
 
 	void MaterialPipeline::GenerateRenderPipeline(UInt32 flags) const
 	{
+		NazaraAssert(m_pipelineInfo.settings, "Material pipeline has no settings");
 		NazaraAssert(m_pipelineInfo.uberShader, "Material pipeline has no uber shader");
 
+		const auto& textures = m_pipelineInfo.settings->GetTextures();
+
 		ParameterList list;
-		for (std::size_t i = 0, texCount = m_pipelineInfo.settings->textures.size(); i < texCount; ++i)
+		for (std::size_t i = 0, texCount = textures.size(); i < texCount; ++i)
 		{
-			const auto& texture = m_pipelineInfo.settings->textures[i];
+			const auto& texture = textures[i];
 			String parameterName = "HAS_" + texture.name.ToUpper() + "_TEXTURE";
 
 			list.SetParameter(parameterName, (m_pipelineInfo.textures & (1 << i)) != 0);
@@ -112,7 +115,11 @@ namespace Nz
 		instance.renderPipeline.Create(renderPipelineInfo);
 
 		// Send texture units (those never changes)
-		instance.bindings = renderPipelineInfo.shader->ApplyLayout(m_pipelineInfo.pipelineLayout);
+		const RenderPipelineLayout* pipelineLayout = m_pipelineInfo.pipelineLayout;
+		if (!pipelineLayout)
+			pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
+
+		instance.bindings = renderPipelineInfo.shader->ApplyLayout(pipelineLayout);
 
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("ReflectionMap"), Material::GetTextureUnit(TextureMap_ReflectionCube));
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("TextureOverlay"), Material::GetTextureUnit(TextureMap_Overlay));

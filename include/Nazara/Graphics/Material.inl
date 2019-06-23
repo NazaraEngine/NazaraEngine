@@ -21,13 +21,14 @@ namespace Nz
 	m_shadowCastingEnabled(true),
 	m_reflectionSize(256)
 	{
-		m_pipelineInfo.settings = settings;
+		m_pipelineInfo.settings = m_settings;
+		SetShader("Basic");
 
-		m_sharedUniformBuffers.resize(m_settings->sharedUniformBlocks.size());
-		m_textures.resize(m_settings->textures.size());
+		m_sharedUniformBuffers.resize(m_settings->GetSharedUniformBlocks().size());
+		m_textures.resize(m_settings->GetTextures().size());
 
-		m_uniformBuffers.reserve(m_settings->uniformBlocks.size());
-		for (const auto& uniformBufferInfo : m_settings->uniformBlocks)
+		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
+		for (const auto& uniformBufferInfo : m_settings->GetUniformBlocks())
 			m_uniformBuffers.emplace_back(UniformBuffer::New(static_cast<UInt32>(uniformBufferInfo.blockSize), DataStorage_Hardware, BufferUsage_Dynamic));
 	}
 
