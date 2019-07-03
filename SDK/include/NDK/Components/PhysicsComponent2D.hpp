@@ -24,6 +24,8 @@ namespace Ndk
 		friend class ConstraintComponent2D;
 
 		public:
+			using VelocityFunc = Nz::RigidBody2D::VelocityFunc;
+
 			PhysicsComponent2D();
 			PhysicsComponent2D(const PhysicsComponent2D& physics);
 			~PhysicsComponent2D() = default;
@@ -37,6 +39,8 @@ namespace Ndk
 			inline bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const;
 
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
+
+			inline void ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback);
 
 			inline Nz::Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
@@ -53,9 +57,13 @@ namespace Ndk
 			inline Nz::Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
 			inline std::size_t GetShapeCount() const;
 			inline Nz::Vector2f GetVelocity() const;
+			const VelocityFunc& GetVelocityFunction() const;
 
 			inline bool IsNodeSynchronizationEnabled() const;
 			inline bool IsSleeping() const;
+			inline bool IsValid() const;
+
+			inline void ResetVelocityFunction();
 
 			inline void SetAngularDamping(float angularDamping);
 			inline void SetAngularVelocity(const Nz::RadianAnglef& angularVelocity);
@@ -71,6 +79,9 @@ namespace Ndk
 			inline void SetSurfaceVelocity(const Nz::Vector2f& velocity);
 			inline void SetSurfaceVelocity(std::size_t shapeIndex, const Nz::Vector2f& velocity);
 			inline void SetVelocity(const Nz::Vector2f& velocity);
+			inline void SetVelocityFunction(VelocityFunc velocityFunc);
+
+			inline void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
 
 			static ComponentIndex componentIndex;
 

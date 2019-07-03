@@ -19,8 +19,6 @@ namespace Nz
 	{
 	}
 
-	GuillotineImageAtlas::~GuillotineImageAtlas() = default;
-
 	void GuillotineImageAtlas::Clear()
 	{
 		m_layers.clear();

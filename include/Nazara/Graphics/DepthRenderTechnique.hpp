@@ -61,8 +61,16 @@ namespace Nz
 				int textureOverlay;
 			};
 
+			struct SpriteBatch
+			{
+				std::size_t spriteCount;
+				const Material* material;
+				const Texture* overlayTexture;
+				Recti scissorRect;
+			};
+
 			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
-			mutable std::vector<std::pair<const VertexStruct_XYZ_Color_UV*, std::size_t>> m_spriteChains;
+			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
 			RenderStates m_clearStates;
 			ShaderRef m_clearShader;

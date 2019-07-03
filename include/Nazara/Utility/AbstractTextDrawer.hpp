@@ -44,6 +44,7 @@ namespace Nz
 				Vector2f corners[4];
 				AbstractImage* atlas;
 				bool flipped;
+				int renderOrder;
 			};
 
 			struct Line

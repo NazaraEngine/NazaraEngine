@@ -412,6 +412,10 @@ namespace Nz
 		}
 	}
 
+	void WindowImpl::RefreshCursor()
+	{
+	}
+
 	void WindowImpl::SetCursor(const Cursor& cursor)
 	{
 		xcb_cursor_t cursorImpl = cursor.m_impl->GetCursor();

@@ -109,7 +109,7 @@ namespace Nz
 		}
 	}
 
-	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* glyph) const
+	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* glyph) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
@@ -119,7 +119,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_data->ExtractGlyph(characterSize, character, style, glyph);
+		return m_data->ExtractGlyph(characterSize, character, style, outlineThickness, glyph);
 	}
 
 	const std::shared_ptr<AbstractAtlas>& Font::GetAtlas() const
@@ -127,9 +127,9 @@ namespace Nz
 		return m_atlas;
 	}
 
-	std::size_t Font::GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const
+	std::size_t Font::GetCachedGlyphCount(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const
 	{
-		UInt64 key = ComputeKey(characterSize, style);
+		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
 		auto it = m_glyphes.find(key);
 		if (it == m_glyphes.end())
 			return 0;
@@ -169,28 +169,27 @@ namespace Nz
 		}
 		#endif
 
-		// On utilise un cache car la méthode interne QueryKerning peut se révéler coûteuse (car pouvant induire un changement de taille)
+		// Use a cache as QueryKerning may be costly (may induce an internal size change)
 		auto& map = m_kerningCache[characterSize];
 
-		UInt64 key = (static_cast<UInt64>(first) << 32) | second; // Combinaison de deux caractères 32 bits dans un nombre 64 bits
+		UInt64 key = (static_cast<UInt64>(first) << 32) | second;
 
 		auto it = map.find(key);
 		if (it == map.end())
 		{
-			// Absent du cache: on va demander l'information à la police
 			int kerning = m_data->QueryKerning(characterSize, first, second);
 			map.insert(std::make_pair(key, kerning));
 
 			return kerning;
 		}
 		else
-			return it->second; // Présent dans le cache, tout va bien
+			return it->second;
 	}
 
-	const Font::Glyph& Font::GetGlyph(unsigned int characterSize, UInt32 style, char32_t character) const
+	const Font::Glyph& Font::GetGlyph(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const
 	{
-		UInt64 key = ComputeKey(characterSize, style);
-		return PrecacheGlyph(m_glyphes[key], characterSize, style, character);
+		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
+		return PrecacheGlyph(m_glyphes[key], characterSize, style, outlineThickness, character);
 	}
 
 	unsigned int Font::GetGlyphBorder() const
@@ -224,11 +223,11 @@ namespace Nz
 			sizeInfo.underlineThickness = m_data->QueryUnderlineThickness(characterSize);
 
 			FontGlyph glyph;
-			if (m_data->ExtractGlyph(characterSize, ' ', TextStyle_Regular, &glyph))
+			if (m_data->ExtractGlyph(characterSize, ' ', TextStyle_Regular, 0.f, &glyph))
 				sizeInfo.spaceAdvance = glyph.advance;
 			else
 			{
-				NazaraWarning("Failed to extract space character from font, using half the size");
+				NazaraWarning("Failed to extract space character from font, using half the character size");
 				sizeInfo.spaceAdvance = characterSize/2;
 			}
 
@@ -256,13 +255,13 @@ namespace Nz
 		return m_data != nullptr;
 	}
 
-	bool Font::Precache(unsigned int characterSize, UInt32 style, char32_t character) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const
 	{
-		UInt64 key = ComputeKey(characterSize, style);
-		return PrecacheGlyph(m_glyphes[key], characterSize, style, character).valid;
+		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
+		return PrecacheGlyph(m_glyphes[key], characterSize, style, outlineThickness, character).valid;
 	}
 
-	bool Font::Precache(unsigned int characterSize, UInt32 style, const String& characterSet) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const
 	{
 		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
 		std::u32string set = characterSet.GetUtf32String();
@@ -272,10 +271,10 @@ namespace Nz
 			return false;
 		}
 
-		UInt64 key = ComputeKey(characterSize, style);
+		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
 		auto& glyphMap = m_glyphes[key];
 		for (char32_t character : set)
-			PrecacheGlyph(glyphMap, characterSize, style, character);
+			PrecacheGlyph(glyphMap, characterSize, style, outlineThickness, character);
 
 		return true;
 	}
@@ -317,13 +316,7 @@ namespace Nz
 	{
 		if (m_minimumStepSize != minimumStepSize)
 		{
-			#if NAZARA_UTILITY_SAFE
-			if (minimumStepSize == 0)
-			{
-				NazaraError("Minimum step size cannot be zero as it implies division by zero");
-				return;
-			}
-			#endif
+			NazaraAssert(minimumStepSize != 0, "Minimum step size cannot be zero");
 
 			m_minimumStepSize = minimumStepSize;
 			ClearGlyphCache();
@@ -399,21 +392,21 @@ namespace Nz
 		s_defaultMinimumStepSize = minimumStepSize;
 	}
 
-	UInt64 Font::ComputeKey(unsigned int characterSize, UInt32 style) const
+	UInt64 Font::ComputeKey(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const
 	{
-		// On prend le pas en compte
-		UInt64 sizePart = static_cast<UInt32>((characterSize/m_minimumStepSize)*m_minimumStepSize);
+		// Adjust size to step size
+		UInt64 sizeStylePart = static_cast<UInt32>((characterSize/m_minimumStepSize)*m_minimumStepSize);
+		sizeStylePart = std::min<UInt64>(sizeStylePart, Nz::IntegralPow(2, 30)); //< 2^30 should be more than enough as a max size
+		sizeStylePart <<= 2;
 
-		// Ainsi que le style (uniquement le gras et l'italique, les autres sont gérés par un TextDrawer)
-		UInt64 stylePart = 0;
-
+		// Store bold and italic flags (other style are handled directly by a TextDrawer)
 		if (style & TextStyle_Bold)
-			stylePart |= TextStyle_Bold;
+			sizeStylePart |= 1 << 0;
 
 		if (style & TextStyle_Italic)
-			stylePart |= TextStyle_Italic;
+			sizeStylePart |= 1 << 1;
 
-		return (stylePart << 32) | sizePart;
+		return (sizeStylePart << 32) | reinterpret_cast<Nz::UInt32&>(outlineThickness);
 	}
 
 	void Font::OnAtlasCleared(const AbstractAtlas* atlas)
@@ -471,13 +464,13 @@ namespace Nz
 		NazaraError("Atlas has been released while in use");
 	}
 
-	const Font::Glyph& Font::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, UInt32 style, char32_t character) const
+	const Font::Glyph& Font::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const
 	{
 		auto it = glyphMap.find(character);
-		if (it != glyphMap.end()) // Si le glyphe n'est pas déjà chargé
+		if (it != glyphMap.end())
 			return it->second;
 
-		Glyph& glyph = glyphMap[character]; // Insertion du glyphe
+		Glyph& glyph = glyphMap[character]; //< Insert a new glyph
 		glyph.valid = false;
 
 		#if NAZARA_UTILITY_SAFE
@@ -488,11 +481,12 @@ namespace Nz
 		}
 		#endif
 
-		// On vérifie que le style demandé est supporté par la police (dans le cas contraire il devra être simulé au rendu)
+		// Check if requested style is supported by our font (otherwise it will need to be simulated)
+		glyph.fauxOutlineThickness = 0.f;
 		glyph.requireFauxBold = false;
 		glyph.requireFauxItalic = false;
 
-		UInt32 supportedStyle = style;
+		TextStyleFlags supportedStyle = style;
 		if (style & TextStyle_Bold && !m_data->SupportsStyle(TextStyle_Bold))
 		{
 			glyph.requireFauxBold = true;
@@ -505,12 +499,18 @@ namespace Nz
 			supportedStyle &= ~TextStyle_Italic;
 		}
 
-		// Est-ce que la police supporte le style demandé ?
-		if (style == supportedStyle)
+		float supportedOutlineThickness = outlineThickness;
+		if (outlineThickness > 0.f && !m_data->SupportsOutline(outlineThickness))
 		{
-			// On extrait le glyphe depuis la police
+			glyph.fauxOutlineThickness = supportedOutlineThickness;
+			supportedOutlineThickness = 0.f;
+		}
+
+		// Does font support requested style?
+		if (style == supportedStyle && outlineThickness == supportedOutlineThickness)
+		{
 			FontGlyph fontGlyph;
-			if (ExtractGlyph(characterSize, character, style, &fontGlyph))
+			if (ExtractGlyph(characterSize, character, style, outlineThickness, &fontGlyph))
 			{
 				if (fontGlyph.image.IsValid())
 				{
@@ -523,21 +523,20 @@ namespace Nz
 					glyph.atlasRect.height = 0;
 				}
 
-				// Insertion du rectangle dans l'un des atlas
-				if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0) // Si l'image contient quelque chose
+				// Insert rectangle (if not empty) into our atlas
+				if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0)
 				{
-					// Bordure (pour éviter le débordement lors du filtrage)
+					// Add a small border to prevent GPU to sample another glyph pixel
 					glyph.atlasRect.width += m_glyphBorder*2;
 					glyph.atlasRect.height += m_glyphBorder*2;
 
-					// Insertion du rectangle dans l'atlas virtuel
 					if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
 					{
 						NazaraError("Failed to insert glyph into atlas");
 						return glyph;
 					}
 
-					// Compensation de la bordure (centrage du glyphe)
+					// Recenter and remove glyph border
 					glyph.atlasRect.x += m_glyphBorder;
 					glyph.atlasRect.y += m_glyphBorder;
 					glyph.atlasRect.width -= m_glyphBorder*2;
@@ -549,16 +548,13 @@ namespace Nz
 				glyph.valid = true;
 			}
 			else
-			{
 				NazaraWarning("Failed to extract glyph \"" + String::Unicode(character) + "\"");
-			}
 		}
 		else
 		{
-			// La police ne supporte pas le style demandé, nous allons donc précharger le glyphe supportant le style "minimum" supporté
-			// et copier ses données
-			UInt64 newKey = ComputeKey(characterSize, supportedStyle);
-			const Glyph& referenceGlyph = PrecacheGlyph(m_glyphes[newKey], characterSize, supportedStyle, character);
+			// Font doesn't support request style, precache the minimal supported version and copy its data
+			UInt64 newKey = ComputeKey(characterSize, supportedStyle, supportedOutlineThickness);
+			const Glyph& referenceGlyph = PrecacheGlyph(m_glyphes[newKey], characterSize, supportedStyle, supportedOutlineThickness, character);
 			if (referenceGlyph.valid)
 			{
 				glyph.aabb = referenceGlyph.aabb;
