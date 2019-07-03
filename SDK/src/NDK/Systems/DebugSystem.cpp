@@ -8,10 +8,12 @@
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/CollisionComponent3D.hpp>
 #include <NDK/Components/DebugComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Components/PhysicsComponent2D.hpp>
 
 namespace Ndk
 {
@@ -227,17 +229,24 @@ namespace Ndk
 			{
 				switch (option)
 				{
+					case DebugDraw::Collider2D:
+					{
+						Nz::Vector3f offset;
+						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &offset);
+						if (renderable)
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(offset), DebugDrawOrder);
+
+						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
+						break;
+					}
+
 					case DebugDraw::Collider3D:
 					{
 						const Nz::Boxf& obb = entityGfx.GetAABB();
 
 						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
 						if (renderable)
-						{
-							renderable->SetPersistent(false);
-
 							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter() - entityNode.GetPosition()), DebugDrawOrder);
-						}
 
 						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
 						break;
@@ -305,6 +314,76 @@ namespace Ndk
 
 		return model;
 	}
+	
+	Nz::InstancedRenderableRef DebugSystem::GenerateCollision2DMesh(Entity* entity, Nz::Vector3f* offset)
+	{
+		if (entity->HasComponent<CollisionComponent2D>())
+		{
+			CollisionComponent2D& entityCollision = entity->GetComponent<CollisionComponent2D>();
+			const Nz::Collider2DRef& geom = entityCollision.GetGeom();
+
+			std::vector<Nz::Vector3f> vertices;
+			std::vector<std::size_t> indices;
+
+			geom->ForEachPolygon([&](const Nz::Vector2f* polygonVertices, std::size_t vertexCount)
+			{
+				std::size_t firstIndex = vertices.size();
+
+				// Don't reserve and let the vector handle its own capacity
+				for (std::size_t i = 0; i < vertexCount; ++i)
+					vertices.emplace_back(*polygonVertices++);
+
+				for (std::size_t i = 0; i < vertexCount - 1; ++i)
+				{
+					indices.push_back(firstIndex + i);
+					indices.push_back(firstIndex + i + 1);
+				}
+
+				indices.push_back(firstIndex + vertexCount - 1);
+				indices.push_back(firstIndex);
+			});
+
+			Nz::IndexBufferRef indexBuffer = Nz::IndexBuffer::New(vertices.size() > 0xFFFF, Nz::UInt32(indices.size()), Nz::DataStorage_Hardware, 0);
+			Nz::IndexMapper indexMapper(indexBuffer, Nz::BufferAccess_WriteOnly);
+
+			Nz::IndexIterator indexPtr = indexMapper.begin();
+			for (std::size_t index : indices)
+				*indexPtr++ = static_cast<Nz::UInt32>(index);
+
+			indexMapper.Unmap();
+
+			Nz::VertexBufferRef vertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), Nz::UInt32(vertices.size()), Nz::DataStorage_Hardware, 0);
+			vertexBuffer->Fill(vertices.data(), 0, Nz::UInt32(vertices.size()));
+
+			Nz::MeshRef mesh = Nz::Mesh::New();
+			mesh->CreateStatic();
+
+			Nz::StaticMeshRef subMesh = Nz::StaticMesh::New(vertexBuffer, indexBuffer);
+			subMesh->SetPrimitiveMode(Nz::PrimitiveMode_LineList);
+			subMesh->SetMaterialIndex(0);
+			subMesh->GenerateAABB();
+
+			mesh->SetMaterialCount(1);
+			mesh->AddSubMesh(subMesh);
+
+			Nz::ModelRef model = Nz::Model::New();
+			model->SetMesh(mesh);
+			model->SetMaterial(0, GetCollisionMaterial());
+
+			// Find center of mass
+			if (entity->HasComponent<PhysicsComponent2D>())
+			{
+				const PhysicsComponent2D& entityPhys = entity->GetComponent<PhysicsComponent2D>();
+				*offset = entityPhys.GetMassCenter(Nz::CoordSys_Local) + entityCollision.GetGeomOffset();
+			}
+			else
+				*offset = entityCollision.GetGeomOffset();
+
+			return model;
+		}
+		else
+			return nullptr;
+	}
 
 	Nz::InstancedRenderableRef DebugSystem::GenerateCollision3DMesh(Entity* entity)
 	{
@@ -315,16 +394,12 @@ namespace Ndk
 
 			std::vector<Nz::Vector3f> vertices;
 			std::vector<std::size_t> indices;
-
-			geom->ForEachPolygon([&](const float* polygonVertices, std::size_t vertexCount)
+			
+			geom->ForEachPolygon([&](const Nz::Vector3f* polygonVertices, std::size_t vertexCount)
 			{
 				std::size_t firstIndex = vertices.size();
-
-				for (std::size_t i = 0; i < vertexCount; ++i)
-				{
-					const float* vertexData = &polygonVertices[i * 3];
-					vertices.emplace_back(vertexData[0], vertexData[1], vertexData[2]);
-				}
+				vertices.resize(firstIndex + vertexCount);
+				std::copy(polygonVertices, polygonVertices + vertexCount, &vertices[firstIndex]);
 
 				for (std::size_t i = 0; i < vertexCount - 1; ++i)
 				{
@@ -378,7 +453,7 @@ namespace Ndk
 			m_globalAabbMaterial->EnableDepthBuffer(true);
 			m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
 			m_globalAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
-			m_globalAabbMaterial->SetLineWidth(2.f);
+			//m_globalAabbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_globalAabbMaterial;
@@ -393,7 +468,7 @@ namespace Ndk
 			m_localAabbMaterial->EnableDepthBuffer(true);
 			m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
 			m_localAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
-			m_localAabbMaterial->SetLineWidth(2.f);
+			//m_localAabbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_localAabbMaterial;
@@ -408,7 +483,7 @@ namespace Ndk
 			m_collisionMaterial->EnableDepthBuffer(true);
 			m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
 			m_collisionMaterial->SetFaceFilling(Nz::FaceFilling_Line);
-			m_collisionMaterial->SetLineWidth(2.f);
+			//m_collisionMaterial->SetLineWidth(2.f);
 		}
 
 		return m_collisionMaterial;
@@ -423,7 +498,7 @@ namespace Ndk
 			m_obbMaterial->EnableDepthBuffer(true);
 			m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
 			m_obbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
-			m_obbMaterial->SetLineWidth(2.f);
+			//m_obbMaterial->SetLineWidth(2.f);
 		}
 
 		return m_obbMaterial;

@@ -14,21 +14,25 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <functional>
 #include <limits>
 
 struct cpBody;
 
 namespace Nz
 {
+	class Arbiter2D;
 	class PhysWorld2D;
 
 	class NAZARA_PHYSICS2D_API RigidBody2D
 	{
 		public:
+			using VelocityFunc = std::function<void(RigidBody2D& body2D, const Nz::Vector2f& gravity, float damping, float deltaTime)>;
+
 			RigidBody2D(PhysWorld2D* world, float mass);
 			RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom);
 			RigidBody2D(const RigidBody2D& object);
-			RigidBody2D(RigidBody2D&& object);
+			RigidBody2D(RigidBody2D&& object) noexcept;
 			~RigidBody2D();
 
 			void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys_Global);
@@ -40,6 +44,8 @@ namespace Nz
 			bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint = nullptr, float* closestDistance = nullptr) const;
 
 			void EnableSimulation(bool simulation);
+
+			void ForEachArbiter(std::function<void(Nz::Arbiter2D& /*arbiter*/)> callback);
 
 			Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
@@ -54,12 +60,14 @@ namespace Nz
 			Vector2f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
 			float GetMomentOfInertia() const;
 			Vector2f GetPosition() const;
+			inline const Vector2f& GetPositionOffset() const;
 			RadianAnglef GetRotation() const;
 			inline std::size_t GetShapeCount() const;
 			std::size_t GetShapeIndex(cpShape* shape) const;
 			Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
 			void* GetUserdata() const;
 			Vector2f GetVelocity() const;
+			const VelocityFunc& GetVelocityFunction() const;
 			PhysWorld2D* GetWorld() const;
 
 			bool IsKinematic() const;
@@ -67,23 +75,29 @@ namespace Nz
 			bool IsSleeping() const;
 			bool IsStatic() const;
 
+			void ResetVelocityFunction();
+
 			inline void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const RadianAnglef& angularVelocity);
 			void SetElasticity(float elasticity);
 			void SetElasticity(std::size_t shapeIndex, float elasticity);
 			void SetFriction(float friction);
 			void SetFriction(std::size_t shapeIndex, float friction);
-			void SetGeom(Collider2DRef geom, bool recomputeMoment = true);
+			void SetGeom(Collider2DRef geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
 			void SetMomentOfInertia(float moment);
 			void SetPosition(const Vector2f& position);
+			void SetPositionOffset(const Vector2f& offset);
 			void SetRotation(const RadianAnglef& rotation);
 			void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			void SetSurfaceVelocity(std::size_t shapeIndex, const Vector2f& surfaceVelocity);
 			void SetStatic(bool setStaticBody = true);
 			void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
+			void SetVelocityFunction(VelocityFunc velocityFunc);
+
+			void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
 
 			RigidBody2D& operator=(const RigidBody2D& object);
 			RigidBody2D& operator=(RigidBody2D&& object);
@@ -102,6 +116,8 @@ namespace Nz
 			static void CopyBodyData(cpBody* from, cpBody* to);
 			static void CopyShapeData(cpShape* from, cpShape* to);
 
+			Vector2f m_positionOffset;
+			VelocityFunc m_velocityFunc;
 			std::vector<cpShape*> m_shapes;
 			Collider2DRef m_geom;
 			cpBody* m_handle;

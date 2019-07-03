@@ -126,4 +126,37 @@ SCENARIO("World", "[NDK][WORLD]")
 			}
 		}
 	}
+
+	GIVEN("An empty world")
+	{
+		Ndk::World world(false);
+
+		WHEN("We create two entities")
+		{
+			Ndk::EntityHandle a = world.CreateEntity();
+			REQUIRE(a->GetId() == 0);
+			Ndk::EntityHandle b = world.CreateEntity();
+			REQUIRE(b->GetId() == 1);
+
+			b->OnEntityDestruction.Connect([a](Ndk::Entity*)
+			{
+				REQUIRE(a.IsValid());
+				a->Kill();
+			});
+
+			THEN("We kill the second entity which will kill the first one")
+			{
+				b->Kill();
+				world.Refresh();
+
+				AND_THEN("Both entities should be dead next refresh")
+				{
+					world.Refresh();
+
+					REQUIRE_FALSE(a.IsValid());
+					REQUIRE_FALSE(b.IsValid());
+				}
+			}
+		}
+	}
 }

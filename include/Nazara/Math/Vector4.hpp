@@ -106,7 +106,9 @@ namespace Nz
 	using Vector4i = Vector4<int>;
 	using Vector4ui = Vector4<unsigned int>;
 	using Vector4i32 = Vector4<Int32>;
+	using Vector4i64 = Vector4<Int64>;
 	using Vector4ui32 = Vector4<UInt32>;
+	using Vector4ui64 = Vector4<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>);

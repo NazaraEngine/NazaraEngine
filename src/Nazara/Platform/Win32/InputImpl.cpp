@@ -292,5 +292,5 @@ namespace Nz
 		}
 		else
 			NazaraError("Invalid window handle");
-		}
+	}
 }

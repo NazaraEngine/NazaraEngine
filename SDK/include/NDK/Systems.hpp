@@ -6,6 +6,7 @@
 #define NDK_SYSTEMS_GLOBAL_HPP
 
 #include <NDK/Systems/DebugSystem.hpp>
+#include <NDK/Systems/LifetimeSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>

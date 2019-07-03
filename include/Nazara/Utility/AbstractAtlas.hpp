@@ -22,6 +22,8 @@ namespace Nz
 	{
 		public:
 			AbstractAtlas() = default;
+			AbstractAtlas(const AbstractAtlas&) = delete;
+			AbstractAtlas(AbstractAtlas&&) noexcept = default;
 			virtual ~AbstractAtlas();
 
 			virtual void Clear() = 0;
@@ -30,6 +32,9 @@ namespace Nz
 			virtual std::size_t GetLayerCount() const = 0;
 			virtual UInt32 GetStorage() const = 0;
 			virtual bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
+
+			AbstractAtlas& operator=(const AbstractAtlas&) = delete;
+			AbstractAtlas& operator=(AbstractAtlas&&) noexcept = default;
 
 			// Signals:
 			NazaraSignal(OnAtlasCleared, const AbstractAtlas* /*atlas*/);

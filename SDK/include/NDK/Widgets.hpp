@@ -5,6 +5,7 @@
 #ifndef NDK_WIDGETS_GLOBAL_HPP
 #define NDK_WIDGETS_GLOBAL_HPP
 
+#include <NDK/Widgets/BoxLayout.hpp>
 #include <NDK/Widgets/ButtonWidget.hpp>
 #include <NDK/Widgets/CheckboxWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>

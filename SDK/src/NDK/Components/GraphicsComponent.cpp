@@ -124,9 +124,11 @@ namespace Ndk
 
 		const Nz::MaterialRef& oldMat = renderable->GetMaterial(skinIndex, matIndex);
 		UnregisterMaterial(oldMat);
+
+		ForceCullingInvalidation();
 	}
 
-	void Ndk::GraphicsComponent::InvalidateReflectionMap()
+	void GraphicsComponent::InvalidateReflectionMap()
 	{
 		m_entity->Invalidate();
 
@@ -230,6 +232,8 @@ namespace Ndk
 		std::size_t materialCount = renderable->GetMaterialCount();
 		for (std::size_t i = 0; i < materialCount; ++i)
 			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex)
@@ -240,6 +244,8 @@ namespace Ndk
 
 		for (std::size_t i = 0; i < materialCount; ++i)
 			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
 	}
 
 	void GraphicsComponent::OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode)
@@ -297,6 +303,9 @@ namespace Ndk
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
 		m_aabb.Set(-1.f, -1.f, -1.f);
+
+		bool isAabbSet = false;
+
 		for (const Renderable& r : m_renderables)
 		{
 			r.boundingVolume = r.renderable->GetBoundingVolume();
@@ -305,10 +314,13 @@ namespace Ndk
 			{
 				r.boundingVolume.Update(r.data.transformMatrix);
 
-				if (m_aabb.IsValid())
+				if (isAabbSet)
 					m_aabb.ExtendTo(r.boundingVolume.aabb);
 				else
+				{
 					m_aabb.Set(r.boundingVolume.aabb);
+					isAabbSet = true;
+				}
 			}
 		}
 
