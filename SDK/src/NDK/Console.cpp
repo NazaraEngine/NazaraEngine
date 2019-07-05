@@ -48,6 +48,8 @@ namespace Ndk
 		m_history->SetReadOnly(true);
 		m_history->SetBackgroundColor(Nz::Color(80, 80, 160, 128));
 
+		m_historyArea = Add<ScrollAreaWidget>(m_history);
+
 		// Input
 		m_input = Add<TextAreaWidget>();
 		m_input->EnableBackground(true);
@@ -102,6 +104,9 @@ namespace Ndk
 	{
 		m_historyLines.emplace_back(Line{ color, text });
 		m_history->AppendText(text + '\n');
+		m_history->Resize(m_history->GetPreferredSize());
+		m_historyArea->Resize(m_historyArea->GetSize());
+		m_historyArea->ScrollToRatio(1.f);
 	}
 
 	/*!
@@ -113,6 +118,8 @@ namespace Ndk
 	{
 		m_historyLines.clear();
 		m_history->Clear();
+		m_history->Resize(m_history->GetPreferredSize());
+		m_historyArea->Resize(m_historyArea->GetSize());
 		m_input->SetText(s_inputPrefix);
 	}
 
@@ -206,8 +213,8 @@ namespace Ndk
 		m_maxHistoryLines = static_cast<unsigned int>(std::ceil(historyHeight / lineHeight));
 		float diff = historyHeight - m_maxHistoryLines * lineHeight;
 
-		m_history->Resize({ size.x, historyHeight - diff - 4.f });
-		m_history->SetPosition(origin.x, origin.y + diff);
+		m_historyArea->SetPosition(origin.x, origin.y + diff);
+		m_historyArea->Resize({ size.x, historyHeight - diff - 4.f });
 
 		m_input->Resize({size.x, size.y - historyHeight});
 		m_input->SetPosition(origin.x, origin.y + historyHeight);
