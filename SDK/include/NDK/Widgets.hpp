@@ -12,6 +12,7 @@
 #include <NDK/Widgets/ImageWidget.hpp>
 #include <NDK/Widgets/LabelWidget.hpp>
 #include <NDK/Widgets/ProgressBarWidget.hpp>
+#include <NDK/Widgets/ScrollAreaWidget.hpp>
 #include <NDK/Widgets/TextAreaWidget.hpp>
 
 #endif // NDK_WIDGETS_GLOBAL_HPP
