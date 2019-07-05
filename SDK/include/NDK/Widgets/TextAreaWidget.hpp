@@ -28,6 +28,8 @@ namespace Ndk
 
 			void AppendText(const Nz::String& text);
 
+			void UpdateTextSprite();
+
 			inline void Clear();
 
 			//virtual TextAreaWidget* Clone() const = 0;
