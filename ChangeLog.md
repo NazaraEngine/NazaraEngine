@@ -271,6 +271,7 @@ Nazara Development Kit:
 - Added BaseWidget::OnMouseWheelMoved
 - Added Entity::OnEntity[Disabled|Enabled] signals
 - Added BaseWidget::SetParent
+- BaseWidget::Show will no longer show entities disabled by the widget
 
 # 0.4:
 
