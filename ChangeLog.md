@@ -270,6 +270,7 @@ Nazara Development Kit:
 - Fixed possible crash when disabling BaseWidget background
 - Added BaseWidget::OnMouseWheelMoved
 - Added Entity::OnEntity[Disabled|Enabled] signals
+- Added BaseWidget::SetParent
 
 # 0.4:
 
