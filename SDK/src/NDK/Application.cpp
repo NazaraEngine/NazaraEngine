@@ -147,16 +147,15 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-		{
 			windowDimensions = info.window->GetSize();
-			windowDimensions.y /= 4;
-		}
 		else
 			windowDimensions.MakeZero();
 
-		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(windowDimensions), overlay->lua);
+		overlay->console = info.canvas->Add<Console>(overlay->lua);
 
 		Console& consoleRef = *overlay->console;
+		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
+		consoleRef.Show(false);
 
 		// Redirect logs toward the console
 		overlay->logSlot.Connect(Nz::Log::OnLogWrite, [&consoleRef] (const Nz::String& str)
@@ -201,22 +200,34 @@ namespace Ndk
 		// Setup a few event callback to handle the console
 		Nz::EventHandler& eventHandler = info.window->GetEventHandler();
 
-		overlay->eventSlot.Connect(eventHandler.OnEvent, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent& event)
+		/*overlay->eventSlot.Connect(eventHandler.OnEvent, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent& event)
 		{
 			if (consoleRef.IsVisible())
 				consoleRef.SendEvent(event);
-		});
+		});*/
 
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
 			if (event.code == Nz::Keyboard::F9)
-				consoleRef.Show(!consoleRef.IsVisible());
+			{
+				// Toggle console visibility and focus
+				if (consoleRef.IsVisible())
+				{
+					consoleRef.ClearFocus();
+					consoleRef.Show(false);
+				}
+				else
+				{
+					consoleRef.Show(true);
+					consoleRef.SetFocus();
+				}
+			}
 		});
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
 			Nz::Vector2ui size = renderTarget->GetSize();
-			consoleRef.SetSize({float(size.x), size.y / 4.f});
+			consoleRef.Resize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);
@@ -237,6 +248,9 @@ namespace Ndk
 	void Application::SetupOverlay(WindowInfo& info)
 	{
 		info.overlayWorld = std::make_unique<World>(false); //< No default system
+
+		if (info.window->IsValid())
+			info.canvas = std::make_unique<Canvas>(info.overlayWorld->CreateHandle(), info.window->GetEventHandler(), info.window->GetCursorController().CreateHandle());
 
 		RenderSystem& renderSystem = info.overlayWorld->AddSystem<RenderSystem>();
 		renderSystem.ChangeRenderTechnique<Nz::ForwardRenderTechnique>();

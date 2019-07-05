@@ -61,7 +61,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
+	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
@@ -125,6 +125,19 @@ namespace Ndk
 
 			if (m_cursorController)
 				m_cursorController->UpdateCursor(Nz::Cursor::Get(Nz::SystemCursor_Default));
+		}
+	}
+
+	void Canvas::OnEventMouseWheelMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseWheelEvent& event)
+	{
+		if (m_hoveredWidget != InvalidCanvasIndex)
+		{
+			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+
+			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+
+			hoveredWidget.widget->OnMouseWheelMoved(x, y, event.delta);
 		}
 	}
 

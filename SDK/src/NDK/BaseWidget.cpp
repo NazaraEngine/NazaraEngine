@@ -145,6 +145,27 @@ namespace Ndk
 			m_canvas->SetKeyboardOwner(m_canvasIndex);
 	}
 
+	void BaseWidget::SetParent(BaseWidget* widget)
+	{
+		Canvas* oldCanvas = m_canvas;
+		Canvas* newCanvas = widget->GetCanvas();
+
+		// Changing a widget canvas is a problem because of the canvas entities
+		NazaraAssert(oldCanvas == newCanvas, "Transferring a widget between canvas is not yet supported");
+
+		Node::SetParent(widget);
+		m_widgetParent = widget;
+
+		Layout();
+	}
+
+	void BaseWidget::SetRenderingRect(const Nz::Rectf& renderingRect)
+	{
+		m_renderingRect = renderingRect;
+
+		UpdatePositionAndSize();
+	}
+
 	void BaseWidget::Show(bool show)
 	{
 		if (m_visible != show)
@@ -157,14 +178,20 @@ namespace Ndk
 				UnregisterFromCanvas();
 
 			for (WidgetEntity& entity : m_entities)
-				entity.handle->Enable(show);
+			{
+				if (entity.isEnabled)
+				{
+					entity.handle->Enable(show); //< This will override isEnabled
+					entity.isEnabled = true;
+				}
+			}
 
 			for (const auto& widgetPtr : m_children)
 				widgetPtr->Show(show);
 		}
 	}
 
-	const Ndk::EntityHandle& BaseWidget::CreateEntity()
+	const EntityHandle& BaseWidget::CreateEntity()
 	{
 		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
@@ -172,6 +199,21 @@ namespace Ndk
 		m_entities.emplace_back();
 		WidgetEntity& widgetEntity = m_entities.back();
 		widgetEntity.handle = newEntity;
+		widgetEntity.onDisabledSlot.Connect(newEntity->OnEntityDisabled, [this](Entity* entity)
+		{
+			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
+			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+
+			it->isEnabled = false;
+		});
+
+		widgetEntity.onEnabledSlot.Connect(newEntity->OnEntityEnabled, [this](Entity* entity)
+		{
+			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
+			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+
+			it->isEnabled = true;
+		});
 
 		return newEntity;
 	}
@@ -237,6 +279,10 @@ namespace Ndk
 	{
 	}
 
+	void BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
+	{
+	}
+
 	void BaseWidget::OnMouseExit()
 	{
 	}
@@ -290,7 +336,13 @@ namespace Ndk
 		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
 		Nz::Vector2f widgetSize = GetSize();
 
-		Nz::Recti fullBounds(Nz::Rectf(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y));
+		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
+		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+
+		Nz::Rectf widgetBounds;
+		widgetRect.Intersect(widgetRenderingRect, &widgetBounds);
+
+		Nz::Recti fullBounds(widgetBounds);
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;
