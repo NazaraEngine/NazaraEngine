@@ -32,7 +32,7 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
-
+			void EnableLineWrap(bool enable = true);
 			inline void EnableMultiline(bool enable = true);
 			inline void EnableTabWriting(bool enable = true);
 
@@ -57,6 +57,7 @@ namespace Ndk
 
 			inline bool HasSelection() const;
 
+			inline bool IsLineWrapEnabled() const;
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
 			inline bool IsTabWritingEnabled() const;
@@ -122,6 +123,7 @@ namespace Ndk
 			Nz::Vector2ui m_cursorPositionEnd;
 			Nz::Vector2ui m_selectionCursor;
 			std::vector<Nz::SpriteRef> m_cursorSprites;
+			bool m_isLineWrapEnabled;
 			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;

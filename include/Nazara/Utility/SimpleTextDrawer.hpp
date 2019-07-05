@@ -38,6 +38,7 @@ namespace Nz
 			std::size_t GetGlyphCount() const override;
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
+			float GetMaxLineWidth() const;
 			const Color& GetOutlineColor() const;
 			float GetOutlineThickness() const;
 			TextStyleFlags GetStyle() const;
@@ -46,6 +47,7 @@ namespace Nz
 			void SetCharacterSize(unsigned int characterSize);
 			void SetColor(const Color& color);
 			void SetFont(Font* font);
+			void SetMaxLineWidth(float lineWidth);
 			void SetOutlineColor(const Color& color);
 			void SetOutlineThickness(float thickness);
 			void SetStyle(TextStyleFlags style);
@@ -88,6 +90,7 @@ namespace Nz
 			mutable Vector2ui m_drawPos;
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
+			float m_maxLineWidth;
 			float m_outlineThickness;
 			unsigned int m_characterSize;
 	};

@@ -45,6 +45,7 @@ namespace Ndk
 		// History
 		m_history = Add<TextAreaWidget>();
 		m_history->EnableBackground(true);
+		m_history->EnableLineWrap(true);
 		m_history->SetReadOnly(true);
 		m_history->SetBackgroundColor(Nz::Color(80, 80, 160, 128));
 

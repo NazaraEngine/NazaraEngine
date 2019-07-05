@@ -123,6 +123,11 @@ namespace Ndk
 		return m_cursorPositionBegin != m_cursorPositionEnd;
 	}
 
+	inline bool TextAreaWidget::IsLineWrapEnabled() const
+	{
+		return m_isLineWrapEnabled;
+	}
+
 	inline bool TextAreaWidget::IsMultilineEnabled() const
 	{
 		return m_multiLineEnabled;
