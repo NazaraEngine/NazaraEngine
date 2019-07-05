@@ -27,6 +27,7 @@ namespace Ndk
 {
 	class Console;
 	class Entity;
+	class ScrollAreaWidget;
 	class TextAreaWidget;
 
 	using ConsoleHandle = Nz::ObjectHandle<Console>;
@@ -69,6 +70,7 @@ namespace Ndk
 			std::size_t m_historyPosition;
 			std::vector<Nz::String> m_commandHistory;
 			std::vector<Line> m_historyLines;
+			ScrollAreaWidget* m_historyArea;
 			TextAreaWidget* m_history;
 			TextAreaWidget* m_input;
 			Nz::FontRef m_defaultFont;
