@@ -336,7 +336,13 @@ namespace Ndk
 		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
 		Nz::Vector2f widgetSize = GetSize();
 
-		Nz::Recti fullBounds(Nz::Rectf(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y));
+		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
+		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+
+		Nz::Rectf widgetBounds;
+		widgetRect.Intersect(widgetRenderingRect, &widgetBounds);
+
+		Nz::Recti fullBounds(widgetBounds);
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;

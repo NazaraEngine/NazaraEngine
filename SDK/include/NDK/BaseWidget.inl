@@ -5,6 +5,7 @@
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <limits>
 
 namespace Ndk
 {
@@ -12,6 +13,7 @@ namespace Ndk
 	m_canvasIndex(InvalidCanvasIndex),
 	m_canvas(nullptr),
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
+	m_renderingRect(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
 	m_cursor(Nz::SystemCursor_Default),
 	m_size(50.f, 50.f),
 	m_maximumSize(std::numeric_limits<float>::infinity()),
@@ -64,6 +66,11 @@ namespace Ndk
 		Nz::Vector2f parentSize = m_widgetParent->GetSize();
 		Nz::Vector2f mySize = GetSize();
 		SetPosition(GetPosition(Nz::CoordSys_Local).x, (parentSize.y - mySize.y) / 2.f);
+	}
+
+	inline void BaseWidget::ClearRenderingRect()
+	{
+		SetRenderingRect(Nz::Rectf(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
 	}
 
 	template<typename F>
@@ -143,6 +150,11 @@ namespace Ndk
 	inline float BaseWidget::GetPreferredWidth() const
 	{
 		return m_preferredSize.x;
+	}
+
+	inline const Nz::Rectf& BaseWidget::GetRenderingRect() const
+	{
+		return m_renderingRect;
 	}
 
 	inline Nz::Vector2f BaseWidget::GetSize() const

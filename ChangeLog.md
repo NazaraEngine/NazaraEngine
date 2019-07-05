@@ -272,6 +272,7 @@ Nazara Development Kit:
 - Added Entity::OnEntity[Disabled|Enabled] signals
 - Added BaseWidget::SetParent
 - BaseWidget::Show will no longer show entities disabled by the widget
+- BaseWidget now has a rendering rect property (allowing to tell a widget what part of it will be rendered)
 
 # 0.4:
 
