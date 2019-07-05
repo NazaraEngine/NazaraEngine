@@ -269,6 +269,7 @@ Nazara Development Kit:
 - Added TextAreaWidget support for outline
 - Fixed possible crash when disabling BaseWidget background
 - Added BaseWidget::OnMouseWheelMoved
+- Added Entity::OnEntity[Disabled|Enabled] signals
 
 # 0.4:
 
