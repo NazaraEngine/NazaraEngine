@@ -189,6 +189,7 @@ Nazara Engine:
 - ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
 - ⚠ SimpleTextDrawer no longer supports faux bold rendering
 - Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
+- Added x and y mouse position to MouseWheelEvent
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
