@@ -81,6 +81,7 @@ namespace Ndk
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
 			void SetFocus();
+			void SetParent(BaseWidget* widget);
 
 			inline void SetFixedHeight(float fixedHeight);
 			inline void SetFixedSize(const Nz::Vector2f& fixedSize);
