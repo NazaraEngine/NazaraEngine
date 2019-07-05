@@ -26,8 +26,6 @@ namespace Ndk
 		friend Canvas;
 
 		public:
-			struct Padding;
-
 			BaseWidget(BaseWidget* parent);
 			BaseWidget(const BaseWidget&) = delete;
 			BaseWidget(BaseWidget&&) = delete;
@@ -138,6 +136,10 @@ namespace Ndk
 			struct WidgetEntity
 			{
 				EntityOwner handle;
+				bool isEnabled = true;
+
+				NazaraSlot(Ndk::Entity, OnEntityDisabled, onDisabledSlot);
+				NazaraSlot(Ndk::Entity, OnEntityEnabled, onEnabledSlot);
 			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();

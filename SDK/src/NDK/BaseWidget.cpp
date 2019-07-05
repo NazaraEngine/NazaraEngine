@@ -178,14 +178,20 @@ namespace Ndk
 				UnregisterFromCanvas();
 
 			for (WidgetEntity& entity : m_entities)
-				entity.handle->Enable(show);
+			{
+				if (entity.isEnabled)
+				{
+					entity.handle->Enable(show); //< This will override isEnabled
+					entity.isEnabled = true;
+				}
+			}
 
 			for (const auto& widgetPtr : m_children)
 				widgetPtr->Show(show);
 		}
 	}
 
-	const Ndk::EntityHandle& BaseWidget::CreateEntity()
+	const EntityHandle& BaseWidget::CreateEntity()
 	{
 		const EntityHandle& newEntity = m_world->CreateEntity();
 		newEntity->Enable(m_visible);
@@ -193,6 +199,21 @@ namespace Ndk
 		m_entities.emplace_back();
 		WidgetEntity& widgetEntity = m_entities.back();
 		widgetEntity.handle = newEntity;
+		widgetEntity.onDisabledSlot.Connect(newEntity->OnEntityDisabled, [this](Entity* entity)
+		{
+			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
+			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+
+			it->isEnabled = false;
+		});
+
+		widgetEntity.onEnabledSlot.Connect(newEntity->OnEntityEnabled, [this](Entity* entity)
+		{
+			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
+			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+
+			it->isEnabled = true;
+		});
 
 		return newEntity;
 	}
