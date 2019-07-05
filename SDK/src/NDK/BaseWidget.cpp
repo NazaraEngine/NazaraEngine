@@ -237,6 +237,10 @@ namespace Ndk
 	{
 	}
 
+	void BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
+	{
+	}
+
 	void BaseWidget::OnMouseExit()
 	{
 	}

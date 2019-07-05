@@ -268,6 +268,7 @@ Nazara Development Kit:
 - Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added TextAreaWidget support for outline
 - Fixed possible crash when disabling BaseWidget background
+- Added BaseWidget::OnMouseWheelMoved
 
 # 0.4:
 
