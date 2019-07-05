@@ -237,7 +237,7 @@ namespace Ndk
 	{
 		m_preferredSize = preferredSize;
 
-		Resize(m_preferredSize);
+		//Resize(m_preferredSize);
 	}
 
 	inline bool BaseWidget::IsRegisteredToCanvas() const
