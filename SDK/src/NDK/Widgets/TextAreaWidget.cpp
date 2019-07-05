@@ -31,8 +31,10 @@ namespace Ndk
 
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
-		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
+
+		auto& textNode = m_textEntity->AddComponent<NodeComponent>();
+		textNode.SetParent(this);
+		textNode.SetPosition(5.f, 3.f);
 
 		SetCursor(Nz::SystemCursor_Text);
 		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
@@ -73,6 +75,7 @@ namespace Ndk
 		}
 
 		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 
 		OnTextChanged(this, m_text);
 	}
@@ -163,7 +166,6 @@ namespace Ndk
 
 		Nz::Vector2f size = { float(spaceAdvance), float(lineHeight) + 5.f };
 		SetMinimumSize(size);
-		SetPreferredSize({ size.x * 6.f, size.y });
 	}
 
 	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
@@ -606,6 +608,7 @@ namespace Ndk
 		}
 
 		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 
 		SetCursorPosition(m_cursorPositionBegin); //< Refresh cursor position (prevent it from being outside of the text)
 	}

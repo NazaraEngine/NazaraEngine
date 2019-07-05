@@ -189,6 +189,7 @@ Nazara Engine:
 - ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
 - ⚠ SimpleTextDrawer no longer supports faux bold rendering
 - Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
+- Added x and y mouse position to MouseWheelEvent
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -267,6 +268,13 @@ Nazara Development Kit:
 - Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added TextAreaWidget support for outline
 - Fixed possible crash when disabling BaseWidget background
+- Added BaseWidget::OnMouseWheelMoved
+- Added Entity::OnEntity[Disabled|Enabled] signals
+- Added BaseWidget::SetParent
+- BaseWidget::Show will no longer show entities disabled by the widget
+- BaseWidget now has a rendering rect property (allowing to tell a widget what part of it will be rendered)
+- Added ScrollAreaWidget
+- Console has been remade with widgets (allowing to scroll back history, select text, etc.)
 
 # 0.4:
 

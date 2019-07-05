@@ -712,7 +712,10 @@ namespace Nz
 					{
 						WindowEvent event;
 						event.type = WindowEventType_MouseWheelMoved;
-						event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam))/WHEEL_DELTA;
+						event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
+						event.mouseWheel.x = GET_X_LPARAM(lParam);
+						event.mouseWheel.y = GET_Y_LPARAM(lParam);
+
 						m_parent->PushEvent(event);
 					}
 					else
@@ -722,7 +725,10 @@ namespace Nz
 						{
 							WindowEvent event;
 							event.type = WindowEventType_MouseWheelMoved;
-							event.mouseWheel.delta = static_cast<float>(m_scrolling/WHEEL_DELTA);
+							event.mouseWheel.delta = static_cast<float>(m_scrolling / WHEEL_DELTA);
+							event.mouseWheel.x = GET_X_LPARAM(lParam);
+							event.mouseWheel.y = GET_Y_LPARAM(lParam);
+
 							m_parent->PushEvent(event);
 
 							m_scrolling %= WHEEL_DELTA;

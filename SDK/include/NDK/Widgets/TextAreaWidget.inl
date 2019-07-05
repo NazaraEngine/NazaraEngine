@@ -13,6 +13,7 @@ namespace Ndk
 		m_drawer.Clear();
 		m_text.Clear();
 		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 
 		RefreshCursor();
 		OnTextChanged(this, m_text);
@@ -76,7 +77,17 @@ namespace Ndk
 		return m_drawer.GetText();
 	}
 
-	inline std::size_t TextAreaWidget::GetGlyphIndex(const Nz::Vector2ui& cursorPosition)
+	inline EchoMode TextAreaWidget::GetEchoMode() const
+	{
+		return m_echoMode;
+	}
+
+	inline std::size_t TextAreaWidget::GetGlyphIndex() const
+	{
+		return GetGlyphIndex(m_cursorPositionBegin);
+	}
+
+	inline std::size_t TextAreaWidget::GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const
 	{
 		std::size_t glyphIndex = m_drawer.GetLine(cursorPosition.y).glyphIndex + cursorPosition.x;
 		if (m_drawer.GetLineCount() > cursorPosition.y + 1)
@@ -85,11 +96,6 @@ namespace Ndk
 			glyphIndex = std::min(glyphIndex, m_drawer.GetGlyphCount());
 
 		return glyphIndex;
-	}
-
-	inline EchoMode TextAreaWidget::GetEchoMode() const
-	{
-		return m_echoMode;
 	}
 
 	inline const Nz::String& TextAreaWidget::GetText() const
