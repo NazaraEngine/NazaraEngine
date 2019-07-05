@@ -115,6 +115,7 @@ namespace Ndk
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
 			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
+			virtual void OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
