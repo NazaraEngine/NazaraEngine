@@ -16,6 +16,7 @@ namespace Ndk
 	m_echoMode(EchoMode_Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
+	m_isLineWrapEnabled(false),
 	m_isMouseButtonDown(false),
 	m_multiLineEnabled(false),
 	m_readOnly(false),
@@ -74,10 +75,24 @@ namespace Ndk
 			}
 		}
 
-		m_textSprite->Update(m_drawer);
-		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
+		UpdateTextSprite();
 
 		OnTextChanged(this, m_text);
+	}
+
+	void TextAreaWidget::EnableLineWrap(bool enable)
+	{
+		if (m_isLineWrapEnabled != enable)
+		{
+			m_isLineWrapEnabled = enable;
+
+			if (enable)
+				m_drawer.SetMaxLineWidth(GetWidth());
+			else
+				m_drawer.SetMaxLineWidth(std::numeric_limits<float>::infinity());
+
+			UpdateTextSprite();
+		}
 	}
 
 	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
@@ -187,6 +202,12 @@ namespace Ndk
 	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
+
+		if (m_isLineWrapEnabled)
+		{
+			m_drawer.SetMaxLineWidth(GetWidth());
+			UpdateTextSprite();
+		}
 
 		RefreshCursor();
 	}
@@ -607,9 +628,14 @@ namespace Ndk
 				break;
 		}
 
-		m_textSprite->Update(m_drawer);
-		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
+		UpdateTextSprite();
 
 		SetCursorPosition(m_cursorPositionBegin); //< Refresh cursor position (prevent it from being outside of the text)
+	}
+
+	void TextAreaWidget::UpdateTextSprite()
+	{
+		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 }

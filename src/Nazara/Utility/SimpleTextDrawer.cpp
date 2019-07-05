@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <limits>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -14,6 +15,7 @@ namespace Nz
 	m_style(TextStyle_Regular),
 	m_colorUpdated(true),
 	m_glyphUpdated(true),
+	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_outlineThickness(0.f),
 	m_characterSize(24)
 	{
@@ -27,6 +29,7 @@ namespace Nz
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
 	m_outlineColor(drawer.m_outlineColor),
+	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_outlineThickness(drawer.m_outlineThickness),
 	m_characterSize(drawer.m_characterSize)
 	{
@@ -124,6 +127,11 @@ namespace Nz
 		return m_lines.size();
 	}
 
+	float SimpleTextDrawer::GetMaxLineWidth() const
+	{
+		return m_maxLineWidth;
+	}
+
 	const Color& SimpleTextDrawer::GetOutlineColor() const
 	{
 		return m_outlineColor;
@@ -171,6 +179,15 @@ namespace Nz
 
 			m_glyphUpdated = false;
 		}
+	}
+
+	void SimpleTextDrawer::SetMaxLineWidth(float lineWidth)
+	{
+		NazaraAssert(m_maxLineWidth > 0.f, "Max line width must be positive");
+
+		m_maxLineWidth = lineWidth;
+
+		m_glyphUpdated = false;
 	}
 
 	void SimpleTextDrawer::SetOutlineColor(const Color& color)
@@ -230,6 +247,7 @@ namespace Nz
 		m_glyphs = std::move(drawer.m_glyphs);
 		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
 		m_font = std::move(drawer.m_font);
+		m_maxLineWidth = drawer.m_maxLineWidth;
 		m_outlineColor = std::move(drawer.m_outlineColor);
 		m_outlineThickness = std::move(drawer.m_outlineThickness);
 		m_style = std::move(drawer.m_style);
@@ -365,7 +383,18 @@ namespace Nz
 					break;
 			}
 
-			auto GenerateGlyph = [this](Glyph& glyph, char32_t character, float outlineThickness, Nz::Color color, int renderOrder, int* advance)
+			auto AppendNewLine = [&]()
+			{
+				// Reset cursor
+				//advance = 0;
+				m_drawPos.x = 0;
+				m_drawPos.y += sizeInfo.lineHeight;
+
+				m_workingBounds.ExtendTo(m_lines.back().bounds);
+				m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+			};
+
+			auto GenerateGlyph = [&](Glyph& glyph, char32_t character, float outlineThickness, Nz::Color color, int renderOrder, int* advance)
 			{
 				const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, outlineThickness, character);
 				if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
@@ -377,6 +406,10 @@ namespace Nz
 					glyph.renderOrder = renderOrder;
 
 					glyph.bounds.Set(fontGlyph.aabb);
+
+					if (m_lines.back().glyphIndex <= m_glyphs.size() && m_lines.back().bounds.GetMaximum().x + glyph.bounds.width > m_maxLineWidth)
+						AppendNewLine();
+
 					glyph.bounds.x += m_drawPos.x;
 					glyph.bounds.y += m_drawPos.y;
 
@@ -435,13 +468,7 @@ namespace Nz
 			{
 				case '\n':
 				{
-					// Reset cursor
-					advance = 0;
-					m_drawPos.x = 0;
-					m_drawPos.y += sizeInfo.lineHeight;
-
-					m_workingBounds.ExtendTo(m_lines.back().bounds);
-					m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
+					AppendNewLine();
 					break;
 				}
 

@@ -190,6 +190,7 @@ Nazara Engine:
 - ⚠ SimpleTextDrawer no longer supports faux bold rendering
 - Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added x and y mouse position to MouseWheelEvent
+- Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -275,6 +276,7 @@ Nazara Development Kit:
 - BaseWidget now has a rendering rect property (allowing to tell a widget what part of it will be rendered)
 - Added ScrollAreaWidget
 - Console has been remade with widgets (allowing to scroll back history, select text, etc.)
+- Added TextAreaWidget line wrap option
 
 # 0.4:
 
