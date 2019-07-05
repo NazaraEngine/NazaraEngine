@@ -13,6 +13,7 @@ namespace Ndk
 		m_drawer.Clear();
 		m_text.Clear();
 		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 
 		RefreshCursor();
 		OnTextChanged(this, m_text);
