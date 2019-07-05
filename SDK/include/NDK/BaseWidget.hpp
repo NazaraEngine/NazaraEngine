@@ -39,6 +39,7 @@ namespace Ndk
 			inline void CenterVertical();
 
 			void ClearFocus();
+			inline void ClearRenderingRect();
 
 			void Destroy();
 
@@ -66,6 +67,8 @@ namespace Ndk
 			inline Nz::Vector2f GetPreferredSize() const;
 			inline float GetPreferredWidth() const;
 
+			inline const Nz::Rectf& GetRenderingRect() const;
+
 			inline Nz::Vector2f GetSize() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
@@ -92,6 +95,8 @@ namespace Ndk
 			inline void SetMinimumHeight(float minimumHeight);
 			inline void SetMinimumSize(const Nz::Vector2f& minimumSize);
 			inline void SetMinimumWidth(float minimumWidth);
+
+			virtual void SetRenderingRect(const Nz::Rectf& renderingRect);
 
 			void Show(bool show = true);
 
@@ -151,6 +156,7 @@ namespace Ndk
 			EntityOwner m_backgroundEntity;
 			WorldHandle m_world;
 			Nz::Color m_backgroundColor;
+			Nz::Rectf m_renderingRect;
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::SystemCursor m_cursor;
 			Nz::Vector2f m_maximumSize;
