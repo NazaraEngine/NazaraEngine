@@ -279,6 +279,8 @@ Nazara Development Kit:
 - Added TextAreaWidget line wrap option
 - TextAreaWidget will now shift the text to the left/right in order to keep the cursor visible
 - Added TextAreaWidget::[Get|Set]TextFont
+- ⚠️ TextAreaWidget::OnTextAreaCursorMove signal now uses a Vector2ui* position as its second argument (instead of a std::size_t*)
+- Added TextAreaWidget::OnTextAreaSelection
 
 # 0.4:
 

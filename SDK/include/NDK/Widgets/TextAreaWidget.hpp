@@ -66,6 +66,8 @@ namespace Ndk
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
 
+			inline Nz::Vector2ui NormalizeCursorPosition(Nz::Vector2ui cursorPosition) const;
+
 			inline void SetCharacterFilter(CharacterFilter filter);
 			void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
@@ -86,7 +88,7 @@ namespace Ndk
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
-			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, std::size_t* /*newCursorPosition*/);
+			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, Nz::Vector2ui* /*newCursorPosition*/);
 			NazaraSignal(OnTextAreaKeyBackspace, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyDown, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyEnd, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
@@ -95,6 +97,7 @@ namespace Ndk
 			NazaraSignal(OnTextAreaKeyReturn, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyRight, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyUp, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaSelection, const TextAreaWidget* /*textArea*/, Nz::Vector2ui* /*start*/, Nz::Vector2ui* /*end*/);
 			NazaraSignal(OnTextChanged, const TextAreaWidget* /*textArea*/, const Nz::String& /*text*/);
 
 		private:
@@ -110,6 +113,9 @@ namespace Ndk
 			void OnMouseEnter() override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnTextEntered(char32_t character, bool repeated) override;
+
+			inline void SetCursorPositionInternal(std::size_t glyphIndex);
+			inline void SetCursorPositionInternal(Nz::Vector2ui cursorPosition);
 
 			void RefreshCursor();
 			void UpdateDisplayText();
