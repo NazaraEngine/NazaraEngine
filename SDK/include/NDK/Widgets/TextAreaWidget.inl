@@ -108,6 +108,11 @@ namespace Ndk
 		return m_drawer.GetColor();
 	}
 
+	inline Nz::Font* TextAreaWidget::GetTextFont() const
+	{
+		return m_drawer.GetFont();
+	}
+
 	inline const Nz::Color& TextAreaWidget::GetTextOulineColor() const
 	{
 		return m_drawer.GetOutlineColor();
@@ -261,6 +266,13 @@ namespace Ndk
 	inline void TextAreaWidget::SetTextColor(const Nz::Color& text)
 	{
 		m_drawer.SetColor(text);
+
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetTextFont(Nz::FontRef font)
+	{
+		m_drawer.SetFont(font);
 
 		UpdateDisplayText();
 	}

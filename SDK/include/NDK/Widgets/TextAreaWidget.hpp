@@ -52,6 +52,7 @@ namespace Ndk
 			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
+			inline Nz::Font* GetTextFont() const;
 			inline const Nz::Color& GetTextOulineColor() const;
 			inline float GetTextOulineThickness() const;
 
@@ -76,6 +77,7 @@ namespace Ndk
 			inline void SetSelection(Nz::Vector2ui fromPosition, Nz::Vector2ui toPosition);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
+			inline void SetTextFont(Nz::FontRef font);
 			inline void SetTextOutlineColor(const Nz::Color& color);
 			inline void SetTextOutlineThickness(float thickness);
 

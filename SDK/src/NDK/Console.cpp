@@ -170,8 +170,8 @@ namespace Ndk
 		NazaraAssert(font && font->IsValid(), "Invalid font");
 
 		m_defaultFont = std::move(font);
-		//m_historyDrawer.SetFont(m_defaultFont);
-		//m_inputDrawer.SetFont(m_defaultFont);
+		m_history->SetTextFont(m_defaultFont);
+		m_input->SetTextFont(m_defaultFont);
 
 		Layout();
 	}
