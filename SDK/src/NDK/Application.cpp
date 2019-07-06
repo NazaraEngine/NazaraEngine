@@ -151,7 +151,14 @@ namespace Ndk
 		else
 			windowDimensions.MakeZero();
 
-		overlay->console = info.canvas->Add<Console>(overlay->lua);
+		Nz::LuaInstance& lua = overlay->lua;
+
+		overlay->console = info.canvas->Add<Console>();
+		overlay->console->OnCommand.Connect([&lua](Ndk::Console* console, const Nz::String& command)
+		{
+			if (!lua.Execute(command))
+				console->AddLine(lua.GetLastError(), Nz::Color::Red);
+		});
 
 		Console& consoleRef = *overlay->console;
 		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
@@ -163,11 +170,11 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
-		overlay->lua.LoadLibraries();
-		LuaAPI::RegisterClasses(overlay->lua);
+		lua.LoadLibraries();
+		LuaAPI::RegisterClasses(lua);
 
 		// Override "print" function to add a line in the console
-		overlay->lua.PushFunction([&consoleRef] (Nz::LuaState& state)
+		lua.PushFunction([&consoleRef] (Nz::LuaState& state)
 		{
 			Nz::StringStream stream;
 
@@ -191,20 +198,14 @@ namespace Ndk
 			consoleRef.AddLine(stream);
 			return 0;
 		});
-		overlay->lua.SetGlobal("print");
+		lua.SetGlobal("print");
 
 		// Define a few base variables to allow our interface to interact with the application
-		overlay->lua.PushGlobal("Application", Ndk::Application::Instance());
-		overlay->lua.PushGlobal("Console", consoleRef.CreateHandle());
+		lua.PushGlobal("Application", Ndk::Application::Instance());
+		lua.PushGlobal("Console", consoleRef.CreateHandle());
 
 		// Setup a few event callback to handle the console
 		Nz::EventHandler& eventHandler = info.window->GetEventHandler();
-
-		/*overlay->eventSlot.Connect(eventHandler.OnEvent, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent& event)
-		{
-			if (consoleRef.IsVisible())
-				consoleRef.SendEvent(event);
-		});*/
 
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
