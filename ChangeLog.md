@@ -277,6 +277,7 @@ Nazara Development Kit:
 - Added ScrollAreaWidget
 - Console has been remade with widgets (allowing to scroll back history, select text, etc.)
 - Added TextAreaWidget line wrap option
+- TextAreaWidget will now shift the text to the left/right in order to keep the cursor visible
 
 # 0.4:
 
