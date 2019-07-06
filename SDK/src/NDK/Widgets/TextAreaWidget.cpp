@@ -168,7 +168,7 @@ namespace Ndk
 					break;
 			}
 
-			return Nz::Vector2ui(i - firstLineGlyph, line);
+			return Nz::Vector2ui(Nz::Vector2<std::size_t>(i - firstLineGlyph, line));
 		}
 
 		return Nz::Vector2ui::Zero();
@@ -572,7 +572,6 @@ namespace Ndk
 				*glyphIndex = cursorGlyph;
 
 			std::size_t glyphCount = m_drawer.GetGlyphCount();
-			float position;
 			if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
 			{
 				const auto& glyph = m_drawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));

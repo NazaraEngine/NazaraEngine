@@ -28,8 +28,6 @@ namespace Ndk
 
 			void AppendText(const Nz::String& text);
 
-			void UpdateTextSprite();
-
 			inline void Clear();
 
 			//virtual TextAreaWidget* Clone() const = 0;
@@ -115,6 +113,7 @@ namespace Ndk
 
 			void RefreshCursor();
 			void UpdateDisplayText();
+			void UpdateTextSprite();
 
 			CharacterFilter m_characterFilter;
 			EchoMode m_echoMode;
