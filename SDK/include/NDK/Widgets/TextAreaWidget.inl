@@ -186,28 +186,11 @@ namespace Ndk
 		SetCursorPosition(cursorPosition);
 	}
 
-	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
-	{
-		m_characterFilter = std::move(filter);
-	}
-
-	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
-	{
-		OnTextAreaCursorMove(this, &glyphIndex);
-
-		m_cursorPositionBegin = GetCursorPosition(glyphIndex);
-		m_cursorPositionEnd = m_cursorPositionBegin;
-
-		RefreshCursor();
-	}
-
-	inline void TextAreaWidget::SetCursorPosition(Nz::Vector2ui cursorPosition)
+	inline Nz::Vector2ui TextAreaWidget::NormalizeCursorPosition(Nz::Vector2ui cursorPosition) const
 	{
 		std::size_t lineCount = m_drawer.GetLineCount();
 		if (cursorPosition.y >= lineCount)
 			cursorPosition.y = static_cast<unsigned int>(lineCount - 1);
-
-		m_cursorPositionBegin = cursorPosition;
 
 		const auto& lineInfo = m_drawer.GetLine(cursorPosition.y);
 		if (cursorPosition.y + 1 < lineCount)
@@ -216,13 +199,32 @@ namespace Ndk
 			cursorPosition.x = std::min(cursorPosition.x, static_cast<unsigned int>(nextLineInfo.glyphIndex - lineInfo.glyphIndex - 1));
 		}
 
-		m_cursorPositionEnd = m_cursorPositionBegin;
+		return cursorPosition;
+	}
 
-		std::size_t glyphIndex = lineInfo.glyphIndex + cursorPosition.x;
+	inline void TextAreaWidget::SetCharacterFilter(CharacterFilter filter)
+	{
+		m_characterFilter = std::move(filter);
+	}
 
-		OnTextAreaCursorMove(this, &glyphIndex);
+	inline void TextAreaWidget::SetCursorPosition(std::size_t glyphIndex)
+	{
+		Nz::Vector2ui position = GetCursorPosition(glyphIndex);
+		Nz::Vector2ui newPosition = position;
 
-		RefreshCursor();
+		OnTextAreaCursorMove(this, &newPosition);
+
+		if (position == newPosition)
+			SetCursorPositionInternal(position);
+		else
+			SetCursorPositionInternal(GetGlyphIndex(newPosition));
+	}
+
+	inline void TextAreaWidget::SetCursorPosition(Nz::Vector2ui cursorPosition)
+	{
+		OnTextAreaCursorMove(this, &cursorPosition);
+
+		return SetCursorPositionInternal(NormalizeCursorPosition(cursorPosition));
 	}
 
 	inline void TextAreaWidget::SetEchoMode(EchoMode echoMode)
@@ -240,16 +242,20 @@ namespace Ndk
 
 	inline void TextAreaWidget::SetSelection(Nz::Vector2ui fromPosition, Nz::Vector2ui toPosition)
 	{
-		///TODO: Check if position are valid
-
 		// Ensure begin is before end
 		if (toPosition.y < fromPosition.y || (toPosition.y == fromPosition.y && toPosition.x < fromPosition.x))
 			std::swap(fromPosition, toPosition);
 
 		if (m_cursorPositionBegin != fromPosition || m_cursorPositionEnd != toPosition)
 		{
-			m_cursorPositionBegin = fromPosition;
-			m_cursorPositionEnd = toPosition;
+			OnTextAreaSelection(this, &fromPosition, &toPosition);
+
+			// Ensure begin is before end a second time (in case signal changed it)
+			if (toPosition.y < fromPosition.y || (toPosition.y == fromPosition.y && toPosition.x < fromPosition.x))
+				std::swap(fromPosition, toPosition);
+
+			m_cursorPositionBegin = NormalizeCursorPosition(fromPosition);
+			m_cursorPositionEnd = NormalizeCursorPosition(toPosition);
 
 			RefreshCursor();
 		}
@@ -299,5 +305,18 @@ namespace Ndk
 	inline void TextAreaWidget::Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition)
 	{
 		Write(text, GetGlyphIndex(glyphPosition));
+	}
+
+	void TextAreaWidget::SetCursorPositionInternal(std::size_t glyphIndex)
+	{
+		return SetCursorPositionInternal(GetCursorPosition(glyphIndex));
+	}
+
+	inline void TextAreaWidget::SetCursorPositionInternal(Nz::Vector2ui cursorPosition)
+	{
+		m_cursorPositionBegin = cursorPosition;
+		m_cursorPositionEnd = m_cursorPositionBegin;
+
+		RefreshCursor();
 	}
 }

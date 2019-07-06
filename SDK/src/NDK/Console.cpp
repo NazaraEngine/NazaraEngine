@@ -62,9 +62,15 @@ namespace Ndk
 		// Protect input prefix from erasure/selection
 		m_input->SetCursorPosition(s_inputPrefixSize);
 
-		m_input->OnTextAreaCursorMove.Connect([](const TextAreaWidget* textArea, std::size_t* newCursorPos)
+		m_input->OnTextAreaCursorMove.Connect([](const TextAreaWidget* textArea, Nz::Vector2ui* newCursorPos)
 		{
-			*newCursorPos = std::max(*newCursorPos, s_inputPrefixSize);
+			newCursorPos->x = std::max(newCursorPos->x, static_cast<unsigned int>(s_inputPrefixSize));
+		});
+
+		m_input->OnTextAreaSelection.Connect([](const TextAreaWidget* textArea, Nz::Vector2ui* start, Nz::Vector2ui* end)
+		{
+			start->x = std::max(start->x, static_cast<unsigned int>(s_inputPrefixSize));
+			end->x = std::max(end->x, static_cast<unsigned int>(s_inputPrefixSize));
 		});
 
 		m_input->OnTextAreaKeyBackspace.Connect([](const TextAreaWidget* textArea, bool* ignoreDefaultAction)
