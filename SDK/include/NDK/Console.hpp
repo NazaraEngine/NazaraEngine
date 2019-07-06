@@ -19,7 +19,6 @@
 
 namespace Nz
 {
-	class LuaState;
 	struct WindowEvent;
 }
 
@@ -35,7 +34,7 @@ namespace Ndk
 	class NDK_API Console : public BaseWidget, public Nz::HandledObject<Console>
 	{
 		public:
-			Console(BaseWidget* parent, Nz::LuaState& state);
+			Console(BaseWidget* parent);
 			Console(const Console& console) = delete;
 			Console(Console&& console) = default;
 			~Console() = default;
@@ -57,6 +56,8 @@ namespace Ndk
 			Console& operator=(const Console& console) = delete;
 			Console& operator=(Console&& console) = default;
 
+			NazaraSignal(OnCommand, Console* /*console*/, const Nz::String& /*command*/);
+
 		private:
 			void ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction);
 			void Layout() override;
@@ -74,7 +75,6 @@ namespace Ndk
 			TextAreaWidget* m_history;
 			TextAreaWidget* m_input;
 			Nz::FontRef m_defaultFont;
-			Nz::LuaState& m_state;
 			unsigned int m_characterSize;
 			unsigned int m_maxHistoryLines;
 	};

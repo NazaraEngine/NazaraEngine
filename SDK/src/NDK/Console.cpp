@@ -4,7 +4,6 @@
 
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Platform/Event.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -35,11 +34,10 @@ namespace Ndk
 	* \param instance Lua instance that will interact with the world
 	*/
 
-	Console::Console(BaseWidget* parent, Nz::LuaState& state) :
+	Console::Console(BaseWidget* parent) :
 	BaseWidget(parent),
 	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
-	m_state(state),
 	m_characterSize(24)
 	{
 		// History
@@ -185,8 +183,7 @@ namespace Ndk
 	/*!
 	* \brief Performs this action when an input is added to the console
 	*/
-
-	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* /*ignoreDefaultAction*/)
 	{
 		NazaraAssert(textArea == m_input, "Unexpected signal from an other text area");
 
@@ -201,14 +198,12 @@ namespace Ndk
 
 		AddLine(input); //< With the input prefix
 
-		if (!m_state.Execute(inputCmd))
-			AddLine(m_state.GetLastError(), Nz::Color::Red);
+		OnCommand(this, inputCmd);
 	}
 
 	/*!
 	* \brief Places the console according to its layout
 	*/
-
 	void Console::Layout()
 	{
 		Nz::Vector2f origin = Nz::Vector2f(GetPosition());
