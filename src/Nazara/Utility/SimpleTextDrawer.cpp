@@ -309,11 +309,66 @@ namespace Nz
 		return drawer;
 	}
 
+	void SimpleTextDrawer::AppendNewLine() const
+	{
+		AppendNewLine(InvalidGlyph, 0.f);
+	}
+
+	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, unsigned int glyphPosition) const
+	{
+		// Ensure we're appending from last line
+		Line& lastLine = m_lines.back();
+
+		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
+
+		unsigned int previousDrawPos = m_drawPos.x;
+
+		// Reset cursor
+		m_drawPos.x = 0;
+		m_drawPos.y += sizeInfo.lineHeight;
+		m_lastSeparatorGlyph = InvalidGlyph;
+
+		m_workingBounds.ExtendTo(lastLine.bounds);
+		m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+
+		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
+		{
+			Line& newLine = m_lines.back();
+			newLine.glyphIndex = glyphIndex;
+
+			for (std::size_t i = glyphIndex; i < m_glyphs.size(); ++i)
+			{
+				Glyph& glyph = m_glyphs[i];
+				glyph.bounds.x -= glyphPosition;
+				glyph.bounds.y += sizeInfo.lineHeight;
+
+				for (auto& corner : glyph.corners)
+				{
+					corner.x -= glyphPosition;
+					corner.y += sizeInfo.lineHeight;
+				}
+
+				newLine.bounds.ExtendTo(glyph.bounds);
+			}
+
+			assert(previousDrawPos >= glyphPosition);
+			m_drawPos.x += previousDrawPos - glyphPosition;
+
+			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - m_lastSeparatorPosition;
+
+			// Regenerate working bounds
+			m_workingBounds.MakeZero();
+			for (std::size_t i = 0; i < m_lines.size(); ++i)
+				m_workingBounds.ExtendTo(m_lines[i].bounds);
+		}
+	}
+
 	void SimpleTextDrawer::ClearGlyphs() const
 	{
 		m_bounds.MakeZero();
 		m_colorUpdated = true;
 		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
@@ -341,6 +396,46 @@ namespace Nz
 		m_fontReleaseSlot.Disconnect();
 		m_glyphCacheClearedSlot.Disconnect();
 	}
+
+	bool SimpleTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const
+	{
+		const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, outlineThickness, character);
+		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
+		{
+			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+			glyph.atlasRect = fontGlyph.atlasRect;
+			glyph.color = color;
+			glyph.flipped = fontGlyph.flipped;
+			glyph.renderOrder = renderOrder;
+
+			glyph.bounds.Set(fontGlyph.aabb);
+
+			if (lineWrap && ShouldLineWrap(glyph, glyph.bounds.width))
+				AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+
+			glyph.bounds.x += m_drawPos.x;
+			glyph.bounds.y += m_drawPos.y;
+
+			// Faux bold and faux outline thickness are not supported
+
+			// We "lean" the glyph to simulate italics style
+			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+			float italicTop = italic * glyph.bounds.y;
+			float italicBottom = italic * glyph.bounds.GetMaximum().y;
+
+			glyph.corners[0].Set(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[2].Set(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+			glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+
+			if (advance)
+				*advance = fontGlyph.advance;
+
+			return true;
+		}
+		else
+			return false;
+	};
 
 	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
 	{
@@ -383,78 +478,30 @@ namespace Nz
 					break;
 			}
 
-			auto AppendNewLine = [&]()
-			{
-				// Reset cursor
-				//advance = 0;
-				m_drawPos.x = 0;
-				m_drawPos.y += sizeInfo.lineHeight;
-
-				m_workingBounds.ExtendTo(m_lines.back().bounds);
-				m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
-			};
-
-			auto GenerateGlyph = [&](Glyph& glyph, char32_t character, float outlineThickness, Nz::Color color, int renderOrder, int* advance)
-			{
-				const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, outlineThickness, character);
-				if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
-				{
-					glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
-					glyph.atlasRect = fontGlyph.atlasRect;
-					glyph.color = color;
-					glyph.flipped = fontGlyph.flipped;
-					glyph.renderOrder = renderOrder;
-
-					glyph.bounds.Set(fontGlyph.aabb);
-
-					if (m_lines.back().glyphIndex <= m_glyphs.size() && m_lines.back().bounds.GetMaximum().x + glyph.bounds.width > m_maxLineWidth)
-						AppendNewLine();
-
-					glyph.bounds.x += m_drawPos.x;
-					glyph.bounds.y += m_drawPos.y;
-
-					// Faux bold and faux outline thickness are not supported
-
-					// We "lean" the glyph to simulate italics style
-					float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-					float italicTop = italic * glyph.bounds.y;
-					float italicBottom = italic * glyph.bounds.GetMaximum().y;
-
-					glyph.corners[0].Set(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-					glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-					glyph.corners[2].Set(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
-					glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
-
-					if (advance)
-						*advance = fontGlyph.advance;
-
-					return true;
-				}
-				else
-					return false;
-			};
-
 			Glyph glyph;
 			if (!whitespace)
 			{
-				if (!GenerateGlyph(glyph, character, 0.f, m_color, 0, &advance))
+				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &advance))
 					continue; // Glyph failed to load, just skip it (can't do much)
 
 				if (m_outlineThickness > 0.f)
 				{
 					Glyph outlineGlyph;
-					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, m_outlineColor, -1, nullptr))
+					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, -1, nullptr))
 					{
-						m_lines.back().bounds.ExtendTo(outlineGlyph.bounds);
 						m_glyphs.push_back(outlineGlyph);
 					}
 				}
 			}
 			else
 			{
-				glyph.atlas = nullptr;
+				float glyphAdvance = advance;
 
-				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, float(advance), float(sizeInfo.lineHeight));
+				if (ShouldLineWrap(glyph, glyphAdvance))
+					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+
+				glyph.atlas = nullptr;
+				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, glyphAdvance, float(sizeInfo.lineHeight));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -475,6 +522,12 @@ namespace Nz
 				default:
 					m_drawPos.x += advance;
 					break;
+			}
+
+			if (whitespace)
+			{
+				m_lastSeparatorGlyph = m_glyphs.size();
+				m_lastSeparatorPosition = m_drawPos.x;
 			}
 
 			m_glyphs.push_back(glyph);
@@ -538,6 +591,14 @@ namespace Nz
 		#endif
 
 		SetFont(nullptr);
+	}
+
+	bool SimpleTextDrawer::ShouldLineWrap(Glyph& glyph, float size, bool checkFirstGlyph) const
+	{
+		if (checkFirstGlyph && m_lines.back().glyphIndex > m_glyphs.size())
+			return false;
+
+		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
 	}
 
 	void SimpleTextDrawer::UpdateGlyphColor() const
