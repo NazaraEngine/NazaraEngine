@@ -582,9 +582,9 @@ namespace Ndk
 		};
 
 		// Move text so that cursor is always visible
-		const auto* glyph = GetGlyph(m_cursorPositionEnd, nullptr);
-		float glyphPos = (glyph) ? glyph->bounds.x : 0.f;
-		float glyphWidth = (glyph) ? glyph->bounds.width : 0.f;
+		const auto* lastGlyph = GetGlyph(m_cursorPositionEnd, nullptr);
+		float glyphPos = (lastGlyph) ? lastGlyph->bounds.x : 0.f;
+		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
 
 		auto& node = m_textEntity->GetComponent<Ndk::NodeComponent>();
 		float textPosition = node.GetPosition(Nz::CoordSys_Local).x - paddingWidth;
