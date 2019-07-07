@@ -21,8 +21,14 @@ namespace Ndk
 			ScrollAreaWidget(ScrollAreaWidget&&) = default;
 			~ScrollAreaWidget() = default;
 
+			void EnableScrollbar(bool enable);
+
 			inline float GetScrollHeight() const;
 			inline float GetScrollRatio() const;
+
+			inline bool HasScrollbar() const;
+			inline bool IsScrollbarEnabled() const;
+			inline bool IsScrollbarVisible() const;
 
 			inline void ScrollToHeight(float height);
 			void ScrollToRatio(float ratio);
@@ -57,7 +63,8 @@ namespace Ndk
 			Nz::SpriteRef m_scrollbarSprite;
 			Nz::Vector2i m_grabbedDelta;
 			ScrollBarStatus m_scrollbarStatus;
-			bool m_isScrollBarVisible;
+			bool m_isScrollbarEnabled;
+			bool m_hasScrollbar;
 			float m_scrollRatio;
 	};
 }

@@ -18,6 +18,7 @@ namespace Ndk
 	BaseWidget(parent),
 	m_content(content),
 	m_scrollbarStatus(ScrollBarStatus::None),
+	m_isScrollbarEnabled(true),
 	m_scrollRatio(0.f)
 	{
 		m_content->SetParent(this);
@@ -40,6 +41,18 @@ namespace Ndk
 		m_scrollbarEntity->AddComponent<GraphicsComponent>().Attach(m_scrollbarSprite);
 
 		Resize(m_content->GetSize());
+	}
+
+	void ScrollAreaWidget::EnableScrollbar(bool enable)
+	{
+		if (m_isScrollbarEnabled != enable)
+		{
+			m_isScrollbarEnabled = enable;
+
+			bool isVisible = IsScrollbarVisible();
+			m_scrollbarEntity->Enable(isVisible);
+			m_scrollbarBackgroundEntity->Enable(isVisible);
+		}
 	}
 
 	void ScrollAreaWidget::ScrollToRatio(float ratio)
@@ -75,13 +88,16 @@ namespace Ndk
 
 		if (contentHeight > areaHeight)
 		{
-			m_isScrollBarVisible = true;
+			m_hasScrollbar = true;
 
 			Nz::Vector2f contentSize(GetWidth() - scrollBarBackgroundWidth, contentHeight);
 			m_content->Resize(contentSize);
 
-			m_scrollbarEntity->Enable();
-			m_scrollbarBackgroundEntity->Enable();
+			if (m_isScrollbarEnabled)
+			{
+				m_scrollbarEntity->Enable();
+				m_scrollbarBackgroundEntity->Enable();
+			}
 
  			float scrollBarHeight = std::max(std::floor(areaHeight * (areaHeight / contentHeight)), 20.f);
 
@@ -95,7 +111,7 @@ namespace Ndk
 		}
 		else
 		{
-			m_isScrollBarVisible = false;
+			m_hasScrollbar = false;
 
 			m_content->Resize(GetSize());
 
@@ -119,7 +135,7 @@ namespace Ndk
 
 			auto& scrollbarNode = m_scrollbarEntity->GetComponent<Ndk::NodeComponent>();
 
-			m_grabbedDelta.Set(x, y - scrollbarNode.GetPosition(Nz::CoordSys_Local).y);
+			m_grabbedDelta.Set(x, int(y - scrollbarNode.GetPosition(Nz::CoordSys_Local).y));
 		}
 	}
 
@@ -131,7 +147,7 @@ namespace Ndk
 		if (m_scrollbarStatus == ScrollBarStatus::Grabbed)
 		{
 			Nz::Rectf scrollBarRect = GetScrollbarRect();
-			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(x, y))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
+			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(float(x), float(y)))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
 		}
 	}
 
@@ -154,7 +170,7 @@ namespace Ndk
 		else
 		{
 			Nz::Rectf scrollBarRect = GetScrollbarRect();
-			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(x, y))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
+			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(float(x), float(y)))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
 		}
 	}
 
