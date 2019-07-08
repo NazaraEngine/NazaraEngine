@@ -197,9 +197,9 @@ namespace Ndk
 		newEntity->Enable(m_visible);
 
 		m_entities.emplace_back();
-		WidgetEntity& widgetEntity = m_entities.back();
-		widgetEntity.handle = newEntity;
-		widgetEntity.onDisabledSlot.Connect(newEntity->OnEntityDisabled, [this](Entity* entity)
+		WidgetEntity& newWidgetEntity = m_entities.back();
+		newWidgetEntity.handle = newEntity;
+		newWidgetEntity.onDisabledSlot.Connect(newEntity->OnEntityDisabled, [this](Entity* entity)
 		{
 			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
 			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
@@ -207,7 +207,7 @@ namespace Ndk
 			it->isEnabled = false;
 		});
 
-		widgetEntity.onEnabledSlot.Connect(newEntity->OnEntityEnabled, [this](Entity* entity)
+		newWidgetEntity.onEnabledSlot.Connect(newEntity->OnEntityEnabled, [this](Entity* entity)
 		{
 			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
 			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");

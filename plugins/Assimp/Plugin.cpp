@@ -255,14 +255,14 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 	bool animatedMesh = false;
 	if (parameters.animated)
 	{
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
 		{
-			aiMesh* currentMesh = scene->mMeshes[i];
+			aiMesh* currentMesh = scene->mMeshes[meshIdx];
 			if (currentMesh->HasBones()) // Inline functions can be safely called
 			{
 				animatedMesh = true;
-				for (unsigned int j = 0; j < currentMesh->mNumBones; ++j)
-					joints.insert(currentMesh->mBones[j]->mName.C_Str());
+				for (unsigned int boneIdx = 0; boneIdx < currentMesh->mNumBones; ++boneIdx)
+					joints.insert(currentMesh->mBones[boneIdx]->mName.C_Str());
 			}
 		}
 	}
@@ -284,9 +284,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 		// aiMaterial index in scene => Material index and data in Mesh
 		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
 		{
-			aiMesh* iMesh = scene->mMeshes[i];
+			aiMesh* iMesh = scene->mMeshes[meshIdx];
 			if (iMesh->HasBones())
 			{
 				// For now, process only skeletal meshes
@@ -303,9 +303,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 			IndexIterator index = indexMapper.begin();
 
-			for (unsigned int j = 0; j < iMesh->mNumFaces; ++j)
+			for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
 			{
-				aiFace& face = iMesh->mFaces[j];
+				aiFace& face = iMesh->mFaces[faceIdx];
 				if (face.mNumIndices != 3)
 					NazaraWarning("Assimp plugin: This face is not a triangle!");
 
@@ -324,30 +324,30 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
 			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
-			for (std::size_t i = 0; i < vertexCount; ++i)
+			for (std::size_t vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 			{
-				aiVector3D normal = iMesh->mNormals[i];
-				aiVector3D position = iMesh->mVertices[i];
-				aiVector3D tangent = iMesh->mTangents[i];
-				aiVector3D uv = iMesh->mTextureCoords[0][i];
+				aiVector3D normal = iMesh->mNormals[vertexIdx];
+				aiVector3D position = iMesh->mVertices[vertexIdx];
+				aiVector3D tangent = iMesh->mTangents[vertexIdx];
+				aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
 
-				vertices[i].weightCount = 0;
-				vertices[i].normal = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
-				vertices[i].position = parameters.matrix * Vector3f(position.x, position.y, position.z);
-				vertices[i].tangent = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
-				vertices[i].uv = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+				vertices[vertexIdx].weightCount = 0;
+				vertices[vertexIdx].normal = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
+				vertices[vertexIdx].position = parameters.matrix * Vector3f(position.x, position.y, position.z);
+				vertices[vertexIdx].tangent = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
+				vertices[vertexIdx].uv = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
 			}
 
-			for (unsigned int i = 0; i < iMesh->mNumBones; ++i)
+			for (unsigned int boneIdx = 0; boneIdx < iMesh->mNumBones; ++boneIdx)
 			{
-				aiBone* bone = iMesh->mBones[i];
-				for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+				aiBone* bone = iMesh->mBones[boneIdx];
+				for (unsigned int weightIdx = 0; weightIdx < bone->mNumWeights; ++weightIdx)
 				{
-					aiVertexWeight& vertexWeight = bone->mWeights[j];
+					aiVertexWeight& vertexWeight = bone->mWeights[weightIdx];
 					SkeletalMeshVertex& vertex = vertices[vertexWeight.mVertexId];
 
 					std::size_t weightIndex = vertex.weightCount++;
-					vertex.jointIndexes[weightIndex] = i;
+					vertex.jointIndexes[weightIndex] = boneIdx;
 					vertex.weights[weightIndex] = vertexWeight.mWeight;
 				}
 			}
@@ -445,9 +445,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 		// aiMaterial index in scene => Material index and data in Mesh
 		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
 		{
-			aiMesh* iMesh = scene->mMeshes[i];
+			aiMesh* iMesh = scene->mMeshes[meshIdx];
 			if (!iMesh->HasBones()) // Don't process skeletal meshs
 			{
 				unsigned int indexCount = iMesh->mNumFaces * 3;
@@ -461,9 +461,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 				IndexIterator index = indexMapper.begin();
 
-				for (unsigned int j = 0; j < iMesh->mNumFaces; ++j)
+				for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
 				{
-					aiFace& face = iMesh->mFaces[j];
+					aiFace& face = iMesh->mFaces[faceIdx];
 					if (face.mNumIndices != 3)
 						NazaraWarning("Assimp plugin: This face is not a triangle!");
 
@@ -485,17 +485,17 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
 
 				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				for (unsigned int j = 0; j < vertexCount; ++j)
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 				{
-					aiVector3D position = iMesh->mVertices[j];
+					aiVector3D position = iMesh->mVertices[vertexIdx];
 					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
 				}
 
 				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
 				{
-					for (unsigned int j = 0; j < vertexCount; ++j)
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 					{
-						aiVector3D normal = iMesh->mNormals[j];
+						aiVector3D normal = iMesh->mNormals[vertexIdx];
 						*normalPtr++ = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
 					}
 				}
@@ -505,9 +505,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				{
 					if (iMesh->HasTangentsAndBitangents())
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 						{
-							aiVector3D tangent = iMesh->mTangents[j];
+							aiVector3D tangent = iMesh->mTangents[vertexIdx];
 							*tangentPtr++ = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
 						}
 					}
@@ -519,15 +519,15 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				{
 					if (iMesh->HasTextureCoords(0))
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 						{
-							aiVector3D uv = iMesh->mTextureCoords[0][j];
+							aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
 							*uvPtr++ = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
 						}
 					}
 					else
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 							*uvPtr++ = Vector2f::Zero();
 					}
 				}
