@@ -452,7 +452,7 @@ namespace Nz
 
 		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
 
-		m_glyphs.reserve(m_glyphs.size() + characters.size() * (m_outlineThickness > 0.f) ? 2 : 1);
+		m_glyphs.reserve(m_glyphs.size() + characters.size() * ((m_outlineThickness > 0.f) ? 2 : 1));
 		for (char32_t character : characters)
 		{
 			if (m_previousCharacter != 0)
