@@ -7,7 +7,7 @@
 #ifndef NAZARA_RICHTEXTDRAWER_HPP
 #define NAZARA_RICHTEXTDRAWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -24,23 +24,23 @@ namespace Nz
 			RichTextDrawer();
 			RichTextDrawer(const RichTextDrawer& drawer);
 			RichTextDrawer(RichTextDrawer&& drawer);
-			virtual ~RichTextDrawer();
+			~RichTextDrawer();
 
-			BlockRef Append(const String& str);
+			BlockRef AppendText(const String& str);
 
-			void Clear();
+			inline void Clear();
 
-			unsigned int GetBlockCharacterSize(std::size_t index) const;
-			const Color& GetBlockColor(std::size_t index) const;
-			std::size_t GetBlockCount() const;
-			const FontRef& GetBlockFont(std::size_t index) const;
-			UInt32 GetBlockStyle(std::size_t index) const;
-			const String& GetBlockText(std::size_t index) const;
+			inline unsigned int GetBlockCharacterSize(std::size_t index) const;
+			inline const Color& GetBlockColor(std::size_t index) const;
+			inline std::size_t GetBlockCount() const;
+			inline const FontRef& GetBlockFont(std::size_t index) const;
+			inline TextStyleFlags GetBlockStyle(std::size_t index) const;
+			inline const String& GetBlockText(std::size_t index) const;
 
-			unsigned int GetDefaultCharacterSize() const;
-			const Color& GetDefaultColor() const;
-			const FontRef& GetDefaultFont() const;
-			UInt32 GetDefaultStyle() const;
+			inline unsigned int GetDefaultCharacterSize() const;
+			inline const Color& GetDefaultColor() const;
+			inline const FontRef& GetDefaultFont() const;
+			inline TextStyleFlags GetDefaultStyle() const;
 
 			const Recti& GetBounds() const override;
 			Font* GetFont(std::size_t index) const override;
@@ -54,62 +54,82 @@ namespace Nz
 
 			void RemoveBlock(std::size_t index);
 
-			void SetBlockCharacterSize(std::size_t index, unsigned int characterSize);
-			void SetBlockColor(std::size_t index, const Color& color);
-			void SetBlockFont(std::size_t index, FontRef font);
-			void SetBlockStyle(std::size_t index, UInt32 style);
-			void SetBlockText(std::size_t index, const String& str);
+			inline void SetBlockCharacterSize(std::size_t index, unsigned int characterSize);
+			inline void SetBlockColor(std::size_t index, const Color& color);
+			inline void SetBlockFont(std::size_t index, FontRef font);
+			inline void SetBlockStyle(std::size_t index, TextStyleFlags style);
+			inline void SetBlockText(std::size_t index, const String& str);
 
-			void SetDefaultCharacterSize(unsigned int characterSize);
-			void SetDefaultColor(const Color& color);
-			void SetDefaultFont(FontRef font);
-			void SetDefaultStyle(UInt32 style);
+			inline void SetDefaultCharacterSize(unsigned int characterSize);
+			inline void SetDefaultColor(const Color& color);
+			inline void SetDefaultFont(const FontRef& font);
+			inline void SetDefaultStyle(TextStyleFlags style);
 
 			RichTextDrawer& operator=(const RichTextDrawer& drawer);
 			RichTextDrawer& operator=(RichTextDrawer&& drawer);
 
-			static RichTextDrawer Draw(const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
-			static RichTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
+			//static RichTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			//static RichTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
 
 		private:
-			void ClearGlyphs() const;
-			void ConnectFontSlots();
-			void DisconnectFontSlots();
-			void GenerateGlyphs(const String& text) const;
+			struct Block;
+
+			inline void AppendNewLine(const Font* font, unsigned int characterSize) const;
+			inline void ClearGlyphs() const;
+			inline void ConnectFontSlots();
+			inline void DisconnectFontSlots();
+			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, int renderOrder, int* advance) const;
+			void GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, const String& text) const;
+			inline std::size_t HandleFontAddition(const FontRef& font);
+			inline void ReleaseFont(std::size_t fontIndex);
+
+			inline void InvalidateGlyphs();
+
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
-			void UpdateGlyphs() const;
 
-			NazaraSlot(Font, OnFontAtlasChanged, m_atlasChangedSlot);
-			NazaraSlot(Font, OnFontAtlasLayerChanged, m_atlasLayerChangedSlot);
-			NazaraSlot(Font, OnFontGlyphCacheCleared, m_glyphCacheClearedSlot);
-			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
+			void UpdateGlyphs() const;
 
 			struct Block
 			{
+				std::size_t fontIndex;
 				Color color;
 				String text;
-				UInt32 style;
+				TextStyleFlags style;
 				unsigned int characterSize;
-				unsigned int fontIndex;
+			};
+
+			struct FontData
+			{
+				FontRef font;
+				std::size_t useCount = 0;
+
+				NazaraSlot(Font, OnFontAtlasChanged, atlasChangedSlot);
+				NazaraSlot(Font, OnFontAtlasLayerChanged, atlasLayerChangedSlot);
+				NazaraSlot(Font, OnFontGlyphCacheCleared, glyphCacheClearedSlot);
+				NazaraSlot(Font, OnFontRelease, fontReleaseSlot);
 			};
 
 			Color m_defaultColor;
+			TextStyleFlags m_defaultStyle;
 			FontRef m_defaultFont;
-			UInt32 m_defaultStyle;
-			unsigned int m_defaultCharacterSize;
-			std::unordered_map<FontRef, unsigned int> m_fonts;
+			std::unordered_map<FontRef, std::size_t> m_fontIndexes;
 			std::vector<Block> m_blocks;
+			std::vector<FontData> m_fonts;
 			mutable std::vector<Glyph> m_glyphs;
+			mutable std::vector<Line> m_lines;
 			mutable Rectf m_workingBounds;
-			mutable Rectui m_bounds;
+			mutable Recti m_bounds;
 			mutable Vector2ui m_drawPos;
 			mutable bool m_glyphUpdated;
+			unsigned int m_defaultCharacterSize;
 	};
 
 	class RichTextDrawer::BlockRef
 	{
+		friend RichTextDrawer;
+
 		public:
 			BlockRef(const BlockRef&) = default;
 			BlockRef(BlockRef&&) = default;
@@ -118,13 +138,13 @@ namespace Nz
 			inline unsigned int GetCharacterSize() const;
 			inline Color GetColor() const;
 			inline const FontRef& GetFont() const;
-			inline UInt32 GetStyle() const;
+			inline TextStyleFlags GetStyle() const;
 			inline const String& GetText() const;
 
 			inline void SetCharacterSize(unsigned int size);
 			inline void SetColor(Color color);
 			inline void SetFont(FontRef font);
-			inline void SetStyle(UInt32 style);
+			inline void SetStyle(TextStyleFlags style);
 			inline void SetText(const String& text);
 
 			BlockRef& operator=(const BlockRef&) = default;
