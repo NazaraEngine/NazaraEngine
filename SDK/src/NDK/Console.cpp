@@ -38,7 +38,8 @@ namespace Ndk
 	BaseWidget(parent),
 	m_historyPosition(0),
 	m_defaultFont(Nz::Font::GetDefault()),
-	m_characterSize(24)
+	m_characterSize(24),
+	m_maxHistoryLines(200)
 	{
 		// History
 		m_history = Add<TextAreaWidget>();
@@ -107,6 +108,9 @@ namespace Ndk
 	*/
 	void Console::AddLine(const Nz::String& text, const Nz::Color& color)
 	{
+		if (m_historyLines.size() >= m_maxHistoryLines)
+			m_historyLines.erase(m_historyLines.begin());
+
 		m_historyLines.emplace_back(Line{ color, text });
 		m_history->AppendText(text + '\n');
 		m_history->Resize(m_history->GetPreferredSize());
@@ -183,9 +187,11 @@ namespace Ndk
 	/*!
 	* \brief Performs this action when an input is added to the console
 	*/
-	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* /*ignoreDefaultAction*/)
+	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction)
 	{
 		NazaraAssert(textArea == m_input, "Unexpected signal from an other text area");
+
+		*ignoreDefaultAction = true;
 
 		Nz::String input = m_input->GetText();
 		Nz::String inputCmd = input.SubString(s_inputPrefixSize);
@@ -212,11 +218,8 @@ namespace Ndk
 		unsigned int lineHeight = m_defaultFont->GetSizeInfo(m_characterSize).lineHeight;
 		float historyHeight = size.y - lineHeight;
 
-		m_maxHistoryLines = static_cast<unsigned int>(std::ceil(historyHeight / lineHeight));
-		float diff = historyHeight - m_maxHistoryLines * lineHeight;
-
-		m_historyArea->SetPosition(origin.x, origin.y + diff);
-		m_historyArea->Resize({ size.x, historyHeight - diff - 4.f });
+		m_historyArea->SetPosition(origin.x, origin.y);
+		m_historyArea->Resize({ size.x, historyHeight - 4.f });
 
 		m_input->Resize({size.x, size.y - historyHeight});
 		m_input->SetPosition(origin.x, origin.y + historyHeight);
