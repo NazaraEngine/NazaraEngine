@@ -212,7 +212,7 @@ namespace Nz
 			if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_UnreliableFragment)) == ENetPacketFlag_UnreliableFragment &&
 				channel.outgoingUnreliableSequenceNumber < 0xFFFF)
 			{
-				commandNumber = ENetProtocolCommand_SendUnreliable;
+				commandNumber = ENetProtocolCommand_SendUnreliableFragment;
 				startSequenceNumber = HostToNet<UInt16>(channel.outgoingUnreliableSequenceNumber + 1);
 			}
 			else
@@ -286,6 +286,8 @@ namespace Nz
 	{
 		UInt32 serviceTime = m_host->GetServiceTime();
 
+		auto insertPosition = m_outgoingReliableCommands.begin();
+
 		auto it = m_sentReliableCommands.begin();
 		for (; it != m_sentReliableCommands.end();)
 		{
@@ -317,17 +319,14 @@ namespace Nz
 			command.roundTripTimeout = m_roundTripTime + 4 * m_roundTripTimeVariance;
 			command.roundTripTimeoutLimit = m_timeoutLimit * command.roundTripTimeout;
 
-			m_outgoingReliableCommands.emplace_front(std::move(command));
+			m_outgoingReliableCommands.insert(insertPosition, std::move(command));
 			it = m_sentReliableCommands.erase(it);
 
-			// Okay this should just never procs, I don't see how it would be possible
-			/*if (currentCommand == enet_list_begin(&peer->sentReliableCommands) &&
-			!enet_list_empty(&peer->sentReliableCommands))
+			if (it == m_sentReliableCommands.begin() && !m_sentReliableCommands.empty())
 			{
-			outgoingCommand = (ENetOutgoingCommand *) currentCommand;
-
-			peer->nextTimeout = outgoingCommand->sentTime + outgoingCommand->roundTripTimeout;
-			}*/
+				OutgoingCommand& outgoingCommand = *it;
+				m_nextTimeout = outgoingCommand.sentTime + outgoingCommand.roundTripTimeout;
+			}
 		}
 
 		return false;
@@ -347,7 +346,7 @@ namespace Nz
 		{
 			IncomingCommmand& incomingCommand = *currentCommand;
 
-			if (incomingCommand.fragmentsRemaining > 0 || incomingCommand.reliableSequenceNumber != (channel.incomingReliableSequenceNumber + 1))
+			if (incomingCommand.fragmentsRemaining > 0 || incomingCommand.reliableSequenceNumber != Nz::UInt16(channel.incomingReliableSequenceNumber + 1))
 				break;
 
 			channel.incomingReliableSequenceNumber = incomingCommand.reliableSequenceNumber;
@@ -621,7 +620,7 @@ namespace Nz
 		UInt32 totalLength = NetToHost(command->sendFragment.totalLength);
 
 		if (fragmentCount > ENetConstants::ENetProtocol_MaximumFragmentCount || fragmentNumber >= fragmentCount || totalLength > m_host->m_maximumPacketSize ||
-			fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
+		    fragmentOffset >= totalLength || fragmentLength > totalLength - fragmentOffset)
 			return false;
 
 		ENetPeer::IncomingCommmand* startCommand = nullptr;
@@ -643,7 +642,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -771,7 +770,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
-					totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -779,9 +778,10 @@ namespace Nz
 			}
 		}
 
-		if (startCommand)
+		if (!startCommand)
 		{
-			if (!QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount))
+			startCommand = QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount);
+			if (!startCommand)
 				return false;
 		}
 
@@ -1041,7 +1041,13 @@ namespace Nz
 
 	void ENetPeer::RemoveSentUnreliableCommands()
 	{
+		if (m_sentUnreliableCommands.empty())
+			return;
+
 		m_sentUnreliableCommands.clear();
+
+		if (m_state == ENetPeerState::DisconnectLater && !HasPendingCommands())
+			Disconnect(m_eventData);
 	}
 
 	void ENetPeer::ResetQueues()

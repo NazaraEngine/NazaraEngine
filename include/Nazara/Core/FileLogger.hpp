@@ -7,7 +7,7 @@
 #ifndef NAZARA_FILELOGGER_HPP
 #define NAZARA_FILELOGGER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StdLogger.hpp>
@@ -19,7 +19,7 @@ namespace Nz
 		public:
 			FileLogger(const String& logPath = "NazaraLog.log");
 			FileLogger(const FileLogger&) = default;
-			FileLogger(FileLogger&&) = default;
+			FileLogger(FileLogger&&) noexcept = default;
 			~FileLogger();
 
 			void EnableTimeLogging(bool enable);
@@ -32,7 +32,7 @@ namespace Nz
 			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			FileLogger& operator=(const FileLogger&) = default;
-			FileLogger& operator=(FileLogger&&) = default;
+			FileLogger& operator=(FileLogger&&) noexcept = default;
 
 		private:
 			File m_outputFile;

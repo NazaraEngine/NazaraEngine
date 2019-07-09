@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -23,22 +22,22 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool Load(Material* material, Stream& stream, const MaterialParams& parameters)
+		MaterialRef Load(Stream& stream, const MaterialParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			TextureRef texture = Texture::New();
-			if (!texture->LoadFromStream(stream))
+			TextureRef texture = Texture::LoadFromStream(stream);
+			if (!texture)
 			{
 				NazaraError("Failed to load diffuse map");
-				return false;
+				return nullptr;
 			}
 
-			material->Reset();
+			MaterialRef material = Material::New();
 			material->SetDiffuseMap(texture);
 			material->SetShader(parameters.shaderName);
 
-			return true;
+			return material;
 		}
 	}
 

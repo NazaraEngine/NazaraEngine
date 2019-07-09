@@ -73,8 +73,7 @@ namespace Nz
 	template<>
 	struct EnumAsFlags<WindowStyle>
 	{
-		static constexpr bool value = true;
-		static constexpr int  max   = WindowStyle_Max;
+		static constexpr WindowStyle max = WindowStyle_Max;
 	};
 
 	using WindowStyleFlags = Flags<WindowStyle>;

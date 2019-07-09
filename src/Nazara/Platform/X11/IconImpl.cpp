@@ -6,7 +6,6 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Platform/X11/Display.hpp>
 #include <Nazara/Platform/Debug.hpp>
 

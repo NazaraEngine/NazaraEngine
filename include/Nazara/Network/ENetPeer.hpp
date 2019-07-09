@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Copyright(c) 2002 - 2016 Lee Salzman
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions :
@@ -17,14 +17,12 @@
 #ifndef NAZARA_ENETPEER_HPP
 #define NAZARA_ENETPEER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Network/UdpSocket.hpp>
 #include <array>
 #include <list>
 #include <random>
@@ -50,6 +48,7 @@ namespace Nz
 			void DisconnectNow(UInt32 data);
 
 			inline const IpAddress& GetAddress() const;
+			inline UInt32 GetLastReceiveTime() const;
 			inline UInt32 GetMtu() const;
 			inline UInt32 GetPacketThrottleAcceleration() const;
 			inline UInt32 GetPacketThrottleDeceleration() const;
@@ -57,6 +56,8 @@ namespace Nz
 			inline UInt16 GetPeerId() const;
 			inline UInt32 GetRoundTripTime() const;
 			inline ENetPeerState GetState() const;
+			inline UInt64 GetTotalPacketLost() const;
+			inline UInt64 GetTotalPacketSent() const;
 
 			inline bool HasPendingCommands();
 
@@ -82,7 +83,6 @@ namespace Nz
 			void InitIncoming(std::size_t channelCount, const IpAddress& address, ENetProtocolConnect& incomingCommand);
 			void InitOutgoing(std::size_t channelCount, const IpAddress& address, UInt32 connectId, UInt32 windowSize);
 
-			struct Acknowledgement;
 			struct Channel;
 			struct IncomingCommmand;
 			struct OutgoingCommand;
@@ -179,8 +179,8 @@ namespace Nz
 
 			static constexpr std::size_t unsequencedWindow = ENetPeer_ReliableWindowSize / 32;
 
-			ENetHost*                             m_host;
-			IpAddress                             m_address; /**< Internet address of the peer */
+			MovablePtr<ENetHost>                  m_host;
+			IpAddress                             m_address; //< Internet address of the peer
 			std::array<UInt32, unsequencedWindow> m_unsequencedWindow;
 			std::bernoulli_distribution           m_packetLossProbability;
 			std::list<IncomingCommmand>           m_dispatchedCommands;

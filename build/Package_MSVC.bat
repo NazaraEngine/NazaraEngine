@@ -1,2 +1,2 @@
-premake5 --pack-libdir=msvc package
+.\premake5.exe --pack-libdir=msvc package
 pause

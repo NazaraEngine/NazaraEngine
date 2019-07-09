@@ -9,9 +9,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
-#include <cstring>
 #include <memory>
-#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -74,7 +72,7 @@ namespace Nz
 
 	void Buffer::Destroy()
 	{
-		if (!m_impl)
+		if (m_impl)
 		{
 			OnBufferDestroy(this);
 

@@ -438,16 +438,6 @@ namespace Nz
 		m_checked = false;
 	}
 
-	unsigned int RenderTexture::GetHeight() const
-	{
-		NazaraAssert(m_impl, "Invalid render texture");
-
-		if (!m_sizeUpdated)
-			UpdateSize();
-
-		return m_impl->height;
-	}
-
 	RenderTargetParameters RenderTexture::GetParameters() const
 	{
 		NazaraAssert(m_impl, "Invalid render texture");
@@ -464,16 +454,6 @@ namespace Nz
 			UpdateSize();
 
 		return Vector2ui(m_impl->width, m_impl->height);
-	}
-
-	unsigned int RenderTexture::GetWidth() const
-	{
-		NazaraAssert(m_impl, "Invalid render texture");
-
-		if (!m_sizeUpdated)
-			UpdateSize();
-
-		return m_impl->width;
 	}
 
 	bool RenderTexture::IsComplete() const
@@ -665,13 +645,15 @@ namespace Nz
 		NazaraAssert(dst && dst->IsValid(), "Invalid destination render texture");
 
 		#if NAZARA_RENDERER_SAFE
-		if (srcRect.x+srcRect.width > src->GetWidth() || srcRect.y+srcRect.height > src->GetHeight())
+		Vector2ui srcSize = src->GetSize();
+		if (srcRect.x+srcRect.width > srcSize.x || srcRect.y+srcRect.height > srcSize.y)
 		{
 			NazaraError("Source rectangle dimensions are out of bounds");
 			return;
 		}
 
-		if (dstRect.x+dstRect.width > dst->GetWidth() || dstRect.y+dstRect.height > dst->GetHeight())
+		Vector2ui dstSize = dst->GetSize();
+		if (dstRect.x+dstRect.width > dstSize.x || dstRect.y+dstRect.height > dstSize.y)
 		{
 			NazaraError("Destination rectangle dimensions are out of bounds");
 			return;

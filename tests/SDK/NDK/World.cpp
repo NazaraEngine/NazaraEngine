@@ -55,7 +55,7 @@ SCENARIO("World", "[NDK][WORLD]")
 {
 	GIVEN("A brave new world and the update system")
 	{
-		Ndk::World world;
+		Ndk::World world(false);
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
 
 		WHEN("We had a new entity with an updatable component and a system")
@@ -97,6 +97,65 @@ SCENARIO("World", "[NDK][WORLD]")
 				world.Update(1.f);
 
 				REQUIRE(!world.IsEntityValid(entity));
+			}
+		}
+	}
+
+	GIVEN("A newly created entity")
+	{
+		Ndk::World world(false);
+		Ndk::EntityHandle entity = world.CreateEntity();
+
+		REQUIRE(entity.IsValid());
+		REQUIRE(entity->IsValid());
+		CHECK_FALSE(entity->IsDying());
+
+		WHEN("We kill it")
+		{
+			entity->Kill();
+
+			CHECK(entity.IsValid());
+			CHECK(entity->IsValid());
+			CHECK(entity->IsDying());
+
+			THEN("We refresh the world")
+			{
+				world.Refresh();
+
+				CHECK_FALSE(entity.IsValid());
+			}
+		}
+	}
+
+	GIVEN("An empty world")
+	{
+		Ndk::World world(false);
+
+		WHEN("We create two entities")
+		{
+			Ndk::EntityHandle a = world.CreateEntity();
+			REQUIRE(a->GetId() == 0);
+			Ndk::EntityHandle b = world.CreateEntity();
+			REQUIRE(b->GetId() == 1);
+
+			b->OnEntityDestruction.Connect([a](Ndk::Entity*)
+			{
+				REQUIRE(a.IsValid());
+				a->Kill();
+			});
+
+			THEN("We kill the second entity which will kill the first one")
+			{
+				b->Kill();
+				world.Refresh();
+
+				AND_THEN("Both entities should be dead next refresh")
+				{
+					world.Refresh();
+
+					REQUIRE_FALSE(a.IsValid());
+					REQUIRE_FALSE(b.IsValid());
+				}
 			}
 		}
 	}

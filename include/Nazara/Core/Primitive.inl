@@ -385,7 +385,7 @@ namespace Nz
 	*
 	* \param size (Width, Depth)
 	* \param subdivision Number of subdivision for the axis
-	* \param planeInfo Information for the plane
+	* \param plane Information for the plane
 	* \param uvCoords Coordinates for texture
 	*/
 	inline Primitive Primitive::Plane(const Vector2f& size, const Vector2ui& subdivision, const Planef& plane, const Rectf& uvCoords)

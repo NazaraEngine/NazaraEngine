@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTVIEWER_HPP
 #define NAZARA_ABSTRACTVIEWER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -39,6 +39,11 @@ namespace Nz
 			virtual const Recti& GetViewport() const = 0;
 			virtual float GetZFar() const = 0;
 			virtual float GetZNear() const = 0;
+
+			Nz::Vector3f Project(const Nz::Vector3f& worldPosition) const;
+			float ProjectDepth(float depth);
+
+			Nz::Vector3f Unproject(const Nz::Vector3f& screenPos) const;
 
 			AbstractViewer& operator=(const AbstractViewer&) = default;
 			AbstractViewer& operator=(AbstractViewer&&) noexcept = default;

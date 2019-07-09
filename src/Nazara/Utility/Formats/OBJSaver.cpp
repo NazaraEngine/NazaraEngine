@@ -2,11 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Utility/Formats/OBJLoader.hpp>
-#include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/IndexMapper.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -14,10 +10,7 @@
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Utility/Formats/OBJParser.hpp>
-#include <cstdio>
-#include <limits>
 #include <map>
-#include <memory>
 #include <unordered_set>
 #include <Nazara/Utility/Debug.hpp>
 

@@ -1,9 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
-
-#include <Nazara/Core/Error.hpp>
-#include <NDK/Entity.hpp>
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 namespace Ndk
 {
@@ -19,8 +16,9 @@ namespace Ndk
 	* \param velocity Linear velocity
 	*/
 
-	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity) :
-	linearVelocity(velocity)
+	inline VelocityComponent::VelocityComponent(const Nz::Vector3f& velocity, Nz::CoordSys coordSystem) :
+		linearVelocity(velocity),
+		coordSys(coordSystem)
 	{
 	}
 

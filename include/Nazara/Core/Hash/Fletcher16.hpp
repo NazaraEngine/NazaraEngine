@@ -7,10 +7,9 @@
 #ifndef NAZARA_HASH_FLETCHER16_HPP
 #define NAZARA_HASH_FLETCHER16_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/String.hpp>
 
 namespace Nz
 {

@@ -7,9 +7,8 @@
 #ifndef NAZARA_LUASTATE_HPP
 #define NAZARA_LUASTATE_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
@@ -25,6 +24,7 @@ namespace Nz
 	class LuaCoroutine;
 	class LuaInstance;
 	class LuaState;
+	class Stream;
 
 	using LuaCFunction = int (*)(lua_State* internalState);
 	using LuaFunction = std::function<int(LuaState& state)>;
@@ -33,7 +33,7 @@ namespace Nz
 	{
 		public:
 			LuaState(const LuaState&) = default;
-			LuaState(LuaState&& instance) noexcept;
+			LuaState(LuaState&& instance) = default;
 			~LuaState() = default;
 
 			void ArgCheck(bool condition, unsigned int argNum, const char* error) const;
@@ -43,6 +43,8 @@ namespace Nz
 
 			bool Call(unsigned int argCount);
 			bool Call(unsigned int argCount, unsigned int resultCount);
+			bool CallWithHandler(unsigned int argCount, int errorHandler);
+			bool CallWithHandler(unsigned int argCount, unsigned int resultCount, int errorHandler);
 
 			template<typename T> T Check(int* index) const;
 			template<typename T> T Check(int* index, T defValue) const;
@@ -84,10 +86,10 @@ namespace Nz
 			void Error(const char* message) const;
 			void Error(const String& message) const;
 
-			bool Execute(const String& code);
-			bool ExecuteFromFile(const String& filePath);
-			bool ExecuteFromMemory(const void* data, std::size_t size);
-			bool ExecuteFromStream(Stream& stream);
+			bool Execute(const String& code, int errorHandler = 0);
+			bool ExecuteFromFile(const String& filePath, int errorHandler = 0);
+			bool ExecuteFromMemory(const void* data, std::size_t size, int errorHandler = 0);
+			bool ExecuteFromStream(Stream& stream, int errorHandler = 0);
 
 			int GetAbsIndex(int index) const;
 			LuaType GetField(const char* fieldName, int tableIndex = -1) const;
@@ -112,6 +114,11 @@ namespace Nz
 			bool IsOfType(int index, const String& tname) const;
 			bool IsValid(int index) const;
 
+			bool Load(const String& code);
+			bool LoadFromFile(const String& filePath);
+			bool LoadFromMemory(const void* data, std::size_t size);
+			bool LoadFromStream(Stream& stream);
+
 			long long Length(int index) const;
 			std::size_t LengthRaw(int index) const;
 
@@ -134,7 +141,6 @@ namespace Nz
 			template<typename R, typename... Args, typename... DefArgs> void PushFunction(R(*func)(Args...), DefArgs&&... defArgs) const;
 			template<typename T> void PushGlobal(const char* name, T&& arg);
 			template<typename T> void PushGlobal(const String& name, T&& arg);
-			template<typename T> void PushInstance(const char* tname, const T& instance) const;
 			template<typename T> void PushInstance(const char* tname, T&& instance) const;
 			template<typename T, typename... Args> void PushInstance(const char* tname, Args&&... args) const;
 			void PushInteger(long long value) const;
@@ -150,6 +156,8 @@ namespace Nz
 			void PushTable(std::size_t sequenceElementCount = 0, std::size_t arrayElementCount = 0) const;
 			void* PushUserdata(std::size_t size) const;
 			void PushValue(int index) const;
+
+			bool RawEqual(int index1, int index2) const;
 
 			void Remove(int index) const;
 			void Replace(int index) const;
@@ -173,8 +181,10 @@ namespace Nz
 			void* ToUserdata(int index, const char* tname) const;
 			void* ToUserdata(int index, const String& tname) const;
 
+			void Traceback(const char* message = nullptr, int level = 0);
+
 			LuaState& operator=(const LuaState&) = default;
-			LuaState& operator=(LuaState&& instance) noexcept;
+			LuaState& operator=(LuaState&& instance) = default;
 
 			static int GetIndexOfUpValue(int upValue);
 			static LuaInstance& GetInstance(lua_State* internalState);
@@ -185,12 +195,12 @@ namespace Nz
 
 			template<typename T> std::enable_if_t<std::is_signed<T>::value, T> CheckBounds(int index, long long value) const;
 			template<typename T> std::enable_if_t<std::is_unsigned<T>::value, T> CheckBounds(int index, long long value) const;
-			virtual bool Run(int argCount, int resultCount);
+			virtual bool Run(int argCount, int resultCount, int errHandler);
 
 			static int ProxyFunc(lua_State* internalState);
 
+			MovablePtr<lua_State> m_state;
 			String m_lastError;
-			lua_State* m_state;
 	};
 }
 

@@ -7,12 +7,9 @@
 #ifndef NAZARA_LOG_HPP
 #define NAZARA_LOG_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/AbstractLogger.hpp>
-#include <Nazara/Core/Error.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
-#include <memory>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
 	#include <Nazara/Core/ThreadSafety.hpp>
@@ -30,6 +27,8 @@
 
 namespace Nz
 {
+	class AbstractLogger;
+
 	class NAZARA_CORE_API Log
 	{
 		friend class Core;

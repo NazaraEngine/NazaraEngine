@@ -7,8 +7,6 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <cstring>
-#include <limits>
-#include <new>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -720,7 +718,6 @@ namespace Nz
 	* \brief Create an uninitialized value of a set name
 	*
 	* \param name Name of the parameter
-	* \param value Value of the parameter
 	*
 	* \remark The previous value if any gets destroyed
 	*/

@@ -8,6 +8,7 @@
 #define NAZARA_QUATERNION_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Angle.hpp>
 
 namespace Nz
 {
@@ -21,6 +22,7 @@ namespace Nz
 		public:
 			Quaternion() = default;
 			Quaternion(T W, T X, T Y, T Z);
+			template<AngleUnit Unit> Quaternion(const Angle<Unit, T>& angle);
 			Quaternion(const EulerAngles<T>& angles);
 			Quaternion(T angle, const Vector3<T>& axis);
 			Quaternion(const T quat[4]);
@@ -49,6 +51,7 @@ namespace Nz
 			Quaternion& Normalize(T* length = nullptr);
 
 			Quaternion& Set(T W, T X, T Y, T Z);
+			template<AngleUnit Unit> Quaternion& Set(const Angle<Unit, T>& angle);
 			Quaternion& Set(const EulerAngles<T>& angles);
 			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
 			Quaternion& Set(const T quat[4]);
@@ -88,11 +91,11 @@ namespace Nz
 			T w, x, y, z;
 	};
 
-	typedef Quaternion<double> Quaterniond;
-	typedef Quaternion<float> Quaternionf;
+	using Quaterniond = Quaternion<double>;
+	using Quaternionf = Quaternion<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat);
-	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat);
+	template<typename T> bool Serialize(SerializationContext& context, const Quaternion<T>& quat, TypeTag<Quaternion<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat);

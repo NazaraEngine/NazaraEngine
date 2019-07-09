@@ -7,7 +7,7 @@
 #ifndef NAZARA_ENETPROTOCOL_HPP
 #define NAZARA_ENETPROTOCOL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <vector>
 

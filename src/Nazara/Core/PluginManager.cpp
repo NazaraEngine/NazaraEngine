@@ -190,7 +190,7 @@ namespace Nz
 	/*!
 	* \brief Unmounts the plugin with a path
 	*
-	* \param pluginPath Path to the plugin
+	* \param plugin Path to the plugin
 	*
 	* \remark Produces a NazaraError if not initialized
 	* \remark Produces a NazaraError if plugin is not loaded

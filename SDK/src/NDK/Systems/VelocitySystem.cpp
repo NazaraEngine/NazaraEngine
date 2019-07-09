@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Systems/VelocitySystem.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -43,7 +43,7 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
 
-			node.Move(velocity.linearVelocity * elapsedTime, Nz::CoordSys_Global);
+			node.Move(velocity.linearVelocity * elapsedTime, velocity.coordSys);
 		}
 	}
 

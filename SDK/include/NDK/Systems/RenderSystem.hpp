@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -11,25 +11,26 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
-#include <unordered_map>
+#include <NDK/Components/GraphicsComponent.hpp>
 #include <vector>
 
 namespace Ndk
 {
+	class AbstractViewer;
+
 	class NDK_API RenderSystem : public System<RenderSystem>
 	{
 		public:
 			RenderSystem();
-			inline RenderSystem(const RenderSystem& renderSystem);
 			~RenderSystem() = default;
 
 			template<typename T> T& ChangeRenderTechnique();
 			inline Nz::AbstractRenderTechnique& ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique);
+
+			inline void EnableCulling(bool enable);
 
 			inline const Nz::BackgroundRef& GetDefaultBackground() const;
 			inline const Nz::Matrix4f& GetCoordinateSystemMatrix() const;
@@ -37,6 +38,8 @@ namespace Ndk
 			inline Nz::Vector3f GetGlobalRight() const;
 			inline Nz::Vector3f GetGlobalUp() const;
 			inline Nz::AbstractRenderTechnique& GetRenderTechnique() const;
+
+			inline bool IsCullingEnabled() const;
 
 			inline void SetDefaultBackground(Nz::BackgroundRef background);
 			inline void SetGlobalForward(const Nz::Vector3f& direction);
@@ -52,6 +55,7 @@ namespace Ndk
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
 			void OnUpdate(float elapsedTime) override;
 
+			void UpdateDynamicReflections();
 			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
@@ -63,6 +67,7 @@ namespace Ndk
 			EntityList m_lights;
 			EntityList m_pointSpotLights;
 			EntityList m_particleGroups;
+			EntityList m_realtimeReflected;
 			GraphicsComponentCullingList m_drawableCulling;
 			Nz::BackgroundRef m_background;
 			Nz::DepthRenderTechnique m_shadowTechnique;
@@ -70,6 +75,7 @@ namespace Ndk
 			Nz::RenderTexture m_shadowRT;
 			bool m_coordinateSystemInvalidated;
 			bool m_forceRenderQueueInvalidation;
+			bool m_isCullingEnabled;
 	};
 }
 

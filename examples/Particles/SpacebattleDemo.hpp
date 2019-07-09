@@ -33,10 +33,10 @@ class SpacebattleExample : public ParticleDemo
 
 		struct Turret
 		{
-			Nz::Model baseModel;
-			Nz::Model cannonModel;
-			Nz::Model cannonBaseModel;
-			Nz::Model rotatingBaseModel;
+			Nz::ModelRef baseModel;
+			Nz::ModelRef cannonModel;
+			Nz::ModelRef cannonBaseModel;
+			Nz::ModelRef rotatingBaseModel;
 			Ndk::EntityHandle baseEntity;
 			Ndk::EntityHandle cannonAnchorEntity;
 			Ndk::EntityHandle cannonEntity;
@@ -50,8 +50,8 @@ class SpacebattleExample : public ParticleDemo
 		float m_turretBaseRotation;
 		float m_turretCannonBaseRotation;
 		float m_turretShootTimer;
-		Nz::Model m_spaceshipModel;
-		Nz::Model m_spacestationModel;
+		Nz::ModelRef m_spaceshipModel;
+		Nz::ModelRef m_spacestationModel;
 		Nz::Music m_ambientMusic;
 		Nz::ParticleDeclarationRef m_torpedoDeclaration;
 		Nz::ParticleRendererRef m_laserBeamRenderer;

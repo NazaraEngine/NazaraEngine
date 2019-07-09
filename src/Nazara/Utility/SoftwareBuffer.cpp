@@ -5,7 +5,7 @@
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
-#include <stdexcept>
+#include <exception>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

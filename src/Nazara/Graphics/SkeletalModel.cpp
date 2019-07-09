@@ -6,8 +6,8 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MeshData.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -53,7 +53,7 @@ namespace Nz
 	* \param instanceData Data for the instance
 	*/
 
-	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void SkeletalModel::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		if (!m_mesh)
 			return;
@@ -62,14 +62,14 @@ namespace Nz
 		for (unsigned int i = 0; i < submeshCount; ++i)
 		{
 			const SkeletalMesh* mesh = static_cast<const SkeletalMesh*>(m_mesh->GetSubMesh(i));
-			const Material* material = m_materials[mesh->GetMaterialIndex()];
+			const Material* material = GetMaterial(mesh->GetMaterialIndex());
 
 			MeshData meshData;
 			meshData.indexBuffer = mesh->GetIndexBuffer();
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = SkinningManager::GetBuffer(mesh, &m_skeleton);
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, m_skeleton.GetAABB(), instanceData.transformMatrix, scissorRect);
 		}
 	}
 
@@ -126,10 +126,9 @@ namespace Nz
 	* \brief Clones this skeletal model
 	* \return Pointer to newly allocated SkeletalModel
 	*/
-
-	SkeletalModel* SkeletalModel::Clone() const
+	std::unique_ptr<InstancedRenderable> SkeletalModel::Clone() const
 	{
-		return new SkeletalModel(*this);
+		return std::make_unique<SkeletalModel>(*this);
 	}
 
 	/*!
@@ -219,57 +218,6 @@ namespace Nz
 	bool SkeletalModel::IsAnimationEnabled() const
 	{
 		return m_animationEnabled;
-	}
-
-	/*!
-	* \brief Loads the skeleton model from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromFile(const String& filePath, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromFile(this, filePath, params);
-	}
-
-	/*!
-	* \brief Loads the skeleton model from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromMemory(const void* data, std::size_t size, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	/*!
-	* \brief Loads the skeleton model from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the skeleton model
-	* \param params Parameters for the skeleton model
-	*/
-
-	bool SkeletalModel::LoadFromStream(Stream& stream, const SkeletalModelParameters& params)
-	{
-		return SkeletalModelLoader::LoadFromStream(this, stream, params);
-	}
-
-	/*!
-	* \brief Resets the model
-	*/
-
-	void SkeletalModel::Reset()
-	{
-		Model::Reset();
-
-		m_skeleton.Destroy();
 	}
 
 	/*!
@@ -444,6 +392,4 @@ namespace Nz
 		/*if (m_animationEnabled && m_animation)
 			AdvanceAnimation(m_scene->GetUpdateTime());*/
 	}
-
-	SkeletalModelLoader::LoaderList SkeletalModel::s_loaders;
 }

@@ -41,19 +41,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a DynLib object by move semantic
-	*
-	* \param lib DynLib to move into this
-	*/
-
-	DynLib::DynLib(DynLib&& lib) :
-	m_lastError(std::move(lib.m_lastError)),
-	m_impl(lib.m_impl)
-	{
-		lib.m_impl = nullptr;
-	}
-
-	/*!
 	* \brief Destructs the object and calls Unload
 	*
 	* \see Unload
@@ -149,24 +136,5 @@ namespace Nz
 			delete m_impl;
 			m_impl = nullptr;
 		}
-	}
-
-	/*!
-	* \brief Moves the other lib into this
-	* \return A reference to this
-	*
-	* \param lib DynLib to move in this
-	*/
-
-	DynLib& DynLib::operator=(DynLib&& lib)
-	{
-		Unload();
-
-		m_impl = lib.m_impl;
-		m_lastError = std::move(lib.m_lastError);
-
-		lib.m_impl = nullptr;
-
-		return *this;
 	}
 }

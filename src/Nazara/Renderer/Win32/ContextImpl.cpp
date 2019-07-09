@@ -20,7 +20,7 @@ namespace Nz
 	{
 	}
 
-	bool ContextImpl::Activate()
+	bool ContextImpl::Activate() const
 	{
 		return wglMakeCurrent(m_deviceContext, m_context) == TRUE;
 	}

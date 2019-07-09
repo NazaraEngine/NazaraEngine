@@ -8,21 +8,23 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/HardwareBuffer.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
@@ -30,8 +32,6 @@
 #include <Nazara/Platform/Platform.hpp>
 #include <map>
 #include <memory>
-#include <set>
-#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -1444,7 +1444,7 @@ namespace Nz
 		}
 
 		// Envoi des uniformes liées au Renderer
-		Vector2ui targetSize(s_target->GetWidth(), s_target->GetHeight());
+		Vector2ui targetSize = s_target->GetSize();
 		if (s_targetSize != targetSize)
 		{
 			int location;
@@ -1762,19 +1762,17 @@ namespace Nz
 			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 			maxLength++;
 
-			StackAllocation stackAlloc = NazaraStackAllocation((maxLength + 1) * sizeof(GLchar));
-			GLchar* nameBuffer = static_cast<GLchar*>(stackAlloc.GetPtr());
-
+			StackArray<GLchar> nameBuffer = NazaraStackArray(GLchar, maxLength + 1);
 			for (GLint i = 0; i < count; i++)
 			{
 				GLint size;
 				GLenum type;
 
-				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer);
+				glGetActiveUniform(program, i, maxLength, nullptr, &size, &type, nameBuffer.data());
 
-				dump << "Uniform #" << i << ": " << nameBuffer << "(Type: 0x" << String::Number(type, 16);
+				dump << "Uniform #" << i << ": " << nameBuffer.data() << "(Type: 0x" << String::Number(type, 16);
 
-				GLint location = glGetUniformLocation(program, nameBuffer);
+				GLint location = glGetUniformLocation(program, nameBuffer.data());
 				switch (type)
 				{
 					case GL_FLOAT:

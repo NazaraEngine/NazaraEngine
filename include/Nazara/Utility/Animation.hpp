@@ -7,7 +7,8 @@
 #ifndef NAZARA_ANIMATION_HPP
 #define NAZARA_ANIMATION_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -19,7 +20,6 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utility/Sequence.hpp>
 
 namespace Nz
 {
@@ -34,6 +34,8 @@ namespace Nz
 	};
 
 	class Animation;
+	struct Sequence;
+	struct SequenceJoint;
 	class Skeleton;
 
 	using AnimationConstRef = ObjectRef<const Animation>;
@@ -81,14 +83,14 @@ namespace Nz
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
-			bool LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
-			bool LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
-
 			void RemoveSequence(const String& sequenceName);
 			void RemoveSequence(UInt32 index);
 
 			template<typename... Args> static AnimationRef New(Args&&... args);
+
+			static AnimationRef LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
+			static AnimationRef LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
+			static AnimationRef LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 
 			// Signals:
 			NazaraSignal(OnAnimationDestroy, const Animation* /*animation*/);
@@ -98,7 +100,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			AnimationImpl* m_impl = nullptr;
+			MovablePtr<AnimationImpl> m_impl = nullptr;
 
 			static AnimationLibrary::LibraryMap s_library;
 			static AnimationLoader::LoaderList s_loaders;

@@ -1,20 +1,11 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+
+#include <NDK/Systems/RenderSystem.hpp>
 
 namespace Ndk
 {
-	/*!
-	* \brief Constructs a RenderSystem object by copy semantic
-	*
-	* \param renderSystem RenderSystem to copy
-	*/
-
-	inline RenderSystem::RenderSystem(const RenderSystem& renderSystem) :
-	System(renderSystem)
-	{
-	}
-
 	/*!
 	* \brief Changes the render technique used for the system
 	* \return A reference to the render technique type
@@ -37,7 +28,24 @@ namespace Ndk
 	inline Nz::AbstractRenderTechnique& RenderSystem::ChangeRenderTechnique(std::unique_ptr<Nz::AbstractRenderTechnique>&& renderTechnique)
 	{
 		m_renderTechnique = std::move(renderTechnique);
-        return *m_renderTechnique.get();
+		return *m_renderTechnique;
+	}
+
+	/*!
+	* \brief Enables/disables object culling
+	*
+	* Object culling is an algorithm used by the render system to detect invisible objects (which will not appear on screen) before they are rendered.
+	* This includes Frustum Culling and potentially Occlusion Culling.
+	*
+	* Disabling this is not recommended, as the system will draw every object in the world which could induce a performance loss.
+	*
+	* \param enable Whether to enable or disable culling
+	*
+	* \see IsCullingEnabled
+	*/
+	inline void RenderSystem::EnableCulling(bool enable)
+	{
+		m_isCullingEnabled = enable;
 	}
 
 	/*!
@@ -98,6 +106,17 @@ namespace Ndk
 	inline Nz::AbstractRenderTechnique& RenderSystem::GetRenderTechnique() const
 	{
 		return *m_renderTechnique.get();
+	}
+
+	/*!
+	* \brief Query if culling is enabled (enabled by default)
+	* \return True if culling is enabled, false otherwise
+	*
+	* \see EnableCulling
+	*/
+	inline bool RenderSystem::IsCullingEnabled() const
+	{
+		return m_isCullingEnabled;
 	}
 
 	/*!

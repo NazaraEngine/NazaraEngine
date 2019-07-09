@@ -17,7 +17,7 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::Vector4
 	* \brief Math class that represents an element of the three dimensional vector space with the notion of projectivity. When the fourth component is 1, it describes an 'usual' point and when it is 0, it represents the point at infinity
 	*/
@@ -88,18 +88,6 @@ namespace Nz
 	Vector4<T>::Vector4(T scale)
 	{
 		Set(scale);
-	}
-
-	/*!
-	* \brief Constructs a Vector4 object from an array of four elements
-	*
-	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
-	*/
-
-	template<typename T>
-	Vector4<T>::Vector4(const T vec[4])
-	{
-		Set(vec);
 	}
 
 	/*!
@@ -637,7 +625,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -663,7 +651,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -728,7 +716,7 @@ namespace Nz
 	* \brief Multiplies the components of other vector with a scalar
 	* \return A reference to this vector where components are the product of this vector and the scalar
 	*
-	* \param vec The other vector to multiply components with
+	* \param scale The scalar to multiply components with
 	*/
 
 	template<typename T>
@@ -761,7 +749,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -777,7 +765,7 @@ namespace Nz
 	* \brief Divides the components of other vector with a scalar
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
-	* \param vec The other vector to divide components with
+	* \param scale The scalar to divide components with
 	*
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
@@ -792,7 +780,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -912,6 +900,21 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Calculates the dot (scalar) product with two vectors
+	* \return The value of the dot product
+	*
+	* \param vec1 The first vector to calculate the dot product with
+	* \param vec2 The second vector to calculate the dot product with
+	*
+	* \see AbsDotProduct, DotProduct
+	*/
+	template<typename T>
+	T Vector4<T>::DotProduct(const Vector4& vec1, const Vector4& vec2)
+	{
+		return vec1.DotProduct(vec2);
+	}
+
+	/*!
 	* \brief Interpolates the vector to other one with a factor of interpolation
 	* \return A new vector which is the interpolation of two vectors
 	*
@@ -923,7 +926,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Vector4<T> Vector4<T>::Lerp(const Vector4& from, const Vector4& to, T interpolation)
 	{
@@ -1023,7 +1025,7 @@ namespace Nz
 	* \param vector Input Vector3
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Vector4<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector4<T>& vector, TypeTag<Vector4<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -1048,7 +1050,7 @@ namespace Nz
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector4<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector4<T>* vector, TypeTag<Vector4<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;
@@ -1113,7 +1115,7 @@ Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 

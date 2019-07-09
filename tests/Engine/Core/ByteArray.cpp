@@ -102,7 +102,7 @@ SCENARIO("ByteArray", "[CORE][BYTEARRAY]")
 	{
 		Nz::ByteArray abc("abc", 3);
 		Nz::ByteArray cba;
-		cba = std::move(Nz::ByteArray("cba", 3));
+		cba = Nz::ByteArray("cba", 3);
 
 		WHEN("We do some antagonists operations")
 		{

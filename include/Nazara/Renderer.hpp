@@ -34,6 +34,7 @@
 #include <Nazara/Renderer/ContextParameters.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/GpuQuery.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
@@ -45,7 +46,10 @@
 #include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
+#include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UberShader.hpp>

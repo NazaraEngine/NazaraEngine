@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,7 +10,6 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Utility/Utility.hpp>
-#include <cstring>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -287,7 +286,7 @@ namespace Nz
 			// ParticleLayout_Billboard : ParticleStruct_Billboard
 			declaration = &s_declarations[ParticleLayout_Billboard];
 			declaration->EnableComponent(ParticleComponent_Color,    ComponentType_Color,  NazaraOffsetOf(ParticleStruct_Billboard, color));
-			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,   NazaraOffsetOf(ParticleStruct_Billboard, life));
+			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Billboard, life));
 			declaration->EnableComponent(ParticleComponent_Normal,   ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Billboard, normal));
 			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Billboard, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Billboard, rotation));
@@ -298,7 +297,7 @@ namespace Nz
 
 			// ParticleLayout_Model : ParticleStruct_Model
 			declaration = &s_declarations[ParticleLayout_Model];
-			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,       NazaraOffsetOf(ParticleStruct_Model, life));
+			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Float1,     NazaraOffsetOf(ParticleStruct_Model, life));
 			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3,     NazaraOffsetOf(ParticleStruct_Model, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Quaternion, NazaraOffsetOf(ParticleStruct_Model, rotation));
 			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3,     NazaraOffsetOf(ParticleStruct_Model, velocity));
@@ -308,7 +307,7 @@ namespace Nz
 			// ParticleLayout_Sprite : ParticleStruct_Sprite
 			declaration = &s_declarations[ParticleLayout_Sprite];
 			declaration->EnableComponent(ParticleComponent_Color,    ComponentType_Color,  NazaraOffsetOf(ParticleStruct_Sprite, color));
-			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Int1,   NazaraOffsetOf(ParticleStruct_Sprite, life));
+			declaration->EnableComponent(ParticleComponent_Life,     ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Sprite, life));
 			declaration->EnableComponent(ParticleComponent_Position, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, position));
 			declaration->EnableComponent(ParticleComponent_Rotation, ComponentType_Float1, NazaraOffsetOf(ParticleStruct_Sprite, rotation));
 			declaration->EnableComponent(ParticleComponent_Velocity, ComponentType_Float3, NazaraOffsetOf(ParticleStruct_Sprite, velocity));

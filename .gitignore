@@ -4,6 +4,9 @@ build/config.lua
 # Nazara libraries
 lib/*
 
+# Self-hosted thirdparty libraries binaries
+thirdparty/genlib/*
+
 # Nazara plugin libraries
 plugins/lib/*
 

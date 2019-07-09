@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <memory>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -265,7 +265,8 @@ namespace Nz
 
 	/*!
 	* \brief Sets the inner angle in spot light
-	* \return innerAngle Inner angle
+	*
+	* \param innerAngle Inner angle
 	*/
 
 	inline void Light::SetInnerAngle(float innerAngle)
@@ -289,7 +290,8 @@ namespace Nz
 
 	/*!
 	* \brief Sets the outer angle in spot light
-	* \return outerAngle Outer angle
+	*
+	* \param outerAngle Outer angle
 	*
 	* \remark Invalidates the bounding volume
 	*/
@@ -305,7 +307,8 @@ namespace Nz
 
 	/*!
 	* \brief Sets the radius of the light
-	* \return radius Light radius
+	*
+	* \param radius Light radius
 	*
 	* \remark Invalidates the bounding volume
 	*/

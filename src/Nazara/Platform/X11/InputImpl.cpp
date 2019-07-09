@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/X11/ScopedXCB.hpp>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 #include <X11/Xlib.h>

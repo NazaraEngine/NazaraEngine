@@ -8,6 +8,7 @@
 #define NAZARA_EULERANGLES_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
@@ -22,6 +23,7 @@ namespace Nz
 			EulerAngles() = default;
 			EulerAngles(T P, T Y, T R);
 			EulerAngles(const T angles[3]);
+			template<AngleUnit Unit> EulerAngles(const Angle<Unit, T>& angle);
 			//EulerAngles(const Matrix3<T>& mat);
 			EulerAngles(const Quaternion<T>& quat);
 			template<typename U> explicit EulerAngles(const EulerAngles<U>& angles);
@@ -34,6 +36,7 @@ namespace Nz
 
 			EulerAngles& Set(T P, T Y, T R);
 			EulerAngles& Set(const T angles[3]);
+			template<AngleUnit Unit> EulerAngles& Set(const Angle<Unit, T>& angles);
 			EulerAngles& Set(const EulerAngles<T>& angles);
 			//EulerAngles& Set(const Matrix3<T>& mat);
 			EulerAngles& Set(const Quaternion<T>& quat);
@@ -62,11 +65,11 @@ namespace Nz
 			T pitch, yaw, roll;
 	};
 
-	typedef EulerAngles<double> EulerAnglesd;
-	typedef EulerAngles<float> EulerAnglesf;
+	using EulerAnglesd = EulerAngles<double>;
+	using EulerAnglesf = EulerAngles<float>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles);
-	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles);
+	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles, TypeTag<EulerAngles<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles, TypeTag<EulerAngles<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);

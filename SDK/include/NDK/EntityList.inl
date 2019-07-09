@@ -1,8 +1,7 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/EntityList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
 
@@ -137,6 +136,16 @@ namespace Ndk
 		}
 	}
 
+	/*!
+	* \brief Reserves enough space to contains entityCount entities
+	*
+	* \param entityCount Number of entities to reserve
+	*/
+	inline void EntityList::Reserve(std::size_t entityCount)
+	{
+		m_entityBits.Reserve(entityCount);
+	}
+
 	// STL Interface
 	inline EntityList::iterator EntityList::begin() const
 	{
@@ -160,6 +169,9 @@ namespace Ndk
 
 	inline EntityList& EntityList::operator=(const EntityList& entityList)
 	{
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
+
 		m_entityBits = entityList.m_entityBits;
 		m_world = entityList.m_world;
 
@@ -171,6 +183,12 @@ namespace Ndk
 
 	inline EntityList& EntityList::operator=(EntityList&& entityList) noexcept
 	{
+		if (this == &entityList)
+			return *this;
+
+		for (const Ndk::EntityHandle& entity : *this)
+			entity->UnregisterEntityList(this);
+
 		m_entityBits = std::move(entityList.m_entityBits);
 		m_world = entityList.m_world;
 

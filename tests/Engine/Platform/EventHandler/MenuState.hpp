@@ -17,7 +17,7 @@ class MenuState : public BaseState
 		bool Update(Ndk::StateMachine& fsm, float elapsedTime) override;
 
 	private:
-		void DrawMenu();
+		void DrawMenu() override;
 
 		NazaraSlot(Nz::EventHandler, OnKeyPressed, m_keyPressedSlot);
 		int m_selectedNextState;

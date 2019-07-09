@@ -7,7 +7,7 @@
 #ifndef NAZARA_JOYSTICK_HPP
 #define NAZARA_JOYSTICK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 
 namespace Nz

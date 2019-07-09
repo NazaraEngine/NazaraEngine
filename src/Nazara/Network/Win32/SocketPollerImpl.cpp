@@ -37,7 +37,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToReadSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToReadSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToReadSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -46,7 +46,7 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_readyToWriteSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readyToWriteSockets) != 0;
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readyToWriteSockets)) != 0; //< FD_ISSET is not const-correct
 		#endif
 	}
 
@@ -55,8 +55,9 @@ namespace Nz
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		return m_allSockets.count(socket) != 0;
 		#else
-		return FD_ISSET(socket, &m_readSockets) != 0 ||
-		       FD_ISSET(socket, &m_writeSockets) != 0;
+		// FD_ISSET is not const-correct
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readSockets)) != 0 || 
+		       FD_ISSET(socket, const_cast<fd_set*>(&m_writeSockets)) != 0;
 		#endif
 	}
 
@@ -129,9 +130,9 @@ namespace Nz
 		#endif
 	}
 
-	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
+	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
-		int activeSockets;
+		unsigned int activeSockets;
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		activeSockets = SocketImpl::Poll(m_sockets.data(), m_sockets.size(), static_cast<int>(msTimeout), error);
@@ -143,22 +144,29 @@ namespace Nz
 			int socketRemaining = activeSockets;
 			for (PollSocket& entry : m_sockets)
 			{
-				if (entry.revents != 0)
+				if (!entry.revents)
+					continue;
+
+				if (entry.revents & (POLLRDNORM | POLLWRNORM | POLLHUP | POLLERR))
 				{
-					if (entry.revents & POLLRDNORM)
+					if (entry.revents & (POLLRDNORM | POLLHUP | POLLERR))
 						m_readyToReadSockets.insert(entry.fd);
 
-					if (entry.revents & POLLWRNORM)
+					if (entry.revents & (POLLWRNORM | POLLERR))
 						m_readyToWriteSockets.insert(entry.fd);
-
-					entry.revents = 0;
-
-					if (--socketRemaining == 0)
-						break;
 				}
+				else
+				{
+					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					activeSockets--;
+				}
+
+				entry.revents = 0;
+
+				if (--socketRemaining == 0)
+					break;
 			}
 		}
-
 		#else
 		fd_set* readSet = nullptr;
 		fd_set* writeSet = nullptr;
@@ -179,14 +187,17 @@ namespace Nz
 		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
 		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
 
-		activeSockets = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
-		if (activeSockets == SOCKET_ERROR)
+		int selectValue = ::select(0xDEADBEEF, readSet, writeSet, nullptr, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+		if (selectValue == SOCKET_ERROR)
 		{
 			if (error)
 				*error = SocketImpl::TranslateWSAErrorToSocketError(WSAGetLastError());
 
 			return 0;
 		}
+
+		assert(selectValue >= 0);
+		activeSockets = static_cast<unsigned int>(selectValue);
 
 		if (error)
 			*error = SocketError_NoError;

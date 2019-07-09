@@ -7,7 +7,7 @@
 #ifndef NAZARA_UPDATABLE_HPP
 #define NAZARA_UPDATABLE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

@@ -7,9 +7,8 @@
 #ifndef NAZARA_ICON_HPP
 #define NAZARA_ICON_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 
 namespace Nz

@@ -6,13 +6,12 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Renderer/Context.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #if defined(NAZARA_PLATFORM_GLX)
 #include <Nazara/Platform/X11/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
-#include <cstring>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -403,7 +402,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 				s_contextStates->scissorBoxUpdated = true;
 			}
@@ -495,7 +494,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 				s_contextStates->viewportUpdated = true;
 			}
@@ -1113,6 +1112,7 @@ namespace Nz
 				glUniform2dv = reinterpret_cast<PFNGLUNIFORM2DVPROC>(LoadEntry("glUniform2dv"));
 				glUniform3dv = reinterpret_cast<PFNGLUNIFORM3DVPROC>(LoadEntry("glUniform3dv"));
 				glUniform4dv = reinterpret_cast<PFNGLUNIFORM4DVPROC>(LoadEntry("glUniform4dv"));
+				glUniformMatrix4dv = reinterpret_cast<PFNGLUNIFORMMATRIX4DVPROC>(LoadEntry("glUniformMatrix4dv"));
 
 				s_openGLextensions[OpenGLExtension_FP64] = true;
 			}
@@ -1174,6 +1174,9 @@ namespace Nz
 				NazaraWarning("Failed to load ARB_separate_shader_objects: (" + String(e.what()) + ")");
 			}
 		}
+
+		// Seamless Cubemap Filtering
+		s_openGLextensions[OpenGLExtension_SeamlessCubeMap] = (s_openglVersion >= 320 || IsSupported("GL_ARB_seamless_cube_map"));
 
 		// Shader_ImageLoadStore
 		s_openGLextensions[OpenGLExtension_Shader_ImageLoadStore] = (s_openglVersion >= 420 || IsSupported("GL_ARB_shader_image_load_store"));
@@ -1288,7 +1291,7 @@ namespace Nz
 			{
 				const Recti& scissorBox = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
 
 				s_contextStates->scissorBoxUpdated = true;
@@ -1298,7 +1301,7 @@ namespace Nz
 			{
 				const Recti& viewport = s_contextStates->currentViewport;
 
-				unsigned int height = s_contextStates->currentTarget->GetHeight();
+				unsigned int height = s_contextStates->currentTarget->GetSize().y;
 				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
 
 				s_contextStates->viewportUpdated = true;

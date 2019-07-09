@@ -33,7 +33,7 @@ namespace Nz
 	* \param udpSocket UdpSocket to move into this
 	*/
 
-	inline UdpSocket::UdpSocket(UdpSocket&& udpSocket) :
+	inline UdpSocket::UdpSocket(UdpSocket&& udpSocket) noexcept :
 	AbstractSocket(std::move(udpSocket)),
 	m_boundAddress(std::move(udpSocket.m_boundAddress))
 	{
@@ -51,15 +51,15 @@ namespace Nz
 		IpAddress any;
 		switch (m_protocol)
 		{
-			case NetProtocol_Any:
 			case NetProtocol_Unknown:
-				NazaraInternalError("Invalid protocol Any at this point");
+				NazaraInternalError("Invalid protocol");
 				return SocketState_NotConnected;
 
 			case NetProtocol_IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
+			case NetProtocol_Any:
 			case NetProtocol_IPv6:
 				any = IpAddress::AnyIpV6;
 				break;

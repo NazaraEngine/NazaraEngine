@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP
 #define NAZARA_DEFERREDPHONGLIGHTINGPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Renderer/Shader.hpp>

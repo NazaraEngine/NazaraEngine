@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
-#include <memory>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

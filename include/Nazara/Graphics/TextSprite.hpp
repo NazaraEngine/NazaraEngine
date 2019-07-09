@@ -7,17 +7,15 @@
 #ifndef NAZARA_TEXTSPRITE_HPP
 #define NAZARA_TEXTSPRITE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <memory>
-#include <set>
 
 namespace Nz
 {
+	class AbstractTextDrawer;
 	class TextSprite;
 
 	using TextSpriteConstRef = ObjectRef<const TextSprite>;
@@ -32,17 +30,20 @@ namespace Nz
 			inline TextSprite(const TextSprite& sprite);
 			~TextSprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
 
 			inline void Clear();
 
+			std::unique_ptr<InstancedRenderable> Clone() const override;
+
 			inline const Color& GetColor() const;
-			inline const MaterialRef& GetMaterial() const;
 			inline float GetScale() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
+			using InstancedRenderable::SetMaterial;
 			inline void SetMaterial(MaterialRef material);
+			inline void SetMaterial(std::size_t skinIndex, MaterialRef material);
 			inline void SetScale(float scale);
 
 			void Update(const AbstractTextDrawer& drawer);
@@ -57,6 +58,31 @@ namespace Nz
 			void OnAtlasInvalidated(const AbstractAtlas* atlas);
 			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void UpdateData(InstanceData* instanceData) const override;
+
+			struct RenderKey
+			{
+				Texture* texture;
+				int renderOrder;
+
+				bool operator==(const RenderKey& rhs) const
+				{
+					return texture == rhs.texture && renderOrder == rhs.renderOrder;
+				}
+
+				bool operator!=(const RenderKey& rhs) const
+				{
+					return !operator==(rhs);
+				}
+			};
+
+			struct HashRenderKey
+			{
+				std::size_t operator()(const RenderKey& key) const
+				{
+					// Since renderOrder will be very small, this will be enough
+					return std::hash<Texture*>()(key.texture) + key.renderOrder;
+				}
+			};
 
 			struct RenderIndices
 			{
@@ -73,10 +99,9 @@ namespace Nz
 			};
 
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
-			mutable std::unordered_map<Texture*, RenderIndices> m_renderInfos;
+			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
-			MaterialRef m_material;
 			Recti m_localBounds;
 			float m_scale;
 

@@ -1,15 +1,14 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/ENetPeer.hpp>
-#include <utility>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
 	inline ENetPeer::ENetPeer(ENetHost* host, UInt16 peerId) :
 	m_host(host),
+	m_state(ENetPeerState::Disconnected),
 	m_incomingSessionID(0xFF),
 	m_outgoingSessionID(0xFF),
 	m_incomingPeerID(peerId),
@@ -21,6 +20,11 @@ namespace Nz
 	inline const IpAddress& ENetPeer::GetAddress() const
 	{
 		return m_address;
+	}
+
+	inline UInt32 ENetPeer::GetLastReceiveTime() const
+	{
+		return m_lastReceiveTime;
 	}
 
 	inline UInt32 ENetPeer::GetMtu() const
@@ -58,9 +62,19 @@ namespace Nz
 		return m_state;
 	}
 
+	inline UInt64 ENetPeer::GetTotalPacketLost() const
+	{
+		return m_totalPacketLost;
+	}
+
+	inline UInt64 ENetPeer::GetTotalPacketSent() const
+	{
+		return m_totalPacketSent;
+	}
+
 	inline bool ENetPeer::HasPendingCommands()
 	{
-		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty();
+		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty() && m_sentUnreliableCommands.empty();
 	}
 
 	inline bool ENetPeer::IsConnected() const
@@ -90,3 +104,4 @@ namespace Nz
 }
 
 #include <Nazara/Network/DebugOff.hpp>
+#include "ENetPeer.hpp"

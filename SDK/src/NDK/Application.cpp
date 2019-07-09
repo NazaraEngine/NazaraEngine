@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -12,6 +12,7 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
 #include <NDK/LuaAPI.hpp>
+#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
 
@@ -106,8 +107,7 @@ namespace Ndk
 		if (m_shouldQuit)
 			return false;
 
-		m_updateTime = m_updateClock.GetSeconds();
-		m_updateClock.Restart();
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
 
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);
@@ -147,13 +147,22 @@ namespace Ndk
 
 		Nz::Vector2ui windowDimensions;
 		if (info.window->IsValid())
-			windowDimensions.Set(info.window->GetWidth(), info.window->GetHeight() / 4);
+			windowDimensions = info.window->GetSize();
 		else
 			windowDimensions.MakeZero();
 
-		overlay->console = std::make_unique<Console>(*info.overlayWorld, Nz::Vector2f(windowDimensions), overlay->lua);
+		Nz::LuaInstance& lua = overlay->lua;
+
+		overlay->console = info.canvas->Add<Console>();
+		overlay->console->OnCommand.Connect([&lua](Ndk::Console* console, const Nz::String& command)
+		{
+			if (!lua.Execute(command))
+				console->AddLine(lua.GetLastError(), Nz::Color::Red);
+		});
 
 		Console& consoleRef = *overlay->console;
+		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
+		consoleRef.Show(false);
 
 		// Redirect logs toward the console
 		overlay->logSlot.Connect(Nz::Log::OnLogWrite, [&consoleRef] (const Nz::String& str)
@@ -161,10 +170,11 @@ namespace Ndk
 			consoleRef.AddLine(str);
 		});
 
-		LuaAPI::RegisterClasses(overlay->lua);
+		lua.LoadLibraries();
+		LuaAPI::RegisterClasses(lua);
 
 		// Override "print" function to add a line in the console
-		overlay->lua.PushFunction([&consoleRef] (Nz::LuaState& state)
+		lua.PushFunction([&consoleRef] (Nz::LuaState& state)
 		{
 			Nz::StringStream stream;
 
@@ -188,30 +198,37 @@ namespace Ndk
 			consoleRef.AddLine(stream);
 			return 0;
 		});
-		overlay->lua.SetGlobal("print");
+		lua.SetGlobal("print");
 
 		// Define a few base variables to allow our interface to interact with the application
-		overlay->lua.PushGlobal("Application", Ndk::Application::Instance());
-		overlay->lua.PushGlobal("Console", consoleRef.CreateHandle());
+		lua.PushGlobal("Application", Ndk::Application::Instance());
+		lua.PushGlobal("Console", consoleRef.CreateHandle());
 
 		// Setup a few event callback to handle the console
 		Nz::EventHandler& eventHandler = info.window->GetEventHandler();
 
-		overlay->eventSlot.Connect(eventHandler.OnEvent, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent& event)
-		{
-			if (consoleRef.IsVisible())
-				consoleRef.SendEvent(event);
-		});
-
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
 			if (event.code == Nz::Keyboard::F9)
-				consoleRef.Show(!consoleRef.IsVisible());
+			{
+				// Toggle console visibility and focus
+				if (consoleRef.IsVisible())
+				{
+					consoleRef.ClearFocus();
+					consoleRef.Show(false);
+				}
+				else
+				{
+					consoleRef.Show(true);
+					consoleRef.SetFocus();
+				}
+			}
 		});
 
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
-			consoleRef.SetSize({float(renderTarget->GetWidth()), renderTarget->GetHeight() / 4.f});
+			Nz::Vector2ui size = renderTarget->GetSize();
+			consoleRef.Resize({float(size.x), size.y / 4.f});
 		});
 
 		info.console = std::move(overlay);
@@ -232,6 +249,9 @@ namespace Ndk
 	void Application::SetupOverlay(WindowInfo& info)
 	{
 		info.overlayWorld = std::make_unique<World>(false); //< No default system
+
+		if (info.window->IsValid())
+			info.canvas = std::make_unique<Canvas>(info.overlayWorld->CreateHandle(), info.window->GetEventHandler(), info.window->GetCursorController().CreateHandle());
 
 		RenderSystem& renderSystem = info.overlayWorld->AddSystem<RenderSystem>();
 		renderSystem.ChangeRenderTechnique<Nz::ForwardRenderTechnique>();

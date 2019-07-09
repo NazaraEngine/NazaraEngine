@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -12,7 +12,7 @@
 namespace Ndk
 {
 	template<typename ComponentType>
-	class Component : public BaseComponent
+	class Component : public BaseComponent, public Nz::HandledObject<ComponentType>
 	{
 		public:
 			Component();

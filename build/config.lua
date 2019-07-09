@@ -17,7 +17,7 @@ Configurations = "Debug,Release" -- "Debug,Release,ReleaseWithDebug"
 --InstallDir = "/usr/local/lib64"
 
 -- Adds a project which will recall premake with its original arguments when built (only works on Windows for now)
-PremakeProject = true
+PremakeProject = false
 
 -- Excludes client-only modules/tools/examples
 ServerMode = false

@@ -7,7 +7,7 @@
 #ifndef NAZARA_INDEXITERATOR_HPP
 #define NAZARA_INDEXITERATOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

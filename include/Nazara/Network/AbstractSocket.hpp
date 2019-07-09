@@ -7,7 +7,7 @@
 #ifndef NAZARA_ABSTRACTSOCKET_HPP
 #define NAZARA_ABSTRACTSOCKET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			AbstractSocket(const AbstractSocket&) = delete;
-			AbstractSocket(AbstractSocket&& abstractSocket);
+			AbstractSocket(AbstractSocket&& abstractSocket) noexcept;
 			virtual ~AbstractSocket();
 
 			void Close();
@@ -44,7 +44,7 @@ namespace Nz
 			AbstractSocket& operator=(AbstractSocket&& abstractSocket);
 
 			// Signals:
-			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*newState*/);
+			NazaraSignal(OnStateChanged, const AbstractSocket* /*socket*/, SocketState /*oldState*/, SocketState /*newState*/);
 
 		protected:
 			AbstractSocket(SocketType type);

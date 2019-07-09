@@ -7,7 +7,7 @@
 #ifndef NAZARA_BYTEARRAY_HPP
 #define NAZARA_BYTEARRAY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <vector>
 
@@ -41,7 +41,7 @@ namespace Nz
 			inline ByteArray(size_type n, value_type value);
 			template <class InputIterator> ByteArray(InputIterator first, InputIterator last);
 			ByteArray(const ByteArray& other) = default;
-			ByteArray(ByteArray&& other) = default;
+			ByteArray(ByteArray&& other) noexcept = default;
 			~ByteArray() = default;
 
 			inline iterator Append(const void* buffer, size_type size);

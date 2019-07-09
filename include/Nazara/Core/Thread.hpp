@@ -7,12 +7,14 @@
 #ifndef NAZARA_THREAD_HPP
 #define NAZARA_THREAD_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <iosfwd>
 
 namespace Nz
 {
+	class String;
 	class ThreadImpl;
 
 	class NAZARA_CORE_API Thread
@@ -25,7 +27,7 @@ namespace Nz
 			template<typename F, typename... Args> Thread(F function, Args&&... args);
 			template<typename C> Thread(void (C::*function)(), C* object);
 			Thread(const Thread&) = delete;
-			Thread(Thread&& other) noexcept;
+			Thread(Thread&& other) noexcept = default;
 			~Thread();
 
 			void Detach();
@@ -35,7 +37,7 @@ namespace Nz
 			void SetName(const String& name);
 
 			Thread& operator=(const Thread&) = delete;
-			Thread& operator=(Thread&& thread);
+			Thread& operator=(Thread&& thread) noexcept = default;
 
 			static unsigned int HardwareConcurrency();
 			static void SetCurrentThreadName(const String& name);
@@ -44,7 +46,7 @@ namespace Nz
 		private:
 			void CreateImpl(Functor* functor);
 
-			ThreadImpl* m_impl;
+			MovablePtr<ThreadImpl> m_impl;
 	};
 
 	class NAZARA_CORE_API Thread::Id
@@ -62,7 +64,7 @@ namespace Nz
 			NAZARA_CORE_API friend std::ostream& operator<<(std::ostream& o, const Id& id);
 
 		private:
-			Id(ThreadImpl* thread);
+			explicit Id(ThreadImpl* thread);
 
 			ThreadImpl* m_id = nullptr;
 	};

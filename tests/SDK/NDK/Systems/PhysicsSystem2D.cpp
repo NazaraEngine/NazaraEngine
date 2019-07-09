@@ -4,8 +4,9 @@
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <Catch/catch.hpp>
+#include <limits>
 
-Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf AABB);
+Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB);
 
 SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 {
@@ -19,6 +20,9 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
 
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaximumUpdateRate(0.f);
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+		
 		WHEN("We update the world")
 		{
 			world.Update(1.f);
@@ -34,14 +38,14 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		WHEN("We make it collide with a wall")
 		{
 			int rawDistance = 3;
-			Nz::Vector2f distance(rawDistance, 0.f);
+			Nz::Vector2f distance(float(rawDistance), 0.f);
 			Nz::Vector2f wallPosition = position + Nz::Vector2f(movingAABB.width, 0.f) + distance;
 			Nz::Rectf wallAABB(0.f, 0.f, 100.f, 100.f);
 			Ndk::EntityHandle wallEntity = CreateBaseEntity(world, wallPosition, wallAABB);
 
 			world.Update(1.f);
 
-			THEN("It should moved freely")
+			THEN("It should move freely")
 			{
 				REQUIRE(nodeComponent.GetPosition() == position);
 				movingAABB.Translate(position);
@@ -76,10 +80,14 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::EntityHandle movingEntity = CreateBaseEntity(world, position, movingAABB);
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
+		physicsComponent2D.SetMassCenter(Nz::Vector2f::Zero());
+		physicsComponent2D.SetPosition(position);
+
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 
 		WHEN("We make rotate our entity")
 		{
-			float angularSpeed = Nz::FromDegrees(45.f);
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(45.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(2.f);
 
@@ -87,14 +95,14 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 			{
 				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(-2.f, 0.f, 2.f, 1.f));
-				CHECK(physicsComponent2D.GetRotation() == Approx(Nz::FromDegrees(90.f)));
+				CHECK(physicsComponent2D.GetRotation() == Nz::RadianAnglef::FromDegrees(90.f));
 				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
 			}
 		}
 
 		WHEN("We put a force on it")
 		{
-			float stepSize = world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().GetStepSize();
+			float stepSize = world.GetSystem<Ndk::PhysicsSystem2D>().GetStepSize();
 			Nz::Vector2f velocity = Nz::Vector2f::UnitX();
 			physicsComponent2D.AddForce(velocity / stepSize);
 			world.Update(1.f);
@@ -118,10 +126,14 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 		Ndk::EntityHandle movingEntity = CreateBaseEntity(world, position, movingAABB);
 		Ndk::NodeComponent& nodeComponent = movingEntity->GetComponent<Ndk::NodeComponent>();
 		Ndk::PhysicsComponent2D& physicsComponent2D = movingEntity->AddComponent<Ndk::PhysicsComponent2D>();
+		physicsComponent2D.SetMassCenter(Nz::Vector2f::Zero());
+		physicsComponent2D.SetPosition(position);
+
+		world.GetSystem<Ndk::PhysicsSystem2D>().SetFixedUpdateRate(30.f);
 
 		WHEN("We make rotate our entity")
 		{
-			float angularSpeed = Nz::FromDegrees(45.f);
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(45.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(2.f);
 
@@ -129,7 +141,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 			{
 				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(1.f, 4.f, 2.f, 1.f));
-				CHECK(physicsComponent2D.GetRotation() == Approx(Nz::FromDegrees(90.f)));
+				CHECK(physicsComponent2D.GetRotation() == 2.f * angularSpeed);
 				CHECK(nodeComponent.GetPosition() == position);
 				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
 			}
@@ -137,7 +149,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	}
 }
 
-Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf AABB)
+Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB)
 {
 	Ndk::EntityHandle entity = world.CreateEntity();
 	Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();

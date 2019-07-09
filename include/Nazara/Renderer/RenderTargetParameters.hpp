@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERTARGETPARAMETERS_HPP
 #define NAZARA_RENDERTARGETPARAMETERS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

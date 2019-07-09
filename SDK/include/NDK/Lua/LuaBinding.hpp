@@ -1,13 +1,12 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_LUABINDING_HPP
 #define NDK_LUABINDING_HPP
 
-#include <NDK/BaseComponent.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
 #include <memory>

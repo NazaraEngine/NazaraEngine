@@ -48,7 +48,8 @@ namespace Nz
 		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
 
 		epoll_event entry;
-		entry.events = 0;
+		std::memset(&entry, 0, sizeof(epoll_event));
+
 		entry.data.fd = socket;
 
 		if (eventFlags & SocketPollEvent_Read)
@@ -80,7 +81,7 @@ namespace Nz
 			NazaraWarning("An error occured while removing socket from epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
 	}
 
-	int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
+	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
 	{
 		int activeSockets;
 
@@ -92,7 +93,7 @@ namespace Nz
 		if (activeSockets == -1)
 		{
 			if (error)
-				*error = SocketImpl::TranslateErrnoToResolveError(errno);
+				*error = SocketImpl::TranslateErrnoToSocketError(errno);
 
 			return 0;
 		}
@@ -111,9 +112,6 @@ namespace Nz
 
 					if (m_events[i].events & (EPOLLOUT | EPOLLERR))
 						m_readyToWriteSockets.insert(m_events[i].data.fd);
-
-					if (m_events[i].events & EPOLLERR)
-						NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll with EPOLLERR status");
 				}
 				else
 				{

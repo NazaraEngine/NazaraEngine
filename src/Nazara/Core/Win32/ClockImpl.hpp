@@ -7,7 +7,7 @@
 #ifndef NAZARA_CLOCKIMPL_WINDOWS_HPP
 #define NAZARA_CLOCKIMPL_WINDOWS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 namespace Nz
 {

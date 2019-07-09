@@ -59,17 +59,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Vector3 object from an array of three elements
-	*
-	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
-	*/
-	template<typename T>
-	Vector3<T>::Vector3(const T vec[3])
-	{
-		Set(vec);
-	}
-
-	/*!
 	* \brief Constructs a Vector3 object from a Vector2<T> and a component
 	*
 	* \param vec vec.X = X component and vec.y = Y component
@@ -142,7 +131,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -173,21 +162,10 @@ namespace Nz
 	* \see SquaredDistance
 	*/
 	template<typename T>
-	T Vector3<T>::Distance(const Vector3& vec) const
+	template<typename U>
+	U Vector3<T>::Distance(const Vector3& vec) const
 	{
-		return std::sqrt(SquaredDistance(vec));
-	}
-
-	/*!
-	* \brief Calculates the distance between two vectors
-	* \return The metric distance in float between two vectors with euclidean norm
-	*
-	* \param vec The other vector to measure the distance with
-	*/
-	template<typename T>
-	float Vector3<T>::Distancef(const Vector3& vec) const
-	{
-		return std::sqrt(static_cast<float>(SquaredDistance(vec)));
+		return static_cast<U>(std::sqrt(SquaredDistance(vec)));
 	}
 
 	/*!
@@ -522,7 +500,9 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::Set(const T vec[3])
 	{
-		std::memcpy(&x, vec, 3*sizeof(T));
+		x = vec[0];
+		y = vec[1];
+		z = vec[2];
 
 		return *this;
 	}
@@ -726,7 +706,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -751,7 +731,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 		#endif
 
@@ -810,7 +790,7 @@ namespace Nz
 	* \brief Multiplies the components of other vector with a scalar
 	* \return A reference to this vector where components are the product of this vector and the scalar
 	*
-	* \param vec The other vector to multiply components with
+	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator*=(T scale)
@@ -839,7 +819,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 
 		x /= vec.x;
@@ -853,7 +833,7 @@ namespace Nz
 	* \brief Divides the components of other vector with a scalar
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
-	* \param vec The other vector to divide components with
+	* \param scale The scalar to divide components with
 	*
 	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
@@ -866,7 +846,7 @@ namespace Nz
 			String error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error);
+			throw std::domain_error(error.ToStdString());
 		}
 
 		x /= scale;
@@ -1023,26 +1003,10 @@ namespace Nz
 	* \see SquaredDistance
 	*/
 	template<typename T>
-	T Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
+	template<typename U>
+	U Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
 	{
-		return vec1.Distance(vec2);
-	}
-
-	/*!
-	* \brief Measure the distance between two points as a float
-	* Shorthand for vec1.Distancef(vec2)
-	*
-	* param vec1 the first point
-	* param vec2 the second point
-	*
-	* \return The distance between the two vectors as a float
-	*
-	* \see SquaredDistancef
-	*/
-	template<typename T>
-	float Vector3<T>::Distancef(const Vector3& vec1, const Vector3& vec2)
-	{
-		return vec1.Distancef(vec2);
+		return vec1.Distance<U>(vec2);
 	}
 
 	/*!
@@ -1257,7 +1221,7 @@ namespace Nz
 	* \param vector Input Vector3
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Vector3<T>& vector)
+	bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>)
 	{
 		if (!Serialize(context, vector.x))
 			return false;
@@ -1279,7 +1243,7 @@ namespace Nz
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector3<T>* vector)
+	bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>)
 	{
 		if (!Unserialize(context, &vector->x))
 			return false;
@@ -1340,7 +1304,7 @@ Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 		Nz::String error("Division by zero");
 
 		NazaraError(error);
-		throw std::domain_error(error);
+		throw std::domain_error(error.ToStdString());
 	}
 	#endif
 

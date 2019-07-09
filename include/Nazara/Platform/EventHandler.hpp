@@ -7,7 +7,7 @@
 #ifndef NAZARA_EVENTHANDLER_HPP
 #define NAZARA_EVENTHANDLER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -25,13 +25,13 @@ namespace Nz
 		public:
 			EventHandler() = default;
 			explicit EventHandler(const EventHandler&);
-			EventHandler(EventHandler&&) = default;
+			EventHandler(EventHandler&&) noexcept = default;
 			~EventHandler() = default;
 
 			inline void Dispatch(const WindowEvent& event);
 
 			EventHandler& operator=(const EventHandler&) = delete;
-			EventHandler& operator=(EventHandler&&) = default;
+			EventHandler& operator=(EventHandler&&) noexcept = default;
 
 			NazaraSignal(OnEvent, const EventHandler* /*eventHandler*/, const WindowEvent& /*event*/);
 			NazaraSignal(OnGainedFocus, const EventHandler* /*eventHandler*/);

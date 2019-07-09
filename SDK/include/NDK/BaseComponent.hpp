@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -23,7 +23,7 @@ namespace Ndk
 			using Factory = std::function<BaseComponent*()>;
 
 			BaseComponent(ComponentIndex componentIndex);
-			BaseComponent(BaseComponent&&) = default;
+			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent();
 
 			virtual std::unique_ptr<BaseComponent> Clone() const = 0;
@@ -34,7 +34,7 @@ namespace Ndk
 			inline static ComponentIndex GetMaxComponentIndex();
 
 			BaseComponent& operator=(const BaseComponent&) = delete;
-			BaseComponent& operator=(BaseComponent&&) = default;
+			BaseComponent& operator=(BaseComponent&&) noexcept = default;
 
 		protected:
 			BaseComponent(const BaseComponent&) = default;
@@ -50,6 +50,8 @@ namespace Ndk
 			virtual void OnComponentDetached(BaseComponent& component);
 			virtual void OnDetached();
 			virtual void OnEntityDestruction();
+			virtual void OnEntityDisabled();
+			virtual void OnEntityEnabled();
 
 			void SetEntity(Entity* entity);
 

@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Lua/LuaCoroutine.hpp>
-
 namespace Nz
 {
 	inline LuaCoroutine::LuaCoroutine(LuaCoroutine&& instance) :
@@ -17,8 +15,7 @@ namespace Nz
 	{
 		LuaState::operator=(std::move(instance));
 
-		m_ref = instance.m_ref;
-		instance.m_ref = -1;
+		std::swap(m_ref, instance.m_ref);
 
 		return *this;
 	}

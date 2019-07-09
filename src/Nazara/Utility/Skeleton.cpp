@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/Joint.hpp>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 

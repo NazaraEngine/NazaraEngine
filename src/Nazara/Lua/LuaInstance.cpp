@@ -8,14 +8,10 @@
 #include <Lua/lualib.h>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
-#include <Nazara/Core/MemoryView.hpp>
-#include <Nazara/Core/StringStream.hpp>
+#include <array>
 #include <cassert>
 #include <cstdlib>
 #include <stdexcept>
-#include <unordered_map>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
@@ -26,7 +22,7 @@ namespace Nz
 		{
 			String lastError(lua_tostring(internalState, -1));
 
-			throw std::runtime_error("Lua panic: " + lastError);
+			throw std::runtime_error("Lua panic: " + lastError.ToStdString());
 		}
 	}
 
@@ -40,7 +36,22 @@ namespace Nz
 		m_state = lua_newstate(MemoryAllocator, this);
 		lua_atpanic(m_state, AtPanic);
 		lua_sethook(m_state, TimeLimiter, LUA_MASKCOUNT, 1000);
-		luaL_openlibs(m_state);
+	}
+
+	LuaInstance::LuaInstance(LuaInstance&& instance) :
+	LuaState(std::move(instance))
+	{
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
+
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
 	}
 
 	LuaInstance::~LuaInstance()
@@ -49,9 +60,65 @@ namespace Nz
 			lua_close(m_state);
 	}
 
-	inline void LuaInstance::SetMemoryUsage(std::size_t memoryUsage)
+	void LuaInstance::LoadLibraries(LuaLibFlags libFlags)
 	{
-		m_memoryUsage = memoryUsage;
+		// From luaL_openlibs
+		std::array<luaL_Reg, LuaLib_Max + 1> libs;
+		std::size_t libCount = 0;
+
+		libs[libCount++] = { "_G", luaopen_base };
+
+		if (libFlags & LuaLib_Coroutine)
+			libs[libCount++] = { LUA_COLIBNAME, luaopen_coroutine };
+
+		if (libFlags & LuaLib_Debug)
+			libs[libCount++] = { LUA_DBLIBNAME, luaopen_debug };
+
+		if (libFlags & LuaLib_Io)
+			libs[libCount++] = { LUA_IOLIBNAME, luaopen_io };
+
+		if (libFlags & LuaLib_Math)
+			libs[libCount++] = { LUA_MATHLIBNAME, luaopen_math };
+
+		if (libFlags & LuaLib_Os)
+			libs[libCount++] = { LUA_OSLIBNAME, luaopen_os };
+
+		if (libFlags & LuaLib_Package)
+			libs[libCount++] = { LUA_LOADLIBNAME, luaopen_package };
+
+		if (libFlags & LuaLib_String)
+			libs[libCount++] = { LUA_STRLIBNAME, luaopen_string };
+
+		if (libFlags & LuaLib_Table)
+			libs[libCount++] = { LUA_TABLIBNAME, luaopen_table };
+
+		if (libFlags & LuaLib_Utf8)
+			libs[libCount++] = { LUA_UTF8LIBNAME, luaopen_utf8 };
+
+		for (std::size_t i = 0; i < libCount; ++i)
+		{
+			luaL_requiref(m_state, libs[i].name, libs[i].func, 1);
+			lua_pop(m_state, 1);  /* remove lib */
+		}
+	}
+
+	LuaInstance& LuaInstance::operator=(LuaInstance&& instance)
+	{
+		LuaState::operator=(std::move(instance));
+
+		std::swap(m_memoryLimit, instance.m_memoryLimit);
+		std::swap(m_memoryUsage, instance.m_memoryUsage);
+		std::swap(m_timeLimit, instance.m_timeLimit);
+		std::swap(m_clock, instance.m_clock);
+		std::swap(m_level, instance.m_level);
+
+		if (m_state)
+			lua_setallocf(m_state, MemoryAllocator, this);
+
+		if (instance.m_state)
+			lua_setallocf(instance.m_state, MemoryAllocator, &instance);
+
+		return *this;
 	}
 
 	void* LuaInstance::MemoryAllocator(void* ud, void* ptr, std::size_t osize, std::size_t nsize)

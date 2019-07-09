@@ -9,8 +9,6 @@
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -164,11 +162,6 @@ namespace Nz
 			NazaraError("No context");
 	}
 
-	unsigned int RenderWindow::GetHeight() const
-	{
-		return Window::GetHeight();
-	}
-
 	RenderTargetParameters RenderWindow::GetParameters() const
 	{
 		if (m_context)
@@ -183,9 +176,9 @@ namespace Nz
 		}
 	}
 
-	unsigned int RenderWindow::GetWidth() const
+	Vector2ui RenderWindow::GetSize() const
 	{
-		return Window::GetWidth();
+		return Window::GetSize();
 	}
 
 	bool RenderWindow::IsRenderable() const

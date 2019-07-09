@@ -130,15 +130,19 @@ namespace Nz
 
 	std::size_t MemoryStream::WriteBlock(const void* buffer, std::size_t size)
 	{
-		std::size_t endPos = static_cast<std::size_t>(m_pos + size);
-		if (endPos > m_buffer->GetSize())
-			m_buffer->Resize(endPos);
+		if (size > 0)
+		{
+			std::size_t endPos = static_cast<std::size_t>(m_pos + size);
+			if (endPos > m_buffer->GetSize())
+				m_buffer->Resize(endPos);
 
-		NazaraAssert(buffer, "Invalid buffer");
+			NazaraAssert(buffer, "Invalid buffer");
 
-		std::memcpy(m_buffer->GetBuffer() + m_pos, buffer, size);
+			std::memcpy(m_buffer->GetBuffer() + m_pos, buffer, size);
 
-		m_pos = endPos;
+			m_pos = endPos;
+		}
+
 		return size;
 	}
 }

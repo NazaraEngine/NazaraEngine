@@ -9,7 +9,7 @@
 #ifndef NAZARA_VIDEOMODE_HPP
 #define NAZARA_VIDEOMODE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <vector>
 

@@ -5,7 +5,7 @@
 #ifndef NAZARA_LOADERS_MD2_CONSTANTS_HPP
 #define NAZARA_LOADERS_MD2_CONSTANTS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz

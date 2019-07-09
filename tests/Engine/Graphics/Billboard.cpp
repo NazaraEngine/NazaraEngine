@@ -9,8 +9,7 @@ SCENARIO("Billboard", "[GRAPHICS][BILLBOARD]")
 
 		WHEN("We assign it to another")
 		{
-			Nz::MaterialRef materialRef = Nz::Material::New();
-			materialRef->LoadFromFile("resources/Engine/Graphics/Nazara.png");
+			Nz::MaterialRef materialRef = Nz::Material::LoadFromFile("resources/Engine/Graphics/Nazara.png");
 			Nz::Color materialColor = materialRef->GetDiffuseColor();
 			Nz::BillboardRef otherBillboard = Nz::Billboard::New(materialRef);
 		
@@ -20,7 +19,7 @@ SCENARIO("Billboard", "[GRAPHICS][BILLBOARD]")
 			{
 				REQUIRE(billboard.GetColor() == materialColor);
 				REQUIRE(billboard.GetMaterial().Get() == materialRef.Get());
-				REQUIRE(billboard.GetRotation() == Approx(0.f));
+				REQUIRE(billboard.GetRotation().value == Approx(0.f));
 				REQUIRE(billboard.GetSize() == Nz::Vector2f(64.f, 64.f)); // Default sizes
 			}
 

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
+// Copyright (C) 2017 Jérôme Leclercq, Arnaud Cadot
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Lua/LuaBinding_SDK.hpp>
 #include <NDK/LuaAPI.hpp>
@@ -62,24 +62,14 @@ namespace Ndk
 			console.BindMethod("AddLine", &Console::AddLine, Nz::Color::White);
 			console.BindMethod("Clear", &Console::Clear);
 			console.BindMethod("GetCharacterSize", &Console::GetCharacterSize);
-			console.BindMethod("GetHistory", &Console::GetHistory);
-			console.BindMethod("GetHistoryBackground", &Console::GetHistoryBackground);
-			console.BindMethod("GetInput", &Console::GetInput);
-			console.BindMethod("GetInputBackground", &Console::GetInputBackground);
-			console.BindMethod("GetSize", &Console::GetSize);
+			//console.BindMethod("GetHistory", &Console::GetHistory);
+			//console.BindMethod("GetInput", &Console::GetInput);
 			console.BindMethod("GetTextFont", &Console::GetTextFont);
 
 			console.BindMethod("IsValidHandle", &ConsoleHandle::IsValid);
-			console.BindMethod("IsVisible", &Console::IsVisible);
-
-			console.BindMethod("SendCharacter", &Console::SendCharacter);
-			//consoleClass.SetMethod("SendEvent", &Console::SendEvent);
 
 			console.BindMethod("SetCharacterSize", &Console::SetCharacterSize);
-			console.BindMethod("SetSize", &Console::SetSize);
 			console.BindMethod("SetTextFont", &Console::SetTextFont);
-
-			console.BindMethod("Show", &Console::Show, true);
 		}
 		#endif
 
@@ -179,6 +169,12 @@ namespace Ndk
 			world.BindMethod("CreateEntity", &World::CreateEntity);
 			world.BindMethod("CreateEntities", &World::CreateEntities);
 			world.BindMethod("Clear", &World::Clear);
+			world.BindMethod("DisableProfiler", &World::DisableProfiler);
+			world.BindMethod("EnableProfiler", &World::EnableProfiler);
+			world.BindMethod("IsProfilerEnabled", &World::IsProfilerEnabled);
+			world.BindMethod("Refresh", &World::Refresh);
+			world.BindMethod("ResetProfiler", &World::ResetProfiler);
+			world.BindMethod("Update", &World::Update);
 
 			world.BindMethod("IsValidHandle", &WorldHandle::IsValid);
 		}

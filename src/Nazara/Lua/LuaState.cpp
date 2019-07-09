@@ -5,7 +5,6 @@
 #include <Nazara/Lua/LuaState.hpp>
 #include <Lua/lauxlib.h>
 #include <Lua/lua.h>
-#include <Lua/lualib.h>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
@@ -14,9 +13,6 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Lua/LuaCoroutine.hpp>
 #include <Nazara/Lua/LuaInstance.hpp>
-#include <cstdlib>
-#include <stdexcept>
-#include <unordered_map>
 #include <Nazara/Lua/Debug.hpp>
 
 namespace Nz
@@ -126,12 +122,6 @@ namespace Nz
 		static_assert(sizeof(s_types)/sizeof(int) == LuaType_Max+1, "Lua type array is incomplete");
 	}
 
-	LuaState::LuaState(LuaState&& state) noexcept :
-	m_lastError(state.m_lastError),
-	m_state(state.m_state)
-	{
-	}
-
 	void LuaState::ArgCheck(bool condition, unsigned int argNum, const char* error) const
 	{
 		luaL_argcheck(m_state, condition, argNum, error);
@@ -154,12 +144,22 @@ namespace Nz
 
 	bool LuaState::Call(unsigned int argCount)
 	{
-		return Run(argCount, LUA_MULTRET);
+		return Run(argCount, LUA_MULTRET, 0);
 	}
 
 	bool LuaState::Call(unsigned int argCount, unsigned int resultCount)
 	{
-		return Run(argCount, resultCount);
+		return Run(argCount, resultCount, 0);
+	}
+
+	bool LuaState::CallWithHandler(unsigned int argCount, int errorHandler)
+	{
+		return Run(argCount, LUA_MULTRET, errorHandler);
+	}
+
+	bool LuaState::CallWithHandler(unsigned int argCount, unsigned int resultCount, int errorHandler)
+	{
+		return Run(argCount, resultCount, errorHandler);
 	}
 
 	void LuaState::CheckAny(int index) const
@@ -360,66 +360,37 @@ namespace Nz
 		luaL_error(m_state, message.GetConstBuffer());
 	}
 
-	bool LuaState::Execute(const String& code)
+	bool LuaState::Execute(const String& code, int errorHandler)
 	{
 		if (code.IsEmpty())
 			return true;
 
-		if (luaL_loadstring(m_state, code.GetConstBuffer()) != 0)
-		{
-			m_lastError = lua_tostring(m_state, -1);
-			lua_pop(m_state, 1);
-
+		if (!Load(code))
 			return false;
-		}
 
-		return Run(0, LUA_MULTRET);
+		return CallWithHandler(errorHandler, 0);
 	}
 
-	bool LuaState::ExecuteFromFile(const String& filePath)
+	bool LuaState::ExecuteFromFile(const String& filePath, int errorHandler)
 	{
-		File file(filePath);
-		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
-		{
-			NazaraError("Failed to open file");
+		if (!LoadFromFile(filePath))
 			return false;
-		}
 
-		std::size_t length = static_cast<std::size_t>(file.GetSize());
-
-		String source(length, '\0');
-
-		if (file.Read(&source[0], length) != length)
-		{
-			NazaraError("Failed to read file");
-			return false;
-		}
-
-		file.Close();
-
-		return Execute(source);
+		return CallWithHandler(errorHandler, 0);
 	}
 
-	bool LuaState::ExecuteFromMemory(const void* data, std::size_t size)
+	bool LuaState::ExecuteFromMemory(const void* data, std::size_t size, int errorHandler)
 	{
 		MemoryView stream(data, size);
-		return ExecuteFromStream(stream);
+		return ExecuteFromStream(stream, errorHandler);
 	}
 
-	bool LuaState::ExecuteFromStream(Stream& stream)
+	bool LuaState::ExecuteFromStream(Stream& stream, int errorHandler)
 	{
-		StreamData data;
-		data.stream = &stream;
-
-		if (lua_load(m_state, StreamReader, &data, "C++", nullptr) != 0)
-		{
-			m_lastError = lua_tostring(m_state, -1);
-			lua_pop(m_state, 1);
-
+		if (!LoadFromStream(stream))
 			return false;
-		}
 
-		return Run(0, LUA_MULTRET);
+		return CallWithHandler(errorHandler, 0);
 	}
 
 	int LuaState::GetAbsIndex(int index) const
@@ -555,6 +526,65 @@ namespace Nz
 		return lua_isnoneornil(m_state, index) == 0;
 	}
 
+	bool LuaState::Load(const String& code)
+	{
+		if (luaL_loadstring(m_state, code.GetConstBuffer()) != 0)
+		{
+			m_lastError = lua_tostring(m_state, -1);
+			lua_pop(m_state, 1);
+
+			return false;
+		}
+
+		return true;
+	}
+
+	bool LuaState::LoadFromFile(const String& filePath)
+	{
+		File file(filePath);
+		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
+		{
+			NazaraError("Failed to open file");
+			return false;
+		}
+
+		std::size_t length = static_cast<std::size_t>(file.GetSize());
+
+		String source(length, '\0');
+
+		if (file.Read(&source[0], length) != length)
+		{
+			NazaraError("Failed to read file");
+			return false;
+		}
+
+		file.Close();
+
+		return Load(source);
+	}
+
+	bool LuaState::LoadFromMemory(const void* data, std::size_t size)
+	{
+		MemoryView stream(data, size);
+		return LoadFromStream(stream);
+	}
+
+	bool LuaState::LoadFromStream(Stream& stream)
+	{
+		StreamData data;
+		data.stream = &stream;
+
+		if (lua_load(m_state, StreamReader, &data, "C++", nullptr) != 0)
+		{
+			m_lastError = lua_tostring(m_state, -1);
+			lua_pop(m_state, 1);
+
+			return false;
+		}
+
+		return true;
+	}
+
 	long long LuaState::Length(int index) const
 	{
 		return luaL_len(m_state, index);
@@ -682,6 +712,11 @@ namespace Nz
 		lua_pushvalue(m_state, index);
 	}
 
+	bool LuaState::RawEqual(int index1, int index2) const
+	{
+		return lua_rawequal(m_state, index1, index2);
+	}
+
 	void LuaState::Remove(int index) const
 	{
 		lua_remove(m_state, index);
@@ -789,22 +824,19 @@ namespace Nz
 		return luaL_testudata(m_state, index, tname.GetConstBuffer());
 	}
 
-	LuaState& LuaState::operator=(LuaState&& state) noexcept
+	void LuaState::Traceback(const char* message, int level)
 	{
-		m_lastError = std::move(state.m_lastError);
-		m_state = state.m_state;
-
-		return *this;
+		luaL_traceback(m_state, m_state, message, level);
 	}
 
-	bool LuaState::Run(int argCount, int resultCount)
+	bool LuaState::Run(int argCount, int resultCount, int errHandler)
 	{
 		LuaInstance& instance = GetInstance(m_state);
 
 		if (instance.m_level++ == 0)
 			instance.m_clock.Restart();
 
-		int status = lua_pcall(m_state, argCount, resultCount, 0);
+		int status = lua_pcall(m_state, argCount, resultCount, errHandler);
 
 		instance.m_level--;
 

@@ -7,16 +7,14 @@
 #ifndef NAZARA_SKYBOXBACKGROUND_HPP
 #define NAZARA_SKYBOXBACKGROUND_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
-#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Utility/IndexBuffer.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
 
 namespace Nz
 {
+	class AbstractViewer;
 	class SkyboxBackground;
 
 	using SkyboxBackgroundConstRef = ObjectRef<const SkyboxBackground>;

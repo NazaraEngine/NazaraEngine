@@ -63,6 +63,7 @@ uniform float ParallaxBias = -0.03;
 uniform float ParallaxScale = 0.02;
 uniform vec2 InvTargetSize;
 uniform vec3 EyePosition;
+uniform samplerCube ReflectionMap;
 uniform vec4 SceneAmbient;
 
 uniform sampler2D TextureOverlay;
@@ -451,6 +452,14 @@ void main()
 	#endif
 		
 	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
+	
+	#if REFLECTION_MAPPING
+	vec3 eyeVec = normalize(vWorldPos - EyePosition);
+
+	vec3 reflected = normalize(reflect(eyeVec, normal));
+	lightColor *= texture(ReflectionMap, reflected).rgb;
+	#endif
+	
 	vec4 fragmentColor = vec4(lightColor, 1.0) * diffuseColor;
 
 	#if EMISSIVE_MAPPING

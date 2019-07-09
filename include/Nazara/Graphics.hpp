@@ -33,6 +33,7 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -45,14 +46,13 @@
 #include <Nazara/Graphics/DeferredFXAAPass.hpp>
 #include <Nazara/Graphics/DeferredGeometryPass.hpp>
 #include <Nazara/Graphics/DeferredPhongLightingPass.hpp>
+#include <Nazara/Graphics/DeferredProxyRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
-#include <Nazara/Graphics/DeferredRenderQueue.hpp>
 #include <Nazara/Graphics/DeferredRenderTechnique.hpp>
 #include <Nazara/Graphics/DepthRenderQueue.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/ForwardRenderQueue.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
@@ -73,6 +73,7 @@
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>

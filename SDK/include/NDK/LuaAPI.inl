@@ -1,8 +1,7 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/LuaAPI.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
@@ -16,7 +15,6 @@
 #include <NDK/Components.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/World.hpp>
-#include <algorithm>
 
 #ifndef NDK_SERVER
 #include <Nazara/Audio/Music.hpp>
@@ -271,6 +269,15 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector2i* vec, TypeTag<Vector2i>)
+	{
+		Vector2d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector2d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3d* vec, TypeTag<Vector3d>)
 	{
 		switch (state.GetType(index))
@@ -310,9 +317,31 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3i* vec, TypeTag<Vector3i>)
+	{
+		Vector3d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::Entity** handle, TypeTag<Ndk::Entity*>)
+	{
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			*handle = nullptr;
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Ndk::EntityHandle* handle, TypeTag<Ndk::EntityHandle>)
 	{
-		*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		if (!state.IsOfType(index, LuaType_Nil))
+			*handle = *static_cast<Ndk::EntityHandle*>(state.CheckUserdata(index, "Entity"));
+		else
+			handle->Reset();
 
 		return 1;
 	}
@@ -373,7 +402,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, MusicParams* params, TypeTag<MusicParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -382,7 +411,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundStreamParams* params, TypeTag<SoundStreamParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -527,6 +556,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, Vector2i&& val, TypeTag<Vector2i>)
+	{
+		state.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, Vector3d&& val, TypeTag<Vector3d>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
@@ -540,6 +575,12 @@ namespace Nz
 	}
 
 	inline int LuaImplReplyVal(const LuaState& state, Vector3ui&& val, TypeTag<Vector3ui>)
+	{
+		state.PushInstance<Vector3d>("Vector3", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, Vector3i&& val, TypeTag<Vector3i>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
 		return 1;
@@ -594,9 +635,21 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, ModelRef&& handle, TypeTag<ModelRef>)
+	{
+		state.PushInstance<ModelRef>("Model", handle);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		state.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, SoundBufferRef&& handle, TypeTag<SoundBufferRef>)
+	{
+		state.PushInstance<SoundBufferRef>("SoundBuffer", handle);
 		return 1;
 	}
 

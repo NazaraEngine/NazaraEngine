@@ -98,7 +98,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			THEN("We expect those to be true")
 			{
 				CHECK(segment.GetFirstPoint() == firstPoint);
-				CHECK(segment.GetLength() == firstPoint.Distance(secondPoint));
+				CHECK(segment.GetLength() == Approx(firstPoint.Distance(secondPoint)));
 				CHECK(segment.GetSecondPoint() == secondPoint);
 				CHECK(segment.GetType() == Nz::ColliderType2D_Segment);
 			}

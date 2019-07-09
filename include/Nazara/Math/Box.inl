@@ -912,7 +912,7 @@ namespace Nz
 	* \param box Input Box
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const Box<T>& box)
+	bool Serialize(SerializationContext& context, const Box<T>& box, TypeTag<Box<T>>)
 	{
 		if (!Serialize(context, box.x))
 			return false;
@@ -943,7 +943,7 @@ namespace Nz
 	* \param box Output Box
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Box<T>* box)
+	bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>)
 	{
 		if (!Unserialize(context, &box->x))
 			return false;

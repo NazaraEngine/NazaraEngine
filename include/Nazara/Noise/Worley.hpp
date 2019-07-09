@@ -5,12 +5,11 @@
 #ifndef NAZARA_WORLEY_HPP
 #define NAZARA_WORLEY_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Noise/Config.hpp>
 #include <Nazara/Noise/Enums.hpp>
 #include <Nazara/Noise/NoiseBase.hpp>
-#include <initializer_list>
 #include <map>
 
 namespace Nz

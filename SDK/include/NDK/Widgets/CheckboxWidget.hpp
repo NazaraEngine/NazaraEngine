@@ -1,33 +1,34 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_WIDGETS_CHECKBOXWIDGET_HPP
 #define NDK_WIDGETS_CHECKBOXWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
+#include <NDK/Prerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
-#include <NDK/Widgets/Enums.hpp>
 #include <NDK/Components/NodeComponent.hpp>
+#include <NDK/Widgets/Enums.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Rect.hpp>
+
+namespace Nz
+{
+	class AbstractTextDrawer;
+}
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API CheckboxWidget : public BaseWidget
 	{
 		friend class Sdk;
 
 		public:
-			CheckboxWidget(BaseWidget* parent = nullptr);
+			CheckboxWidget(BaseWidget* parent);
 			CheckboxWidget(const CheckboxWidget&) = delete;
 			CheckboxWidget(CheckboxWidget&&) = default;
 			~CheckboxWidget() = default;
@@ -52,7 +53,6 @@ namespace Ndk
 			void SetState(CheckboxState state);
 			inline void SetTextMargin(float margin);
 
-			void ResizeToContent() override;
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
 
@@ -67,6 +67,7 @@ namespace Ndk
 
 			void Layout() override;
 			void UpdateCheckbox();
+			void UpdateSize();
 
 			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
 			inline bool ContainsCheckbox(int x, int y) const;

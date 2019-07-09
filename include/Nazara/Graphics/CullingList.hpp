@@ -7,7 +7,7 @@
 #ifndef NAZARA_CULLINGLIST_HPP
 #define NAZARA_CULLINGLIST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
@@ -23,11 +23,13 @@ namespace Nz
 	{
 		public:
 			template<CullTest> class Entry;
+			class BoxEntry;
 			class NoTestEntry;
 			class SphereEntry;
 			class VolumeEntry;
 
 			template<CullTest> friend class Entry;
+			friend BoxEntry;
 			friend NoTestEntry;
 			friend SphereEntry;
 			friend VolumeEntry;
@@ -41,6 +43,12 @@ namespace Nz
 
 			std::size_t Cull(const Frustumf& frustum, bool* forceInvalidation = nullptr);
 
+			std::size_t FillWithAllEntries(bool* forceInvalidation = nullptr);
+
+			const ResultContainer& GetFullyVisibleResults() const;
+			const ResultContainer& GetPartiallyVisibleResults() const;
+
+			BoxEntry RegisterBoxTest(const T* renderable);
 			NoTestEntry RegisterNoTest(const T* renderable);
 			SphereEntry RegisterSphereTest(const T* renderable);
 			VolumeEntry RegisterVolumeTest(const T* renderable);
@@ -48,36 +56,23 @@ namespace Nz
 			CullingList& operator=(const CullingList& renderable) = delete;
 			CullingList& operator=(CullingList&& renderable) = delete;
 
-			// STL API
-			typename ResultContainer::iterator begin();
-			typename ResultContainer::const_iterator begin() const;
-
-			typename ResultContainer::const_iterator cbegin() const;
-			typename ResultContainer::const_iterator cend() const;
-			typename ResultContainer::const_reverse_iterator crbegin() const;
-			typename ResultContainer::const_reverse_iterator crend() const;
-
-			bool empty() const;
-
-			typename ResultContainer::iterator end();
-			typename ResultContainer::const_iterator end() const;
-
-			typename ResultContainer::reverse_iterator rbegin();
-			typename ResultContainer::const_reverse_iterator rbegin() const;
-
-			typename ResultContainer::reverse_iterator rend();
-			typename ResultContainer::const_reverse_iterator rend() const;
-
-			typename ResultContainer::size_type size() const;
-
 			NazaraSignal(OnCullingListRelease, CullingList* /*cullingList*/);
 
 		private:
+			inline void NotifyBoxUpdate(std::size_t index, const Boxf& boundingVolume);
 			inline void NotifyForceInvalidation(CullTest type, std::size_t index);
 			inline void NotifyMovement(CullTest type, std::size_t index, void* oldPtr, void* newPtr);
 			inline void NotifyRelease(CullTest type, std::size_t index);
 			inline void NotifySphereUpdate(std::size_t index, const Spheref& sphere);
 			inline void NotifyVolumeUpdate(std::size_t index, const BoundingVolumef& boundingVolume);
+
+			struct BoxVisibilityEntry
+			{
+				Boxf box;
+				BoxEntry* entry;
+				const T* renderable;
+				bool forceInvalidation;
+			};
 
 			struct NoTestVisibilityEntry
 			{
@@ -102,10 +97,12 @@ namespace Nz
 				bool forceInvalidation;
 			};
 
+			std::vector<BoxVisibilityEntry> m_boxTestList;
 			std::vector<NoTestVisibilityEntry> m_noTestList;
 			std::vector<SphereVisibilityEntry> m_sphereTestList;
 			std::vector<VolumeVisibilityEntry> m_volumeTestList;
-			ResultContainer m_results;
+			ResultContainer m_fullyVisibleResults;
+			ResultContainer m_partiallyVisibleResults;
 	};
 
 	template<typename T>
@@ -133,42 +130,72 @@ namespace Nz
 			std::size_t m_index;
 			CullingList* m_parent;
 	};
+	
+	template<typename T>
+	class CullingList<T>::BoxEntry : public CullingList<T>::template Entry<CullTest::Box>
+	{
+		friend CullingList;
+
+		public:
+			BoxEntry();
+			BoxEntry(BoxEntry&&) = default;
+			~BoxEntry() = default;
+
+			void UpdateBox(const Boxf& box);
+
+			BoxEntry& operator=(BoxEntry&&) = default;
+
+		private:
+			BoxEntry(CullingList* parent, std::size_t index);
+	};
 
 	template<typename T>
-	class CullingList<T>::NoTestEntry : public CullingList::template Entry<CullTest::NoTest>
+	class CullingList<T>::NoTestEntry : public CullingList<T>::template Entry<CullTest::NoTest>
 	{
 		friend CullingList;
 
 		public:
 			NoTestEntry();
+			NoTestEntry(NoTestEntry&&) = default;
+			~NoTestEntry() = default;
+
+			NoTestEntry& operator=(NoTestEntry&&) = default;
 
 		private:
 			NoTestEntry(CullingList* parent, std::size_t index);
 	};
 
 	template<typename T>
-	class CullingList<T>::SphereEntry : public CullingList::template Entry<CullTest::Sphere>
+	class CullingList<T>::SphereEntry : public CullingList<T>::template Entry<CullTest::Sphere>
 	{
 		friend CullingList;
 
 		public:
 			SphereEntry();
+			SphereEntry(SphereEntry&&) = default;
+			~SphereEntry() = default;
 
 			void UpdateSphere(const Spheref& sphere);
+
+			SphereEntry& operator=(SphereEntry&&) = default;
 
 		private:
 			SphereEntry(CullingList* parent, std::size_t index);
 	};
 
 	template<typename T>
-	class CullingList<T>::VolumeEntry : public CullingList::template Entry<CullTest::Volume>
+	class CullingList<T>::VolumeEntry : public CullingList<T>::template Entry<CullTest::Volume>
 	{
 		friend CullingList;
 
 		public:
 			VolumeEntry();
+			VolumeEntry(VolumeEntry&&) = default;
+			~VolumeEntry() = default;
 
 			void UpdateVolume(const BoundingVolumef& sphere);
+
+			VolumeEntry& operator=(VolumeEntry&&) = default;
 
 		private:
 			VolumeEntry(CullingList* parent, std::size_t index);

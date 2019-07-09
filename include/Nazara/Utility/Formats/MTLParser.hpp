@@ -7,9 +7,8 @@
 #ifndef NAZARA_FORMATS_MTLPARSER_HPP
 #define NAZARA_FORMATS_MTLPARSER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>
@@ -46,6 +45,8 @@ namespace Nz
 				String decalMap;
 				String diffuseMap;
 				String displacementMap;
+				String emissiveMap; //< <!> Custom addition: not present in MTL
+				String normalMap; //< <!> Custom addition: not present in MTL
 				String reflectionMap;
 				String shininessMap;
 				String specularMap;

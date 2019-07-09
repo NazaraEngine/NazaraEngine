@@ -4,10 +4,9 @@
 
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <stb/stb_image.h>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
-#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <set>
@@ -56,7 +55,7 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		bool Load(Image* image, Stream& stream, const ImageParams& parameters)
+		ImageRef Load(Stream& stream, const ImageParams& parameters)
 		{
 			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
 			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
@@ -66,24 +65,29 @@ namespace Nz
 			if (!ptr)
 			{
 				NazaraError("Failed to load image: " + String(stbi_failure_reason()));
-				return false;
+				return nullptr;
 			}
 
+			CallOnExit freeStbiImage([ptr]()
+			{
+				stbi_image_free(ptr);
+			});
+
+			ImageRef image = Image::New();
 			if (!image->Create(ImageType_2D, PixelFormatType_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
-				stbi_image_free(ptr);
-
-				return false;
+				return nullptr;
 			}
 
 			image->Update(ptr);
-			stbi_image_free(ptr);
+
+			freeStbiImage.CallAndReset();
 
 			if (parameters.loadFormat != PixelFormatType_Undefined)
 				image->Convert(parameters.loadFormat);
 
-			return true;
+			return image;
 		}
 	}
 

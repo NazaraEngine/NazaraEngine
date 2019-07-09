@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -12,27 +12,29 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Platform/Event.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NDK/BaseWidget.hpp>
 #include <NDK/EntityOwner.hpp>
 
 namespace Nz
 {
-	class LuaState;
+	struct WindowEvent;
 }
 
 namespace Ndk
 {
 	class Console;
 	class Entity;
+	class ScrollAreaWidget;
+	class TextAreaWidget;
 
 	using ConsoleHandle = Nz::ObjectHandle<Console>;
 
-	class NDK_API Console : public Nz::Node, public Nz::HandledObject<Console>
+	class NDK_API Console : public BaseWidget, public Nz::HandledObject<Console>
 	{
 		public:
-			Console(World& world, const Nz::Vector2f& size, Nz::LuaState& state);
+			Console(BaseWidget* parent);
 			Console(const Console& console) = delete;
 			Console(Console&& console) = default;
 			~Console() = default;
@@ -40,34 +42,25 @@ namespace Ndk
 			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
 
 			void Clear();
+			void ClearFocus();
 
 			inline unsigned int GetCharacterSize() const;
-			inline const EntityHandle& GetHistory() const;
-			inline const EntityHandle& GetHistoryBackground() const;
-			inline const EntityHandle& GetInput() const;
-			inline const EntityHandle& GetInputBackground() const;
-			inline const Nz::Vector2f& GetSize() const;
+			inline const TextAreaWidget* GetHistory() const;
+			inline const TextAreaWidget* GetInput() const;
 			inline const Nz::FontRef& GetTextFont() const;
 
-			inline bool IsVisible() const;
-
-			void SendCharacter(char32_t character);
-			void SendEvent(const Nz::WindowEvent& event);
-
 			void SetCharacterSize(unsigned int size);
-			void SetSize(const Nz::Vector2f& size);
+			void SetFocus();
 			void SetTextFont(Nz::FontRef font);
-
-			void Show(bool show = true);
 
 			Console& operator=(const Console& console) = delete;
 			Console& operator=(Console&& console) = default;
 
+			NazaraSignal(OnCommand, Console* /*console*/, const Nz::String& /*command*/);
+
 		private:
-			void AddLineInternal(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
-			void ExecuteInput();
-			void Layout();
-			void RefreshHistory();
+			void ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction);
+			void Layout() override;
 
 			struct Line
 			{
@@ -78,20 +71,10 @@ namespace Ndk
 			std::size_t m_historyPosition;
 			std::vector<Nz::String> m_commandHistory;
 			std::vector<Line> m_historyLines;
-			EntityOwner m_historyBackground;
-			EntityOwner m_history;
-			EntityOwner m_input;
-			EntityOwner m_inputBackground;
+			ScrollAreaWidget* m_historyArea;
+			TextAreaWidget* m_history;
+			TextAreaWidget* m_input;
 			Nz::FontRef m_defaultFont;
-			Nz::LuaState& m_state;
-			Nz::SpriteRef m_historyBackgroundSprite;
-			Nz::SpriteRef m_inputBackgroundSprite;
-			Nz::SimpleTextDrawer m_historyDrawer;
-			Nz::SimpleTextDrawer m_inputDrawer;
-			Nz::TextSpriteRef m_historyTextSprite;
-			Nz::TextSpriteRef m_inputTextSprite;
-			Nz::Vector2f m_size;
-			bool m_opened;
 			unsigned int m_characterSize;
 			unsigned int m_maxHistoryLines;
 	};

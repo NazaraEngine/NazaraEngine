@@ -7,37 +7,22 @@
 #ifndef NAZARA_MUSIC_HPP
 #define NAZARA_MUSIC_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz
 {
-	struct MusicParams : ResourceParameters
-	{
-		bool forceMono = false;
-
-		bool IsValid() const;
-	};
-
-	class Music;
-	class SoundStream;
-
-	using MusicLoader = ResourceLoader<Music, MusicParams>;
-
 	struct MusicImpl;
 
 	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
 	{
-		friend MusicLoader;
-
 		public:
 			Music() = default;
 			Music(const Music&) = delete;
-			Music(Music&&) = delete; ///TODO
+			Music(Music&&) noexcept = default;
 			~Music();
 
 			bool Create(SoundStream* soundStream);
@@ -54,9 +39,9 @@ namespace Nz
 
 			bool IsLooping() const override;
 
-			bool OpenFromFile(const String& filePath, const MusicParams& params = MusicParams());
-			bool OpenFromMemory(const void* data, std::size_t size, const MusicParams& params = MusicParams());
-			bool OpenFromStream(Stream& stream, const MusicParams& params = MusicParams());
+			bool OpenFromFile(const String& filePath, const SoundStreamParams& params = SoundStreamParams());
+			bool OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params = SoundStreamParams());
+			bool OpenFromStream(Stream& stream, const SoundStreamParams& params = SoundStreamParams());
 
 			void Pause() override;
 			void Play() override;
@@ -66,16 +51,14 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) = delete; ///TODO
+			Music& operator=(Music&&) noexcept = default;
 
 		private:
-			MusicImpl* m_impl = nullptr;
+			MovablePtr<MusicImpl> m_impl;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();
 			void StopThread();
-
-			static MusicLoader::LoaderList s_loaders;
 	};
 }
 

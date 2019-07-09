@@ -13,12 +13,11 @@
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/X11/CursorImpl.hpp>
+#include <Nazara/Platform/X11/Display.hpp>
 #include <Nazara/Platform/X11/IconImpl.hpp>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
-#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
 #include <Nazara/Platform/Debug.hpp>
 
@@ -411,6 +410,10 @@ namespace Nz
 				}
 			}
 		}
+	}
+
+	void WindowImpl::RefreshCursor()
+	{
 	}
 
 	void WindowImpl::SetCursor(const Cursor& cursor)
@@ -1035,7 +1038,16 @@ namespace Nz
 			case XCB_FOCUS_IN:
 			{
 				const uint32_t value_list[] = { eventMask };
-				xcb_change_window_attributes(connection, m_window, XCB_CW_EVENT_MASK, value_list);
+				if (!X11::CheckCookie(
+					connection,
+					xcb_change_window_attributes(
+						connection,
+						m_window,
+						XCB_CW_EVENT_MASK,
+						value_list
+					))
+				)
+					NazaraError("Failed to change event mask");
 
 				WindowEvent event;
 				event.type = Nz::WindowEventType_GainedFocus;
@@ -1052,8 +1064,17 @@ namespace Nz
 				m_parent->PushEvent(event);
 
 				const uint32_t values[] = { XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
-				xcb_change_window_attributes(connection, m_window, XCB_CW_EVENT_MASK, values);
-
+				if (!X11::CheckCookie(
+					connection,
+					xcb_change_window_attributes(
+						connection,
+						m_window,
+						XCB_CW_EVENT_MASK,
+						values
+					))
+				)
+					NazaraError("Failed to change event mask");
+				
 				break;
 			}
 
@@ -1212,6 +1233,8 @@ namespace Nz
 					{
 						event.type             = Nz::WindowEventType_MouseWheelMoved;
 						event.mouseWheel.delta = (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4) ? 1 : -1;
+						event.mouseWheel.x = buttonReleaseEvent->event_x;
+						event.mouseWheel.y = buttonReleaseEvent->event_y;
 						break;
 					}
 					default:
@@ -1245,6 +1268,7 @@ namespace Nz
 			{
 				xcb_motion_notify_event_t* motionNotifyEvent = (xcb_motion_notify_event_t*)windowEvent;
 
+				// We use the sequence to determine whether the motion is linked to a Mouse::SetPosition
 				if (m_mousePos.x == motionNotifyEvent->event_x && m_mousePos.y == motionNotifyEvent->event_y)
 					break;
 
@@ -1254,10 +1278,11 @@ namespace Nz
 				event.mouseMove.deltaY = motionNotifyEvent->event_y - m_mousePos.y;
 				event.mouseMove.x = motionNotifyEvent->event_x;
 				event.mouseMove.y = motionNotifyEvent->event_y;
-				m_parent->PushEvent(event);
 
 				m_mousePos.x = motionNotifyEvent->event_x;
 				m_mousePos.y = motionNotifyEvent->event_y;
+
+				m_parent->PushEvent(event);
 
 				break;
 			}

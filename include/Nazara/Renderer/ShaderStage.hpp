@@ -7,7 +7,7 @@
 #ifndef NAZARA_SHADERSTAGE_HPP
 #define NAZARA_SHADERSTAGE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>

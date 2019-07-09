@@ -9,7 +9,7 @@
 
 #ifdef NAZARA_AUDIO_OPENAL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/String.hpp>

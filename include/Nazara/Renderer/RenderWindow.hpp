@@ -9,7 +9,7 @@
 #ifndef NAZARA_RENDERWINDOW_HPP
 #define NAZARA_RENDERWINDOW_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -23,8 +23,6 @@ namespace Nz
 {
 	class AbstractImage;
 	class Context;
-	class Texture;
-	struct ContextParameters;
 
 	class NAZARA_RENDERER_API RenderWindow : public RenderTarget, public Window
 	{
@@ -46,9 +44,8 @@ namespace Nz
 
 			void EnableVerticalSync(bool enabled);
 
-			unsigned int GetHeight() const override;
 			RenderTargetParameters GetParameters() const override;
-			unsigned int GetWidth() const override;
+			Vector2ui GetSize() const override;
 
 			bool IsRenderable() const override;
 			bool IsValid() const;

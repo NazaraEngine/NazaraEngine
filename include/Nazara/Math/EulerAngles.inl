@@ -51,11 +51,22 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a EulerAngles object from an angle
+	*
+	* \param angle Angle representing a 2D rotation
+	*/
+	template<typename T>
+	template<AngleUnit Unit>
+	EulerAngles<T>::EulerAngles(const Angle<Unit, T>& angle)
+	{
+		Set(angle);
+	}
+
+	/*!
 	* \brief Constructs a EulerAngles object from a quaternion
 	*
 	* \param quat Quaternion representing a rotation of space
 	*/
-
 	template<typename T>
 	EulerAngles<T>::EulerAngles(const Quaternion<T>& quat)
 	{
@@ -77,7 +88,6 @@ namespace Nz
 
 	/*!
 	* \brief Makes the euler angle (0, 0, 0)
-	* \return A reference to this euler angle with components (0, 0, 0)
 	*
 	* \see Zero
 	*/
@@ -143,13 +153,28 @@ namespace Nz
 		return *this;
 	}
 
+
+	/*!
+	* \brief Sets the components of the euler angle from a 2D rotation specified by an Angle
+	* \return A reference to this euler angle
+	*
+	* \param angle 2D angle
+	*
+	* \see Angle
+	*/
+	template<typename T>
+	template<AngleUnit Unit>
+	EulerAngles<T>& EulerAngles<T>::Set(const Angle<Unit, T>& angle)
+	{
+		return Set(angle.ToEulerAngles());
+	}
+
 	/*!
 	* \brief Sets the components of the euler angle from another euler angle
 	* \return A reference to this euler angle
 	*
 	* \param angles The other euler angle
 	*/
-
 	template<typename T>
 	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles& angles)
 	{
@@ -276,7 +301,7 @@ namespace Nz
 	* \brief Substracts the components of other euler angle to this euler angle
 	* \return A reference to this euler angle where components are the difference of this euler angle and the other one
 	*
-	* \param angle The other euler angle to substract components with
+	* \param angles The other euler angle to substract components with
 	*/
 
 	template<typename T>
@@ -341,7 +366,7 @@ namespace Nz
 	* \param angles Input euler angles
 	*/
 	template<typename T>
-	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles)
+	bool Serialize(SerializationContext& context, const EulerAngles<T>& angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Serialize(context, angles.pitch))
 			return false;
@@ -363,7 +388,7 @@ namespace Nz
 	* \param angles Output euler angles
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles)
+	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles, TypeTag<EulerAngles<T>>)
 	{
 		if (!Unserialize(context, &angles->pitch))
 			return false;
@@ -395,3 +420,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "EulerAngles.hpp"

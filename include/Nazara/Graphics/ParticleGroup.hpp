@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEGROUP_HPP
 #define NAZARA_PARTICLEGROUP_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
@@ -15,9 +15,7 @@
 #include <Nazara/Graphics/ParticleGenerator.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
-#include <Nazara/Math/BoundingVolume.hpp>
 #include <functional>
-#include <memory>
 #include <set>
 #include <vector>
 

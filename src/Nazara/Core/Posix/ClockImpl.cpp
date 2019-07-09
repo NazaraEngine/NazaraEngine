@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/ClockImpl.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <ctime>
 #include <sys/time.h>
 #include <Nazara/Core/Debug.hpp>
 

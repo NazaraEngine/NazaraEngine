@@ -8,9 +8,6 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Sphere.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/Shader.hpp>
-#include <cstring>
 #include <Nazara/Graphics/Debug.hpp>
 
 ///TODO: Use of UBOs

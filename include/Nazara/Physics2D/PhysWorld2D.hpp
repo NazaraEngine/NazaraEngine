@@ -7,8 +7,10 @@
 #ifndef NAZARA_PHYSWORLD2D_HPP
 #define NAZARA_PHYSWORLD2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -21,17 +23,27 @@ struct cpSpace;
 
 namespace Nz
 {
+	class Arbiter2D;
+
 	class NAZARA_PHYSICS2D_API PhysWorld2D
 	{
 		friend RigidBody2D;
 
-		using ContactEndCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
-		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
-		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
-		using ContactStartCallback = std::function<bool(PhysWorld2D& world, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactEndCallback = std::function<void(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+		using ContactStartCallback = std::function<bool(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
+
+		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, const RadianAnglef& rotation, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawDotCallback = std::function<void(const Vector2f& origin, float radius, Color color, void* userdata)>;
+		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, Color color, void* userdata)>;
+		using DebugDrawTickSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, float thickness, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawGetColorCallback = std::function<Color(RigidBody2D& body, std::size_t shapeIndex, void* userdata)>;
 
 		public:
 			struct Callback;
+			struct DebugDrawOptions;
 			struct NearestQueryResult;
 			struct RaycastHit;
 
@@ -40,25 +52,37 @@ namespace Nz
 			PhysWorld2D(PhysWorld2D&&) = delete; ///TODO
 			~PhysWorld2D();
 
+			void DebugDraw(const DebugDrawOptions& options, bool drawShapes = true, bool drawConstraints = true, bool drawCollisions = true);
+
+			float GetDamping() const;
 			Vector2f GetGravity() const;
 			cpSpace* GetHandle() const;
+			std::size_t GetIterationCount() const;
+			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
+			void RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback);
 			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
 			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
+			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback);
 			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies);
 
-			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
-			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
+			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
+			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
 
+			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
+			void SetIterationCount(std::size_t iterationCount);
+			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);
+
+			void UseSpatialHash(float cellSize, std::size_t entityCount);
 
 			PhysWorld2D& operator=(const PhysWorld2D&) = delete;
 			PhysWorld2D& operator=(PhysWorld2D&&) = delete; ///TODO
@@ -69,6 +93,22 @@ namespace Nz
 				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactPostSolveCallback postSolveCallback = nullptr;
 				ContactStartCallback startCallback = nullptr;
+				void* userdata = nullptr;
+			};
+
+			struct DebugDrawOptions
+			{
+				Color constraintColor;
+				Color collisionPointColor;
+				Color shapeOutlineColor;
+
+				DebugDrawCircleCallback circleCallback;
+				DebugDrawGetColorCallback colorCallback;
+				DebugDrawDotCallback dotCallback;
+				DebugDrawPolygonCallback polygonCallback;
+				DebugDrawSegmentCallback segmentCallback;
+				DebugDrawTickSegmentCallback thickSegmentCallback;
+
 				void* userdata;
 			};
 
@@ -88,11 +128,11 @@ namespace Nz
 				float fraction;
 			};
 
-			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/);
-			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/);
+			NazaraSignal(OnPhysWorld2DPreStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
+			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
-			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
+			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
 
 			using PostStep = std::function<void(Nz::RigidBody2D* body)>;
 
@@ -111,6 +151,7 @@ namespace Nz
 
 			static_assert(std::is_nothrow_move_constructible<PostStepContainer>::value, "PostStepContainer should be noexcept MoveConstructible");
 
+			std::size_t m_maxStepCount;
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;

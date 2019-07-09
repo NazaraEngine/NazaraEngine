@@ -8,7 +8,6 @@
 #define NAZARA_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
-#include <dlfcn.h>
 
 namespace Nz
 {

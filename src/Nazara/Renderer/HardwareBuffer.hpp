@@ -7,7 +7,7 @@
 #ifndef NAZARA_HARDWAREBUFFER_HPP
 #define NAZARA_HARDWAREBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 

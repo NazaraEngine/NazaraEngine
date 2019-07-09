@@ -7,7 +7,7 @@
 #ifndef NAZARA_INDEXBUFFER_HPP
 #define NAZARA_INDEXBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Buffer.hpp>

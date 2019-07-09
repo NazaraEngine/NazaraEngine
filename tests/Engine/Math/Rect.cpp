@@ -12,9 +12,9 @@ SCENARIO("Rect", "[MATH][RECT]")
 		{
 			THEN("They should be")
 			{
-				REQUIRE(firstCenterAndUnit == secondCenterAndUnit);
-				REQUIRE(firstCenterAndUnit.GetCenter() == secondCenterAndUnit.GetCenter());
-				REQUIRE(firstCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom) == secondCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom));
+				CHECK(firstCenterAndUnit == secondCenterAndUnit);
+				CHECK(firstCenterAndUnit.GetCenter() == secondCenterAndUnit.GetCenter());
+				CHECK(firstCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom) == secondCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom));
 				CHECK(firstCenterAndUnit.IsValid());
 			}
 		}
@@ -43,14 +43,22 @@ SCENARIO("Rect", "[MATH][RECT]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(firstCenterAndUnit.GetLengths() == Nz::Vector2f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMaximum() == Nz::Vector2f::Unit());
-				REQUIRE(firstCenterAndUnit.GetMinimum() == Nz::Vector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetNegativeVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPosition() == Nz::Vector2f::Zero());
-				REQUIRE(firstCenterAndUnit.GetPositiveVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Unit());
+				CHECK(firstCenterAndUnit.GetLengths() == Nz::Vector2f::Unit());
+				CHECK(firstCenterAndUnit.GetMaximum() == Nz::Vector2f::Unit());
+				CHECK(firstCenterAndUnit.GetMinimum() == Nz::Vector2f::Zero());
+				CHECK(firstCenterAndUnit.GetNegativeVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Zero());
+				CHECK(firstCenterAndUnit.GetPosition() == Nz::Vector2f::Zero());
+				CHECK(firstCenterAndUnit.GetPositiveVertex(Nz::Vector2f::Unit()) == Nz::Vector2f::Unit());
 
 			}
+		}
+
+		WHEN("We ask for intersection")
+		{
+			Nz::Rectf intersection;
+			CHECK(firstCenterAndUnit.Intersect(secondCenterAndUnit, &intersection));
+			CHECK(intersection == Nz::Rectf(1.f, 1.f));
+			CHECK(intersection == Nz::Rectf(Nz::Vector2f(1.f, 1.f)));
 		}
 
 		WHEN("We try to lerp")

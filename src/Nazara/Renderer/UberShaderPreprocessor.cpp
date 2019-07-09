@@ -5,10 +5,9 @@
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <algorithm>
-#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz

@@ -64,8 +64,8 @@ SCENARIO("State & StateMachine", "[NDK][STATE]")
 		std::shared_ptr<SecondTestState> secondTestState = std::make_shared<SecondTestState>();
 		Ndk::StateMachine stateMachine(secondTestState);
 		stateMachine.PushState(testState);
-		REQUIRE(!testState->IsUpdated());
-		REQUIRE(!secondTestState->IsUpdated());
+		CHECK(!testState->IsUpdated());
+		CHECK(!secondTestState->IsUpdated());
 
 		WHEN("We update our machine")
 		{
@@ -73,34 +73,32 @@ SCENARIO("State & StateMachine", "[NDK][STATE]")
 
 			THEN("Our state on the top has been updated but not the bottom one")
 			{
-				REQUIRE(stateMachine.IsTopState(testState.get()));
-				REQUIRE(!stateMachine.IsTopState(secondTestState.get()));
+				CHECK(stateMachine.IsTopState(testState.get()));
+				CHECK(!stateMachine.IsTopState(secondTestState.get()));
 
-				REQUIRE(testState->IsUpdated());
-				REQUIRE(!secondTestState->IsUpdated());
+				CHECK(testState->IsUpdated());
+				CHECK(!secondTestState->IsUpdated());
 			}
 		}
 
 		WHEN("We exchange the states' positions while emptying the stack")
 		{
-			REQUIRE(stateMachine.PopStatesUntil(secondTestState));
-			REQUIRE(stateMachine.IsTopState(secondTestState.get()));
+			stateMachine.PopStatesUntil(secondTestState);
+			stateMachine.Update(1.f);
+			CHECK(stateMachine.IsTopState(secondTestState.get()));
 
-			std::shared_ptr<Ndk::State> oldState = stateMachine.PopState();
-			REQUIRE(stateMachine.PopState() == nullptr);
-
-			stateMachine.SetState(testState);
-			stateMachine.PushState(oldState);
+			stateMachine.ResetState(testState);
+			stateMachine.PushState(secondTestState);
 
 			stateMachine.Update(1.f);
 
 			THEN("Both states should be updated")
 			{
-				REQUIRE(!stateMachine.IsTopState(testState.get()));
-				REQUIRE(stateMachine.IsTopState(secondTestState.get()));
+				CHECK(!stateMachine.IsTopState(testState.get()));
+				CHECK(stateMachine.IsTopState(secondTestState.get()));
 
-				REQUIRE(testState->IsUpdated());
-				REQUIRE(secondTestState->IsUpdated());
+				CHECK(testState->IsUpdated());
+				CHECK(secondTestState->IsUpdated());
 			}
 		}
 	}

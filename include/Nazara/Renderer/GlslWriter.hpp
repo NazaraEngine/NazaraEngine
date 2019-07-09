@@ -7,11 +7,10 @@
 #ifndef NAZARA_GLSLWRITER_HPP
 #define NAZARA_GLSLWRITER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
-#include <map>
 #include <set>
 #include <unordered_map>
 

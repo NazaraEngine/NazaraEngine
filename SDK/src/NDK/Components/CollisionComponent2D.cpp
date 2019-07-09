@@ -1,10 +1,9 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
@@ -19,28 +18,56 @@ namespace Ndk
 	*/
 
 	/*!
+	* \brief Gets the collision box representing the entity
+	* \return The physics collision box
+	*/
+	Nz::Rectf CollisionComponent2D::GetAABB() const
+	{
+		return GetRigidBody()->GetAABB();
+	}
+
+	/*!
+	* \brief Gets the position offset between the actual rigid body center of mass position and the origin of the geometry
+	* \return Position offset
+	*/
+	const Nz::Vector2f& CollisionComponent2D::GetGeomOffset() const
+	{
+		return GetRigidBody()->GetPositionOffset();
+	}
+
+	/*!
+	* \brief Convenience function to align center of geometry to a specific point
+	*
+	* \param geomOffset Position offset
+	*
+	* \remark This does not change the center of mass
+	*/
+	void CollisionComponent2D::Recenter(const Nz::Vector2f& origin)
+	{
+		const Nz::RigidBody2D* rigidBody = GetRigidBody();
+		SetGeomOffset(origin - rigidBody->GetAABB().GetCenter() + rigidBody->GetPositionOffset());
+	}
+
+	/*!
 	* \brief Sets geometry for the entity
 	*
 	* \param geom Geometry used for collisions
-	*
-	* \remark Produces a NazaraAssert if the entity has no physics component and has no static body
 	*/
-
 	void CollisionComponent2D::SetGeom(Nz::Collider2DRef geom)
 	{
 		m_geom = std::move(geom);
 
-		if (m_entity->HasComponent<PhysicsComponent2D>())
-		{
-			// We update the geometry of the PhysiscsObject linked to the PhysicsComponent2D
-			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
-			physComponent.GetRigidBody().SetGeom(m_geom);
-		}
-		else
-		{
-			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
-			m_staticBody->SetGeom(m_geom);
-		}
+		GetRigidBody()->SetGeom(m_geom);
+	}
+
+	/*!
+	* \brief Sets the position offset between the actual rigid body center of mass position and the origin of the geometry
+	*
+	* \param geomOffset Position offset
+	*/
+	void CollisionComponent2D::SetGeomOffset(const Nz::Vector2f& geomOffset)
+	{
+		GetRigidBody()->SetPositionOffset(geomOffset);
 	}
 
 	/*!
@@ -49,7 +76,6 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if entity is invalid
 	* \remark Produces a NazaraAssert if entity is not linked to a world, or the world has no physics system
 	*/
-
 	void CollisionComponent2D::InitializeStaticBody()
 	{
 		NazaraAssert(m_entity, "Invalid entity");
@@ -57,9 +83,10 @@ namespace Ndk
 
 		NazaraAssert(entityWorld, "Entity must have world");
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a physics system");
-		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
+		Nz::PhysWorld2D& physWorld = entityWorld->GetSystem<PhysicsSystem2D>().GetPhysWorld();
 
-		m_staticBody.reset(new Nz::RigidBody2D(&physWorld, 0.f, m_geom));
+		m_staticBody = std::make_unique<Nz::RigidBody2D>(&physWorld, 0.f, m_geom);
+		m_staticBody->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())
@@ -68,7 +95,34 @@ namespace Ndk
 			matrix.MakeIdentity();
 
 		m_staticBody->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
+	}
 
+	Nz::RigidBody2D* CollisionComponent2D::GetRigidBody()
+	{
+		if (m_entity->HasComponent<PhysicsComponent2D>())
+		{
+			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
+			return physComponent.GetRigidBody();
+		}
+		else
+		{
+			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
+			return m_staticBody.get();
+		}
+	}
+
+	const Nz::RigidBody2D* CollisionComponent2D::GetRigidBody() const
+	{
+		if (m_entity->HasComponent<PhysicsComponent2D>())
+		{
+			PhysicsComponent2D& physComponent = m_entity->GetComponent<PhysicsComponent2D>();
+			return physComponent.GetRigidBody();
+		}
+		else
+		{
+			NazaraAssert(m_staticBody, "An entity without physics component should have a static body");
+			return m_staticBody.get();
+		}
 	}
 
 	/*!

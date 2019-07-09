@@ -7,13 +7,11 @@
 #ifndef NAZARA_ABSTRACTATLAS_HPP
 #define NAZARA_ABSTRACTATLAS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -24,6 +22,8 @@ namespace Nz
 	{
 		public:
 			AbstractAtlas() = default;
+			AbstractAtlas(const AbstractAtlas&) = delete;
+			AbstractAtlas(AbstractAtlas&&) noexcept = default;
 			virtual ~AbstractAtlas();
 
 			virtual void Clear() = 0;
@@ -32,6 +32,9 @@ namespace Nz
 			virtual std::size_t GetLayerCount() const = 0;
 			virtual UInt32 GetStorage() const = 0;
 			virtual bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
+
+			AbstractAtlas& operator=(const AbstractAtlas&) = delete;
+			AbstractAtlas& operator=(AbstractAtlas&&) noexcept = default;
 
 			// Signals:
 			NazaraSignal(OnAtlasCleared, const AbstractAtlas* /*atlas*/);

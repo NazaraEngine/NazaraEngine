@@ -7,14 +7,15 @@
 #ifndef NAZARA_BYTESTREAM_HPP
 #define NAZARA_BYTESTREAM_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/ByteArray.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <memory>
 
 namespace Nz
 {
+	class ByteArray;
+	class Stream;
+
 	class NAZARA_CORE_API ByteStream
 	{
 		public:
@@ -23,8 +24,10 @@ namespace Nz
 			ByteStream(void* ptr, Nz::UInt64 size);
 			ByteStream(const void* ptr, Nz::UInt64 size);
 			ByteStream(const ByteStream&) = delete;
-			inline ByteStream(ByteStream&& stream);
+			ByteStream(ByteStream&& stream) noexcept = default;
 			virtual ~ByteStream();
+
+			inline void ClearStream();
 
 			inline Endianness GetDataEndianness() const;
 			inline Nz::UInt64 GetSize() const;
@@ -40,7 +43,7 @@ namespace Nz
 			void SetStream(void* ptr, Nz::UInt64 size);
 			void SetStream(const void* ptr, Nz::UInt64 size);
 
-			inline void Write(const void* data, std::size_t size);
+			inline std::size_t Write(const void* data, std::size_t size);
 
 			template<typename T>
 			ByteStream& operator>>(T& value);
@@ -49,7 +52,7 @@ namespace Nz
 			ByteStream& operator<<(const T& value);
 
 			ByteStream& operator=(const ByteStream&) = delete;
-			inline ByteStream& operator=(ByteStream&&);
+			ByteStream& operator=(ByteStream&&) noexcept = default;
 
 		private:
 			virtual void OnEmptyStream();

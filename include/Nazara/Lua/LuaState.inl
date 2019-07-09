@@ -2,8 +2,8 @@
 // This file is part of the "Nazara Engine - Lua scripting module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StringStream.hpp>
@@ -64,21 +64,21 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && !EnumAsFlags<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !IsEnumFlag<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && !EnumAsFlags<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !IsEnumFlag<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 		return LuaImplQueryArg(instance, index, reinterpret_cast<UnderlyingT*>(arg), static_cast<UnderlyingT>(defValue), TypeTag<UnderlyingT>());
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && EnumAsFlags<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && IsEnumFlag<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 
@@ -90,7 +90,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && EnumAsFlags<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, T defValue, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && IsEnumFlag<T>::value, unsigned int> LuaImplQueryArg(const LuaState& instance, int index, T* arg, T defValue, TypeTag<T>)
 	{
 		using UnderlyingT = std::underlying_type_t<T>;
 
@@ -160,6 +160,35 @@ namespace Nz
 		return LuaImplQueryArg(instance, index, arg, defValue, TypeTag<T>());
 	}
 
+	template<typename T>
+	unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::vector<T>* container, TypeTag<std::vector<T>>)
+	{
+		instance.CheckType(index, Nz::LuaType_Table);
+		std::size_t pos = 1;
+
+		container->clear();
+		for (;;)
+		{
+			Nz::CallOnExit popStack { [&instance]() { instance.Pop(); } };
+			instance.PushInteger(pos++);
+
+			int tableIndex = (index < 0) ? index - 1 : index;
+			if (instance.GetTable(tableIndex) == Nz::LuaType_Nil)
+				break;
+
+			T arg;
+			if (LuaImplQueryArg(instance, -1, &arg, TypeTag<T>()) != 1)
+			{
+				instance.Error("Type needs more than one place to be initialized");
+				return 0;
+			}
+
+			container->push_back(arg);
+		}
+
+		return 1;
+	}
+
 	// Function returns
 	inline int LuaImplReplyVal(const LuaState& instance, bool val, TypeTag<bool>)
 	{
@@ -180,14 +209,14 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && !EnumAsFlags<T>::value, int> LuaImplReplyVal(const LuaState& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && !IsEnumFlag<T>::value, int> LuaImplReplyVal(const LuaState& instance, T val, TypeTag<T>)
 	{
 		using EnumT = typename std::underlying_type<T>::type;
 		return LuaImplReplyVal(instance, static_cast<EnumT>(val), TypeTag<EnumT>());
 	}
 
 	template<typename T>
-	std::enable_if_t<std::is_enum<T>::value && EnumAsFlags<T>::value, int> LuaImplReplyVal(const LuaState& instance, T val, TypeTag<T>)
+	std::enable_if_t<std::is_enum<T>::value && IsEnumFlag<T>::value, int> LuaImplReplyVal(const LuaState& instance, T val, TypeTag<T>)
 	{
 		Flags<T> flags(val);
 		return LuaImplReplyVal(instance, flags, TypeTag<decltype(flags)>());
@@ -196,7 +225,7 @@ namespace Nz
 	template<typename E>
 	int LuaImplReplyVal(const LuaState& instance, Flags<E> val, TypeTag<Flags<E>>)
 	{
-		instance.PushInteger(UInt32(val));
+		instance.PushInteger(typename Flags<E>::BitField(val));
 		return 1;
 	}
 
@@ -707,7 +736,7 @@ namespace Nz
 	template<typename T>
 	void LuaState::PushField(const char* name, T&& arg, int tableIndex) const
 	{
-		Push<T>(std::forward<T>(arg));
+		Push(std::forward<T>(arg));
 		SetField(name, tableIndex);
 	}
 
@@ -733,7 +762,7 @@ namespace Nz
 	template<typename T>
 	void LuaState::PushGlobal(const char* name, T&& arg)
 	{
-		Push<T>(std::forward<T>(arg));
+		Push(std::forward<T>(arg));
 		SetGlobal(name);
 	}
 
@@ -741,15 +770,6 @@ namespace Nz
 	void LuaState::PushGlobal(const String& name, T&& arg)
 	{
 		PushGlobal(name.GetConstBuffer(), std::forward<T>(arg));
-	}
-
-	template<typename T>
-	void LuaState::PushInstance(const char* tname, const T& instance) const
-	{
-		T* userdata = static_cast<T*>(PushUserdata(sizeof(T)));
-		PlacementNew(userdata, instance);
-
-		SetMetatable(tname);
 	}
 
 	template<typename T>

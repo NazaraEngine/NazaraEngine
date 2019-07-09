@@ -266,14 +266,15 @@ namespace Ndk
 		state.SetGlobal("ResolveError");
 
 		// Nz::SocketError
-		static_assert(Nz::SocketError_Max + 1 == 15, "Nz::ResolveError has been updated but change was not reflected to Lua binding");
-		state.PushTable(0, 15);
+		static_assert(Nz::SocketError_Max + 1 == 16, "Nz::SocketError has been updated but change was not reflected to Lua binding");
+		state.PushTable(0, 16);
 		{
 			state.PushField("AddressNotAvailable", Nz::SocketError_AddressNotAvailable);
 			state.PushField("ConnectionClosed",    Nz::SocketError_ConnectionClosed);
 			state.PushField("ConnectionRefused",   Nz::SocketError_ConnectionRefused);
 			state.PushField("DatagramSize",        Nz::SocketError_DatagramSize);
 			state.PushField("Internal",            Nz::SocketError_Internal);
+			state.PushField("Interrupted",         Nz::SocketError_Interrupted);
 			state.PushField("Packet",              Nz::SocketError_Packet);
 			state.PushField("NetworkError",        Nz::SocketError_NetworkError);
 			state.PushField("NoError",             Nz::SocketError_NoError);

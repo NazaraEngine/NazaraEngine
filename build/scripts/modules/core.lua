@@ -2,7 +2,7 @@ MODULE.Name = "Core"
 MODULE.Excludable = false -- Excluding the core makes no sense as everything relies on it
 
 MODULE.Files = { -- Other files will be automatically added
-	"../include/Nazara/Prerequesites.hpp",
+	"../include/Nazara/Prerequisites.hpp",
 	"../include/Nazara/Math/**.hpp",
 	"../include/Nazara/Math/**.inl",
 }
@@ -19,5 +19,6 @@ MODULE.OsFiles.Posix = {
 
 MODULE.OsLibraries.Posix = {
 	"dl",
+	"m", -- Math library (for sincos())
 	"pthread"
 }

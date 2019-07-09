@@ -7,7 +7,7 @@
 #ifndef NAZARA_MEMORYPOOL_HPP
 #define NAZARA_MEMORYPOOL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
 

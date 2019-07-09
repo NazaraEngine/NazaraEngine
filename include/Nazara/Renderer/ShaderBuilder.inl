@@ -26,7 +26,7 @@ namespace Nz { namespace ShaderBuilder
 		return std::make_shared<ShaderAst::BinaryOp>(op, left, right);
 	}
 
-	std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::BuiltinEntry builtin) const
+	inline std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::BuiltinEntry builtin) const
 	{
 		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::Void;
 

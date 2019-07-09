@@ -7,7 +7,7 @@
 #ifndef NAZARA_SKINNINGMANAGER_HPP
 #define NAZARA_SKINNINGMANAGER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
 namespace Nz

@@ -1,25 +1,27 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
 #ifndef NDK_WIDGETS_TEXTAREAWIDGET_HPP
 #define NDK_WIDGETS_TEXTAREAWIDGET_HPP
 
-#include <NDK/Prerequesites.hpp>
-#include <NDK/BaseWidget.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
+#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NDK/BaseWidget.hpp>
+#include <NDK/Widgets/Enums.hpp>
+#include <functional>
+#include <vector>
 
 namespace Ndk
 {
-	class World;
-
 	class NDK_API TextAreaWidget : public BaseWidget
 	{
 		public:
-			TextAreaWidget(BaseWidget* parent = nullptr);
+			using CharacterFilter = std::function<bool(char32_t)>;
+
+			TextAreaWidget(BaseWidget* parent);
 			TextAreaWidget(const TextAreaWidget&) = delete;
 			TextAreaWidget(TextAreaWidget&&) = default;
 			~TextAreaWidget() = default;
@@ -30,65 +32,111 @@ namespace Ndk
 
 			//virtual TextAreaWidget* Clone() const = 0;
 
+			void EnableLineWrap(bool enable = true);
 			inline void EnableMultiline(bool enable = true);
+			inline void EnableTabWriting(bool enable = true);
 
+			inline void Erase(std::size_t glyphPosition);
+			void Erase(std::size_t firstGlyph, std::size_t lastGlyph);
+			void EraseSelection();
+
+			inline const CharacterFilter& GetCharacterFilter() const;
+			inline unsigned int GetCharacterSize() const;
 			inline const Nz::Vector2ui& GetCursorPosition() const;
-			inline std::size_t GetGlyphUnderCursor() const;
-			inline std::size_t GetLineCount() const;
+			inline Nz::Vector2ui GetCursorPosition(std::size_t glyphIndex) const;
+			inline const Nz::String& GetDisplayText() const;
+			inline EchoMode GetEchoMode() const;
+			inline std::size_t GetGlyphIndex() const;
+			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
+			inline Nz::Font* GetTextFont() const;
+			inline const Nz::Color& GetTextOulineColor() const;
+			inline float GetTextOulineThickness() const;
 
-			std::size_t GetHoveredGlyph(float x, float y) const;
+			Nz::Vector2ui GetHoveredGlyph(float x, float y) const;
 
+			inline bool HasSelection() const;
+
+			inline bool IsLineWrapEnabled() const;
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
+			inline bool IsTabWritingEnabled() const;
 
 			inline void MoveCursor(int offset);
 			inline void MoveCursor(const Nz::Vector2i& offset);
 
-			void ResizeToContent() override;
+			inline Nz::Vector2ui NormalizeCursorPosition(Nz::Vector2ui cursorPosition) const;
 
+			inline void SetCharacterFilter(CharacterFilter filter);
+			void SetCharacterSize(unsigned int characterSize);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Nz::Vector2ui cursorPosition);
+			inline void SetEchoMode(EchoMode echoMode);
 			inline void SetReadOnly(bool readOnly = true);
+			inline void SetSelection(Nz::Vector2ui fromPosition, Nz::Vector2ui toPosition);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
+			inline void SetTextFont(Nz::FontRef font);
+			inline void SetTextOutlineColor(const Nz::Color& color);
+			inline void SetTextOutlineThickness(float thickness);
 
-			void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text);
+			inline void Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition);
+			void Write(const Nz::String& text, std::size_t glyphPosition);
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
-			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, std::size_t* /*newCursorPosition*/);
+			NazaraSignal(OnTextAreaCursorMove, const TextAreaWidget* /*textArea*/, Nz::Vector2ui* /*newCursorPosition*/);
 			NazaraSignal(OnTextAreaKeyBackspace, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyDown, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyEnd, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyHome, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyLeft, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyReturn, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyRight, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyUp, const TextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaSelection, const TextAreaWidget* /*textArea*/, Nz::Vector2ui* /*start*/, Nz::Vector2ui* /*end*/);
+			NazaraSignal(OnTextChanged, const TextAreaWidget* /*textArea*/, const Nz::String& /*text*/);
 
 		private:
 			void Layout() override;
 
-			void OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
+			bool IsFocusable() const override;
+			void OnFocusLost() override;
+			void OnFocusReceived() override;
+			bool OnKeyPressed(const Nz::WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const Nz::WindowEvent::KeyEvent& key) override;
-			void OnMouseEnter() override;
 			void OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button) override;
+			void OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button button) override;
+			void OnMouseEnter() override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
-			void OnMouseExit() override;
 			void OnTextEntered(char32_t character, bool repeated) override;
 
-			void RefreshCursor();
+			inline void SetCursorPositionInternal(std::size_t glyphIndex);
+			inline void SetCursorPositionInternal(Nz::Vector2ui cursorPosition);
 
+			void RefreshCursor();
+			void UpdateDisplayText();
+			void UpdateTextSprite();
+
+			CharacterFilter m_characterFilter;
+			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
 			Nz::SimpleTextDrawer m_drawer;
-			Nz::SpriteRef m_cursorSprite;
+			Nz::String m_text;
 			Nz::TextSpriteRef m_textSprite;
-			Nz::Vector2ui m_cursorPosition;
-			std::size_t m_cursorGlyph;
+			Nz::Vector2ui m_cursorPositionBegin;
+			Nz::Vector2ui m_cursorPositionEnd;
+			Nz::Vector2ui m_selectionCursor;
+			std::vector<Nz::SpriteRef> m_cursorSprites;
+			bool m_isLineWrapEnabled;
+			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
+			bool m_tabEnabled; // writes (Shift+)Tab character if set to true
 	};
 }
 

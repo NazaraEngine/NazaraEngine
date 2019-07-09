@@ -7,7 +7,7 @@
 #ifndef NAZARA_DEFERREDFORWARDPASS_HPP
 #define NAZARA_DEFERREDFORWARDPASS_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/DeferredRenderPass.hpp>
 
 namespace Nz

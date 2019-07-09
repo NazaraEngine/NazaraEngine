@@ -6,7 +6,6 @@
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <algorithm>
-#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

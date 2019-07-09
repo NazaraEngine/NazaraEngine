@@ -4,6 +4,8 @@
 
 #include <Nazara/Core/Posix/ConditionVariableImpl.hpp>
 #include <Nazara/Core/Posix/MutexImpl.hpp>
+#include <sys/time.h>
+#include <time.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

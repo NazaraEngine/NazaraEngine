@@ -45,4 +45,3 @@
 #include <Nazara/Platform/WindowHandle.hpp>
 
 #endif // NAZARA_GLOBAL_PLATFORM_HPP
-

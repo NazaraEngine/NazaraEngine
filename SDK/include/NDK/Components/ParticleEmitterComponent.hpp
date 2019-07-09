@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -9,11 +9,14 @@
 #define NDK_COMPONENTS_PARTICLEEMITTERCOMPONENT_HPP
 
 #include <Nazara/Graphics/ParticleEmitter.hpp>
-#include <Nazara/Graphics/ParticleGroup.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
 {
+	class ParticleEmitterComponent;
+
+	using ParticleEmitterComponentHandle = Nz::ObjectHandle<ParticleEmitterComponent>;
+
 	class NDK_API ParticleEmitterComponent : public Component<ParticleEmitterComponent>, public Nz::ParticleEmitter
 	{
 		public:

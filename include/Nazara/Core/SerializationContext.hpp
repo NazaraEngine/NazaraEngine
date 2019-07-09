@@ -7,12 +7,11 @@
 #ifndef NAZARA_SERIALIZATION_HPP
 #define NAZARA_SERIALIZATION_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <functional>
-#include <tuple>
-#include <type_traits>
+#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 
 namespace Nz
 {
@@ -20,13 +19,16 @@ namespace Nz
 
 	struct NAZARA_CORE_API SerializationContext
 	{
-		Stream* stream;
+		MovablePtr<Stream> stream;
 		Endianness endianness = Endianness_BigEndian; //< Default to Big Endian encoding
-		UInt8 currentBitPos = 8; //< 8 means no bit is currently wrote
-		UInt8 currentByte; //< Undefined value, will be initialized at the first bit write
+		UInt8 readBitPos = 8; //< 8 means no bit is currently read
+		UInt8 readByte; //< Undefined value, will be initialized at the first bit read
+		UInt8 writeBitPos = 8; //< 8 means no bit is currently wrote
+		UInt8 writeByte; //< Undefined value, will be initialized at the first bit write
 
 		void FlushBits();
-		inline void ResetBitPosition();
+		inline void ResetReadBitPosition();
+		inline void ResetWriteBitPosition();
 	};
 }
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_ALGORITHM_NETWORK_HPP
 #define NAZARA_ALGORITHM_NETWORK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <functional>

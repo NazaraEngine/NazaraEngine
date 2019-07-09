@@ -50,7 +50,7 @@ namespace Nz
 		}
 	}
 
-	bool ContextImpl::Activate()
+	bool ContextImpl::Activate() const
 	{
 		return glXMakeCurrent(m_display, m_window, m_context) == true;
 	}

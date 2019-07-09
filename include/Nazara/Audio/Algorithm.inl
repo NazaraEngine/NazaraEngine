@@ -22,8 +22,8 @@ namespace Nz
 	void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount)
 	{
 		// To avoid overflow, we use, as an accumulator, a type which is large enough: (u)int 64 bits for integers, double for floatings
-		typedef typename std::conditional<std::is_unsigned<T>::value, UInt64, Int64>::type BiggestInt;
-		typedef typename std::conditional<std::is_integral<T>::value, BiggestInt, double>::type Biggest;
+		using BiggestInt = typename std::conditional<std::is_unsigned<T>::value, UInt64, Int64>::type;
+		using Biggest = typename std::conditional<std::is_integral<T>::value, BiggestInt, double>::type;
 
 		for (UInt64 i = 0; i < frameCount; ++i)
 		{

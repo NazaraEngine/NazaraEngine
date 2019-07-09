@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/World.hpp>
@@ -22,6 +22,7 @@ namespace Ndk
 	*/
 	void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
 	{
+		EnsureBoundingVolumesUpdate();
 		EnsureTransformMatrixUpdate();
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
@@ -30,24 +31,40 @@ namespace Ndk
 		{
 			if (!object.dataUpdated)
 			{
-				object.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(object.data.localMatrix, m_transformMatrix));
 				object.renderable->UpdateData(&object.data);
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
 		}
 	}
 
 	/*!
-	* \brief Attaches a renderable to the entity
+	* \brief Adds the renderable elements to the render queue if their bounding volume intersects with the frustum
 	*
-	* \param renderable Reference to a renderable element
-	* \param renderOrder Render order of the element
+	* \param frustum Queue to be added
+	* \param renderQueue Queue to be added
 	*/
-	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, int renderOrder)
+	void GraphicsComponent::AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue) const
 	{
-		return Attach(renderable, Nz::Matrix4f::Identity(), renderOrder);
+		EnsureBoundingVolumesUpdate();
+		EnsureTransformMatrixUpdate();
+
+		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
+
+		for (const Renderable& object : m_renderables)
+		{
+			if (frustum.Contains(object.boundingVolume))
+			{
+				if (!object.dataUpdated)
+				{
+					object.renderable->UpdateData(&object.data);
+					object.dataUpdated = true;
+				}
+
+				object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
+			}
+		}
 	}
 
 	/*!
@@ -60,26 +77,30 @@ namespace Ndk
 	void GraphicsComponent::Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder)
 	{
 		m_renderables.emplace_back(m_transformMatrix);
-		Renderable& r = m_renderables.back();
-		r.data.localMatrix = localMatrix;
-		r.data.renderOrder = renderOrder;
-		r.renderable = std::move(renderable);
-		r.renderableBoundingVolumeInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateBoundingVolume, [this] (const Nz::InstancedRenderable*) { InvalidateBoundingVolume(); });
-		r.renderableDataInvalidationSlot.Connect(r.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
-		r.renderableReleaseSlot.Connect(r.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+		Renderable& entry = m_renderables.back();
+		entry.data.localMatrix = localMatrix;
+		entry.data.renderOrder = renderOrder;
+		entry.renderable = std::move(renderable);
 
-		InvalidateBoundingVolume();
+		ConnectInstancedRenderableSignals(entry);
+
+		std::size_t materialCount = entry.renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			RegisterMaterial(entry.renderable->GetMaterial(i));
+
+		InvalidateAABB();
+		ForceCullingInvalidation();
 	}
 
-	/*!
-	* \brief Invalidates the data for renderable
-	*
-	* \param renderable Renderable to invalidate
-	* \param flags Flags for the instance
-	* \param index Index of the renderable to invalidate
-	*
-	* \remark Produces a NazaraAssert if index is out of bound
-	*/
+	void GraphicsComponent::ConnectInstancedRenderableSignals(Renderable& entry)
+	{
+		entry.renderableBoundingVolumeInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateBoundingVolume, [this](const Nz::InstancedRenderable*) { InvalidateAABB(); });
+		entry.renderableDataInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateData, std::bind(&GraphicsComponent::InvalidateRenderableData, this, std::placeholders::_1, std::placeholders::_2, m_renderables.size() - 1));
+		entry.renderableMaterialInvalidationSlot.Connect(entry.renderable->OnInstancedRenderableInvalidateMaterial, this, &GraphicsComponent::InvalidateRenderableMaterial);
+		entry.renderableReleaseSlot.Connect(entry.renderable->OnInstancedRenderableRelease, this, &GraphicsComponent::Detach);
+		entry.renderableResetMaterialsSlot.Connect(entry.renderable->OnInstancedRenderableResetMaterials, this, &GraphicsComponent::OnInstancedRenderableResetMaterials);
+		entry.renderableSkinChangeSlot.Connect(entry.renderable->OnInstancedRenderableSkinChange, this, &GraphicsComponent::OnInstancedRenderableSkinChange);
+	}
 
 	void GraphicsComponent::InvalidateRenderableData(const Nz::InstancedRenderable* renderable , Nz::UInt32 flags, std::size_t index)
 	{
@@ -90,8 +111,62 @@ namespace Ndk
 		r.dataUpdated = false;
 		r.renderable->InvalidateData(&r.data, flags);
 
-		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
-			entry.listEntry.ForceInvalidation();
+		ForceCullingInvalidation();
+	}
+
+	void GraphicsComponent::InvalidateRenderableMaterial(const Nz::InstancedRenderable* renderable, std::size_t skinIndex, std::size_t matIndex, const Nz::MaterialRef& newMat)
+	{
+		// Don't listen to dormant materials
+		if (renderable->GetSkin() != skinIndex)
+			return;
+
+		RegisterMaterial(newMat);
+
+		const Nz::MaterialRef& oldMat = renderable->GetMaterial(skinIndex, matIndex);
+		UnregisterMaterial(oldMat);
+
+		ForceCullingInvalidation();
+	}
+
+	void GraphicsComponent::InvalidateReflectionMap()
+	{
+		m_entity->Invalidate();
+
+		if (m_reflectiveMaterialCount > 0)
+		{
+			if (!m_reflectionMap)
+			{
+				m_reflectionMap = Nz::Texture::New();
+				if (!m_reflectionMap->Create(Nz::ImageType_Cubemap, Nz::PixelFormatType_RGB8, m_reflectionMapSize, m_reflectionMapSize))
+				{
+					NazaraWarning("Failed to create reflection map, reflections will be disabled for this entity");
+					return;
+				}
+			}
+		}
+		else
+			m_reflectionMap.Reset();
+	}
+
+	void GraphicsComponent::RegisterMaterial(Nz::Material* material, std::size_t count)
+	{
+		auto it = m_materialEntries.find(material);
+		if (it == m_materialEntries.end())
+		{
+			MaterialEntry matEntry;
+			matEntry.reflectionModelChangeSlot.Connect(material->OnMaterialReflectionModeChange, this, &GraphicsComponent::OnMaterialReflectionChange);
+			matEntry.renderableCounter = count;
+
+			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+			{
+				if (m_reflectiveMaterialCount++ == 0)
+					InvalidateReflectionMap();
+			}
+
+			m_materialEntries.emplace(material, std::move(matEntry));
+		}
+		else
+			it->second.renderableCounter += count;
 	}
 
 	/*!
@@ -150,57 +225,109 @@ namespace Ndk
 		InvalidateTransformMatrix();
 	}
 
-	/*!
-	* \brief Operation to perform when the node is invalidated
-	*
-	* \param node Pointer to the node
-	*/
+	void GraphicsComponent::OnInstancedRenderableResetMaterials(const Nz::InstancedRenderable* renderable, std::size_t newMaterialCount)
+	{
+		RegisterMaterial(Nz::Material::GetDefault(), newMaterialCount);
+
+		std::size_t materialCount = renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
+	}
+
+	void GraphicsComponent::OnInstancedRenderableSkinChange(const Nz::InstancedRenderable* renderable, std::size_t newSkinIndex)
+	{
+		std::size_t materialCount = renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < materialCount; ++i)
+			RegisterMaterial(renderable->GetMaterial(newSkinIndex, i));
+
+		for (std::size_t i = 0; i < materialCount; ++i)
+			UnregisterMaterial(renderable->GetMaterial(i));
+
+		ForceCullingInvalidation();
+	}
+
+	void GraphicsComponent::OnMaterialReflectionChange(const Nz::Material* material, Nz::ReflectionMode reflectionMode)
+	{
+		// Since this signal is only called when the new reflection mode is different from the current one, no need to compare both
+		if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+		{
+			if (--m_reflectiveMaterialCount == 0)
+				InvalidateReflectionMap();
+		}
+		else if (reflectionMode == Nz::ReflectionMode_RealTime)
+		{
+			if (m_reflectiveMaterialCount++ == 0)
+				InvalidateReflectionMap();
+		}
+	}
 
 	void GraphicsComponent::OnNodeInvalidated(const Nz::Node* node)
 	{
 		NazaraUnused(node);
 
 		// Our view matrix depends on NodeComponent position/rotation
-		InvalidateBoundingVolume();
+		InvalidateAABB();
 		InvalidateTransformMatrix();
 
-		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
-			entry.listEntry.ForceInvalidation(); //< Force invalidation on movement
+		ForceCullingInvalidation(); //< Force invalidation on movement for now (FIXME)
+	}
+
+	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)
+	{
+		auto it = m_materialEntries.find(material);
+		NazaraAssert(it != m_materialEntries.end(), "Material not registered");
+
+		MaterialEntry& matEntry = it->second;
+		if (--matEntry.renderableCounter == 0)
+		{
+			if (material->GetReflectionMode() == Nz::ReflectionMode_RealTime)
+			{
+				if (--m_reflectiveMaterialCount == 0)
+					InvalidateReflectionMap();
+			}
+
+			m_materialEntries.erase(it);
+		}
 	}
 
 	/*!
 	* \brief Updates the bounding volume
 	*/
 
-	void GraphicsComponent::UpdateBoundingVolume() const
+	void GraphicsComponent::UpdateBoundingVolumes() const
 	{
 		EnsureTransformMatrixUpdate();
 
-		m_boundingVolume.MakeNull();
-		for (const Renderable& r : m_renderables)
-		{
-			Nz::BoundingVolumef boundingVolume = r.renderable->GetBoundingVolume();
-
-			// Adjust renderable bounding volume by local matrix
-			if (boundingVolume.IsFinite())
-			{
-				Nz::Boxf localBox = boundingVolume.obb.localBox;
-				Nz::Vector3f newPos = r.data.localMatrix * localBox.GetPosition();
-				Nz::Vector3f newLengths = r.data.localMatrix * localBox.GetLengths();
-
-				boundingVolume.Set(Nz::Boxf(newPos.x, newPos.y, newPos.z, newLengths.x, newLengths.y, newLengths.z));
-			}
-
-			m_boundingVolume.ExtendTo(r.renderable->GetBoundingVolume());
-		}
-
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
-		m_boundingVolume.Update(Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), m_transformMatrix));
-		m_boundingVolumeUpdated = true;
+		m_aabb.Set(-1.f, -1.f, -1.f);
 
-		for (VolumeCullingEntry& entry : m_volumeCullingEntries)
-			entry.listEntry.UpdateVolume(m_boundingVolume);
+		bool isAabbSet = false;
+
+		for (const Renderable& r : m_renderables)
+		{
+			r.boundingVolume = r.renderable->GetBoundingVolume();
+			r.data.transformMatrix = Nz::Matrix4f::ConcatenateAffine(renderSystem.GetCoordinateSystemMatrix(), Nz::Matrix4f::ConcatenateAffine(r.data.localMatrix, m_transformMatrix));
+			if (r.boundingVolume.IsFinite())
+			{
+				r.boundingVolume.Update(r.data.transformMatrix);
+
+				if (isAabbSet)
+					m_aabb.ExtendTo(r.boundingVolume.aabb);
+				else
+				{
+					m_aabb.Set(r.boundingVolume.aabb);
+					isAabbSet = true;
+				}
+			}
+		}
+
+		m_boundingVolumesUpdated = true;
+
+		for (CullingBoxEntry& entry : m_cullingBoxEntries)
+			entry.listEntry.UpdateBox(m_aabb);
 	}
 
 	/*!

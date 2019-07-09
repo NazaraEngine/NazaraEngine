@@ -34,7 +34,6 @@ int main()
 {
 	// Ndk::Application est une classe s'occupant de l'initialisation du moteur ainsi que de la gestion de beaucoup de choses
 	Ndk::Application application;
-	Nz::Initializer<Nz::Network> network;
 
 	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
 	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.
@@ -57,8 +56,8 @@ int main()
 	// En réalité les textures "cubemap" regroupent six faces en une, pour faciliter leur utilisation.
 
 	// Nous créons une nouvelle texture et prenons une référence sur celle-ci (à la manière des pointeurs intelligents)
-	Nz::TextureRef texture = Nz::Texture::New();
-	if (texture->LoadCubemapFromFile("resources/skybox-space.png"))
+	Nz::TextureRef texture = Nz::Texture::LoadCubemapFromFile("resources/skybox-space.png");
+	if (texture)
 	{
 		// Si la création du cubemap a fonctionné
 
@@ -84,9 +83,6 @@ int main()
 	// Les modèles représentent, globalement, tout ce qui est visible en trois dimensions.
 	// Nous choisirons ici un vaisseau spatial (Quoi de mieux pour une scène spatiale ?)
 
-	// Encore une fois, nous récupérons une référence plutôt que l'objet lui-même (cela va être très utile par la suite)
-	Nz::ModelRef spaceshipModel = Nz::Model::New();
-
 	// Nous allons charger notre modèle depuis un fichier, mais nous pouvons ajuster le modèle lors du chargement via
 	// une structure permettant de paramétrer le chargement des modèles
 	Nz::ModelParameters params;
@@ -105,7 +101,8 @@ int main()
 
 	// On charge ensuite le modèle depuis son fichier
 	// Le moteur va charger le fichier et essayer de retrouver les fichiers associés (comme les matériaux, textures, ...)
-	if (!spaceshipModel->LoadFromFile("resources/Spaceship/spaceship.obj", params))
+	Nz::ModelRef spaceshipModel = Nz::Model::LoadFromFile("resources/Spaceship/spaceship.obj", params);
+	if (!spaceshipModel)
 	{
 		// Si le chargement a échoué (fichier inexistant/invalide), il ne sert à rien de continuer
 		std::cout << "Failed to load spaceship" << std::endl;
@@ -275,73 +272,61 @@ int main()
 	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
 	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
 
+
+	//Gestion des Evenements 
+	Nz::EventHandler& eventHandler = window.GetEventHandler();
+
+	eventHandler.OnMouseMoved.Connect([&camAngles, &cameraNode, &window](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+	{
+		if (Ndk::Application::Instance()->IsConsoleEnabled())
+		{
+			Ndk::Application::ConsoleOverlay& consoleOverlay = Ndk::Application::Instance()->GetConsoleOverlay();
+			if (consoleOverlay.console->IsVisible())
+				return;
+		}
+		// Gestion de la caméra free-fly (Rotation)
+		float sensitivity = 0.3f; // Sensibilité de la souris
+
+		// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+		camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.deltaX*sensitivity);
+
+		// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+		camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY*sensitivity, -89.f, 89.f);
+
+		// On applique les angles d'Euler à notre caméra
+		cameraNode.SetRotation(camAngles);
+
+		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenétre
+		// Cette fonction est codée de sorte à ne pas provoquer d'événement MouseMoved
+		Nz::Vector2ui size = window.GetSize();
+		Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
+	});
+
+	eventHandler.OnKeyPressed.Connect([&targetPos, &cameraNode, &smoothMovement, &window](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
+	{
+		// Une touche a été pressée !
+		if (event.code == Nz::Keyboard::Key::Escape)
+			window.Close();
+		else if (event.code == Nz::Keyboard::F1)
+		{
+			if (smoothMovement)
+			{
+				targetPos = cameraNode.GetPosition();
+				smoothMovement = false;
+			}
+			else
+				smoothMovement = true;
+		}
+	});
+
 	// Début de la boucle de rendu du programme (s'occupant par exemple de mettre à jour le monde)
 	while (application.Run())
 	{
-		// Ensuite nous allons traiter les évènements (Étape indispensable pour la fenêtre)
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
-				{
-					if (application.IsConsoleEnabled())
-					{
-						Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-						if (consoleOverlay.console->IsVisible())
-							break;
-					}
-
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
-
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
-
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					// On applique les angles d'Euler à notre caméra
-					cameraNode.SetRotation(camAngles);
-
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Mouse::SetPosition(window.GetWidth() / 2, window.GetHeight() / 2, window);
-					break;
-				}
-
-				case  Nz::WindowEventType_Quit: // L'utilisateur a cliqué sur la croix, ou l'OS veut terminer notre programme
-					application.Quit();
-					break;
-
-				case Nz::WindowEventType_KeyPressed: // Une touche a été pressée !
-					if (event.key.code == Nz::Keyboard::Key::Escape)
-						window.Close();
-					else if (event.key.code == Nz::Keyboard::F1)
-					{
-						if (smoothMovement)
-						{
-							targetPos = cameraNode.GetPosition();
-							smoothMovement = false;
-						}
-						else
-							smoothMovement = true;
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		Nz::UInt64 elapsedUS = updateClock.GetMicroseconds();
-		// On relance l'horloge
-		updateClock.Restart();
+		Nz::UInt64 elapsedUs = updateClock.Restart();
 
 		// Mise à jour (Caméra)
 		const Nz::UInt64 updateRate = 1000000 / 60; // 60 fois par seconde
-		updateAccumulator += elapsedUS;
+		updateAccumulator += elapsedUs;
 
 		if (updateAccumulator >= updateRate)
 		{
@@ -369,7 +354,7 @@ int main()
 				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 				// les directions locales de la caméra
 
-				// Si la flèche du haut ou la touche Z (vive ZQSD) est pressée, on avance
+				// Si la flèche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
 				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 					targetPos += cameraNode.GetForward() * cameraSpeed;
 
@@ -428,7 +413,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 	const float dampConstant = 0.000065f; // Something v.small to offset 1/ displacement length
 
 	// the strength of the spring increases the further away the camera is from the target.
-	float springMagitude = springStrength*displacementLength + dampConstant*invDisplacementLength;
+	float springMagitude = springStrength * displacementLength + dampConstant * invDisplacementLength;
 
 	// Normalise the displacement and scale by the spring magnitude
 	// and the amount of time passed

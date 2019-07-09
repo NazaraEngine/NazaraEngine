@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,8 +11,8 @@
 
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MemoryManager.hpp>
+#include <cassert>
 #include <new>
-#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -68,56 +68,14 @@ namespace Nz
 	* \brief Calls the object destructor explicitly
 	*
 	* \param ptr Pointer to a previously constructed pointer on raw memory
+	*
+	* \remark This does not deallocate memory, and is a no-op on a null pointer
 	*/
 	template<typename T>
 	void PlacementDestroy(T* ptr)
 	{
-		ptr->~T();
-	}
-
-	/*!
-	* \ingroup core
-	* \class Nz::StackAllocation
-	* \brief Core class that represents a stack allocation
-	*/
-
-
-	/*!
-	* \brief Constructs a StackAllocation object with a pointer to a memory allocated with NAZARA_ALLOCA or OperatorNew is alloca is not supported
-	*
-	* \param ptr Pointer to raw memory
-	*/
-	inline StackAllocation::StackAllocation(void* stackMemory) :
-	m_ptr(stackMemory)
-	{
-	}
-
-	/*!
-	* \brief Destructs the object and release memory if necessary
-	*/
-	inline StackAllocation::~StackAllocation()
-	{
-		#ifndef NAZARA_ALLOCA_SUPPORT
-		OperatorDelete(m_ptr);
-		#endif
-	}
-
-	/*!
-	* \brief Access the internal pointer
-	* \return internal memory pointer
-	*/
-	inline void* StackAllocation::GetPtr()
-	{
-		return m_ptr;
-	}
-
-	/*!
-	* \brief Access the internal pointer
-	* \return internal memory pointer
-	*/
-	inline StackAllocation::operator void*()
-	{
-		return m_ptr;
+		if (ptr)
+			ptr->~T();
 	}
 }
 

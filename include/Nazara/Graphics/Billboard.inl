@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Graphics/Billboard.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -13,6 +14,8 @@ namespace Nz
 
 	inline Billboard::Billboard()
 	{
+		ResetMaterials(1);
+
 		SetColor(Color::White);
 		SetDefaultMaterial();
 		SetRotation(0.f);
@@ -27,6 +30,8 @@ namespace Nz
 
 	inline Billboard::Billboard(MaterialRef material)
 	{
+		ResetMaterials(1);
+
 		SetColor(Color::White);
 		SetMaterial(std::move(material), true);
 		SetRotation(0.f);
@@ -41,6 +46,8 @@ namespace Nz
 
 	inline Billboard::Billboard(Texture* texture)
 	{
+		ResetMaterials(1);
+
 		SetColor(Color::White);
 		SetRotation(0.f);
 		SetSize(64.f, 64.f);
@@ -56,7 +63,6 @@ namespace Nz
 	inline Billboard::Billboard(const Billboard& billboard) :
 	InstancedRenderable(billboard),
 	m_color(billboard.m_color),
-	m_material(billboard.m_material),
 	m_sinCos(billboard.m_sinCos),
 	m_size(billboard.m_size),
 	m_rotation(billboard.m_rotation)
@@ -74,21 +80,11 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the material of the billboard
-	* \return Current material
-	*/
-
-	inline const MaterialRef& Billboard::GetMaterial() const
-	{
-		return m_material;
-	}
-
-	/*!
 	* \brief Gets the rotation of the billboard
 	* \return Current rotation
 	*/
 
-	inline float Billboard::GetRotation() const
+	inline const RadianAnglef& Billboard::GetRotation() const
 	{
 		return m_rotation;
 	}
@@ -132,15 +128,30 @@ namespace Nz
 	* \param material Material for the billboard
 	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
 	*/
-
 	inline void Billboard::SetMaterial(MaterialRef material, bool resizeBillboard)
 	{
-		m_material = std::move(material);
-		if (m_material && resizeBillboard)
+		SetMaterial(GetSkin(), std::move(material), resizeBillboard);
+	}
+
+	/*!
+	* \brief Sets the material of the billboard
+	*
+	* \param skinIndex Skin index to change
+	* \param material Material for the billboard
+	* \param resizeBillboard Should billboard be resized to the material size (diffuse map)
+	*/
+	inline void Billboard::SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard)
+	{
+		InstancedRenderable::SetMaterial(skinIndex, 0, std::move(material));
+
+		if (resizeBillboard)
 		{
-			Texture* diffuseMap = m_material->GetDiffuseMap();
-			if (diffuseMap && diffuseMap->IsValid())
-				SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			if (const MaterialRef& newMat = GetMaterial())
+			{
+				const TextureRef& diffuseMap = newMat->GetDiffuseMap();
+				if (diffuseMap && diffuseMap->IsValid())
+					SetSize(Vector2f(Vector2ui(diffuseMap->GetSize())));
+			}
 		}
 	}
 
@@ -150,10 +161,12 @@ namespace Nz
 	* \param rotation Rotation for the billboard
 	*/
 
-	inline void Billboard::SetRotation(float rotation)
+	inline void Billboard::SetRotation(const RadianAnglef& rotation)
 	{
 		m_rotation = rotation;
-		m_sinCos.Set(std::sin(m_rotation), std::cos(m_rotation));
+
+		auto sincos = rotation.GetSinCos();
+		m_sinCos.Set(sincos.first, sincos.second);
 	}
 
 	/*!
@@ -188,18 +201,36 @@ namespace Nz
 	* \param texture Texture for the billboard
 	* \param resizeBillboard Should billboard be resized to the texture size
 	*/
-
 	inline void Billboard::SetTexture(TextureRef texture, bool resizeBillboard)
 	{
-		if (!m_material)
-			SetDefaultMaterial();
-		else if (m_material->GetReferenceCount() > 1)
-			m_material = Material::New(*m_material); // Copie
+		SetTexture(GetSkin(), std::move(texture), resizeBillboard);
+	}
 
+	/*!
+	* \brief Sets the texture of the billboard for a specific index
+	*
+	* This function changes the diffuse map of the material associated with the specified skin index
+	*
+	* \param skinIndex Skin index to change
+	* \param texture Texture for the billboard
+	* \param resizeBillboard Should billboard be resized to the texture size
+	*/
+	inline void Billboard::SetTexture(std::size_t skinIndex, TextureRef texture, bool resizeBillboard)
+	{
 		if (resizeBillboard && texture && texture->IsValid())
 			SetSize(Vector2f(Vector2ui(texture->GetSize())));
 
-		m_material->SetDiffuseMap(std::move(texture));
+		const MaterialRef& material = GetMaterial(skinIndex);
+
+		if (material->GetReferenceCount() > 1)
+		{
+			MaterialRef newMat = Material::New(*material); // Copy
+			newMat->SetDiffuseMap(std::move(texture));
+
+			SetMaterial(skinIndex, std::move(newMat));
+		}
+		else
+			material->SetDiffuseMap(std::move(texture));
 	}
 
 	/*!
@@ -214,7 +245,6 @@ namespace Nz
 		InstancedRenderable::operator=(billboard);
 
 		m_color = billboard.m_color;
-		m_material = billboard.m_material;
 		m_size = billboard.m_size;
 
 		InvalidateBoundingVolume();

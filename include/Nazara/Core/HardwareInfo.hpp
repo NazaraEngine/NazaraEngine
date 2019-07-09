@@ -7,7 +7,7 @@
 #ifndef NAZARA_HARDWAREINFO_HPP
 #define NAZARA_HARDWAREINFO_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
 

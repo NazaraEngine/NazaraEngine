@@ -7,7 +7,7 @@
 #ifndef NAZARA_COLORBACKGROUND_HPP
 #define NAZARA_COLORBACKGROUND_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/UberShader.hpp>

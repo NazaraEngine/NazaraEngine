@@ -5,8 +5,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <cstring>
-#include <memory>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -184,6 +183,9 @@ namespace Nz
 		if (matData.GetBooleanParameter(MaterialData::StencilTest, &isEnabled))
 			EnableStencilTest(isEnabled);
 
+		if (matData.GetBooleanParameter(MaterialData::VertexColor, &isEnabled))
+			EnableVertexColor(isEnabled);
+
 		// Samplers
 		if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
 			m_diffuseSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
@@ -297,6 +299,7 @@ namespace Nz
 		matData->SetParameter(MaterialData::FaceCulling, IsFaceCullingEnabled());
 		matData->SetParameter(MaterialData::ScissorTest, IsScissorTestEnabled());
 		matData->SetParameter(MaterialData::StencilTest, IsStencilTestEnabled());
+		matData->SetParameter(MaterialData::VertexColor, HasVertexColor());
 
 		// Samplers
 		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));
@@ -388,6 +391,7 @@ namespace Nz
 		m_ambientColor = Color(128, 128, 128);
 		m_diffuseColor = Color::White;
 		m_diffuseSampler = TextureSampler();
+		m_reflectionMode = ReflectionMode_Skybox;
 		m_shadowCastingEnabled = true;
 		m_shininess = 50.f;
 		m_specularColor = Color::White;
@@ -395,6 +399,7 @@ namespace Nz
 		m_pipelineInfo = MaterialPipelineInfo();
 		m_pipelineInfo.depthBuffer = true;
 		m_pipelineInfo.faceCulling = true;
+		m_reflectionSize = 256;
 
 		SetShader("Basic");
 
@@ -427,6 +432,8 @@ namespace Nz
 		m_heightMap     = material.m_heightMap;
 		m_normalMap     = material.m_normalMap;
 		m_specularMap   = material.m_specularMap;
+
+		SetReflectionMode(material.GetReflectionMode());
 
 		InvalidatePipeline();
 	}

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+﻿// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,7 +10,6 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
-#include <cstring>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -119,6 +118,15 @@ namespace Nz
 
 		if (offset)
 			*offset = vertexComponent.offset;
+	}
+
+	bool VertexDeclaration::HasComponent(VertexComponent component) const
+	{
+		bool enabled;
+
+		GetComponent(component, &enabled, nullptr, nullptr);
+
+		return enabled;
 	}
 
 	std::size_t VertexDeclaration::GetStride() const

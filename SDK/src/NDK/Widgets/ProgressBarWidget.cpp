@@ -1,10 +1,8 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/World.hpp>
 #include <NDK/Widgets/ProgressBarWidget.hpp>
-#include <Nazara/Utility/Image.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 
@@ -78,8 +76,7 @@ namespace Ndk
 
 	void ProgressBarWidget::Layout()
 	{
-		Nz::Vector2f origin = GetContentOrigin();
-		Nz::Vector2f size = GetContentSize();
+		Nz::Vector2f size = GetSize();
 		Nz::Vector2f progressBarSize = size;
 
 		if (IsTextEnabled())
@@ -87,7 +84,7 @@ namespace Ndk
 			UpdateText();
 
 			Nz::Vector3f textSize = m_textSprite->GetBoundingVolume().obb.localBox.GetLengths();
-			m_textEntity->GetComponent<NodeComponent>().SetPosition(origin.x + size.x - textSize.x, origin.y + size.y / 2.f - textSize.y);
+			m_textEntity->GetComponent<NodeComponent>().SetPosition(size.x - textSize.x, size.y / 2.f - textSize.y);
 
 			progressBarSize -= { textSize.x + m_textMargin, 0.f };
 		}
@@ -98,7 +95,6 @@ namespace Ndk
 		m_barBackgroundSprite->SetSize(progressBarSize - (borderSize * 2.f));
 		m_barSprite->SetSize((progressBarSize.x - (borderSize.x * 2.f)) / 100.f * static_cast<float>(m_value), progressBarSize.y - (borderSize.y * 2.f));
 
-		m_borderEntity->GetComponent<NodeComponent>().SetPosition(origin.x, origin.y);
-		m_barEntity->GetComponent<NodeComponent>().SetPosition(origin.x + borderSize.x, origin.y + borderSize.y);
+		m_barEntity->GetComponent<NodeComponent>().SetPosition(borderSize.x, borderSize.y);
 	}
 }

@@ -7,16 +7,14 @@
 #ifndef NAZARA_RENDERTARGET_HPP
 #define NAZARA_RENDERTARGET_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderTargetParameters.hpp>
-#include <unordered_map>
 
 namespace Nz
 {
-	class Renderer;
-
 	class NAZARA_RENDERER_API RenderTarget
 	{
 		friend class Renderer;
@@ -24,12 +22,11 @@ namespace Nz
 		public:
 			RenderTarget() = default;
 			RenderTarget(const RenderTarget&) = delete;
-			RenderTarget(RenderTarget&&) = delete; ///TOOD?
+			RenderTarget(RenderTarget&&) noexcept = default;
 			virtual ~RenderTarget();
 
-			virtual unsigned int GetHeight() const = 0;
 			virtual RenderTargetParameters GetParameters() const = 0;
-			virtual unsigned int GetWidth() const = 0;
+			virtual Vector2ui GetSize() const = 0;
 
 			bool IsActive() const;
 			virtual bool IsRenderable() const = 0;
@@ -40,7 +37,7 @@ namespace Nz
 			virtual bool HasContext() const = 0;
 
 			RenderTarget& operator=(const RenderTarget&) = delete;
-			RenderTarget& operator=(RenderTarget&&) = delete; ///TOOD?
+			RenderTarget& operator=(RenderTarget&&) noexcept = default;
 
 			// Signals:
 			NazaraSignal(OnRenderTargetParametersChange, const RenderTarget* /*renderTarget*/);

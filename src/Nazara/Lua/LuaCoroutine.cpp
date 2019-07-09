@@ -3,9 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Lua/LuaCoroutine.hpp>
-#include <Lua/lauxlib.h>
 #include <Lua/lua.h>
-#include <Lua/lualib.h>
 #include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Lua/Debug.hpp>
 
@@ -49,7 +47,7 @@ namespace Nz
 		}
 	}
 
-	bool LuaCoroutine::Run(int argCount, int /*resultCount*/)
+	bool LuaCoroutine::Run(int argCount, int /*resultCount*/, int /*errHandler*/)
 	{
 		return Resume(argCount) != Ternary_False;
 	}

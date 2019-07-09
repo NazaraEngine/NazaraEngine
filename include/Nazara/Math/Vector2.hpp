@@ -24,7 +24,6 @@ namespace Nz
 			Vector2() = default;
 			Vector2(T X, T Y);
 			explicit Vector2(T scale);
-			Vector2(const T vec[2]);
 			template<typename U> explicit Vector2(const Vector2<U>& vec);
 			Vector2(const Vector2& vec) = default;
 			explicit Vector2(const Vector3<T>& vec);
@@ -34,8 +33,8 @@ namespace Nz
 			T AbsDotProduct(const Vector2& vec) const;
 			T AngleBetween(const Vector2& vec) const;
 
-			T Distance(const Vector2& vec) const;
-			float Distancef(const Vector2& vec) const;
+			template<typename U = T>
+			U Distance(const Vector2& vec) const;
 			T DotProduct(const Vector2& vec) const;
 
 			T GetLength() const;
@@ -93,6 +92,7 @@ namespace Nz
 			bool operator>(const Vector2& vec) const;
 			bool operator>=(const Vector2& vec) const;
 
+			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
 			static T DotProduct(const Vector2& vec1, const Vector2& vec2);
 			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
 			static Vector2 Normalize(const Vector2& vec);
@@ -104,15 +104,17 @@ namespace Nz
 			T x, y;
 	};
 
-	typedef Vector2<double> Vector2d;
-	typedef Vector2<float> Vector2f;
-	typedef Vector2<int> Vector2i;
-	typedef Vector2<unsigned int> Vector2ui;
-	typedef Vector2<Int32> Vector2i32;
-	typedef Vector2<UInt32> Vector2ui32;
+	using Vector2d = Vector2<double>;
+	using Vector2f = Vector2<float>;
+	using Vector2i = Vector2<int>;
+	using Vector2ui = Vector2<unsigned int>;
+	using Vector2i32 = Vector2<Int32>;
+	using Vector2i64 = Vector2<Int64>;
+	using Vector2ui32 = Vector2<UInt32>;
+	using Vector2ui64 = Vector2<UInt64>;
 
-	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector);
+	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>);
+	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector, TypeTag<Vector2<T>>);
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec);

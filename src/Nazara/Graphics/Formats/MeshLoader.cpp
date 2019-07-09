@@ -3,13 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/SkeletalModel.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
-#include <memory>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -33,8 +31,7 @@ namespace Nz
 						filePath += ".tga";
 					}
 
-					MaterialRef material = Material::New();
-					if (material->LoadFromFile(filePath, parameters.material))
+					if (MaterialRef material = Material::LoadFromFile(filePath, parameters.material))
 						model->SetMaterial(i, std::move(material));
 					else
 						NazaraWarning("Failed to load material from file " + String::Number(i));
@@ -49,7 +46,7 @@ namespace Nz
 			}
 		}
 
-		Ternary CheckStatic(Stream& stream, const ModelParameters& parameters)
+		Ternary Check(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(stream);
 
@@ -60,67 +57,29 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool LoadStatic(Model* model, Stream& stream, const ModelParameters& parameters)
+		ModelRef Load(Stream& stream, const ModelParameters& parameters)
 		{
 			NazaraUnused(parameters);
 
-			MeshRef mesh = Mesh::New();
-			if (!mesh->LoadFromStream(stream, parameters.mesh))
+			MeshRef mesh = Mesh::LoadFromStream(stream, parameters.mesh);
+			if (!mesh)
 			{
 				NazaraError("Failed to load model mesh");
-				return false;
+				return nullptr;
 			}
 
+			ModelRef model;
 			if (mesh->IsAnimable())
-			{
-				NazaraError("Can't load animated mesh into static model");
-				return false;
-			}
+				model = SkeletalModel::New();
+			else
+				model = Model::New();
 
-			model->Reset();
 			model->SetMesh(mesh);
 
 			if (parameters.loadMaterials)
 				LoadMaterials(model, parameters);
 
-			return true;
-		}
-
-		Ternary CheckAnimated(Stream& stream, const SkeletalModelParameters& parameters)
-		{
-			NazaraUnused(stream);
-
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeAnimatedMeshLoader", &skip) && skip)
-				return Ternary_False;
-
-			return Ternary_Unknown;
-		}
-
-		bool LoadAnimated(SkeletalModel* model, Stream& stream, const SkeletalModelParameters& parameters)
-		{
-			NazaraUnused(parameters);
-
-			MeshRef mesh = Mesh::New();
-			if (!mesh->LoadFromStream(stream, parameters.mesh))
-			{
-				NazaraError("Failed to load model mesh");
-				return false;
-			}
-
-			if (!mesh->IsAnimable())
-			{
-				NazaraError("Can't load static mesh into animated model");
-				return false;
-			}
-
-			model->Reset();
-			model->SetMesh(mesh);
-
-			if (parameters.loadMaterials)
-				LoadMaterials(model, parameters);
-
-			return true;
+			return model;
 		}
 	}
 
@@ -128,14 +87,12 @@ namespace Nz
 	{
 		void RegisterMesh()
 		{
-			ModelLoader::RegisterLoader(MeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
-			SkeletalModelLoader::RegisterLoader(MeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
+			ModelLoader::RegisterLoader(MeshLoader::IsExtensionSupported, Check, Load);
 		}
 
 		void UnregisterMesh()
 		{
-			ModelLoader::UnregisterLoader(MeshLoader::IsExtensionSupported, CheckStatic, LoadStatic);
-			SkeletalModelLoader::UnregisterLoader(MeshLoader::IsExtensionSupported, CheckAnimated, LoadAnimated);
+			ModelLoader::UnregisterLoader(MeshLoader::IsExtensionSupported, Check, Load);
 		}
 	}
 }

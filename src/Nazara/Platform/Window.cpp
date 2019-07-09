@@ -5,12 +5,9 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Platform/Win32/WindowImpl.hpp>
@@ -36,11 +33,28 @@ namespace Nz
 	m_eventPolling(false),
 	m_waitForEvent(false)
 	{
-		m_cursorController.OnCursorUpdated.Connect([this](const CursorController*, const CursorRef& cursor)
-		{
-			if (IsValid())
-				SetCursor(cursor);
-		});
+		ConnectSlots();
+	}
+
+	Window::Window(Window&& window) :
+	m_events(std::move(window.m_events)),
+	m_pendingEvents(std::move(window.m_pendingEvents)),
+	m_eventCondition(std::move(window.m_eventCondition)),
+	m_cursorController(std::move(window.m_cursorController)),
+	m_cursor(std::move(window.m_cursor)),
+	m_eventHandler(std::move(window.m_eventHandler)),
+	m_icon(std::move(window.m_icon)),
+	m_eventMutex(std::move(window.m_eventMutex)),
+	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
+	m_asyncWindow(window.m_asyncWindow),
+	m_closed(window.m_asyncWindow),
+	m_closeOnQuit(window.m_closeOnQuit),
+	m_eventPolling(window.m_eventPolling),
+	m_ownsWindow(window.m_asyncWindow),
+	m_waitForEvent(window.m_waitForEvent)
+	{
+		window.DisconnectSlots();
+		ConnectSlots();
 	}
 
 	Window::~Window()
@@ -107,8 +121,6 @@ namespace Nz
 		m_impl->SetMaximumSize(-1, -1);
 		m_impl->SetMinimumSize(-1, -1);
 		m_impl->SetVisible(true);
-
-		SetCursor(Cursor::Get(SystemCursor_Default));
 
 		if (opened)
 			m_impl->SetPosition(position.x, position.y);
@@ -206,19 +218,6 @@ namespace Nz
 		return m_impl->GetHandle();
 	}
 
-	unsigned int Window::GetHeight() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetHeight();
-	}
-
 	Vector2i Window::GetPosition() const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -269,19 +268,6 @@ namespace Nz
 		#endif
 
 		return m_impl->GetTitle();
-	}
-
-	unsigned int Window::GetWidth() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetWidth();
 	}
 
 	bool Window::HasFocus() const
@@ -611,6 +597,30 @@ namespace Nz
 		}
 	}
 
+	Window& Window::operator=(Window&& window)
+	{
+		m_events = std::move(window.m_events);
+		m_pendingEvents = std::move(window.m_pendingEvents);
+		m_eventCondition = std::move(window.m_eventCondition);
+		m_cursorController = std::move(window.m_cursorController);
+		m_cursor = std::move(window.m_cursor);
+		m_eventHandler = std::move(window.m_eventHandler);
+		m_icon = std::move(window.m_icon);
+		m_eventMutex = std::move(window.m_eventMutex);
+		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
+		m_asyncWindow = window.m_asyncWindow;
+		m_closed = window.m_asyncWindow;
+		m_closeOnQuit = window.m_closeOnQuit;
+		m_eventPolling = window.m_eventPolling;
+		m_ownsWindow = window.m_asyncWindow;
+		m_waitForEvent = window.m_waitForEvent;
+
+		window.DisconnectSlots();
+		ConnectSlots();
+
+		return *this;
+	}
+
 	bool Window::OnWindowCreated()
 	{
 		return true;
@@ -624,6 +634,20 @@ namespace Nz
 	{
 	}
 
+	void Window::ConnectSlots()
+	{
+		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const CursorRef& cursor)
+		{
+			if (IsValid())
+				SetCursor(cursor);
+		});
+	}
+
+	void Window::DisconnectSlots()
+	{
+		m_cursorUpdateSlot.Disconnect();
+	}
+
 	void Window::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -635,6 +659,34 @@ namespace Nz
 		#endif
 
 		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
+	}
+
+	void Window::HandleEvent(const WindowEvent& event)
+	{
+		if (m_eventPolling)
+			m_events.push(event);
+
+		m_eventHandler.Dispatch(event);
+
+		switch (event.type)
+		{
+			case WindowEventType_MouseEntered:
+				m_impl->RefreshCursor();
+				break;
+
+			case WindowEventType_Resized:
+				OnWindowResized();
+				break;
+
+			case WindowEventType_Quit:
+				if (m_closeOnQuit)
+					Close();
+
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	bool Window::Initialize()

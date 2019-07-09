@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 namespace Ndk
 {
@@ -65,6 +65,7 @@ namespace Ndk
 		m_checkboxBackgroundSprite->SetSize(size - GetCheckboxBorderSize() * 2.f);
 		m_checkboxContentSprite->SetSize(GetCheckboxSize() - GetCheckboxBorderSize() * 2.f - Nz::Vector2f { 4.f, 4.f });
 
+		UpdateSize();
 		Layout();
 	}
 
@@ -77,6 +78,8 @@ namespace Ndk
 	inline void CheckboxWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
 	{
 		m_textSprite->Update(drawer);
+
+		UpdateSize();
 		Layout();
 	}
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_CLOCK_HPP
 #define NAZARA_CLOCK_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
 #include <Nazara/Core/ThreadSafety.hpp>
@@ -32,7 +32,7 @@ namespace Nz
 			bool IsPaused() const;
 
 			void Pause();
-			void Restart();
+			UInt64 Restart();
 			void Unpause();
 
 			Clock& operator=(const Clock& clock) = default;
@@ -46,7 +46,7 @@ namespace Nz
 			bool m_paused;
 	};
 
-	typedef UInt64 (*ClockFunction)();
+	using ClockFunction = UInt64 (*)();
 
 	extern NAZARA_CORE_API ClockFunction GetElapsedMicroseconds;
 	extern NAZARA_CORE_API ClockFunction GetElapsedMilliseconds;

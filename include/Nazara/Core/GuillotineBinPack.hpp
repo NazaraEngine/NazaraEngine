@@ -10,8 +10,7 @@
 #ifndef NAZARA_GUILLOTINEBINPACK_HPP
 #define NAZARA_GUILLOTINEBINPACK_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <vector>
 
@@ -27,7 +26,7 @@ namespace Nz
 			GuillotineBinPack(unsigned int width, unsigned int height);
 			GuillotineBinPack(const Vector2ui& size);
 			GuillotineBinPack(const GuillotineBinPack&) = default;
-			GuillotineBinPack(GuillotineBinPack&&) = default;
+			GuillotineBinPack(GuillotineBinPack&&) noexcept = default;
 			~GuillotineBinPack() = default;
 
 			void Clear();
@@ -53,7 +52,7 @@ namespace Nz
 			void Reset(const Vector2ui& size);
 
 			GuillotineBinPack& operator=(const GuillotineBinPack&) = default;
-			GuillotineBinPack& operator=(GuillotineBinPack&&) = default;
+			GuillotineBinPack& operator=(GuillotineBinPack&&) noexcept = default;
 
 			enum FreeRectChoiceHeuristic : int
 			{

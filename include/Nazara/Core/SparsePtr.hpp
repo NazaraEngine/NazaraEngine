@@ -9,7 +9,7 @@
 
 ///FIXME: Is SparsePtr a really good name for this class ?
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <cstddef>
 #include <type_traits>
 
@@ -25,6 +25,7 @@ namespace Nz
 			SparsePtr();
 			SparsePtr(T* ptr);
 			SparsePtr(VoidPtr ptr, int stride);
+			SparsePtr(VoidPtr ptr, std::size_t stride);
 			template<typename U> SparsePtr(const SparsePtr<U>& ptr);
 			SparsePtr(const SparsePtr& ptr) = default;
 			~SparsePtr() = default;

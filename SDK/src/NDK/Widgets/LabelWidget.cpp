@@ -1,11 +1,10 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/LabelWidget.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/World.hpp>
 
 namespace Ndk
 {
@@ -19,10 +18,5 @@ namespace Ndk
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
 		Layout();
-	}
-
-	void LabelWidget::ResizeToContent()
-	{
-		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 }

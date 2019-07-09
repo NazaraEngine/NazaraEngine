@@ -1,12 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
-
-#include <NDK/Components/CollisionComponent2D.hpp>
-#include <NDK/Entity.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/PhysicsComponent2D.hpp>
-#include <NDK/Systems/PhysicsSystem2D.hpp>
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 namespace Ndk
 {
@@ -35,16 +29,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Gets the collision box representing the entity
-	* \return The physics collision box
-	*/
-
-	inline Nz::Rectf CollisionComponent2D::GetAABB() const
-	{
-		return m_staticBody->GetAABB();
-	}
-
-	/*!
 	* \brief Gets the geometry representing the entity
 	* \return A constant reference to the physics geometry
 	*/
@@ -68,12 +52,12 @@ namespace Ndk
 		return *this;
 	}
 
-	/*!
-	* \brief Gets the static body used by the entity
-	* \return A pointer to the entity
-	*/
-
 	inline Nz::RigidBody2D* CollisionComponent2D::GetStaticBody()
+	{
+		return m_staticBody.get();
+	}
+
+	inline const Nz::RigidBody2D* CollisionComponent2D::GetStaticBody() const
 	{
 		return m_staticBody.get();
 	}

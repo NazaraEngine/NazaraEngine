@@ -1,14 +1,14 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <NDK/Algorithm.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Systems/PhysicsSystem3D.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <memory>
 
 namespace Ndk
 {
@@ -29,11 +29,19 @@ namespace Ndk
 		World* entityWorld = m_entity->GetWorld();
 		NazaraAssert(entityWorld->HasSystem<PhysicsSystem2D>(), "World must have a 2D physics system");
 
-		Nz::PhysWorld2D& world = entityWorld->GetSystem<PhysicsSystem2D>().GetWorld();
+		Nz::PhysWorld2D& world = entityWorld->GetSystem<PhysicsSystem2D>().GetPhysWorld();
+
+		Nz::Vector2f positionOffset;
 
 		Nz::Collider2DRef geom;
 		if (m_entity->HasComponent<CollisionComponent2D>())
-			geom = m_entity->GetComponent<CollisionComponent2D>().GetGeom();
+		{
+			const CollisionComponent2D& entityCollision = m_entity->GetComponent<CollisionComponent2D>();
+			geom = entityCollision.GetGeom();
+			positionOffset = entityCollision.GetStaticBody()->GetPositionOffset(); //< Calling GetGeomOffset would retrieve current component which is not yet initialized
+		}
+		else
+			positionOffset = Nz::Vector2f::Zero();
 
 		Nz::Matrix4f matrix;
 		if (m_entity->HasComponent<NodeComponent>())
@@ -41,8 +49,10 @@ namespace Ndk
 		else
 			matrix.MakeIdentity();
 
-		m_object.reset(new Nz::RigidBody2D(&world, 1.f, geom));
+		m_object = std::make_unique<Nz::RigidBody2D>(&world, 1.f, geom);
+		m_object->SetPositionOffset(positionOffset);
 		m_object->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
+		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
 	}
 
 	/*!

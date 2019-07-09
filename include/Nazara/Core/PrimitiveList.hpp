@@ -7,7 +7,7 @@
 #ifndef NAZARA_PRIMITIVELIST_HPP
 #define NAZARA_PRIMITIVELIST_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 
@@ -19,7 +19,7 @@ namespace Nz
 		public:
 			PrimitiveList() = default;
 			PrimitiveList(const PrimitiveList&) = default;
-			PrimitiveList(PrimitiveList&&) = default;
+			PrimitiveList(PrimitiveList&&) noexcept = default;
 			~PrimitiveList() = default;
 
 			void AddBox(const Vector3f& lengths, const Vector3ui& subdivision = Vector3ui(0U), const Matrix4f& transformMatrix = Matrix4f::Identity());
@@ -41,7 +41,7 @@ namespace Nz
 			std::size_t GetSize() const;
 
 			PrimitiveList& operator=(const PrimitiveList&) = default;
-			PrimitiveList& operator=(PrimitiveList&&) = default;
+			PrimitiveList& operator=(PrimitiveList&&) noexcept = default;
 
 			Primitive& operator()(unsigned int i);
 			const Primitive& operator()(unsigned int i) const;

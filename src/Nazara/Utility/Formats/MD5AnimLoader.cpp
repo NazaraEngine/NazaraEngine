@@ -3,7 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
+#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
+#include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -25,7 +28,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Animation* animation, Stream& stream, const AnimationParams& /*parameters*/)
+		AnimationRef Load(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -33,7 +36,7 @@ namespace Nz
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Anim parser failed");
-				return false;
+				return nullptr;
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
@@ -43,6 +46,7 @@ namespace Nz
 			UInt32 jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
+			AnimationRef animation = Animation::New();
 			animation->CreateSkeletal(frameCount, jointCount);
 
 			Sequence sequence;
@@ -81,7 +85,7 @@ namespace Nz
 				}
 			}
 
-			return true;
+			return animation;
 		}
 	}
 

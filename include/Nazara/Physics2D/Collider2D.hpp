@@ -7,7 +7,7 @@
 #ifndef NAZARA_COLLIDER2D_HPP
 #define NAZARA_COLLIDER2D_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -19,7 +19,6 @@
 #include <vector>
 
 struct cpShape;
-struct cpSpace;
 
 namespace Nz
 {
@@ -42,21 +41,30 @@ namespace Nz
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
 
+			virtual Vector2f ComputeCenterOfMass() const = 0;
 			virtual float ComputeMomentOfInertia(float mass) const = 0;
 
-			inline Nz::UInt32 GetCategoryMask() const;
-			inline Nz::UInt32 GetCollisionGroup() const;
+			virtual void ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const;
+
+			inline UInt32 GetCategoryMask() const;
+			inline UInt32 GetCollisionGroup() const;
 			inline unsigned int GetCollisionId() const;
-			inline Nz::UInt32 GetCollisionMask() const;
+			inline UInt32 GetCollisionMask() const;
+			inline float GetElasticity() const;
+			inline float GetFriction() const;
+			inline Vector2f GetSurfaceVelocity() const;
 
 			virtual ColliderType2D GetType() const = 0;
 
 			inline bool IsTrigger() const;
 
-			inline void SetCategoryMask(Nz::UInt32 categoryMask);
-			inline void SetCollisionGroup(Nz::UInt32 groupId);
+			inline void SetCategoryMask(UInt32 categoryMask);
+			inline void SetCollisionGroup(UInt32 groupId);
 			inline void SetCollisionId(unsigned int typeId);
-			inline void SetCollisionMask(Nz::UInt32 mask);
+			inline void SetCollisionMask(UInt32 mask);
+			inline void SetElasticity(float elasticity);
+			inline void SetFriction(float friction);
+			inline void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			inline void SetTrigger(bool trigger);
 
 			Collider2D& operator=(const Collider2D&) = delete;
@@ -66,16 +74,19 @@ namespace Nz
 			NazaraSignal(OnColliderRelease, const Collider2D* /*collider*/);
 
 		protected:
-			virtual void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const = 0;
+			virtual std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const = 0;
 
+			UInt32 m_categoryMask;
+			UInt32 m_collisionGroup;
+			UInt32 m_collisionMask;
+			Vector2f m_surfaceVelocity;
 			bool m_trigger;
-			Nz::UInt32 m_categoryMask;
-			Nz::UInt32 m_collisionGroup;
+			float m_elasticity;
+			float m_friction;
 			unsigned int m_collisionId;
-			Nz::UInt32 m_collisionMask;
 
 		private:
-			virtual std::vector<cpShape*> GenerateShapes(RigidBody2D* body) const;
+			virtual std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const;
 
 			static Collider2DLibrary::LibraryMap s_library;
 	};
@@ -91,8 +102,10 @@ namespace Nz
 			BoxCollider2D(const Vector2f& size, float radius = 0.f);
 			BoxCollider2D(const Rectf& rect, float radius = 0.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
+			inline float GetRadius() const;
 			inline const Rectf& GetRect() const;
 			inline Vector2f GetSize() const;
 			ColliderType2D GetType() const override;
@@ -100,7 +113,7 @@ namespace Nz
 			template<typename... Args> static BoxCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Rectf m_rect;
 			float m_radius;
@@ -116,15 +129,17 @@ namespace Nz
 		public:
 			CircleCollider2D(float radius, const Vector2f& offset = Vector2f::Zero());
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
+			inline const Vector2f& GetOffset() const;
 			inline float GetRadius() const;
 			ColliderType2D GetType() const override;
 
 			template<typename... Args> static CircleCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_offset;
 			float m_radius;
@@ -140,17 +155,24 @@ namespace Nz
 		public:
 			CompoundCollider2D(std::vector<Collider2DRef> geoms);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
+
+			inline bool DoesOverrideCollisionProperties() const;
 
 			inline const std::vector<Collider2DRef>& GetGeoms() const;
 			ColliderType2D GetType() const override;
 
+			inline void OverridesCollisionProperties(bool shouldOverride);
+
 			template<typename... Args> static CompoundCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			std::vector<Collider2DRef> m_geoms;
+			bool m_doesOverrideCollisionProperties;
 	};
 
 	class ConvexCollider2D;
@@ -163,14 +185,16 @@ namespace Nz
 		public:
 			ConvexCollider2D(SparsePtr<const Vector2f> vertices, std::size_t vertexCount, float radius = 0.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			ColliderType2D GetType() const override;
+			inline const std::vector<Vector2d>& GetVertices() const;
 
 			template<typename... Args> static ConvexCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			std::vector<Vector2d> m_vertices;
 			float m_radius;
@@ -186,6 +210,7 @@ namespace Nz
 		public:
 			NullCollider2D() = default;
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			ColliderType2D GetType() const override;
@@ -193,7 +218,7 @@ namespace Nz
 			template<typename... Args> static NullCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 	};
 
 	class SegmentCollider2D;
@@ -206,17 +231,19 @@ namespace Nz
 		public:
 			inline SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness = 1.f);
 
+			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline const Vector2f& GetFirstPoint() const;
 			inline float GetLength() const;
 			inline const Vector2f& GetSecondPoint() const;
+			inline float GetThickness() const;
 			ColliderType2D GetType() const override;
 
 			template<typename... Args> static SegmentCollider2DRef New(Args&&... args);
 
 		private:
-			void CreateShapes(RigidBody2D* body, std::vector<cpShape*>& shapes) const override;
+			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_first;
 			Vector2f m_second;

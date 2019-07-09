@@ -21,6 +21,7 @@ namespace Nz
 
 	enum class CullTest
 	{
+		Box,
 		NoTest,
 		Sphere,
 		Volume
@@ -120,6 +121,15 @@ namespace Nz
 		RenderTechniqueType_User,
 
 		RenderTechniqueType_Max = RenderTechniqueType_User
+	};
+
+	enum ReflectionMode
+	{
+		ReflectionMode_RealTime,
+		ReflectionMode_Probe,
+		ReflectionMode_Skybox,
+
+		ReflectionMode_Max = ReflectionMode_Skybox
 	};
 
 	enum SceneNodeType

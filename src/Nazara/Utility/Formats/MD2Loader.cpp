@@ -6,15 +6,13 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MD2Constants.hpp>
-#include <cstddef>
-#include <cstring>
+#include <cassert>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -48,13 +46,13 @@ namespace Nz
 			return Ternary_False;
 		}
 
-		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+		MeshRef Load(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
 			{
 				NazaraError("Failed to read header");
-				return false;
+				return nullptr;
 			}
 
 			#ifdef NAZARA_BIG_ENDIAN
@@ -78,14 +76,15 @@ namespace Nz
 			if (stream.GetSize() < header.offset_end)
 			{
 				NazaraError("Incomplete MD2 file");
-				return false;
+				return nullptr;
 			}
 
 			// Since the engine no longer supports keyframe animations, let's make a static mesh
+			MeshRef mesh = Nz::Mesh::New();
 			if (!mesh->CreateStatic())
 			{
 				NazaraInternalError("Failed to create mesh");
-				return false;
+				return nullptr;
 			}
 
 			// Extract skins (texture name)
@@ -108,7 +107,7 @@ namespace Nz
 				}
 			}
 
-			IndexBufferRef indexBuffer = IndexBuffer::New(false, header.num_tris*3, parameters.storage, 0);
+			IndexBufferRef indexBuffer = IndexBuffer::New(false, header.num_tris*3, parameters.storage, parameters.indexBufferFlags);
 
 			// Extract triangles data
 			std::vector<MD2_Triangle> triangles(header.num_tris);
@@ -159,13 +158,8 @@ namespace Nz
 			}
 			#endif
 
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent), header.num_vertices, parameters.storage, 0);
-			StaticMeshRef subMesh = StaticMesh::New(mesh);
-			if (!subMesh->Create(vertexBuffer))
-			{
-				NazaraError("Failed to create SubMesh");
-				return false;
-			}
+			VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, header.num_vertices, parameters.storage, parameters.vertexBufferFlags);
+			StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
 
 			// Extracting vertices
 			stream.SetCursorPos(header.offset_frames);
@@ -192,23 +186,26 @@ namespace Nz
 			scale *= ScaleAdjust;
 			translate *= ScaleAdjust;
 
-			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
-			MeshVertex* vertex = static_cast<MeshVertex*>(vertexMapper.GetPointer());
+			VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
 
 			// Loading texture coordinates
-			const unsigned int indexFix[3] = {0, 2, 1};
-			Vector2f invSkinSize(1.f / header.skinwidth, 1.f / header.skinheight);
-			for (unsigned int i = 0; i < header.num_tris; ++i)
+			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
 			{
-				for (unsigned int j = 0; j < 3; ++j)
+				const unsigned int indexFix[3] = {0, 2, 1};
+
+				Vector2f invSkinSize(1.f / header.skinwidth, 1.f / header.skinheight);
+				for (unsigned int i = 0; i < header.num_tris; ++i)
 				{
-					const unsigned int fixedIndex = indexFix[j]; //< Reverse winding order
+					for (unsigned int j = 0; j < 3; ++j)
+					{
+						const unsigned int fixedIndex = indexFix[j]; //< Reverse winding order
 
-					const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
-					Vector2f uv(texC.u, texC.v);
-					uv *= invSkinSize;
+						const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
+						Vector2f uv(texC.u, texC.v);
+						uv *= invSkinSize;
 
-					vertex[triangles[i].vertices[fixedIndex]].uv.Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
+						uvPtr[triangles[i].vertices[fixedIndex]].Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
+					}
 				}
 			}
 
@@ -219,18 +216,27 @@ namespace Nz
 			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
 			matrix *= parameters.matrix;
 
-			Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
-			normalMatrix *= parameters.matrix;
+			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
+			{
+				Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
+				normalMatrix *= parameters.matrix;
+
+				for (unsigned int v = 0; v < header.num_vertices; ++v)
+				{
+					const MD2_Vertex& vert = vertices[v];
+
+					*normalPtr++ = normalMatrix.Transform(md2Normals[vert.n], 0.f);
+				}
+			}
+
+			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+			assert(posPtr);
 
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
 			{
 				const MD2_Vertex& vert = vertices[v];
-				Vector3f position = matrix * Vector3f(vert.x, vert.y, vert.z);
 
-				vertex->position = position;
-				vertex->normal = normalMatrix.Transform(md2Normals[vert.n], 0.f);
-
-				vertex++;
+				*posPtr++ = matrix * Vector3f(vert.x, vert.y, vert.z);
 			}
 
 			vertexMapper.Unmap();
@@ -239,14 +245,16 @@ namespace Nz
 			subMesh->SetMaterialIndex(0);
 
 			subMesh->GenerateAABB();
-			subMesh->GenerateTangents();
+
+			if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Tangent))
+				subMesh->GenerateTangents();
 
 			mesh->AddSubMesh(subMesh);
 
 			if (parameters.center)
 				mesh->Recenter();
 
-			return true;
+			return mesh;
 		}
 	}
 

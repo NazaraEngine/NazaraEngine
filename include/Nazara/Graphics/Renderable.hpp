@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			Renderable() = default;
 			Renderable(const Renderable& renderable) = default;
-			Renderable(Renderable&&) = default;
+			Renderable(Renderable&&) noexcept = default;
 			virtual ~Renderable();
 
 			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix) const = 0;
@@ -33,7 +33,7 @@ namespace Nz
 			virtual void UpdateBoundingVolume(const Matrix4f& transformMatrix);
 
 			Renderable& operator=(const Renderable& renderable) = default;
-			Renderable& operator=(Renderable&& renderable) = default;
+			Renderable& operator=(Renderable&& renderable) noexcept = default;
 
 		protected:
 			virtual void MakeBoundingVolume() const = 0;

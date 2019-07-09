@@ -328,9 +328,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Read a byte sequence into a bitset
+	* \brief Writes a byte sequence into a bitset
 	*
-	* This function extends the bitset with bits read from a byte sequence
+	* This function extends the bitset with bits read from a byte sequence.
 	*
 	* \param ptr A pointer to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -341,17 +341,18 @@ namespace Nz
 	*
 	* \see AppendBits
 	* \see Read
+	* \see Write
 	*/
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const void* ptr, std::size_t bitCount)
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Write(const void* ptr, std::size_t bitCount)
 	{
-		return Read(PointerSequence(ptr, 0U), bitCount);
+		return Write(PointerSequence(ptr, 0U), bitCount);
 	}
 
 	/*!
-	* \brief Read a byte sequence into a bitset
+	* \brief Writes a byte sequence into a bitset
 	*
-	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index)
+	* This function extends the bitset with bits read from a pointer sequence (made of a pointer and a bit index).
 	*
 	* \param sequence A pointer sequence to the start of the byte sequence
 	* \param bitCount Number of bits to read from the byte sequence
@@ -362,9 +363,10 @@ namespace Nz
 	*
 	* \see AppendBits
 	* \see Read
+	* \see Write
 	*/
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Read(const PointerSequence& sequence, std::size_t bitCount)
+	typename Bitset<Block, Allocator>::PointerSequence Bitset<Block, Allocator>::Write(const PointerSequence& sequence, std::size_t bitCount)
 	{
 		NazaraAssert(sequence.first, "Invalid pointer sequence");
 		NazaraAssert(sequence.second < 8, "Invalid next bit index (must be < 8)");
@@ -776,7 +778,7 @@ namespace Nz
 	* \param bitset Other bitset to swap
 	*/
 	template<typename Block, class Allocator>
-	void Bitset<Block, Allocator>::Swap(Bitset& bitset)
+	void Bitset<Block, Allocator>::Swap(Bitset& bitset) noexcept
 	{
 		std::swap(m_bitCount, bitset.m_bitCount);
 		std::swap(m_blocks,   bitset.m_blocks);
@@ -815,7 +817,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_blocks.size(); ++i)
 		{
 			Block mask = (i == m_blocks.size() - 1) ? lastBlockMask : fullBitMask;
-			if (m_blocks[i] == mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
+			if (m_blocks[i] != mask) // The extra bits are set to zero, thus we can't test without proceeding with a mask
 				return false;
 		}
 
@@ -958,7 +960,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](int index)
+	typename Bitset<Block, Allocator>::Bit Bitset<Block, Allocator>::operator[](std::size_t index)
 	{
 		return Bit(m_blocks[GetBlockIndex(index)], Block(1U) << GetBitIndex(index));
 	}
@@ -969,7 +971,7 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	bool Bitset<Block, Allocator>::operator[](int index) const
+	bool Bitset<Block, Allocator>::operator[](std::size_t index) const
 	{
 		return Test(index);
 	}
@@ -1161,9 +1163,9 @@ namespace Nz
 		Bitset bitset;
 
 		if (sequence)
-			*sequence = bitset.Read(ptr, bitCount);
+			*sequence = bitset.Write(ptr, bitCount);
 		else
-			bitset.Read(ptr, bitCount);
+			bitset.Write(ptr, bitCount);
 
 		return bitset;
 	}
@@ -1645,7 +1647,7 @@ namespace std
 	*/
 
 	template<typename Block, class Allocator>
-	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs)
+	void swap(Nz::Bitset<Block, Allocator>& lhs, Nz::Bitset<Block, Allocator>& rhs) noexcept
 	{
 		lhs.Swap(rhs);
 	}

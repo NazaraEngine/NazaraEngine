@@ -5,7 +5,7 @@
 #ifndef NAZARA_HASH_WHIRLPOOL_HPP
 #define NAZARA_HASH_WHIRLPOOL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 

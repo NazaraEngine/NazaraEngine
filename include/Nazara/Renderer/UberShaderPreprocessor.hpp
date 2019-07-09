@@ -7,10 +7,9 @@
 #ifndef NAZARA_UBERSHADERPREPROCESSOR_HPP
 #define NAZARA_UBERSHADERPREPROCESSOR_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Renderer/UberShader.hpp>
 #include <Nazara/Renderer/UberShaderInstancePreprocessor.hpp>
@@ -18,6 +17,7 @@
 
 namespace Nz
 {
+	class UberShaderInstance;
 	class UberShaderPreprocessor;
 
 	using UberShaderPreprocessorConstRef = ObjectRef<const UberShaderPreprocessor>;

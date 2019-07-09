@@ -36,8 +36,8 @@ namespace Nz
 		struct MouseButtonEvent
 		{
 			Mouse::Button button;
-			unsigned int x;
-			unsigned int y;
+			int x;
+			int y;
 		};
 
 		// Used by:
@@ -46,8 +46,8 @@ namespace Nz
 		{
 			int deltaX;
 			int deltaY;
-			unsigned int x;
-			unsigned int y;
+			int x;
+			int y;
 		};
 
 		// Used by:
@@ -55,6 +55,8 @@ namespace Nz
 		struct MouseWheelEvent
 		{
 			float delta;
+			int x;
+			int y;
 		};
 
 		// Used by:

@@ -4,10 +4,8 @@
 
 #include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <cstring>
-#include <memory>
+#include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -25,18 +23,29 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data for the instance
 	*/
-	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData) const
+	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 
 		std::size_t spriteCount = 0;
-		for (const Layer& layer : m_layers)
+		for (std::size_t layerIndex = 0; layerIndex < m_layers.size(); ++layerIndex)
 		{
-			if (layer.material)
-				renderQueue->AddSprites(instanceData.renderOrder, layer.material, &vertices[spriteCount], layer.tiles.size());
+			const auto& layer = m_layers[layerIndex];
+			if (layer.tiles.empty())
+				continue;
+
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(layerIndex), &vertices[4 * spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}
+	}
+
+	/*!
+	* \brief Clones this tilemap
+	*/
+	std::unique_ptr<InstancedRenderable> TileMap::Clone() const
+	{
+		return std::make_unique<TileMap>(*this);
 	}
 
 	void TileMap::MakeBoundingVolume() const
@@ -57,9 +66,9 @@ namespace Nz
 		spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			SparsePtr<Color> colorPtr(&vertices[spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector3f> posPtr(&vertices[spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector2f> texCoordPtr(&vertices[spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Color> colorPtr(&vertices[4 * spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector3f> posPtr(&vertices[4 * spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector2f> texCoordPtr(&vertices[4 * spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
 			for (std::size_t tileIndex : layer.tiles)
 			{

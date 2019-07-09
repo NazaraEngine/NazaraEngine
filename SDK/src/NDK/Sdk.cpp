@@ -1,12 +1,11 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Sdk.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Lua/Lua.hpp>
 #include <Nazara/Noise/Noise.hpp>
@@ -18,21 +17,26 @@
 #include <NDK/BaseSystem.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/CollisionComponent3D.hpp>
+#include <NDK/Components/LifetimeComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
+#include <NDK/Components/ConstraintComponent2D.hpp>
+#include <NDK/Systems/LifetimeSystem.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/DebugComponent.hpp>
 #include <NDK/Components/LightComponent.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/ParticleEmitterComponent.hpp>
 #include <NDK/Components/ParticleGroupComponent.hpp>
+#include <NDK/Systems/DebugSystem.hpp>
 #include <NDK/Systems/ParticleSystem.hpp>
 #include <NDK/Systems/ListenerSystem.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
@@ -86,14 +90,17 @@ namespace Ndk
 			// Shared components
 			InitializeComponent<CollisionComponent2D>("NdkColl2");
 			InitializeComponent<CollisionComponent3D>("NdkColl3");
+			InitializeComponent<LifetimeComponent>("NdkLiftm");
 			InitializeComponent<NodeComponent>("NdkNode");
 			InitializeComponent<PhysicsComponent2D>("NdkPhys2");
 			InitializeComponent<PhysicsComponent3D>("NdkPhys3");
 			InitializeComponent<VelocityComponent>("NdkVeloc");
+			InitializeComponent<VelocityComponent>("NdkCons2");
 
 			#ifndef NDK_SERVER
 			// Client components
 			InitializeComponent<CameraComponent>("NdkCam");
+			InitializeComponent<DebugComponent>("NdkDebug");
 			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
 			InitializeComponent<GraphicsComponent>("NdkGfx");
@@ -106,12 +113,14 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Shared systems
+			InitializeSystem<LifetimeSystem>();
 			InitializeSystem<PhysicsSystem2D>();
 			InitializeSystem<PhysicsSystem3D>();
 			InitializeSystem<VelocitySystem>();
 
 			#ifndef NDK_SERVER
 			// Client systems
+			InitializeSystem<DebugSystem>();
 			InitializeSystem<ListenerSystem>();
 			InitializeSystem<ParticleSystem>();
 			InitializeSystem<RenderSystem>();

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ParticleMapper.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

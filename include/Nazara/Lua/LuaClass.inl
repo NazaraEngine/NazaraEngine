@@ -80,15 +80,15 @@ namespace Nz
 	template<class T>
 	void LuaClass<T>::Register(LuaState& state)
 	{
-		PushClassInfo(state);
+		int classInfoRef = PushClassInfo(state);
 
 		// Let's create the metatable which will be associated with every state.
-		SetupMetatable(state);
+		SetupMetatable(state, classInfoRef);
 
 		if (m_info->constructor || m_info->staticGetter || m_info->staticSetter || !m_staticMethods.empty())
-			SetupGlobalTable(state);
+			SetupGlobalTable(state, classInfoRef);
 
-		state.Pop(); // Pop our ClassInfo, which is now referenced by all our functions
+		state.DestroyReference(classInfoRef);
 	}
 
 	template<class T>
@@ -216,7 +216,7 @@ namespace Nz
 	}
 
 	template<class T>
-	void LuaClass<T>::PushClassInfo(LuaState& state)
+	int LuaClass<T>::PushClassInfo(LuaState& state)
 	{
 		// Our ClassInfo has to outlive the LuaClass, because we don't want to force the user to keep the LuaClass alive
 		// To do that, each Registration creates a tiny shared_ptr wrapper whose life is directly managed by Lua.
@@ -231,20 +231,22 @@ namespace Nz
 			state.PushCFunction(InfoDestructor, 1);
 			state.SetField("__gc");
 		state.SetMetatable(-2);
+
+		return state.CreateReference();
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupConstructor(LuaState& state)
+	void LuaClass<T>::SetupConstructor(LuaState& state, int classInfoRef)
 	{
-			state.PushValue(1); // ClassInfo
+			state.PushReference(classInfoRef);
 		state.PushCFunction(ConstructorProxy, 1);
 		state.SetField("__call"); // ClassMeta.__call = ConstructorProxy
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupDefaultToString(LuaState& state)
+	void LuaClass<T>::SetupDefaultToString(LuaState& state, int classInfoRef)
 	{
-			state.PushValue(1); // shared_ptr on UserData
+			state.PushReference(classInfoRef);
 		state.PushCFunction(ToStringProxy, 1);
 		state.SetField("__tostring");
 	}
@@ -255,9 +257,9 @@ namespace Nz
 	template<typename T>
 	struct LuaClassImplFinalizerSetupProxy<T, true>
 	{
-		static void Setup(LuaState& state)
+		static void Setup(LuaState& state, int classInfoRef)
 		{
-			state.PushValue(1); // ClassInfo
+				state.PushReference(classInfoRef);
 			state.PushCFunction(LuaClass<T>::FinalizerProxy, 1);
 			state.SetField("__gc");
 		}
@@ -266,21 +268,21 @@ namespace Nz
 	template<typename T>
 	struct LuaClassImplFinalizerSetupProxy<T, false>
 	{
-		static void Setup(LuaState&)
+		static void Setup(LuaState&, int)
 		{
 		}
 	};
 
 	template<class T>
-	void LuaClass<T>::SetupFinalizer(LuaState& state)
+	void LuaClass<T>::SetupFinalizer(LuaState& state, int classInfoRef)
 	{
-		LuaClassImplFinalizerSetupProxy<T, std::is_destructible<T>::value>::Setup(state);
+		LuaClassImplFinalizerSetupProxy<T, std::is_destructible<T>::value>::Setup(state, classInfoRef);
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupGetter(LuaState& state, LuaCFunction proxy)
+	void LuaClass<T>::SetupGetter(LuaState& state, LuaCFunction proxy, int classInfoRef)
 	{
-			state.PushValue(1);  // ClassInfo
+			state.PushReference(classInfoRef);
 			state.PushValue(-2); // Metatable
 		state.PushCFunction(proxy, 2);
 
@@ -288,7 +290,7 @@ namespace Nz
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupGlobalTable(LuaState& state)
+	void LuaClass<T>::SetupGlobalTable(LuaState& state, int classInfoRef)
 	{
 		// Create the global table
 		state.PushTable(); // Class = {}
@@ -297,10 +299,10 @@ namespace Nz
 		state.PushTable(); // ClassMeta = {}
 
 		if (m_info->constructor)
-			SetupConstructor(state);
+			SetupConstructor(state, classInfoRef);
 
 		if (m_info->staticGetter)
-			SetupGetter(state, StaticGetterProxy);
+			SetupGetter(state, StaticGetterProxy, classInfoRef);
 		else
 		{
 			// Optimize by assigning the metatable instead of a search function
@@ -309,7 +311,7 @@ namespace Nz
 		}
 
 		if (m_info->staticSetter)
-			SetupSetter(state, StaticSetterProxy);
+			SetupSetter(state, StaticSetterProxy, classInfoRef);
 
 		m_info->staticMethods.reserve(m_staticMethods.size());
 		for (auto& pair : m_staticMethods)
@@ -317,7 +319,7 @@ namespace Nz
 			std::size_t methodIndex = m_info->staticMethods.size();
 			m_info->staticMethods.push_back(pair.second);
 
-			SetupMethod(state, StaticMethodProxy, pair.first, methodIndex);
+			SetupMethod(state, StaticMethodProxy, pair.first, methodIndex, classInfoRef);
 		}
 
 		state.SetMetatable(-2); // setmetatable(Class, ClassMeta), pops ClassMeta
@@ -329,15 +331,15 @@ namespace Nz
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupMetatable(LuaState& state)
+	void LuaClass<T>::SetupMetatable(LuaState& state, int classInfoRef)
 	{
 		if (!state.NewMetatable(m_info->name))
 			NazaraWarning("Class \"" + m_info->name + "\" already registred in this instance");
 		{
-			SetupFinalizer(state);
+			SetupFinalizer(state, classInfoRef);
 
 			if (m_info->getter || !m_info->parentGetters.empty())
-				SetupGetter(state, GetterProxy);
+				SetupGetter(state, GetterProxy, classInfoRef);
 			else
 			{
 				// Optimize by assigning the metatable instead of a search function
@@ -347,11 +349,11 @@ namespace Nz
 			}
 
 			if (m_info->setter)
-				SetupSetter(state, SetterProxy);
+				SetupSetter(state, SetterProxy, classInfoRef);
 
 			// In case a __tostring method is missing, add a default implementation returning the class name
 			if (m_methods.find("__tostring") == m_methods.end())
-				SetupDefaultToString(state);
+				SetupDefaultToString(state, classInfoRef);
 
 			m_info->methods.reserve(m_methods.size());
 			for (auto& pair : m_methods)
@@ -359,16 +361,16 @@ namespace Nz
 				std::size_t methodIndex = m_info->methods.size();
 				m_info->methods.push_back(pair.second);
 
-				SetupMethod(state, MethodProxy, pair.first, methodIndex);
+				SetupMethod(state, MethodProxy, pair.first, methodIndex, classInfoRef);
 			}
 		}
 		state.Pop(); //< Pops the metatable, it won't be collected before it's referenced by the Lua registry.
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex)
+	void LuaClass<T>::SetupMethod(LuaState& state, LuaCFunction proxy, const String& name, std::size_t methodIndex, int classInfoRef)
 	{
-			state.PushValue(1); // ClassInfo
+			state.PushReference(classInfoRef);
 			state.PushInteger(methodIndex);
 		state.PushCFunction(proxy, 2);
 
@@ -376,9 +378,9 @@ namespace Nz
 	}
 
 	template<class T>
-	void LuaClass<T>::SetupSetter(LuaState& state, LuaCFunction proxy)
+	void LuaClass<T>::SetupSetter(LuaState& state, LuaCFunction proxy, int classInfoRef)
 	{
-			state.PushValue(1); // ClassInfo
+			state.PushReference(classInfoRef);
 		state.PushCFunction(proxy, 1);
 
 		state.SetField("__newindex"); // Setter

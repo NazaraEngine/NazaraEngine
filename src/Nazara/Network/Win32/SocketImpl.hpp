@@ -40,7 +40,6 @@ namespace Nz
 			static void Close(SocketHandle handle);
 
 			static SocketState Connect(SocketHandle handle, const IpAddress& address, SocketError* error);
-			static SocketState Connect(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Initialize();
 
@@ -60,7 +59,8 @@ namespace Nz
 			static IpAddress QuerySocketAddress(SocketHandle handle, SocketError* error = nullptr);
 			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
-			static int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static unsigned int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static SocketState PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);
@@ -72,6 +72,7 @@ namespace Nz
 
 			static bool SetBlocking(SocketHandle handle, bool blocking, SocketError* error = nullptr);
 			static bool SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error = nullptr);
+			static bool SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error = nullptr);
 			static bool SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error = nullptr);
 			static bool SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error = nullptr);
 			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);

@@ -234,50 +234,59 @@ ParticleDemo("Space battle", sharedData)
 
 	Nz::Color grey(100, 100, 100);
 
-	if (!m_turret.baseModel.LoadFromFile("resources/Turret/base.obj", parameters))
+	m_turret.baseModel = Nz::Model::LoadFromFile("resources/Turret/base.obj", parameters);
+	if (!m_turret.baseModel)
 		NazaraWarning("Failed to load base.obj");
 
-	for (unsigned int i = 0; i < m_turret.baseModel.GetMaterialCount(); ++i)
-		m_turret.baseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.baseModel->GetMaterialCount(); ++i)
+		m_turret.baseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
-	if (!m_turret.rotatingBaseModel.LoadFromFile("resources/Turret/rotating_base.obj", parameters))
+	m_turret.rotatingBaseModel = Nz::Model::LoadFromFile("resources/Turret/rotating_base.obj", parameters);
+	if (!m_turret.rotatingBaseModel)
 		NazaraWarning("Failed to load rotating_base.obj");
 
-	for (unsigned int i = 0; i < m_turret.rotatingBaseModel.GetMaterialCount(); ++i)
-		m_turret.rotatingBaseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.rotatingBaseModel->GetMaterialCount(); ++i)
+		m_turret.rotatingBaseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
-	if (!m_turret.cannonBaseModel.LoadFromFile("resources/Turret/cannon_base.obj", parameters))
+	m_turret.cannonBaseModel = Nz::Model::LoadFromFile("resources/Turret/cannon_base.obj", parameters);
+	if (!m_turret.cannonBaseModel)
 		NazaraWarning("Failed to load cannon_base.obj");
 
-	for (unsigned int i = 0; i < m_turret.cannonBaseModel.GetMaterialCount(); ++i)
-		m_turret.cannonBaseModel.GetMaterial(i)->SetDiffuseColor(grey);
+	for (unsigned int i = 0; i < m_turret.cannonBaseModel->GetMaterialCount(); ++i)
+		m_turret.cannonBaseModel->GetMaterial(i)->SetDiffuseColor(grey);
 
 	parameters.mesh.texCoordScale.Set(40.f, 40.f);
 	parameters.mesh.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 180.f, 0.f));
-	if (!m_turret.cannonModel.LoadFromFile("resources/Turret/cannon.obj", parameters))
+
+	m_turret.cannonModel = Nz::Model::LoadFromFile("resources/Turret/cannon.obj", parameters);
+	if (!m_turret.cannonModel)
 		NazaraWarning("Failed to load cannon.obj");
 
-	// Since OBJ don't support normal maps..
-	m_turret.cannonModel.GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
+	// Since OBJ doesn't support normal maps..
+	m_turret.cannonModel->GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
 
 	parameters.mesh.matrix.MakeIdentity();
 	parameters.mesh.texCoordScale.Set(1.f, 1.f);
 
 	parameters.mesh.center = true;
-	if (!m_spacestationModel.LoadFromFile("resources/SpaceStation/space_station.obj", parameters))
+	m_spacestationModel = Nz::Model::LoadFromFile("resources/SpaceStation/space_station.obj", parameters);
+	if (!m_spacestationModel)
 		NazaraWarning("Failed to load space_station.obj");
+
+	m_spacestationModel->GetMesh()->GenerateNormalsAndTangents();
 
 	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
-	if (!m_spaceshipModel.LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters))
+	m_spaceshipModel = Nz::Model::LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters);
+	if (!m_spaceshipModel)
 		NazaraWarning("Failed to load space_frigate_6.obj");
 
-	// Since OBJ don't support normal maps..
-	for (unsigned int i = 0; i < m_spaceshipModel.GetMaterialCount(); ++i)
+	// Since OBJ doesn't support normal maps..
+	for (unsigned int i = 0; i < m_spaceshipModel->GetMaterialCount(); ++i)
 	{
-		m_spaceshipModel.GetMaterial(i)->SetEmissiveMap("resources/space_frigate_6/space_frigate_6_illumination.jpg");
-		m_spaceshipModel.GetMaterial(i)->SetNormalMap("resources/space_frigate_6/space_frigate_6_normal.png");
+		m_spaceshipModel->GetMaterial(i)->SetEmissiveMap("resources/space_frigate_6/space_frigate_6_illumination.jpg");
+		m_spaceshipModel->GetMaterial(i)->SetNormalMap("resources/space_frigate_6/space_frigate_6_normal.png");
 	}
 
 	Nz::TextureRef skyboxCubemap = Nz::Texture::New();
@@ -318,11 +327,11 @@ ParticleDemo("Space battle", sharedData)
 	m_spaceshipTemplate = m_shared.world3D->CreateEntity();
 	m_spaceshipTemplate->Enable(false);
 
+	m_spaceshipTemplate->AddComponent<Ndk::NodeComponent>();
+	m_spaceshipTemplate->AddComponent<Ndk::VelocityComponent>();
+	m_spaceshipTemplate->AddComponent<SpaceshipComponent>();
 	auto& gfxComponent = m_spaceshipTemplate->AddComponent<Ndk::GraphicsComponent>();
-	auto& nodeComponent = m_spaceshipTemplate->AddComponent<Ndk::NodeComponent>();
-	auto& velocityComponent = m_spaceshipTemplate->AddComponent<Ndk::VelocityComponent>();
-	auto& spaceshipComponent = m_spaceshipTemplate->AddComponent<SpaceshipComponent>();
-	gfxComponent.Attach(&m_spaceshipModel);
+	gfxComponent.Attach(m_spaceshipModel);
 
 	m_ambientMusic.OpenFromFile("resources/ambience.ogg");
 	m_ambientMusic.SetVolume(60.f);
@@ -343,7 +352,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	CreateSpaceShip();
 	CreateTurret();
 
-	Ndk::EntityHandle light = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& light = m_shared.world3D->CreateEntity();
 	Ndk::NodeComponent& lightNode = light->AddComponent<Ndk::NodeComponent>();
 	Ndk::LightComponent& lightComp = light->AddComponent<Ndk::LightComponent>(Nz::LightType_Directional);
 	lightNode.SetRotation(Nz::EulerAnglesf(-30.f, 0.f, 0.f));
@@ -360,7 +369,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretCannonBaseRotation = 0.f;
 	m_turretShootTimer = 0.f;
 
-	Ndk::EntityHandle torpedoGroupEntity = m_shared.world3D->CreateEntity();
+	const Ndk::EntityHandle& torpedoGroupEntity = m_shared.world3D->CreateEntity();
 	m_torpedoGroup = torpedoGroupEntity->AddComponent<Ndk::ParticleGroupComponent>(200, m_torpedoDeclaration).CreateHandle();
 	RegisterParticleGroup(torpedoGroupEntity);
 
@@ -386,9 +395,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_torpedoGroup->AddController(Nz::ParticleFunctionController::New([this] (Nz::ParticleGroup& group, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime)
 	{
 		auto positionPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Position);
-		auto rotationPtr = mapper.GetComponentPtr<float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr     = mapper.GetComponentPtr<Nz::Vector2f>(Nz::ParticleComponent_Size);
-		auto velocityPtr = mapper.GetComponentPtr<Nz::Vector3f>(Nz::ParticleComponent_Velocity);
 
 		auto& spaceshipSystem = m_shared.world3D->GetSystem<SpaceshipSystem>();
 
@@ -422,7 +429,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 					emitter.SetEmissionCount(2);
 					emitter.SetEmissionRate(200.f);
 
-					emitter.SetSetupFunc([this] (const Ndk::EntityHandle& entity, Nz::ParticleMapper& mapper, unsigned int count)
+					emitter.SetSetupFunc([this] (const Ndk::EntityHandle& emitterEntity, Nz::ParticleMapper& particleMapper, unsigned int count)
 					{
 						auto& gen = m_shared.randomGen;
 
@@ -434,29 +441,29 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 						std::uniform_real_distribution<float> sizeDis(1.0f, 4.f);
 						std::uniform_real_distribution<float> velDis(-maxFireVel, maxFireVel);
 
-						Nz::Vector3f pos = entity->GetComponent<Ndk::NodeComponent>().GetPosition();
+						Nz::Vector3f pos = emitterEntity->GetComponent<Ndk::NodeComponent>().GetPosition();
 
-						Nz::ParticleStruct_Billboard* billboards = static_cast<Nz::ParticleStruct_Billboard*>(mapper.GetPointer());
+						Nz::ParticleStruct_Billboard* billboards = static_cast<Nz::ParticleStruct_Billboard*>(particleMapper.GetPointer());
 						Nz::ParticleStruct_Billboard* smokeParticles = static_cast<Nz::ParticleStruct_Billboard*>(m_smokeGroup->CreateParticles(count));
-						for (unsigned int i = 0; i < count; ++i)
+						for (unsigned int j = 0; j < count; ++j)
 						{
-							billboards[i].color = Nz::Color::White;
-							billboards[i].life = 1.f + lifeDis(gen);
-							billboards[i].position = pos + Nz::Vector3f(posDis(gen), posDis(gen), posDis(gen));
-							billboards[i].rotation = rotDis(gen);
-							billboards[i].size = {1.28f, 1.28f};
-							billboards[i].size *= sizeDis(gen);
-							billboards[i].velocity.Set(normalDis(gen), normalDis(gen), normalDis(gen));
-							billboards[i].velocity.Normalize();
-							billboards[i].velocity *= velDis(gen);
+							billboards[j].color = Nz::Color::White;
+							billboards[j].life = 1.f + lifeDis(gen);
+							billboards[j].position = pos + Nz::Vector3f(posDis(gen), posDis(gen), posDis(gen));
+							billboards[j].rotation = rotDis(gen);
+							billboards[j].size = {1.28f, 1.28f};
+							billboards[j].size *= sizeDis(gen);
+							billboards[j].velocity.Set(normalDis(gen), normalDis(gen), normalDis(gen));
+							billboards[j].velocity.Normalize();
+							billboards[j].velocity *= velDis(gen);
 
-							smokeParticles[i].color = Nz::Color(128, 128, 128, 0);
-							smokeParticles[i].life = maxSmokeLife;
-							smokeParticles[i].position = billboards[i].position;
-							smokeParticles[i].rotation = billboards[i].rotation;
-							smokeParticles[i].size = {2.56f, 2.56f};
-							smokeParticles[i].size *= sizeDis(gen);
-							smokeParticles[i].velocity = billboards[i].velocity / 2.f;
+							smokeParticles[j].color = Nz::Color(128, 128, 128, 0);
+							smokeParticles[j].life = maxSmokeLife;
+							smokeParticles[j].position = billboards[j].position;
+							smokeParticles[j].rotation = billboards[j].rotation;
+							smokeParticles[j].size = {2.56f, 2.56f};
+							smokeParticles[j].size *= sizeDis(gen);
+							smokeParticles[j].velocity = billboards[j].velocity / 2.f;
 						}
 					});
 					m_fireGroup->AddEmitter(entity);
@@ -467,14 +474,13 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		}
 	}));
 
-	m_torpedoGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([sparkleMat1 = Nz::MaterialLibrary::Get("TorpedoFlare1")] (const Nz::ParticleGroup& group, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
+	m_torpedoGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([sparkleMat1 = Nz::MaterialLibrary::Get("TorpedoFlare1")] (const Nz::ParticleGroup& /*group*/, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
 	{
 		auto positionPtr = mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Position);
 		auto rotationPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr     = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
-		auto velocityPtr = mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Velocity);
 
-		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, positionPtr, sizePtr, rotationPtr);
+		renderQueue->AddBillboards(0, sparkleMat1, endId - startId + 1, Nz::Recti(-1, -1), positionPtr, sizePtr, rotationPtr);
 		for (unsigned int i = startId; i <= endId; ++i)
 		{
 			Nz::AbstractRenderQueue::PointLight pointLight;
@@ -581,7 +587,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	});
 
 	m_fireGroup->AddController(movementController);
-	m_fireGroup->AddController(Nz::ParticleFunctionController::New([] (Nz::ParticleGroup& group, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime)
+	m_fireGroup->AddController(Nz::ParticleFunctionController::New([] (Nz::ParticleGroup& /*group*/, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime)
 	{
 		auto colorPtr = mapper.GetComponentPtr<Nz::Color>(Nz::ParticleComponent_Color);
 		auto lifePtr = mapper.GetComponentPtr<float>(Nz::ParticleComponent_Life);
@@ -592,7 +598,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	}));
 
 	m_smokeGroup->AddController(movementController);
-	m_smokeGroup->AddController(Nz::ParticleFunctionController::New([] (Nz::ParticleGroup& group, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime)
+	m_smokeGroup->AddController(Nz::ParticleFunctionController::New([] (Nz::ParticleGroup& /*group*/, Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, float elapsedTime)
 	{
 		auto colorPtr = mapper.GetComponentPtr<Nz::Color>(Nz::ParticleComponent_Color);
 		auto lifePtr = mapper.GetComponentPtr<float>(Nz::ParticleComponent_Life);
@@ -610,6 +616,7 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	fireMat->EnableFaceCulling(true);
 	fireMat->SetDiffuseMap("resources/fire_particle.png");
 	// Additive blending for fire
+	fireMat->EnableDepthSorting(false); //< No need for depth sort
 	fireMat->SetDstBlend(Nz::BlendFunc_One);
 	fireMat->SetSrcBlend(Nz::BlendFunc_SrcAlpha);
 
@@ -618,24 +625,24 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	smokeMat->SetDiffuseColor(Nz::Color(128, 128, 128));
 	smokeMat->SetDiffuseMap("resources/smoke.png");
 
-	m_fireGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([fireMat] (const Nz::ParticleGroup& group, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
+	m_fireGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([fireMat] (const Nz::ParticleGroup& /*group*/, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
 	{
 		auto colorPtr = mapper.GetComponentPtr<const Nz::Color>(Nz::ParticleComponent_Color);
 		auto posPtr = mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Position);
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, fireMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
-	m_smokeGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([smokeMat] (const Nz::ParticleGroup& group, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
+	m_smokeGroup->SetRenderer(Nz::ParticleFunctionRenderer::New([smokeMat] (const Nz::ParticleGroup& /*group*/, const Nz::ParticleMapper& mapper, unsigned int startId, unsigned int endId, Nz::AbstractRenderQueue* renderQueue)
 	{
 		auto colorPtr = mapper.GetComponentPtr<const Nz::Color>(Nz::ParticleComponent_Color);
 		auto posPtr = mapper.GetComponentPtr<const Nz::Vector3f>(Nz::ParticleComponent_Position);
 		auto rotPtr = mapper.GetComponentPtr<const float>(Nz::ParticleComponent_Rotation);
 		auto sizePtr = mapper.GetComponentPtr<const Nz::Vector2f>(Nz::ParticleComponent_Size);
 
-		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, posPtr, sizePtr, rotPtr, colorPtr);
+		renderQueue->AddBillboards(0, smokeMat, endId - startId + 1, Nz::Recti(-1, -1), posPtr, sizePtr, rotPtr, colorPtr);
 	}));
 
 	//////////////////////////////////////////////////////////////////////////
@@ -644,13 +651,14 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 	m_turretFireSound.LoadFromFile("resources/turretFire.wav");
 	m_turretReloadSound.LoadFromFile("resources/turretReload.wav");
 
-	//m_onMouseMoved.Connect(m_shared.target->GetEventHandler().OnMouseMoved, this, &SpacebattleExample::OnMouseMoved);
-	//m_shared.target->SetCursor(Nz::SystemCursor_None);
+	m_onMouseMoved.Connect(m_shared.target->GetEventHandler().OnMouseMoved, this, &SpacebattleExample::OnMouseMoved);
+	m_shared.target->SetCursor(Nz::SystemCursor_None);
 
 	//////////////////////////////////////////////////////////////////////////
 
 	Nz::TextSpriteRef introText = Nz::TextSprite::New();
-	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nZQSD pour orienter la tourelle, espace pour tirer.\n", 72));
+	introText->SetMaterial(Nz::Material::New("Translucent3D"));
+	introText->Update(Nz::SimpleTextDrawer::Draw("--Tourelle de défense du secteur A407M2--\nLes contrôles ont été adaptés à vos contrôleurs:\nLa souris contrôle l'orientation de la tourelle, cliquez pour tirer.\n", 72));
 	introText->SetScale(0.5f);
 
 	m_introText = m_shared.world3D->CreateEntity();
@@ -661,13 +669,15 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 
 	Ndk::NodeComponent& cannonNode = m_turret.cannonEntity->GetComponent<Ndk::NodeComponent>();
 
-	Nz::Boxf introAABB = introGfx.GetBoundingVolume().aabb;
+	Nz::Boxf introAABB = introGfx.GetAABB();
 	introNode.SetPosition(cannonNode.GetForward() * 500.f + introNode.GetLeft() * introAABB.width / 2.f + introNode.GetUp() * introAABB.height / 2.f);
 }
 
 void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
 	m_ambientMusic.Stop();
+	m_onMouseMoved.Disconnect();
+	m_shared.target->SetCursor(Nz::SystemCursor_Default);
 	m_shared.world3D->RemoveSystem<LaserBeamSystem>();
 	m_shared.world3D->RemoveSystem<SpaceshipSystem>();
 	m_turretFireSound.Stop();
@@ -683,7 +693,7 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 
 	const float speed = 100.f;
 
-	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+	/*if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
 		m_turretCannonBaseRotation = std::max(m_turretCannonBaseRotation - speed * elapsedTime, -65.f);
 
 	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
@@ -693,13 +703,13 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 		m_turretBaseRotation += speed * elapsedTime;
 
 	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
-		m_turretBaseRotation -= speed * elapsedTime;
+		m_turretBaseRotation -= speed * elapsedTime;*/
 
 	m_turret.cannonBaseEntity->GetComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(m_turretCannonBaseRotation, 0.f, 0.f));
 	m_turret.rotatingBaseEntity->GetComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(0.f, m_turretBaseRotation, 0.f));
 
 	bool discharged = m_turretShootTimer < 1.f;
-	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space) && !discharged)
+	if (Nz::Mouse::IsButtonPressed(Nz::Mouse::Left) && !discharged)
 	{
 		m_turretFireSound.Play();
 
@@ -730,7 +740,7 @@ bool SpacebattleExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 
 		auto& spacestationNode = m_spacestationEntity->GetComponent<Ndk::NodeComponent>();
 
-		Ndk::EntityHandle spaceship = m_spaceshipTemplate->Clone();
+		const Ndk::EntityHandle& spaceship = m_spaceshipTemplate->Clone();
 		RegisterEntity(spaceship);
 		auto& nodeComponent = spaceship->GetComponent<Ndk::NodeComponent>();
 		auto& spaceshipComponent = spaceship->GetComponent<SpaceshipComponent>();
@@ -759,7 +769,7 @@ void SpacebattleExample::CreateSpaceShip()
 	spacestationNode.SetScale(0.1f);
 
 	Ndk::GraphicsComponent& spacestationGfx = m_spacestationEntity->AddComponent<Ndk::GraphicsComponent>();
-	spacestationGfx.Attach(&m_spacestationModel);
+	spacestationGfx.Attach(m_spacestationModel);
 }
 
 void SpacebattleExample::CreateTurret()
@@ -773,7 +783,7 @@ void SpacebattleExample::CreateTurret()
 	baseNode.SetRotation(Nz::EulerAnglesf(0.f, 180.f, 0.f));
 
 	Ndk::GraphicsComponent& baseGfx = m_turret.baseEntity->AddComponent<Ndk::GraphicsComponent>();
-	baseGfx.Attach(&m_turret.baseModel);
+	baseGfx.Attach(m_turret.baseModel);
 
 	// Rotating base
 	m_turret.rotatingBaseEntity = m_shared.world3D->CreateEntity();
@@ -783,7 +793,7 @@ void SpacebattleExample::CreateTurret()
 	rotatingBaseNode.SetParent(m_turret.baseEntity);
 
 	Ndk::GraphicsComponent& rotatingBaseGfx = m_turret.rotatingBaseEntity->AddComponent<Ndk::GraphicsComponent>();
-	rotatingBaseGfx.Attach(&m_turret.rotatingBaseModel);
+	rotatingBaseGfx.Attach(m_turret.rotatingBaseModel);
 
 	// Cannon base
 	m_turret.cannonBaseEntity = m_shared.world3D->CreateEntity();
@@ -794,7 +804,7 @@ void SpacebattleExample::CreateTurret()
 	cannonBaseNode.SetParent(m_turret.rotatingBaseEntity);
 
 	Ndk::GraphicsComponent& cannonBaseGfx = m_turret.cannonBaseEntity->AddComponent<Ndk::GraphicsComponent>();
-	cannonBaseGfx.Attach(&m_turret.cannonBaseModel);
+	cannonBaseGfx.Attach(m_turret.cannonBaseModel);
 
 	// Cannon anchor
 	m_turret.cannonAnchorEntity = m_shared.world3D->CreateEntity();
@@ -813,15 +823,16 @@ void SpacebattleExample::CreateTurret()
 	cannonNode.SetRotation(Nz::EulerAnglesf(0.f, 180.f, 0.f));
 
 	Ndk::GraphicsComponent& cannonGfx = m_turret.cannonEntity->AddComponent<Ndk::GraphicsComponent>();
-	cannonGfx.Attach(&m_turret.cannonModel);
+	cannonGfx.Attach(m_turret.cannonModel);
 }
 
-void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event)
+void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 {
 	const float speed = 0.1f;
 
 	m_turretCannonBaseRotation = Nz::Clamp(m_turretCannonBaseRotation + speed * event.deltaY, -65.f, 40.f);
 	m_turretBaseRotation -= event.deltaX * speed;
 
-	Nz::Mouse::SetPosition(m_shared.target->GetWidth() / 2, m_shared.target->GetHeight() / 2, *m_shared.target);
+	Nz::Vector2ui size = m_shared.target->GetSize();
+	Nz::Mouse::SetPosition(size.x / 2, size.y / 2, *m_shared.target);
 }

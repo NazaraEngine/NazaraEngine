@@ -1,8 +1,7 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/Components/CameraComponent.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 
@@ -39,7 +38,6 @@ namespace Ndk
 	inline CameraComponent::CameraComponent(const CameraComponent& camera) :
 	Component(camera),
 	AbstractViewer(camera),
-	HandledObject(camera),
 	m_visibilityHash(camera.m_visibilityHash),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -238,10 +236,9 @@ namespace Ndk
 		NazaraAssert(m_target, "Component has no render target");
 
 		// We compute the region necessary to make this view port with the actual size of the target
-		float invWidth = 1.f / m_target->GetWidth();
-		float invHeight = 1.f / m_target->GetHeight();
+		Nz::Vector2f invSize = 1.f / Nz::Vector2f(m_target->GetSize());
 
-		SetTargetRegion(Nz::Rectf(invWidth * viewport.x, invHeight * viewport.y, invWidth * viewport.width, invHeight * viewport.height));
+		SetTargetRegion(Nz::Rectf(invSize.x * viewport.x, invSize.y * viewport.y, invSize.x * viewport.width, invSize.y * viewport.height));
 	}
 
 	/*!

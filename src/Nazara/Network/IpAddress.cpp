@@ -8,7 +8,6 @@
 #include <Nazara/Network/Algorithm.hpp>
 #include <algorithm>
 #include <limits>
-#include <Nazara/Network/SystemSocket.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>

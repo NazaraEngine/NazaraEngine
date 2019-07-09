@@ -7,7 +7,7 @@
 #ifndef NAZARA_PARTICLEEMITTER_HPP
 #define NAZARA_PARTICLEEMITTER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 

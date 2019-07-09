@@ -5,11 +5,9 @@
 #include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Formats/DDSConstants.hpp>
-#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -40,7 +38,7 @@ namespace Nz
 				return (magic == DDS_Magic) ? Ternary_True : Ternary_False;
 			}
 
-			static bool Load(Image* image, Stream& stream, const ImageParams& parameters)
+			static ImageRef Load(Stream& stream, const ImageParams& parameters)
 			{
 				NazaraUnused(parameters);
 
@@ -83,14 +81,14 @@ namespace Nz
 				// First, identify the type
 				ImageType type;
 				if (!IdentifyImageType(header, headerDX10, &type))
-					return false;
+					return nullptr;
 
 				// Then the format
 				PixelFormatType format;
 				if (!IdentifyPixelFormat(header, headerDX10, &format))
-					return false;
+					return nullptr;
 
-				image->Create(type, format, width, height, depth, levelCount);
+				ImageRef image = Image::New(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
 				for (unsigned int i = 0; i < image->GetLevelCount(); i++)
@@ -102,7 +100,7 @@ namespace Nz
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
 						NazaraError("Failed to read level #" + String::Number(i));
-						return false;
+						return nullptr;
 					}
 
 					if (width > 1)
@@ -119,7 +117,7 @@ namespace Nz
 				if (parameters.loadFormat != PixelFormatType_Undefined)
 					image->Convert(parameters.loadFormat);
 
-				return true;
+				return image;
 			}
 
 		private:

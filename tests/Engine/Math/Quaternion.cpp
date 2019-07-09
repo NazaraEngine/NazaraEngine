@@ -173,12 +173,33 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 		WHEN("We get the rotation between two vectors")
 		{
-			Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
-
 			THEN("The rotation in right-handed is 90 degree on z")
 			{
+				Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
 				Nz::Quaternionf rotation90Z(Nz::FromDegrees(90.f), Nz::Vector3f::UnitZ());
 				REQUIRE(rotation90Z == rotationBetweenXY);
+			}
+
+			THEN("The rotation in right-handed is 90 degree on y")
+			{
+				Nz::Quaternionf rotationBetweenXZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf rotation90Y(Nz::FromDegrees(-90.f), Nz::Vector3f::UnitY());
+				REQUIRE(rotation90Y == rotationBetweenXZ);
+			}
+
+			THEN("The rotation in right-handed is 90 degree on x")
+			{
+				Nz::Quaternionf rotationBetweenYZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitY(), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf rotation90X(Nz::FromDegrees(90.f), Nz::Vector3f::UnitX());
+				REQUIRE(rotation90X == rotationBetweenYZ);
+			}
+
+			THEN("The rotation in right-handed is 90 degree on y with non-unit vectors")
+			{
+				Nz::Vector3f origin(1.f, 0.f, 1.f);
+				Nz::Vector3f extremity(-1.f, 0.f, 1.f);
+				Nz::Quaternionf rotation = Nz::Quaternionf::RotationBetween(origin, extremity);
+				REQUIRE(rotation * origin == extremity);
 			}
 		}
 	} 

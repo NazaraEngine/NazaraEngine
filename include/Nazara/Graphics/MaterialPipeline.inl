@@ -2,9 +2,8 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/MaterialPipeline.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <functional>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -72,6 +71,8 @@ namespace Nz
 		NazaraPipelineBoolMember(hasHeightMap);
 		NazaraPipelineBoolMember(hasNormalMap);
 		NazaraPipelineBoolMember(hasSpecularMap);
+		NazaraPipelineBoolMember(hasVertexColor);
+		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
 		NazaraPipelineMember(uberShader);
@@ -127,6 +128,8 @@ namespace std
 			NazaraPipelineBoolMember(hasHeightMap);
 			NazaraPipelineBoolMember(hasNormalMap);
 			NazaraPipelineBoolMember(hasSpecularMap);
+			NazaraPipelineBoolMember(hasVertexColor);
+			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
 			NazaraPipelineMember(uberShader);

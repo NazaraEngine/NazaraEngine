@@ -7,10 +7,8 @@
 #ifndef NAZARA_LUACOROUTINE_HPP
 #define NAZARA_LUACOROUTINE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Lua/LuaState.hpp>
-#include <cstddef>
-#include <functional>
 
 namespace Nz
 {
@@ -33,7 +31,7 @@ namespace Nz
 		private:
 			LuaCoroutine(lua_State* internalState, int refIndex);
 
-			bool Run(int argCount, int resultCount) override;
+			bool Run(int argCount, int resultCount, int errHandler) override;
 
 			int m_ref;
 	};

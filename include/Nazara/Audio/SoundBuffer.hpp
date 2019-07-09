@@ -7,9 +7,10 @@
 #ifndef NAZARA_SOUNDBUFFER_HPP
 #define NAZARA_SOUNDBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/RefCounted.hpp>
@@ -18,7 +19,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/Stream.hpp>
 
 namespace Nz
 {
@@ -66,15 +66,16 @@ namespace Nz
 
 			bool IsValid() const;
 
-			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
-			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
-			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
+			SoundBuffer& operator=(const SoundBuffer&) = delete;
+			SoundBuffer& operator=(SoundBuffer&&) = delete;
 
 			static bool IsFormatSupported(AudioFormat format);
-			template<typename... Args> static SoundBufferRef New(Args&&... args);
 
-			SoundBuffer& operator=(const SoundBuffer&) = delete;
-			SoundBuffer& operator=(SoundBuffer&&) = delete; ///TODO
+			static SoundBufferRef LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			static SoundBufferRef LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
+			static SoundBufferRef LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
+
+			template<typename... Args> static SoundBufferRef New(Args&&... args);
 
 			// Signals:
 			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);
@@ -86,7 +87,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			SoundBufferImpl* m_impl = nullptr;
+			MovablePtr<SoundBufferImpl> m_impl = nullptr;
 
 			static SoundBufferLibrary::LibraryMap s_library;
 			static SoundBufferLoader::LoaderList s_loaders;

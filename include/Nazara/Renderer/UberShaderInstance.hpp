@@ -7,7 +7,7 @@
 #ifndef NAZARA_UBERSHADERINSTANCE_HPP
 #define NAZARA_UBERSHADERINSTANCE_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Shader.hpp>
 
 namespace Nz

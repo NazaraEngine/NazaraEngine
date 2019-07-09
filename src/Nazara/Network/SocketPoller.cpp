@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/SocketPoller.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketPollerImpl.hpp>
@@ -170,24 +171,33 @@ namespace Nz
 	* Waits a specific/undetermined amount of time until at least one socket part of the SocketPoller becomes ready.
 	* To query the ready state of the registered socket, use the IsReadyToRead or IsReadyToWrite functions.
 	*
+	* If error is a valid pointer, it will be used to report the last error occurred (if no error occurred, a value of NoError will be reported)
+	*
 	* \param msTimeout Maximum time to wait in milliseconds, 0 will returns immediately and -1 will block indefinitely
+	* \param error If valid, this will be used to report the error status from the poller (if no error occurred, a value of NoError will be reported).
 	*
-	* \return True if at least one socket registered to the poller is ready.
+	* \return The number of socket reported ready (may be zero if no socket is ready or if an error occurred)
 	*
-	* \remark It is an error to try to unregister a non-registered socket from a SocketPoller.
+	* \remark In case of error, a NazaraError is triggered (except for interrupted errors)
 	*
 	* \see IsReady
 	* \see RegisterSocket
 	*/
-	bool SocketPoller::Wait(int msTimeout)
+	unsigned int SocketPoller::Wait(int msTimeout, SocketError* error)
 	{
-		SocketError error;
+		SocketError waitError;
 
-		int readySockets = m_impl->Wait(msTimeout, &error);
-		if (error != SocketError_NoError)
+		unsigned int readySockets = m_impl->Wait(msTimeout, &waitError);
+
+		if (error)
+			*error = waitError;
+
+		if (waitError != SocketError_NoError)
 		{
-			NazaraError("SocketPoller encountered an error (code: 0x" + String::Number(error, 16) + ')');
-			return false;
+			if (waitError != SocketError_Interrupted) //< Do not log interrupted error
+				NazaraError("SocketPoller encountered an error (code: 0x" + String::Number(waitError, 16) + "): " + ErrorToString(waitError));
+
+			return 0;
 		}
 
 		return readySockets > 0;

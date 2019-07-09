@@ -1,3 +1,4 @@
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Catch/catch.hpp>
 
@@ -26,8 +27,8 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 
 			THEN("They should still be equal")
 			{
-				REQUIRE(euler360 == firstZero);
-				REQUIRE(euler0 == secondZero);
+				CHECK(euler360 == firstZero);
+				CHECK(euler0 == secondZero);
 			}
 		}
 
@@ -35,9 +36,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 		{
 			THEN("They are the same")
 			{
-				REQUIRE(firstZero.ToQuaternion() == secondZero.ToQuaternion());
-				REQUIRE(firstZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
-				REQUIRE(secondZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
+				CHECK(firstZero.ToQuaternion() == secondZero.ToQuaternion());
+				CHECK(firstZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
+				CHECK(secondZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
 			}
 		}
 	}
@@ -56,9 +57,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 				Nz::Vector3f rotation90Y = euler90Y.ToQuaternion() * Nz::Vector3f::UnitZ();
 				Nz::Vector3f rotation90R = euler90R.ToQuaternion() * Nz::Vector3f::UnitX();
 
-				REQUIRE(rotation90P == Nz::Vector3f::UnitZ());
-				REQUIRE(rotation90Y == Nz::Vector3f::UnitX());
-				REQUIRE(rotation90R == Nz::Vector3f::UnitY());
+				CHECK(rotation90P == Nz::Vector3f::UnitZ());
+				CHECK(rotation90Y == Nz::Vector3f::UnitX());
+				CHECK(rotation90R == Nz::Vector3f::UnitY());
 			}
 		}
 	}
@@ -69,9 +70,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(Nz::EulerAngles<int>(Nz::FromDegrees(45.f), 0.f, 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
-				REQUIRE(Nz::EulerAngles<int>(0.f, Nz::FromDegrees(45.f), 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
-				REQUIRE(Nz::EulerAngles<int>(0.f, 0.f, Nz::FromDegrees(45.f)) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
+				CHECK(Nz::EulerAngles<int>(Nz::FromDegrees(45.f), 0.f, 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
+				CHECK(Nz::EulerAngles<int>(0.f, Nz::FromDegrees(45.f), 0.f) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
+				CHECK(Nz::EulerAngles<int>(0.f, 0.f, Nz::FromDegrees(45.f)) == Nz::EulerAngles<int>(Nz::Quaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
 			}
 		}
 	}
@@ -87,17 +88,34 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 			THEN("And then convert to euler angles, we have identity")
 			{
 				Nz::EulerAnglesf tmp = Nz::Quaternionf(euler45.ToQuaternion()).ToEulerAngles();
-				REQUIRE(tmp.pitch == Approx(0.f));
-				REQUIRE(tmp.yaw == Approx(22.5f));
-				REQUIRE(tmp.roll == Approx(22.5f));
+				CHECK(tmp.pitch == Approx(0.f));
+				CHECK(tmp.yaw == Approx(22.5f));
+				CHECK(tmp.roll == Approx(22.5f));
+
 				tmp = Nz::Quaternionf(euler90.ToQuaternion()).ToEulerAngles();
-				REQUIRE(tmp.pitch == Approx(90.f));
-				REQUIRE(tmp.yaw == Approx(90.f));
-				REQUIRE(tmp.roll == Approx(0.f));
+				CHECK(tmp.pitch == Approx(90.f));
+				CHECK(tmp.yaw == Approx(90.f));
+				CHECK(tmp.roll == Approx(0.f));
+
 				tmp = Nz::Quaternionf(euler30.ToQuaternion()).ToEulerAngles();
-				REQUIRE(tmp.pitch == Approx(30.f));
-				REQUIRE(tmp.yaw == Approx(0.f));
-				REQUIRE(tmp.roll == Approx(30.f));
+				CHECK(tmp.pitch == Approx(30.f));
+				CHECK(tmp.yaw == Approx(0.f).margin(0.0001f));
+				CHECK(tmp.roll == Approx(30.f));
+			}
+		}
+	}
+
+	GIVEN("An angle of 45 degrees")
+	{
+		Nz::DegreeAnglef angle(45.f);
+
+		WHEN("We convert it to Euler angles")
+		{
+			Nz::EulerAnglesf eulerAngles(angle);
+
+			THEN("It should be equal to a 2D rotation of 45 degrees")
+			{
+				CHECK(eulerAngles == Nz::EulerAnglesf(0.f, 0.f, 45.f));
 			}
 		}
 	}

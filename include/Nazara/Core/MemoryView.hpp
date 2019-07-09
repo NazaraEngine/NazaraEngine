@@ -7,7 +7,7 @@
 #ifndef NAZARA_MEMORYVIEW_HPP
 #define NAZARA_MEMORYVIEW_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
 
 namespace Nz

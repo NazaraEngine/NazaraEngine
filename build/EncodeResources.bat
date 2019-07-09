@@ -1,2 +1,2 @@
-premake5 encoderesources
+.\premake5.exe encoderesources
 pause

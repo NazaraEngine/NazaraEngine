@@ -7,17 +7,14 @@
 #ifndef NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 #define NAZARA_ABSTRACTRENDERTECHNIQUE_HPP
 
-#include <Nazara/Prerequesites.hpp>
-#include <Nazara/Core/Color.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Graphics/AbstractRenderQueue.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/SceneData.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
-	class Background;
+	class AbstractRenderQueue;
 	struct SceneData;
 
 	class NAZARA_GRAPHICS_API AbstractRenderTechnique
@@ -25,7 +22,7 @@ namespace Nz
 		public:
 			AbstractRenderTechnique();
 			AbstractRenderTechnique(const AbstractRenderTechnique&) = delete;
-			AbstractRenderTechnique(AbstractRenderTechnique&&) = default;
+			AbstractRenderTechnique(AbstractRenderTechnique&&) noexcept = default;
 			virtual ~AbstractRenderTechnique();
 
 			virtual void Clear(const SceneData& sceneData) const = 0;
@@ -40,7 +37,7 @@ namespace Nz
 			virtual bool IsInstancingEnabled() const;
 
 			AbstractRenderTechnique& operator=(const AbstractRenderTechnique&) = delete;
-			AbstractRenderTechnique& operator=(AbstractRenderTechnique&&) = default;
+			AbstractRenderTechnique& operator=(AbstractRenderTechnique&&) noexcept = default;
 
 		protected:
 			bool m_instancingEnabled;

@@ -7,7 +7,7 @@
 #ifndef NAZARA_SOFTWAREBUFFER_HPP
 #define NAZARA_SOFTWAREBUFFER_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <vector>
 

@@ -9,24 +9,26 @@
 
 #ifdef NAZARA_RENDERER_OPENGL
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 // Inclusion des headers OpenGL
-#include <GL3/glcorearb.h>
-#include <GL3/glext.h>
+
+#include <GL/glcorearb.h>
+#include <GL/glext.h>
+
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <GL3/wglext.h>
+	#include <GL/wglext.h>
 #elif defined(NAZARA_PLATFORM_GLX)
 namespace GLX
 {
 	#include <GL/glx.h> // Defined in a namespace to avoid conflict
 }
-	#include <GL3/glxext.h>
+	#include <GL/glxext.h>
 #endif
 
 namespace Nz
@@ -38,6 +40,7 @@ namespace Nz
 		OpenGLExtension_FP64,
 		OpenGLExtension_GetProgramBinary,
 		OpenGLExtension_SeparateShaderObjects,
+		OpenGLExtension_SeamlessCubeMap,
 		OpenGLExtension_Shader_ImageLoadStore,
 		OpenGLExtension_TextureCompression_s3tc,
 		OpenGLExtension_TextureStorage,
@@ -46,6 +49,7 @@ namespace Nz
 	};
 
 	class Context;
+	struct RenderStates;
 	class RenderTarget;
 
 	using OpenGLFunc = void (*)();

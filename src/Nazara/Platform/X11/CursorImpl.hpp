@@ -7,7 +7,7 @@
 #ifndef NAZARA_CURSORIMPL_HPP
 #define NAZARA_CURSORIMPL_HPP
 
-#include <Nazara/Prerequesites.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <xcb/xcb_cursor.h>
 #include <array>

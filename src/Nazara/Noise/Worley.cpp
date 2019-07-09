@@ -4,7 +4,6 @@
 
 #include <Nazara/Noise/Worley.hpp>
 #include <Nazara/Noise/NoiseTools.hpp>
-#include <exception>
 #include <stdexcept>
 #include <Nazara/Noise/Debug.hpp>
 

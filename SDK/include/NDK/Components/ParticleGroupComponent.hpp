@@ -1,6 +1,6 @@
 // Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequesites.hpp
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #pragma once
 
@@ -17,7 +17,7 @@ namespace Ndk
 
 	using ParticleGroupComponentHandle = Nz::ObjectHandle<ParticleGroupComponent>;
 
-	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup, public Nz::HandledObject<ParticleGroupComponent>
+	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup
 	{
 		public:
 			inline ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleLayout layout);

@@ -53,6 +53,7 @@ namespace Nz
 	m_smoothScrolling(false),
 	m_scrolling(0)
 	{
+		m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED));
 	}
 
 	bool WindowImpl::Create(const VideoMode& mode, const String& title, WindowStyleFlags style)
@@ -70,8 +71,8 @@ namespace Nz
 			win32Mode.dmBitsPerPel = mode.bitsPerPixel;
 			win32Mode.dmPelsHeight = mode.height;
 			win32Mode.dmPelsWidth  = mode.width;
-			win32Mode.dmFields	   = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			win32Mode.dmSize	   = sizeof(DEVMODE);
+			win32Mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+			win32Mode.dmSize       = sizeof(DEVMODE);
 
 			if (ChangeDisplaySettings(&win32Mode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 			{
@@ -218,11 +219,6 @@ namespace Nz
 		return m_handle;
 	}
 
-	unsigned int WindowImpl::GetHeight() const
-	{
-		return m_size.y;
-	}
-
 	Vector2i WindowImpl::GetPosition() const
 	{
 		return m_position;
@@ -252,11 +248,6 @@ namespace Nz
 		return String::Unicode(wTitle.get());
 	}
 
-	unsigned int WindowImpl::GetWidth() const
-	{
-		return m_size.x;
-	}
-
 	bool WindowImpl::HasFocus() const
 	{
 		return GetForegroundWindow() == m_handle;
@@ -279,6 +270,11 @@ namespace Nz
 		return IsWindowVisible(m_handle) == TRUE;
 	}
 
+	void WindowImpl::RefreshCursor()
+	{
+		::SetCursor(m_cursor);
+	}
+
 	void WindowImpl::ProcessEvents(bool block)
 	{
 		if (m_ownsWindow)
@@ -299,7 +295,8 @@ namespace Nz
 	{
 		m_cursor = cursor.m_impl->GetCursor();
 
-		::SetCursor(m_cursor);
+		if (HasFocus())
+			RefreshCursor();
 	}
 
 	void WindowImpl::SetEventListener(bool listener)
@@ -369,7 +366,7 @@ namespace Nz
 
 	void WindowImpl::SetPosition(int x, int y)
 	{
-		SetWindowPos(m_handle, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		SetWindowPos(m_handle, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetSize(unsigned int width, unsigned int height)
@@ -378,15 +375,15 @@ namespace Nz
 		RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 		AdjustWindowRect(&rect, static_cast<DWORD>(GetWindowLongPtr(m_handle, GWL_STYLE)), false);
 
-		SetWindowPos(m_handle, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(m_handle, nullptr, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetStayOnTop(bool stayOnTop)
 	{
 		if (stayOnTop)
-			SetWindowPos(m_handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+			SetWindowPos(m_handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
 		else
-			SetWindowPos(m_handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(m_handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_ASYNCWINDOWPOS);
 	}
 
 	void WindowImpl::SetTitle(const String& title)
@@ -413,12 +410,12 @@ namespace Nz
 
 				break;
 
-			case WM_SETCURSOR:
+			/*case WM_SETCURSOR:
 				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648382(v=vs.85).aspx
 				if (LOWORD(lParam) == HTCLIENT)
 					::SetCursor(m_cursor);
 
-				break;
+				break;*/
 
 			case WM_WINDOWPOSCHANGING:
 			{
@@ -511,6 +508,7 @@ namespace Nz
 						event.size.height = size.y;
 						m_parent->PushEvent(event);
 					}
+					break;
 				}
 
 				case WM_KEYDOWN:
@@ -662,7 +660,7 @@ namespace Nz
 					{
 						m_mouseInside = true;
 
-						// On créé un évènement pour être informé de la sortie de la fenêtre
+						// Track mouse event to be notified when mouse leaves window
 						TRACKMOUSEEVENT mouseEvent;
 						mouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
 						mouseEvent.dwFlags = TME_LEAVE;
@@ -714,7 +712,10 @@ namespace Nz
 					{
 						WindowEvent event;
 						event.type = WindowEventType_MouseWheelMoved;
-						event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam))/WHEEL_DELTA;
+						event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
+						event.mouseWheel.x = GET_X_LPARAM(lParam);
+						event.mouseWheel.y = GET_Y_LPARAM(lParam);
+
 						m_parent->PushEvent(event);
 					}
 					else
@@ -724,7 +725,10 @@ namespace Nz
 						{
 							WindowEvent event;
 							event.type = WindowEventType_MouseWheelMoved;
-							event.mouseWheel.delta = static_cast<float>(m_scrolling/WHEEL_DELTA);
+							event.mouseWheel.delta = static_cast<float>(m_scrolling / WHEEL_DELTA);
+							event.mouseWheel.x = GET_X_LPARAM(lParam);
+							event.mouseWheel.y = GET_Y_LPARAM(lParam);
+
 							m_parent->PushEvent(event);
 
 							m_scrolling %= WHEEL_DELTA;
