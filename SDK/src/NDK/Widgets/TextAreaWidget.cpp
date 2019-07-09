@@ -243,6 +243,39 @@ namespace Ndk
 	{
 		switch (key.code)
 		{
+			case Nz::Keyboard::Backspace:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
+
+				std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
+				std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+
+				if (ignoreDefaultAction || cursorGlyphEnd == 0)
+					return true;
+
+				// When a text is selected, delete key does the same as delete and leave the character behind it
+				if (HasSelection())
+					EraseSelection();
+				else
+				{
+					Nz::String newText;
+
+					if (cursorGlyphBegin > 1)
+						newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin - 1) - 1));
+
+					if (cursorGlyphEnd < m_text.GetLength())
+						newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd)));
+
+					// Move cursor before setting text (to prevent SetText to move our cursor)
+					MoveCursor(-1);
+
+					SetText(newText);
+				}
+
+				return true;
+			}
+
 			case Nz::Keyboard::Delete:
 			{
 				if (HasSelection())
@@ -333,6 +366,24 @@ namespace Ndk
 					MoveCursor(-1);
 
 				return true;
+			}
+
+			case Nz::Keyboard::Return:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					return true;
+
+				if (!m_multiLineEnabled)
+					break;
+
+				if (HasSelection())
+					EraseSelection();
+
+				Write(Nz::String('\n'));
+				return true;;
 			}
 
 			case Nz::Keyboard::Right:
@@ -442,8 +493,10 @@ namespace Ndk
 			}
 
 			default:
-				return false;
+				break;
 		}
+
+		return false;
 	}
 
 	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
@@ -494,68 +547,13 @@ namespace Ndk
 		if (m_readOnly)
 			return;
 
-		switch (character)
-		{
-			case '\b':
-			{
-				bool ignoreDefaultAction = false;
-				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
+		if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
+			return;
 
-				std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
-				std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+		if (HasSelection())
+			EraseSelection();
 
-				if (ignoreDefaultAction || cursorGlyphEnd == 0)
-					break;
-
-				// When a text is selected, delete key does the same as delete and leave the character behind it
-				if (HasSelection())
-					EraseSelection();
-				else
-				{
-					Nz::String newText;
-
-					if (cursorGlyphBegin > 1)
-						newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin - 1) - 1));
-
-					if (cursorGlyphEnd < m_text.GetLength())
-						newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd)));
-
-					// Move cursor before setting text (to prevent SetText to move our cursor)
-					MoveCursor(-1);
-
-					SetText(newText);
-				}
-				break;
-			}
-
-			case '\r':
-			case '\n':
-			{
-				bool ignoreDefaultAction = false;
-				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
-
-				if (ignoreDefaultAction || !m_multiLineEnabled)
-					break;
-
-				if (HasSelection())
-					EraseSelection();
-
-				Write(Nz::String('\n'));
-				break;
-			}
-
-			default:
-			{
-				if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
-					break;
-
-				if (HasSelection())
-					EraseSelection();
-
-				Write(Nz::String::Unicode(character));
-				break;
-			}
-		}
+		Write(Nz::String::Unicode(character));
 	}
 
 	void TextAreaWidget::RefreshCursor()

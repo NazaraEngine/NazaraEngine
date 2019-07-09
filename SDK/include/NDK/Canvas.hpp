@@ -31,6 +31,9 @@ namespace Ndk
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
 
+			NazaraSignal(OnUnhandledKeyPressed, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyReleased, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
+
 		protected:
 			inline void ClearKeyboardOwner(std::size_t canvasIndex);
 
