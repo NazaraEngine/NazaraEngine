@@ -212,6 +212,9 @@ namespace Ndk
 			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
 			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
 
+			if (!IsVisible())
+				entity->Disable(); // Next line will override isEnabled status
+
 			it->isEnabled = true;
 		});
 
