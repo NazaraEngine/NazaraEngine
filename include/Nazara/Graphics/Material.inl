@@ -550,7 +550,7 @@ namespace Nz
 
 	inline UniformBufferRef& Material::GetUniformBuffer(std::size_t bufferIndex)
 	{
-		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
+		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex];
 	}
 

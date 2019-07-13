@@ -98,6 +98,7 @@ namespace Nz
 			UniformOffsets m_phongUniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
+			static std::size_t s_phongUniformBlockIndex;
 			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
 			static UniformOffsets s_phongUniformOffsets;

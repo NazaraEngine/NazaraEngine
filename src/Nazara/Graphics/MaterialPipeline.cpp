@@ -165,14 +165,17 @@ namespace Nz
 			OverrideShader("Shaders/PhongLighting/core.vert", &vertexShader);
 			#endif
 
-			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS DIFFUSE_MAPPING EMISSIVE_MAPPING NORMAL_MAPPING PARALLAX_MAPPING REFLECTION_MAPPING SHADOW_MAPPING SPECULAR_MAPPING");
-			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR COMPUTE_TBNMATRIX PARALLAX_MAPPING SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
+			uberShader->SetShader(ShaderStageType_Fragment, fragmentShader, "FLAG_DEFERRED FLAG_TEXTUREOVERLAY ALPHA_MAPPING ALPHA_TEST AUTO_TEXCOORDS HAS_ALPHA_TEXTURE HAS_DIFFUSE_TEXTURE HAS_EMISSIVE_TEXTURE HAS_NORMAL_TEXTURE HAS_HEIGHT_TEXTURE HAS_SPECULAR_TEXTURE REFLECTION_MAPPING SHADOW_MAPPING");
+			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 			UberShaderLibrary::Register("PhongLighting", uberShader);
 		}
 
+		std::shared_ptr<MaterialSettings> emptySettings = std::make_shared<MaterialSettings>();
+
 		// Once the base shaders are registered, we can now set some default materials
 		MaterialPipelineInfo pipelineInfo;
+		pipelineInfo.settings = emptySettings;
 		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
 		// Basic 2D - No depth write/face culling with scissoring

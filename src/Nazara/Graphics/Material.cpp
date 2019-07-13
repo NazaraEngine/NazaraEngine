@@ -40,6 +40,39 @@ namespace Nz
 	{
 		const Shader* shader = instance.renderPipeline.GetInfo().shader;
 
+		unsigned int bindingIndex = 0;
+
+		for (const MaterialTexture& textureData : m_textures)
+		{
+			auto it = instance.bindings.find(bindingIndex++);
+			assert(it != instance.bindings.end());
+
+			unsigned int textureIndex = it->second;
+
+			Renderer::SetTexture(textureIndex, textureData.texture);
+			Renderer::SetTextureSampler(textureIndex, textureData.sampler);
+		}
+
+		for (const UniformBufferRef& sharedUbo : m_uniformBuffers)
+		{
+			auto it = instance.bindings.find(bindingIndex++);
+			assert(it != instance.bindings.end());
+
+			unsigned int uniformBufferIndex = it->second;
+
+			Renderer::BindUniformBuffer(uniformBufferIndex, sharedUbo);
+		}
+
+		for (const UniformBufferRef& sharedUbo : m_sharedUniformBuffers)
+		{
+			auto it = instance.bindings.find(bindingIndex++);
+			assert(it != instance.bindings.end());
+
+			unsigned int uniformBufferIndex = it->second;
+
+			Renderer::BindUniformBuffer(uniformBufferIndex, sharedUbo);
+		}
+
 		/*if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)
 			shader->SendFloat(instance.uniforms[MaterialUniform_AlphaThreshold], m_alphaThreshold);
 

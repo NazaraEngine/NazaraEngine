@@ -19,7 +19,7 @@ namespace Nz
 
 			// Align offset according to current type alignment
 			assert(m_offset > 0);
-			m_offset = (m_offset + currentTypeAlignment - 1) / currentTypeAlignment * currentTypeAlignment - 1;
+			m_offset = (m_offset + currentTypeAlignment - 1) / currentTypeAlignment * currentTypeAlignment;
 		}
 
 		m_previousType = type;

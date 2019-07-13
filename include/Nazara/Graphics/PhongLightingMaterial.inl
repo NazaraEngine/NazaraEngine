@@ -106,10 +106,50 @@ namespace Nz
 		m_material->SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
 	}
 
-	inline void Nz::PhongLightingMaterial::SetDiffuseMap(TextureRef diffuseMap)
+	inline bool PhongLightingMaterial::SetDiffuseMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
+		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+			{
+				NazaraError("Failed to get diffuse map \"" + textureName + "\"");
+				return false;
+			}
+		}
+
+		SetDiffuseMap(std::move(texture));
+		return true;
+	}
+
+	inline void PhongLightingMaterial::SetDiffuseMap(TextureRef diffuseMap)
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
 		m_material->SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
+	}
+
+	inline bool PhongLightingMaterial::SetNormalMap(const String& textureName)
+	{
+		TextureRef texture = TextureLibrary::Query(textureName);
+		if (!texture)
+		{
+			texture = TextureManager::Get(textureName);
+			if (!texture)
+			{
+				NazaraError("Failed to get normal map \"" + textureName + "\"");
+				return false;
+			}
+		}
+
+		SetNormalMap(std::move(texture));
+		return true;
+	}
+
+	inline void PhongLightingMaterial::SetNormalMap(TextureRef normalMap)
+	{
+		NazaraAssert(HasNormalMap(), "Material has no normal map slot");
+		m_material->SetTexture(m_textureIndexes.normal, std::move(normalMap));
 	}
 }
 

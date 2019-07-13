@@ -34,16 +34,17 @@ namespace Nz
 		if (materialSettings == s_materialSettings)
 		{
 			m_textureIndexes = s_textureIndexes;
+			m_phongUniformIndex = s_phongUniformBlockIndex;
 			m_phongUniformOffsets = s_phongUniformOffsets;
 		}
 		else
 		{
-			m_textureIndexes.alpha = materialSettings->GetTextureIndex("alpha");
-			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("diffuse");
-			m_textureIndexes.emissive = materialSettings->GetTextureIndex("emissive");
-			m_textureIndexes.height = materialSettings->GetTextureIndex("height");
-			m_textureIndexes.normal = materialSettings->GetTextureIndex("normal");
-			m_textureIndexes.specular = materialSettings->GetTextureIndex("specular");
+			m_textureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
+			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
+			m_textureIndexes.emissive = materialSettings->GetTextureIndex("Emissive");
+			m_textureIndexes.height = materialSettings->GetTextureIndex("Height");
+			m_textureIndexes.normal = materialSettings->GetTextureIndex("Normal");
+			m_textureIndexes.specular = materialSettings->GetTextureIndex("Specular");
 
 			m_phongUniformIndex = materialSettings->GetUniformBlockIndex("PhongSettings");
 
@@ -119,6 +120,18 @@ namespace Nz
 		colorPtr[1] = ambient.g / 255.f;
 		colorPtr[2] = ambient.b / 255.f;
 		colorPtr[3] = ambient.a / 255.f;
+	}
+
+	void PhongLightingMaterial::SetDiffuseColor(const Color& diffuse)
+	{
+		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
+		float* colorPtr = AccessByOffset<float>(mapper.GetPointer(), m_phongUniformOffsets.diffuseColor);
+		colorPtr[0] = diffuse.r / 255.f;
+		colorPtr[1] = diffuse.g / 255.f;
+		colorPtr[2] = diffuse.b / 255.f;
+		colorPtr[3] = diffuse.a / 255.f;
 	}
 
 	const std::shared_ptr<MaterialSettings>& PhongLightingMaterial::GetSettings()
@@ -204,6 +217,7 @@ namespace Nz
 		});
 
 		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
+		s_phongUniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.assign({
 			{
 				"PhongSettings",
@@ -268,6 +282,7 @@ namespace Nz
 	}
 
 	std::shared_ptr<MaterialSettings> PhongLightingMaterial::s_materialSettings;
+	std::size_t PhongLightingMaterial::s_phongUniformBlockIndex;
 	RenderPipelineLayoutRef PhongLightingMaterial::s_renderPipelineLayout;
 	PhongLightingMaterial::TextureIndexes PhongLightingMaterial::s_textureIndexes;
 	PhongLightingMaterial::UniformOffsets PhongLightingMaterial::s_phongUniformOffsets;
