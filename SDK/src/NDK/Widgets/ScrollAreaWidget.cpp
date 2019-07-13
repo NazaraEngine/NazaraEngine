@@ -26,7 +26,6 @@ namespace Ndk
 
 		m_scrollbarBackgroundSprite = Nz::Sprite::New();
 		m_scrollbarBackgroundSprite->SetColor(Nz::Color(62, 62, 62));
-		m_scrollbarBackgroundSprite->SetMaterial(Nz::Material::New("Basic2D"));
 
 		m_scrollbarBackgroundEntity = CreateEntity();
 		m_scrollbarBackgroundEntity->AddComponent<NodeComponent>().SetParent(this);
@@ -34,7 +33,6 @@ namespace Ndk
 
 		m_scrollbarSprite = Nz::Sprite::New();
 		m_scrollbarSprite->SetColor(Nz::Color(104, 104, 104));
-		m_scrollbarSprite->SetMaterial(Nz::Material::New("Basic2D"));
 
 		m_scrollbarEntity = CreateEntity();
 		m_scrollbarEntity->AddComponent<NodeComponent>().SetParent(this);
