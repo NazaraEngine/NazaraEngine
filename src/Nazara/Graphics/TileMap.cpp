@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/TileMap.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -57,7 +57,7 @@ namespace Nz
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		PhongLightingMaterial phongMaterial(GetMaterial(materialIndex));
+		BasicMaterial phongMaterial(GetMaterial(materialIndex));
 		NazaraAssert(phongMaterial.HasDiffuseMap(), "Material has no diffuse map");
 
 		const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
@@ -86,7 +86,7 @@ namespace Nz
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		PhongLightingMaterial phongMaterial(GetMaterial(materialIndex));
+		BasicMaterial phongMaterial(GetMaterial(materialIndex));
 		NazaraAssert(phongMaterial.HasDiffuseMap(), "Material has no diffuse map");
 
 		const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
@@ -117,7 +117,7 @@ namespace Nz
 	{
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		PhongLightingMaterial phongMaterial(GetMaterial(materialIndex));
+		BasicMaterial phongMaterial(GetMaterial(materialIndex));
 		NazaraAssert(phongMaterial.HasDiffuseMap(), "Material has no diffuse map");
 
 		const Texture* diffuseMap = phongMaterial.GetDiffuseMap();

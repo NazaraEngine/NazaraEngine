@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -51,7 +51,7 @@ namespace Nz
 	*/
 	inline void Sprite::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New(PhongLightingMaterial::GetSettings());
+		MaterialRef material = Material::New(BasicMaterial::GetSettings());
 		material->EnableFaceCulling(false);
 		material->EnableScissorTest(true);
 
@@ -101,7 +101,7 @@ namespace Nz
 		{
 			if (const MaterialRef& newMat = GetMaterial())
 			{
-				PhongLightingMaterial phongMaterial(newMat);
+				BasicMaterial phongMaterial(newMat);
 
 				const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
 				if (diffuseMap && diffuseMap->IsValid())
@@ -217,14 +217,14 @@ namespace Nz
 		{
 			MaterialRef newMat = Material::New(*material); // Copy
 
-			PhongLightingMaterial phongMaterial(newMat);
+			BasicMaterial phongMaterial(newMat);
 			phongMaterial.SetDiffuseMap(std::move(texture));
 
 			SetMaterial(skinIndex, std::move(newMat), resizeSprite);
 		}
 		else
 		{
-			PhongLightingMaterial phongMaterial(material);
+			BasicMaterial phongMaterial(material);
 			phongMaterial.SetDiffuseMap(std::move(texture));
 
 			const Texture* newTexture = phongMaterial.GetDiffuseMap();
@@ -245,7 +245,7 @@ namespace Nz
 	void Sprite::SetTextureRect(const Rectui& rect)
 	{
 		const MaterialRef& material = GetMaterial();
-		PhongLightingMaterial phongMaterial(material);
+		BasicMaterial phongMaterial(material);
 		NazaraAssert(phongMaterial.HasDiffuseMap(), "Sprite material has no diffuse map");
 
 		const Texture* diffuseMap = phongMaterial.GetDiffuseMap();

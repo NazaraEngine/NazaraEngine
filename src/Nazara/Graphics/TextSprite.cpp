@@ -6,7 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <memory>
@@ -55,7 +55,7 @@ namespace Nz
 	*/
 	void TextSprite::SetDefaultMaterial()
 	{
-		MaterialRef defaultMat = Material::New(PhongLightingMaterial::GetSettings());
+		MaterialRef defaultMat = Material::New(BasicMaterial::GetSettings());
 		defaultMat->Configure("Translucent2D");
 
 		SetMaterial(defaultMat);

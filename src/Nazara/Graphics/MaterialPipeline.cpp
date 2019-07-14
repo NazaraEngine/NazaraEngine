@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPipelineSettings.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
@@ -171,11 +172,9 @@ namespace Nz
 			UberShaderLibrary::Register("PhongLighting", uberShader);
 		}
 
-		std::shared_ptr<MaterialSettings> emptySettings = std::make_shared<MaterialSettings>();
-
 		// Once the base shaders are registered, we can now set some default materials
 		MaterialPipelineInfo pipelineInfo;
-		pipelineInfo.settings = emptySettings;
+		pipelineInfo.settings = BasicMaterial::GetSettings();
 		pipelineInfo.uberShader = UberShaderLibrary::Get("Basic");
 
 		// Basic 2D - No depth write/face culling with scissoring

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/BaseWidget.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <NDK/Canvas.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -82,7 +82,7 @@ namespace Ndk
 			m_backgroundSprite->SetColor(m_backgroundColor);
 
 			// TODO: Use a shared material instead of creating one everytime
-			Nz::MaterialRef backgroundMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+			Nz::MaterialRef backgroundMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 			backgroundMaterial->Configure((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D");
 
 			m_backgroundSprite->SetMaterial(backgroundMaterial);

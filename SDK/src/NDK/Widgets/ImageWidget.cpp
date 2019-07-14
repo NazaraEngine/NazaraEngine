@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/ImageWidget.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 
@@ -22,7 +22,7 @@ namespace Ndk
 
 	const Nz::TextureRef& ImageWidget::GetTexture() const
 	{
-		Nz::PhongLightingMaterial phongMat(m_sprite->GetMaterial());
+		Nz::BasicMaterial phongMat(m_sprite->GetMaterial());
 		return phongMat.GetDiffuseMap();
 	}
 
@@ -30,7 +30,7 @@ namespace Ndk
 	{
 		m_sprite->SetTexture(texture, false);
 
-		Nz::PhongLightingMaterial phongMat(m_sprite->GetMaterial());
+		Nz::BasicMaterial phongMat(m_sprite->GetMaterial());
 
 		Nz::Vector2f textureSize = Nz::Vector2f(Nz::Vector2ui(phongMat.GetDiffuseMap()->GetSize()));
 		SetMinimumSize(textureSize);

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NDK/Widgets/ProgressBarWidget.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 
@@ -22,11 +22,11 @@ namespace Ndk
 	m_textMargin { 16.f },
 	m_value { 0u }
 	{
-		Nz::MaterialRef borderMat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		Nz::MaterialRef borderMat = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 		borderMat->Configure("Basic2D");
-		Nz::MaterialRef barBackgroundSprite = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		Nz::MaterialRef barBackgroundSprite = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 		barBackgroundSprite->Configure("Basic2D");
-		Nz::MaterialRef barSprite = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		Nz::MaterialRef barSprite = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 		barSprite->Configure("Basic2D");
 
 		m_borderSprite = Nz::Sprite::New(borderMat);
@@ -62,13 +62,13 @@ namespace Ndk
 
 	const Nz::TextureRef& ProgressBarWidget::GetBarBackgroundTexture() const
 	{
-		Nz::PhongLightingMaterial phongMaterial(m_barBackgroundSprite->GetMaterial());
+		Nz::BasicMaterial phongMaterial(m_barBackgroundSprite->GetMaterial());
 		return phongMaterial.GetDiffuseMap();
 	}
 
 	const Nz::TextureRef& ProgressBarWidget::GetBarTexture() const
 	{
-		Nz::PhongLightingMaterial phongMaterial(m_barSprite->GetMaterial());
+		Nz::BasicMaterial phongMaterial(m_barSprite->GetMaterial());
 		return phongMaterial.GetDiffuseMap();
 	}
 

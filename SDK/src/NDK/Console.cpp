@@ -4,7 +4,7 @@
 
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Lua/LuaState.hpp>
 #include <Nazara/Platform/Event.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
@@ -43,7 +43,7 @@ namespace Ndk
 	m_opened(false),
 	m_characterSize(24)
 	{
-		Nz::MaterialRef backgroundMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+		Nz::MaterialRef backgroundMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 		backgroundMaterial->EnableBlending(true);
 		backgroundMaterial->EnableDepthBuffer(false);
 		backgroundMaterial->SetDstBlend(Nz::BlendFunc_InvSrcAlpha);

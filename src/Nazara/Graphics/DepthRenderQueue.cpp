@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/DepthRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -23,7 +24,7 @@ namespace Nz
 	DepthRenderQueue::DepthRenderQueue()
 	{
 		// Material
-		m_baseMaterial = Material::New(std::make_shared<MaterialSettings>());
+		m_baseMaterial = Material::New(BasicMaterial::GetSettings());
 		m_baseMaterial->EnableColorWrite(false);
 		m_baseMaterial->EnableFaceCulling(false);
 		//m_baseMaterial->SetFaceCulling(FaceSide_Front);

@@ -132,7 +132,7 @@ float CalculateSpotShadowFactor(int lightIndex, float lambert)
 
 void main()
 {
-	vec4 diffuseColor = MaterialPhongSettings.diffuseColor * vColor;
+	vec4 diffuseColor = diffuseColor * vColor;
 
 #if AUTO_TEXCOORDS
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
@@ -148,8 +148,10 @@ void main()
 	texCoord += v * viewDir.xy;
 #endif
 
-#if DIFFUSE_MAPPING
+#if HAS_DIFFUSE_TEXTURE
 	diffuseColor *= texture(MaterialDiffuseMap, texCoord);
+	RenderTarget0 = diffuseColor;
+	return;
 #endif
 
 #if FLAG_TEXTUREOVERLAY
@@ -163,7 +165,7 @@ void main()
 	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
 		#endif
 
-	if (diffuseColor.a < MaterialPhongSettings.alphaThreshold)
+	if (diffuseColor.a < alphaThreshold)
 		discard;
 	#endif // ALPHA_TEST
 
@@ -173,7 +175,7 @@ void main()
 	vec3 normal = normalize(vNormal);
 	#endif // NORMAL_MAPPING
 
-	vec3 specularColor = MaterialPhongSettings.specularColor.rgb;
+	vec3 specularColor = specularColor.rgb;
 	#if SPECULAR_MAPPING
 	specularColor *= texture(MaterialSpecularMap, texCoord).rgb;
 	#endif
@@ -185,14 +187,14 @@ void main()
 	*/
 	RenderTarget0 = vec4(diffuseColor.rgb, dot(specularColor, vec3(0.3, 0.59, 0.11)));
 	RenderTarget1 = vec4(EncodeNormal(normal));
-	RenderTarget2 = vec4(0.0, 0.0, 0.0, (MaterialPhongSettings.shininess == 0.0) ? 0.0 : max(log2(MaterialPhongSettings.shininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
+	RenderTarget2 = vec4(0.0, 0.0, 0.0, (shininess == 0.0) ? 0.0 : max(log2(shininess), 0.1)/10.5); // http://www.guerrilla-games.com/publications/dr_kz2_rsx_dev07.pdf
 #else // FLAG_DEFERRED
-	#if ALPHA_MAPPING
+	#if HAS_ALPHA_TEXTURE
 	diffuseColor.a *= texture(MaterialAlphaMap, texCoord).r;
 	#endif
 
 	#if ALPHA_TEST
-	if (diffuseColor.a < MaterialPhongSettings.alphaThreshold)
+	if (diffuseColor.a < alphaThreshold)
 		discard;
 	#endif
 
@@ -200,13 +202,13 @@ void main()
 	vec3 lightDiffuse = vec3(0.0);
 	vec3 lightSpecular = vec3(0.0);
 
-	#if NORMAL_MAPPING
+	#if HAS_NORMAL_TEXTURE
 	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, texCoord)) - 1.0));
 	#else
 	vec3 normal = normalize(vNormal);
 	#endif
 
-	if (MaterialPhongSettings.shininess > 0.0)
+	if (shininess > 0.0)
 	{
 		vec3 eyeVec = normalize(EyePosition - vWorldPos);
 
@@ -223,7 +225,7 @@ void main()
 					vec3 lightDir = -Lights[i].parameters1.xyz;
 
 					// Ambient
-					lightAmbient += lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					float att = 1.0;
 
@@ -246,7 +248,7 @@ void main()
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
 					float specularFactor = max(dot(reflection, eyeVec), 0.0);
-					specularFactor = pow(specularFactor, MaterialPhongSettings.shininess);
+					specularFactor = pow(specularFactor, shininess);
 
 					lightSpecular += att * specularFactor * lightColor.rgb;
 					break;
@@ -265,7 +267,7 @@ void main()
 					float att = max(lightAttenuation - lightInvRadius * lightDirLength, 0.0);
 
 					// Ambient
-					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
 					if (Lights[i].shadowMapping)
@@ -286,7 +288,7 @@ void main()
 					// Specular
 					vec3 reflection = reflect(-lightDir, normal);
 					float specularFactor = max(dot(reflection, eyeVec), 0.0);
-					specularFactor = pow(specularFactor, MaterialPhongSettings.shininess);
+					specularFactor = pow(specularFactor, shininess);
 
 					lightSpecular += att * specularFactor * lightColor.rgb;
 					break;
@@ -308,7 +310,7 @@ void main()
 					float att = max(lightAttenuation - lightInvRadius * lightDistance, 0.0);
 
 					// Ambient
-					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					float lambert = max(dot(normal, worldToLight), 0.0);
 
@@ -334,7 +336,7 @@ void main()
 					// Specular
 					vec3 reflection = reflect(-worldToLight, normal);
 					float specularFactor = max(dot(reflection, eyeVec), 0.0);
-					specularFactor = pow(specularFactor, MaterialPhongSettings.shininess);
+					specularFactor = pow(specularFactor, shininess);
 
 					lightSpecular += att * specularFactor * lightColor.rgb;
 					break;
@@ -360,7 +362,7 @@ void main()
 					vec3 lightDir = -Lights[i].parameters1.xyz;
 
 					// Ambient
-					lightAmbient += lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					float att = 1.0;
 
@@ -395,7 +397,7 @@ void main()
 					float att = max(lightAttenuation - lightInvRadius * lightDirLength, 0.0);
 
 					// Ambient
-					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					#if SHADOW_MAPPING
 					if (Lights[i].shadowMapping)
@@ -431,7 +433,7 @@ void main()
 					float att = max(lightAttenuation - lightInvRadius * lightDistance, 0.0);
 
 					// Ambient
-					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (MaterialPhongSettings.ambientColor.rgb + SceneAmbient.rgb);
+					lightAmbient += att * lightColor.rgb * lightAmbientFactor * (ambientColor.rgb + SceneAmbient.rgb);
 
 					float lambert = max(dot(normal, worldToLight), 0.0);
 
@@ -461,9 +463,9 @@ void main()
 		}
 	}
 
-	lightSpecular *= MaterialPhongSettings.specularColor.rgb;
-	#if SPECULAR_MAPPING
-	lightSpecular *= texture(MaterialSpecularMap, texCoord).rgb; // Utiliser l'alpha de MaterialPhongSettings.specularColor n'aurait aucun sens
+	lightSpecular *= specularColor.rgb;
+	#if HAS_SPECULAR_TEXTURE
+	lightSpecular *= texture(MaterialSpecularMap, texCoord).rgb; // Utiliser l'alpha de specularColor n'aurait aucun sens
 	#endif
 
 	vec3 lightColor = (lightAmbient + lightDiffuse + lightSpecular);
@@ -479,14 +481,14 @@ void main()
 
 	vec4 fragmentColor = vec4(lightColor, 1.0) * diffuseColor;
 
-	#if EMISSIVE_MAPPING
+	#if HAS_EMISSIVE_TEXTURE
 	float lightIntensity = dot(lightColor, vec3(0.3, 0.59, 0.11));
 
-	vec3 emissionColor = MaterialPhongSettings.diffuseColor.rgb * texture(MaterialEmissiveMap, texCoord).rgb;
+	vec3 emissionColor = diffuseColor.rgb * texture(MaterialEmissiveMap, texCoord).rgb;
 	RenderTarget0 = vec4(mix(fragmentColor.rgb, emissionColor, clamp(1.0 - 3.0*lightIntensity, 0.0, 1.0)), fragmentColor.a);
 	#else
 	RenderTarget0 = fragmentColor;
-	#endif // EMISSIVE_MAPPING
+	#endif
 #endif // FLAG_DEFERRED
 }
 

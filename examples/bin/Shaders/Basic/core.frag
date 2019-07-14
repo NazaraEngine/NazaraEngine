@@ -12,15 +12,19 @@ out vec4 RenderTarget0;
 /********************Uniformes********************/
 uniform vec2 InvTargetSize;
 uniform sampler2D MaterialAlphaMap;
-uniform float MaterialAlphaThreshold;
-uniform vec4 MaterialDiffuse;
 uniform sampler2D MaterialDiffuseMap;
 uniform sampler2D TextureOverlay;
+
+layout (std140) uniform MaterialBasicSettings
+{
+	vec4 diffuseColor;
+	float alphaThreshold;
+};
 
 /********************Fonctions********************/
 void main()
 {
-	vec4 fragmentColor = MaterialDiffuse * vColor;
+	vec4 fragmentColor = diffuseColor * vColor;
 
 #if AUTO_TEXCOORDS
 	vec2 texCoord = gl_FragCoord.xy * InvTargetSize;
@@ -28,11 +32,11 @@ void main()
 	vec2 texCoord = vTexCoord;
 #endif
 
-#if DIFFUSE_MAPPING
+#if HAS_DIFFUSE_TEXTURE
 	fragmentColor *= texture(MaterialDiffuseMap, texCoord);
 #endif
 
-#if ALPHA_MAPPING
+#if HAS_ALPHA_TEXTURE
 	fragmentColor.a *= texture(MaterialAlphaMap, texCoord).r;
 #endif
 
@@ -41,7 +45,7 @@ void main()
 #endif
 
 #if ALPHA_TEST
-	if (fragmentColor.a < MaterialAlphaThreshold)
+	if (fragmentColor.a < alphaThreshold)
 		discard;
 #endif
 

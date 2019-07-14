@@ -4,7 +4,7 @@
 
 #include <NDK/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <algorithm>
 

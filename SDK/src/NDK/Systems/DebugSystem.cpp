@@ -5,7 +5,7 @@
 #include <NDK/Systems/DebugSystem.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -374,12 +374,14 @@ namespace Ndk
 	{
 		if (!m_globalAabbMaterial)
 		{
-			m_globalAabbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+			m_globalAabbMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 			m_globalAabbMaterial->EnableFaceCulling(false);
 			m_globalAabbMaterial->EnableDepthBuffer(true);
-			//m_globalAabbMaterial->SetDiffuseColor(Nz::Color::Orange);
 			m_globalAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_globalAabbMaterial->SetLineWidth(2.f);
+
+			Nz::BasicMaterial basicMat(m_globalAabbMaterial);
+			basicMat.SetDiffuseColor(Nz::Color::Orange);
 		}
 
 		return m_globalAabbMaterial;
@@ -389,12 +391,14 @@ namespace Ndk
 	{
 		if (!m_localAabbMaterial)
 		{
-			m_localAabbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+			m_localAabbMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 			m_localAabbMaterial->EnableFaceCulling(false);
 			m_localAabbMaterial->EnableDepthBuffer(true);
-			//m_localAabbMaterial->SetDiffuseColor(Nz::Color::Red);
 			m_localAabbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_localAabbMaterial->SetLineWidth(2.f);
+
+			Nz::BasicMaterial basicMat(m_localAabbMaterial);
+			basicMat.SetDiffuseColor(Nz::Color::Red);
 		}
 
 		return m_localAabbMaterial;
@@ -404,12 +408,14 @@ namespace Ndk
 	{
 		if (!m_collisionMaterial)
 		{
-			m_collisionMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+			m_collisionMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 			m_collisionMaterial->EnableFaceCulling(false);
 			m_collisionMaterial->EnableDepthBuffer(true);
-			//m_collisionMaterial->SetDiffuseColor(Nz::Color::Blue);
 			m_collisionMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_collisionMaterial->SetLineWidth(2.f);
+
+			Nz::BasicMaterial basicMat(m_collisionMaterial);
+			basicMat.SetDiffuseColor(Nz::Color::Blue);
 		}
 
 		return m_collisionMaterial;
@@ -419,12 +425,14 @@ namespace Ndk
 	{
 		if (!m_obbMaterial)
 		{
-			m_obbMaterial = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+			m_obbMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
 			m_obbMaterial->EnableFaceCulling(false);
 			m_obbMaterial->EnableDepthBuffer(true);
-			//m_obbMaterial->SetDiffuseColor(Nz::Color::Green);
 			m_obbMaterial->SetFaceFilling(Nz::FaceFilling_Line);
 			m_obbMaterial->SetLineWidth(2.f);
+
+			Nz::BasicMaterial basicMat(m_obbMaterial);
+			basicMat.SetDiffuseColor(Nz::Color::Green);
 		}
 
 		return m_obbMaterial;

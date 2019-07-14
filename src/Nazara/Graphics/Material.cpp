@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -424,13 +425,18 @@ namespace Nz
 			return false;
 		}
 
+		if (!BasicMaterial::Initialize())
+		{
+			NazaraError("Failed to initialize phong lighting materials");
+			return false;
+		}
 		if (!PhongLightingMaterial::Initialize())
 		{
 			NazaraError("Failed to initialize phong lighting materials");
 			return false;
 		}
 
-		s_defaultMaterial = New(std::make_shared<MaterialSettings>());
+		s_defaultMaterial = New(BasicMaterial::GetSettings());
 		s_defaultMaterial->EnableFaceCulling(false);
 		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
 		MaterialLibrary::Register("Default", s_defaultMaterial);
@@ -463,6 +469,7 @@ namespace Nz
 		s_defaultMaterial.Reset();
 
 		PhongLightingMaterial::Uninitialize();
+		BasicMaterial::Uninitialize();
 		MaterialManager::Uninitialize();
 		MaterialLibrary::Uninitialize();
 	}

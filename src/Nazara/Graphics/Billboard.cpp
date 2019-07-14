@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -41,7 +41,7 @@ namespace Nz
 	*/
 	void Billboard::SetDefaultMaterial()
 	{
-		MaterialRef material = Material::New(PhongLightingMaterial::GetSettings());
+		MaterialRef material = Material::New(BasicMaterial::GetSettings());
 		material->EnableFaceCulling(true);
 
 		SetMaterial(std::move(material));
@@ -62,7 +62,7 @@ namespace Nz
 		{
 			if (const MaterialRef& newMat = GetMaterial())
 			{
-				PhongLightingMaterial phongMaterial(newMat);
+				BasicMaterial phongMaterial(newMat);
 
 				const Texture* diffuseMap = phongMaterial.GetDiffuseMap();
 				if (diffuseMap && diffuseMap->IsValid())
@@ -90,14 +90,14 @@ namespace Nz
 		if (material->GetReferenceCount() > 1)
 		{
 			MaterialRef newMat = Material::New(*material); // Copy
-			PhongLightingMaterial phongMaterial(newMat);
+			BasicMaterial phongMaterial(newMat);
 			phongMaterial.SetDiffuseMap(std::move(texture));
 
 			SetMaterial(skinIndex, std::move(newMat));
 		}
 		else
 		{
-			PhongLightingMaterial phongMaterial(material);
+			BasicMaterial phongMaterial(material);
 			phongMaterial.SetDiffuseMap(std::move(texture));
 		}
 	}
