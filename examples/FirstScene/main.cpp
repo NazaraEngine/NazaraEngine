@@ -134,6 +134,19 @@ int main()
 		std::cout << "Failed to load normal map" << std::endl;
 	}*/
 
+	Nz::MaterialRef mat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+	mat->SetShader("PhongLighting");
+	mat->EnableDepthWrite(true);
+	mat->EnableFaceCulling(true);
+
+	Nz::PhongLightingMaterial phongMat(mat);
+	phongMat.SetDiffuseMap("resources/Spaceship/Texture/diffuse.png");
+	phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
+	phongMat.SetDiffuseColor(Nz::Color::Green);
+	
+	spaceshipModel->SetMaterial(0, mat);
+
+
 	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
 	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.
 	Ndk::EntityHandle spaceship = world->CreateEntity();
