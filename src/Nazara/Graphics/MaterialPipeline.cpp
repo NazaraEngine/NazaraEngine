@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPipelineSettings.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -153,6 +154,12 @@ namespace Nz
 
 			UberShaderLibrary::Register("Basic", uberShader);
 		}
+		
+		if (!BasicMaterial::Initialize())
+		{
+			NazaraError("Failed to initialize phong lighting materials");
+			return false;
+		}
 
 		// PhongLighting shader
 		{
@@ -170,6 +177,12 @@ namespace Nz
 			uberShader->SetShader(ShaderStageType_Vertex, vertexShader, "FLAG_BILLBOARD FLAG_DEFERRED FLAG_INSTANCING FLAG_VERTEXCOLOR SHADOW_MAPPING TEXTURE_MAPPING TRANSFORM UNIFORM_VERTEX_DEPTH");
 
 			UberShaderLibrary::Register("PhongLighting", uberShader);
+		}
+
+		if (!PhongLightingMaterial::Initialize())
+		{
+			NazaraError("Failed to initialize phong lighting materials");
+			return false;
 		}
 
 		// Once the base shaders are registered, we can now set some default materials
@@ -214,7 +227,9 @@ namespace Nz
 	{
 		s_pipelineCache.clear();
 		UberShaderLibrary::Unregister("PhongLighting");
+		PhongLightingMaterial::Uninitialize();
 		UberShaderLibrary::Unregister("Basic");
+		BasicMaterial::Uninitialize();
 		MaterialPipelineLibrary::Uninitialize();
 	}
 

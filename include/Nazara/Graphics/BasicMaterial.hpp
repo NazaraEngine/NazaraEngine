@@ -14,7 +14,7 @@ namespace Nz
 {
 	class NAZARA_GRAPHICS_API BasicMaterial
 	{
-		friend class Material;
+		friend class MaterialPipeline;
 
 		public:
 			BasicMaterial(Material* material);

@@ -14,7 +14,7 @@ namespace Nz
 {
 	class NAZARA_GRAPHICS_API PhongLightingMaterial
 	{
-		friend class Material;
+		friend class MaterialPipeline;
 
 		public:
 			PhongLightingMaterial(Material* material);
