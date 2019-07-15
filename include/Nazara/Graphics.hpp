@@ -33,6 +33,7 @@
 #include <Nazara/Graphics/AbstractRenderQueue.hpp>
 #include <Nazara/Graphics/AbstractRenderTechnique.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/BasicRenderQueue.hpp>
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
@@ -60,6 +61,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/MaterialPipelineSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ParticleController.hpp>
 #include <Nazara/Graphics/ParticleDeclaration.hpp>
@@ -72,6 +74,7 @@
 #include <Nazara/Graphics/ParticleMapper.hpp>
 #include <Nazara/Graphics/ParticleRenderer.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/Renderable.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderTechniques.hpp>
