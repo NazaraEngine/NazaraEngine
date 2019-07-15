@@ -134,14 +134,15 @@ int main()
 		std::cout << "Failed to load normal map" << std::endl;
 	}*/
 
-	Nz::MaterialRef mat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
-	mat->SetShader("PhongLighting");
+	Nz::MaterialRef mat = Nz::Material::New(Nz::BasicMaterial::GetSettings());
+	mat->SetShader("Basic");
+	mat->EnableDepthBuffer(true);
 	mat->EnableDepthWrite(true);
 	mat->EnableFaceCulling(true);
 
-	Nz::PhongLightingMaterial phongMat(mat);
+	Nz::BasicMaterial phongMat(mat);
 	phongMat.SetDiffuseMap("resources/Spaceship/Texture/diffuse.png");
-	phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
+	//phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
 	phongMat.SetDiffuseColor(Nz::Color::Green);
 	
 	spaceshipModel->SetMaterial(0, mat);
@@ -279,7 +280,7 @@ int main()
 	window.EnableEventPolling(true); // Déprécié
 
 	application.EnableConsole(true);
-	application.EnableFPSCounter(true);
+	application.EnableFPSCounter(false);
 
 	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
 	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
