@@ -1233,6 +1233,8 @@ namespace Nz
 					{
 						event.type             = Nz::WindowEventType_MouseWheelMoved;
 						event.mouseWheel.delta = (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4) ? 1 : -1;
+						event.mouseWheel.x = buttonReleaseEvent->event_x;
+						event.mouseWheel.y = buttonReleaseEvent->event_y;
 						break;
 					}
 					default:
