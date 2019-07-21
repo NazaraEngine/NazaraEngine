@@ -1,1 +1,1 @@
-.\premake5.exe vs2015
+.\premake5.exe --premakeproject vs2015
