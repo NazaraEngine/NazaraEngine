@@ -205,6 +205,27 @@ namespace Nz
 		}
 	}
 
+	void PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback)
+	{
+		using CallbackType = const std::function<void(const RaycastHit&)>;
+
+		auto cpCallback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
+		{
+			CallbackType& callback = *static_cast<CallbackType*>(data);
+
+			RaycastHit hitInfo;
+			hitInfo.fraction = float(alpha);
+			hitInfo.hitNormal.Set(Nz::Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos.Set(Nz::Vector2<cpFloat>(point.x, point.y));
+			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+
+			callback(hitInfo);
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+		cpSpaceSegmentQuery(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
+	}
+
 	bool PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
 		using ResultType = decltype(hitInfos);
@@ -259,6 +280,20 @@ namespace Nz
 		}
 	}
 
+	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback)
+	{
+		using CallbackType = const std::function<void(Nz::RigidBody2D*)>;
+
+		auto cpCallback = [](cpShape* shape, void* data)
+		{
+			CallbackType& callback = *static_cast<CallbackType*>(data);
+			callback(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
+		};
+
+		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
+		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
+	}
+
 	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies)
 	{
 		using ResultType = decltype(bodies);
@@ -273,14 +308,14 @@ namespace Nz
 		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, callback, bodies);
 	}
 
-	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, const Callback& callbacks)
+	void PhysWorld2D::RegisterCallbacks(unsigned int collisionId, Callback callbacks)
 	{
-		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), callbacks);
+		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), std::move(callbacks));
 	}
 
-	void PhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks)
+	void PhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
 	{
-		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), callbacks);
+		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), std::move(callbacks));
 	}
 
 	void PhysWorld2D::SetDamping(float dampingValue)
@@ -341,15 +376,20 @@ namespace Nz
 		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
 	}
 
-	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks)
+	void PhysWorld2D::InitCallbacks(cpCollisionHandler* handler, Callback callbacks)
 	{
-		auto it = m_callbacks.emplace(handler, std::make_unique<Callback>(callbacks)).first;
+		auto it = m_callbacks.find(handler);
+		if (it == m_callbacks.end())
+			it = m_callbacks.emplace(handler, std::make_unique<Callback>(std::move(callbacks))).first;
+		else
+			it->second = std::make_unique<Callback>(std::move(callbacks));
 
-		handler->userData = it->second.get();
+		Callback* callbackFunctions = it->second.get();
+		handler->userData = callbackFunctions;
 
-		if (callbacks.startCallback)
+		if (callbackFunctions->startCallback)
 		{
-			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void *data) -> cpBool
+			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -363,19 +403,22 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
-				{
-					cpBool retA = cpArbiterCallWildcardBeginA(arb, space);
-					cpBool retB = cpArbiterCallWildcardBeginB(arb, space);
-					return retA && retB;
-				}
+					return cpTrue;
 				else
 					return cpFalse;
 			};
 		}
-
-		if (callbacks.endCallback)
+		else
 		{
-			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void *data)
+			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
+			{
+				return cpTrue;
+			};
+		}
+
+		if (callbackFunctions->endCallback)
+		{
+			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void* data)
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -389,15 +432,18 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
-
-				cpArbiterCallWildcardSeparateA(arb, space);
-				cpArbiterCallWildcardSeparateB(arb, space);
+			};
+		}
+		else
+		{
+			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
+			{
 			};
 		}
 
-		if (callbacks.preSolveCallback)
+		if (callbackFunctions->preSolveCallback)
 		{
-			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void *data) -> cpBool
+			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
 			{
 				cpBody* firstBody;
 				cpBody* secondBody;
@@ -411,17 +457,20 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
-				{
-					cpBool retA = cpArbiterCallWildcardPreSolveA(arb, space);
-					cpBool retB = cpArbiterCallWildcardPreSolveB(arb, space);
-					return retA && retB;
-				}
+					return cpTrue;
 				else
 					return cpFalse;
 			};
 		}
+		else
+		{
+			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
+			{
+				return cpTrue;
+			};
+		}
 
-		if (callbacks.postSolveCallback)
+		if (callbackFunctions->postSolveCallback)
 		{
 			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void *data)
 			{
@@ -437,9 +486,12 @@ namespace Nz
 
 				const Callback* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
-
-				cpArbiterCallWildcardPostSolveA(arb, space);
-				cpArbiterCallWildcardPostSolveB(arb, space);
+			};
+		}
+		else
+		{
+			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data)
+			{
 			};
 		}
 	}

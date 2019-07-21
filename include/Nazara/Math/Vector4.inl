@@ -900,6 +900,21 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Calculates the dot (scalar) product with two vectors
+	* \return The value of the dot product
+	*
+	* \param vec1 The first vector to calculate the dot product with
+	* \param vec2 The second vector to calculate the dot product with
+	*
+	* \see AbsDotProduct, DotProduct
+	*/
+	template<typename T>
+	T Vector4<T>::DotProduct(const Vector4& vec1, const Vector4& vec2)
+	{
+		return vec1.DotProduct(vec2);
+	}
+
+	/*!
 	* \brief Interpolates the vector to other one with a factor of interpolation
 	* \return A new vector which is the interpolation of two vectors
 	*
@@ -911,7 +926,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Vector4<T> Vector4<T>::Lerp(const Vector4& from, const Vector4& to, T interpolation)
 	{

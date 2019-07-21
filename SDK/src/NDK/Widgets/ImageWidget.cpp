@@ -13,7 +13,7 @@ namespace Ndk
 	BaseWidget(parent)
 	{
 		m_entity = CreateEntity();
-		m_entity->AddComponent<NodeComponent>();
+		m_entity->AddComponent<NodeComponent>().SetParent(this);
 		auto& gfx = m_entity->AddComponent<GraphicsComponent>();
 
 		m_sprite = Nz::Sprite::New();

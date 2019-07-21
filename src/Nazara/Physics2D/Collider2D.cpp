@@ -3,13 +3,80 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
-#include <Nazara/Physics3D/Debug.hpp>
+#include <chipmunk/chipmunk_structs.h>
+#include <array>
+#include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {
 	Collider2D::~Collider2D() = default;
+
+	void Collider2D::ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const
+	{
+		// Currently, the only way to get only the polygons of a shape is to create a temporary cpSpace containing only this shape
+		// A better way to do this would be to reimplement this function in every subclass type in the very same way chipmunk does
+
+		PhysWorld2D physWorld;
+		RigidBody2D rigidBody(&physWorld, 0.f);
+
+		std::vector<cpShape*> shapeVector;
+		rigidBody.SetGeom(const_cast<Collider2D*>(this), false, false); //< Won't be used for writing, but still ugly
+
+		PhysWorld2D::DebugDrawOptions drawCallbacks;
+		drawCallbacks.circleCallback = [&](const Vector2f& origin, const RadianAnglef& /*rotation*/, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			constexpr std::size_t circleVerticesCount = 20;
+
+			std::array<Vector2f, circleVerticesCount> vertices;
+
+			RadianAnglef angleBetweenVertices = 2.f * float(M_PI) / vertices.size();
+			for (std::size_t i = 0; i < vertices.size(); ++i)
+			{
+				RadianAnglef angle = float(i) * angleBetweenVertices;
+				std::pair<float, float> sincos = angle.GetSinCos();
+
+				vertices[i] = origin + Vector2f(radius * sincos.first, radius * sincos.second);
+			}
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		drawCallbacks.polygonCallback = [&](const Vector2f* vertices, std::size_t vertexCount, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			//TODO: Handle radius
+			callback(vertices, vertexCount);
+		};
+
+		drawCallbacks.segmentCallback = [&](const Vector2f& first, const Vector2f& second, Nz::Color /*color*/, void* /*userData*/)
+		{
+			std::array<Vector2f, 2> vertices = { first, second };
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		drawCallbacks.thickSegmentCallback = [&](const Vector2f& first, const Vector2f& second, float thickness, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			static std::pair<float, float> sincos = Nz::DegreeAnglef(90.f).GetSinCos();
+
+			Vector2f normal = Vector2f::Normalize(second - first);
+			Vector2f thicknessNormal(sincos.second * normal.x - sincos.first * normal.y,
+			                         sincos.first * normal.x + sincos.second * normal.y);
+
+			std::array<Vector2f, 4> vertices;
+			vertices[0] = first + thickness * thicknessNormal;
+			vertices[1] = first - thickness * thicknessNormal;
+			vertices[2] = second - thickness * thicknessNormal;
+			vertices[3] = second + thickness * thicknessNormal;
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		physWorld.DebugDraw(drawCallbacks, true, false, false);
+	}
 
 	std::size_t Collider2D::GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
 	{
@@ -20,7 +87,7 @@ namespace Nz
 		{
 			cpShape* shape = (*shapes)[i];
 
-			cpShapeSetCollisionType(shape, cpFloat(m_collisionId));
+			cpShapeSetCollisionType(shape, m_collisionId);
 			cpShapeSetElasticity(shape, cpFloat(m_elasticity));
 			cpShapeSetFilter(shape, filter);
 			cpShapeSetFriction(shape, cpFloat(m_friction));
@@ -42,6 +109,11 @@ namespace Nz
 	m_rect(rect),
 	m_radius(radius)
 	{
+	}
+
+	Nz::Vector2f BoxCollider2D::ComputeCenterOfMass() const
+	{
+		return m_rect.GetCenter();
 	}
 
 	float BoxCollider2D::ComputeMomentOfInertia(float mass) const
@@ -68,6 +140,11 @@ namespace Nz
 	{
 	}
 
+	Nz::Vector2f CircleCollider2D::ComputeCenterOfMass() const
+	{
+		return m_offset;
+	}
+
 	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return static_cast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
@@ -90,6 +167,15 @@ namespace Nz
 	m_geoms(std::move(geoms)),
 	m_doesOverrideCollisionProperties(true)
 	{
+	}
+
+	Nz::Vector2f CompoundCollider2D::ComputeCenterOfMass() const
+	{
+		Nz::Vector2f centerOfMass = Nz::Vector2f::Zero();
+		for (const auto& geom : m_geoms)
+			centerOfMass += geom->ComputeCenterOfMass();
+
+		return centerOfMass / float(m_geoms.size());
 	}
 
 	float CompoundCollider2D::ComputeMomentOfInertia(float mass) const
@@ -144,6 +230,15 @@ namespace Nz
 			m_vertices[i].Set(*vertices++);
 	}
 
+	Nz::Vector2f ConvexCollider2D::ComputeCenterOfMass() const
+	{
+		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
+
+		cpVect center = cpCentroidForPoly(int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()));
+
+		return Nz::Vector2f(float(center.x), float(center.y));
+	}
+
 	float ConvexCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
@@ -169,6 +264,11 @@ namespace Nz
 		return ColliderType2D_Null;
 	}
 
+	Nz::Vector2f NullCollider2D::ComputeCenterOfMass() const
+	{
+		return Nz::Vector2f::Zero();
+	}
+
 	float NullCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
@@ -180,6 +280,11 @@ namespace Nz
 	}
 
 	/******************************** SegmentCollider2D *********************************/
+
+	Nz::Vector2f SegmentCollider2D::ComputeCenterOfMass() const
+	{
+		return (m_first + m_second) / 2.f;
+	}
 
 	float SegmentCollider2D::ComputeMomentOfInertia(float mass) const
 	{
