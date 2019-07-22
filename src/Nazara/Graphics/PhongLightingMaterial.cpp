@@ -134,6 +134,18 @@ namespace Nz
 		colorPtr[3] = diffuse.a / 255.f;
 	}
 
+	void PhongLightingMaterial::SetSpecularColor(const Color& diffuse)
+	{
+		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
+
+		BufferMapper<UniformBuffer> mapper(m_material->GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
+		float* colorPtr = AccessByOffset<float>(mapper.GetPointer(), m_phongUniformOffsets.specularColor);
+		colorPtr[0] = diffuse.r / 255.f;
+		colorPtr[1] = diffuse.g / 255.f;
+		colorPtr[2] = diffuse.b / 255.f;
+		colorPtr[3] = diffuse.a / 255.f;
+	}
+
 	const std::shared_ptr<MaterialSettings>& PhongLightingMaterial::GetSettings()
 	{
 		return s_materialSettings;
