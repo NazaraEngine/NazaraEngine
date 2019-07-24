@@ -230,13 +230,12 @@ namespace Nz
 
 		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 		s_phongUniformBlockIndex = uniformBlocks.size();
-		uniformBlocks.assign({
-			{
-				"PhongSettings",
-				fieldOffsets.GetSize(),
-				"MaterialPhongSettings",
-				std::move(variables)
-			}
+		uniformBlocks.push_back({
+			"PhongSettings",
+			fieldOffsets.GetSize(),
+			"MaterialPhongSettings",
+			std::move(variables),
+			std::move(defaultValues)
 		});
 
 		std::vector<MaterialSettings::Texture> textures;
