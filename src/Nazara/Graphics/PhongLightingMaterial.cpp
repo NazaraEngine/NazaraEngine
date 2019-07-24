@@ -247,7 +247,8 @@ namespace Nz
 			"PhongSettings",
 			fieldOffsets.GetSize(),
 			"MaterialPhongSettings",
-			std::move(variables)
+			std::move(variables),
+			std::move(defaultValues)
 		});
 
 		std::vector<MaterialSettings::Texture> textures;
