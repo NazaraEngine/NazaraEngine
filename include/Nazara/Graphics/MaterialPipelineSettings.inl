@@ -9,14 +9,15 @@
 namespace Nz
 {
 	inline MaterialSettings::MaterialSettings() :
-	MaterialSettings({}, {}, {})
+	MaterialSettings({}, {}, {}, { InvalidIndex })
 	{
 	}
 
-	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks) :
+	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks, const PredefinedBinding& predefinedBindings) :
 	m_sharedUniformBlocks(std::move(sharedUniformBlocks)),
 	m_textures(std::move(textures)),
-	m_uniformBlocks(std::move(uniformBlocks))
+	m_uniformBlocks(std::move(uniformBlocks)),
+	m_predefinedBinding(predefinedBindings)
 	{
 		RenderPipelineLayoutInfo info;
 
@@ -54,6 +55,11 @@ namespace Nz
 
 		m_pipelineLayout = RenderPipelineLayout::New();
 		m_pipelineLayout->Create(info);
+	}
+
+	inline std::size_t MaterialSettings::GetPredefinedBindingIndex(PredefinedShaderBinding binding) const
+	{
+		return m_predefinedBinding[static_cast<std::size_t>(binding)];
 	}
 
 	inline const RenderPipelineLayoutRef& MaterialSettings::GetRenderPipelineLayout() const

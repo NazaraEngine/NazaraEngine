@@ -31,6 +31,7 @@ namespace Nz
 
 		constexpr UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
 		constexpr UInt32 s_maxQuadPerDraw = s_vertexBufferSize / sizeof(VertexLayout_XYZ_Color_UV);
+		constexpr unsigned int InvalidTextureUnit = std::numeric_limits<unsigned int>::max();
 	}
 
 	/*!
@@ -470,14 +471,14 @@ namespace Nz
 
 		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuadPerDraw, m_spriteBuffer.GetVertexCount() / 4);
 
-		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
-
+		unsigned int overlayTextureUnit = InvalidTextureUnit;
+		
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
@@ -518,14 +519,30 @@ namespace Nz
 				{
 					batch.material->Apply(*pipelineInstance);
 
-					//Renderer::SetTextureSampler(overlayTextureUnit, basicSprites.material->GetDiffuseSampler());
+					const auto& matSettings = batch.material->GetSettings();
+					std::size_t overlayBindingIndex = matSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_TexOverlay);
+					if (overlayBindingIndex != MaterialSettings::InvalidIndex)
+					{
+						auto it = pipelineInstance->bindings.find(overlayBindingIndex);
+						assert(it != pipelineInstance->bindings.end());
+
+						if (overlayTextureUnit != it->second)
+						{
+							overlayTextureUnit = it->second;
+							lastOverlay = nullptr;
+						}
+					}
+					else
+						overlayTextureUnit = InvalidTextureUnit;
 
 					lastMaterial = batch.material;
 				}
 
 				if (batch.overlayTexture != lastOverlay)
 				{
-					Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
+					if (overlayTextureUnit != InvalidTextureUnit)
+						Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
+
 					lastOverlay = batch.overlayTexture;
 				}
 

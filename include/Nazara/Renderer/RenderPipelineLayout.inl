@@ -31,6 +31,8 @@ namespace Nz
 				NazaraError("Duplicate binding index " + String::Number(binding.index));
 				return false;
 			}
+
+			lastBindingIndex = binding.index;
 		}
 
 		m_layoutInfo = std::move(pipelineLayoutInfo);
