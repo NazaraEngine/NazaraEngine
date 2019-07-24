@@ -3,21 +3,27 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/FieldOffsets.hpp>
+#include <cassert>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
 	inline FieldOffsets::FieldOffsets(StructLayout layout) :
-	m_offset(0),
-	m_previousType(StructFieldType_None),
+	m_largestfieldAlignment(1),
+	m_size(0),
 	m_layout(layout)
 	{
 	}
 
+	inline std::size_t FieldOffsets::GetLargestFieldAlignement() const
+	{
+		return m_largestfieldAlignment;
+	}
+
 	inline std::size_t FieldOffsets::GetSize() const
 	{
-		return m_offset + GetSize(m_previousType);
+		return m_size;
 	}
 
 	inline std::size_t FieldOffsets::GetAlignement(StructLayout layout, StructFieldType fieldType)
@@ -138,6 +144,13 @@ namespace Nz
 		}
 
 		return 0;
+	}
+
+	inline std::size_t FieldOffsets::Align(std::size_t source, std::size_t alignment)
+	{
+		assert(source > 0);
+		assert(alignment > 0);
+		return ((source + alignment - 1) / alignment) * alignment;
 	}
 }
 
