@@ -22,6 +22,7 @@ namespace Nz
 		constexpr std::size_t HeightMapBinding = 3;
 		constexpr std::size_t NormalMapBinding = 4;
 		constexpr std::size_t SpecularMapBinding = 5;
+		constexpr std::size_t TextureOverlayBinding = 6;
 	}
 
 	PhongLightingMaterial::PhongLightingMaterial(Material* material) :
@@ -192,6 +193,9 @@ namespace Nz
 		s_phongUniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
 		s_phongUniformOffsets.specularColor = fieldOffsets.AddField(StructFieldType_Float4);
 
+		MaterialSettings::PredefinedBinding predefinedBinding;
+		predefinedBinding.fill(MaterialSettings::InvalidIndex);
+
 		std::vector<MaterialSettings::UniformVariable> variables;
 		variables.assign({
 			{
@@ -218,13 +222,11 @@ namespace Nz
 
 		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 		s_phongUniformBlockIndex = uniformBlocks.size();
-		uniformBlocks.assign({
-			{
-				"PhongSettings",
-				fieldOffsets.GetSize(),
-				"MaterialPhongSettings",
-				std::move(variables)
-			}
+		uniformBlocks.push_back({
+			"PhongSettings",
+			fieldOffsets.GetSize(),
+			"MaterialPhongSettings",
+			std::move(variables)
 		});
 
 		std::vector<MaterialSettings::Texture> textures;
@@ -270,7 +272,14 @@ namespace Nz
 			"MaterialSpecularMap"
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>());
+		predefinedBinding[PredefinedShaderBinding_TexOverlay] = textures.size();
+		textures.push_back({
+			"Overlay",
+			ImageType_2D,
+			"TextureOverlay"
+		});
+
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>(), predefinedBinding);
 
 		return true;
 	}

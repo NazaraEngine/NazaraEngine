@@ -79,6 +79,16 @@ namespace Nz
 		ParticleLayout_Max = ParticleLayout_Sprite
 	};
 
+	enum PredefinedShaderBinding
+	{
+		PredefinedShaderBinding_TexOverlay,
+		PredefinedShaderBinding_UboInstanceData,
+		PredefinedShaderBinding_UboLighData,
+		PredefinedShaderBinding_UboViewerData,
+
+		PredefinedShaderBinding_Max = PredefinedShaderBinding_UboViewerData
+	};
+
 	enum RenderPassType
 	{
 		RenderPassType_AA,

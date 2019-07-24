@@ -11,6 +11,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 #include <limits>
 #include <string>
 #include <vector>
@@ -20,16 +21,19 @@ namespace Nz
 	class MaterialSettings
 	{
 		public:
+			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBinding_Max + 1>;
+
 			struct SharedUniformBlocks;
 			struct Texture;
 			struct UniformBlocks;
 
 			inline MaterialSettings();
-			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks);
+			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks, const PredefinedBinding& predefinedBinding);
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
+			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;
 			inline const RenderPipelineLayoutRef& GetRenderPipelineLayout() const;
 			inline const std::vector<SharedUniformBlocks>& GetSharedUniformBlocks() const;
 			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const;
@@ -77,6 +81,7 @@ namespace Nz
 			std::vector<SharedUniformBlocks> m_sharedUniformBlocks;
 			std::vector<Texture> m_textures;
 			std::vector<UniformBlocks> m_uniformBlocks;
+			PredefinedBinding m_predefinedBinding;
 			RenderPipelineLayoutRef m_pipelineLayout;
 	};
 }

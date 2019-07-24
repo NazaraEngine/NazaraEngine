@@ -18,6 +18,7 @@ namespace Nz
 	{
 		constexpr std::size_t AlphaMapBinding = 0;
 		constexpr std::size_t DiffuseMapBinding = 1;
+		constexpr std::size_t TextureOverlayBinding = 2;
 	}
 
 	BasicMaterial::BasicMaterial(Material* material) :
@@ -103,6 +104,12 @@ namespace Nz
 				ShaderBindingType_Texture,
 				ShaderStageType_Fragment,
 				DiffuseMapBinding
+			},
+			{
+				"TextureOverlay",
+				ShaderBindingType_Texture,
+				ShaderStageType_Fragment,
+				TextureOverlayBinding
 			}
 		});
 
@@ -113,6 +120,9 @@ namespace Nz
 
 		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
 		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
+
+		MaterialSettings::PredefinedBinding predefinedBinding;
+		predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> variables;
 		variables.assign({
@@ -152,7 +162,14 @@ namespace Nz
 			"MaterialDiffuseMap"
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>());
+		predefinedBinding[PredefinedShaderBinding_TexOverlay] = textures.size();
+		textures.push_back({
+			"Overlay",
+			ImageType_2D,
+			"TextureOverlay"
+		});
+
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>(), predefinedBinding);
 
 		return true;
 	}
