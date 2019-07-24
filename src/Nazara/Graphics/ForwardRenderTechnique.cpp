@@ -657,7 +657,7 @@ namespace Nz
 						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
 						// Overlay texture unit
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+						//shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
 
 						lastShader = shader;
 					}

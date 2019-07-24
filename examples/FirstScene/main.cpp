@@ -281,7 +281,7 @@ int main()
 	window.EnableEventPolling(true); // Déprécié
 
 	application.EnableConsole(true);
-	application.EnableFPSCounter(false);
+	application.EnableFPSCounter(true);
 
 	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
 	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());

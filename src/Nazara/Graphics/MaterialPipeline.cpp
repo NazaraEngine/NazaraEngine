@@ -124,7 +124,6 @@ namespace Nz
 		instance.bindings = renderPipelineInfo.shader->ApplyLayout(pipelineLayout);
 
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("ReflectionMap"), Material::GetTextureUnit(TextureMap_ReflectionCube));
-		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("TextureOverlay"), Material::GetTextureUnit(TextureMap_Overlay));
 
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("DirectionalSpotLightShadowMap[0]"), Material::GetTextureUnit(TextureMap_Shadow2D_1));
 		renderPipelineInfo.shader->SendInteger(renderPipelineInfo.shader->GetUniformLocation("DirectionalSpotLightShadowMap[1]"), Material::GetTextureUnit(TextureMap_Shadow2D_2));
