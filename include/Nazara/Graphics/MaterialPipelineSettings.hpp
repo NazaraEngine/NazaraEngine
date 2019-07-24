@@ -75,6 +75,7 @@ namespace Nz
 				std::size_t blockSize;
 				std::string bindingPoint;
 				std::vector<UniformVariable> uniforms;
+				std::vector<UInt8> defaultValues;
 			};
 
 		private:

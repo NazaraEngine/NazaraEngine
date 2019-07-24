@@ -232,6 +232,15 @@ namespace Nz
 			}
 		});
 
+		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
+
+		std::vector<UInt8> defaultValues(fieldOffsets.GetSize());
+		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.ambientColor) = Vector4f(0.5f, 0.5f, 0.5f, 1.f);
+		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.specularColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		*AccessByOffset<float>(defaultValues.data(), s_phongUniformOffsets.alphaThreshold) = 0.2f;
+		*AccessByOffset<float>(defaultValues.data(), s_phongUniformOffsets.shininess) = 50.f;
+
 		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 		s_phongUniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.push_back({

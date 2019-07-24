@@ -10,29 +10,6 @@
 namespace Nz
 {
 	/*!
-	* \brief Constructs a Material object with default states
-	*
-	* \see Reset
-	*/
-	inline Material::Material(std::shared_ptr<const MaterialSettings> settings) :
-	m_settings(std::move(settings)),
-	m_reflectionMode(ReflectionMode_Skybox),
-	m_pipelineUpdated(false),
-	m_shadowCastingEnabled(true),
-	m_reflectionSize(256)
-	{
-		m_pipelineInfo.settings = m_settings;
-		SetShader("Basic");
-
-		m_sharedUniformBuffers.resize(m_settings->GetSharedUniformBlocks().size());
-		m_textures.resize(m_settings->GetTextures().size());
-
-		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
-		for (const auto& uniformBufferInfo : m_settings->GetUniformBlocks())
-			m_uniformBuffers.emplace_back(UniformBuffer::New(static_cast<UInt32>(uniformBufferInfo.blockSize), DataStorage_Hardware, BufferUsage_Dynamic));
-	}
-
-	/*!
 	* \brief Constructs a Material object by assignation
 	*
 	* \param material Material to copy into this

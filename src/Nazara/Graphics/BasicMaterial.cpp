@@ -136,6 +136,12 @@ namespace Nz
 			}
 		});
 
+		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
+
+		std::vector<UInt8> defaultValues(fieldOffsets.GetSize());
+		*AccessByOffset<Vector4f>(defaultValues.data(), s_uniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		*AccessByOffset<float>(defaultValues.data(), s_uniformOffsets.alphaThreshold) = 0.2f;
+
 		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 		s_uniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.assign({
@@ -143,7 +149,8 @@ namespace Nz
 				"BasicSettings",
 				fieldOffsets.GetSize(),
 				"MaterialBasicSettings",
-				std::move(variables)
+				std::move(variables),
+				std::move(defaultValues)
 			}
 		});
 
