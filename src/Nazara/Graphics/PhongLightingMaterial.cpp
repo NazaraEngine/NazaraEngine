@@ -197,19 +197,22 @@ namespace Nz
 		s_renderPipelineLayout = RenderPipelineLayout::New();
 		s_renderPipelineLayout->Create(info);
 
-		FieldOffsets fieldOffsets(StructLayout_Std140);
+		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 
-		s_phongUniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
-		s_phongUniformOffsets.shininess = fieldOffsets.AddField(StructFieldType_Float1);
-		s_phongUniformOffsets.ambientColor = fieldOffsets.AddField(StructFieldType_Float4);
-		s_phongUniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
-		s_phongUniformOffsets.specularColor = fieldOffsets.AddField(StructFieldType_Float4);
+		// MaterialPhongSettings
+		FieldOffsets phongUniformStruct(StructLayout_Std140);
+
+		s_phongUniformOffsets.alphaThreshold = phongUniformStruct.AddField(StructFieldType_Float1);
+		s_phongUniformOffsets.shininess = phongUniformStruct.AddField(StructFieldType_Float1);
+		s_phongUniformOffsets.ambientColor = phongUniformStruct.AddField(StructFieldType_Float4);
+		s_phongUniformOffsets.diffuseColor = phongUniformStruct.AddField(StructFieldType_Float4);
+		s_phongUniformOffsets.specularColor = phongUniformStruct.AddField(StructFieldType_Float4);
 
 		MaterialSettings::PredefinedBinding predefinedBinding;
 		predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
-		std::vector<MaterialSettings::UniformVariable> variables;
-		variables.assign({
+		std::vector<MaterialSettings::UniformVariable> phongVariables;
+		phongVariables.assign({
 			{
 				"AlphaThreshold",
 				s_phongUniformOffsets.alphaThreshold
@@ -234,21 +237,62 @@ namespace Nz
 
 		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
 
-		std::vector<UInt8> defaultValues(fieldOffsets.GetSize());
+		std::vector<UInt8> defaultValues(phongUniformStruct.GetSize());
 		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.ambientColor) = Vector4f(0.5f, 0.5f, 0.5f, 1.f);
 		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 		*AccessByOffset<Vector4f>(defaultValues.data(), s_phongUniformOffsets.specularColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 		*AccessByOffset<float>(defaultValues.data(), s_phongUniformOffsets.alphaThreshold) = 0.2f;
 		*AccessByOffset<float>(defaultValues.data(), s_phongUniformOffsets.shininess) = 50.f;
 
-		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
 		s_phongUniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.push_back({
 			"PhongSettings",
-			fieldOffsets.GetSize(),
+			phongUniformStruct.GetSize(),
 			"MaterialPhongSettings",
-			std::move(variables),
+			std::move(phongVariables),
 			std::move(defaultValues)
+		});
+
+		// Light test
+		FieldOffsets lightStruct(StructLayout_Std140);
+		std::size_t a = lightStruct.AddField(StructFieldType_Int1); // type
+		std::size_t b = lightStruct.AddField(StructFieldType_Float4); // color
+		std::size_t c = lightStruct.AddField(StructFieldType_Float2); // factors
+		std::size_t d = lightStruct.AddField(StructFieldType_Float4); // parameters 1
+		std::size_t e = lightStruct.AddField(StructFieldType_Float4); // parameters 2
+		std::size_t f = lightStruct.AddField(StructFieldType_Float2); // parameters 3
+		std::size_t g = lightStruct.AddField(StructFieldType_Bool1);  // shadowMapping
+
+		FieldOffsets lightDataStruct(StructLayout_Std140);
+		std::size_t light1 = lightDataStruct.AddStruct(lightStruct);
+		std::size_t light2 = lightDataStruct.AddStruct(lightStruct);
+		std::size_t light3 = lightDataStruct.AddStruct(lightStruct);
+
+		std::vector<MaterialSettings::UniformVariable> lightDataVariable;
+		lightDataVariable.assign({
+			{
+				"LightData[0]",
+				light1
+			},
+			{
+				"LightData[1]",
+				light2
+			},
+			{
+				"LightData[2]",
+				light3
+			}
+		});
+
+		std::vector<UInt8> lightDefaultValues(lightDataStruct.GetSize(), 0);
+		*AccessByOffset<Vector4f>(lightDefaultValues.data(), light3 + e) = Vector4f(0.1f, 0.2f, 0.3f, 0.4f);
+
+		uniformBlocks.push_back({
+			"Light",
+			lightDataStruct.GetSize(),
+			"LightData",
+			std::move(lightDataVariable),
+			std::move(lightDefaultValues)
 		});
 
 		std::vector<MaterialSettings::Texture> textures;
@@ -316,5 +360,5 @@ namespace Nz
 	std::size_t PhongLightingMaterial::s_phongUniformBlockIndex;
 	RenderPipelineLayoutRef PhongLightingMaterial::s_renderPipelineLayout;
 	PhongLightingMaterial::TextureIndexes PhongLightingMaterial::s_textureIndexes;
-	PhongLightingMaterial::UniformOffsets PhongLightingMaterial::s_phongUniformOffsets;
+	PhongLightingMaterial::PhongUniformOffsets PhongLightingMaterial::s_phongUniformOffsets;
 }

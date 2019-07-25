@@ -70,7 +70,7 @@ namespace Nz
 			static const std::shared_ptr<MaterialSettings>& GetSettings();
 
 		private:
-			struct UniformOffsets
+			struct PhongUniformOffsets
 			{
 				std::size_t alphaThreshold;
 				std::size_t shininess;
@@ -95,13 +95,13 @@ namespace Nz
 			MaterialRef m_material;
 			std::size_t m_phongUniformIndex;
 			TextureIndexes m_textureIndexes;
-			UniformOffsets m_phongUniformOffsets;
+			PhongUniformOffsets m_phongUniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static std::size_t s_phongUniformBlockIndex;
 			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
-			static UniformOffsets s_phongUniformOffsets;
+			static PhongUniformOffsets s_phongUniformOffsets;
 	};
 }
 
