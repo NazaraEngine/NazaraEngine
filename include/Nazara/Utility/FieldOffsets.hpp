@@ -37,7 +37,8 @@ namespace Nz
 		private:
 			static inline std::size_t Align(std::size_t source, std::size_t alignment);
 
-			std::size_t m_largestfieldAlignment;
+			std::size_t m_largestFieldAlignment;
+			std::size_t m_offsetRounding;
 			std::size_t m_size;
 			StructLayout m_layout;
 	};

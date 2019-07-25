@@ -10,7 +10,8 @@
 namespace Nz
 {
 	inline FieldOffsets::FieldOffsets(StructLayout layout) :
-	m_largestfieldAlignment(1),
+	m_largestFieldAlignment(1),
+	m_offsetRounding(1),
 	m_size(0),
 	m_layout(layout)
 	{
@@ -18,7 +19,7 @@ namespace Nz
 
 	inline std::size_t FieldOffsets::GetLargestFieldAlignement() const
 	{
-		return m_largestfieldAlignment;
+		return m_largestFieldAlignment;
 	}
 
 	inline std::size_t FieldOffsets::GetSize() const
@@ -59,11 +60,11 @@ namespace Nz
 					case StructFieldType_UInt4:
 						return 4 * 4;
 
-					case StructFieldType_Float3x3:
+					/*case StructFieldType_Float3x3:
 						return 3*3 * 4;
 
 					case StructFieldType_Float4x4:
-						return 4*4 * 4;
+						return 4*4 * 4;*/
 				
 					case StructFieldType_Double1:
 						return 8;
@@ -75,11 +76,11 @@ namespace Nz
 					case StructFieldType_Double4:
 						return 4 * 8;
 
-					case StructFieldType_Double3x3:
+					/*case StructFieldType_Double3x3:
 						return 3 * 3 * 8;
 
 					case StructFieldType_Double4x4:
-						return 4 * 4 * 8;
+						return 4 * 4 * 8;*/
 				}
 			}
 		}
@@ -115,11 +116,11 @@ namespace Nz
 			case StructFieldType_UInt4:
 				return 4 * 4;
 
-			case StructFieldType_Float3x3:
+			/*case StructFieldType_Float3x3:
 				return 3*3 * 4;
 
 			case StructFieldType_Float4x4:
-				return 4*4 * 4;
+				return 4*4 * 4;*/
 				
 			case StructFieldType_Double1:
 				return 8;
@@ -130,14 +131,14 @@ namespace Nz
 			case StructFieldType_Double3:
 				return 3 * 8;
 
-			case StructFieldType_Double3x3:
-				return 3 * 3 * 8;
+			//case StructFieldType_Double3x3:
+			//	return 3 * 3 * 8;
 
 			case StructFieldType_Double4:
 				return 4 * 8;
 
-			case StructFieldType_Double4x4:
-				return 4 * 4 * 8;
+			/*case StructFieldType_Double4x4:
+				return 4 * 4 * 8;*/
 
 			case StructFieldType_None:
 				return 0;
@@ -148,7 +149,9 @@ namespace Nz
 
 	inline std::size_t FieldOffsets::Align(std::size_t source, std::size_t alignment)
 	{
-		assert(source > 0);
+		if (source == 0)
+			return source;
+
 		assert(alignment > 0);
 		return ((source + alignment - 1) / alignment) * alignment;
 	}
