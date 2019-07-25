@@ -135,16 +135,16 @@ int main()
 		std::cout << "Failed to load normal map" << std::endl;
 	}*/
 
-	Nz::MaterialRef mat = Nz::Material::New(Nz::BasicMaterial::GetSettings());
-	mat->SetShader("Basic");
+	Nz::MaterialRef mat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+	mat->SetShader("PhongLighting");
 	mat->EnableDepthBuffer(true);
 	mat->EnableDepthWrite(true);
 	mat->EnableFaceCulling(true);
 
-	Nz::BasicMaterial phongMat(mat);
+	Nz::PhongLightingMaterial phongMat(mat);
 	phongMat.SetDiffuseMap("resources/Spaceship/Texture/diffuse.png");
-	//phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
-	phongMat.SetDiffuseColor(Nz::Color::Green);
+	phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
+	//phongMat.SetDiffuseColor(Nz::Color::Green);
 	
 	spaceshipModel->SetMaterial(0, mat);
 
