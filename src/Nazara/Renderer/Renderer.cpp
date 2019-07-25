@@ -1772,7 +1772,7 @@ namespace Nz
 			StringStream dump;
 
 			GLint count;
-			glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+			/*glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
 			dump << "Active uniforms: " << count << '\n';
 
 			GLint maxLength;
@@ -1846,6 +1846,34 @@ namespace Nz
 				}
 
 				dump << ")\n";
+			}*/
+
+			glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+			dump << "Active uniforms blocks: " << count << '\n';
+
+			std::string name;
+			for (GLint i = 0; i < count; i++)
+			{
+				GLint size;
+				GLenum type;
+
+				GLint nameLength;
+				glGetActiveUniformBlockiv(program, i, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLength);
+
+				assert(nameLength > 0);
+
+				name.resize(nameLength - 1);
+
+				GLsizei realLength;
+				glGetActiveUniformBlockName(program, i, nameLength, &realLength, &name[0]);
+
+				assert(realLength > 0);
+				name.resize(realLength);
+
+				GLint uboSize;
+				glGetActiveUniformBlockiv(program, i, GL_UNIFORM_BLOCK_DATA_SIZE, &uboSize);
+
+				dump << "Uniform block #" << i << ": " << name << " (size: " << uboSize << ")\n";
 			}
 
 			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString());
