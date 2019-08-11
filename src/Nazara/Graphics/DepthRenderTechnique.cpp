@@ -238,7 +238,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -257,19 +256,6 @@ namespace Nz
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Deferred | ShaderFlags_Instancing | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-
-						lastShader = shader;
-					}
-
 					lastPipeline = pipeline;
 				}
 
@@ -325,7 +311,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -344,19 +329,6 @@ namespace Nz
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Deferred | ShaderFlags_Instancing | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-
-						lastShader = shader;
-					}
-
 					lastPipeline = pipeline;
 				}
 
@@ -409,7 +381,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
 
@@ -423,19 +394,6 @@ namespace Nz
 			if (lastPipeline != pipeline)
 			{
 				pipelineInstance = &model.material->GetPipeline()->Apply(ShaderFlags_Deferred);
-
-				const Shader* shader = pipelineInstance->uberInstance->GetShader();
-				if (shader != lastShader)
-				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
-
-					// Ambient color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-
-					lastShader = shader;
-				}
-
 				lastPipeline = pipeline;
 			}
 
@@ -491,7 +449,6 @@ namespace Nz
 		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -511,22 +468,6 @@ namespace Nz
 				if (pipeline != lastPipeline)
 				{
 					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-
-						// Overlay texture unit
-						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
-
-						lastShader = shader;
-					}
-
 					lastPipeline = pipeline;
 				}
 
@@ -629,42 +570,6 @@ namespace Nz
 		}
 
 		Draw();
-	}
-
-	/*!
-	* \brief Gets the shader uniforms
-	* \return Uniforms of the shader
-	*
-	* \param shader Shader to get uniforms from
-	*/
-
-	const DepthRenderTechnique::ShaderUniforms* DepthRenderTechnique::GetShaderUniforms(const Shader* shader) const
-	{
-		auto it = m_shaderUniforms.find(shader);
-		if (it == m_shaderUniforms.end())
-		{
-			ShaderUniforms uniforms;
-			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &DepthRenderTechnique::OnShaderInvalidated);
-			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &DepthRenderTechnique::OnShaderInvalidated);
-
-			uniforms.sceneAmbient   = shader->GetUniformLocation("SceneAmbient");
-			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
-
-			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
-		}
-
-		return &it->second;
-	}
-
-	/*!
-	* \brief Handle the invalidation of a shader
-	*
-	* \param shader Shader being invalidated
-	*/
-
-	void DepthRenderTechnique::OnShaderInvalidated(const Shader* shader) const
-	{
-		m_shaderUniforms.erase(shader);
 	}
 
 	IndexBuffer DepthRenderTechnique::s_quadIndexBuffer;

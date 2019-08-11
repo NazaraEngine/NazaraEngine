@@ -48,7 +48,7 @@ namespace Nz
 
 			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
 			void OnShaderInvalidated(const Shader* shader) const;
-			void SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const;
+			void UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const;
 
 			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
 			static float ComputePointLightScore(const Spheref& object, const AbstractRenderQueue::PointLight& light);
@@ -64,25 +64,6 @@ namespace Nz
 				unsigned int index;
 			};
 
-			struct ShaderUniforms
-			{
-				NazaraSlot(Shader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
-				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
-
-				LightUniforms lightUniforms;
-				bool hasLightUniforms;
-
-				/// Less costly in memory than storing a LightUniforms by index of light,
-				/// this may not work everywhere
-				int lightOffset; // "Distance" between Lights[0].type and Lights[1].type
-
-				// Other uniforms
-				int eyePosition;
-				int reflectionMap;
-				int sceneAmbient;
-				int textureOverlay;
-			};
-
 			struct SpriteBatch
 			{
 				std::size_t spriteCount;
@@ -91,11 +72,11 @@ namespace Nz
 				Recti scissorRect;
 			};
 
-			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			mutable std::vector<LightIndex> m_lights;
 			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
 			mutable BasicRenderQueue m_renderQueue;
+			UniformBufferRef m_lightData;
 			TextureRef m_whiteCubemap;
 			TextureRef m_whiteTexture;
 			VertexBuffer m_billboardPointBuffer;

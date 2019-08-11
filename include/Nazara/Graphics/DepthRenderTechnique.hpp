@@ -41,24 +41,11 @@ namespace Nz
 			void DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Model>& models) const;
 			void DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& sprites) const;
 
-			const ShaderUniforms* GetShaderUniforms(const Shader* shader) const;
-			void OnShaderInvalidated(const Shader* shader) const;
-
 			struct LightIndex
 			{
 				LightType type;
 				float score;
 				unsigned int index;
-			};
-
-			struct ShaderUniforms
-			{
-				NazaraSlot(Shader, OnShaderUniformInvalidated, shaderUniformInvalidatedSlot);
-				NazaraSlot(Shader, OnShaderRelease, shaderReleaseSlot);
-
-				// Autre uniformes
-				int sceneAmbient;
-				int textureOverlay;
 			};
 
 			struct SpriteBatch
@@ -69,7 +56,6 @@ namespace Nz
 				Recti scissorRect;
 			};
 
-			mutable std::unordered_map<const Shader*, ShaderUniforms> m_shaderUniforms;
 			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
 			RenderStates m_clearStates;

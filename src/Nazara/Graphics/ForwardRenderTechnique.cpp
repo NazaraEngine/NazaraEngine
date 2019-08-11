@@ -317,7 +317,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -336,21 +335,6 @@ namespace Nz
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
-					}
-
 					lastPipeline = pipeline;
 				}
 
@@ -406,7 +390,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -426,18 +409,8 @@ namespace Nz
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
 					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
 
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
 					}
 
 					lastPipeline = pipeline;
@@ -492,7 +465,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
 
@@ -507,18 +479,8 @@ namespace Nz
 			{
 				pipelineInstance = &model.material->GetPipeline()->Apply();
 
-				const Shader* shader = pipelineInstance->uberInstance->GetShader();
-				if (shader != lastShader)
 				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
 
-					// Ambient color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-					lastShader = shader;
 				}
 
 				lastPipeline = pipeline;
@@ -540,6 +502,7 @@ namespace Nz
 				}
 			}
 
+/*
 			if (shaderUniforms->reflectionMap != -1)
 			{
 				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
@@ -547,6 +510,7 @@ namespace Nz
 				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
 				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
 			}
+*/
 
 			// Handle draw call before rendering loop
 			Renderer::DrawCall drawFunc;
@@ -623,7 +587,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -645,21 +608,8 @@ namespace Nz
 				{
 					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
 
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
 					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
 
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						// Overlay texture unit
-						//shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
-
-						lastShader = shader;
 					}
 
 					lastPipeline = pipeline;
@@ -782,57 +732,6 @@ namespace Nz
 		}
 
 		Draw();
-	}
-
-	const ForwardRenderTechnique::ShaderUniforms* ForwardRenderTechnique::GetShaderUniforms(const Shader* shader) const
-	{
-		auto it = m_shaderUniforms.find(shader);
-		if (it == m_shaderUniforms.end())
-		{
-			ShaderUniforms uniforms;
-			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &ForwardRenderTechnique::OnShaderInvalidated);
-			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &ForwardRenderTechnique::OnShaderInvalidated);
-
-			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
-			uniforms.reflectionMap = shader->GetUniformLocation("ReflectionMap");
-			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
-			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
-
-			int type0Location = shader->GetUniformLocation("Lights[0].type");
-			int type1Location = shader->GetUniformLocation("Lights[1].type");
-
-			if (type0Location > 0 && type1Location > 0)
-			{
-				uniforms.hasLightUniforms = true;
-				uniforms.lightOffset = type1Location - type0Location;
-				uniforms.lightUniforms.ubo = false;
-				uniforms.lightUniforms.locations.type = type0Location;
-				uniforms.lightUniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
-				uniforms.lightUniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
-				uniforms.lightUniforms.locations.lightViewProjMatrix = shader->GetUniformLocation("LightViewProjMatrix[0]");
-				uniforms.lightUniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
-				uniforms.lightUniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
-				uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
-				uniforms.lightUniforms.locations.shadowMapping = shader->GetUniformLocation("Lights[0].shadowMapping");
-			}
-			else
-				uniforms.hasLightUniforms = false;
-
-			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
-		}
-
-		return &it->second;
-	}
-
-	/*!
-	* \brief Handle the invalidation of a shader
-	*
-	* \param shader Shader being invalidated
-	*/
-
-	void ForwardRenderTechnique::OnShaderInvalidated(const Shader* shader) const
-	{
-		m_shaderUniforms.erase(shader);
 	}
 
 	/*!

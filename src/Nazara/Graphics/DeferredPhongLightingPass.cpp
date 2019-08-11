@@ -28,8 +28,6 @@ namespace Nz
 	m_lightMeshesDrawing(false)
 	{
 		m_directionalLightShader = ShaderLibrary::Get("DeferredDirectionnalLight");
-		m_directionalLightShaderEyePositionLocation = m_directionalLightShader->GetUniformLocation("EyePosition");
-		m_directionalLightShaderSceneAmbientLocation = m_directionalLightShader->GetUniformLocation("SceneAmbient");
 
 		m_directionalLightUniforms.ubo = false;
 		m_directionalLightUniforms.locations.type = -1; // Type already known
@@ -41,8 +39,6 @@ namespace Nz
 
 		m_pointSpotLightShader = ShaderLibrary::Get("DeferredPointSpotLight");
 		m_pointSpotLightShaderDiscardLocation = m_pointSpotLightShader->GetUniformLocation("Discard");
-		m_pointSpotLightShaderEyePositionLocation = m_pointSpotLightShader->GetUniformLocation("EyePosition");
-		m_pointSpotLightShaderSceneAmbientLocation = m_pointSpotLightShader->GetUniformLocation("SceneAmbient");
 
 		m_pointSpotLightUniforms.ubo = false;
 		m_pointSpotLightUniforms.locations.type = m_pointSpotLightShader->GetUniformLocation("LightType");
@@ -133,8 +129,6 @@ namespace Nz
 		{
 			Renderer::SetRenderStates(lightStates);
 			Renderer::SetShader(m_directionalLightShader);
-			m_directionalLightShader->SendColor(m_directionalLightShaderSceneAmbientLocation, sceneData.ambientColor);
-			m_directionalLightShader->SendVector(m_directionalLightShaderEyePositionLocation, sceneData.viewer->GetEyePosition());
 
 			for (auto& light : m_renderQueue->directionalLights)
 			{
@@ -166,8 +160,6 @@ namespace Nz
 			Renderer::SetRenderStates(lightStates);
 
 			Renderer::SetShader(m_pointSpotLightShader);
-			m_pointSpotLightShader->SendColor(m_pointSpotLightShaderSceneAmbientLocation, sceneData.ambientColor);
-			m_pointSpotLightShader->SendVector(m_pointSpotLightShaderEyePositionLocation, sceneData.viewer->GetEyePosition());
 
 			Matrix4f lightMatrix;
 			lightMatrix.MakeIdentity();
