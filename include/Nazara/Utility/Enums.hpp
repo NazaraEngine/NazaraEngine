@@ -309,8 +309,6 @@ namespace Nz
 
 	enum StructFieldType
 	{
-		StructFieldType_None,
-
 		StructFieldType_Bool1,
 		StructFieldType_Bool2,
 		StructFieldType_Bool3,

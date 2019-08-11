@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
@@ -197,7 +198,7 @@ namespace Nz
 		s_renderPipelineLayout = RenderPipelineLayout::New();
 		s_renderPipelineLayout->Create(info);
 
-		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
+		std::vector<MaterialSettings::UniformBlock> uniformBlocks;
 
 		// MaterialPhongSettings
 		FieldOffsets phongUniformStruct(StructLayout_Std140);
@@ -253,47 +254,12 @@ namespace Nz
 			std::move(defaultValues)
 		});
 
-		// Light test
-		FieldOffsets lightStruct(StructLayout_Std140);
-		std::size_t a = lightStruct.AddField(StructFieldType_Int1); // type
-		std::size_t b = lightStruct.AddField(StructFieldType_Float4); // color
-		std::size_t c = lightStruct.AddField(StructFieldType_Float2); // factors
-		std::size_t d = lightStruct.AddField(StructFieldType_Float4); // parameters 1
-		std::size_t e = lightStruct.AddField(StructFieldType_Float4); // parameters 2
-		std::size_t f = lightStruct.AddField(StructFieldType_Float2); // parameters 3
-		std::size_t g = lightStruct.AddField(StructFieldType_Bool1);  // shadowMapping
+		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
 
-		FieldOffsets lightDataStruct(StructLayout_Std140);
-		std::size_t light1 = lightDataStruct.AddStruct(lightStruct);
-		std::size_t light2 = lightDataStruct.AddStruct(lightStruct);
-		std::size_t light3 = lightDataStruct.AddStruct(lightStruct);
-
-		std::vector<MaterialSettings::UniformVariable> lightDataVariable;
-		lightDataVariable.assign({
-			{
-				"LightData[0]",
-				light1
-			},
-			{
-				"LightData[1]",
-				light2
-			},
-			{
-				"LightData[2]",
-				light3
-			}
-		});
-
-		std::vector<UInt8> lightDefaultValues(lightDataStruct.GetSize(), 0);
-		*AccessByOffset<Vector4f>(lightDefaultValues.data(), light3 + e) = Vector4f(0.1f, 0.2f, 0.3f, 0.4f);
-
-		uniformBlocks.push_back({
-			"Light",
-			lightDataStruct.GetSize(),
-			"LightData",
-			std::move(lightDataVariable),
-			std::move(lightDefaultValues)
-		});
+		predefinedBinding[PredefinedShaderBinding_UboLighData] = sharedUniformBlock.size();
+		sharedUniformBlock.push_back(PredefinedLightData::GetUniformBlock());
+		predefinedBinding[PredefinedShaderBinding_UboViewerData] = sharedUniformBlock.size();
+		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
 
 		std::vector<MaterialSettings::Texture> textures;
 		s_textureIndexes.alpha = textures.size();
@@ -345,7 +311,7 @@ namespace Nz
 			"TextureOverlay"
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>(), predefinedBinding);
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::move(sharedUniformBlock), predefinedBinding);
 
 		return true;
 	}

@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
@@ -142,7 +143,7 @@ namespace Nz
 		*AccessByOffset<Vector4f>(defaultValues.data(), s_uniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 		*AccessByOffset<float>(defaultValues.data(), s_uniformOffsets.alphaThreshold) = 0.2f;
 
-		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
+		std::vector<MaterialSettings::UniformBlock> uniformBlocks;
 		s_uniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.assign({
 			{
@@ -153,6 +154,11 @@ namespace Nz
 				std::move(defaultValues)
 			}
 		});
+
+		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
+
+		predefinedBinding[PredefinedShaderBinding_UboViewerData] = sharedUniformBlock.size();
+		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
 
 		std::vector<MaterialSettings::Texture> textures;
 		s_textureIndexes.alpha = textures.size();
@@ -176,7 +182,7 @@ namespace Nz
 			"TextureOverlay"
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>(), predefinedBinding);
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::move(sharedUniformBlock), predefinedBinding);
 
 		return true;
 	}

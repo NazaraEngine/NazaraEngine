@@ -250,7 +250,6 @@ namespace Ndk
 			camComponent.ApplyView();
 
 			Nz::SceneData sceneData;
-			sceneData.ambientColor = Nz::Color(25, 25, 25);
 			sceneData.background = m_background;
 			sceneData.globalReflectionTexture = nullptr;
 			sceneData.viewer = &camComponent;
@@ -272,7 +271,6 @@ namespace Ndk
 	void RenderSystem::UpdateDynamicReflections()
 	{
 		Nz::SceneData dummySceneData;
-		dummySceneData.ambientColor = Nz::Color(0, 0, 0);
 		dummySceneData.background = nullptr;
 		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
 
@@ -288,7 +286,6 @@ namespace Ndk
 			m_shadowRT.Create();
 
 		Nz::SceneData dummySceneData;
-		dummySceneData.ambientColor = Nz::Color(0, 0, 0);
 		dummySceneData.background = nullptr;
 		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
 
@@ -336,7 +333,6 @@ namespace Ndk
 			m_shadowRT.Create();
 
 		Nz::SceneData dummySceneData;
-		dummySceneData.ambientColor = Nz::Color(0, 0, 0);
 		dummySceneData.background = nullptr;
 		dummySceneData.viewer = nullptr; //< Depth technique doesn't require any viewer
 

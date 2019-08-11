@@ -80,6 +80,7 @@ namespace Nz
 			static void ApplyStates(const RenderStates& states);
 
 			static void BindBuffer(BufferType type, GLuint id);
+			static void BindIndexedBuffer(BufferType type, GLuint index, GLuint id, GLintptr offset, GLsizeiptr size);
 			static void BindProgram(GLuint id);
 			static void BindSampler(GLuint unit, GLuint id);
 			static void BindScissorBox(const Recti& scissorBox);

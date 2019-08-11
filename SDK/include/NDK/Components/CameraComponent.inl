@@ -305,6 +305,8 @@ namespace Ndk
 
 	inline void CameraComponent::InvalidateProjectionMatrix() const
 	{
+		InvalidateViewerData();
+
 		m_frustumUpdated = false;
 		m_projectionMatrixUpdated = false;
 	}
@@ -315,6 +317,8 @@ namespace Ndk
 
 	inline void CameraComponent::InvalidateViewMatrix() const
 	{
+		InvalidateViewerData();
+
 		m_frustumUpdated = false;
 		m_viewMatrixUpdated = false;
 	}
@@ -325,6 +329,8 @@ namespace Ndk
 
 	inline void CameraComponent::InvalidateViewport() const
 	{
+		InvalidateViewerData();
+
 		m_frustumUpdated = false;
 		m_projectionMatrixUpdated = false;
 		m_viewportUpdated = false;

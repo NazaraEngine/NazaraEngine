@@ -89,7 +89,7 @@ namespace Nz
 
 			unsigned int uniformBufferIndex = it->second;
 
-			Renderer::BindUniformBuffer(uniformBufferIndex, sharedUbo);
+			Renderer::SetUniformBuffer(uniformBufferIndex, sharedUbo);
 		}
 
 		for (const UniformBufferRef& sharedUbo : m_sharedUniformBuffers)
@@ -99,7 +99,8 @@ namespace Nz
 
 			unsigned int uniformBufferIndex = it->second;
 
-			Renderer::BindUniformBuffer(uniformBufferIndex, sharedUbo);
+			if (sharedUbo)
+				Renderer::SetUniformBuffer(uniformBufferIndex, sharedUbo);
 		}
 
 		/*if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)

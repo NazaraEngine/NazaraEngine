@@ -60,12 +60,6 @@ namespace Nz
 					case StructFieldType_UInt4:
 						return 4 * 4;
 
-					/*case StructFieldType_Float3x3:
-						return 3*3 * 4;
-
-					case StructFieldType_Float4x4:
-						return 4*4 * 4;*/
-				
 					case StructFieldType_Double1:
 						return 8;
 
@@ -75,14 +69,44 @@ namespace Nz
 					case StructFieldType_Double3:
 					case StructFieldType_Double4:
 						return 4 * 8;
-
-					/*case StructFieldType_Double3x3:
-						return 3 * 3 * 8;
-
-					case StructFieldType_Double4x4:
-						return 4 * 4 * 8;*/
 				}
 			}
+		}
+
+		return 0;
+	}
+
+	inline std::size_t FieldOffsets::GetCount(StructFieldType fieldType)
+	{
+		switch (fieldType)
+		{
+			case StructFieldType_Bool1:
+			case StructFieldType_Double1:
+			case StructFieldType_Float1:
+			case StructFieldType_Int1:
+			case StructFieldType_UInt1:
+				return 1;
+
+			case StructFieldType_Bool2:
+			case StructFieldType_Double2:
+			case StructFieldType_Float2:
+			case StructFieldType_Int2:
+			case StructFieldType_UInt2:
+				return 2;
+
+			case StructFieldType_Bool3:
+			case StructFieldType_Double3:
+			case StructFieldType_Float3:
+			case StructFieldType_Int3:
+			case StructFieldType_UInt3:
+				return 3;
+
+			case StructFieldType_Bool4:
+			case StructFieldType_Double4:
+			case StructFieldType_Float4:
+			case StructFieldType_Int4:
+			case StructFieldType_UInt4:
+				return 4;
 		}
 
 		return 0;
@@ -116,12 +140,6 @@ namespace Nz
 			case StructFieldType_UInt4:
 				return 4 * 4;
 
-			/*case StructFieldType_Float3x3:
-				return 3*3 * 4;
-
-			case StructFieldType_Float4x4:
-				return 4*4 * 4;*/
-				
 			case StructFieldType_Double1:
 				return 8;
 
@@ -131,17 +149,8 @@ namespace Nz
 			case StructFieldType_Double3:
 				return 3 * 8;
 
-			//case StructFieldType_Double3x3:
-			//	return 3 * 3 * 8;
-
 			case StructFieldType_Double4:
 				return 4 * 8;
-
-			/*case StructFieldType_Double4x4:
-				return 4 * 4 * 8;*/
-
-			case StructFieldType_None:
-				return 0;
 		}
 
 		return 0;

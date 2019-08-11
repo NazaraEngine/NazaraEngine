@@ -13,7 +13,7 @@ namespace Nz
 	{
 	}
 
-	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks, const PredefinedBinding& predefinedBindings) :
+	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBindings) :
 	m_sharedUniformBlocks(std::move(sharedUniformBlocks)),
 	m_textures(std::move(textures)),
 	m_uniformBlocks(std::move(uniformBlocks)),
@@ -33,7 +33,7 @@ namespace Nz
 			});
 		}
 
-		for (const UniformBlocks& ubo : m_uniformBlocks)
+		for (const UniformBlock& ubo : m_uniformBlocks)
 		{
 			info.bindings.push_back({
 				ubo.bindingPoint,
@@ -43,7 +43,7 @@ namespace Nz
 			});
 		}
 
-		for (const SharedUniformBlocks& ubo : m_sharedUniformBlocks)
+		for (const SharedUniformBlock& ubo : m_sharedUniformBlocks)
 		{
 			info.bindings.push_back({
 				ubo.bindingPoint,
@@ -67,7 +67,7 @@ namespace Nz
 		return m_pipelineLayout;
 	}
 
-	inline auto MaterialSettings::GetSharedUniformBlocks() const -> const std::vector<SharedUniformBlocks>&
+	inline auto MaterialSettings::GetSharedUniformBlocks() const -> const std::vector<SharedUniformBlock>&
 	{
 		return m_sharedUniformBlocks;
 	}
@@ -113,7 +113,7 @@ namespace Nz
 		return InvalidIndex;
 	}
 
-	inline auto MaterialSettings::GetUniformBlocks() const -> const std::vector<UniformBlocks>&
+	inline auto MaterialSettings::GetUniformBlocks() const -> const std::vector<UniformBlock>&
 	{
 		return m_uniformBlocks;
 	}

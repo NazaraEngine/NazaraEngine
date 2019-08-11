@@ -13,6 +13,7 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
 
 namespace Nz
 {
@@ -21,7 +22,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API AbstractViewer
 	{
 		public:
-			AbstractViewer() = default;
+			inline AbstractViewer();
 			AbstractViewer(const AbstractViewer&) = default;
 			AbstractViewer(AbstractViewer&&) noexcept = default;
 			virtual ~AbstractViewer();
@@ -36,6 +37,7 @@ namespace Nz
 			virtual Nz::ProjectionType GetProjectionType() const = 0;
 			virtual const RenderTarget* GetTarget() const = 0;
 			virtual const Matrix4f& GetViewMatrix() const = 0;
+			inline const UniformBufferRef& GetViewerData() const;
 			virtual const Recti& GetViewport() const = 0;
 			virtual float GetZFar() const = 0;
 			virtual float GetZNear() const = 0;
@@ -47,7 +49,18 @@ namespace Nz
 
 			AbstractViewer& operator=(const AbstractViewer&) = default;
 			AbstractViewer& operator=(AbstractViewer&&) noexcept = default;
+
+		protected:
+			inline void InvalidateViewerData() const;
+
+		private:
+			void UpdateViewerData() const;
+
+			mutable UniformBufferRef m_viewerData;
+			mutable bool m_viewerDataUpdated;
 	};
 }
+
+#include <Nazara/Graphics/AbstractViewer.inl>
 
 #endif // NAZARA_ABSTRACTVIEWER_HPP

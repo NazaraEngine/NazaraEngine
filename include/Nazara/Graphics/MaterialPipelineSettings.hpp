@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
@@ -23,24 +24,24 @@ namespace Nz
 		public:
 			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBinding_Max + 1>;
 
-			struct SharedUniformBlocks;
+			struct SharedUniformBlock;
 			struct Texture;
-			struct UniformBlocks;
+			struct UniformBlock;
 
 			inline MaterialSettings();
-			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlocks> uniformBlocks, std::vector<SharedUniformBlocks> sharedUniformBlocks, const PredefinedBinding& predefinedBinding);
+			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBinding);
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
 			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;
 			inline const RenderPipelineLayoutRef& GetRenderPipelineLayout() const;
-			inline const std::vector<SharedUniformBlocks>& GetSharedUniformBlocks() const;
+			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
 			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const;
 			inline std::size_t GetSharedUniformBlockIndex(const String& name) const;
 			inline const std::vector<Texture>& GetTextures() const;
 			inline std::size_t GetTextureIndex(const String& name) const;
-			inline const std::vector<UniformBlocks>& GetUniformBlocks() const;
+			inline const std::vector<UniformBlock>& GetUniformBlocks() const;
 			inline std::size_t GetUniformBlockIndex(const String& name) const;
 			inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const String& name) const;
 
@@ -55,7 +56,7 @@ namespace Nz
 				std::size_t offset;
 			};
 
-			struct SharedUniformBlocks
+			struct SharedUniformBlock
 			{
 				String name;
 				std::string bindingPoint;
@@ -69,7 +70,7 @@ namespace Nz
 				std::string bindingPoint;
 			};
 
-			struct UniformBlocks
+			struct UniformBlock
 			{
 				String name;
 				std::size_t blockSize;
@@ -79,9 +80,9 @@ namespace Nz
 			};
 
 		private:
-			std::vector<SharedUniformBlocks> m_sharedUniformBlocks;
+			std::vector<SharedUniformBlock> m_sharedUniformBlocks;
 			std::vector<Texture> m_textures;
-			std::vector<UniformBlocks> m_uniformBlocks;
+			std::vector<UniformBlock> m_uniformBlocks;
 			PredefinedBinding m_predefinedBinding;
 			RenderPipelineLayoutRef m_pipelineLayout;
 	};

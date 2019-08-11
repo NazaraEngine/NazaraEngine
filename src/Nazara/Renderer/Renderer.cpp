@@ -101,6 +101,7 @@ namespace Nz
 		Context_Map s_vaos;
 		std::vector<unsigned int> s_dirtyTextureUnits;
 		std::vector<TextureUnit> s_textureUnits;
+		std::vector<const UniformBuffer*> s_uniformBuffers;
 		GLuint s_currentVAO = 0;
 		VertexBuffer s_instanceBuffer;
 		VertexBuffer s_fullscreenQuadBuffer;
@@ -135,7 +136,7 @@ namespace Nz
 		glBeginConditionalRender(query.GetOpenGLID(), OpenGL::QueryCondition[condition]);
 	}
 
-	void Renderer::BindUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer)
+	void Renderer::SetUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer)
 	{
 		NazaraAssert(uniformBuffer && uniformBuffer->IsValid(), "Buffer must be valid");
 
@@ -146,9 +147,10 @@ namespace Nz
 			return;
 		}
 
-		HardwareBuffer* hwBuffer = static_cast<HardwareBuffer*>(buffer->GetImpl());
+		if (s_uniformBuffers.size() <= bindingPoint)
+			s_uniformBuffers.resize(bindingPoint + 1);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, hwBuffer->GetOpenGLID(), uniformBuffer->GetStartOffset(), uniformBuffer->GetEndOffset() - uniformBuffer->GetStartOffset());
+		s_uniformBuffers[bindingPoint] = uniformBuffer;
 	}
 
 	void Renderer::Clear(UInt32 flags)
@@ -1756,6 +1758,18 @@ namespace Nz
 			{
 				OpenGL::BindTexture(i, texture->GetType(), texture->GetOpenGLID());
 				texture->EnsureMipmapsUpdate();
+			}
+		}
+
+		// Bind uniform buffers
+		for (std::size_t i = 0; i < s_uniformBuffers.size(); ++i)
+		{
+			const UniformBuffer* ubo = s_uniformBuffers[i];
+			if (ubo)
+			{
+				HardwareBuffer* hwBuffer = static_cast<HardwareBuffer*>(ubo->GetBuffer()->GetImpl());
+
+				OpenGL::BindIndexedBuffer(BufferType_Uniform, i, hwBuffer->GetOpenGLID(), ubo->GetStartOffset(), ubo->GetEndOffset() - ubo->GetStartOffset());
 			}
 		}
 

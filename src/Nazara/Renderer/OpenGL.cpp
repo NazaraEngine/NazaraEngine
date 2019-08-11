@@ -12,6 +12,7 @@
 #if defined(NAZARA_PLATFORM_GLX)
 #include <Nazara/Platform/X11/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
+#include <cassert>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -78,7 +79,8 @@ namespace Nz
 			std::vector<std::pair<GarbageResourceType, GLuint>> garbage; // Les ressources à supprimer dès que possible
 			GLuint buffersBinding[BufferType_Max + 1] = {0};
 			GLuint currentProgram = 0;
-			GLuint samplers[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
+			std::vector<GLuint> indexedBufferBinding; //< Only uniforms for now
+			GLuint samplers[32] = { 0 }; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 			GLuint texturesBinding[32] = {0}; // 32 est pour l'instant la plus haute limite (GL_TEXTURE31)
 			Recti currentScissorBox = Recti(0, 0, 0, 0);
 			Recti currentViewport = Recti(0, 0, 0, 0);
@@ -330,7 +332,25 @@ namespace Nz
 		if (s_contextStates->buffersBinding[type] != id)
 		{
 			glBindBuffer(BufferTarget[type], id);
+
+			std::fill(s_contextStates->indexedBufferBinding.begin(), s_contextStates->indexedBufferBinding.end(), 0);
 			s_contextStates->buffersBinding[type] = id;
+		}
+	}
+
+	void OpenGL::BindIndexedBuffer(BufferType type, GLuint index, GLuint id, GLintptr offset, GLsizeiptr size)
+	{
+		assert(type == BufferType_Uniform);
+
+		if (index >= s_contextStates->indexedBufferBinding.size())
+			s_contextStates->indexedBufferBinding.resize(index + 1, 0);
+
+		if (s_contextStates->indexedBufferBinding[index] != id)
+		{
+			glBindBufferRange(BufferTarget[type], index, id, offset, size);
+
+			s_contextStates->indexedBufferBinding[index] = id;
+			s_contextStates->buffersBinding[type] = id; //< Seriously, fuck OpenGL for this
 		}
 	}
 

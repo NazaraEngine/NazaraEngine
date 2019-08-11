@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -60,6 +61,9 @@ namespace Nz
 
 		m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
+
+		PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
+		m_lightData = UniformBuffer::New(lightDataStruct.lightArraySize, DataStorage_Hardware, BufferUsage_Dynamic);
 	}
 
 	/*!
@@ -404,13 +408,20 @@ namespace Nz
 			{
 				Commit();
 
+				const auto& materialSettings = billboard.material->GetSettings();
+
 				const MaterialPipeline* pipeline = billboard.material->GetPipeline();
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
+					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+					if (viewerDataBinding != MaterialSettings::InvalidIndex)
 					{
+						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+						assert(it != pipelineInstance->bindings.end());
 
+						Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
 					}
 
 					lastPipeline = pipeline;
@@ -474,13 +485,20 @@ namespace Nz
 
 		for (const BasicRenderQueue::Model& model : models)
 		{
+			const auto& materialSettings = model.material->GetSettings();
+
 			const MaterialPipeline* pipeline = model.material->GetPipeline();
 			if (lastPipeline != pipeline)
 			{
 				pipelineInstance = &model.material->GetPipeline()->Apply();
 
+				std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+				if (viewerDataBinding != MaterialSettings::InvalidIndex)
 				{
+					auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+					assert(it != pipelineInstance->bindings.end());
 
+					Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
 				}
 
 				lastPipeline = pipeline;
@@ -533,21 +551,23 @@ namespace Nz
 			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
 			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
-			if (shaderUniforms->hasLightUniforms)
+			std::size_t lightDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboLighData);
+			if (lightDataBinding != MaterialSettings::InvalidIndex)
 			{
 				ChooseLights(model.obbSphere);
 
-				std::size_t lightCount = m_lights.size();
+				auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + lightDataBinding);
+				assert(it != pipelineInstance->bindings.end());
+
+				Renderer::SetUniformBuffer(it->second, m_lightData);
 
 				Nz::Renderer::SetMatrix(Nz::MatrixType_World, model.matrix);
 				std::size_t lightIndex = 0;
 				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
-				std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+				std::size_t passCount = (m_lights.size() == 0) ? 1 : (m_lights.size() - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 				for (std::size_t pass = 0; pass < passCount; ++pass)
 				{
-					lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-
 					if (pass == 1)
 					{
 						// To add the result of light computations
@@ -560,8 +580,8 @@ namespace Nz
 					}
 
 					// Sends the light uniforms to the shader
-					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-						SendLightUniforms(lastShader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
+					UpdateLightUniforms(lightIndex, std::min<std::size_t>(m_lights.size() - lightIndex, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
+					lightIndex += NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS;
 
 					// And we draw
 					drawFunc(model.meshData.primitiveMode, 0, indexCount);
@@ -603,13 +623,20 @@ namespace Nz
 			unsigned int firstIndex = 0;
 			for (const auto& batch : m_spriteBatches)
 			{
+				const auto& materialSettings = batch.material->GetSettings();
+
 				const MaterialPipeline* pipeline = batch.material->GetPipeline();
 				if (pipeline != lastPipeline)
 				{
 					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
 
+					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+					if (viewerDataBinding != MaterialSettings::InvalidIndex)
 					{
+						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+						assert(it != pipelineInstance->bindings.end());
 
+						Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
 					}
 
 					lastPipeline = pipeline;
@@ -743,93 +770,114 @@ namespace Nz
 	* \param uniformOffset Offset for the uniform
 	* \param availableTextureUnit Unit texture available
 	*/
-	void ForwardRenderTechnique::SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const
+	void ForwardRenderTechnique::UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const
 	{
-		if (lightIndex < m_lights.size())
+		static PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
+
+		if (lightCount > 0)
 		{
-			const LightIndex& lightInfo = m_lights[lightIndex];
+			BufferMapper<UniformBuffer> mapper(m_lightData, BufferAccess_DiscardAndWrite);
 
-			shader->SendInteger(uniforms.locations.type + uniformOffset, lightInfo.type); //< Sends the light type
-
-			switch (lightInfo.type)
+			for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 			{
-				case LightType_Directional:
+				Nz::Int32* type = AccessByOffset<Nz::Int32>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.type);
+
+				if (i < lightCount)
 				{
-					const auto& light = m_renderQueue.directionalLights[lightInfo.index];
+					const LightIndex& lightInfo = m_lights[firstLightIndex + i];
 
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.direction));
+					Nz::Vector4f* color = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.color);
+					Nz::Vector2f* factors = AccessByOffset<Nz::Vector2f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.factor);
+					Nz::Vector4f* parameters1 = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter1);
+					Nz::Vector4f* parameters2 = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter2);
+					Nz::Vector2f* parameters3 = AccessByOffset<Nz::Vector2f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter3);
+					Nz::Int32* shadowMapping = AccessByOffset<Nz::Int32>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.shadowMappingFlag);
 
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
+					*type = lightInfo.type;
+					switch (lightInfo.type)
 					{
-						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+						case LightType_Directional:
+						{
+							const auto& light = m_renderQueue.directionalLights[lightInfo.index];
 
-						Renderer::SetTexture(textureUnit2D, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.direction);
 
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
+
+						case LightType_Point:
+						{
+							const auto& light = m_renderQueue.pointLights[lightInfo.index];
+
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.position, light.attenuation);
+							parameters2->Set(0.f, 0.f, 0.f, light.invRadius);
+
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
+
+						case LightType_Spot:
+						{
+							const auto& light = m_renderQueue.spotLights[lightInfo.index];
+
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.position, light.attenuation);
+							parameters2->Set(light.direction, light.invRadius);
+							parameters3->Set(light.innerAngleCosine, light.outerAngleCosine);
+
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
 					}
-					break;
 				}
-
-				case LightType_Point:
-				{
-					const auto& light = m_renderQueue.pointLights[lightInfo.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(0.f, 0.f, 0.f, light.invRadius));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						unsigned int textureUnitCube = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
-
-						Renderer::SetTexture(textureUnitCube, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnitCube, s_shadowSampler);
-					}
-					break;
-				}
-
-				case LightType_Spot:
-				{
-					const auto& light = m_renderQueue.spotLights[lightInfo.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(light.direction, light.invRadius));
-					shader->SendVector(uniforms.locations.parameters3 + uniformOffset, Vector2f(light.innerAngleCosine, light.outerAngleCosine));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
-
-						Renderer::SetTexture(textureUnit2D, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
-
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-					}
-					break;
-				}
+				else
+					*type = -1;
 			}
-		}
-		else
-		{
-			if (uniforms.locations.type != -1)
-				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
 		}
 	}
 
