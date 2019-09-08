@@ -191,6 +191,7 @@ Nazara Engine:
 - Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added x and y mouse position to MouseWheelEvent
 - Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
+- TypeTag helper struct now includes a Type using
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
