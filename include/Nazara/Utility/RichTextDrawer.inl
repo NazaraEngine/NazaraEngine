@@ -7,13 +7,38 @@
 
 namespace Nz
 {
-	inline void RichTextDrawer::Clear()
+	inline std::size_t RichTextDrawer::FindBlock(std::size_t glyphIndex) const
 	{
-		m_fontIndexes.clear();
-		m_blocks.clear();
-		m_fonts.clear();
-		m_glyphs.clear();
-		ClearGlyphs();
+		// Binary search
+		std::size_t count = m_blocks.size();
+		std::size_t step;
+
+		std::size_t i = InvalidBlockIndex;
+		std::size_t first = 0;
+		std::size_t last = count;
+		while (count > 0)
+		{
+			i = first;
+			step = count / 2;
+
+			i += step;
+
+			if (m_blocks[i].glyphIndex < glyphIndex)
+			{
+				first = i + 1;
+				count -= step + 1;
+			}
+			else
+				count = step;
+		}
+
+		return i;
+	}
+
+	inline auto RichTextDrawer::GetBlock(std::size_t index) -> BlockRef
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return BlockRef(*this, index);
 	}
 
 	inline unsigned int RichTextDrawer::GetBlockCharacterSize(std::size_t index) const
@@ -31,6 +56,12 @@ namespace Nz
 	inline std::size_t RichTextDrawer::GetBlockCount() const
 	{
 		return m_blocks.size();
+	}
+
+	inline std::size_t RichTextDrawer::GetBlockFirstGlyphIndex(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].glyphIndex;
 	}
 
 	inline const FontRef& RichTextDrawer::GetBlockFont(std::size_t index) const
@@ -204,7 +235,18 @@ namespace Nz
 	inline void RichTextDrawer::SetBlockText(std::size_t index, const String& str)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+
+		std::size_t previousLength = m_blocks[index].text.GetLength();
+
 		m_blocks[index].text = str;
+
+		std::size_t newLength = m_blocks[index].text.GetLength();
+		if (newLength != previousLength)
+		{
+			std::size_t delta = newLength - previousLength; //< Underflow allowed
+			for (std::size_t i = index + 1; i < m_blocks.size(); ++i)
+				m_blocks[i].glyphIndex += delta;
+		}
 
 		InvalidateGlyphs();
 	}
@@ -289,6 +331,17 @@ namespace Nz
 	inline TextStyleFlags RichTextDrawer::BlockRef::GetStyle() const
 	{
 		return m_drawer.GetBlockStyle(m_blockIndex);
+	}
+
+	/*!
+	* Returns the first glyph index at which starts the referenced block
+	* \return The first glyph index concerned by this block
+	*
+	* \see GetText
+	*/
+	inline std::size_t RichTextDrawer::BlockRef::GetFirstGlyphIndex() const
+	{
+		return m_drawer.GetBlockFirstGlyphIndex(m_blockIndex);
 	}
 
 	/*!
