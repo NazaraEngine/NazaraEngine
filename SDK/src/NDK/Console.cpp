@@ -10,8 +10,6 @@
 #include <NDK/Widgets.hpp>
 #include <NDK/World.hpp>
 
-///TODO: For now is unable to display different color in the history, it needs a RichTextDrawer to do so
-
 namespace Ndk
 {
 	namespace
@@ -42,7 +40,7 @@ namespace Ndk
 	m_maxHistoryLines(200)
 	{
 		// History
-		m_history = Add<TextAreaWidget>();
+		m_history = Add<RichTextAreaWidget>();
 		m_history->EnableBackground(true);
 		m_history->EnableLineWrap(true);
 		m_history->SetReadOnly(true);
@@ -112,6 +110,7 @@ namespace Ndk
 			m_historyLines.erase(m_historyLines.begin());
 
 		m_historyLines.emplace_back(Line{ color, text });
+		m_history->SetTextColor(color); 
 		m_history->AppendText(text + '\n');
 		m_history->Resize(m_history->GetPreferredSize());
 		m_historyArea->Resize(m_historyArea->GetSize());
