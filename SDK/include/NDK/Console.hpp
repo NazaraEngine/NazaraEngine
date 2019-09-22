@@ -24,6 +24,7 @@ namespace Nz
 
 namespace Ndk
 {
+	class AbstractTextAreaWidget;
 	class Console;
 	class Entity;
 	class ScrollAreaWidget;
@@ -59,7 +60,7 @@ namespace Ndk
 			NazaraSignal(OnCommand, Console* /*console*/, const Nz::String& /*command*/);
 
 		private:
-			void ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction);
+			void ExecuteInput(const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction);
 			void Layout() override;
 
 			struct Line

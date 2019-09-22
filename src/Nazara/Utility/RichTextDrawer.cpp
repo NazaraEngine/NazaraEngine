@@ -13,7 +13,7 @@ namespace Nz
 	m_defaultColor(Color::White),
 	//m_outlineColor(Color::Black),
 	m_defaultStyle(TextStyle_Regular),
-	m_glyphUpdated(true),
+	m_glyphUpdated(false),
 	//m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	//m_outlineThickness(0.f),
 	m_defaultCharacterSize(24)
@@ -51,7 +51,7 @@ namespace Nz
 
 	RichTextDrawer::~RichTextDrawer() = default;
 
-	auto RichTextDrawer::AppendText(const String& str) -> BlockRef
+	auto RichTextDrawer::AppendText(const String& str, bool forceNewBlock) -> BlockRef
 	{
 		NazaraAssert(!str.IsEmpty(), "String cannot be empty");
 
@@ -66,13 +66,23 @@ namespace Nz
 		};
 
 		// Check if last block has the same property as default, else create a new block
-		if (m_blocks.empty() || !HasDefaultProperties(m_blocks.back()))
+		if (forceNewBlock || m_blocks.empty() || !HasDefaultProperties(m_blocks.back()))
 		{
+			std::size_t glyphIndex;
+			if (!m_blocks.empty())
+			{
+				Block& lastBlock = m_blocks.back();
+				glyphIndex = lastBlock.glyphIndex + lastBlock.text.GetLength();
+			}
+			else
+				glyphIndex = 0;
+
 			m_blocks.emplace_back();
 			Block& newBlock = m_blocks.back();
 			newBlock.characterSize = m_defaultCharacterSize;
 			newBlock.color = m_defaultColor;
 			newBlock.fontIndex = defaultFontIndex;
+			newBlock.glyphIndex = glyphIndex;
 			newBlock.style = m_defaultStyle;
 			newBlock.text = str;
 
@@ -85,6 +95,15 @@ namespace Nz
 		InvalidateGlyphs();
 
 		return BlockRef(*this, m_blocks.size() - 1);
+	}
+
+	void RichTextDrawer::Clear()
+	{
+		m_fontIndexes.clear();
+		m_blocks.clear();
+		m_fonts.clear();
+		m_glyphs.clear();
+		ClearGlyphs();
 	}
 
 	const Recti& RichTextDrawer::GetBounds() const
@@ -140,6 +159,11 @@ namespace Nz
 		return m_lines.size();
 	}
 
+	float RichTextDrawer::GetMaxLineWidth() const
+	{
+		return m_maxLineWidth;
+	}
+
 	void RichTextDrawer::MergeBlocks()
 	{
 		if (m_blocks.size() < 2)
@@ -178,6 +202,13 @@ namespace Nz
 
 		ReleaseFont(m_blocks[index].fontIndex);
 		m_blocks.erase(m_blocks.begin() + index);
+	}
+
+	void RichTextDrawer::SetMaxLineWidth(float lineWidth)
+	{
+		m_maxLineWidth = lineWidth;
+
+		//TODO: Implement max line width
 	}
 
 	RichTextDrawer& RichTextDrawer::operator=(const RichTextDrawer& drawer)
@@ -472,5 +503,7 @@ namespace Nz
 				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.color, 0.f, block.text);
 			}
 		}
+		else
+			m_lines.emplace_back(Line{ Rectf::Zero(), 0 }); //< Ensure there's always a line
 	}
 }

@@ -26,29 +26,33 @@ namespace Nz
 			RichTextDrawer(RichTextDrawer&& drawer);
 			~RichTextDrawer();
 
-			BlockRef AppendText(const String& str);
+			BlockRef AppendText(const String& str, bool forceNewBlock = false);
 
-			inline void Clear();
+			void Clear() override;
+
+			inline std::size_t FindBlock(std::size_t glyphIndex) const;
 
 			inline unsigned int GetBlockCharacterSize(std::size_t index) const;
 			inline const Color& GetBlockColor(std::size_t index) const;
 			inline std::size_t GetBlockCount() const;
+			inline std::size_t GetBlockFirstGlyphIndex(std::size_t index) const;
 			inline const FontRef& GetBlockFont(std::size_t index) const;
 			inline TextStyleFlags GetBlockStyle(std::size_t index) const;
 			inline const String& GetBlockText(std::size_t index) const;
 
+			inline BlockRef GetBlock(std::size_t index);
+			const Recti& GetBounds() const override;
 			inline unsigned int GetDefaultCharacterSize() const;
 			inline const Color& GetDefaultColor() const;
 			inline const FontRef& GetDefaultFont() const;
 			inline TextStyleFlags GetDefaultStyle() const;
-
-			const Recti& GetBounds() const override;
 			Font* GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
 			std::size_t GetGlyphCount() const override;
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
+			float GetMaxLineWidth() const override;
 
 			void MergeBlocks();
 
@@ -65,8 +69,12 @@ namespace Nz
 			inline void SetDefaultFont(const FontRef& font);
 			inline void SetDefaultStyle(TextStyleFlags style);
 
+			void SetMaxLineWidth(float lineWidth) override;
+
 			RichTextDrawer& operator=(const RichTextDrawer& drawer);
 			RichTextDrawer& operator=(RichTextDrawer&& drawer);
+
+			static constexpr std::size_t InvalidBlockIndex = std::numeric_limits<std::size_t>::max();
 
 			//static RichTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
 			//static RichTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
@@ -94,6 +102,7 @@ namespace Nz
 			struct Block
 			{
 				std::size_t fontIndex;
+				std::size_t glyphIndex;
 				Color color;
 				String text;
 				TextStyleFlags style;
@@ -123,6 +132,7 @@ namespace Nz
 			mutable Recti m_bounds;
 			mutable Vector2ui m_drawPos;
 			mutable bool m_glyphUpdated;
+			float m_maxLineWidth;
 			unsigned int m_defaultCharacterSize;
 	};
 
@@ -137,6 +147,7 @@ namespace Nz
 
 			inline unsigned int GetCharacterSize() const;
 			inline Color GetColor() const;
+			inline std::size_t GetFirstGlyphIndex() const;
 			inline const FontRef& GetFont() const;
 			inline TextStyleFlags GetStyle() const;
 			inline const String& GetText() const;
