@@ -54,6 +54,8 @@ namespace Nz
 			std::size_t GetLineCount() const override;
 			float GetMaxLineWidth() const override;
 
+			inline bool HasBlocks() const;
+
 			void MergeBlocks();
 
 			void RemoveBlock(std::size_t index);
@@ -62,7 +64,7 @@ namespace Nz
 			inline void SetBlockColor(std::size_t index, const Color& color);
 			inline void SetBlockFont(std::size_t index, FontRef font);
 			inline void SetBlockStyle(std::size_t index, TextStyleFlags style);
-			inline void SetBlockText(std::size_t index, const String& str);
+			inline void SetBlockText(std::size_t index, String str);
 
 			inline void SetDefaultCharacterSize(unsigned int characterSize);
 			inline void SetDefaultColor(const Color& color);

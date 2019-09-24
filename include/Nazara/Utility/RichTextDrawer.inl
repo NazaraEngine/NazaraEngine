@@ -9,6 +9,16 @@ namespace Nz
 {
 	inline std::size_t RichTextDrawer::FindBlock(std::size_t glyphIndex) const
 	{
+		auto it = m_blocks.begin();
+		for (; it != m_blocks.end(); ++it)
+		{
+			if (it->glyphIndex > glyphIndex)
+				break;
+		}
+
+		assert(it != m_blocks.begin());
+		return std::distance(m_blocks.begin(), it) - 1;
+		/*
 		// Binary search
 		std::size_t count = m_blocks.size();
 		std::size_t step;
@@ -25,14 +35,14 @@ namespace Nz
 
 			if (m_blocks[i].glyphIndex < glyphIndex)
 			{
-				first = i + 1;
+				first = ++i;
 				count -= step + 1;
 			}
 			else
 				count = step;
 		}
 
-		return i;
+		return i;*/
 	}
 
 	inline auto RichTextDrawer::GetBlock(std::size_t index) -> BlockRef
@@ -193,6 +203,11 @@ namespace Nz
 		}
 	}
 
+	inline bool RichTextDrawer::HasBlocks() const
+	{
+		return !m_blocks.empty();
+	}
+
 	inline void RichTextDrawer::SetBlockCharacterSize(std::size_t index, unsigned int characterSize)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
@@ -232,13 +247,13 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
-	inline void RichTextDrawer::SetBlockText(std::size_t index, const String& str)
+	inline void RichTextDrawer::SetBlockText(std::size_t index, String str)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 
 		std::size_t previousLength = m_blocks[index].text.GetLength();
 
-		m_blocks[index].text = str;
+		m_blocks[index].text = std::move(str);
 
 		std::size_t newLength = m_blocks[index].text.GetLength();
 		if (newLength != previousLength)

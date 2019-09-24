@@ -166,9 +166,6 @@ namespace Nz
 
 	void RichTextDrawer::MergeBlocks()
 	{
-		if (m_blocks.size() < 2)
-			return;
-
 		auto TestBlockProperties = [](const Block& lhs, const Block& rhs)
 		{
 			return lhs.characterSize == rhs.characterSize &&
@@ -177,22 +174,16 @@ namespace Nz
 			       lhs.style == rhs.style;
 		};
 
-		auto lastBlockIt = m_blocks.begin();
-		for (auto it = lastBlockIt + 1; it != m_blocks.end();)
+		std::size_t previousBlockIndex = 0;
+		for (std::size_t i = 1; i < m_blocks.size(); ++i)
 		{
-			if (TestBlockProperties(*lastBlockIt, *it))
+			if (TestBlockProperties(m_blocks[previousBlockIndex], m_blocks[i]))
 			{
-				// Append text to previous block and erase
-				lastBlockIt->text += it->text;
-
-				ReleaseFont(it->fontIndex);
-				it = m_blocks.erase(it);
+				RemoveBlock(i);
+				--i;
 			}
 			else
-			{
-				lastBlockIt = it;
-				++it;
-			}
+				previousBlockIndex = i;
 		}
 	}
 
@@ -200,8 +191,18 @@ namespace Nz
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 
+		std::size_t textLength = m_blocks[index].text.GetLength();
+
 		ReleaseFont(m_blocks[index].fontIndex);
 		m_blocks.erase(m_blocks.begin() + index);
+
+		for (std::size_t i = index; i < m_blocks.size(); ++i)
+		{
+			assert(m_blocks[i].glyphIndex > textLength);
+			m_blocks[i].glyphIndex -= textLength;
+		}
+
+		InvalidateGlyphs();
 	}
 
 	void RichTextDrawer::SetMaxLineWidth(float lineWidth)
