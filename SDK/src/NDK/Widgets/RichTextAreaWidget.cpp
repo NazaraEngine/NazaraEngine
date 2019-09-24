@@ -63,7 +63,7 @@ namespace Ndk
 			return;
 
 		std::size_t firstBlock = m_drawer.FindBlock(firstGlyph);
-		std::size_t lastBlock = m_drawer.FindBlock(lastGlyph);
+		std::size_t lastBlock = m_drawer.FindBlock((lastGlyph > 0) ? lastGlyph - 1 : lastGlyph);
 		if (firstBlock == lastBlock)
 		{
 			const Nz::String& blockText = m_drawer.GetBlockText(firstBlock);
@@ -79,18 +79,52 @@ namespace Ndk
 			}
 
 			if (lastGlyph < textLength)
-			{
-				std::size_t characterPosition = blockText.GetCharacterPosition(lastGlyph - blockFirstGlyph);
-				NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
+				newText.Append(blockText.SubString(blockText.GetCharacterPosition(lastGlyph - blockFirstGlyph)));
 
-				newText.Append(blockText.SubString(characterPosition));
-			}
-
-			m_drawer.SetBlockText(firstBlock, newText);
+			if (!newText.IsEmpty())
+				m_drawer.SetBlockText(firstBlock, std::move(newText));
+			else
+				m_drawer.RemoveBlock(firstBlock);
 		}
 		else
 		{
-			// More complicated algorithm, yay
+			const Nz::String& lastBlockText = m_drawer.GetBlockText(lastBlock);
+			std::size_t lastBlockGlyphIndex = m_drawer.GetBlockFirstGlyphIndex(lastBlock);
+
+			// First, update/delete last block
+			std::size_t lastCharPos = lastBlockText.GetCharacterPosition(lastGlyph - lastBlockGlyphIndex);
+			if (lastCharPos != Nz::String::npos)
+			{
+				Nz::String newText = lastBlockText.SubString(lastCharPos);
+				if (!newText.IsEmpty())
+					m_drawer.SetBlockText(lastBlock, std::move(newText));
+				else
+					m_drawer.RemoveBlock(lastBlock);
+			}
+
+			// And then remove all middle blocks, remove in reverse order because of index shifting
+			assert(lastBlock > 0);
+			for (std::size_t i = lastBlock - 1; i > firstBlock; --i)
+				m_drawer.RemoveBlock(i);
+
+			const Nz::String& firstBlockText = m_drawer.GetBlockText(firstBlock);
+			std::size_t firstBlockGlyphIndex = m_drawer.GetBlockFirstGlyphIndex(firstBlock);
+
+			// And finally update/delete first block
+			if (firstGlyph > firstBlockGlyphIndex)
+			{
+				std::size_t firstCharPos = firstBlockText.GetCharacterPosition(firstGlyph - firstBlockGlyphIndex - 1);
+				if (firstCharPos != Nz::String::npos)
+				{
+					Nz::String newText = firstBlockText.SubString(0, firstCharPos);
+					if (!newText.IsEmpty())
+						m_drawer.SetBlockText(firstBlock, std::move(newText));
+					else
+						m_drawer.RemoveBlock(firstBlock);
+				}
+			}
+			else
+				m_drawer.RemoveBlock(firstBlock);
 		}
 
 		UpdateDisplayText();
@@ -98,15 +132,21 @@ namespace Ndk
 
 	void RichTextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
 	{
-		auto block = m_drawer.GetBlock(m_drawer.FindBlock(glyphPosition));
-		std::size_t firstGlyph = block.GetFirstGlyphIndex();
-		assert(glyphPosition >= firstGlyph);
+		if (m_drawer.HasBlocks())
+		{
+			auto block = m_drawer.GetBlock(m_drawer.FindBlock((glyphPosition > 0) ? glyphPosition - 1 : glyphPosition));
+			std::size_t firstGlyph = block.GetFirstGlyphIndex();
+			assert(glyphPosition >= firstGlyph);
 
-		Nz::String blockText = block.GetText();
-		std::size_t characterPosition = blockText.GetCharacterPosition(glyphPosition - firstGlyph);
-		blockText.Insert(characterPosition, text);
+			Nz::String blockText = block.GetText();
+			std::size_t characterPosition = blockText.GetCharacterPosition(glyphPosition - firstGlyph);
+			blockText.Insert(characterPosition, text);
 
-		block.SetText(blockText);
+			block.SetText(blockText);
+		}
+		else
+			m_drawer.AppendText(text);
+
 		SetCursorPosition(glyphPosition + text.GetLength());
 
 		UpdateDisplayText();
