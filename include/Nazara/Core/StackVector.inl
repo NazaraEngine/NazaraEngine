@@ -123,14 +123,19 @@ namespace Nz
 		assert(m_size < m_capacity);
 		assert(pos >= begin() && pos <= end());
 
-		std::size_t index = std::distance<const_iterator>(begin(), pos);
+		std::size_t index = std::distance(cbegin(), pos);
 		if (pos < end())
 		{
 			iterator lastElement = end() - 1;
 			PlacementNew(&m_ptr[m_size], std::move(*lastElement));
 
 			if (&m_ptr[index] < lastElement)
-				std::move(&m_ptr[index], lastElement, &m_ptr[index + 1]);
+			{
+				std::size_t count = m_size - index - 1;
+				std::move_backward(&m_ptr[index], &m_ptr[index + count], &m_ptr[m_size]);
+			}
+
+			PlacementDestroy(&m_ptr[index]);
 		}
 		m_size++;
 
@@ -167,8 +172,8 @@ namespace Nz
 	typename StackVector<T>::iterator StackVector<T>::erase(const_iterator pos)
 	{
 		assert(pos < end());
-		std::size_t index = std::distance(begin(), pos);
-		std::move(pos + 1, end(), pos);
+		std::size_t index = std::distance(cbegin(), pos);
+		std::move(begin() + index + 1, end(), begin() + index);
 		pop_back();
 
 		return iterator(&m_ptr[index]);
@@ -177,15 +182,18 @@ namespace Nz
 	template<typename T>
 	typename StackVector<T>::iterator StackVector<T>::erase(const_iterator first, const_iterator last)
 	{
+		std::size_t index = std::distance(cbegin(), first);
+
 		if (first == last)
-			return first;
+			return begin() + index;
 
 		assert(first < last);
 		assert(first >= begin() && last <= end());
 
-		std::size_t index = std::distance(begin(), first);
-		std::move(last, end(), first);
-		resize(size() - (last - first));
+		std::size_t count = std::distance(first, last);
+
+		std::move(begin() + index + count, end(), begin() + index);
+		resize(size() - count);
 
 		return iterator(&m_ptr[index]);
 	}
