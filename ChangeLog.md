@@ -192,6 +192,7 @@ Nazara Engine:
 - Added x and y mouse position to MouseWheelEvent
 - Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
 - TypeTag helper struct now includes a Type using
+- GuillotineBinPack::Insert overload taking multiple rectangles no longer does a heap allocation
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
