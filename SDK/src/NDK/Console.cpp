@@ -10,8 +10,6 @@
 #include <NDK/Widgets.hpp>
 #include <NDK/World.hpp>
 
-///TODO: For now is unable to display different color in the history, it needs a RichTextDrawer to do so
-
 namespace Ndk
 {
 	namespace
@@ -42,7 +40,7 @@ namespace Ndk
 	m_maxHistoryLines(200)
 	{
 		// History
-		m_history = Add<TextAreaWidget>();
+		m_history = Add<RichTextAreaWidget>();
 		m_history->EnableBackground(true);
 		m_history->EnableLineWrap(true);
 		m_history->SetReadOnly(true);
@@ -61,25 +59,25 @@ namespace Ndk
 		// Protect input prefix from erasure/selection
 		m_input->SetCursorPosition(s_inputPrefixSize);
 
-		m_input->OnTextAreaCursorMove.Connect([](const TextAreaWidget* textArea, Nz::Vector2ui* newCursorPos)
+		m_input->OnTextAreaCursorMove.Connect([](const AbstractTextAreaWidget* textArea, Nz::Vector2ui* newCursorPos)
 		{
 			newCursorPos->x = std::max(newCursorPos->x, static_cast<unsigned int>(s_inputPrefixSize));
 		});
 
-		m_input->OnTextAreaSelection.Connect([](const TextAreaWidget* textArea, Nz::Vector2ui* start, Nz::Vector2ui* end)
+		m_input->OnTextAreaSelection.Connect([](const AbstractTextAreaWidget* textArea, Nz::Vector2ui* start, Nz::Vector2ui* end)
 		{
 			start->x = std::max(start->x, static_cast<unsigned int>(s_inputPrefixSize));
 			end->x = std::max(end->x, static_cast<unsigned int>(s_inputPrefixSize));
 		});
 
-		m_input->OnTextAreaKeyBackspace.Connect([](const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		m_input->OnTextAreaKeyBackspace.Connect([](const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			if (textArea->GetGlyphIndex() <= s_inputPrefixSize)
 				*ignoreDefaultAction = true;
 		});
 
 		// Handle history
-		m_input->OnTextAreaKeyUp.Connect([&] (const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		m_input->OnTextAreaKeyUp.Connect([&] (const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			*ignoreDefaultAction = true;
 
@@ -89,7 +87,7 @@ namespace Ndk
 			m_input->SetText(s_inputPrefix + m_commandHistory[m_historyPosition]);
 		});
 
-		m_input->OnTextAreaKeyDown.Connect([&] (const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+		m_input->OnTextAreaKeyDown.Connect([&] (const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			*ignoreDefaultAction = true;
 
@@ -112,6 +110,7 @@ namespace Ndk
 			m_historyLines.erase(m_historyLines.begin());
 
 		m_historyLines.emplace_back(Line{ color, text });
+		m_history->SetTextColor(color); 
 		m_history->AppendText(text + '\n');
 		m_history->Resize(m_history->GetPreferredSize());
 		m_historyArea->Resize(m_historyArea->GetSize());
@@ -187,7 +186,7 @@ namespace Ndk
 	/*!
 	* \brief Performs this action when an input is added to the console
 	*/
-	void Console::ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction)
+	void Console::ExecuteInput(const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 	{
 		NazaraAssert(textArea == m_input, "Unexpected signal from an other text area");
 

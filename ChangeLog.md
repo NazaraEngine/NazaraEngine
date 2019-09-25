@@ -283,6 +283,9 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::OnTextAreaCursorMove signal now uses a Vector2ui* position as its second argument (instead of a std::size_t*)
 - Added TextAreaWidget::OnTextAreaSelection
 - ⚠️ Console class is no longer bound to a LuaState and now has a OnCommand signal
+- ⚠️ Made AbstractTextAreaWidget which is inherited by TextAreaWidget
+- ⚠️ Added RichTextAreaWidget
+- ⚠️ Console now supports text color in history
 
 # 0.4:
 

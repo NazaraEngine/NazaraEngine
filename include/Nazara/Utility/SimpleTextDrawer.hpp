@@ -26,7 +26,7 @@ namespace Nz
 
 			void AppendText(const String& str);
 
-			void Clear();
+			void Clear() override;
 
 			const Recti& GetBounds() const override;
 			unsigned int GetCharacterSize() const;

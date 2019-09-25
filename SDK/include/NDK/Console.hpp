@@ -24,8 +24,10 @@ namespace Nz
 
 namespace Ndk
 {
+	class AbstractTextAreaWidget;
 	class Console;
 	class Entity;
+	class RichTextAreaWidget;
 	class ScrollAreaWidget;
 	class TextAreaWidget;
 
@@ -45,7 +47,7 @@ namespace Ndk
 			void ClearFocus();
 
 			inline unsigned int GetCharacterSize() const;
-			inline const TextAreaWidget* GetHistory() const;
+			inline const RichTextAreaWidget* GetHistory() const;
 			inline const TextAreaWidget* GetInput() const;
 			inline const Nz::FontRef& GetTextFont() const;
 
@@ -59,7 +61,7 @@ namespace Ndk
 			NazaraSignal(OnCommand, Console* /*console*/, const Nz::String& /*command*/);
 
 		private:
-			void ExecuteInput(const TextAreaWidget* textArea, bool* ignoreDefaultAction);
+			void ExecuteInput(const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction);
 			void Layout() override;
 
 			struct Line
@@ -72,7 +74,7 @@ namespace Ndk
 			std::vector<Nz::String> m_commandHistory;
 			std::vector<Line> m_historyLines;
 			ScrollAreaWidget* m_historyArea;
-			TextAreaWidget* m_history;
+			RichTextAreaWidget* m_history;
 			TextAreaWidget* m_input;
 			Nz::FontRef m_defaultFont;
 			unsigned int m_characterSize;
