@@ -249,7 +249,7 @@ namespace Nz
 	template<typename T>
 	void StackVector<T>::resize(size_type count)
 	{
-		assert(count < m_capacity);
+		assert(count <= m_capacity);
 		if (count > m_size)
 		{
 			for (std::size_t i = m_size; i < count; ++i)
@@ -269,7 +269,7 @@ namespace Nz
 	template<typename T>
 	void StackVector<T>::resize(size_type count, const value_type& value)
 	{
-		assert(count < m_capacity);
+		assert(count <= m_capacity);
 		if (count > m_size)
 		{
 			for (std::size_t i = m_size; i < count; ++i)
