@@ -130,10 +130,7 @@ namespace Nz
 			PlacementNew(&m_ptr[m_size], std::move(*lastElement));
 
 			if (&m_ptr[index] < lastElement)
-			{
-				std::size_t count = m_size - index - 1;
-				std::move_backward(&m_ptr[index], &m_ptr[index + count], &m_ptr[m_size]);
-			}
+				std::move_backward(&m_ptr[index], &m_ptr[m_size - 1], &m_ptr[m_size]);
 
 			PlacementDestroy(&m_ptr[index]);
 		}
