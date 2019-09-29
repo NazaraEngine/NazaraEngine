@@ -8,6 +8,7 @@
 #define NAZARA_STACKARRAY_HPP
 
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 #ifdef NAZARA_ALLOCA_SUPPORT
 	#define NazaraStackArray(T, size) Nz::StackArray<T>(static_cast<T*>(NAZARA_ALLOCA((size) * sizeof(T))), size)
