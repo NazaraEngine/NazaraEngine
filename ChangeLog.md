@@ -169,7 +169,7 @@ Nazara Engine:
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
-- ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
+- ⚠ **By default, Nazara now computes the mass center of all 2D physics object when calling SetGeom**
 - ⚠ Added Collider2D::ComputeCenterOfMass
 - Signal now implement a copy constructor and copy assignation operator for convenience
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
@@ -193,6 +193,8 @@ Nazara Engine:
 - Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
 - TypeTag helper struct now includes a Type using
 - GuillotineBinPack::Insert overload taking multiple rectangles no longer does a heap allocation
+- StackArray and StackVector now have a default constructor initializing them with no size/capacity
+- StackArray and StackVector are now movable
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

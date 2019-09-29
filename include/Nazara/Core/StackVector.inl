@@ -25,6 +25,14 @@ namespace Nz
 	* \brief Core class that represents a stack-allocated (if alloca is present) vector, that is with a capacity different from its size
 	*/
 	template<typename T>
+	StackVector<T>::StackVector() :
+	m_capacity(0),
+	m_size(0),
+	m_ptr(nullptr)
+	{
+	}
+
+	template<typename T>
 	StackVector<T>::StackVector(T* stackMemory, std::size_t capacity) :
 	m_capacity(capacity),
 	m_size(0),

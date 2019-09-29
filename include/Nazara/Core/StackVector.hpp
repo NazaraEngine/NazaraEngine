@@ -8,6 +8,7 @@
 #define NAZARA_STACKVECTOR_HPP
 
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 
 #ifdef NAZARA_ALLOCA_SUPPORT
 	#define NazaraStackVector(T, capacity) Nz::StackVector<T>(static_cast<T*>(NAZARA_ALLOCA((capacity) * sizeof(T))), capacity)
@@ -37,7 +38,10 @@ namespace Nz
 			using reverse_iterator = std::reverse_iterator<iterator>;
 			using size_type = std::size_t;
 
+			StackVector();
 			StackVector(T* stackMemory, std::size_t capacity);
+			StackVector(const StackVector&) = delete;
+			StackVector(StackVector&&) = default;
 			~StackVector();
 
 			reference back();
@@ -99,10 +103,13 @@ namespace Nz
 			reference operator[](size_type pos);
 			const_reference operator[](size_type pos) const;
 
+			StackVector& operator=(const StackVector&) = delete;
+			StackVector& operator=(StackVector&&) = default;
+
 		private:
 			std::size_t m_capacity;
 			std::size_t m_size;
-			T* m_ptr;
+			MovablePtr<T> m_ptr;
 	};
 
 }

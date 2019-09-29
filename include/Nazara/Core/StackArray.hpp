@@ -40,8 +40,11 @@ namespace Nz
 			using reverse_iterator = std::reverse_iterator<iterator>;
 			using size_type = std::size_t;
 
+			StackArray();
 			StackArray(T* stackMemory, std::size_t size);
 			StackArray(T* stackMemory, std::size_t size, NoInitTag);
+			StackArray(const StackArray&) = delete;
+			StackArray(StackArray&&) = default;
 			~StackArray();
 
 			reference back();
@@ -81,9 +84,12 @@ namespace Nz
 			reference operator[](size_type pos);
 			const_reference operator[](size_type pos) const;
 
+			StackArray& operator=(const StackArray&) = delete;
+			StackArray& operator=(StackArray&&) = default;
+
 		private:
 			std::size_t m_size;
-			T* m_ptr;
+			MovablePtr<T> m_ptr;
 	};
 
 }
