@@ -115,7 +115,9 @@ SCENARIO("StackVector", "[CORE][STACKVECTOR]")
 				CHECK(vector.capacity() == capacity);
 				CHECK(vector.empty());
 				CHECK(vector.size() == 0);
+#if !USE_STD_VECTOR
 				CHECK(vector.max_size() == capacity);
+#endif
 			}
 
 			WHEN("Resizing it changes its size and create/destroy elements")
