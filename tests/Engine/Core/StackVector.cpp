@@ -115,6 +115,29 @@ SCENARIO("StackVector", "[CORE][STACKVECTOR]")
 				CHECK(vector.capacity() == capacity);
 				CHECK(vector.empty());
 				CHECK(vector.size() == 0);
+				CHECK(vector.max_size() == capacity);
+			}
+
+			WHEN("Resizing it changes its size and create/destroy elements")
+			{
+				vector.resize(vector.capacity());
+				CHECK(vector.size() == vector.capacity());
+				CHECK(counter == 0);
+				vector.resize(0);
+				CHECK(vector.empty());
+				CHECK(vector.size() == 0);
+				CHECK(counter == 0);
+			}
+
+			WHEN("Resizing it allocates elements")
+			{
+				vector.resize(vector.capacity(), DestructionCounter(&counter, 0));
+				CHECK(vector.size() == vector.capacity());
+				CHECK(counter == capacity);
+				vector.resize(0);
+				CHECK(vector.empty());
+				CHECK(vector.size() == 0);
+				CHECK(counter == 0);
 			}
 
 			WHEN("Emplacing five elements, vector size increase accordingly")
