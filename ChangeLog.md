@@ -289,6 +289,7 @@ Nazara Development Kit:
 - ⚠️ Made AbstractTextAreaWidget which is inherited by TextAreaWidget
 - ⚠️ Added RichTextAreaWidget
 - ⚠️ Console now supports text color in history
+- Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
 
 # 0.4:
 

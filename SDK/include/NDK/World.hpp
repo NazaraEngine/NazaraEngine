@@ -46,6 +46,7 @@ namespace Ndk
 
 			void Clear() noexcept;
 			const EntityHandle& CloneEntity(EntityId id);
+			const EntityHandle& CloneEntity(const EntityHandle& entity);
 
 			inline void DisableProfiler();
 			inline void EnableProfiler(bool enable = true);
