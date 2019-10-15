@@ -39,11 +39,11 @@ namespace Nz
 
 		static constexpr std::size_t MaxValue = static_cast<std::size_t>(EnumAsFlags<E>::max);
 
-		using BitField16 = std::conditional_t<(MaxValue > 8), UInt16, UInt8>;
-		using BitField32 = std::conditional_t<(MaxValue > 16), UInt32, BitField16>;
+		using BitField16 = std::conditional_t<(MaxValue >= 8), UInt16, UInt8>;
+		using BitField32 = std::conditional_t<(MaxValue >= 16), UInt32, BitField16>;
 
 		public:
-			using BitField = std::conditional_t<(MaxValue > 32), UInt64, BitField32>;
+			using BitField = std::conditional_t<(MaxValue >= 32), UInt64, BitField32>;
 
 			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
