@@ -195,6 +195,7 @@ Nazara Engine:
 - GuillotineBinPack::Insert overload taking multiple rectangles no longer does a heap allocation
 - StackArray and StackVector now have a default constructor initializing them with no size/capacity
 - StackArray and StackVector are now movable
+- Fixed RigidBody2D::Copy not copying kinematic/dynamic/static status
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
