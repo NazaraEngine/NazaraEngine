@@ -53,6 +53,9 @@ namespace Ndk
 		m_object->SetPositionOffset(positionOffset);
 		m_object->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
 		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
+
+		if (m_pendingStates.valid)
+			ApplyPhysicsState(*m_object);
 	}
 
 	/*!
@@ -95,7 +98,11 @@ namespace Ndk
 
 	void PhysicsComponent2D::OnDetached()
 	{
-		m_object.reset();
+		if (m_object)
+		{
+			CopyPhysicsState(*m_object);
+			m_object.reset();
+		}
 	}
 
 	void PhysicsComponent2D::OnEntityDestruction()

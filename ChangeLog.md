@@ -290,6 +290,7 @@ Nazara Development Kit:
 - ⚠️ Added RichTextAreaWidget
 - ⚠️ Console now supports text color in history
 - Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
+- Fixed PhysicsComponent2D copy not copying physics attributes
 
 # 0.4:
 
