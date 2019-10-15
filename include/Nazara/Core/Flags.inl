@@ -218,7 +218,6 @@ namespace Nz
 	template<typename E>
 	constexpr typename Flags<E>::BitField Flags<E>::GetFlagValue(E enumValue)
 	{
-		assert(enumValue < sizeof(BitField) * CHAR_BIT);
 		return 1U << static_cast<BitField>(enumValue);
 	}
 
