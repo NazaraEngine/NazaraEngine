@@ -98,6 +98,36 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Detaches a component from the entity
+	* \return An owning pointer to the component
+	*
+	* Instantly detaches a component from the entity and returns it, allowing to attach it to another entity
+	*
+	* \remark Unlike RemoveComponent, this function instantly removes the component
+	*/
+	std::unique_ptr<BaseComponent> Entity::DropComponent(ComponentIndex index)
+	{
+		if (!HasComponent(index))
+			return nullptr;
+
+		// We get the component and we alert existing components of the deleted one
+		std::unique_ptr<BaseComponent> component = std::move(m_components[index]);
+		m_components[index].reset();
+
+		for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
+		{
+			if (i != index)
+				m_components[i]->OnComponentDetached(*component);
+		}
+		m_componentBits.Reset(index);
+		m_removedComponentBits.UnboundedReset(index);
+
+		component->SetEntity(nullptr);
+
+		return component;
+	}
+
+	/*!
 	* \brief Enables the entity
 	*
 	* \param enable Should the entity be enabled
@@ -208,32 +238,4 @@ namespace Ndk
 
 		m_valid = false;
 	}
-
-	/*!
-	* \brief Destroys a component by index
-	*
-	* \param index Index of the component
-	*
-	* \remark If component is not available, no action is performed
-	*/
-
-	void Entity::DestroyComponent(ComponentIndex index)
-	{
-		if (HasComponent(index))
-		{
-			// We get the component and we alert existing components of the deleted one
-			BaseComponent& component = *m_components[index].get();
-			for (std::size_t i = m_componentBits.FindFirst(); i != m_componentBits.npos; i = m_componentBits.FindNext(i))
-			{
-				if (i != index)
-					m_components[i]->OnComponentDetached(component);
-			}
-
-			component.SetEntity(nullptr);
-
-			m_components[index].reset();
-			m_componentBits.Reset(index);
-		}
-	}
-
 }

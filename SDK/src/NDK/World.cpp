@@ -249,8 +249,7 @@ namespace Ndk
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
 			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.back.npos; j = removedComponents.FindNext(j))
-				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
-			removedComponents.Reset();
+				entity->DropComponent(static_cast<Ndk::ComponentIndex>(j));
 
 			for (auto& system : m_orderedSystems)
 			{
