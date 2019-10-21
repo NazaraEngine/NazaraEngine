@@ -292,6 +292,7 @@ Nazara Development Kit:
 - ⚠️ Console now supports text color in history
 - Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
 - Fixed PhysicsComponent2D copy not copying physics attributes
+- Added Entity::DropComponent which detaches a component without necessarily destroying it
 
 # 0.4:
 

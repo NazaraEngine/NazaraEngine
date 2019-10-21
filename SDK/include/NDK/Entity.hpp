@@ -43,6 +43,10 @@ namespace Ndk
 			const EntityHandle& Clone() const;
 
 			inline void Disable();
+
+			std::unique_ptr<BaseComponent> DropComponent(ComponentIndex index);
+			template<typename ComponentType> std::unique_ptr<BaseComponent> DropComponent();
+
 			void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
@@ -82,8 +86,6 @@ namespace Ndk
 
 			void Create();
 			void Destroy();
-
-			void DestroyComponent(ComponentIndex index);
 
 			inline Nz::Bitset<>& GetRemovedComponentBits();
 
