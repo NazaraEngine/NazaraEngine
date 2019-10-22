@@ -196,6 +196,7 @@ Nazara Engine:
 - StackArray and StackVector now have a default constructor initializing them with no size/capacity
 - StackArray and StackVector are now movable
 - Fixed RigidBody2D::Copy not copying kinematic/dynamic/static status
+- Fixed out-of-bounds access in LuaInstance::LoadLibraries
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
