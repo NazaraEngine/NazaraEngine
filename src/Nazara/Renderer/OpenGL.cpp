@@ -247,7 +247,7 @@ namespace Nz
 
 		if (!NumberEquals(currentRenderStates.lineWidth, states.lineWidth, 0.001f))
 		{
-			glLineWidth(states.lineWidth);
+			//glLineWidth(states.lineWidth);
 			currentRenderStates.lineWidth = states.lineWidth;
 		}
 
