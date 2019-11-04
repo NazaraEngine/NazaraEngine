@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/Drawable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
@@ -32,8 +33,9 @@ namespace Nz
 			Vector2f uv;
 		};
 
-		UInt32 s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
-		UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		constexpr UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		constexpr UInt32 s_maxQuadPerDraw = s_vertexBufferSize / sizeof(VertexLayout_XYZ_Color_UV);
+		constexpr unsigned int InvalidTextureUnit = std::numeric_limits<unsigned int>::max();
 	}
 
 	/*!
@@ -59,6 +61,9 @@ namespace Nz
 
 		m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
+
+		PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
+		m_lightData = UniformBuffer::New(lightDataStruct.lightArraySize, DataStorage_Hardware, BufferUsage_Dynamic);
 	}
 
 	/*!
@@ -175,12 +180,12 @@ namespace Nz
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, 0);
+			s_quadIndexBuffer.Reset(true, s_maxQuadPerDraw * 6, DataStorage_Hardware, 0);
 
 			BufferMapper<IndexBuffer> mapper(s_quadIndexBuffer, BufferAccess_WriteOnly);
-			UInt16* indices = static_cast<UInt16*>(mapper.GetPointer());
+			UInt32* indices = static_cast<UInt32*>(mapper.GetPointer());
 
-			for (unsigned int i = 0; i < s_maxQuads; ++i)
+			for (UInt32 i = 0; i < s_maxQuadPerDraw; ++i)
 			{
 				*indices++ = i * 4 + 0;
 				*indices++ = i * 4 + 2;
@@ -254,7 +259,7 @@ namespace Nz
 	{
 		m_lights.clear();
 
-		// First step: add all the lights into a common list and compute their score, exlucing those who have no chance of lighting the object
+		// First step: add all the lights into a common list and compute their score, excluding those who have no chance of lighting the object
 		// (Those who are too far away).
 
 		if (includeDirectionalLights)
@@ -316,7 +321,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -335,21 +339,6 @@ namespace Nz
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
-
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
-					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
-
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
-					}
-
 					lastPipeline = pipeline;
 				}
 
@@ -405,7 +394,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		const Texture* lastOverlay = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
@@ -420,23 +408,20 @@ namespace Nz
 			{
 				Commit();
 
+				const auto& materialSettings = billboard.material->GetSettings();
+
 				const MaterialPipeline* pipeline = billboard.material->GetPipeline();
 				if (lastPipeline != pipeline)
 				{
 					pipelineInstance = &billboard.material->GetPipeline()->Apply(ShaderFlags_Billboard | ShaderFlags_Instancing | ShaderFlags_VertexColor);
 
-					const Shader* shader = pipelineInstance->uberInstance->GetShader();
-					if (shader != lastShader)
+					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+					if (viewerDataBinding != MaterialSettings::InvalidIndex)
 					{
-						// Index of uniforms in the shader
-						shaderUniforms = GetShaderUniforms(shader);
+						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+						assert(it != pipelineInstance->bindings.end());
 
-						// Ambient color of the scene
-						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-						// Position of the camera
-						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-						lastShader = shader;
+						Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
 					}
 
 					lastPipeline = pipeline;
@@ -491,7 +476,6 @@ namespace Nz
 
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
 		const ShaderUniforms* shaderUniforms = nullptr;
 		Recti lastScissorRect = Recti(-1, -1);
 
@@ -501,23 +485,20 @@ namespace Nz
 
 		for (const BasicRenderQueue::Model& model : models)
 		{
+			const auto& materialSettings = model.material->GetSettings();
+
 			const MaterialPipeline* pipeline = model.material->GetPipeline();
 			if (lastPipeline != pipeline)
 			{
 				pipelineInstance = &model.material->GetPipeline()->Apply();
 
-				const Shader* shader = pipelineInstance->uberInstance->GetShader();
-				if (shader != lastShader)
+				std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+				if (viewerDataBinding != MaterialSettings::InvalidIndex)
 				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
+					auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+					assert(it != pipelineInstance->bindings.end());
 
-					// Ambient color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-					lastShader = shader;
+					Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
 				}
 
 				lastPipeline = pipeline;
@@ -539,6 +520,7 @@ namespace Nz
 				}
 			}
 
+/*
 			if (shaderUniforms->reflectionMap != -1)
 			{
 				unsigned int textureUnit = Material::GetTextureUnit(TextureMap_ReflectionCube);
@@ -546,6 +528,7 @@ namespace Nz
 				Renderer::SetTexture(textureUnit, sceneData.globalReflectionTexture);
 				Renderer::SetTextureSampler(textureUnit, s_reflectionSampler);
 			}
+*/
 
 			// Handle draw call before rendering loop
 			Renderer::DrawCall drawFunc;
@@ -568,21 +551,23 @@ namespace Nz
 			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
 			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
-			if (shaderUniforms->hasLightUniforms)
+			std::size_t lightDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboLighData);
+			if (lightDataBinding != MaterialSettings::InvalidIndex)
 			{
 				ChooseLights(model.obbSphere);
 
-				std::size_t lightCount = m_lights.size();
+				auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + lightDataBinding);
+				assert(it != pipelineInstance->bindings.end());
+
+				Renderer::SetUniformBuffer(it->second, m_lightData);
 
 				Nz::Renderer::SetMatrix(Nz::MatrixType_World, model.matrix);
 				std::size_t lightIndex = 0;
 				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
-				std::size_t passCount = (lightCount == 0) ? 1 : (lightCount - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
+				std::size_t passCount = (m_lights.size() == 0) ? 1 : (m_lights.size() - 1) / NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS + 1;
 				for (std::size_t pass = 0; pass < passCount; ++pass)
 				{
-					lightCount -= std::min<std::size_t>(lightCount, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS);
-
 					if (pass == 1)
 					{
 						// To add the result of light computations
@@ -595,8 +580,8 @@ namespace Nz
 					}
 
 					// Sends the light uniforms to the shader
-					for (unsigned int i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
-						SendLightUniforms(lastShader, shaderUniforms->lightUniforms, i, lightIndex++, shaderUniforms->lightOffset*i);
+					UpdateLightUniforms(lightIndex, std::min<std::size_t>(m_lights.size() - lightIndex, NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS));
+					lightIndex += NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS;
 
 					// And we draw
 					drawFunc(model.meshData.primitiveMode, 0, indexCount);
@@ -618,13 +603,94 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
-		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
-		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuadPerDraw, m_spriteBuffer.GetVertexCount() / 4);
+
+		const Material* lastMaterial = nullptr;
+		const MaterialPipeline* lastPipeline = nullptr;
+		const ShaderUniforms* shaderUniforms = nullptr;
+		const Texture* lastOverlay = nullptr;
+		Recti lastScissorRect = Recti(-1, -1);
+		unsigned int overlayTextureUnit = InvalidTextureUnit;
+
+		const MaterialPipeline::Instance* pipelineInstance = nullptr;
+
+		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
+		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		Renderer::SetVertexBuffer(&m_spriteBuffer);
+
+		auto Draw = [&]()
+		{
+			unsigned int firstIndex = 0;
+			for (const auto& batch : m_spriteBatches)
+			{
+				const auto& materialSettings = batch.material->GetSettings();
+
+				const MaterialPipeline* pipeline = batch.material->GetPipeline();
+				if (pipeline != lastPipeline)
+				{
+					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+
+					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
+					if (viewerDataBinding != MaterialSettings::InvalidIndex)
+					{
+						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + viewerDataBinding);
+						assert(it != pipelineInstance->bindings.end());
+
+						Renderer::SetUniformBuffer(it->second, sceneData.viewer->GetViewerData());
+					}
+
+					lastPipeline = pipeline;
+				}
+
+				if (batch.material != lastMaterial)
+				{
+					batch.material->Apply(*pipelineInstance);
+
+					const auto& matSettings = batch.material->GetSettings();
+					std::size_t overlayBindingIndex = matSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_TexOverlay);
+					if (overlayBindingIndex != MaterialSettings::InvalidIndex)
+					{
+						auto it = pipelineInstance->bindings.find(overlayBindingIndex);
+						assert(it != pipelineInstance->bindings.end());
+
+						if (overlayTextureUnit != it->second)
+						{
+							overlayTextureUnit = it->second;
+							lastOverlay = nullptr;
+						}
+					}
+					else
+						overlayTextureUnit = InvalidTextureUnit;
+
+					lastMaterial = batch.material;
+				}
+
+				if (batch.overlayTexture != lastOverlay)
+				{
+					if (overlayTextureUnit != InvalidTextureUnit)
+						Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
+
+					lastOverlay = batch.overlayTexture;
+				}
+
+				if (batch.material->IsScissorTestEnabled() && batch.scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(batch.scissorRect);
+					lastScissorRect = batch.scissorRect;
+				}
+
+				unsigned int indexCount = batch.spriteCount * 6;
+				Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, firstIndex, indexCount);
+				firstIndex += indexCount;
+			}
+		};
 
 		m_spriteBatches.clear();
 		{
-			BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-			VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+			BufferMapper<VertexBuffer> vertexMapper;
+			VertexStruct_XYZ_Color_UV* vertices = nullptr;
+
+			//Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
 
 			std::size_t remainingSprite = maxSpriteCount;
 
@@ -636,151 +702,63 @@ namespace Nz
 			{
 				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
 				const Nz::Recti& scissorRect = (basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect;
-				if (basicSprites.material != lastMaterial || overlayTexture != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
+
+				const VertexStruct_XYZ_Color_UV* spriteVertices = basicSprites.vertices;
+				std::size_t spriteCount = basicSprites.spriteCount;
+				
+				for (;;)
 				{
-					m_spriteBatches.emplace_back();
-					SpriteBatch& newBatch = m_spriteBatches.back();
-					newBatch.material = basicSprites.material;
-					newBatch.overlayTexture = overlayTexture;
-					newBatch.scissorRect = scissorRect;
-					newBatch.spriteCount = 0;
+					if (m_spriteBatches.empty() || basicSprites.material != lastMaterial || overlayTexture != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
+					{
+						m_spriteBatches.emplace_back();
+						SpriteBatch& newBatch = m_spriteBatches.back();
+						newBatch.material = basicSprites.material;
+						newBatch.overlayTexture = overlayTexture;
+						newBatch.scissorRect = scissorRect;
+						newBatch.spriteCount = 0;
 
-					lastMaterial = basicSprites.material;
-					lastOverlay = overlayTexture;
-					lastScissorRect = scissorRect;
+						lastMaterial = basicSprites.material;
+						lastOverlay = overlayTexture;
+						lastScissorRect = scissorRect;
+					}
+
+					SpriteBatch& currentBatch = m_spriteBatches.back();
+
+					if (!vertices)
+					{
+						vertexMapper.Map(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+						vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+					}
+
+					std::size_t processedSpriteCount = std::min(remainingSprite, spriteCount);
+					std::size_t processedVertices = processedSpriteCount * 4;
+
+					std::memcpy(vertices, spriteVertices, processedVertices * sizeof(VertexStruct_XYZ_Color_UV));
+					vertices += processedVertices;
+					spriteVertices += processedVertices;
+
+					currentBatch.spriteCount += processedSpriteCount;
+					spriteCount -= processedSpriteCount;
+
+					remainingSprite -= processedSpriteCount;
+					if (remainingSprite == 0)
+					{
+						vertexMapper.Unmap();
+						vertices = nullptr;
+
+						Draw();
+
+						remainingSprite = maxSpriteCount;
+						m_spriteBatches.clear();
+					}
+
+					if (spriteCount == 0)
+						break;
 				}
-
-				SpriteBatch& currentBatch = m_spriteBatches.back();
-
-				std::size_t spriteCount = std::min(remainingSprite, basicSprites.spriteCount);
-				std::memcpy(vertices, basicSprites.vertices, spriteCount * 4 * sizeof(VertexStruct_XYZ_Color_UV));
-				vertices += spriteCount * 4;
-
-				currentBatch.spriteCount += spriteCount;
-
-				remainingSprite -= spriteCount;
-				if (remainingSprite == 0)
-					break;
 			}
 		}
 
-		const Material* lastMaterial = nullptr;
-		const MaterialPipeline* lastPipeline = nullptr;
-		const Shader* lastShader = nullptr;
-		const ShaderUniforms* shaderUniforms = nullptr;
-		const Texture* lastOverlay = nullptr;
-		Recti lastScissorRect = Recti(-1, -1);
-
-		const MaterialPipeline::Instance* pipelineInstance = nullptr;
-
-		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
-		Renderer::SetVertexBuffer(&m_spriteBuffer);
-
-		unsigned int firstIndex = 0;
-		for (const auto& batch : m_spriteBatches)
-		{
-			const MaterialPipeline* pipeline = batch.material->GetPipeline();
-			if (pipeline != lastPipeline)
-			{
-				pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
-
-				const Shader* shader = pipelineInstance->uberInstance->GetShader();
-				if (shader != lastShader)
-				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
-
-					// Ambient color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
-
-					// Overlay texture unit
-					shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
-
-					lastShader = shader;
-				}
-
-				lastPipeline = pipeline;
-			}
-
-			if (batch.material != lastMaterial)
-			{
-				batch.material->Apply(*pipelineInstance);
-
-				//Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
-
-				lastMaterial = batch.material;
-			}
-
-			if (batch.overlayTexture != lastOverlay)
-			{
-				Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
-				lastOverlay = batch.overlayTexture;
-			}
-
-			if (batch.material->IsScissorTestEnabled() && batch.scissorRect != lastScissorRect)
-			{
-				Renderer::SetScissorRect(batch.scissorRect);
-				lastScissorRect = batch.scissorRect;
-			}
-
-			unsigned int indexCount = batch.spriteCount * 6;
-			Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, firstIndex, indexCount);
-			firstIndex += indexCount;
-		}
-	}
-
-	const ForwardRenderTechnique::ShaderUniforms* ForwardRenderTechnique::GetShaderUniforms(const Shader* shader) const
-	{
-		auto it = m_shaderUniforms.find(shader);
-		if (it == m_shaderUniforms.end())
-		{
-			ShaderUniforms uniforms;
-			uniforms.shaderReleaseSlot.Connect(shader->OnShaderRelease, this, &ForwardRenderTechnique::OnShaderInvalidated);
-			uniforms.shaderUniformInvalidatedSlot.Connect(shader->OnShaderUniformInvalidated, this, &ForwardRenderTechnique::OnShaderInvalidated);
-
-			uniforms.eyePosition = shader->GetUniformLocation("EyePosition");
-			uniforms.reflectionMap = shader->GetUniformLocation("ReflectionMap");
-			uniforms.sceneAmbient = shader->GetUniformLocation("SceneAmbient");
-			uniforms.textureOverlay = shader->GetUniformLocation("TextureOverlay");
-
-			int type0Location = shader->GetUniformLocation("Lights[0].type");
-			int type1Location = shader->GetUniformLocation("Lights[1].type");
-
-			if (type0Location > 0 && type1Location > 0)
-			{
-				uniforms.hasLightUniforms = true;
-				uniforms.lightOffset = type1Location - type0Location;
-				uniforms.lightUniforms.ubo = false;
-				uniforms.lightUniforms.locations.type = type0Location;
-				uniforms.lightUniforms.locations.color = shader->GetUniformLocation("Lights[0].color");
-				uniforms.lightUniforms.locations.factors = shader->GetUniformLocation("Lights[0].factors");
-				uniforms.lightUniforms.locations.lightViewProjMatrix = shader->GetUniformLocation("LightViewProjMatrix[0]");
-				uniforms.lightUniforms.locations.parameters1 = shader->GetUniformLocation("Lights[0].parameters1");
-				uniforms.lightUniforms.locations.parameters2 = shader->GetUniformLocation("Lights[0].parameters2");
-				uniforms.lightUniforms.locations.parameters3 = shader->GetUniformLocation("Lights[0].parameters3");
-				uniforms.lightUniforms.locations.shadowMapping = shader->GetUniformLocation("Lights[0].shadowMapping");
-			}
-			else
-				uniforms.hasLightUniforms = false;
-
-			it = m_shaderUniforms.emplace(shader, std::move(uniforms)).first;
-		}
-
-		return &it->second;
-	}
-
-	/*!
-	* \brief Handle the invalidation of a shader
-	*
-	* \param shader Shader being invalidated
-	*/
-
-	void ForwardRenderTechnique::OnShaderInvalidated(const Shader* shader) const
-	{
-		m_shaderUniforms.erase(shader);
+		Draw();
 	}
 
 	/*!
@@ -792,93 +770,114 @@ namespace Nz
 	* \param uniformOffset Offset for the uniform
 	* \param availableTextureUnit Unit texture available
 	*/
-	void ForwardRenderTechnique::SendLightUniforms(const Shader* shader, const LightUniforms& uniforms, unsigned int index, unsigned int lightIndex, unsigned int uniformOffset) const
+	void ForwardRenderTechnique::UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const
 	{
-		if (lightIndex < m_lights.size())
+		static PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
+
+		if (lightCount > 0)
 		{
-			const LightIndex& lightInfo = m_lights[lightIndex];
+			BufferMapper<UniformBuffer> mapper(m_lightData, BufferAccess_DiscardAndWrite);
 
-			shader->SendInteger(uniforms.locations.type + uniformOffset, lightInfo.type); //< Sends the light type
-
-			switch (lightInfo.type)
+			for (std::size_t i = 0; i < NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS; ++i)
 			{
-				case LightType_Directional:
+				Nz::Int32* type = AccessByOffset<Nz::Int32>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.type);
+
+				if (i < lightCount)
 				{
-					const auto& light = m_renderQueue.directionalLights[lightInfo.index];
+					const LightIndex& lightInfo = m_lights[firstLightIndex + i];
 
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.direction));
+					Nz::Vector4f* color = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.color);
+					Nz::Vector2f* factors = AccessByOffset<Nz::Vector2f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.factor);
+					Nz::Vector4f* parameters1 = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter1);
+					Nz::Vector4f* parameters2 = AccessByOffset<Nz::Vector4f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter2);
+					Nz::Vector2f* parameters3 = AccessByOffset<Nz::Vector2f>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.parameter3);
+					Nz::Int32* shadowMapping = AccessByOffset<Nz::Int32>(mapper.GetPointer(), lightDataStruct.lightArray[i] + lightDataStruct.innerOffsets.shadowMappingFlag);
 
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
+					*type = lightInfo.type;
+					switch (lightInfo.type)
 					{
-						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+						case LightType_Directional:
+						{
+							const auto& light = m_renderQueue.directionalLights[lightInfo.index];
 
-						Renderer::SetTexture(textureUnit2D, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.direction);
 
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
+
+						case LightType_Point:
+						{
+							const auto& light = m_renderQueue.pointLights[lightInfo.index];
+
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.position, light.attenuation);
+							parameters2->Set(0.f, 0.f, 0.f, light.invRadius);
+
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
+
+						case LightType_Spot:
+						{
+							const auto& light = m_renderQueue.spotLights[lightInfo.index];
+
+							color->Set(light.color.r / 255.f, light.color.g / 255.f, light.color.b / 255.f, light.color.a / 255.f);
+							factors->Set(light.ambientFactor, light.diffuseFactor);
+							parameters1->Set(light.position, light.attenuation);
+							parameters2->Set(light.direction, light.invRadius);
+							parameters3->Set(light.innerAngleCosine, light.outerAngleCosine);
+
+							*shadowMapping = 0;
+							/*
+							*shadowMapping = (light.shadowMap) ? 1 : 0;
+
+							if (light.shadowMap)
+							{
+								unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
+
+								Renderer::SetTexture(textureUnit2D, light.shadowMap);
+								Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
+
+								if (uniforms.locations.lightViewProjMatrix != -1)
+									shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
+							}*/
+							break;
+						}
 					}
-					break;
 				}
-
-				case LightType_Point:
-				{
-					const auto& light = m_renderQueue.pointLights[lightInfo.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(0.f, 0.f, 0.f, light.invRadius));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						unsigned int textureUnitCube = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_ShadowCube_1 + index));
-
-						Renderer::SetTexture(textureUnitCube, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnitCube, s_shadowSampler);
-					}
-					break;
-				}
-
-				case LightType_Spot:
-				{
-					const auto& light = m_renderQueue.spotLights[lightInfo.index];
-
-					shader->SendColor(uniforms.locations.color + uniformOffset, light.color);
-					shader->SendVector(uniforms.locations.factors + uniformOffset, Vector2f(light.ambientFactor, light.diffuseFactor));
-					shader->SendVector(uniforms.locations.parameters1 + uniformOffset, Vector4f(light.position, light.attenuation));
-					shader->SendVector(uniforms.locations.parameters2 + uniformOffset, Vector4f(light.direction, light.invRadius));
-					shader->SendVector(uniforms.locations.parameters3 + uniformOffset, Vector2f(light.innerAngleCosine, light.outerAngleCosine));
-
-					if (uniforms.locations.shadowMapping != -1)
-						shader->SendBoolean(uniforms.locations.shadowMapping + uniformOffset, light.shadowMap != nullptr);
-
-					if (light.shadowMap)
-					{
-						unsigned int textureUnit2D = Material::GetTextureUnit(static_cast<TextureMap>(TextureMap_Shadow2D_1 + index));
-
-						Renderer::SetTexture(textureUnit2D, light.shadowMap);
-						Renderer::SetTextureSampler(textureUnit2D, s_shadowSampler);
-
-						if (uniforms.locations.lightViewProjMatrix != -1)
-							shader->SendMatrix(uniforms.locations.lightViewProjMatrix + index, light.transformMatrix);
-					}
-					break;
-				}
+				else
+					*type = -1;
 			}
-		}
-		else
-		{
-			if (uniforms.locations.type != -1)
-				shader->SendInteger(uniforms.locations.type + uniformOffset, -1); //< Disable the light in the shader
 		}
 	}
 

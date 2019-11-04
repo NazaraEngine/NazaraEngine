@@ -74,6 +74,8 @@ namespace Ndk
 			Entity& operator=(Entity&&) = delete;
 
 			NazaraSignal(OnEntityDestruction, Entity* /*entity*/);
+			NazaraSignal(OnEntityDisabled, Entity* /*entity*/);
+			NazaraSignal(OnEntityEnabled, Entity* /*entity*/);
 
 		private:
 			Entity(World* world, EntityId id);

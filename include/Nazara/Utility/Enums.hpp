@@ -309,8 +309,6 @@ namespace Nz
 
 	enum StructFieldType
 	{
-		StructFieldType_None,
-
 		StructFieldType_Bool1,
 		StructFieldType_Bool2,
 		StructFieldType_Bool3,
@@ -318,15 +316,11 @@ namespace Nz
 		StructFieldType_Float1,
 		StructFieldType_Float2,
 		StructFieldType_Float3,
-		StructFieldType_Float3x3,
 		StructFieldType_Float4,
-		StructFieldType_Float4x4,
 		StructFieldType_Double1,
 		StructFieldType_Double2,
 		StructFieldType_Double3,
-		StructFieldType_Double3x3,
 		StructFieldType_Double4,
-		StructFieldType_Double4x4,
 		StructFieldType_Int1,
 		StructFieldType_Int2,
 		StructFieldType_Int3,
@@ -370,17 +364,25 @@ namespace Nz
 		TextAlign_Max = TextAlign_Right
 	};
 
-	enum TextStyleFlags
+	enum TextStyle
 	{
-		TextStyle_Regular = 0x0,
+		TextStyle_Bold,
+		TextStyle_Italic,
+		TextStyle_StrikeThrough,
+		TextStyle_Underlined,
 
-		TextStyle_Bold          = 0x1,
-		TextStyle_Italic        = 0x2,
-		TextStyle_StrikeThrough = 0x4,
-		TextStyle_Underlined    = 0x8,
-
-		TextStyle_Max = TextStyle_Underlined*2-1
+		TextStyle_Max = TextStyle_Underlined
 	};
+
+	template<>
+	struct EnumAsFlags<TextStyle>
+	{
+		static constexpr TextStyle max = TextStyle_Max;
+	};
+
+	using TextStyleFlags = Flags<TextStyle>;
+
+	constexpr TextStyleFlags TextStyle_Regular = 0;
 
 	enum VertexComponent
 	{

@@ -16,6 +16,8 @@ struct cpArbiter;
 
 namespace Nz
 {
+	class RigidBody2D;
+
 	class NAZARA_PHYSICS2D_API Arbiter2D
 	{
 		public:
@@ -27,22 +29,24 @@ namespace Nz
 			float ComputeTotalKinematicEnergy() const;
 			Nz::Vector2f ComputeTotalImpulse() const;
 
+			std::pair<RigidBody2D*, RigidBody2D*> GetBodies() const;
+
 			std::size_t GetContactCount() const;
 			float GetContactDepth(std::size_t i) const;
-			Nz::Vector2f GetContactPointA(std::size_t i) const;
-			Nz::Vector2f GetContactPointB(std::size_t i) const;
+			Vector2f GetContactPointA(std::size_t i) const;
+			Vector2f GetContactPointB(std::size_t i) const;
 
 			float GetElasticity() const;
 			float GetFriction() const;
-			Nz::Vector2f GetNormal() const;
-			Nz::Vector2f GetSurfaceVelocity() const;
+			Vector2f GetNormal() const;
+			Vector2f GetSurfaceVelocity() const;
 
 			bool IsFirstContact() const;
 			bool IsRemoval() const;
 
 			void SetElasticity(float elasticity);
 			void SetFriction(float friction);
-			void SetSurfaceVelocity(const Nz::Vector2f& surfaceVelocity);
+			void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 
 			Arbiter2D& operator=(const Arbiter2D&) = delete;
 			Arbiter2D& operator=(Arbiter2D&&) = default;

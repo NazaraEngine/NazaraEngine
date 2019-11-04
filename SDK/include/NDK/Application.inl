@@ -112,7 +112,6 @@ namespace Ndk
 				}
 
 				m_overlayFlags |= OverlayFlags_Console;
-
 			}
 			else
 			{

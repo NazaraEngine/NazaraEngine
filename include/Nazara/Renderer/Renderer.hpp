@@ -42,7 +42,6 @@ namespace Nz
 
 			static void BeginCondition(const GpuQuery& query, GpuQueryCondition condition);
 
-			static void BindUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer);
 
 			static void Clear(UInt32 flags = RendererBuffer_Color | RendererBuffer_Depth);
 
@@ -107,6 +106,7 @@ namespace Nz
 			static bool SetTarget(const RenderTarget* target);
 			static void SetTexture(unsigned int unit, const Texture* texture);
 			static void SetTextureSampler(unsigned int textureUnit, const TextureSampler& sampler);
+			static void SetUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer);
 			static void SetVertexBuffer(const VertexBuffer* vertexBuffer);
 			static void SetViewport(const Recti& viewport);
 

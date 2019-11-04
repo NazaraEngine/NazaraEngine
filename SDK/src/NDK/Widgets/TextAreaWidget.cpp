@@ -10,29 +10,38 @@
 
 namespace Ndk
 {
+	namespace
+	{
+		constexpr float paddingWidth = 5.f;
+		constexpr float paddingHeight = 3.f;
+	}
+
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
 	m_characterFilter(),
 	m_echoMode(EchoMode_Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
+	m_isLineWrapEnabled(false),
 	m_isMouseButtonDown(false),
 	m_multiLineEnabled(false),
 	m_readOnly(false),
 	m_tabEnabled(false)
 	{
-		m_cursorEntity = CreateEntity();
-		m_cursorEntity->AddComponent<GraphicsComponent>();
-		m_cursorEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_cursorEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
-		m_cursorEntity->Enable(false);
-
 		m_textSprite = Nz::TextSprite::New();
 
 		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
-		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(5.f, 3.f);
+
+		auto& textNode = m_textEntity->AddComponent<NodeComponent>();
+		textNode.SetParent(this);
+		textNode.SetPosition(paddingWidth, paddingHeight);
+
+		m_cursorEntity = CreateEntity();
+		m_cursorEntity->AddComponent<GraphicsComponent>();
+		m_cursorEntity->AddComponent<NodeComponent>().SetParent(m_textEntity);
+		m_cursorEntity->GetComponent<NodeComponent>();
+		m_cursorEntity->Enable(false);
 
 		SetCursor(Nz::SystemCursor_Text);
 		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
@@ -72,9 +81,24 @@ namespace Ndk
 			}
 		}
 
-		m_textSprite->Update(m_drawer);
+		UpdateTextSprite();
 
 		OnTextChanged(this, m_text);
+	}
+
+	void TextAreaWidget::EnableLineWrap(bool enable)
+	{
+		if (m_isLineWrapEnabled != enable)
+		{
+			m_isLineWrapEnabled = enable;
+
+			if (enable)
+				m_drawer.SetMaxLineWidth(GetWidth());
+			else
+				m_drawer.SetMaxLineWidth(std::numeric_limits<float>::infinity());
+
+			UpdateTextSprite();
+		}
 	}
 
 	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
@@ -116,6 +140,11 @@ namespace Ndk
 
 	Nz::Vector2ui TextAreaWidget::GetHoveredGlyph(float x, float y) const
 	{
+		auto& textNode = m_textEntity->GetComponent<Ndk::NodeComponent>();
+		Nz::Vector2f textPosition = Nz::Vector2f(textNode.GetPosition(Nz::CoordSys_Local));
+		x -= textPosition.x;
+		y -= textPosition.y;
+
 		std::size_t glyphCount = m_drawer.GetGlyphCount();
 		if (glyphCount > 0)
 		{
@@ -139,7 +168,7 @@ namespace Ndk
 					break;
 			}
 
-			return Nz::Vector2ui(i - firstLineGlyph, line);
+			return Nz::Vector2ui(Nz::Vector2<std::size_t>(i - firstLineGlyph, line));
 		}
 
 		return Nz::Vector2ui::Zero();
@@ -163,7 +192,6 @@ namespace Ndk
 
 		Nz::Vector2f size = { float(spaceAdvance), float(lineHeight) + 5.f };
 		SetMinimumSize(size);
-		SetPreferredSize({ size.x * 6.f, size.y });
 	}
 
 	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
@@ -185,6 +213,12 @@ namespace Ndk
 	void TextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
+
+		if (m_isLineWrapEnabled)
+		{
+			m_drawer.SetMaxLineWidth(GetWidth());
+			UpdateTextSprite();
+		}
 
 		RefreshCursor();
 	}
@@ -209,6 +243,39 @@ namespace Ndk
 	{
 		switch (key.code)
 		{
+			case Nz::Keyboard::Backspace:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
+
+				std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
+				std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+
+				if (ignoreDefaultAction || cursorGlyphEnd == 0)
+					return true;
+
+				// When a text is selected, delete key does the same as delete and leave the character behind it
+				if (HasSelection())
+					EraseSelection();
+				else
+				{
+					Nz::String newText;
+
+					if (cursorGlyphBegin > 1)
+						newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin - 1) - 1));
+
+					if (cursorGlyphEnd < m_text.GetLength())
+						newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd)));
+
+					// Move cursor before setting text (to prevent SetText to move our cursor)
+					MoveCursor(-1);
+
+					SetText(newText);
+				}
+
+				return true;
+			}
+
 			case Nz::Keyboard::Delete:
 			{
 				if (HasSelection())
@@ -301,6 +368,24 @@ namespace Ndk
 				return true;
 			}
 
+			case Nz::Keyboard::Return:
+			{
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					return true;
+
+				if (!m_multiLineEnabled)
+					break;
+
+				if (HasSelection())
+					EraseSelection();
+
+				Write(Nz::String('\n'));
+				return true;;
+			}
+
 			case Nz::Keyboard::Right:
 			{
 				bool ignoreDefaultAction = false;
@@ -378,14 +463,14 @@ namespace Ndk
 							{
 								Erase(firstGlyph);
 								SetSelection(cursorPositionBegin - (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
-											 cursorPositionEnd - (cursorPositionEnd.y == line && cursorPositionEnd.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
+								             cursorPositionEnd - (cursorPositionEnd.y == line && cursorPositionEnd.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
 							}
 						}
 						else
 						{
 							Write(Nz::String('\t'), { 0U, line });
 							SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}),
-										 cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
+							             cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui { 1U, 0U } : Nz::Vector2ui {}));
 						}
 					}
 				}
@@ -408,8 +493,10 @@ namespace Ndk
 			}
 
 			default:
-				return false;
+				break;
 		}
+
+		return false;
 	}
 
 	void TextAreaWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
@@ -422,7 +509,7 @@ namespace Ndk
 		{
 			SetFocus();
 
-			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x) - 5.f, float(y) - 5.f);
+			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
 
 			// Shift extends selection
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
@@ -452,7 +539,7 @@ namespace Ndk
 	void TextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
 	{
 		if (m_isMouseButtonDown)
-			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x) - 5.f, float(y) - 3.f));
+			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));
 	}
 
 	void TextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
@@ -460,68 +547,13 @@ namespace Ndk
 		if (m_readOnly)
 			return;
 
-		switch (character)
-		{
-			case '\b':
-			{
-				bool ignoreDefaultAction = false;
-				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
+		if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
+			return;
 
-				std::size_t cursorGlyphBegin = GetGlyphIndex(m_cursorPositionBegin);
-				std::size_t cursorGlyphEnd = GetGlyphIndex(m_cursorPositionEnd);
+		if (HasSelection())
+			EraseSelection();
 
-				if (ignoreDefaultAction || cursorGlyphEnd == 0)
-					break;
-
-				// When a text is selected, delete key does the same as delete and leave the character behind it
-				if (HasSelection())
-					EraseSelection();
-				else
-				{
-					Nz::String newText;
-
-					if (cursorGlyphBegin > 1)
-						newText.Append(m_text.SubString(0, m_text.GetCharacterPosition(cursorGlyphBegin - 1) - 1));
-
-					if (cursorGlyphEnd < m_text.GetLength())
-						newText.Append(m_text.SubString(m_text.GetCharacterPosition(cursorGlyphEnd)));
-
-					// Move cursor before setting text (to prevent SetText to move our cursor)
-					MoveCursor(-1);
-
-					SetText(newText);
-				}
-				break;
-			}
-
-			case '\r':
-			case '\n':
-			{
-				bool ignoreDefaultAction = false;
-				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
-
-				if (ignoreDefaultAction || !m_multiLineEnabled)
-					break;
-
-				if (HasSelection())
-					EraseSelection();
-
-				Write(Nz::String('\n'));
-				break;
-			}
-
-			default:
-			{
-				if (Nz::Unicode::GetCategory(character) == Nz::Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
-					break;
-
-				if (HasSelection())
-					EraseSelection();
-
-				Write(Nz::String::Unicode(character));
-				break;
-			}
-		}
+		Write(Nz::String::Unicode(character));
 	}
 
 	void TextAreaWidget::RefreshCursor()
@@ -529,6 +561,45 @@ namespace Ndk
 		if (m_readOnly)
 			return;
 
+		auto GetGlyph = [&](const Nz::Vector2ui& glyphPosition, std::size_t* glyphIndex) -> const Nz::AbstractTextDrawer::Glyph*
+		{
+			const auto& lineInfo = m_drawer.GetLine(glyphPosition.y);
+
+			std::size_t cursorGlyph = GetGlyphIndex({ glyphPosition.x, glyphPosition.y });
+			if (glyphIndex)
+				*glyphIndex = cursorGlyph;
+
+			std::size_t glyphCount = m_drawer.GetGlyphCount();
+			if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
+			{
+				const auto& glyph = m_drawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
+				return &glyph;
+			}
+			else
+				return nullptr;
+		};
+
+		// Move text so that cursor is always visible
+		const auto* lastGlyph = GetGlyph(m_cursorPositionEnd, nullptr);
+		float glyphPos = (lastGlyph) ? lastGlyph->bounds.x : 0.f;
+		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
+
+		auto& node = m_textEntity->GetComponent<Ndk::NodeComponent>();
+		float textPosition = node.GetPosition(Nz::CoordSys_Local).x - paddingWidth;
+		float cursorPosition = glyphPos + textPosition;
+		float width = GetWidth();
+
+		if (width <= m_drawer.GetBounds().width)
+		{
+			if (cursorPosition + glyphWidth > width)
+				node.Move(width - cursorPosition - glyphWidth, 0.f);
+			else if (cursorPosition - glyphWidth < 0.f)
+				node.Move(-cursorPosition + glyphWidth, 0.f);
+		}
+		else
+			node.Move(-textPosition, 0.f); // Reset text position if we have enough room to show everything
+
+		// Show cursor/selection
 		std::size_t selectionLineCount = m_cursorPositionEnd.y - m_cursorPositionBegin.y + 1;
 		std::size_t oldSpriteCount = m_cursorSprites.size();
 		if (m_cursorSprites.size() != selectionLineCount)
@@ -553,27 +624,24 @@ namespace Ndk
 			Nz::SpriteRef& cursorSprite = m_cursorSprites[i - m_cursorPositionBegin.y];
 			if (i == m_cursorPositionBegin.y || i == m_cursorPositionEnd.y)
 			{
-				auto GetGlyphPos = [&](unsigned int localGlyphPos)
+				auto GetGlyphPos = [&](const Nz::Vector2ui& glyphPosition)
 				{
-					std::size_t cursorGlyph = GetGlyphIndex({ localGlyphPos, i });
-
-					std::size_t glyphCount = m_drawer.GetGlyphCount();
-					float position;
-					if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
+					std::size_t glyphIndex;
+					const auto* glyph = GetGlyph(glyphPosition, &glyphIndex);
+					if (glyph)
 					{
-						const auto& glyph = m_drawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
-						position = glyph.bounds.x;
-						if (cursorGlyph >= glyphCount)
-							position += glyph.bounds.width;
+						float position = glyph->bounds.x;
+						if (glyphIndex >= m_drawer.GetGlyphCount())
+							position += glyph->bounds.width;
+
+						return position;
 					}
 					else
-						position = 0.f;
-
-					return position;
+						return 0.f;
 				};
 
-				float beginX = (i == m_cursorPositionBegin.y) ? GetGlyphPos(m_cursorPositionBegin.x) : 0.f;
-				float endX = (i == m_cursorPositionEnd.y) ? GetGlyphPos(m_cursorPositionEnd.x) : lineInfo.bounds.width;
+				float beginX = (i == m_cursorPositionBegin.y) ? GetGlyphPos({ m_cursorPositionBegin.x, i }) : 0.f;
+				float endX = (i == m_cursorPositionEnd.y) ? GetGlyphPos({ m_cursorPositionEnd.x, i }) : lineInfo.bounds.width;
 				float spriteSize = std::max(endX - beginX, 1.f);
 
 				cursorSprite->SetColor((m_cursorPositionBegin == m_cursorPositionEnd) ? Nz::Color::Black : Nz::Color(0, 0, 0, 50));
@@ -605,8 +673,14 @@ namespace Ndk
 				break;
 		}
 
-		m_textSprite->Update(m_drawer);
+		UpdateTextSprite();
 
 		SetCursorPosition(m_cursorPositionBegin); //< Refresh cursor position (prevent it from being outside of the text)
+	}
+
+	void TextAreaWidget::UpdateTextSprite()
+	{
+		m_textSprite->Update(m_drawer);
+		SetPreferredSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 }

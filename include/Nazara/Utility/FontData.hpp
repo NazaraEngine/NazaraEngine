@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
@@ -21,7 +22,7 @@ namespace Nz
 			FontData() = default;
 			virtual ~FontData();
 
-			virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* dst) = 0;
+			virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* dst) = 0;
 
 			virtual String GetFamilyName() const = 0;
 			virtual String GetStyleName() const = 0;
@@ -35,7 +36,8 @@ namespace Nz
 			virtual float QueryUnderlinePosition(unsigned int characterSize) const = 0;
 			virtual float QueryUnderlineThickness(unsigned int characterSize) const = 0;
 
-			virtual bool SupportsStyle(UInt32 style) const = 0;
+			virtual bool SupportsOutline(float outlineThickness) const = 0;
+			virtual bool SupportsStyle(TextStyleFlags style) const = 0;
 	};
 }
 

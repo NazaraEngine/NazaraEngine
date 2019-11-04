@@ -18,10 +18,20 @@ namespace Nz
 	/*!
 	* \brief Constructs a Signal object by default
 	*/
-
 	template<typename... Args>
 	Signal<Args...>::Signal() :
 	m_slotIterator(0)
+	{
+	}
+
+	/*!
+	* \brief Constructs a Signal object by default
+	*
+	* \remark It doesn't make sense to copy a signal, this is only available for convenience to allow compiler-generated copy constructors
+	*/
+	template<typename ...Args>
+	Signal<Args...>::Signal(const Signal&) :
+	Signal()
 	{
 	}
 
@@ -175,12 +185,23 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Doesn't do anything
+	* \return A reference to this
+	*
+	* \remark This is only for convenience to allow compiled-generated assignation operator
+	*/
+	template<typename... Args>
+	Signal<Args...>& Signal<Args...>::operator=(const Signal&)
+	{
+		return *this;
+	}
+
+	/*!
 	* \brief Moves the signal into this
 	* \return A reference to this
 	*
 	* \param signal Signal to move in this
 	*/
-
 	template<typename... Args>
 	Signal<Args...>& Signal<Args...>::operator=(Signal&& signal) noexcept
 	{

@@ -101,6 +101,7 @@ namespace Nz
 		Context_Map s_vaos;
 		std::vector<unsigned int> s_dirtyTextureUnits;
 		std::vector<TextureUnit> s_textureUnits;
+		std::vector<const UniformBuffer*> s_uniformBuffers;
 		GLuint s_currentVAO = 0;
 		VertexBuffer s_instanceBuffer;
 		VertexBuffer s_fullscreenQuadBuffer;
@@ -135,7 +136,7 @@ namespace Nz
 		glBeginConditionalRender(query.GetOpenGLID(), OpenGL::QueryCondition[condition]);
 	}
 
-	void Renderer::BindUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer)
+	void Renderer::SetUniformBuffer(unsigned int bindingPoint, const UniformBuffer* uniformBuffer)
 	{
 		NazaraAssert(uniformBuffer && uniformBuffer->IsValid(), "Buffer must be valid");
 
@@ -146,9 +147,10 @@ namespace Nz
 			return;
 		}
 
-		HardwareBuffer* hwBuffer = static_cast<HardwareBuffer*>(buffer->GetImpl());
+		if (s_uniformBuffers.size() <= bindingPoint)
+			s_uniformBuffers.resize(bindingPoint + 1);
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, hwBuffer->GetOpenGLID(), uniformBuffer->GetStartOffset(), uniformBuffer->GetEndOffset() - uniformBuffer->GetStartOffset());
+		s_uniformBuffers[bindingPoint] = uniformBuffer;
 	}
 
 	void Renderer::Clear(UInt32 flags)
@@ -1759,6 +1761,18 @@ namespace Nz
 			}
 		}
 
+		// Bind uniform buffers
+		for (std::size_t i = 0; i < s_uniformBuffers.size(); ++i)
+		{
+			const UniformBuffer* ubo = s_uniformBuffers[i];
+			if (ubo)
+			{
+				HardwareBuffer* hwBuffer = static_cast<HardwareBuffer*>(ubo->GetBuffer()->GetImpl());
+
+				OpenGL::BindIndexedBuffer(BufferType_Uniform, i, hwBuffer->GetOpenGLID(), ubo->GetStartOffset(), ubo->GetEndOffset() - ubo->GetStartOffset());
+			}
+		}
+
 		// Et on termine par envoyer nos états au driver
 		OpenGL::ApplyStates(s_states);
 
@@ -1772,7 +1786,7 @@ namespace Nz
 			StringStream dump;
 
 			GLint count;
-			glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+			/*glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
 			dump << "Active uniforms: " << count << '\n';
 
 			GLint maxLength;
@@ -1846,6 +1860,34 @@ namespace Nz
 				}
 
 				dump << ")\n";
+			}*/
+
+			glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+			dump << "Active uniforms blocks: " << count << '\n';
+
+			std::string name;
+			for (GLint i = 0; i < count; i++)
+			{
+				GLint size;
+				GLenum type;
+
+				GLint nameLength;
+				glGetActiveUniformBlockiv(program, i, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLength);
+
+				assert(nameLength > 0);
+
+				name.resize(nameLength - 1);
+
+				GLsizei realLength;
+				glGetActiveUniformBlockName(program, i, nameLength, &realLength, &name[0]);
+
+				assert(realLength > 0);
+				name.resize(realLength);
+
+				GLint uboSize;
+				glGetActiveUniformBlockiv(program, i, GL_UNIFORM_BLOCK_DATA_SIZE, &uboSize);
+
+				dump << "Uniform block #" << i << ": " << name << " (size: " << uboSize << ")\n";
 			}
 
 			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString());

@@ -19,6 +19,19 @@ namespace Nz
 		return Nz::Vector2f(Nz::Vector2<cpFloat>(impulse.x, impulse.y));
 	}
 
+	std::pair<RigidBody2D*, RigidBody2D*> Arbiter2D::GetBodies() const
+	{
+		std::pair<RigidBody2D*, RigidBody2D*> bodies;
+		cpBody* firstBody;
+		cpBody* secondBody;
+		cpArbiterGetBodies(m_arbiter, &firstBody, &secondBody);
+
+		bodies.first = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
+		bodies.second = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
+
+		return bodies;
+	}
+
 	std::size_t Arbiter2D::GetContactCount() const
 	{
 		return cpArbiterGetCount(m_arbiter);

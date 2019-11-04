@@ -94,6 +94,7 @@ int main()
 
 	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
 	// Nous devons donc indiquer au moteur de les retourner lors du chargement
+	params.mesh.texCoordOffset.Set(0.f, 1.f);
 	params.mesh.texCoordScale.Set(1.f, -1.f);
 
 	// Nazara va par défaut optimiser les modèles pour un rendu plus rapide, cela peut prendre du temps et n'est pas nécessaire ici
@@ -134,16 +135,16 @@ int main()
 		std::cout << "Failed to load normal map" << std::endl;
 	}*/
 
-	Nz::MaterialRef mat = Nz::Material::New(Nz::BasicMaterial::GetSettings());
-	mat->SetShader("Basic");
+	Nz::MaterialRef mat = Nz::Material::New(Nz::PhongLightingMaterial::GetSettings());
+	mat->SetShader("PhongLighting");
 	mat->EnableDepthBuffer(true);
 	mat->EnableDepthWrite(true);
 	mat->EnableFaceCulling(true);
 
-	Nz::BasicMaterial phongMat(mat);
+	Nz::PhongLightingMaterial phongMat(mat);
 	phongMat.SetDiffuseMap("resources/Spaceship/Texture/diffuse.png");
-	//phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
-	phongMat.SetDiffuseColor(Nz::Color::Green);
+	phongMat.SetNormalMap("resources/Spaceship/Texture/normal.png");
+	//phongMat.SetDiffuseColor(Nz::Color::Green);
 	
 	spaceshipModel->SetMaterial(0, mat);
 
@@ -280,7 +281,7 @@ int main()
 	window.EnableEventPolling(true); // Déprécié
 
 	application.EnableConsole(true);
-	application.EnableFPSCounter(false);
+	application.EnableFPSCounter(true);
 
 	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
 	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());

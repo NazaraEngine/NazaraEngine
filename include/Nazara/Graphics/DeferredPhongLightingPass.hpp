@@ -41,11 +41,7 @@ namespace Nz
 			StaticMesh* m_coneMesh;
 			StaticMesh* m_sphereMesh;
 			bool m_lightMeshesDrawing;
-			int m_directionalLightShaderEyePositionLocation;
-			int m_directionalLightShaderSceneAmbientLocation;
 			int m_pointSpotLightShaderDiscardLocation;
-			int m_pointSpotLightShaderEyePositionLocation;
-			int m_pointSpotLightShaderSceneAmbientLocation;
 	};
 }
 

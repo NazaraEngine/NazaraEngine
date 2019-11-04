@@ -139,6 +139,15 @@ namespace Ndk
 	}
 
 	/*!
+	TODO
+	*/
+	inline void PhysicsComponent2D::ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ForEachArbiter(callback);
+	}
+	/*!
 	* \brief Gets the AABB of the physics object
 	* \return AABB of the object
 	*
@@ -329,12 +338,24 @@ namespace Ndk
 	*
 	* \remark Produces a NazaraAssert if the physics object is invalid
 	*/
-
 	inline Nz::Vector2f PhysicsComponent2D::GetVelocity() const
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->GetVelocity();
+	}
+
+	/*!
+	* \brief Gets the custom velocity function of the physics object
+	* \return Velocity function of the object (may be empty if default function is used)
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline auto PhysicsComponent2D::GetVelocityFunction() const -> const VelocityFunc&
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->GetVelocityFunction();
 	}
 
 	/*!
@@ -359,6 +380,30 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		return m_object->IsSleeping();
+	}
+
+	/*!
+	* \brief Checks if this component is bound to a valid rigid body
+	*
+	* A component may not be bound to a rigid body if the component is not bound to an entity or if this entity is being destroyed
+	* 
+	* \return true If bound, false otherwise
+	*/
+	inline bool PhysicsComponent2D::IsValid() const
+	{
+		return bool(m_object);
+	}
+
+	/*!
+	* \brief Reset velocity function to default one
+	*
+	* \remark Produces a NazaraAssert if the physics object is invalid
+	*/
+	inline void PhysicsComponent2D::ResetVelocityFunction()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ResetVelocityFunction();
 	}
 
 	/*!
@@ -569,6 +614,39 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->SetVelocity(velocity);
+	}
+
+	/*!
+	* \brief Sets a custom velocity function for the physics object
+	*
+	* A velocity function is called (for non-kinematic and non-static objects) at every physics update to compute the new velocity of the object.
+	* You may call UpdateVelocity (the default velocity function) to let the physics engine compute that itself and then adjust it using GetVelocity/SetVelocity as you need.
+	*
+	* \param velocityFunc New custom velocity function
+	*
+	* \remark Passing an empty VelocityFunc has the same effect as calling ResetVelocityFunction
+	* \see ResetVelocityFunction
+	* \see UpdateVelocity
+	*/
+	inline void PhysicsComponent2D::SetVelocityFunction(VelocityFunc velocityFunc)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->SetVelocityFunction(std::move(velocityFunc));
+	}
+
+	/*!
+	* \brief Calls the physics engine default velocity function
+	*
+	* \param gravity Physics system gravity
+	* \param damping Physics system damping (adjusted to deltaTime)
+	* \param deltaTime Elapsed time since last physics update
+	*/
+	inline void PhysicsComponent2D::UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime)
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->UpdateVelocity(gravity, damping, deltaTime);
 	}
 
 	/*!

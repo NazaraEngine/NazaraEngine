@@ -58,7 +58,7 @@ namespace Nz
 		friend class Graphics;
 
 		public:
-			inline Material(std::shared_ptr<const MaterialSettings> settings);
+			Material(std::shared_ptr<const MaterialSettings> settings);
 			inline Material(const Material& material);
 			inline ~Material();
 

@@ -712,6 +712,11 @@ namespace Nz
 		lua_pushvalue(m_state, index);
 	}
 
+	bool LuaState::RawEqual(int index1, int index2) const
+	{
+		return lua_rawequal(m_state, index1, index2);
+	}
+
 	void LuaState::Remove(int index) const
 	{
 		lua_remove(m_state, index);

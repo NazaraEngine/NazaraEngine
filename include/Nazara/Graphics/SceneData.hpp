@@ -17,7 +17,6 @@ namespace Nz
 
 	struct SceneData
 	{
-		Color ambientColor;
 		const AbstractBackground* background;
 		const AbstractViewer* viewer;
 		Texture* globalReflectionTexture;

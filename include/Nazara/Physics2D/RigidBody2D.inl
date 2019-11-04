@@ -17,6 +17,11 @@ namespace Nz
 		return GetMassCenter(coordSys);
 	}
 
+	inline const Vector2f& RigidBody2D::GetPositionOffset() const
+	{
+		return m_positionOffset;
+	}
+
 	inline std::size_t RigidBody2D::GetShapeCount() const
 	{
 		return m_shapes.size();

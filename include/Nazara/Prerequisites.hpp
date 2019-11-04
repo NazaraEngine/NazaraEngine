@@ -77,7 +77,7 @@
 
 // Nazara version macro
 #define NAZARA_VERSION_MAJOR 0
-#define NAZARA_VERSION_MINOR 3
+#define NAZARA_VERSION_MINOR 4
 #define NAZARA_VERSION_PATCH 0
 
 #include <Nazara/Core/Config.hpp>
@@ -134,9 +134,9 @@
 	#define NAZARA_CORE_API
 #endif
 
-// Détection 64 bits
+// Detect 64 bits
 #if !defined(NAZARA_PLATFORM_x64) && (defined(_WIN64) ||  defined(__amd64__) || defined(__x86_64__) || defined(__ia64__) || defined(__ia64) || \
-    defined(_M_IA64) || defined(__itanium__) || defined(__MINGW64__) || defined(_M_AMD64) || defined (_M_X64))
+	defined(_M_IA64) || defined(__itanium__) || defined(__MINGW64__) || defined(_M_AMD64) || defined (_M_X64))
 	#define NAZARA_PLATFORM_x64
 #endif
 

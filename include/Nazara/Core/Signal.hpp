@@ -32,7 +32,7 @@ namespace Nz
 			class ConnectionGuard;
 
 			Signal();
-			Signal(const Signal&) = delete;
+			Signal(const Signal&);
 			Signal(Signal&& signal) noexcept;
 			~Signal() = default;
 
@@ -47,7 +47,7 @@ namespace Nz
 
 			void operator()(Args... args) const;
 
-			Signal& operator=(const Signal&) = delete;
+			Signal& operator=(const Signal&);
 			Signal& operator=(Signal&& signal) noexcept;
 
 		private:

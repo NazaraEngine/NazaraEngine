@@ -26,8 +26,6 @@ namespace Ndk
 		friend Canvas;
 
 		public:
-			struct Padding;
-
 			BaseWidget(BaseWidget* parent);
 			BaseWidget(const BaseWidget&) = delete;
 			BaseWidget(BaseWidget&&) = delete;
@@ -41,6 +39,7 @@ namespace Ndk
 			inline void CenterVertical();
 
 			void ClearFocus();
+			inline void ClearRenderingRect();
 
 			void Destroy();
 
@@ -68,6 +67,8 @@ namespace Ndk
 			inline Nz::Vector2f GetPreferredSize() const;
 			inline float GetPreferredWidth() const;
 
+			inline const Nz::Rectf& GetRenderingRect() const;
+
 			inline Nz::Vector2f GetSize() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
@@ -81,6 +82,7 @@ namespace Ndk
 			void SetBackgroundColor(const Nz::Color& color);
 			void SetCursor(Nz::SystemCursor systemCursor);
 			void SetFocus();
+			void SetParent(BaseWidget* widget);
 
 			inline void SetFixedHeight(float fixedHeight);
 			inline void SetFixedSize(const Nz::Vector2f& fixedSize);
@@ -93,6 +95,8 @@ namespace Ndk
 			inline void SetMinimumHeight(float minimumHeight);
 			inline void SetMinimumSize(const Nz::Vector2f& minimumSize);
 			inline void SetMinimumWidth(float minimumWidth);
+
+			virtual void SetRenderingRect(const Nz::Rectf& renderingRect);
 
 			void Show(bool show = true);
 
@@ -115,6 +119,7 @@ namespace Ndk
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
 			virtual void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
+			virtual void OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
@@ -136,6 +141,10 @@ namespace Ndk
 			struct WidgetEntity
 			{
 				EntityOwner handle;
+				bool isEnabled = true;
+
+				NazaraSlot(Ndk::Entity, OnEntityDisabled, onDisabledSlot);
+				NazaraSlot(Ndk::Entity, OnEntityEnabled, onEnabledSlot);
 			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
@@ -147,6 +156,7 @@ namespace Ndk
 			EntityOwner m_backgroundEntity;
 			WorldHandle m_world;
 			Nz::Color m_backgroundColor;
+			Nz::Rectf m_renderingRect;
 			Nz::SpriteRef m_backgroundSprite;
 			Nz::SystemCursor m_cursor;
 			Nz::Vector2f m_maximumSize;

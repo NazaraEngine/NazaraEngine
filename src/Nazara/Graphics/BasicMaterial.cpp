@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
@@ -18,6 +19,7 @@ namespace Nz
 	{
 		constexpr std::size_t AlphaMapBinding = 0;
 		constexpr std::size_t DiffuseMapBinding = 1;
+		constexpr std::size_t TextureOverlayBinding = 2;
 	}
 
 	BasicMaterial::BasicMaterial(Material* material) :
@@ -103,6 +105,12 @@ namespace Nz
 				ShaderBindingType_Texture,
 				ShaderStageType_Fragment,
 				DiffuseMapBinding
+			},
+			{
+				"TextureOverlay",
+				ShaderBindingType_Texture,
+				ShaderStageType_Fragment,
+				TextureOverlayBinding
 			}
 		});
 
@@ -113,6 +121,9 @@ namespace Nz
 
 		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
 		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
+
+		MaterialSettings::PredefinedBinding predefinedBinding;
+		predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> variables;
 		variables.assign({
@@ -126,16 +137,28 @@ namespace Nz
 			}
 		});
 
-		std::vector<MaterialSettings::UniformBlocks> uniformBlocks;
+		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
+
+		std::vector<UInt8> defaultValues(fieldOffsets.GetSize());
+		*AccessByOffset<Vector4f>(defaultValues.data(), s_uniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		*AccessByOffset<float>(defaultValues.data(), s_uniformOffsets.alphaThreshold) = 0.2f;
+
+		std::vector<MaterialSettings::UniformBlock> uniformBlocks;
 		s_uniformBlockIndex = uniformBlocks.size();
 		uniformBlocks.assign({
 			{
 				"BasicSettings",
 				fieldOffsets.GetSize(),
 				"MaterialBasicSettings",
-				std::move(variables)
+				std::move(variables),
+				std::move(defaultValues)
 			}
 		});
+
+		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
+
+		predefinedBinding[PredefinedShaderBinding_UboViewerData] = sharedUniformBlock.size();
+		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
 
 		std::vector<MaterialSettings::Texture> textures;
 		s_textureIndexes.alpha = textures.size();
@@ -152,7 +175,14 @@ namespace Nz
 			"MaterialDiffuseMap"
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::vector<MaterialSettings::SharedUniformBlocks>());
+		predefinedBinding[PredefinedShaderBinding_TexOverlay] = textures.size();
+		textures.push_back({
+			"Overlay",
+			ImageType_2D,
+			"TextureOverlay"
+		});
+
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::move(sharedUniformBlock), predefinedBinding);
 
 		return true;
 	}

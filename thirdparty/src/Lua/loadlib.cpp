@@ -176,6 +176,8 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
 ** =======================================================================
 */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 
 #undef setprogdir
