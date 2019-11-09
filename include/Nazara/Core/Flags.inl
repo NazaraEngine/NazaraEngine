@@ -40,8 +40,34 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Clear all flags
+	*
+	* \see Test
+	*/
+	template<typename E>
+	void Flags<E>::Clear()
+	{
+		m_value = 0;
+	}
+
+	/*!
+	* \brief Clear some flags
+	*
+	* \param flags Flags to be cleared
+	*
+	* \see Test
+	*/
+	template<typename E>
+	void Flags<E>::Clear(const Flags& flags)
+	{
+		m_value &= ~flags;
+	}
+
+	/*!
 	* \brief Tests if all flags from a Flags object are enabled
 	* \return True if all tested flags are enabled.
+	*
+	* \see Clear
 	*/
 	template<typename E>
 	constexpr bool Flags<E>::Test(const Flags& flags) const
