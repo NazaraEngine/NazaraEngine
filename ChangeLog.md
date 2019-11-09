@@ -199,6 +199,7 @@ Nazara Engine:
 - Fixed out-of-bounds access in LuaInstance::LoadLibraries
 - Add Flags<E>::Clear(Flags) helper method, to clear one or more flags.
 - Add Flags<E>::Clear() helper method, to reset flags
+- Add Flags<E>::Set(Flags) helper method, to enable flags
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

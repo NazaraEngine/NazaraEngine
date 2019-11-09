@@ -64,6 +64,20 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Enable some flags
+	*
+	* \param flags Flags to be enabled
+	*
+	* \see Clear
+	* \see Test
+	*/
+	template<typename E>
+	void Flags<E>::Set(const Flags& flags)
+	{
+		m_value |= flags;
+	}
+
+	/*!
 	* \brief Tests if all flags from a Flags object are enabled
 	* \return True if all tested flags are enabled.
 	*
