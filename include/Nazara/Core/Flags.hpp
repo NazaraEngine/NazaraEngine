@@ -48,6 +48,9 @@ namespace Nz
 			constexpr Flags(BitField value = 0);
 			constexpr Flags(E enumVal);
 
+			void Clear();
+			void Clear(const Flags& flags);
+
 			constexpr bool Test(const Flags& flags) const;
 
 			explicit constexpr operator bool() const;
