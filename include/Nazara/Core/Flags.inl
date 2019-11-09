@@ -60,7 +60,7 @@ namespace Nz
 	template<typename E>
 	void Flags<E>::Clear(const Flags& flags)
 	{
-		m_value &= ~flags;
+		m_value &= ~flags.m_value;
 	}
 
 	/*!
@@ -74,7 +74,7 @@ namespace Nz
 	template<typename E>
 	void Flags<E>::Set(const Flags& flags)
 	{
-		m_value |= flags;
+		m_value |= flags.m_value;
 	}
 
 	/*!
