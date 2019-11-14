@@ -25,6 +25,12 @@ out vec3 vWorldPos;
 
 /********************Uniformes********************/
 
+layout (std140) uniform InstanceData
+{
+	mat4 WorldMatrix;
+	mat4 InvWorldMatrix;
+};
+
 layout (std140) uniform ViewerData
 {
 	mat4 ProjMatrix;
@@ -40,8 +46,6 @@ layout (std140) uniform ViewerData
 
 uniform mat4 LightViewProjMatrix[3];
 uniform float VertexDepth;
-uniform mat4 WorldMatrix;
-uniform mat4 WorldViewProjMatrix;
 
 /********************Fonctions********************/
 void main()
@@ -104,7 +108,7 @@ void main()
 		#endif
 	#else
 		#if TRANSFORM
-	gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);
+	gl_Position = ViewProjMatrix * WorldMatrix * vec4(VertexPosition, 1.0);
 		#else
 			#if UNIFORM_VERTEX_DEPTH
 	gl_Position = vec4(VertexPosition.xy, VertexDepth, 1.0);

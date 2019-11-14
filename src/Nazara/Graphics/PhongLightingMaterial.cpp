@@ -255,7 +255,8 @@ namespace Nz
 		});
 
 		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
-
+		predefinedBinding[PredefinedShaderBinding_UboInstanceData] = sharedUniformBlock.size();
+		sharedUniformBlock.push_back(PredefinedInstanceData::GetUniformBlock());
 		predefinedBinding[PredefinedShaderBinding_UboLighData] = sharedUniformBlock.size();
 		sharedUniformBlock.push_back(PredefinedLightData::GetUniformBlock());
 		predefinedBinding[PredefinedShaderBinding_UboViewerData] = sharedUniformBlock.size();

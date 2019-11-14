@@ -62,6 +62,9 @@ namespace Nz
 		m_billboardPointBuffer.Reset(&s_billboardVertexDeclaration, &m_vertexBuffer);
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 
+		PredefinedInstanceData instanceDataStruct = PredefinedInstanceData::GetOffset();
+		m_instanceData = UniformBuffer::New(instanceDataStruct.totalSize, DataStorage_Hardware, BufferUsage_Dynamic);
+
 		PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
 		m_lightData = UniformBuffer::New(lightDataStruct.lightArraySize, DataStorage_Hardware, BufferUsage_Dynamic);
 	}
@@ -551,6 +554,16 @@ namespace Nz
 			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
 			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
+			std::size_t instanceDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboInstanceData);
+			if (instanceDataBinding != MaterialSettings::InvalidIndex)
+			{
+				auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + instanceDataBinding);
+				assert(it != pipelineInstance->bindings.end());
+
+				UpdateInstance(model.matrix);
+				Renderer::SetUniformBuffer(it->second, m_instanceData);
+			}
+
 			std::size_t lightDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboLighData);
 			if (lightDataBinding != MaterialSettings::InvalidIndex)
 			{
@@ -561,7 +574,6 @@ namespace Nz
 
 				Renderer::SetUniformBuffer(it->second, m_lightData);
 
-				Nz::Renderer::SetMatrix(Nz::MatrixType_World, model.matrix);
 				std::size_t lightIndex = 0;
 				RendererComparison oldDepthFunc = Renderer::GetDepthFunc(); // In the case where we have to change it
 
@@ -591,10 +603,7 @@ namespace Nz
 				Renderer::SetDepthFunc(oldDepthFunc);
 			}
 			else
-			{
-				Renderer::SetMatrix(MatrixType_World, model.matrix);
 				drawFunc(model.meshData.primitiveMode, 0, indexCount);
-			}
 		}
 	}
 
@@ -615,7 +624,6 @@ namespace Nz
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
 		auto Draw = [&]()
@@ -629,6 +637,16 @@ namespace Nz
 				if (pipeline != lastPipeline)
 				{
 					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
+
+					std::size_t instanceDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboInstanceData);
+					if (instanceDataBinding != MaterialSettings::InvalidIndex)
+					{
+						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + instanceDataBinding);
+						assert(it != pipelineInstance->bindings.end());
+
+						UpdateInstance(Nz::Matrix4f::Identity()); //< TODO: Use an identity ubo
+						Renderer::SetUniformBuffer(it->second, m_instanceData);
+					}
 
 					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
 					if (viewerDataBinding != MaterialSettings::InvalidIndex)
@@ -761,15 +779,19 @@ namespace Nz
 		Draw();
 	}
 
-	/*!
-	* \brief Sends the uniforms for light
-	*
-	* \param shader Shader to send uniforms to
-	* \param uniforms Uniforms to send
-	* \param index Index of the light
-	* \param uniformOffset Offset for the uniform
-	* \param availableTextureUnit Unit texture available
-	*/
+	void ForwardRenderTechnique::UpdateInstance(const Nz::Matrix4f& modelMatrix) const
+	{
+		static PredefinedInstanceData instanceDataStruct = PredefinedInstanceData::GetOffset();
+
+		BufferMapper<UniformBuffer> mapper(m_instanceData, BufferAccess_DiscardAndWrite);
+
+		Nz::Matrix4f* worldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.worldMatrixOffset);
+		Nz::Matrix4f* invWorldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.invWorldMatrixOffset);
+
+		*worldMatrix = modelMatrix;
+		worldMatrix->GetInverse(invWorldMatrix);
+	}
+
 	void ForwardRenderTechnique::UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const
 	{
 		static PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();

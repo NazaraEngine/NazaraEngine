@@ -17,10 +17,26 @@ out vec4 vColor;
 out vec2 vTexCoord;
 
 /********************Uniformes********************/
+layout (std140) uniform InstanceData
+{
+	mat4 WorldMatrix;
+	mat4 InvWorldMatrix;
+};
+
+layout (std140) uniform ViewerData
+{
+	mat4 ProjMatrix;
+	mat4 InvProjMatrix;
+	mat4 ViewMatrix;
+	mat4 InvViewMatrix;
+	mat4 ViewProjMatrix;
+	mat4 InvViewProjMatrix;
+	vec2 TargetSize;
+	vec2 InvTargetSize;
+	vec3 EyePosition;
+};
+
 uniform float VertexDepth;
-uniform mat4 ViewMatrix;
-uniform mat4 ViewProjMatrix;
-uniform mat4 WorldViewProjMatrix;
 
 /********************Fonctions********************/
 void main()
@@ -56,7 +72,7 @@ void main()
 	vec2 billboardCorner = VertexTexCoord - 0.5;
 	vec2 billboardSize = VertexUserdata0.xy;
 	vec2 billboardSinCos = VertexUserdata0.zw;
-	
+
 	vec2 rotatedPosition;
 	rotatedPosition.x = billboardCorner.x*billboardSinCos.y - billboardCorner.y*billboardSinCos.x;
 	rotatedPosition.y = billboardCorner.y*billboardSinCos.y + billboardCorner.x*billboardSinCos.x;
@@ -83,7 +99,7 @@ void main()
 		#endif
 	#else
 		#if TRANSFORM
-	gl_Position = WorldViewProjMatrix * vec4(VertexPosition, 1.0);
+	gl_Position = ViewProjMatrix * WorldMatrix * vec4(VertexPosition, 1.0);
 		#else
 			#if UNIFORM_VERTEX_DEPTH
 	gl_Position = vec4(VertexPosition.xy, VertexDepth, 1.0);

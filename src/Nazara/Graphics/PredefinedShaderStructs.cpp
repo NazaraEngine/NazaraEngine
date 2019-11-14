@@ -54,6 +54,44 @@ namespace Nz
 		return uniformBlock;
 	}
 
+	PredefinedInstanceData PredefinedInstanceData::GetOffset()
+	{
+		FieldOffsets viewerStruct(StructLayout_Std140);
+
+		PredefinedInstanceData instanceData;
+		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
+		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
+
+		instanceData.totalSize = viewerStruct.GetSize();
+
+		return instanceData;
+	}
+
+	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock()
+	{
+		PredefinedInstanceData instanceData = GetOffset();
+
+		std::vector<MaterialSettings::UniformVariable> instanceDataVariables;
+		instanceDataVariables.assign({
+			{
+				"WorldMatrix",
+				instanceData.worldMatrixOffset
+			},
+			{
+				"InvWorldMatrix",
+				instanceData.invWorldMatrixOffset
+			},
+		});
+
+		MaterialSettings::SharedUniformBlock uniformBlock = {
+			"Instance",
+			"InstanceData",
+			std::move(instanceDataVariables)
+		};
+
+		return uniformBlock;
+	}
+
 	PredefinedViewerData PredefinedViewerData::GetOffset()
 	{
 		FieldOffsets viewerStruct(StructLayout_Std140);

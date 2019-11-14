@@ -10,10 +10,22 @@ in vec2 vTexCoord;
 out vec4 RenderTarget0;
 
 /********************Uniformes********************/
-uniform vec2 InvTargetSize;
 uniform sampler2D MaterialAlphaMap;
 uniform sampler2D MaterialDiffuseMap;
 uniform sampler2D TextureOverlay;
+
+layout (std140) uniform ViewerData
+{
+	mat4 ProjMatrix;
+	mat4 InvProjMatrix;
+	mat4 ViewMatrix;
+	mat4 InvViewMatrix;
+	mat4 ViewProjMatrix;
+	mat4 InvViewProjMatrix;
+	vec2 TargetSize;
+	vec2 InvTargetSize;
+	vec3 EyePosition;
+};
 
 layout (std140) uniform MaterialBasicSettings
 {

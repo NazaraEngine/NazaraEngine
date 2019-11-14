@@ -85,8 +85,6 @@ uniform float ParallaxScale = 0.02;
 uniform samplerCube ReflectionMap;
 uniform vec4 SceneAmbient;
 
-uniform mat4 WorldMatrix;
-
 uniform sampler2D TextureOverlay;
 
 /********************Fonctions********************/

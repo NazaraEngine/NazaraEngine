@@ -35,6 +35,16 @@ namespace Nz
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
+	struct PredefinedInstanceData
+	{
+		std::size_t invWorldMatrixOffset;
+		std::size_t totalSize;
+		std::size_t worldMatrixOffset;
+
+		static PredefinedInstanceData GetOffset();
+		static MaterialSettings::SharedUniformBlock GetUniformBlock();
+	};
+
 	struct PredefinedViewerData
 	{
 		std::size_t eyePositionOffset;
