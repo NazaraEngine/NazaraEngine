@@ -501,12 +501,6 @@ namespace Nz
 		return m_pipelineInfo.srcBlend;
 	}
 
-	inline UniformBuffer* Material::GetSharedUniformBuffer(std::size_t bufferIndex) const
-	{
-		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
-		return m_sharedUniformBuffers[bufferIndex];
-	}
-
 	inline const TextureRef& Material::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
@@ -533,7 +527,7 @@ namespace Nz
 
 	inline const UniformBufferRef& Material::GetUniformBuffer(std::size_t bufferIndex) const
 	{
-		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid uniform buffer index");
+		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex];
 	}
 
@@ -830,10 +824,10 @@ namespace Nz
 		return true;
 	}
 
-	inline void Material::SetSharedUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer)
+	inline void Material::SetUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer)
 	{
-		NazaraAssert(bufferIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
-		m_sharedUniformBuffers[bufferIndex] = uniformBuffer;
+		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
+		m_uniformBuffers[bufferIndex] = uniformBuffer;
 	}
 
 	inline void Material::SetTexture(std::size_t textureIndex, Texture* texture)
@@ -883,7 +877,6 @@ namespace Nz
 
 		m_settings = material.m_settings;
 		m_textures = material.m_textures;
-		m_sharedUniformBuffers = material.m_sharedUniformBuffers;
 		m_depthMaterial = material.m_depthMaterial;
 		m_pipeline = material.m_pipeline;
 		m_pipelineInfo = material.m_pipelineInfo;

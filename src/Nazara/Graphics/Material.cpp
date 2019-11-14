@@ -44,7 +44,6 @@ namespace Nz
 		m_pipelineInfo.settings = m_settings;
 		SetShader("Basic");
 
-		m_sharedUniformBuffers.resize(m_settings->GetSharedUniformBlocks().size());
 		m_textures.resize(m_settings->GetTextures().size());
 
 		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
@@ -90,17 +89,6 @@ namespace Nz
 			unsigned int uniformBufferIndex = it->second;
 
 			Renderer::SetUniformBuffer(uniformBufferIndex, ubo);
-		}
-
-		for (const UniformBufferRef& sharedUbo : m_sharedUniformBuffers)
-		{
-			auto it = instance.bindings.find(bindingIndex++);
-			assert(it != instance.bindings.end());
-
-			unsigned int uniformBufferIndex = it->second;
-
-			if (sharedUbo)
-				Renderer::SetUniformBuffer(uniformBufferIndex, sharedUbo);
 		}
 
 		/*if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)

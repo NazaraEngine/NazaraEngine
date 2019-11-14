@@ -135,7 +135,7 @@ namespace Nz
 			inline void SetReflectionMode(ReflectionMode reflectionMode);
 			inline void SetShader(UberShaderConstRef uberShader);
 			inline bool SetShader(const String& uberShaderName);
-			inline void SetSharedUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer);
+			inline void SetUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
 			inline void SetTexture(std::size_t textureIndex, Texture* texture);
 			inline void SetTextureSampler(std::size_t textureIndex, const TextureSampler& sampler);
@@ -170,7 +170,6 @@ namespace Nz
 
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
-			std::vector<UniformBufferRef> m_sharedUniformBuffers;
 			std::vector<UniformBufferRef> m_uniformBuffers;
 			MaterialRef m_depthMaterial; //< Materialception
 			mutable const MaterialPipeline* m_pipeline;
