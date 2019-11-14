@@ -117,6 +117,7 @@ namespace Ndk
 			EchoMode m_echoMode;
 			EntityHandle m_cursorEntity;
 			EntityHandle m_textEntity;
+			Nz::MaterialRef m_cursorMaterial; //< TODO: Use the same material for all instances
 			Nz::TextSpriteRef m_textSprite;
 			Nz::Vector2ui m_cursorPositionBegin;
 			Nz::Vector2ui m_cursorPositionEnd;

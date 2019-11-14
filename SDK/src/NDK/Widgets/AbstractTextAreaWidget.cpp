@@ -4,6 +4,7 @@
 
 #include <NDK/Widgets/AbstractTextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -42,6 +43,9 @@ namespace Ndk
 		m_cursorEntity->AddComponent<NodeComponent>().SetParent(m_textEntity);
 		m_cursorEntity->GetComponent<NodeComponent>();
 		m_cursorEntity->Enable(false);
+
+		m_cursorMaterial = Nz::Material::New(Nz::BasicMaterial::GetSettings());
+		m_cursorMaterial->Configure("Translucent2D");
 
 		SetCursor(Nz::SystemCursor_Text);
 
@@ -432,7 +436,7 @@ namespace Ndk
 			for (std::size_t i = oldSpriteCount; i < m_cursorSprites.size(); ++i)
 			{
 				m_cursorSprites[i] = Nz::Sprite::New();
-				m_cursorSprites[i]->SetMaterial(Nz::Material::New("Translucent2D"));
+				m_cursorSprites[i]->SetMaterial(m_cursorMaterial);
 			}
 		}
 
