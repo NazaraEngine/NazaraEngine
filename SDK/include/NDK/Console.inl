@@ -19,7 +19,7 @@ namespace Ndk
 	* \return History of the console
 	*/
 
-	inline const TextAreaWidget* Console::GetHistory() const
+	inline const RichTextAreaWidget* Console::GetHistory() const
 	{
 		return m_history;
 	}

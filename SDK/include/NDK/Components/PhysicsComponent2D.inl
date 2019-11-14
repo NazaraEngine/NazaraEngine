@@ -22,8 +22,7 @@ namespace Ndk
 	*/
 	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics)
 	{
-		// No copy of physical object (because we only create it when attached to an entity)
-		NazaraUnused(physics);
+		CopyPhysicsState(*physics.GetRigidBody());
 	}
 
 	/*!
@@ -649,11 +648,57 @@ namespace Ndk
 		m_object->UpdateVelocity(gravity, damping, deltaTime);
 	}
 
+	inline void PhysicsComponent2D::ApplyPhysicsState(Nz::RigidBody2D& rigidBody) const
+	{
+		assert(m_pendingStates.valid);
+
+		rigidBody.SetAngularVelocity(m_pendingStates.angularVelocity);
+		rigidBody.SetMass(m_pendingStates.mass);
+		rigidBody.SetMassCenter(m_pendingStates.massCenter);
+		rigidBody.SetMomentOfInertia(m_pendingStates.momentOfInertia);
+		rigidBody.SetVelocity(m_pendingStates.velocity);
+		rigidBody.SetVelocityFunction(m_pendingStates.velocityFunc);
+
+		for (std::size_t i = 0; i < m_pendingStates.shapes.size(); ++i)
+		{
+			auto& shapeData = m_pendingStates.shapes[i];
+			rigidBody.SetElasticity(i, shapeData.elasticity);
+			rigidBody.SetFriction(i, shapeData.friction);
+			rigidBody.SetSurfaceVelocity(i, shapeData.surfaceVelocity);
+		}
+	}
+
+	inline void PhysicsComponent2D::CopyPhysicsState(const Nz::RigidBody2D& rigidBody)
+	{
+		m_pendingStates.valid = true;
+
+		m_pendingStates.angularVelocity = rigidBody.GetAngularVelocity();
+		m_pendingStates.mass = rigidBody.GetMass();
+		m_pendingStates.massCenter = rigidBody.GetMassCenter();
+		m_pendingStates.momentOfInertia = rigidBody.GetMomentOfInertia();
+		m_pendingStates.velocity = rigidBody.GetVelocity();
+		m_pendingStates.velocityFunc = rigidBody.GetVelocityFunction();
+
+		m_pendingStates.shapes.resize(rigidBody.GetShapeCount());
+		for (std::size_t i = 0; i < m_pendingStates.shapes.size(); ++i)
+		{
+			auto& shapeData = m_pendingStates.shapes[i];
+			shapeData.elasticity = rigidBody.GetElasticity(i);
+			shapeData.friction = rigidBody.GetFriction(i);
+			shapeData.surfaceVelocity = rigidBody.GetSurfaceVelocity(i);
+		}
+	}
+
 	/*!
 	* \brief Gets the underlying physics object
 	* \return A reference to the physics object
 	*/
 	inline Nz::RigidBody2D* PhysicsComponent2D::GetRigidBody()
+	{
+		return m_object.get();
+	}
+
+	inline const Nz::RigidBody2D* PhysicsComponent2D::GetRigidBody() const
 	{
 		return m_object.get();
 	}

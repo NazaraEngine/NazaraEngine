@@ -65,6 +65,15 @@ namespace Ndk
 	*/
 
 	template<typename ComponentType>
+	std::unique_ptr<BaseComponent> Entity::DropComponent()
+	{
+		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");
+
+		ComponentIndex index = GetComponentIndex<ComponentType>();
+		return DropComponent(index);
+	}
+
+	template<typename ComponentType>
 	ComponentType& Entity::GetComponent()
 	{
 		static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "ComponentType is not a component");

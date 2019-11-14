@@ -157,16 +157,26 @@ namespace Ndk
 			return EntityHandle::InvalidHandle;
 		}
 
+		return CloneEntity(original);
+	}
+
+	/*!
+	* \brief Clones the entity
+	* \return The clone newly created
+	*
+	* \param original Entity handle
+	*
+	* \remark Cloning a disabled entity will produce an enabled clone
+	*/
+	const EntityHandle& World::CloneEntity(const EntityHandle& original)
+	{
 		const EntityHandle& clone = CreateEntity();
 		if (!original->IsEnabled())
 			clone->Disable();
 
 		const Nz::Bitset<>& componentBits = original->GetComponentBits();
 		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
-		{
-			std::unique_ptr<BaseComponent> component(original->GetComponent(ComponentIndex(i)).Clone());
-			clone->AddComponent(std::move(component));
-		}
+			clone->AddComponent(original->GetComponent(ComponentIndex(i)).Clone());
 
 		clone->Enable();
 
@@ -239,8 +249,7 @@ namespace Ndk
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
 			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.back.npos; j = removedComponents.FindNext(j))
-				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
-			removedComponents.Reset();
+				entity->DropComponent(static_cast<Ndk::ComponentIndex>(j));
 
 			for (auto& system : m_orderedSystems)
 			{

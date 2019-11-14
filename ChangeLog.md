@@ -169,7 +169,7 @@ Nazara Engine:
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
-- ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
+- ⚠ **By default, Nazara now computes the mass center of all 2D physics object when calling SetGeom**
 - ⚠ Added Collider2D::ComputeCenterOfMass
 - Signal now implement a copy constructor and copy assignation operator for convenience
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
@@ -191,6 +191,15 @@ Nazara Engine:
 - Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
 - Added x and y mouse position to MouseWheelEvent
 - Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
+- TypeTag helper struct now includes a Type using
+- GuillotineBinPack::Insert overload taking multiple rectangles no longer does a heap allocation
+- StackArray and StackVector now have a default constructor initializing them with no size/capacity
+- StackArray and StackVector are now movable
+- Fixed RigidBody2D::Copy not copying kinematic/dynamic/static status
+- Fixed out-of-bounds access in LuaInstance::LoadLibraries
+- Add Flags<E>::Clear(Flags) helper method, to clear one or more flags.
+- Add Flags<E>::Clear() helper method, to reset flags
+- Add Flags<E>::Set(Flags) helper method, to enable flags
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -282,6 +291,12 @@ Nazara Development Kit:
 - ⚠️ TextAreaWidget::OnTextAreaCursorMove signal now uses a Vector2ui* position as its second argument (instead of a std::size_t*)
 - Added TextAreaWidget::OnTextAreaSelection
 - ⚠️ Console class is no longer bound to a LuaState and now has a OnCommand signal
+- ⚠️ Made AbstractTextAreaWidget which is inherited by TextAreaWidget
+- ⚠️ Added RichTextAreaWidget
+- ⚠️ Console now supports text color in history
+- Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
+- Fixed PhysicsComponent2D copy not copying physics attributes
+- Added Entity::DropComponent which detaches a component without necessarily destroying it
 
 # 0.4:
 
