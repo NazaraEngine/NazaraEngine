@@ -41,9 +41,13 @@ struct Light
 };
 
 // Lumières
-uniform Light Lights[3];
 uniform samplerCube PointLightShadowMap[3];
 uniform sampler2D DirectionalSpotLightShadowMap[3];
+
+layout (std140) uniform LightData
+{
+	Light Lights[3];
+};
 
 layout (std140) uniform MaterialPhongSettings
 {
@@ -52,6 +56,19 @@ layout (std140) uniform MaterialPhongSettings
 	vec4 ambientColor;
 	vec4 diffuseColor;
 	vec4 specularColor;
+};
+
+layout (std140) uniform ViewerData
+{
+	mat4 ProjMatrix;
+	mat4 InvProjMatrix;
+	mat4 ViewMatrix;
+	mat4 InvViewMatrix;
+	mat4 ViewProjMatrix;
+	mat4 InvViewProjMatrix;
+	vec2 TargetSize;
+	vec2 InvTargetSize;
+	vec3 EyePosition;
 };
 
 // Matériau
@@ -65,8 +82,6 @@ uniform sampler2D MaterialSpecularMap;
 // Autres
 uniform float ParallaxBias = -0.03;
 uniform float ParallaxScale = 0.02;
-uniform vec2 InvTargetSize;
-uniform vec3 EyePosition;
 uniform samplerCube ReflectionMap;
 uniform vec4 SceneAmbient;
 
@@ -150,8 +165,6 @@ void main()
 
 #if HAS_DIFFUSE_TEXTURE
 	diffuseColor *= texture(MaterialDiffuseMap, texCoord);
-	RenderTarget0 = diffuseColor;
-	return;
 #endif
 
 #if FLAG_TEXTUREOVERLAY

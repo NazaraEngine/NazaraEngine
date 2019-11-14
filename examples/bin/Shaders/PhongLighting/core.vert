@@ -24,12 +24,22 @@ out vec3 vViewDir;
 out vec3 vWorldPos;
 
 /********************Uniformes********************/
-uniform vec3 EyePosition;
-uniform mat4 InvViewMatrix;
+
+layout (std140) uniform ViewerData
+{
+	mat4 ProjMatrix;
+	mat4 InvProjMatrix;
+	mat4 ViewMatrix;
+	mat4 InvViewMatrix;
+	mat4 ViewProjMatrix;
+	mat4 InvViewProjMatrix;
+	vec2 TargetSize;
+	vec2 InvTargetSize;
+	vec3 EyePosition;
+};
+
 uniform mat4 LightViewProjMatrix[3];
 uniform float VertexDepth;
-uniform mat4 ViewMatrix;
-uniform mat4 ViewProjMatrix;
 uniform mat4 WorldMatrix;
 uniform mat4 WorldViewProjMatrix;
 
@@ -67,7 +77,7 @@ void main()
 	vec2 billboardCorner = VertexTexCoord - 0.5;
 	vec2 billboardSize = VertexUserdata0.xy;
 	vec2 billboardSinCos = VertexUserdata0.zw;
-	
+
 	vec2 rotatedPosition;
 	rotatedPosition.x = billboardCorner.x*billboardSinCos.y - billboardCorner.y*billboardSinCos.x;
 	rotatedPosition.y = billboardCorner.y*billboardSinCos.y + billboardCorner.x*billboardSinCos.x;
@@ -114,7 +124,7 @@ void main()
 #else
 	mat3 rotationMatrix = mat3(WorldMatrix);
 #endif
-	
+
 #if COMPUTE_TBNMATRIX
 	vec3 binormal = cross(VertexNormal, VertexTangent);
 	vLightToWorld[0] = normalize(rotationMatrix * VertexTangent);
@@ -134,7 +144,7 @@ void main()
 #endif
 
 #if PARALLAX_MAPPING
-	vViewDir = EyePosition - VertexPosition; 
+	vViewDir = EyePosition - VertexPosition;
 	vViewDir *= vLightToWorld;
 #endif
 

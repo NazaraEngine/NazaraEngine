@@ -105,6 +105,14 @@ namespace Nz
 				viewerData.invViewProjMatrixOffset
 			},
 			{
+				"TargetSize",
+				viewerData.targetSizeOffset
+			},
+			{
+				"InvTargetSize",
+				viewerData.invTargetSizeOffset
+			},
+			{
 				"EyePosition",
 				viewerData.eyePositionOffset
 			}

@@ -82,14 +82,14 @@ namespace Nz
 			Renderer::SetTextureSampler(textureIndex, textureData.sampler);
 		}
 
-		for (const UniformBufferRef& sharedUbo : m_uniformBuffers)
+		for (const UniformBufferRef& ubo : m_uniformBuffers)
 		{
 			auto it = instance.bindings.find(bindingIndex++);
 			assert(it != instance.bindings.end());
 
 			unsigned int uniformBufferIndex = it->second;
 
-			Renderer::SetUniformBuffer(uniformBufferIndex, sharedUbo);
+			Renderer::SetUniformBuffer(uniformBufferIndex, ubo);
 		}
 
 		for (const UniformBufferRef& sharedUbo : m_sharedUniformBuffers)
