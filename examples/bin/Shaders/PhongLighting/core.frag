@@ -182,7 +182,7 @@ void main()
 		discard;
 	#endif // ALPHA_TEST
 
-	#if NORMAL_MAPPING
+	#if HAS_NORMAL_TEXTURE
 	vec3 normal = normalize(vLightToWorld * (2.0 * vec3(texture(MaterialNormalMap, texCoord)) - 1.0));
 	#else
 	vec3 normal = normalize(vNormal);

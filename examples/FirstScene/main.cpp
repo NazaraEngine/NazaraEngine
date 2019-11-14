@@ -163,7 +163,7 @@ int main()
 	// Un NodeComponent donne à notre entité une position, rotation, échelle, et nous permet de l'attacher à d'autres entités (ce que nous ne ferons pas ici).
 	// Étant donné que par défaut, un NodeComponent se place en (0,0,0) sans rotation et avec une échelle de 1,1,1 et que cela nous convient,
 	// nous n'avons pas besoin d'agir sur le composant créé.
-	spaceship->AddComponent<Ndk::NodeComponent>().SetRotation(Nz::EulerAnglesf(-33.f, 21.f, 74.f));
+	spaceship->AddComponent<Ndk::NodeComponent>();
 	//spaceship->AddComponent<Ndk::VelocityComponent>().linearVelocity.Set(-1.f, 0.f, 0.f);
 
 	// Bien, notre entité nouvellement créé dispose maintenant d'une position dans la scène, mais est toujours invisible
@@ -193,6 +193,8 @@ int main()
 
 	// Et dispose d'un composant pour chaque point de vue de la scène, le CameraComponent
 	Ndk::CameraComponent& cameraComp = camera->AddComponent<Ndk::CameraComponent>();
+
+	Ndk::LightComponent& cameraLight = camera->AddComponent<Ndk::LightComponent>(Nz::LightType_Spot);
 
 	// Ajoutons un composant écouteur, si nous venions à avoir du son
 	camera->AddComponent<Ndk::ListenerComponent>();

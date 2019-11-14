@@ -125,7 +125,7 @@ void main()
 	mat3 rotationMatrix = mat3(WorldMatrix);
 #endif
 
-#if COMPUTE_TBNMATRIX
+#if HAS_NORMAL_TEXTURE
 	vec3 binormal = cross(VertexNormal, VertexTangent);
 	vLightToWorld[0] = normalize(rotationMatrix * VertexTangent);
 	vLightToWorld[1] = normalize(rotationMatrix * binormal);
