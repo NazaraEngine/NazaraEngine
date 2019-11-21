@@ -12,9 +12,11 @@
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
+#include <Nazara/Utility/MatrixRegistry.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
+#include <optional>
 #include <vector>
 
 namespace Ndk
@@ -59,6 +61,7 @@ namespace Ndk
 			void UpdateDirectionalShadowMaps(const Nz::AbstractViewer& viewer);
 			void UpdatePointSpotShadowMaps();
 
+			std::optional<Nz::MatrixRegistry> m_matrixRegistry;
 			std::unique_ptr<Nz::AbstractRenderTechnique> m_renderTechnique;
 			std::vector<GraphicsComponentCullingList::VolumeEntry> m_volumeEntries;
 			std::vector<EntityHandle> m_cameras;

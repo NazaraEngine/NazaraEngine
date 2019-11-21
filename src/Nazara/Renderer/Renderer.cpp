@@ -121,6 +121,7 @@ namespace Nz
 		unsigned int s_maxTextureSize;
 		unsigned int s_maxTextureUnit;
 		unsigned int s_maxVertexAttribs;
+		unsigned int s_minUniformBufferOffsetAlignment;
 	}
 
 	void Renderer::BeginCondition(const GpuQuery& query, GpuQueryCondition condition)
@@ -541,6 +542,11 @@ namespace Nz
 		return s_maxVertexAttribs;
 	}
 
+	unsigned int Renderer::GetMinUniformBufferOffsetAlignment()
+	{
+		return s_minUniformBufferOffsetAlignment;
+	}
+
 	float Renderer::GetPointSize()
 	{
 		return s_states.pointSize;
@@ -660,6 +666,10 @@ namespace Nz
 		GLint maxVertexAttribs;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 		s_maxVertexAttribs = static_cast<unsigned int>(maxVertexAttribs);
+
+		GLint minUniformBufferOffsetAlignment;
+		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &minUniformBufferOffsetAlignment);
+		s_minUniformBufferOffsetAlignment = static_cast<unsigned int>(minUniformBufferOffsetAlignment);
 
 		s_states = RenderStates();
 

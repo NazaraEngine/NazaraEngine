@@ -169,9 +169,11 @@ namespace Ndk
 			it->second.renderableCounter += count;
 	}
 
-	/*!
-	* \brief Operation to perform when component is attached to an entity
-	*/
+	void GraphicsComponent::RegisterMatrix(Nz::MatrixRegistry& registry)
+	{
+		assert(!m_matrixIndex.has_value());
+		m_matrixIndex = registry.Register();
+	}
 
 	void GraphicsComponent::OnAttached()
 	{
@@ -180,12 +182,6 @@ namespace Ndk
 
 		InvalidateTransformMatrix();
 	}
-
-	/*!
-	* \brief Operation to perform when component is attached to this component
-	*
-	* \param component Component being attached
-	*/
 
 	void GraphicsComponent::OnComponentAttached(BaseComponent& component)
 	{
@@ -198,12 +194,6 @@ namespace Ndk
 		}
 	}
 
-	/*!
-	* \brief Operation to perform when component is detached from this component
-	*
-	* \param component Component being detached
-	*/
-
 	void GraphicsComponent::OnComponentDetached(BaseComponent& component)
 	{
 		if (IsComponent<NodeComponent>(component))
@@ -213,10 +203,6 @@ namespace Ndk
 			InvalidateTransformMatrix();
 		}
 	}
-
-	/*!
-	* \brief Operation to perform when component is detached from an entity
-	*/
 
 	void GraphicsComponent::OnDetached()
 	{
@@ -290,6 +276,12 @@ namespace Ndk
 
 			m_materialEntries.erase(it);
 		}
+	}
+
+	void GraphicsComponent::UnregisterMatrix(Nz::MatrixRegistry& registry)
+	{
+		registry.Unregister(m_matrixIndex.value());
+		m_matrixIndex.reset();
 	}
 
 	/*!

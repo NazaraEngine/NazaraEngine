@@ -13,7 +13,13 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <NDK/Component.hpp>
+#include <optional>
 #include <unordered_map>
+
+namespace Nz
+{
+	class MatrixRegistry;
+}
 
 namespace Ndk
 {
@@ -81,8 +87,12 @@ namespace Ndk
 			inline void InvalidateRenderables();
 			void InvalidateReflectionMap();
 			inline void InvalidateTransformMatrix();
+			inline void InvalidateUboIndex() const;
+
+			inline void PushMatrix(Nz::MatrixRegistry& registry) const;
 
 			void RegisterMaterial(Nz::Material* material, std::size_t count = 1);
+			void RegisterMatrix(Nz::MatrixRegistry& registry);
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -95,6 +105,7 @@ namespace Ndk
 			void OnNodeInvalidated(const Nz::Node* node);
 
 			void UnregisterMaterial(Nz::Material* material);
+			void UnregisterMatrix(Nz::MatrixRegistry& registry);
 
 			void UpdateBoundingVolumes() const;
 			void UpdateTransformMatrix() const;
@@ -150,6 +161,8 @@ namespace Ndk
 				mutable bool dataUpdated;
 			};
 
+			std::optional<std::size_t> m_matrixIndex;
+			mutable std::optional<std::size_t> m_uboIndex;
 			std::size_t m_reflectiveMaterialCount;
 			mutable std::vector<CullingBoxEntry> m_cullingBoxEntries;
 			std::vector<Renderable> m_renderables;

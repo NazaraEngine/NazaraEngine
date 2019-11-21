@@ -67,6 +67,7 @@ namespace Nz
 			static unsigned int GetMaxTextureSize();
 			static unsigned int GetMaxTextureUnits();
 			static unsigned int GetMaxVertexAttribs();
+			static unsigned int GetMinUniformBufferOffsetAlignment();
 			static float GetPointSize();
 			static const RenderStates& GetRenderStates();
 			static Recti GetScissorRect();

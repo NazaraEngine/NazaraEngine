@@ -5,6 +5,7 @@
 #include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SceneData.hpp>
 #include <Nazara/Graphics/SkinningManager.hpp>
 #include <Nazara/Graphics/SkyboxBackground.hpp>
@@ -38,6 +39,13 @@ namespace Ndk
 	m_forceRenderQueueInvalidation(false),
 	m_isCullingEnabled(true)
 	{
+		Nz::PredefinedInstanceData instanceData = Nz::PredefinedInstanceData::GetOffset();
+
+		unsigned int minAlignment = Nz::Renderer::GetMinUniformBufferOffsetAlignment();
+		std::size_t alignement = ((instanceData.totalSize + minAlignment - 1) / minAlignment) * minAlignment;
+
+		m_matrixRegistry.emplace(alignement, instanceData.worldMatrixOffset, instanceData.invWorldMatrixOffset);
+
 		ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		SetDefaultBackground(Nz::ColorBackground::New());
 		SetUpdateOrder(100); //< Render last, after every movement is done
@@ -66,6 +74,7 @@ namespace Ndk
 		{
 			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 			gfxComponent.RemoveFromCullingList(&m_drawableCulling);
+			gfxComponent.UnregisterMatrix(*m_matrixRegistry);
 		}
 	}
 
@@ -105,7 +114,10 @@ namespace Ndk
 
 			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 			if (justAdded)
+			{
 				gfxComponent.AddToCullingList(&m_drawableCulling);
+				gfxComponent.RegisterMatrix(*m_matrixRegistry);
+			}
 
 			if (gfxComponent.DoesRequireRealTimeReflections())
 				m_realtimeReflected.Insert(entity);
@@ -187,8 +199,18 @@ namespace Ndk
 
 		Nz::SkinningManager::Skin();
 
+		m_matrixRegistry->Clear();
+
 		UpdateDynamicReflections();
 		UpdatePointSpotShadowMaps();
+
+		// To make sure the bounding volumes used by the culling list is updated
+		for (const Ndk::EntityHandle& drawable : m_drawables)
+		{
+			GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
+			graphicsComponent.EnsureBoundingVolumesUpdate();
+			graphicsComponent.InvalidateUboIndex();
+		}
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
 		{
@@ -197,13 +219,6 @@ namespace Ndk
 			//UpdateDirectionalShadowMaps(camComponent);
 
 			Nz::AbstractRenderQueue* renderQueue = m_renderTechnique->GetRenderQueue();
-
-			// To make sure the bounding volumes used by the culling list is updated
-			for (const Ndk::EntityHandle& drawable : m_drawables)
-			{
-				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
-				graphicsComponent.EnsureBoundingVolumesUpdate();
-			}
 
 			bool forceInvalidation = false;
 
@@ -246,6 +261,12 @@ namespace Ndk
 
 				m_forceRenderQueueInvalidation = false;
 			}
+
+			for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
+				gfxComponent->PushMatrix(*m_matrixRegistry);
+
+			for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
+				gfxComponent->PushMatrix(*m_matrixRegistry);
 
 			camComponent.ApplyView();
 

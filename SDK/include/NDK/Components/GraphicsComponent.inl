@@ -288,4 +288,20 @@ namespace Ndk
 		InvalidateAABB();
 		InvalidateRenderables();
 	}
+
+	inline void GraphicsComponent::InvalidateUboIndex() const
+	{
+		m_uboIndex.reset();
+	}
+
+	inline void GraphicsComponent::PushMatrix(Nz::MatrixRegistry& registry) const
+	{
+		if (!m_uboIndex.has_value())
+		{
+			EnsureTransformMatrixUpdate();
+
+			m_uboIndex = registry.PushMatrix(m_matrixIndex.value(), m_transformMatrix);
+		}
+	}
 }
+
