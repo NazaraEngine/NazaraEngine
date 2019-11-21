@@ -811,7 +811,7 @@ function NazaraBuild:PrepareGeneric()
 		"UndefinedIdentifiers"
 	})
 	
-	cppdialect("C++14")
+	cppdialect("C++17")
 
 	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
