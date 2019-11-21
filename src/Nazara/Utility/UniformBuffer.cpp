@@ -91,7 +91,7 @@ namespace Nz
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(buffer->GetType() == BufferType_Uniform, "Buffer must be an uniform buffer");
 		NazaraAssert(size > 0, "Invalid size");
-		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
+		NazaraAssert(offset + size <= buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
 		m_buffer = buffer;
 		m_endOffset = offset + size;

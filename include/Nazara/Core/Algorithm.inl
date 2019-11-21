@@ -46,7 +46,7 @@ namespace Nz
 	template<typename T>
 	T* AccessByOffset(void* basePtr, std::size_t offset)
 	{
-		return reinterpret_cast<T*>(static_cast<Nz::UInt8*>(basePtr) + offset);
+		return reinterpret_cast<T*>(static_cast<UInt8*>(basePtr) + offset);
 	}
 
 	/*!
@@ -60,7 +60,7 @@ namespace Nz
 	template<typename T>
 	const T* AccessByOffset(const void* basePtr, std::size_t offset)
 	{
-		return reinterpret_cast<const T*>(static_cast<const Nz::UInt8*>(basePtr) + offset);
+		return reinterpret_cast<const T*>(static_cast<const UInt8*>(basePtr) + offset);
 	}
 
 	/*!

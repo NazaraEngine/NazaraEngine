@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	struct PredefinedLightData
+	struct NAZARA_GRAPHICS_API PredefinedLightData
 	{
 		struct InnerStruct
 		{
@@ -35,7 +35,7 @@ namespace Nz
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
-	struct PredefinedInstanceData
+	struct NAZARA_GRAPHICS_API PredefinedInstanceData
 	{
 		std::size_t invWorldMatrixOffset;
 		std::size_t totalSize;
@@ -45,7 +45,7 @@ namespace Nz
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
-	struct PredefinedViewerData
+	struct NAZARA_GRAPHICS_API PredefinedViewerData
 	{
 		std::size_t eyePositionOffset;
 		std::size_t invProjMatrixOffset;

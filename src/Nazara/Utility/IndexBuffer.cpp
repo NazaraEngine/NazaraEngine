@@ -108,7 +108,7 @@ namespace Nz
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(buffer->GetType() == BufferType_Index, "Buffer must be an index buffer");
 		NazaraAssert(size > 0, "Invalid size");
-		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
+		NazaraAssert(offset + size <= buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
 		UInt32 stride = static_cast<UInt32>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
