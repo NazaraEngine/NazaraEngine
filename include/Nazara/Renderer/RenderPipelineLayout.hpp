@@ -37,6 +37,7 @@ namespace Nz
 	{
 		public:
 			inline RenderPipelineLayout();
+			inline RenderPipelineLayout(RenderPipelineLayoutInfo pipelineInfo);
 			inline ~RenderPipelineLayout();
 
 			inline bool Create(RenderPipelineLayoutInfo pipelineInfo);

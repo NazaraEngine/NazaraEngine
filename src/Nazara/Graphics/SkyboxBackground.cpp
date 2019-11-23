@@ -3,15 +3,20 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/SkyboxBackground.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -21,96 +26,14 @@ namespace Nz
 		static IndexBufferRef s_indexBuffer;
 		static RenderStates s_renderStates;
 		static ShaderRef s_shader;
+		static UniformBufferRef s_skyboxData;
 		static VertexBufferRef s_vertexBuffer;
-	}
+		static std::size_t s_matrixOffset;
+		static std::size_t s_skyboxDataSize;
+		static std::size_t s_vertexDepthOffset;
+		static unsigned int s_textureIndex;
+		static unsigned int s_skyboxDataIndex;
 
-	/*!
-	* \ingroup graphics
-	* \class Nz::SkyboxBackground
-	* \brief Graphics class that represents a background with a cubemap texture
-	*/
-
-	/*!
-	* \brief Constructs a SkyboxBackground object with a cubemap texture
-	*
-	* \param cubemapTexture Cubemap texture
-	*/
-
-	SkyboxBackground::SkyboxBackground(TextureRef cubemapTexture) :
-	m_movementOffset(Vector3f::Zero()),
-	m_movementScale(0.f)
-	{
-		m_sampler.SetWrapMode(SamplerWrap_Clamp); // We don't want to see any beam
-
-		SetTexture(std::move(cubemapTexture));
-	}
-
-	/*!
-	* \brief Draws this relatively to the viewer
-	*
-	* \param viewer Viewer for the background
-	*/
-
-	void SkyboxBackground::Draw(const AbstractViewer* viewer) const
-	{
-		const Nz::RenderTarget* target = viewer->GetTarget();
-		Nz::Vector2ui targetSize = target->GetSize();
-
-		Matrix4f projectionMatrix = Nz::Matrix4f::Perspective(45.f, float(targetSize.x) / targetSize.y, viewer->GetZNear(), viewer->GetZFar());
-
-		Matrix4f skyboxMatrix(viewer->GetViewMatrix());
-		skyboxMatrix.SetTranslation(Vector3f::Zero());
-
-		float zNear = viewer->GetZNear();
-
-		constexpr float movementLimit = 0.05f;
-
-		Vector3f offset = (viewer->GetEyePosition() - m_movementOffset) * -m_movementScale;
-		offset.x = Clamp(offset.x, -movementLimit, movementLimit);
-		offset.y = Clamp(offset.y, -movementLimit, movementLimit);
-		offset.z = Clamp(offset.z, -movementLimit, movementLimit);
-		offset *= zNear;
-
-		Matrix4f world;
-		world.MakeIdentity();
-		world.SetScale(Vector3f(zNear));
-		world.SetTranslation(offset);
-
-		Renderer::SetIndexBuffer(s_indexBuffer);
-		Renderer::SetMatrix(MatrixType_Projection, projectionMatrix);
-		Renderer::SetMatrix(MatrixType_View, skyboxMatrix);
-		Renderer::SetMatrix(MatrixType_World, world);
-		Renderer::SetRenderStates(s_renderStates);
-		Renderer::SetShader(s_shader);
-		Renderer::SetTexture(0, m_texture);
-		Renderer::SetTextureSampler(0, m_sampler);
-		Renderer::SetVertexBuffer(s_vertexBuffer);
-
-		Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, 36);
-
-		Renderer::SetMatrix(MatrixType_Projection, viewer->GetProjectionMatrix());
-		Renderer::SetMatrix(MatrixType_View, viewer->GetViewMatrix());
-	}
-
-	/*!
-	* \brief Gets the background type
-	* \return Type of background
-	*/
-
-	BackgroundType SkyboxBackground::GetBackgroundType() const
-	{
-		return BackgroundType_Skybox;
-	}
-
-	/*!
-	* \brief Initializes the skybox
-	* \return true If successful
-	*
-	* \remark Produces a NazaraError if initialization failed
-	*/
-
-	bool SkyboxBackground::Initialize()
-	{
 		const UInt16 indices[6 * 6] =
 		{
 			0, 1, 2, 0, 2, 3,
@@ -134,38 +57,104 @@ namespace Nz
 		};
 
 		///TODO: Replace by ShaderNode (probably after Vulkan)
-		const char* fragmentShaderSource =
-		"#version 140\n"
+		const UInt8 r_fragmentShaderSource[] = {
+#include <Nazara/Graphics/Resources/Shaders/Skybox/core.frag.h>
+		};
 
-		"in vec3 vTexCoord;\n"
+		const UInt8 r_vertexShaderSource[] = {
+#include <Nazara/Graphics/Resources/Shaders/Skybox/core.vert.h>
+		};
+	}
 
-		"out vec4 RenderTarget0;\n"
+	/*!
+	* \ingroup graphics
+	* \class Nz::SkyboxBackground
+	* \brief Graphics class that represents a background with a cubemap texture
+	*/
 
-		"uniform samplerCube Skybox;\n"
-		"uniform float VertexDepth;\n"
+	/*!
+	* \brief Constructs a SkyboxBackground object with a cubemap texture
+	*
+	* \param cubemapTexture Cubemap texture
+	*/
 
-		"void main()\n"
-		"{\n"
-		"	RenderTarget0 = texture(Skybox, vTexCoord);\n"
-		"	gl_FragDepth = VertexDepth;\n"
-		"}\n";
+	SkyboxBackground::SkyboxBackground(TextureRef cubemapTexture) :
+	m_movementOffset(Vector3f::Zero()),
+	m_movementScale(0.f)
+	{
+		m_sampler.SetWrapMode(SamplerWrap_Clamp); // We don't want to see any beam
 
-		const char* vertexShaderSource =
-		"#version 140\n"
+		SetTexture(std::move(cubemapTexture));
 
-		"in vec3 VertexPosition;\n"
+		m_skyboxData = UniformBuffer::New(s_skyboxDataSize, DataStorage::DataStorage_Hardware, BufferUsage_Dynamic);
+	}
 
-		"out vec3 vTexCoord;\n"
+	/*!
+	* \brief Draws this relatively to the viewer
+	*
+	* \param viewer Viewer for the background
+	*/
 
-		"uniform mat4 WorldViewProjMatrix;\n"
+	void SkyboxBackground::Draw(const AbstractViewer* viewer) const
+	{
+		const Nz::RenderTarget* target = viewer->GetTarget();
+		Nz::Vector2ui targetSize = target->GetSize();
 
-		"void main()\n"
-		"{\n"
-		"    vec4 WVPVertex = WorldViewProjMatrix * vec4(VertexPosition, 1.0);\n"
-		"    gl_Position = WVPVertex.xyww;\n"
-		"    vTexCoord = VertexPosition;\n"
-		"}\n";
+		Matrix4f projectionMatrix = Matrix4f::Perspective(45.f, float(targetSize.x) / targetSize.y, viewer->GetZNear(), viewer->GetZFar());
 
+		Matrix4f viewMatrix(viewer->GetViewMatrix());
+		viewMatrix.SetTranslation(Vector3f::Zero());
+
+		float zNear = viewer->GetZNear();
+
+		constexpr float movementLimit = 0.05f;
+
+		Vector3f offset = (viewer->GetEyePosition() - m_movementOffset) * -m_movementScale;
+		offset.x = Clamp(offset.x, -movementLimit, movementLimit);
+		offset.y = Clamp(offset.y, -movementLimit, movementLimit);
+		offset.z = Clamp(offset.z, -movementLimit, movementLimit);
+		offset *= zNear;
+
+		Matrix4f worldMatrix = Matrix4f::Scale(Vector3f(zNear));
+		worldMatrix.SetTranslation(offset);
+
+		{
+			BufferMapper<UniformBuffer> uniformMapper(m_skyboxData, BufferAccess_DiscardAndWrite);
+			void* ptr = uniformMapper.GetPointer();
+
+			*AccessByOffset<Matrix4f>(ptr, s_matrixOffset) = worldMatrix * viewMatrix * projectionMatrix;
+			*AccessByOffset<float>(ptr, s_vertexDepthOffset) = 1.f;
+		}
+
+		Renderer::SetIndexBuffer(s_indexBuffer);
+		Renderer::SetUniformBuffer(s_skyboxDataIndex, m_skyboxData);
+		Renderer::SetRenderStates(s_renderStates);
+		Renderer::SetShader(s_shader);
+		Renderer::SetTexture(s_textureIndex, m_texture);
+		Renderer::SetTextureSampler(s_textureIndex, m_sampler);
+		Renderer::SetVertexBuffer(s_vertexBuffer);
+
+		Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, 0, 36);
+	}
+
+	/*!
+	* \brief Gets the background type
+	* \return Type of background
+	*/
+	BackgroundType SkyboxBackground::GetBackgroundType() const
+	{
+		return BackgroundType_Skybox;
+	}
+
+	/*!
+	* \brief Initializes the skybox
+	* \return true If successful
+	*
+	* \remark Produces a NazaraError if initialization failed
+	*/
+
+	bool SkyboxBackground::Initialize()
+	{
 		try
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -181,12 +170,35 @@ namespace Nz
 			// Shader
 			ShaderRef shader = Shader::New();
 			shader->Create();
-			shader->AttachStageFromSource(ShaderStageType_Fragment, fragmentShaderSource);
-			shader->AttachStageFromSource(ShaderStageType_Vertex, vertexShaderSource);
+			shader->AttachStageFromSource(ShaderStageType_Fragment, reinterpret_cast<const char*>(r_fragmentShaderSource), sizeof(r_fragmentShaderSource));
+			shader->AttachStageFromSource(ShaderStageType_Vertex, reinterpret_cast<const char*>(r_vertexShaderSource), sizeof(r_vertexShaderSource));
 			shader->Link();
 
-			shader->SendInteger(shader->GetUniformLocation("Skybox"), 0);
-			shader->SendFloat(shader->GetUniformLocation("VertexDepth"), 1.f);
+			auto bindings = shader->ApplyLayout(Nz::RenderPipelineLayout::New(RenderPipelineLayoutInfo{
+				{
+					{
+						"SkyboxTexture",
+						ShaderBindingType_Texture,
+						ShaderStageType_Fragment,
+						0
+					},
+					{
+						"SkyboxData",
+						ShaderBindingType_UniformBuffer,
+						ShaderStageType_Fragment | ShaderStageType_Vertex,
+						1
+					},
+				}
+			}));
+
+			s_textureIndex = bindings[0];
+			s_skyboxDataIndex = bindings[1];
+
+			// UBO
+			FieldOffsets skyboxDataStruct(StructLayout_Std140);
+			s_matrixOffset = skyboxDataStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
+			s_vertexDepthOffset = skyboxDataStruct.AddField(StructFieldType_Float1);
+			s_skyboxDataSize = skyboxDataStruct.GetSize();
 
 			// Renderstates
 			s_renderStates.depthFunc = RendererComparison_Equal;
@@ -217,6 +229,7 @@ namespace Nz
 	{
 		s_indexBuffer.Reset();
 		s_shader.Reset();
+		s_skyboxData.Reset();
 		s_vertexBuffer.Reset();
 	}
 }

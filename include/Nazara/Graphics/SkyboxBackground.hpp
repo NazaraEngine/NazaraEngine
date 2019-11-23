@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
 
 namespace Nz
 {
@@ -50,6 +51,7 @@ namespace Nz
 
 			TextureRef m_texture;
 			TextureSampler m_sampler;
+			UniformBufferRef m_skyboxData;
 			Vector3f m_movementOffset;
 			float m_movementScale;
 	};

@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/String.hpp>
 #include <limits>
 #include <Nazara/Renderer/Debug.hpp>
@@ -13,6 +14,13 @@ namespace Nz
 	inline RenderPipelineLayout::RenderPipelineLayout() :
 	m_valid(false)
 	{
+	}
+
+	inline RenderPipelineLayout::RenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) :
+	RenderPipelineLayout()
+	{
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		Create(std::move(pipelineLayoutInfo));
 	}
 
 	inline RenderPipelineLayout::~RenderPipelineLayout()
