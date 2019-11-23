@@ -29,8 +29,6 @@ namespace Ndk
 		EnsureViewMatrixUpdate();
 		EnsureViewportUpdate();
 
-		Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, m_projectionMatrix);
-		Nz::Renderer::SetMatrix(Nz::MatrixType_View, m_viewMatrix);
 		Nz::Renderer::SetTarget(m_target);
 		Nz::Renderer::SetViewport(m_viewport);
 	}

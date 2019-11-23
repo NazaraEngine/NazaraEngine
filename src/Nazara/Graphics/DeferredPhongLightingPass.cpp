@@ -180,7 +180,7 @@ namespace Nz
 					lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // To correct imperfections due to the sphere
 					lightMatrix.SetTranslation(light.position);
 
-					Renderer::SetMatrix(MatrixType_World, lightMatrix);
+					//Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
 					// Sphere rendering in the stencil buffer
 					Renderer::Enable(RendererParameter_ColorWrite, false);
@@ -221,7 +221,7 @@ namespace Nz
 						lightMatrix.SetScale(Vector3f(light.radius * 1.1f)); // To correct imperfections due to the sphere
 						lightMatrix.SetTranslation(light.position);
 
-						Renderer::SetMatrix(MatrixType_World, lightMatrix);
+						//Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
 						shader->SendColor(colorLocation, light.color);
 
@@ -254,7 +254,7 @@ namespace Nz
 					float baseRadius = light.radius * light.outerAngleTangent * 1.1f;
 					lightMatrix.MakeTransform(light.position, Quaternionf::RotationBetween(Vector3f::Forward(), light.direction), Vector3f(baseRadius, baseRadius, light.radius));
 
-					Renderer::SetMatrix(MatrixType_World, lightMatrix);
+					//Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
 					// Sphere rendering in the stencil buffer
 					Renderer::Enable(RendererParameter_ColorWrite, false);
@@ -296,7 +296,7 @@ namespace Nz
 						float baseRadius = light.radius * light.outerAngleTangent * 1.1f;
 						lightMatrix.MakeTransform(light.position, Quaternionf::RotationBetween(Vector3f::Forward(), light.direction), Vector3f(baseRadius, baseRadius, light.radius));
 
-						Renderer::SetMatrix(MatrixType_World, lightMatrix);
+						//Renderer::SetMatrix(MatrixType_World, lightMatrix);
 
 						shader->SendColor(colorLocation, light.color);
 

@@ -56,17 +56,8 @@ namespace Nz
 		{
 			Update_None = 0,
 
-			Update_Matrices = 0x1,
-			Update_Shader = 0x2,
-			Update_Textures = 0x4,
-			Update_VAO = 0x8
-		};
-
-		struct MatrixUnit
-		{
-			Matrix4f matrix;
-			bool updated;
-			int location;
+			Update_Textures = 0x1,
+			Update_VAO = 0x2
 		};
 
 		struct TextureUnit
@@ -105,7 +96,6 @@ namespace Nz
 		GLuint s_currentVAO = 0;
 		VertexBuffer s_instanceBuffer;
 		VertexBuffer s_fullscreenQuadBuffer;
-		MatrixUnit s_matrices[MatrixType_Max + 1];
 		RenderStates s_states;
 		Vector2ui s_targetSize;
 		UInt8 s_maxAnisotropyLevel;
@@ -496,22 +486,6 @@ namespace Nz
 		return s_states.lineWidth;
 	}
 
-	Matrix4f Renderer::GetMatrix(MatrixType type)
-	{
-		#ifdef NAZARA_DEBUG
-		if (type > MatrixType_Max)
-		{
-			NazaraError("Matrix type out of enum");
-			return Matrix4f();
-		}
-		#endif
-
-		if (!s_matrices[type].updated)
-			UpdateMatrix(type);
-
-		return s_matrices[type].matrix;
-	}
-
 	UInt8 Renderer::GetMaxAnisotropyLevel()
 	{
 		return s_maxAnisotropyLevel;
@@ -622,14 +596,6 @@ namespace Nz
 			return new HardwareBuffer(parent, type);
 		});
 
-		for (unsigned int i = 0; i <= MatrixType_Max; ++i)
-		{
-			MatrixUnit& unit = s_matrices[i];
-			unit.location = -1;
-			unit.matrix.MakeIdentity();
-			unit.updated = true;
-		}
-
 		// Récupération des capacités d'OpenGL
 		s_capabilities[RendererCap_AnisotropicFilter] = OpenGL::IsSupported(OpenGLExtension_AnisotropicFilter);
 		s_capabilities[RendererCap_FP64] = OpenGL::IsSupported(OpenGLExtension_FP64);
@@ -678,7 +644,7 @@ namespace Nz
 		s_target = nullptr;
 		s_targetSize.Set(0U);
 		s_textureUnits.resize(s_maxTextureUnit);
-		s_updateFlags = Update_Matrices | Update_Shader | Update_VAO;
+		s_updateFlags = Update_VAO;
 		s_vertexBuffer = nullptr;
 
 		s_fullscreenQuadBuffer.Reset(VertexDeclaration::Get(VertexLayout_XY_UV), 4, DataStorage_Hardware, 0);
@@ -962,75 +928,6 @@ namespace Nz
 		s_states.lineWidth = width;
 	}
 
-	void Renderer::SetMatrix(MatrixType type, const Matrix4f& matrix)
-	{
-		#ifdef NAZARA_DEBUG
-		if (type > MatrixType_Max)
-		{
-			NazaraError("Matrix type out of enum");
-			return;
-		}
-		#endif
-
-		s_matrices[type].matrix = matrix;
-		s_matrices[type].updated = true;
-
-		// Invalidation des combinaisons
-		switch (type)
-		{
-			// Matrices de base
-			case MatrixType_Projection:
-				s_matrices[MatrixType_InvProjection].updated = false;
-				s_matrices[MatrixType_InvViewProj].updated = false;
-				s_matrices[MatrixType_InvWorldViewProj].updated = false;
-				s_matrices[MatrixType_ViewProj].updated = false;
-				s_matrices[MatrixType_WorldViewProj].updated = false;
-				break;
-
-			case MatrixType_View:
-				s_matrices[MatrixType_InvView].updated = false;
-				s_matrices[MatrixType_InvViewProj].updated = false;
-				s_matrices[MatrixType_InvWorld].updated = false;
-				s_matrices[MatrixType_InvWorldViewProj].updated = false;
-				s_matrices[MatrixType_ViewProj].updated = false;
-				s_matrices[MatrixType_World].updated = false;
-				s_matrices[MatrixType_WorldViewProj].updated = false;
-				break;
-
-			case MatrixType_World:
-				s_matrices[MatrixType_InvWorld].updated = false;
-				s_matrices[MatrixType_InvWorldView].updated = false;
-				s_matrices[MatrixType_InvWorldViewProj].updated = false;
-				s_matrices[MatrixType_WorldView].updated = false;
-				s_matrices[MatrixType_WorldViewProj].updated = false;
-				break;
-
-			// Matrices combinées
-			case MatrixType_ViewProj:
-				s_matrices[MatrixType_InvViewProj].updated = false;
-				break;
-
-			case MatrixType_WorldView:
-				s_matrices[MatrixType_InvWorldView].updated = false;
-				s_matrices[MatrixType_WorldViewProj].updated = false;
-				break;
-
-			case MatrixType_WorldViewProj:
-				s_matrices[MatrixType_InvWorldViewProj].updated = false;
-				break;
-
-			case MatrixType_InvProjection:
-			case MatrixType_InvView:
-			case MatrixType_InvViewProj:
-			case MatrixType_InvWorld:
-			case MatrixType_InvWorldView:
-			case MatrixType_InvWorldViewProj:
-				break;
-		}
-
-		s_updateFlags |= Update_Matrices;
-	}
-
 	void Renderer::SetPointSize(float size)
 	{
 		#if NAZARA_RENDERER_SAFE
@@ -1067,11 +964,7 @@ namespace Nz
 		}
 		#endif
 
-		if (s_shader != shader)
-		{
-			s_shader = shader;
-			s_updateFlags |= Update_Shader;
-		}
+		s_shader = shader;
 	}
 
 	void Renderer::SetStencilCompareFunction(RendererComparison compareFunc, FaceSide faceSide)
@@ -1447,48 +1340,6 @@ namespace Nz
 
 		s_shader->Bind(); // Active le programme si ce n'est pas déjà le cas
 
-		// Si le programme a été changé depuis la dernière fois
-		if (s_updateFlags & Update_Shader)
-		{
-			// Récupération des indices des variables uniformes (-1 si la variable n'existe pas)
-			s_matrices[MatrixType_Projection].location = s_shader->GetUniformLocation(ShaderUniform_ProjMatrix);
-			s_matrices[MatrixType_View].location = s_shader->GetUniformLocation(ShaderUniform_ViewMatrix);
-			s_matrices[MatrixType_World].location = s_shader->GetUniformLocation(ShaderUniform_WorldMatrix);
-
-			s_matrices[MatrixType_ViewProj].location = s_shader->GetUniformLocation(ShaderUniform_ViewProjMatrix);
-			s_matrices[MatrixType_WorldView].location = s_shader->GetUniformLocation(ShaderUniform_WorldViewMatrix);
-			s_matrices[MatrixType_WorldViewProj].location = s_shader->GetUniformLocation(ShaderUniform_WorldViewProjMatrix);
-
-			s_matrices[MatrixType_InvProjection].location = s_shader->GetUniformLocation(ShaderUniform_InvProjMatrix);
-			s_matrices[MatrixType_InvView].location = s_shader->GetUniformLocation(ShaderUniform_InvViewMatrix);
-			s_matrices[MatrixType_InvViewProj].location = s_shader->GetUniformLocation(ShaderUniform_InvViewProjMatrix);
-			s_matrices[MatrixType_InvWorld].location = s_shader->GetUniformLocation(ShaderUniform_InvWorldMatrix);
-			s_matrices[MatrixType_InvWorldView].location = s_shader->GetUniformLocation(ShaderUniform_InvWorldViewMatrix);
-			s_matrices[MatrixType_InvWorldViewProj].location = s_shader->GetUniformLocation(ShaderUniform_InvWorldViewProjMatrix);
-
-			s_targetSize.Set(0U); // On force l'envoi des uniformes
-			s_updateFlags |= Update_Matrices; // Changement de programme, on renvoie toutes les matrices demandées
-
-			s_updateFlags &= ~Update_Shader;
-		}
-
-		// Envoi des uniformes liées au Renderer
-		Vector2ui targetSize = s_target->GetSize();
-		if (s_targetSize != targetSize)
-		{
-			int location;
-
-			location = s_shader->GetUniformLocation(ShaderUniform_InvTargetSize);
-			if (location != -1)
-				s_shader->SendVector(location, 1.f / Vector2f(targetSize));
-
-			location = s_shader->GetUniformLocation(ShaderUniform_TargetSize);
-			if (location != -1)
-				s_shader->SendVector(location, Vector2f(targetSize));
-
-			s_targetSize.Set(targetSize);
-		}
-
 		if (s_updateFlags != Update_None)
 		{
 			if (s_updateFlags & Update_Textures)
@@ -1506,23 +1357,6 @@ namespace Nz
 
 				s_dirtyTextureUnits.clear(); // Ne change pas la capacité
 				s_updateFlags &= ~Update_Textures;
-			}
-
-			if (s_updateFlags & Update_Matrices)
-			{
-				for (unsigned int i = 0; i <= MatrixType_Max; ++i)
-				{
-					MatrixUnit& unit = s_matrices[i];
-					if (unit.location != -1) // On ne traite que les matrices existant dans le programme
-					{
-						if (!unit.updated)
-							UpdateMatrix(static_cast<MatrixType>(i));
-
-						s_shader->SendMatrix(unit.location, unit.matrix);
-					}
-				}
-
-				s_updateFlags &= ~Update_Matrices;
 			}
 
 			if (s_updateFlags & Update_VAO)
@@ -2014,10 +1848,7 @@ namespace Nz
 	void Renderer::OnShaderReleased(const Shader* shader)
 	{
 		if (s_shader == shader)
-		{
 			s_shader = nullptr;
-			s_updateFlags |= Update_Shader;
-		}
 	}
 
 	void Renderer::OnTextureReleased(const Texture* texture)
@@ -2087,110 +1918,6 @@ namespace Nz
 				else
 					++it;
 			}
-		}
-	}
-
-	void Renderer::UpdateMatrix(MatrixType type)
-	{
-		#ifdef NAZARA_DEBUG
-		if (type > MatrixType_Max)
-		{
-			NazaraError("Matrix type out of enum");
-			return;
-		}
-		#endif
-
-		switch (type)
-		{
-			// Matrices de base
-			case MatrixType_Projection:
-			case MatrixType_View:
-			case MatrixType_World:
-				s_matrices[type].updated = true;
-				break;
-
-			// Matrices combinées
-			case MatrixType_ViewProj:
-				s_matrices[MatrixType_ViewProj].matrix = s_matrices[MatrixType_View].matrix;
-				s_matrices[MatrixType_ViewProj].matrix.Concatenate(s_matrices[MatrixType_Projection].matrix);
-				s_matrices[MatrixType_ViewProj].updated = true;
-				break;
-
-			case MatrixType_WorldView:
-				s_matrices[MatrixType_WorldView].matrix = s_matrices[MatrixType_World].matrix;
-				s_matrices[MatrixType_WorldView].matrix.ConcatenateAffine(s_matrices[MatrixType_View].matrix);
-				s_matrices[MatrixType_WorldView].updated = true;
-				break;
-
-			case MatrixType_WorldViewProj:
-				if (!s_matrices[MatrixType_WorldView].updated)
-					UpdateMatrix(MatrixType_WorldView);
-
-				s_matrices[MatrixType_WorldViewProj].matrix = s_matrices[MatrixType_WorldView].matrix;
-				s_matrices[MatrixType_WorldViewProj].matrix.Concatenate(s_matrices[MatrixType_Projection].matrix);
-				s_matrices[MatrixType_WorldViewProj].updated = true;
-				break;
-
-			// Matrices inversées
-			case MatrixType_InvProjection:
-				if (!s_matrices[MatrixType_Projection].updated)
-					UpdateMatrix(MatrixType_Projection);
-
-				if (!s_matrices[MatrixType_Projection].matrix.GetInverse(&s_matrices[MatrixType_InvProjection].matrix))
-					NazaraWarning("Failed to inverse Proj matrix");
-
-				s_matrices[MatrixType_InvProjection].updated = true;
-				break;
-
-			case MatrixType_InvView:
-				if (!s_matrices[MatrixType_View].updated)
-					UpdateMatrix(MatrixType_View);
-
-				if (!s_matrices[MatrixType_View].matrix.GetInverse(&s_matrices[MatrixType_InvView].matrix))
-					NazaraWarning("Failed to inverse View matrix");
-
-				s_matrices[MatrixType_InvView].updated = true;
-				break;
-
-			case MatrixType_InvViewProj:
-				if (!s_matrices[MatrixType_ViewProj].updated)
-					UpdateMatrix(MatrixType_ViewProj);
-
-				if (!s_matrices[MatrixType_ViewProj].matrix.GetInverse(&s_matrices[MatrixType_InvViewProj].matrix))
-					NazaraWarning("Failed to inverse ViewProj matrix");
-
-				s_matrices[MatrixType_InvViewProj].updated = true;
-				break;
-
-			case MatrixType_InvWorld:
-				if (!s_matrices[MatrixType_World].updated)
-					UpdateMatrix(MatrixType_World);
-
-				if (!s_matrices[MatrixType_World].matrix.GetInverse(&s_matrices[MatrixType_InvWorld].matrix))
-					NazaraWarning("Failed to inverse World matrix");
-
-				s_matrices[MatrixType_InvWorld].updated = true;
-				break;
-
-			case MatrixType_InvWorldView:
-				if (!s_matrices[MatrixType_WorldView].updated)
-					UpdateMatrix(MatrixType_WorldView);
-
-				if (!s_matrices[MatrixType_WorldView].matrix.GetInverse(&s_matrices[MatrixType_InvWorldView].matrix))
-					NazaraWarning("Failed to inverse WorldView matrix");
-
-				s_matrices[MatrixType_InvWorldView].updated = true;
-				break;
-
-			case MatrixType_InvWorldViewProj:
-				if (!s_matrices[MatrixType_WorldViewProj].updated)
-					UpdateMatrix(MatrixType_WorldViewProj);
-
-				if (!s_matrices[MatrixType_WorldViewProj].matrix.GetInverse(&s_matrices[MatrixType_InvWorldViewProj].matrix))
-					NazaraWarning("Failed to inverse WorldViewProj matrix");
-
-				s_matrices[MatrixType_InvWorldViewProj].updated = true;
-				break;
 		}
 	}
 

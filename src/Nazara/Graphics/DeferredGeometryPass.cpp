@@ -94,8 +94,8 @@ namespace Nz
 		Renderer::DrawFullscreenQuad();
 
 
-		Renderer::SetMatrix(MatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
-		Renderer::SetMatrix(MatrixType_View, sceneData.viewer->GetViewMatrix());
+		//Renderer::SetMatrix(MatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
+		//Renderer::SetMatrix(MatrixType_View, sceneData.viewer->GetViewMatrix());
 
 		BasicRenderQueue& renderQueue = *m_renderQueue->GetDeferredRenderQueue();
 
@@ -411,7 +411,7 @@ namespace Nz
 			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
 			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
-			Renderer::SetMatrix(MatrixType_World, model.matrix);
+			//Renderer::SetMatrix(MatrixType_World, model.matrix);
 			drawFunc(model.meshData.primitiveMode, 0, indexCount);
 		}
 	}
@@ -433,7 +433,7 @@ namespace Nz
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		//Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
 		auto Draw = [&]()

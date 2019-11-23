@@ -60,7 +60,6 @@ namespace Nz
 			static RendererComparison GetDepthFunc();
 			static VertexBuffer* GetInstanceBuffer();
 			static float GetLineWidth();
-			static Matrix4f GetMatrix(MatrixType type);
 			static UInt8 GetMaxAnisotropyLevel();
 			static unsigned int GetMaxColorAttachments();
 			static unsigned int GetMaxRenderTargets();
@@ -93,7 +92,6 @@ namespace Nz
 			static void SetFaceFilling(FaceFilling fillingMode);
 			static void SetIndexBuffer(const IndexBuffer* indexBuffer);
 			static void SetLineWidth(float size);
-			static void SetMatrix(MatrixType type, const Matrix4f& matrix);
 			static void SetPointSize(float size);
 			static void SetRenderStates(const RenderStates& states);
 			static void SetScissorRect(const Recti& rect);
@@ -123,7 +121,6 @@ namespace Nz
 			static void OnTextureReleased(const Texture* texture);
 			static void OnVertexBufferRelease(const VertexBuffer* vertexBuffer);
 			static void OnVertexDeclarationRelease(const VertexDeclaration* vertexDeclaration);
-			static void UpdateMatrix(MatrixType type);
 
 			static unsigned int s_moduleReferenceCounter;
 	};

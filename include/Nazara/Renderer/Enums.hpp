@@ -43,29 +43,6 @@ namespace Nz
 		GpuQueryMode_Max = GpuQueryMode_TransformFeedbackPrimitivesWritten
 	};
 
-	enum MatrixType
-	{
-		// Matrices de base
-		MatrixType_Projection,
-		MatrixType_View,
-		MatrixType_World,
-
-		// Matrices combinées
-		MatrixType_ViewProj,
-		MatrixType_WorldView,
-		MatrixType_WorldViewProj,
-
-		// Matrice inversées
-		MatrixType_InvProjection,
-		MatrixType_InvView,
-		MatrixType_InvViewProj,
-		MatrixType_InvWorld,
-		MatrixType_InvWorldView,
-		MatrixType_InvWorldViewProj,
-
-		MatrixType_Max = MatrixType_InvWorldViewProj
-	};
-
 	enum PixelBufferType
 	{
 		PixelBufferType_Pack,

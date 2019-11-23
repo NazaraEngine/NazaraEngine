@@ -57,10 +57,10 @@ namespace Nz
 		if (sceneData.background)
 			sceneData.background->Draw(sceneData.viewer);
 
-		Renderer::SetMatrix(MatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
-		Renderer::SetMatrix(MatrixType_View, sceneData.viewer->GetViewMatrix());
+		//Renderer::SetMatrix(MatrixType_Projection, sceneData.viewer->GetProjectionMatrix());
+		//Renderer::SetMatrix(MatrixType_View, sceneData.viewer->GetViewMatrix());
 
-		m_forwardTechnique->Draw(sceneData);
+		//m_forwardTechnique->Draw(sceneData);
 
 		return false;
 	}
