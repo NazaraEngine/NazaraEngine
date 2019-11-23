@@ -258,8 +258,6 @@ namespace Ndk
 		// Our view matrix depends on NodeComponent position/rotation
 		InvalidateAABB();
 		InvalidateTransformMatrix();
-
-		ForceCullingInvalidation(); //< Force invalidation on movement for now (FIXME)
 	}
 
 	void GraphicsComponent::UnregisterMaterial(Nz::Material* material)
