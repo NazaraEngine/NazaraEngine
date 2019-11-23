@@ -63,7 +63,7 @@ namespace Ndk
 				{
 				}
 
-				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Nz::Recti& scissorRect) const override
+				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Nz::Recti& scissorRect) const override
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
@@ -76,7 +76,7 @@ namespace Ndk
 						transformMatrix.SetScale(box.GetLengths());
 						transformMatrix.SetTranslation(box.GetCenter());
 
-						renderQueue->AddMesh(0, mat, m_meshData, Nz::Boxf::Zero(), transformMatrix, scissorRect);
+						renderQueue->AddMesh(0, mat, m_meshData, Nz::Boxf::Zero(), transformMatrix, instanceIndex, scissorRect);
 					};
 
 					DrawBox(entityGfx.GetAABB(), m_globalMaterial);
@@ -108,7 +108,7 @@ namespace Ndk
 				{
 				}
 
-				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Nz::Recti& scissorRect) const override
+				void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Nz::Recti& scissorRect) const override
 				{
 					NazaraAssert(m_entityOwner, "DebugRenderable has no owner");
 
@@ -122,7 +122,7 @@ namespace Ndk
 						boxMatrix.SetTranslation(box.GetCenter());
 						boxMatrix.ConcatenateAffine(transformMatrix);
 
-						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), boxMatrix, scissorRect);
+						renderQueue->AddMesh(0, m_material, m_meshData, Nz::Boxf::Zero(), boxMatrix, instanceIndex, scissorRect);
 					};
 
 					for (std::size_t i = 0; i < entityGfx.GetAttachedRenderableCount(); ++i)

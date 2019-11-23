@@ -30,7 +30,7 @@ namespace Nz
 			~DeferredRenderTechnique();
 
 			void Clear(const SceneData& sceneData) const override;
-			bool Draw(const SceneData& sceneData) const override;
+			bool Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const override;
 
 			void EnablePass(RenderPassType renderPass, int position, bool enable);
 

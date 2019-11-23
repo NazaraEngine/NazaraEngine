@@ -37,7 +37,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&& renderable) = delete;
 			virtual ~InstancedRenderable();
 
-			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const = 0;
+			virtual void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Recti& scissorRect) const = 0;
 
 			virtual std::unique_ptr<InstancedRenderable> Clone() const = 0;
 

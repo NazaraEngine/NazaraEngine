@@ -617,7 +617,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if material is invalid
 	*/
-	void BasicRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
+	void BasicRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Nz::Matrix4f& transformMatrix, std::size_t instanceIndex, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 
@@ -629,9 +629,9 @@ namespace Nz
 		{
 			depthSortedModels.Insert({
 				renderOrder,
+				instanceIndex,
 				meshData,
 				material,
-				transformMatrix,
 				scissorRect,
 				obbSphere
 			});
@@ -640,9 +640,9 @@ namespace Nz
 		{
 			models.Insert({
 				renderOrder,
+				instanceIndex,
 				meshData,
 				material,
-				transformMatrix,
 				scissorRect,
 				obbSphere
 			});

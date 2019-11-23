@@ -16,6 +16,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
+#include <Nazara/Utility/MatrixRegistry.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <limits>
 #include <Nazara/Graphics/Debug.hpp>
@@ -63,7 +64,16 @@ namespace Nz
 		m_spriteBuffer.Reset(VertexDeclaration::Get(VertexLayout_XYZ_Color_UV), &m_vertexBuffer);
 
 		PredefinedInstanceData instanceDataStruct = PredefinedInstanceData::GetOffset();
-		m_instanceData = UniformBuffer::New(instanceDataStruct.totalSize, DataStorage_Hardware, BufferUsage_Dynamic);
+		m_identityInstanceData = UniformBuffer::New(instanceDataStruct.totalSize, DataStorage_Hardware, BufferUsage_Dynamic);
+		{
+			BufferMapper<UniformBuffer> mapper(m_identityInstanceData, BufferAccess_DiscardAndWrite);
+
+			Nz::Matrix4f* worldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.worldMatrixOffset);
+			Nz::Matrix4f* invWorldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.invWorldMatrixOffset);
+
+			*worldMatrix = Matrix4f::Identity();
+			*invWorldMatrix = Matrix4f::Identity();
+		}
 
 		PredefinedLightData lightDataStruct = PredefinedLightData::GetOffset();
 		m_lightData = UniformBuffer::New(lightDataStruct.lightArraySize, DataStorage_Hardware, BufferUsage_Dynamic);
@@ -99,14 +109,14 @@ namespace Nz
 	* \remark Produces a NazaraAssert if viewer of the scene is invalid
 	*/
 
-	bool ForwardRenderTechnique::Draw(const SceneData& sceneData) const
+	bool ForwardRenderTechnique::Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 
 		m_renderQueue.Sort(sceneData.viewer);
 
 		if (!m_renderQueue.models.empty())
-			DrawModels(sceneData, m_renderQueue, m_renderQueue.models);
+			DrawModels(sceneData, matrixRegistry, m_renderQueue, m_renderQueue.models);
 
 		if (!m_renderQueue.basicSprites.empty())
 			DrawSprites(sceneData, m_renderQueue, m_renderQueue.basicSprites);
@@ -115,7 +125,7 @@ namespace Nz
 			DrawBillboards(sceneData, m_renderQueue, m_renderQueue.billboards);
 
 		if (!m_renderQueue.depthSortedModels.empty())
-			DrawModels(sceneData, m_renderQueue, m_renderQueue.depthSortedModels);
+			DrawModels(sceneData, matrixRegistry, m_renderQueue, m_renderQueue.depthSortedModels);
 
 		if (!m_renderQueue.depthSortedSprites.empty())
 			DrawSprites(sceneData, m_renderQueue, m_renderQueue.depthSortedSprites);
@@ -472,7 +482,7 @@ namespace Nz
 			customDrawable.drawable->Draw();
 	}
 	
-	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const Nz::RenderQueue<Nz::BasicRenderQueue::Model>& models) const
+	void ForwardRenderTechnique::DrawModels(const SceneData& sceneData, const MatrixRegistry& matrixRegistry, const BasicRenderQueue& renderQueue, const Nz::RenderQueue<Nz::BasicRenderQueue::Model>& models) const
 	{
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
@@ -560,8 +570,7 @@ namespace Nz
 				auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + instanceDataBinding);
 				assert(it != pipelineInstance->bindings.end());
 
-				UpdateInstance(model.matrix);
-				Renderer::SetUniformBuffer(it->second, m_instanceData);
+				Renderer::SetUniformBuffer(it->second, matrixRegistry.GetUbo(model.instanceIndex));
 			}
 
 			std::size_t lightDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboLighData);
@@ -644,8 +653,7 @@ namespace Nz
 						auto it = pipelineInstance->bindings.find(materialSettings->GetTextures().size() + materialSettings->GetUniformBlocks().size() + instanceDataBinding);
 						assert(it != pipelineInstance->bindings.end());
 
-						UpdateInstance(Nz::Matrix4f::Identity()); //< TODO: Use an identity ubo
-						Renderer::SetUniformBuffer(it->second, m_instanceData);
+						Renderer::SetUniformBuffer(it->second, m_identityInstanceData);
 					}
 
 					std::size_t viewerDataBinding = materialSettings->GetPredefinedBindingIndex(PredefinedShaderBinding_UboViewerData);
@@ -777,19 +785,6 @@ namespace Nz
 		}
 
 		Draw();
-	}
-
-	void ForwardRenderTechnique::UpdateInstance(const Nz::Matrix4f& modelMatrix) const
-	{
-		static PredefinedInstanceData instanceDataStruct = PredefinedInstanceData::GetOffset();
-
-		BufferMapper<UniformBuffer> mapper(m_instanceData, BufferAccess_DiscardAndWrite);
-
-		Nz::Matrix4f* worldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.worldMatrixOffset);
-		Nz::Matrix4f* invWorldMatrix = AccessByOffset<Nz::Matrix4f>(mapper.GetPointer(), instanceDataStruct.invWorldMatrixOffset);
-
-		*worldMatrix = modelMatrix;
-		worldMatrix->GetInverse(invWorldMatrix);
 	}
 
 	void ForwardRenderTechnique::UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const

@@ -45,12 +45,12 @@ namespace Nz
 	* \param renderOrder Specify the render queue layer to be used
 	* \param scissorRect The Scissor rect to uses for rendering
 	*/
-	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder, const Recti& scissorRect) const
+	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, std::size_t instanceIndex, int renderOrder, const Recti& scissorRect) const
 	{
 		InstanceData instanceData(Nz::Matrix4f::Identity());
 		instanceData.renderOrder = renderOrder;
 		instanceData.transformMatrix = transformMatrix;
-		return AddToRenderQueue(renderQueue, instanceData, scissorRect);
+		return AddToRenderQueue(renderQueue, instanceData, instanceIndex, scissorRect);
 	}
 
 	/*!

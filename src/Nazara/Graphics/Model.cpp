@@ -51,7 +51,7 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data used for this instance
 	*/
-	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
+	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Recti& scissorRect) const
 	{
 		unsigned int submeshCount = m_mesh->GetSubMeshCount();
 		for (unsigned int i = 0; i < submeshCount; ++i)
@@ -64,7 +64,7 @@ namespace Nz
 			meshData.primitiveMode = mesh->GetPrimitiveMode();
 			meshData.vertexBuffer = mesh->GetVertexBuffer();
 
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
+			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, instanceIndex, scissorRect);
 		}
 	}
 

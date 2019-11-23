@@ -87,7 +87,7 @@ namespace Nz
 	* \param sceneData Data of the scene
 	*/
 
-	bool DepthRenderTechnique::Draw(const SceneData& sceneData) const
+	bool DepthRenderTechnique::Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const
 	{
 		m_renderQueue.Sort(sceneData.viewer);
 
@@ -434,7 +434,7 @@ namespace Nz
 			Renderer::SetIndexBuffer(model.meshData.indexBuffer);
 			Renderer::SetVertexBuffer(model.meshData.vertexBuffer);
 
-			Renderer::SetMatrix(MatrixType_World, model.matrix);
+			//Renderer::SetMatrix(MatrixType_World, model.matrix);
 			drawFunc(model.meshData.primitiveMode, 0, indexCount);
 		}
 	}
@@ -456,7 +456,7 @@ namespace Nz
 		const MaterialPipeline::Instance* pipelineInstance = nullptr;
 
 		Renderer::SetIndexBuffer(&s_quadIndexBuffer);
-		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
+		//Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
 		auto Draw = [&]()

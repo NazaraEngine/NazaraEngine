@@ -22,7 +22,7 @@ namespace Nz
 	* \param instanceData Data used for instance
 	*/
 
-	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
+	void Billboard::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t /*instanceIndex*/, const Recti& scissorRect) const
 	{
 		Nz::Vector3f position = instanceData.transformMatrix.GetTranslation();
 		renderQueue->AddBillboards(instanceData.renderOrder, GetMaterial(), 1, scissorRect, &position, &m_size, &m_sinCos, &m_color);

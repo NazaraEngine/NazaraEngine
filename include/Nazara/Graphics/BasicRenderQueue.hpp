@@ -46,7 +46,7 @@ namespace Nz
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const Color> colorPtr = nullptr) override;
 			void AddBillboards(int renderOrder, const Material* material, std::size_t billboardCount, const Recti& scissorRect, SparsePtr<const Vector3f> positionPtr, SparsePtr<const float> sizePtr, SparsePtr<const float> anglePtr, SparsePtr<const float> alphaPtr) override;
 			void AddDrawable(int renderOrder, const Drawable* drawable) override;
-			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect) override;
+			void AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, std::size_t instanceIndex, const Recti& scissorRect) override;
 			void AddSprites(int renderOrder, const Material* material, const VertexStruct_XYZ_Color_UV* vertices, std::size_t spriteCount, const Recti& scissorRect, const Texture* overlay = nullptr) override;
 
 			void Clear(bool fully = false) override;
@@ -94,9 +94,9 @@ namespace Nz
 			struct Model
 			{
 				int layerIndex;
+				std::size_t instanceIndex;
 				MeshData meshData;
 				MovablePtr<const Nz::Material> material;
-				Nz::Matrix4f matrix;
 				Nz::Recti scissorRect;
 				Nz::Spheref obbSphere;
 			};

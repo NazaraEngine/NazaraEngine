@@ -75,7 +75,7 @@ namespace Nz
 
 	void MatrixRegistry::Unregister(std::size_t index)
 	{
-		NazaraAssert(m_availableIndices.UnboundedTest(index), "Index was not registered");
+		NazaraAssert(m_availableIndices.GetSize() > index && !m_availableIndices.Test(index), "Index was not registered");
 
 		m_availableIndices.Reset(index);
 	}

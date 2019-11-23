@@ -53,8 +53,8 @@ namespace Nz
 			Model(Model&& model) = delete;
 			virtual ~Model();
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
-			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Recti& scissorRect) const override;
+			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, std::size_t instanceIndex, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
 
 			std::unique_ptr<InstancedRenderable> Clone() const override;
 

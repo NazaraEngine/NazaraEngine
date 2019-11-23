@@ -30,7 +30,7 @@ namespace Nz
 			Billboard(Billboard&&) = delete;
 			~Billboard() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Recti& scissorRect) const override;
 
 			std::unique_ptr<InstancedRenderable> Clone() const override;
 

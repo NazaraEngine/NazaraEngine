@@ -15,6 +15,7 @@
 namespace Nz
 {
 	class AbstractRenderQueue;
+	class MatrixRegistry;
 	struct SceneData;
 
 	class NAZARA_GRAPHICS_API AbstractRenderTechnique
@@ -26,7 +27,7 @@ namespace Nz
 			virtual ~AbstractRenderTechnique();
 
 			virtual void Clear(const SceneData& sceneData) const = 0;
-			virtual bool Draw(const SceneData& sceneData) const = 0;
+			virtual bool Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const = 0;
 
 			virtual void EnableInstancing(bool instancing);
 

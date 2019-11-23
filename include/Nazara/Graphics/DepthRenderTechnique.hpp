@@ -24,7 +24,7 @@ namespace Nz
 			~DepthRenderTechnique() = default;
 
 			void Clear(const SceneData& sceneData) const override;
-			bool Draw(const SceneData& sceneData) const override;
+			bool Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const override;
 
 			AbstractRenderQueue* GetRenderQueue() override;
 			RenderTechniqueType GetType() const override;

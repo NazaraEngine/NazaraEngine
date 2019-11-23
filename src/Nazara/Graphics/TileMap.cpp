@@ -24,7 +24,7 @@ namespace Nz
 	* \param renderQueue Queue to be added
 	* \param instanceData Data for the instance
 	*/
-	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
+	void TileMap::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t /*instanceIndex*/, const Recti& scissorRect) const
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 

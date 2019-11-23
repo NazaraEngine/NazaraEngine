@@ -30,7 +30,7 @@ namespace Nz
 			inline TextSprite(const TextSprite& sprite);
 			~TextSprite() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
+			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, std::size_t instanceIndex, const Recti& scissorRect) const override;
 
 			inline void Clear();
 

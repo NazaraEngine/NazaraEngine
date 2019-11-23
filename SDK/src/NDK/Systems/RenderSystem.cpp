@@ -238,10 +238,16 @@ namespace Ndk
 			{
 				renderQueue->Clear();
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
+				{
+					gfxComponent->PushMatrix(m_matrixRegistry.value());
 					gfxComponent->AddToRenderQueue(renderQueue);
+				}
 
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
+				{
+					gfxComponent->PushMatrix(m_matrixRegistry.value());
 					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue);
+				}
 
 				for (const Ndk::EntityHandle& light : m_lights)
 				{
@@ -261,12 +267,16 @@ namespace Ndk
 
 				m_forceRenderQueueInvalidation = false;
 			}
+			else
+			{
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
+					gfxComponent->PushMatrix(*m_matrixRegistry);
 
-			for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
-				gfxComponent->PushMatrix(*m_matrixRegistry);
+				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
+					gfxComponent->PushMatrix(*m_matrixRegistry);
+			}
 
-			for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
-				gfxComponent->PushMatrix(*m_matrixRegistry);
+			m_matrixRegistry->Freeze();
 
 			camComponent.ApplyView();
 
@@ -279,7 +289,7 @@ namespace Ndk
 				sceneData.globalReflectionTexture = static_cast<Nz::SkyboxBackground*>(m_background.Get())->GetTexture();
 
 			m_renderTechnique->Clear(sceneData);
-			m_renderTechnique->Draw(sceneData);
+			m_renderTechnique->Draw(sceneData, m_matrixRegistry.value());
 		}
 	}
 
@@ -336,11 +346,11 @@ namespace Ndk
 			}
 
 			///TODO: Cache the matrices in the light?
-			Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f));
-			Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetRotation() * Nz::Vector3f::Forward() * 100.f, lightNode.GetRotation()));
+			//Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Ortho(0.f, 100.f, 100.f, 0.f, 1.f, 100.f));
+			//Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetRotation() * Nz::Vector3f::Forward() * 100.f, lightNode.GetRotation()));
 
 			m_shadowTechnique.Clear(dummySceneData);
-			m_shadowTechnique.Draw(dummySceneData);
+			m_shadowTechnique.Draw(dummySceneData, m_matrixRegistry.value());
 		}
 	}
 
@@ -392,8 +402,8 @@ namespace Ndk
 						Nz::Renderer::SetViewport(Nz::Recti(0, 0, shadowMapSize.x, shadowMapSize.y));
 
 						///TODO: Cache the matrices in the light?
-						Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Perspective(Nz::FromDegrees(90.f), 1.f, 0.1f, lightComponent.GetRadius()));
-						Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetPosition(), rotations[face]));
+						//Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Perspective(Nz::FromDegrees(90.f), 1.f, 0.1f, lightComponent.GetRadius()));
+						//Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetPosition(), rotations[face]));
 
 						Nz::AbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
 						renderQueue->Clear();
@@ -407,7 +417,7 @@ namespace Ndk
 						}
 
 						m_shadowTechnique.Clear(dummySceneData);
-						m_shadowTechnique.Draw(dummySceneData);
+						m_shadowTechnique.Draw(dummySceneData, m_matrixRegistry.value());
 					}
 					break;
 				}
@@ -419,8 +429,8 @@ namespace Ndk
 					Nz::Renderer::SetViewport(Nz::Recti(0, 0, shadowMapSize.x, shadowMapSize.y));
 
 					///TODO: Cache the matrices in the light?
-					Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Perspective(lightComponent.GetOuterAngle()*2.f, 1.f, 0.1f, lightComponent.GetRadius()));
-					Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetPosition(), lightNode.GetRotation()));
+					//Nz::Renderer::SetMatrix(Nz::MatrixType_Projection, Nz::Matrix4f::Perspective(lightComponent.GetOuterAngle()*2.f, 1.f, 0.1f, lightComponent.GetRadius()));
+					//Nz::Renderer::SetMatrix(Nz::MatrixType_View, Nz::Matrix4f::ViewMatrix(lightNode.GetPosition(), lightNode.GetRotation()));
 
 					Nz::AbstractRenderQueue* renderQueue = m_shadowTechnique.GetRenderQueue();
 					renderQueue->Clear();
@@ -434,7 +444,7 @@ namespace Ndk
 					}
 
 					m_shadowTechnique.Clear(dummySceneData);
-					m_shadowTechnique.Draw(dummySceneData);
+					m_shadowTechnique.Draw(dummySceneData, m_matrixRegistry.value());
 					break;
 				}
 			}

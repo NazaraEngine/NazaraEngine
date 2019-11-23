@@ -215,14 +215,14 @@ namespace Nz
 	* \param transformMatrix Matrix of the mesh
 	*/
 
-	void DeferredProxyRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, const Recti& scissorRect)
+	void DeferredProxyRenderQueue::AddMesh(int renderOrder, const Material* material, const MeshData& meshData, const Boxf& meshAABB, const Matrix4f& transformMatrix, std::size_t instanceIndex, const Recti& scissorRect)
 	{
 		NazaraAssert(material, "Invalid material");
 
 		if (!material->IsBlendingEnabled())
-			m_deferredRenderQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix, scissorRect);
+			m_deferredRenderQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix, instanceIndex, scissorRect);
 		else
-			m_forwardRenderQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix, scissorRect);
+			m_forwardRenderQueue->AddMesh(renderOrder, material, meshData, meshAABB, transformMatrix, instanceIndex, scissorRect);
 	}
 
 	/*!

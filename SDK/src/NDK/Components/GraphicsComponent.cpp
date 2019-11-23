@@ -27,6 +27,7 @@ namespace Ndk
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
+		std::size_t instanceData = m_uboIndex.value();
 		for (const Renderable& object : m_renderables)
 		{
 			if (!object.dataUpdated)
@@ -35,7 +36,7 @@ namespace Ndk
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, instanceData, m_scissorRect);
 		}
 	}
 
@@ -52,6 +53,7 @@ namespace Ndk
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
+		std::size_t instanceData = m_uboIndex.value();
 		for (const Renderable& object : m_renderables)
 		{
 			if (frustum.Contains(object.boundingVolume))
@@ -62,7 +64,7 @@ namespace Ndk
 					object.dataUpdated = true;
 				}
 
-				object.renderable->AddToRenderQueue(renderQueue, object.data, m_scissorRect);
+				object.renderable->AddToRenderQueue(renderQueue, object.data, instanceData, m_scissorRect);
 			}
 		}
 	}

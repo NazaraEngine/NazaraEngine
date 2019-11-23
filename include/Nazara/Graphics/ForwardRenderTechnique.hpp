@@ -25,7 +25,7 @@ namespace Nz
 			~ForwardRenderTechnique() = default;
 
 			void Clear(const SceneData& sceneData) const override;
-			bool Draw(const SceneData& sceneData) const override;
+			bool Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const override;
 
 			unsigned int GetMaxLightPassPerObject() const;
 			AbstractRenderQueue* GetRenderQueue() override;
@@ -43,10 +43,9 @@ namespace Nz
 			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Billboard>& billboards) const;
 			void DrawBillboards(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::BillboardChain>& billboards) const;
 			void DrawCustomDrawables(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::CustomDrawable>& customDrawables) const;
-			void DrawModels(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Model>& models) const;
+			void DrawModels(const SceneData& sceneData, const MatrixRegistry& matrixRegistry, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::Model>& models) const;
 			void DrawSprites(const SceneData& sceneData, const BasicRenderQueue& renderQueue, const RenderQueue<BasicRenderQueue::SpriteChain>& sprites) const;
 
-			void UpdateInstance(const Nz::Matrix4f& modelMatrix) const;
 			void UpdateLightUniforms(std::size_t firstLightIndex, std::size_t lightCount) const;
 
 			static float ComputeDirectionalLightScore(const Spheref& object, const AbstractRenderQueue::DirectionalLight& light);
@@ -75,7 +74,7 @@ namespace Nz
 			mutable std::vector<SpriteBatch> m_spriteBatches;
 			Buffer m_vertexBuffer;
 			mutable BasicRenderQueue m_renderQueue;
-			UniformBufferRef m_instanceData;
+			UniformBufferRef m_identityInstanceData;
 			UniformBufferRef m_lightData;
 			TextureRef m_whiteCubemap;
 			TextureRef m_whiteTexture;

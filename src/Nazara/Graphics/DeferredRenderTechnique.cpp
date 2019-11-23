@@ -242,7 +242,7 @@ namespace Nz
 	* \remark Produces a NazaraError if updating viewport dimensions failed
 	*/
 
-	bool DeferredRenderTechnique::Draw(const SceneData& sceneData) const
+	bool DeferredRenderTechnique::Draw(const SceneData& sceneData, const MatrixRegistry& matrixRegistry) const
 	{
 		NazaraAssert(sceneData.viewer, "Invalid viewer");
 		Recti viewerViewport = sceneData.viewer->GetViewport();
