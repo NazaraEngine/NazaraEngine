@@ -200,6 +200,7 @@ Nazara Engine:
 - Add Flags<E>::Clear(Flags) helper method, to clear one or more flags.
 - Add Flags<E>::Clear() helper method, to reset flags
 - Add Flags<E>::Set(Flags) helper method, to enable flags
+- ⚠ Constraint2D are no longer managed by references and are now handled objects
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -297,6 +298,7 @@ Nazara Development Kit:
 - Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
 - Fixed PhysicsComponent2D copy not copying physics attributes
 - Added Entity::DropComponent which detaches a component without necessarily destroying it
+- ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
 
 # 0.4:
 
