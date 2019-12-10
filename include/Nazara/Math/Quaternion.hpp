@@ -56,7 +56,6 @@ namespace Nz
 			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
 			Quaternion& Set(const T quat[4]);
 			//Quaternion& Set(const Matrix3<T>& mat);
-			Quaternion& Set(const Quaternion& quat);
 			template<typename U> Quaternion& Set(const Quaternion<U>& quat);
 
 			T SquaredMagnitude() const;

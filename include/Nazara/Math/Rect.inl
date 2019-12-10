@@ -476,21 +476,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the rectangle with components from another
-	* \return A reference to this rectangle
-	*
-	* \param rect The other Rect
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::Set(const Rect<T>& rect)
-	{
-		std::memcpy(this, &rect, sizeof(Rect));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the rectange from a vector representing width and height
 	* \return A reference to this rectangle
 	*

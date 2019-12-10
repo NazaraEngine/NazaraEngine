@@ -444,6 +444,6 @@ namespace Nz
 		NazaraUnused(threadIndex);
 
 		RigidBody3D* me = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
-		me->m_matrix.Set(matrix);
+		me->m_matrix = matrix;
 	}
 }

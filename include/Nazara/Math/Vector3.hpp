@@ -67,7 +67,6 @@ namespace Nz
 			Vector3& Set(T scale);
 			Vector3& Set(const T vec[3]);
 			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
-			Vector3& Set(const Vector3<T>& vec);
 			template<typename U> Vector3& Set(const Vector3<U>& vec);
 			Vector3& Set(const Vector4<T>& vec);
 

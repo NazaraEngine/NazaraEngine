@@ -624,21 +624,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the frustum from another frustum
-	* \return A reference to this frustum
-	*
-	* \param frustum The other frustum
-	*/
-
-	template<typename T>
-	Frustum<T>& Frustum<T>::Set(const Frustum& frustum)
-	{
-		std::memcpy(this, &frustum, sizeof(Frustum));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the frustum from another type of Frustum
 	* \return A reference to this frustum
 	*

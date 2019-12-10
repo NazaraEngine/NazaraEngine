@@ -367,22 +367,8 @@ namespace Nz
 	template<typename T>
 	Vector2<T>& Vector2<T>::Set(const T vec[2])
 	{
-		std::memcpy(&x, vec, 2*sizeof(T));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another vector
-	* \return A reference to this vector
-	*
-	* \param vec The other vector
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(const Vector2& vec)
-	{
-		std::memcpy(this, &vec, sizeof(Vector2));
+		x = vec[0];
+		y = vec[1];
 
 		return *this;
 	}
