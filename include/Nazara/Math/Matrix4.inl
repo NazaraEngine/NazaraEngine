@@ -220,6 +220,25 @@ namespace Nz
 		           F(1.0));
 	}
 
+	template<typename T>
+	void Matrix4<T>::Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale)
+	{
+		Matrix4f localMat(*this);
+
+		translation = localMat.GetTranslation();
+		scale = localMat.GetScale();
+
+		Vector3<T> invScale;
+		invScale.x = T(1) / scale.x;
+		invScale.y = T(1) / scale.y;
+		invScale.z = T(1) / scale.z;
+
+		localMat.ApplyScale(invScale);
+
+		rotation = localMat.GetRotation();
+	}
+
+
 	/*!
 	* \brief Gets the ith column of the matrix
 	* \return Vector4 which is the transformation of this axis

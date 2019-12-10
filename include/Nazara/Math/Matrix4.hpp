@@ -44,6 +44,8 @@ namespace Nz
 			Matrix4& Concatenate(const Matrix4& matrix);
 			Matrix4& ConcatenateAffine(const Matrix4& matrix);
 
+			void Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale);
+
 			Vector4<T> GetColumn(unsigned int column) const;
 			T GetDeterminant() const;
 			T GetDeterminantAffine() const;
