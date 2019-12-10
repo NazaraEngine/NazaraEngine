@@ -282,7 +282,7 @@ namespace Ndk
 				{
 					case 1:
 						if (lua.IsOfType(argIndex, "Matrix4"))
-							instance.Set(*static_cast<Nz::Matrix4d*>(lua.ToUserdata(argIndex)));
+							instance = *static_cast<Nz::Matrix4d*>(lua.ToUserdata(argIndex));
 						break;
 
 					case 16:
@@ -291,7 +291,7 @@ namespace Ndk
 						for (std::size_t i = 0; i < 16; ++i)
 							values[i] = lua.CheckNumber(argIndex++);
 
-						instance.Set(values);
+						instance = Nz::Matrix4d(values);
 
 						return 0;
 					}

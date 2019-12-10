@@ -201,6 +201,7 @@ Nazara Engine:
 - Add Flags<E>::Clear() helper method, to reset flags
 - Add Flags<E>::Set(Flags) helper method, to enable flags
 - ⚠ Constraint2D are no longer managed by references and are now handled objects
+- ⚠ Removed all Set methods from math classes taking their own type (e.g. Box::Set(Box))
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

@@ -55,7 +55,6 @@ namespace Nz
 			Rect& Set(T Width, T Height);
 			Rect& Set(T X, T Y, T Width, T Height);
 			Rect& Set(const T rect[4]);
-			Rect& Set(const Rect<T>& rect);
 			Rect& Set(const Vector2<T>& lengths);
 			Rect& Set(const Vector2<T>& vec1, const Vector2<T>& vec2);
 			template<typename U> Rect& Set(const Rect<U>& rect);

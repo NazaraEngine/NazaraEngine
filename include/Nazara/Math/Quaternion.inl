@@ -431,21 +431,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the quaternion from another quaternion
-	* \return A reference to this quaternion
-	*
-	* \param quat The other quaternion
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(const Quaternion& quat)
-	{
-		std::memcpy(this, &quat, sizeof(Quaternion));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the quaternion from another type of Quaternion
 	* \return A reference to this quaternion
 	*

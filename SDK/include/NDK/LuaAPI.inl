@@ -125,14 +125,14 @@ namespace Nz
 					state.Pop();
 				}
 
-				mat->Set(values);
+				*mat = Matrix4d(values);
 				return 1;
 			}
 
 			default:
 			{
 				if (state.IsOfType(index, "Matrix4"))
-					mat->Set(*static_cast<Matrix4d*>(state.ToUserdata(index)));
+					*mat = *static_cast<Matrix4d*>(state.ToUserdata(index));
 
 				return 1;
 			}

@@ -57,7 +57,6 @@ namespace Nz
 			Vector4& Set(const T vec[4]);
 			Vector4& Set(const Vector2<T>& vec, T Z = 0.0, T W = 1.0);
 			Vector4& Set(const Vector3<T>& vec, T W = 1.0);
-			Vector4& Set(const Vector4<T>& vec);
 			template<typename U> Vector4& Set(const Vector4<U>& vec);
 
 			String ToString() const;
