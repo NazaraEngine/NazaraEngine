@@ -839,6 +839,7 @@ function NazaraBuild:PrepareGeneric()
 		targetsuffix("-d")
 
 	filter("configurations:*Debug*")
+		optimize("Debug")
 		symbols("On")
 
 	filter("configurations:not *Debug*")

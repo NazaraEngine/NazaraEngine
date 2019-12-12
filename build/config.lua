@@ -11,7 +11,7 @@ BuildDependencies = true
 BuildExamples = true
 
 -- Setup configurations array (valid values: Debug, Release, ReleaseWithDebug) 
-Configurations = "Debug,Release" -- "Debug,Release,ReleaseWithDebug"
+Configurations = "Debug,Release,ReleaseWithDebug" -- "Debug,Release,ReleaseWithDebug"
 
 -- Setup additionnals install directories, separated by a semi-colon ; (library binaries will be copied there)
 --InstallDir = "/usr/local/lib64"
