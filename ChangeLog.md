@@ -20,6 +20,7 @@ Miscellaneous:
 - Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 - ⚠ Appveyor nightlies are now compiled with VS2017
 - Set libraries' rpath to current folder (.)
+- Add ReleaseWithDebug target
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
