@@ -336,7 +336,7 @@ namespace Ndk
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
-		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
+		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition(Nz::CoordSys_Global));
 		Nz::Vector2f widgetSize = GetSize();
 
 		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);

@@ -203,6 +203,7 @@ Nazara Engine:
 - ⚠ Constraint2D are no longer managed by references and are now handled objects
 - ⚠ Removed all Set methods from math classes taking their own type (e.g. Box::Set(Box))
 - Added Matrix4::Decompose
+- ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
