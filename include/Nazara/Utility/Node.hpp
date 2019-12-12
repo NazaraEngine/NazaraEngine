@@ -41,10 +41,10 @@ namespace Nz
 			virtual Vector3f GetLeft() const;
 			virtual NodeType GetNodeType() const;
 			const Node* GetParent() const;
-			Vector3f GetPosition(CoordSys coordSys = CoordSys_Global) const;
+			Vector3f GetPosition(CoordSys coordSys = CoordSys_Local) const;
 			virtual Vector3f GetRight() const;
-			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Global) const;
-			Vector3f GetScale(CoordSys coordSys = CoordSys_Global) const;
+			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Local) const;
+			Vector3f GetScale(CoordSys coordSys = CoordSys_Local) const;
 			const Matrix4f& GetTransformMatrix() const;
 			virtual Vector3f GetUp() const;
 
