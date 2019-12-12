@@ -71,7 +71,7 @@ Ndk::EntityHandle AddCamera(Ndk::World& world, Nz::RenderWindow& window)
 	auto& node = view->AddComponent<Ndk::NodeComponent>();
 	node.SetPosition(Nz::Vector3f::Zero());
 	auto& cam = view->AddComponent<Ndk::CameraComponent>();
-	cam.SetProjectionType(Nz::ProjectionType_Orthogonal); // 2D
+	cam.SetProjectionType(Nz::ProjectionType_OrthogonalTL); // 2D
 	cam.SetTarget(&window);
 
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());

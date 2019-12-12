@@ -402,8 +402,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetSize().y;
-				glScissor(scissorBox.x, height - scissorBox.height - scissorBox.y, scissorBox.width, scissorBox.height);
+				glScissor(scissorBox.x, scissorBox.y, scissorBox.width, scissorBox.height);
 				s_contextStates->scissorBoxUpdated = true;
 			}
 			else
@@ -494,8 +493,7 @@ namespace Nz
 		{
 			if (s_contextStates->currentTarget)
 			{
-				unsigned int height = s_contextStates->currentTarget->GetSize().y;
-				glViewport(viewport.x, height - viewport.height - viewport.y, viewport.width, viewport.height);
+				glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				s_contextStates->viewportUpdated = true;
 			}
 			else

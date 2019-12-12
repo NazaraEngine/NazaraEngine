@@ -19,7 +19,6 @@ int main(int argc, char* argv[])
 	mainWindow.EnableCloseOnQuit(false);
 
 	Ndk::World& world = application.AddWorld();
-	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(117, 122, 214)));
 
 	Ndk::EntityHandle viewEntity = world.CreateEntity();
@@ -27,7 +26,7 @@ int main(int argc, char* argv[])
 
 	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
 	viewer.SetTarget(&mainWindow);
-	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+	viewer.SetProjectionType(Nz::ProjectionType_OrthogonalBL);
 
 
 	Nz::EventHandler& eventHandler = mainWindow.GetEventHandler();

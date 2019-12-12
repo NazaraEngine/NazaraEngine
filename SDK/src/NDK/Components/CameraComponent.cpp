@@ -286,16 +286,33 @@ namespace Ndk
 	{
 		switch (m_projectionType)
 		{
-			case Nz::ProjectionType_Orthogonal:
+			case Nz::ProjectionType_OrthogonalBL:
+			case Nz::ProjectionType_OrthogonalTL:
+			{
+				float left = 0.f;
+				float right;
+				float top;
+				float bottom = 0.f;
+
 				if (m_size.x <= 0.f || m_size.y <= 0.f)
 				{
 					EnsureViewportUpdate();
 
-					m_projectionMatrix.MakeOrtho(0.f, static_cast<float>(m_viewport.width), 0.f, static_cast<float>(m_viewport.height), m_zNear, m_zFar);
+					right = float(m_viewport.width);
+					top = float(m_viewport.height);
 				}
 				else
-					m_projectionMatrix.MakeOrtho(0.f, m_size.x, 0.f, m_size.y, m_zNear, m_zFar);
+				{
+					right = m_size.x;
+					top = m_size.y;
+				}
+
+				if (m_projectionType == Nz::ProjectionType_OrthogonalTL)
+					std::swap(top, bottom);
+
+				m_projectionMatrix.MakeOrtho(left, right, top, bottom, m_zNear, m_zFar);
 				break;
+			}
 
 			case Nz::ProjectionType_Perspective:
 				EnsureViewportUpdate(); // Can affect aspect ratio

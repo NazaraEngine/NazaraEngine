@@ -18,7 +18,6 @@ int main(int argc, char* argv[])
 
 
 	Ndk::World& world = application.AddWorld();
-	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(117, 122, 214)));
 
 
@@ -27,7 +26,7 @@ int main(int argc, char* argv[])
 
 	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
 	viewer.SetTarget(&mainWindow);
-	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+	viewer.SetProjectionType(Nz::ProjectionType_OrthogonalBL);
 
 	Nz::SimpleTextDrawer textDrawer;
 	textDrawer.SetCharacterSize(72);

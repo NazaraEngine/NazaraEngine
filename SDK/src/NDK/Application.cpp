@@ -161,6 +161,7 @@ namespace Ndk
 		});
 
 		Console& consoleRef = *overlay->console;
+		consoleRef.SetPosition(0.f, windowDimensions.y);
 		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
 		consoleRef.Show(false);
 
@@ -228,6 +229,7 @@ namespace Ndk
 		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
 		{
 			Nz::Vector2ui size = renderTarget->GetSize();
+			consoleRef.SetPosition(0.f, size.y);
 			consoleRef.Resize({float(size.x), size.y / 4.f});
 		});
 
@@ -240,8 +242,14 @@ namespace Ndk
 		fpsCounter->sprite = Nz::TextSprite::New();
 
 		fpsCounter->entity = info.overlayWorld->CreateEntity();
-		fpsCounter->entity->AddComponent<NodeComponent>();
+		fpsCounter->entity->AddComponent<NodeComponent>().SetPosition(0.f, info.renderTarget->GetSize().y);
 		fpsCounter->entity->AddComponent<GraphicsComponent>().Attach(fpsCounter->sprite);
+		
+		fpsCounter->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&fpsCounter] (const Nz::RenderTarget* renderTarget)
+		{
+			Nz::Vector2ui size = renderTarget->GetSize();
+			fpsCounter->entity->GetComponent<NodeComponent>().SetPosition(0.f, size.y);
+		});
 
 		info.fpsCounter = std::move(fpsCounter);
 	}
@@ -256,13 +264,12 @@ namespace Ndk
 		RenderSystem& renderSystem = info.overlayWorld->AddSystem<RenderSystem>();
 		renderSystem.ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
 		renderSystem.SetDefaultBackground(nullptr);
-		renderSystem.SetGlobalUp(Nz::Vector3f::Down());
 
 		EntityHandle viewer = info.overlayWorld->CreateEntity();
 		CameraComponent& camComponent = viewer->AddComponent<CameraComponent>();
 		viewer->AddComponent<NodeComponent>();
 
-		camComponent.SetProjectionType(Nz::ProjectionType_Orthogonal);
+		camComponent.SetProjectionType(Nz::ProjectionType_OrthogonalBL);
 		camComponent.SetTarget(info.renderTarget);
 	}
 	#endif

@@ -58,7 +58,6 @@ int main()
 	shared.particleCount = Nz::TextSprite::New();
 	shared.particleCount->Update(Nz::SimpleTextDrawer::Draw("XXXXX particles", 36));
 
-	world2D.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	world3D.GetSystem<Ndk::RenderSystem>().ChangeRenderTechnique<Nz::DeferredRenderTechnique>();
 
 
@@ -67,7 +66,7 @@ int main()
 
 	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
 	viewer.SetTarget(&window);
-	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+	viewer.SetProjectionType(Nz::ProjectionType_OrthogonalBL);
 
 	shared.viewer2D = viewEntity;
 
@@ -102,8 +101,8 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 	demoNameNode.SetPosition(5.f, 5.f);
-	particleCountNode.SetPosition(5.f, windowSize.y - particleCountBox.height - 5.f);
-	fpsNode.SetPosition(5.f, windowSize.x - fpsCountBox.height - particleCountBox.height - 5.f);
+	particleCountNode.SetPosition(5.f, 5.f + particleCountBox.height);
+	fpsNode.SetPosition(5.f, 5.f + particleCountBox.height + fpsCountBox.height);
 
 
 	shared.demos.push_back(std::make_shared<LogoExample>(shared));

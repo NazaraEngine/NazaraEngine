@@ -50,6 +50,11 @@ namespace Ndk
 			SetKeyboardOwner(InvalidCanvasIndex);
 	}
 
+	inline Nz::Vector2f Canvas::FromScreenSpace(Nz::Vector2i position)
+	{
+		return Nz::Vector2f(float(position.x), m_size.y - float(position.y) - 1);
+	}
+
 	inline bool Canvas::IsKeyboardOwner(std::size_t canvasIndex) const
 	{
 		return m_keyboardOwner == canvasIndex;

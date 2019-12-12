@@ -143,7 +143,7 @@ ParticleDemo("Logo", sharedData)
 				continue;
 
 			PixelData data;
-			data.pos.Set(x, y);
+			data.pos.Set(x, height - y - 1);
 			data.color = color;
 
 			m_pixels.push_back(data);
@@ -191,8 +191,10 @@ void LogoExample::Enter(Ndk::StateMachine& fsm)
 	m_accumulator = pauseTime + duration;
 	m_totalAccumulator = 0.f;
 
+	Nz::Vector2f worldPosition = Nz::Vector2f(m_shared.viewer2D->GetComponent<Ndk::CameraComponent>().Unproject(Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target))));
+
 	SpriteController* controller = static_cast<SpriteController*>(m_controller.Get());
-	controller->actualMousePos = controller->oldMousePos = Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target));
+	controller->actualMousePos = controller->oldMousePos = worldPosition;
 }
 
 void LogoExample::Leave(Ndk::StateMachine & fsm)
@@ -218,8 +220,10 @@ bool LogoExample::Update(Ndk::StateMachine& fsm, float elapsedTime)
 	{
 		m_mouseClock.Restart();
 
+		Nz::Vector2f worldPosition = Nz::Vector2f(m_shared.viewer2D->GetComponent<Ndk::CameraComponent>().Unproject(Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target))));
+
 		controller->oldMousePos = controller->actualMousePos;
-		controller->actualMousePos = Nz::Vector2f(Nz::Mouse::GetPosition(*m_shared.target));
+		controller->actualMousePos = Nz::Vector2f(worldPosition);
 	}
 
 	if (Nz::Mouse::IsButtonPressed(Nz::Mouse::Left))

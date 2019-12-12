@@ -29,7 +29,8 @@ namespace Nz
 
 	enum ProjectionType
 	{
-		ProjectionType_Orthogonal,
+		ProjectionType_OrthogonalTL,
+		ProjectionType_OrthogonalBL,
 		ProjectionType_Perspective,
 
 		ProjectionType_Max = ProjectionType_Perspective

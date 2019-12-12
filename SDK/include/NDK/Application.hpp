@@ -97,6 +97,8 @@ namespace Ndk
 				EntityOwner entity;
 				float elapsedTime = 0.f;
 				unsigned int frameCount = 0;
+
+				NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, resizedSlot);
 			};
 			#endif
 

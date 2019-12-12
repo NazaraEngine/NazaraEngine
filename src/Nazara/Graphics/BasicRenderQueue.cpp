@@ -875,7 +875,7 @@ namespace Nz
 			return index;
 		});
 
-		if (viewer->GetProjectionType() == ProjectionType_Orthogonal)
+		if (viewer->GetProjectionType() != ProjectionType_Perspective)
 		{
 			depthSortedModels.Sort([&](const Model& model)
 			{

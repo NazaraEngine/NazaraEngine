@@ -54,8 +54,9 @@ namespace Ndk
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			Nz::Vector2f eventPosition = FromScreenSpace({ event.x, event.y });
+			int x = static_cast<int>(std::round(eventPosition.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(eventPosition.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseButtonPress(x, y, event.button);
 		}
@@ -67,8 +68,9 @@ namespace Ndk
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			Nz::Vector2f eventPosition = FromScreenSpace({ event.x, event.y });
+			int x = static_cast<int>(std::round(eventPosition.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(eventPosition.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseButtonRelease(x, y, event.button);
 		}
@@ -79,7 +81,7 @@ namespace Ndk
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
-		Nz::Vector3f mousePos(float(event.x), float(event.y), 0.f);
+		Nz::Vector3f mousePos = FromScreenSpace({ event.x, event.y });
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
 			const Nz::Boxf& box = m_widgetEntries[i].box;
@@ -134,8 +136,9 @@ namespace Ndk
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			Nz::Vector2f eventPosition = FromScreenSpace({ event.x, event.y });
+			int x = static_cast<int>(std::round(eventPosition.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(eventPosition.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseWheelMoved(x, y, event.delta);
 		}

@@ -350,7 +350,7 @@ namespace Ndk
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;
 			if (entity->HasComponent<GraphicsComponent>())
-				entity->GetComponent<GraphicsComponent>().SetScissorRect(fullBounds);
+				;// entity->GetComponent<GraphicsComponent>().SetScissorRect(fullBounds);
 		}
 	}
 }

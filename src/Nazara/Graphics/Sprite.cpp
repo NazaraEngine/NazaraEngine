@@ -40,7 +40,7 @@ namespace Nz
 	*/
 	void Sprite::MakeBoundingVolume() const
 	{
-		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);
+		Vector3f origin(m_origin.x, m_origin.y, m_origin.z);
 
 		m_boundingVolume.Set(-origin, m_size.x*Vector3f::Right() + m_size.y*Vector3f::Down() - origin);
 	}
@@ -175,7 +175,7 @@ namespace Nz
 		SparsePtr<Vector3f> posPtr(&vertices[0].position, sizeof(VertexStruct_XYZ_Color_UV));
 		SparsePtr<Vector2f> texCoordPtr(&vertices[0].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
-		Vector3f origin(m_origin.x, -m_origin.y, m_origin.z);
+		Vector3f origin(m_origin.x, m_origin.y, m_origin.z);
 
 		*colorPtr++ = m_color * m_cornerColor[RectCorner_LeftTop];
 		*posPtr++ = instanceData->transformMatrix.Transform(Vector3f(-origin));

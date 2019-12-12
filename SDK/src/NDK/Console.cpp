@@ -221,6 +221,6 @@ namespace Ndk
 		m_historyArea->Resize({ size.x, historyHeight - 4.f });
 
 		m_input->Resize({size.x, size.y - historyHeight});
-		m_input->SetPosition(origin.x, origin.y + historyHeight);
+		m_input->SetPosition(origin.x, origin.y - historyHeight);
 	}
 }
