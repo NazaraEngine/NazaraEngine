@@ -598,7 +598,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return (m_derivedScale, m_derivedRotation.GetConjugate()*(globalPosition - m_derivedPosition))/m_derivedScale;
+		return m_derivedRotation.GetConjugate()*(globalPosition - m_derivedPosition)/m_derivedScale;
 	}
 
 	Quaternionf Node::ToLocalRotation(const Quaternionf& globalRotation) const
