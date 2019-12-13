@@ -574,7 +574,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return m_derivedPosition + (m_derivedScale * (m_derivedRotation * localPosition));
+		return m_derivedPosition + (m_derivedScale * (ScaleQuaternion(m_derivedScale, m_derivedRotation) * localPosition));
 	}
 
 	Quaternionf Node::ToGlobalRotation(const Quaternionf& localRotation) const
@@ -582,7 +582,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return m_derivedRotation * localRotation;
+		return ScaleQuaternion(m_derivedScale, m_derivedRotation) * localRotation;
 	}
 
 	Vector3f Node::ToGlobalScale(const Vector3f& localScale) const
@@ -598,7 +598,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return (m_derivedRotation.GetConjugate()*(globalPosition - m_derivedPosition))/m_derivedScale;
+		return (m_derivedScale, m_derivedRotation.GetConjugate()*(globalPosition - m_derivedPosition))/m_derivedScale;
 	}
 
 	Quaternionf Node::ToLocalRotation(const Quaternionf& globalRotation) const
@@ -688,7 +688,11 @@ namespace Nz
 
 			if (m_inheritRotation)
 			{
-				m_derivedRotation = m_parent->m_derivedRotation * m_initialRotation * m_rotation;
+				Quaternionf rotation = m_initialRotation * m_rotation;
+				if (m_inheritScale)
+					rotation = ScaleQuaternion(m_parent->m_derivedScale, rotation);
+
+				m_derivedRotation = m_parent->m_derivedRotation * rotation;
 				m_derivedRotation.Normalize();
 			}
 			else
@@ -715,5 +719,28 @@ namespace Nz
 
 		m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 		m_transformMatrixUpdated = true;
+	}
+
+	Quaternionf Node::ScaleQuaternion(const Vector3f& scale, Quaternionf quaternion)
+	{
+		if (std::signbit(scale.x))
+		{
+			quaternion.z = -quaternion.z;
+			quaternion.y = -quaternion.y;
+		}
+
+		if (std::signbit(scale.y))
+		{
+			quaternion.x = -quaternion.x;
+			quaternion.z = -quaternion.z;
+		}
+
+		if (std::signbit(scale.z))
+		{
+			quaternion.x = -quaternion.x;
+			quaternion.y = -quaternion.y;
+		}
+
+		return quaternion;
 	}
 }

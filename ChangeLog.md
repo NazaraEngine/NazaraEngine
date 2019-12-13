@@ -205,6 +205,7 @@ Nazara Engine:
 - ⚠ Removed all Set methods from math classes taking their own type (e.g. Box::Set(Box))
 - Added Matrix4::Decompose
 - ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
+- Fixed Node rotation when using a negative scale
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
