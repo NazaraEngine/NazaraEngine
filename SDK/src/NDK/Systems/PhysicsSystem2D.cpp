@@ -196,7 +196,7 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody2D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(Nz::Vector2f(node.GetPosition()));
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global)));
 				//physObj->SetRotation(node.GetRotation());
 			}
 		}
