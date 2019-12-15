@@ -206,6 +206,7 @@ Nazara Engine:
 - Added Matrix4::Decompose
 - ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
 - Fixed Node rotation when using a negative scale
+- Added HandledObject::OnHandledObjectDestruction signal
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
