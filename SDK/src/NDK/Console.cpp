@@ -81,6 +81,9 @@ namespace Ndk
 		{
 			*ignoreDefaultAction = true;
 
+			if (m_commandHistory.empty())
+				return;
+
 			if (m_historyPosition > 0)
 				m_historyPosition--;
 
@@ -90,6 +93,9 @@ namespace Ndk
 		m_input->OnTextAreaKeyDown.Connect([&] (const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			*ignoreDefaultAction = true;
+
+			if (m_commandHistory.empty())
+				return;
 
 			if (++m_historyPosition >= m_commandHistory.size())
 				m_historyPosition = 0;

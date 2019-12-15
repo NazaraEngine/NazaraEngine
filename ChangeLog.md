@@ -304,6 +304,7 @@ Nazara Development Kit:
 - Fixed PhysicsComponent2D copy not copying physics attributes
 - Added Entity::DropComponent which detaches a component without necessarily destroying it
 - ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
+- Fixed crash when pressing up/down key with no history in the console
 
 # 0.4:
 
