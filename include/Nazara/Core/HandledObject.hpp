@@ -8,6 +8,7 @@
 #define NAZARA_OBJECTHANDLER_HPP
 
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,8 @@ namespace Nz
 
 			HandledObject& operator=(const HandledObject& object);
 			HandledObject& operator=(HandledObject&& object) noexcept;
+
+			NazaraSignal(OnHandledObjectDestruction, HandledObject* /*emitter*/);
 
 		protected:
 			void UnregisterAllHandles() noexcept;
