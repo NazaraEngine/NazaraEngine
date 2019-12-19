@@ -48,7 +48,8 @@ namespace Nz
 			NazaraSignal(OnMoved, const EventHandler* /*eventHandler*/, const WindowEvent::PositionEvent& /*event*/);
 			NazaraSignal(OnQuit, const EventHandler* /*eventHandler*/);
 			NazaraSignal(OnResized, const EventHandler* /*eventHandler*/, const WindowEvent::SizeEvent& /*event*/);
-			NazaraSignal(OnTextEntered, const EventHandler* /*eventHandler*/, const WindowEvent::TextEvent& /*event*/);
+            NazaraSignal(OnTextEntered, const EventHandler* /*eventHandler*/, const WindowEvent::TextEvent& /*event*/);
+            NazaraSignal(OnTextEdited, const EventHandler* /*eventHandler*/, const WindowEvent::EditEvent& /*event*/);
 	};
 }
 
