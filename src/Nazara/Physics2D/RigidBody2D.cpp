@@ -194,6 +194,15 @@ namespace Nz
 		cpBodyEachArbiter(m_handle, RealCallback, &callback);
 	}
 
+	void RigidBody2D::ForceSleep()
+	{
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_DYNAMIC)
+				cpBodySleep(body->GetHandle());
+		});
+	}
+
 	Rectf RigidBody2D::GetAABB() const
 	{
 		if (m_shapes.empty())
@@ -562,6 +571,17 @@ namespace Nz
 	void RigidBody2D::UpdateVelocity(const Nz::Vector2f & gravity, float damping, float deltaTime)
 	{
 		cpBodyUpdateVelocity(m_handle, cpv(gravity.x, gravity.y), damping, deltaTime);
+	}
+
+	void RigidBody2D::Wakeup()
+	{
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_STATIC)
+				cpBodyActivate(body->GetHandle());
+			else
+				cpBodyActivateStatic(body->GetHandle(), nullptr);
+		});
 	}
 
 	RigidBody2D& RigidBody2D::operator=(const RigidBody2D& object)

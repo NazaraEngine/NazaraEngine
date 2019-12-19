@@ -40,6 +40,7 @@ namespace Ndk
 
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
 
+			inline void ForceSleep();
 			inline void ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback);
 
 			inline Nz::Rectf GetAABB() const;
@@ -82,6 +83,8 @@ namespace Ndk
 			inline void SetVelocityFunction(VelocityFunc velocityFunc);
 
 			inline void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
+
+			inline void Wakeup();
 
 			static ComponentIndex componentIndex;
 

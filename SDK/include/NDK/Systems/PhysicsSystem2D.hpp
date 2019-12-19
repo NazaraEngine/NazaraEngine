@@ -65,6 +65,7 @@ namespace Ndk
 			inline void SetGravity(const Nz::Vector2f& gravity);
 			inline void SetIterationCount(std::size_t iterationCount);
 			inline void SetMaxStepCount(std::size_t maxStepCount);
+			inline void SetSleepTime(float sleepTime);
 			inline void SetStepSize(float stepSize);
 
 			inline void UseSpatialHash(float cellSize, std::size_t entityCount);

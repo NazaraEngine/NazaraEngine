@@ -140,6 +140,16 @@ namespace Ndk
 	/*!
 	TODO
 	*/
+	inline void PhysicsComponent2D::ForceSleep()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ForceSleep();
+	}
+
+	/*!
+	TODO
+	*/
 	inline void PhysicsComponent2D::ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
@@ -646,6 +656,16 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->UpdateVelocity(gravity, damping, deltaTime);
+	}
+
+	/*!
+	TODO
+	*/
+	inline void PhysicsComponent2D::Wakeup()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->Wakeup();
 	}
 
 	inline void PhysicsComponent2D::ApplyPhysicsState(Nz::RigidBody2D& rigidBody) const
