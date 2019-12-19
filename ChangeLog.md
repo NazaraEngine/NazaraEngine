@@ -207,6 +207,7 @@ Nazara Engine:
 - ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
 - Fixed Node rotation when using a negative scale
 - Added HandledObject::OnHandledObjectDestruction signal
+- Added physics function to control sleeping behavior
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

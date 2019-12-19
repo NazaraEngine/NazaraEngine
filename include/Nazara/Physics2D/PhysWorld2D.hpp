@@ -78,6 +78,7 @@ namespace Nz
 			void SetGravity(const Vector2f& gravity);
 			void SetIterationCount(std::size_t iterationCount);
 			void SetMaxStepCount(std::size_t maxStepCount);
+			void SetSleepTime(float sleepTime);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);

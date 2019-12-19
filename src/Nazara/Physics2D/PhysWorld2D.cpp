@@ -338,6 +338,14 @@ namespace Nz
 		m_maxStepCount = maxStepCount;
 	}
 
+	void PhysWorld2D::SetSleepTime(float sleepTime)
+	{
+		if (sleepTime > 0)
+			cpSpaceSetSleepTimeThreshold(m_handle, cpFloat(sleepTime));
+		else
+			cpSpaceSetSleepTimeThreshold(m_handle, std::numeric_limits<cpFloat>::infinity());
+	}
+
 	void PhysWorld2D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;

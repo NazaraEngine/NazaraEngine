@@ -46,6 +46,7 @@ namespace Nz
 			void EnableSimulation(bool simulation);
 
 			void ForEachArbiter(std::function<void(Nz::Arbiter2D& /*arbiter*/)> callback);
+			void ForceSleep();
 
 			Rectf GetAABB() const;
 			inline float GetAngularDamping() const;
@@ -98,6 +99,8 @@ namespace Nz
 			void SetVelocityFunction(VelocityFunc velocityFunc);
 
 			void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
+
+			void Wakeup();
 
 			RigidBody2D& operator=(const RigidBody2D& object);
 			RigidBody2D& operator=(RigidBody2D&& object);
