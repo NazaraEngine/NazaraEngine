@@ -26,6 +26,8 @@ namespace Nz
 			static bool IsMouseButtonPressed(Mouse::Button button);
 			static void SetMousePosition(int x, int y);
 			static void SetMousePosition(int x, int y, const Window& relativeTo);
+            static void StartTextInput();
+            static void StopTextInput();
 			static Keyboard::Scancode ToScanCode(Keyboard::VKey key);
 			static Keyboard::VKey ToVirtualKey(Keyboard::Scancode scancode);
 	};

@@ -9,6 +9,8 @@
 #ifndef NAZARA_EVENT_HPP
 #define NAZARA_EVENT_HPP
 
+#include <array>
+
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Mouse.hpp>
@@ -80,7 +82,15 @@ namespace Nz
 		{
 			bool repeated;
 			char32_t character;
-		};
+        };
+
+        // Used by:
+        // -WindowEventType_TextEdited
+        struct EditEvent
+        {
+            int length;
+            std::array<char, 32> text;
+        };
 
 		WindowEventType type;
 
@@ -115,6 +125,10 @@ namespace Nz
 			// Used by:
 			// -WindowEventType_TextEntered
 			TextEvent text;
+
+            // Used by:
+            // -WindowEventType_TextEntered
+            EditEvent edit;
 		};
 	};
 }
