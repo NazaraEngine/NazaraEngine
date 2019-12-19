@@ -8,7 +8,7 @@ target_link_libraries(${NAME}
     PUBLIC NazaraCore
     #PRIVATE NazaraPlatform
     PUBLIC NazaraAudio
-    #PRIVATE NazaraGraphics
+    PUBLIC NazaraNoise
     PUBLIC NazaraPhysics2D
     PUBLIC NazaraPhysics3D
     PUBLIC NazaraRenderer

@@ -6,7 +6,8 @@ file(GLOB_RECURSE SRC LIST_DIRECTORIES false CONFIGURE_DEPENDS "*.cpp")
 add_library(${NAME} ${SRC})
 
 target_link_libraries(${NAME}
-    PRIVATE Newton
+    PRIVATE NazaraCore
+    PRIVATE NazaraUtility
 )
 
 target_include_directories(${NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")

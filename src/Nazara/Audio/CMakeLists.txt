@@ -5,9 +5,8 @@ file(GLOB_RECURSE SRC LIST_DIRECTORIES false CONFIGURE_DEPENDS "*.cpp")
 
 add_library(${NAME} ${SRC})
 
-target_link_libraries(${NAME}
-    PRIVATE Newton
-)
+target_link_libraries(${NAME} ${OPENAL_LIBRARY} NazaraCore sndfile)
+target_compile_definitions(${NAME} PRIVATE NAZARA_AUDIO_OPENAL)
 
 target_include_directories(${NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(${NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src")
