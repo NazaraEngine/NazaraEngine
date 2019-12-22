@@ -121,8 +121,6 @@ namespace Nz
 
 		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
 
-		unsigned int previousDrawPos = m_drawPos.x;
-
 		// Reset cursor
 		m_drawPos.x = 0;
 		m_drawPos.y += sizeInfo.lineHeight;
