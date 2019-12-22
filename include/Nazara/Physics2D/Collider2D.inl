@@ -12,10 +12,10 @@ namespace Nz
 	m_categoryMask(0xFFFFFFFF),
 	m_collisionGroup(0),
 	m_collisionMask(0xFFFFFFFF),
+	m_surfaceVelocity(Vector2f::Zero()),
 	m_trigger(false),
 	m_elasticity(0.f),
 	m_friction(0.f),
-	m_surfaceVelocity(Vector2f::Zero()),
 	m_collisionId(0)
 	{
 	}
