@@ -530,6 +530,12 @@ namespace Nz
 		InvalidateNode();
 	}
 
+	void Node::SetScale(const Vector2f& scale, CoordSys coordSys)
+	{
+		// Prevent Z scale at zero (can happen when using SetScale with a Vec2)
+		SetScale(scale.x, scale.y, 1.f, coordSys);
+	}
+
 	void Node::SetScale(const Vector3f& scale, CoordSys coordSys)
 	{
 		switch (coordSys)

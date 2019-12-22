@@ -75,6 +75,7 @@ namespace Nz
 			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys_Local);
 			void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys_Local);
 			void SetRotation(const Quaternionf& quat, CoordSys coordSys = CoordSys_Local);
+			void SetScale(const Vector2f& scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(float scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys_Local);
