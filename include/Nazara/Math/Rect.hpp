@@ -91,7 +91,9 @@ namespace Nz
 	using Recti = Rect<int>;
 	using Rectui = Rect<unsigned int>;
 	using Recti32 = Rect<Int32>;
+	using Recti64 = Rect<Int64>;
 	using Rectui32 = Rect<UInt32>;
+	using Rectui64 = Rect<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
