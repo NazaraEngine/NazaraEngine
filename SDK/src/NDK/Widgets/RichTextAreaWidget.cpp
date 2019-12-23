@@ -72,10 +72,10 @@ namespace Ndk
 			Nz::String newText;
 			if (firstGlyph > blockFirstGlyph)
 			{
-				std::size_t characterPosition = blockText.GetCharacterPosition(firstGlyph - blockFirstGlyph - 1);
+				std::size_t characterPosition = blockText.GetCharacterPosition(firstGlyph - blockFirstGlyph);
 				NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
 
-				newText.Append(blockText.SubString(0, characterPosition));
+				newText.Append(blockText.SubString(0, characterPosition - 1));
 			}
 
 			if (lastGlyph < textLength)
