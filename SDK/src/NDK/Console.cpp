@@ -72,7 +72,7 @@ namespace Ndk
 
 		m_input->OnTextAreaKeyBackspace.Connect([](const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
-			if (textArea->GetGlyphIndex() <= s_inputPrefixSize)
+			if (textArea->GetGlyphIndex() < s_inputPrefixSize)
 				*ignoreDefaultAction = true;
 		});
 
