@@ -208,6 +208,7 @@ Nazara Engine:
 - Fixed Node rotation when using a negative scale
 - Added HandledObject::OnHandledObjectDestruction signal
 - Added physics function to control sleeping behavior
+- String::Number is now locale-independent
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
