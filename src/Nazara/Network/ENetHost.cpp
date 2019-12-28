@@ -886,7 +886,7 @@ namespace Nz
 
 			canPing = false;
 
-			assert(outgoingCommand->command.header.command < ENetProtocolCommand_Count);
+			assert(outgoingCommand->command.header.command & ENetProtocolCommand_Mask < ENetProtocolCommand_Count);
 			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->GetMtu() - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && UInt16(peer->GetMtu() - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
@@ -1139,7 +1139,7 @@ namespace Nz
 		{
 			auto outgoingCommand = currentCommand;
 
-			assert(outgoingCommand->command.header.command < ENetProtocolCommand_Count);
+			assert(outgoingCommand->command.header.command & ENetProtocolCommand_Mask < ENetProtocolCommand_Count);
 			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
@@ -1353,7 +1353,7 @@ namespace Nz
 
 	std::size_t ENetHost::GetCommandSize(UInt8 commandNumber)
 	{
-		assert(commandNumber < ENetProtocolCommand_Count);
+		assert(commandNumber & ENetProtocolCommand_Mask < ENetProtocolCommand_Count);
 		return s_commandSizes[commandNumber & ENetProtocolCommand_Mask];
 	}
 
