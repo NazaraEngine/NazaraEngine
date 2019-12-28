@@ -37,6 +37,8 @@ namespace Nz
 			inline std::size_t GetBlockCount() const;
 			inline std::size_t GetBlockFirstGlyphIndex(std::size_t index) const;
 			inline const FontRef& GetBlockFont(std::size_t index) const;
+			inline const Color& GetBlockOutlineColor(std::size_t index) const;
+			inline float GetBlockOutlineThickness(std::size_t index) const;
 			inline TextStyleFlags GetBlockStyle(std::size_t index) const;
 			inline const String& GetBlockText(std::size_t index) const;
 
@@ -45,6 +47,8 @@ namespace Nz
 			inline unsigned int GetDefaultCharacterSize() const;
 			inline const Color& GetDefaultColor() const;
 			inline const FontRef& GetDefaultFont() const;
+			inline const Color& GetDefaultOutlineColor() const;
+			inline float GetDefaultOutlineThickness() const;
 			inline TextStyleFlags GetDefaultStyle() const;
 			Font* GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
@@ -63,12 +67,16 @@ namespace Nz
 			inline void SetBlockCharacterSize(std::size_t index, unsigned int characterSize);
 			inline void SetBlockColor(std::size_t index, const Color& color);
 			inline void SetBlockFont(std::size_t index, FontRef font);
+			inline void SetBlockOutlineColor(std::size_t index, const Color& color);
+			inline void SetBlockOutlineThickness(std::size_t index, float thickness);
 			inline void SetBlockStyle(std::size_t index, TextStyleFlags style);
 			inline void SetBlockText(std::size_t index, String str);
 
 			inline void SetDefaultCharacterSize(unsigned int characterSize);
 			inline void SetDefaultColor(const Color& color);
 			inline void SetDefaultFont(const FontRef& font);
+			inline void SetDefaultOutlineColor(const Color& color);
+			inline void SetDefaultOutlineThickness(float thickness);
 			inline void SetDefaultStyle(TextStyleFlags style);
 
 			void SetMaxLineWidth(float lineWidth) override;
@@ -106,8 +114,10 @@ namespace Nz
 				std::size_t fontIndex;
 				std::size_t glyphIndex;
 				Color color;
+				Color outlineColor;
 				String text;
 				TextStyleFlags style;
+				float outlineThickness;
 				unsigned int characterSize;
 			};
 
@@ -123,6 +133,7 @@ namespace Nz
 			};
 
 			Color m_defaultColor;
+			Color m_defaultOutlineColor;
 			TextStyleFlags m_defaultStyle;
 			FontRef m_defaultFont;
 			std::unordered_map<FontRef, std::size_t> m_fontIndexes;
@@ -134,6 +145,7 @@ namespace Nz
 			mutable Recti m_bounds;
 			mutable Vector2ui m_drawPos;
 			mutable bool m_glyphUpdated;
+			float m_defaultOutlineThickness;
 			float m_maxLineWidth;
 			unsigned int m_defaultCharacterSize;
 	};
@@ -151,12 +163,16 @@ namespace Nz
 			inline Color GetColor() const;
 			inline std::size_t GetFirstGlyphIndex() const;
 			inline const FontRef& GetFont() const;
+			inline Color GetOutlineColor() const;
+			inline float GetOutlineThickness() const;
 			inline TextStyleFlags GetStyle() const;
 			inline const String& GetText() const;
 
 			inline void SetCharacterSize(unsigned int size);
 			inline void SetColor(Color color);
 			inline void SetFont(FontRef font);
+			inline void SetOutlineColor(Color color);
+			inline void SetOutlineThickness(float thickness);
 			inline void SetStyle(TextStyleFlags style);
 			inline void SetText(const String& text);
 
