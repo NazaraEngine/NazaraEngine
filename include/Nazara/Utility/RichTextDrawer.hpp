@@ -93,21 +93,24 @@ namespace Nz
 			struct Block;
 
 			inline void AppendNewLine(const Font* font, unsigned int characterSize) const;
+			void AppendNewLine(const Font* font, unsigned int characterSize, std::size_t glyphIndex, unsigned int glyphPosition) const;
 			inline void ClearGlyphs() const;
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, int renderOrder, int* advance) const;
 			void GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, const String& text) const;
 			inline std::size_t HandleFontAddition(const FontRef& font);
-			inline void ReleaseFont(std::size_t fontIndex);
-
 			inline void InvalidateGlyphs();
+			inline void ReleaseFont(std::size_t fontIndex);
+			inline bool ShouldLineWrap(float size) const;
 
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
 
 			void UpdateGlyphs() const;
+
+			static constexpr std::size_t InvalidGlyph = std::numeric_limits<std::size_t>::max();
 
 			struct Block
 			{
@@ -136,6 +139,7 @@ namespace Nz
 			Color m_defaultOutlineColor;
 			TextStyleFlags m_defaultStyle;
 			FontRef m_defaultFont;
+			mutable std::size_t m_lastSeparatorGlyph;
 			std::unordered_map<FontRef, std::size_t> m_fontIndexes;
 			std::vector<Block> m_blocks;
 			std::vector<FontData> m_fonts;
@@ -148,6 +152,7 @@ namespace Nz
 			float m_defaultOutlineThickness;
 			float m_maxLineWidth;
 			unsigned int m_defaultCharacterSize;
+			mutable unsigned int m_lastSeparatorPosition;
 	};
 
 	class RichTextDrawer::BlockRef

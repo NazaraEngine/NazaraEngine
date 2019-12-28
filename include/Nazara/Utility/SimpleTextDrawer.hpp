@@ -72,7 +72,7 @@ namespace Nz
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
-			bool ShouldLineWrap(Glyph& glyph, float size, bool checkFirstGlyph = true) const;
+			bool ShouldLineWrap(float size) const;
 			void UpdateGlyphColor() const;
 			void UpdateGlyphs() const;
 

@@ -311,7 +311,7 @@ namespace Nz
 
 	void SimpleTextDrawer::AppendNewLine() const
 	{
-		AppendNewLine(InvalidGlyph, 0.f);
+		AppendNewLine(InvalidGlyph, 0);
 	}
 
 	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, unsigned int glyphPosition) const
@@ -354,7 +354,7 @@ namespace Nz
 			assert(previousDrawPos >= glyphPosition);
 			m_drawPos.x += previousDrawPos - glyphPosition;
 
-			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - m_lastSeparatorPosition;
+			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
 
 			// Regenerate working bounds
 			m_workingBounds.MakeZero();
@@ -410,7 +410,7 @@ namespace Nz
 
 			glyph.bounds.Set(fontGlyph.aabb);
 
-			if (lineWrap && ShouldLineWrap(glyph, glyph.bounds.width))
+			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
 				AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 			glyph.bounds.x += m_drawPos.x;
@@ -497,7 +497,7 @@ namespace Nz
 			{
 				float glyphAdvance = advance;
 
-				if (ShouldLineWrap(glyph, glyphAdvance))
+				if (ShouldLineWrap(glyphAdvance))
 					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
@@ -593,9 +593,9 @@ namespace Nz
 		SetFont(nullptr);
 	}
 
-	bool SimpleTextDrawer::ShouldLineWrap(Glyph& glyph, float size, bool checkFirstGlyph) const
+	bool SimpleTextDrawer::ShouldLineWrap(float size) const
 	{
-		if (checkFirstGlyph && m_lines.back().glyphIndex > m_glyphs.size())
+		if (m_lines.back().glyphIndex > m_glyphs.size())
 			return false;
 
 		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
