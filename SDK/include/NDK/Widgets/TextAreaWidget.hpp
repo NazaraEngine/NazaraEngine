@@ -34,6 +34,7 @@ namespace Ndk
 			inline Nz::Font* GetTextFont() const;
 			inline const Nz::Color& GetTextOulineColor() const;
 			inline float GetTextOulineThickness() const;
+			inline Nz::TextStyleFlags GetTextStyle() const;
 
 			void SetCharacterSize(unsigned int characterSize);
 			inline void SetText(const Nz::String& text);
@@ -41,6 +42,7 @@ namespace Ndk
 			inline void SetTextFont(Nz::FontRef font);
 			inline void SetTextOutlineColor(const Nz::Color& color);
 			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(Nz::TextStyleFlags style);
 
 			using AbstractTextAreaWidget::Write;
 			void Write(const Nz::String& text, std::size_t glyphPosition) override;

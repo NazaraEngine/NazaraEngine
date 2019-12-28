@@ -308,6 +308,7 @@ Nazara Development Kit:
 - Added Entity::DropComponent which detaches a component without necessarily destroying it
 - ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
 - Fixed crash when pressing up/down key with no history in the console
+- (Rich)TextAreaWidget text style is now alterable
 
 # 0.4:
 
