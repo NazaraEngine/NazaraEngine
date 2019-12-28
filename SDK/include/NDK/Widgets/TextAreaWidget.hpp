@@ -58,7 +58,7 @@ namespace Ndk
 			void HandleSelectionIndentation(bool add) override;
 			void HandleWordCursorMove(bool left) override;
 
-			void UpdateDisplayText();
+			void UpdateDisplayText() override;
 
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::String m_text;
