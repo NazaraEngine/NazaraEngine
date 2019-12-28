@@ -541,6 +541,7 @@ namespace Nz
 		{
 			peer->m_address = m_receivedAddress;
 			peer->m_incomingDataTotal += UInt32(m_receivedDataLength);
+			peer->m_totalByteReceived += UInt32(m_receivedDataLength);
 		}
 
 		auto commandError = [&]() -> bool

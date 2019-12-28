@@ -56,6 +56,8 @@ namespace Nz
 			inline UInt16 GetPeerId() const;
 			inline UInt32 GetRoundTripTime() const;
 			inline ENetPeerState GetState() const;
+			inline UInt64 GetTotalByteReceived() const;
+			inline UInt64 GetTotalByteSent() const;
 			inline UInt64 GetTotalPacketLost() const;
 			inline UInt64 GetTotalPacketSent() const;
 
@@ -237,6 +239,8 @@ namespace Nz
 			UInt32                                m_timeoutMaximum;
 			UInt32                                m_timeoutMinimum;
 			UInt32                                m_windowSize;
+			UInt64                                m_totalByteReceived;
+			UInt64                                m_totalByteSent;
 			UInt64                                m_totalPacketLost;
 			UInt64                                m_totalPacketSent;
 			bool                                  m_isSimulationEnabled;

@@ -209,6 +209,7 @@ Nazara Engine:
 - Added HandledObject::OnHandledObjectDestruction signal
 - Added physics function to control sleeping behavior
 - String::Number is now locale-independent
+- Added ENetPeer::GetTotalByte[Received|Sent]
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
