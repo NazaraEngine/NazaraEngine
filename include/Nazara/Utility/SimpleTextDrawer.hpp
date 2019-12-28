@@ -38,7 +38,7 @@ namespace Nz
 			std::size_t GetGlyphCount() const override;
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
-			float GetMaxLineWidth() const;
+			float GetMaxLineWidth() const override;
 			const Color& GetOutlineColor() const;
 			float GetOutlineThickness() const;
 			TextStyleFlags GetStyle() const;
@@ -47,7 +47,7 @@ namespace Nz
 			void SetCharacterSize(unsigned int characterSize);
 			void SetColor(const Color& color);
 			void SetFont(Font* font);
-			void SetMaxLineWidth(float lineWidth);
+			void SetMaxLineWidth(float lineWidth) override;
 			void SetOutlineColor(const Color& color);
 			void SetOutlineThickness(float thickness);
 			void SetStyle(TextStyleFlags style);
