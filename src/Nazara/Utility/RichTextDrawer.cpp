@@ -11,11 +11,11 @@ namespace Nz
 {
 	RichTextDrawer::RichTextDrawer() :
 	m_defaultColor(Color::White),
-	//m_outlineColor(Color::Black),
+	m_defaultOutlineColor(Color::Black),
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
-	//m_maxLineWidth(std::numeric_limits<float>::infinity()),
-	//m_outlineThickness(0.f),
+	m_maxLineWidth(std::numeric_limits<float>::infinity()),
+	m_defaultOutlineThickness(0.f),
 	m_defaultCharacterSize(24)
 	{
 		SetDefaultFont(Font::GetDefault());
@@ -27,9 +27,9 @@ namespace Nz
 	m_fontIndexes(drawer.m_fontIndexes),
 	m_blocks(drawer.m_blocks),
 	m_glyphUpdated(false),
-	//m_outlineColor(drawer.m_outlineColor),
-	//m_maxLineWidth(drawer.m_maxLineWidth),
-	//m_outlineThickness(drawer.m_outlineThickness),
+	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
+	m_maxLineWidth(drawer.m_maxLineWidth),
+	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
 	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
 	{
 		m_fonts.resize(drawer.m_fonts.size());
@@ -59,10 +59,12 @@ namespace Nz
 
 		auto HasDefaultProperties = [&](const Block& block)
 		{
-			return block.characterSize == m_defaultCharacterSize &&
-			       block.color         == m_defaultColor &&
-			       block.fontIndex     == defaultFontIndex &&
-			       block.style         == m_defaultStyle;
+			return block.characterSize    == m_defaultCharacterSize &&
+			       block.color            == m_defaultColor &&
+			       block.fontIndex        == defaultFontIndex &&
+			       block.outlineColor     == m_defaultOutlineColor &&
+			       block.outlineThickness == m_defaultOutlineThickness &&
+			       block.style            == m_defaultStyle;
 		};
 
 		// Check if last block has the same property as default, else create a new block
@@ -83,6 +85,8 @@ namespace Nz
 			newBlock.color = m_defaultColor;
 			newBlock.fontIndex = defaultFontIndex;
 			newBlock.glyphIndex = glyphIndex;
+			newBlock.outlineColor = m_defaultOutlineColor;
+			newBlock.outlineThickness = m_defaultOutlineThickness;
 			newBlock.style = m_defaultStyle;
 			newBlock.text = str;
 
@@ -171,6 +175,8 @@ namespace Nz
 			return lhs.characterSize == rhs.characterSize &&
 			       lhs.color == rhs.color &&
 			       lhs.fontIndex == rhs.fontIndex &&
+			       lhs.outlineColor == rhs.outlineColor &&
+			       lhs.outlineThickness == rhs.outlineThickness &&
 			       lhs.style == rhs.style;
 		};
 
@@ -220,6 +226,8 @@ namespace Nz
 		m_defaultCharacterSize = drawer.m_defaultCharacterSize;
 		m_defaultColor = drawer.m_defaultColor;
 		m_defaultFont = drawer.m_defaultFont;
+		m_defaultOutlineColor = drawer.m_defaultOutlineColor;
+		m_defaultOutlineThickness = drawer.m_defaultOutlineThickness;
 		m_defaultStyle = drawer.m_defaultStyle;
 		m_fontIndexes = drawer.m_fontIndexes;
 
@@ -243,6 +251,8 @@ namespace Nz
 		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
 		m_defaultColor = std::move(drawer.m_defaultColor);
 		m_defaultFont = std::move(drawer.m_defaultFont);
+		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
+		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
 		m_defaultStyle = std::move(drawer.m_defaultStyle);
 		m_drawPos = std::move(m_drawPos);
 		m_fontIndexes = std::move(drawer.m_fontIndexes);
@@ -501,7 +511,7 @@ namespace Nz
 				assert(block.fontIndex < m_fonts.size());
 				const auto& fontData = m_fonts[block.fontIndex];
 
-				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.color, 0.f, block.text);
+				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.text);
 			}
 		}
 		else

@@ -21,6 +21,16 @@ namespace Ndk
 		return m_drawer.GetDefaultFont();
 	}
 
+	inline const Nz::Color& RichTextAreaWidget::GetTextOutlineColor() const
+	{
+		return m_drawer.GetDefaultOutlineColor();
+	}
+
+	inline float RichTextAreaWidget::GetTextOutlineThickness() const
+	{
+		return m_drawer.GetDefaultOutlineThickness();
+	}
+
 	inline void RichTextAreaWidget::SetCharacterSize(unsigned int characterSize)
 	{
 		m_drawer.SetDefaultCharacterSize(characterSize);
@@ -34,5 +44,15 @@ namespace Ndk
 	inline void RichTextAreaWidget::SetTextFont(Nz::FontRef font)
 	{
 		m_drawer.SetDefaultFont(std::move(font));
+	}
+
+	inline void RichTextAreaWidget::SetTextOutlineColor(const Nz::Color& color)
+	{
+		m_drawer.SetDefaultOutlineColor(color);
+	}
+
+	inline void RichTextAreaWidget::SetTextOutlineThickness(float thickness)
+	{
+		m_drawer.SetDefaultOutlineThickness(thickness);
 	}
 }

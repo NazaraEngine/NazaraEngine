@@ -82,6 +82,18 @@ namespace Nz
 		return m_fonts[fontIndex].font;
 	}
 
+	inline const Color& RichTextDrawer::GetBlockOutlineColor(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].outlineColor;
+	}
+
+	inline float RichTextDrawer::GetBlockOutlineThickness(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].outlineThickness;
+	}
+
 	inline TextStyleFlags RichTextDrawer::GetBlockStyle(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
@@ -107,6 +119,16 @@ namespace Nz
 	inline const FontRef& RichTextDrawer::GetDefaultFont() const
 	{
 		return m_defaultFont;
+	}
+
+	inline const Color& RichTextDrawer::GetDefaultOutlineColor() const
+	{
+		return m_defaultOutlineColor;
+	}
+
+	inline float RichTextDrawer::GetDefaultOutlineThickness() const
+	{
+		return m_defaultOutlineThickness;
 	}
 
 	inline TextStyleFlags RichTextDrawer::GetDefaultStyle() const
@@ -235,6 +257,24 @@ namespace Nz
 			m_fonts[fontIndex].useCount++;
 			m_blocks[index].fontIndex = fontIndex;
 		}
+
+		InvalidateGlyphs();
+	}
+
+	inline void RichTextDrawer::SetBlockOutlineColor(std::size_t index, const Color& color)
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		m_blocks[index].outlineColor = color;
+
+		InvalidateGlyphs();
+	}
+
+	inline void RichTextDrawer::SetBlockOutlineThickness(std::size_t index, float thickness)
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		m_blocks[index].outlineThickness = thickness;
+
+		InvalidateGlyphs();
 	}
 
 	inline void RichTextDrawer::SetBlockStyle(std::size_t index, TextStyleFlags style)
@@ -277,6 +317,16 @@ namespace Nz
 	inline void RichTextDrawer::SetDefaultFont(const FontRef& font)
 	{
 		m_defaultFont = font;
+	}
+
+	inline void RichTextDrawer::SetDefaultOutlineColor(const Color& color)
+	{
+		m_defaultOutlineColor = color;
+	}
+
+	inline void RichTextDrawer::SetDefaultOutlineThickness(float thickness)
+	{
+		m_defaultOutlineThickness = thickness;
 	}
 
 	inline void RichTextDrawer::SetDefaultStyle(TextStyleFlags style)
@@ -333,6 +383,28 @@ namespace Nz
 	inline const FontRef& RichTextDrawer::BlockRef::GetFont() const
 	{
 		return m_drawer.GetBlockFont(m_blockIndex);
+	}
+
+	/*!
+	* Returns the outline color used for the characters of the referenced block
+	* \return The referenced block outline color
+	*
+	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
+	*/
+	inline Color RichTextDrawer::BlockRef::GetOutlineColor() const
+	{
+		return m_drawer.GetBlockOutlineColor(m_blockIndex);
+	}
+
+	/*!
+	* Returns the outline thickness used for the characters of the referenced block
+	* \return The referenced block outline thickness
+	*
+	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
+	*/
+	inline float RichTextDrawer::BlockRef::GetOutlineThickness() const
+	{
+		return m_drawer.GetBlockOutlineThickness(m_blockIndex);
 	}
 
 	/*!
@@ -399,6 +471,28 @@ namespace Nz
 	inline void RichTextDrawer::BlockRef::SetFont(FontRef font)
 	{
 		m_drawer.SetBlockFont(m_blockIndex, std::move(font));
+	}
+
+	/*!
+	* Changes the outline color of the referenced block characters
+	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
+	*
+	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
+	*/
+	inline void RichTextDrawer::BlockRef::SetOutlineColor(Color color)
+	{
+		m_drawer.SetBlockOutlineColor(m_blockIndex, std::move(color));
+	}
+
+	/*!
+	* Changes the outline thickness of the referenced block characters
+	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
+	*
+	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
+	*/
+	inline void RichTextDrawer::BlockRef::SetOutlineThickness(float thickness)
+	{
+		m_drawer.SetBlockOutlineThickness(m_blockIndex, thickness);
 	}
 
 	/*!
