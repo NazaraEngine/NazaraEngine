@@ -138,22 +138,13 @@ namespace Nz
 
 	inline void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize) const
 	{
-		// Ensure we're appending from last line
-		Line& lastLine = m_lines.back();
-
-		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
-
-		// Reset cursor
-		m_drawPos.x = 0;
-		m_drawPos.y += sizeInfo.lineHeight;
-
-		m_workingBounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+		AppendNewLine(font, characterSize, InvalidGlyph, 0);
 	}
 
 	inline void RichTextDrawer::ClearGlyphs() const
 	{
 		m_bounds.MakeZero();
+		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
@@ -221,6 +212,14 @@ namespace Nz
 
 			m_fonts.erase(m_fonts.begin() + fontIndex);
 		}
+	}
+
+	inline bool RichTextDrawer::ShouldLineWrap(float size) const
+	{
+		if (m_lines.back().glyphIndex > m_glyphs.size())
+			return false;
+
+		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
 	}
 
 	inline bool RichTextDrawer::HasBlocks() const

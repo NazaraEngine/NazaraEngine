@@ -268,6 +268,55 @@ namespace Nz
 		return *this;
 	}
 
+	void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, std::size_t glyphIndex, unsigned int glyphPosition) const
+	{
+		// Ensure we're appending from last line
+		Line& lastLine = m_lines.back();
+
+		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+
+		unsigned int previousDrawPos = m_drawPos.x;
+
+		// Reset cursor
+		m_drawPos.x = 0;
+		m_drawPos.y += sizeInfo.lineHeight;
+		m_lastSeparatorGlyph = InvalidGlyph;
+
+		m_workingBounds.ExtendTo(lastLine.bounds);
+		m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+
+		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
+		{
+			Line& newLine = m_lines.back();
+			newLine.glyphIndex = glyphIndex;
+
+			for (std::size_t i = glyphIndex; i < m_glyphs.size(); ++i)
+			{
+				Glyph& glyph = m_glyphs[i];
+				glyph.bounds.x -= glyphPosition;
+				glyph.bounds.y += sizeInfo.lineHeight;
+
+				for (auto& corner : glyph.corners)
+				{
+					corner.x -= glyphPosition;
+					corner.y += sizeInfo.lineHeight;
+				}
+
+				newLine.bounds.ExtendTo(glyph.bounds);
+			}
+
+			assert(previousDrawPos >= glyphPosition);
+			m_drawPos.x += previousDrawPos - glyphPosition;
+
+			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
+
+			// Regenerate working bounds
+			m_workingBounds.MakeZero();
+			for (std::size_t i = 0; i < m_lines.size(); ++i)
+				m_workingBounds.ExtendTo(m_lines[i].bounds);
+		}
+	}
+
 	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, int renderOrder, int* advance) const
 	{
 		const Font::Glyph& fontGlyph = font->GetGlyph(characterSize, style, outlineThickness, character);
@@ -281,8 +330,8 @@ namespace Nz
 
 			glyph.bounds.Set(fontGlyph.aabb);
 
-			//if (lineWrap && ShouldLineWrap(glyph, glyph.bounds.width))
-			//	AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
+				AppendNewLine(font, characterSize, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 			glyph.bounds.x += m_drawPos.x;
 			glyph.bounds.y += m_drawPos.y;
@@ -337,7 +386,7 @@ namespace Nz
 					corner.y += heightDifference;
 			}
 
-			m_drawPos.y += heightDifference;
+			m_drawPos.y += static_cast<unsigned int>(heightDifference);
 			m_lines.back().bounds.height += heightDifference;
 		}
 		/*if (firstFont.font)
@@ -388,10 +437,10 @@ namespace Nz
 			}
 			else
 			{
-				float glyphAdvance = advance;
+				float glyphAdvance = float(advance);
 
-				//if (ShouldLineWrap(glyph, glyphAdvance))
-				//	AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+				if (ShouldLineWrap(glyphAdvance))
+					AppendNewLine(font, characterSize, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
 				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, glyphAdvance, float(sizeInfo.lineHeight));
@@ -417,11 +466,11 @@ namespace Nz
 					break;
 			}
 
-			/*if (whitespace)
+			if (whitespace)
 			{
 				m_lastSeparatorGlyph = m_glyphs.size();
 				m_lastSeparatorPosition = m_drawPos.x;
-			}*/
+			}
 
 			m_glyphs.push_back(glyph);
 		}
