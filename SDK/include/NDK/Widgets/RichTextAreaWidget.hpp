@@ -31,12 +31,14 @@ namespace Ndk
 			inline Nz::Font* GetTextFont() const;
 			inline const Nz::Color& GetTextOutlineColor() const;
 			inline float GetTextOutlineThickness() const;
+			inline Nz::TextStyleFlags GetTextStyle() const;
 
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetTextColor(const Nz::Color& color);
 			inline void SetTextFont(Nz::FontRef font);
 			inline void SetTextOutlineColor(const Nz::Color& color);
 			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(Nz::TextStyleFlags style);
 
 			void Write(const Nz::String& text, std::size_t glyphPosition) override;
 

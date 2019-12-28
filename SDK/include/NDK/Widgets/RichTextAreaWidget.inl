@@ -31,6 +31,11 @@ namespace Ndk
 		return m_drawer.GetDefaultOutlineThickness();
 	}
 
+	inline Nz::TextStyleFlags RichTextAreaWidget::GetTextStyle() const
+	{
+		return m_drawer.GetDefaultStyle();
+	}
+
 	inline void RichTextAreaWidget::SetCharacterSize(unsigned int characterSize)
 	{
 		m_drawer.SetDefaultCharacterSize(characterSize);
@@ -54,5 +59,10 @@ namespace Ndk
 	inline void RichTextAreaWidget::SetTextOutlineThickness(float thickness)
 	{
 		m_drawer.SetDefaultOutlineThickness(thickness);
+	}
+
+	inline void RichTextAreaWidget::SetTextStyle(Nz::TextStyleFlags style)
+	{
+		m_drawer.SetDefaultStyle(style);
 	}
 }

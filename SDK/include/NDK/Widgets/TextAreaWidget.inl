@@ -41,6 +41,11 @@ namespace Ndk
 		return m_drawer.GetOutlineThickness();
 	}
 
+	inline Nz::TextStyleFlags TextAreaWidget::GetTextStyle() const
+	{
+		return m_drawer.GetStyle();
+	}
+
 	inline void TextAreaWidget::SetText(const Nz::String& text)
 	{
 		m_text = text;
@@ -73,6 +78,13 @@ namespace Ndk
 	inline void TextAreaWidget::SetTextOutlineThickness(float thickness)
 	{
 		m_drawer.SetOutlineThickness(thickness);
+
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetTextStyle(Nz::TextStyleFlags style)
+	{
+		m_drawer.SetStyle(style);
 
 		UpdateDisplayText();
 	}
