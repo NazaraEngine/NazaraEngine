@@ -165,6 +165,7 @@ namespace Nz
 		m_eventData = 0;
 		m_totalByteReceived = 0;
 		m_totalByteSent = 0;
+		m_totalPacketReceived = 0;
 		m_totalPacketLost = 0;
 		m_totalPacketSent = 0;
 		m_totalWaitingData = 0;

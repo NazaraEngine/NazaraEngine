@@ -72,6 +72,11 @@ namespace Nz
 		return m_totalByteSent;
 	}
 
+	inline UInt64 ENetPeer::GetTotalPacketReceived() const
+	{
+		return m_totalPacketReceived;
+	}
+
 	inline UInt64 ENetPeer::GetTotalPacketLost() const
 	{
 		return m_totalPacketLost;
