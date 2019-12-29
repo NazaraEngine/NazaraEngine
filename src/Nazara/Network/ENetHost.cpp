@@ -658,6 +658,7 @@ namespace Nz
 					return commandError();
 			}
 
+			m_totalReceivedPackets++;
 			if (peer)
 				peer->m_totalPacketReceived++;
 
@@ -754,7 +755,6 @@ namespace Nz
 			m_receivedDataLength = receivedLength;
 
 			m_totalReceivedData += receivedLength;
-			m_totalReceivedPackets++;
 
 			// Intercept
 
