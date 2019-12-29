@@ -58,9 +58,9 @@ namespace Nz
 			inline ENetPeerState GetState() const;
 			inline UInt64 GetTotalByteReceived() const;
 			inline UInt64 GetTotalByteSent() const;
-			inline UInt64 GetTotalPacketReceived() const;
-			inline UInt64 GetTotalPacketLost() const;
-			inline UInt64 GetTotalPacketSent() const;
+			inline UInt32 GetTotalPacketReceived() const;
+			inline UInt32 GetTotalPacketLost() const;
+			inline UInt32 GetTotalPacketSent() const;
 
 			inline bool HasPendingCommands();
 
@@ -239,12 +239,12 @@ namespace Nz
 			UInt32                                m_timeoutLimit;
 			UInt32                                m_timeoutMaximum;
 			UInt32                                m_timeoutMinimum;
+			UInt32                                m_totalPacketReceived;
+			UInt32                                m_totalPacketLost;
+			UInt32                                m_totalPacketSent;
 			UInt32                                m_windowSize;
 			UInt64                                m_totalByteReceived;
 			UInt64                                m_totalByteSent;
-			UInt64                                m_totalPacketReceived;
-			UInt64                                m_totalPacketLost;
-			UInt64                                m_totalPacketSent;
 			bool                                  m_isSimulationEnabled;
 	};
 }
