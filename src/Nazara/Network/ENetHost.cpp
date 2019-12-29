@@ -658,6 +658,9 @@ namespace Nz
 					return commandError();
 			}
 
+			if (peer)
+				peer->m_totalPacketReceived++;
+
 			if (peer && (command->header.command & ENetProtocolFlag_Acknowledge) != 0)
 			{
 				UInt16 sentTime;

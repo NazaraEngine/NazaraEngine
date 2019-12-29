@@ -210,6 +210,7 @@ Nazara Engine:
 - Added physics function to control sleeping behavior
 - String::Number is now locale-independent
 - Added ENetPeer::GetTotalByte[Received|Sent]
+- Added ENetPeer::GetTotalPacketSent
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
