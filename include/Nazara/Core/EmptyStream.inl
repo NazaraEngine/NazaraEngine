@@ -15,8 +15,8 @@ namespace Nz
 	inline EmptyStream::EmptyStream() :
 	m_size(0)
 	{
+		m_openMode = Nz::OpenMode_ReadWrite;
 	}
-
 }
 
 #include <Nazara/Core/DebugOff.hpp>
