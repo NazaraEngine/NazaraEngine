@@ -211,6 +211,7 @@ Nazara Engine:
 - String::Number is now locale-independent
 - Added ENetPeer::GetTotalByte[Received|Sent]
 - Added ENetPeer::GetTotalPacketSent
+- ⚠ ENetHost::GetTotalReceivedPackets now returns the number of commands received (instead of the number of UDP packets received)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
