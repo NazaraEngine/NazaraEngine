@@ -52,7 +52,7 @@ namespace Nz
 	/*!
 	* \ingroup audio
 	* \class Nz::OpenAL
-	* \brief Audio class that represents the link with OpenAL 
+	* \brief Audio class that represents the link with OpenAL
 	*
 	* \remark This class is meant to be used by Module Audio
 	*/
