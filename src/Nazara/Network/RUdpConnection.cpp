@@ -230,7 +230,7 @@ namespace Nz
 	void RUdpConnection::DisconnectPeer(std::size_t peerIndex)
 	{
 		PeerData& peer = m_peers[peerIndex];
-		NazaraNotice(m_socket.GetBoundAddress().ToString() + ": " + peer.address.ToString() + " has been disconnected due to time-out");
+		NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": " + peer.address.ToString().ToStdString() + " has been disconnected due to time-out");
 
 		OnPeerDisconnected(this, peer.address);
 
@@ -465,7 +465,7 @@ namespace Nz
 					UInt64 token;
 					packet >> token;
 
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_RequestConnection from " + peerIp.ToString() + ": " + String::Number(token));
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received NetCode_RequestConnection from " + peerIp.ToString().ToStdString() + ": " + std::to_string(token));
 					if (!m_shouldAcceptConnections)
 						return; //< Ignore
 
@@ -487,7 +487,7 @@ namespace Nz
 
 			if (m_isSimulationEnabled && m_packetLossProbability(s_randomGenerator))
 			{
-				NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(sequenceId) + " from " + peerIp.ToString() + " for simulation purpose");
+				NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Lost packet " + std::to_string(sequenceId) + " from " + peerIp.ToString().ToStdString() + " for simulation purpose");
 				return;
 			}
 
@@ -519,7 +519,7 @@ namespace Nz
 					UInt64 token;
 					packet /*>> externalAddress*/ >> token;
 
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_AcknowledgeConnection from " + peerIp.ToString() + ": " + String::Number(token));
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received NetCode_AcknowledgeConnection from " + peerIp.ToString().ToStdString() + ": " + std::to_string(token));
 					if (token == ~peer.stateData1)
 					{
 						peer.state = PeerState_Connected;
@@ -527,7 +527,7 @@ namespace Nz
 					}
 					else
 					{
-						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address.ToString());
+						NazaraNotice("Received wrong token (" + std::to_string(token) + " instead of " + std::to_string(~peer.stateData1) + ") from client " + peer.address.ToString().ToStdString());
 						return; //< Ignore
 					}
 
@@ -535,12 +535,12 @@ namespace Nz
 				}
 
 				case NetCode_RequestConnection:
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_RequestConnection from " + peerIp.ToString());
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received NetCode_RequestConnection from " + peerIp.ToString().ToStdString());
 					return; //< Ignore
 
 				case NetCode_Ping:
 				{
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_Ping from " + peerIp.ToString());
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received NetCode_Ping from " + peerIp.ToString().ToStdString());
 
 					NetPacket pongPacket(NetCode_Pong);
 					EnqueuePacket(peer, PacketPriority_Low, PacketReliability_Unreliable, pongPacket);
@@ -548,12 +548,14 @@ namespace Nz
 				}
 
 				case NetCode_Pong:
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_Pong from " + peerIp.ToString());
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received NetCode_Pong from " + peerIp.ToString().ToStdString());
 					break;
 
 				default:
 				{
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received 0x" + String::Number(packet.GetNetCode(), 16) + " from " + peerIp.ToString());
+                    char netcode[5] = {0};
+                    std::snprintf(netcode, sizeof(netcode), "%X.4", packet.GetNetCode());
+					NazaraNotice(m_socket.GetBoundAddress().ToString().ToStdString() + ": Received 0x" + netcode + " from " + peerIp.ToString().ToStdString());
 					RUdpMessage receivedMessage;
 					receivedMessage.from = peerIp;
 					receivedMessage.data = std::move(packet);
