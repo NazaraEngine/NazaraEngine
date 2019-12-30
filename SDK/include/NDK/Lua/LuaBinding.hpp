@@ -21,7 +21,7 @@ namespace Ndk
 			LuaBinding();
 			~LuaBinding() = default;
 
-			template<typename T> void BindComponent(const Nz::String& name);
+			template<typename T> void BindComponent(const std::string& name);
 
 			void RegisterClasses(Nz::LuaState& state);
 
@@ -53,13 +53,13 @@ namespace Ndk
 				AddComponentFunc adder;
 				ComponentIndex index;
 				GetComponentFunc getter;
-				Nz::String name;
+				std::string name;
 			};
 
 			ComponentBinding* QueryComponentIndex(Nz::LuaState& lua, int argIndex = 2);
 
 			std::vector<ComponentBinding> m_componentBinding;
-			std::unordered_map<Nz::String, ComponentIndex> m_componentBindingByName;
+			std::unordered_map<std::string, ComponentIndex> m_componentBindingByName;
 	};
 }
 

@@ -57,7 +57,7 @@ namespace Ndk
 		{
 			for (const ComponentBinding& entry : m_componentBinding)
 			{
-				if (entry.name.IsEmpty())
+				if (entry.name.empty())
 					continue;
 
 				state.PushField(entry.name, entry.index);

@@ -41,9 +41,9 @@ namespace Ndk
 	* \remark Produces a NazaraAssert if name is empty
 	*/
 	template<typename T>
-	void LuaBinding::BindComponent(const Nz::String& name)
+	void LuaBinding::BindComponent(const std::string& name)
 	{
-		NazaraAssert(!name.IsEmpty(), "Component name cannot be empty");
+		NazaraAssert(!name.empty(), "Component name cannot be empty");
 
 		static_assert(std::is_base_of<BaseComponent, T>::value, "ComponentType must inherit BaseComponent");
 

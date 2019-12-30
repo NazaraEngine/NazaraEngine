@@ -322,7 +322,7 @@ namespace Ndk
 				}
 
 				ComponentBinding& binding = m_componentBinding[componentIndex];
-				if (binding.name.IsEmpty())
+				if (binding.name.empty())
 				{
 					state.Error("Invalid component index");
 					return nullptr;
