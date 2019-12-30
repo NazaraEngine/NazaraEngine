@@ -40,8 +40,8 @@ namespace Ndk
 			~GraphicsComponent() = default;
 
 			inline void AddToCullingList(GraphicsComponentCullingList* cullingList) const;
-			void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const;
-			void AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue) const;
+			void AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, Nz::MatrixRegistry& registry) const;
+			void AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue, Nz::MatrixRegistry& registry) const;
 
 			inline void Attach(Nz::InstancedRenderableRef renderable, int renderOrder = 0);
 			void Attach(Nz::InstancedRenderableRef renderable, const Nz::Matrix4f& localMatrix, int renderOrder = 0);
@@ -87,12 +87,12 @@ namespace Ndk
 			inline void InvalidateRenderables();
 			void InvalidateReflectionMap();
 			inline void InvalidateTransformMatrix();
-			inline void InvalidateUboIndex() const;
 
-			inline void PushMatrix(Nz::MatrixRegistry& registry) const;
+			inline void RefreshMatrices(Nz::MatrixRegistry& registry) const;
+			inline void RefreshMatricesByCulling(const Nz::Frustumf& frustum, Nz::MatrixRegistry& registry) const;
 
 			void RegisterMaterial(Nz::Material* material, std::size_t count = 1);
-			void RegisterMatrix(Nz::MatrixRegistry& registry);
+			void RegisterMatrices(Nz::MatrixRegistry& registry);
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -105,7 +105,7 @@ namespace Ndk
 			void OnNodeInvalidated(const Nz::Node* node);
 
 			void UnregisterMaterial(Nz::Material* material);
-			void UnregisterMatrix(Nz::MatrixRegistry& registry);
+			void UnregisterMatrices(Nz::MatrixRegistry& registry);
 
 			void UpdateBoundingVolumes() const;
 			void UpdateTransformMatrix() const;
@@ -155,16 +155,16 @@ namespace Ndk
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableResetMaterials, renderableResetMaterialsSlot);
 				NazaraSlot(Nz::InstancedRenderable, OnInstancedRenderableSkinChange, renderableSkinChangeSlot);
 
+				std::optional<std::size_t> matrixIndex;
 				mutable Nz::BoundingVolumef boundingVolume;
 				mutable Nz::InstancedRenderable::InstanceData data;
 				Nz::InstancedRenderableRef renderable;
 				mutable bool dataUpdated;
 			};
 
-			std::optional<std::size_t> m_matrixIndex;
-			mutable std::optional<std::size_t> m_uboIndex;
 			std::size_t m_reflectiveMaterialCount;
 			mutable std::vector<CullingBoxEntry> m_cullingBoxEntries;
+			std::vector<std::size_t> m_freeMatriceIndexes;
 			std::vector<Renderable> m_renderables;
 			std::unordered_map<const Nz::Material*, MaterialEntry> m_materialEntries;
 			mutable Nz::Boxf m_aabb;

@@ -20,23 +20,24 @@ namespace Ndk
 	*
 	* \param renderQueue Queue to be added
 	*/
-	void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue) const
+	void GraphicsComponent::AddToRenderQueue(Nz::AbstractRenderQueue* renderQueue, Nz::MatrixRegistry& registry) const
 	{
 		EnsureBoundingVolumesUpdate();
 		EnsureTransformMatrixUpdate();
 
 		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
 
-		std::size_t instanceData = m_uboIndex.value();
 		for (const Renderable& object : m_renderables)
 		{
+			std::size_t uboIndex = registry.PushMatrix(object.matrixIndex.value(), object.data.transformMatrix);
+
 			if (!object.dataUpdated)
 			{
 				object.renderable->UpdateData(&object.data);
 				object.dataUpdated = true;
 			}
 
-			object.renderable->AddToRenderQueue(renderQueue, object.data, instanceData, m_scissorRect);
+			object.renderable->AddToRenderQueue(renderQueue, object.data, uboIndex, m_scissorRect);
 		}
 	}
 
@@ -46,25 +47,24 @@ namespace Ndk
 	* \param frustum Queue to be added
 	* \param renderQueue Queue to be added
 	*/
-	void GraphicsComponent::AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue) const
+	void GraphicsComponent::AddToRenderQueueByCulling(const Nz::Frustumf& frustum, Nz::AbstractRenderQueue* renderQueue, Nz::MatrixRegistry& registry) const
 	{
 		EnsureBoundingVolumesUpdate();
 		EnsureTransformMatrixUpdate();
 
-		RenderSystem& renderSystem = m_entity->GetWorld()->GetSystem<RenderSystem>();
-
-		std::size_t instanceData = m_uboIndex.value();
 		for (const Renderable& object : m_renderables)
 		{
 			if (frustum.Contains(object.boundingVolume))
 			{
+				std::size_t uboIndex = registry.PushMatrix(object.matrixIndex.value(), object.data.transformMatrix);
+
 				if (!object.dataUpdated)
 				{
 					object.renderable->UpdateData(&object.data);
 					object.dataUpdated = true;
 				}
 
-				object.renderable->AddToRenderQueue(renderQueue, object.data, instanceData, m_scissorRect);
+				object.renderable->AddToRenderQueue(renderQueue, object.data, uboIndex, m_scissorRect);
 			}
 		}
 	}
@@ -92,6 +92,9 @@ namespace Ndk
 
 		InvalidateAABB();
 		ForceCullingInvalidation();
+
+		if (m_entity)
+			m_entity->Invalidate();
 	}
 
 	void GraphicsComponent::ConnectInstancedRenderableSignals(Renderable& entry)
@@ -171,10 +174,18 @@ namespace Ndk
 			it->second.renderableCounter += count;
 	}
 
-	void GraphicsComponent::RegisterMatrix(Nz::MatrixRegistry& registry)
+	void GraphicsComponent::RegisterMatrices(Nz::MatrixRegistry& registry)
 	{
-		assert(!m_matrixIndex.has_value());
-		m_matrixIndex = registry.Register();
+		for (std::size_t freeMatIndex : m_freeMatriceIndexes)
+			registry.Unregister(freeMatIndex);
+
+		m_freeMatriceIndexes.clear();
+
+		for (Renderable& r : m_renderables)
+		{
+			if (!r.matrixIndex)
+				r.matrixIndex = registry.Register();
+		}
 	}
 
 	void GraphicsComponent::OnAttached()
@@ -278,10 +289,21 @@ namespace Ndk
 		}
 	}
 
-	void GraphicsComponent::UnregisterMatrix(Nz::MatrixRegistry& registry)
+	void GraphicsComponent::UnregisterMatrices(Nz::MatrixRegistry& registry)
 	{
-		registry.Unregister(m_matrixIndex.value());
-		m_matrixIndex.reset();
+		for (std::size_t freeMatIndex : m_freeMatriceIndexes)
+			registry.Unregister(freeMatIndex);
+
+		m_freeMatriceIndexes.clear();
+
+		for (Renderable& r : m_renderables)
+		{
+			if (r.matrixIndex)
+			{
+				registry.Unregister(r.matrixIndex.value());
+				r.matrixIndex.reset();
+			}
+		}
 	}
 
 	/*!

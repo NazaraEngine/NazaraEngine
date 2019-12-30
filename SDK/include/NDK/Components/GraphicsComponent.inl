@@ -91,9 +91,16 @@ namespace Ndk
 				for (std::size_t i = 0; i < materialCount; ++i)
 					UnregisterMaterial(renderable->GetMaterial(i));
 
+				if (it->matrixIndex)
+					m_freeMatriceIndexes.push_back(it->matrixIndex.value());
+
 				m_renderables.erase(it);
 
 				ForceCullingInvalidation();
+
+				if (m_entity)
+					m_entity->Invalidate();
+
 				break;
 			}
 		}
@@ -289,18 +296,22 @@ namespace Ndk
 		InvalidateRenderables();
 	}
 
-	inline void GraphicsComponent::InvalidateUboIndex() const
+	inline void GraphicsComponent::RefreshMatrices(Nz::MatrixRegistry& registry) const
 	{
-		m_uboIndex.reset();
+		EnsureBoundingVolumesUpdate();
+
+		for (const Renderable& object : m_renderables)
+			registry.PushMatrix(object.matrixIndex.value(), object.data.transformMatrix);
 	}
 
-	inline void GraphicsComponent::PushMatrix(Nz::MatrixRegistry& registry) const
+	inline void GraphicsComponent::RefreshMatricesByCulling(const Nz::Frustumf& frustum, Nz::MatrixRegistry& registry) const
 	{
-		if (!m_uboIndex.has_value())
-		{
-			EnsureTransformMatrixUpdate();
+		EnsureBoundingVolumesUpdate();
 
-			m_uboIndex = registry.PushMatrix(m_matrixIndex.value(), m_transformMatrix);
+		for (const Renderable& object : m_renderables)
+		{
+			if (frustum.Contains(object.boundingVolume))
+				registry.PushMatrix(object.matrixIndex.value(), object.data.transformMatrix);
 		}
 	}
 }

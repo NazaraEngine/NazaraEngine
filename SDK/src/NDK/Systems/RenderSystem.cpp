@@ -74,7 +74,7 @@ namespace Ndk
 		{
 			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 			gfxComponent.RemoveFromCullingList(&m_drawableCulling);
-			gfxComponent.UnregisterMatrix(*m_matrixRegistry);
+			gfxComponent.UnregisterMatrices(*m_matrixRegistry);
 		}
 	}
 
@@ -114,10 +114,9 @@ namespace Ndk
 
 			GraphicsComponent& gfxComponent = entity->GetComponent<GraphicsComponent>();
 			if (justAdded)
-			{
 				gfxComponent.AddToCullingList(&m_drawableCulling);
-				gfxComponent.RegisterMatrix(*m_matrixRegistry);
-			}
+
+			gfxComponent.RegisterMatrices(*m_matrixRegistry);
 
 			if (gfxComponent.DoesRequireRealTimeReflections())
 				m_realtimeReflected.Insert(entity);
@@ -199,7 +198,8 @@ namespace Ndk
 
 		Nz::SkinningManager::Skin();
 
-		m_matrixRegistry->Clear();
+		Nz::MatrixRegistry& matrixRegistry = m_matrixRegistry.value(); //< Pay optional check once
+		matrixRegistry.Clear();
 
 		UpdateDynamicReflections();
 		UpdatePointSpotShadowMaps();
@@ -209,7 +209,6 @@ namespace Ndk
 		{
 			GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 			graphicsComponent.EnsureBoundingVolumesUpdate();
-			graphicsComponent.InvalidateUboIndex();
 		}
 
 		for (const Ndk::EntityHandle& camera : m_cameras)
@@ -238,16 +237,10 @@ namespace Ndk
 			{
 				renderQueue->Clear();
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
-				{
-					gfxComponent->PushMatrix(m_matrixRegistry.value());
-					gfxComponent->AddToRenderQueue(renderQueue);
-				}
+					gfxComponent->AddToRenderQueue(renderQueue, matrixRegistry);
 
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
-				{
-					gfxComponent->PushMatrix(m_matrixRegistry.value());
-					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue);
-				}
+					gfxComponent->AddToRenderQueueByCulling(frustum, renderQueue, matrixRegistry);
 
 				for (const Ndk::EntityHandle& light : m_lights)
 				{
@@ -270,13 +263,13 @@ namespace Ndk
 			else
 			{
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetFullyVisibleResults())
-					gfxComponent->PushMatrix(*m_matrixRegistry);
+					gfxComponent->RefreshMatrices(matrixRegistry);
 
 				for (const GraphicsComponent* gfxComponent : m_drawableCulling.GetPartiallyVisibleResults())
-					gfxComponent->PushMatrix(*m_matrixRegistry);
+					gfxComponent->RefreshMatricesByCulling(frustum, matrixRegistry);
 			}
 
-			m_matrixRegistry->Freeze();
+			matrixRegistry.Freeze();
 
 			camComponent.ApplyView();
 
@@ -289,7 +282,7 @@ namespace Ndk
 				sceneData.globalReflectionTexture = static_cast<Nz::SkyboxBackground*>(m_background.Get())->GetTexture();
 
 			m_renderTechnique->Clear(sceneData);
-			m_renderTechnique->Draw(sceneData, m_matrixRegistry.value());
+			m_renderTechnique->Draw(sceneData, matrixRegistry);
 		}
 	}
 
@@ -342,7 +335,7 @@ namespace Ndk
 			{
 				GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 
-				graphicsComponent.AddToRenderQueue(renderQueue);
+				graphicsComponent.AddToRenderQueue(renderQueue, m_matrixRegistry.value());
 			}
 
 			///TODO: Cache the matrices in the light?
@@ -413,7 +406,7 @@ namespace Ndk
 						{
 							GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 
-							graphicsComponent.AddToRenderQueue(renderQueue);
+							graphicsComponent.AddToRenderQueue(renderQueue, m_matrixRegistry.value());
 						}
 
 						m_shadowTechnique.Clear(dummySceneData);
@@ -440,7 +433,7 @@ namespace Ndk
 					{
 						GraphicsComponent& graphicsComponent = drawable->GetComponent<GraphicsComponent>();
 
-						graphicsComponent.AddToRenderQueue(renderQueue);
+						graphicsComponent.AddToRenderQueue(renderQueue, m_matrixRegistry.value());
 					}
 
 					m_shadowTechnique.Clear(dummySceneData);

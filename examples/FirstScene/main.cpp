@@ -152,7 +152,7 @@ int main()
 	// Bien, nous avons un modèle valide, mais celui-ci ne consiste qu'en des informations de rendu, de matériaux et de textures.
 	// Commençons donc par créer une entité vide, cela se fait en demandant au monde de générer une nouvelle entité.
 	Ndk::EntityHandle spaceship = world->CreateEntity();
-	spaceship->AddComponent<Ndk::DebugComponent>(Ndk::DebugDraw::GraphicsAABB | Ndk::DebugDraw::GraphicsOBB);
+	//spaceship->AddComponent<Ndk::DebugComponent>(Ndk::DebugDraw::GraphicsAABB | Ndk::DebugDraw::GraphicsOBB);
 	// Note: Nous ne récupérons pas l'entité directement mais un "handle" vers elle, ce dernier est un pointeur intelligent non-propriétaire.
 	// Pour des raisons techniques, le pointeur de l'entité peut venir à changer, ou l'entité être simplement détruite pour n'importe quelle raison.
 	// Le Handle nous permet de maintenir un pointeur valide vers notre entité, et invalidé automatiquement à sa mort.
@@ -276,7 +276,7 @@ int main()
 	Nz::Clock updateClock;
 	Nz::UInt64 updateAccumulator = 0;
 
-	// Quelques variables de plus pour notre caméra
+	// Quelques variables de plus pour notre caméra 
 	bool smoothMovement = true;
 	Nz::Vector3f targetPos = cameraNode.GetPosition();
 

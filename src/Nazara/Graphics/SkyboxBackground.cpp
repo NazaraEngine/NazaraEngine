@@ -174,7 +174,7 @@ namespace Nz
 			shader->AttachStageFromSource(ShaderStageType_Vertex, reinterpret_cast<const char*>(r_vertexShaderSource), sizeof(r_vertexShaderSource));
 			shader->Link();
 
-			auto bindings = shader->ApplyLayout(Nz::RenderPipelineLayout::New(RenderPipelineLayoutInfo{
+			auto bindings = shader->ApplyLayout(RenderPipelineLayout::New(RenderPipelineLayoutInfo{
 				{
 					{
 						"SkyboxTexture",
