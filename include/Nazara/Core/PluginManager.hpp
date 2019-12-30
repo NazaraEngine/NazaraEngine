@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/String.hpp>
+#include <string>
 #include <set>
 #include <unordered_map>
 
@@ -24,23 +25,23 @@ namespace Nz
 			PluginManager() = delete;
 			~PluginManager() = delete;
 
-			static void AddDirectory(const String& directoryPath);
+			static void AddDirectory(const std::string& directoryPath);
 
 			static bool Initialize();
 
 			static bool Mount(Plugin plugin);
-			static bool Mount(const String& pluginPath, bool appendExtension = true);
+			static bool Mount(const std::string& pluginPath, bool appendExtension = true);
 
-			static void RemoveDirectory(const String& directoryPath);
+			static void RemoveDirectory(const std::string& directoryPath);
 
 			static void Unmount(Plugin plugin);
-			static void Unmount(const String& pluginPath);
+			static void Unmount(const std::string& pluginPath);
 
 			static void Uninitialize();
 
 		private:
-			static std::set<String> s_directories;
-			static std::unordered_map<String, DynLib*> s_plugins;
+			static std::set<std::string> s_directories;
+			static std::unordered_map<std::string, DynLib*> s_plugins;
 			static bool s_initialized;
 	};
 }

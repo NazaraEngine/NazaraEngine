@@ -17,7 +17,7 @@ namespace Nz
 		using PluginLoad = int (*)();
 		using PluginUnload = void (*)();
 
-		String s_pluginFiles[] =
+		std::string s_pluginFiles[] =
 		{
 			"PluginAssimp",  // Plugin_Assimp
 		};
@@ -37,7 +37,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not initialized
 	*/
 
-	void PluginManager::AddDirectory(const String& directoryPath)
+	void PluginManager::AddDirectory(const std::string& directoryPath)
 	{
 		if (!Initialize())
 		{
@@ -45,7 +45,7 @@ namespace Nz
 			return;
 		}
 
-		s_directories.insert(File::AbsolutePath(directoryPath));
+		s_directories.insert(File::AbsolutePath(directoryPath).ToStdString());
 	}
 
 	/*!
@@ -79,7 +79,7 @@ namespace Nz
 
 	bool PluginManager::Mount(Plugin plugin)
 	{
-		Nz::String pluginName = s_pluginFiles[plugin];
+		const std::string &pluginName = s_pluginFiles[plugin];
 		#ifdef NAZARA_DEBUG
 		if (Mount(pluginName + "-d", true))
 			return true;
@@ -102,7 +102,7 @@ namespace Nz
 	* \remark Produces a NazaraError if fail to initialize the plugin with PluginLoad
 	*/
 
-	bool PluginManager::Mount(const String& pluginPath, bool appendExtension)
+	bool PluginManager::Mount(const std::string& pluginPath, bool appendExtension)
 	{
 		if (!Initialize())
 		{
@@ -110,17 +110,17 @@ namespace Nz
 			return false;
 		}
 
-		String path = pluginPath;
-		if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
+		std::string path = pluginPath;
+		if (appendExtension && !!path.compare(path.length() - sizeof(NAZARA_DYNLIB_EXTENSION) - 1, sizeof(NAZARA_DYNLIB_EXTENSION) - 1, NAZARA_DYNLIB_EXTENSION))
 			path += NAZARA_DYNLIB_EXTENSION;
 
 		bool exists = false;
 		if (!File::IsAbsolute(path))
 		{
-			for (const String& dir : s_directories)
+			for (const std::string& dir : s_directories)
 			{
-				String testPath;
-				testPath.Reserve(dir.GetSize() + path.GetSize() + 10);
+				std::string testPath;
+				testPath.reserve(dir.size() + path.size() + 10);
 
 				testPath = dir;
 				testPath += NAZARA_DIRECTORY_SEPARATOR;
@@ -176,7 +176,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not initialized
 	*/
 
-	void PluginManager::RemoveDirectory(const String& directoryPath)
+	void PluginManager::RemoveDirectory(const std::string& directoryPath)
 	{
 		if (!Initialize())
 		{
@@ -184,7 +184,7 @@ namespace Nz
 			return;
 		}
 
-		s_directories.erase(File::AbsolutePath(directoryPath));
+		s_directories.erase(File::AbsolutePath(directoryPath).ToStdString());
 	}
 
 	/*!
@@ -210,7 +210,7 @@ namespace Nz
 	* \remark Produces a NazaraError if plugin is not loaded
 	*/
 
-	void PluginManager::Unmount(const String& pluginPath)
+	void PluginManager::Unmount(const std::string& pluginPath)
 	{
 		if (!Initialize())
 		{
@@ -261,7 +261,7 @@ namespace Nz
 		s_plugins.clear();
 	}
 
-	std::set<String> PluginManager::s_directories;
-	std::unordered_map<String, DynLib*> PluginManager::s_plugins;
+	std::set<std::string> PluginManager::s_directories;
+	std::unordered_map<std::string, DynLib*> PluginManager::s_plugins;
 	bool PluginManager::s_initialized = false;
 }
