@@ -163,7 +163,7 @@ namespace Ndk
 		overlay->console->OnCommand.Connect([&lua](Ndk::Console* console, const Nz::String& command)
 		{
 			if (!lua.Execute(command))
-				console->AddLine(lua.GetLastError(), Nz::Color::Red);
+				console->AddLine(lua.GetLastError().ToStdString(), Nz::Color::Red);
 		});
 
 		Console& consoleRef = *overlay->console;
@@ -173,7 +173,7 @@ namespace Ndk
 		// Redirect logs toward the console
 		overlay->logSlot.Connect(Nz::Log::OnLogWrite, [&consoleRef] (const Nz::String& str)
 		{
-			consoleRef.AddLine(str);
+			consoleRef.AddLine(str.ToStdString());
 		});
 
 		lua.LoadLibraries();
@@ -201,7 +201,7 @@ namespace Ndk
 				state.Pop(1);
 			}
 
-			consoleRef.AddLine(stream);
+			consoleRef.AddLine(stream.ToString().ToStdString());
 			return 0;
 		});
 		lua.SetGlobal("print");
