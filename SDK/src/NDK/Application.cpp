@@ -5,6 +5,8 @@
 #include <NDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <regex>
+#include <algorithm>
+#include <locale>
 
 #ifndef NDK_SERVER
 #include <NDK/Components/CameraComponent.hpp>
@@ -48,18 +50,22 @@ namespace Ndk
 			std::string argument(argv[i]);
 			if (std::regex_match(argument, results, valueRegex))
 			{
-				Nz::String key(results[1].str());
-				Nz::String value(results[2].str());
+				std::string key(results[1].str());
+				std::string value(results[2].str());
 
-				m_parameters[key.ToLower()] = value;
-				NazaraDebug("Registred parameter from command-line: " + key.ToLower().ToStdString() + "=" + value.ToStdString());
+				std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) {
+					return std::tolower(c, std::locale());
+				});
+
+				m_parameters[key] = value;
+				NazaraDebug("Registred parameter from command-line: " + key + "=" + value);
 			}
 			else if (std::regex_match(argument, results, optionRegex))
 			{
-				Nz::String option(results[1].str());
+				std::string option(results[1].str());
 
 				m_options.insert(option);
-				NazaraDebug("Registred option from command-line: " + option.ToStdString());
+				NazaraDebug("Registred option from command-line: " + option);
 			}
 			else
 				NazaraWarning("Ignored command-line argument #" + std::to_string(i) + " \"" + argument + '"');
