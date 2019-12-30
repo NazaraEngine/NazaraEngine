@@ -110,13 +110,13 @@ namespace Ndk
 	* \param text New line of text
 	* \param color Color for the text
 	*/
-	void Console::AddLine(const Nz::String& text, const Nz::Color& color)
+	void Console::AddLine(const std::string& text, const Nz::Color& color)
 	{
 		if (m_historyLines.size() >= m_maxHistoryLines)
 			m_historyLines.erase(m_historyLines.begin());
 
 		m_historyLines.emplace_back(Line{ color, text });
-		m_history->SetTextColor(color); 
+		m_history->SetTextColor(color);
 		m_history->AppendText(text + '\n');
 		m_history->Resize(m_history->GetPreferredSize());
 		m_historyArea->Resize(m_historyArea->GetSize());
@@ -198,8 +198,8 @@ namespace Ndk
 
 		*ignoreDefaultAction = true;
 
-		Nz::String input = m_input->GetText();
-		Nz::String inputCmd = input.SubString(s_inputPrefixSize);
+		std::string input = m_input->GetText().ToStdString();
+		std::string inputCmd = input.substr(s_inputPrefixSize);
 		m_input->SetText(s_inputPrefix);
 
 		if (m_commandHistory.empty() || m_commandHistory.back() != inputCmd)

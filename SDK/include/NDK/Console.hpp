@@ -41,7 +41,7 @@ namespace Ndk
 			Console(Console&& console) = default;
 			~Console() = default;
 
-			void AddLine(const Nz::String& text, const Nz::Color& color = Nz::Color::White);
+			void AddLine(const std::string& text, const Nz::Color& color = Nz::Color::White);
 
 			void Clear();
 			void ClearFocus();
