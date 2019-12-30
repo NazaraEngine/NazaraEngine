@@ -76,7 +76,7 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void Log::Write(const String& string)
+	void Log::Write(const std::string& string)
 	{
 		if (s_enabled)
 			s_logger->Write(string);
@@ -96,7 +96,7 @@ namespace Nz
 	* \see Write
 	*/
 
-	void Log::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void Log::WriteError(ErrorType type, const std::string& error, unsigned int line, const char* file, const char* function)
 	{
 		if (s_enabled)
 			s_logger->WriteError(type, error, line, file, function);

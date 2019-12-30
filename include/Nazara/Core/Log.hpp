@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/String.hpp>
+#include <string>
 
 #if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_LOG
 	#include <Nazara/Core/ThreadSafety.hpp>
@@ -42,11 +43,11 @@ namespace Nz
 
 			static void SetLogger(AbstractLogger* logger);
 
-			static void Write(const String& string);
-			static void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
+			static void Write(const std::string& string);
+			static void WriteError(ErrorType type, const std::string& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
-			NazaraStaticSignal(OnLogWrite, const String& /*string*/);
-			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const String& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
+			NazaraStaticSignal(OnLogWrite, const std::string& /*string*/);
+			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const std::string& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
 
 		private:
 			static bool Initialize();
