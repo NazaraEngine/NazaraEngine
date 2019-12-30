@@ -46,7 +46,7 @@ namespace Nz
 
 				*source = shaderSource;
 
-				NazaraNotice(path + " will be used to override built-in shader");
+				NazaraNotice(path.ToStdString() + " will be used to override built-in shader");
 			}
 		}
 	}
