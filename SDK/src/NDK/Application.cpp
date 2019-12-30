@@ -133,7 +133,7 @@ namespace Ndk
 				fpsCounter.elapsedTime += m_updateTime;
 				if (fpsCounter.elapsedTime >= 1.f)
 				{
-					fpsCounter.sprite->Update(Nz::SimpleTextDrawer::Draw("FPS: " + Nz::String::Number(fpsCounter.frameCount), 36));
+					fpsCounter.sprite->Update(Nz::SimpleTextDrawer::Draw("FPS: " + std::to_string(fpsCounter.frameCount), 36));
 					fpsCounter.frameCount = 0;
 					fpsCounter.elapsedTime = 0.f;
 				}
