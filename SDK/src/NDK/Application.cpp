@@ -52,14 +52,14 @@ namespace Ndk
 				Nz::String value(results[2].str());
 
 				m_parameters[key.ToLower()] = value;
-				NazaraDebug("Registred parameter from command-line: " + key.ToLower() + "=" + value);
+				NazaraDebug("Registred parameter from command-line: " + key.ToLower().ToStdString() + "=" + value.ToStdString());
 			}
 			else if (std::regex_match(argument, results, optionRegex))
 			{
 				Nz::String option(results[1].str());
 
 				m_options.insert(option);
-				NazaraDebug("Registred option from command-line: " + option);
+				NazaraDebug("Registred option from command-line: " + option.ToStdString());
 			}
 			else
 				NazaraWarning("Ignored command-line argument #" + Nz::String::Number(i) + " \"" + argument + '"');
