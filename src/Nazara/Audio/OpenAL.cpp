@@ -420,7 +420,7 @@ namespace Nz
 
 				s_version = major*100 + minor*10;
 
-				NazaraDebug("OpenAL version: " + String::Number(major) + '.' + String::Number(minor));
+				NazaraDebug("OpenAL version: " + std::to_string(major) + '.' + std::to_string(minor));
 			}
 			else
 			{
