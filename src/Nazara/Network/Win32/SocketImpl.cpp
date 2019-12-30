@@ -163,7 +163,7 @@ namespace Nz
 			return false;
 		}
 
-		NazaraDebug("Initialized Windows Socket " + String::Number(LOBYTE(s_WSA.wVersion)) + '.' + String::Number(HIBYTE(s_WSA.wVersion)) + " (" + String(s_WSA.szDescription) + ')');
+		NazaraDebug("Initialized Windows Socket " + std::to_string(LOBYTE(s_WSA.wVersion)) + '.' + std::to_string(HIBYTE(s_WSA.wVersion)) + " (" + std::string(s_WSA.szDescription) + ')');
 		return true;
 	}
 
