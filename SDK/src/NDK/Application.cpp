@@ -62,7 +62,7 @@ namespace Ndk
 				NazaraDebug("Registred option from command-line: " + option.ToStdString());
 			}
 			else
-				NazaraWarning("Ignored command-line argument #" + Nz::String::Number(i) + " \"" + argument + '"');
+				NazaraWarning("Ignored command-line argument #" + std::to_string(i) + " \"" + argument + '"');
 		}
 
 		#ifndef NDK_SERVER
