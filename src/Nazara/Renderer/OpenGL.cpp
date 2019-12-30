@@ -824,7 +824,7 @@ namespace Nz
 
 		s_openglVersion = major * 100 + minor * 10; // Donnera 330 pour OpenGL 3.3, 410 pour OpenGL 4.1, bien plus facile à comparer
 
-		NazaraDebug("OpenGL version: " + String::Number(major) + '.' + String::Number(minor));
+		NazaraDebug("OpenGL version: " + std::to_string(major) + '.' + std::to_string(minor));
 
 		// Le moteur nécessite OpenGL 3.3, autant s'arrêter là si ce n'est pas le cas
 		if (s_openglVersion < 330)
