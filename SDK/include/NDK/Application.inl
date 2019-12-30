@@ -221,7 +221,7 @@ namespace Ndk
 	*
 	* \return Command-line options
 	*/
-	inline const std::set<Nz::String>& Application::GetOptions() const
+	inline const std::set<std::string>& Application::GetOptions() const
 	{
 		return m_options;
 	}
@@ -233,7 +233,7 @@ namespace Ndk
 	*
 	* \return Command-line parameters
 	*/
-	inline const std::map<Nz::String, Nz::String>& Application::GetParameters() const
+	inline const std::map<std::string, std::string>& Application::GetParameters() const
 	{
 		return m_parameters;
 	}
@@ -258,7 +258,7 @@ namespace Ndk
 	*
 	* \see GetOptions
 	*/
-	inline bool Application::HasOption(const Nz::String& option) const
+	inline bool Application::HasOption(const std::string& option) const
 	{
 		return m_options.count(option) != 0;
 	}
@@ -275,7 +275,7 @@ namespace Ndk
 	*
 	* \see GetParameters
 	*/
-	inline bool Application::HasParameter(const Nz::String& key, Nz::String* value) const
+	inline bool Application::HasParameter(const std::string& key, std::string* value) const
 	{
 		auto it = m_parameters.find(key);
 		if (it == m_parameters.end())
