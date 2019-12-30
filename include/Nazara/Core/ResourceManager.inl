@@ -44,7 +44,7 @@ namespace Nz
 				return ObjectRef<Type>();
 			}
 
-			NazaraDebug("Loaded resource from file " + absolutePath);
+			NazaraDebug("Loaded resource from file " + absolutePath.ToStdString());
 
 			it = Type::s_managerMap.insert(std::make_pair(absolutePath, resource)).first;
 		}
@@ -74,7 +74,7 @@ namespace Nz
 			const ObjectRef<Type>& ref = it->second;
 			if (ref->GetReferenceCount() == 1) // Are we the only ones to own the resource ?
 			{
-				NazaraDebug("Purging resource from file " + ref->GetFilePath());
+				NazaraDebug("Purging resource from file " + ref->GetFilePath().ToStdString());
 				Type::s_managerMap.erase(it++); // Then we erase it
 			}
 			else
