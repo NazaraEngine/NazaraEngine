@@ -449,7 +449,7 @@ namespace Nz
 		return 0;
 		#endif
 	}
-	
+
 	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
 	{
 		// http://developerweb.net/viewtopic.php?id=3196
