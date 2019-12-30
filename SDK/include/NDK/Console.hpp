@@ -58,7 +58,7 @@ namespace Ndk
 			Console& operator=(const Console& console) = delete;
 			Console& operator=(Console&& console) = default;
 
-			NazaraSignal(OnCommand, Console* /*console*/, const Nz::String& /*command*/);
+			NazaraSignal(OnCommand, Console* /*console*/, const std::string& /*command*/);
 
 		private:
 			void ExecuteInput(const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction);
@@ -67,11 +67,11 @@ namespace Ndk
 			struct Line
 			{
 				Nz::Color color;
-				Nz::String text;
+				std::string text;
 			};
 
 			std::size_t m_historyPosition;
-			std::vector<Nz::String> m_commandHistory;
+			std::vector<std::string> m_commandHistory;
 			std::vector<Line> m_historyLines;
 			ScrollAreaWidget* m_historyArea;
 			RichTextAreaWidget* m_history;
