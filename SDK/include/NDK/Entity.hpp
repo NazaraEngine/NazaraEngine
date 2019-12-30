@@ -72,7 +72,7 @@ namespace Ndk
 			inline void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
 
-			inline Nz::String ToString() const;
+			inline std::string ToString() const;
 
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;
