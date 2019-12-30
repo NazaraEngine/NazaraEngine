@@ -1831,7 +1831,7 @@ namespace Nz
 				dump << ")\n";
 			}
 
-			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString());
+			NazaraNotice("Dumping shader uniforms:\n" + dump.ToString().ToStdString());
 
 			return false;
 		}
