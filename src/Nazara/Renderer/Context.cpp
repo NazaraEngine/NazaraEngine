@@ -127,7 +127,7 @@ namespace Nz
 
 			ss << "Message: " << message << '\n';
 
-			NazaraNotice(ss);
+			NazaraNotice(ss.ToString().ToStdString());
 		}
 	}
 
