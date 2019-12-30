@@ -134,7 +134,7 @@ namespace Nz
 	void Error::Trigger(ErrorType type, const String& error)
 	{
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
-			Log::WriteError(type, error);
+			Log::WriteError(type, error.ToStdString());
 
 		s_lastError = error;
 		s_lastErrorFile = "";
@@ -169,7 +169,7 @@ namespace Nz
 		file = Nz::Directory::GetCurrentFileRelativeToEngine(file);
 
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
-			Log::WriteError(type, error, line, file, function);
+			Log::WriteError(type, error.ToStdString(), line, file, function);
 
 		s_lastError = error;
 		s_lastErrorFile = file;
