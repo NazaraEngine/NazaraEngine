@@ -44,7 +44,7 @@ namespace Ndk
 			inline EchoMode GetEchoMode() const;
 			inline std::size_t GetGlyphIndex() const;
 			inline std::size_t GetGlyphIndex(const Nz::Vector2ui& cursorPosition) const;
-			inline const Nz::String& GetText() const;
+			inline const std::string& GetText() const;
 
 			Nz::Vector2ui GetHoveredGlyph(float x, float y) const;
 
@@ -67,9 +67,9 @@ namespace Ndk
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetSelection(Nz::Vector2ui fromPosition, Nz::Vector2ui toPosition);
 
-			inline void Write(const Nz::String& text);
-			inline void Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition);
-			virtual void Write(const Nz::String& text, std::size_t glyphPosition) = 0;
+			inline void Write(const std::string& text);
+			inline void Write(const std::string& text, const Nz::Vector2ui& glyphPosition);
+			virtual void Write(const std::string& text, std::size_t glyphPosition) = 0;
 
 			AbstractTextAreaWidget& operator=(const AbstractTextAreaWidget&) = delete;
 			AbstractTextAreaWidget& operator=(AbstractTextAreaWidget&&) = default;
