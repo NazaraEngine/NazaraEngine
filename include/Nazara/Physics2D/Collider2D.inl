@@ -191,8 +191,15 @@ namespace Nz
 	}
 
 	SegmentCollider2D::SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness) :
+	SegmentCollider2D(first, first, second, second, thickness)
+	{
+	}
+
+	inline SegmentCollider2D::SegmentCollider2D(const Vector2f& first, const Vector2f& firstNeighbor, const Vector2f& second, const Vector2f& secondNeighbor, float thickness) :
 	m_first(first),
+	m_firstNeighbor(firstNeighbor),
 	m_second(second),
+	m_secondNeighbor(secondNeighbor),
 	m_thickness(thickness)
 	{
 	}
@@ -200,6 +207,11 @@ namespace Nz
 	inline const Vector2f& SegmentCollider2D::GetFirstPoint() const
 	{
 		return m_first;
+	}
+
+	inline const Vector2f& SegmentCollider2D::GetFirstPointNeighbor() const
+	{
+		return m_firstNeighbor;
 	}
 
 	inline float SegmentCollider2D::GetLength() const
@@ -210,6 +222,11 @@ namespace Nz
 	inline const Vector2f& SegmentCollider2D::GetSecondPoint() const
 	{
 		return m_second;
+	}
+
+	inline const Vector2f& SegmentCollider2D::GetSecondPointNeighbor() const
+	{
+		return m_secondNeighbor;
 	}
 
 	inline float SegmentCollider2D::GetThickness() const
