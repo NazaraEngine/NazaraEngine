@@ -213,6 +213,7 @@ Nazara Engine:
 - Added ENetPeer::GetTotalPacketSent
 - ⚠ ENetHost::GetTotalReceivedPackets now returns the number of commands received (instead of the number of UDP packets received)
 - Added EmptyStream class, useful to measure how many bytes some writing operations will take
+- SegmentCollider2D: Add support for neighbors (aka "ghost vertices"), allowing to prevent seams collisions
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

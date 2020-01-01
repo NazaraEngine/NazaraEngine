@@ -298,7 +298,10 @@ namespace Nz
 
 	std::size_t SegmentCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
 	{
-		shapes->push_back(cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
+		cpShape* segment = cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness);
+		cpSegmentShapeSetNeighbors(segment, cpv(m_firstNeighbor.x, m_firstNeighbor.y), cpv(m_secondNeighbor.x, m_secondNeighbor.y));
+
+		shapes->push_back(segment);
 		return 1;
 	}
 }
