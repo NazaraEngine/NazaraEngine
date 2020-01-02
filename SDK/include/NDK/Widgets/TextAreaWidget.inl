@@ -16,9 +16,9 @@ namespace Ndk
 		return m_drawer.GetText();
 	}
 
-	inline const Nz::String& TextAreaWidget::GetText() const
+	inline std::string TextAreaWidget::GetText() const
 	{
-		return m_text;
+		return m_text.ToStdString();
 	}
 
 	inline const Nz::Color& TextAreaWidget::GetTextColor() const

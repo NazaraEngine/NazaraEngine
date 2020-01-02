@@ -198,7 +198,7 @@ namespace Ndk
 
 		*ignoreDefaultAction = true;
 
-		std::string input = m_input->GetText().ToStdString();
+		std::string input = m_input->GetText();
 		std::string inputCmd = input.substr(s_inputPrefixSize);
 		m_input->SetText(s_inputPrefix);
 

@@ -29,7 +29,7 @@ namespace Ndk
 
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::String& GetDisplayText() const;
-			inline const Nz::String& GetText() const;
+			inline std::string GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 			inline Nz::Font* GetTextFont() const;
 			inline const Nz::Color& GetTextOulineColor() const;
