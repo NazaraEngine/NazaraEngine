@@ -261,7 +261,7 @@ namespace Ndk
 				if (HasSelection())
 					EraseSelection();
 
-				Write(Nz::String('\n'));
+				Write("\n");
 				return true;;
 			}
 
@@ -372,7 +372,8 @@ namespace Ndk
 		if (HasSelection())
 			EraseSelection();
 
-		Write(Nz::String::Unicode(character));
+		// TODO
+		Write(std::string {character});
 	}
 
 	void AbstractTextAreaWidget::RefreshCursor()
