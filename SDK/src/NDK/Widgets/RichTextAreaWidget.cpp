@@ -11,10 +11,9 @@ namespace Ndk
 	{
 		Layout();
 	}
-	
-	void RichTextAreaWidget::AppendText(const Nz::String& text)
+
+	void RichTextAreaWidget::AppendText(const std::string& text)
 	{
-		//m_text += text;
 		switch (m_echoMode)
 		{
 			case EchoMode_Normal:
@@ -22,7 +21,7 @@ namespace Ndk
 				break;
 
 			case EchoMode_Password:
-				m_drawer.AppendText(Nz::String(text.GetLength(), '*'));
+				m_drawer.AppendText(Nz::String(text.length(), '*'));
 				break;
 
 			case EchoMode_PasswordExceptLast:
@@ -130,7 +129,7 @@ namespace Ndk
 		UpdateDisplayText();
 	}
 
-	void RichTextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
+	void RichTextAreaWidget::Write(const std::string& text, std::size_t glyphPosition)
 	{
 		if (m_drawer.HasBlocks())
 		{
@@ -147,7 +146,7 @@ namespace Ndk
 		else
 			m_drawer.AppendText(text);
 
-		SetCursorPosition(glyphPosition + text.GetLength());
+		SetCursorPosition(glyphPosition + text.length());
 
 		UpdateDisplayText();
 	}

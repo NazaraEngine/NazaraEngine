@@ -20,7 +20,7 @@ namespace Ndk
 			RichTextAreaWidget(RichTextAreaWidget&&) = default;
 			~RichTextAreaWidget() = default;
 
-			void AppendText(const Nz::String& text);
+			void AppendText(const std::string& text);
 
 			void Clear() override;
 
@@ -40,7 +40,7 @@ namespace Ndk
 			inline void SetTextOutlineThickness(float thickness);
 			inline void SetTextStyle(Nz::TextStyleFlags style);
 
-			void Write(const Nz::String& text, std::size_t glyphPosition) override;
+			void Write(const std::string& text, std::size_t glyphPosition) override;
 
 			RichTextAreaWidget& operator=(const RichTextAreaWidget&) = delete;
 			RichTextAreaWidget& operator=(RichTextAreaWidget&&) = default;

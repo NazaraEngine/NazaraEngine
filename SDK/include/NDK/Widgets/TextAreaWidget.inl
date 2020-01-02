@@ -11,14 +11,14 @@ namespace Ndk
 		return m_drawer.GetCharacterSize();
 	}
 
-	inline const Nz::String& TextAreaWidget::GetDisplayText() const
+	inline const std::string& TextAreaWidget::GetDisplayText() const
 	{
-		return m_drawer.GetText();
+		return m_drawer.GetText().ToStdString();
 	}
 
 	inline std::string TextAreaWidget::GetText() const
 	{
-		return m_text.ToStdString();
+		return m_text;
 	}
 
 	inline const Nz::Color& TextAreaWidget::GetTextColor() const
@@ -46,7 +46,7 @@ namespace Ndk
 		return m_drawer.GetStyle();
 	}
 
-	inline void TextAreaWidget::SetText(const Nz::String& text)
+	inline void TextAreaWidget::SetText(const std::string& text)
 	{
 		m_text = text;
 		OnTextChanged(this, m_text);

@@ -227,12 +227,12 @@ namespace Ndk
 		}
 	}
 
-	inline void AbstractTextAreaWidget::Write(const Nz::String& text)
+	inline void AbstractTextAreaWidget::Write(const std::string& text)
 	{
 		Write(text, GetGlyphIndex(m_cursorPositionBegin));
 	}
 
-	inline void AbstractTextAreaWidget::Write(const Nz::String& text, const Nz::Vector2ui& glyphPosition)
+	inline void AbstractTextAreaWidget::Write(const std::string& text, const Nz::Vector2ui& glyphPosition)
 	{
 		Write(text, GetGlyphIndex(glyphPosition));
 	}

@@ -4,6 +4,7 @@
 
 #include <NDK/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -17,8 +18,8 @@ namespace Ndk
 
 		Layout();
 	}
-	
-	void TextAreaWidget::AppendText(const Nz::String& text)
+
+	void TextAreaWidget::AppendText(const std::string& text)
 	{
 		m_text += text;
 		switch (m_echoMode)
@@ -28,22 +29,24 @@ namespace Ndk
 				break;
 
 			case EchoMode_Password:
-				m_drawer.AppendText(Nz::String(text.GetLength(), '*'));
+				m_drawer.AppendText(Nz::String(text.length(), '*'));
 				break;
 
 			case EchoMode_PasswordExceptLast:
 			{
 				m_drawer.Clear();
-				std::size_t textLength = m_text.GetLength();
+				std::size_t textLength = m_text.length();
 				if (textLength >= 2)
 				{
-					std::size_t lastCharacterPosition = m_text.GetCharacterPosition(textLength - 2);
+					std::size_t lastCharacterPosition = Nz::GetCharacterPosition(m_text, textLength - 2);
 					if (lastCharacterPosition != Nz::String::npos)
 						m_drawer.AppendText(Nz::String(textLength - 1, '*'));
 				}
 
 				if (textLength >= 1)
-					m_drawer.AppendText(m_text.SubString(m_text.GetCharacterPosition(textLength - 1)));
+				{
+					m_drawer.AppendText(m_text.substr(Nz::GetCharacterPosition(m_text, textLength - 1)));
+				}
 
 				break;
 			}
@@ -58,34 +61,34 @@ namespace Ndk
 	{
 		AbstractTextAreaWidget::Clear();
 
-		m_text.Clear();
+		m_text.clear();
 		OnTextChanged(this, m_text);
 	}
-	
+
 	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
 	{
 		if (firstGlyph > lastGlyph)
 			std::swap(firstGlyph, lastGlyph);
 
-		std::size_t textLength = m_text.GetLength();
+		std::size_t textLength = m_text.length();
 		if (firstGlyph > textLength)
 			return;
 
-		Nz::String newText;
+		std::string newText;
 		if (firstGlyph > 0)
 		{
-			std::size_t characterPosition = m_text.GetCharacterPosition(firstGlyph);
+			std::size_t characterPosition = Nz::GetCharacterPosition(m_text, firstGlyph);
 			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
 
-			newText.Append(m_text.SubString(0, characterPosition - 1));
+			newText.append(m_text.substr(0, characterPosition - 1));
 		}
 
 		if (lastGlyph < textLength)
 		{
-			std::size_t characterPosition = m_text.GetCharacterPosition(lastGlyph);
+			std::size_t characterPosition = Nz::GetCharacterPosition(m_text, lastGlyph);
 			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
 
-			newText.Append(m_text.SubString(characterPosition));
+			newText.append(m_text.substr(characterPosition));
 		}
 
 		SetText(newText);
@@ -111,7 +114,7 @@ namespace Ndk
 		SetMinimumSize(size);
 	}
 
-	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
+	void TextAreaWidget::Write(const std::string& text, std::size_t glyphPosition)
 	{
 		if (glyphPosition >= m_drawer.GetGlyphCount())
 		{
@@ -121,10 +124,10 @@ namespace Ndk
 		}
 		else
 		{
-			m_text.Insert(m_text.GetCharacterPosition(glyphPosition), text);
+			m_text.insert(Nz::GetCharacterPosition(m_text, glyphPosition), text);
 			SetText(m_text);
 
-			SetCursorPosition(glyphPosition + text.GetLength());
+			SetCursorPosition(glyphPosition + text.length());
 		}
 	}
 
@@ -146,7 +149,7 @@ namespace Ndk
 		{
 			std::size_t currentGlyph = GetGlyphIndex(m_cursorPositionBegin);
 
-			if (currentGlyph > 0 && m_text[m_text.GetCharacterPosition(currentGlyph - 1U)] == '\t') // Check if previous glyph is a tab
+			if (currentGlyph > 0 && m_text[Nz::GetCharacterPosition(m_text, currentGlyph - 1U)] == '\t') // Check if previous glyph is a tab
 			{
 				Erase(currentGlyph - 1U);
 
@@ -176,7 +179,7 @@ namespace Ndk
 
 				std::size_t firstGlyph = GetGlyphIndex({ 0U, line });
 
-				if (m_text[m_text.GetCharacterPosition(firstGlyph)] == '\t')
+				if (m_text[Nz::GetCharacterPosition(m_text, firstGlyph)] == '\t')
 				{
 					Erase(firstGlyph);
 					SetSelection(cursorPositionBegin - (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui{ 1U, 0U } : Nz::Vector2ui{}),
@@ -194,8 +197,8 @@ namespace Ndk
 			if (index == 0)
 				return;
 
-			std::size_t spaceIndex = m_text.FindLast(' ', index - 2);
-			std::size_t endlIndex = m_text.FindLast('\n', index - 1);
+			std::size_t spaceIndex = m_text.find_last_of(' ', index - 2);
+			std::size_t endlIndex = m_text.find_last_of('\n', index - 1);
 
 			if ((spaceIndex > endlIndex || endlIndex == Nz::String::npos) && spaceIndex != Nz::String::npos)
 				SetCursorPosition(spaceIndex + 1);
@@ -212,12 +215,12 @@ namespace Ndk
 		else
 		{
 			std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
-			std::size_t spaceIndex = m_text.Find(' ', index);
-			std::size_t endlIndex = m_text.Find('\n', index);
+			std::size_t spaceIndex = m_text.find_first_of(' ', index);
+			std::size_t endlIndex = m_text.find_first_of('\n', index);
 
 			if (spaceIndex < endlIndex && spaceIndex != Nz::String::npos)
 			{
-				if (m_text.GetSize() > spaceIndex)
+				if (m_text.length() > spaceIndex)
 					SetCursorPosition(spaceIndex + 1);
 				else
 					SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
@@ -244,7 +247,7 @@ namespace Ndk
 
 			case EchoMode_Password:
 			case EchoMode_PasswordExceptLast:
-				m_drawer.SetText(Nz::String(m_text.GetLength(), '*'));
+				m_drawer.SetText(Nz::String(m_text.length(), '*'));
 				break;
 		}
 

@@ -20,7 +20,7 @@ namespace Ndk
 			TextAreaWidget(TextAreaWidget&&) = default;
 			~TextAreaWidget() = default;
 
-			void AppendText(const Nz::String& text);
+			void AppendText(const std::string& text);
 
 			void Clear() override;
 
@@ -28,7 +28,7 @@ namespace Ndk
 			void Erase(std::size_t firstGlyph, std::size_t lastGlyph) override;
 
 			inline unsigned int GetCharacterSize() const;
-			inline const Nz::String& GetDisplayText() const;
+			inline const std::string& GetDisplayText() const;
 			inline std::string GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 			inline Nz::Font* GetTextFont() const;
@@ -37,7 +37,7 @@ namespace Ndk
 			inline Nz::TextStyleFlags GetTextStyle() const;
 
 			void SetCharacterSize(unsigned int characterSize);
-			inline void SetText(const Nz::String& text);
+			inline void SetText(const std::string& text);
 			inline void SetTextColor(const Nz::Color& text);
 			inline void SetTextFont(Nz::FontRef font);
 			inline void SetTextOutlineColor(const Nz::Color& color);
@@ -45,12 +45,12 @@ namespace Ndk
 			inline void SetTextStyle(Nz::TextStyleFlags style);
 
 			using AbstractTextAreaWidget::Write;
-			void Write(const Nz::String& text, std::size_t glyphPosition) override;
+			void Write(const std::string& text, std::size_t glyphPosition) override;
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = default;
 
-			NazaraSignal(OnTextChanged, const AbstractTextAreaWidget* /*textArea*/, const Nz::String& /*text*/);
+			NazaraSignal(OnTextChanged, const AbstractTextAreaWidget* /*textArea*/, const std::string& /*text*/);
 
 		private:
 			Nz::AbstractTextDrawer& GetTextDrawer() override;
@@ -63,7 +63,7 @@ namespace Ndk
 			void UpdateDisplayText() override;
 
 			Nz::SimpleTextDrawer m_drawer;
-			Nz::String m_text;
+			std::string m_text;
 	};
 }
 
