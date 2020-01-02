@@ -331,6 +331,7 @@ namespace Nz
 	inline bool HashAppend(AbstractHash* hash, const String& string);
 	NAZARA_CORE_API bool Serialize(SerializationContext& context, const String& string, TypeTag<String>);
 	NAZARA_CORE_API bool Unserialize(SerializationContext& context, String* string, TypeTag<String>);
+	NAZARA_CORE_API std::size_t GetCharacterPosition(const std::string& text, std::size_t characterIndex);
 }
 
 namespace std

@@ -5961,6 +5961,43 @@ namespace Nz
 		return context.stream->Read(string->GetBuffer(), size) == size;
 	}
 
+	/*!
+	* \brief Gets the index where a character begin
+	*
+	* Iterate through the string to find the starting position of a specific character index
+	* This is useful because non-ASCII characters may be encoded using multiple bytes.
+	*
+	* \param characterIndex Index of the character to search for
+	*
+	* \return Starting index
+	*/
+	std::size_t GetCharacterPosition(const std::string& text, std::size_t characterIndex)
+	{
+		const char* ptr = text.data();
+		const char* end = &text[text.length()];
+
+		try
+		{
+			utf8::advance(ptr, characterIndex, end);
+
+			return ptr - text.data();
+		}
+		catch (utf8::not_enough_room& /*e*/)
+		{
+			// Returns npos
+		}
+		catch (utf8::exception& e)
+		{
+			NazaraError("UTF-8 error: " + std::string(e.what()));
+		}
+		catch (std::exception& e)
+		{
+			NazaraError(e.what());
+		}
+
+		return std::string::npos;
+	}
+
 	const std::size_t String::npos(std::numeric_limits<std::size_t>::max());
 }
 
