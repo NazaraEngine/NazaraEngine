@@ -47,7 +47,7 @@ namespace Ndk
 
 		EnableBackground(true);
 	}
-	
+
 	void AbstractTextAreaWidget::Clear()
 	{
 		Nz::AbstractTextDrawer& textDrawer = GetTextDrawer();
