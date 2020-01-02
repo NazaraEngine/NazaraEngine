@@ -141,7 +141,7 @@ namespace Ndk
 	void TextAreaWidget::HandleIndentation(bool add)
 	{
 		if (add)
-			Write(Nz::String('\t'));
+			Write("\t");
 		else
 		{
 			std::size_t currentGlyph = GetGlyphIndex(m_cursorPositionBegin);
@@ -165,7 +165,7 @@ namespace Ndk
 
 			if (add)
 			{
-				Write(Nz::String('\t'), { 0U, line });
+				Write("\t", { 0U, line });
 				SetSelection(cursorPositionBegin + (cursorPositionBegin.y == line && cursorPositionBegin.x != 0U ? Nz::Vector2ui{ 1U, 0U } : Nz::Vector2ui{}),
 				             cursorPositionEnd + (cursorPositionEnd.y == line ? Nz::Vector2ui{ 1U, 0U } : Nz::Vector2ui{}));
 			}
