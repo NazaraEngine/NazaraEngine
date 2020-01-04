@@ -230,6 +230,8 @@ ParticleDemo("Space battle", sharedData)
 	Ndk::InitializeSystem<SpaceshipSystem>();
 
 	Nz::ModelParameters parameters;
+	parameters.mesh.texCoordOffset.Set(0.f, 1.f);
+	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.optimizeIndexBuffers = false;
 
 	Nz::Color grey(100, 100, 100);
@@ -266,7 +268,8 @@ ParticleDemo("Space battle", sharedData)
 	m_turret.cannonModel->GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
 
 	parameters.mesh.matrix.MakeIdentity();
-	parameters.mesh.texCoordScale.Set(1.f, 1.f);
+	parameters.mesh.texCoordOffset.Set(0.f, 1.f);
+	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 
 	parameters.mesh.center = true;
 	m_spacestationModel = Nz::Model::LoadFromFile("resources/SpaceStation/space_station.obj", parameters);
@@ -275,7 +278,8 @@ ParticleDemo("Space battle", sharedData)
 
 	m_spacestationModel->GetMesh()->GenerateNormalsAndTangents();
 
-	parameters.mesh.texCoordScale.Set(1.f, -1.f);
+	parameters.mesh.texCoordOffset.Set(0.f, 0.f);
+	parameters.mesh.texCoordScale.Set(1.f, 1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
 	m_spaceshipModel = Nz::Model::LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters);
