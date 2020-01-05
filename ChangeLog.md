@@ -315,6 +315,7 @@ Nazara Development Kit:
 - ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
 - Fixed crash when pressing up/down key with no history in the console
 - (Rich)TextAreaWidget text style is now alterable
+- Added CameraComponent::SetProjectionScale
 
 # 0.4:
 

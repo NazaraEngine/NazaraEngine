@@ -17,6 +17,7 @@ namespace Ndk
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_target(nullptr),
 	m_size(0.f),
+	m_projectionScale(1.f, 1.f, 1.f),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
@@ -43,6 +44,7 @@ namespace Ndk
 	m_targetRegion(camera.m_targetRegion),
 	m_target(nullptr),
 	m_size(camera.m_size),
+	m_projectionScale(camera.m_projectionScale),
 	m_frustumUpdated(false),
 	m_projectionMatrixUpdated(false),
 	m_viewMatrixUpdated(false),
@@ -116,10 +118,18 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Gets the projection scale of the camera
+	* \return Projection scale
+	*/
+	const Nz::Vector3f& CameraComponent::GetProjectionScale() const
+	{
+		return m_projectionScale;
+	}
+
+	/*!
 	* \brief Gets the size of the camera
 	* \return Size of the camera
 	*/
-
 	inline const Nz::Vector2f & CameraComponent::GetSize() const
 	{
 		return m_size;
