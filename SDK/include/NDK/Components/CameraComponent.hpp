@@ -43,6 +43,7 @@ namespace Ndk
 			const Nz::Frustumf& GetFrustum() const override;
 			inline unsigned int GetLayer() const;
 			const Nz::Matrix4f& GetProjectionMatrix() const override;
+			inline const Nz::Vector3f& GetProjectionScale() const;
 			Nz::ProjectionType GetProjectionType() const override;
 			inline const Nz::Vector2f& GetSize() const;
 			const Nz::RenderTarget* GetTarget() const override;
@@ -54,6 +55,7 @@ namespace Ndk
 
 			inline void SetFOV(float fov);
 			void SetLayer(unsigned int layer);
+			inline void SetProjectionScale(const Nz::Vector3f& scale);
 			inline void SetProjectionType(Nz::ProjectionType projection);
 			inline void SetSize(const Nz::Vector2f& size);
 			inline void SetSize(float width, float height);
@@ -99,6 +101,7 @@ namespace Ndk
 			mutable Nz::Recti m_viewport;
 			const Nz::RenderTarget* m_target;
 			Nz::Vector2f m_size;
+			Nz::Vector3f m_projectionScale;
 			mutable bool m_frustumUpdated;
 			mutable bool m_projectionMatrixUpdated;
 			mutable bool m_viewMatrixUpdated;

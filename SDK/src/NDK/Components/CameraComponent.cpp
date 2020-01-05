@@ -154,11 +154,10 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Sets the layer of the camera in case of multiples fields
+	* \brief Sets the layer of the camera in case of multiples layers
 	*
 	* \param layer Layer of the camera
 	*/
-
 	void CameraComponent::SetLayer(unsigned int layer)
 	{
 		m_layer = layer;
@@ -167,9 +166,20 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the camera projection scale
+	*
+	* \param scale New projection scale
+	*/
+	inline void CameraComponent::SetProjectionScale(const Nz::Vector3f& scale)
+	{
+		m_projectionScale = scale;
+
+		InvalidateProjectionMatrix();
+	}
+
+	/*!
 	* \brief Operation to perform when component is attached to an entity
 	*/
-
 	void CameraComponent::OnAttached()
 	{
 		if (m_entity->HasComponent<NodeComponent>())
@@ -303,6 +313,8 @@ namespace Ndk
 				m_projectionMatrix.MakePerspective(m_fov, m_aspectRatio, m_zNear, m_zFar);
 				break;
 		}
+
+		m_projectionMatrix *= Nz::Matrix4f::Scale(m_projectionScale);
 
 		m_projectionMatrixUpdated = true;
 	}
