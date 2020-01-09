@@ -162,11 +162,22 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Sets the camera projection scale
+	*
+	* \param scale New projection scale
+	*/
+	inline void CameraComponent::SetProjectionScale(const Nz::Vector3f& scale)
+	{
+		m_projectionScale = scale;
+
+		InvalidateProjectionMatrix();
+	}
+
+	/*!
 	* \brief Sets the projection type of the camera
 	*
 	* \param projectionType Projection type of the camera
 	*/
-
 	inline void CameraComponent::SetProjectionType(Nz::ProjectionType projectionType)
 	{
 		m_projectionType = projectionType;
