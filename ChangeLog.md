@@ -217,6 +217,7 @@ Nazara Engine:
 - SegmentCollider2D: Add support for neighbors (aka "ghost vertices"), allowing to prevent seams collisions
 - ⚠ OBJLoader flips UV by default, fixing a lot of models UV
 - On Windows, Thread::Set(Current)Name now uses `SetThreadDescription` Win32 function if possible instead of triggering a debugger exception. MinGW builds will use this if available too.
+- ⚠ Removed Texture(const Image\*) constructor, use Texture::LoadFromImage instead
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
