@@ -14,7 +14,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_sansationRegular[] = {
-			#include <Nazara/Utility/Resources/Fonts/Sansation_Regular.ttf.h>
+			#include <Nazara/Utility/Resources/Fonts/OpenSans-Regular.ttf.h>
 		};
 	}
 
