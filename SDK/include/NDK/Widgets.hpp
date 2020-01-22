@@ -15,6 +15,7 @@
 #include <NDK/Widgets/ProgressBarWidget.hpp>
 #include <NDK/Widgets/RichTextAreaWidget.hpp>
 #include <NDK/Widgets/ScrollAreaWidget.hpp>
+#include <NDK/Widgets/TabBarWidget.hpp>
 #include <NDK/Widgets/TextAreaWidget.hpp>
 
 #endif // NDK_WIDGETS_GLOBAL_HPP
