@@ -39,6 +39,7 @@ namespace Nz
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
 			inline float GetLineHeight() const;
+			inline float GetLineSpacingFactor() const;
 			float GetMaxLineWidth() const override;
 			inline const Color& GetOutlineColor() const;
 			inline float GetOutlineThickness() const;
@@ -69,8 +70,8 @@ namespace Nz
 
 			void ClearGlyphs() const;
 
-			void ConnectFontSlots();
-			void DisconnectFontSlots();
+			inline void ConnectFontSlots();
+			inline void DisconnectFontSlots();
 
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const;
 			void GenerateGlyphs(const String& text) const;
@@ -110,6 +111,7 @@ namespace Nz
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
 			mutable float m_lastSeparatorPosition;
+			float m_lineSpacingFactor;
 			float m_maxLineWidth;
 			float m_outlineThickness;
 			unsigned int m_characterSize;
