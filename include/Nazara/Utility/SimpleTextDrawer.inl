@@ -311,7 +311,7 @@ namespace Nz
 
 	inline float SimpleTextDrawer::GetLineHeight(const Font::SizeInfo& sizeInfo) const
 	{
-		return float(sizeInfo.lineHeight);
+		return float(sizeInfo.lineHeight) * m_lineSpacingFactor;
 	}
 
 	inline void SimpleTextDrawer::InvalidateColor()
