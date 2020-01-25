@@ -43,7 +43,7 @@ namespace Nz
 			inline const String& GetBlockText(std::size_t index) const;
 
 			inline BlockRef GetBlock(std::size_t index);
-			const Recti& GetBounds() const override;
+			const Rectf& GetBounds() const override;
 			inline unsigned int GetDefaultCharacterSize() const;
 			inline const Color& GetDefaultColor() const;
 			inline const FontRef& GetDefaultFont() const;
@@ -86,14 +86,11 @@ namespace Nz
 
 			static constexpr std::size_t InvalidBlockIndex = std::numeric_limits<std::size_t>::max();
 
-			//static RichTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
-			//static RichTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
-
 		private:
 			struct Block;
 
 			inline void AppendNewLine(const Font* font, unsigned int characterSize) const;
-			void AppendNewLine(const Font* font, unsigned int characterSize, std::size_t glyphIndex, unsigned int glyphPosition) const;
+			void AppendNewLine(const Font* font, unsigned int characterSize, std::size_t glyphIndex, float glyphPosition) const;
 			inline void ClearGlyphs() const;
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
@@ -145,14 +142,13 @@ namespace Nz
 			std::vector<FontData> m_fonts;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable std::vector<Line> m_lines;
-			mutable Rectf m_workingBounds;
-			mutable Recti m_bounds;
-			mutable Vector2ui m_drawPos;
+			mutable Rectf m_bounds;
+			mutable Vector2f m_drawPos;
 			mutable bool m_glyphUpdated;
 			float m_defaultOutlineThickness;
 			float m_maxLineWidth;
 			unsigned int m_defaultCharacterSize;
-			mutable unsigned int m_lastSeparatorPosition;
+			mutable float m_lastSeparatorPosition;
 	};
 
 	class RichTextDrawer::BlockRef

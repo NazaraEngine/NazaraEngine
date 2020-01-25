@@ -15,7 +15,7 @@ namespace Nz
 		ClearGlyphs();
 	}
 
-	const Recti& SimpleTextDrawer::GetBounds() const
+	const Rectf& SimpleTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -76,22 +76,22 @@ namespace Nz
 		return m_maxLineWidth;
 	}
 
-	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, unsigned int glyphPosition) const
+	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, float glyphPosition) const
 	{
 		// Ensure we're appending from last line
 		Line& lastLine = m_lines.back();
 
-		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
+		float previousDrawPos = m_drawPos.x;
 
-		unsigned int previousDrawPos = m_drawPos.x;
+		float lineHeight = GetLineHeight();
 
 		// Reset cursor
-		m_drawPos.x = 0;
-		m_drawPos.y += sizeInfo.lineHeight;
+		m_drawPos.x = 0.f;
+		m_drawPos.y += lineHeight;
 		m_lastSeparatorGlyph = InvalidGlyph;
 
-		m_workingBounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+		m_bounds.ExtendTo(lastLine.bounds);
+		m_lines.emplace_back(Line{ Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), m_glyphs.size() + 1 });
 
 		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
 		{
@@ -102,12 +102,12 @@ namespace Nz
 			{
 				Glyph& glyph = m_glyphs[i];
 				glyph.bounds.x -= glyphPosition;
-				glyph.bounds.y += sizeInfo.lineHeight;
+				glyph.bounds.y += lineHeight;
 
 				for (auto& corner : glyph.corners)
 				{
 					corner.x -= glyphPosition;
-					corner.y += sizeInfo.lineHeight;
+					corner.y += lineHeight;
 				}
 
 				newLine.bounds.ExtendTo(glyph.bounds);
@@ -118,10 +118,10 @@ namespace Nz
 
 			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
 
-			// Regenerate working bounds
-			m_workingBounds.MakeZero();
-			for (std::size_t i = 0; i < m_lines.size(); ++i)
-				m_workingBounds.ExtendTo(m_lines[i].bounds);
+			// Regenerate bounds
+			m_bounds.MakeZero();
+			for (auto& line : m_lines)
+				m_bounds.ExtendTo(line.bounds);
 		}
 	}
 
@@ -129,34 +129,17 @@ namespace Nz
 	{
 		m_bounds.MakeZero();
 		m_colorUpdated = true;
-		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_drawPos.Set(0, float(m_characterSize)); //< Our draw "cursor"
 		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
 		m_previousCharacter = 0;
-		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 
 		if (m_font)
-			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, float(m_font->GetSizeInfo(m_characterSize).lineHeight)), 0});
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, GetLineHeight()), 0});
 		else
 			m_lines.emplace_back(Line{Rectf::Zero(), 0});
-	}
-
-	void SimpleTextDrawer::ConnectFontSlots()
-	{
-		m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &SimpleTextDrawer::OnFontInvalidated);
-		m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &SimpleTextDrawer::OnFontAtlasLayerChanged);
-		m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &SimpleTextDrawer::OnFontRelease);
-		m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &SimpleTextDrawer::OnFontInvalidated);
-	}
-
-	void SimpleTextDrawer::DisconnectFontSlots()
-	{
-		m_atlasChangedSlot.Disconnect();
-		m_atlasLayerChangedSlot.Disconnect();
-		m_fontReleaseSlot.Disconnect();
-		m_glyphCacheClearedSlot.Disconnect();
 	}
 
 	bool SimpleTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const
@@ -223,16 +206,16 @@ namespace Nz
 			m_previousCharacter = character;
 
 			bool whitespace = true;
-			int advance = 0;
+			float advance = 0.f;
 			switch (character)
 			{
 				case ' ':
 				case '\n':
-					advance = sizeInfo.spaceAdvance;
+					advance = float(sizeInfo.spaceAdvance);
 					break;
 
 				case '\t':
-					advance = sizeInfo.spaceAdvance * 4;
+					advance = float(sizeInfo.spaceAdvance) * 4.f;
 					break;
 
 				default:
@@ -243,27 +226,26 @@ namespace Nz
 			Glyph glyph;
 			if (!whitespace)
 			{
-				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &advance))
+				int iAdvance;
+				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
+
+				advance = float(iAdvance);
 
 				if (m_outlineThickness > 0.f)
 				{
 					Glyph outlineGlyph;
 					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, -1, nullptr))
-					{
 						m_glyphs.push_back(outlineGlyph);
-					}
 				}
 			}
 			else
 			{
-				float glyphAdvance = advance;
-
-				if (ShouldLineWrap(glyphAdvance))
+				if (ShouldLineWrap(advance))
 					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
-				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, glyphAdvance, float(sizeInfo.lineHeight));
+				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -295,9 +277,7 @@ namespace Nz
 			m_glyphs.push_back(glyph);
 		}
 
-		m_workingBounds.ExtendTo(m_lines.back().bounds);
-
-		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+		m_bounds.ExtendTo(m_lines.back().bounds);
 
 		m_colorUpdated = true;
 		m_glyphUpdated = true;
@@ -316,7 +296,7 @@ namespace Nz
 		#endif
 
 		// Update atlas layer pointer
-		// Note: This can happen while updating
+		// Note: This can happen while updating glyphs
 		for (Glyph& glyph : m_glyphs)
 		{
 			if (glyph.atlas == oldLayer)

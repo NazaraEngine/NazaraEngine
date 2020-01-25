@@ -29,7 +29,7 @@ namespace Nz
 
 			virtual void Clear() = 0;
 
-			virtual const Recti& GetBounds() const = 0;
+			virtual const Rectf& GetBounds() const = 0;
 			virtual Font* GetFont(std::size_t index) const = 0;
 			virtual std::size_t GetFontCount() const = 0;
 			virtual const Glyph& GetGlyph(std::size_t index) const = 0;

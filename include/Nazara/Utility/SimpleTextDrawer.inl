@@ -61,6 +61,12 @@ namespace Nz
 		return m_font;
 	}
 
+	inline float SimpleTextDrawer::GetLineHeight() const
+	{
+		NazaraAssert(m_font, "SimpleTextDrawer has no font");
+		return GetLineHeight(m_font->GetSizeInfo(m_characterSize));
+	}
+
 	inline const Color& SimpleTextDrawer::GetOutlineColor() const
 	{
 		return m_outlineColor;
@@ -205,7 +211,11 @@ namespace Nz
 
 		// Update slot pointers (TODO: Improve the way of doing this)
 		ConnectFontSlots();
-		drawer.DisconnectFontSlots();
+		if (m_font)
+		{
+			drawer.DisconnectFontSlots();
+			ConnectFontSlots();
+		}
 
 		return *this;
 	}
@@ -263,6 +273,27 @@ namespace Nz
 	inline void SimpleTextDrawer::AppendNewLine() const
 	{
 		AppendNewLine(InvalidGlyph, 0);
+	}
+
+	inline void SimpleTextDrawer::ConnectFontSlots()
+	{
+		m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &SimpleTextDrawer::OnFontInvalidated);
+		m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &SimpleTextDrawer::OnFontAtlasLayerChanged);
+		m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &SimpleTextDrawer::OnFontRelease);
+		m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &SimpleTextDrawer::OnFontInvalidated);
+	}
+
+	inline void SimpleTextDrawer::DisconnectFontSlots()
+	{
+		m_atlasChangedSlot.Disconnect();
+		m_atlasLayerChangedSlot.Disconnect();
+		m_fontReleaseSlot.Disconnect();
+		m_glyphCacheClearedSlot.Disconnect();
+	}
+
+	inline float SimpleTextDrawer::GetLineHeight(const Font::SizeInfo& sizeInfo) const
+	{
+		return float(sizeInfo.lineHeight);
 	}
 
 	inline void SimpleTextDrawer::InvalidateColor()
