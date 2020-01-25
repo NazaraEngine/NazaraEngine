@@ -596,7 +596,6 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto colorPtr = mapper.GetComponentPtr<Nz::Color>(Nz::ParticleComponent_Color);
 		auto lifePtr = mapper.GetComponentPtr<float>(Nz::ParticleComponent_Life);
 
-		float velFactor = std::pow(0.9f, elapsedTime / 0.1f);
 		for (unsigned int i = startId; i <= endId; ++i)
 			colorPtr[i].a = static_cast<Nz::UInt8>(Nz::Clamp(lifePtr[i] * 255.f, 0.f, 255.f));
 	}));
