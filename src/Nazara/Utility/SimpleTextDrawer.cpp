@@ -9,47 +9,6 @@
 
 namespace Nz
 {
-	SimpleTextDrawer::SimpleTextDrawer() :
-	m_color(Color::White),
-	m_outlineColor(Color::Black),
-	m_style(TextStyle_Regular),
-	m_colorUpdated(true),
-	m_glyphUpdated(true),
-	m_maxLineWidth(std::numeric_limits<float>::infinity()),
-	m_outlineThickness(0.f),
-	m_characterSize(24)
-	{
-		SetFont(Font::GetDefault());
-	}
-
-	SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
-	m_color(drawer.m_color),
-	m_text(drawer.m_text),
-	m_style(drawer.m_style),
-	m_colorUpdated(false),
-	m_glyphUpdated(false),
-	m_outlineColor(drawer.m_outlineColor),
-	m_maxLineWidth(drawer.m_maxLineWidth),
-	m_outlineThickness(drawer.m_outlineThickness),
-	m_characterSize(drawer.m_characterSize)
-	{
-		SetFont(drawer.m_font);
-	}
-
-	SimpleTextDrawer::SimpleTextDrawer(SimpleTextDrawer&& drawer)
-	{
-		operator=(std::move(drawer));
-	}
-
-	SimpleTextDrawer::~SimpleTextDrawer() = default;
-
-	void SimpleTextDrawer::AppendText(const String& str)
-	{
-		m_text.Append(str);
-		if (m_glyphUpdated)
-			GenerateGlyphs(str);
-	}
-
 	void SimpleTextDrawer::Clear()
 	{
 		m_text.Clear(true);
@@ -64,27 +23,12 @@ namespace Nz
 		return m_bounds;
 	}
 
-	unsigned int SimpleTextDrawer::GetCharacterSize() const
-	{
-		return m_characterSize;
-	}
-
-	const Color& SimpleTextDrawer::GetColor() const
-	{
-		return m_color;
-	}
-
-	Font* SimpleTextDrawer::GetFont() const
-	{
-		return m_font;
-	}
-
 	Font* SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
 		NazaraUnused(index);
 
-		return m_font;
+		return GetFont();
 	}
 
 	std::size_t SimpleTextDrawer::GetFontCount() const
@@ -130,188 +74,6 @@ namespace Nz
 	float SimpleTextDrawer::GetMaxLineWidth() const
 	{
 		return m_maxLineWidth;
-	}
-
-	const Color& SimpleTextDrawer::GetOutlineColor() const
-	{
-		return m_outlineColor;
-	}
-
-	float SimpleTextDrawer::GetOutlineThickness() const
-	{
-		return m_outlineThickness;
-	}
-
-	TextStyleFlags SimpleTextDrawer::GetStyle() const
-	{
-		return m_style;
-	}
-
-	const String& SimpleTextDrawer::GetText() const
-	{
-		return m_text;
-	}
-
-	void SimpleTextDrawer::SetCharacterSize(unsigned int characterSize)
-	{
-		m_characterSize = characterSize;
-
-		m_glyphUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetColor(const Color& color)
-	{
-		m_color = color;
-
-		m_colorUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetFont(Font* font)
-	{
-		if (m_font != font)
-		{
-			m_font = font;
-
-			if (m_font)
-				ConnectFontSlots();
-			else
-				DisconnectFontSlots();
-
-			m_glyphUpdated = false;
-		}
-	}
-
-	void SimpleTextDrawer::SetMaxLineWidth(float lineWidth)
-	{
-		NazaraAssert(m_maxLineWidth > 0.f, "Max line width must be positive");
-
-		m_maxLineWidth = lineWidth;
-
-		m_glyphUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetOutlineColor(const Color& color)
-	{
-		m_outlineColor = color;
-
-		m_colorUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetOutlineThickness(float thickness)
-	{
-		NazaraAssert(thickness >= 0.f, "Thickness must be zero or positive");
-
-		m_outlineThickness = thickness;
-
-		m_glyphUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetStyle(TextStyleFlags style)
-	{
-		m_style = style;
-
-		m_glyphUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetText(const String& str)
-	{
-		m_text = str;
-
-		m_glyphUpdated = false;
-	}
-
-	SimpleTextDrawer& SimpleTextDrawer::operator=(const SimpleTextDrawer& drawer)
-	{
-		m_characterSize = drawer.m_characterSize;
-		m_color = drawer.m_color;
-		m_outlineColor = drawer.m_outlineColor;
-		m_outlineThickness = drawer.m_outlineThickness;
-		m_style = drawer.m_style;
-		m_text = drawer.m_text;
-
-		m_colorUpdated = false;
-		m_glyphUpdated = false;
-		SetFont(drawer.m_font);
-
-		return *this;
-	}
-
-	SimpleTextDrawer& SimpleTextDrawer::operator=(SimpleTextDrawer&& drawer)
-	{
-		DisconnectFontSlots();
-
-		m_bounds = std::move(drawer.m_bounds);
-		m_colorUpdated = std::move(drawer.m_colorUpdated);
-		m_characterSize = std::move(drawer.m_characterSize);
-		m_color = std::move(drawer.m_color);
-		m_glyphs = std::move(drawer.m_glyphs);
-		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
-		m_font = std::move(drawer.m_font);
-		m_maxLineWidth = drawer.m_maxLineWidth;
-		m_outlineColor = std::move(drawer.m_outlineColor);
-		m_outlineThickness = std::move(drawer.m_outlineThickness);
-		m_style = std::move(drawer.m_style);
-		m_text = std::move(drawer.m_text);
-
-		// Update slot pointers (TODO: Improve the way of doing this)
-		ConnectFontSlots();
-
-		return *this;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetOutlineColor(outlineColor);
-		drawer.SetOutlineThickness(outlineThickness);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetFont(font);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetFont(font);
-		drawer.SetOutlineColor(outlineColor);
-		drawer.SetOutlineThickness(outlineThickness);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
-	}
-
-	void SimpleTextDrawer::AppendNewLine() const
-	{
-		AppendNewLine(InvalidGlyph, 0);
 	}
 
 	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, unsigned int glyphPosition) const
@@ -574,7 +336,7 @@ namespace Nz
 		}
 		#endif
 
-		m_glyphUpdated = false;
+		InvalidateGlyphs();
 	}
 
 	void SimpleTextDrawer::OnFontRelease(const Font* font)
@@ -591,43 +353,5 @@ namespace Nz
 		#endif
 
 		SetFont(nullptr);
-	}
-
-	bool SimpleTextDrawer::ShouldLineWrap(float size) const
-	{
-		if (m_lines.back().glyphIndex > m_glyphs.size())
-			return false;
-
-		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
-	}
-
-	void SimpleTextDrawer::UpdateGlyphColor() const
-	{
-		if (m_outlineThickness > 0.f)
-		{
-			for (std::size_t glyphIndex = 0; glyphIndex < m_glyphs.size(); ++glyphIndex)
-			{
-				Glyph& glyph = m_glyphs[glyphIndex];
-				if (glyphIndex % 2 == 0)
-					glyph.color = m_outlineColor;
-				else
-					glyph.color = m_color;
-			}
-		}
-		else
-		{
-			for (Glyph& glyph : m_glyphs)
-				glyph.color = m_color;
-		}
-
-		m_colorUpdated = true;
-	}
-
-	void SimpleTextDrawer::UpdateGlyphs() const
-	{
-		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
-
-		ClearGlyphs();
-		GenerateGlyphs(m_text);
 	}
 }
