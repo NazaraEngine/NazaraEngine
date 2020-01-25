@@ -218,6 +218,7 @@ Nazara Engine:
 - ⚠ OBJLoader flips UV by default, fixing a lot of models UV
 - On Windows, Thread::Set(Current)Name now uses `SetThreadDescription` Win32 function if possible instead of triggering a debugger exception. MinGW builds will use this if available too.
 - ⚠ Removed Texture(const Image\*) constructor, use Texture::LoadFromImage instead
+- ⚠ TextDrawers now use floating-point internally and to exposes their Bounds (AbstractTextDrawer::GetBounds() now returns a Rectf)
 
 Nazara Development Kit:
 - Added ImageWidget (#139)

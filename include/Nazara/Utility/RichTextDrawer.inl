@@ -148,7 +148,7 @@ namespace Nz
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
-		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
+		m_bounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 	}
 
 	inline void RichTextDrawer::ConnectFontSlots()

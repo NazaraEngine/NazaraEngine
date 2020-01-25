@@ -28,7 +28,7 @@ namespace Nz
 
 			void Clear() override;
 
-			const Recti& GetBounds() const override;
+			const Rectf& GetBounds() const override;
 			inline unsigned int GetCharacterSize() const;
 			inline const Color& GetColor() const;
 			inline Font* GetFont() const;
@@ -38,6 +38,7 @@ namespace Nz
 			std::size_t GetGlyphCount() const override;
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
+			inline float GetLineHeight() const;
 			float GetMaxLineWidth() const override;
 			inline const Color& GetOutlineColor() const;
 			inline float GetOutlineThickness() const;
@@ -64,7 +65,7 @@ namespace Nz
 
 		private:
 			inline void AppendNewLine() const;
-			void AppendNewLine(std::size_t glyphIndex, unsigned int glyphPosition) const;
+			void AppendNewLine(std::size_t glyphIndex, float glyphPosition) const;
 
 			void ClearGlyphs() const;
 
@@ -73,6 +74,8 @@ namespace Nz
 
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const;
 			void GenerateGlyphs(const String& text) const;
+
+			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
 
 			inline void InvalidateColor();
 			inline void InvalidateGlyphs();
@@ -94,20 +97,19 @@ namespace Nz
 			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
 
 			mutable std::size_t m_lastSeparatorGlyph;
-			mutable unsigned int m_lastSeparatorPosition;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable std::vector<Line> m_lines;
 			Color m_color;
 			Color m_outlineColor;
 			FontRef m_font;
-			mutable Rectf m_workingBounds;
-			mutable Recti m_bounds;
+			mutable Rectf m_bounds;
 			String m_text;
 			TextStyleFlags m_style;
 			mutable UInt32 m_previousCharacter;
-			mutable Vector2ui m_drawPos;
+			mutable Vector2f m_drawPos;
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
+			mutable float m_lastSeparatorPosition;
 			float m_maxLineWidth;
 			float m_outlineThickness;
 			unsigned int m_characterSize;
