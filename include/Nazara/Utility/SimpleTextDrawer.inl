@@ -13,6 +13,7 @@ namespace Nz
 	m_style(TextStyle_Regular),
 	m_colorUpdated(true),
 	m_glyphUpdated(true),
+	m_lineSpacingFactor(1.f),
 	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_outlineThickness(0.f),
 	m_characterSize(24)
@@ -27,6 +28,7 @@ namespace Nz
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
 	m_outlineColor(drawer.m_outlineColor),
+	m_lineSpacingFactor(drawer.m_lineSpacingFactor),
 	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_outlineThickness(drawer.m_outlineThickness),
 	m_characterSize(drawer.m_characterSize)
@@ -65,6 +67,11 @@ namespace Nz
 	{
 		NazaraAssert(m_font, "SimpleTextDrawer has no font");
 		return GetLineHeight(m_font->GetSizeInfo(m_characterSize));
+	}
+
+	inline float SimpleTextDrawer::GetLineSpacingFactor() const
+	{
+		return m_lineSpacingFactor;
 	}
 
 	inline const Color& SimpleTextDrawer::GetOutlineColor() const
@@ -117,6 +124,16 @@ namespace Nz
 				ConnectFontSlots();
 			else
 				DisconnectFontSlots();
+
+			InvalidateGlyphs();
+		}
+	}
+
+	inline void SimpleTextDrawer::SetLineSpacingFactor(float factor)
+	{
+		if (m_lineSpacingFactor != factor)
+		{
+			m_lineSpacingFactor = factor;
 
 			InvalidateGlyphs();
 		}
@@ -180,6 +197,7 @@ namespace Nz
 	{
 		m_characterSize = drawer.m_characterSize;
 		m_color = drawer.m_color;
+		m_lineSpacingFactor = drawer.m_lineSpacingFactor;
 		m_maxLineWidth = drawer.m_maxLineWidth;
 		m_outlineColor = drawer.m_outlineColor;
 		m_outlineThickness = drawer.m_outlineThickness;
@@ -203,6 +221,7 @@ namespace Nz
 		m_glyphs = std::move(drawer.m_glyphs);
 		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
 		m_font = std::move(drawer.m_font);
+		m_lineSpacingFactor = drawer.m_lineSpacingFactor;
 		m_maxLineWidth = drawer.m_maxLineWidth;
 		m_outlineColor = std::move(drawer.m_outlineColor);
 		m_outlineThickness = std::move(drawer.m_outlineThickness);
@@ -210,7 +229,6 @@ namespace Nz
 		m_text = std::move(drawer.m_text);
 
 		// Update slot pointers (TODO: Improve the way of doing this)
-		ConnectFontSlots();
 		if (m_font)
 		{
 			drawer.DisconnectFontSlots();
