@@ -406,7 +406,7 @@ namespace Nz
 					corner.y += heightDifference;
 			}
 
-			m_drawPos.y += static_cast<unsigned int>(heightDifference);
+			m_drawPos.y += heightDifference;
 			m_lines.back().bounds.height += heightDifference;
 		}
 
