@@ -14,6 +14,7 @@ namespace Nz
 	m_colorUpdated(true),
 	m_glyphUpdated(true),
 	m_lineSpacingFactor(1.f),
+	m_characterSpacingOffset(0.f),
 	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_outlineThickness(0.f),
 	m_characterSize(24)
@@ -29,6 +30,7 @@ namespace Nz
 	m_glyphUpdated(false),
 	m_outlineColor(drawer.m_outlineColor),
 	m_lineSpacingFactor(drawer.m_lineSpacingFactor),
+	m_characterSpacingOffset(drawer.m_characterSpacingOffset),
 	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_outlineThickness(drawer.m_outlineThickness),
 	m_characterSize(drawer.m_characterSize)
@@ -46,6 +48,11 @@ namespace Nz
 		m_text.Append(str);
 		if (m_glyphUpdated)
 			GenerateGlyphs(str);
+	}
+
+	inline float SimpleTextDrawer::GetCharacterSpacingOffset() const
+	{
+		return m_characterSpacingOffset;
 	}
 
 	inline unsigned int SimpleTextDrawer::GetCharacterSize() const
@@ -92,6 +99,16 @@ namespace Nz
 	inline const String& SimpleTextDrawer::GetText() const
 	{
 		return m_text;
+	}
+
+	inline void SimpleTextDrawer::SetCharacterSpacingOffset(float offset)
+	{
+		if (m_characterSpacingOffset != offset)
+		{
+			m_characterSpacingOffset = offset;
+
+			InvalidateGlyphs();
+		}
 	}
 
 	inline void SimpleTextDrawer::SetCharacterSize(unsigned int characterSize)
@@ -196,6 +213,7 @@ namespace Nz
 	inline SimpleTextDrawer& SimpleTextDrawer::operator=(const SimpleTextDrawer& drawer)
 	{
 		m_characterSize = drawer.m_characterSize;
+		m_characterSpacingOffset = drawer.m_characterSpacingOffset;
 		m_color = drawer.m_color;
 		m_lineSpacingFactor = drawer.m_lineSpacingFactor;
 		m_maxLineWidth = drawer.m_maxLineWidth;
@@ -217,6 +235,7 @@ namespace Nz
 		m_bounds = std::move(drawer.m_bounds);
 		m_colorUpdated = std::move(drawer.m_colorUpdated);
 		m_characterSize = std::move(drawer.m_characterSize);
+		m_characterSpacingOffset = drawer.m_characterSpacingOffset;
 		m_color = std::move(drawer.m_color);
 		m_glyphs = std::move(drawer.m_glyphs);
 		m_glyphUpdated = std::move(drawer.m_glyphUpdated);

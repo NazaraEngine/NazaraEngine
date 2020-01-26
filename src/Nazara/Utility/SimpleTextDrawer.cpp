@@ -206,16 +206,16 @@ namespace Nz
 			m_previousCharacter = character;
 
 			bool whitespace = true;
-			float advance = 0.f;
+			float advance = m_characterSpacingOffset;
 			switch (character)
 			{
 				case ' ':
 				case '\n':
-					advance = float(sizeInfo.spaceAdvance);
+					advance += float(sizeInfo.spaceAdvance);
 					break;
 
 				case '\t':
-					advance = float(sizeInfo.spaceAdvance) * 4.f;
+					advance += float(sizeInfo.spaceAdvance) * 4.f;
 					break;
 
 				default:
@@ -230,7 +230,7 @@ namespace Nz
 				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
 
-				advance = float(iAdvance);
+				advance += float(iAdvance);
 
 				if (m_outlineThickness > 0.f)
 				{
