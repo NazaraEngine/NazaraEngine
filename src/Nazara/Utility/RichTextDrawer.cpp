@@ -458,7 +458,7 @@ namespace Nz
 					AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
-				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, float(sizeInfo.lineHeight));
+				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, lineHeight);
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
