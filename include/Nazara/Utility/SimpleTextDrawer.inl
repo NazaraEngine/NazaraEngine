@@ -13,8 +13,8 @@ namespace Nz
 	m_style(TextStyle_Regular),
 	m_colorUpdated(true),
 	m_glyphUpdated(true),
-	m_lineSpacingFactor(1.f),
 	m_characterSpacingOffset(0.f),
+	m_lineSpacingOffset(0.f),
 	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_outlineThickness(0.f),
 	m_characterSize(24)
@@ -29,8 +29,8 @@ namespace Nz
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
 	m_outlineColor(drawer.m_outlineColor),
-	m_lineSpacingFactor(drawer.m_lineSpacingFactor),
 	m_characterSpacingOffset(drawer.m_characterSpacingOffset),
+	m_lineSpacingOffset(drawer.m_lineSpacingOffset),
 	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_outlineThickness(drawer.m_outlineThickness),
 	m_characterSize(drawer.m_characterSize)
@@ -76,9 +76,9 @@ namespace Nz
 		return GetLineHeight(m_font->GetSizeInfo(m_characterSize));
 	}
 
-	inline float SimpleTextDrawer::GetLineSpacingFactor() const
+	inline float SimpleTextDrawer::GetLineSpacingOffset() const
 	{
-		return m_lineSpacingFactor;
+		return m_lineSpacingOffset;
 	}
 
 	inline const Color& SimpleTextDrawer::GetOutlineColor() const
@@ -146,11 +146,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetLineSpacingFactor(float factor)
+	inline void SimpleTextDrawer::SetLineSpacingOffset(float offset)
 	{
-		if (m_lineSpacingFactor != factor)
+		if (m_lineSpacingOffset != offset)
 		{
-			m_lineSpacingFactor = factor;
+			m_lineSpacingOffset = offset;
 
 			InvalidateGlyphs();
 		}
@@ -215,7 +215,7 @@ namespace Nz
 		m_characterSize = drawer.m_characterSize;
 		m_characterSpacingOffset = drawer.m_characterSpacingOffset;
 		m_color = drawer.m_color;
-		m_lineSpacingFactor = drawer.m_lineSpacingFactor;
+		m_lineSpacingOffset = drawer.m_lineSpacingOffset;
 		m_maxLineWidth = drawer.m_maxLineWidth;
 		m_outlineColor = drawer.m_outlineColor;
 		m_outlineThickness = drawer.m_outlineThickness;
@@ -240,7 +240,7 @@ namespace Nz
 		m_glyphs = std::move(drawer.m_glyphs);
 		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
 		m_font = std::move(drawer.m_font);
-		m_lineSpacingFactor = drawer.m_lineSpacingFactor;
+		m_lineSpacingOffset = drawer.m_lineSpacingOffset;
 		m_maxLineWidth = drawer.m_maxLineWidth;
 		m_outlineColor = std::move(drawer.m_outlineColor);
 		m_outlineThickness = std::move(drawer.m_outlineThickness);
@@ -330,7 +330,7 @@ namespace Nz
 
 	inline float SimpleTextDrawer::GetLineHeight(const Font::SizeInfo& sizeInfo) const
 	{
-		return float(sizeInfo.lineHeight) * m_lineSpacingFactor;
+		return float(sizeInfo.lineHeight) + m_lineSpacingOffset;
 	}
 
 	inline void SimpleTextDrawer::InvalidateColor()
