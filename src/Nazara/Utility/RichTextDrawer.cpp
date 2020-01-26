@@ -15,6 +15,8 @@ namespace Nz
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
 	m_maxLineWidth(std::numeric_limits<float>::infinity()),
+	m_defaultCharacterSpacingOffset(0.f),
+	m_defaultLineSpacingOffset(0.f),
 	m_defaultOutlineThickness(0.f),
 	m_defaultCharacterSize(24)
 	{
@@ -29,6 +31,8 @@ namespace Nz
 	m_glyphUpdated(false),
 	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
 	m_maxLineWidth(drawer.m_maxLineWidth),
+	m_defaultCharacterSpacingOffset(drawer.m_defaultCharacterSpacingOffset),
+	m_defaultLineSpacingOffset(drawer.m_defaultLineSpacingOffset),
 	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
 	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
 	{
@@ -59,12 +63,14 @@ namespace Nz
 
 		auto HasDefaultProperties = [&](const Block& block)
 		{
-			return block.characterSize    == m_defaultCharacterSize &&
-			       block.color            == m_defaultColor &&
-			       block.fontIndex        == defaultFontIndex &&
-			       block.outlineColor     == m_defaultOutlineColor &&
-			       block.outlineThickness == m_defaultOutlineThickness &&
-			       block.style            == m_defaultStyle;
+			return block.characterSize          == m_defaultCharacterSize &&
+			       block.color                  == m_defaultColor &&
+			       block.fontIndex              == defaultFontIndex &&
+			       block.characterSpacingOffset == m_defaultCharacterSpacingOffset &&
+			       block.lineSpacingOffset      == m_defaultLineSpacingOffset &&
+			       block.outlineColor           == m_defaultOutlineColor &&
+			       block.outlineThickness       == m_defaultOutlineThickness &&
+			       block.style                  == m_defaultStyle;
 		};
 
 		// Check if last block has the same property as default, else create a new block
@@ -82,9 +88,11 @@ namespace Nz
 			m_blocks.emplace_back();
 			Block& newBlock = m_blocks.back();
 			newBlock.characterSize = m_defaultCharacterSize;
+			newBlock.characterSpacingOffset = m_defaultCharacterSpacingOffset;
 			newBlock.color = m_defaultColor;
 			newBlock.fontIndex = defaultFontIndex;
 			newBlock.glyphIndex = glyphIndex;
+			newBlock.lineSpacingOffset = m_defaultLineSpacingOffset;
 			newBlock.outlineColor = m_defaultOutlineColor;
 			newBlock.outlineThickness = m_defaultOutlineThickness;
 			newBlock.style = m_defaultStyle;
@@ -172,12 +180,14 @@ namespace Nz
 	{
 		auto TestBlockProperties = [](const Block& lhs, const Block& rhs)
 		{
-			return lhs.characterSize == rhs.characterSize &&
-			       lhs.color == rhs.color &&
-			       lhs.fontIndex == rhs.fontIndex &&
-			       lhs.outlineColor == rhs.outlineColor &&
-			       lhs.outlineThickness == rhs.outlineThickness &&
-			       lhs.style == rhs.style;
+			return lhs.characterSize          == rhs.characterSize &&
+			       lhs.color                  == rhs.color &&
+			       lhs.fontIndex              == rhs.fontIndex &&
+			       lhs.characterSpacingOffset == rhs.characterSpacingOffset &&
+			       lhs.lineSpacingOffset      == rhs.lineSpacingOffset &&
+			       lhs.outlineColor           == rhs.outlineColor &&
+			       lhs.outlineThickness       == rhs.outlineThickness &&
+			       lhs.style                  == rhs.style;
 		};
 
 		std::size_t previousBlockIndex = 0;
@@ -185,6 +195,8 @@ namespace Nz
 		{
 			if (TestBlockProperties(m_blocks[previousBlockIndex], m_blocks[i]))
 			{
+				m_blocks[previousBlockIndex].text += m_blocks[i].text;
+
 				RemoveBlock(i);
 				--i;
 			}
@@ -215,7 +227,7 @@ namespace Nz
 	{
 		m_maxLineWidth = lineWidth;
 
-		//TODO: Implement max line width
+		InvalidateGlyphs();
 	}
 
 	RichTextDrawer& RichTextDrawer::operator=(const RichTextDrawer& drawer)
@@ -224,8 +236,10 @@ namespace Nz
 
 		m_blocks = drawer.m_blocks;
 		m_defaultCharacterSize = drawer.m_defaultCharacterSize;
+		m_defaultCharacterSpacingOffset = drawer.m_defaultCharacterSpacingOffset;
 		m_defaultColor = drawer.m_defaultColor;
 		m_defaultFont = drawer.m_defaultFont;
+		m_defaultLineSpacingOffset = drawer.m_defaultLineSpacingOffset;
 		m_defaultOutlineColor = drawer.m_defaultOutlineColor;
 		m_defaultOutlineThickness = drawer.m_defaultOutlineThickness;
 		m_defaultStyle = drawer.m_defaultStyle;
@@ -246,11 +260,15 @@ namespace Nz
 
 	RichTextDrawer& RichTextDrawer::operator=(RichTextDrawer&& drawer)
 	{
+		DisconnectFontSlots();
+
 		m_blocks = std::move(drawer.m_blocks);
 		m_bounds = std::move(m_bounds);
 		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
+		m_defaultCharacterSpacingOffset = std::move(drawer.m_defaultCharacterSpacingOffset);
 		m_defaultColor = std::move(drawer.m_defaultColor);
 		m_defaultFont = std::move(drawer.m_defaultFont);
+		m_defaultLineSpacingOffset = std::move(drawer.m_defaultLineSpacingOffset);
 		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
 		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
 		m_defaultStyle = std::move(drawer.m_defaultStyle);
