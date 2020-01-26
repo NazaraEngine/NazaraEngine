@@ -29,6 +29,7 @@ namespace Nz
 			void Clear() override;
 
 			const Rectf& GetBounds() const override;
+			inline float GetCharacterSpacingOffset() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Color& GetColor() const;
 			inline Font* GetFont() const;
@@ -46,6 +47,7 @@ namespace Nz
 			inline TextStyleFlags GetStyle() const;
 			inline const String& GetText() const;
 
+			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetColor(const Color& color);
 			inline void SetFont(Font* font);
@@ -112,6 +114,7 @@ namespace Nz
 			mutable bool m_glyphUpdated;
 			mutable float m_lastSeparatorPosition;
 			float m_lineSpacingFactor;
+			float m_characterSpacingOffset;
 			float m_maxLineWidth;
 			float m_outlineThickness;
 			unsigned int m_characterSize;
