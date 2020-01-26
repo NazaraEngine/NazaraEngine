@@ -40,7 +40,7 @@ namespace Nz
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
 			inline float GetLineHeight() const;
-			inline float GetLineSpacingFactor() const;
+			inline float GetLineSpacingOffset() const;
 			float GetMaxLineWidth() const override;
 			inline const Color& GetOutlineColor() const;
 			inline float GetOutlineThickness() const;
@@ -51,7 +51,7 @@ namespace Nz
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetColor(const Color& color);
 			inline void SetFont(Font* font);
-			inline void SetLineSpacingFactor(float factor);
+			inline void SetLineSpacingOffset(float offset);
 			inline void SetMaxLineWidth(float lineWidth) override;
 			inline void SetOutlineColor(const Color& color);
 			inline void SetOutlineThickness(float thickness);
@@ -113,8 +113,8 @@ namespace Nz
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
 			mutable float m_lastSeparatorPosition;
-			float m_lineSpacingFactor;
 			float m_characterSpacingOffset;
+			float m_lineSpacingOffset;
 			float m_maxLineWidth;
 			float m_outlineThickness;
 			unsigned int m_characterSize;
