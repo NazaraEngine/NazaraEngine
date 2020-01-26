@@ -321,6 +321,7 @@ Nazara Development Kit:
 - Fixed crash when pressing up/down key with no history in the console
 - (Rich)TextAreaWidget text style is now alterable
 - Added CameraComponent::SetProjectionScale
+- Added (Rich)TextAreaWidget character and line spacing offset properties
 
 # 0.4:
 

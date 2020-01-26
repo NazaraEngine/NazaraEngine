@@ -29,6 +29,8 @@ namespace Ndk
 
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::String& GetDisplayText() const;
+			inline float GetCharacterSpacingOffset() const;
+			inline float GetLineSpacingOffset() const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 			inline Nz::Font* GetTextFont() const;
@@ -36,7 +38,9 @@ namespace Ndk
 			inline float GetTextOulineThickness() const;
 			inline Nz::TextStyleFlags GetTextStyle() const;
 
-			void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSpacingOffset(float offset);
+			inline void SetLineSpacingOffset(float offset);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
 			inline void SetTextFont(Nz::FontRef font);
@@ -61,6 +65,7 @@ namespace Ndk
 			void HandleWordCursorMove(bool left) override;
 
 			void UpdateDisplayText() override;
+			void UpdateMinimumSize();
 
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::String m_text;
