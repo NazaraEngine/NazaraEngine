@@ -267,7 +267,7 @@ namespace Nz
 		return *this;
 	}
 
-	void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, std::size_t glyphIndex, float glyphPosition) const
+	void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, float lineSpacingOffset, std::size_t glyphIndex, float glyphPosition) const
 	{
 		// Ensure we're appending from last line
 		Line& lastLine = m_lines.back();
@@ -276,13 +276,15 @@ namespace Nz
 
 		float previousDrawPos = m_drawPos.x;
 
+		float lineHeight = GetLineHeight(lineSpacingOffset, sizeInfo);
+
 		// Reset cursor
 		m_drawPos.x = 0;
-		m_drawPos.y += sizeInfo.lineHeight;
+		m_drawPos.y += lineHeight;
 		m_lastSeparatorGlyph = InvalidGlyph;
 
 		m_bounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1 });
+		m_lines.emplace_back(Line{ Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), m_glyphs.size() + 1 });
 
 		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
 		{
@@ -293,12 +295,12 @@ namespace Nz
 			{
 				Glyph& glyph = m_glyphs[i];
 				glyph.bounds.x -= glyphPosition;
-				glyph.bounds.y += sizeInfo.lineHeight;
+				glyph.bounds.y += lineHeight;
 
 				for (auto& corner : glyph.corners)
 				{
 					corner.x -= glyphPosition;
-					corner.y += sizeInfo.lineHeight;
+					corner.y += lineHeight;
 				}
 
 				newLine.bounds.ExtendTo(glyph.bounds);
@@ -316,7 +318,7 @@ namespace Nz
 		}
 	}
 
-	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, int renderOrder, int* advance) const
+	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
 	{
 		const Font::Glyph& fontGlyph = font->GetGlyph(characterSize, style, outlineThickness, character);
 		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
@@ -330,7 +332,7 @@ namespace Nz
 			glyph.bounds.Set(fontGlyph.aabb);
 
 			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
-				AppendNewLine(font, characterSize, m_lastSeparatorGlyph, m_lastSeparatorPosition);
+				AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 			glyph.bounds.x += m_drawPos.x;
 			glyph.bounds.y += m_drawPos.y;
@@ -356,7 +358,7 @@ namespace Nz
 			return false;
 	};
 
-	void RichTextDrawer::GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, const String& text) const
+	void RichTextDrawer::GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const String& text) const
 	{
 		if (text.IsEmpty())
 			return;
@@ -372,8 +374,9 @@ namespace Nz
 		char32_t previousCharacter = 0;
 
 		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+		float lineHeight = GetLineHeight(lineSpacingOffset, sizeInfo);
 
-		float heightDifference = sizeInfo.lineHeight - m_lines.back().bounds.height;
+		float heightDifference = lineHeight - m_lines.back().bounds.height;
 		if (heightDifference > 0.f)
 		{
 			for (std::size_t glyphIndex = m_lines.back().glyphIndex; glyphIndex < m_glyphs.size(); ++glyphIndex)
@@ -388,10 +391,6 @@ namespace Nz
 			m_drawPos.y += static_cast<unsigned int>(heightDifference);
 			m_lines.back().bounds.height += heightDifference;
 		}
-		/*if (firstFont.font)
-			m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, float(font->GetSizeInfo(firstBlock.characterSize).lineHeight)), 0 });
-		else
-			m_lines.emplace_back(Line{ Rectf::Zero(), 0 });*/
 
 		m_glyphs.reserve(m_glyphs.size() + characters.size() * ((outlineThickness > 0.f) ? 2 : 1));
 		for (char32_t character : characters)
@@ -402,16 +401,16 @@ namespace Nz
 			previousCharacter = character;
 
 			bool whitespace = true;
-			float advance = 0.f;
+			float advance = characterSpacingOffset;
 			switch (character)
 			{
 				case ' ':
 				case '\n':
-					advance = float(sizeInfo.spaceAdvance);
+					advance += float(sizeInfo.spaceAdvance);
 					break;
 
 				case '\t':
-					advance = float(sizeInfo.spaceAdvance) * 4.f;
+					advance += float(sizeInfo.spaceAdvance) * 4.f;
 					break;
 
 				default:
@@ -423,22 +422,22 @@ namespace Nz
 			if (!whitespace)
 			{
 				int iAdvance;
-				if (!GenerateGlyph(glyph, character, 0.f, true, font, color, style, characterSize, 0, &iAdvance))
+				if (!GenerateGlyph(glyph, character, 0.f, true, font, color, style, lineSpacingOffset, characterSize, 0, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
 
-				advance = float(iAdvance);
+				advance += float(iAdvance);
 
 				if (outlineThickness > 0.f)
 				{
 					Glyph outlineGlyph;
-					if (GenerateGlyph(outlineGlyph, character, outlineThickness, false, font, outlineColor, style, characterSize, -1, nullptr))
+					if (GenerateGlyph(outlineGlyph, character, outlineThickness, false, font, outlineColor, style, lineSpacingOffset, characterSize, -1, nullptr))
 						m_glyphs.push_back(outlineGlyph);
 				}
 			}
 			else
 			{
 				if (ShouldLineWrap(advance))
-					AppendNewLine(font, characterSize, m_lastSeparatorGlyph, m_lastSeparatorPosition);
+					AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
 				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, float(sizeInfo.lineHeight));
@@ -455,7 +454,7 @@ namespace Nz
 			{
 				case '\n':
 				{
-					AppendNewLine(font, characterSize);
+					AppendNewLine(font, characterSize, lineSpacingOffset);
 					break;
 				}
 
@@ -545,7 +544,7 @@ namespace Nz
 			const auto& firstFont = m_fonts[firstBlock.fontIndex];
 
 			if (firstFont.font)
-				m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, float(firstFont.font->GetSizeInfo(firstBlock.characterSize).lineHeight)), 0 });
+				m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, GetLineHeight(firstBlock)), 0 });
 			else
 				m_lines.emplace_back(Line{ Rectf::Zero(), 0 });
 
@@ -556,7 +555,7 @@ namespace Nz
 				assert(block.fontIndex < m_fonts.size());
 				const auto& fontData = m_fonts[block.fontIndex];
 
-				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.text);
+				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.characterSpacingOffset, block.lineSpacingOffset, block.text);
 			}
 		}
 		else

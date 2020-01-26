@@ -57,6 +57,12 @@ namespace Nz
 		return m_blocks[index].characterSize;
 	}
 
+	inline float RichTextDrawer::GetBlockCharacterSpacingOffset(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].characterSpacingOffset;
+	}
+
 	inline const Color& RichTextDrawer::GetBlockColor(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
@@ -80,6 +86,18 @@ namespace Nz
 		std::size_t fontIndex = m_blocks[index].fontIndex;
 		assert(fontIndex < m_fonts.size());
 		return m_fonts[fontIndex].font;
+	}
+
+	inline float RichTextDrawer::GetBlockLineHeight(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].lineSpacingOffset;
+	}
+
+	inline float RichTextDrawer::GetBlockLineSpacingOffset(std::size_t index) const
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		return m_blocks[index].lineSpacingOffset;
 	}
 
 	inline const Color& RichTextDrawer::GetBlockOutlineColor(std::size_t index) const
@@ -111,6 +129,11 @@ namespace Nz
 		return m_defaultCharacterSize;
 	}
 
+	inline float RichTextDrawer::GetDefaultCharacterSpacingOffset() const
+	{
+		return m_defaultCharacterSpacingOffset;
+	}
+
 	inline const Color& RichTextDrawer::GetDefaultColor() const
 	{
 		return m_defaultColor;
@@ -119,6 +142,11 @@ namespace Nz
 	inline const FontRef& RichTextDrawer::GetDefaultFont() const
 	{
 		return m_defaultFont;
+	}
+
+	inline float RichTextDrawer::GetDefaultLineSpacingOffset() const
+	{
+		return m_defaultLineSpacingOffset;
 	}
 
 	inline const Color& RichTextDrawer::GetDefaultOutlineColor() const
@@ -136,9 +164,9 @@ namespace Nz
 		return m_defaultStyle;
 	}
 
-	inline void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize) const
+	inline void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, float lineSpacingOffset) const
 	{
-		AppendNewLine(font, characterSize, InvalidGlyph, 0);
+		AppendNewLine(font, characterSize, lineSpacingOffset, InvalidGlyph, 0);
 	}
 
 	inline void RichTextDrawer::ClearGlyphs() const
@@ -173,6 +201,19 @@ namespace Nz
 		}
 	}
 
+	inline float RichTextDrawer::GetLineHeight(const Block& block) const
+	{
+		assert(block.fontIndex < m_fonts.size());
+		const FontData& fontData = m_fonts[block.fontIndex];
+
+		return GetLineHeight(block.lineSpacingOffset, fontData.font->GetSizeInfo(block.characterSize));
+	}
+
+	inline float RichTextDrawer::GetLineHeight(float lineSpacingOffset, const Font::SizeInfo& sizeInfo) const
+	{
+		return float(sizeInfo.lineHeight) + lineSpacingOffset;
+	}
+
 	inline std::size_t RichTextDrawer::HandleFontAddition(const FontRef& font)
 	{
 		auto it = m_fontIndexes.find(font);
@@ -204,10 +245,10 @@ namespace Nz
 		{
 			// Shift font indexes
 			m_fontIndexes.erase(fontData.font);
-			for (auto it = m_fontIndexes.begin(); it != m_fontIndexes.end(); ++it)
+			for (auto& fontIndexe : m_fontIndexes)
 			{
-				if (it->second > fontIndex)
-					it->second--;
+				if (fontIndexe.second > fontIndex)
+					fontIndexe.second--;
 			}
 
 			m_fonts.erase(m_fonts.begin() + fontIndex);
@@ -235,6 +276,14 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
+	inline void RichTextDrawer::SetBlockCharacterSpacingOffset(std::size_t index, float offset)
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		m_blocks[index].characterSpacingOffset = offset;
+
+		InvalidateGlyphs();
+	}
+
 	inline void RichTextDrawer::SetBlockColor(std::size_t index, const Color& color)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
@@ -256,6 +305,14 @@ namespace Nz
 			m_fonts[fontIndex].useCount++;
 			m_blocks[index].fontIndex = fontIndex;
 		}
+
+		InvalidateGlyphs();
+	}
+
+	inline void RichTextDrawer::SetBlockLineSpacingOffset(std::size_t index, float offset)
+	{
+		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		m_blocks[index].lineSpacingOffset = offset;
 
 		InvalidateGlyphs();
 	}
@@ -308,6 +365,11 @@ namespace Nz
 		m_defaultCharacterSize = characterSize;
 	}
 
+	inline void RichTextDrawer::SetDefaultCharacterSpacingOffset(float offset)
+	{
+		m_defaultCharacterSpacingOffset = offset;
+	}
+
 	inline void RichTextDrawer::SetDefaultColor(const Color& color)
 	{
 		m_defaultColor = color;
@@ -316,6 +378,11 @@ namespace Nz
 	inline void RichTextDrawer::SetDefaultFont(const FontRef& font)
 	{
 		m_defaultFont = font;
+	}
+
+	inline void RichTextDrawer::SetDefaultLineSpacingOffset(float offset)
+	{
+		m_defaultLineSpacingOffset = offset;
 	}
 
 	inline void RichTextDrawer::SetDefaultOutlineColor(const Color& color)
@@ -352,6 +419,17 @@ namespace Nz
 	}
 
 	/*!
+	* Returns the character spacing offset used for the characters of the referenced block
+	* \return The referenced block character size
+	*
+	* \see GetColor, GetFont, GetStyle, GetText, SetCharacterSize
+	*/
+	inline float RichTextDrawer::BlockRef::GetCharacterSpacingOffset() const
+	{
+		return m_drawer.GetBlockCharacterSpacingOffset(m_blockIndex);
+	}
+
+	/*!
 	* Returns the character size used for the characters of the referenced block
 	* \return The referenced block character size
 	*
@@ -382,6 +460,17 @@ namespace Nz
 	inline const FontRef& RichTextDrawer::BlockRef::GetFont() const
 	{
 		return m_drawer.GetBlockFont(m_blockIndex);
+	}
+
+	/*!
+	* Returns the line spacing offset used for the characters of the referenced block
+	* \return The referenced block character size
+	*
+	* \see GetColor, GetFont, GetStyle, GetText, SetCharacterSize
+	*/
+	inline float RichTextDrawer::BlockRef::GetLineSpacingOffset() const
+	{
+		return m_drawer.GetBlockLineSpacingOffset(m_blockIndex);
 	}
 
 	/*!
@@ -440,6 +529,17 @@ namespace Nz
 	}
 
 	/*!
+	* Changes the character spacing offset of the referenced block characters
+	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
+	*
+	* \see GetCharacterSpacingOffset, SetColor, SetFont, SetStyle, SetText
+	*/
+	inline void RichTextDrawer::BlockRef::SetCharacterSpacingOffset(float offset)
+	{
+		m_drawer.SetBlockCharacterSpacingOffset(m_blockIndex, offset);
+	}
+
+	/*!
 	* Changes the character size of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
@@ -470,6 +570,17 @@ namespace Nz
 	inline void RichTextDrawer::BlockRef::SetFont(FontRef font)
 	{
 		m_drawer.SetBlockFont(m_blockIndex, std::move(font));
+	}
+
+	/*!
+	* Changes the line spacing offset of the referenced block characters
+	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
+	*
+	* \see GetLineSpacingOffset, SetColor, SetFont, SetStyle, SetText
+	*/
+	inline void RichTextDrawer::BlockRef::SetLineSpacingOffset(float offset)
+	{
+		m_drawer.SetBlockLineSpacingOffset(m_blockIndex, offset);
 	}
 
 	/*!
