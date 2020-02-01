@@ -20,6 +20,13 @@ namespace Nz
 		Destroy();
 	}
 
+	inline void ENetHost::AllowsIncomingConnections(bool allow)
+	{
+		NazaraAssert(m_address.IsValid() && !m_address.IsLoopback(), "Only server hosts can allow incoming connections");
+
+		m_allowsIncomingConnections = allow;
+	}
+
 	inline bool ENetHost::Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount)
 	{
 		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
@@ -52,6 +59,11 @@ namespace Nz
 		m_poller.Clear();
 		m_peers.clear();
 		m_socket.Close();
+	}
+
+	inline bool ENetHost::DoesAllowIncomingConnections() const
+	{
+		return m_allowsIncomingConnections;
 	}
 
 	inline IpAddress ENetHost::GetBoundAddress() const

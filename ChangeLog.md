@@ -220,6 +220,7 @@ Nazara Engine:
 - ⚠ Removed Texture(const Image\*) constructor, use Texture::LoadFromImage instead
 - ⚠ TextDrawers now use floating-point internally and to exposes their Bounds (AbstractTextDrawer::GetBounds() now returns a Rectf)
 - Added [SimpleTextDrawer|RichTextDrawer] character and line spacing offset properties
+- Added ENetHost::AllowsIncomingConnections(bool) to disable/re-enable server peers connection
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
