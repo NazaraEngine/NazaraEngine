@@ -221,6 +221,7 @@ Nazara Engine:
 - ⚠ TextDrawers now use floating-point internally and to exposes their Bounds (AbstractTextDrawer::GetBounds() now returns a Rectf)
 - Added [SimpleTextDrawer|RichTextDrawer] character and line spacing offset properties
 - Added ENetHost::AllowsIncomingConnections(bool) to disable/re-enable server peers connection
+- Added ByteArrayPool and PoolByteStream classes
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
