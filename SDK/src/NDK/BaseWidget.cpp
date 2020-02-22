@@ -164,6 +164,8 @@ namespace Ndk
 		m_renderingRect = renderingRect;
 
 		UpdatePositionAndSize();
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->UpdatePositionAndSize();
 	}
 
 	void BaseWidget::Show(bool show)
@@ -242,6 +244,19 @@ namespace Ndk
 		Node::InvalidateNode();
 
 		UpdatePositionAndSize();
+	}
+
+	Nz::Rectf BaseWidget::GetScissorRect() const
+	{
+		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition(Nz::CoordSys_Global));
+		Nz::Vector2f widgetSize = GetSize();
+
+		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
+		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+
+		widgetRect.Intersect(widgetRenderingRect, &widgetRect);
+
+		return widgetRect;
 	}
 
 	bool BaseWidget::IsFocusable() const
@@ -336,16 +351,17 @@ namespace Ndk
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
-		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition(Nz::CoordSys_Global));
-		Nz::Vector2f widgetSize = GetSize();
+		Nz::Rectf scissorRect = GetScissorRect();
 
-		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
-		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+		if (m_widgetParent)
+		{
+			Nz::Rectf parentScissorRect = m_widgetParent->GetScissorRect();
 
-		Nz::Rectf widgetBounds;
-		widgetRect.Intersect(widgetRenderingRect, &widgetBounds);
+			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
+				scissorRect = parentScissorRect;
+		}
 
-		Nz::Recti fullBounds(widgetBounds);
+		Nz::Recti fullBounds(scissorRect);
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;

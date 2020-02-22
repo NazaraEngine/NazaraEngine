@@ -110,6 +110,8 @@ namespace Ndk
 
 			void InvalidateNode() override;
 
+			Nz::Rectf GetScissorRect() const;
+
 			virtual bool IsFocusable() const;
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
