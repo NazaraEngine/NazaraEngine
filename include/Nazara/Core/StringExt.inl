@@ -3,6 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringExt.hpp>
+#include <algorithm>
+#include <cctype>
+#include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
