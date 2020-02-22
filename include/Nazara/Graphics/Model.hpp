@@ -65,10 +65,6 @@ namespace Nz
 
 			virtual bool IsAnimated() const;
 
-			bool LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
-			bool LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
-			bool LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
-
 			using InstancedRenderable::SetMaterial;
 			bool SetMaterial(const String& subMeshName, MaterialRef material);
 			bool SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material);
@@ -77,6 +73,10 @@ namespace Nz
 
 			Model& operator=(const Model& node) = default;
 			Model& operator=(Model&& node) = delete;
+
+			static ModelRef LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
+			static ModelRef LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
+			static ModelRef LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 
 			template<typename... Args> static ModelRef New(Args&&... args);
 

@@ -43,6 +43,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <Nazara/Core/EmptyStream.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -82,6 +83,8 @@
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/String.hpp>

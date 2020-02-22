@@ -48,7 +48,7 @@ namespace Nz
 
 	bool CursorImpl::Create(SystemCursor cursor)
 	{
-		if (cursor != SystemCursor_Move)
+		if (cursor != SystemCursor_None)
 			m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, s_systemCursorIds[cursor], IMAGE_CURSOR, 0, 0, LR_SHARED));
 		else
 			m_cursor = nullptr;

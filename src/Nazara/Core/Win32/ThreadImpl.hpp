@@ -30,7 +30,8 @@ namespace Nz
 			static void Sleep(UInt32 time);
 
 		private:
-			static void SetThreadName(DWORD threadId, const char* threadName);
+			static void RaiseThreadNameException(DWORD threadId, const char* threadName);
+			static void SetThreadName(HANDLE threadHandle, const Nz::String& name);
 			static unsigned int __stdcall ThreadProc(void* userdata);
 
 			DWORD m_threadId;

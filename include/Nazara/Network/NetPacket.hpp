@@ -46,10 +46,10 @@ namespace Nz
 			NetPacket& operator=(const NetPacket&) = delete;
 			NetPacket& operator=(NetPacket&& packet);
 
-			static bool DecodeHeader(const void* data, UInt16* packetSize, UInt16* netCode);
-			static bool EncodeHeader(void* data, UInt16 packetSize, UInt16 netCode);
+			static bool DecodeHeader(const void* data, UInt32* packetSize, UInt16* netCode);
+			static bool EncodeHeader(void* data, UInt32 packetSize, UInt16 netCode);
 
-			static constexpr std::size_t HeaderSize = sizeof(UInt16) + sizeof(UInt16); //< PacketSize + NetCode
+			static constexpr std::size_t HeaderSize = sizeof(UInt32) + sizeof(UInt16); //< PacketSize + NetCode
 
 		private:
 			void OnEmptyStream() override;

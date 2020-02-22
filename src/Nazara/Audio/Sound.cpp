@@ -151,8 +151,8 @@ namespace Nz
 	*/
 	bool Sound::LoadFromFile(const String& filePath, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::New();
-		if (!buffer->LoadFromFile(filePath, params))
+		SoundBufferRef buffer = SoundBuffer::LoadFromFile(filePath, params);
+		if (!buffer)
 		{
 			NazaraError("Failed to load buffer from file (" + filePath + ')');
 			return false;
@@ -174,8 +174,8 @@ namespace Nz
 	*/
 	bool Sound::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::New();
-		if (!buffer->LoadFromMemory(data, size, params))
+		SoundBufferRef buffer = SoundBuffer::LoadFromMemory(data, size, params);
+		if (!buffer)
 		{
 			NazaraError("Failed to load buffer from memory (" + String::Pointer(data) + ')');
 			return false;
@@ -196,8 +196,8 @@ namespace Nz
 	*/
 	bool Sound::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::New();
-		if (!buffer->LoadFromStream(stream, params))
+		SoundBufferRef buffer = SoundBuffer::LoadFromStream(stream, params);
+		if (!buffer)
 		{
 			NazaraError("Failed to load buffer from stream");
 			return false;

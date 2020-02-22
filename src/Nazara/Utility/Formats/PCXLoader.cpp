@@ -61,7 +61,7 @@ namespace Nz
 			return Ternary_False;
 		}
 
-		bool Load(Image* image, Stream& stream, const ImageParams& parameters)
+		ImageRef Load(Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -69,7 +69,7 @@ namespace Nz
 			if (stream.Read(&header, sizeof(pcx_header)) != sizeof(pcx_header))
 			{
 				NazaraError("Failed to read header");
-				return false;
+				return nullptr;
 			}
 
 			#ifdef NAZARA_BIG_ENDIAN
@@ -91,10 +91,11 @@ namespace Nz
 			unsigned int width = header.xmax - header.xmin+1;
 			unsigned int height = header.ymax - header.ymin+1;
 
+			ImageRef image = Image::New();
 			if (!image->Create(ImageType_2D, PixelFormatType_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
-				return false;
+				return nullptr;
 			}
 
 			UInt8* pixels = image->GetPixels();
@@ -119,7 +120,7 @@ namespace Nz
 								if (!stream.Read(&rle_value, 1))
 								{
 									NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-									return false;
+									return nullptr;
 								}
 
 								if (rle_value < 0xc0)
@@ -130,7 +131,7 @@ namespace Nz
 									if (!stream.Read(&rle_value, 1))
 									{
 										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-										return false;
+										return nullptr;
 									}
 								}
 							}
@@ -174,7 +175,7 @@ namespace Nz
 									if (!stream.Read(&rle_value, 1))
 									{
 										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-										return false;
+										return nullptr;
 									}
 
 									if (rle_value < 0xc0)
@@ -185,7 +186,7 @@ namespace Nz
 										if (!stream.Read(&rle_value, 1))
 										{
 											NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-											return false;
+											return nullptr;
 										}
 									}
 								}
@@ -225,21 +226,21 @@ namespace Nz
 					if (!stream.Read(&magic, 1))
 					{
 						NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-						return false;
+						return nullptr;
 					}
 
 					/* first byte must be equal to 0x0c (12) */
 					if (magic != 0x0c)
 					{
 						NazaraError("Colormap's first byte must be 0x0c (0x" + String::Number(magic, 16) + ')');
-						return false;
+						return nullptr;
 					}
 
 					/* read palette */
 					if (stream.Read(palette, 768) != 768)
 					{
 						NazaraError("Failed to read palette");
-						return false;
+						return nullptr;
 					}
 
 					stream.SetCursorPos(curPos);
@@ -258,7 +259,7 @@ namespace Nz
 								if (!stream.Read(&rle_value, 1))
 								{
 									NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-									return false;
+									return nullptr;
 								}
 
 								if (rle_value < 0xc0)
@@ -269,7 +270,7 @@ namespace Nz
 									if (!stream.Read(&rle_value, 1))
 									{
 										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-										return false;
+										return nullptr;
 									}
 								}
 							}
@@ -302,7 +303,7 @@ namespace Nz
 									if (!stream.Read(&rle_value, 1))
 									{
 										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-										return false;
+										return nullptr;
 									}
 
 									if (rle_value < 0xc0)
@@ -313,7 +314,7 @@ namespace Nz
 										if (!stream.Read(&rle_value, 1))
 										{
 											NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
-											return false;
+											return nullptr;
 										}
 									}
 								}
@@ -329,13 +330,13 @@ namespace Nz
 
 				default:
 					NazaraError("Unsupported " + String::Number(bitCount) + " bitcount for pcx files");
-					return false;
+					return nullptr;
 			}
 
 			if (parameters.loadFormat != PixelFormatType_Undefined)
 				image->Convert(parameters.loadFormat);
 
-			return true;
+			return image;
 		}
 	}
 

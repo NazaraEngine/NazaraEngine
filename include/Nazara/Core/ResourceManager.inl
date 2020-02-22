@@ -37,14 +37,8 @@ namespace Nz
 		auto it = Type::s_managerMap.find(absolutePath);
 		if (it == Type::s_managerMap.end())
 		{
-			ObjectRef<Type> resource = Type::New();
+			ObjectRef<Type> resource = Type::LoadFromFile(absolutePath, GetDefaultParameters());
 			if (!resource)
-			{
-				NazaraError("Failed to create resource");
-				return ObjectRef<Type>();
-			}
-
-			if (!resource->LoadFromFile(absolutePath, GetDefaultParameters()))
 			{
 				NazaraError("Failed to load resource from file: " + absolutePath);
 				return ObjectRef<Type>();

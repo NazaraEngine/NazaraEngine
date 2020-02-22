@@ -62,9 +62,34 @@ namespace Nz
 		return m_state;
 	}
 
+	inline UInt64 ENetPeer::GetTotalByteReceived() const
+	{
+		return m_totalByteReceived;
+	}
+
+	inline UInt64 ENetPeer::GetTotalByteSent() const
+	{
+		return m_totalByteSent;
+	}
+
+	inline UInt32 ENetPeer::GetTotalPacketReceived() const
+	{
+		return m_totalPacketReceived;
+	}
+
+	inline UInt32 ENetPeer::GetTotalPacketLost() const
+	{
+		return m_totalPacketLost;
+	}
+
+	inline UInt32 ENetPeer::GetTotalPacketSent() const
+	{
+		return m_totalPacketSent;
+	}
+
 	inline bool ENetPeer::HasPendingCommands()
 	{
-		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty();
+		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty() && m_sentUnreliableCommands.empty();
 	}
 
 	inline bool ENetPeer::IsConnected() const
@@ -94,3 +119,4 @@ namespace Nz
 }
 
 #include <Nazara/Network/DebugOff.hpp>
+#include "ENetPeer.hpp"

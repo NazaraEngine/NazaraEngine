@@ -32,7 +32,7 @@ class LogoExample : public ParticleDemo
 		Nz::BackgroundRef m_oldBackground;
 		void* m_particles;
 		Nz::Clock m_mouseClock;
-		Nz::Image m_logo;
+		Nz::ImageRef m_logo;
 		Nz::ParticleControllerRef m_controller;
 		Nz::ParticleDeclarationRef m_declaration;
 		Nz::ParticleRendererRef m_renderer;

@@ -13,6 +13,10 @@
 
 namespace Ndk
 {
+	class ParticleEmitterComponent;
+
+	using ParticleEmitterComponentHandle = Nz::ObjectHandle<ParticleEmitterComponent>;
+
 	class NDK_API ParticleEmitterComponent : public Component<ParticleEmitterComponent>, public Nz::ParticleEmitter
 	{
 		public:

@@ -9,5 +9,9 @@ namespace Ndk
 	inline void LabelWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
 	{
 		m_textSprite->Update(drawer);
+
+		Nz::Vector2f size = Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths());
+		SetMinimumSize(size);
+		SetPreferredSize(size);
 	}
 }

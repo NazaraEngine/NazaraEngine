@@ -98,13 +98,13 @@ namespace Nz
 			return 0;
 		}
 
-		template<typename T> /*constexpr*/ std::enable_if_t<std::is_floating_point<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		template<typename T> constexpr std::enable_if_t<std::is_floating_point<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
 		{
 			T diff = std::abs(a - b);
 			return diff <= maxDifference;
 		}
 
-		template<typename T> /*constexpr*/ std::enable_if_t<!std::is_signed<T>::value || (!std::is_integral<T>::value && !std::is_floating_point<T>::value), bool> NumberEquals(T a, T b, T maxDifference)
+		template<typename T> constexpr std::enable_if_t<!std::is_signed<T>::value || (!std::is_integral<T>::value && !std::is_floating_point<T>::value), bool> NumberEquals(T a, T b, T maxDifference)
 		{
 			if (b > a)
 				std::swap(a, b);
@@ -113,7 +113,7 @@ namespace Nz
 			return diff <= maxDifference;
 		}
 
-		template<typename T> /*constexpr*/ std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
+		template<typename T> constexpr std::enable_if_t<std::is_signed<T>::value && std::is_integral<T>::value, bool> NumberEquals(T a, T b, T maxDifference)
 		{
 			if (b > a)
 				std::swap(a, b);
@@ -132,10 +132,8 @@ namespace Nz
 	* \param objective Target value
 	* \param increment One step value
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline T Approach(T value, T objective, T increment)
+	constexpr inline T Approach(T value, T objective, T increment)
 	{
 		if (value < objective)
 			return std::min(value + increment, objective);
@@ -154,7 +152,6 @@ namespace Nz
 	* \param min Minimum of the interval
 	* \param max Maximum of the interval
 	*/
-
 	template<typename T>
 	constexpr T Clamp(T value, T min, T max)
 	{
@@ -168,10 +165,8 @@ namespace Nz
 	*
 	* \param value The value to count bits
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline std::size_t CountBits(T value)
+	constexpr inline std::size_t CountBits(T value)
 	{
 		// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan
 		std::size_t count = 0;
@@ -191,7 +186,6 @@ namespace Nz
 	*
 	* \param degrees Angle in degree (this is expected between 0..360)
 	*/
-
 	template<typename T>
 	constexpr T DegreeToRadian(T degrees)
 	{
@@ -205,7 +199,6 @@ namespace Nz
 	*
 	* \param degrees Convert degree to NAZARA_MATH_ANGLE_RADIAN unit
 	*/
-
 	template<typename T>
 	constexpr T FromDegrees(T degrees)
 	{
@@ -223,7 +216,6 @@ namespace Nz
 	*
 	* \param radians Convert radian to NAZARA_MATH_ANGLE_RADIAN unit
 	*/
-
 	template<typename T>
 	constexpr T FromRadians(T radians)
 	{
@@ -241,10 +233,8 @@ namespace Nz
 	*
 	* \param number Number to get nearest power
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline T GetNearestPowerOfTwo(T number)
+	constexpr inline T GetNearestPowerOfTwo(T number)
 	{
 		T x = 1;
 		while (x < number)
@@ -260,9 +250,7 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline unsigned int GetNumberLength(signed char number)
+	constexpr inline unsigned int GetNumberLength(signed char number)
 	{
 		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Signed char must be one byte-sized");
@@ -288,9 +276,7 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline unsigned int GetNumberLength(unsigned char number)
+	constexpr inline unsigned int GetNumberLength(unsigned char number)
 	{
 		// Char is expected to be 1 byte
 		static_assert(sizeof(number) == 1, "Unsigned char must be one byte-sized");
@@ -310,7 +296,6 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
 	inline unsigned int GetNumberLength(int number)
 	{
 		if (number == 0)
@@ -326,7 +311,6 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline unsigned int GetNumberLength(unsigned int number)
 	{
@@ -343,7 +327,6 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
 	inline unsigned int GetNumberLength(long long number)
 	{
 		if (number == 0)
@@ -359,7 +342,6 @@ namespace Nz
 	*
 	* \param number Number to get number of digits
 	*/
-
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline unsigned int GetNumberLength(unsigned long long number)
 	{
@@ -377,7 +359,6 @@ namespace Nz
 	* \param number Number to get number of digits
 	* \param precision Number of digit after the dot
 	*/
-
 	inline unsigned int GetNumberLength(float number, UInt8 precision)
 	{
 		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
@@ -392,7 +373,6 @@ namespace Nz
 	* \param number Number to get number of digits
 	* \param precision Number of digit after the dot
 	*/
-
 	inline unsigned int GetNumberLength(double number, UInt8 precision)
 	{
 		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
@@ -407,7 +387,6 @@ namespace Nz
 	* \param number Number to get number of digits
 	* \param precision Number of digit after the dot
 	*/
-
 	inline unsigned int GetNumberLength(long double number, UInt8 precision)
 	{
 		// The imprecision of floats need a cast (log10(9.99999) = 0.99999)
@@ -423,7 +402,6 @@ namespace Nz
 	*
 	* \remark If number is 0, 0 is returned
 	*/
-
 	template<typename T>
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline unsigned int IntegralLog2(T number)
@@ -442,7 +420,6 @@ namespace Nz
 	* \remark Only works for power of two
 	* \remark If number is 0, 0 is returned
 	*/
-
 	template<typename T>
 	//TODO: Mark as constexpr when supported by all major compilers
 	/*constexpr*/ inline unsigned int IntegralLog2Pot(T pot)
@@ -458,10 +435,8 @@ namespace Nz
 	* \param base Base of the exponentation
 	* \param exponent Power for the base
 	*/
-
-	//TODO: Mark as constexpr when supported by all major compilers
 	template<typename T>
-	/*constexpr*/ T IntegralPow(T base, unsigned int exponent)
+	constexpr T IntegralPow(T base, unsigned int exponent)
 	{
 		T r = 1;
 		for (unsigned int i = 0; i < exponent; ++i)
@@ -484,7 +459,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T, typename T2>
 	constexpr T Lerp(const T& from, const T& to, const T2& interpolation)
 	{
@@ -540,10 +514,8 @@ namespace Nz
 	*
 	* \param angle Angle to normalize
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline T NormalizeAngle(T angle)
+	constexpr inline T NormalizeAngle(T angle)
 	{
 		#if NAZARA_MATH_ANGLE_RADIAN
 		const T limit = T(M_PI);
@@ -567,10 +539,8 @@ namespace Nz
 	* \param a First value
 	* \param b Second value
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline bool NumberEquals(T a, T b)
+	constexpr inline bool NumberEquals(T a, T b)
 	{
 		return NumberEquals(a, b, std::numeric_limits<T>::epsilon());
 	}
@@ -584,10 +554,8 @@ namespace Nz
 	* \param b Second value
 	* \param maxDifference Epsilon of comparison (expected to be positive)
 	*/
-
 	template<typename T>
-	//TODO: Mark as constexpr when supported by all major compilers
-	/*constexpr*/ inline bool NumberEquals(T a, T b, T maxDifference)
+	constexpr inline bool NumberEquals(T a, T b, T maxDifference)
 	{
 		return Detail::NumberEquals(a, b, maxDifference);
 	}
@@ -603,7 +571,6 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
 	*/
-
 	inline String NumberToString(long long number, UInt8 radix)
 	{
 		#if NAZARA_MATH_SAFE
@@ -651,7 +618,6 @@ namespace Nz
 	*
 	* \param radians Angle in radian (this is expected between 0..2*pi)
 	*/
-
 	template<typename T>
 	constexpr T RadianToDegree(T radians)
 	{
@@ -670,7 +636,6 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
 	*/
-
 	inline long long StringToNumber(String str, UInt8 radix, bool* ok)
 	{
 		#if NAZARA_MATH_SAFE
@@ -727,7 +692,6 @@ namespace Nz
 	*
 	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to degrees
 	*/
-
 	template<typename T>
 	constexpr T ToDegrees(T angle)
 	{
@@ -745,7 +709,6 @@ namespace Nz
 	*
 	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to radians
 	*/
-
 	template<typename T>
 	constexpr T ToRadians(T angle)
 	{

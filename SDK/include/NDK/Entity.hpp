@@ -8,8 +8,8 @@
 #define NDK_ENTITY_HPP
 
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <NDK/Algorithm.hpp>
 #include <NDK/Prerequisites.hpp>
@@ -43,6 +43,10 @@ namespace Ndk
 			const EntityHandle& Clone() const;
 
 			inline void Disable();
+
+			std::unique_ptr<BaseComponent> DropComponent(ComponentIndex index);
+			template<typename ComponentType> std::unique_ptr<BaseComponent> DropComponent();
+
 			void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
@@ -61,6 +65,7 @@ namespace Ndk
 
 			void Invalidate();
 			inline bool IsEnabled() const;
+			bool IsDying() const;
 			inline bool IsValid() const;
 
 			inline void RemoveAllComponents();
@@ -73,14 +78,14 @@ namespace Ndk
 			Entity& operator=(Entity&&) = delete;
 
 			NazaraSignal(OnEntityDestruction, Entity* /*entity*/);
+			NazaraSignal(OnEntityDisabled, Entity* /*entity*/);
+			NazaraSignal(OnEntityEnabled, Entity* /*entity*/);
 
 		private:
 			Entity(World* world, EntityId id);
 
 			void Create();
 			void Destroy();
-
-			void DestroyComponent(ComponentIndex index);
 
 			inline Nz::Bitset<>& GetRemovedComponentBits();
 

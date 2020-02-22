@@ -51,11 +51,22 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a EulerAngles object from an angle
+	*
+	* \param angle Angle representing a 2D rotation
+	*/
+	template<typename T>
+	template<AngleUnit Unit>
+	EulerAngles<T>::EulerAngles(const Angle<Unit, T>& angle)
+	{
+		Set(angle);
+	}
+
+	/*!
 	* \brief Constructs a EulerAngles object from a quaternion
 	*
 	* \param quat Quaternion representing a rotation of space
 	*/
-
 	template<typename T>
 	EulerAngles<T>::EulerAngles(const Quaternion<T>& quat)
 	{
@@ -142,19 +153,20 @@ namespace Nz
 		return *this;
 	}
 
+
 	/*!
-	* \brief Sets the components of the euler angle from another euler angle
+	* \brief Sets the components of the euler angle from a 2D rotation specified by an Angle
 	* \return A reference to this euler angle
 	*
-	* \param angles The other euler angle
+	* \param angle 2D angle
+	*
+	* \see Angle
 	*/
-
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles& angles)
+	template<AngleUnit Unit>
+	EulerAngles<T>& EulerAngles<T>::Set(const Angle<Unit, T>& angle)
 	{
-		std::memcpy(this, &angles, sizeof(EulerAngles));
-
-		return *this;
+		return Set(angle.ToEulerAngles());
 	}
 
 	/*!
@@ -394,3 +406,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "EulerAngles.hpp"

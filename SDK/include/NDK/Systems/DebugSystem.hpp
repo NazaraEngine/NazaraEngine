@@ -22,26 +22,33 @@ namespace Ndk
 			DebugSystem();
 			~DebugSystem() = default;
 
+			void EnableDepthBuffer(bool enable);
+
+			inline bool IsDepthBufferEnabled() const;
+
 			static SystemIndex systemIndex;
 
 		private:
 			Nz::InstancedRenderableRef GenerateBox(Nz::Boxf box);
+			Nz::InstancedRenderableRef GenerateCollision2DMesh(Entity* entity, Nz::Vector3f* offset);
 			Nz::InstancedRenderableRef GenerateCollision3DMesh(Entity* entity);
 
-			Nz::MaterialRef GetAABBMaterial();
-			Nz::MaterialRef GetCollisionMaterial();
-			Nz::MaterialRef GetOBBMaterial();
 			std::pair<Nz::IndexBufferRef, Nz::VertexBufferRef> GetBoxMesh();
+			Nz::MaterialRef GetCollisionMaterial();
+			Nz::MaterialRef GetGlobalAABBMaterial();
+			Nz::MaterialRef GetLocalAABBMaterial();
+			Nz::MaterialRef GetOBBMaterial();
 
 			void OnEntityValidation(Entity* entity, bool justAdded) override;
-
 			void OnUpdate(float elapsedTime) override;
 
-			Nz::MaterialRef m_aabbMaterial;
+			Nz::MaterialRef m_globalAabbMaterial;
+			Nz::MaterialRef m_localAabbMaterial;
 			Nz::MaterialRef m_collisionMaterial;
 			Nz::MaterialRef m_obbMaterial;
 			Nz::IndexBufferRef m_boxMeshIndexBuffer;
 			Nz::VertexBufferRef m_boxMeshVertexBuffer;
+			bool m_isDepthBufferEnabled;
 	};
 }
 

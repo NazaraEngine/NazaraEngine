@@ -6,7 +6,7 @@
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Catch/catch.hpp>
 
-void CompareAABB(const Nz::Rectf& aabb, const Nz::BoundingVolumef& boundingVolume);
+void CompareAABB(const Nz::Rectf& aabb, const Nz::Boxf& box);
 
 SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 {
@@ -76,43 +76,42 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 			{
 				CHECK(nodeComponent.GetPosition() == position + velocity);
 				CHECK(physicsComponent2D.GetAABB() == aabb.Translate(position + velocity));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 			}
 		}
 
 		WHEN("We set an angular velocity")
 		{
-			float angularSpeed = Nz::FromDegrees(90.f);
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(90.f);
 			physicsComponent2D.SetAngularVelocity(angularSpeed);
 			world.Update(1.f);
 
 			THEN("We expect those to be true")
 			{
-				CHECK(physicsComponent2D.GetAngularVelocity() == Approx(angularSpeed));
-				CHECK(physicsComponent2D.GetRotation() == Approx(angularSpeed));
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(1.f, 4.f, 2.f, 1.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
+				CHECK(physicsComponent2D.GetRotation() == angularSpeed);
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.5f, 4.5f, 2.f, 1.f));
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
-				CHECK(physicsComponent2D.GetRotation() == Approx(2.f * angularSpeed));
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.f, 2.f, 1.f, 2.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CHECK(physicsComponent2D.GetRotation() == 2.f * angularSpeed);
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(3.f, 4.0f, 1.f, 2.f));
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
-				CHECK(physicsComponent2D.GetRotation() == Approx(3.f * angularSpeed));
-				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(3.f, 3.f, 2.f, 1.f));
-				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetBoundingVolume());
+				CHECK(physicsComponent2D.GetRotation() == 3.f * angularSpeed);
+				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(2.5f, 4.5f, 2.f, 1.f));
+				CompareAABB(physicsComponent2D.GetAABB(), graphicsComponent.GetAABB());
 
 				world.Update(1.f);
-				CHECK(physicsComponent2D.GetRotation() == Approx(4.f * angularSpeed));
+				CHECK(physicsComponent2D.GetRotation() == 4.f * angularSpeed);
 			}
 		}
 	}
 }
 
-void CompareAABB(const Nz::Rectf& aabb, const Nz::BoundingVolumef& boundingVolume)
+void CompareAABB(const Nz::Rectf& aabb, const Nz::Boxf& box)
 {
-	Nz::Boxf box = boundingVolume.aabb;
 	CHECK(aabb.x == Approx(box.x));
 	CHECK(aabb.y == Approx(box.y));
 	CHECK(aabb.width == Approx(box.width));

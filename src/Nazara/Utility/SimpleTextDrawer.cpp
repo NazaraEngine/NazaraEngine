@@ -3,53 +3,19 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <limits>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	SimpleTextDrawer::SimpleTextDrawer() :
-	m_color(Color::White),
-	m_style(TextStyle_Regular),
-	m_colorUpdated(true),
-	m_glyphUpdated(true),
-	m_characterSize(24)
-	{
-		SetFont(Font::GetDefault());
-	}
-
-	SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
-	m_color(drawer.m_color),
-	m_text(drawer.m_text),
-	m_style(drawer.m_style),
-	m_colorUpdated(false),
-	m_glyphUpdated(false),
-	m_characterSize(drawer.m_characterSize)
-	{
-		SetFont(drawer.m_font);
-	}
-
-	SimpleTextDrawer::SimpleTextDrawer(SimpleTextDrawer&& drawer)
-	{
-		operator=(std::move(drawer));
-	}
-
-	SimpleTextDrawer::~SimpleTextDrawer() = default;
-
-	void SimpleTextDrawer::AppendText(const String& str)
-	{
-		m_text.Append(str);
-		if (m_glyphUpdated)
-			GenerateGlyphs(str);
-	}
-
 	void SimpleTextDrawer::Clear()
 	{
 		m_text.Clear(true);
 		ClearGlyphs();
 	}
 
-	const Recti& SimpleTextDrawer::GetBounds() const
+	const Rectf& SimpleTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -57,27 +23,12 @@ namespace Nz
 		return m_bounds;
 	}
 
-	unsigned int SimpleTextDrawer::GetCharacterSize() const
-	{
-		return m_characterSize;
-	}
-
-	const Color& SimpleTextDrawer::GetColor() const
-	{
-		return m_color;
-	}
-
-	Font* SimpleTextDrawer::GetFont() const
-	{
-		return m_font;
-	}
-
 	Font* SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
 		NazaraUnused(index);
 
-		return m_font;
+		return GetFont();
 	}
 
 	std::size_t SimpleTextDrawer::GetFontCount() const
@@ -120,148 +71,116 @@ namespace Nz
 		return m_lines.size();
 	}
 
-	UInt32 SimpleTextDrawer::GetStyle() const
+	float SimpleTextDrawer::GetMaxLineWidth() const
 	{
-		return m_style;
+		return m_maxLineWidth;
 	}
 
-	const String& SimpleTextDrawer::GetText() const
+	void SimpleTextDrawer::AppendNewLine(std::size_t glyphIndex, float glyphPosition) const
 	{
-		return m_text;
-	}
+		// Ensure we're appending from last line
+		Line& lastLine = m_lines.back();
 
-	void SimpleTextDrawer::SetCharacterSize(unsigned int characterSize)
-	{
-		m_characterSize = characterSize;
+		float previousDrawPos = m_drawPos.x;
 
-		m_glyphUpdated = false;
-	}
+		float lineHeight = GetLineHeight();
 
-	void SimpleTextDrawer::SetColor(const Color& color)
-	{
-		m_color = color;
+		// Reset cursor
+		m_drawPos.x = 0.f;
+		m_drawPos.y += lineHeight;
+		m_lastSeparatorGlyph = InvalidGlyph;
 
-		m_colorUpdated = false;
-	}
+		m_bounds.ExtendTo(lastLine.bounds);
+		m_lines.emplace_back(Line{ Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), m_glyphs.size() + 1 });
 
-	void SimpleTextDrawer::SetFont(Font* font)
-	{
-		if (m_font != font)
+		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
 		{
-			m_font = font;
+			Line& newLine = m_lines.back();
+			newLine.glyphIndex = glyphIndex;
 
-			if (m_font)
-				ConnectFontSlots();
-			else
-				DisconnectFontSlots();
+			for (std::size_t i = glyphIndex; i < m_glyphs.size(); ++i)
+			{
+				Glyph& glyph = m_glyphs[i];
+				glyph.bounds.x -= glyphPosition;
+				glyph.bounds.y += lineHeight;
 
-			m_glyphUpdated = false;
+				for (auto& corner : glyph.corners)
+				{
+					corner.x -= glyphPosition;
+					corner.y += lineHeight;
+				}
+
+				newLine.bounds.ExtendTo(glyph.bounds);
+			}
+
+			assert(previousDrawPos >= glyphPosition);
+			m_drawPos.x += previousDrawPos - glyphPosition;
+
+			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
+
+			// Regenerate bounds
+			m_bounds.MakeZero();
+			for (auto& line : m_lines)
+				m_bounds.ExtendTo(line.bounds);
 		}
-	}
-
-	void SimpleTextDrawer::SetStyle(UInt32 style)
-	{
-		m_style = style;
-
-		m_glyphUpdated = false;
-	}
-
-	void SimpleTextDrawer::SetText(const String& str)
-	{
-		m_text = str;
-
-		m_glyphUpdated = false;
-	}
-
-	SimpleTextDrawer& SimpleTextDrawer::operator=(const SimpleTextDrawer& drawer)
-	{
-		m_characterSize = drawer.m_characterSize;
-		m_color = drawer.m_color;
-		m_style = drawer.m_style;
-		m_text = drawer.m_text;
-
-		m_colorUpdated = false;
-		m_glyphUpdated = false;
-		SetFont(drawer.m_font);
-
-		return *this;
-	}
-
-	SimpleTextDrawer& SimpleTextDrawer::operator=(SimpleTextDrawer&& drawer)
-	{
-		DisconnectFontSlots();
-
-		m_bounds = std::move(drawer.m_bounds);
-		m_colorUpdated = std::move(drawer.m_colorUpdated);
-		m_characterSize = std::move(drawer.m_characterSize);
-		m_color = std::move(drawer.m_color);
-		m_glyphs = std::move(drawer.m_glyphs);
-		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
-		m_font = std::move(drawer.m_font);
-		m_style = std::move(drawer.m_style);
-		m_text = std::move(drawer.m_text);
-
-		// Update slot pointers (TODO: Improve the way of doing this)
-		ConnectFontSlots();
-
-		return *this;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, UInt32 style, const Color& color)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
-	}
-
-	SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style, const Color& color)
-	{
-		SimpleTextDrawer drawer;
-		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetFont(font);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
-
-		return drawer;
 	}
 
 	void SimpleTextDrawer::ClearGlyphs() const
 	{
 		m_bounds.MakeZero();
 		m_colorUpdated = true;
-		m_drawPos.Set(0, m_characterSize); //< Our draw "cursor"
+		m_drawPos.Set(0, float(m_characterSize)); //< Our draw "cursor"
+		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
 		m_previousCharacter = 0;
-		m_workingBounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 
 		if (m_font)
-			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, float(m_font->GetSizeInfo(m_characterSize).lineHeight)), 0});
+			m_lines.emplace_back(Line{Rectf(0.f, 0.f, 0.f, GetLineHeight()), 0});
 		else
 			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
 
-	void SimpleTextDrawer::ConnectFontSlots()
+	bool SimpleTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const
 	{
-		m_atlasChangedSlot.Connect(m_font->OnFontAtlasChanged, this, &SimpleTextDrawer::OnFontInvalidated);
-		m_atlasLayerChangedSlot.Connect(m_font->OnFontAtlasLayerChanged, this, &SimpleTextDrawer::OnFontAtlasLayerChanged);
-		m_fontReleaseSlot.Connect(m_font->OnFontRelease, this, &SimpleTextDrawer::OnFontRelease);
-		m_glyphCacheClearedSlot.Connect(m_font->OnFontGlyphCacheCleared, this, &SimpleTextDrawer::OnFontInvalidated);
-	}
+		const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, outlineThickness, character);
+		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
+		{
+			glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+			glyph.atlasRect = fontGlyph.atlasRect;
+			glyph.color = color;
+			glyph.flipped = fontGlyph.flipped;
+			glyph.renderOrder = renderOrder;
 
-	void SimpleTextDrawer::DisconnectFontSlots()
-	{
-		m_atlasChangedSlot.Disconnect();
-		m_atlasLayerChangedSlot.Disconnect();
-		m_fontReleaseSlot.Disconnect();
-		m_glyphCacheClearedSlot.Disconnect();
-	}
+			glyph.bounds.Set(fontGlyph.aabb);
+
+			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
+				AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+
+			glyph.bounds.x += m_drawPos.x;
+			glyph.bounds.y += m_drawPos.y;
+
+			// Faux bold and faux outline thickness are not supported
+
+			// We "lean" the glyph to simulate italics style
+			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+			float italicTop = italic * glyph.bounds.y;
+			float italicBottom = italic * glyph.bounds.GetMaximum().y;
+
+			glyph.corners[0].Set(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[2].Set(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+			glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+
+			if (advance)
+				*advance = fontGlyph.advance;
+
+			return true;
+		}
+		else
+			return false;
+	};
 
 	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
 	{
@@ -278,7 +197,7 @@ namespace Nz
 
 		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
 
-		m_glyphs.reserve(m_glyphs.size() + characters.size());
+		m_glyphs.reserve(m_glyphs.size() + characters.size() * ((m_outlineThickness > 0.f) ? 2 : 1));
 		for (char32_t character : characters)
 		{
 			if (m_previousCharacter != 0)
@@ -287,16 +206,16 @@ namespace Nz
 			m_previousCharacter = character;
 
 			bool whitespace = true;
-			int advance = 0;
+			float advance = m_characterSpacingOffset;
 			switch (character)
 			{
 				case ' ':
 				case '\n':
-					advance = sizeInfo.spaceAdvance;
+					advance += float(sizeInfo.spaceAdvance);
 					break;
 
 				case '\t':
-					advance = sizeInfo.spaceAdvance * 4;
+					advance += float(sizeInfo.spaceAdvance) * 4.f;
 					break;
 
 				default:
@@ -307,54 +226,26 @@ namespace Nz
 			Glyph glyph;
 			if (!whitespace)
 			{
-				const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, character);
-				if (!fontGlyph.valid)
+				int iAdvance;
+				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
 
-				advance = fontGlyph.advance;
+				advance += float(iAdvance);
 
-				glyph.atlas = m_font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
-				glyph.atlasRect = fontGlyph.atlasRect;
-				glyph.color = m_color;
-				glyph.flipped = fontGlyph.flipped;
-
-				glyph.bounds.Set(fontGlyph.aabb);
-				glyph.bounds.x += m_drawPos.x;
-				glyph.bounds.y += m_drawPos.y;
-
-				if (fontGlyph.requireFauxBold)
+				if (m_outlineThickness > 0.f)
 				{
-					// Let's simulate bold by enlarging the glyph (not a neat idea, but should work)
-					Vector2f center = glyph.bounds.GetCenter();
-
-					// Enlarge by 10%
-					glyph.bounds.width *= 1.1f;
-					glyph.bounds.height *= 1.1f;
-
-					// Replace it at the correct height
-					Vector2f offset(glyph.bounds.GetCenter() - center);
-					glyph.bounds.x -= offset.x;
-					glyph.bounds.y -= offset.y;
-
-					// Adjust advance (+10%)
-					advance += advance / 10;
+					Glyph outlineGlyph;
+					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, -1, nullptr))
+						m_glyphs.push_back(outlineGlyph);
 				}
-
-				// We "lean" the glyph to simulate italics style
-				float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-				float italicTop = italic * glyph.bounds.y;
-				float italicBottom = italic * glyph.bounds.GetMaximum().y;
-
-				glyph.corners[0].Set(glyph.bounds.x - italicTop, glyph.bounds.y);
-				glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop, glyph.bounds.y);
-				glyph.corners[2].Set(glyph.bounds.x - italicBottom, glyph.bounds.y + glyph.bounds.height);
-				glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom, glyph.bounds.y + glyph.bounds.height);
 			}
 			else
 			{
-				glyph.atlas = nullptr;
+				if (ShouldLineWrap(advance))
+					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
-				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, float(advance), float(sizeInfo.lineHeight));
+				glyph.atlas = nullptr;
+				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -363,18 +254,12 @@ namespace Nz
 			}
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);
-			
+
 			switch (character)
 			{
 				case '\n':
 				{
-					// Reset cursor
-					advance = 0;
-					m_drawPos.x = 0;
-					m_drawPos.y += sizeInfo.lineHeight;
-
-					m_workingBounds.ExtendTo(m_lines.back().bounds);
-					m_lines.emplace_back(Line{Rectf(0.f, float(sizeInfo.lineHeight * m_lines.size()), 0.f, float(sizeInfo.lineHeight)), m_glyphs.size() + 1});
+					AppendNewLine();
 					break;
 				}
 
@@ -383,12 +268,16 @@ namespace Nz
 					break;
 			}
 
+			if (whitespace)
+			{
+				m_lastSeparatorGlyph = m_glyphs.size();
+				m_lastSeparatorPosition = m_drawPos.x;
+			}
+
 			m_glyphs.push_back(glyph);
 		}
 
-		m_workingBounds.ExtendTo(m_lines.back().bounds);
-
-		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+		m_bounds.ExtendTo(m_lines.back().bounds);
 
 		m_colorUpdated = true;
 		m_glyphUpdated = true;
@@ -407,7 +296,7 @@ namespace Nz
 		#endif
 
 		// Update atlas layer pointer
-		// Note: This can happen while updating
+		// Note: This can happen while updating glyphs
 		for (Glyph& glyph : m_glyphs)
 		{
 			if (glyph.atlas == oldLayer)
@@ -427,7 +316,7 @@ namespace Nz
 		}
 		#endif
 
-		m_glyphUpdated = false;
+		InvalidateGlyphs();
 	}
 
 	void SimpleTextDrawer::OnFontRelease(const Font* font)
@@ -444,21 +333,5 @@ namespace Nz
 		#endif
 
 		SetFont(nullptr);
-	}
-
-	void SimpleTextDrawer::UpdateGlyphColor() const
-	{
-		for (Glyph& glyph : m_glyphs)
-			glyph.color = m_color;
-
-		m_colorUpdated = true;
-	}
-
-	void SimpleTextDrawer::UpdateGlyphs() const
-	{
-		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
-
-		ClearGlyphs();
-		GenerateGlyphs(m_text);
 	}
 }

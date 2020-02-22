@@ -521,21 +521,6 @@ namespace Nz
 		return m_isValid;
 	}
 
-	bool Mesh::LoadFromFile(const String& filePath, const MeshParams& params)
-	{
-		return MeshLoader::LoadFromFile(this, filePath, params);
-	}
-
-	bool Mesh::LoadFromMemory(const void* data, std::size_t size, const MeshParams& params)
-	{
-		return MeshLoader::LoadFromMemory(this, data, size, params);
-	}
-
-	bool Mesh::LoadFromStream(Stream& stream, const MeshParams& params)
-	{
-		return MeshLoader::LoadFromStream(this, stream, params);
-	}
-
 	void Mesh::Recenter()
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
@@ -661,6 +646,21 @@ namespace Nz
 
 			staticMesh.SetAABB(aabb); //< This will invalidate our AABB
 		}
+	}
+
+	MeshRef Mesh::LoadFromFile(const String& filePath, const MeshParams& params)
+	{
+		return MeshLoader::LoadFromFile(filePath, params);
+	}
+
+	MeshRef Mesh::LoadFromMemory(const void* data, std::size_t size, const MeshParams& params)
+	{
+		return MeshLoader::LoadFromMemory(data, size, params);
+	}
+
+	MeshRef Mesh::LoadFromStream(Stream& stream, const MeshParams& params)
+	{
+		return MeshLoader::LoadFromStream(stream, params);
 	}
 
 	bool Mesh::Initialize()

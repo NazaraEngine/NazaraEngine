@@ -19,21 +19,19 @@ namespace Ndk
 	class NDK_API ImageWidget : public BaseWidget
 	{
 		public:
-			ImageWidget(BaseWidget* parent = nullptr);
+			ImageWidget(BaseWidget* parent);
 			ImageWidget(const ImageWidget&) = delete;
 			ImageWidget(ImageWidget&&) = default;
 			~ImageWidget() = default;
 
 			//virtual ImageWidget* Clone() const = 0;
 
-			void ResizeToContent() override;
-
 			inline const Nz::Color& GetColor() const;
 			inline const Nz::TextureRef& GetTexture() const;
 			inline const Nz::Rectf& GetTextureCoords() const;
 
 			inline void SetColor(const Nz::Color& color);
-			inline void SetTexture(const Nz::TextureRef& texture, bool resizeToContent = true);
+			inline void SetTexture(const Nz::TextureRef& texture);
 			inline void SetTextureCoords(const Nz::Rectf& coords);
 			inline void SetTextureRect(const Nz::Rectui& rect);
 

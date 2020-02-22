@@ -36,7 +36,6 @@ namespace Nz
 
 			OrientedBox& Set(T X, T Y, T Z, T Width, T Height, T Depth);
 			OrientedBox& Set(const Box<T>& box);
-			OrientedBox& Set(const OrientedBox& orientedBox);
 			OrientedBox& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> OrientedBox& Set(const OrientedBox<U>& orientedBox);
 

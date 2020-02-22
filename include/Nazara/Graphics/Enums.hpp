@@ -21,6 +21,7 @@ namespace Nz
 
 	enum class CullTest
 	{
+		Box,
 		NoTest,
 		Sphere,
 		Volume

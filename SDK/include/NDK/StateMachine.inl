@@ -159,8 +159,13 @@ namespace Ndk
 	*/
 	inline bool StateMachine::Update(float elapsedTime)
 	{
-		for (StateTransition& transition : m_transitions)
+		// Use a classic for instead of a range-for because some state may push/pop on enter/leave, adding new transitions as we iterate
+		// (range-for is a problem here because it doesn't handle mutable containers)
+
+		for (std::size_t i = 0; i < m_transitions.size(); ++i)
 		{
+			StateTransition& transition = m_transitions[i];
+
 			switch (transition.type)
 			{
 				case TransitionType::Pop:

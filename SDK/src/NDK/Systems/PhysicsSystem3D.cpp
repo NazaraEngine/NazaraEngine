@@ -69,8 +69,8 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody3D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(node.GetPosition());
-				physObj->SetRotation(node.GetRotation());
+				physObj->SetPosition(node.GetPosition(Nz::CoordSys_Global));
+				physObj->SetRotation(node.GetRotation(Nz::CoordSys_Global));
 			}
 		}
 

@@ -153,7 +153,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+		MeshRef Load(Stream& stream, const MeshParams& parameters)
 		{
 			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
@@ -163,9 +163,10 @@ namespace Nz
 			if (!parser.Parse(stream, reservedVertexCount))
 			{
 				NazaraError("OBJ parser failed");
-				return false;
+				return nullptr;
 			}
 
+			MeshRef mesh = Mesh::New();
 			mesh->CreateStatic();
 
 			const String* materials = parser.GetMaterials();
@@ -305,6 +306,8 @@ namespace Nz
 						if (vertexIndices.texCoord > 0)
 						{
 							Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
+							uv.y = 1.f - uv.y; //< OBJ model texcoords seems to majority start from bottom left
+
 							uvPtr[index] = Vector2f(parameters.texCoordOffset + uv * parameters.texCoordScale);
 						}
 						else
@@ -341,7 +344,7 @@ namespace Nz
 				ParseMTL(mesh, stream.GetDirectory() + mtlLib, materials, meshes, meshCount);
 			}
 
-			return true;
+			return mesh;
 		}
 	}
 

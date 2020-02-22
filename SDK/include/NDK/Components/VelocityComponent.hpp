@@ -16,13 +16,14 @@ namespace Ndk
 
 	using VelocityComponentHandle = Nz::ObjectHandle<VelocityComponent>;
 
-	class NDK_API VelocityComponent : public Component<VelocityComponent>, public Nz::HandledObject<VelocityComponent>
+	class NDK_API VelocityComponent : public Component<VelocityComponent>
 	{
 		public:
-			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero());
+			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero(), Nz::CoordSys coordSystem = Nz::CoordSys_Global);
 			~VelocityComponent() = default;
 
 			Nz::Vector3f linearVelocity;
+			Nz::CoordSys coordSys;
 
 			VelocityComponent& operator=(const Nz::Vector3f& vel);
 

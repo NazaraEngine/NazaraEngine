@@ -6,6 +6,11 @@
 
 namespace Nz
 {
+	bool SoundStreamParams::IsValid() const
+	{
+		return true;
+	}
+
 	/*!
 	* \ingroup audio
 	* \class Nz::SoundStream
@@ -15,4 +20,21 @@ namespace Nz
 	*/
 
 	SoundStream::~SoundStream() = default;
+
+	SoundStreamRef SoundStream::OpenFromFile(const String& filePath, const SoundStreamParams& params)
+	{
+		return SoundStreamLoader::LoadFromFile(filePath, params);
+	}
+
+	SoundStreamRef SoundStream::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
+	{
+		return SoundStreamLoader::LoadFromMemory(data, size, params);
+	}
+
+	SoundStreamRef SoundStream::OpenFromStream(Stream& stream, const SoundStreamParams& params)
+	{
+		return SoundStreamLoader::LoadFromStream(stream, params);
+	}
+
+	SoundStreamLoader::LoaderList SoundStream::s_loaders;
 }

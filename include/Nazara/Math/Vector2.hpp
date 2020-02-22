@@ -33,8 +33,8 @@ namespace Nz
 			T AbsDotProduct(const Vector2& vec) const;
 			T AngleBetween(const Vector2& vec) const;
 
-			T Distance(const Vector2& vec) const;
-			float Distancef(const Vector2& vec) const;
+			template<typename U = T>
+			U Distance(const Vector2& vec) const;
 			T DotProduct(const Vector2& vec) const;
 
 			T GetLength() const;
@@ -55,7 +55,6 @@ namespace Nz
 			Vector2& Set(T X, T Y);
 			Vector2& Set(T scale);
 			Vector2& Set(const T vec[2]);
-			Vector2& Set(const Vector2& vec);
 			Vector2& Set(const Vector3<T>& vec);
 			Vector2& Set(const Vector4<T>& vec);
 			template<typename U> Vector2& Set(const Vector2<U>& vec);
@@ -92,6 +91,7 @@ namespace Nz
 			bool operator>(const Vector2& vec) const;
 			bool operator>=(const Vector2& vec) const;
 
+			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
 			static T DotProduct(const Vector2& vec1, const Vector2& vec2);
 			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
 			static Vector2 Normalize(const Vector2& vec);
@@ -108,7 +108,9 @@ namespace Nz
 	using Vector2i = Vector2<int>;
 	using Vector2ui = Vector2<unsigned int>;
 	using Vector2i32 = Vector2<Int32>;
+	using Vector2i64 = Vector2<Int64>;
 	using Vector2ui32 = Vector2<UInt32>;
+	using Vector2ui64 = Vector2<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector2<T>* vector, TypeTag<Vector2<T>>);

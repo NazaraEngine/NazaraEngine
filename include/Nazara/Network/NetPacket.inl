@@ -56,8 +56,11 @@ namespace Nz
 	m_netCode(packet.m_netCode)
 	{
 		///< Redirect memory stream to the moved buffer
-		m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
-		SetStream(&m_memoryStream);
+		if (m_buffer)
+		{
+			m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
+			SetStream(&m_memoryStream);
+		}
 	}
 
 	/*!
@@ -195,7 +198,7 @@ namespace Nz
 	* \param packet NetPacket to move in this
 	*/
 
-	inline NetPacket& Nz::NetPacket::operator=(NetPacket&& packet)
+	inline NetPacket& NetPacket::operator=(NetPacket&& packet)
 	{
 		FreeStream();
 
@@ -206,8 +209,13 @@ namespace Nz
 		m_netCode = packet.m_netCode;
 		
 		///< Redirect memory stream to the moved buffer
-		m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
-		SetStream(&m_memoryStream);
+		if (m_buffer)
+		{
+			m_memoryStream.SetBuffer(m_buffer.get(), m_memoryStream.GetOpenMode());
+			SetStream(&m_memoryStream);
+		}
+		else
+			SetStream(static_cast<Stream*>(nullptr));
 
 		return *this;
 	}

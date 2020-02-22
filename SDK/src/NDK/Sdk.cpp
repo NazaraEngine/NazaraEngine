@@ -17,11 +17,13 @@
 #include <NDK/BaseSystem.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
 #include <NDK/Components/CollisionComponent3D.hpp>
+#include <NDK/Components/LifetimeComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent3D.hpp>
 #include <NDK/Components/VelocityComponent.hpp>
 #include <NDK/Components/ConstraintComponent2D.hpp>
+#include <NDK/Systems/LifetimeSystem.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
@@ -88,6 +90,7 @@ namespace Ndk
 			// Shared components
 			InitializeComponent<CollisionComponent2D>("NdkColl2");
 			InitializeComponent<CollisionComponent3D>("NdkColl3");
+			InitializeComponent<LifetimeComponent>("NdkLiftm");
 			InitializeComponent<NodeComponent>("NdkNode");
 			InitializeComponent<PhysicsComponent2D>("NdkPhys2");
 			InitializeComponent<PhysicsComponent3D>("NdkPhys3");
@@ -110,6 +113,7 @@ namespace Ndk
 			BaseSystem::Initialize();
 
 			// Shared systems
+			InitializeSystem<LifetimeSystem>();
 			InitializeSystem<PhysicsSystem2D>();
 			InitializeSystem<PhysicsSystem3D>();
 			InitializeSystem<VelocitySystem>();

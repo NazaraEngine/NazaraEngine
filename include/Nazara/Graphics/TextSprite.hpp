@@ -59,6 +59,31 @@ namespace Nz
 			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void UpdateData(InstanceData* instanceData) const override;
 
+			struct RenderKey
+			{
+				Texture* texture;
+				int renderOrder;
+
+				bool operator==(const RenderKey& rhs) const
+				{
+					return texture == rhs.texture && renderOrder == rhs.renderOrder;
+				}
+
+				bool operator!=(const RenderKey& rhs) const
+				{
+					return !operator==(rhs);
+				}
+			};
+
+			struct HashRenderKey
+			{
+				std::size_t operator()(const RenderKey& key) const
+				{
+					// Since renderOrder will be very small, this will be enough
+					return std::hash<Texture*>()(key.texture) + key.renderOrder;
+				}
+			};
+
 			struct RenderIndices
 			{
 				unsigned int first;
@@ -74,10 +99,10 @@ namespace Nz
 			};
 
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
-			mutable std::unordered_map<Texture*, RenderIndices> m_renderInfos;
+			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
-			Recti m_localBounds;
+			Rectf m_localBounds;
 			float m_scale;
 
 			static TextSpriteLibrary::LibraryMap s_library;

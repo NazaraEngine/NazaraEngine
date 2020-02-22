@@ -16,7 +16,7 @@ namespace Ndk
 {
 	enum class DebugDraw
 	{
-		//TODO: Collider2D
+		Collider2D,
 		Collider3D,
 		GraphicsAABB,
 		GraphicsOBB,
@@ -40,6 +40,11 @@ namespace Ndk
 
 	constexpr DebugDrawFlags DebugDraw_None = 0;
 
+	class DebugComponent;
+	class GraphicsComponent;
+
+	using DebugComponentHandle = Nz::ObjectHandle<DebugComponent>;
+
 	class NDK_API DebugComponent : public Component<DebugComponent>
 	{
 		friend class DebugSystem;
@@ -61,8 +66,14 @@ namespace Ndk
 			static ComponentIndex componentIndex;
 
 		private:
+			void DetachDebugRenderables(GraphicsComponent& gfxComponent);
+
 			inline const Nz::InstancedRenderableRef& GetDebugRenderable(DebugDraw option) const;
 			inline DebugDrawFlags GetEnabledFlags() const;
+
+			void OnComponentDetached(BaseComponent& component) override;
+			void OnDetached() override;
+
 			inline void UpdateDebugRenderable(DebugDraw option, Nz::InstancedRenderableRef renderable);
 			inline void UpdateEnabledFlags(DebugDrawFlags flags);
 

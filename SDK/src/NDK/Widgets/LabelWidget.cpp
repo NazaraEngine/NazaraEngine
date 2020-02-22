@@ -13,22 +13,10 @@ namespace Ndk
 	{
 		m_textSprite = Nz::TextSprite::New();
 
-		m_textEntity = CreateEntity(true);
+		m_textEntity = CreateEntity();
 		m_textEntity->AddComponent<GraphicsComponent>().Attach(m_textSprite);
 		m_textEntity->AddComponent<NodeComponent>().SetParent(this);
 
 		Layout();
-	}
-
-	void LabelWidget::Layout()
-	{
-		BaseWidget::Layout();
-
-		m_textEntity->GetComponent<NodeComponent>().SetPosition(GetContentOrigin());
-	}
-
-	void LabelWidget::ResizeToContent()
-	{
-		SetContentSize(Nz::Vector2f(m_textSprite->GetBoundingVolume().obb.localBox.GetLengths()));
 	}
 }
