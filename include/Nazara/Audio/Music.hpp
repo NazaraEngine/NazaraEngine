@@ -39,7 +39,7 @@ namespace Nz
 
 			bool IsLooping() const override;
 
-			bool OpenFromFile(const String& filePath, const SoundStreamParams& params = SoundStreamParams());
+			bool OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params = SoundStreamParams());
 			bool OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params = SoundStreamParams());
 			bool OpenFromStream(Stream& stream, const SoundStreamParams& params = SoundStreamParams());
 

@@ -86,7 +86,7 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material is invalid
 	*/
-	const MaterialRef& Model::GetMaterial(const String& subMeshName) const
+	const MaterialRef& Model::GetMaterial(const std::string& subMeshName) const
 	{
 		NazaraAssert(m_mesh, "Model has no mesh");
 
@@ -113,7 +113,7 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material index is invalid
 	*/
-	const MaterialRef& Model::GetMaterial(std::size_t skinIndex, const String& subMeshName) const
+	const MaterialRef& Model::GetMaterial(std::size_t skinIndex, const std::string& subMeshName) const
 	{
 		NazaraAssert(m_mesh, "Model has no mesh");
 
@@ -160,7 +160,7 @@ namespace Nz
 	* \remark Produces a NazaraError if material index is invalid
 	*/
 
-	bool Model::SetMaterial(const String& subMeshName, MaterialRef material)
+	bool Model::SetMaterial(const std::string& subMeshName, MaterialRef material)
 	{
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
@@ -185,7 +185,7 @@ namespace Nz
 	* \remark Produces a NazaraError if there is no subMesh with that name
 	* \remark Produces a NazaraError if material index is invalid
 	*/
-	bool Model::SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material)
+	bool Model::SetMaterial(std::size_t skinIndex, const std::string& subMeshName, MaterialRef material)
 	{
 		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
 		if (!subMesh)
@@ -239,7 +239,7 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the model
 	*/
-	ModelRef Model::LoadFromFile(const String& filePath, const ModelParameters& params)
+	ModelRef Model::LoadFromFile(const std::filesystem::path& filePath, const ModelParameters& params)
 	{
 		return ModelLoader::LoadFromFile(filePath, params);
 	}

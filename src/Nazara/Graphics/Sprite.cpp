@@ -56,7 +56,7 @@ namespace Nz
 	*
 	* \return True if the material was found or loaded from its name/path, false if it couldn't
 	*/
-	bool Sprite::SetMaterial(String materialName, bool resizeSprite)
+	bool Sprite::SetMaterial(std::string materialName, bool resizeSprite)
 	{
 		MaterialRef material = MaterialLibrary::Query(materialName);
 		if (!material)
@@ -85,7 +85,7 @@ namespace Nz
 	*
 	* \return True if the material was found or loaded from its name/path, false if it couldn't
 	*/
-	bool Sprite::SetMaterial(std::size_t skinIndex, String materialName, bool resizeSprite)
+	bool Sprite::SetMaterial(std::size_t skinIndex, std::string materialName, bool resizeSprite)
 	{
 		MaterialRef material = MaterialLibrary::Query(materialName);
 		if (!material)
@@ -114,7 +114,7 @@ namespace Nz
 	*
 	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
 	*/
-	bool Sprite::SetTexture(String textureName, bool resizeSprite)
+	bool Sprite::SetTexture(std::string textureName, bool resizeSprite)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -144,7 +144,7 @@ namespace Nz
 	*
 	* \remark The sprite material gets copied to prevent accidentally changing other drawable materials
 	*/
-	bool Sprite::SetTexture(std::size_t skinIndex, String textureName, bool resizeSprite)
+	bool Sprite::SetTexture(std::size_t skinIndex, std::string textureName, bool resizeSprite)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)

@@ -7,6 +7,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -24,7 +25,7 @@ namespace Nz
 	* \param extension Extension of the file
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::IsFormatSupported(const String& extension)
+	bool ResourceSaver<Type, Parameters>::IsFormatSupported(const std::string& extension)
 	{
 		for (Saver& saver : Type::s_savers)
 		{
@@ -51,19 +52,18 @@ namespace Nz
 	* \see SaveToStream
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const String& filePath, const Parameters& parameters)
+	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters)
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
-		String path = File::NormalizePath(filePath);
-		String ext = path.SubStringFrom('.', -1, true).ToLower();
-		if (ext.IsEmpty())
+		std::string ext = ToLower(filePath.extension().generic_u8string());
+		if (ext.empty())
 		{
-			NazaraError("Failed to get file extension from \"" + filePath + '"');
+			NazaraError("Failed to get file extension from \"" + filePath.generic_u8string() + '"');
 			return false;
 		}
 
-		File file(path); // Opened only is required
+		File file(filePath.generic_u8string()); // Opened only is required
 
 		bool found = false;
 		for (Saver& saver : Type::s_savers)
@@ -86,7 +86,7 @@ namespace Nz
 			{
 				if (!file.Open(OpenMode_WriteOnly | OpenMode_Truncate))
 				{
-					NazaraError("Failed to save to file: unable to open \"" + filePath + "\" in write mode");
+					NazaraError("Failed to save to file: unable to open \"" + filePath.generic_u8string() + "\" in write mode");
 					return false;
 				}
 
@@ -117,7 +117,7 @@ namespace Nz
 	* \see SaveToFile
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const String& format, const Parameters& parameters)
+	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters)
 	{
 		NazaraAssert(stream.IsWritable(), "Stream is not writable");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");

@@ -10,10 +10,10 @@
 
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Thread.hpp> // Thread::Sleep
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <chrono>
 #include <iostream>
 
 int main()
@@ -61,7 +61,7 @@ int main()
 		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS
 
 		if (sleepTime > 0)
-			Nz::Thread::Sleep(sleepTime);
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 
 		// On bouge la source du son en fonction du temps depuis chaque mise à jour
 		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity()*clock.GetSeconds();

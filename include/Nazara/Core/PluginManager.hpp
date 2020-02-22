@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/String.hpp>
+#include <filesystem>
 #include <set>
 #include <unordered_map>
 
@@ -24,23 +24,32 @@ namespace Nz
 			PluginManager() = delete;
 			~PluginManager() = delete;
 
-			static void AddDirectory(const String& directoryPath);
+			static void AddDirectory(const std::filesystem::path& directoryPath);
 
 			static bool Initialize();
 
 			static bool Mount(Plugin plugin);
-			static bool Mount(const String& pluginPath, bool appendExtension = true);
+			static bool Mount(const std::filesystem::path& pluginPath, bool appendExtension = true);
 
-			static void RemoveDirectory(const String& directoryPath);
+			static void RemoveDirectory(const std::filesystem::path& directoryPath);
 
 			static void Unmount(Plugin plugin);
-			static void Unmount(const String& pluginPath);
+			static void Unmount(const std::filesystem::path& pluginPath);
 
 			static void Uninitialize();
 
 		private:
-			static std::set<String> s_directories;
-			static std::unordered_map<String, DynLib*> s_plugins;
+			// https://stackoverflow.com/questions/51065244/is-there-no-standard-hash-for-stdfilesystempath
+			struct PathHash
+			{
+				std::size_t operator()(const std::filesystem::path& p) const
+				{
+					return hash_value(p);
+				}
+			};
+
+			static std::set<std::filesystem::path> s_directories;
+			static std::unordered_map<std::filesystem::path, std::unique_ptr<DynLib>, PathHash> s_plugins;
 			static bool s_initialized;
 	};
 }

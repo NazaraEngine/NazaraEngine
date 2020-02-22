@@ -26,9 +26,9 @@ namespace Nz
 	struct NAZARA_UTILITY_API AnimationParams : ResourceParameters
 	{
 		// La frame de fin à charger
-		UInt32 endFrame = 0xFFFFFFFF;
+		std::size_t endFrame = 0xFFFFFFFF;
 		// La frame de début à charger
-		UInt32 startFrame = 0;
+		std::size_t startFrame = 0;
 
 		bool IsValid() const;
 	};
@@ -58,37 +58,37 @@ namespace Nz
 			~Animation();
 
 			bool AddSequence(const Sequence& sequence);
-			void AnimateSkeleton(Skeleton* targetSkeleton, UInt32 frameA, UInt32 frameB, float interpolation) const;
+			void AnimateSkeleton(Skeleton* targetSkeleton, std::size_t frameA, std::size_t frameB, float interpolation) const;
 
-			bool CreateSkeletal(UInt32 frameCount, UInt32 jointCount);
+			bool CreateSkeletal(std::size_t frameCount, std::size_t jointCount);
 			void Destroy();
 
 			void EnableLoopPointInterpolation(bool loopPointInterpolation);
 
-			UInt32 GetFrameCount() const;
-			UInt32 GetJointCount() const;
+			std::size_t GetFrameCount() const;
+			std::size_t GetJointCount() const;
 			Sequence* GetSequence(const String& sequenceName);
-			Sequence* GetSequence(UInt32 index);
+			Sequence* GetSequence(std::size_t index);
 			const Sequence* GetSequence(const String& sequenceName) const;
-			const Sequence* GetSequence(UInt32 index) const;
-			UInt32 GetSequenceCount() const;
-			UInt32 GetSequenceIndex(const String& sequenceName) const;
-			SequenceJoint* GetSequenceJoints(UInt32 frameIndex = 0);
-			const SequenceJoint* GetSequenceJoints(UInt32 frameIndex = 0) const;
+			const Sequence* GetSequence(std::size_t index) const;
+			std::size_t GetSequenceCount() const;
+			std::size_t GetSequenceIndex(const String& sequenceName) const;
+			SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0);
+			const SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0) const;
 			AnimationType GetType() const;
 
 			bool HasSequence(const String& sequenceName) const;
-			bool HasSequence(UInt32 index = 0) const;
+			bool HasSequence(std::size_t index = 0) const;
 
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
 			void RemoveSequence(const String& sequenceName);
-			void RemoveSequence(UInt32 index);
+			void RemoveSequence(std::size_t index);
 
 			template<typename... Args> static AnimationRef New(Args&&... args);
 
-			static AnimationRef LoadFromFile(const String& filePath, const AnimationParams& params = AnimationParams());
+			static AnimationRef LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params = AnimationParams());
 			static AnimationRef LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
 			static AnimationRef LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 

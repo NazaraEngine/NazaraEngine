@@ -13,6 +13,7 @@
 #include <Nazara/Lua/Config.hpp>
 #include <Nazara/Lua/Enums.hpp>
 #include <cstddef>
+#include <filesystem>
 #include <functional>
 #include <type_traits>
 
@@ -87,7 +88,7 @@ namespace Nz
 			void Error(const String& message) const;
 
 			bool Execute(const String& code, int errorHandler = 0);
-			bool ExecuteFromFile(const String& filePath, int errorHandler = 0);
+			bool ExecuteFromFile(const std::filesystem::path& filePath, int errorHandler = 0);
 			bool ExecuteFromMemory(const void* data, std::size_t size, int errorHandler = 0);
 			bool ExecuteFromStream(Stream& stream, int errorHandler = 0);
 
@@ -115,7 +116,7 @@ namespace Nz
 			bool IsValid(int index) const;
 
 			bool Load(const String& code);
-			bool LoadFromFile(const String& filePath);
+			bool LoadFromFile(const std::filesystem::path& filePath);
 			bool LoadFromMemory(const void* data, std::size_t size);
 			bool LoadFromStream(Stream& stream);
 

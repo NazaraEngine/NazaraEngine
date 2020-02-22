@@ -9,23 +9,21 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <filesystem>
 #include <windows.h>
 
 namespace Nz
 {
-	class String;
-
 	class DynLibImpl
 	{
 		public:
 			DynLibImpl(DynLib* m_parent);
 			DynLibImpl(const DynLibImpl&) = delete;
 			DynLibImpl(DynLibImpl&&) = delete; ///TODO?
-			~DynLibImpl() = default;
+			~DynLibImpl();
 
-			DynLibFunc GetSymbol(const String& symbol, String* errorMessage) const;
-			bool Load(const String& libraryPath, String* errorMessage);
-			void Unload();
+			DynLibFunc GetSymbol(const char* symbol, std::string* errorMessage) const;
+			bool Load(const std::filesystem::path& libraryPath, std::string* errorMessage);
 
 			DynLibImpl& operator=(const DynLibImpl&) = delete;
 			DynLibImpl& operator=(DynLibImpl&&) = delete; ///TODO?

@@ -34,7 +34,7 @@ namespace Nz
 			bool IsPlayable() const;
 			bool IsPlaying() const;
 
-			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 

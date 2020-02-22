@@ -94,7 +94,7 @@ namespace Ndk
 						}
 						else
 						{
-							Nz::PlacementNew(instance, Nz::Material::New(lua.Check<Nz::String>(&argIndex)));
+							Nz::PlacementNew(instance, Nz::Material::New(lua.Check<std::string>(&argIndex)));
 							return true;
 						}
 					}
@@ -114,7 +114,7 @@ namespace Ndk
 				}
 				else
 				{
-					lua.Push(instance->Configure(lua.Check<Nz::String>(&argIndex)));
+					lua.Push(instance->Configure(lua.Check<std::string>(&argIndex)));
 					return 1;
 				}
 			});
@@ -214,7 +214,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetAlphaMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetAlphaMap(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetDiffuseMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -226,7 +226,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetDiffuseMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetDiffuseMap(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetEmissiveMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -238,7 +238,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetEmissiveMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetEmissiveMap(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetHeightMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -250,7 +250,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetHeightMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetHeightMap(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetNormalMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -262,7 +262,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetNormalMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetNormalMap(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetShader", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -274,7 +274,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetShader(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetShader(lua.Check<std::string>(&argIndex)));
 			});
 
 			material.BindMethod("SetSpecularMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
@@ -286,7 +286,7 @@ namespace Ndk
 					return 0;
 				}
 				else
-					return lua.Push(instance->SetSpecularMap(lua.Check<Nz::String>(&argIndex)));
+					return lua.Push(instance->SetSpecularMap(lua.Check<std::string>(&argIndex)));
 			});
 		}
 
@@ -326,7 +326,7 @@ namespace Ndk
 						}
 						else if (lua.IsOfType(argIndex, Nz::LuaType_String))
 						{
-							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
+							std::string subMesh(lua.Check<std::string>(&argIndex));
 							Nz::MaterialRef mat(lua.Check<Nz::MaterialRef>(&argIndex));
 
 							instance->SetMaterial(subMesh, std::move(mat));
@@ -351,7 +351,7 @@ namespace Ndk
 						else if (lua.IsOfType(argIndex, Nz::LuaType_String))
 						{
 							std::size_t skinIndex(lua.Check<std::size_t>(&argIndex));
-							Nz::String subMesh(lua.Check<Nz::String>(&argIndex));
+							std::string subMesh(lua.Check<std::string>(&argIndex));
 							Nz::MaterialRef materialRef(lua.Check<Nz::MaterialRef>(&argIndex));
 
 							instance->SetMaterial(skinIndex, subMesh, std::move(materialRef));
@@ -423,7 +423,7 @@ namespace Ndk
 					if (lua.IsOfType(argIndex, "Material"))
 						instance->SetMaterial(skinIndex, *static_cast<Nz::MaterialRef*>(lua.ToUserdata(argIndex)), resizeSprite);
 					else
-						instance->SetMaterial(skinIndex, lua.Check<Nz::String>(&argIndex), resizeSprite);
+						instance->SetMaterial(skinIndex, lua.Check<std::string>(&argIndex), resizeSprite);
 				}
 
 				return 0;
@@ -452,7 +452,7 @@ namespace Ndk
 					if (lua.IsOfType(argIndex, "Texture"))
 						instance->SetTexture(skinIndex, *static_cast<Nz::TextureRef*>(lua.ToUserdata(argIndex)), resizeSprite);
 					else
-						instance->SetTexture(skinIndex, lua.Check<Nz::String>(&argIndex), resizeSprite);
+						instance->SetTexture(skinIndex, lua.Check<std::string>(&argIndex), resizeSprite);
 				}
 
 				return 0;

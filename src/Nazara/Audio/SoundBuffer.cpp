@@ -269,7 +269,7 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the sound buffer
 	*/
-	SoundBufferRef SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	SoundBufferRef SoundBuffer::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
 	{
 		return SoundBufferLoader::LoadFromFile(filePath, params);
 	}

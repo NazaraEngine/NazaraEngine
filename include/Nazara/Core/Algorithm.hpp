@@ -32,6 +32,33 @@ namespace Nz
 	template<typename T> T ReverseBits(T integer);
 
 	template<typename T>
+	struct AlwaysFalse : std::false_type {};
+
+	template<typename... Args>
+	struct OverloadResolver
+	{
+		template<typename R, typename T>
+		constexpr auto operator()(R(T::* ptr)(Args...)) const noexcept
+		{
+			return ptr;
+		}
+
+		template<typename R, typename T>
+		constexpr auto operator()(R(T::* ptr)(Args...) const) const noexcept
+		{
+			return ptr;
+		}
+
+		template<typename R>
+		constexpr auto operator()(R(*ptr)(Args...)) const noexcept
+		{
+			return ptr;
+		}
+	};
+
+	template<typename... Args> constexpr OverloadResolver<Args...> Overload = {};
+
+	template<typename T>
 	struct PointedType
 	{
 		using type = void; //< FIXME: I can't make SFINAE work

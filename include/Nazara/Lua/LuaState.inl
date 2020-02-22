@@ -43,6 +43,16 @@ namespace Nz
 		return 1;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::filesystem::path* arg, TypeTag<std::filesystem::path>)
+	{
+		std::size_t strLength = 0;
+		const char* str = instance.CheckString(index, &strLength);
+
+		arg->assign(std::string_view(str, strLength));
+
+		return 1;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& instance, int index, std::string* arg, TypeTag<std::string>)
 	{
 		std::size_t strLength = 0;
@@ -270,6 +280,11 @@ namespace Nz
 	{
 		instance.PushString(val.c_str(), val.size());
 		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& instance, std::filesystem::path&& val, TypeTag<std::filesystem::path>)
+	{
+		return LuaImplReplyVal(instance, val.generic_u8string(), TypeTag<std::string>());
 	}
 
 	template<typename T>

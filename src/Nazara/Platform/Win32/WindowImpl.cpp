@@ -5,10 +5,7 @@
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
 #include <Nazara/Platform/Win32/WindowImpl.hpp>
-#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
@@ -130,15 +127,15 @@ namespace Nz
 
 		if (async)
 		{
-			Mutex mutex;
-			ConditionVariable condition;
+			std::mutex mutex;
+			std::condition_variable condition;
 			m_threadActive = true;
 
 			// On attend que la fenêtre soit créée
-			mutex.Lock();
-			m_thread = Thread(WindowThread, &m_handle, win32StyleEx, title, win32Style, fullscreen, Rectui(x, y, width, height), this, &mutex, &condition);
-			condition.Wait(&mutex);
-			mutex.Unlock();
+			std::unique_lock<std::mutex> lock(mutex);
+			m_thread = std::thread(WindowThread, std::ref(m_handle), win32StyleEx, title, win32Style, fullscreen, Rectui(x, y, width, height), this, std::ref(mutex), std::ref(condition));
+
+			condition.wait(lock);
 		}
 		else
 			m_handle = CreateWindowExW(win32StyleEx, className, title.GetWideString().data(), win32Style, x, y, width, height, nullptr, nullptr, GetModuleHandle(nullptr), this);
@@ -186,12 +183,12 @@ namespace Nz
 		{
 			if (m_style & WindowStyle_Threaded)
 			{
-				if (m_thread.IsJoinable())
+				if (m_thread.joinable())
 				{
 					m_threadActive = false;
 					PostMessageW(m_handle, WM_NULL, 0, 0); // Wake up our thread
 
-					m_thread.Join();
+					m_thread.join();
 				}
 			}
 			else
@@ -1151,24 +1148,24 @@ namespace Nz
 		return style;
 	}
 
-	void WindowImpl::WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
+	void WindowImpl::WindowThread(HWND& handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, std::mutex& mutex, std::condition_variable& condition)
 	{
-		HWND& winHandle = *handle;
-		winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, dimensions.x, dimensions.y, dimensions.width, dimensions.height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+		handle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, dimensions.x, dimensions.y, dimensions.width, dimensions.height, nullptr, nullptr, GetModuleHandle(nullptr), window);
 
-		if (winHandle)
+		if (handle)
 			window->PrepareWindow(fullscreen);
 
-		mutex->Lock();
-		condition->Signal();
-		mutex->Unlock(); // mutex and condition may be destroyed after this line
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+			condition.notify_all();
+		}
 
-		if (!winHandle)
+		if (!handle)
 			return;
 
 		while (window->m_threadActive)
 			window->ProcessEvents(true);
 
-		DestroyWindow(winHandle);
+		DestroyWindow(handle);
 	}
 }

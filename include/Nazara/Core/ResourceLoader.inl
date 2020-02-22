@@ -7,6 +7,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -24,7 +25,7 @@ namespace Nz
 	* \param extension Extension of the file
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const String& extension)
+	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const std::string& extension)
 	{
 		for (Loader& loader : Type::s_loaders)
 		{
@@ -53,19 +54,21 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const String& filePath, const Parameters& parameters)
+	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters)
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
-		String path = File::NormalizePath(filePath);
-		String ext = path.SubStringFrom('.', -1, true).ToLower();
-		if (ext.IsEmpty())
+		std::string ext = ToLower(filePath.extension().generic_u8string());
+		if (ext.empty())
 		{
-			NazaraError("Failed to get file extension from \"" + filePath + '"');
+			NazaraError("Failed to get file extension from \"" + filePath.generic_u8string() + '"');
 			return nullptr;
 		}
 
-		File file(path); // Open only if needed
+		if (ext[0] == '.')
+			ext.erase(ext.begin());
+
+		File file(filePath.generic_u8string()); // Open only if needed
 
 		bool found = false;
 		for (Loader& loader : Type::s_loaders)
@@ -82,7 +85,7 @@ namespace Nz
 			{
 				if (!file.Open(OpenMode_ReadOnly))
 				{
-					NazaraError("Failed to load file: unable to open \"" + filePath + '"');
+					NazaraError("Failed to load file: unable to open \"" + filePath.generic_u8string() + '"');
 					return nullptr;
 				}
 			}

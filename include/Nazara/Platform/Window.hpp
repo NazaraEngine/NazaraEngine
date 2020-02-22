@@ -10,9 +10,7 @@
 #define NAZARA_WINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -23,6 +21,8 @@
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <condition_variable>
+#include <mutex>
 #include <queue>
 
 namespace Nz
@@ -126,13 +126,13 @@ namespace Nz
 
 			std::queue<WindowEvent> m_events;
 			std::vector<WindowEvent> m_pendingEvents;
-			ConditionVariable m_eventCondition;
+			std::condition_variable m_eventCondition;
 			CursorController m_cursorController;
 			CursorRef m_cursor;
 			EventHandler m_eventHandler;
 			IconRef m_icon;
-			Mutex m_eventMutex;
-			Mutex m_eventConditionMutex;
+			std::mutex m_eventMutex;
+			std::mutex m_eventConditionMutex;
 			bool m_asyncWindow;
 			bool m_closed;
 			bool m_closeOnQuit;

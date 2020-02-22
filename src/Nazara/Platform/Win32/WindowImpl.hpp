@@ -11,7 +11,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/String.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -19,12 +18,13 @@
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 #include <windows.h>
 
 namespace Nz
 {
-	class ConditionVariable;
-	class Mutex;
 	class Window;
 
 	#undef IsMinimized // Conflits with windows.h redefinition
@@ -87,7 +87,7 @@ namespace Nz
 			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			static UInt32 RetrieveStyle(HWND window);
-			static void WindowThread(HWND* handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
+			static void WindowThread(HWND& handle, DWORD styleEx, const String& title, DWORD style, bool fullscreen, const Rectui& dimensions, WindowImpl* window, std::mutex& mutex, std::condition_variable& condition);
 
 			HCURSOR m_cursor;
 			HWND m_handle;
@@ -98,7 +98,7 @@ namespace Nz
 			Vector2i m_mousePos;
 			Vector2i m_position;
 			Vector2ui m_size;
-			Thread m_thread;
+			std::thread m_thread;
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_keyRepeat;

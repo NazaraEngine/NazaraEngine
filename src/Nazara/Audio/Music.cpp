@@ -5,12 +5,11 @@
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Core/LockGuard.hpp>
-#include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <atomic>
+#include <chrono>
 #include <memory>
-#include <iostream>
+#include <mutex>
+#include <thread>
 #include <vector>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -29,9 +28,9 @@ namespace Nz
 		ALenum audioFormat;
 		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
-		Mutex bufferLock;
+		std::mutex bufferLock;
 		SoundStreamRef stream;
-		Thread thread;
+		std::thread thread;
 		UInt64 playingOffset;
 		bool loop = false;
 		bool streaming = false;
@@ -142,7 +141,7 @@ namespace Nz
 		NazaraAssert(m_impl, "Music not created");
 
 		// Prevent music thread from enqueing new buffers while we're getting the count
-		Nz::LockGuard lock(m_impl->bufferLock);
+		std::lock_guard<std::mutex> lock(m_impl->bufferLock);
 
 		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
@@ -215,7 +214,7 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the music
 	*/
-	bool Music::OpenFromFile(const String& filePath, const SoundStreamParams& params)
+	bool Music::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
 		if (SoundStreamRef soundStream = SoundStream::OpenFromFile(filePath, params))
 			return Create(soundStream);
@@ -305,7 +304,7 @@ namespace Nz
 		{
 			// Starting streaming's thread
 			m_impl->streaming = true;
-			m_impl->thread = Thread(&Music::MusicThread, this);
+			m_impl->thread = std::thread(&Music::MusicThread, this);
 		}
 	}
 
@@ -351,29 +350,28 @@ namespace Nz
 	{
 		std::size_t sampleCount = m_impl->chunkSamples.size();
 		std::size_t sampleRead = 0;
-
-		Nz::LockGuard lock(m_impl->stream->GetMutex());
-
-		m_impl->stream->Seek(m_impl->playingOffset);
-
-		// Fill the buffer by reading from the stream
-		for (;;)
 		{
-			sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
-			if (sampleRead < sampleCount && m_impl->loop)
+			std::lock_guard<std::mutex> lock(m_impl->stream->GetMutex());
+
+			m_impl->stream->Seek(m_impl->playingOffset);
+
+			// Fill the buffer by reading from the stream
+			for (;;)
 			{
-				// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
-				m_impl->stream->Seek(0);
-				continue;
+				sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
+				if (sampleRead < sampleCount && m_impl->loop)
+				{
+					// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
+					m_impl->stream->Seek(0);
+					continue;
+				}
+
+				// Either we read the size we wanted, either we're not looping
+				break;
 			}
 
-			// Either we read the size we wanted, either we're not looping
-			break;
+			m_impl->playingOffset = m_impl->stream->Tell();
 		}
-
-		m_impl->playingOffset = m_impl->stream->Tell();
-
-		lock.Unlock();
 
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
@@ -410,31 +408,31 @@ namespace Nz
 				break;
 			}
 
-			Nz::LockGuard lock(m_impl->bufferLock);
-
-			// We treat read buffers
-			ALint processedCount = 0;
-			alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
-			while (processedCount--)
 			{
-				ALuint buffer;
-				alSourceUnqueueBuffers(m_source, 1, &buffer);
+				std::lock_guard<std::mutex> lock(m_impl->bufferLock);
 
-				ALint bits, size;
-				alGetBufferi(buffer, AL_BITS, &bits);
-				alGetBufferi(buffer, AL_SIZE, &size);
+				// We treat read buffers
+				ALint processedCount = 0;
+				alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
+				while (processedCount--)
+				{
+					ALuint buffer;
+					alSourceUnqueueBuffers(m_source, 1, &buffer);
 
-				if (bits != 0)
-					m_impl->processedSamples += (8 * size) / bits;
+					ALint bits, size;
+					alGetBufferi(buffer, AL_BITS, &bits);
+					alGetBufferi(buffer, AL_SIZE, &size);
 
-				if (FillAndQueueBuffer(buffer))
-					break;
+					if (bits != 0)
+						m_impl->processedSamples += (8 * size) / bits;
+
+					if (FillAndQueueBuffer(buffer))
+						break;
+				}
 			}
 
-			lock.Unlock();
-
 			// We go back to sleep
-			Thread::Sleep(50);
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
 		// Stop playing of the sound (in the case where it has not been already done)
@@ -456,7 +454,7 @@ namespace Nz
 		if (m_impl->streaming)
 		{
 			m_impl->streaming = false;
-			m_impl->thread.Join();
+			m_impl->thread.join();
 		}
 	}
 }

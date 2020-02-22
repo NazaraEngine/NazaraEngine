@@ -80,7 +80,7 @@ namespace Ndk
 			music.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Music& instance, std::size_t /*argumentCount*/) -> int
 			{
 				Nz::StringStream ss("Music(");
-				ss << instance.GetFilePath() << ')';
+				ss << instance.GetFilePath().generic_u8string() << ')';
 
 				lua.PushString(ss);
 				return 1;
@@ -169,9 +169,9 @@ namespace Ndk
 				Nz::StringStream ss("SoundBuffer(");
 				if (instance->IsValid())
 				{
-					Nz::String filePath = instance->GetFilePath();
-					if (!filePath.IsEmpty())
-						ss << "File: " << filePath << ", ";
+					std::filesystem::path filePath = instance->GetFilePath();
+					if (!filePath.empty())
+						ss << "File: " << filePath.generic_u8string() << ", ";
 
 					ss << "Duration: " << instance->GetDuration() / 1000.f << "s";
 				}

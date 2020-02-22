@@ -11,6 +11,7 @@
 #include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <filesystem>
 
 namespace Nz
 {
@@ -36,7 +37,7 @@ namespace Nz
 
 			void SetSource(const char* source, unsigned int length);
 			void SetSource(const String& source);
-			bool SetSourceFromFile(const String& filePath);
+			bool SetSourceFromFile(const std::filesystem::path& filePath);
 
 			ShaderStage& operator=(const ShaderStage&) = delete;
 			ShaderStage& operator=(ShaderStage&& shader);

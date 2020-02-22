@@ -7,6 +7,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/UberShaderPreprocessor.hpp>
+#include <filesystem>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -29,7 +30,7 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/PhongLighting/core.vert.h>
 		};
 
-		void OverrideShader(const String& path, String* source)
+		void OverrideShader(const std::filesystem::path& path, String* source)
 		{
 			ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
 
@@ -46,7 +47,7 @@ namespace Nz
 
 				*source = shaderSource;
 
-				NazaraNotice(path + " will be used to override built-in shader");
+				NazaraNotice(path.generic_u8string() + " will be used to override built-in shader");
 			}
 		}
 	}

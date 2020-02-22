@@ -62,7 +62,7 @@ namespace Nz
 		m_attachedShaders[stage].push_back(shader);
 	}
 
-	bool Shader::AttachStageFromFile(ShaderStageType stage, const String& filePath)
+	bool Shader::AttachStageFromFile(ShaderStageType stage, const std::filesystem::path& filePath)
 	{
 		ShaderStage shaderStage(stage);
 		if (!shaderStage.IsValid())

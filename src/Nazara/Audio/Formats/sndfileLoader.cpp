@@ -14,9 +14,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
-#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <iostream>
 #include <memory>
 #include <set>
 #include <vector>
@@ -99,7 +97,7 @@ namespace Nz
 						return m_format;
 				}
 
-				Mutex& GetMutex() override
+				std::mutex& GetMutex() override
 				{
 					return m_mutex;
 				}
@@ -114,11 +112,11 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				bool Open(const String& filePath, bool forceMono)
+				bool Open(const std::filesystem::path& filePath, bool forceMono)
 				{
 					// Nous devons gérer nous-même le flux car il doit rester ouvert après le passage du loader
 					// (les flux automatiquement ouverts par le ResourceLoader étant fermés après celui-ci)
-					std::unique_ptr<File> file(new File);
+					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode_ReadOnly))
 					{
 						NazaraError("Failed to open stream from file: " + Error::GetLastError());
@@ -219,15 +217,15 @@ namespace Nz
 				AudioFormat m_format;
 				SNDFILE* m_handle;
 				bool m_mixToMono;
-				Mutex m_mutex;
+				std::mutex m_mutex;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_sampleCount;
 		};
 
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
-			static std::set<String> supportedExtensions = {
+			static std::set<std::string> supportedExtensions = {
 				"aiff", "au", "avr", "caf", "flac", "htk", "ircam", "mat4", "mat5", "mpc2k",
 				"nist","ogg", "pvf", "raw", "rf64", "sd2", "sds", "svx", "voc", "w64", "wav", "wve"
 			};
@@ -253,9 +251,9 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		SoundStreamRef LoadSoundStreamFile(const String& filePath, const SoundStreamParams& parameters)
+		SoundStreamRef LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			std::unique_ptr<sndfileStream> soundStream = std::make_unique<sndfileStream>();
 			if (!soundStream->Open(filePath, parameters.forceMono))
 			{
 				NazaraError("Failed to open sound stream");

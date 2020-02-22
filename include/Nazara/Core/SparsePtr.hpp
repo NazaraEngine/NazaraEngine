@@ -46,7 +46,7 @@ namespace Nz
 			operator T*() const;
 			T& operator*() const;
 			T* operator->() const;
-			T& operator[](int index) const;
+			T& operator[](std::size_t index) const;
 
 			SparsePtr& operator=(const SparsePtr& ptr) = default;
 
