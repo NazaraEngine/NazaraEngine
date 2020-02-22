@@ -6,6 +6,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
+#include <NDK/Systems/LifetimeSystem.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
@@ -43,6 +44,7 @@ namespace Ndk
 
 	void World::AddDefaultSystems()
 	{
+		AddSystem<LifetimeSystem>();
 		AddSystem<PhysicsSystem2D>();
 		AddSystem<PhysicsSystem3D>();
 		AddSystem<VelocitySystem>();
@@ -133,9 +135,9 @@ namespace Ndk
 		m_waitingEntities.clear();
 
 		m_aliveEntities.Clear();
-		m_dirtyEntities.Clear();
+		m_dirtyEntities.front.Clear();
 		m_freeEntityIds.Clear();
-		m_killedEntities.Clear();
+		m_killedEntities.front.Clear();
 	}
 
 	/*!
@@ -155,16 +157,26 @@ namespace Ndk
 			return EntityHandle::InvalidHandle;
 		}
 
+		return CloneEntity(original);
+	}
+
+	/*!
+	* \brief Clones the entity
+	* \return The clone newly created
+	*
+	* \param original Entity handle
+	*
+	* \remark Cloning a disabled entity will produce an enabled clone
+	*/
+	const EntityHandle& World::CloneEntity(const EntityHandle& original)
+	{
 		const EntityHandle& clone = CreateEntity();
 		if (!original->IsEnabled())
 			clone->Disable();
 
 		const Nz::Bitset<>& componentBits = original->GetComponentBits();
 		for (std::size_t i = componentBits.FindFirst(); i != componentBits.npos; i = componentBits.FindNext(i))
-		{
-			std::unique_ptr<BaseComponent> component(original->GetComponent(ComponentIndex(i)).Clone());
-			clone->AddComponent(std::move(component));
-		}
+			clone->AddComponent(original->GetComponent(ComponentIndex(i)).Clone());
 
 		clone->Enable();
 
@@ -208,7 +220,8 @@ namespace Ndk
 		}
 
 		// Handle killed entities before last call
-		for (std::size_t i = m_killedEntities.FindFirst(); i != m_killedEntities.npos; i = m_killedEntities.FindNext(i))
+		std::swap(m_killedEntities.front, m_killedEntities.back);
+		for (std::size_t i = m_killedEntities.back.FindFirst(); i != m_killedEntities.back.npos; i = m_killedEntities.back.FindNext(i))
 		{
 			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
@@ -218,12 +231,13 @@ namespace Ndk
 			entity->Destroy();
 
 			// Send back the identifier of the entity to the free queue
-			m_freeEntityIds.UnboundedSet(entity->GetId());
+			m_freeEntityIds.UnboundedSet(i);
 		}
-		m_killedEntities.Reset();
+		m_killedEntities.back.Clear();
 
 		// Handle of entities which need an update from the systems
-		for (std::size_t i = m_dirtyEntities.FindFirst(); i != m_dirtyEntities.npos; i = m_dirtyEntities.FindNext(i))
+		std::swap(m_dirtyEntities.front, m_dirtyEntities.back);
+		for (std::size_t i = m_dirtyEntities.back.FindFirst(); i != m_dirtyEntities.back.npos; i = m_dirtyEntities.back.FindNext(i))
 		{
 			NazaraAssert(i < m_entityBlocks.size(), "Entity index out of range");
 
@@ -234,9 +248,8 @@ namespace Ndk
 				continue;
 
 			Nz::Bitset<>& removedComponents = entity->GetRemovedComponentBits();
-			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.npos; j = removedComponents.FindNext(j))
-				entity->DestroyComponent(static_cast<Ndk::ComponentIndex>(j));
-			removedComponents.Reset();
+			for (std::size_t j = removedComponents.FindFirst(); j != m_dirtyEntities.back.npos; j = removedComponents.FindNext(j))
+				entity->DropComponent(static_cast<Ndk::ComponentIndex>(j));
 
 			for (auto& system : m_orderedSystems)
 			{
@@ -260,7 +273,7 @@ namespace Ndk
 				}
 			}
 		}
-		m_dirtyEntities.Reset();
+		m_dirtyEntities.back.Clear();
 	}
 
 	/*!

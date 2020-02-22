@@ -52,7 +52,7 @@ namespace Nz
 					return nullptr;
 				}
 
-				if (!newTexture->Update(image, Rectui(0, 0, image.GetWidth(), image.GetHeight())))
+				if (!newTexture->Update(&image, Rectui(0, 0, image.GetWidth(), image.GetHeight())))
 				{
 					NazaraError("Failed to update texture");
 					return nullptr;

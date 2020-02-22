@@ -42,7 +42,7 @@ namespace Ndk
 			NodeComponent& node = entity->GetComponent<NodeComponent>();
 			const VelocityComponent& velocity = entity->GetComponent<VelocityComponent>();
 
-			node.Move(velocity.linearVelocity * elapsedTime, Nz::CoordSys_Global);
+			node.Move(velocity.linearVelocity * elapsedTime, velocity.coordSys);
 		}
 	}
 

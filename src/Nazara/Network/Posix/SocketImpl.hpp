@@ -40,7 +40,6 @@ namespace Nz
 			static void Close(SocketHandle handle);
 
 			static SocketState Connect(SocketHandle handle, const IpAddress& address, SocketError* error);
-			static SocketState Connect(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Initialize();
 
@@ -61,6 +60,7 @@ namespace Nz
 			static std::size_t QuerySendBufferSize(SocketHandle handle, SocketError* error = nullptr);
 
 			static unsigned int Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error);
+			static SocketState PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error);
 
 			static bool Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error);
 			static bool ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error);

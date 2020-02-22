@@ -50,7 +50,7 @@
 #define NAZARA_CORE_FILE_BUFFERSIZE 4096
 
 // Incorporate the Unicode Character Data table (Necessary to make it work with the flag String::HandleUTF8)
-#define NAZARA_CORE_INCLUDE_UNICODEDATA 0
+#define NAZARA_CORE_INCLUDE_UNICODEDATA 1
 
 // Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
 #define NAZARA_CORE_MANAGE_MEMORY 0

@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Debug.hpp>
@@ -88,20 +89,6 @@ namespace Nz
 	inline void Window::SetCursor(SystemCursor systemCursor)
 	{
 		SetCursor(Cursor::Get(systemCursor));
-	}
-
-	inline void Window::HandleEvent(const WindowEvent& event)
-	{
-		if (m_eventPolling)
-			m_events.push(event);
-
-		m_eventHandler.Dispatch(event);
-
-		if (event.type == WindowEventType_Resized)
-			OnWindowResized();
-
-		if (event.type == WindowEventType_Quit && m_closeOnQuit)
-			Close();
 	}
 
 	inline void Window::PushEvent(const WindowEvent& event)

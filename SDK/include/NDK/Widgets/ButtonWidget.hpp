@@ -23,14 +23,10 @@ namespace Ndk
 	class NDK_API ButtonWidget : public BaseWidget
 	{
 		public:
-			ButtonWidget(BaseWidget* parent = nullptr);
+			ButtonWidget(BaseWidget* parent);
 			ButtonWidget(const ButtonWidget&) = delete;
 			ButtonWidget(ButtonWidget&&) = default;
 			~ButtonWidget() = default;
-
-			//virtual ButtonWidget* Clone() const = 0;
-
-			void ResizeToContent() override;
 
 			inline const Nz::Color& GetColor() const;
 			inline const Nz::Color& GetCornerColor() const;

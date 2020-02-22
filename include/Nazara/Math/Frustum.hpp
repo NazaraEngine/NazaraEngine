@@ -52,7 +52,6 @@ namespace Nz
 
 			Frustum& operator=(const Frustum& other) = default;
 
-			Frustum& Set(const Frustum& frustum);
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
 			String ToString() const;

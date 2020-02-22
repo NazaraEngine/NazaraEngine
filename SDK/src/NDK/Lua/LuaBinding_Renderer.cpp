@@ -44,21 +44,6 @@ namespace Ndk
 			texture.BindMethod("InvalidateMipmaps", &Nz::Texture::InvalidateMipmaps);
 			texture.BindMethod("IsValid", &Nz::Texture::IsValid);
 
-			texture.BindMethod("LoadFromFile", &Nz::Texture::LoadFromFile, true, Nz::ImageParams());
-			//bool LoadFromImage(const Image& image, bool generateMipmaps = true);
-			//bool LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-			//bool LoadFromStream(Stream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
-
-			texture.BindMethod("LoadArrayFromFile", &Nz::Texture::LoadArrayFromFile, Nz::Vector2ui(2, 2), true, Nz::ImageParams());
-			//bool LoadArrayFromImage(const Image& image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			//bool LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			//bool LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
-
-			//bool LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-			//bool LoadCubemapFromImage(const Image& image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
-			//bool LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-			//bool LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
-
 			texture.BindMethod("LoadFaceFromFile", &Nz::Texture::LoadFaceFromFile, Nz::ImageParams());
 			//bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			//bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
@@ -71,6 +56,21 @@ namespace Ndk
 			texture.BindStaticMethod("IsFormatSupported", &Nz::Texture::IsFormatSupported);
 			texture.BindStaticMethod("IsMipmappingSupported", &Nz::Texture::IsMipmappingSupported);
 			texture.BindStaticMethod("IsTypeSupported", &Nz::Texture::IsTypeSupported);
+
+			texture.BindStaticMethod("LoadFromFile", &Nz::Texture::LoadFromFile, true, Nz::ImageParams());
+			//TextureRef LoadFromImage(const Image& image, bool generateMipmaps = true);
+			//TextureRef LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+			//TextureRef LoadFromStream(Stream& stream, const ImageParams& params = ImageParams(), bool generateMipmaps = true);
+
+			texture.BindStaticMethod("LoadArrayFromFile", &Nz::Texture::LoadArrayFromFile, Nz::Vector2ui(2, 2), true, Nz::ImageParams());
+			//TextureRef LoadArrayFromImage(const Image& image, bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			//TextureRef LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			//TextureRef LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const Vector2ui& atlasSize = Vector2ui(2, 2));
+
+			//TextureRef LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			//TextureRef LoadCubemapFromImage(const Image& image, bool generateMipmaps = true, const CubemapParams& params = CubemapParams());
+			//TextureRef LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
+			//TextureRef LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), bool generateMipmaps = true, const CubemapParams& cubemapParams = CubemapParams());
 		}
 
 		/*********************************** Nz::TextureLibrary ***********************************/

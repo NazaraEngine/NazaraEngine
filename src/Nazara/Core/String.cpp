@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#include <locale>
 #include <sstream>
 #include <Utfcpp/utf8.h>
 #include <Nazara/Core/Debug.hpp>
@@ -976,7 +977,7 @@ namespace Nz
 		if (pos >= m_sharedString->size)
 			return npos;
 
-		char* ptr = &m_sharedString->string[m_sharedString->size-1];
+		char* ptr = &m_sharedString->string[pos];
 
 		if (flags & CaseInsensitive)
 		{
@@ -1751,7 +1752,7 @@ namespace Nz
 			return npos;
 
 		///Algo 3.FindWord#3 (Size of the pattern unknown)
-		const char* ptr = m_sharedString->string.get();
+		const char* ptr = &m_sharedString->string[pos];
 		if (flags & HandleUtf8)
 		{
 			if (utf8::internal::is_trail(*ptr))
@@ -1931,7 +1932,7 @@ namespace Nz
 		if (pos >= m_sharedString->size)
 			return npos;
 
-		char* ptr = m_sharedString->string.get();
+		char* ptr = &m_sharedString->string[pos];
 		if (flags & HandleUtf8)
 		{
 			///Algo 3.FindWord#3 (Iterator too slow for #2)
@@ -5121,6 +5122,7 @@ namespace Nz
 	String String::Number(float number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 
@@ -5137,6 +5139,7 @@ namespace Nz
 	String String::Number(double number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 
@@ -5153,6 +5156,7 @@ namespace Nz
 	String String::Number(long double number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 

@@ -4,3 +4,10 @@
 
 #include <NDK/Systems/DebugSystem.hpp>
 
+namespace Ndk
+{
+	inline bool DebugSystem::IsDepthBufferEnabled() const
+	{
+		return m_isDepthBufferEnabled;
+	}
+}

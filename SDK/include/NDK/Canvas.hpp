@@ -28,10 +28,11 @@ namespace Ndk
 
 			inline const WorldHandle& GetWorld() const;
 
-			void ResizeToContent() override;
-
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
+
+			NazaraSignal(OnUnhandledKeyPressed, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyReleased, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
 
 		protected:
 			inline void ClearKeyboardOwner(std::size_t canvasIndex);
@@ -50,8 +51,9 @@ namespace Ndk
 		private:
 			void OnEventMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
-			void OnEventMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
 			void OnEventMouseLeft(const Nz::EventHandler* eventHandler);
+			void OnEventMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
+			void OnEventMouseWheelMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseWheelEvent& event);
 			void OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
@@ -67,8 +69,9 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnKeyReleased, m_keyReleasedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
+			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
+			NazaraSlot(Nz::EventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
 			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
 
 			std::size_t m_keyboardOwner;

@@ -417,7 +417,10 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::Set(const T vec[4])
 	{
-		std::memcpy(&x, vec, 4*sizeof(T));
+		x = vec[0];
+		y = vec[1];
+		z = vec[2];
+		w = vec[3];
 
 		return *this;
 	}
@@ -455,21 +458,6 @@ namespace Nz
 		y = vec.y;
 		z = vec.z;
 		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another vector
-	* \return A reference to this vector
-	*
-	* \param vec The other vector
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const Vector4& vec)
-	{
-		std::memcpy(this, &vec, sizeof(Vector4));
 
 		return *this;
 	}
@@ -900,6 +888,21 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Calculates the dot (scalar) product with two vectors
+	* \return The value of the dot product
+	*
+	* \param vec1 The first vector to calculate the dot product with
+	* \param vec2 The second vector to calculate the dot product with
+	*
+	* \see AbsDotProduct, DotProduct
+	*/
+	template<typename T>
+	T Vector4<T>::DotProduct(const Vector4& vec1, const Vector4& vec2)
+	{
+		return vec1.DotProduct(vec2);
+	}
+
+	/*!
 	* \brief Interpolates the vector to other one with a factor of interpolation
 	* \return A new vector which is the interpolation of two vectors
 	*
@@ -911,7 +914,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Vector4<T> Vector4<T>::Lerp(const Vector4& from, const Vector4& to, T interpolation)
 	{

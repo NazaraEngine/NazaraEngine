@@ -55,9 +55,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Matrix4<T>::Matrix4(const T matrix[16])
+	Matrix4<T>::Matrix4(const T matrix[16]) :
+	Matrix4(matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
+	        matrix[ 4], matrix[ 5], matrix[ 6], matrix[ 7],
+	        matrix[ 8], matrix[ 9], matrix[10], matrix[11],
+	        matrix[12], matrix[13], matrix[14], matrix[15])
 	{
-		Set(matrix);
 	}
 
 	/*!
@@ -216,6 +219,25 @@ namespace Nz
 		           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
 		           F(1.0));
 	}
+
+	template<typename T>
+	void Matrix4<T>::Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale)
+	{
+		Matrix4f localMat(*this);
+
+		translation = localMat.GetTranslation();
+		scale = localMat.GetScale();
+
+		Vector3<T> invScale;
+		invScale.x = T(1) / scale.x;
+		invScale.y = T(1) / scale.y;
+		invScale.z = T(1) / scale.z;
+
+		localMat.ApplyScale(invScale);
+
+		rotation = localMat.GetRotation();
+	}
+
 
 	/*!
 	* \brief Gets the ith column of the matrix
@@ -448,7 +470,7 @@ namespace Nz
 			for (unsigned int i = 0; i < 16; ++i)
 				inv[i] *= invDet;
 
-			dest->Set(inv);
+			*dest = inv;
 			return true;
 		}
 		else
@@ -550,7 +572,7 @@ namespace Nz
 
 			inv[15] = F(1.0);
 
-			dest->Set(inv);
+			*dest = inv;
 			return true;
 		}
 		else
@@ -1093,37 +1115,6 @@ namespace Nz
 		m42 = r42;
 		m43 = r43;
 		m44 = r44;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the matrix from an array of sixteen elements
-	* \return A reference to this matrix
-	*
-	* \param matrix[16] Matrix components
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::Set(const T matrix[16])
-	{
-		// Here we are confident of the continuity of memory elements
-		std::memcpy(&m11, matrix, 16 * sizeof(T));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the matrix from another matrix
-	* \return A reference to this matrix
-	*
-	* \param matrix The other matrix
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::Set(const Matrix4& matrix)
-	{
-		std::memcpy(this, &matrix, sizeof(Matrix4));
 
 		return *this;
 	}

@@ -16,16 +16,48 @@ namespace Nz
 	template<typename T>
 	std::size_t CullingList<T>::Cull(const Frustumf& frustum, bool* forceInvalidation)
 	{
-		m_results.clear();
+		m_fullyVisibleResults.clear();
+		m_partiallyVisibleResults.clear();
 
 		bool forcedInvalidation = false;
 
-		std::size_t visibleHash = 0U;
+		std::size_t fullyVisibleHash = 5U;
+		std::size_t partiallyVisibleHash = 5U;
+
+		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
+		{
+			return currentHash * 23 + newHash;
+		};
+
+		for (BoxVisibilityEntry& entry : m_boxTestList)
+		{
+			switch (frustum.Intersect(entry.box))
+			{
+				case IntersectionSide_Inside:
+					m_fullyVisibleResults.push_back(entry.renderable);
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
+
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
+					entry.forceInvalidation = false;
+					break;
+
+				case IntersectionSide_Intersecting:
+					m_partiallyVisibleResults.push_back(entry.renderable);
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
+					entry.forceInvalidation = false;
+					break;
+
+				case IntersectionSide_Outside:
+					break;
+			}
+		}
 
 		for (NoTestVisibilityEntry& entry : m_noTestList)
 		{
-			m_results.push_back(entry.renderable);
-			Nz::HashCombine(visibleHash, entry.renderable);
+			m_fullyVisibleResults.push_back(entry.renderable);
+			CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
 			if (entry.forceInvalidation)
 			{
@@ -36,33 +68,86 @@ namespace Nz
 
 		for (SphereVisibilityEntry& entry : m_sphereTestList)
 		{
-			if (frustum.Contains(entry.sphere))
+			switch (frustum.Intersect(entry.sphere))
 			{
-				m_results.push_back(entry.renderable);
-				Nz::HashCombine(visibleHash, entry.renderable);
+				case IntersectionSide_Inside:
+					m_fullyVisibleResults.push_back(entry.renderable);
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
-				if (entry.forceInvalidation)
-				{
-					forcedInvalidation = true;
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
-				}
+					break;
+
+				case IntersectionSide_Intersecting:
+					m_partiallyVisibleResults.push_back(entry.renderable);
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
+					entry.forceInvalidation = false;
+					break;
+
+				case IntersectionSide_Outside:
+					break;
 			}
 		}
-
+		
 		for (VolumeVisibilityEntry& entry : m_volumeTestList)
 		{
-			if (frustum.Contains(entry.volume))
+			switch (frustum.Intersect(entry.volume))
 			{
-				m_results.push_back(entry.renderable);
-				Nz::HashCombine(visibleHash, entry.renderable);
+				case IntersectionSide_Inside:
+					m_fullyVisibleResults.push_back(entry.renderable);
+					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
-				if (entry.forceInvalidation)
-				{
-					forcedInvalidation = true;
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
 					entry.forceInvalidation = false;
-				}
+					break;
+
+				case IntersectionSide_Intersecting:
+					m_partiallyVisibleResults.push_back(entry.renderable);
+					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
+
+					forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
+					entry.forceInvalidation = false;
+					break;
+
+				case IntersectionSide_Outside:
+					break;
 			}
 		}
+
+		if (forceInvalidation)
+			*forceInvalidation = forcedInvalidation;
+
+		return 5 + partiallyVisibleHash * 17 + fullyVisibleHash;
+	}
+
+	template<typename T>
+	std::size_t CullingList<T>::FillWithAllEntries(bool* forceInvalidation)
+	{
+		m_fullyVisibleResults.clear();
+		m_partiallyVisibleResults.clear();
+
+		bool forcedInvalidation = false;
+
+		std::size_t visibleHash = 5U;
+
+		auto FillWithList = [&](auto& testList)
+		{
+			for (auto& entry : testList)
+			{
+				m_fullyVisibleResults.push_back(entry.renderable);
+				visibleHash = visibleHash * 23 + std::hash<const T*>()(entry.renderable);
+
+				forcedInvalidation = forcedInvalidation | entry.forceInvalidation;
+				entry.forceInvalidation = false;
+			}
+		};
+
+		FillWithList(m_boxTestList);
+		FillWithList(m_noTestList);
+		FillWithList(m_sphereTestList);
+		FillWithList(m_volumeTestList);
 
 		if (forceInvalidation)
 			*forceInvalidation = forcedInvalidation;
@@ -71,115 +156,57 @@ namespace Nz
 	}
 
 	template<typename T>
-	typename CullingList<T>::NoTestEntry CullingList<T>::RegisterNoTest(const T* renderable)
+	auto CullingList<T>::GetFullyVisibleResults() const -> const ResultContainer&
 	{
-		NoTestEntry entry(this, m_noTestList.size());
-		m_noTestList.emplace_back(NoTestVisibilityEntry{&entry, renderable, false}); //< Address of entry will be updated when moving
-
-		return entry;
+		return m_fullyVisibleResults;
 	}
 
 	template<typename T>
-	typename CullingList<T>::SphereEntry CullingList<T>::RegisterSphereTest(const T* renderable)
+	auto CullingList<T>::GetPartiallyVisibleResults() const -> const ResultContainer&
 	{
-		SphereEntry entry(this, m_sphereTestList.size());
-		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &entry, renderable, false}); //< Address of entry will be updated when moving
-
-		return entry;
+		return m_partiallyVisibleResults;
 	}
 
 	template<typename T>
-	typename CullingList<T>::VolumeEntry CullingList<T>::RegisterVolumeTest(const T* renderable)
+	auto CullingList<T>::RegisterBoxTest(const T* renderable) -> BoxEntry
 	{
-		VolumeEntry entry(this, m_volumeTestList.size());
-		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &entry, renderable, false}); //< Address of entry will be updated when moving
+		BoxEntry newEntry(this, m_boxTestList.size());
+		m_boxTestList.emplace_back(BoxVisibilityEntry{ Nz::Boxf(), &newEntry, renderable, false }); //< Address of entry will be updated when moving
 
-		return entry;
-	}
-
-	// Interface STD
-	template<typename T>
-	typename CullingList<T>::ResultContainer::iterator CullingList<T>::begin()
-	{
-		return m_results.begin();
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::ResultContainer::const_iterator CullingList<T>::begin() const
+	auto CullingList<T>::RegisterNoTest(const T* renderable) -> NoTestEntry
 	{
-		return m_results.begin();
+		NoTestEntry newEntry(this, m_volumeTestList.size());
+		m_noTestList.emplace_back(NoTestVisibilityEntry{&newEntry, renderable, false}); //< Address of entry will be updated when moving
+
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::ResultContainer::const_iterator CullingList<T>::cbegin() const
+	auto CullingList<T>::RegisterSphereTest(const T* renderable) -> SphereEntry
 	{
-		return m_results.cbegin();
+		SphereEntry newEntry(this, m_sphereTestList.size());
+		m_sphereTestList.emplace_back(SphereVisibilityEntry{Nz::Spheref(), &newEntry, renderable, false}); //< Address of entry will be updated when moving
+
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::ResultContainer::const_iterator CullingList<T>::cend() const
+	auto CullingList<T>::RegisterVolumeTest(const T* renderable) -> VolumeEntry
 	{
-		return m_results.cend();
+		VolumeEntry newEntry(this, m_volumeTestList.size());
+		m_volumeTestList.emplace_back(VolumeVisibilityEntry{Nz::BoundingVolumef(), &newEntry, renderable, false}); //< Address of entry will be updated when moving
+
+		return newEntry;
 	}
 
 	template<typename T>
-	typename CullingList<T>::ResultContainer::const_reverse_iterator CullingList<T>::crbegin() const
+	inline void CullingList<T>::NotifyBoxUpdate(std::size_t index, const Boxf& box)
 	{
-		return m_results.crbegin();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::const_reverse_iterator CullingList<T>::crend() const
-	{
-		return m_results.crend();
-	}
-
-	template<typename T>
-	bool CullingList<T>::empty() const
-	{
-		return m_results.empty();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::iterator CullingList<T>::end()
-	{
-		return m_results.end();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::const_iterator CullingList<T>::end() const
-	{
-		return m_results.end();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::reverse_iterator CullingList<T>::rbegin()
-	{
-		return m_results.rbegin();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::const_reverse_iterator CullingList<T>::rbegin() const
-	{
-		return m_results.rbegin();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::reverse_iterator CullingList<T>::rend()
-	{
-		return m_results.rend();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::const_reverse_iterator CullingList<T>::rend() const
-	{
-		return m_results.rend();
-	}
-
-	template<typename T>
-	typename CullingList<T>::ResultContainer::size_type CullingList<T>::size() const
-	{
-		return m_results.size();
+		m_boxTestList[index].box = box;
 	}
 
 	template<typename T>
@@ -187,6 +214,12 @@ namespace Nz
 	{
 		switch (type)
 		{
+			case CullTest::Box:
+			{
+				m_boxTestList[index].forceInvalidation = true;
+				break;
+			}
+
 			case CullTest::NoTest:
 			{
 				m_noTestList[index].forceInvalidation = true;
@@ -218,6 +251,15 @@ namespace Nz
 
 		switch (type)
 		{
+			case CullTest::Box:
+			{
+				BoxVisibilityEntry& entry = m_boxTestList[index];
+				NazaraAssert(entry.entry == oldPtr, "Invalid box entry");
+
+				entry.entry = static_cast<BoxEntry*>(newPtr);
+				break;
+			}
+
 			case CullTest::NoTest:
 			{
 				NoTestVisibilityEntry& entry = m_noTestList[index];
@@ -256,6 +298,14 @@ namespace Nz
 	{
 		switch (type)
 		{
+			case CullTest::Box:
+			{
+				m_boxTestList[index] = std::move(m_boxTestList.back());
+				m_boxTestList[index].entry->UpdateIndex(index);
+				m_boxTestList.pop_back();
+				break;
+			}
+
 			case CullTest::NoTest:
 			{
 				m_noTestList[index] = std::move(m_noTestList.back());
@@ -358,12 +408,7 @@ namespace Nz
 
 	template<typename T>
 	template<CullTest Type>
-	#ifdef NAZARA_COMPILER_MSVC
-	// MSVC bug
-	typename CullingList<T>::Entry<Type>& CullingList<T>::Entry<Type>::operator=(Entry&& entry)
-	#else
 	typename CullingList<T>::template Entry<Type>& CullingList<T>::Entry<Type>::operator=(Entry&& entry)
-	#endif
 	{
 		m_index = entry.m_index;
 		m_parent = entry.m_parent;
@@ -373,6 +418,26 @@ namespace Nz
 		entry.m_parent = nullptr;
 
 		return *this;
+	}
+	
+	//////////////////////////////////////////////////////////////////////////
+
+	template<typename T>
+	CullingList<T>::BoxEntry::BoxEntry() :
+	Entry<CullTest::Box>()
+	{
+	}
+
+	template<typename T>
+	CullingList<T>::BoxEntry::BoxEntry(CullingList* parent, std::size_t index) :
+	Entry<CullTest::Box>(parent, index)
+	{
+	}
+
+	template<typename T>
+	void CullingList<T>::BoxEntry::UpdateBox(const Boxf& box)
+	{
+		this->m_parent->NotifyBoxUpdate(this->m_index, box);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

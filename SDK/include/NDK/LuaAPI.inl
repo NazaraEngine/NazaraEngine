@@ -125,14 +125,14 @@ namespace Nz
 					state.Pop();
 				}
 
-				mat->Set(values);
+				*mat = Matrix4d(values);
 				return 1;
 			}
 
 			default:
 			{
 				if (state.IsOfType(index, "Matrix4"))
-					mat->Set(*static_cast<Matrix4d*>(state.ToUserdata(index)));
+					*mat = *static_cast<Matrix4d*>(state.ToUserdata(index));
 
 				return 1;
 			}
@@ -269,6 +269,15 @@ namespace Nz
 		return ret;
 	}
 
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector2i* vec, TypeTag<Vector2i>)
+	{
+		Vector2d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector2d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3d* vec, TypeTag<Vector3d>)
 	{
 		switch (state.GetType(index))
@@ -300,6 +309,15 @@ namespace Nz
 	}
 
 	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3ui* vec, TypeTag<Vector3ui>)
+	{
+		Vector3d vecDouble;
+		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
+
+		vec->Set(vecDouble);
+		return ret;
+	}
+
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, Vector3i* vec, TypeTag<Vector3i>)
 	{
 		Vector3d vecDouble;
 		unsigned int ret = LuaImplQueryArg(state, index, &vecDouble, TypeTag<Vector3d>());
@@ -384,7 +402,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, MusicParams* params, TypeTag<MusicParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -393,7 +411,7 @@ namespace Nz
 		return 1;
 	}
 
-	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundBufferParams* params, TypeTag<SoundBufferParams>)
+	inline unsigned int LuaImplQueryArg(const LuaState& state, int index, SoundStreamParams* params, TypeTag<SoundStreamParams>)
 	{
 		state.CheckType(index, Nz::LuaType_Table);
 
@@ -538,6 +556,12 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, Vector2i&& val, TypeTag<Vector2i>)
+	{
+		state.PushInstance<Vector2d>("Vector2", val);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, Vector3d&& val, TypeTag<Vector3d>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
@@ -551,6 +575,12 @@ namespace Nz
 	}
 
 	inline int LuaImplReplyVal(const LuaState& state, Vector3ui&& val, TypeTag<Vector3ui>)
+	{
+		state.PushInstance<Vector3d>("Vector3", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, Vector3i&& val, TypeTag<Vector3i>)
 	{
 		state.PushInstance<Vector3d>("Vector3", val);
 		return 1;
@@ -605,9 +635,21 @@ namespace Nz
 		return 1;
 	}
 
+	inline int LuaImplReplyVal(const LuaState& state, ModelRef&& handle, TypeTag<ModelRef>)
+	{
+		state.PushInstance<ModelRef>("Model", handle);
+		return 1;
+	}
+
 	inline int LuaImplReplyVal(const LuaState& state, const SoundBuffer* val, TypeTag<const SoundBuffer*>)
 	{
 		state.PushInstance<SoundBufferConstRef>("SoundBuffer", val);
+		return 1;
+	}
+
+	inline int LuaImplReplyVal(const LuaState& state, SoundBufferRef&& handle, TypeTag<SoundBufferRef>)
+	{
+		state.PushInstance<SoundBufferRef>("SoundBuffer", handle);
 		return 1;
 	}
 

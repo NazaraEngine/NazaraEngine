@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Samy Bensaid
+// Copyright (C) 2017 Samy Bensaid
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -148,9 +148,8 @@ namespace Ndk
 	{
 		if (IsTextEnabled())
 		{
-			Nz::Vector2f size = GetContentSize();
-			m_textSprite->Update(Nz::SimpleTextDrawer::Draw(Nz::String::Number(m_value).Append('%'),
-															static_cast<unsigned>(std::min(size.x, size.y) / 2.f), 0u, m_textColor));
+			Nz::Vector2f size = GetSize();
+			m_textSprite->Update(Nz::SimpleTextDrawer::Draw(Nz::String::Number(m_value).Append('%'), static_cast<unsigned int>(std::min(size.x, size.y) / 2.f), 0u, m_textColor));
 		}
 	}
 }

@@ -27,11 +27,14 @@ namespace Nz
 	{
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
 
-		std::size_t matCount = 0;
 		std::size_t spriteCount = 0;
-		for (const Layer& layer : m_layers)
+		for (std::size_t layerIndex = 0; layerIndex < m_layers.size(); ++layerIndex)
 		{
-			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(matCount++), &vertices[spriteCount], layer.tiles.size(), scissorRect);
+			const auto& layer = m_layers[layerIndex];
+			if (layer.tiles.empty())
+				continue;
+
+			renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(layerIndex), &vertices[4 * spriteCount], layer.tiles.size(), scissorRect);
 
 			spriteCount += layer.tiles.size();
 		}
@@ -63,9 +66,9 @@ namespace Nz
 		spriteCount = 0;
 		for (const Layer& layer : m_layers)
 		{
-			SparsePtr<Color> colorPtr(&vertices[spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector3f> posPtr(&vertices[spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
-			SparsePtr<Vector2f> texCoordPtr(&vertices[spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Color> colorPtr(&vertices[4 * spriteCount].color, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector3f> posPtr(&vertices[4 * spriteCount].position, sizeof(VertexStruct_XYZ_Color_UV));
+			SparsePtr<Vector2f> texCoordPtr(&vertices[4 * spriteCount].uv, sizeof(VertexStruct_XYZ_Color_UV));
 
 			for (std::size_t tileIndex : layer.tiles)
 			{

@@ -60,6 +60,7 @@ namespace Nz
 		static constexpr const char* StencilTest              = "MatStencilTest";
 		static constexpr const char* StencilZFail             = "MatStencilZFail";
 		static constexpr const char* Transform                = "MatTransform";
+		static constexpr const char* VertexColor              = "MatVertexColor";
 	};
 }
 

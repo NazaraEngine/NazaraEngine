@@ -247,7 +247,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-					NazaraError("Error receiving incoming packets");
+					//NazaraError("Error receiving incoming packets");
 					return -1;
 
 				default:
@@ -541,6 +541,7 @@ namespace Nz
 		{
 			peer->m_address = m_receivedAddress;
 			peer->m_incomingDataTotal += UInt32(m_receivedDataLength);
+			peer->m_totalByteReceived += UInt32(m_receivedDataLength);
 		}
 
 		auto commandError = [&]() -> bool
@@ -657,6 +658,10 @@ namespace Nz
 					return commandError();
 			}
 
+			m_totalReceivedPackets++;
+			if (peer)
+				peer->m_totalPacketReceived++;
+
 			if (peer && (command->header.command & ENetProtocolFlag_Acknowledge) != 0)
 			{
 				UInt16 sentTime;
@@ -750,7 +755,6 @@ namespace Nz
 			m_receivedDataLength = receivedLength;
 
 			m_totalReceivedData += receivedLength;
-			m_totalReceivedPackets++;
 
 			// Intercept
 
@@ -855,9 +859,9 @@ namespace Nz
 			if (channel)
 			{
 				if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENetPeer_ReliableWindowSize) &&
-					((channel->reliableWindows[(reliableWindow + ENetPeer_ReliableWindows - 1) % ENetPeer_ReliableWindows] >= ENetPeer_ReliableWindowSize) ||
-					channel->usedReliableWindows & ((((1 << ENetPeer_ReliableWindows) - 1) << reliableWindow) |
-					(((1 << ENetPeer_FreeReliableWindows) - 1) >> (ENetPeer_ReliableWindows - reliableWindow)))))
+				    ((channel->reliableWindows[(reliableWindow + ENetPeer_ReliableWindows - 1) % ENetPeer_ReliableWindows] >= ENetPeer_ReliableWindowSize) ||
+				    channel->usedReliableWindows & ((((1 << ENetPeer_ReliableWindows) - 1) << reliableWindow) |
+				    (((1 << ENetPeer_FreeReliableWindows) - 1) >> (ENetPeer_ReliableWindows - reliableWindow)))))
 					windowWrap = true;
 
 				if (windowWrap)
@@ -886,6 +890,7 @@ namespace Nz
 
 			canPing = false;
 
+			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
 			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->GetMtu() - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && UInt16(peer->GetMtu() - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
@@ -1138,6 +1143,7 @@ namespace Nz
 		{
 			auto outgoingCommand = currentCommand;
 
+			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
 			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
@@ -1351,6 +1357,7 @@ namespace Nz
 
 	std::size_t ENetHost::GetCommandSize(UInt8 commandNumber)
 	{
+		assert((commandNumber & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
 		return s_commandSizes[commandNumber & ENetProtocolCommand_Mask];
 	}
 

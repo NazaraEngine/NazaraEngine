@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Math/Angle.hpp>
 
 namespace Nz
 {
@@ -34,14 +35,14 @@ namespace Nz
 			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			inline const Color& GetColor() const;
-			inline float GetRotation() const;
+			inline const RadianAnglef& GetRotation() const;
 			inline const Vector2f& GetSize() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetDefaultMaterial();
 			inline void SetMaterial(MaterialRef material, bool resizeBillboard = true);
 			inline void SetMaterial(std::size_t skinIndex, MaterialRef material, bool resizeBillboard = true);
-			inline void SetRotation(float rotation);
+			inline void SetRotation(const RadianAnglef& rotation);
 			inline void SetSize(const Vector2f& size);
 			inline void SetSize(float sizeX, float sizeY);
 			inline void SetTexture(TextureRef texture, bool resizeBillboard = true);
@@ -58,7 +59,7 @@ namespace Nz
 			Color m_color;
 			Vector2f m_sinCos;
 			Vector2f m_size;
-			float m_rotation;
+			RadianAnglef m_rotation;
 
 			static BillboardLibrary::LibraryMap s_library;
 	};

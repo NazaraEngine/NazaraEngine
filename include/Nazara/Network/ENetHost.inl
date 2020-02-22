@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Network/ENetHost.hpp>
 #include <utility>
 #include <Nazara/Network/Debug.hpp>
 
@@ -17,6 +18,13 @@ namespace Nz
 	inline ENetHost::~ENetHost()
 	{
 		Destroy();
+	}
+
+	inline void ENetHost::AllowsIncomingConnections(bool allow)
+	{
+		NazaraAssert(m_address.IsValid() && !m_address.IsLoopback(), "Only server hosts can allow incoming connections");
+
+		m_allowsIncomingConnections = allow;
 	}
 
 	inline bool ENetHost::Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount)
@@ -53,6 +61,11 @@ namespace Nz
 		m_socket.Close();
 	}
 
+	inline bool ENetHost::DoesAllowIncomingConnections() const
+	{
+		return m_allowsIncomingConnections;
+	}
+
 	inline IpAddress ENetHost::GetBoundAddress() const
 	{
 		return m_address;
@@ -61,6 +74,26 @@ namespace Nz
 	inline UInt32 ENetHost::GetServiceTime() const
 	{
 		return m_serviceTime;
+	}
+
+	inline UInt32 ENetHost::GetTotalReceivedPackets() const
+	{
+		return m_totalReceivedPackets;
+	}
+
+	inline UInt64 ENetHost::GetTotalReceivedData() const
+	{
+		return m_totalReceivedData;
+	}
+
+	inline UInt64 ENetHost::GetTotalSentData() const
+	{
+		return m_totalSentData;
+	}
+
+	inline UInt32 ENetHost::GetTotalSentPackets() const
+	{
+		return m_totalSentPackets;
 	}
 
 	inline void ENetHost::SetCompressor(std::unique_ptr<ENetCompressor>&& compressor)

@@ -46,6 +46,7 @@ namespace Ndk
 
 			void Clear() noexcept;
 			const EntityHandle& CloneEntity(EntityId id);
+			const EntityHandle& CloneEntity(const EntityHandle& entity);
 
 			inline void DisableProfiler();
 			inline void EnableProfiler(bool enable = true);
@@ -67,6 +68,8 @@ namespace Ndk
 			inline void KillEntity(Entity* entity);
 			inline void KillEntities(const EntityVector& list);
 
+			inline bool IsEntityDying(const Entity* entity) const;
+			inline bool IsEntityDying(EntityId id) const;
 			inline bool IsEntityValid(const Entity* entity) const;
 			inline bool IsEntityIdValid(EntityId id) const;
 			inline bool IsProfilerEnabled() const;
@@ -96,6 +99,12 @@ namespace Ndk
 			inline void InvalidateSystemOrder();
 			void ReorderSystems();
 
+			struct DoubleBitset
+			{
+				Nz::Bitset<Nz::UInt64> front;
+				Nz::Bitset<Nz::UInt64> back;
+			};
+
 			struct EntityBlock
 			{
 				EntityBlock(Entity&& e) :
@@ -117,9 +126,9 @@ namespace Ndk
 			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
 			EntityList m_aliveEntities;
 			ProfilerData m_profilerData;
-			Nz::Bitset<Nz::UInt64> m_dirtyEntities;
+			DoubleBitset m_dirtyEntities;
 			Nz::Bitset<Nz::UInt64> m_freeEntityIds;
-			Nz::Bitset<Nz::UInt64> m_killedEntities;
+			DoubleBitset m_killedEntities;
 			bool m_orderedSystemsUpdated;
 			bool m_isProfilerEnabled;
 	};

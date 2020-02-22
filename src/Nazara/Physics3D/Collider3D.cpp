@@ -114,12 +114,14 @@ namespace Nz
 		return volume;
 	}
 
-	void Collider3D::ForEachPolygon(const std::function<void(const float* vertices, std::size_t vertexCount)>& callback) const
+	void Collider3D::ForEachPolygon(const std::function<void(const Vector3f* vertices, std::size_t vertexCount)>& callback) const
 	{
 		auto newtCallback = [](void* const userData, int vertexCount, const dFloat* const faceArray, int /*faceId*/)
 		{
+			static_assert(sizeof(Vector3f) == 3 * sizeof(float), "Vector3 is expected to contain 3 floats without padding");
+
 			const auto& cb = *static_cast<std::add_pointer_t<decltype(callback)>>(userData);
-			cb(faceArray, vertexCount);
+			cb(reinterpret_cast<const Vector3f*>(faceArray), vertexCount);
 		};
 
 		// Check for existing collision handles, and create a temporary one if none is available

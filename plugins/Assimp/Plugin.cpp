@@ -25,11 +25,14 @@ SOFTWARE.
 #include <CustomStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <Nazara/Utility/Sequence.hpp>
+#include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
@@ -59,6 +62,8 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>&
 			                         node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3, node->mTransformation.c4,
 			                         node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3, node->mTransformation.d4);
 
+			transformMatrix.Transpose();
+
 			transformMatrix.InverseAffine();
 
 			joint->SetInverseBindMatrix(transformMatrix);
@@ -75,7 +80,7 @@ bool IsSupported(const String& extension)
 	return (aiIsExtensionSupported(dotExt.GetConstBuffer()) == AI_TRUE);
 }
 
-Ternary Check(Stream& /*stream*/, const MeshParams& parameters)
+Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
 {
 	bool skip;
 	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
@@ -84,7 +89,102 @@ Ternary Check(Stream& /*stream*/, const MeshParams& parameters)
 	return Ternary_Unknown;
 }
 
-bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
+{
+	Nz::String streamPath = stream.GetPath();
+
+	FileIOUserdata userdata;
+	userdata.originalFilePath = (!streamPath.IsEmpty()) ? streamPath.GetConstBuffer() : StreamPath;
+	userdata.originalStream = &stream;
+
+	aiFileIO fileIO;
+	fileIO.CloseProc = StreamCloser;
+	fileIO.OpenProc = StreamOpener;
+	fileIO.UserData = reinterpret_cast<char*>(&userdata);
+
+	unsigned int postProcess = aiProcess_CalcTangentSpace  | aiProcess_Debone
+	                         | aiProcess_FindInvalidData   | aiProcess_FixInfacingNormals
+	                         | aiProcess_FlipWindingOrder  | aiProcess_GenSmoothNormals
+	                         | aiProcess_GenUVCoords       | aiProcess_JoinIdenticalVertices
+	                         | aiProcess_LimitBoneWeights  | aiProcess_MakeLeftHanded
+	                         | aiProcess_OptimizeGraph     | aiProcess_OptimizeMeshes
+	                         | aiProcess_RemoveComponent   | aiProcess_RemoveRedundantMaterials
+	                         | aiProcess_SortByPType       | aiProcess_SplitLargeMeshes
+	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
+
+	aiPropertyStore* properties = aiCreatePropertyStore();
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               ~aiComponent_ANIMATIONS);
+
+	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, 0, &fileIO, properties);
+	aiReleasePropertyStore(properties);
+
+	if (!scene)
+	{
+		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		return nullptr;
+	}
+
+	if (!scene->HasAnimations())
+	{
+		NazaraError("File has no animation");
+		return nullptr;
+	}
+
+	aiAnimation* animation = scene->mAnimations[0];
+
+	unsigned int maxFrameCount = 0;
+	for (unsigned int i = 0; i < animation->mNumChannels; ++i)
+	{
+		aiNodeAnim* nodeAnim = animation->mChannels[i];
+
+		maxFrameCount = std::max({ maxFrameCount, nodeAnim->mNumPositionKeys, nodeAnim->mNumRotationKeys, nodeAnim->mNumScalingKeys });
+	}
+
+	AnimationRef anim = Animation::New();
+
+	anim->CreateSkeletal(maxFrameCount, animation->mNumChannels);
+
+	Sequence sequence;
+	sequence.firstFrame = 0;
+	sequence.frameCount = maxFrameCount;
+	sequence.frameRate = animation->mTicksPerSecond;
+
+	anim->AddSequence(sequence);
+
+	SequenceJoint* sequenceJoints = anim->GetSequenceJoints();
+
+	Quaternionf rotationQuat = Quaternionf::Identity();
+
+	for (unsigned int i = 0; i < animation->mNumChannels; ++i)
+	{
+		aiNodeAnim* nodeAnim = animation->mChannels[i];
+		for (unsigned int j = 0; j < nodeAnim->mNumPositionKeys; ++j)
+		{
+			SequenceJoint& sequenceJoint = sequenceJoints[i*animation->mNumChannels + j];
+
+			aiQuaternion rotation = nodeAnim->mRotationKeys[j].mValue;
+			aiVector3D position = nodeAnim->mPositionKeys[j].mValue;
+
+			sequenceJoint.position = Vector3f(position.x, position.y, position.z);
+			sequenceJoint.rotation = Quaternionf(rotation.w, rotation.x, rotation.y, rotation.z);
+			sequenceJoint.scale.Set(1.f);
+		}
+	}
+
+	return anim;
+}
+
+Ternary CheckMesh(Stream& /*stream*/, const MeshParams& parameters)
+{
+	bool skip;
+	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+		return Ternary_False;
+
+	return Ternary_Unknown;
+}
+
+MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 {
 	Nz::String streamPath = stream.GetPath();
 
@@ -147,7 +247,7 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	if (!scene)
 	{
 		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
-		return false;
+		return nullptr;
 	}
 
 	std::set<Nz::String> joints;
@@ -155,18 +255,19 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 	bool animatedMesh = false;
 	if (parameters.animated)
 	{
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
 		{
-			aiMesh* currentMesh = scene->mMeshes[i];
+			aiMesh* currentMesh = scene->mMeshes[meshIdx];
 			if (currentMesh->HasBones()) // Inline functions can be safely called
 			{
 				animatedMesh = true;
-				for (unsigned int j = 0; j < currentMesh->mNumBones; ++j)
-					joints.insert(currentMesh->mBones[j]->mName.C_Str());
+				for (unsigned int boneIdx = 0; boneIdx < currentMesh->mNumBones; ++boneIdx)
+					joints.insert(currentMesh->mBones[boneIdx]->mName.C_Str());
 			}
 		}
 	}
 
+	MeshRef mesh = Mesh::New();
 	if (animatedMesh)
 	{
 		mesh->CreateSkeletal(UInt32(joints.size()));
@@ -180,7 +281,162 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 		ProcessJoints(scene->mRootNode, skeleton, joints);
 
-		return false;
+		// aiMaterial index in scene => Material index and data in Mesh
+		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
+
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
+		{
+			aiMesh* iMesh = scene->mMeshes[meshIdx];
+			if (iMesh->HasBones())
+			{
+				// For now, process only skeletal meshes
+			}
+
+			unsigned int indexCount = iMesh->mNumFaces * 3;
+			unsigned int vertexCount = iMesh->mNumVertices;
+
+			// Index buffer
+			bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+			IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
+
+			IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+			IndexIterator index = indexMapper.begin();
+
+			for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
+			{
+				aiFace& face = iMesh->mFaces[faceIdx];
+				if (face.mNumIndices != 3)
+					NazaraWarning("Assimp plugin: This face is not a triangle!");
+
+				*index++ = face.mIndices[0];
+				*index++ = face.mIndices[1];
+				*index++ = face.mIndices[2];
+			}
+			indexMapper.Unmap();
+
+			// Make sure the normal/tangent matrix won't rescale our vectors
+			Nz::Matrix4f normalTangentMatrix = parameters.matrix;
+			if (normalTangentMatrix.HasScale())
+				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
+
+			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags | BufferUsage_Dynamic);
+			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
+			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
+
+			for (std::size_t vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+			{
+				aiVector3D normal = iMesh->mNormals[vertexIdx];
+				aiVector3D position = iMesh->mVertices[vertexIdx];
+				aiVector3D tangent = iMesh->mTangents[vertexIdx];
+				aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
+
+				vertices[vertexIdx].weightCount = 0;
+				vertices[vertexIdx].normal = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
+				vertices[vertexIdx].position = parameters.matrix * Vector3f(position.x, position.y, position.z);
+				vertices[vertexIdx].tangent = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
+				vertices[vertexIdx].uv = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+			}
+
+			for (unsigned int boneIdx = 0; boneIdx < iMesh->mNumBones; ++boneIdx)
+			{
+				aiBone* bone = iMesh->mBones[boneIdx];
+				for (unsigned int weightIdx = 0; weightIdx < bone->mNumWeights; ++weightIdx)
+				{
+					aiVertexWeight& vertexWeight = bone->mWeights[weightIdx];
+					SkeletalMeshVertex& vertex = vertices[vertexWeight.mVertexId];
+
+					std::size_t weightIndex = vertex.weightCount++;
+					vertex.jointIndexes[weightIndex] = boneIdx;
+					vertex.weights[weightIndex] = vertexWeight.mWeight;
+				}
+			}
+
+			// Submesh
+			SkeletalMeshRef subMesh = SkeletalMesh::New(vertexBuffer, indexBuffer);
+			subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
+
+			auto matIt = materials.find(iMesh->mMaterialIndex);
+			if (matIt == materials.end())
+			{
+				ParameterList matData;
+				aiMaterial* aiMat = scene->mMaterials[iMesh->mMaterialIndex];
+
+				auto ConvertColor = [&](const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
+				{
+					aiColor4D color;
+					if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
+					{
+						matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
+					}
+				};
+
+				auto ConvertTexture = [&](aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
+				{
+					aiString path;
+					aiTextureMapMode mapMode[3];
+					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
+					{
+						matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+
+						if (wrapKey)
+						{
+							SamplerWrap wrap = SamplerWrap_Default;
+							switch (mapMode[0])
+							{
+							case aiTextureMapMode_Clamp:
+							case aiTextureMapMode_Decal:
+								wrap = SamplerWrap_Clamp;
+								break;
+
+							case aiTextureMapMode_Mirror:
+								wrap = SamplerWrap_MirroredRepeat;
+								break;
+
+							case aiTextureMapMode_Wrap:
+								wrap = SamplerWrap_Repeat;
+								break;
+
+							default:
+								NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
+								break;
+							}
+
+							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
+						}
+					}
+				};
+
+				ConvertColor(AI_MATKEY_COLOR_AMBIENT, MaterialData::AmbientColor);
+				ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::DiffuseColor);
+				ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
+
+				ConvertTexture(aiTextureType_DIFFUSE, MaterialData::DiffuseTexturePath, MaterialData::DiffuseWrap);
+				ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
+				ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
+				ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);
+				ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
+				ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
+
+				aiString name;
+				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+					matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+
+				int iValue;
+				if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
+					matData.SetParameter(MaterialData::FaceCulling, !iValue);
+
+				matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(UInt32(materials.size()), std::move(matData)))).first;
+			}
+
+			subMesh->SetMaterialIndex(matIt->first);
+
+			mesh->AddSubMesh(subMesh);
+		}
+
+		mesh->SetMaterialCount(std::max<UInt32>(UInt32(materials.size()), 1));
+		for (const auto& pair : materials)
+			mesh->SetMaterialData(pair.second.first, pair.second.second);
 	}
 	else
 	{
@@ -189,9 +445,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 		// aiMaterial index in scene => Material index and data in Mesh
 		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
 		{
-			aiMesh* iMesh = scene->mMeshes[i];
+			aiMesh* iMesh = scene->mMeshes[meshIdx];
 			if (!iMesh->HasBones()) // Don't process skeletal meshs
 			{
 				unsigned int indexCount = iMesh->mNumFaces * 3;
@@ -205,9 +461,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
 				IndexIterator index = indexMapper.begin();
 
-				for (unsigned int j = 0; j < iMesh->mNumFaces; ++j)
+				for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
 				{
-					aiFace& face = iMesh->mFaces[j];
+					aiFace& face = iMesh->mFaces[faceIdx];
 					if (face.mNumIndices != 3)
 						NazaraWarning("Assimp plugin: This face is not a triangle!");
 
@@ -229,17 +485,17 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
 
 				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				for (unsigned int j = 0; j < vertexCount; ++j)
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 				{
-					aiVector3D position = iMesh->mVertices[j];
+					aiVector3D position = iMesh->mVertices[vertexIdx];
 					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
 				}
 
 				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
 				{
-					for (unsigned int j = 0; j < vertexCount; ++j)
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 					{
-						aiVector3D normal = iMesh->mNormals[j];
+						aiVector3D normal = iMesh->mNormals[vertexIdx];
 						*normalPtr++ = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
 					}
 				}
@@ -249,9 +505,9 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				{
 					if (iMesh->HasTangentsAndBitangents())
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 						{
-							aiVector3D tangent = iMesh->mTangents[j];
+							aiVector3D tangent = iMesh->mTangents[vertexIdx];
 							*tangentPtr++ = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
 						}
 					}
@@ -263,15 +519,15 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 				{
 					if (iMesh->HasTextureCoords(0))
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 						{
-							aiVector3D uv = iMesh->mTextureCoords[0][j];
+							aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
 							*uvPtr++ = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
 						}
 					}
 					else
 					{
-						for (unsigned int j = 0; j < vertexCount; ++j)
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 							*uvPtr++ = Vector2f::Zero();
 					}
 				}
@@ -375,19 +631,21 @@ bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
 
 	aiReleaseImport(scene);
 
-	return true;
+	return mesh;
 }
 
 extern "C"
 {
 	NAZARA_EXPORT int PluginLoad()
 	{
-		Nz::MeshLoader::RegisterLoader(IsSupported, Check, Load);
+		Nz::AnimationLoader::RegisterLoader(IsSupported, CheckAnimation, LoadAnimation);
+		Nz::MeshLoader::RegisterLoader(IsSupported, CheckMesh, LoadMesh);
 		return 1;
 	}
 
 	NAZARA_EXPORT void PluginUnload()
 	{
-		Nz::MeshLoader::UnregisterLoader(IsSupported, Check, Load);
+		Nz::AnimationLoader::RegisterLoader(IsSupported, CheckAnimation, LoadAnimation);
+		Nz::MeshLoader::UnregisterLoader(IsSupported, CheckMesh, LoadMesh);
 	}
 }

@@ -5,7 +5,7 @@
 #include <Nazara/Network/Win32/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
@@ -29,7 +29,7 @@ struct tcp_keepalive
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
 #endif
 
-#include <Winsock2.h>
+#include <winsock2.h>
 
 #include <Nazara/Network/Debug.hpp>
 
@@ -132,6 +132,7 @@ namespace Nz
 			switch (errorCode) //< Check for "normal errors" first
 			{
 				case WSAEALREADY:
+				case WSAEINVAL: //< In case of connect, WSAEINVAL may be returned instead of WSAEALREADY
 				case WSAEWOULDBLOCK:
 					return SocketState_Connecting;
 
@@ -151,59 +152,6 @@ namespace Nz
 		}
 
 		return SocketState_Connected;
-	}
-
-	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
-	{
-		SocketState state = Connect(handle, address, error);
-		if (state == SocketState_Connecting)
-		{
-			// http://developerweb.net/viewtopic.php?id=3196
-			fd_set localSet;
-			FD_ZERO(&localSet);
-			FD_SET(handle, &localSet);
-
-			timeval tv;
-			tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
-			tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
-
-			int ret = select(0, nullptr, &localSet, &localSet, (msTimeout > 0) ? &tv : nullptr);
-			if (ret > 0)
-			{
-				int code = GetLastErrorCode(handle, error);
-				if (code < 0) //< GetLastErrorCode() failed
-					return SocketState_NotConnected;
-
-				if (code)
-				{
-					if (error)
-						*error = TranslateWSAErrorToSocketError(code);
-
-					return SocketState_NotConnected;
-				}
-			}
-			else if (ret == 0)
-			{
-				if (error)
-					*error = SocketError_TimedOut;
-
-				return SocketState_NotConnected;
-			}
-			else
-			{
-				if (error)
-					*error = TranslateWSAErrorToSocketError(WSAGetLastError());
-
-				return SocketState_NotConnected;
-			}
-
-			if (error)
-				*error = SocketError_NoError;
-
-			state = SocketState_Connected;
-		}
-
-		return state;
 	}
 
 	bool SocketImpl::Initialize()
@@ -501,6 +449,58 @@ namespace Nz
 		return 0;
 		#endif
 	}
+	
+	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
+	{
+		// http://developerweb.net/viewtopic.php?id=3196
+		fd_set localSet;
+		FD_ZERO(&localSet);
+		FD_SET(handle, &localSet);
+
+		timeval tv;
+		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
+		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
+
+		int ret = ::select(0, nullptr, &localSet, &localSet, (msTimeout != std::numeric_limits<UInt64>::max()) ? &tv : nullptr);
+		if (ret > 0)
+		{
+			int code = GetLastErrorCode(handle, error);
+			if (code < 0) //< GetLastErrorCode() failed
+				return SocketState_NotConnected;
+
+			if (code)
+			{
+				if (error)
+					*error = TranslateWSAErrorToSocketError(code);
+
+				return SocketState_NotConnected;
+			}
+		}
+		else if (ret == 0)
+		{
+			if (error)
+			{
+				if (msTimeout > 0)
+					*error = SocketError_TimedOut;
+				else
+					*error = SocketError_NoError;
+			}
+
+			return SocketState_Connecting;
+		}
+		else
+		{
+			if (error)
+				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
+
+			return SocketState_NotConnected;
+		}
+
+		if (error)
+			*error = SocketError_NoError;
+
+		return SocketState_Connected;
+	}
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)
 	{
@@ -615,7 +615,7 @@ namespace Nz
 
 		IpAddress senderIp;
 
-		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
+		StackArray<WSABUF> winBuffers = NazaraStackArray(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -714,7 +714,7 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 
-		StackArray<WSABUF> winBuffers = NazaraStackAllocation(WSABUF, bufferCount);
+		StackArray<WSABUF> winBuffers = NazaraStackArray(WSABUF, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
 		{
 			winBuffers[i].buf = static_cast<CHAR*>(buffers[i].data);
@@ -951,6 +951,11 @@ namespace Nz
 			case WSAENOTSOCK:
 			case WSAEPROTOTYPE:
 			case WSA_INVALID_HANDLE:
+			// Those are not errors and should have been handled
+			case WSAEALREADY:
+			case WSAEISCONN:
+			case WSAEWOULDBLOCK:
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
 				return SocketError_Internal;
 
 			case WSAEADDRNOTAVAIL:
@@ -963,12 +968,6 @@ namespace Nz
 			case WSAEPROTONOSUPPORT:
 			case WSAESOCKTNOSUPPORT:
 				return SocketError_NotSupported;
-
-			// Those are not errors and should have been handled before the call
-			case WSAEALREADY:
-			case WSAEISCONN:
-			case WSAEWOULDBLOCK:
-				return SocketError_Internal;
 
 			case WSAECONNREFUSED:
 				return SocketError_ConnectionRefused;

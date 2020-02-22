@@ -14,10 +14,15 @@
 
 namespace Ndk
 {
+	class CollisionComponent2D;
+
+	using CollisionComponent2DHandle = Nz::ObjectHandle<CollisionComponent2D>;
+
 	class NDK_API CollisionComponent2D : public Component<CollisionComponent2D>
 	{
-		friend class PhysicsSystem2D;
 		friend class ConstraintComponent2D;
+		friend class PhysicsComponent2D;
+		friend class PhysicsSystem2D;
 
 		public:
 			CollisionComponent2D(Nz::Collider2DRef geom = Nz::Collider2DRef());
@@ -26,8 +31,12 @@ namespace Ndk
 
 			Nz::Rectf GetAABB() const;
 			const Nz::Collider2DRef& GetGeom() const;
+			const Nz::Vector2f& GetGeomOffset() const;
+
+			void Recenter(const Nz::Vector2f& origin);
 
 			void SetGeom(Nz::Collider2DRef geom);
+			void SetGeomOffset(const Nz::Vector2f& geomOffset);
 
 			CollisionComponent2D& operator=(Nz::Collider2DRef geom);
 			CollisionComponent2D& operator=(CollisionComponent2D&& collision) = default;
@@ -36,7 +45,10 @@ namespace Ndk
 
 		private:
 			void InitializeStaticBody();
+			Nz::RigidBody2D* GetRigidBody();
+			const Nz::RigidBody2D* GetRigidBody() const;
 			Nz::RigidBody2D* GetStaticBody();
+			const Nz::RigidBody2D* GetStaticBody() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;

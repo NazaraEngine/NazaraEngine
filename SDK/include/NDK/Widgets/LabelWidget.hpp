@@ -21,14 +21,10 @@ namespace Ndk
 	class NDK_API LabelWidget : public BaseWidget
 	{
 		public:
-			LabelWidget(BaseWidget* parent = nullptr);
+			LabelWidget(BaseWidget* parent);
 			LabelWidget(const LabelWidget&) = delete;
 			LabelWidget(LabelWidget&&) = default;
 			~LabelWidget() = default;
-
-			//virtual LabelWidget* Clone() const = 0;
-
-			void ResizeToContent() override;
 
 			inline void UpdateText(const Nz::AbstractTextDrawer& drawer);
 
@@ -36,8 +32,6 @@ namespace Ndk
 			LabelWidget& operator=(LabelWidget&&) = default;
 
 		private:
-			void Layout() override;
-
 			EntityHandle m_textEntity;
 			Nz::TextSpriteRef m_textSprite;
 	};

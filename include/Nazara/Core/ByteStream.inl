@@ -31,6 +31,18 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Reset stream
+	*/
+	inline void ByteStream::ClearStream()
+	{
+		// We don't want to lose some bits..
+		FlushBits();
+
+		m_context.stream = nullptr;
+		m_ownedStream.reset();
+	}
+
+	/*!
 	* \brief Gets the stream endianness
 	* \return Type of the endianness
 	*/
@@ -113,22 +125,15 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets this with a stream
+	* \brief Changes stream
 	*
 	* \param stream Stream existing
-	*
-	* \remark Produces a NazaraAssert if stream is invalid
 	*/
-
 	inline void ByteStream::SetStream(Stream* stream)
 	{
-		NazaraAssert(stream, "Invalid stream");
-
-		// We don't want to lose some bits..
-		FlushBits();
+		ClearStream();
 
 		m_context.stream = stream;
-		m_ownedStream.reset();
 	}
 
 	/*!

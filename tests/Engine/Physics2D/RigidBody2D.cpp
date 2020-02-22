@@ -1,6 +1,7 @@
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Catch/catch.hpp>
+#include <iostream>
 #include <limits>
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world);
@@ -93,6 +94,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			std::vector<Nz::RigidBody2D> tmp;
 			tmp.push_back(CreateBody(world));
 			tmp.push_back(CreateBody(world));
+
 			world.Step(1.f);
 
 			THEN("They should be valid")
@@ -112,11 +114,14 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
 		Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
 		float mass = 1.f;
-		Nz::RigidBody2D body(&world, mass, box);
+		Nz::RigidBody2D body(&world, mass);
+		body.SetGeom(box, true, false);
+
 		bool userData = false;
 		body.SetUserdata(&userData);
 
 		Nz::Vector2f position = Nz::Vector2f::Zero();
+		body.SetPosition(position);
 
 		world.Step(1.f);
 
@@ -125,12 +130,12 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			THEN("We expect those to be true")
 			{
 				CHECK(body.GetAABB() == aabb);
-				CHECK(body.GetAngularVelocity() == Approx(0.f));
-				CHECK(body.GetCenterOfGravity() == Nz::Vector2f::Zero());
+				CHECK(body.GetAngularVelocity() == 0.f);
+				CHECK(body.GetMassCenter(Nz::CoordSys_Global) == position);
 				CHECK(body.GetGeom() == box);
 				CHECK(body.GetMass() == Approx(mass));
 				CHECK(body.GetPosition() == position);
-				CHECK(body.GetRotation() == Approx(0.f));
+				CHECK(body.GetRotation().value == Approx(0.f));
 				CHECK(body.GetUserdata() == &userData);
 				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
 
@@ -150,7 +155,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			{
 				aabb.Translate(velocity);
 				CHECK(body.GetAABB() == aabb);
-				CHECK(body.GetCenterOfGravity() == Nz::Vector2f::Zero());
+				CHECK(body.GetMassCenter(Nz::CoordSys_Global) == position);
 				CHECK(body.GetPosition() == position);
 				CHECK(body.GetVelocity() == velocity);
 			}
@@ -166,39 +171,38 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		WHEN("We set an angular velocity")
 		{
-			float angularSpeed = Nz::FromDegrees(90.f);
+			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(90.f);
 			body.SetAngularVelocity(angularSpeed);
 			world.Step(1.f);
 
 			THEN("We expect those to be true")
 			{
-				CHECK(body.GetAngularVelocity() == Approx(angularSpeed));
-				CHECK(body.GetRotation() == Approx(angularSpeed));
+				CHECK(body.GetAngularVelocity() == angularSpeed);
+				CHECK(body.GetRotation() == angularSpeed);
 				CHECK(body.GetAABB() == Nz::Rectf(-6.f, 3.f, 2.f, 1.f));
 
 				world.Step(1.f);
-				CHECK(body.GetRotation() == Approx(2.f * angularSpeed));
+				CHECK(body.GetRotation() == 2.f * angularSpeed);
 				CHECK(body.GetAABB() == Nz::Rectf(-4.f, -6.f, 1.f, 2.f));
 
 				world.Step(1.f);
-				CHECK(body.GetRotation() == Approx(3.f * angularSpeed));
+				CHECK(body.GetRotation() == 3.f * angularSpeed);
 				CHECK(body.GetAABB() == Nz::Rectf(4.f, -4.f, 2.f, 1.f));
 
 				world.Step(1.f);
-				CHECK(body.GetRotation() == Approx(4.f * angularSpeed));
+				CHECK(body.GetRotation() == 4.f * angularSpeed);
 			}
 		}
 
 		WHEN("We apply a torque")
 		{
-			float angularSpeed = Nz::DegreeToRadian(90.f);
-			body.AddTorque(angularSpeed);
+			body.AddTorque(Nz::DegreeAnglef(90.f));
 			world.Step(1.f);
 
 			THEN("It is also counter-clockwise")
 			{
-				CHECK(body.GetAngularVelocity() >= 0.f);
-				CHECK(body.GetRotation() >= 0.f);
+				CHECK(body.GetAngularVelocity().value >= 0.f);
+				CHECK(body.GetRotation().value >= 0.f);
 			}
 		}
 	}
@@ -212,7 +216,9 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		float radius = 5.f;
 		Nz::Collider2DRef circle = Nz::CircleCollider2D::New(radius, position);
 		float mass = 1.f;
-		Nz::RigidBody2D body(&world, mass, circle);
+		Nz::RigidBody2D body(&world, mass);
+		body.SetGeom(circle, true, false);
+
 		world.Step(1.f);
 
 		WHEN("We ask for the aabb of the circle")
@@ -241,7 +247,9 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::CompoundCollider2DRef compound = Nz::CompoundCollider2D::New(colliders);
 
 		float mass = 1.f;
-		Nz::RigidBody2D body(&world, mass, compound);
+		Nz::RigidBody2D body(&world, mass);
+		body.SetGeom(compound, true, false);
+
 		world.Step(1.f);
 
 		WHEN("We ask for the aabb of the compound")
@@ -268,7 +276,9 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::SparsePtr<const Nz::Vector2f> sparsePtr(vertices.data());
 		Nz::ConvexCollider2DRef convex = Nz::ConvexCollider2D::New(sparsePtr, vertices.size());
 		float mass = 1.f;
-		Nz::RigidBody2D body(&world, mass, convex);
+		Nz::RigidBody2D body(&world, mass);
+		body.SetGeom(convex, true, false);
+
 		world.Step(1.f);
 
 		WHEN("We ask for the aabb of the convex")
@@ -290,7 +300,9 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::Vector2f positionB(1.f, -4.f);
 		Nz::Collider2DRef segment = Nz::SegmentCollider2D::New(positionA, positionB, 0.f);
 		float mass = 1.f;
-		Nz::RigidBody2D body(&world, mass, segment);
+		Nz::RigidBody2D body(&world, mass);
+		body.SetGeom(segment, true, false);
+
 		world.Step(1.f);
 
 		WHEN("We ask for the aabb of the segment")
@@ -310,19 +322,23 @@ Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world)
 	Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
 	Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
 	float mass = 1.f;
-	return Nz::RigidBody2D(&world, mass, box);
+
+	Nz::RigidBody2D body(&world, mass, box);
+	body.SetPosition(Nz::Vector2f::Zero());
+
+	return body;
 }
 
 void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 {
 	CHECK(left.GetAABB() == right.GetAABB());
-	CHECK(left.GetAngularVelocity() == Approx(right.GetAngularVelocity()));
-	CHECK(left.GetCenterOfGravity() == right.GetCenterOfGravity());
+	CHECK(left.GetAngularVelocity() == right.GetAngularVelocity());
+	CHECK(left.GetMassCenter() == right.GetMassCenter());
 	CHECK(left.GetGeom() == right.GetGeom());
 	CHECK(left.GetHandle() != right.GetHandle());
 	CHECK(left.GetMass() == Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
-	CHECK(left.GetRotation() == Approx(right.GetRotation()));
+	CHECK(left.GetRotation().value == Approx(right.GetRotation().value));
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }

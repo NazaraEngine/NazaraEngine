@@ -8,6 +8,7 @@
 #define NAZARA_EULERANGLES_HPP
 
 #include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
@@ -22,6 +23,7 @@ namespace Nz
 			EulerAngles() = default;
 			EulerAngles(T P, T Y, T R);
 			EulerAngles(const T angles[3]);
+			template<AngleUnit Unit> EulerAngles(const Angle<Unit, T>& angle);
 			//EulerAngles(const Matrix3<T>& mat);
 			EulerAngles(const Quaternion<T>& quat);
 			template<typename U> explicit EulerAngles(const EulerAngles<U>& angles);
@@ -34,7 +36,7 @@ namespace Nz
 
 			EulerAngles& Set(T P, T Y, T R);
 			EulerAngles& Set(const T angles[3]);
-			EulerAngles& Set(const EulerAngles<T>& angles);
+			template<AngleUnit Unit> EulerAngles& Set(const Angle<Unit, T>& angles);
 			//EulerAngles& Set(const Matrix3<T>& mat);
 			EulerAngles& Set(const Quaternion<T>& quat);
 			template<typename U> EulerAngles& Set(const EulerAngles<U>& angles);

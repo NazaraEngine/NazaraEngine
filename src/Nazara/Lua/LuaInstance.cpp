@@ -63,7 +63,7 @@ namespace Nz
 	void LuaInstance::LoadLibraries(LuaLibFlags libFlags)
 	{
 		// From luaL_openlibs
-		std::array<luaL_Reg, LuaLib_Max + 1> libs;
+		std::array<luaL_Reg, LuaLib_Max + 1 + 1> libs;
 		std::size_t libCount = 0;
 
 		libs[libCount++] = { "_G", luaopen_base };

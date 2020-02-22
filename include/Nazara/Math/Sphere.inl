@@ -398,21 +398,6 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Sets the components of the sphere with center and radius from another
-	* \return A reference to this sphere
-	*
-	* \param sphere The other sphere
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::Set(const Sphere& sphere)
-	{
-		std::memcpy(this, &sphere, sizeof(Sphere));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the sphere from an array of four elements
 	* \return A reference to this sphere
 	*

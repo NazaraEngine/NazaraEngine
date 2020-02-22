@@ -308,7 +308,7 @@ namespace Ndk
 	inline void World::KillEntity(Entity* entity)
 	{
 		if (IsEntityValid(entity))
-			m_killedEntities.UnboundedSet(entity->GetId(), true);
+			m_killedEntities.front.UnboundedSet(entity->GetId(), true);
 	}
 
 	/*!
@@ -325,12 +325,33 @@ namespace Ndk
 	}
 
 	/*!
+	* \brief Checks whether or not an entity is dying (has been killed this update)
+	* \return true If the entity exists and is dying
+	*
+	* \param entity Pointer to the entity
+	*/
+	inline bool World::IsEntityDying(const Entity* entity) const
+	{
+		return entity && IsEntityDying(entity->GetId());
+	}
+
+	/*!
+	* \brief Checks whether or not an entity is dying (has been killed this update)
+	* \return true If it is the case, false if the entity is alive (and hasn't been killed yet) or if the entity id is invalid
+	*
+	* \param id Identifier of the entity
+	*/
+	inline bool World::IsEntityDying(EntityId id) const
+	{
+		return m_killedEntities.front.UnboundedTest(id);
+	}
+
+	/*!
 	* \brief Checks whether or not an entity is valid
 	* \return true If it is the case
 	*
 	* \param entity Pointer to the entity
 	*/
-
 	inline bool World::IsEntityValid(const Entity* entity) const
 	{
 		return entity && entity->GetWorld() == this && IsEntityIdValid(entity->GetId());
@@ -446,13 +467,13 @@ namespace Ndk
 
 	inline void World::Invalidate()
 	{
-		m_dirtyEntities.Resize(m_entityBlocks.size(), false);
-		m_dirtyEntities.Set(true); // Activation of all bits
+		m_dirtyEntities.front.Resize(m_entityBlocks.size(), false);
+		m_dirtyEntities.front.Set(true); // Activation of all bits
 	}
 
 	inline void World::Invalidate(EntityId id)
 	{
-		m_dirtyEntities.UnboundedSet(id, true);
+		m_dirtyEntities.front.UnboundedSet(id, true);
 	}
 
 	inline void World::InvalidateSystemOrder()

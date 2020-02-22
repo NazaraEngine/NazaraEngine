@@ -157,6 +157,8 @@ namespace Nz
 			void* PushUserdata(std::size_t size) const;
 			void PushValue(int index) const;
 
+			bool RawEqual(int index1, int index2) const;
+
 			void Remove(int index) const;
 			void Replace(int index) const;
 

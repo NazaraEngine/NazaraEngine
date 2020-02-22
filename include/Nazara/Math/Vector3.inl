@@ -162,21 +162,10 @@ namespace Nz
 	* \see SquaredDistance
 	*/
 	template<typename T>
-	T Vector3<T>::Distance(const Vector3& vec) const
+	template<typename U>
+	U Vector3<T>::Distance(const Vector3& vec) const
 	{
-		return std::sqrt(SquaredDistance(vec));
-	}
-
-	/*!
-	* \brief Calculates the distance between two vectors
-	* \return The metric distance in float between two vectors with euclidean norm
-	*
-	* \param vec The other vector to measure the distance with
-	*/
-	template<typename T>
-	float Vector3<T>::Distancef(const Vector3& vec) const
-	{
-		return std::sqrt(static_cast<float>(SquaredDistance(vec)));
+		return static_cast<U>(std::sqrt(SquaredDistance(vec)));
 	}
 
 	/*!
@@ -530,20 +519,6 @@ namespace Nz
 		x = vec.x;
 		y = vec.y;
 		z = Z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another vector
-	* \return A reference to this vector
-	*
-	* \param vec The other vector
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(const Vector3& vec)
-	{
-		std::memcpy(this, &vec, sizeof(Vector3));
 
 		return *this;
 	}
@@ -1014,26 +989,10 @@ namespace Nz
 	* \see SquaredDistance
 	*/
 	template<typename T>
-	T Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
+	template<typename U>
+	U Vector3<T>::Distance(const Vector3& vec1, const Vector3& vec2)
 	{
-		return vec1.Distance(vec2);
-	}
-
-	/*!
-	* \brief Measure the distance between two points as a float
-	* Shorthand for vec1.Distancef(vec2)
-	*
-	* param vec1 the first point
-	* param vec2 the second point
-	*
-	* \return The distance between the two vectors as a float
-	*
-	* \see SquaredDistancef
-	*/
-	template<typename T>
-	float Vector3<T>::Distancef(const Vector3& vec1, const Vector3& vec2)
-	{
-		return vec1.Distancef(vec2);
+		return vec1.Distance<U>(vec2);
 	}
 
 	/*!

@@ -45,7 +45,7 @@ namespace Nz
 		NazaraAssert(m_netCode != NetCode_Invalid, "Invalid NetCode");
 
 		std::size_t size = m_buffer->GetSize();
-		if (!EncodeHeader(m_buffer->GetBuffer(), static_cast<UInt16>(size), m_netCode))
+		if (!EncodeHeader(m_buffer->GetBuffer(), static_cast<UInt32>(size), m_netCode))
 		{
 			NazaraError("Failed to encode packet header");
 			return nullptr;
@@ -64,7 +64,7 @@ namespace Nz
 	* \param netCode Packet number
 	*/
 
-	bool NetPacket::DecodeHeader(const void* data, UInt16* packetSize, UInt16* netCode)
+	bool NetPacket::DecodeHeader(const void* data, UInt32* packetSize, UInt16* netCode)
 	{
 		MemoryView stream(data, HeaderSize);
 
@@ -83,7 +83,7 @@ namespace Nz
 	* \param netCode Packet number
 	*/
 
-	bool NetPacket::EncodeHeader(void* data, UInt16 packetSize, UInt16 netCode)
+	bool NetPacket::EncodeHeader(void* data, UInt32 packetSize, UInt16 netCode)
 	{
 		MemoryView stream(data, HeaderSize);
 

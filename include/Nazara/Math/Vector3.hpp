@@ -36,8 +36,8 @@ namespace Nz
 
 			Vector3 CrossProduct(const Vector3& vec) const;
 
-			T Distance(const Vector3& vec) const;
-			float Distancef(const Vector3& vec) const;
+			template<typename U = T>
+			U Distance(const Vector3& vec) const;
 			T DotProduct(const Vector3& vec) const;
 
 			T GetLength() const;
@@ -67,7 +67,6 @@ namespace Nz
 			Vector3& Set(T scale);
 			Vector3& Set(const T vec[3]);
 			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
-			Vector3& Set(const Vector3<T>& vec);
 			template<typename U> Vector3& Set(const Vector3<U>& vec);
 			Vector3& Set(const Vector4<T>& vec);
 
@@ -106,8 +105,7 @@ namespace Nz
 			static Vector3 Backward();
 			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
 			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
-			static T Distance(const Vector3& vec1, const Vector3& vec2);
-			static float Distancef(const Vector3& vec1, const Vector3& vec2);
+			template<typename U = T> static U Distance(const Vector3& vec1, const Vector3& vec2);
 			static Vector3 Down();
 			static Vector3 Forward();
 			static Vector3 Left();
@@ -130,7 +128,9 @@ namespace Nz
 	using Vector3i = Vector3<int>;
 	using Vector3ui = Vector3<unsigned int>;
 	using Vector3i32 = Vector3<Int32>;
+	using Vector3i64 = Vector3<Int64>;
 	using Vector3ui32 = Vector3<UInt32>;
+	using Vector3ui64 = Vector3<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);

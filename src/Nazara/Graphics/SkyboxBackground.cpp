@@ -56,8 +56,6 @@ namespace Nz
 		const Nz::RenderTarget* target = viewer->GetTarget();
 		Nz::Vector2ui targetSize = target->GetSize();
 
-		Matrix4f projectionMatrix = Nz::Matrix4f::Perspective(45.f, float(targetSize.x) / targetSize.y, viewer->GetZNear(), viewer->GetZFar());
-
 		Matrix4f skyboxMatrix(viewer->GetViewMatrix());
 		skyboxMatrix.SetTranslation(Vector3f::Zero());
 
@@ -77,7 +75,7 @@ namespace Nz
 		world.SetTranslation(offset);
 
 		Renderer::SetIndexBuffer(s_indexBuffer);
-		Renderer::SetMatrix(MatrixType_Projection, projectionMatrix);
+		Renderer::SetMatrix(MatrixType_Projection, viewer->GetProjectionMatrix());
 		Renderer::SetMatrix(MatrixType_View, skyboxMatrix);
 		Renderer::SetMatrix(MatrixType_World, world);
 		Renderer::SetRenderStates(s_renderStates);

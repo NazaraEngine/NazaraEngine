@@ -37,7 +37,6 @@ namespace Nz
 
 			Plane& Set(T normalX, T normalY, T normalZ, T Distance);
 			Plane& Set(const T plane[4]);
-			Plane& Set(const Plane& plane);
 			Plane& Set(const Vector3<T>& Normal, T Distance);
 			Plane& Set(const Vector3<T>& Normal, const Vector3<T>& point);
 			Plane& Set(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3);

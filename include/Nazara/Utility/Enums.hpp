@@ -330,17 +330,25 @@ namespace Nz
 		TextAlign_Max = TextAlign_Right
 	};
 
-	enum TextStyleFlags
+	enum TextStyle
 	{
-		TextStyle_Regular = 0x0,
+		TextStyle_Bold,
+		TextStyle_Italic,
+		TextStyle_StrikeThrough,
+		TextStyle_Underlined,
 
-		TextStyle_Bold          = 0x1,
-		TextStyle_Italic        = 0x2,
-		TextStyle_StrikeThrough = 0x4,
-		TextStyle_Underlined    = 0x8,
-
-		TextStyle_Max = TextStyle_Underlined*2-1
+		TextStyle_Max = TextStyle_Underlined
 	};
+
+	template<>
+	struct EnumAsFlags<TextStyle>
+	{
+		static constexpr TextStyle max = TextStyle_Max;
+	};
+
+	using TextStyleFlags = Flags<TextStyle>;
+
+	constexpr TextStyleFlags TextStyle_Regular = 0;
 
 	enum VertexComponent
 	{

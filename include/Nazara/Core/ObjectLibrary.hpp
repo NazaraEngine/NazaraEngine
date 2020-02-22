@@ -23,6 +23,8 @@ namespace Nz
 			ObjectLibrary() = delete;
 			~ObjectLibrary() = delete;
 
+			static void Clear();
+
 			static ObjectRef<Type> Get(const String& name);
 			static bool Has(const String& name);
 

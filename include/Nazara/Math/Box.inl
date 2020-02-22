@@ -586,21 +586,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the box with components from another
-	* \return A reference to this box
-	*
-	* \param box The other box
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(const Box& box)
-	{
-		std::memcpy(this, &box, sizeof(Box));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the box with components from a Rect
 	* \return A reference to this box
 	*

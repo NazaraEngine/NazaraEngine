@@ -181,8 +181,6 @@ namespace Ndk
 			material.BindMethod("IsShadowCastingEnabled", &Nz::Material::IsShadowCastingEnabled);
 			material.BindMethod("IsShadowReceiveEnabled", &Nz::Material::IsShadowReceiveEnabled);
 
-			material.BindMethod("LoadFromFile", &Nz::Material::LoadFromFile, Nz::MaterialParams());
-
 			material.BindMethod("Reset", &Nz::Material::Reset);
 
 			material.BindMethod("SetAlphaThreshold", &Nz::Material::SetAlphaThreshold);
@@ -205,6 +203,7 @@ namespace Ndk
 			material.BindMethod("SetSrcBlend", &Nz::Material::SetSrcBlend);
 
 			material.BindStaticMethod("GetDefault", &Nz::Material::GetDefault);
+			material.BindStaticMethod("LoadFromFile", &Nz::Material::LoadFromFile, Nz::MaterialParams());
 
 			material.BindMethod("SetAlphaMap", [] (Nz::LuaState& lua, Nz::MaterialRef& instance, std::size_t /*argumentCount*/) -> int
 			{
@@ -308,8 +307,6 @@ namespace Ndk
 			//modelClass.SetMethod("GetMesh", &Nz::Model::GetMesh);
 
 			model.BindMethod("IsAnimated", &Nz::Model::IsAnimated);
-			model.BindMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
-
 
 			model.BindMethod("SetMaterial", [] (Nz::LuaState& lua, Nz::Model* instance, std::size_t argumentCount) -> int
 			{
@@ -371,6 +368,8 @@ namespace Ndk
 
 			//modelClass.SetMethod("SetMesh", &Nz::Model::SetMesh);
 			//modelClass.SetMethod("SetSequence", &Nz::Model::SetSequence);
+
+			model.BindStaticMethod("LoadFromFile", &Nz::Model::LoadFromFile, Nz::ModelParameters());
 		}
 
 		/*********************************** Nz::Sprite ***********************************/

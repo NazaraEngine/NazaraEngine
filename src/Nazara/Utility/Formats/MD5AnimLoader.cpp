@@ -28,7 +28,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Animation* animation, Stream& stream, const AnimationParams& /*parameters*/)
+		AnimationRef Load(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -36,7 +36,7 @@ namespace Nz
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Anim parser failed");
-				return false;
+				return nullptr;
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
@@ -46,6 +46,7 @@ namespace Nz
 			UInt32 jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
+			AnimationRef animation = Animation::New();
 			animation->CreateSkeletal(frameCount, jointCount);
 
 			Sequence sequence;
@@ -84,7 +85,7 @@ namespace Nz
 				}
 			}
 
-			return true;
+			return animation;
 		}
 	}
 

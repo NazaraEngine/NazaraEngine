@@ -742,14 +742,14 @@ namespace Nz
 		basicSprites.Sort([&](const SpriteChain& vertices)
 		{
 			// RQ index:
-			// - Layer (4bits)
+			// - Layer (16bits)
 			// - Pipeline (8bits)
 			// - Material (8bits)
 			// - Shader? (8bits)
 			// - Textures (8bits)
 			// - Overlay (8bits)
 			// - Scissor (4bits)
-			// - Depth? (16bits)
+			// - ??? (4bits)
 
 			UInt64 layerIndex = m_layerCache[vertices.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, vertices.material->GetPipeline());
@@ -758,16 +758,14 @@ namespace Nz
 			UInt64 textureIndex = GetOrInsert(m_textureCache, vertices.material->GetDiffuseMap());
 			UInt64 overlayIndex = GetOrInsert(m_overlayCache, vertices.overlay);
 			UInt64 scissorIndex = 0; //< TODO
-			UInt64 depthIndex = 0; //< TODO
 
-			UInt64 index = (layerIndex    & 0x0F)   << 60 |
-			               (pipelineIndex & 0xFF)   << 52 |
-			               (materialIndex & 0xFF)   << 44 |
-			               (shaderIndex   & 0xFF)   << 36 |
-			               (textureIndex  & 0xFF)   << 28 |
-			               (overlayIndex  & 0xFF)   << 20 |
-			               (scissorIndex  & 0x0F)   << 16 |
-			               (depthIndex    & 0xFFFF) <<  0;
+			UInt64 index = (layerIndex    & 0xFFFF) << 48 |
+			               (pipelineIndex & 0xFF)   << 40 |
+			               (materialIndex & 0xFF)   << 32 |
+			               (shaderIndex   & 0xFF)   << 24 |
+			               (textureIndex  & 0xFF)   << 16 |
+			               (overlayIndex  & 0xFF)   << 8 |
+			               (scissorIndex  & 0x0F)   << 4;
 
 			return index;
 		});
@@ -775,14 +773,13 @@ namespace Nz
 		billboards.Sort([&](const BillboardChain& billboard)
 		{
 			// RQ index:
-			// - Layer (4bits)
+			// - Layer (16bits)
 			// - Pipeline (8bits)
 			// - Material (8bits)
 			// - Shader? (8bits)
 			// - Textures (8bits)
-			// - ??? (8bits)
 			// - Scissor (4bits)
-			// - Depth? (16bits)
+			// - ??? (12bits)
 
 			UInt64 layerIndex = m_layerCache[billboard.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, billboard.material->GetPipeline());
@@ -791,16 +788,14 @@ namespace Nz
 			UInt64 textureIndex = GetOrInsert(m_textureCache, billboard.material->GetDiffuseMap());
 			UInt64 unknownIndex = 0; //< ???
 			UInt64 scissorIndex = 0; //< TODO
-			UInt64 depthIndex = 0; //< TODO?
 
-			UInt64 index = (layerIndex    & 0x0F)   << 60 |
-			               (pipelineIndex & 0xFF)   << 52 |
-			               (materialIndex & 0xFF)   << 44 |
-			               (shaderIndex   & 0xFF)   << 36 |
-			               (textureIndex  & 0xFF)   << 28 |
-			               (unknownIndex  & 0xFF)   << 20 |
-			               (scissorIndex  & 0x0F)   << 16 |
-			               (depthIndex    & 0xFFFF) <<  0;
+			UInt64 index = (layerIndex    & 0xFFFF) << 48 |
+			               (pipelineIndex & 0xFF)   << 40 |
+			               (materialIndex & 0xFF)   << 32 |
+			               (shaderIndex   & 0xFF)   << 24 |
+			               (textureIndex  & 0xFF)   << 16 |
+			               (scissorIndex  & 0x0F)   << 12 |
+			               (unknownIndex  & 0xFF)   <<  0;
 
 			return index;
 		});
@@ -808,11 +803,11 @@ namespace Nz
 		customDrawables.Sort([&](const CustomDrawable& drawable)
 		{
 			// RQ index:
-			// - Layer (4bits)
+			// - Layer (16bits)
 
 			UInt64 layerIndex = m_layerCache[drawable.layerIndex];
 
-			UInt64 index = (layerIndex & 0x0F) << 60;
+			UInt64 index = (layerIndex & 0xFFFF) << 48;
 
 			return index;
 
@@ -821,14 +816,14 @@ namespace Nz
 		models.Sort([&](const Model& renderData)
 		{
 			// RQ index:
-			// - Layer (4bits)
+			// - Layer (16bits)
 			// - Pipeline (8bits)
 			// - Material (8bits)
 			// - Shader? (8bits)
 			// - Textures (8bits)
 			// - Buffers (8bits)
 			// - Scissor (4bits)
-			// - Depth? (16bits)
+			// - ??? (4bits)
 
 			UInt64 layerIndex = m_layerCache[renderData.layerIndex];
 			UInt64 pipelineIndex = GetOrInsert(m_pipelineCache, renderData.material->GetPipeline());
@@ -839,14 +834,13 @@ namespace Nz
 			UInt64 scissorIndex = 0; //< TODO
 			UInt64 depthIndex = 0; //< TODO
 
-			UInt64 index = (layerIndex    & 0x0F)   << 60 |
-			               (pipelineIndex & 0xFF)   << 52 |
-			               (materialIndex & 0xFF)   << 44 |
-			               (shaderIndex   & 0xFF)   << 36 |
-			               (textureIndex  & 0xFF)   << 28 |
-			               (bufferIndex   & 0xFF)   << 20 |
-			               (scissorIndex  & 0x0F)   << 16 |
-			               (depthIndex    & 0xFFFF) <<  0;
+			UInt64 index = (layerIndex    & 0xFFFF) << 48 |
+			               (pipelineIndex & 0xFF)   << 40 |
+			               (materialIndex & 0xFF)   << 32 |
+			               (shaderIndex   & 0xFF)   << 24 |
+			               (textureIndex  & 0xFF)   << 16 |
+			               (bufferIndex   & 0xFF)   <<  8 |
+			               (scissorIndex  & 0x0F)   <<  4;
 
 			return index;
 		});
@@ -864,19 +858,19 @@ namespace Nz
 		depthSortedBillboards.Sort([&](const Billboard& billboard)
 		{
 			// RQ index:
-			// - Layer (4bits)
+			// - Layer (16bits)
 			// - Depth (32bits)
-			// - ??    (28bits)
+			// - ??    (16bits)
 
 			// Reinterpret depth as UInt32 (this will work as long as they're all either positive or negative,
-			// a negative distance may happen with billboard behind the camera which we don't care about since they'll be rendered)
+			// a negative distance may happen with billboard behind the camera which we don't care about since they'll not be rendered)
 			float depth = nearPlane.Distance(billboard.data.center);
 
 			UInt64 layerIndex = m_layerCache[billboard.layerIndex];
 			UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
-			UInt64 index = (layerIndex & 0x0F) << 60 |
-			               (depthIndex & 0xFFFFFFFF) << 28;
+			UInt64 index = (layerIndex & 0xFFFF)     << 48 |
+			               (depthIndex & 0xFFFFFFFF) << 16;
 
 			return index;
 		});
@@ -886,17 +880,17 @@ namespace Nz
 			depthSortedModels.Sort([&](const Model& model)
 			{
 				// RQ index:
-				// - Layer (4bits)
+				// - Layer (16bits)
 				// - Depth (32bits)
-				// - ??    (28bits)
+				// - ??    (16bits)
 
 				float depth = nearPlane.Distance(model.obbSphere.GetPosition());
 
 				UInt64 layerIndex = m_layerCache[model.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
-				UInt64 index = (layerIndex & 0x0F) << 60 |
-				               (depthIndex & 0xFFFFFFFF) << 28;
+				UInt64 index = (layerIndex & 0xFFFF)     << 48 |
+				               (depthIndex & 0xFFFFFFFF) << 16;
 
 				return index;
 			});
@@ -904,17 +898,17 @@ namespace Nz
 			depthSortedSprites.Sort([&](const SpriteChain& spriteChain)
 			{
 				// RQ index:
-				// - Layer (4bits)
+				// - Layer (16bits)
 				// - Depth (32bits)
-				// - ??    (28bits)
+				// - ??    (16bits)
 
 				float depth = nearPlane.Distance(spriteChain.vertices[0].position);
 
 				UInt64 layerIndex = m_layerCache[spriteChain.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
-				UInt64 index = (layerIndex & 0x0F) << 60 |
-				               (depthIndex & 0xFFFFFFFF) << 28;
+				UInt64 index = (layerIndex & 0xFFFF)     << 48 |
+				               (depthIndex & 0xFFFFFFFF) << 16;
 
 				return index;
 			});
@@ -926,17 +920,17 @@ namespace Nz
 			depthSortedModels.Sort([&](const Model& model)
 			{
 				// RQ index:
-				// - Layer (4bits)
+				// - Layer (16bits)
 				// - Depth (32bits)
-				// - ??    (28bits)
+				// - ??    (16bits)
 
 				float depth = viewerPos.SquaredDistance(model.obbSphere.GetPosition());
 
 				UInt64 layerIndex = m_layerCache[model.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
-				UInt64 index = (layerIndex & 0x0F) << 60 |
-				               (depthIndex & 0xFFFFFFFF) << 28;
+				UInt64 index = (layerIndex & 0x0F)       << 48 |
+				               (depthIndex & 0xFFFFFFFF) << 16;
 
 				return index;
 			});
@@ -944,17 +938,17 @@ namespace Nz
 			depthSortedSprites.Sort([&](const SpriteChain& sprites)
 			{
 				// RQ index:
-				// - Layer (4bits)
+				// - Layer (16bits)
 				// - Depth (32bits)
-				// - ??    (28bits)
+				// - ??    (16bits)
 
 				float depth = viewerPos.SquaredDistance(sprites.vertices[0].position);
 
 				UInt64 layerIndex = m_layerCache[sprites.layerIndex];
 				UInt64 depthIndex = ~reinterpret_cast<UInt32&>(depth);
 
-				UInt64 index = (layerIndex & 0x0F) << 60 |
-				               (depthIndex & 0xFFFFFFFF) << 28;
+				UInt64 index = (layerIndex & 0xFFFF)     << 48 |
+				               (depthIndex & 0xFFFFFFFF) << 16;
 
 				return index;
 			});

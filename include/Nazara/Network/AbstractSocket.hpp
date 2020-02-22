@@ -44,7 +44,7 @@ namespace Nz
 			AbstractSocket& operator=(AbstractSocket&& abstractSocket);
 
 			// Signals:
-			NazaraSignal(OnStateChange, const AbstractSocket* /*socket*/, SocketState /*newState*/);
+			NazaraSignal(OnStateChanged, const AbstractSocket* /*socket*/, SocketState /*oldState*/, SocketState /*newState*/);
 
 		protected:
 			AbstractSocket(SocketType type);

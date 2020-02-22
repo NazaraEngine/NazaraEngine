@@ -41,10 +41,10 @@ namespace Nz
 			virtual Vector3f GetLeft() const;
 			virtual NodeType GetNodeType() const;
 			const Node* GetParent() const;
-			Vector3f GetPosition(CoordSys coordSys = CoordSys_Global) const;
+			Vector3f GetPosition(CoordSys coordSys = CoordSys_Local) const;
 			virtual Vector3f GetRight() const;
-			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Global) const;
-			Vector3f GetScale(CoordSys coordSys = CoordSys_Global) const;
+			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Local) const;
+			Vector3f GetScale(CoordSys coordSys = CoordSys_Local) const;
 			const Matrix4f& GetTransformMatrix() const;
 			virtual Vector3f GetUp() const;
 
@@ -75,6 +75,7 @@ namespace Nz
 			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys_Local);
 			void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys_Local);
 			void SetRotation(const Quaternionf& quat, CoordSys coordSys = CoordSys_Local);
+			void SetScale(const Vector2f& scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(float scale, CoordSys coordSys = CoordSys_Local);
 			void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys_Local);
@@ -104,6 +105,8 @@ namespace Nz
 			void RemoveChild(Node* node) const;
 			virtual void UpdateDerived() const;
 			virtual void UpdateTransformMatrix() const;
+
+			static Quaternionf ScaleQuaternion(const Vector3f& scale, Quaternionf quaternion);
 
 			mutable std::vector<Node*> m_childs;
 			mutable Matrix4f m_transformMatrix;

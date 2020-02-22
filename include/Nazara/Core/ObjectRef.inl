@@ -335,7 +335,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
 	{
-		return lhs.m_object < rhs.m_object;
+		return lhs.Get() < rhs.Get();
 	}
 
 	/*!
@@ -348,7 +348,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const T& lhs, const ObjectRef<T>& rhs)
 	{
-		return &lhs < rhs.m_object;
+		return &lhs < rhs.Get();
 	}
 
 	/*!
@@ -361,7 +361,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const T& rhs)
 	{
-		return lhs.m_object < &rhs;
+		return lhs.Get() < &rhs;
 	}
 
 	/*!
@@ -480,6 +480,60 @@ namespace Nz
 	{
 		return !(lhs < rhs);
 	}
+
+	/*!
+	* \brief Casts an ObjectRef from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectRef<T> ConstRefCast(const ObjectRef<U>& ref)
+	{
+		return ObjectRef<T>(const_cast<T*>(ref.Get()));
+	}
+
+	/*!
+	* \brief Casts an ObjectRef from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*/
+	template<typename T, typename U>
+	ObjectRef<T> DynamicRefCast(const ObjectRef<U>& ref)
+	{
+		return ObjectRef<T>(dynamic_cast<T*>(ref.Get()));
+	}
+
+	/*!
+	* \brief Casts an ObjectRef from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectRef<T> ReinterpretRefCast(const ObjectRef<U>& ref)
+	{
+		return ObjectRef<T>(static_cast<T*>(ref.Get()));
+	}
+
+	/*!
+	* \brief Casts an ObjectRef from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectRef<T> StaticRefCast(const ObjectRef<U>& ref)
+	{
+		return ObjectRef<T>(static_cast<T*>(ref.Get()));
+	}
 }
 
 namespace std
@@ -504,3 +558,4 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "ObjectRef.hpp"

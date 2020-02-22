@@ -58,6 +58,7 @@ function NazaraBuild:Execute()
 		workspace("NazaraEngine")
 		platforms(platformData)
 
+		startproject "DemoFirstScene"
 		location(_ACTION)
 
 		do
@@ -608,7 +609,7 @@ function NazaraBuild:LoadConfig()
 end
 
 function NazaraBuild:MakeInstallCommands(infoTable)
-	if (os.istarget("windows")) then
+	if (os.ishost("windows")) then
 		filter("kind:SharedLib")
 
 		postbuildmessage("Copying " .. infoTable.Name .. " library and its dependencies to install/executable directories...")
@@ -838,10 +839,11 @@ function NazaraBuild:PrepareGeneric()
 		targetsuffix("-d")
 
 	filter("configurations:*Debug*")
+		optimize("Debug")
 		symbols("On")
 
 	filter("configurations:not *Debug*")
-		flags("NoFramePointer")
+		omitframepointer("On")
 
 	-- Setup some optimizations for release
 	filter("configurations:Release*")
@@ -854,6 +856,10 @@ function NazaraBuild:PrepareGeneric()
 
 	filter("configurations:*Dynamic")
 		kind("SharedLib")
+
+	-- Enable MSVC conformance (not required but better)
+	filter("action:vs*")
+		buildoptions({"/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew"})
 
 	-- Enable SSE math and vectorization optimizations
 	filter({"configurations:Release*", clangGccActions})
@@ -872,6 +878,7 @@ function NazaraBuild:PrepareMainWorkspace()
 
 	-- Add lib/conf/arch to library search path
 	self:FilterLibDirectory("../lib/", libdirs)
+	self:FilterLibDirectory("../lib/", runpathdirs)
 
 	filter("action:vs*")
 		buildoptions({"/MP", "/bigobj"}) -- Multiprocessus build and big .obj

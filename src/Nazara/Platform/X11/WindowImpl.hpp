@@ -58,6 +58,8 @@ namespace Nz
 			bool IsMinimized() const;
 			bool IsVisible() const;
 
+			void RefreshCursor();
+
 			void ProcessEvents(bool block);
 
 			void SetCursor(const Cursor& cursor);

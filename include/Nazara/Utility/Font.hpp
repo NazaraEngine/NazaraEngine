@@ -16,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -58,14 +59,14 @@ namespace Nz
 			bool Create(FontData* data);
 			void Destroy();
 
-			bool ExtractGlyph(unsigned int characterSize, char32_t character, UInt32 style, FontGlyph* glyph) const;
+			bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* glyph) const;
 
 			const std::shared_ptr<AbstractAtlas>& GetAtlas() const;
-			std::size_t GetCachedGlyphCount(unsigned int characterSize, UInt32 style) const;
+			std::size_t GetCachedGlyphCount(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const;
 			std::size_t GetCachedGlyphCount() const;
 			String GetFamilyName() const;
 			int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
-			const Glyph& GetGlyph(unsigned int characterSize, UInt32 style, char32_t character) const;
+			const Glyph& GetGlyph(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 			unsigned int GetGlyphBorder() const;
 			unsigned int GetMinimumStepSize() const;
 			const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
@@ -73,13 +74,8 @@ namespace Nz
 
 			bool IsValid() const;
 
-			bool Precache(unsigned int characterSize, UInt32 style, char32_t character) const;
-			bool Precache(unsigned int characterSize, UInt32 style, const String& characterSet) const;
-
-			// Open
-			bool OpenFromFile(const String& filePath, const FontParams& params = FontParams());
-			bool OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
-			bool OpenFromStream(Stream& stream, const FontParams& params = FontParams());
+			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
+			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const;
 
 			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			void SetGlyphBorder(unsigned int borderSize);
@@ -92,6 +88,10 @@ namespace Nz
 			static const FontRef& GetDefault();
 			static unsigned int GetDefaultGlyphBorder();
 			static unsigned int GetDefaultMinimumStepSize();
+
+			static FontRef OpenFromFile(const String& filePath, const FontParams& params = FontParams());
+			static FontRef OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
+			static FontRef OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 
 			template<typename... Args> static FontRef New(Args&&... args);
 
@@ -107,6 +107,7 @@ namespace Nz
 				bool requireFauxItalic;
 				bool flipped;
 				bool valid;
+				float fauxOutlineThickness;
 				int advance;
 				unsigned int layerIndex;
 			};
@@ -131,11 +132,11 @@ namespace Nz
 		private:
 			using GlyphMap = std::unordered_map<char32_t, Glyph>;
 
-			UInt64 ComputeKey(unsigned int characterSize, UInt32 style) const;
+			UInt64 ComputeKey(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const;
 			void OnAtlasCleared(const AbstractAtlas* atlas);
 			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnAtlasRelease(const AbstractAtlas* atlas);
-			const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, UInt32 style, char32_t character) const;
+			const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 
 			static bool Initialize();
 			static void Uninitialize();

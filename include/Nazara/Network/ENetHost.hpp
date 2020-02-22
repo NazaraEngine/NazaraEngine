@@ -44,6 +44,8 @@ namespace Nz
 			ENetHost(ENetHost&&) = default;
 			inline ~ENetHost();
 
+			inline void AllowsIncomingConnections(bool allow = true);
+
 			void Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
 
 			bool CheckEvents(ENetEvent* event);
@@ -56,10 +58,16 @@ namespace Nz
 			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth);
 			inline void Destroy();
 
+			inline bool DoesAllowIncomingConnections() const;
+
 			void Flush();
 
-			inline Nz::IpAddress GetBoundAddress() const;
+			inline IpAddress GetBoundAddress() const;
 			inline UInt32 GetServiceTime() const;
+			inline UInt32 GetTotalReceivedPackets() const;
+			inline UInt64 GetTotalReceivedData() const;
+			inline UInt64 GetTotalSentData() const;
+			inline UInt32 GetTotalSentPackets() const;
 
 			int Service(ENetEvent* event, UInt32 timeout);
 

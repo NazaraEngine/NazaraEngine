@@ -29,9 +29,13 @@ int main(int argc, char* argv[])
 	viewer.SetTarget(&mainWindow);
 	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
 
+	Nz::SimpleTextDrawer textDrawer;
+	textDrawer.SetCharacterSize(72);
+	textDrawer.SetOutlineThickness(4.f);
+	textDrawer.SetText("Hello world !");
 
 	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
-	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
+	textSprite->Update(textDrawer);
 
 	Ndk::EntityHandle text = world.CreateEntity();
 	Ndk::NodeComponent& nodeComponent = text->AddComponent<Ndk::NodeComponent>();
@@ -39,7 +43,7 @@ int main(int argc, char* argv[])
 	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
 	graphicsComponent.Attach(textSprite);
 
-	Nz::Boxf textBox = graphicsComponent.GetBoundingVolume().aabb;
+	Nz::Boxf textBox = graphicsComponent.GetAABB();
 	Nz::Vector2ui windowSize = mainWindow.GetSize();
 	nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
 

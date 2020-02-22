@@ -35,13 +35,13 @@ namespace Nz
 			return parser.Check();
 		}
 
-		bool Load(Mesh* mesh, Stream& stream, const MeshParams& parameters)
+		MeshRef Load(Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Mesh parser failed");
-				return false;
+				return nullptr;
 			}
 
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
@@ -62,6 +62,7 @@ namespace Nz
 
 			if (parameters.animated)
 			{
+				MeshRef mesh = Mesh::New();
 				mesh->CreateSkeletal(jointCount);
 
 				Skeleton* skeleton = mesh->GetSkeleton();
@@ -218,13 +219,16 @@ namespace Nz
 							mesh->SetAnimation(path);
 					}
 				}
+
+				return mesh;
 			}
 			else
 			{
+				MeshRef mesh = Mesh::New();
 				if (!mesh->CreateStatic()) // Ne devrait jamais échouer
 				{
 					NazaraInternalError("Failed to create mesh");
-					return false;
+					return nullptr;
 				}
 
 				mesh->SetMaterialCount(meshCount);
@@ -309,9 +313,9 @@ namespace Nz
 
 				if (parameters.center)
 					mesh->Recenter();
-			}
 
-			return true;
+				return mesh;
+			}
 		}
 	}
 

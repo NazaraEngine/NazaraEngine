@@ -29,7 +29,7 @@ namespace Nz
 			struct Tile;
 
 			inline TileMap(const Nz::Vector2ui& mapSize, const Nz::Vector2f& tileSize, std::size_t materialCount = 1);
-			TileMap(const TileMap& TileMap) = default;
+			TileMap(const TileMap&) = default;
 			TileMap(TileMap&&) = delete;
 			~TileMap() = default;
 

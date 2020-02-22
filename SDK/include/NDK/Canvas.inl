@@ -24,12 +24,10 @@ namespace Ndk
 		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnEventKeyReleased);
 		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnEventMouseButtonPressed);
 		m_mouseButtonReleasedSlot.Connect(eventHandler.OnMouseButtonReleased, this, &Canvas::OnEventMouseButtonRelease);
-		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnEventMouseLeft);
+		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
+		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
-
-		// Disable padding by default
-		SetPadding(0.f, 0.f, 0.f, 0.f);
 	}
 
 	inline Canvas::~Canvas()
@@ -61,7 +59,7 @@ namespace Ndk
 	{
 		WidgetEntry& entry = m_widgetEntries[index];
 
-		Nz::Vector3f pos = entry.widget->GetPosition();
+		Nz::Vector3f pos = entry.widget->GetPosition(Nz::CoordSys_Global);
 		Nz::Vector2f size = entry.widget->GetSize();
 
 		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
