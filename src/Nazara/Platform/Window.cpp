@@ -5,7 +5,6 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
 
@@ -39,13 +38,10 @@ namespace Nz
 	Window::Window(Window&& window) :
 	m_events(std::move(window.m_events)),
 	m_pendingEvents(std::move(window.m_pendingEvents)),
-	m_eventCondition(std::move(window.m_eventCondition)),
 	m_cursorController(std::move(window.m_cursorController)),
 	m_cursor(std::move(window.m_cursor)),
 	m_eventHandler(std::move(window.m_eventHandler)),
 	m_icon(std::move(window.m_icon)),
-	m_eventMutex(std::move(window.m_eventMutex)),
-	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
 	m_asyncWindow(window.m_asyncWindow),
 	m_closed(window.m_asyncWindow),
 	m_closeOnQuit(window.m_closeOnQuit),
@@ -344,7 +340,7 @@ namespace Nz
 			m_impl->ProcessEvents(block);
 		else
 		{
-			LockGuard eventLock(m_eventMutex);
+			std::lock_guard<std::mutex> eventLock(m_eventMutex);
 
 			for (const WindowEvent& event : m_pendingEvents)
 				HandleEvent(event);
@@ -570,16 +566,19 @@ namespace Nz
 		}
 		else
 		{
-			LockGuard lock(m_eventMutex);
+			std::lock_guard<std::mutex> lock(m_eventMutex);
 
 			if (m_events.empty())
 			{
 				m_waitForEvent = true;
-				m_eventConditionMutex.Lock();
-				m_eventMutex.Unlock();
-				m_eventCondition.Wait(&m_eventConditionMutex);
-				m_eventMutex.Lock();
-				m_eventConditionMutex.Unlock();
+				{
+					m_eventMutex.unlock();
+
+					std::unique_lock<std::mutex> eventConditionLock(m_eventConditionMutex);
+					m_eventCondition.wait(eventConditionLock);
+
+					m_eventMutex.lock();
+				}
 				m_waitForEvent = false;
 			}
 
@@ -601,13 +600,10 @@ namespace Nz
 	{
 		m_events = std::move(window.m_events);
 		m_pendingEvents = std::move(window.m_pendingEvents);
-		m_eventCondition = std::move(window.m_eventCondition);
 		m_cursorController = std::move(window.m_cursorController);
 		m_cursor = std::move(window.m_cursor);
 		m_eventHandler = std::move(window.m_eventHandler);
 		m_icon = std::move(window.m_icon);
-		m_eventMutex = std::move(window.m_eventMutex);
-		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
 		m_asyncWindow = window.m_asyncWindow;
 		m_closed = window.m_asyncWindow;
 		m_closeOnQuit = window.m_closeOnQuit;

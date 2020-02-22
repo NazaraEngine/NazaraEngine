@@ -483,7 +483,7 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	bool Texture::LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params)
+	bool Texture::LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (!m_impl)
@@ -601,7 +601,7 @@ namespace Nz
 		return Update(image, Rectui(0, 0, faceSize, faceSize), face);
 	}
 
-	bool Texture::SaveToFile(const String& filePath, const ImageParams& params)
+	bool Texture::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		Image image;
 		if (!Download(&image))
@@ -613,7 +613,7 @@ namespace Nz
 		return image.SaveToFile(filePath, params);
 	}
 
-	bool Texture::SaveToStream(Stream& stream, const String& format, const ImageParams& params)
+	bool Texture::SaveToStream(Stream& stream, const std::string& format, const ImageParams& params)
 	{
 		Image image;
 		if (!Download(&image))
@@ -935,7 +935,7 @@ namespace Nz
 		return false;
 	}
 
-	TextureRef Texture::LoadFromFile(const String& filePath, const ImageParams& params, bool generateMipmaps)
+	TextureRef Texture::LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params, bool generateMipmaps)
 	{
 		ImageRef image = Image::LoadFromFile(filePath, params);
 		if (!image)
@@ -1047,7 +1047,7 @@ namespace Nz
 		return LoadFromImage(image, generateMipmaps);
 	}
 
-	TextureRef Texture::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
+	TextureRef Texture::LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, bool generateMipmaps, const Vector2ui& atlasSize)
 	{
 		ImageRef cubemap = Image::LoadArrayFromFile(filePath, imageParams, atlasSize);
 		if (!cubemap)
@@ -1095,7 +1095,7 @@ namespace Nz
 		return LoadFromImage(cubemap, generateMipmaps);
 	}
 
-	TextureRef Texture::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
+	TextureRef Texture::LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, bool generateMipmaps, const CubemapParams& cubemapParams)
 	{
 		ImageRef cubemap = Image::LoadCubemapFromFile(filePath, imageParams, cubemapParams);
 		if (!cubemap)

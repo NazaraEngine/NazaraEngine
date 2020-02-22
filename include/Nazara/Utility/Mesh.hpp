@@ -89,12 +89,12 @@ namespace Nz
 			inline ~Mesh();
 
 			void AddSubMesh(SubMesh* subMesh);
-			void AddSubMesh(const String& identifier, SubMesh* subMesh);
+			void AddSubMesh(const std::string& identifier, SubMesh* subMesh);
 
 			SubMesh* BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
 			void BuildSubMeshes(const PrimitiveList& list, const MeshParams& params = MeshParams());
 
-			bool CreateSkeletal(UInt32 jointCount);
+			bool CreateSkeletal(std::size_t jointCount);
 			bool CreateStatic();
 			void Destroy();
 
@@ -103,25 +103,25 @@ namespace Nz
 			void GenerateTangents();
 
 			const Boxf& GetAABB() const;
-			String GetAnimation() const;
+			std::filesystem::path GetAnimation() const;
 			AnimationType GetAnimationType() const;
-			UInt32 GetJointCount() const;
-			ParameterList& GetMaterialData(UInt32 index);
-			const ParameterList& GetMaterialData(UInt32 index) const;
-			UInt32 GetMaterialCount() const;
+			std::size_t GetJointCount() const;
+			ParameterList& GetMaterialData(std::size_t index);
+			const ParameterList& GetMaterialData(std::size_t index) const;
+			std::size_t GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
-			SubMesh* GetSubMesh(const String& identifier);
-			SubMesh* GetSubMesh(UInt32 index);
-			const SubMesh* GetSubMesh(const String& identifier) const;
-			const SubMesh* GetSubMesh(UInt32 index) const;
-			UInt32 GetSubMeshCount() const;
-			UInt32 GetSubMeshIndex(const String& identifier) const;
-			UInt32 GetTriangleCount() const;
-			UInt32 GetVertexCount() const;
+			SubMesh* GetSubMesh(const std::string& identifier);
+			SubMesh* GetSubMesh(std::size_t index);
+			const SubMesh* GetSubMesh(const std::string& identifier) const;
+			const SubMesh* GetSubMesh(std::size_t index) const;
+			std::size_t GetSubMeshCount() const;
+			std::size_t GetSubMeshIndex(const std::string& identifier) const;
+			std::size_t GetTriangleCount() const;
+			std::size_t GetVertexCount() const;
 
-			bool HasSubMesh(const String& identifier) const;
-			bool HasSubMesh(UInt32 index = 0) const;
+			bool HasSubMesh(const std::string& identifier) const;
+			bool HasSubMesh(std::size_t index = 0) const;
 
 			void InvalidateAABB() const;
 
@@ -130,22 +130,22 @@ namespace Nz
 
 			void Recenter();
 
-			void RemoveSubMesh(const String& identifier);
-			void RemoveSubMesh(UInt32 index);
+			void RemoveSubMesh(const std::string& identifier);
+			void RemoveSubMesh(std::size_t index);
 
-			bool SaveToFile(const String& filePath, const MeshParams& params = MeshParams());
-			bool SaveToStream(Stream& stream, const String& format, const MeshParams& params = MeshParams());
+			bool SaveToFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
+			bool SaveToStream(Stream& stream, const std::string& format, const MeshParams& params = MeshParams());
 
-			void SetAnimation(const String& animationPath);
-			void SetMaterialCount(UInt32 matCount);
-			void SetMaterialData(UInt32 matIndex, ParameterList data);
+			void SetAnimation(const std::filesystem::path& animationPath);
+			void SetMaterialCount(std::size_t matCount);
+			void SetMaterialData(std::size_t matIndex, ParameterList data);
 
 			void Transform(const Matrix4f& matrix);
 
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator=(Mesh&&) = delete;
 
-			static MeshRef LoadFromFile(const String& filePath, const MeshParams& params = MeshParams());
+			static MeshRef LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
 			static MeshRef LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
 			static MeshRef LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
 
@@ -164,16 +164,16 @@ namespace Nz
 				NazaraSlot(SubMesh, OnSubMeshInvalidateAABB, onSubMeshInvalidated);
 			};
 
-			std::unordered_map<String, UInt32> m_subMeshMap;
+			std::unordered_map<std::string, std::size_t> m_subMeshMap;
 			std::vector<ParameterList> m_materialData;
 			std::vector<SubMeshData> m_subMeshes;
 			AnimationType m_animationType;
 			mutable Boxf m_aabb;
 			Skeleton m_skeleton; // Only used by skeletal meshes
-			String m_animationPath;
+			std::filesystem::path m_animationPath;
 			mutable bool m_aabbUpdated;
 			bool m_isValid;
-			UInt32 m_jointCount; // Only used by skeletal meshes
+			std::size_t m_jointCount; // Only used by skeletal meshes
 
 			static bool Initialize();
 			static void Uninitialize();

@@ -21,7 +21,7 @@ namespace Nz
 
 	SoundStream::~SoundStream() = default;
 
-	SoundStreamRef SoundStream::OpenFromFile(const String& filePath, const SoundStreamParams& params)
+	SoundStreamRef SoundStream::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
 		return SoundStreamLoader::LoadFromFile(filePath, params);
 	}

@@ -37,21 +37,21 @@ namespace Nz
 			Skeleton(const Skeleton& skeleton);
 			~Skeleton();
 
-			bool Create(UInt32 jointCount);
+			bool Create(std::size_t jointCount);
 			void Destroy();
 
 			const Boxf& GetAABB() const;
 			Joint* GetJoint(const String& jointName);
-			Joint* GetJoint(UInt32 index);
+			Joint* GetJoint(std::size_t index);
 			const Joint* GetJoint(const String& jointName) const;
-			const Joint* GetJoint(UInt32 index) const;
+			const Joint* GetJoint(std::size_t index) const;
 			Joint* GetJoints();
 			const Joint* GetJoints() const;
-			UInt32 GetJointCount() const;
+			std::size_t GetJointCount() const;
 			int GetJointIndex(const String& jointName) const;
 
 			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation);
-			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, UInt32* indices, UInt32 indiceCount);
+			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, std::size_t* indices, std::size_t indiceCount);
 
 			bool IsValid() const;
 

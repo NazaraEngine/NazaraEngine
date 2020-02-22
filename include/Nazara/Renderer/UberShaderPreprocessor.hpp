@@ -32,7 +32,7 @@ namespace Nz
 			UberShaderInstance* Get(const ParameterList& parameters) const override;
 
 			void SetShader(ShaderStageType stage, const String& source, const String& shaderFlags, const String& requiredFlags = String());
-			bool SetShaderFromFile(ShaderStageType stage, const String& filePath, const String& shaderFlags, const String& requiredFlags = String());
+			bool SetShaderFromFile(ShaderStageType stage, const std::filesystem::path& filePath, const String& shaderFlags, const String& requiredFlags = String());
 
 			static bool IsSupported();
 			template<typename... Args> static UberShaderPreprocessorRef New(Args&&... args);

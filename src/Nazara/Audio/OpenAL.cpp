@@ -41,7 +41,7 @@ namespace Nz
 			std::size_t length;
 			while ((length = std::strlen(deviceString)) > 0)
 			{
-				devices.push_back(String(deviceString, length));
+				devices.emplace_back(deviceString, length);
 				deviceString += length + 1;
 			}
 
@@ -140,7 +140,7 @@ namespace Nz
 		bool succeeded = false;
 		for (const char* path : libs)
 		{
-			String libPath(path);
+			std::filesystem::path libPath(path);
 			if (!s_library.Load(libPath))
 				continue;
 
@@ -248,7 +248,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraWarning(libPath + " loading failed: " + String(e.what()));
+				NazaraWarning(libPath.generic_u8string() + " loading failed: " + std::string(e.what()));
 				continue;
 			}
 		}

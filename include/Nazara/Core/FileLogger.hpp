@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
-#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StdLogger.hpp>
+#include <filesystem>
+#include <fstream>
 
 namespace Nz
 {
@@ -35,7 +36,8 @@ namespace Nz
 			FileLogger& operator=(FileLogger&&) noexcept = default;
 
 		private:
-			File m_outputFile;
+			std::fstream m_outputFile;
+			std::filesystem::path m_outputPath;
 			StdLogger m_stdLogger;
 			bool m_forceStdOutput;
 			bool m_stdReplicationEnabled;

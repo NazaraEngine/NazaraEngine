@@ -371,7 +371,7 @@ namespace Nz
 		return CallWithHandler(errorHandler, 0);
 	}
 
-	bool LuaState::ExecuteFromFile(const String& filePath, int errorHandler)
+	bool LuaState::ExecuteFromFile(const std::filesystem::path& filePath, int errorHandler)
 	{
 		if (!LoadFromFile(filePath))
 			return false;
@@ -539,7 +539,7 @@ namespace Nz
 		return true;
 	}
 
-	bool LuaState::LoadFromFile(const String& filePath)
+	bool LuaState::LoadFromFile(const std::filesystem::path& filePath)
 	{
 		File file(filePath);
 		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))

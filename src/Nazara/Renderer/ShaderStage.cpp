@@ -165,7 +165,7 @@ namespace Nz
 		glShaderSource(m_id, 1, &tmp, &length);
 	}
 
-	bool ShaderStage::SetSourceFromFile(const String& filePath)
+	bool ShaderStage::SetSourceFromFile(const std::filesystem::path& filePath)
 	{
 		#if NAZARA_RENDERER_SAFE
 		if (!m_id)
@@ -178,7 +178,7 @@ namespace Nz
 		File file(filePath);
 		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
 		{
-			NazaraError("Failed to open \"" + filePath + '"');
+			NazaraError("Failed to open \"" + filePath.generic_u8string() + '"');
 			return false;
 		}
 

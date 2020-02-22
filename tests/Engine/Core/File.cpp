@@ -1,5 +1,4 @@
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("File", "[CORE][FILE]")
@@ -9,7 +8,7 @@ SCENARIO("File", "[CORE][FILE]")
 		WHEN("We create a new file")
 		{
 			Nz::File file("Test File.txt", Nz::OpenMode_ReadWrite);
-			REQUIRE(file.GetDirectory() == Nz::Directory::GetCurrent() + NAZARA_DIRECTORY_SEPARATOR);
+			REQUIRE(file.GetDirectory() == std::filesystem::current_path());
 			REQUIRE(file.IsOpen());
 
 			THEN("We are allowed to write 3 times 'Test String'")
@@ -53,18 +52,18 @@ SCENARIO("File", "[CORE][FILE]")
 
 		WHEN("We delete this file")
 		{
-			Nz::File::Delete("Test File.txt");
+			std::filesystem::remove("Test File.txt");
 
 			THEN("It doesn't exist anymore")
 			{
-				CHECK(!Nz::File::Exists("Test File.txt"));
+				CHECK(!std::filesystem::exists("Test File.txt"));
 			}
 		}
 	}
 
 	GIVEN("The test file")
 	{
-		REQUIRE(Nz::File::Exists("resources/Engine/Core/FileTest.txt"));
+		REQUIRE(std::filesystem::exists("resources/Engine/Core/FileTest.txt"));
 
 		Nz::File fileTest("resources/Engine/Core/FileTest.txt", Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
 
@@ -76,22 +75,6 @@ SCENARIO("File", "[CORE][FILE]")
 			THEN("The content must be 'Test'")
 			{
 				REQUIRE(content == "Test");
-			}
-		}
-	}
-
-	GIVEN("Nothing")
-	{
-		WHEN("We get the absolute path of something containing relative path")
-		{
-			Nz::String containingDot = "/resources/Spaceship/./spaceship.mtl";
-			Nz::String containingDoubleDot = "/resources/Spaceship/../Spaceship/spaceship.mtl";
-
-			THEN("The relative positioning should disappear")
-			{
-				Nz::String containingNoMoreDot = Nz::File::NormalizePath("/resources/Spaceship/spaceship.mtl");
-				REQUIRE(Nz::File::AbsolutePath(containingDot).EndsWith(containingNoMoreDot));
-				REQUIRE(Nz::File::AbsolutePath(containingDoubleDot).EndsWith(containingNoMoreDot));
 			}
 		}
 	}

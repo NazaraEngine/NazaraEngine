@@ -20,7 +20,7 @@ namespace Nz
 	* \return A reference to the path
 	*/
 
-	const String& Resource::GetFilePath() const
+	const std::filesystem::path& Resource::GetFilePath() const
 	{
 		return m_filePath;
 	}
@@ -31,7 +31,7 @@ namespace Nz
 	* \param filePath Path to the resource
 	*/
 
-	void Resource::SetFilePath(const String& filePath)
+	void Resource::SetFilePath(const std::filesystem::path& filePath)
 	{
 		m_filePath = filePath;
 	}

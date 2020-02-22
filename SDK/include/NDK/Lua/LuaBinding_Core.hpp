@@ -8,7 +8,6 @@
 #define NDK_LUABINDING_CORE_HPP
 
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <NDK/Lua/LuaBinding_Base.hpp>
@@ -24,7 +23,6 @@ namespace Ndk
 			void Register(Nz::LuaState& state) override;
 
 			Nz::LuaClass<Nz::Clock> clock;
-			Nz::LuaClass<Nz::Directory> directory;
 			Nz::LuaClass<Nz::File> file;
 			Nz::LuaClass<Nz::Stream> stream;
 	};

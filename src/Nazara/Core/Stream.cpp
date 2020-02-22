@@ -28,9 +28,9 @@ namespace Nz
 	* \return Empty string (meant to be virtual)
 	*/
 
-	String Stream::GetDirectory() const
+	std::filesystem::path Stream::GetDirectory() const
 	{
-		return String();
+		return std::filesystem::path();
 	}
 
 	/*!
@@ -38,9 +38,9 @@ namespace Nz
 	* \return Empty string (meant to be virtual)
 	*/
 
-	String Stream::GetPath() const
+	std::filesystem::path Stream::GetPath() const
 	{
-		return String();
+		return std::filesystem::path();
 	}
 
 	/*!
@@ -57,9 +57,9 @@ namespace Nz
 	* \remark With the text stream option, "\r\n" is treated as "\n"
 	* \remark The line separator character is not returned as part of the string
 	*/
-	String Stream::ReadLine(unsigned int lineSize)
+	std::string Stream::ReadLine(unsigned int lineSize)
 	{
-		String line;
+		std::string line;
 		if (lineSize == 0) // Maximal size undefined
 		{
 			const unsigned int bufferSize = 64;
@@ -79,9 +79,9 @@ namespace Nz
 					if (ptr != buffer)
 					{
 						if (m_streamOptions & StreamOption_Text && buffer[pos - 1] == '\r')
-							line.Append(buffer, pos - 1);
+							line.append(buffer, pos - 1);
 						else
-							line.Append(buffer, pos);
+							line.append(buffer, pos);
 					}
 
 					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
@@ -100,28 +100,28 @@ namespace Nz
 						length--;
 					}
 
-					line.Append(buffer, length);
+					line.append(buffer, length);
 				}
 			}
 			while (readSize == bufferSize);
 		}
 		else
 		{
-			line.Set(lineSize, '\0');
+			line.resize(lineSize, '\0');
 			std::size_t readSize = Read(&line[0], lineSize);
-			std::size_t pos = line.Find('\n');
+			std::size_t pos = line.find('\n');
 			if (pos <= readSize) // False only if the character is not available (npos being the biggest integer)
 			{
 				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos - 1] == '\r')
-					line.Resize(pos);
+					line.resize(pos);
 				else
-					line.Resize(pos + 1);
+					line.resize(pos + 1);
 
 				if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
 					NazaraWarning("Failed to reset cursos pos");
 			}
 			else
-				line.Resize(readSize);
+				line.resize(readSize);
 		}
 
 		return line;

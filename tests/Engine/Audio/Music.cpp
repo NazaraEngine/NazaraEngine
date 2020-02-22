@@ -1,8 +1,8 @@
+#include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Music.hpp>
 #include <Catch/catch.hpp>
-
-#include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Core/Thread.hpp>
+#include <chrono>
+#include <thread>
 
 SCENARIO("Music", "[AUDIO][MUSIC]")
 {
@@ -32,9 +32,9 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				Nz::Audio::SetGlobalVolume(0.f);
 
 				music.Play();
-				Nz::Thread::Sleep(1000);
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 				REQUIRE(music.GetPlayingOffset() >= 950);
-				Nz::Thread::Sleep(200);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				REQUIRE(music.GetPlayingOffset() <= 1300);
 				music.Pause();
 				REQUIRE(music.GetStatus() == Nz::SoundStatus_Paused);

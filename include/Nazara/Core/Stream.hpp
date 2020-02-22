@@ -10,11 +10,12 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/String.hpp>
+#include <filesystem>
 
 namespace Nz
 {
 	class ByteArray;
-	class String; //< Do not include String.hpp in this file
 
 	class NAZARA_CORE_API Stream
 	{
@@ -30,15 +31,15 @@ namespace Nz
 			inline void Flush();
 
 			virtual UInt64 GetCursorPos() const = 0;
-			virtual String GetDirectory() const;
-			virtual String GetPath() const;
+			virtual std::filesystem::path GetDirectory() const;
+			virtual std::filesystem::path GetPath() const;
 			inline OpenModeFlags GetOpenMode() const;
 			inline StreamOptionFlags GetStreamOptions() const;
 
 			virtual UInt64 GetSize() const = 0;
 
 			inline std::size_t Read(void* buffer, std::size_t size);
-			virtual String ReadLine(unsigned int lineSize = 0);
+			virtual std::string ReadLine(unsigned int lineSize = 0);
 
 			inline bool IsReadable() const;
 			inline bool IsSequential() const;

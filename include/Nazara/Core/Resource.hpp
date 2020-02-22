@@ -8,7 +8,7 @@
 #define NAZARA_RESOURCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
+#include <filesystem>
 
 namespace Nz
 {
@@ -20,15 +20,15 @@ namespace Nz
 			Resource(Resource&&) noexcept = default;
 			virtual ~Resource();
 
-			const String& GetFilePath() const;
+			const std::filesystem::path& GetFilePath() const;
 
-			void SetFilePath(const String& filePath);
+			void SetFilePath(const std::filesystem::path& filePath);
 
 			Resource& operator=(const Resource&) = default;
 			Resource& operator=(Resource&&) noexcept = default;
 
 		private:
-			String m_filePath;
+			std::filesystem::path m_filePath;
 	};
 }
 

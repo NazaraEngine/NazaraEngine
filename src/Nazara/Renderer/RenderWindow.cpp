@@ -5,10 +5,10 @@
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <chrono>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -137,7 +137,7 @@ namespace Nz
 		{
 			int remainingTime = 1000/static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
 			if (remainingTime > 0)
-				Thread::Sleep(remainingTime);
+				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
 
 			m_clock.Restart();
 		}

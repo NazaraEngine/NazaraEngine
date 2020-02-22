@@ -32,14 +32,14 @@ namespace Nz
 	void SubMesh::GenerateNormals()
 	{
 		VertexMapper mapper(this);
-		UInt32 vertexCount = mapper.GetVertexCount();
+		std::size_t vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
 		if (!normals || !positions)
 			return;
 
-		for (UInt32 i = 0; i < vertexCount; ++i)
+		for (std::size_t i = 0; i < vertexCount; ++i)
 			normals[i].MakeZero();
 
 		TriangleIterator iterator(this);
@@ -58,14 +58,14 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (UInt32 i = 0; i < vertexCount; ++i)
+		for (std::size_t i = 0; i < vertexCount; ++i)
 			normals[i].Normalize();
 	}
 
 	void SubMesh::GenerateNormalsAndTangents()
 	{
 		VertexMapper mapper(this);
-		UInt32 vertexCount = mapper.GetVertexCount();
+		std::size_t vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
@@ -74,7 +74,7 @@ namespace Nz
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
-		for (UInt32 i = 0; i < vertexCount; ++i)
+		for (std::size_t i = 0; i < vertexCount; ++i)
 		{
 			normals[i].MakeZero();
 			tangents[i].MakeZero();
@@ -169,10 +169,10 @@ namespace Nz
 		return m_primitiveMode;
 	}
 
-	unsigned int SubMesh::GetTriangleCount() const
+	std::size_t SubMesh::GetTriangleCount() const
 	{
 		const IndexBuffer* indexBuffer = GetIndexBuffer();
-		unsigned int indexCount;
+		std::size_t indexCount;
 		if (indexBuffer)
 			indexCount = indexBuffer->GetIndexCount();
 		else
@@ -199,7 +199,7 @@ namespace Nz
 		return 0;
 	}
 
-	UInt32 SubMesh::GetMaterialIndex() const
+	std::size_t SubMesh::GetMaterialIndex() const
 	{
 		return m_matIndex;
 	}
@@ -209,7 +209,7 @@ namespace Nz
 		m_primitiveMode = mode;
 	}
 
-	void SubMesh::SetMaterialIndex(UInt32 matIndex)
+	void SubMesh::SetMaterialIndex(std::size_t matIndex)
 	{
 		m_matIndex = matIndex;
 	}

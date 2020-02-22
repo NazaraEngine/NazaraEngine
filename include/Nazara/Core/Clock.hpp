@@ -9,12 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 namespace Nz
 {
 	class NAZARA_CORE_API Clock
@@ -39,8 +33,6 @@ namespace Nz
 			Clock& operator=(Clock&& clock) = default;
 
 		private:
-			NazaraMutexAttrib(m_mutex, mutable)
-
 			UInt64 m_elapsedTime;
 			UInt64 m_refTime;
 			bool m_paused;

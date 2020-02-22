@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cctype>
 #include <memory>
@@ -45,32 +46,29 @@ namespace Nz
 				case 'o': //< Object (defines a mesh)
 				case 's': //< Smooth
 				{
-					if (m_currentLine.GetSize() > 1 && m_currentLine[1] == ' ')
+					if (m_currentLine.size() > 1 && m_currentLine[1] == ' ')
 						return true;
 
 					break;
 				}
 
 				case 'm': //< MTLLib
-					if (m_currentLine.GetWord(0).ToLower() == "mtllib")
+					if (StartsWith(m_currentLine, "mtllib "))
 						return true;
 
 					break;
 
 				case 'u': //< Usemtl
-					if (m_currentLine.GetWord(0).ToLower() == "usemtl")
+					if (StartsWith(m_currentLine, "usemtl "))
 						return true;
 
 					break;
 
 				case 'v': //< Position/Normal/Texcoords
 				{
-					String word = m_currentLine.GetWord(0).ToLower();
-					if (word == 'v')
-						return true;
-					else if (word == "vn")
-						return true;
-					else if (word == "vt")
+					if (StartsWith(m_currentLine, "v ") ||
+					    StartsWith(m_currentLine, "vn ") ||
+					    StartsWith(m_currentLine, "vt "))
 						return true;
 
 					break;
@@ -87,7 +85,7 @@ namespace Nz
 		return false;
 	}
 
-	bool OBJParser::Parse(Nz::Stream& stream, UInt32 reservedVertexCount)
+	bool OBJParser::Parse(Nz::Stream& stream, std::size_t reservedVertexCount)
 	{
 		m_currentStream = &stream;
 		m_errorCount = 0;
@@ -106,10 +104,10 @@ namespace Nz
 			});
 		}
 
-		String matName, meshName;
+		std::string matName, meshName;
 		matName = meshName = "default";
 		m_meshes.clear();
-		m_mtlLib.Clear();
+		m_mtlLib.clear();
 
 		m_normals.clear();
 		m_positions.clear();
@@ -122,12 +120,12 @@ namespace Nz
 
 		// Sort meshes by material and group
 		using MatPair = std::pair<Mesh, unsigned int>;
-		std::unordered_map<String, std::unordered_map<String, MatPair>> meshesByName;
+		std::unordered_map<std::string, std::unordered_map<std::string, MatPair>> meshesByName;
 
 		UInt32 faceReserve = 0;
 		UInt32 vertexReserve = 0;
 		unsigned int matCount = 0;
-		auto GetMaterial = [&] (const String& mesh, const String& mat) -> Mesh*
+		auto GetMaterial = [&] (const std::string& mesh, const std::string& mat) -> Mesh*
 		{
 			auto& map = meshesByName[mesh];
 			auto it = map.find(mat);
@@ -154,22 +152,22 @@ namespace Nz
 				case '#': //< Comment
 					// Some softwares write comments to gives the number of vertex/faces an importer can expect
 					unsigned int data;
-					if (std::sscanf(m_currentLine.GetConstBuffer(), "# position count: %u", &data) == 1)
+					if (std::sscanf(m_currentLine.data(), "# position count: %u", &data) == 1)
 						m_positions.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# normal count: %u", &data) == 1)
+					else if (std::sscanf(m_currentLine.data(), "# normal count: %u", &data) == 1)
 						m_normals.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# texcoords count: %u", &data) == 1)
+					else if (std::sscanf(m_currentLine.data(), "# texcoords count: %u", &data) == 1)
 						m_texCoords.reserve(data);
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# face count: %u", &data) == 1)
+					else if (std::sscanf(m_currentLine.data(), "# face count: %u", &data) == 1)
 						faceReserve = data;
-					else if (std::sscanf(m_currentLine.GetConstBuffer(), "# vertex count: %u", &data) == 1)
+					else if (std::sscanf(m_currentLine.data(), "# vertex count: %u", &data) == 1)
 						vertexReserve = data;
 
 					break;
 
 				case 'f': //< Face
 				{
-					if (m_currentLine.GetSize() < 7) // Since we only treat triangles, this is the minimum length of a face line (f 1 2 3)
+					if (m_currentLine.size() < 7) // Since we only treat triangles, this is the minimum length of a face line (f 1 2 3)
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						if (!UnrecognizedLine())
@@ -178,7 +176,7 @@ namespace Nz
 						break;
 					}
 
-					unsigned int vertexCount = m_currentLine.Count(' ');
+					std::size_t vertexCount = std::count(m_currentLine.begin(), m_currentLine.end(), ' ');
 					if (vertexCount < 3)
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -192,8 +190,8 @@ namespace Nz
 						currentMesh = GetMaterial(meshName, matName);
 
 					Face face;
-					face.firstVertex = static_cast<UInt32>(currentMesh->vertices.size());
-					face.vertexCount = static_cast<UInt32>(vertexCount);
+					face.firstVertex = currentMesh->vertices.size();
+					face.vertexCount = vertexCount;
 
 					currentMesh->vertices.resize(face.firstVertex + vertexCount, FaceVertex{0, 0, 0});
 
@@ -230,7 +228,7 @@ namespace Nz
 							p += static_cast<int>(m_positions.size());
 							if (p < 0)
 							{
-								Error("Vertex index out of range (" + String::Number(p) + " < 0");
+								Error("Vertex index out of range (" + std::to_string(p) + " < 0");
 								error = true;
 								break;
 							}
@@ -243,7 +241,7 @@ namespace Nz
 							n += static_cast<int>(m_normals.size());
 							if (n < 0)
 							{
-								Error("Normal index out of range (" + String::Number(n) + " < 0");
+								Error("Normal index out of range (" + std::to_string(n) + " < 0");
 								error = true;
 								break;
 							}
@@ -256,7 +254,7 @@ namespace Nz
 							t += static_cast<int>(m_texCoords.size());
 							if (t < 0)
 							{
-								Error("Texture coordinates index out of range (" + String::Number(t) + " < 0");
+								Error("Texture coordinates index out of range (" + std::to_string(t) + " < 0");
 								error = true;
 								break;
 							}
@@ -266,19 +264,19 @@ namespace Nz
 
 						if (static_cast<std::size_t>(p) > m_positions.size())
 						{
-							Error("Vertex index out of range (" + String::Number(p) + " >= " + String::Number(m_positions.size()) + ')');
+							Error("Vertex index out of range (" + std::to_string(p) + " >= " + std::to_string(m_positions.size()) + ')');
 							error = true;
 							break;
 						}
 						else if (n != 0 && static_cast<std::size_t>(n) > m_normals.size())
 						{
-							Error("Normal index out of range (" + String::Number(n) + " >= " + String::Number(m_normals.size()) + ')');
+							Error("Normal index out of range (" + std::to_string(n) + " >= " + std::to_string(m_normals.size()) + ')');
 							error = true;
 							break;
 						}
 						else if (t != 0 && static_cast<std::size_t>(t) > m_texCoords.size())
 						{
-							Error("TexCoord index out of range (" + String::Number(t) + " >= " + String::Number(m_texCoords.size()) + ')');
+							Error("TexCoord index out of range (" + std::to_string(t) + " >= " + std::to_string(m_texCoords.size()) + ')');
 							error = true;
 							break;
 						}
@@ -299,29 +297,36 @@ namespace Nz
 				}
 
 				case 'm': //< MTLLib
-					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (m_currentLine.GetWord(0).ToLower() != "mtllib")
+				{
+					const char prefix[] = "mtllib ";
+					if (!StartsWith(m_currentLine, prefix))
+					{
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						if (!UnrecognizedLine())
 							return false;
-					#endif
+#endif
 
-					m_mtlLib = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
+						break;
+					}
+
+					m_mtlLib = m_currentLine.substr(sizeof(prefix) - 1);
 					break;
+				}
 
 				case 'g': //< Group (inside a mesh)
 				case 'o': //< Object (defines a mesh)
 				{
-					if (m_currentLine.GetSize() <= 2 || m_currentLine[1] != ' ')
+					if (m_currentLine.size() <= 2 || m_currentLine[1] != ' ')
 					{
-						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						if (!UnrecognizedLine())
 							return false;
-						#endif
+#endif
 						break;
 					}
 
-					String objectName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-					if (objectName.IsEmpty())
+					std::string objectName = m_currentLine.substr(2);
+					if (objectName.empty())
 					{
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						if (!UnrecognizedLine())
@@ -335,12 +340,12 @@ namespace Nz
 					break;
 				}
 
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				case 's': //< Smooth
-					if (m_currentLine.GetSize() <= 2 || m_currentLine[1] == ' ')
+					if (m_currentLine.size() <= 2 || m_currentLine[1] == ' ')
 					{
-						String param = m_currentLine.SubString(2);
-						if (param != "all" && param != "on" && param != "off" && !param.IsNumber())
+						std::string param = m_currentLine.substr(2);
+						if (param != "all" && param != "on" && param != "off" && !IsNumber(param))
 						{
 							if (!UnrecognizedLine())
 								return false;
@@ -349,33 +354,51 @@ namespace Nz
 					else if (!UnrecognizedLine())
 						return false;
 					break;
-					#endif
+#endif
 
 				case 'u': //< Usemtl
-					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (m_currentLine.GetWord(0) != "usemtl" && !UnrecognizedLine())
-						return false;
-					#endif
-
-					matName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-					currentMesh = nullptr;
-					if (matName.IsEmpty())
+				{
+					const char prefix[] = "usemtl ";
+					if (!StartsWith(m_currentLine, prefix))
 					{
-						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						if (!UnrecognizedLine())
 							return false;
-						#endif
+#endif
+
 						break;
 					}
+
+					std::string newMatName = m_currentLine.substr(sizeof(prefix) - 1);
+					if (newMatName.empty())
+					{
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						if (!UnrecognizedLine())
+							return false;
+#endif
+						break;
+					}
+
+					matName = std::move(newMatName);
+					currentMesh = nullptr;
 					break;
+				}
 
 				case 'v': //< Position/Normal/Texcoords
 				{
-					String word = m_currentLine.GetWord(0).ToLower();
-					if (word == 'v')
+					if (m_currentLine.size() < 7)
+					{
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						if (!UnrecognizedLine())
+							return false;
+#endif
+						break;
+					}
+
+					if (std::isspace(m_currentLine[1]))
 					{
 						Vector4f vertex(Vector3f::Zero(), 1.f);
-						unsigned int paramCount = std::sscanf(&m_currentLine[2], "%f %f %f %f", &vertex.x, &vertex.y, &vertex.z, &vertex.w);
+						unsigned int paramCount = std::sscanf(&m_currentLine[2], " %f %f %f %f", &vertex.x, &vertex.y, &vertex.z, &vertex.w);
 						if (paramCount >= 1)
 							m_positions.push_back(vertex);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -383,10 +406,10 @@ namespace Nz
 							return false;
 						#endif
 					}
-					else if (word == "vn")
+					else if (m_currentLine[1] == 'n' && std::isspace(m_currentLine[2]))
 					{
 						Vector3f normal(Vector3f::Zero());
-						unsigned int paramCount = std::sscanf(&m_currentLine[3], "%f %f %f", &normal.x, &normal.y, &normal.z);
+						unsigned int paramCount = std::sscanf(&m_currentLine[3], " %f %f %f", &normal.x, &normal.y, &normal.z);
 						if (paramCount == 3)
 							m_normals.push_back(normal);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -394,10 +417,10 @@ namespace Nz
 							return false;
 						#endif
 					}
-					else if (word == "vt")
+					else if (m_currentLine[1] == 't' && std::isspace(m_currentLine[2]))
 					{
 						Vector3f uvw(Vector3f::Zero());
-						unsigned int paramCount = std::sscanf(&m_currentLine[3], "%f %f %f", &uvw.x, &uvw.y, &uvw.z);
+						unsigned int paramCount = std::sscanf(&m_currentLine[3], " %f %f %f", &uvw.x, &uvw.y, &uvw.z);
 						if (paramCount >= 2)
 							m_texCoords.push_back(uvw);
 						#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -422,7 +445,7 @@ namespace Nz
 			}
 		}
 
-		std::unordered_map<String, unsigned int> materials;
+		std::unordered_map<std::string, unsigned int> materials;
 		m_materials.resize(matCount);
 
 		for (auto& meshPair : meshesByName)
@@ -480,10 +503,10 @@ namespace Nz
 		EmitLine("# Exported by Nazara Engine");
 		EmitLine();
 
-		if (!m_mtlLib.IsEmpty())
+		if (!m_mtlLib.empty())
 		{
 			Emit("mtllib ");
-			EmitLine(m_mtlLib);
+			EmitLine(m_mtlLib.generic_u8string());
 			EmitLine();
 		}
 
@@ -617,12 +640,18 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
-				if (m_currentLine.IsEmpty())
-					continue;
+				if (std::size_t p = m_currentLine.find('#'); p != m_currentLine.npos)
+				{
+					if (p > 0)
+						m_currentLine = m_currentLine.substr(0, p - 1);
+					else
+						m_currentLine.clear();
+				}
 
-				m_currentLine.Simplify(); // Simplify lines (convert multiple blanks into a single space and trims)
+				if (m_currentLine.empty())
+					continue;
 			}
-			while (m_currentLine.IsEmpty());
+			while (m_currentLine.empty());
 		}
 		else
 			m_keepLastLine = false;

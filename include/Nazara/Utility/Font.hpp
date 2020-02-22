@@ -89,7 +89,7 @@ namespace Nz
 			static unsigned int GetDefaultGlyphBorder();
 			static unsigned int GetDefaultMinimumStepSize();
 
-			static FontRef OpenFromFile(const String& filePath, const FontParams& params = FontParams());
+			static FontRef OpenFromFile(const std::filesystem::path& filePath, const FontParams& params = FontParams());
 			static FontRef OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
 			static FontRef OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 

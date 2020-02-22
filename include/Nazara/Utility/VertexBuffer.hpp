@@ -26,33 +26,33 @@ namespace Nz
 		public:
 			VertexBuffer() = default;
 			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer);
-			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, UInt32 offset, UInt32 size);
-			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, UInt32 length, DataStorage storage, BufferUsageFlags usage);
+			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size);
+			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
 			VertexBuffer(const VertexBuffer& vertexBuffer);
 			VertexBuffer(VertexBuffer&&) = delete;
 			~VertexBuffer();
 
-			bool Fill(const void* data, UInt32 startVertex, UInt32 length);
-			bool FillRaw(const void* data, UInt32 offset, UInt32 size);
+			bool Fill(const void* data, std::size_t startVertex, std::size_t length);
+			bool FillRaw(const void* data, std::size_t offset, std::size_t size);
 
 			inline const BufferRef& GetBuffer() const;
-			inline UInt32 GetEndOffset() const;
-			inline UInt32 GetStartOffset() const;
-			inline UInt32 GetStride() const;
-			inline UInt32 GetVertexCount() const;
+			inline std::size_t GetEndOffset() const;
+			inline std::size_t GetStartOffset() const;
+			inline std::size_t GetStride() const;
+			inline std::size_t GetVertexCount() const;
 			inline const VertexDeclarationConstRef& GetVertexDeclaration() const;
 
 			inline bool IsValid() const;
 
-			void* Map(BufferAccess access, UInt32 startVertex = 0, UInt32 length = 0);
-			void* Map(BufferAccess access, UInt32 startVertex = 0, UInt32 length = 0) const;
-			void* MapRaw(BufferAccess access, UInt32 offset = 0, UInt32 size = 0);
-			void* MapRaw(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) const;
+			void* Map(BufferAccess access, std::size_t startVertex = 0, std::size_t length = 0);
+			void* Map(BufferAccess access, std::size_t startVertex = 0, std::size_t length = 0) const;
+			void* MapRaw(BufferAccess access, std::size_t offset = 0, std::size_t size = 0);
+			void* MapRaw(BufferAccess access, std::size_t offset = 0, std::size_t size = 0) const;
 
 			void Reset();
 			void Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer);
-			void Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, UInt32 offset, UInt32 size);
-			void Reset(VertexDeclarationConstRef vertexDeclaration, UInt32 length, DataStorage storage, BufferUsageFlags usage);
+			void Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size);
+			void Reset(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
 			void Reset(const VertexBuffer& vertexBuffer);
 
 			void SetVertexDeclaration(VertexDeclarationConstRef vertexDeclaration);
@@ -69,9 +69,9 @@ namespace Nz
 
 		private:
 			BufferRef m_buffer;
-			UInt32 m_endOffset;
-			UInt32 m_startOffset;
-			UInt32 m_vertexCount;
+			std::size_t m_endOffset;
+			std::size_t m_startOffset;
+			std::size_t m_vertexCount;
 			VertexDeclarationConstRef m_vertexDeclaration;
 	};
 }

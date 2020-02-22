@@ -107,7 +107,7 @@ namespace Nz
 		return m_vertexBuffer;
 	}
 
-	unsigned int StaticMesh::GetVertexCount() const
+	std::size_t StaticMesh::GetVertexCount() const
 	{
 		return m_vertexBuffer->GetVertexCount();
 	}

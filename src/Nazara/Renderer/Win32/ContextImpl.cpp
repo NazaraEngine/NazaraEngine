@@ -7,11 +7,10 @@
 #include <Nazara/Renderer/Win32/ContextImpl.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/LockGuard.hpp>
-#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Renderer/Context.hpp>
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <cstring>
+#include <mutex>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -185,8 +184,8 @@ namespace Nz
 			if (shareContext)
 			{
 				// wglShareLists n'est pas thread-safe (source: SFML)
-				static Mutex mutex;
-				LockGuard lock(mutex);
+				static std::mutex mutex;
+				std::lock_guard<std::mutex> lock(mutex);
 
 				if (!wglShareLists(shareContext, m_context))
 					NazaraWarning("Failed to share the context: " + Error::GetLastSystemError());

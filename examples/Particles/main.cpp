@@ -173,7 +173,7 @@ int main()
 							window.CopyToImage(&screenshot);
 
 							static unsigned int counter = 1;
-							screenshot.SaveToFile("screenshot_" + Nz::String::Number(counter++) + ".png");
+							screenshot.SaveToFile("screenshot_" + std::to_string(counter++) + ".png");
 							break;
 						}
 

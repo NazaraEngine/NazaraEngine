@@ -115,60 +115,6 @@ namespace Ndk
 			});
 		}
 
-		/********************************* Nz::Directory ********************************/
-		directory.Reset("Directory");
-		{
-			directory.SetConstructor([] (Nz::LuaState& lua, Nz::Directory* instance, std::size_t argumentCount)
-			{
-				std::size_t argCount = std::min<std::size_t>(argumentCount, 1U);
-
-				int argIndex = 2;
-				switch (argCount)
-				{
-					case 0:
-						Nz::PlacementNew(instance);
-						return true;
-
-					case 1:
-						Nz::PlacementNew(instance, lua.Check<Nz::String>(&argIndex));
-						return true;
-				}
-
-				return false;
-			});
-
-			directory.BindMethod("Close", &Nz::Directory::Close);
-			directory.BindMethod("Exists", &Nz::Directory::Exists);
-			directory.BindMethod("GetPath", &Nz::Directory::GetPath);
-			directory.BindMethod("GetPattern", &Nz::Directory::GetPattern);
-			directory.BindMethod("GetResultName", &Nz::Directory::GetResultName);
-			directory.BindMethod("GetResultPath", &Nz::Directory::GetResultPath);
-			directory.BindMethod("GetResultSize", &Nz::Directory::GetResultSize);
-			directory.BindMethod("IsOpen", &Nz::Directory::IsOpen);
-			directory.BindMethod("IsResultDirectory", &Nz::Directory::IsResultDirectory);
-			directory.BindMethod("NextResult", &Nz::Directory::NextResult, true);
-			directory.BindMethod("Open", &Nz::Directory::Open);
-			directory.BindMethod("SetPath", &Nz::Directory::SetPath);
-			directory.BindMethod("SetPattern", &Nz::Directory::SetPattern);
-
-			directory.BindStaticMethod("Copy", Nz::Directory::Copy);
-			directory.BindStaticMethod("Create", Nz::Directory::Create);
-			directory.BindStaticMethod("Exists", Nz::Directory::Exists);
-			directory.BindStaticMethod("GetCurrent", Nz::Directory::GetCurrent);
-			directory.BindStaticMethod("Remove", Nz::Directory::Remove);
-			directory.BindStaticMethod("SetCurrent", Nz::Directory::SetCurrent);
-
-			// Manual
-			directory.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::Directory& instance, std::size_t /*argumentCount*/) -> int {
-				Nz::StringStream ss("Directory(");
-				ss << instance.GetPath();
-				ss << ')';
-
-				lua.PushString(ss);
-				return 1;
-			});
-		}
-
 		/*********************************** Nz::File ***********************************/
 		file.Reset("File");
 		{
@@ -187,7 +133,7 @@ namespace Ndk
 
 					case 1:
 					{
-						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+						std::string filePath = lua.Check<std::string>(&argIndex);
 
 						Nz::PlacementNew(instance, filePath);
 						return true;
@@ -195,7 +141,7 @@ namespace Ndk
 
 					case 2:
 					{
-						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+						std::string filePath = lua.Check<std::string>(&argIndex);
 						Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex);
 
 						Nz::PlacementNew(instance, filePath, openMode);
@@ -212,29 +158,8 @@ namespace Ndk
 			file.BindMethod("Delete", &Nz::File::Delete);
 			file.BindMethod("EndOfFile", &Nz::File::EndOfFile);
 			file.BindMethod("Exists", &Nz::File::Exists);
-			file.BindMethod("GetCreationTime", &Nz::File::GetCreationTime);
 			file.BindMethod("GetFileName", &Nz::File::GetFileName);
-			file.BindMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
-			file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
 			file.BindMethod("IsOpen", &Nz::File::IsOpen);
-			file.BindMethod("Rename", &Nz::File::GetLastWriteTime);
-			file.BindMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-			file.BindMethod("SetFile", &Nz::File::GetLastWriteTime);
-
-			file.BindStaticMethod("AbsolutePath", &Nz::File::AbsolutePath);
-			file.BindStaticMethod("ComputeHash", (Nz::ByteArray(*)(Nz::HashType, const Nz::String&)) &Nz::File::ComputeHash);
-			file.BindStaticMethod("Copy", &Nz::File::Copy);
-			file.BindStaticMethod("Delete", &Nz::File::Delete);
-			file.BindStaticMethod("Exists", &Nz::File::Exists);
-			//fileClass.SetStaticMethod("GetCreationTime", &Nz::File::GetCreationTime);
-			file.BindStaticMethod("GetDirectory", &Nz::File::GetDirectory);
-			//fileClass.SetStaticMethod("GetLastAccessTime", &Nz::File::GetLastAccessTime);
-			//fileClass.SetStaticMethod("GetLastWriteTime", &Nz::File::GetLastWriteTime);
-			file.BindStaticMethod("GetSize", &Nz::File::GetSize);
-			file.BindStaticMethod("IsAbsolute", &Nz::File::IsAbsolute);
-			file.BindStaticMethod("NormalizePath", &Nz::File::NormalizePath);
-			file.BindStaticMethod("NormalizeSeparators", &Nz::File::NormalizeSeparators);
-			file.BindStaticMethod("Rename", &Nz::File::Rename);
 
 			// Manual
 			file.BindMethod("Open", [] (Nz::LuaState& lua, Nz::File& instance, std::size_t argumentCount) -> int
@@ -250,7 +175,7 @@ namespace Ndk
 
 					case 2:
 					{
-						Nz::String filePath = lua.Check<Nz::String>(&argIndex);
+						std::string filePath = lua.Check<std::string>(&argIndex);
 						Nz::UInt32 openMode = lua.Check<Nz::UInt32>(&argIndex, Nz::OpenMode_NotOpen);
 						return lua.Push(instance.Open(filePath, openMode));
 					}
@@ -285,7 +210,7 @@ namespace Ndk
 			file.BindMethod("__tostring", [] (Nz::LuaState& lua, Nz::File& instance, std::size_t /*argumentCount*/) -> int {
 				Nz::StringStream ss("File(");
 				if (instance.IsOpen())
-					ss << "Path: " << instance.GetPath();
+					ss << "Path: " << instance.GetPath().generic_u8string();
 
 				ss << ')';
 
@@ -304,7 +229,6 @@ namespace Ndk
 	{
 		// Classes
 		clock.Register(state);
-		directory.Register(state);
 		file.Register(state);
 		stream.Register(state);
 

@@ -166,12 +166,12 @@ namespace Nz
 		}
 	}
 
-	bool UberShaderPreprocessor::SetShaderFromFile(ShaderStageType stage, const String& filePath, const String& shaderFlags, const String& requiredFlags)
+	bool UberShaderPreprocessor::SetShaderFromFile(ShaderStageType stage, const std::filesystem::path& filePath, const String& shaderFlags, const String& requiredFlags)
 	{
 		File file(filePath);
 		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
 		{
-			NazaraError("Failed to open \"" + filePath + '"');
+			NazaraError("Failed to open \"" + filePath.generic_u8string() + '"');
 			return false;
 		}
 

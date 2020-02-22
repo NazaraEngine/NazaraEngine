@@ -3,10 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/PluginManager.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
@@ -17,7 +15,7 @@ namespace Nz
 		using PluginLoad = int (*)();
 		using PluginUnload = void (*)();
 
-		String s_pluginFiles[] =
+		std::filesystem::path s_pluginFiles[] =
 		{
 			"PluginAssimp",  // Plugin_Assimp
 		};
@@ -37,7 +35,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not initialized
 	*/
 
-	void PluginManager::AddDirectory(const String& directoryPath)
+	void PluginManager::AddDirectory(const std::filesystem::path& directoryPath)
 	{
 		if (!Initialize())
 		{
@@ -45,7 +43,7 @@ namespace Nz
 			return;
 		}
 
-		s_directories.insert(File::AbsolutePath(directoryPath));
+		s_directories.insert(std::filesystem::absolute(directoryPath));
 	}
 
 	/*!
@@ -79,9 +77,13 @@ namespace Nz
 
 	bool PluginManager::Mount(Plugin plugin)
 	{
-		Nz::String pluginName = s_pluginFiles[plugin];
+		std::filesystem::path pluginName = s_pluginFiles[plugin];
+
 		#ifdef NAZARA_DEBUG
-		if (Mount(pluginName + "-d", true))
+		std::filesystem::path debugPath = pluginName;
+		debugPath += "-d";
+
+		if (Mount(debugPath, true))
 			return true;
 		#endif
 
@@ -102,7 +104,7 @@ namespace Nz
 	* \remark Produces a NazaraError if fail to initialize the plugin with PluginLoad
 	*/
 
-	bool PluginManager::Mount(const String& pluginPath, bool appendExtension)
+	bool PluginManager::Mount(const std::filesystem::path& pluginPath, bool appendExtension)
 	{
 		if (!Initialize())
 		{
@@ -110,23 +112,17 @@ namespace Nz
 			return false;
 		}
 
-		String path = pluginPath;
-		if (appendExtension && !path.EndsWith(NAZARA_DYNLIB_EXTENSION))
+		std::filesystem::path path = pluginPath;
+		if (appendExtension && path.extension() == NAZARA_DYNLIB_EXTENSION)
 			path += NAZARA_DYNLIB_EXTENSION;
 
 		bool exists = false;
-		if (!File::IsAbsolute(path))
+		if (!path.is_absolute())
 		{
-			for (const String& dir : s_directories)
+			for (const std::filesystem::path& dir : s_directories)
 			{
-				String testPath;
-				testPath.Reserve(dir.GetSize() + path.GetSize() + 10);
-
-				testPath = dir;
-				testPath += NAZARA_DIRECTORY_SEPARATOR;
-				testPath += path;
-
-				if (File::Exists(testPath))
+				std::filesystem::path testPath = dir / path;
+				if (std::filesystem::exists(testPath))
 				{
 					path = testPath;
 					exists = true;
@@ -134,7 +130,7 @@ namespace Nz
 				}
 			}
 		}
-		else if (File::Exists(path))
+		else if (std::filesystem::exists(path))
 			exists = true;
 
 		if (!exists)
@@ -143,7 +139,7 @@ namespace Nz
 			return false;
 		}
 
-		std::unique_ptr<DynLib> library(new DynLib);
+		std::unique_ptr<DynLib> library = std::make_unique<DynLib>();
 		if (!library->Load(path))
 		{
 			NazaraError("Failed to load plugin");
@@ -163,7 +159,8 @@ namespace Nz
 			return false;
 		}
 
-		s_plugins[pluginPath] = library.release();
+		std::filesystem::path canonicalPath = std::filesystem::canonical(pluginPath);
+		s_plugins[canonicalPath] = std::move(library);
 
 		return true;
 	}
@@ -176,7 +173,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not initialized
 	*/
 
-	void PluginManager::RemoveDirectory(const String& directoryPath)
+	void PluginManager::RemoveDirectory(const std::filesystem::path& directoryPath)
 	{
 		if (!Initialize())
 		{
@@ -184,7 +181,7 @@ namespace Nz
 			return;
 		}
 
-		s_directories.erase(File::AbsolutePath(directoryPath));
+		s_directories.erase(std::filesystem::canonical(directoryPath));
 	}
 
 	/*!
@@ -210,7 +207,7 @@ namespace Nz
 	* \remark Produces a NazaraError if plugin is not loaded
 	*/
 
-	void PluginManager::Unmount(const String& pluginPath)
+	void PluginManager::Unmount(const std::filesystem::path& pluginPath)
 	{
 		if (!Initialize())
 		{
@@ -218,7 +215,8 @@ namespace Nz
 			return;
 		}
 
-		auto it = s_plugins.find(pluginPath);
+		std::filesystem::path canonicalPath = std::filesystem::canonical(pluginPath);
+		auto it = s_plugins.find(canonicalPath);
 		if (it == s_plugins.end())
 		{
 			NazaraError("Plugin not loaded");
@@ -228,9 +226,6 @@ namespace Nz
 		PluginUnload func = reinterpret_cast<PluginUnload>(it->second->GetSymbol("PluginUnload"));
 		if (func)
 			func();
-
-		it->second->Unload();
-		delete it->second;
 
 		s_plugins.erase(it);
 	}
@@ -253,15 +248,12 @@ namespace Nz
 			PluginUnload func = reinterpret_cast<PluginUnload>(pair.second->GetSymbol("PluginUnload"));
 			if (func)
 				func();
-
-			pair.second->Unload();
-			delete pair.second;
 		}
 
 		s_plugins.clear();
 	}
 
-	std::set<String> PluginManager::s_directories;
-	std::unordered_map<String, DynLib*> PluginManager::s_plugins;
+	std::set<std::filesystem::path> PluginManager::s_directories;
+	std::unordered_map<std::filesystem::path, std::unique_ptr<DynLib>, PluginManager::PathHash> PluginManager::s_plugins;
 	bool PluginManager::s_initialized = false;
 }

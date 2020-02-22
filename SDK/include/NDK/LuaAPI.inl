@@ -385,7 +385,7 @@ namespace Nz
 		params->loadHeightMap   = state.CheckField<bool>("LoadHeightMap", params->loadHeightMap);
 		params->loadNormalMap   = state.CheckField<bool>("LoadNormalMap", params->loadNormalMap);
 		params->loadSpecularMap = state.CheckField<bool>("LoadSpecularMap", params->loadSpecularMap);
-		params->shaderName      = state.CheckField<String>("ShaderName", params->shaderName);
+		params->shaderName      = state.CheckField<std::string>("ShaderName", params->shaderName);
 
 		return 1;
 	}

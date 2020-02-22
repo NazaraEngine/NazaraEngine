@@ -74,10 +74,10 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>&
 		ProcessJoints(node->mChildren[i], skeleton, joints);
 }
 
-bool IsSupported(const String& extension)
+bool IsSupported(const std::string& extension)
 {
-	String dotExt = '.' + extension;
-	return (aiIsExtensionSupported(dotExt.GetConstBuffer()) == AI_TRUE);
+	std::string dotExt = '.' + extension;
+	return (aiIsExtensionSupported(dotExt.data()) == AI_TRUE);
 }
 
 Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
@@ -91,10 +91,10 @@ Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
 
 AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
 {
-	Nz::String streamPath = stream.GetPath();
+	std::string streamPath = stream.GetPath().generic_u8string();
 
 	FileIOUserdata userdata;
-	userdata.originalFilePath = (!streamPath.IsEmpty()) ? streamPath.GetConstBuffer() : StreamPath;
+	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
 	userdata.originalStream = &stream;
 
 	aiFileIO fileIO;
@@ -186,10 +186,10 @@ Ternary CheckMesh(Stream& /*stream*/, const MeshParams& parameters)
 
 MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 {
-	Nz::String streamPath = stream.GetPath();
+	std::string streamPath = stream.GetPath().generic_u8string();
 
 	FileIOUserdata userdata;
-	userdata.originalFilePath = (!streamPath.IsEmpty()) ? streamPath.GetConstBuffer() : StreamPath;
+	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
 	userdata.originalStream = &stream;
 
 	aiFileIO fileIO;
@@ -377,7 +377,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 					aiTextureMapMode mapMode[3];
 					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 					{
-						matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+						matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
 
 						if (wrapKey)
 						{
@@ -563,7 +563,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 						aiTextureMapMode mapMode[3];
 						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+							matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
 
 							if (wrapKey)
 							{

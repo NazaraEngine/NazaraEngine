@@ -22,13 +22,14 @@ namespace Nz
 			{
 				const ParameterList& matData = model->GetMesh()->GetMaterialData(i);
 
-				String filePath;
-				if (matData.GetStringParameter(MaterialData::FilePath, &filePath))
+				String path;
+				if (matData.GetStringParameter(MaterialData::FilePath, &path))
 				{
-					if (!File::Exists(filePath))
+					std::filesystem::path filePath = path.ToStdString();
+					if (!std::filesystem::exists(filePath))
 					{
 						NazaraWarning("Shader name does not refer to an existing file, \".tga\" is used by default");
-						filePath += ".tga";
+						filePath.replace_extension(".tga");
 					}
 
 					if (MaterialRef material = Material::LoadFromFile(filePath, parameters.material))

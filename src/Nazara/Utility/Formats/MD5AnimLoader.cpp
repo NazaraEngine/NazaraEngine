@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -13,7 +12,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			return (extension == "md5anim");
 		}
@@ -40,10 +39,10 @@ namespace Nz
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
-			UInt32 frameCount = parser.GetFrameCount();
-			UInt32 frameRate = parser.GetFrameRate();
+			std::size_t frameCount = parser.GetFrameCount();
+			std::size_t frameRate = parser.GetFrameRate();
 			const MD5AnimParser::Joint* joints = parser.GetJoints();
-			UInt32 jointCount = parser.GetJointCount();
+			std::size_t jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
 			AnimationRef animation = Animation::New();
@@ -53,7 +52,7 @@ namespace Nz
 			sequence.firstFrame = 0;
 			sequence.frameCount = frameCount;
 			sequence.frameRate = frameRate;
-			sequence.name = stream.GetPath().SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
+			sequence.name = stream.GetPath().filename().generic_u8string();
 
 			animation->AddSequence(sequence);
 
@@ -63,10 +62,10 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			for (UInt32 i = 0; i < jointCount; ++i)
+			for (std::size_t i = 0; i < jointCount; ++i)
 			{
 				int parent = joints[i].parent;
-				for (UInt32 j = 0; j < frameCount; ++j)
+				for (std::size_t j = 0; j < frameCount; ++j)
 				{
 					SequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
 
