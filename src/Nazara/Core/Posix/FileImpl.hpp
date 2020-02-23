@@ -27,7 +27,7 @@ namespace Nz
 			FileImpl(const File* parent);
 			FileImpl(const FileImpl&) = delete;
 			FileImpl(FileImpl&&) = delete; ///TODO
-			~FileImpl() = default;
+			~FileImpl();
 
 			bool EndOfFile() const;
 			void Flush();
