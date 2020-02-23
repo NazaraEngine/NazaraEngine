@@ -8,7 +8,6 @@
 #define NAZARA_VULKANRENDERER_VKCOMMANDPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
 namespace Nz 
@@ -16,11 +15,8 @@ namespace Nz
 	namespace Vk
 	{
 		class CommandBuffer;
-		class CommandPool;
 
-		using CommandPoolHandle = ObjectHandle<CommandPool>;
-
-		class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo>, public HandledObject<CommandPool>
+		class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo>
 		{
 			friend DeviceObject;
 
@@ -34,7 +30,7 @@ namespace Nz
 				std::vector<CommandBuffer> AllocateCommandBuffers(UInt32 commandBufferCount, VkCommandBufferLevel level);
 
 				using DeviceObject::Create;
-				inline bool Create(const DeviceHandle& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline bool Reset(VkCommandPoolResetFlags flags);
 

@@ -25,8 +25,8 @@ namespace Nz
 				~DescriptorSetLayout() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(const DeviceHandle& device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(const DeviceHandle& device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
 				DescriptorSetLayout& operator=(DescriptorSetLayout&&) = delete;

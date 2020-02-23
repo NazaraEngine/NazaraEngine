@@ -36,9 +36,9 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		inline bool DeviceObject<C, VkType, CreateInfo>::Create(const DeviceHandle& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		inline bool DeviceObject<C, VkType, CreateInfo>::Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_device = device;
+			m_device = std::move(device);
 			m_lastErrorCode = C::CreateHelper(m_device, &createInfo, allocator, &m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{

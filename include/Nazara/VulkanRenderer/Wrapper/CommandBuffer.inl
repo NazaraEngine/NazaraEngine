@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
+#include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -12,7 +13,7 @@ namespace Nz
 	namespace Vk
 	{
 		inline CommandBuffer::CommandBuffer() :
-		m_pool(),
+		m_pool(nullptr),
 		m_handle(VK_NULL_HANDLE)
 		{
 		}
@@ -24,7 +25,7 @@ namespace Nz
 		}
 
 		inline CommandBuffer::CommandBuffer(CommandBuffer&& commandBuffer) :
-		m_pool(std::move(commandBuffer.m_pool)),
+		m_pool(commandBuffer.m_pool),
 		m_allocator(commandBuffer.m_allocator),
 		m_handle(commandBuffer.m_handle),
 		m_lastErrorCode(commandBuffer.m_lastErrorCode)
@@ -223,7 +224,10 @@ namespace Nz
 		inline void CommandBuffer::Free()
 		{
 			if (m_handle)
+			{
+				assert(m_pool);
 				m_pool->GetDevice()->vkFreeCommandBuffers(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
+			}
 		}
 
 		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkImageMemoryBarrier& imageMemoryBarrier)
@@ -401,7 +405,7 @@ namespace Nz
 			m_allocator = commandBuffer.m_allocator;
 			m_handle = commandBuffer.m_handle;
 			m_lastErrorCode = commandBuffer.m_lastErrorCode;
-			m_pool = std::move(commandBuffer.m_pool);
+			m_pool = commandBuffer.m_pool;
 			m_handle = commandBuffer.m_handle;
 			
 			commandBuffer.m_handle = VK_NULL_HANDLE;

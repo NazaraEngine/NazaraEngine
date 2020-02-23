@@ -24,7 +24,7 @@ namespace Nz
 			memory.m_mappedPtr = nullptr;
 		}
 
-		inline bool DeviceMemory::Create(const DeviceHandle& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator)
+		inline bool DeviceMemory::Create(DeviceHandle device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator)
 		{
 			VkMemoryAllocateInfo allocInfo =
 			{
@@ -34,10 +34,10 @@ namespace Nz
 				memoryType                              // uint32_t           memoryTypeIndex;
 			};
 
-			return Create(device, allocInfo, allocator);
+			return Create(std::move(device), allocInfo, allocator);
 		}
 
-		inline bool DeviceMemory::Create(const DeviceHandle& device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator)
+		inline bool DeviceMemory::Create(DeviceHandle device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator)
 		{
 			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(device->GetPhysicalDevice());
 
@@ -47,7 +47,7 @@ namespace Nz
 				if (typeBits & typeMask)
 				{
 					if ((deviceInfo.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
-						return Create(device, size, i, allocator);
+						return Create(std::move(device), size, i, allocator);
 				}
 
 				typeMask <<= 1;

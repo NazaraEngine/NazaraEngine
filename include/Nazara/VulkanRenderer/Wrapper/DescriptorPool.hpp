@@ -8,19 +8,15 @@
 #define NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
 namespace Nz 
 {
 	namespace Vk
 	{
-		class DescriptorPool;
 		class DescriptorSet;
 
-		using DescriptorPoolHandle = ObjectHandle<DescriptorPool>;
-
-		class NAZARA_VULKANRENDERER_API DescriptorPool : public DeviceObject<DescriptorPool, VkDescriptorPool, VkDescriptorPoolCreateInfo>, public HandledObject<DescriptorPool>
+		class NAZARA_VULKANRENDERER_API DescriptorPool : public DeviceObject<DescriptorPool, VkDescriptorPool, VkDescriptorPoolCreateInfo>
 		{
 			friend DeviceObject;
 
@@ -34,8 +30,8 @@ namespace Nz
 				std::vector<DescriptorSet> AllocateDescriptorSets(UInt32 descriptorSetCount, const VkDescriptorSetLayout* setLayouts);
 
 				using DeviceObject::Create;
-				inline bool Create(const DeviceHandle& device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(const DeviceHandle& device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				DescriptorPool& operator=(const DescriptorPool&) = delete;
 				DescriptorPool& operator=(DescriptorPool&&) = delete;

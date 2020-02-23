@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool DescriptorPool::Create(const DeviceHandle& device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorPool::Create(DeviceHandle device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorPoolCreateInfo createInfo =
 			{
@@ -21,10 +21,10 @@ namespace Nz
 				&poolSize                                      // const VkDescriptorPoolSize*    pPoolSizes;
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
-		inline bool DescriptorPool::Create(const DeviceHandle& device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorPool::Create(DeviceHandle device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorPoolCreateInfo createInfo =
 			{
@@ -36,7 +36,7 @@ namespace Nz
 				poolSize                                       // const VkDescriptorPoolSize*    pPoolSizes;
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline VkResult DescriptorPool::CreateHelper(const DeviceHandle& device, const VkDescriptorPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorPool* handle)

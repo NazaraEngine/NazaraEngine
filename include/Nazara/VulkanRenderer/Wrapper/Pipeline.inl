@@ -31,12 +31,12 @@ namespace Nz
 
 		inline bool Pipeline::CreateCompute(const DeviceHandle& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
 		{
-			return Create(device, device->vkCreateComputePipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
+			return Create(std::move(device), device->vkCreateComputePipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
 		}
 
 		inline bool Pipeline::CreateGraphics(const DeviceHandle& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
 		{
-			return Create(device, device->vkCreateGraphicsPipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
+			return Create(std::move(device), device->vkCreateGraphicsPipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
 		}
 
 		inline void Pipeline::Destroy()
@@ -63,7 +63,7 @@ namespace Nz
 			return m_handle;
 		}
 
-		inline bool Pipeline::Create(const DeviceHandle& device, VkResult result, const VkAllocationCallbacks* allocator)
+		inline bool Pipeline::Create(DeviceHandle device, VkResult result, const VkAllocationCallbacks* allocator)
 		{
 			m_device = device;
 			m_lastErrorCode = result;

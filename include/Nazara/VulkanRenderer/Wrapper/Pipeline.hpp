@@ -35,7 +35,7 @@ namespace Nz
 				inline operator VkPipeline() const;
 
 			protected:
-				inline bool Create(const DeviceHandle& device, VkResult result, const VkAllocationCallbacks* allocator);
+				inline bool Create(DeviceHandle device, VkResult result, const VkAllocationCallbacks* allocator);
 
 				DeviceHandle m_device;
 				VkAllocationCallbacks m_allocator;

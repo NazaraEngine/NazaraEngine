@@ -45,7 +45,7 @@ namespace Nz
 			private:
 				inline DescriptorSet(DescriptorPool& pool, VkDescriptorSet handle);
 
-				DescriptorPoolHandle m_pool;
+				DescriptorPool* m_pool;
 				VkAllocationCallbacks m_allocator;
 				VkDescriptorSet m_handle;
 				VkResult m_lastErrorCode;

@@ -225,7 +225,7 @@ namespace Nz
 			VkQueue queue;
 			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
 
-			return Queue(CreateHandle(), queue);
+			return Queue(shared_from_this(), queue);
 		}
 
 	}

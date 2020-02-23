@@ -8,11 +8,10 @@
 #define NAZARA_VULKANRENDERER_VKDEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/HandledObject.hpp>
-#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <vulkan/vulkan.h>
+#include <memory>
 #include <unordered_set>
 
 namespace Nz 
@@ -23,9 +22,9 @@ namespace Nz
 		class Instance;
 		class Queue;
 
-		using DeviceHandle = ObjectHandle<Device>;
+		using DeviceHandle = std::shared_ptr<Device>;
 
-		class NAZARA_VULKANRENDERER_API Device : public HandledObject<Device>
+		class NAZARA_VULKANRENDERER_API Device : public std::enable_shared_from_this<Device>
 		{
 			public:
 				struct QueueFamilyInfo;
