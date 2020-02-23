@@ -51,7 +51,7 @@ namespace Nz
 			path += ".so";
 
 		dlerror(); // Clear error flag
-		m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
+		m_handle = dlopen(path.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
 
 		if (m_handle)
 			return true;

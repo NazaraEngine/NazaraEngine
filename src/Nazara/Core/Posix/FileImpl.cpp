@@ -76,8 +76,8 @@ namespace Nz
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
-		m_fileDescriptor = open64(filePath.generic_u8string().data(), flags, permissions);
-		if (m_fileDescriptor == -1)
+		int fileDescriptor = open64(filePath.generic_u8string().data(), flags, permissions);
+		if (fileDescriptor == -1)
 		{
 			NazaraError("Failed to open \"" + filePath.generic_u8string() + "\" : " + Error::GetLastSystemError());
 			return false;
@@ -96,16 +96,16 @@ namespace Nz
 
 		initialize_flock(lock);
 
-		if (fcntl(m_fileDescriptor, F_GETLK, &lock) == -1)
+		if (fcntl(fileDescriptor, F_GETLK, &lock) == -1)
 		{
-			Close();
+			close(fileDescriptor);
 			NazaraError("Unable to detect presence of lock on the file");
 			return false;
 		}
 
 		if (lock.l_type != F_UNLCK)
 		{
-			Close();
+			close(fileDescriptor);
 			NazaraError("A lock is present on the file");
 			return false;
 		}
@@ -114,13 +114,15 @@ namespace Nz
 		{
 			initialize_flock(lock);
 
-			if (fcntl(m_fileDescriptor, F_SETLK, &lock) == -1)  
+			if (fcntl(fileDescriptor, F_SETLK, &lock) == -1)
 			{
-				Close();
+				close(fileDescriptor);
 				NazaraError("Unable to place a lock on the file");
 				return false;
 			}
 		}
+
+		m_fileDescriptor = fileDescriptor;
 
 		return true;
 	}

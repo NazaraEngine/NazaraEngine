@@ -19,7 +19,7 @@ namespace Nz
 	{
 		public:
 			DynLibImpl(DynLib* m_parent);
-			~DynLibImpl() = default;
+			~DynLibImpl();
 
 			DynLibFunc GetSymbol(const char* symbol, std::string* errorMessage) const;
 			bool Load(const std::filesystem::path& libraryPath, std::string* errorMessage);
