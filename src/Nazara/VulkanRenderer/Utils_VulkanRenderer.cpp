@@ -90,7 +90,7 @@ namespace Nz
 			case VK_ERROR_OUT_OF_POOL_MEMORY_KHR:
 				return "A requested pool allocation has failed";
 
-			case VK_ERROR_INVALID_EXTERNAL_HANDLE_KHX:
+			case VK_ERROR_INVALID_EXTERNAL_HANDLE:
 				return "An external handle is not a valid handle of the specified type";
 
 			default:

@@ -11,4 +11,10 @@ namespace Nz
 	{
 		OnRenderTargetRelease(this);
 	}
+
+	void VkRenderTarget::Destroy()
+	{
+		m_renderPass.Destroy();
+		m_imageReadySemaphore.Destroy();
+	}
 }

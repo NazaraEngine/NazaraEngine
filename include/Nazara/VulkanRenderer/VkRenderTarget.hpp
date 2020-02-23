@@ -48,6 +48,8 @@ namespace Nz
 			NazaraSignal(OnRenderTargetSizeChange, const VkRenderTarget* /*renderTarget*/);
 
 		protected:
+			void Destroy();
+
 			Vk::RenderPass m_renderPass;
 			Vk::Semaphore m_imageReadySemaphore;
 	};

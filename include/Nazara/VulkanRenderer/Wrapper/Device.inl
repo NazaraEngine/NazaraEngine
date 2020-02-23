@@ -6,7 +6,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -47,14 +46,6 @@ namespace Nz
 			NazaraAssert(familyQueue < m_enabledQueuesInfos.size(), "Invalid family queue");
 
 			return *m_queuesByFamily[familyQueue];
-		}
-
-		inline Queue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
-		{
-			VkQueue queue;
-			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
-			
-			return Queue(CreateHandle(), queue);
 		}
 
 		inline Instance& Device::GetInstance()

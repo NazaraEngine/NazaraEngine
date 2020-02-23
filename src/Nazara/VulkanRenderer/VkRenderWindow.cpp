@@ -27,8 +27,9 @@ namespace Nz
 
 		m_frameBuffers.clear();
 		m_renderPass.Destroy();
-
 		m_swapchain.Destroy();
+
+		VkRenderTarget::Destroy();
 	}
 
 	bool VkRenderWindow::Acquire(UInt32* imageIndex) const
