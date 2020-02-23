@@ -8,6 +8,8 @@
 #define NAZARA_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
+#include <filesystem>
+#include <string>
 
 namespace Nz
 {
@@ -19,9 +21,8 @@ namespace Nz
 			DynLibImpl(DynLib* m_parent);
 			~DynLibImpl() = default;
 
-			DynLibFunc GetSymbol(const String& symbol, String* errorMessage) const;
-			bool Load(const String& libraryPath, String* errorMessage);
-			void Unload();
+			DynLibFunc GetSymbol(const char* symbol, std::string* errorMessage) const;
+			bool Load(const std::filesystem::path& libraryPath, std::string* errorMessage);
 
 		private:
 			void* m_handle;
