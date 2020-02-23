@@ -171,7 +171,7 @@ namespace Nz
 
 			// Wait until the thread is ready
 			std::unique_lock<std::mutex> lock(mutex);
-			m_thread = std::string(WindowThread, this, std::ref(mutex), std::ref(condition));
+			m_thread = std::thread(WindowThread, this, std::ref(mutex), std::ref(condition));
 			condition.wait(lock);
 		}
 
