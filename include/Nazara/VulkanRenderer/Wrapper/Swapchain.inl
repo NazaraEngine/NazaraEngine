@@ -29,9 +29,9 @@ namespace Nz
 			}
 		}
 
-		inline bool Swapchain::Create(const DeviceHandle& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		inline bool Swapchain::Create(DeviceHandle device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			if (!DeviceObject::Create(device, createInfo, allocator))
+			if (!DeviceObject::Create(std::move(device), createInfo, allocator))
 				return false;
 
 			UInt32 imageCount = 0;

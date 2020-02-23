@@ -29,7 +29,7 @@ namespace Nz
 
 				inline bool AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex) const;
 
-				inline bool Create(const DeviceHandle& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline const Buffer& GetBuffer(UInt32 index) const;
 				inline const std::vector<Buffer>& GetBuffers() const;

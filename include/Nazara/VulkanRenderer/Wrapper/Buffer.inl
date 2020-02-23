@@ -21,7 +21,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Buffer::Create(const DeviceHandle& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
+		inline bool Buffer::Create(DeviceHandle device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
 		{
 			VkBufferCreateInfo createInfo = {
 				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, // VkStructureType        sType;
@@ -34,7 +34,7 @@ namespace Nz
 				nullptr                               // const uint32_t*        pQueueFamilyIndices;
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline VkMemoryRequirements Buffer::GetMemoryRequirements() const

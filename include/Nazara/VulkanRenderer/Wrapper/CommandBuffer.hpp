@@ -86,7 +86,7 @@ namespace Nz
 			private:
 				inline CommandBuffer(CommandPool& pool, VkCommandBuffer handle);
 
-				CommandPoolHandle m_pool;
+				CommandPool* m_pool;
 				VkAllocationCallbacks m_allocator;
 				VkCommandBuffer m_handle;
 				VkResult m_lastErrorCode;

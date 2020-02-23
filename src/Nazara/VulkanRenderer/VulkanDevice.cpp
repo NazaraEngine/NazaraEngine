@@ -11,6 +11,6 @@ namespace Nz
 
 	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(Buffer* parent, BufferType type)
 	{
-		return std::make_unique<VulkanBuffer>(CreateHandle(), parent, type);
+		return std::make_unique<VulkanBuffer>(shared_from_this(), parent, type);
 	}
 }

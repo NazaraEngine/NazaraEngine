@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool ShaderModule::Create(const DeviceHandle& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool ShaderModule::Create(DeviceHandle device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkShaderModuleCreateInfo createInfo =
 			{
@@ -20,7 +20,7 @@ namespace Nz
 				code
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline VkResult ShaderModule::CreateHelper(const DeviceHandle& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle)

@@ -24,7 +24,7 @@ namespace Nz
 				inline DeviceObject(DeviceObject&& object);
 				inline ~DeviceObject();
 
-				inline bool Create(const DeviceHandle& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
 				inline bool IsValid() const;

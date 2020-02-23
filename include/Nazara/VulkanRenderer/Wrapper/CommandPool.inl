@@ -11,7 +11,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool CommandPool::Create(const DeviceHandle& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool CommandPool::Create(DeviceHandle device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkCommandPoolCreateInfo createInfo =
 			{
@@ -21,7 +21,7 @@ namespace Nz
 				queueFamilyIndex
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline bool CommandPool::Reset(VkCommandPoolResetFlags flags)

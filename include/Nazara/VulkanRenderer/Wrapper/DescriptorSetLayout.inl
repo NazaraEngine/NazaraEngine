@@ -9,12 +9,12 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool DescriptorSetLayout::Create(const DeviceHandle& device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorSetLayout::Create(DeviceHandle device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
-			return Create(device, 1U, &binding, flags, allocator);
+			return Create(std::move(device), 1U, &binding, flags, allocator);
 		}
 
-		inline bool DescriptorSetLayout::Create(const DeviceHandle& device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorSetLayout::Create(DeviceHandle device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorSetLayoutCreateInfo createInfo = 
 			{
@@ -25,7 +25,7 @@ namespace Nz
 				binding                                              // const VkDescriptorSetLayoutBinding*    pBindings;
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline VkResult DescriptorSetLayout::CreateHelper(const DeviceHandle& device, const VkDescriptorSetLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorSetLayout* handle)

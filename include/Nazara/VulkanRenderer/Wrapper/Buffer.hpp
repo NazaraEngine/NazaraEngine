@@ -27,7 +27,7 @@ namespace Nz
 				bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);
 
 				using DeviceObject::Create;
-				inline bool Create(const DeviceHandle& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
 
 				VkMemoryRequirements GetMemoryRequirements() const;
 

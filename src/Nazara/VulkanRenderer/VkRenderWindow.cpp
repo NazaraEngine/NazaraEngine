@@ -187,14 +187,14 @@ namespace Nz
 				1U                                            // uint32_t                    layers;
 			};
 
-			if (!m_frameBuffers[i].Create(m_device->CreateHandle(), frameBufferCreate))
+			if (!m_frameBuffers[i].Create(m_device, frameBufferCreate))
 			{
 				NazaraError("Failed to create framebuffer for image #" + String::Number(i));
 				return false;
 			}
 		}
 
-		m_imageReadySemaphore.Create(m_device->CreateHandle());
+		m_imageReadySemaphore.Create(m_device);
 
 		m_clock.Restart();
 
@@ -221,14 +221,14 @@ namespace Nz
 			VK_IMAGE_LAYOUT_UNDEFINED,                                                     // VkImageLayout            initialLayout;
 		};
 
-		if (!m_depthBuffer.Create(m_device->CreateHandle(), imageCreateInfo))
+		if (!m_depthBuffer.Create(m_device, imageCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer");
 			return false;
 		}
 
 		VkMemoryRequirements memoryReq = m_depthBuffer.GetMemoryRequirements();
-		if (!m_depthBufferMemory.Create(m_device->CreateHandle(), memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+		if (!m_depthBufferMemory.Create(m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
 		{
 			NazaraError("Failed to allocate depth buffer memory");
 			return false;
@@ -262,7 +262,7 @@ namespace Nz
 			}
 		};
 
-		if (!m_depthBufferView.Create(m_device->CreateHandle(), imageViewCreateInfo))
+		if (!m_depthBufferView.Create(m_device, imageViewCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer view");
 			return false;
@@ -356,7 +356,7 @@ namespace Nz
 			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
 		};
 
-		return m_renderPass.Create(m_device->CreateHandle(), createInfo);
+		return m_renderPass.Create(m_device, createInfo);
 	}
 
 	bool VkRenderWindow::SetupSwapchain(Vk::Surface& surface, const Vector2ui& size)
@@ -421,7 +421,7 @@ namespace Nz
 			0
 		};
 
-		if (!m_swapchain.Create(m_device->CreateHandle(), swapchainInfo))
+		if (!m_swapchain.Create(m_device, swapchainInfo))
 		{
 			NazaraError("Failed to create swapchain");
 			return false;

@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
+#include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -12,7 +13,7 @@ namespace Nz
 	namespace Vk
 	{
 		inline DescriptorSet::DescriptorSet() :
-		m_pool(),
+		m_pool(nullptr),
 		m_handle(VK_NULL_HANDLE)
 		{
 		}
@@ -24,7 +25,7 @@ namespace Nz
 		}
 
 		inline DescriptorSet::DescriptorSet(DescriptorSet&& descriptorSet) :
-		m_pool(std::move(descriptorSet.m_pool)),
+		m_pool(descriptorSet.m_pool),
 		m_allocator(descriptorSet.m_allocator),
 		m_handle(descriptorSet.m_handle),
 		m_lastErrorCode(descriptorSet.m_lastErrorCode)
@@ -40,7 +41,10 @@ namespace Nz
 		inline void DescriptorSet::Free()
 		{
 			if (m_handle)
+			{
+				assert(m_pool);
 				m_pool->GetDevice()->vkFreeDescriptorSets(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
+			}
 		}
 
 		inline VkResult DescriptorSet::GetLastErrorCode() const
@@ -104,7 +108,7 @@ namespace Nz
 			m_allocator = descriptorSet.m_allocator;
 			m_handle = descriptorSet.m_handle;
 			m_lastErrorCode = descriptorSet.m_lastErrorCode;
-			m_pool = std::move(descriptorSet.m_pool);
+			m_pool = descriptorSet.m_pool;
 			m_handle = descriptorSet.m_handle;
 			
 			descriptorSet.m_handle = VK_NULL_HANDLE;

@@ -139,14 +139,14 @@ int main()
 	Nz::VulkanDevice& device = vulkanWindow.GetDevice();
 
 	Nz::Vk::ShaderModule vertexShader;
-	if (!vertexShader.Create(device.CreateHandle(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
+	if (!vertexShader.Create(device.shared_from_this(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
 	{
 		NazaraError("Failed to create vertex shader");
 		return __LINE__;
 	}
 
 	Nz::Vk::ShaderModule fragmentShader;
-	if (!fragmentShader.Create(device.CreateHandle(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
+	if (!fragmentShader.Create(device.shared_from_this(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
 	{
 		NazaraError("Failed to create fragment shader");
 		return __LINE__;
@@ -205,7 +205,7 @@ int main()
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::Vk::Buffer uniformBuffer;
-	if (!uniformBuffer.Create(device.CreateHandle(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
+	if (!uniformBuffer.Create(device.shared_from_this(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
 	{
 		NazaraError("Failed to create vertex buffer");
 		return __LINE__;
@@ -214,7 +214,7 @@ int main()
 	VkMemoryRequirements memRequirement = uniformBuffer.GetMemoryRequirements();
 
 	Nz::Vk::DeviceMemory uniformBufferMemory;
-	if (!uniformBufferMemory.Create(device.CreateHandle(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+	if (!uniformBufferMemory.Create(device.shared_from_this(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
 	{
 		NazaraError("Failed to allocate vertex buffer memory");
 		return __LINE__;
@@ -245,7 +245,7 @@ int main()
 	layoutBinding.pImmutableSamplers = nullptr;
 
 	Nz::Vk::DescriptorSetLayout descriptorLayout;
-	if (!descriptorLayout.Create(device.CreateHandle(), layoutBinding))
+	if (!descriptorLayout.Create(device.shared_from_this(), layoutBinding))
 	{
 		NazaraError("Failed to create descriptor set layout");
 		return __LINE__;
@@ -256,7 +256,7 @@ int main()
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	Nz::Vk::DescriptorPool descriptorPool;
-	if (!descriptorPool.Create(device.CreateHandle(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+	if (!descriptorPool.Create(device.shared_from_this(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
 	{
 		NazaraError("Failed to create descriptor pool");
 		return __LINE__;
@@ -405,7 +405,7 @@ int main()
 	};
 
 	Nz::Vk::PipelineLayout pipelineLayout;
-	pipelineLayout.Create(device.CreateHandle(), layout_create_info);
+	pipelineLayout.Create(device.shared_from_this(), layout_create_info);
 
 	std::array<VkDynamicState, 2> dynamicStates = {
 		VK_DYNAMIC_STATE_SCISSOR,
@@ -458,14 +458,14 @@ int main()
 	};
 
 	Nz::Vk::Pipeline pipeline;
-	if (!pipeline.CreateGraphics(device.CreateHandle(), pipeline_create_info))
+	if (!pipeline.CreateGraphics(device.shared_from_this(), pipeline_create_info))
 	{
 		NazaraError("Failed to create pipeline");
 		return __LINE__;
 	}
 
 	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(device.CreateHandle(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+	if (!cmdPool.Create(device.shared_from_this(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
 	{
 		NazaraError("Failed to create rendering cmd pool");
 		return __LINE__;
@@ -475,7 +475,7 @@ int main()
 	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
-	Nz::Vk::Queue graphicsQueue(device.CreateHandle(), device.GetEnabledQueues()[0].queues[0].queue);
+	Nz::Vk::Queue graphicsQueue(device.shared_from_this(), device.GetEnabledQueues()[0].queues[0].queue);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);

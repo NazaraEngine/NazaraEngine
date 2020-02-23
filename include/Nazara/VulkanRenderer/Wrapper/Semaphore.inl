@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Semaphore::Create(const DeviceHandle& device, VkSemaphoreCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool Semaphore::Create(DeviceHandle device, VkSemaphoreCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkSemaphoreCreateInfo createInfo =
 			{
@@ -18,7 +18,7 @@ namespace Nz
 				flags
 			};
 
-			return Create(device, createInfo, allocator);
+			return Create(std::move(device), createInfo, allocator);
 		}
 
 		inline VkResult Semaphore::CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)

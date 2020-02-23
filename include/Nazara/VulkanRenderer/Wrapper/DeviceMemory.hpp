@@ -25,8 +25,8 @@ namespace Nz
 				~DeviceMemory() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(const DeviceHandle& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(const DeviceHandle& device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(DeviceHandle device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline void* GetMappedPointer();
 
