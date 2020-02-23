@@ -237,10 +237,10 @@ namespace Nz
 		{
 			if (m_style & WindowStyle_Threaded)
 			{
-				if (m_thread.IsJoinable())
+				if (m_thread.joinable())
 				{
 					m_threadActive = false;
-					m_thread.Join();
+					m_thread.join();
 				}
 			}
 
