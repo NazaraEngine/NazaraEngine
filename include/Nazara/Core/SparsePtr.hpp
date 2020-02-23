@@ -43,7 +43,7 @@ namespace Nz
 			void SetStride(int stride);
 
 			explicit operator bool() const;
-			operator T*() const;
+			explicit operator T*() const;
 			T& operator*() const;
 			T* operator->() const;
 			T& operator[](std::size_t index) const;

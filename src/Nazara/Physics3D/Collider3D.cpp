@@ -347,7 +347,7 @@ namespace Nz
 				m_vertices[i] = *vertices++;
 		}
 		else // Fast path
-			std::memcpy(m_vertices.data(), vertices, vertexCount*sizeof(Vector3f));
+			std::memcpy(m_vertices.data(), vertices.GetPtr(), vertexCount*sizeof(Vector3f));
 	}
 
 	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
