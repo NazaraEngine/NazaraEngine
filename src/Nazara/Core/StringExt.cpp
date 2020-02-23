@@ -49,7 +49,7 @@ namespace Nz
 				}
 				else
 				{
-					static_assert(AlwaysFalse<S>, "Unsupported platform");
+					static_assert(AlwaysFalse<std::integral_constant<std::size_t, S>>::value, "Unsupported platform");
 					return std::string("<platform error>");
 				}
 			}
@@ -72,8 +72,8 @@ namespace Nz
 				}
 				else
 				{
-					static_assert(AlwaysFalse<S>, "Unsupported platform");
-					return std::string("<platform error>");
+					static_assert(AlwaysFalse<std::integral_constant<std::size_t, S>>, "Unsupported platform");
+					return std::wstring(L"<platform error>");
 				}
 			}
 		};
