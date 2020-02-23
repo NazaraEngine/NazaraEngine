@@ -5,7 +5,6 @@
 #include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
+#include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <vulkan/vulkan.h>
@@ -19,8 +20,8 @@ namespace Nz
 	namespace Vk
 	{
 		class Device;
-		class Queue;
 		class Instance;
+		class Queue;
 
 		using DeviceHandle = ObjectHandle<Device>;
 
@@ -42,7 +43,7 @@ namespace Nz
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
 				inline const QueueList& GetEnabledQueues(UInt32 familyQueue) const;
 
-				inline Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
+				Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;

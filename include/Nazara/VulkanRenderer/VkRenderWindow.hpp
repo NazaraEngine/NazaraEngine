@@ -22,6 +22,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Framebuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Swapchain.hpp>
 #include <vector>

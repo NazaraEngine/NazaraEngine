@@ -152,14 +152,15 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::Mesh drfreak;
-	if (!drfreak.LoadFromFile("resources/OILTANK1.md2", meshParams))
+	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/OILTANK1.md2", meshParams);
+
+	if (!drfreak)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	Nz::StaticMesh* drfreakMesh = static_cast<Nz::StaticMesh*>(drfreak.GetSubMesh(0));
+	Nz::StaticMesh* drfreakMesh = static_cast<Nz::StaticMesh*>(drfreak->GetSubMesh(0));
 
 	const Nz::VertexBuffer* drfreakVB = drfreakMesh->GetVertexBuffer();
 	const Nz::IndexBuffer* drfreakIB = drfreakMesh->GetIndexBuffer();
