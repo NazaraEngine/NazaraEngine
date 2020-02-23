@@ -165,15 +165,14 @@ namespace Nz
 
 		if (m_style & WindowStyle_Threaded)
 		{
-			Mutex mutex;
-			ConditionVariable condition;
+			std::mutex mutex;
+			std::condition_variable condition;
 			m_threadActive = true;
 
 			// Wait until the thread is ready
-			mutex.Lock();
-			m_thread = Thread(WindowThread, this, &mutex, &condition);
-			condition.Wait(&mutex);
-			mutex.Unlock();
+			std::unique_lock<std::mutex> lock(mutex);
+			m_thread = std::string(WindowThread, this, std::ref(mutex), std::ref(condition));
+			condition.wait(lock);
 		}
 
 		// Set fullscreen video mode and switch to fullscreen if necessary
@@ -1577,11 +1576,12 @@ namespace Nz
 			));
 	}
 
-	void WindowImpl::WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
+	void WindowImpl::WindowThread(WindowImpl* window, std::mutex& mutex, std::condition_variable& condition)
 	{
-		mutex->Lock();
-		condition->Signal();
-		mutex->Unlock(); // mutex and condition may be destroyed after this line
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+			condition.notify_all();
+		}
 
 		if (!window->m_window)
 			return;
