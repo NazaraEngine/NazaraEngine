@@ -9,6 +9,7 @@
 #include <Nazara/Renderer/OpenGL.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <chrono>
+#include <thread>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
