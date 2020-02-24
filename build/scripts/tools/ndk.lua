@@ -9,16 +9,16 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../SDK/include",
-	"../SDK/src"
+	"../include",
+	"../src"
 }
 
 TOOL.Files = {
-	"../SDK/include/NazaraSDK/**.hpp",
-	"../SDK/include/NazaraSDK/**.inl",
-	"../SDK/src/NazaraSDK/**.hpp",
-	"../SDK/src/NazaraSDK/**.inl",
-	"../SDK/src/NazaraSDK/**.cpp"
+	"../include/NazaraSDK/**.hpp",
+	"../include/NazaraSDK/**.inl",
+	"../src/NazaraSDK/**.hpp",
+	"../src/NazaraSDK/**.inl",
+	"../src/NazaraSDK/**.cpp"
 }
 
 TOOL.Libraries = function()

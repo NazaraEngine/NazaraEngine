@@ -2,17 +2,17 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
-#include <NDK/Application.hpp>
+#include <NazaraSDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <regex>
 
 #ifndef NDK_SERVER
-#include <NDK/Components/CameraComponent.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NazaraSDK/Components/CameraComponent.hpp>
+#include <NazaraSDK/Components/GraphicsComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Systems/RenderSystem.hpp>
 #endif
 
 namespace Ndk
