@@ -36,20 +36,13 @@ TOOL.FilesExcluded = {
 	"../SDK/**/Particle*Component.*",
 	"../SDK/**/ParticleSystem.*",
 	"../SDK/**/RenderSystem.*",
-	"../SDK/**/*Layout*.*",
-	"../SDK/**/*Widget*.*",
-	"../SDK/**/LuaBinding_Audio.*",
-	"../SDK/**/LuaBinding_Graphics.*",
-	"../SDK/**/LuaBinding_Renderer.*",
-	"../SDK/**/LuaBinding_Platform.*"
+	"../SDK/**/*Layout*.*"
 }
 
 
 TOOL.Libraries = {
 	"NazaraCore",
-	"NazaraLua",
 	"NazaraNetwork",
-	"NazaraNoise",
 	"NazaraPhysics2D",
 	"NazaraPhysics3D",
 	"NazaraUtility"
