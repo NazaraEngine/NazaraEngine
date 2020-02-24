@@ -119,7 +119,7 @@ namespace Nz
 	Bitset<Block, Allocator>::Bitset(T value) :
 	Bitset()
 	{
-		if (sizeof(T) <= sizeof(Block))
+		if constexpr (sizeof(T) <= sizeof(Block))
 		{
 			m_bitCount = BitCount<T>();
 			m_blocks.push_back(static_cast<Block>(value));
