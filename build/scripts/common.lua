@@ -97,6 +97,10 @@ function NazaraBuild:Execute()
 				files(libTable.Files)
 				excludes(libTable.FilesExcluded)
 
+				if (libTable.DisableWarnings) then
+					warnings("Off")
+				end
+
 				defines(libTable.Defines)
 				flags(libTable.Flags)
 				kind("StaticLib") -- Force them as static libs
@@ -812,6 +816,7 @@ function NazaraBuild:PrepareGeneric()
 	})
 	
 	cppdialect("C++17")
+	warnings("Extra")
 
 	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
