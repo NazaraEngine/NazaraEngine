@@ -10,35 +10,36 @@ TOOL.Defines = {
 }
 
 TOOL.Includes = {
-	"../SDK/include",
-	"../SDK/src"
+	"../include",
+	"../src"
 }
 
 TOOL.Files = {
-	"../SDK/include/NDK/**.hpp",
-	"../SDK/include/NDK/**.inl",
-	"../SDK/src/NDK/**.hpp",
-	"../SDK/src/NDK/**.inl",
-	"../SDK/src/NDK/**.cpp"
+	"../include/NazaraSDK/**.hpp",
+	"../include/NazaraSDK/**.inl",
+	"../src/NazaraSDK/**.hpp",
+	"../src/NazaraSDK/**.inl",
+	"../src/NazaraSDK/**.cpp"
 }
 
 -- Excludes client-only files
 TOOL.FilesExcluded = {
-	"../SDK/**/CameraComponent.*",
-	"../SDK/**/Canvas.*",
-	"../SDK/**/Console.*",
-	"../SDK/**/DebugComponent.*",
-	"../SDK/**/DebugSystem.*",
-	"../SDK/**/GraphicsComponent.*",
-	"../SDK/**/LightComponent.*",
-	"../SDK/**/ListenerComponent.*",
-	"../SDK/**/ListenerSystem.*",
-	"../SDK/**/Particle*Component.*",
-	"../SDK/**/ParticleSystem.*",
-	"../SDK/**/RenderSystem.*",
-	"../SDK/**/*Layout*.*"
+	"../*/NazaraSDK/BaseWidget.*",
+	"../*/NazaraSDK/Canvas.*",
+	"../*/NazaraSDK/Console.*",
+	"../*/NazaraSDK/**/CameraComponent.*",
+	"../*/NazaraSDK/**/DebugComponent.*",
+	"../*/NazaraSDK/**/DebugSystem.*",
+	"../*/NazaraSDK/**/GraphicsComponent.*",
+	"../*/NazaraSDK/**/LightComponent.*",
+	"../*/NazaraSDK/**/ListenerComponent.*",
+	"../*/NazaraSDK/**/ListenerSystem.*",
+	"../*/NazaraSDK/**/Particle*Component.*",
+	"../*/NazaraSDK/**/ParticleSystem.*",
+	"../*/NazaraSDK/**/RenderSystem.*",
+	"../*/NazaraSDK/**/*Layout*.*",
+	"../*/NazaraSDK/**/*Widget*.*"
 }
-
 
 TOOL.Libraries = {
 	"NazaraCore",
