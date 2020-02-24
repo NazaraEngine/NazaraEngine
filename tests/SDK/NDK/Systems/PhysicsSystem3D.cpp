@@ -1,8 +1,8 @@
-#include <NDK/Systems/PhysicsSystem3D.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent3D.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent3D.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem3D.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/CollisionComponent3D.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/PhysicsComponent3D.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("PhysicsSystem3D", "[NDK][PHYSICSSYSTEM3D]")

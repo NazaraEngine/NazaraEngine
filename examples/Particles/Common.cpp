@@ -1,8 +1,8 @@
 #include "Common.hpp"
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
-#include <NDK/Components/ParticleGroupComponent.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
+#include <NazaraSDK/Components/ParticleGroupComponent.hpp>
+#include <NazaraSDK/Systems/RenderSystem.hpp>
 
 ParticleDemo::ParticleDemo(const Nz::String& name, const ExampleShared& exampleShared) :
 m_shared(exampleShared),

@@ -2,7 +2,7 @@
 #define __TEXT_HPP__
 
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <NDK/Entity.hpp>
+#include <NazaraSDK/Entity.hpp>
 #include "StateContext.hpp"
 
 class Text

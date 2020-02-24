@@ -6,7 +6,7 @@
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
+#include <NazaraSDK/Application.hpp>
 #include <iostream>
 
 int main(int argc, char* argv[])

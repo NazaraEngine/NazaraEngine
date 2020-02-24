@@ -17,12 +17,12 @@
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Network.hpp> // Module utilitaire
 #include <Nazara/Utility.hpp> // Module utilitaire
-#include <NDK/Application.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Console.hpp>
-#include <NDK/Systems.hpp>
-#include <NDK/Sdk.hpp>
-#include <NDK/World.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Console.hpp>
+#include <NazaraSDK/Systems.hpp>
+#include <NazaraSDK/Sdk.hpp>
+#include <NazaraSDK/World.hpp>
 #include <iostream>
 
 // Petite fonction permettant de rendre le déplacement de la caméra moins ridige

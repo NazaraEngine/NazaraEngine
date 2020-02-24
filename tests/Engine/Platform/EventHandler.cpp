@@ -1,12 +1,12 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 
-#include <NDK/Application.hpp>
-#include <NDK/StateMachine.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/CameraComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/StateMachine.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/CameraComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Systems/RenderSystem.hpp>
 
 #include "EventHandler/StateContext.hpp"
 #include "EventHandler/StateFactory.hpp"

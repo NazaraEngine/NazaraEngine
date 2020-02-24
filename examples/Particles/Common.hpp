@@ -7,10 +7,10 @@
 #include <Nazara/Graphics/AbstractBackground.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
-#include <NDK/Components/ParticleGroupComponent.hpp>
-#include <NDK/EntityOwner.hpp>
-#include <NDK/StateMachine.hpp>
-#include <NDK/World.hpp>
+#include <NazaraSDK/Components/ParticleGroupComponent.hpp>
+#include <NazaraSDK/EntityOwner.hpp>
+#include <NazaraSDK/StateMachine.hpp>
+#include <NazaraSDK/World.hpp>
 #include <memory>
 #include <random>
 #include <vector>

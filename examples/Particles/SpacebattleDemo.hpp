@@ -11,8 +11,8 @@
 #include <Nazara/Graphics/SkyboxBackground.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/EventHandler.hpp>
-#include <NDK/Entity.hpp>
-#include <NDK/State.hpp>
+#include <NazaraSDK/Entity.hpp>
+#include <NazaraSDK/State.hpp>
 #include <vector>
 #include "Common.hpp"
 
