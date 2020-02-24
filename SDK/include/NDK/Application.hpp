@@ -18,7 +18,6 @@
 #include <NDK/Canvas.hpp>
 #include <NDK/Console.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Lua/LuaInstance.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Platform/Window.hpp>
@@ -83,7 +82,6 @@ namespace Ndk
 			struct ConsoleOverlay
 			{
 				Console* console;
-				Nz::LuaInstance lua;
 
 				NazaraSlot(Nz::EventHandler, OnEvent, eventSlot);
 				NazaraSlot(Nz::EventHandler, OnKeyPressed, keyPressedSlot);

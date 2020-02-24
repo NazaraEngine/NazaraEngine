@@ -1,9 +1,7 @@
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Lua.hpp>
 #include <Nazara/Network.hpp>
-#include <Nazara/Noise.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
@@ -37,6 +35,8 @@ int main()
 
 	Nz::RenderWindow& window = app.AddWindow<Nz::RenderWindow>(mode, "Nazara demo - Particles", Nz::WindowStyle_Closable, targetParams);
 	//Nz::RenderWindow& window = app.AddWindow<Nz::RenderWindow>(Nz::VideoMode(1920, 1080), "Nazara demo - Particles", Nz::WindowStyle_Fullscreen, targetParams);
+
+	app.EnableFPSCounter(true);
 
 	Ndk::World& world3D = app.AddWorld();
 	Ndk::World& world2D = app.AddWorld();
