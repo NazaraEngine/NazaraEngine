@@ -866,6 +866,11 @@ function NazaraBuild:PrepareGeneric()
 		buildoptions("-mfpmath=sse")
 		buildoptions("-ftree-vectorize")
 
+	-- Add options required for C++17 thread and filesystem
+	filter("action:gmake*")
+		links("stdc++fs")
+		links("pthread")
+
 	filter({})
 	
 	buildoptions(self.Config["AdditionalCompilationOptions"])
