@@ -14,11 +14,11 @@ TOOL.Includes = {
 }
 
 TOOL.Files = {
-	"../SDK/include/NDK/**.hpp",
-	"../SDK/include/NDK/**.inl",
-	"../SDK/src/NDK/**.hpp",
-	"../SDK/src/NDK/**.inl",
-	"../SDK/src/NDK/**.cpp"
+	"../SDK/include/NazaraSDK/**.hpp",
+	"../SDK/include/NazaraSDK/**.inl",
+	"../SDK/src/NazaraSDK/**.hpp",
+	"../SDK/src/NazaraSDK/**.inl",
+	"../SDK/src/NazaraSDK/**.cpp"
 }
 
 TOOL.Libraries = function()
