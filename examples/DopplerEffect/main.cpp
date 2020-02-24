@@ -15,6 +15,7 @@
 #include <Nazara/Platform/Platform.hpp>
 #include <chrono>
 #include <iostream>
+#include <thread>
 
 int main()
 {
