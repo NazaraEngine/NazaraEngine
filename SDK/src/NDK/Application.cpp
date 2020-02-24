@@ -11,7 +11,6 @@
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
-#include <NDK/LuaAPI.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
@@ -151,14 +150,7 @@ namespace Ndk
 		else
 			windowDimensions.MakeZero();
 
-		Nz::LuaInstance& lua = overlay->lua;
-
 		overlay->console = info.canvas->Add<Console>();
-		overlay->console->OnCommand.Connect([&lua](Ndk::Console* console, const Nz::String& command)
-		{
-			if (!lua.Execute(command))
-				console->AddLine(lua.GetLastError(), Nz::Color::Red);
-		});
 
 		Console& consoleRef = *overlay->console;
 		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
@@ -169,40 +161,6 @@ namespace Ndk
 		{
 			consoleRef.AddLine(str);
 		});
-
-		lua.LoadLibraries();
-		LuaAPI::RegisterClasses(lua);
-
-		// Override "print" function to add a line in the console
-		lua.PushFunction([&consoleRef] (Nz::LuaState& state)
-		{
-			Nz::StringStream stream;
-
-			unsigned int argCount = state.GetStackTop();
-			state.GetGlobal("tostring");
-			for (unsigned int i = 1; i <= argCount; ++i)
-			{
-				state.PushValue(-1); // tostring function
-				state.PushValue(i);  // argument
-				state.Call(1, 1);
-
-				std::size_t length;
-				const char* str = state.CheckString(-1, &length);
-				if (i > 1)
-					stream << '\t';
-
-				stream << Nz::String(str, length);
-				state.Pop(1);
-			}
-
-			consoleRef.AddLine(stream);
-			return 0;
-		});
-		lua.SetGlobal("print");
-
-		// Define a few base variables to allow our interface to interact with the application
-		lua.PushGlobal("Application", Ndk::Application::Instance());
-		lua.PushGlobal("Console", consoleRef.CreateHandle());
 
 		// Setup a few event callback to handle the console
 		Nz::EventHandler& eventHandler = info.window->GetEventHandler();

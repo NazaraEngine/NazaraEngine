@@ -13,7 +13,6 @@
 */
 
 #include <Nazara/Core/Clock.hpp> // Horloges
-#include <Nazara/Lua.hpp> // Module de scripting
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Network.hpp> // Module utilitaire
@@ -22,7 +21,6 @@
 #include <NDK/Components.hpp>
 #include <NDK/Console.hpp>
 #include <NDK/Systems.hpp>
-#include <NDK/LuaAPI.hpp>
 #include <NDK/Sdk.hpp>
 #include <NDK/World.hpp>
 #include <iostream>
@@ -263,10 +261,6 @@ int main()
 
 	application.EnableConsole(true);
 	application.EnableFPSCounter(true);
-
-	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
-	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
 
 
 	//Gestion des Evenements 

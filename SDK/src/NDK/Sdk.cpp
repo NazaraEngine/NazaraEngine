@@ -7,8 +7,6 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Lua/Lua.hpp>
-#include <Nazara/Noise/Noise.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Platform/Platform.hpp>
@@ -70,8 +68,6 @@ namespace Ndk
 			// Initialize the engine first
 
 			// Shared modules
-			Nz::Lua::Initialize();
-			Nz::Noise::Initialize();
 			Nz::Physics2D::Initialize();
 			Nz::Physics3D::Initialize();
 			Nz::Utility::Initialize();
@@ -178,8 +174,6 @@ namespace Ndk
 		#endif
 
 		// Shared modules
-		Nz::Lua::Uninitialize();
-		Nz::Noise::Uninitialize();
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();

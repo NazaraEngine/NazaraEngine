@@ -1,9 +1,7 @@
-﻿#include <Nazara/Audio.hpp>
+#include <Nazara/Audio.hpp>
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Lua.hpp>
 #include <Nazara/Network.hpp>
-#include <Nazara/Noise.hpp>
 #include <Nazara/Physics2D.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
