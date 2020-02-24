@@ -1,7 +1,7 @@
 #ifndef __STATEFACTORY_HPP__
 #define __STATEFACTORY_HPP__
 
-#include <NDK/State.hpp>
+#include <NazaraSDK/State.hpp>
 
 #include <map>
 #include <memory>

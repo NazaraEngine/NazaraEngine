@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_RUNNER
 #include <Catch/catch.hpp>
 
-#include <NDK/Application.hpp>
+#include <NazaraSDK/Application.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Log.hpp>

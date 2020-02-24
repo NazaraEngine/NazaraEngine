@@ -1,4 +1,4 @@
-#include <NDK/Application.hpp>
+#include <NazaraSDK/Application.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("Application", "[NDK][APPLICATION]")

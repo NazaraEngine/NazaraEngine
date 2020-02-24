@@ -2,10 +2,10 @@
 
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
-#include <NDK/StateMachine.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/StateMachine.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/GraphicsComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
 
 Text::Text(StateContext& stateContext) :
 m_context(stateContext)

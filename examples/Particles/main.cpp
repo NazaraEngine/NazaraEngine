@@ -5,10 +5,10 @@
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems.hpp>
-#include <NDK/StateMachine.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems.hpp>
+#include <NazaraSDK/StateMachine.hpp>
 #include "LogoDemo.hpp"
 #include "SpacebattleDemo.hpp"
 #include <iostream>

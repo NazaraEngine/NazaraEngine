@@ -1,7 +1,7 @@
-#include <NDK/Systems/RenderSystem.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems/PhysicsSystem2D.hpp>
+#include <NazaraSDK/Systems/RenderSystem.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem2D.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Catch/catch.hpp>
