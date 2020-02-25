@@ -11,6 +11,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <vector>
 
@@ -26,6 +27,8 @@ namespace Nz
 			virtual ~RenderWindowImpl();
 
 			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
+
+			virtual std::shared_ptr<RenderDevice> GetRenderDevice() = 0;
 	};
 }
 

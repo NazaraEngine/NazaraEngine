@@ -122,6 +122,8 @@ int main()
 		return __LINE__;
 	}
 
+	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
+
 	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
 
 	/*VkPhysicalDeviceFeatures features;
@@ -136,17 +138,17 @@ int main()
 	std::vector<VkQueueFamilyProperties> queues;
 	instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &queues);*/
 
-	Nz::VulkanDevice& device = vulkanWindow.GetDevice();
+	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
 
 	Nz::Vk::ShaderModule vertexShader;
-	if (!vertexShader.Create(device.shared_from_this(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
+	if (!vertexShader.Create(vulkanDevice.shared_from_this(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
 	{
 		NazaraError("Failed to create vertex shader");
 		return __LINE__;
 	}
 
 	Nz::Vk::ShaderModule fragmentShader;
-	if (!fragmentShader.Create(device.shared_from_this(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
+	if (!fragmentShader.Create(vulkanDevice.shared_from_this(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
 	{
 		NazaraError("Failed to create fragment shader");
 		return __LINE__;
@@ -169,25 +171,25 @@ int main()
 	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
-	if (!renderBufferIB->Synchronize(&device))
+	if (!renderBufferIB->Synchronize(&vulkanDevice))
 	{
 		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&device));
+	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&vulkanDevice));
 
 	// Index buffer
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
-	if (!renderBufferVB->Synchronize(&device))
+	if (!renderBufferVB->Synchronize(&vulkanDevice))
 	{
 		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&device));
+	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&vulkanDevice));
 
 	struct
 	{
@@ -205,7 +207,7 @@ int main()
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::Vk::Buffer uniformBuffer;
-	if (!uniformBuffer.Create(device.shared_from_this(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
+	if (!uniformBuffer.Create(vulkanDevice.shared_from_this(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
 	{
 		NazaraError("Failed to create vertex buffer");
 		return __LINE__;
@@ -214,7 +216,7 @@ int main()
 	VkMemoryRequirements memRequirement = uniformBuffer.GetMemoryRequirements();
 
 	Nz::Vk::DeviceMemory uniformBufferMemory;
-	if (!uniformBufferMemory.Create(device.shared_from_this(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+	if (!uniformBufferMemory.Create(vulkanDevice.shared_from_this(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
 	{
 		NazaraError("Failed to allocate vertex buffer memory");
 		return __LINE__;
@@ -245,7 +247,7 @@ int main()
 	layoutBinding.pImmutableSamplers = nullptr;
 
 	Nz::Vk::DescriptorSetLayout descriptorLayout;
-	if (!descriptorLayout.Create(device.shared_from_this(), layoutBinding))
+	if (!descriptorLayout.Create(vulkanDevice.shared_from_this(), layoutBinding))
 	{
 		NazaraError("Failed to create descriptor set layout");
 		return __LINE__;
@@ -256,7 +258,7 @@ int main()
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	Nz::Vk::DescriptorPool descriptorPool;
-	if (!descriptorPool.Create(device.shared_from_this(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+	if (!descriptorPool.Create(vulkanDevice.shared_from_this(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
 	{
 		NazaraError("Failed to create descriptor pool");
 		return __LINE__;
@@ -265,6 +267,28 @@ int main()
 	Nz::Vk::DescriptorSet descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorLayout);
 
 	descriptorSet.WriteUniformDescriptor(0, uniformBuffer, 0, uniformSize);
+
+	Nz::RenderPipelineInfo pipelineInfo;
+	pipelineInfo.depthBuffer = true;
+	pipelineInfo.depthCompare = Nz::RendererComparison_Equal;
+
+	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+
+	VkDescriptorSetLayout descriptorSetLayout = descriptorLayout;
+
+	VkPipelineLayoutCreateInfo layout_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType                sType
+		nullptr,                                        // const void                    *pNext
+		0,                                              // VkPipelineLayoutCreateFlags    flags
+		1U,                                              // uint32_t                       setLayoutCount
+		&descriptorSetLayout,                                        // const VkDescriptorSetLayout   *pSetLayouts
+		0,                                              // uint32_t                       pushConstantRangeCount
+		nullptr                                         // const VkPushConstantRange     *pPushConstantRanges
+	};
+
+	Nz::Vk::PipelineLayout pipelineLayout;
+	pipelineLayout.Create(vulkanDevice.shared_from_this(), layout_create_info);
+
 
 	std::array<VkPipelineShaderStageCreateInfo, 2> shaderStageCreateInfo = {
 		{
@@ -392,21 +416,6 @@ int main()
 		{0.0f, 0.0f, 0.0f, 0.0f}                                    // float                                          blendConstants[4]
 	};
 
-	VkDescriptorSetLayout descriptorSetLayout = descriptorLayout;
-
-	VkPipelineLayoutCreateInfo layout_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType                sType
-		nullptr,                                        // const void                    *pNext
-		0,                                              // VkPipelineLayoutCreateFlags    flags
-		1U,                                              // uint32_t                       setLayoutCount
-		&descriptorSetLayout,                                        // const VkDescriptorSetLayout   *pSetLayouts
-		0,                                              // uint32_t                       pushConstantRangeCount
-		nullptr                                         // const VkPushConstantRange     *pPushConstantRanges
-	};
-
-	Nz::Vk::PipelineLayout pipelineLayout;
-	pipelineLayout.Create(device.shared_from_this(), layout_create_info);
-
 	std::array<VkDynamicState, 2> dynamicStates = {
 		VK_DYNAMIC_STATE_SCISSOR,
 		VK_DYNAMIC_STATE_VIEWPORT,
@@ -420,20 +429,7 @@ int main()
 		dynamicStates.data()                                  // const VkDynamicState*                pDynamicStates;
 	};
 
-	VkPipelineDepthStencilStateCreateInfo depthStencilInfo = {
-		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO, // VkStructureType                           sType;
-		nullptr, // const void*                               pNext;
-		0U, // VkPipelineDepthStencilStateCreateFlags    flags;
-		VK_TRUE, // VkBool32                                  depthTestEnable;
-		VK_TRUE, // VkBool32                                  depthWriteEnable;
-		VK_COMPARE_OP_LESS_OR_EQUAL, // VkCompareOp                               depthCompareOp;
-		VK_FALSE, // VkBool32                                  depthBoundsTestEnable;
-		VK_FALSE, // VkBool32                                  stencilTestEnable;
-		VkStencilOpState{},// VkStencilOpState                          front;
-		VkStencilOpState{},// VkStencilOpState                          back;
-		0.f, // float                                     minDepthBounds;
-		0.f // float                                     maxDepthBounds;
-	};
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo = Nz::VulkanRenderPipeline::BuildDepthStencilInfo(pipelineInfo);
 
 	VkGraphicsPipelineCreateInfo pipeline_create_info = {
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,              // VkStructureType                                sType
@@ -457,15 +453,15 @@ int main()
 		-1                                                            // int32_t                                        basePipelineIndex
 	};
 
-	Nz::Vk::Pipeline pipeline;
-	if (!pipeline.CreateGraphics(device.shared_from_this(), pipeline_create_info))
+	Nz::Vk::Pipeline vkPipeline;
+	if (!vkPipeline.CreateGraphics(vulkanDevice.shared_from_this(), pipeline_create_info))
 	{
 		NazaraError("Failed to create pipeline");
 		return __LINE__;
 	}
 
 	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(device.shared_from_this(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+	if (!cmdPool.Create(vulkanDevice.shared_from_this(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
 	{
 		NazaraError("Failed to create rendering cmd pool");
 		return __LINE__;
@@ -475,7 +471,7 @@ int main()
 	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
-	Nz::Vk::Queue graphicsQueue(device.shared_from_this(), device.GetEnabledQueues()[0].queues[0].queue);
+	Nz::Vk::Queue graphicsQueue(vulkanDevice.shared_from_this(), vulkanDevice.GetEnabledQueues()[0].queues[0].queue);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -532,7 +528,7 @@ int main()
 		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
 		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
 		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
-		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline);
 		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
 		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());

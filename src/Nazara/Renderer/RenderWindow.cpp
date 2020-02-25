@@ -28,6 +28,14 @@ namespace Nz
 		///TODO
 	}
 
+	std::shared_ptr<RenderDevice> RenderWindow::GetRenderDevice()
+	{
+		if (!m_impl)
+			return std::shared_ptr<RenderDevice>();
+
+		return m_impl->GetRenderDevice();
+	}
+
 	bool RenderWindow::OnWindowCreated()
 	{
 		RendererImpl* rendererImpl = Renderer::GetRendererImpl();

@@ -63,6 +63,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>

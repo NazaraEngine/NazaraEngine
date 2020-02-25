@@ -37,6 +37,11 @@ namespace Nz
 		return m_swapchain;
 	}
 
+	inline std::shared_ptr<RenderDevice> Nz::VkRenderWindow::GetRenderDevice()
+	{
+		return m_device;
+	}
+
 	inline void VkRenderWindow::Present(UInt32 imageIndex)
 	{
 		NazaraAssert(imageIndex < m_frameBuffers.size(), "Invalid image index");

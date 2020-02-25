@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -12,5 +13,10 @@ namespace Nz
 	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(Buffer* parent, BufferType type)
 	{
 		return std::make_unique<VulkanBuffer>(shared_from_this(), parent, type);
+	}
+
+	std::unique_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
+	{
+		return std::make_unique<VulkanRenderPipeline>(shared_from_this(), std::move(pipelineInfo));
 	}
 }
