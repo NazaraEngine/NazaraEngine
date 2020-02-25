@@ -4,7 +4,6 @@
 
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -98,16 +97,15 @@ namespace Nz
 		else
 		{
 			{
-				LockGuard eventLock(m_eventMutex);
+				std::lock_guard<std::mutex> eventLock(m_eventMutex);
 
 				m_pendingEvents.push_back(event);
 			}
 
 			if (m_waitForEvent)
 			{
-				m_eventConditionMutex.Lock();
-				m_eventCondition.Signal();
-				m_eventConditionMutex.Unlock();
+				std::lock_guard<std::mutex> lock(m_eventConditionMutex);
+				m_eventCondition.notify_all();
 			}
 		}
 	}

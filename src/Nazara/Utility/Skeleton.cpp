@@ -11,7 +11,7 @@ namespace Nz
 {
 	struct SkeletonImpl
 	{
-		std::unordered_map<String, UInt32> jointMap;
+		std::unordered_map<String, std::size_t> jointMap;
 		std::vector<Joint> joints;
 		Boxf aabb;
 		bool aabbUpdated = false;
@@ -32,7 +32,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Skeleton::Create(UInt32 jointCount)
+	bool Skeleton::Create(std::size_t jointCount)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (jointCount == 0)
@@ -118,7 +118,7 @@ namespace Nz
 		return &m_impl->joints[it->second];
 	}
 
-	Joint* Skeleton::GetJoint(UInt32 index)
+	Joint* Skeleton::GetJoint(std::size_t index)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -165,7 +165,7 @@ namespace Nz
 		return &m_impl->joints[it->second];
 	}
 
-	const Joint* Skeleton::GetJoint(UInt32 index) const
+	const Joint* Skeleton::GetJoint(std::size_t index) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -210,7 +210,7 @@ namespace Nz
 		return &m_impl->joints[0];
 	}
 
-	UInt32 Skeleton::GetJointCount() const
+	std::size_t Skeleton::GetJointCount() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -220,7 +220,7 @@ namespace Nz
 		}
 		#endif
 
-		return static_cast<UInt32>(m_impl->joints.size());
+		return static_cast<std::size_t>(m_impl->joints.size());
 	}
 
 	int Skeleton::GetJointIndex(const String& jointName) const
@@ -285,7 +285,7 @@ namespace Nz
 		InvalidateJoints();
 	}
 
-	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, UInt32* indices, UInt32 indiceCount)
+	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, std::size_t* indices, std::size_t indiceCount)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -315,9 +315,9 @@ namespace Nz
 
 		const Joint* jointsA = &skeletonA.m_impl->joints[0];
 		const Joint* jointsB = &skeletonB.m_impl->joints[0];
-		for (UInt32 i = 0; i < indiceCount; ++i)
+		for (std::size_t i = 0; i < indiceCount; ++i)
 		{
-			UInt32 index = indices[i];
+			std::size_t index = indices[i];
 
 			#if NAZARA_UTILITY_SAFE
 			if (index >= m_impl->joints.size())
@@ -352,7 +352,7 @@ namespace Nz
 			m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
 			m_impl->joints = skeleton.m_impl->joints;
 
-			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(UInt32) en plus
+			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(std::size_t) en plus
 			// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
 			// L'éternel trade-off mémoire/calculs ..
 			std::size_t jointCount = skeleton.m_impl->joints.size();
@@ -414,7 +414,7 @@ namespace Nz
 			{
 				NazaraAssert(m_impl->jointMap.find(name) == m_impl->jointMap.end(), "Joint name \"" + name + "\" is already present in joint map");
 
-				m_impl->jointMap[name] = static_cast<UInt32>(i);
+				m_impl->jointMap[name] = static_cast<std::size_t>(i);
 			}
 		}
 

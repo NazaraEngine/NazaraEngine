@@ -10,12 +10,18 @@
 
 namespace Nz
 {
-	DynLibImpl::DynLibImpl(DynLib* parent)
+	DynLibImpl::DynLibImpl(DynLib*) :
+	m_handle(nullptr)
 	{
-		NazaraUnused(parent);
 	}
 
-	DynLibFunc DynLibImpl::GetSymbol(const String& symbol, String* errorMessage) const
+	DynLibImpl::~DynLibImpl()
+	{
+		if (m_handle)
+			dlclose(m_handle);
+	}
+
+	DynLibFunc DynLibImpl::GetSymbol(const char* symbol, std::string* errorMessage) const
 	{
 		/*
 			Il n'est pas standard de cast un pointeur d'objet vers un pointeur de fonction.
@@ -31,23 +37,21 @@ namespace Nz
 
 		dlerror(); // Clear error flag
 
-		converter.pointer = dlsym(m_handle, symbol.GetConstBuffer());
+		converter.pointer = dlsym(m_handle, symbol);
 		if (!converter.pointer)
 			*errorMessage = dlerror();
 
 		return converter.func;
 	}
 
-	bool DynLibImpl::Load(const String& libraryPath, String* errorMessage)
+	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
-		String path = libraryPath;
-
-		size_t pos = path.FindLast(".so");
-		if (pos == String::npos || (path.GetLength() > pos+3 && path[pos+3] != '.'))
+		std::filesystem::path path = libraryPath;
+		if (path.extension() != ".so")
 			path += ".so";
 
 		dlerror(); // Clear error flag
-		m_handle = dlopen(path.GetConstBuffer(), RTLD_LAZY | RTLD_GLOBAL);
+		m_handle = dlopen(path.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
 
 		if (m_handle)
 			return true;
@@ -56,10 +60,5 @@ namespace Nz
 			*errorMessage = dlerror();
 			return false;
 		}
-	}
-
-	void DynLibImpl::Unload()
-	{
-		dlclose(m_handle);
 	}
 }

@@ -320,9 +320,9 @@ namespace Nz
 						return characterSize/15.f; // Joker ?
 				}
 
-				bool SetFile(const String& filePath)
+				bool SetFile(const std::filesystem::path& filePath)
 				{
-					std::unique_ptr<File> file(new File);
+					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode_ReadOnly))
 					{
 						NazaraError("Failed to open stream from file: " + Error::GetLastError());
@@ -336,7 +336,7 @@ namespace Nz
 
 				void SetMemory(const void* data, std::size_t size)
 				{
-					m_ownedStream.reset(new MemoryView(data, size));
+					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					SetStream(*m_ownedStream);
 				}
 
@@ -349,14 +349,14 @@ namespace Nz
 					m_stream.pos = 0;
 					m_stream.size = static_cast<unsigned long>(stream.GetSize());
 
-					m_args.driver = 0;
+					m_args.driver = nullptr;
 					m_args.flags = FT_OPEN_STREAM;
 					m_args.stream = &m_stream;
 				}
 
 				bool SupportsOutline(float /*outlineThickness*/) const override
 				{
-					return s_stroker != 0;
+					return s_stroker != nullptr;
 				}
 
 				bool SupportsStyle(TextStyleFlags style) const override
@@ -383,10 +383,10 @@ namespace Nz
 				mutable unsigned int m_characterSize;
 		};
 
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			///FIXME: Je suppose qu'il en manque quelques unes..
-			static std::set<String> supportedExtensions = {
+			static std::set<std::string> supportedExtensions = {
 				"afm", "bdf", "cff", "cid", "dfont", "fnt", "fon", "otf", "pfa", "pfb", "pfm", "pfr", "sfnt", "ttc", "tte", "ttf"
 			};
 
@@ -408,12 +408,11 @@ namespace Nz
 				return Ternary_False;
 		}
 
-		FontRef LoadFile(const String& filePath, const FontParams& parameters)
+		FontRef LoadFile(const std::filesystem::path& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			std::unique_ptr<FreeTypeStream> face(new FreeTypeStream);
-
+			std::unique_ptr<FreeTypeStream> face = std::make_unique<FreeTypeStream>();
 			if (!face->SetFile(filePath))
 			{
 				NazaraError("Failed to open file");

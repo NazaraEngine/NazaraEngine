@@ -49,7 +49,7 @@ namespace Nz
 				std::vector<Triangle> triangles;
 				std::vector<Vertex> vertices;
 				std::vector<Weight> weights;
-				String shader;
+				std::string shader;
 			};
 
 			MD5MeshParser(Stream& stream);
@@ -66,17 +66,17 @@ namespace Nz
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const String& message);
+			void Error(const std::string& message);
 			bool ParseJoints();
 			bool ParseMesh();
-			void Warning(const String& message);
+			void Warning(const std::string& message);
 			void UnrecognizedLine(bool error = false);
 
 			std::vector<Joint> m_joints;
 			std::vector<Mesh> m_meshes;
 			Stream& m_stream;
 			StreamOptionFlags m_streamFlags;
-			String m_currentLine;
+			std::string m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 			unsigned int m_meshIndex;

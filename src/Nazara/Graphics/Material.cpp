@@ -115,7 +115,7 @@ namespace Nz
 		bool isEnabled;
 		double dValue;
 		long long iValue;
-		String path;
+		Nz::String path;
 
 		ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled, true);
 
@@ -247,22 +247,22 @@ namespace Nz
 
 		// Textures
 		if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
-			SetAlphaMap(path);
+			SetAlphaMap(path.ToStdString());
 
 		if (matParams.loadDiffuseMap && matData.GetStringParameter(MaterialData::DiffuseTexturePath, &path))
-			SetDiffuseMap(path);
+			SetDiffuseMap(path.ToStdString());
 
 		if (matParams.loadEmissiveMap && matData.GetStringParameter(MaterialData::EmissiveTexturePath, &path))
-			SetEmissiveMap(path);
+			SetEmissiveMap(path.ToStdString());
 
 		if (matParams.loadHeightMap && matData.GetStringParameter(MaterialData::HeightTexturePath, &path))
-			SetHeightMap(path);
+			SetHeightMap(path.ToStdString());
 
 		if (matParams.loadNormalMap && matData.GetStringParameter(MaterialData::NormalTexturePath, &path))
-			SetNormalMap(path);
+			SetNormalMap(path.ToStdString());
 
 		if (matParams.loadSpecularMap && matData.GetStringParameter(MaterialData::SpecularTexturePath, &path))
-			SetSpecularMap(path);
+			SetSpecularMap(path.ToStdString());
 
 		SetShader(matParams.shaderName);
 	}
@@ -329,44 +329,44 @@ namespace Nz
 		// Textures
 		if (HasAlphaMap())
 		{
-			const String& path = GetAlphaMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::AlphaTexturePath, path);
+			const std::filesystem::path& path = GetAlphaMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::AlphaTexturePath, path.generic_u8string());
 		}
 
 		if (HasDiffuseMap())
 		{
-			const String& path = GetDiffuseMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::DiffuseTexturePath, path);
+			const std::filesystem::path& path = GetDiffuseMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::DiffuseTexturePath, path.generic_u8string());
 		}
 
 		if (HasEmissiveMap())
 		{
-			const String& path = GetEmissiveMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::EmissiveTexturePath, path);
+			const std::filesystem::path& path = GetEmissiveMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::EmissiveTexturePath, path.generic_u8string());
 		}
 
 		if (HasHeightMap())
 		{
-			const String& path = GetHeightMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::HeightTexturePath, path);
+			const std::filesystem::path& path = GetHeightMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::HeightTexturePath, path.generic_u8string());
 		}
 
 		if (HasNormalMap())
 		{
-			const String& path = GetNormalMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::NormalTexturePath, path);
+			const std::filesystem::path& path = GetNormalMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::NormalTexturePath, path.generic_u8string());
 		}
 
 		if (HasSpecularMap())
 		{
-			const String& path = GetSpecularMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::SpecularTexturePath, path);
+			const std::filesystem::path& path = GetSpecularMap()->GetFilePath();
+			if (!path.empty())
+				matData->SetParameter(MaterialData::SpecularTexturePath, path.generic_u8string());
 		}
 	}
 

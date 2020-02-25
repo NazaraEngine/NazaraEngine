@@ -1,8 +1,6 @@
 #include <Nazara/Audio/Sound.hpp>
 #include <Catch/catch.hpp>
 
-#include <Nazara/Core/Thread.hpp>
-
 SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 {
 	GIVEN("A sound emitter")

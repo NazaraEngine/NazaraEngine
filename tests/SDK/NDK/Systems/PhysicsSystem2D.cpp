@@ -1,8 +1,8 @@
-#include <NDK/Systems/PhysicsSystem2D.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent2D.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent2D.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem2D.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/CollisionComponent2D.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/PhysicsComponent2D.hpp>
 #include <Catch/catch.hpp>
 #include <limits>
 

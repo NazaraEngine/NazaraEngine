@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/String.hpp>
+#include <filesystem>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#define NAZARA_DYNLIB_EXTENSION ".dll"
@@ -19,12 +19,6 @@
 	#define NAZARA_DYNLIB_EXTENSION ".dynlib"
 #else
 	#error OS not handled
-#endif
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DYNLIB
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
 namespace Nz
@@ -38,25 +32,23 @@ namespace Nz
 		public:
 			DynLib();
 			DynLib(const DynLib&) = delete;
-			DynLib(DynLib&&) noexcept = default;
+			DynLib(DynLib&&) noexcept;
 			~DynLib();
 
-			String GetLastError() const;
-			DynLibFunc GetSymbol(const String& symbol) const;
+			std::string GetLastError() const;
+			DynLibFunc GetSymbol(const char* symbol) const;
 
 			bool IsLoaded() const;
 
-			bool Load(const String& libraryPath);
+			bool Load(const std::filesystem::path& libraryPath);
 			void Unload();
 
 			DynLib& operator=(const DynLib&) = delete;
-			DynLib& operator=(DynLib&& lib) noexcept = default;
+			DynLib& operator=(DynLib&& lib) noexcept;
 
 		private:
-			NazaraMutexAttrib(m_mutex, mutable)
-
-			mutable String m_lastError;
-			MovablePtr<DynLibImpl> m_impl;
+			mutable std::string m_lastError;
+			std::unique_ptr<DynLibImpl> m_impl;
 	};
 }
 

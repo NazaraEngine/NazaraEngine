@@ -11,9 +11,11 @@ LIBRARY.Defines = {
 }
 
 LIBRARY.Language = "C++"
+LIBRARY.DisableWarnings = true -- chipmunk has many warnings we can't really fix
 
 LIBRARY.Files = {
 	"../thirdparty/include/chipmunk/*.h",
 	"../thirdparty/src/chipmunk/*.h",
 	"../thirdparty/src/chipmunk/*.c",
 }
+

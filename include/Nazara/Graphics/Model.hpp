@@ -59,22 +59,22 @@ namespace Nz
 			std::unique_ptr<InstancedRenderable> Clone() const override;
 
 			using InstancedRenderable::GetMaterial;
-			const MaterialRef& GetMaterial(const String& subMeshName) const;
-			const MaterialRef& GetMaterial(std::size_t skinIndex, const String& subMeshName) const;
+			const MaterialRef& GetMaterial(const std::string& subMeshName) const;
+			const MaterialRef& GetMaterial(std::size_t skinIndex, const std::string& subMeshName) const;
 			Mesh* GetMesh() const;
 
 			virtual bool IsAnimated() const;
 
 			using InstancedRenderable::SetMaterial;
-			bool SetMaterial(const String& subMeshName, MaterialRef material);
-			bool SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material);
+			bool SetMaterial(const std::string& subMeshName, MaterialRef material);
+			bool SetMaterial(std::size_t skinIndex, const std::string& subMeshName, MaterialRef material);
 
 			virtual void SetMesh(Mesh* mesh);
 
 			Model& operator=(const Model& node) = default;
 			Model& operator=(Model&& node) = delete;
 
-			static ModelRef LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
+			static ModelRef LoadFromFile(const std::filesystem::path& filePath, const ModelParameters& params = ModelParameters());
 			static ModelRef LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
 			static ModelRef LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
 

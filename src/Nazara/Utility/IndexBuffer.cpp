@@ -19,13 +19,13 @@ namespace Nz
 		Reset(largeIndices, std::move(buffer));
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size)
+	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
 		Reset(largeIndices, std::move(buffer), offset, size);
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage)
+	IndexBuffer::IndexBuffer(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
 		Reset(largeIndices, length, storage, usage);
@@ -53,14 +53,14 @@ namespace Nz
 		return Nz::ComputeCacheMissCount(mapper.begin(), m_indexCount);
 	}
 
-	bool IndexBuffer::Fill(const void* data, UInt32 startIndex, UInt32 length)
+	bool IndexBuffer::Fill(const void* data, std::size_t startIndex, std::size_t length)
 	{
-		UInt32 stride = GetStride();
+		std::size_t stride = GetStride();
 
 		return FillRaw(data, startIndex*stride, length*stride);
 	}
 
-	bool IndexBuffer::FillRaw(const void* data, UInt32 offset, UInt32 size)
+	bool IndexBuffer::FillRaw(const void* data, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
@@ -68,7 +68,7 @@ namespace Nz
 		return m_buffer->Fill(data, m_startOffset+offset, size);
 	}
 
-	void* IndexBuffer::MapRaw(BufferAccess access, UInt32 offset, UInt32 size)
+	void* IndexBuffer::MapRaw(BufferAccess access, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
@@ -76,7 +76,7 @@ namespace Nz
 		return m_buffer->Map(access, offset, size);
 	}
 
-	void* IndexBuffer::MapRaw(BufferAccess access, UInt32 offset, UInt32 size) const
+	void* IndexBuffer::MapRaw(BufferAccess access, std::size_t offset, std::size_t size) const
 	{
 		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
@@ -103,14 +103,14 @@ namespace Nz
 		Reset(largeIndices, buffer, 0, buffer->GetSize());
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, UInt32 offset, UInt32 size)
+	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(buffer->GetType() == BufferType_Index, "Buffer must be an index buffer");
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
-		UInt32 stride = static_cast<UInt32>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
 
 		m_buffer = buffer;
 		m_endOffset = offset + size;
@@ -119,9 +119,9 @@ namespace Nz
 		m_startOffset = offset;
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, UInt32 length, DataStorage storage, BufferUsageFlags usage)
+	void IndexBuffer::Reset(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		UInt32 stride = static_cast<UInt32>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
 
 		m_endOffset = length * stride;
 		m_indexCount = length;

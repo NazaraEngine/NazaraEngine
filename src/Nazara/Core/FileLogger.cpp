@@ -8,6 +8,8 @@
 #include <Nazara/Core/StringStream.hpp>
 #include <array>
 #include <ctime>
+#include <filesystem>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -25,7 +27,7 @@ namespace Nz
 	*/
 
 	FileLogger::FileLogger(const String& logPath) :
-	m_outputFile(logPath),
+	m_outputPath(logPath.ToStdString()),
 	m_forceStdOutput(false),
 	m_stdReplicationEnabled(true),
 	m_timeLoggingEnabled(true)
@@ -107,9 +109,10 @@ namespace Nz
 			m_forceStdOutput = false;
 		});
 
-		if (!m_outputFile.IsOpen())
+		if (!m_outputFile.is_open())
 		{
-			if (!m_outputFile.Open(OpenMode_Text | OpenMode_Truncate | OpenMode_WriteOnly))
+			m_outputFile.open(m_outputPath, std::ios_base::trunc | std::ios_base::out);
+			if (!m_outputFile.is_open())
 			{
 				NazaraError("Failed to open output file");
 				return;
@@ -117,7 +120,7 @@ namespace Nz
 		}
 
 		// Apply some processing before writing
-		StringStream stream;
+		std::ostringstream stream;
 		if (m_timeLoggingEnabled)
 		{
 			std::array<char, 24> buffer;
@@ -130,7 +133,7 @@ namespace Nz
 
 		stream << string << '\n';
 
-		m_outputFile.Write(stream);
+		m_outputFile << stream.str();
 	}
 
 	/*!
@@ -148,6 +151,6 @@ namespace Nz
 	void FileLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
 		AbstractLogger::WriteError(type, error, line, file, function);
-		m_outputFile.Flush();
+		m_outputFile.flush();
 	}
 }

@@ -3,8 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Directory.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstdlib>
 #include <stdexcept>
 
@@ -82,25 +83,21 @@ namespace Nz
 	* \param code Code of the error
 	*/
 
-	String Error::GetLastSystemError(unsigned int code)
+	std::string Error::GetLastSystemError(unsigned int code)
 	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		wchar_t* buffer = nullptr;
 
 		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-					  nullptr,
-					  code,
-					  0,
-					  reinterpret_cast<LPWSTR>(&buffer),
-					  0,
-					  nullptr);
+		               nullptr,
+		               code,
+		               0,
+		               reinterpret_cast<LPWSTR>(&buffer),
+		               0,
+		               nullptr);
 
-		String error(String::Unicode(buffer));
-		LocalFree(buffer);
-
-		error.Trim(); // For an unknown reason, Windows put two-three line return after the message
-
-		return error;
+		CallOnExit freeOnExit([buffer] { LocalFree(buffer); });
+		return FromWideString(buffer);
 		#elif defined(NAZARA_PLATFORM_POSIX)
 		return std::strerror(code);
 		#else
@@ -166,7 +163,7 @@ namespace Nz
 
 	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
 	{
-		file = Nz::Directory::GetCurrentFileRelativeToEngine(file);
+		file = GetCurrentFileRelativeToEngine(file);
 
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
 			Log::WriteError(type, error, line, file, function);
@@ -184,6 +181,17 @@ namespace Nz
 		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
 			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
 			throw std::runtime_error(error.ToStdString());
+	}
+
+	const char* Error::GetCurrentFileRelativeToEngine(const char* file)
+	{
+		if (const char* ptr = std::strstr(file, "NazaraEngine/"))
+			return ptr;
+
+		if (const char* ptr = std::strstr(file, "NazaraEngine\\"))
+			return ptr;
+
+		return file;
 	}
 
 	UInt32 Error::s_flags = ErrorFlag_None;

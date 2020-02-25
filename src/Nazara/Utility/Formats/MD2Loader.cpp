@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			return (extension == "md2");
 		}
@@ -93,14 +93,14 @@ namespace Nz
 				mesh->SetMaterialCount(header.num_skins);
 				stream.SetCursorPos(header.offset_skins);
 				{
-					String baseDir = stream.GetDirectory();
+					std::filesystem::path baseDir = stream.GetDirectory();
 					char skin[68];
 					for (unsigned int i = 0; i < header.num_skins; ++i)
 					{
 						stream.Read(skin, 68*sizeof(char));
 
 						ParameterList matData;
-						matData.SetParameter(MaterialData::DiffuseTexturePath, baseDir + skin);
+						matData.SetParameter(MaterialData::DiffuseTexturePath, (baseDir / skin).generic_u8string());
 
 						mesh->SetMaterialData(i, std::move(matData));
 					}
@@ -196,10 +196,8 @@ namespace Nz
 				Vector2f invSkinSize(1.f / header.skinwidth, 1.f / header.skinheight);
 				for (unsigned int i = 0; i < header.num_tris; ++i)
 				{
-					for (unsigned int j = 0; j < 3; ++j)
+					for (unsigned int fixedIndex : indexFix) //< Reverse winding order
 					{
-						const unsigned int fixedIndex = indexFix[j]; //< Reverse winding order
-
 						const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
 						Vector2f uv(texC.u, texC.v);
 						uv *= invSkinSize;

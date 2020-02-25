@@ -15,7 +15,7 @@ namespace Nz
 	{
 		using FormatHandler = bool(*)(const Image& image, const ImageParams& parameters, Stream& stream);
 
-		std::map<String, FormatHandler> s_formatHandlers;
+		std::map<std::string, FormatHandler> s_formatHandlers;
 
 		int ConvertToFloatFormat(Image& image)
 		{
@@ -102,12 +102,12 @@ namespace Nz
 				throw std::runtime_error("Failed to write to stream");
 		}
 
-		bool FormatQuerier(const String& extension)
+		bool FormatQuerier(const std::string& extension)
 		{
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();
 		}
 
-		bool SaveToStream(const Image& image, const String& format, Stream& stream, const ImageParams& parameters)
+		bool SaveToStream(const Image& image, const std::string& format, Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 

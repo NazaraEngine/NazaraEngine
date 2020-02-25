@@ -1,4 +1,4 @@
-#include <NDK/System.hpp>
+#include <NazaraSDK/System.hpp>
 #include <Catch/catch.hpp>
 
 namespace

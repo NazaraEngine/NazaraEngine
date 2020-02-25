@@ -25,19 +25,28 @@ namespace Nz
 
 			static void Clear();
 
-			static ObjectRef<Type> Get(const String& filePath);
+			static ObjectRef<Type> Get(const std::filesystem::path& filePath);
 			static const Parameters& GetDefaultParameters();
 
 			static void Purge();
-			static void Register(const String& filePath, ObjectRef<Type> resource);
+			static void Register(const std::filesystem::path& filePath, ObjectRef<Type> resource);
 			static void SetDefaultParameters(const Parameters& params);
-			static void Unregister(const String& filePath);
+			static void Unregister(const std::filesystem::path& filePath);
 
 		private:
 			static bool Initialize();
 			static void Uninitialize();
 
-			using ManagerMap = std::unordered_map<String, ObjectRef<Type>>;
+			// https://stackoverflow.com/questions/51065244/is-there-no-standard-hash-for-stdfilesystempath
+			struct PathHash
+			{
+				std::size_t operator()(const std::filesystem::path& p) const
+				{
+					return hash_value(p);
+				}
+			};
+
+			using ManagerMap = std::unordered_map<std::filesystem::path, ObjectRef<Type>, PathHash>;
 			using ManagerParams = Parameters;
 	};
 }

@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			return (extension == "md5mesh");
 		}
@@ -48,7 +48,7 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			String baseDir = stream.GetDirectory();
+			std::filesystem::path baseDir = stream.GetDirectory();
 
 			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
@@ -198,7 +198,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 
@@ -211,11 +211,11 @@ namespace Nz
 
 					// Animation
 					// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
-					String path = stream.GetPath();
-					if (!path.IsEmpty())
+					std::filesystem::path path = stream.GetPath();
+					if (!path.empty())
 					{
-						path.Replace(".md5mesh", ".md5anim", -8, String::CaseInsensitive);
-						if (File::Exists(path))
+						path.replace_extension(".md5anim");
+						if (std::filesystem::exists(path))
 							mesh->SetAnimation(path);
 					}
 				}
@@ -306,7 +306,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 				}

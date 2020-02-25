@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Network/Debug.hpp>
 
@@ -113,7 +112,7 @@ namespace Nz
 
 		std::size_t size = m_buffer->GetSize();
 
-		Nz::LockGuard lock(*s_availableBuffersMutex);
+		std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
 		s_availableBuffers.emplace_back(std::make_pair(size, std::move(m_buffer)));
 	}
 
@@ -132,7 +131,7 @@ namespace Nz
 		NazaraAssert(minCapacity >= cursorPos, "Cannot init stream with a smaller capacity than wanted cursor pos");
 
 		{
-			Nz::LockGuard lock(*s_availableBuffersMutex);
+			std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
 
 			FreeStream(); //< In case it wasn't released yet
 
@@ -160,7 +159,6 @@ namespace Nz
 
 	bool NetPacket::Initialize()
 	{
-		s_availableBuffersMutex = std::make_unique<Mutex>();
 		return true;
 	}
 
@@ -171,9 +169,8 @@ namespace Nz
 	void NetPacket::Uninitialize()
 	{
 		s_availableBuffers.clear();
-		s_availableBuffersMutex.reset();
 	}
 
-	std::unique_ptr<Mutex> NetPacket::s_availableBuffersMutex;
+	std::mutex NetPacket::s_availableBuffersMutex;
 	std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> NetPacket::s_availableBuffers;
 }

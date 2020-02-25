@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2017 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,7 +28,7 @@ namespace Nz
 
 			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component);
 			inline const VertexBuffer* GetVertexBuffer() const;
-			inline UInt32 GetVertexCount() const;
+			inline std::size_t GetVertexCount() const;
 			
 			template<typename T> bool HasComponentOfType(VertexComponent component) const;
 

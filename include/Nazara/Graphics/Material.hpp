@@ -17,7 +17,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
@@ -35,7 +34,7 @@ namespace Nz
 		bool loadHeightMap = true;
 		bool loadNormalMap = true;
 		bool loadSpecularMap = true;
-		String shaderName = "Basic";
+		std::string shaderName = "Basic";
 
 		bool IsValid() const;
 	};
@@ -59,7 +58,7 @@ namespace Nz
 			inline Material();
 			inline Material(const MaterialPipeline* pipeline);
 			inline Material(const MaterialPipelineInfo& pipelineInfo);
-			inline Material(const String& pipelineName);
+			inline Material(const std::string& pipelineName);
 			inline Material(const Material& material);
 			inline ~Material();
 
@@ -69,7 +68,7 @@ namespace Nz
 
 			inline void Configure(const MaterialPipeline* pipeline);
 			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
-			inline bool Configure(const String& pipelineName);
+			inline bool Configure(const std::string& pipelineName);
 
 			inline void EnableAlphaTest(bool alphaTest);
 			inline void EnableBlending(bool blending);
@@ -141,33 +140,33 @@ namespace Nz
 
 			void SaveToParameters(ParameterList* matData);
 
-			inline bool SetAlphaMap(const String& textureName);
+			inline bool SetAlphaMap(const std::string& textureName);
 			inline void SetAlphaMap(TextureRef alphaMap);
 			inline void SetAlphaThreshold(float alphaThreshold);
 			inline void SetAmbientColor(const Color& ambient);
 			inline void SetDepthFunc(RendererComparison depthFunc);
 			inline void SetDepthMaterial(MaterialRef depthMaterial);
 			inline void SetDiffuseColor(const Color& diffuse);
-			inline bool SetDiffuseMap(const String& textureName);
+			inline bool SetDiffuseMap(const std::string& textureName);
 			inline void SetDiffuseMap(TextureRef diffuseMap);
 			inline void SetDiffuseSampler(const TextureSampler& sampler);
 			inline void SetDstBlend(BlendFunc func);
-			inline bool SetEmissiveMap(const String& textureName);
+			inline bool SetEmissiveMap(const std::string& textureName);
 			inline void SetEmissiveMap(TextureRef textureName);
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
-			inline bool SetHeightMap(const String& textureName);
+			inline bool SetHeightMap(const std::string& textureName);
 			inline void SetHeightMap(TextureRef textureName);
 			inline void SetLineWidth(float lineWidth);
-			inline bool SetNormalMap(const String& textureName);
+			inline bool SetNormalMap(const std::string& textureName);
 			inline void SetNormalMap(TextureRef textureName);
 			inline void SetPointSize(float pointSize);
 			inline void SetReflectionMode(ReflectionMode reflectionMode);
 			inline void SetShader(UberShaderConstRef uberShader);
-			inline bool SetShader(const String& uberShaderName);
+			inline bool SetShader(const std::string& uberShaderName);
 			inline void SetShininess(float shininess);
 			inline void SetSpecularColor(const Color& specular);
-			inline bool SetSpecularMap(const String& textureName);
+			inline bool SetSpecularMap(const std::string& textureName);
 			inline void SetSpecularMap(TextureRef specularMap);
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 			inline void SetSrcBlend(BlendFunc func);
@@ -177,7 +176,7 @@ namespace Nz
 			inline static MaterialRef GetDefault();
 			inline static int GetTextureUnit(TextureMap textureMap);
 
-			static inline MaterialRef LoadFromFile(const String& filePath, const MaterialParams& params = MaterialParams());
+			static inline MaterialRef LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params = MaterialParams());
 			static inline MaterialRef LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
 			static inline MaterialRef LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());
 

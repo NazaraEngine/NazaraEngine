@@ -1,5 +1,5 @@
-#include <NDK/World.hpp>
-#include <NDK/Component.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Component.hpp>
 #include <Catch/catch.hpp>
 
 namespace

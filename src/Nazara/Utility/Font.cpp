@@ -354,7 +354,7 @@ namespace Nz
 		return s_defaultMinimumStepSize;
 	}
 
-	FontRef Font::OpenFromFile(const String& filePath, const FontParams& params)
+	FontRef Font::OpenFromFile(const std::filesystem::path& filePath, const FontParams& params)
 	{
 		return FontLoader::LoadFromFile(filePath, params);
 	}

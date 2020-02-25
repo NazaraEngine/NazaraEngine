@@ -20,6 +20,7 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <filesystem>
 
 namespace Nz
 {
@@ -43,7 +44,7 @@ namespace Nz
 			~Shader();
 
 			void AttachStage(ShaderStageType stage, const ShaderStage& shaderStage);
-			bool AttachStageFromFile(ShaderStageType stage, const String& filePath);
+			bool AttachStageFromFile(ShaderStageType stage, const std::filesystem::path& filePath);
 			bool AttachStageFromSource(ShaderStageType stage, const char* source, unsigned int length);
 			bool AttachStageFromSource(ShaderStageType stage, const String& source);
 

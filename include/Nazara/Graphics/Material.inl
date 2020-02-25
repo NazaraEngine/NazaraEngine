@@ -57,7 +57,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline Material::Material(const String& pipelineName)
+	inline Material::Material(const std::string& pipelineName)
 	{
 		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -139,7 +139,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline bool Material::Configure(const String& pipelineName)
+	inline bool Material::Configure(const std::string& pipelineName)
 	{
 		MaterialPipelineRef pipeline = MaterialPipelineLibrary::Query(pipelineName);
 		if (!pipeline)
@@ -909,7 +909,7 @@ namespace Nz
 	*
 	* \param textureName Named texture
 	*/
-	inline bool Material::SetAlphaMap(const String& textureName)
+	inline bool Material::SetAlphaMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1005,7 +1005,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline bool Material::SetDiffuseMap(const String& textureName)
+	inline bool Material::SetDiffuseMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1071,7 +1071,7 @@ namespace Nz
 	*
 	* \see GetEmissiveMap
 	*/
-	inline bool Material::SetEmissiveMap(const String& textureName)
+	inline bool Material::SetEmissiveMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1140,7 +1140,7 @@ namespace Nz
 	*
 	* \see GetHeightMap
 	*/
-	inline bool Material::SetHeightMap(const String& textureName)
+	inline bool Material::SetHeightMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1202,7 +1202,7 @@ namespace Nz
 	*
 	* \see GetNormalMap
 	*/
-	inline bool Material::SetNormalMap(const String& textureName)
+	inline bool Material::SetNormalMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1305,7 +1305,7 @@ namespace Nz
 	*
 	* \param uberShaderName Named shader
 	*/
-	inline bool Material::SetShader(const String& uberShaderName)
+	inline bool Material::SetShader(const std::string& uberShaderName)
 	{
 		UberShaderConstRef uberShader = UberShaderLibrary::Get(uberShaderName);
 		if (!uberShader)
@@ -1343,7 +1343,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline bool Material::SetSpecularMap(const String& textureName)
+	inline bool Material::SetSpecularMap(const std::string& textureName)
 	{
 		TextureRef texture = TextureLibrary::Query(textureName);
 		if (!texture)
@@ -1444,7 +1444,7 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the material
 	*/
-	inline MaterialRef Material::LoadFromFile(const String& filePath, const MaterialParams& params)
+	inline MaterialRef Material::LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params)
 	{
 		return MaterialLoader::LoadFromFile(filePath, params);
 	}

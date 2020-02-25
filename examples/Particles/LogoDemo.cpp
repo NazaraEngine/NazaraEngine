@@ -2,8 +2,8 @@
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems.hpp>
 #include <iostream>
 
 namespace
@@ -126,7 +126,7 @@ ParticleDemo("Logo", sharedData)
 	Nz::ImageParams params;
 	params.loadFormat = Nz::PixelFormatType_RGBA8;
 
-	m_logo = Nz::Image::LoadFromFile("resources/Logo.png", params);
+	m_logo = Nz::Image::LoadFromFile("E:/Twitch/avatar_interested.png", params);
 	if (!m_logo)
 		NazaraError("Failed to load logo!");
 

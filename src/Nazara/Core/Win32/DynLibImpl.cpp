@@ -5,34 +5,39 @@
 #include <Nazara/Core/Win32/DynLibImpl.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/File.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	DynLibImpl::DynLibImpl(DynLib* parent)
+	DynLibImpl::DynLibImpl(DynLib*) :
+	m_handle(nullptr)
 	{
-		NazaraUnused(parent);
 	}
 
-	DynLibFunc DynLibImpl::GetSymbol(const String& symbol, String* errorMessage) const
+	DynLibImpl::~DynLibImpl()
 	{
-		DynLibFunc sym = reinterpret_cast<DynLibFunc>(GetProcAddress(m_handle, symbol.GetConstBuffer()));
+		if (m_handle)
+			FreeLibrary(m_handle);
+	}
+
+	DynLibFunc DynLibImpl::GetSymbol(const char* symbol, std::string* errorMessage) const
+	{
+		DynLibFunc sym = reinterpret_cast<DynLibFunc>(GetProcAddress(m_handle, symbol));
 		if (!sym)
 			*errorMessage = Error::GetLastSystemError();
 
 		return sym;
 	}
 
-	bool DynLibImpl::Load(const String& libraryPath, String* errorMessage)
+	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
-		String path = libraryPath;
-		if (!path.EndsWith(".dll"))
+		std::filesystem::path path = libraryPath;
+		if (path.extension() != ".dll")
 			path += ".dll";
 
-		m_handle = LoadLibraryExW(path.GetWideString().data(), nullptr, (File::IsAbsolute(path)) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
+		m_handle = LoadLibraryExW(ToWideString(path.generic_u8string()).data(), nullptr, (path.is_absolute()) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
 		if (m_handle)
 			return true;
 		else
@@ -41,10 +46,4 @@ namespace Nz
 			return false;
 		}
 	}
-
-	void DynLibImpl::Unload()
-	{
-		FreeLibrary(m_handle);
-	}
-
 }

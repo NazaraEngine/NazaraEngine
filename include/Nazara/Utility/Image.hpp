@@ -94,13 +94,13 @@ namespace Nz
 			bool IsValid() const;
 
 			// LoadFace
-			bool LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params = ImageParams());
+			bool LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
 			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
 
 			// Save
-			bool SaveToFile(const String& filePath, const ImageParams& params = ImageParams());
-			bool SaveToStream(Stream& stream, const String& format, const ImageParams& params = ImageParams());
+			bool SaveToFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
+			bool SaveToStream(Stream& stream, const std::string& format, const ImageParams& params = ImageParams());
 
 			//TODO: SaveArray, SaveCubemap, SaveFace
 
@@ -118,18 +118,18 @@ namespace Nz
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
 			// Load
-			static ImageRef LoadFromFile(const String& filePath, const ImageParams& params = ImageParams());
+			static ImageRef LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
 			static ImageRef LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			static ImageRef LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
 
 			// LoadArray
-			static ImageRef LoadArrayFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static ImageRef LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 			static ImageRef LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize = Vector2ui(2, 2));
 			static ImageRef LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 			static ImageRef LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 
 			// LoadCubemap
-			static ImageRef LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			static ImageRef LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 			static ImageRef LoadCubemapFromImage(const Image* image, const CubemapParams& params = CubemapParams());
 			static ImageRef LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 			static ImageRef LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());

@@ -1,7 +1,7 @@
-#include <NDK/System.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/VelocityComponent.hpp>
-#include <NDK/World.hpp>
+#include <NazaraSDK/System.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/VelocityComponent.hpp>
+#include <NazaraSDK/World.hpp>
 #include <Catch/catch.hpp>
 
 namespace

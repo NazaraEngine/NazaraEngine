@@ -13,13 +13,14 @@
 namespace Nz
 {
 	FileImpl::FileImpl(const File* parent) :
+	m_fileDescriptor(-1),
 	m_endOfFile(false),
 	m_endOfFileUpdated(true)
 	{
 		NazaraUnused(parent);
 	}
 
-	void FileImpl::Close()
+	FileImpl::~FileImpl()
 	{
 		if (m_fileDescriptor != -1)
 			close(m_fileDescriptor);
@@ -52,7 +53,7 @@ namespace Nz
 		return static_cast<UInt64>(position);
 	}
 
-	bool FileImpl::Open(const String& filePath, OpenModeFlags mode)
+	bool FileImpl::Open(const std::filesystem::path& filePath, OpenModeFlags mode)
 	{
 		int flags;
 		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
@@ -75,10 +76,10 @@ namespace Nz
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
-		m_fileDescriptor = open64(filePath.GetConstBuffer(), flags, permissions);
-		if (m_fileDescriptor == -1)
+		int fileDescriptor = open64(filePath.generic_u8string().data(), flags, permissions);
+		if (fileDescriptor == -1)
 		{
-			NazaraError("Failed to open \"" + filePath + "\" : " + Error::GetLastSystemError());
+			NazaraError("Failed to open \"" + filePath.generic_u8string() + "\" : " + Error::GetLastSystemError());
 			return false;
 		}
 
@@ -95,16 +96,16 @@ namespace Nz
 
 		initialize_flock(lock);
 
-		if (fcntl(m_fileDescriptor, F_GETLK, &lock) == -1)
+		if (fcntl(fileDescriptor, F_GETLK, &lock) == -1)
 		{
-			Close();
+			close(fileDescriptor);
 			NazaraError("Unable to detect presence of lock on the file");
 			return false;
 		}
 
 		if (lock.l_type != F_UNLCK)
 		{
-			Close();
+			close(fileDescriptor);
 			NazaraError("A lock is present on the file");
 			return false;
 		}
@@ -113,13 +114,15 @@ namespace Nz
 		{
 			initialize_flock(lock);
 
-			if (fcntl(m_fileDescriptor, F_SETLK, &lock) == -1)  
+			if (fcntl(fileDescriptor, F_SETLK, &lock) == -1)
 			{
-				Close();
+				close(fileDescriptor);
 				NazaraError("Unable to place a lock on the file");
 				return false;
 			}
 		}
+
+		m_fileDescriptor = fileDescriptor;
 
 		return true;
 	}
@@ -176,122 +179,5 @@ namespace Nz
 		m_endOfFileUpdated = false;
 
 		return written;
-	}
-
-	bool FileImpl::Copy(const String& sourcePath, const String& targetPath)
-	{
-		int fd1 = open64(sourcePath.GetConstBuffer(), O_RDONLY);
-		if (fd1 == -1)
-		{
-			NazaraError("Fail to open input file (" + sourcePath + "): " + Error::GetLastSystemError());
-			return false;
-		}
-
-		mode_t permissions;
-		struct stat sb;
-		if (fstat(fd1, &sb) == -1) // get permission from first file
-		{
-			NazaraWarning("Could not get permissions of source file");
-			permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-		}
-		else
-		{
-			permissions = sb.st_mode & ~S_IFMT; // S_IFMT: bit mask for the file type bit field -> ~S_IFMT: general permissions
-		}
-
-		int fd2 = open64(targetPath.GetConstBuffer(), O_WRONLY | O_TRUNC, permissions);
-		if (fd2 == -1)
-		{
-			NazaraError("Fail to open output file (" + targetPath + "): " + Error::GetLastSystemError()); // TODO: more info ?
-			close(fd1);
-			return false;
-		}
-
-		char buffer[512];
-		ssize_t bytes;
-		do
-		{
-			bytes = read(fd1,buffer,512);
-			if (bytes == -1)
-			{
-				close(fd1);
-				close(fd2);
-				NazaraError("An error occured from copy : " + Error::GetLastSystemError());
-				return false;
-			}
-			write(fd2,buffer,bytes);
-		}
-		while (bytes == 512);
-
-		close(fd1);
-		close(fd2);
-		return true;
-	}
-
-	bool FileImpl::Delete(const String& filePath)
-	{
-		bool success = unlink(filePath.GetConstBuffer()) != -1;
-
-		if (success)
-			return true;
-		else
-		{
-			NazaraError("Failed to delete file (" + filePath + "): " + Error::GetLastSystemError());
-			return false;
-		}
-	}
-
-	bool FileImpl::Exists(const String& filePath)
-	{
-		const char* path = filePath.GetConstBuffer();
-		if (access(path, F_OK) != -1)
-			return true;
-
-		return false;
-	}
-
-	time_t FileImpl::GetCreationTime(const String& filePath)
-	{
-		NazaraUnused(filePath);
-
-		NazaraWarning("Posix has no creation time information");
-		return 0;
-	}
-
-	time_t FileImpl::GetLastAccessTime(const String& filePath)
-	{
-		struct stat64 stats;
-		stat64(filePath.GetConstBuffer(), &stats);
-
-		return stats.st_atime;
-	}
-
-	time_t FileImpl::GetLastWriteTime(const String& filePath)
-	{
-		struct stat64 stats;
-		stat64(filePath.GetConstBuffer(), &stats);
-
-		return stats.st_mtime;
-	}
-
-	UInt64 FileImpl::GetSize(const String& filePath)
-	{
-		struct stat64 stats;
-		stat64(filePath.GetConstBuffer(), &stats);
-
-		return static_cast<UInt64>(stats.st_size);
-	}
-
-	bool FileImpl::Rename(const String& sourcePath, const String& targetPath)
-	{
-		bool success = std::rename(sourcePath.GetConstBuffer(), targetPath.GetConstBuffer()) != -1;
-
-		if (success)
-			return true;
-		else
-		{
-			NazaraError("Unable to rename file: " + Error::GetLastSystemError());
-			return false;
-		}
 	}
 }
