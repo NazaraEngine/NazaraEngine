@@ -110,7 +110,7 @@ namespace Nz
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
-		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_buffer = buffer;
 		m_endOffset = offset + size;
@@ -121,7 +121,7 @@ namespace Nz
 
 	void IndexBuffer::Reset(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_endOffset = length * stride;
 		m_indexCount = length;

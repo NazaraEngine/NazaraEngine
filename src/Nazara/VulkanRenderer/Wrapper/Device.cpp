@@ -38,10 +38,10 @@ namespace Nz
 
 			// Parse extensions and layers
 			for (UInt32 i = 0; i < createInfo.enabledExtensionCount; ++i)
-				m_loadedExtensions.insert(createInfo.ppEnabledExtensionNames[i]);
+				m_loadedExtensions.emplace(createInfo.ppEnabledExtensionNames[i]);
 
 			for (UInt32 i = 0; i < createInfo.enabledLayerCount; ++i)
-				m_loadedLayers.insert(createInfo.ppEnabledLayerNames[i]);
+				m_loadedLayers.emplace(createInfo.ppEnabledLayerNames[i]);
 
 			// Load all device-related functions
 			#define NAZARA_VULKANRENDERER_LOAD_DEVICE(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
