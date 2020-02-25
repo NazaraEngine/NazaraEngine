@@ -44,14 +44,14 @@ namespace Nz
 			virtual const Boxf& GetAABB() const = 0;
 			virtual AnimationType GetAnimationType() const = 0;
 			virtual const IndexBuffer* GetIndexBuffer() const = 0;
-			UInt32 GetMaterialIndex() const;
+			std::size_t GetMaterialIndex() const;
 			PrimitiveMode GetPrimitiveMode() const;
-			UInt32 GetTriangleCount() const;
-			virtual UInt32 GetVertexCount() const = 0;
+			std::size_t GetTriangleCount() const;
+			virtual std::size_t GetVertexCount() const = 0;
 
 			virtual bool IsAnimated() const = 0;
 
-			void SetMaterialIndex(UInt32 matIndex);
+			void SetMaterialIndex(std::size_t matIndex);
 			void SetPrimitiveMode(PrimitiveMode mode);
 
 			SubMesh& operator=(const SubMesh&) = delete;
@@ -63,7 +63,7 @@ namespace Nz
 
 		protected:
 			PrimitiveMode m_primitiveMode;
-			UInt32 m_matIndex;
+			std::size_t m_matIndex;
 	};
 }
 

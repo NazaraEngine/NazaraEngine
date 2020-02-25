@@ -247,7 +247,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T& SparsePtr<T>::operator[](int index) const
+	T& SparsePtr<T>::operator[](std::size_t index) const
 	{
 		return *reinterpret_cast<T*>(m_ptr + index * m_stride);
 	}

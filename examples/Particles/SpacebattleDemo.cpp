@@ -4,8 +4,8 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems.hpp>
 
 namespace
 {

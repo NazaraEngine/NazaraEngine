@@ -14,6 +14,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <mutex>
 
 namespace Nz
 {
@@ -40,7 +41,7 @@ namespace Nz
 
 			virtual UInt32 GetDuration() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
-			virtual Mutex& GetMutex() = 0;
+			virtual std::mutex& GetMutex() = 0;
 			virtual UInt64 GetSampleCount() const = 0;
 			virtual UInt32 GetSampleRate() const = 0;
 
@@ -48,7 +49,7 @@ namespace Nz
 			virtual void Seek(UInt64 offset) = 0;
 			virtual UInt64 Tell() = 0;
 
-			static SoundStreamRef OpenFromFile(const String& filePath, const SoundStreamParams& params = SoundStreamParams());
+			static SoundStreamRef OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params = SoundStreamParams());
 			static SoundStreamRef OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params = SoundStreamParams());
 			static SoundStreamRef OpenFromStream(Stream& stream, const SoundStreamParams& params = SoundStreamParams());
 

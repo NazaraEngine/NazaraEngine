@@ -1,4 +1,4 @@
-#include <NDK/StateMachine.hpp>
+#include <NazaraSDK/StateMachine.hpp>
 #include <Catch/catch.hpp>
 
 class TestState : public Ndk::State

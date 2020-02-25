@@ -22,7 +22,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			return (extension == "obj");
 		}
@@ -42,12 +42,12 @@ namespace Nz
 			return Ternary_Unknown;
 		}
 
-		bool ParseMTL(Mesh* mesh, const String& filePath, const String* materials, const OBJParser::Mesh* meshes, UInt32 meshCount)
+		bool ParseMTL(Mesh* mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)
 		{
 			File file(filePath);
 			if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
 			{
-				NazaraError("Failed to open MTL file (" + file.GetPath() + ')');
+				NazaraError("Failed to open MTL file (" + file.GetPath().generic_u8string() + ')');
 				return false;
 			}
 
@@ -59,10 +59,10 @@ namespace Nz
 			}
 
 			std::unordered_map<String, ParameterList> materialCache;
-			String baseDir = file.GetDirectory();
-			for (UInt32 i = 0; i < meshCount; ++i)
+			std::filesystem::path baseDir = file.GetDirectory();
+			for (std::size_t i = 0; i < meshCount; ++i)
 			{
-				const String& matName = materials[meshes[i].material];
+				const std::string& matName = materials[meshes[i].material];
 				const MTLParser::Material* mtlMat = materialParser.GetMaterial(matName);
 				if (!mtlMat)
 				{
@@ -89,53 +89,53 @@ namespace Nz
 					data.SetParameter(MaterialData::Shininess, mtlMat->shininess);
 					data.SetParameter(MaterialData::SpecularColor, specularColor);
 
-					if (!mtlMat->alphaMap.IsEmpty())
+					if (!mtlMat->alphaMap.empty())
 					{
-						String fullPath = mtlMat->alphaMap;
-						if (!Nz::File::IsAbsolute(fullPath))
-							fullPath.Prepend(baseDir);
+						std::filesystem::path fullPath = mtlMat->alphaMap;
+						if (!fullPath.is_absolute())
+							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::AlphaTexturePath, fullPath);
+						data.SetParameter(MaterialData::AlphaTexturePath, fullPath.generic_u8string());
 					}
 
-					if (!mtlMat->diffuseMap.IsEmpty())
+					if (!mtlMat->diffuseMap.empty())
 					{
-						String fullPath = mtlMat->diffuseMap;
-						if (!Nz::File::IsAbsolute(fullPath))
-							fullPath.Prepend(baseDir);
+						std::filesystem::path fullPath = mtlMat->diffuseMap;
+						if (!fullPath.is_absolute())
+							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath);
+						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath.generic_u8string());
 					}
 
-					if (!mtlMat->emissiveMap.IsEmpty())
+					if (!mtlMat->emissiveMap.empty())
 					{
-						String fullPath = mtlMat->emissiveMap;
-						if (!Nz::File::IsAbsolute(fullPath))
-							fullPath.Prepend(baseDir);
+						std::filesystem::path fullPath = mtlMat->emissiveMap;
+						if (!fullPath.is_absolute())
+							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::EmissiveTexturePath, fullPath);
+						data.SetParameter(MaterialData::EmissiveTexturePath, fullPath.generic_u8string());
 					}
 
-					if (!mtlMat->normalMap.IsEmpty())
+					if (!mtlMat->normalMap.empty())
 					{
-						String fullPath = mtlMat->normalMap;
-						if (!Nz::File::IsAbsolute(fullPath))
-							fullPath.Prepend(baseDir);
+						std::filesystem::path fullPath = mtlMat->normalMap;
+						if (!fullPath.is_absolute())
+							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::NormalTexturePath, fullPath);
+						data.SetParameter(MaterialData::NormalTexturePath, fullPath.generic_u8string());
 					}
 
-					if (!mtlMat->specularMap.IsEmpty())
+					if (!mtlMat->specularMap.empty())
 					{
-						String fullPath = mtlMat->specularMap;
-						if (!Nz::File::IsAbsolute(fullPath))
-							fullPath.Prepend(baseDir);
+						std::filesystem::path fullPath = mtlMat->specularMap;
+						if (!fullPath.is_absolute())
+							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::SpecularTexturePath, fullPath);
+						data.SetParameter(MaterialData::SpecularTexturePath, fullPath.generic_u8string());
 					}
 
 					// If we either have an alpha value or an alpha map, let's configure the material for transparency
-					if (alphaValue != 255 || !mtlMat->alphaMap.IsEmpty())
+					if (alphaValue != 255 || !mtlMat->alphaMap.empty())
 					{
 						// Some default settings
 						data.SetParameter(MaterialData::Blending, true);
@@ -169,27 +169,27 @@ namespace Nz
 			MeshRef mesh = Mesh::New();
 			mesh->CreateStatic();
 
-			const String* materials = parser.GetMaterials();
+			const std::string* materials = parser.GetMaterials();
 			const Vector4f* positions = parser.GetPositions();
 			const Vector3f* normals = parser.GetNormals();
 			const Vector3f* texCoords = parser.GetTexCoords();
 
 			const OBJParser::Mesh* meshes = parser.GetMeshes();
-			UInt32 meshCount = parser.GetMeshCount();
+			std::size_t meshCount = parser.GetMeshCount();
 
 			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr &&
 			             texCoords != nullptr && meshes != nullptr && meshCount > 0,
 			             "Invalid OBJParser output");
 
 			// Un conteneur temporaire pour contenir les indices de face avant triangulation
-			std::vector<UInt32> faceIndices(3); // Comme il y aura au moins trois sommets
-			for (UInt32 i = 0; i < meshCount; ++i)
+			std::vector<std::size_t> faceIndices(3); // Comme il y aura au moins trois sommets
+			for (std::size_t i = 0; i < meshCount; ++i)
 			{
 				std::size_t faceCount = meshes[i].faces.size();
 				if (faceCount == 0)
 					continue;
 
-				std::vector<UInt32> indices;
+				std::vector<std::size_t> indices;
 				indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
 
 				// Afin d'utiliser OBJParser::FaceVertex comme clé dans un unordered_map,
@@ -226,10 +226,10 @@ namespace Nz
 				unsigned int vertexCount = 0;
 				for (unsigned int j = 0; j < faceCount; ++j)
 				{
-					UInt32 faceVertexCount = meshes[i].faces[j].vertexCount;
+					std::size_t faceVertexCount = meshes[i].faces[j].vertexCount;
 					faceIndices.resize(faceVertexCount);
 
-					for (UInt32 k = 0; k < faceVertexCount; ++k)
+					for (std::size_t k = 0; k < faceVertexCount; ++k)
 					{
 						const OBJParser::FaceVertex& vertex = meshes[i].vertices[meshes[i].faces[j].firstVertex + k];
 
@@ -241,7 +241,7 @@ namespace Nz
 					}
 
 					// Triangulation
-					for (UInt32 k = 1; k < faceVertexCount-1; ++k)
+					for (std::size_t k = 1; k < faceVertexCount-1; ++k)
 					{
 						indices.push_back(faceIndices[0]);
 						indices.push_back(faceIndices[k]);
@@ -250,13 +250,13 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), UInt32(indices.size()), parameters.storage, parameters.indexBufferFlags);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), std::size_t(indices.size()), parameters.storage, parameters.indexBufferFlags);
+				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, std::size_t(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 				// Remplissage des indices
 				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
 				for (std::size_t j = 0; j < indices.size(); ++j)
-					indexMapper.Set(j, indices[j]);
+					indexMapper.Set(j, UInt32(indices[j]));
 
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
@@ -337,11 +337,11 @@ namespace Nz
 				mesh->Recenter();
 
 			// On charge les matériaux si demandé
-			String mtlLib = parser.GetMtlLib();
-			if (!mtlLib.IsEmpty())
+			std::filesystem::path mtlLib = parser.GetMtlLib();
+			if (!mtlLib.empty())
 			{
 				ErrorFlags flags(ErrorFlag_ThrowExceptionDisabled);
-				ParseMTL(mesh, stream.GetDirectory() + mtlLib, materials, meshes, meshCount);
+				ParseMTL(mesh, stream.GetDirectory() / mtlLib, materials, meshes, meshCount);
 			}
 
 			return mesh;

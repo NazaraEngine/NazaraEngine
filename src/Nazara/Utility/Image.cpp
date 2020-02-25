@@ -850,7 +850,7 @@ namespace Nz
 	}
 
 	// LoadArray
-	ImageRef Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	ImageRef Image::LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		ImageRef image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
@@ -951,7 +951,7 @@ namespace Nz
 		return LoadArrayFromImage(image, atlasSize);
 	}
 
-	ImageRef Image::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	ImageRef Image::LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		ImageRef image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
@@ -1074,7 +1074,7 @@ namespace Nz
 		return LoadCubemapFromImage(image, cubemapParams);
 	}
 
-	bool Image::LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params)
+	bool Image::LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
@@ -1158,12 +1158,12 @@ namespace Nz
 		return true;
 	}
 
-	bool Image::SaveToFile(const String& filePath, const ImageParams& params)
+	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		return ImageSaver::SaveToFile(*this, filePath, params);
 	}
 
-	bool Image::SaveToStream(Stream& stream, const String& format, const ImageParams& params)
+	bool Image::SaveToStream(Stream& stream, const std::string& format, const ImageParams& params)
 	{
 		return ImageSaver::SaveToStream(*this, stream, format, params);
 	}
@@ -1429,7 +1429,7 @@ namespace Nz
 		return 0;
 	}
 
-	ImageRef Image::LoadFromFile(const String& filePath, const ImageParams& params)
+	ImageRef Image::LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		return ImageLoader::LoadFromFile(filePath, params);
 	}

@@ -36,7 +36,7 @@ namespace Nz
 
 		static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string& extension)
 		{
 			static std::set<String> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
 			return supportedExtensions.find(extension) != supportedExtensions.end();

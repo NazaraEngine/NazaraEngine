@@ -31,20 +31,20 @@ namespace Nz
 	* \param filePath Path to the asset that will be loaded
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceManager<Type, Parameters>::Get(const String& filePath)
+	ObjectRef<Type> ResourceManager<Type, Parameters>::Get(const std::filesystem::path& filePath)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 		auto it = Type::s_managerMap.find(absolutePath);
 		if (it == Type::s_managerMap.end())
 		{
 			ObjectRef<Type> resource = Type::LoadFromFile(absolutePath, GetDefaultParameters());
 			if (!resource)
 			{
-				NazaraError("Failed to load resource from file: " + absolutePath);
+				NazaraError("Failed to load resource from file: " + absolutePath.generic_u8string());
 				return ObjectRef<Type>();
 			}
 
-			NazaraDebug("Loaded resource from file " + absolutePath);
+			NazaraDebug("Loaded resource from file " + absolutePath.generic_u8string());
 
 			it = Type::s_managerMap.insert(std::make_pair(absolutePath, resource)).first;
 		}
@@ -74,7 +74,7 @@ namespace Nz
 			const ObjectRef<Type>& ref = it->second;
 			if (ref->GetReferenceCount() == 1) // Are we the only ones to own the resource ?
 			{
-				NazaraDebug("Purging resource from file " + ref->GetFilePath());
+				NazaraDebug("Purging resource from file " + ref->GetFilePath().generic_u8string());
 				Type::s_managerMap.erase(it++); // Then we erase it
 			}
 			else
@@ -89,9 +89,9 @@ namespace Nz
 	* \param resource Object to associate with
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Register(const String& filePath, ObjectRef<Type> resource)
+	void ResourceManager<Type, Parameters>::Register(const std::filesystem::path& filePath, ObjectRef<Type> resource)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 
 		Type::s_managerMap[absolutePath] = resource;
 	}
@@ -113,9 +113,9 @@ namespace Nz
 	* \param filePath Path for the resource
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Unregister(const String& filePath)
+	void ResourceManager<Type, Parameters>::Unregister(const std::filesystem::path& filePath)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 
 		Type::s_managerMap.erase(absolutePath);
 	}

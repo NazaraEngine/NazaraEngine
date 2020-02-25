@@ -149,12 +149,12 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if loading failed
 	*/
-	bool Sound::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	bool Sound::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
 	{
 		SoundBufferRef buffer = SoundBuffer::LoadFromFile(filePath, params);
 		if (!buffer)
 		{
-			NazaraError("Failed to load buffer from file (" + filePath + ')');
+			NazaraError("Failed to load buffer from file (" + filePath.generic_u8string() + ')');
 			return false;
 		}
 

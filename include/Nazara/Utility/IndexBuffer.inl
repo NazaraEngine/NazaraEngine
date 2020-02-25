@@ -12,22 +12,22 @@ namespace Nz
 		return m_buffer;
 	}
 
-	inline UInt32 IndexBuffer::GetEndOffset() const
+	inline std::size_t IndexBuffer::GetEndOffset() const
 	{
 		return m_endOffset;
 	}
 
-	inline UInt32 IndexBuffer::GetIndexCount() const
+	inline std::size_t IndexBuffer::GetIndexCount() const
 	{
 		return m_indexCount;
 	}
 
-	inline UInt32 IndexBuffer::GetStride() const
+	inline std::size_t IndexBuffer::GetStride() const
 	{
-		return static_cast<UInt32>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
+		return static_cast<std::size_t>((m_largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
 	}
 
-	inline UInt32 IndexBuffer::GetStartOffset() const
+	inline std::size_t IndexBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
 	}
@@ -42,15 +42,15 @@ namespace Nz
 		return m_buffer.IsValid();
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length)
+	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length)
 	{
-		UInt32 stride = GetStride();
+		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length) const
+	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length) const
 	{
-		UInt32 stride = GetStride();
+		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
 	}
 

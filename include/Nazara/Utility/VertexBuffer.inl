@@ -12,22 +12,22 @@ namespace Nz
 		return m_buffer;
 	}
 
-	inline UInt32 VertexBuffer::GetEndOffset() const
+	inline std::size_t VertexBuffer::GetEndOffset() const
 	{
 		return m_endOffset;
 	}
 
-	inline UInt32 VertexBuffer::GetStride() const
+	inline std::size_t VertexBuffer::GetStride() const
 	{
-		return static_cast<UInt32>(m_vertexDeclaration->GetStride());
+		return static_cast<std::size_t>(m_vertexDeclaration->GetStride());
 	}
 
-	inline UInt32 VertexBuffer::GetStartOffset() const
+	inline std::size_t VertexBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
 	}
 
-	inline UInt32 VertexBuffer::GetVertexCount() const
+	inline std::size_t VertexBuffer::GetVertexCount() const
 	{
 		return m_vertexCount;
 	}

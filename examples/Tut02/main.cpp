@@ -3,10 +3,10 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems.hpp>
-#include <NDK/World.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems.hpp>
+#include <NazaraSDK/World.hpp>
 #include <iostream>
 
 int main(int argc, char* argv[])

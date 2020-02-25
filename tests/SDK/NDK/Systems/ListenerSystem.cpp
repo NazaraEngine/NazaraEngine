@@ -1,8 +1,8 @@
-#include <NDK/Systems/ListenerSystem.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/ListenerComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/VelocityComponent.hpp>
+#include <NazaraSDK/Systems/ListenerSystem.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/ListenerComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/VelocityComponent.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Catch/catch.hpp>
 

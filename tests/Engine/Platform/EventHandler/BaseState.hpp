@@ -5,7 +5,7 @@
 
 #include <Nazara/Platform/EventHandler.hpp>
 
-#include <NDK/State.hpp>
+#include <NazaraSDK/State.hpp>
 
 class StateContext;
 

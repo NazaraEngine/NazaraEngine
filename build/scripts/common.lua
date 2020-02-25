@@ -89,13 +89,17 @@ function NazaraBuild:Execute()
 			for k, libTable in ipairs(self.OrderedExtLibs) do
 				project(libTable.Name)
 
-				self:PrepareGeneric()
+				self:PreconfigGenericProject()
 				
 				language(libTable.Language)
 				location(_ACTION .. "/thirdparty")
 
 				files(libTable.Files)
 				excludes(libTable.FilesExcluded)
+
+				if (libTable.DisableWarnings) then
+					warnings("Off")
+				end
 
 				defines(libTable.Defines)
 				flags(libTable.Flags)
@@ -122,6 +126,8 @@ function NazaraBuild:Execute()
 				end
 
 				filter({})
+
+				self:PostconfigGenericProject()
 			end
 		end
 		
@@ -131,14 +137,14 @@ function NazaraBuild:Execute()
 		if (_OPTIONS["united"]) then
 			project("NazaraEngine")
 
-			self:PrepareMainWorkspace()
+			self:PreconfigNazaraProject()
 		end
 
 		for k, moduleTable in ipairs(self.OrderedModules) do
 			if (not _OPTIONS["united"]) then
 				project("Nazara" .. moduleTable.Name)
 				
-				self:PrepareMainWorkspace()
+				self:PreconfigNazaraProject()
 			end
 
 			location(_ACTION .. "/modules")
@@ -180,6 +186,14 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+
+			if (not _OPTIONS["united"]) then
+				self:PostconfigNazaraProject()
+			end
+		end
+
+		if (_OPTIONS["united"]) then
+			self:PostconfigNazaraProject()
 		end
 
 		-- Tools
@@ -193,7 +207,7 @@ function NazaraBuild:Execute()
 
 			project(prefix .. toolTable.Name)
 
-			self:PrepareMainWorkspace()
+			self:PreconfigNazaraProject()
 
 			location(_ACTION .. "/tools")
 
@@ -251,6 +265,8 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+
+			self:PostconfigNazaraProject()
 		end
 
 		group("Examples")
@@ -260,7 +276,7 @@ function NazaraBuild:Execute()
 
 			project("Demo" .. exampleTable.Name)
 
-			self:PrepareMainWorkspace()
+			self:PreconfigNazaraProject()
 
 			location(_ACTION .. "/examples")
 
@@ -301,6 +317,8 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+
+			self:PostconfigNazaraProject()
 		end
 	end
 end
@@ -802,7 +820,7 @@ function NazaraBuild:Process(infoTable)
 	return true
 end
 
-function NazaraBuild:PrepareGeneric()
+function NazaraBuild:PreconfigGenericProject()
 	flags({
 		"MultiProcessorCompile",
 		"NoMinimalRebuild",
@@ -811,7 +829,8 @@ function NazaraBuild:PrepareGeneric()
 		"UndefinedIdentifiers"
 	})
 	
-	cppdialect("C++14")
+	cppdialect("C++17")
+	warnings("Extra")
 
 	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
@@ -871,8 +890,17 @@ function NazaraBuild:PrepareGeneric()
 	buildoptions(self.Config["AdditionalCompilationOptions"])
 end
 
-function NazaraBuild:PrepareMainWorkspace()
-	self:PrepareGeneric()
+function NazaraBuild:PostconfigGenericProject()
+	-- Add options required for C++17 thread and filesystem (have to be linked last)
+	filter("action:gmake*")
+		links("stdc++fs")
+		links("pthread")
+
+	filter({})
+end
+
+function NazaraBuild:PreconfigNazaraProject()
+	self:PreconfigGenericProject()
 
 	language("C++")
 
@@ -904,6 +932,10 @@ function NazaraBuild:PrepareMainWorkspace()
 		buildoptions("-fvisibility=hidden")
 
 	filter({})
+end
+
+function NazaraBuild:PostconfigNazaraProject()
+	self:PostconfigGenericProject()
 end
 
 function NazaraBuild:RegisterAction(actionTable)

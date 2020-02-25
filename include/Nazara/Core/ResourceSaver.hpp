@@ -11,6 +11,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/String.hpp>
+#include <filesystem>
 #include <list>
 #include <tuple>
 #include <type_traits>
@@ -27,18 +28,18 @@ namespace Nz
 		friend Type;
 
 		public:
-			using ExtensionGetter = bool (*)(const String& extension);
-			using FormatQuerier = bool (*)(const String& format);
-			using FileSaver = bool (*)(const Type& resource, const String& filePath, const Parameters& parameters);
-			using StreamSaver = bool (*)(const Type& resource, const String& format, Stream& stream, const Parameters& parameters);
+			using ExtensionGetter = bool (*)(const std::string& extension);
+			using FormatQuerier = bool (*)(const std::string& format);
+			using FileSaver = bool (*)(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters);
+			using StreamSaver = bool (*)(const Type& resource, const std::string& format, Stream& stream, const Parameters& parameters);
 
 			ResourceSaver() = delete;
 			~ResourceSaver() = delete;
 
-			static bool IsFormatSupported(const String& extension);
+			static bool IsFormatSupported(const std::string& extension);
 
-			static bool SaveToFile(const Type& resource, const String& filePath, const Parameters& parameters = Parameters());
-			static bool SaveToStream(const Type& resource, Stream& stream, const String& format, const Parameters& parameters = Parameters());
+			static bool SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters = Parameters());
+			static bool SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters = Parameters());
 
 			static void RegisterSaver(FormatQuerier formatQuerier, StreamSaver streamSaver, FileSaver fileSaver = nullptr);
 			static void UnregisterSaver(FormatQuerier formatQuerier, StreamSaver streamSaver, FileSaver fileSaver = nullptr);

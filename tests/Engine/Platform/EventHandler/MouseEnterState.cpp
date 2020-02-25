@@ -4,7 +4,7 @@
 #include "StateFactory.hpp"
 
 #include <Nazara/Renderer/RenderWindow.hpp>
-#include <NDK/StateMachine.hpp>
+#include <NazaraSDK/StateMachine.hpp>
 
 MouseEnterState::MouseEnterState(StateContext& context) :
 BaseState(context)

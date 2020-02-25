@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Formats/MD5MeshParser.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <memory>
@@ -71,19 +72,19 @@ namespace Nz
 			{
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				case 'M': // MD5Version
-					if (m_currentLine.GetWord(0) != "MD5Version")
+					if (!StartsWith(m_currentLine, "MD5Version "))
 						UnrecognizedLine();
 					break;
 
 				case 'c': // commandline
-					if (m_currentLine.GetWord(0) != "commandline")
+					if (!StartsWith(m_currentLine, "commandline "))
 						UnrecognizedLine();
 					break;
 				#endif
 
 				case 'j': // joints
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (!m_currentLine.StartsWith("joints {"))
+					if (!StartsWith(m_currentLine, "joints {"))
 					{
 						UnrecognizedLine();
 						break;
@@ -100,7 +101,7 @@ namespace Nz
 				case 'm': // mesh
 				{
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (m_currentLine != "mesh {")
+					if (!StartsWith(m_currentLine, "mesh {"))
 					{
 						UnrecognizedLine();
 						break;
@@ -113,7 +114,7 @@ namespace Nz
 						Warning("More meshes than registred");
 						#endif
 
-						m_meshes.push_back(Mesh());
+						m_meshes.emplace_back();
 					}
 
 					if (!ParseMesh())
@@ -182,14 +183,25 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_stream.ReadLine();
-				if (m_currentLine.IsEmpty())
-					continue;
 
-				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
-				m_currentLine.Simplify(); // Pour un traitement plus simple
-				m_currentLine.Trim();
+				if (std::size_t p = m_currentLine.find("//"); p != m_currentLine.npos)
+				{
+					if (p > 0)
+						m_currentLine = m_currentLine.substr(0, p - 1);
+					else
+						m_currentLine.clear();
+				}
+
+				// Trim left
+				m_currentLine.erase(m_currentLine.begin(), std::find_if(m_currentLine.begin(), m_currentLine.end(), [](char c)
+				{
+					return !std::isspace(c);
+				}));
+
+				if (m_currentLine.empty())
+					continue;
 			}
-			while (m_currentLine.IsEmpty());
+			while (m_currentLine.empty());
 		}
 		else
 			m_keepLastLine = false;
@@ -197,9 +209,9 @@ namespace Nz
 		return true;
 	}
 
-	void MD5MeshParser::Error(const String& message)
+	void MD5MeshParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + String::Number(m_lineCount));
+		NazaraError(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	bool MD5MeshParser::ParseJoints()
@@ -216,7 +228,7 @@ namespace Nz
 			if (!Advance())
 				return false;
 
-			std::size_t pos = m_currentLine.Find(' ');
+			std::size_t pos = m_currentLine.find(' ');
 			if (pos == String::npos)
 			{
 				UnrecognizedLine(true);
@@ -231,8 +243,8 @@ namespace Nz
 
 			char name[64];
 			if (std::sscanf(&m_currentLine[0], "%63s %d ( %f %f %f ) ( %f %f %f )", &name[0], &m_joints[i].parent,
-																					&m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
-																					&m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 8)
+			                                                                        &m_joints[i].bindPos.x, &m_joints[i].bindPos.y, &m_joints[i].bindPos.z,
+			                                                                        &m_joints[i].bindOrient.x, &m_joints[i].bindOrient.y, &m_joints[i].bindOrient.z) != 8)
 			{
 				UnrecognizedLine(true);
 				return false;
@@ -246,7 +258,7 @@ namespace Nz
 			{
 				if (static_cast<std::size_t>(parent) >= jointCount)
 				{
-					Error("Joint's parent is out of bounds (" + String::Number(parent) + " >= " + String::Number(jointCount) + ')');
+					Error("Joint's parent is out of bounds (" + std::to_string(parent) + " >= " + std::to_string(jointCount) + ')');
 					return false;
 				}
 			}
@@ -257,7 +269,7 @@ namespace Nz
 		if (!Advance())
 			return false;
 
-		if (m_currentLine != '}')
+		if (m_currentLine != "}")
 		{
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			Warning("Hierarchy braces closing not found");
@@ -282,17 +294,42 @@ namespace Nz
 					break;
 
 				case 's': // shader
+				{
 					#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-					if (!m_currentLine.StartsWith("shader "))
+					if (!StartsWith(m_currentLine, "shader "))
 					{
 						UnrecognizedLine();
 						break;
 					}
 					#endif
 
-					m_meshes[m_meshIndex].shader = m_currentLine.SubString(7);
-					m_meshes[m_meshIndex].shader.Trim('"');
+					std::string_view shader = m_currentLine;
+					shader = shader.substr(7);
+					if (shader.empty())
+					{
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						UnrecognizedLine();
+#endif
+						break;
+					}
+
+					if (shader.front() == '"')
+						shader.remove_prefix(1);
+
+					if (shader.empty())
+					{
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						UnrecognizedLine();
+#endif
+						break;
+					}
+
+					if (shader.back() == '"')
+						shader.remove_prefix(1);
+
+					m_meshes[m_meshIndex].shader = shader;
 					break;
+				}
 
 				case 'n': // num[tris/verts]
 				{
@@ -315,7 +352,7 @@ namespace Nz
 
 							if (index != i)
 							{
-								Error("Unexpected triangle index (expected " + String::Number(i) + ", got " + String::Number(index) + ')');
+								Error("Unexpected triangle index (expected " + std::to_string(i) + ", got " + std::to_string(index) + ')');
 								return false;
 							}
 						}
@@ -338,7 +375,7 @@ namespace Nz
 
 							if (index != i)
 							{
-								Error("Unexpected vertex index (expected " + String::Number(i) + ", got " + String::Number(index) + ')');
+								Error("Unexpected vertex index (expected " + std::to_string(i) + ", got " + std::to_string(index) + ')');
 								return false;
 							}
 						}
@@ -354,7 +391,7 @@ namespace Nz
 							Weight& weight = m_meshes[m_meshIndex].weights[i];
 							unsigned int index;
 							if (std::sscanf(&m_currentLine[0], "weight %u %u %f ( %f %f %f )", &index, &weight.joint, &weight.bias,
-																							   &weight.pos.x, &weight.pos.y, &weight.pos.z) != 6)
+							                                                                   &weight.pos.x, &weight.pos.y, &weight.pos.z) != 6)
 							{
 								UnrecognizedLine(true);
 								return false;
@@ -362,7 +399,7 @@ namespace Nz
 
 							if (index != i)
 							{
-								Error("Unexpected weight index (expected " + String::Number(i) + ", got " + String::Number(index) + ')');
+								Error("Unexpected weight index (expected " + std::to_string(i) + ", got " + std::to_string(index) + ')');
 								return false;
 							}
 						}
@@ -408,14 +445,14 @@ namespace Nz
 		return true;
 	}
 
-	void MD5MeshParser::Warning(const String& message)
+	void MD5MeshParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
+		NazaraWarning(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	void MD5MeshParser::UnrecognizedLine(bool error)
 	{
-		String message = "Unrecognized \"" + m_currentLine + '"';
+		std::string message = "Unrecognized \"" + m_currentLine + '"';
 
 		if (error)
 			Error(message);

@@ -4,12 +4,31 @@
 
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
+	namespace
+	{
+		template<std::size_t N>
+		bool TestKeyword(const std::string& currentLine, const char(&keyword)[N], std::size_t& offset)
+		{
+			if (currentLine.size() > N && StartsWith(currentLine, keyword, CaseIndependent{}) && std::isspace(currentLine[N - 1]))
+			{
+				offset = N;
+				while (offset < currentLine.size() && std::isspace(currentLine[offset]))
+					offset++;
+
+				return offset < currentLine.size();
+			}
+			else
+				return false;
+		}
+	}
+
 	bool MTLParser::Parse(Stream& stream)
 	{
 		m_currentStream = &stream;
@@ -31,266 +50,434 @@ namespace Nz
 		m_materials.clear();
 
 		Material* currentMaterial = nullptr;
+		std::size_t offset;
 
 		while (Advance(false))
 		{
-			String keyword = m_currentLine.GetWord(0).ToLower();
-			if (keyword == "ka")
+			switch (std::tolower(m_currentLine[0]))
 			{
-				float r, g, b;
-				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
+				case 'b':
 				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
+					if (TestKeyword(m_currentLine, "bump", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
 
-					currentMaterial->ambient = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
+							currentMaterial->bumpMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
 				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "kd")
-			{
-				float r, g, b;
-				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
+
+				case 'd':
 				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
+					if (TestKeyword(m_currentLine, "d", offset))
+					{
+						float alpha;
+						if (std::sscanf(&m_currentLine[2], "%f", &alpha) == 1)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
 
-					currentMaterial->diffuse = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
+							currentMaterial->alpha = alpha;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "decal", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->decalMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "disp", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->displacementMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					break;
 				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "ks")
-			{
-				float r, g, b;
-				if (std::sscanf(&m_currentLine[3], "%f %f %f", &r, &g, &b) == 3)
+
+				case 'e':
 				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
+					if (TestKeyword(m_currentLine, "emissive", offset))
+					{
+						// <!> This is a custom keyword
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
 
-					currentMaterial->specular = Color(static_cast<UInt8>(r*255.f), static_cast<UInt8>(g*255.f), static_cast<UInt8>(b*255.f));
+							currentMaterial->emissiveMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					break;
 				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "ni")
-			{
-				float density;
-				if (std::sscanf(&m_currentLine[3], "%f", &density) == 1)
+
+				case 'k':
 				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
+					if (TestKeyword(m_currentLine, "ka", offset))
+					{
+						float r, g, b;
+						if (std::sscanf(&m_currentLine[offset], "%f %f %f", &r, &g, &b) == 3)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
 
-					currentMaterial->refractionIndex = density;
+							currentMaterial->ambient = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "kd", offset))
+					{
+						float r, g, b;
+						if (std::sscanf(&m_currentLine[offset], "%f %f %f", &r, &g, &b) == 3)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->diffuse = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "ks", offset))
+					{
+						float r, g, b;
+						if (std::sscanf(&m_currentLine[offset], "%f %f %f", &r, &g, &b) == 3)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->specular = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+
+					break;
 				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "ns")
-			{
-				float coef;
-				if (std::sscanf(&m_currentLine[3], "%f", &coef) == 1)
+
+				case 'i':
 				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
+					if (TestKeyword(m_currentLine, "illum", offset))
+					{
+						unsigned int model;
+						if (std::sscanf(&m_currentLine[offset], "%u", &model) == 1)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
 
-					currentMaterial->shininess = coef;
-				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == 'd')
-			{
-				float alpha;
-				if (std::sscanf(&m_currentLine[(keyword[0] == 'd') ? 2 : 3], "%f", &alpha) == 1)
-				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->alpha = alpha;
-				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "tr")
-			{
-				float alpha;
-				if (std::sscanf(&m_currentLine[(keyword[0] == 'd') ? 2 : 3], "%f", &alpha) == 1)
-				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->alpha = 1.f - alpha; // tr vaut pour la "valeur de transparence", 0 = opaque
-				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "illum")
-			{
-				unsigned int model;
-				if (std::sscanf(&m_currentLine[6], "%u", &model) == 1)
-				{
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->illumModel = model;
-				}
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
-			else if (keyword == "map_ka")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->ambientMap = map;
-				}
-			}
-			else if (keyword == "map_kd")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->diffuseMap = map;
-				}
-			}
-			else if (keyword == "map_ks")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->specularMap = map;
-				}
-			}
-			else if (keyword == "map_bump" || keyword == "bump")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->bumpMap = map;
-				}
-			}
-			else if (keyword == "map_d")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->alphaMap = map;
-				}
-			}
-			else if (keyword == "map_decal" || keyword == "decal")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->decalMap = map;
-				}
-			}
-			else if (keyword == "map_disp" || keyword == "disp")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->displacementMap = map;
-				}
-			}
-			else if (keyword == "map_refl" || keyword == "refl")
-			{
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->reflectionMap = map;
-				}
-			}
-			else if (keyword == "map_normal" || keyword == "normal")
-			{
-				// <!> This is a custom keyword
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->normalMap = map;
-				}
-			}
-			else if (keyword == "map_emissive" || keyword == "emissive")
-			{
-				// <!> This is a custom keyword
-				std::size_t mapPos = m_currentLine.GetWordPosition(1);
-				if (mapPos != String::npos)
-				{
-					String map = m_currentLine.SubString(mapPos);
-					if (!currentMaterial)
-						currentMaterial = AddMaterial("default");
-
-					currentMaterial->emissiveMap = map;
-				}
-			}
-			else if (keyword == "newmtl")
-			{
-				String materialName = m_currentLine.SubString(m_currentLine.GetWordPosition(1));
-				if (!materialName.IsEmpty())
-					currentMaterial = AddMaterial(materialName);
-				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-				else
-					UnrecognizedLine();
-				#endif
-			}
+							currentMaterial->illumModel = model;
+						}
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
-			else
-				UnrecognizedLine();
+						else
+							UnrecognizedLine();
 			#endif
+					}
+					break;
+				}
+
+				case 'm':
+				{
+					if (TestKeyword(m_currentLine, "map_ka", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->ambientMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_kd", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->diffuseMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_ks", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->specularMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_bump", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->bumpMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+					else
+						UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_d", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->alphaMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_decal", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->decalMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_disp", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->displacementMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_refl", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->reflectionMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_normal", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->normalMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "map_emissive", offset))
+					{
+						// <!> This is a custom keyword
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->emissiveMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					break;
+				}
+
+				case 'n':
+				{
+					if (TestKeyword(m_currentLine, "ni", offset))
+					{
+						float density;
+						if (std::sscanf(&m_currentLine[offset], "%f", &density) == 1)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->refractionIndex = density;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "ns", offset))
+					{
+						float coef;
+						if (std::sscanf(&m_currentLine[offset], "%f", &coef) == 1)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->shininess = coef;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "normal", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->normalMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					else if (TestKeyword(m_currentLine, "newmtl", offset))
+					{
+						std::string materialName = m_currentLine.substr(offset);
+						if (!materialName.empty())
+							currentMaterial = AddMaterial(materialName);
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					break;
+				}
+
+				case 'r':
+				{
+					if (TestKeyword(m_currentLine, "refl", offset))
+					{
+						std::string map = m_currentLine.substr(offset);
+						if (!map.empty())
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->reflectionMap = map;
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+					break;
+				}
+
+				case 't':
+				{
+					if (TestKeyword(m_currentLine, "tr", offset))
+					{
+						float alpha;
+						if (std::sscanf(&m_currentLine[offset], "%f", &alpha) == 1)
+						{
+							if (!currentMaterial)
+								currentMaterial = AddMaterial("default");
+
+							currentMaterial->alpha = 1.f - alpha; // tr vaut pour la "valeur de transparence", 0 = opaque
+						}
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+						else
+							UnrecognizedLine();
+#endif
+					}
+				}
+
+				default:
+#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
+					UnrecognizedLine();
+#endif
+					break;
+			}
 		}
 
 		return true;
@@ -378,49 +565,49 @@ namespace Nz
 				EmitLine(mat.illumModel);
 			}
 
-			if (!mat.ambientMap.IsEmpty())
+			if (!mat.ambientMap.empty())
 			{
 				Emit("map_Ka ");
 				EmitLine(mat.ambientMap);
 			}
 
-			if (!mat.diffuseMap.IsEmpty())
+			if (!mat.diffuseMap.empty())
 			{
 				Emit("map_Kd ");
 				EmitLine(mat.diffuseMap);
 			}
 
-			if (!mat.specularMap.IsEmpty())
+			if (!mat.specularMap.empty())
 			{
 				Emit("map_Ks ");
 				EmitLine(mat.specularMap);
 			}
 
-			if (!mat.bumpMap.IsEmpty())
+			if (!mat.bumpMap.empty())
 			{
 				Emit("map_bump ");
 				EmitLine(mat.bumpMap);
 			}
 
-			if (!mat.alphaMap.IsEmpty())
+			if (!mat.alphaMap.empty())
 			{
 				Emit("map_d ");
 				EmitLine(mat.alphaMap);
 			}
 
-			if (!mat.decalMap.IsEmpty())
+			if (!mat.decalMap.empty())
 			{
 				Emit("map_decal ");
 				EmitLine(mat.decalMap);
 			}
 
-			if (!mat.displacementMap.IsEmpty())
+			if (!mat.displacementMap.empty())
 			{
 				Emit("map_disp ");
 				EmitLine(mat.displacementMap);
 			}
 
-			if (!mat.reflectionMap.IsEmpty())
+			if (!mat.reflectionMap.empty())
 			{
 				Emit("map_refl ");
 				EmitLine(mat.reflectionMap);
@@ -450,13 +637,18 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_currentStream->ReadLine();
-				if (m_currentLine.IsEmpty())
-					continue;
+				if (std::size_t p = m_currentLine.find('#'); p != m_currentLine.npos)
+				{
+					if (p > 0)
+						m_currentLine = m_currentLine.substr(0, p - 1);
+					else
+						m_currentLine.clear();
+				}
 
-				m_currentLine = m_currentLine.SubStringTo("#"); // On ignore les commentaires
-				m_currentLine.Simplify(); // Pour un traitement plus simple
+				if (m_currentLine.empty())
+					continue;
 			}
-			while (m_currentLine.IsEmpty());
+			while (m_currentLine.empty());
 		}
 		else
 			m_keepLastLine = false;

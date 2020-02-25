@@ -33,7 +33,7 @@ namespace Nz
 			static UInt32 GetFlags();
 			static String GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
-			static String GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
+			static std::string GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
 			static void SetFlags(UInt32 flags);
 
@@ -41,6 +41,8 @@ namespace Nz
 			static void Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function);
 
 		private:
+			static const char* GetCurrentFileRelativeToEngine(const char* file);
+
 			static UInt32 s_flags;
 			static String s_lastError;
 			static const char* s_lastErrorFunction;

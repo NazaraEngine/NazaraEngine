@@ -1,5 +1,5 @@
-#include <NDK/EntityList.hpp>
-#include <NDK/World.hpp>
+#include <NazaraSDK/EntityList.hpp>
+#include <NazaraSDK/World.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("EntityList", "[NDK][ENTITYLIST]")

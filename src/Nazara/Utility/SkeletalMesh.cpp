@@ -80,7 +80,7 @@ namespace Nz
 		return m_vertexBuffer;
 	}
 
-	unsigned int SkeletalMesh::GetVertexCount() const
+	std::size_t SkeletalMesh::GetVertexCount() const
 	{
 		return m_vertexBuffer->GetVertexCount();
 	}

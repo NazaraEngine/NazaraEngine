@@ -71,7 +71,7 @@ namespace Nz
 
 			static bool IsFormatSupported(AudioFormat format);
 
-			static SoundBufferRef LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			static SoundBufferRef LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
 			static SoundBufferRef LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
 			static SoundBufferRef LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 

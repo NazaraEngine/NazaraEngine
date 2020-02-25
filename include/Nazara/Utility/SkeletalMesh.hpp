@@ -36,13 +36,13 @@ namespace Nz
 			void Destroy();
 
 			const Boxf& GetAABB() const override;
-			AnimationType GetAnimationType() const final override;
+			AnimationType GetAnimationType() const final;
 			const IndexBuffer* GetIndexBuffer() const override;
 			VertexBuffer* GetVertexBuffer();
 			const VertexBuffer* GetVertexBuffer() const;
-			unsigned int GetVertexCount() const override;
+			std::size_t GetVertexCount() const override;
 
-			bool IsAnimated() const final override;
+			bool IsAnimated() const final;
 			bool IsValid() const;
 
 			void SetAABB(const Boxf& aabb);

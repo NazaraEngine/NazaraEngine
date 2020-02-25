@@ -18,7 +18,7 @@ namespace Nz
 			DDSLoader() = delete;
 			~DDSLoader() = delete;
 
-			static bool IsSupported(const String& extension)
+			static bool IsSupported(const std::string& extension)
 			{
 				return (extension == "dds");
 			}

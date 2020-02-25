@@ -10,12 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
 
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_REFCOUNTED
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 namespace Nz
 {
 	class NAZARA_CORE_API RefCounted

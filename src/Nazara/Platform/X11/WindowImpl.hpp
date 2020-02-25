@@ -10,18 +10,18 @@
 #define NAZARA_WINDOWIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 #include <xcb/randr.h>
 #include <xcb/xcb_icccm.h>
 
 namespace Nz
 {
-	class ConditionVariable;
-	class Mutex;
 	class Cursor;
 	class Icon;
 	class VideoMode;
@@ -100,13 +100,13 @@ namespace Nz
 			bool UpdateNormalHints();
 			void UpdateEventQueue(xcb_generic_event_t* event);
 
-			static void WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
+			static void WindowThread(WindowImpl* window, std::mutex& mutex, std::condition_variable& condition);
 
 			xcb_window_t                      m_window;
 			xcb_screen_t*                     m_screen;
 			xcb_randr_get_screen_info_reply_t m_oldVideoMode;
 			xcb_size_hints_t m_size_hints;
-			Thread m_thread;
+			std::thread m_thread;
 			WindowStyleFlags m_style;
 			Window* m_parent;
 			bool m_eventListener;
