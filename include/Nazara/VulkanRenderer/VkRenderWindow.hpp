@@ -51,6 +51,8 @@ namespace Nz
 			inline UInt32 GetPresentableFamilyQueue() const;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
+			std::shared_ptr<RenderDevice> GetRenderDevice() override;
+
 			void Present(UInt32 imageIndex) override;
 
 			VkRenderWindow& operator=(const VkRenderWindow&) = delete;

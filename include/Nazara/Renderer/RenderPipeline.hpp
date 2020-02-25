@@ -9,31 +9,20 @@
 
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/Shader.hpp>
+//#include <Nazara/Renderer/Shader.hpp>
 
 namespace Nz
 {
 	struct RenderPipelineInfo : RenderStates
 	{
-		ShaderConstRef shader;
+		/*ShaderConstRef shader;*/
 	};
 
-	class RenderPipeline
+	class NAZARA_RENDERER_API RenderPipeline
 	{
 		public:
-			inline RenderPipeline();
-			inline ~RenderPipeline();
-
-			inline bool Create(const RenderPipelineInfo& pipelineInfo);
-			inline void Destroy();
-
-			inline const RenderPipelineInfo& GetInfo() const;
-
-			inline bool IsValid() const;
-
-		private:
-			RenderPipelineInfo m_pipelineInfo;
-			bool m_valid;
+			RenderPipeline() = default;
+			virtual ~RenderPipeline();
 	};
 }
 

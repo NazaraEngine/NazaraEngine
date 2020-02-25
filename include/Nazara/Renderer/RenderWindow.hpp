@@ -19,6 +19,8 @@
 
 namespace Nz
 {
+	class RenderDevice;
+
 	class NAZARA_RENDERER_API RenderWindow : public Window
 	{
 		public:
@@ -34,6 +36,7 @@ namespace Nz
 			void EnableVerticalSync(bool enabled);
 
 			inline RenderWindowImpl* GetImpl();
+			std::shared_ptr<RenderDevice> GetRenderDevice();
 
 			inline bool IsValid() const;
 

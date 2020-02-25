@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
 
@@ -23,6 +24,7 @@ namespace Nz
 			virtual ~RenderDevice();
 
 			virtual std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) = 0;
+			virtual std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 	};
 }
 

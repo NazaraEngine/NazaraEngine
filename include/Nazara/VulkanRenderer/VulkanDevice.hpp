@@ -24,6 +24,7 @@ namespace Nz
 			~VulkanDevice();
 
 			std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) override;
+			std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 
 			VulkanDevice& operator=(const VulkanDevice&) = delete;
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
