@@ -29,6 +29,9 @@ namespace Nz
 	inline bool IsNumber(const char* str);
 	inline bool IsNumber(const std::string_view& str);
 
+	inline bool MatchPattern(const std::string_view& str, const char* pattern);
+	NAZARA_CORE_API bool MatchPattern(const std::string_view& str, const std::string_view& pattern);
+
 	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args);
 	inline bool StartsWith(const std::string_view& str, const std::string_view& s);
 	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent);

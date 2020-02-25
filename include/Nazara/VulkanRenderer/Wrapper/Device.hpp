@@ -48,8 +48,8 @@ namespace Nz
 				inline VkResult GetLastErrorCode() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 
-				inline bool IsExtensionLoaded(const String& extensionName);
-				inline bool IsLayerLoaded(const String& layerName);
+				inline bool IsExtensionLoaded(const std::string& extensionName);
+				inline bool IsLayerLoaded(const std::string& layerName);
 
 				inline bool WaitForIdle();
 
@@ -219,8 +219,8 @@ namespace Nz
 				VkDevice m_device;
 				VkPhysicalDevice m_physicalDevice;
 				VkResult m_lastErrorCode;
-				std::unordered_set<String> m_loadedExtensions;
-				std::unordered_set<String> m_loadedLayers;
+				std::unordered_set<std::string> m_loadedExtensions;
+				std::unordered_set<std::string> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
 				std::vector<const QueueList*> m_queuesByFamily;
 		};

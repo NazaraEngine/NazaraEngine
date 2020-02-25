@@ -21,6 +21,14 @@ namespace Nz
 		return !str.empty() && std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 	}
 
+	bool MatchPattern(const std::string_view& str, const char* pattern)
+	{
+		if (!pattern)
+			return false;
+
+		return MatchPattern(str, std::string_view(pattern, std::strlen(pattern)));
+	}
+
 	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args)
 	{
 		std::size_t size = std::strlen(s);

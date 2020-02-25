@@ -4,15 +4,22 @@
 
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <filesystem>
 #include <Nazara/Renderer/Debug.hpp>
+
+#ifdef NAZARA_DEBUG
+	#define NazaraRendererPattern "Nazara?*Renderer-d" NAZARA_DYNLIB_EXTENSION
+#else
+	#define NazaraRendererPattern "Nazara?*Renderer" NAZARA_DYNLIB_EXTENSION
+#endif
 
 namespace Nz
 {
@@ -43,32 +50,33 @@ namespace Nz
 
 		NazaraDebug("Searching for renderer implementation");
 
-		Directory dir(".");
-		dir.SetPattern("Nazara?*Renderer*" NAZARA_DYNLIB_EXTENSION); //< Ex: NazaraVulkanRenderer.dll
-
-		if (!dir.Open())
-		{
-			NazaraError("Failed to open directory");
-			return false;
-		}
-
 		DynLib chosenLib;
 		std::unique_ptr<RendererImpl> chosenImpl;
-		while (dir.NextResult())
+
+		for (auto&& entry : std::filesystem::directory_iterator("."))
 		{
-			NazaraDebug("Trying to load " + dir.GetResultName());
+			if (!entry.is_regular_file())
+				continue;
+
+			const std::filesystem::path& entryPath = entry.path();
+			std::filesystem::path fileName = entryPath.filename();
+			std::string fileNameStr = fileName.generic_u8string();
+			if (!MatchPattern(fileNameStr, NazaraRendererPattern))
+				continue;
+
+			NazaraDebug("Trying to load " + fileNameStr);
 
 			DynLib implLib;
-			if (!implLib.Load(dir.GetResultPath()))
+			if (!implLib.Load(entryPath))
 			{
-				NazaraWarning("Failed to load " + dir.GetResultName() + ": " + implLib.GetLastError());
+				NazaraWarning("Failed to load " + fileNameStr + ": " + implLib.GetLastError());
 				continue;
 			}
 
 			CreateRendererImplFunc createRenderer = reinterpret_cast<CreateRendererImplFunc>(implLib.GetSymbol("NazaraRenderer_Instantiate"));
 			if (!createRenderer)
 			{
-				NazaraDebug("Skipped " + dir.GetResultName() + " (symbol not found)");
+				NazaraDebug("Skipped " + fileNameStr + " (symbol not found)");
 				continue;
 			}
 

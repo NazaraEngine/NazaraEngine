@@ -68,12 +68,12 @@ namespace Nz
 			return m_physicalDevice;
 		}
 
-		inline bool Device::IsExtensionLoaded(const String& extensionName)
+		inline bool Device::IsExtensionLoaded(const std::string& extensionName)
 		{
 			return m_loadedExtensions.count(extensionName) > 0;
 		}
 
-		inline bool Device::IsLayerLoaded(const String& layerName)
+		inline bool Device::IsLayerLoaded(const std::string& layerName)
 		{
 			return m_loadedLayers.count(layerName) > 0;
 		}

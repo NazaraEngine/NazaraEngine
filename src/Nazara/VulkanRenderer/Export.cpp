@@ -9,7 +9,7 @@ extern "C"
 {
 	NAZARA_EXPORT Nz::RendererImpl* NazaraRenderer_Instantiate()
 	{
-		std::unique_ptr<Nz::VulkanRenderer> renderer(new Nz::VulkanRenderer);
+		std::unique_ptr<Nz::VulkanRenderer> renderer = std::make_unique<Nz::VulkanRenderer>();
 		return renderer.release();
 	}
 }
