@@ -347,39 +347,19 @@ int main()
 		attributeDescription.data()                                   // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
 	};
 
-	VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,  // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineInputAssemblyStateCreateFlags        flags
-		VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,                          // VkPrimitiveTopology                            topology
-		VK_FALSE                                                      // VkBool32                                       primitiveRestartEnable
-	};
-
 	VkPipelineViewportStateCreateInfo viewport_state_create_info = {
 		VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,        // VkStructureType                                sType
 		nullptr,                                                      // const void                                    *pNext
 		0,                                                            // VkPipelineViewportStateCreateFlags             flags
 		1,                                                            // uint32_t                                       viewportCount
-		nullptr,                                                    // const VkViewport                              *pViewports
+		nullptr,                                                      // const VkViewport                              *pViewports
 		1,                                                            // uint32_t                                       scissorCount
-		nullptr                                                      // const VkRect2D                                *pScissors
+		nullptr                                                       // const VkRect2D                                *pScissors
 	};
 
-	VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,   // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineRasterizationStateCreateFlags        flags
-		VK_FALSE,                                                     // VkBool32                                       depthClampEnable
-		VK_FALSE,                                                     // VkBool32                                       rasterizerDiscardEnable
-		VK_POLYGON_MODE_FILL,                                         // VkPolygonMode                                  polygonMode
-		VK_CULL_MODE_NONE,                                            // VkCullModeFlags                                cullMode
-		VK_FRONT_FACE_COUNTER_CLOCKWISE,                              // VkFrontFace                                    frontFace
-		VK_FALSE,                                                     // VkBool32                                       depthBiasEnable
-		0.0f,                                                         // float                                          depthBiasConstantFactor
-		0.0f,                                                         // float                                          depthBiasClamp
-		0.0f,                                                         // float                                          depthBiasSlopeFactor
-		1.0f                                                          // float                                          lineWidth
-	};
+	VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = Nz::VulkanRenderPipeline::BuildInputAssemblyInfo(pipelineInfo);
+	VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = Nz::VulkanRenderPipeline::BuildRasterizationInfo(pipelineInfo);
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo = Nz::VulkanRenderPipeline::BuildDepthStencilInfo(pipelineInfo);
 
 	VkPipelineMultisampleStateCreateInfo multisample_state_create_info = {
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,     // VkStructureType                                sType
@@ -428,8 +408,6 @@ int main()
 		Nz::UInt32(dynamicStates.size()),                     // uint32_t                             dynamicStateCount;
 		dynamicStates.data()                                  // const VkDynamicState*                pDynamicStates;
 	};
-
-	VkPipelineDepthStencilStateCreateInfo depthStencilInfo = Nz::VulkanRenderPipeline::BuildDepthStencilInfo(pipelineInfo);
 
 	VkGraphicsPipelineCreateInfo pipeline_create_info = {
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,              // VkStructureType                                sType

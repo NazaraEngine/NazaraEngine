@@ -20,7 +20,10 @@ namespace Nz
 			VulkanRenderPipeline(Vk::DeviceHandle device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
+			static VkPipelineColorBlendAttachmentState BuildColorBlendState(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineDepthStencilStateCreateInfo BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo);
+			static VkPipelineInputAssemblyStateCreateInfo BuildInputAssemblyInfo(const RenderPipelineInfo& pipelineInfo);
+			static VkPipelineRasterizationStateCreateInfo BuildRasterizationInfo(const RenderPipelineInfo& pipelineInfo);
 			static VkStencilOpState BuildStencilOp(const RenderPipelineInfo& pipelineInfo, bool front);
 
 		private:

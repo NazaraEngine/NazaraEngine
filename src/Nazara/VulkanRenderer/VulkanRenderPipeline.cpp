@@ -16,19 +16,63 @@ namespace Nz
 	{
 	}
 
+	VkPipelineColorBlendAttachmentState VulkanRenderPipeline::BuildColorBlendState(const RenderPipelineInfo& pipelineInfo)
+	{
+		VkPipelineColorBlendAttachmentState colorBlendStates;
+		colorBlendStates.blendEnable = pipelineInfo.blending;
+		colorBlendStates.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+
+		if (pipelineInfo.blending)
+		{
+			//TODO
+			/*switch (pipelineInfo.dstBlend)
+			{
+				blendState.dstAlphaBlendFactor
+			}*/
+		}
+		else
+		{
+			colorBlendStates.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendStates.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+			colorBlendStates.colorBlendOp        = VK_BLEND_OP_ADD;
+			colorBlendStates.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendStates.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+			colorBlendStates.alphaBlendOp        = VK_BLEND_OP_ADD;
+		}
+		return colorBlendStates;
+	}
+
 	VkPipelineDepthStencilStateCreateInfo VulkanRenderPipeline::BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo)
 	{
 		VkPipelineDepthStencilStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		createInfo.pNext = nullptr;
-		createInfo.flags = 0U;
 		createInfo.depthTestEnable = pipelineInfo.depthBuffer;
 		createInfo.depthWriteEnable = pipelineInfo.depthWrite;
 		createInfo.depthCompareOp = ToVulkan(pipelineInfo.depthCompare);
-		createInfo.depthBoundsTestEnable = VK_FALSE;
 		createInfo.stencilTestEnable = pipelineInfo.stencilTest;
 		createInfo.front = BuildStencilOp(pipelineInfo, true);
 		createInfo.back  = BuildStencilOp(pipelineInfo, false);
+
+		return createInfo;
+	}
+
+	VkPipelineInputAssemblyStateCreateInfo VulkanRenderPipeline::BuildInputAssemblyInfo(const RenderPipelineInfo& pipelineInfo)
+	{
+		VkPipelineInputAssemblyStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		createInfo.topology = ToVulkan(pipelineInfo.primitiveMode);
+
+		return createInfo;
+	}
+
+	VkPipelineRasterizationStateCreateInfo VulkanRenderPipeline::BuildRasterizationInfo(const RenderPipelineInfo& pipelineInfo)
+	{
+		VkPipelineRasterizationStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		createInfo.polygonMode = ToVulkan(pipelineInfo.faceFilling);
+		createInfo.cullMode = ToVulkan(pipelineInfo.cullingSide);
+		createInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //< TODO
+		createInfo.lineWidth = pipelineInfo.lineWidth;
 
 		return createInfo;
 	}

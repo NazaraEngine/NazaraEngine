@@ -123,6 +123,8 @@ namespace Nz
 
 	enum FaceSide
 	{
+		FaceSide_None,
+
 		FaceSide_Back,
 		FaceSide_Front,
 		FaceSide_FrontAndBack,
