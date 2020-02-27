@@ -17,7 +17,7 @@ namespace Nz
 
 			// First, query physical device count
 			UInt32 propertyCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
-			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, properties->data());
+			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, nullptr);
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to get instance extension properties count: " + TranslateVulkanError(s_lastErrorCode));
@@ -42,7 +42,7 @@ namespace Nz
 
 			// First, query physical device count
 			UInt32 propertyCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
-			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, properties->data());
+			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to get instance layer properties count: " + TranslateVulkanError(s_lastErrorCode));
