@@ -14,6 +14,9 @@
 
 namespace Nz
 {
+	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide);
+	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
+	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode);
 	inline VkCompareOp ToVulkan(RendererComparison comparison);
 	inline VkStencilOp ToVulkan(StencilOperation stencilOp);
 	NAZARA_VULKANRENDERER_API String TranslateVulkanError(VkResult code);

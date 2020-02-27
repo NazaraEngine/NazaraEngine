@@ -19,6 +19,7 @@ namespace Nz
 		FaceFilling faceFilling = FaceFilling_Fill;
 		FaceSide cullingSide = FaceSide_Back;
 		RendererComparison depthCompare = RendererComparison_Less;
+		PrimitiveMode primitiveMode = PrimitiveMode_TriangleList;
 
 		struct
 		{

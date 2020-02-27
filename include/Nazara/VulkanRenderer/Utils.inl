@@ -9,6 +9,49 @@
 
 namespace Nz
 {
+	VkCullModeFlagBits ToVulkan(FaceSide faceSide)
+	{
+		switch (faceSide)
+		{
+			case FaceSide_None:         return VK_CULL_MODE_NONE;
+			case FaceSide_Back:         return VK_CULL_MODE_BACK_BIT;
+			case FaceSide_Front:        return VK_CULL_MODE_FRONT_BIT;
+			case FaceSide_FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
+		}
+
+		NazaraError("Unhandled FaceSide 0x" + String::Number(faceSide, 16));
+		return VK_CULL_MODE_BACK_BIT;
+	}
+
+	inline VkPolygonMode ToVulkan(FaceFilling faceFilling)
+	{
+		switch (faceFilling)
+		{
+			case FaceFilling_Fill:  return VK_POLYGON_MODE_FILL;
+			case FaceFilling_Line:  return VK_POLYGON_MODE_LINE;
+			case FaceFilling_Point: return VK_POLYGON_MODE_POINT;
+		}
+
+		NazaraError("Unhandled FaceFilling 0x" + String::Number(faceFilling, 16));
+		return VK_POLYGON_MODE_FILL;
+	}
+
+	VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
+	{
+		switch (primitiveMode)
+		{
+			case PrimitiveMode_LineList:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			case PrimitiveMode_LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			case PrimitiveMode_PointList:     return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+			case PrimitiveMode_TriangleList:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			case PrimitiveMode_TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			case PrimitiveMode_TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+		}
+
+		NazaraError("Unhandled FaceFilling 0x" + String::Number(primitiveMode, 16));
+		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	}
+
 	inline VkCompareOp ToVulkan(RendererComparison comparison)
 	{
 		switch (comparison)
