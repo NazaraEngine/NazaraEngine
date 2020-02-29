@@ -33,6 +33,20 @@ namespace Nz
 
 		RenderDeviceType_Max = RenderDeviceType_Unknown
 	};
+
+	enum class ShaderLanguage
+	{
+		GLSL,
+		HLSL,
+		MSL,
+		SpirV
+	};
+
+	enum class ShaderStageType
+	{
+		Fragment,
+		Vertex
+	};
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

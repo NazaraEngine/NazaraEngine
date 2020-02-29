@@ -47,6 +47,7 @@
 #include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderStageImpl.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
