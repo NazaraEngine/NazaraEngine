@@ -27,6 +27,11 @@ namespace Nz
 		Create(handle, parameters);
 	}
 
+	inline RenderWindow::~RenderWindow()
+	{
+		Destroy();
+	}
+
 	inline bool RenderWindow::Create(VideoMode mode, const String& title, WindowStyleFlags style, const RenderWindowParameters& parameters)
 	{
 		m_parameters = parameters;
