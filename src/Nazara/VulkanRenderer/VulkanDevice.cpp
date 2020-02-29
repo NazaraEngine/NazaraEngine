@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -18,5 +19,14 @@ namespace Nz
 	std::unique_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
 		return std::make_unique<VulkanRenderPipeline>(shared_from_this(), std::move(pipelineInfo));
+	}
+
+	std::shared_ptr<ShaderStageImpl> VulkanDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	{
+		auto stage = std::make_shared<VulkanShaderStage>();
+		if (!stage->Create(shared_from_this(), type, lang, source, sourceSize))
+			return {};
+
+		return stage;
 	}
 }

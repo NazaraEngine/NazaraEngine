@@ -9,13 +9,16 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
+#include <string>
 
 namespace Nz
 {
 	class Buffer;
+	class ShaderStageImpl;
 
 	class NAZARA_RENDERER_API RenderDevice
 	{
@@ -25,6 +28,8 @@ namespace Nz
 
 			virtual std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) = 0;
 			virtual std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
+			virtual std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
+			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath);
 	};
 }
 

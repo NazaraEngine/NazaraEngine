@@ -56,29 +56,6 @@ int main()
 
 	instance.vkCreateDebugReportCallbackEXT(instance, &callbackCreateInfo, nullptr, &callback);
 
-	Nz::File shaderFile;
-	std::vector<Nz::UInt8> vertexShaderCode;
-	std::vector<Nz::UInt8> fragmentShaderCode;
-
-	if (!shaderFile.Open("resources/shaders/triangle.vert.spv", Nz::OpenMode_ReadOnly))
-	{
-		NazaraError("Failed to open vertex shader code");
-		return __LINE__;
-	}
-
-	vertexShaderCode.resize(shaderFile.GetSize());
-	shaderFile.Read(vertexShaderCode.data(), vertexShaderCode.size());
-
-	if (!shaderFile.Open("resources/shaders/triangle.frag.spv", Nz::OpenMode_ReadOnly))
-	{
-		NazaraError("Failed to open fragment shader code");
-		return __LINE__;
-	}
-
-	fragmentShaderCode.resize(shaderFile.GetSize());
-	shaderFile.Read(fragmentShaderCode.data(), fragmentShaderCode.size());
-
-	shaderFile.Close();
 
 	std::vector<VkLayerProperties> layerProperties;
 	if (!Nz::Vk::Loader::EnumerateInstanceLayerProperties(&layerProperties))
@@ -124,6 +101,20 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
+	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::SpirV, "resources/shaders/triangle.frag.spv");
+	if (!fragmentShader)
+	{
+		std::cout << "Failed to instantiate fragment shader" << std::endl;
+		return __LINE__;
+	}
+
+	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::SpirV, "resources/shaders/triangle.vert.spv");
+	if (!vertexShader)
+	{
+		std::cout << "Failed to instantiate fragment shader" << std::endl;
+		return __LINE__;
+	}
+
 	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
 
 	/*VkPhysicalDeviceFeatures features;
@@ -139,20 +130,6 @@ int main()
 	instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &queues);*/
 
 	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
-
-	Nz::Vk::ShaderModule vertexShader;
-	if (!vertexShader.Create(vulkanDevice.shared_from_this(), reinterpret_cast<Nz::UInt32*>(vertexShaderCode.data()), vertexShaderCode.size()))
-	{
-		NazaraError("Failed to create vertex shader");
-		return __LINE__;
-	}
-
-	Nz::Vk::ShaderModule fragmentShader;
-	if (!fragmentShader.Create(vulkanDevice.shared_from_this(), reinterpret_cast<Nz::UInt32*>(fragmentShaderCode.data()), fragmentShaderCode.size()))
-	{
-		NazaraError("Failed to create fragment shader");
-		return __LINE__;
-	}
 
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/OILTANK1.md2", meshParams);
 
@@ -297,7 +274,7 @@ int main()
 				nullptr,
 				0,
 				VK_SHADER_STAGE_VERTEX_BIT,
-				vertexShader,
+				static_cast<Nz::VulkanShaderStage*>(vertexShader.get())->GetHandle(),
 				"main",
 				nullptr
 			},
@@ -306,7 +283,7 @@ int main()
 				nullptr,
 				0,
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				fragmentShader,
+				static_cast<Nz::VulkanShaderStage*>(fragmentShader.get())->GetHandle(),
 				"main",
 				nullptr
 			}
