@@ -44,12 +44,10 @@ int main()
 
 	Nz::Vk::Instance& instance = Nz::Vulkan::GetInstance();
 
-	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
 	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-	callbackCreateInfo.pNext = nullptr;
-	callbackCreateInfo.flags = VK_DEBUG_REPORT_FLAG_BITS_MAX_ENUM_EXT & ~VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+	callbackCreateInfo.flags = VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT ;
 	callbackCreateInfo.pfnCallback = &MyDebugReportCallback;
-	callbackCreateInfo.pUserData = nullptr;
 
 	/* Register the callback */
 	VkDebugReportCallbackEXT callback;
@@ -246,8 +244,6 @@ int main()
 	descriptorSet.WriteUniformDescriptor(0, uniformBuffer, 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
-	pipelineInfo.depthBuffer = true;
-	pipelineInfo.depthCompare = Nz::RendererComparison_Equal;
 
 	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
@@ -627,7 +623,7 @@ int main()
 		}
 	}
 
-//	instance.vkDestroyDebugReportCallbackEXT(instance, callback, nullptr);
+	instance.vkDestroyDebugReportCallbackEXT(instance, callback, nullptr);
 
 	return EXIT_SUCCESS;
 }

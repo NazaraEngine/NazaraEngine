@@ -48,7 +48,7 @@ namespace Nz
 		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Temporary
-		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
+		/*if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 		{
 			VkImageSubresourceRange imageRange = {
 						VK_IMAGE_ASPECT_DEPTH_BIT, // VkImageAspectFlags                     aspectMask
@@ -59,7 +59,7 @@ namespace Nz
 			};
 
 			commandBuffer.SetImageLayout(m_depthBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, imageRange);
-		}
+		}*/
 	}
 
 	void VkRenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
@@ -283,18 +283,18 @@ namespace Nz
 					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
 					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
 					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_UNDEFINED, // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR  // VkImageLayout                   finalLayout;
+					VK_IMAGE_LAYOUT_UNDEFINED,                // VkImageLayout                   initialLayout;
+					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR           // VkImageLayout                   finalLayout;
 				},
 				{
 					0,                                                // VkAttachmentDescriptionFlags    flags;
 					m_depthStencilFormat,                             // VkFormat                        format;
 					VK_SAMPLE_COUNT_1_BIT,                            // VkSampleCountFlagBits           samples;
 					VK_ATTACHMENT_LOAD_OP_CLEAR,                      // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,                     // VkAttachmentStoreOp             storeOp;
+					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             storeOp;
 					VK_ATTACHMENT_LOAD_OP_DONT_CARE,                  // VkAttachmentLoadOp              stencilLoadOp;
 					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // VkImageLayout                   initialLayout;
+					VK_IMAGE_LAYOUT_UNDEFINED,                        // VkImageLayout                   initialLayout;
 					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
 				},
 			}
