@@ -9,9 +9,13 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <memory>
+#include <vector>
 
 namespace Nz
 {
+	class ShaderStageImpl;
+
 	struct RenderStates
 	{
 		BlendFunc dstBlend = BlendFunc_Zero;
@@ -31,6 +35,8 @@ namespace Nz
 			UInt32 reference = 0;
 			UInt32 writeMask = 0xFFFFFFFF;
 		} stencilBack, stencilFront;
+
+		std::vector<std::shared_ptr<ShaderStageImpl>> shaderStages;
 
 		bool blending    = false;
 		bool colorWrite  = true;
