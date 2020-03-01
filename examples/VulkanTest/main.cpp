@@ -142,7 +142,7 @@ int main()
 	const Nz::VertexBuffer* drfreakVB = drfreakMesh->GetVertexBuffer();
 	const Nz::IndexBuffer* drfreakIB = drfreakMesh->GetIndexBuffer();
 
-	// Vertex buffer
+	// Index buffer
 	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
@@ -154,7 +154,7 @@ int main()
 
 	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&vulkanDevice));
 
-	// Index buffer
+	// Vertex buffer
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
