@@ -16,7 +16,7 @@ namespace Nz
 	{
 	}
 
-	VkPipelineColorBlendAttachmentState VulkanRenderPipeline::BuildColorBlendState(const RenderPipelineInfo& pipelineInfo)
+	/*VkPipelineColorBlendAttachmentState VulkanRenderPipeline::BuildColorBlendAttachmentState(const RenderPipelineInfo& pipelineInfo)
 	{
 		VkPipelineColorBlendAttachmentState colorBlendStates;
 		colorBlendStates.blendEnable = pipelineInfo.blending;
@@ -29,7 +29,7 @@ namespace Nz
 			{
 				blendState.dstAlphaBlendFactor
 			}*/
-		}
+		/*}
 		else
 		{
 			colorBlendStates.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
@@ -40,7 +40,7 @@ namespace Nz
 			colorBlendStates.alphaBlendOp        = VK_BLEND_OP_ADD;
 		}
 		return colorBlendStates;
-	}
+	}*/
 
 	VkPipelineDepthStencilStateCreateInfo VulkanRenderPipeline::BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo)
 	{
@@ -91,5 +91,18 @@ namespace Nz
 		stencilStates.writeMask = pipelineStencil.writeMask;
 
 		return stencilStates;
+	}
+
+	std::vector<VkPipelineShaderStageCreateInfo> VulkanRenderPipeline::BuildShaderStageInfo(const RenderPipelineInfo& pipelineInfo)
+	{
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
+
+		for (auto&& stagePtr : pipelineInfo.shaderStages)
+		{
+			VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
+			//createInfo.
+		}
+
+		return shaderStageCreateInfos;
 	}
 }
