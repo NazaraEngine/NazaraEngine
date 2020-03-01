@@ -181,38 +181,17 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::Vk::Buffer uniformBuffer;
-	if (!uniformBuffer.Create(vulkanDevice.shared_from_this(), 0, uniformSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
+	Nz::UniformBuffer uniformBuffer(uniformSize, Nz::DataStorage_Hardware, Nz::BufferUsage_Dynamic);
+	uniformBuffer.Fill(&ubo, 0, uniformSize);
+
+	Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
+	if (!renderBufferUB->Synchronize(&vulkanDevice))
 	{
-		NazaraError("Failed to create vertex buffer");
+		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	VkMemoryRequirements memRequirement = uniformBuffer.GetMemoryRequirements();
-
-	Nz::Vk::DeviceMemory uniformBufferMemory;
-	if (!uniformBufferMemory.Create(vulkanDevice.shared_from_this(), memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
-	{
-		NazaraError("Failed to allocate vertex buffer memory");
-		return __LINE__;
-	}
-
-	if (!uniformBufferMemory.Map(0, uniformSize))
-	{
-		NazaraError("Failed to map vertex buffer");
-		return __LINE__;
-	}
-
-	std::memcpy(uniformBufferMemory.GetMappedPointer(), &ubo, uniformSize);
-
-	uniformBufferMemory.Unmap();
-
-	if (!uniformBuffer.BindBufferMemory(uniformBufferMemory))
-	{
-		NazaraError("Failed to bind uniform buffer to its memory");
-		return __LINE__;
-	}
-
+	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferUB->GetHardwareBuffer(&vulkanDevice));
 
 	VkDescriptorSetLayoutBinding layoutBinding = {};
 	layoutBinding.binding = 0;
@@ -241,7 +220,7 @@ int main()
 
 	Nz::Vk::DescriptorSet descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorLayout);
 
-	descriptorSet.WriteUniformDescriptor(0, uniformBuffer, 0, uniformSize);
+	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
 
@@ -561,15 +540,14 @@ int main()
 		{
 			ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
-			if (!uniformBufferMemory.Map(0, uniformSize))
+			uniformBuffer.Fill(&ubo, 0, uniformSize);
+
+			Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
+			if (!renderBufferUB->Synchronize(&vulkanDevice))
 			{
-				NazaraError("Failed to map vertex buffer");
+				NazaraError("Failed to synchronize render buffer");
 				return __LINE__;
 			}
-
-			std::memcpy(uniformBufferMemory.GetMappedPointer(), &ubo, uniformSize);
-
-			uniformBufferMemory.Unmap();
 		}
 
 		Nz::UInt32 imageIndex;
