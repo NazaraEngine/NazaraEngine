@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Core/String.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -25,7 +26,27 @@ namespace Nz
 
 	bool VulkanBuffer::Initialize(UInt32 size, BufferUsageFlags usage)
 	{
-		if (!m_buffer.Create(m_device, 0, size, (m_type == BufferType_Index) ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
+		VkBufferUsageFlags type;
+		switch (m_type)
+		{
+			case BufferType_Index:
+				type = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+				break;
+
+			case BufferType_Vertex:
+				type = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+				break;
+
+			case BufferType_Uniform:
+				type = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+				break;
+
+			default:
+				NazaraError("Unhandled buffer usage 0x" + String::Number(m_type, 16));
+				return false;
+		}
+
+		if (!m_buffer.Create(m_device, 0, size, type))
 		{
 			NazaraError("Failed to create vertex buffer");
 			return false;
