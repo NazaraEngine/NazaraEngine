@@ -70,6 +70,18 @@ namespace Nz
 		return VK_COMPARE_OP_NEVER;
 	}
 
+	VkShaderStageFlagBits ToVulkan(ShaderStageType stageType)
+	{
+		switch (stageType)
+		{
+			case ShaderStageType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+			case ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
+		}
+
+		NazaraError("Unhandled ShaderStageType 0x" + String::Number(static_cast<std::size_t>(stageType), 16));
+		return {};
+	}
+
 	VkStencilOp ToVulkan(StencilOperation stencilOp)
 	{
 		switch (stencilOp)

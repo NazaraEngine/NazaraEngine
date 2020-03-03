@@ -26,6 +26,7 @@ namespace Nz
 			bool Create(const Vk::DeviceHandle& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 
 			inline const Vk::ShaderModule& GetHandle() const;
+			inline ShaderStageType GetStageType() const;
 
 			VulkanShaderStage& operator=(const VulkanShaderStage&) = delete;
 			VulkanShaderStage& operator=(VulkanShaderStage&&) noexcept = default;

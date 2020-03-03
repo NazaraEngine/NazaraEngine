@@ -356,35 +356,25 @@ namespace Nz
 	{
 		VertexComponent_Unused = -1,
 
-		// We limit to 16 components by vertex since it's the minimal number supported by the GPU
-		VertexComponent_InstanceData0,
-		VertexComponent_InstanceData1,
-		VertexComponent_InstanceData2,
-		VertexComponent_InstanceData3,
-		VertexComponent_InstanceData4,
-		VertexComponent_InstanceData5,
 		VertexComponent_Color,
 		VertexComponent_Normal,
 		VertexComponent_Position,
 		VertexComponent_Tangent,
 		VertexComponent_TexCoord,
-		VertexComponent_Userdata0,
-		VertexComponent_Userdata1,
-		VertexComponent_Userdata2,
-		VertexComponent_Userdata3,
-		VertexComponent_Userdata4,
+		VertexComponent_Userdata,
 
-		VertexComponent_FirstInstanceData = VertexComponent_InstanceData0,
-		VertexComponent_FirstVertexData = VertexComponent_Color,
-		VertexComponent_LastInstanceData = VertexComponent_InstanceData5,
-		VertexComponent_LastVertexData = VertexComponent_Userdata4,
+		VertexComponent_Max = VertexComponent_Userdata
+	};
 
-		VertexComponent_Max = VertexComponent_Userdata4
+	enum class VertexInputRate
+	{
+		Instance,
+		Vertex
 	};
 
 	enum VertexLayout
 	{
-		// Declarations meant for the rendering
+		// Predefined declarations for rendering
 		VertexLayout_XY,
 		VertexLayout_XY_Color,
 		VertexLayout_XY_UV,
@@ -397,7 +387,7 @@ namespace Nz
 		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 		VertexLayout_XYZ_UV,
 
-		// Declarations meant for the instancing
+		// Predefined declarations for instancing
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4
