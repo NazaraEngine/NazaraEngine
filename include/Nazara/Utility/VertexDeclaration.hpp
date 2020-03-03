@@ -53,7 +53,7 @@ namespace Nz
 			VertexDeclaration& operator=(const VertexDeclaration&) = delete;
 			VertexDeclaration& operator=(VertexDeclaration&&) noexcept = default;
 
-			static const VertexDeclarationRef& Get(VertexLayout layout);
+			static inline const VertexDeclarationRef& Get(VertexLayout layout);
 			static bool IsTypeSupported(ComponentType type);
 			template<typename... Args> static VertexDeclarationRef New(Args&&... args);
 

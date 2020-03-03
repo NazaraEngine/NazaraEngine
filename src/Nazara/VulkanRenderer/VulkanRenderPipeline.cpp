@@ -7,6 +7,7 @@
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <cassert>
+#include <iostream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -21,7 +22,7 @@ namespace Nz
 	{
 		std::vector<VkPipelineColorBlendAttachmentState> colorBlendStates;
 
-		VkPipelineColorBlendAttachmentState colorBlendState = colorBlendStates.emplace_back();
+		VkPipelineColorBlendAttachmentState& colorBlendState = colorBlendStates.emplace_back();
 		colorBlendState.blendEnable = pipelineInfo.blending;
 		colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
 
@@ -94,6 +95,16 @@ namespace Nz
 		return createInfo;
 	}
 
+	VkPipelineMultisampleStateCreateInfo VulkanRenderPipeline::BuildMultisampleInfo(const RenderPipelineInfo& pipelineInfo)
+	{
+		VkPipelineMultisampleStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		createInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		createInfo.minSampleShading = 1.0f; //< TODO: Remove
+
+		return createInfo;
+	}
+
 	VkPipelineRasterizationStateCreateInfo VulkanRenderPipeline::BuildRasterizationInfo(const RenderPipelineInfo& pipelineInfo)
 	{
 		VkPipelineRasterizationStateCreateInfo createInfo = {};
@@ -149,6 +160,58 @@ namespace Nz
 		return shaderStageCreateInfos;
 	}
 
+	std::vector<VkVertexInputAttributeDescription> VulkanRenderPipeline::BuildVertexAttributeDescription(const RenderPipelineInfo& pipelineInfo)
+	{
+		std::vector<VkVertexInputAttributeDescription> vertexAttributes;
+
+		std::uint32_t locationIndex = 0;
+
+		for (const auto& bufferData : pipelineInfo.vertexBuffers)
+		{
+			std::uint32_t binding = std::uint32_t(bufferData.binding);
+
+			for (const auto& componentInfo : *bufferData.declaration)
+			{
+				auto& bufferAttribute = vertexAttributes.emplace_back();
+				bufferAttribute.binding = binding;
+				bufferAttribute.location = locationIndex++;
+				bufferAttribute.offset = std::uint32_t(componentInfo.offset);
+				bufferAttribute.format = ToVulkan(componentInfo.type);
+			}
+		}
+
+		return vertexAttributes;
+	}
+
+	std::vector<VkVertexInputBindingDescription> VulkanRenderPipeline::BuildVertexBindingDescription(const RenderPipelineInfo& pipelineInfo)
+	{
+		std::vector<VkVertexInputBindingDescription> vertexBindings;
+
+		for (const auto& bufferData : pipelineInfo.vertexBuffers)
+		{
+			auto& bufferBinding = vertexBindings.emplace_back();
+			bufferBinding.binding = std::uint32_t(bufferData.binding);
+			bufferBinding.stride = std::uint32_t(bufferData.declaration->GetStride());
+			bufferBinding.inputRate = ToVulkan(bufferData.declaration->GetInputRate());
+		}
+
+		return vertexBindings;
+	}
+
+	VkPipelineVertexInputStateCreateInfo VulkanRenderPipeline::BuildVertexInputInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkVertexInputAttributeDescription>& vertexAttributes, const std::vector<VkVertexInputBindingDescription>& bindingDescriptions)
+	{
+		VkPipelineVertexInputStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+		createInfo.vertexAttributeDescriptionCount = std::uint32_t(vertexAttributes.size());
+		createInfo.pVertexAttributeDescriptions = vertexAttributes.data();
+
+		createInfo.vertexBindingDescriptionCount = std::uint32_t(bindingDescriptions.size());
+		createInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+
+		return createInfo;
+	}
+
 	auto VulkanRenderPipeline::BuildCreateInfo(const RenderPipelineInfo& pipelineInfo) -> CreateInfo
 	{
 		CreateInfo createInfo = {};
@@ -157,20 +220,30 @@ namespace Nz
 		createInfo.colorBlendAttachmentState = BuildColorBlendAttachmentStateList(pipelineInfo);
 		createInfo.dynamicStates = BuildDynamicStateList(pipelineInfo);
 		createInfo.shaderStages = BuildShaderStageInfo(pipelineInfo);
+		createInfo.vertexAttributesDescription = BuildVertexAttributeDescription(pipelineInfo);
+		createInfo.vertexBindingDescription = BuildVertexBindingDescription(pipelineInfo);
 
 		createInfo.stateData->colorBlendState = BuildColorBlendInfo(pipelineInfo, createInfo.colorBlendAttachmentState);
 		createInfo.stateData->depthStencilState = BuildDepthStencilInfo(pipelineInfo);
 		createInfo.stateData->dynamicState = BuildDynamicStateInfo(pipelineInfo, createInfo.dynamicStates);
 		createInfo.stateData->inputAssemblyState = BuildInputAssemblyInfo(pipelineInfo);
+		createInfo.stateData->multiSampleState = BuildMultisampleInfo(pipelineInfo);
 		createInfo.stateData->rasterizationState = BuildRasterizationInfo(pipelineInfo);
 		createInfo.stateData->viewportState = BuildViewportInfo(pipelineInfo);
+		createInfo.stateData->vertexInputState = BuildVertexInputInfo(pipelineInfo, createInfo.vertexAttributesDescription, createInfo.vertexBindingDescription);
 
 		createInfo.pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		createInfo.pipelineInfo.stageCount = std::uint32_t(createInfo.shaderStages.size());
 		createInfo.pipelineInfo.pStages = createInfo.shaderStages.data();
 
-		createInfo.pipelineInfo.pColorBlendState = createInfo.colorBlendAttachmentState.data();
-		createInfo.pipelineInfo.
+		createInfo.pipelineInfo.pColorBlendState    = &createInfo.stateData->colorBlendState;
+		createInfo.pipelineInfo.pDepthStencilState  = &createInfo.stateData->depthStencilState;
+		createInfo.pipelineInfo.pDynamicState       = &createInfo.stateData->dynamicState;
+		createInfo.pipelineInfo.pInputAssemblyState = &createInfo.stateData->inputAssemblyState;
+		createInfo.pipelineInfo.pMultisampleState   = &createInfo.stateData->multiSampleState;
+		createInfo.pipelineInfo.pRasterizationState = &createInfo.stateData->rasterizationState;
+		createInfo.pipelineInfo.pVertexInputState   = &createInfo.stateData->vertexInputState;
+		createInfo.pipelineInfo.pViewportState      = &createInfo.stateData->viewportState;
 
 		return createInfo;
 	}

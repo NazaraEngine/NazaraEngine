@@ -26,7 +26,7 @@ namespace Nz
 			VertexMapper(const VertexBuffer* vertexBuffer, BufferAccess access = BufferAccess_ReadOnly);
 			~VertexMapper();
 
-			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component);
+			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component, std::size_t componentIndex = 0);
 			inline const VertexBuffer* GetVertexBuffer() const;
 			inline std::size_t GetVertexCount() const;
 			

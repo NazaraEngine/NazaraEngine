@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <memory>
 #include <vector>
 
@@ -36,7 +37,14 @@ namespace Nz
 			UInt32 writeMask = 0xFFFFFFFF;
 		} stencilBack, stencilFront;
 
+		struct VertexBufferData
+		{
+			std::size_t binding;
+			VertexDeclarationConstRef declaration;
+		};
+
 		std::vector<std::shared_ptr<ShaderStageImpl>> shaderStages;
+		std::vector<VertexBufferData> vertexBuffers;
 
 		bool blending    = false;
 		bool colorWrite  = true;

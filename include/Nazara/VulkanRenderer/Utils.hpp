@@ -15,12 +15,15 @@
 
 namespace Nz
 {
+	inline VkFormat ToVulkan(ComponentType componentType);
 	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide);
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode);
 	inline VkCompareOp ToVulkan(RendererComparison comparison);
 	inline VkShaderStageFlagBits ToVulkan(ShaderStageType stageType);
 	inline VkStencilOp ToVulkan(StencilOperation stencilOp);
+	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate);
+
 	NAZARA_VULKANRENDERER_API String TranslateVulkanError(VkResult code);
 }
 

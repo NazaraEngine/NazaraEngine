@@ -67,7 +67,7 @@ namespace Nz
 		return GetComponentByType<T>(vertexComponent, componentIndex) != nullptr;
 	}
 
-	const VertexDeclarationRef& VertexDeclaration::Get(VertexLayout layout)
+	inline const VertexDeclarationRef& VertexDeclaration::Get(VertexLayout layout)
 	{
 		NazaraAssert(layout <= VertexLayout_Max, "Vertex layout out of enum");
 
@@ -81,6 +81,21 @@ namespace Nz
 		object->SetPersistent(false);
 
 		return object.release();
+	}
+}
+
+namespace std
+{
+	inline const Nz::VertexDeclaration::Component* begin(const Nz::VertexDeclaration& declaration)
+	{
+		assert(declaration.GetComponentCount() != 0);
+		return &declaration.GetComponent(0);
+	}
+
+	inline const Nz::VertexDeclaration::Component* end(const Nz::VertexDeclaration& declaration)
+	{
+		assert(declaration.GetComponentCount() != 0);
+		return (&declaration.GetComponent(declaration.GetComponentCount() - 1) + 1);
 	}
 }
 
