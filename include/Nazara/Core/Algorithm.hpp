@@ -30,6 +30,7 @@ namespace Nz
 	template<typename T> std::size_t CountOf(const T& c);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> T ReverseBits(T integer);
+	template<typename T> auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
 
 	template<typename T>
 	struct AlwaysFalse : std::false_type {};

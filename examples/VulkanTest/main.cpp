@@ -223,8 +223,15 @@ int main()
 	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
+	pipelineInfo.shaderStages.emplace_back(fragmentShader);
+	pipelineInfo.shaderStages.emplace_back(vertexShader);
 
-	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	auto& vertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
+	vertexBuffer.binding = 0;
+	vertexBuffer.declaration = drfreakVB->GetVertexDeclaration();
+
+
+	//std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
 	VkDescriptorSetLayout descriptorSetLayout = descriptorLayout;
 
@@ -241,150 +248,12 @@ int main()
 	Nz::Vk::PipelineLayout pipelineLayout;
 	pipelineLayout.Create(vulkanDevice.shared_from_this(), layout_create_info);
 
-
-	std::array<VkPipelineShaderStageCreateInfo, 2> shaderStageCreateInfo = {
-		{
-			{
-				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-				nullptr,
-				0,
-				VK_SHADER_STAGE_VERTEX_BIT,
-				static_cast<Nz::VulkanShaderStage*>(vertexShader.get())->GetHandle(),
-				"main",
-				nullptr
-			},
-			{
-				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-				nullptr,
-				0,
-				VK_SHADER_STAGE_FRAGMENT_BIT,
-				static_cast<Nz::VulkanShaderStage*>(fragmentShader.get())->GetHandle(),
-				"main",
-				nullptr
-			}
-		}
-	};
-
-	VkVertexInputBindingDescription bindingDescription = {
-		0,
-		drfreakVB->GetStride(),
-		VK_VERTEX_INPUT_RATE_VERTEX
-	};
-
-	std::array<VkVertexInputAttributeDescription, 2> attributeDescription = 
-	{
-		{
-			{
-				0,                          // uint32_t    location
-				0,                          // uint32_t    binding;
-				VK_FORMAT_R32G32B32_SFLOAT, // VkFormat    format;
-				0                           // uint32_t    offset;
-			},
-			{
-				1,                          // uint32_t    location
-				0,                          // uint32_t    binding;
-				VK_FORMAT_R32G32B32_SFLOAT, // VkFormat    format;
-				sizeof(float) * 3           // uint32_t    offset;
-			}
-		}
-	};
-
-	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,    // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineVertexInputStateCreateFlags          flags;
-		1,                                                            // uint32_t                                       vertexBindingDescriptionCount
-		&bindingDescription,                                          // const VkVertexInputBindingDescription         *pVertexBindingDescriptions
-		Nz::UInt32(attributeDescription.size()),                      // uint32_t                                       vertexAttributeDescriptionCount
-		attributeDescription.data()                                   // const VkVertexInputAttributeDescription       *pVertexAttributeDescriptions
-	};
-
-	VkPipelineViewportStateCreateInfo viewport_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,        // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineViewportStateCreateFlags             flags
-		1,                                                            // uint32_t                                       viewportCount
-		nullptr,                                                      // const VkViewport                              *pViewports
-		1,                                                            // uint32_t                                       scissorCount
-		nullptr                                                       // const VkRect2D                                *pScissors
-	};
-
-	VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = Nz::VulkanRenderPipeline::BuildInputAssemblyInfo(pipelineInfo);
-	VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = Nz::VulkanRenderPipeline::BuildRasterizationInfo(pipelineInfo);
-	VkPipelineDepthStencilStateCreateInfo depthStencilInfo = Nz::VulkanRenderPipeline::BuildDepthStencilInfo(pipelineInfo);
-
-	VkPipelineMultisampleStateCreateInfo multisample_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,     // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineMultisampleStateCreateFlags          flags
-		VK_SAMPLE_COUNT_1_BIT,                                        // VkSampleCountFlagBits                          rasterizationSamples
-		VK_FALSE,                                                     // VkBool32                                       sampleShadingEnable
-		1.0f,                                                         // float                                          minSampleShading
-		nullptr,                                                      // const VkSampleMask                            *pSampleMask
-		VK_FALSE,                                                     // VkBool32                                       alphaToCoverageEnable
-		VK_FALSE                                                      // VkBool32                                       alphaToOneEnable
-	};
-
-	VkPipelineColorBlendAttachmentState color_blend_attachment_state = {
-		VK_FALSE,                                                     // VkBool32                                       blendEnable
-		VK_BLEND_FACTOR_ONE,                                          // VkBlendFactor                                  srcColorBlendFactor
-		VK_BLEND_FACTOR_ZERO,                                         // VkBlendFactor                                  dstColorBlendFactor
-		VK_BLEND_OP_ADD,                                              // VkBlendOp                                      colorBlendOp
-		VK_BLEND_FACTOR_ONE,                                          // VkBlendFactor                                  srcAlphaBlendFactor
-		VK_BLEND_FACTOR_ZERO,                                         // VkBlendFactor                                  dstAlphaBlendFactor
-		VK_BLEND_OP_ADD,                                              // VkBlendOp                                      alphaBlendOp
-		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |         // VkColorComponentFlags                          colorWriteMask
-		VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
-	};
-
-	VkPipelineColorBlendStateCreateInfo color_blend_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,     // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineColorBlendStateCreateFlags           flags
-		VK_FALSE,                                                     // VkBool32                                       logicOpEnable
-		VK_LOGIC_OP_COPY,                                             // VkLogicOp                                      logicOp
-		1,                                                            // uint32_t                                       attachmentCount
-		&color_blend_attachment_state,                                // const VkPipelineColorBlendAttachmentState     *pAttachments
-		{0.0f, 0.0f, 0.0f, 0.0f}                                    // float                                          blendConstants[4]
-	};
-
-	std::array<VkDynamicState, 2> dynamicStates = {
-		VK_DYNAMIC_STATE_SCISSOR,
-		VK_DYNAMIC_STATE_VIEWPORT,
-	};
-
-	VkPipelineDynamicStateCreateInfo dynamicStateInfo = {
-		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO, // VkStructureType                      sType;
-		nullptr,                                              // const void*                          pNext;
-		0,                                                    // VkPipelineDynamicStateCreateFlags    flags;
-		Nz::UInt32(dynamicStates.size()),                     // uint32_t                             dynamicStateCount;
-		dynamicStates.data()                                  // const VkDynamicState*                pDynamicStates;
-	};
-
-	VkGraphicsPipelineCreateInfo pipeline_create_info = {
-		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,              // VkStructureType                                sType
-		nullptr,                                                      // const void                                    *pNext
-		0,                                                            // VkPipelineCreateFlags                          flags
-		static_cast<uint32_t>(shaderStageCreateInfo.size()),          // uint32_t                                       stageCount
-		shaderStageCreateInfo.data(),                                 // const VkPipelineShaderStageCreateInfo         *pStages
-		&vertex_input_state_create_info,                              // const VkPipelineVertexInputStateCreateInfo    *pVertexInputState;
-		&input_assembly_state_create_info,                            // const VkPipelineInputAssemblyStateCreateInfo  *pInputAssemblyState
-		nullptr,                                                      // const VkPipelineTessellationStateCreateInfo   *pTessellationState
-		&viewport_state_create_info,                                  // const VkPipelineViewportStateCreateInfo       *pViewportState
-		&rasterization_state_create_info,                             // const VkPipelineRasterizationStateCreateInfo  *pRasterizationState
-		&multisample_state_create_info,                               // const VkPipelineMultisampleStateCreateInfo    *pMultisampleState
-		&depthStencilInfo,                                            // const VkPipelineDepthStencilStateCreateInfo   *pDepthStencilState
-		&color_blend_state_create_info,                               // const VkPipelineColorBlendStateCreateInfo     *pColorBlendState
-		&dynamicStateInfo,                                            // const VkPipelineDynamicStateCreateInfo        *pDynamicState
-		pipelineLayout,                                               // VkPipelineLayout                               layout
-		vulkanWindow.GetRenderPass(),                                 // VkRenderPass                                   renderPass
-		0,                                                            // uint32_t                                       subpass
-		VK_NULL_HANDLE,                                               // VkPipeline                                     basePipelineHandle
-		-1                                                            // int32_t                                        basePipelineIndex
-	};
+	Nz::VulkanRenderPipeline::CreateInfo pipelineCreateInfo = Nz::VulkanRenderPipeline::BuildCreateInfo(pipelineInfo);
+	pipelineCreateInfo.pipelineInfo.layout = pipelineLayout;
+	pipelineCreateInfo.pipelineInfo.renderPass = vulkanWindow.GetRenderPass();
 
 	Nz::Vk::Pipeline vkPipeline;
-	if (!vkPipeline.CreateGraphics(vulkanDevice.shared_from_this(), pipeline_create_info))
+	if (!vkPipeline.CreateGraphics(vulkanDevice.shared_from_this(), pipelineCreateInfo.pipelineInfo))
 	{
 		NazaraError("Failed to create pipeline");
 		return __LINE__;
@@ -501,7 +370,7 @@ int main()
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
 
-												// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
 					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles

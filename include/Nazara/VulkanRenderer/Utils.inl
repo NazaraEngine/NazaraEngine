@@ -3,12 +3,37 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
+	VkFormat ToVulkan(ComponentType componentType)
+	{
+		switch (componentType)
+		{
+			case ComponentType_Color:      return VK_FORMAT_R8G8B8A8_UINT;
+			case ComponentType_Double1:    return VK_FORMAT_R64_SFLOAT;
+			case ComponentType_Double2:    return VK_FORMAT_R64G64_SFLOAT;
+			case ComponentType_Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
+			case ComponentType_Double4:    return VK_FORMAT_R64G64B64A64_SFLOAT;
+			case ComponentType_Float1:     return VK_FORMAT_R32_SFLOAT;
+			case ComponentType_Float2:     return VK_FORMAT_R32G32_SFLOAT;
+			case ComponentType_Float3:     return VK_FORMAT_R32G32B32_SFLOAT;
+			case ComponentType_Float4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType_Int1:       return VK_FORMAT_R32_SINT;
+			case ComponentType_Int2:       return VK_FORMAT_R32G32_SINT;
+			case ComponentType_Int3:       return VK_FORMAT_R32G32B32_SINT;
+			case ComponentType_Int4:       return VK_FORMAT_R32G32B32A32_SINT;
+			case ComponentType_Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
+		}
+
+		NazaraError("Unhandled ComponentType 0x" + String::Number(componentType, 16));
+		return VK_FORMAT_UNDEFINED;
+	}
+
 	VkCullModeFlagBits ToVulkan(FaceSide faceSide)
 	{
 		switch (faceSide)
@@ -98,6 +123,18 @@ namespace Nz
 
 		NazaraError("Unhandled RendererComparison 0x" + String::Number(stencilOp, 16));
 		return VK_STENCIL_OP_KEEP;
+	}
+
+	VkVertexInputRate ToVulkan(VertexInputRate inputRate)
+	{
+		switch (inputRate)
+		{
+			case VertexInputRate::Instance: return VK_VERTEX_INPUT_RATE_INSTANCE;
+			case VertexInputRate::Vertex:   return VK_VERTEX_INPUT_RATE_VERTEX;
+		}
+
+		NazaraError("Unhandled VertexInputRate 0x" + String::Number(UnderlyingCast(inputRate), 16));
+		return VK_VERTEX_INPUT_RATE_VERTEX;
 	}
 }
 

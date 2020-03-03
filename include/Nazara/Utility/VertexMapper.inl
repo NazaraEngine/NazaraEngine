@@ -10,19 +10,13 @@
 namespace Nz
 {
 	template <typename T>
-	SparsePtr<T> VertexMapper::GetComponentPtr(VertexComponent component)
+	SparsePtr<T> VertexMapper::GetComponentPtr(VertexComponent component, std::size_t componentIndex)
 	{
 		// On récupère la déclaration depuis le buffer
 		const VertexDeclaration* declaration = m_mapper.GetBuffer()->GetVertexDeclaration();
 
-		// Ensuite le composant qui nous intéresse
-		bool enabled;
-		ComponentType type;
-		std::size_t offset;
-		declaration->GetComponent(component, &enabled, &type, &offset);
-
-		if (enabled && GetComponentTypeOf<T>() == type)
-			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + offset, declaration->GetStride());
+		if (const auto* componentData = declaration->GetComponentByType<T>(component, componentIndex))
+			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + componentData->offset, declaration->GetStride());
 		else
 			return SparsePtr<T>();
 	}

@@ -195,6 +195,12 @@ namespace Nz
 		return reversed;
 	}
 
+	template<typename T>
+	auto UnderlyingCast(T value) -> std::underlying_type_t<T>
+	{
+		return static_cast<std::underlying_type_t<T>>(value);
+	}
+
 	template<typename T> struct PointedType<T*>                { using type = T; };
 	template<typename T> struct PointedType<T* const>          { using type = T; };
 	template<typename T> struct PointedType<T* volatile>       { using type = T; };
