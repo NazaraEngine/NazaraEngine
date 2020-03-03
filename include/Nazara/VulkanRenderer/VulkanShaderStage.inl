@@ -11,6 +11,11 @@ namespace Nz
 	{
 		return m_shaderModule;
 	}
+
+	inline ShaderStageType VulkanShaderStage::GetStageType() const
+	{
+		return m_stage;
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>

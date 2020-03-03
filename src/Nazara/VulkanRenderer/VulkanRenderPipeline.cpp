@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -16,11 +17,13 @@ namespace Nz
 	{
 	}
 
-	/*VkPipelineColorBlendAttachmentState VulkanRenderPipeline::BuildColorBlendAttachmentState(const RenderPipelineInfo& pipelineInfo)
+	std::vector<VkPipelineColorBlendAttachmentState> VulkanRenderPipeline::BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo)
 	{
-		VkPipelineColorBlendAttachmentState colorBlendStates;
-		colorBlendStates.blendEnable = pipelineInfo.blending;
-		colorBlendStates.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+		std::vector<VkPipelineColorBlendAttachmentState> colorBlendStates;
+
+		VkPipelineColorBlendAttachmentState colorBlendState = colorBlendStates.emplace_back();
+		colorBlendState.blendEnable = pipelineInfo.blending;
+		colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
 
 		if (pipelineInfo.blending)
 		{
@@ -29,18 +32,29 @@ namespace Nz
 			{
 				blendState.dstAlphaBlendFactor
 			}*/
-		/*}
+		}
 		else
 		{
-			colorBlendStates.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-			colorBlendStates.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-			colorBlendStates.colorBlendOp        = VK_BLEND_OP_ADD;
-			colorBlendStates.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-			colorBlendStates.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-			colorBlendStates.alphaBlendOp        = VK_BLEND_OP_ADD;
+			colorBlendState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendState.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+			colorBlendState.colorBlendOp        = VK_BLEND_OP_ADD;
+			colorBlendState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+			colorBlendState.alphaBlendOp        = VK_BLEND_OP_ADD;
 		}
+
 		return colorBlendStates;
-	}*/
+	}
+
+	VkPipelineColorBlendStateCreateInfo VulkanRenderPipeline::BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState)
+	{
+		VkPipelineColorBlendStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		createInfo.attachmentCount = std::uint32_t(attachmentState.size());
+		createInfo.pAttachments = attachmentState.data();
+
+		return createInfo;
+	}
 
 	VkPipelineDepthStencilStateCreateInfo VulkanRenderPipeline::BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo)
 	{
@@ -54,6 +68,21 @@ namespace Nz
 		createInfo.back  = BuildStencilOp(pipelineInfo, false);
 
 		return createInfo;
+	}
+
+	VkPipelineDynamicStateCreateInfo VulkanRenderPipeline::BuildDynamicStateInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkDynamicState>& dynamicStates)
+	{
+		VkPipelineDynamicStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		createInfo.dynamicStateCount = std::uint32_t(dynamicStates.size());
+		createInfo.pDynamicStates = dynamicStates.data();
+
+		return createInfo;
+	}
+
+	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& pipelineInfo)
+	{
+		return { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	}
 
 	VkPipelineInputAssemblyStateCreateInfo VulkanRenderPipeline::BuildInputAssemblyInfo(const RenderPipelineInfo& pipelineInfo)
@@ -73,6 +102,15 @@ namespace Nz
 		createInfo.cullMode = ToVulkan(pipelineInfo.cullingSide);
 		createInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //< TODO
 		createInfo.lineWidth = pipelineInfo.lineWidth;
+
+		return createInfo;
+	}
+
+	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& pipelineInfo)
+	{
+		VkPipelineViewportStateCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		createInfo.scissorCount = createInfo.viewportCount = 1; //< TODO
 
 		return createInfo;
 	}
@@ -99,10 +137,41 @@ namespace Nz
 
 		for (auto&& stagePtr : pipelineInfo.shaderStages)
 		{
+			Nz::VulkanShaderStage& vulkanStage = *static_cast<Nz::VulkanShaderStage*>(stagePtr.get());
+
 			VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
-			//createInfo.
+			createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			createInfo.module = vulkanStage.GetHandle();
+			createInfo.pName = "main";
+			createInfo.stage = ToVulkan(vulkanStage.GetStageType());
 		}
 
 		return shaderStageCreateInfos;
+	}
+
+	auto VulkanRenderPipeline::BuildCreateInfo(const RenderPipelineInfo& pipelineInfo) -> CreateInfo
+	{
+		CreateInfo createInfo = {};
+		createInfo.stateData = std::make_unique<CreateInfo::StateData>();
+
+		createInfo.colorBlendAttachmentState = BuildColorBlendAttachmentStateList(pipelineInfo);
+		createInfo.dynamicStates = BuildDynamicStateList(pipelineInfo);
+		createInfo.shaderStages = BuildShaderStageInfo(pipelineInfo);
+
+		createInfo.stateData->colorBlendState = BuildColorBlendInfo(pipelineInfo, createInfo.colorBlendAttachmentState);
+		createInfo.stateData->depthStencilState = BuildDepthStencilInfo(pipelineInfo);
+		createInfo.stateData->dynamicState = BuildDynamicStateInfo(pipelineInfo, createInfo.dynamicStates);
+		createInfo.stateData->inputAssemblyState = BuildInputAssemblyInfo(pipelineInfo);
+		createInfo.stateData->rasterizationState = BuildRasterizationInfo(pipelineInfo);
+		createInfo.stateData->viewportState = BuildViewportInfo(pipelineInfo);
+
+		createInfo.pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		createInfo.pipelineInfo.stageCount = std::uint32_t(createInfo.shaderStages.size());
+		createInfo.pipelineInfo.pStages = createInfo.shaderStages.data();
+
+		createInfo.pipelineInfo.pColorBlendState = createInfo.colorBlendAttachmentState.data();
+		createInfo.pipelineInfo.
+
+		return createInfo;
 	}
 }

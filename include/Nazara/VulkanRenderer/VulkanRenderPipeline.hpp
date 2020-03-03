@@ -23,19 +23,37 @@ namespace Nz
 			VulkanRenderPipeline(Vk::DeviceHandle device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
-			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentState(const RenderPipelineInfo& pipelineInfo);
+			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
+			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
 			static VkPipelineDepthStencilStateCreateInfo BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo);
+			static VkPipelineDynamicStateCreateInfo BuildDynamicStateInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkDynamicState>& dynamicStates);
+			static std::vector<VkDynamicState> BuildDynamicStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineInputAssemblyStateCreateInfo BuildInputAssemblyInfo(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineRasterizationStateCreateInfo BuildRasterizationInfo(const RenderPipelineInfo& pipelineInfo);
+			static VkPipelineViewportStateCreateInfo BuildViewportInfo(const RenderPipelineInfo& pipelineInfo);
 			static VkStencilOpState BuildStencilOp(const RenderPipelineInfo& pipelineInfo, bool front);
 			static std::vector<VkPipelineShaderStageCreateInfo> BuildShaderStageInfo(const RenderPipelineInfo& pipelineInfo);
+
 			static CreateInfo BuildCreateInfo(const RenderPipelineInfo& pipelineInfo);
 
 			struct CreateInfo
 			{
+				struct StateData
+				{
+					VkPipelineVertexInputStateCreateInfo vertexInputState;
+					VkPipelineInputAssemblyStateCreateInfo inputAssemblyState;
+					VkPipelineViewportStateCreateInfo viewportState;
+					VkPipelineRasterizationStateCreateInfo rasterizationState;
+					VkPipelineDepthStencilStateCreateInfo depthStencilState;
+					VkPipelineColorBlendStateCreateInfo colorBlendState;
+					VkPipelineDynamicStateCreateInfo dynamicState;
+				};
+
 				std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachmentState;
+				std::vector<VkDynamicState> dynamicStates;
 				std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-				VkGraphicsPipelineCreateInfo createInfo;
+				std::unique_ptr<StateData> stateData;
+				VkGraphicsPipelineCreateInfo pipelineInfo;
 			};
 
 		private:
