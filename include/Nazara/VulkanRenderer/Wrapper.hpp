@@ -14,6 +14,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Fence.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Framebuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ImageView.hpp>
