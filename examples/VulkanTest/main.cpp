@@ -129,7 +129,7 @@ int main()
 
 	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/OILTANK1.md2", meshParams);
+	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/drfreak.md2", meshParams);
 
 	if (!drfreak)
 	{
@@ -223,6 +223,7 @@ int main()
 	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
+	pipelineInfo.depthBuffer = true;
 	pipelineInfo.shaderStages.emplace_back(fragmentShader);
 	pipelineInfo.shaderStages.emplace_back(vertexShader);
 
