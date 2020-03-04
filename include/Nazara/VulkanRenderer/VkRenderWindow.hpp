@@ -37,10 +37,7 @@ namespace Nz
 			VkRenderWindow(VkRenderWindow&&) = delete; ///TODO
 			virtual ~VkRenderWindow();
 
-			bool Acquire(UInt32* index) const override;
-
-			void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
-			void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) override;
+			bool Acquire(UInt32* index, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence signalFence = VK_NULL_HANDLE) const override;
 
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 
@@ -53,7 +50,7 @@ namespace Nz
 
 			std::shared_ptr<RenderDevice> GetRenderDevice() override;
 
-			void Present(UInt32 imageIndex) override;
+			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) override;
 
 			VkRenderWindow& operator=(const VkRenderWindow&) = delete;
 			VkRenderWindow& operator=(VkRenderWindow&&) = delete; ///TODO

@@ -32,39 +32,15 @@ namespace Nz
 		VkRenderTarget::Destroy();
 	}
 
-	bool VkRenderWindow::Acquire(UInt32* imageIndex) const
+	bool VkRenderWindow::Acquire(UInt32* imageIndex, VkSemaphore signalSemaphore, VkFence signalFence) const
 	{
-		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), m_imageReadySemaphore, VK_NULL_HANDLE, imageIndex))
+		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), signalSemaphore, signalFence, imageIndex))
 		{
 			NazaraError("Failed to acquire next image");
 			return false;
 		}
 
 		return true;
-	}
-
-	void VkRenderWindow::BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
-	{
-		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-		// Temporary
-		/*if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
-		{
-			VkImageSubresourceRange imageRange = {
-						VK_IMAGE_ASPECT_DEPTH_BIT, // VkImageAspectFlags                     aspectMask
-						0,                         // uint32_t                               baseMipLevel
-						1,                         // uint32_t                               levelCount
-						0,                         // uint32_t                               baseArrayLayer
-						1                          // uint32_t                               layerCount
-			};
-
-			commandBuffer.SetImageLayout(m_depthBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, imageRange);
-		}*/
-	}
-
-	void VkRenderWindow::BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer)
-	{
-		//commandBuffer.SetImageLayout(m_swapchain.GetBuffer(imageIndex).image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
 	bool VkRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
@@ -193,8 +169,6 @@ namespace Nz
 				return false;
 			}
 		}
-
-		m_imageReadySemaphore.Create(m_device);
 
 		m_clock.Restart();
 

@@ -276,10 +276,6 @@ int main()
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-	std::vector<Nz::Vk::Fence> fences(imageCount);
-	for (auto& fence : fences)
-		fence.Create(vulkanDevice.shared_from_this());
-
 	for (Nz::UInt32 i = 0; i < imageCount; ++i)
 	{
 		Nz::Vk::CommandBuffer& renderCmd = renderCmds[i];
@@ -325,8 +321,6 @@ int main()
 
 		renderCmd.Begin();
 
-		vulkanWindow.BuildPreRenderCommands(i, renderCmd);
-
 		renderCmd.BeginRenderPass(render_pass_begin_info);
 		//renderCmd.ClearAttachment(clearAttachment, clearRect);
 		//renderCmd.ClearAttachment(clearAttachmentDepth, clearRect);
@@ -338,8 +332,6 @@ int main()
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
 		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());
 		renderCmd.EndRenderPass();
-
-		vulkanWindow.BuildPostRenderCommands(i, renderCmd);
 
 		if (!renderCmd.End())
 		{
@@ -354,6 +346,31 @@ int main()
 	Nz::Quaternionf camQuat(camAngles);
 
 	window.EnableEventPolling(true);
+
+	struct ImageSync
+	{
+		Nz::Vk::Fence inflightFence;
+		Nz::Vk::Semaphore imageAvailableSemaphore;
+		Nz::Vk::Semaphore renderFinishedSemaphore;
+	};
+
+	const std::size_t MaxConcurrentImage = imageCount;
+
+	std::vector<ImageSync> frameSync(MaxConcurrentImage);
+	for (ImageSync& syncData : frameSync)
+	{
+		syncData.imageAvailableSemaphore.Create(vulkanDevice.shared_from_this());
+		syncData.renderFinishedSemaphore.Create(vulkanDevice.shared_from_this());
+
+		syncData.inflightFence.Create(vulkanDevice.shared_from_this(), VK_FENCE_CREATE_SIGNALED_BIT);
+	}
+
+	/*std::vector<std::reference_wrapper<Nz::Vk::Fence>> imageFences;
+	for (std::size_t i = 0; i < imageCount; ++i)
+		imageFences.emplace_back(sync[i % sync.size()].inflightFence);*/
+	std::vector<Nz::Vk::Fence*> inflightFences(imageCount, nullptr);
+
+	std::size_t currentFrame = 0;
 
 	Nz::Clock updateClock;
 	Nz::Clock secondClock;
@@ -425,36 +442,26 @@ int main()
 			}
 		}
 
+		ImageSync& syncPrimitives = frameSync[currentFrame];
+		syncPrimitives.inflightFence.Wait();
+
 		Nz::UInt32 imageIndex;
-		if (!vulkanWindow.Acquire(&imageIndex))
+		if (!vulkanWindow.Acquire(&imageIndex, syncPrimitives.imageAvailableSemaphore))
 		{
 			std::cout << "Failed to acquire next image" << std::endl;
 			return EXIT_FAILURE;
 		}
 
-		fences[imageIndex].Wait();
-		fences[imageIndex].Reset();
+		if (inflightFences[imageIndex])
+			inflightFences[imageIndex]->Wait();
 
-		VkCommandBuffer renderCmdBuffer = renderCmds[imageIndex];
-		VkSemaphore waitSemaphore = vulkanWindow.GetRenderSemaphore();
+		inflightFences[imageIndex] = &syncPrimitives.inflightFence;
+		inflightFences[imageIndex]->Reset();
 
-		VkPipelineStageFlags wait_dst_stage_mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		VkSubmitInfo submit_info = {
-			VK_STRUCTURE_TYPE_SUBMIT_INFO,                // VkStructureType              sType
-			nullptr,                                      // const void                  *pNext
-			1U,                                            // uint32_t                     waitSemaphoreCount
-			&waitSemaphore,              // const VkSemaphore           *pWaitSemaphores
-			&wait_dst_stage_mask,                         // const VkPipelineStageFlags  *pWaitDstStageMask;
-			1,                                            // uint32_t                     commandBufferCount
-			&renderCmdBuffer,  // const VkCommandBuffer       *pCommandBuffers
-			0,                                            // uint32_t                     signalSemaphoreCount
-			nullptr            // const VkSemaphore           *pSignalSemaphores
-		};
-
-		if (!graphicsQueue.Submit(submit_info, fences[imageIndex]))
+		if (!graphicsQueue.Submit(renderCmds[imageIndex], syncPrimitives.imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, syncPrimitives.renderFinishedSemaphore, syncPrimitives.inflightFence))
 			return false;
 
-		vulkanWindow.Present(imageIndex);
+		vulkanWindow.Present(imageIndex, syncPrimitives.renderFinishedSemaphore);
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;
@@ -477,6 +484,8 @@ int main()
 			// Et on relance l'horloge pour refaire ça dans une seconde
 			secondClock.Restart();
 		}
+
+		currentFrame = (currentFrame + 1) % imageCount;
 	}
 
 	instance.vkDestroyDebugReportCallbackEXT(instance, callback, nullptr);

@@ -30,8 +30,10 @@ namespace Nz
 				inline bool Present(const VkPresentInfoKHR& presentInfo) const;
 				inline bool Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) const;
 
-				inline bool Submit(const VkSubmitInfo& submit, VkFence fence = VK_NULL_HANDLE) const;
-				inline bool Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence = VK_NULL_HANDLE) const;
+				inline bool Submit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(const VkSubmitInfo& submit, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence signalFence = VK_NULL_HANDLE) const;
 
 				inline bool WaitIdle() const;
 

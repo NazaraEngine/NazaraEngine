@@ -7,13 +7,10 @@
 
 namespace Nz
 {
-	VkRenderTarget::~VkRenderTarget()
+	inline const Vk::RenderPass& VkRenderTarget::GetRenderPass() const
 	{
-		OnRenderTargetRelease(this);
-	}
-
-	void VkRenderTarget::Destroy()
-	{
-		m_renderPass.Destroy();
+		return m_renderPass;
 	}
 }
+
+#include <Nazara/VulkanRenderer/DebugOff.hpp>

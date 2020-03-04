@@ -42,11 +42,11 @@ namespace Nz
 		return m_device;
 	}
 
-	inline void VkRenderWindow::Present(UInt32 imageIndex)
+	inline void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
 		NazaraAssert(imageIndex < m_frameBuffers.size(), "Invalid image index");
 
-		m_presentQueue.Present(m_swapchain, imageIndex);
+		m_presentQueue.Present(m_swapchain, imageIndex, waitSemaphore);
 	}
 }
 
