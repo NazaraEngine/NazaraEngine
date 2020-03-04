@@ -274,6 +274,11 @@ int main()
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+	std::vector<Nz::Vk::Fence> fences(imageCount);
+	for (auto& fence : fences)
+		fence.Create(vulkanDevice.shared_from_this());
+
 	for (Nz::UInt32 i = 0; i < imageCount; ++i)
 	{
 		Nz::Vk::CommandBuffer& renderCmd = renderCmds[i];
@@ -317,7 +322,7 @@ int main()
 			1U
 		};
 
-		renderCmd.Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+		renderCmd.Begin();
 
 		vulkanWindow.BuildPreRenderCommands(i, renderCmd);
 
@@ -426,6 +431,9 @@ int main()
 			return EXIT_FAILURE;
 		}
 
+		fences[imageIndex].Wait();
+		fences[imageIndex].Reset();
+
 		VkCommandBuffer renderCmdBuffer = renderCmds[imageIndex];
 		VkSemaphore waitSemaphore = vulkanWindow.GetRenderSemaphore();
 
@@ -442,7 +450,7 @@ int main()
 			nullptr            // const VkSemaphore           *pSignalSemaphores
 		};
 
-		if (!graphicsQueue.Submit(submit_info))
+		if (!graphicsQueue.Submit(submit_info, fences[imageIndex]))
 			return false;
 
 		vulkanWindow.Present(imageIndex);

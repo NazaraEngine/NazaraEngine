@@ -27,7 +27,7 @@ namespace Nz
 				inline ~CommandBuffer();
 
 				inline bool Begin(const VkCommandBufferBeginInfo& info);
-				inline bool Begin(VkCommandBufferUsageFlags flags);
+				inline bool Begin(VkCommandBufferUsageFlags flags = 0);
 				inline bool Begin(VkCommandBufferUsageFlags flags, const VkCommandBufferInheritanceInfo& inheritanceInfo);
 				inline bool Begin(VkCommandBufferUsageFlags flags, VkRenderPass renderPass, UInt32 subpass, VkFramebuffer framebuffer, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
 				inline bool Begin(VkCommandBufferUsageFlags flags, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
