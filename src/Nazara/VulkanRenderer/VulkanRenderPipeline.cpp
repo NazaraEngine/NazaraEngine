@@ -111,7 +111,7 @@ namespace Nz
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		createInfo.polygonMode = ToVulkan(pipelineInfo.faceFilling);
 		createInfo.cullMode = ToVulkan(pipelineInfo.cullingSide);
-		createInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //< TODO
+		createInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; //< TODO
 		createInfo.lineWidth = pipelineInfo.lineWidth;
 
 		return createInfo;
