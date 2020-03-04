@@ -26,19 +26,14 @@ namespace Nz
 			VkRenderTarget(VkRenderTarget&&) = delete; ///TOOD?
 			virtual ~VkRenderTarget();
 
-			virtual bool Acquire(UInt32* imageIndex) const = 0;
-
-			virtual void BuildPreRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) = 0;
-			virtual void BuildPostRenderCommands(UInt32 imageIndex, Vk::CommandBuffer& commandBuffer) = 0;
+			virtual bool Acquire(UInt32* imageIndex, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence signalFence = VK_NULL_HANDLE) const = 0;
 
 			virtual const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const = 0;
 			virtual UInt32 GetFramebufferCount() const = 0;
 
-			const Vk::RenderPass& GetRenderPass() const { return m_renderPass; }
+			inline const Vk::RenderPass& GetRenderPass() const;
 
-			const Vk::Semaphore& GetRenderSemaphore() const { return m_imageReadySemaphore; }
-
-			virtual void Present(UInt32 imageIndex) = 0;
+			virtual void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) = 0;
 
 			VkRenderTarget& operator=(const VkRenderTarget&) = delete;
 			VkRenderTarget& operator=(VkRenderTarget&&) = delete; ///TOOD?
@@ -51,8 +46,9 @@ namespace Nz
 			void Destroy();
 
 			Vk::RenderPass m_renderPass;
-			Vk::Semaphore m_imageReadySemaphore;
 	};
 }
+
+#include <Nazara/VulkanRenderer/VkRenderTarget.inl>
 
 #endif // NAZARA_VULKANRENDERER_RENDERTARGET_HPP

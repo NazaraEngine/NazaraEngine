@@ -76,14 +76,36 @@ namespace Nz
 			return Present(presentInfo);
 		}
 
-		inline bool Queue::Submit(const VkSubmitInfo& submit, VkFence fence) const
+		inline bool Queue::Submit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence) const
 		{
-			return Submit(1, &submit, fence);
+			return Submit(1U, &commandBuffer, waitSemaphore, waitStage, signalSemaphore, signalFence);
 		}
 
-		inline bool Queue::Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence fence) const
+		inline bool Queue::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence) const
 		{
-			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, fence);
+			VkSubmitInfo submitInfo = {
+				VK_STRUCTURE_TYPE_SUBMIT_INFO,
+				nullptr,
+				(waitSemaphore) ? 1U : 0U,
+				&waitSemaphore,
+				&waitStage,
+				commandBufferCount,
+				commandBuffers,
+				(signalSemaphore) ? 1U : 0U,
+				&signalSemaphore
+			};
+
+			return Submit(submitInfo, signalFence);
+		}
+
+		inline bool Queue::Submit(const VkSubmitInfo& submit, VkFence signalFence) const
+		{
+			return Submit(1, &submit, signalFence);
+		}
+
+		inline bool Queue::Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence signalFence) const
+		{
+			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, signalFence);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to submit queue: " + TranslateVulkanError(m_lastErrorCode));
