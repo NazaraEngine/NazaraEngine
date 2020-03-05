@@ -19,23 +19,23 @@ namespace Nz
 		class DeviceObject
 		{
 			public:
-				inline DeviceObject();
+				DeviceObject();
 				DeviceObject(const DeviceObject&) = delete;
-				inline DeviceObject(DeviceObject&& object);
-				inline ~DeviceObject();
+				DeviceObject(DeviceObject&& object);
+				~DeviceObject();
 
-				inline bool Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				inline void Destroy();
+				bool Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				void Destroy();
 
-				inline bool IsValid() const;
+				bool IsValid() const;
 
-				inline const DeviceHandle& GetDevice() const;
-				inline VkResult GetLastErrorCode() const;
+				const DeviceHandle& GetDevice() const;
+				VkResult GetLastErrorCode() const;
 
 				DeviceObject& operator=(const DeviceObject&) = delete;
 				DeviceObject& operator=(DeviceObject&&) = delete;
 
-				inline operator VkType() const;
+				operator VkType() const;
 
 			protected:
 				DeviceHandle m_device;
