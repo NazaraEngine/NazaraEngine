@@ -301,29 +301,9 @@ int main()
 			clearValues.data()                                  // const VkClearValue            *pClearValues
 		};
 
-		VkClearAttachment clearAttachment = {
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0U,
-			clearValues[0]
-		};
-
-		VkClearAttachment clearAttachmentDepth = {
-			VK_IMAGE_ASPECT_DEPTH_BIT,
-			0U,
-			clearValues[1]
-		};
-
-		VkClearRect clearRect = {
-			renderArea,
-			0U,
-			1U
-		};
-
 		renderCmd.Begin();
 
 		renderCmd.BeginRenderPass(render_pass_begin_info);
-		//renderCmd.ClearAttachment(clearAttachment, clearRect);
-		//renderCmd.ClearAttachment(clearAttachmentDepth, clearRect);
 		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
 		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
 		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
@@ -365,9 +345,6 @@ int main()
 		syncData.inflightFence.Create(vulkanDevice.shared_from_this(), VK_FENCE_CREATE_SIGNALED_BIT);
 	}
 
-	/*std::vector<std::reference_wrapper<Nz::Vk::Fence>> imageFences;
-	for (std::size_t i = 0; i < imageCount; ++i)
-		imageFences.emplace_back(sync[i % sync.size()].inflightFence);*/
 	std::vector<Nz::Vk::Fence*> inflightFences(imageCount, nullptr);
 
 	std::size_t currentFrame = 0;

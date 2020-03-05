@@ -274,7 +274,7 @@ namespace Nz
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
 		UInt32 presentQueueNodeIndex = UINT32_MAX;
-		UInt32 transfertQueueNodeFamily = UINT32_MAX;
+		UInt32 transferQueueNodeFamily = UINT32_MAX;
 		for (UInt32 i = 0; i < queueFamilies.size(); i++)
 		{
 			bool supportPresentation = false;
@@ -285,6 +285,7 @@ namespace Nz
 			{
 				if (supportPresentation)
 				{
+					// Queue family support both graphics and presentation to our surface, choose it
 					graphicsQueueNodeIndex = i;
 					presentQueueNodeIndex = i;
 					break;
@@ -296,21 +297,38 @@ namespace Nz
 				presentQueueNodeIndex = i;
 		}
 
+		if (graphicsQueueNodeIndex == UINT32_MAX)
+		{
+			// A Vulkan device without graphics support may technically exists but I've yet to see one
+			NazaraError("Device does not support graphics operations");
+			return {};
+		}
+
+		if (presentQueueNodeIndex == UINT32_MAX)
+		{
+			// On multi-GPU systems, it's very possible to have surfaces unsupported by some
+			NazaraError("Device cannot present this surface");
+			return {};
+		}
+
+		// Search for a transfer queue (first one being different to the graphics one)
 		for (UInt32 i = 0; i < queueFamilies.size(); i++)
 		{
-			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) //< Compute and graphics queue implicitly support transfer operations
+			// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
+			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
 			{
-				transfertQueueNodeFamily = i;
-				if (transfertQueueNodeFamily != graphicsQueueNodeIndex)
+				transferQueueNodeFamily = i;
+				if (transferQueueNodeFamily != graphicsQueueNodeIndex)
 					break;
 			}
 		}
+		assert(transferQueueNodeFamily != UINT32_MAX);
 
 		std::array<QueueFamily, 3> queuesFamilies = {
 			{
 				{graphicsQueueNodeIndex, 1.f},
 				{presentQueueNodeIndex, 1.f},
-				{transfertQueueNodeFamily, 1.f}
+				{transferQueueNodeFamily, 1.f}
 			}
 		};
 
@@ -456,7 +474,7 @@ namespace Nz
 			{
 				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
 				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
-				for (Vk::Device::QueueFamilyInfo queueInfo : queueFamilyInfo)
+				for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
 				{
 					bool supported = false;
 					if (surface.GetSupportPresentation(gpu, queueInfo.familyIndex, &supported) && supported)
