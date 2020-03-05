@@ -354,12 +354,12 @@ namespace Nz
 			if (it == queueCreateInfos.end())
 			{
 				VkDeviceQueueCreateInfo createInfo = {
-								VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // VkStructureType             sType;
-								nullptr,                                    // const void*                 pNext;
-								0,                                          // VkDeviceQueueCreateFlags    flags;
-								queueFamily.familyIndex,                    // uint32_t                    queueFamilyIndex;
-								1,                                          // uint32_t                    queueCount;
-								&queueFamily.priority                       // const float*                pQueuePriorities;
+					VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // VkStructureType             sType;
+					nullptr,                                    // const void*                 pNext;
+					0,                                          // VkDeviceQueueCreateFlags    flags;
+					queueFamily.familyIndex,                    // uint32_t                    queueFamilyIndex;
+					1,                                          // uint32_t                    queueCount;
+					&queueFamily.priority                       // const float*                pQueuePriorities;
 				};
 
 				queueCreateInfos.emplace_back(createInfo);
