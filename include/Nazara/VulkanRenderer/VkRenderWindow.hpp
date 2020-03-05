@@ -57,7 +57,7 @@ namespace Nz
 
 		private:
 			bool SetupDepthBuffer(const Vector2ui& size);
-			bool SetupRenderPass(const Vector2ui& size);
+			bool SetupRenderPass();
 			bool SetupSwapchain(Vk::Surface& surface, const Vector2ui& size);
 
 			Clock m_clock;
