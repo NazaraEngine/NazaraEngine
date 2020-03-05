@@ -60,6 +60,7 @@ namespace Nz
 		Max = Vertex
 	};
 
+	template<>
 	struct EnumAsFlags<ShaderStageType>
 	{
 		static constexpr ShaderStageType max = ShaderStageType::Max;

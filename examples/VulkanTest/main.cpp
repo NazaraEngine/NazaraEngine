@@ -66,24 +66,7 @@ int main()
 	{
 		std::cout << properties.layerName << ": \t" << properties.description << std::endl;
 	}
-	/*
-	std::vector<VkExtensionProperties> extensionProperties;
-	if (!Nz::Vk::Loader::EnumerateInstanceExtensionProperties(&extensionProperties))
-	{
-		NazaraError("Failed to enumerate instance extension properties");
-		return __LINE__;
-	}
 
-	for (const VkExtensionProperties& properties : extensionProperties)
-		std::cout << properties.extensionName << ": \t" << properties.specVersion << std::endl;
-
-	std::vector<VkPhysicalDevice> devices;
-	if (!instance.EnumeratePhysicalDevices(&devices))
-	{
-		NazaraError("Failed to enumerate physical devices");
-		return __LINE__;
-	}
-	*/
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
@@ -113,22 +96,6 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
-
-	/*VkPhysicalDeviceFeatures features;
-	instance.GetPhysicalDeviceFeatures(physDevice, &features);
-
-	VkPhysicalDeviceMemoryProperties memoryProperties;
-	instance.GetPhysicalDeviceMemoryProperties(physDevice, &memoryProperties);
-
-	VkPhysicalDeviceProperties properties;
-	instance.GetPhysicalDeviceProperties(physDevice, &properties);
-
-	std::vector<VkQueueFamilyProperties> queues;
-	instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &queues);*/
-
-	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
-
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/drfreak.md2", meshParams);
 
 	if (!drfreak)
@@ -145,26 +112,8 @@ int main()
 	// Index buffer
 	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
 
-	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
-	if (!renderBufferIB->Synchronize(&vulkanDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&vulkanDevice));
-
 	// Vertex buffer
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
-
-	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
-	if (!renderBufferVB->Synchronize(&vulkanDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&vulkanDevice));
 
 	struct
 	{
@@ -184,32 +133,25 @@ int main()
 	Nz::UniformBuffer uniformBuffer(uniformSize, Nz::DataStorage_Hardware, Nz::BufferUsage_Dynamic);
 	uniformBuffer.Fill(&ubo, 0, uniformSize);
 
-	Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
-	if (!renderBufferUB->Synchronize(&vulkanDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
+	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	auto& bindingInfo = pipelineLayoutInfo.bindings.emplace_back();
+	bindingInfo.index = 0;
+	bindingInfo.shaderStageFlags = Nz::ShaderStageType::Vertex;
+	bindingInfo.type = Nz::ShaderBindingType::UniformBuffer;
 
-	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferUB->GetHardwareBuffer(&vulkanDevice));
+	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
-	VkDescriptorSetLayoutBinding layoutBinding = {};
-	layoutBinding.binding = 0;
-	layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layoutBinding.descriptorCount = 1;
-	layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	layoutBinding.pImmutableSamplers = nullptr;
+	Nz::VulkanRenderPipelineLayout* vkPipelineLayout = static_cast<Nz::VulkanRenderPipelineLayout*>(renderPipelineLayout.get());
 
-	Nz::Vk::DescriptorSetLayout descriptorLayout;
-	if (!descriptorLayout.Create(vulkanDevice.shared_from_this(), layoutBinding))
-	{
-		NazaraError("Failed to create descriptor set layout");
-		return __LINE__;
-	}
+	VkDescriptorSetLayout descriptorLayout = vkPipelineLayout->GetDescriptorSetLayout();
+	VkPipelineLayout pipelineLayout = vkPipelineLayout->GetPipelineLayout();
 
 	VkDescriptorPoolSize poolSize;
 	poolSize.descriptorCount = 1;
 	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
+	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
 
 	Nz::Vk::DescriptorPool descriptorPool;
 	if (!descriptorPool.Create(vulkanDevice.shared_from_this(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
@@ -220,9 +162,18 @@ int main()
 
 	Nz::Vk::DescriptorSet descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorLayout);
 
+	Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
+	if (!renderBufferUB->Synchronize(&vulkanDevice))
+	{
+		NazaraError("Failed to synchronize render buffer");
+		return __LINE__;
+	}
+	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferUB->GetHardwareBuffer(&vulkanDevice));
 	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
+	pipelineInfo.pipelineLayout = renderPipelineLayout;
+
 	pipelineInfo.depthBuffer = true;
 	pipelineInfo.shaderStages.emplace_back(fragmentShader);
 	pipelineInfo.shaderStages.emplace_back(vertexShader);
@@ -231,34 +182,10 @@ int main()
 	vertexBuffer.binding = 0;
 	vertexBuffer.declaration = drfreakVB->GetVertexDeclaration();
 
-
-	//std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
-
-	VkDescriptorSetLayout descriptorSetLayout = descriptorLayout;
-
-	VkPipelineLayoutCreateInfo layout_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType                sType
-		nullptr,                                        // const void                    *pNext
-		0,                                              // VkPipelineLayoutCreateFlags    flags
-		1U,                                              // uint32_t                       setLayoutCount
-		&descriptorSetLayout,                                        // const VkDescriptorSetLayout   *pSetLayouts
-		0,                                              // uint32_t                       pushConstantRangeCount
-		nullptr                                         // const VkPushConstantRange     *pPushConstantRanges
-	};
-
-	Nz::Vk::PipelineLayout pipelineLayout;
-	pipelineLayout.Create(vulkanDevice.shared_from_this(), layout_create_info);
+	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
 	Nz::VulkanRenderPipeline::CreateInfo pipelineCreateInfo = Nz::VulkanRenderPipeline::BuildCreateInfo(pipelineInfo);
-	pipelineCreateInfo.pipelineInfo.layout = pipelineLayout;
 	pipelineCreateInfo.pipelineInfo.renderPass = vulkanWindow.GetRenderPass();
-
-	Nz::Vk::Pipeline vkPipeline;
-	if (!vkPipeline.CreateGraphics(vulkanDevice.shared_from_this(), pipelineCreateInfo.pipelineInfo))
-	{
-		NazaraError("Failed to create pipeline");
-		return __LINE__;
-	}
 
 	Nz::Vk::CommandPool cmdPool;
 	if (!cmdPool.Create(vulkanDevice.shared_from_this(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
@@ -275,6 +202,26 @@ int main()
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
+	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
+
+	if (!renderBufferIB->Synchronize(&vulkanDevice))
+	{
+		NazaraError("Failed to synchronize render buffer");
+		return __LINE__;
+	}
+
+	if (!renderBufferVB->Synchronize(&vulkanDevice))
+	{
+		NazaraError("Failed to synchronize render buffer");
+		return __LINE__;
+	}
+
+	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&vulkanDevice));
+	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&vulkanDevice));
+
+	Nz::VulkanRenderPipeline* vkPipeline = static_cast<Nz::VulkanRenderPipeline*>(pipeline.get());
 
 	for (Nz::UInt32 i = 0; i < imageCount; ++i)
 	{
@@ -307,7 +254,7 @@ int main()
 		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
 		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
 		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
-		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline);
+		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass()));
 		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
 		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());
@@ -352,6 +299,7 @@ int main()
 	Nz::Clock updateClock;
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
+
 	while (window.IsOpen())
 	{
 		bool updateUniforms = false;
@@ -410,8 +358,6 @@ int main()
 			ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
 			uniformBuffer.Fill(&ubo, 0, uniformSize);
-
-			Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
 			if (!renderBufferUB->Synchronize(&vulkanDevice))
 			{
 				NazaraError("Failed to synchronize render buffer");
