@@ -37,7 +37,7 @@ namespace Nz
 
 	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
 	{
-		if (other->QueryAPI() == RenderAPI_Vulkan && QueryAPIVersion() < other->QueryAPIVersion())
+		if (other->QueryAPI() == RenderAPI::Vulkan && QueryAPIVersion() < other->QueryAPIVersion())
 			return false;
 
 		return true; //< Vulkan FTW
@@ -50,7 +50,7 @@ namespace Nz
 
 	RenderAPI VulkanRenderer::QueryAPI() const
 	{
-		return RenderAPI_Vulkan;
+		return RenderAPI::Vulkan;
 	}
 
 	String VulkanRenderer::QueryAPIString() const
@@ -79,25 +79,25 @@ namespace Nz
 			switch (physDevice.properties.deviceType)
 			{
 				case VK_PHYSICAL_DEVICE_TYPE_CPU:
-					device.type = RenderDeviceType_Software;
+					device.type = RenderDeviceType::Software;
 					break;
 
 				case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-					device.type = RenderDeviceType_Dedicated;
+					device.type = RenderDeviceType::Dedicated;
 					break;
 
 				case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-					device.type = RenderDeviceType_Integrated;
+					device.type = RenderDeviceType::Integrated;
 					break;
 
 				case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-					device.type = RenderDeviceType_Virtual;
+					device.type = RenderDeviceType::Virtual;
 					break;
 
 				default:
 					NazaraWarning("Device " + device.name + " has handled device type (0x" + String::Number(physDevice.properties.deviceType, 16) + ')');
 				case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-					device.type = RenderDeviceType_Unknown;
+					device.type = RenderDeviceType::Unknown;
 					break;
 			}
 

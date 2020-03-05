@@ -8,6 +8,7 @@
 #define NAZARA_RENDERPIPELINE_HPP
 
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 //#include <Nazara/Renderer/Shader.hpp>
 
@@ -15,7 +16,15 @@ namespace Nz
 {
 	struct RenderPipelineInfo : RenderStates
 	{
-		/*ShaderConstRef shader;*/
+		struct VertexBufferData
+		{
+			std::size_t binding;
+			VertexDeclarationConstRef declaration;
+		};
+
+		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+		std::vector<std::shared_ptr<ShaderStageImpl>> shaderStages;
+		std::vector<VertexBufferData> vertexBuffers;
 	};
 
 	class NAZARA_RENDERER_API RenderPipeline

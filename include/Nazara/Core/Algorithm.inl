@@ -196,7 +196,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	auto UnderlyingCast(T value) -> std::underlying_type_t<T>
+	constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>
 	{
 		return static_cast<std::underlying_type_t<T>>(value);
 	}

@@ -39,6 +39,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>

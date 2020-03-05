@@ -25,6 +25,7 @@ namespace Nz
 
 			std::unique_ptr<AbstractBuffer> InstantiateBuffer(Buffer* parent, BufferType type) override;
 			std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
+			std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) override;
 
 			VulkanDevice& operator=(const VulkanDevice&) = delete;

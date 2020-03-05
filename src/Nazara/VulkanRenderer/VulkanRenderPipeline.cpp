@@ -4,10 +4,10 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <cassert>
-#include <iostream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -16,6 +16,24 @@ namespace Nz
 	m_device(std::move(device)),
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
+		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
+	}
+
+	VkPipeline VulkanRenderPipeline::Get(const Vk::RenderPass& renderPass)
+	{
+		if (auto it = m_pipelines.find(renderPass); it != m_pipelines.end())
+			return it->second;
+
+		// Copy create info to make Get re-entrant
+		VkGraphicsPipelineCreateInfo pipelineCreateInfo = m_pipelineCreateInfo.pipelineInfo;
+		pipelineCreateInfo.renderPass = renderPass;
+
+		Vk::Pipeline newPipeline;
+		if (!newPipeline.CreateGraphics(m_device, pipelineCreateInfo))
+			return VK_NULL_HANDLE;
+
+		auto it = m_pipelines.emplace(renderPass, std::move(newPipeline)).first;
+		return it->second;
 	}
 
 	std::vector<VkPipelineColorBlendAttachmentState> VulkanRenderPipeline::BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo)
@@ -235,7 +253,6 @@ namespace Nz
 		createInfo.pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		createInfo.pipelineInfo.stageCount = std::uint32_t(createInfo.shaderStages.size());
 		createInfo.pipelineInfo.pStages = createInfo.shaderStages.data();
-
 		createInfo.pipelineInfo.pColorBlendState    = &createInfo.stateData->colorBlendState;
 		createInfo.pipelineInfo.pDepthStencilState  = &createInfo.stateData->depthStencilState;
 		createInfo.pipelineInfo.pDynamicState       = &createInfo.stateData->dynamicState;
@@ -244,6 +261,9 @@ namespace Nz
 		createInfo.pipelineInfo.pRasterizationState = &createInfo.stateData->rasterizationState;
 		createInfo.pipelineInfo.pVertexInputState   = &createInfo.stateData->vertexInputState;
 		createInfo.pipelineInfo.pViewportState      = &createInfo.stateData->viewportState;
+
+		VulkanRenderPipelineLayout& pipelineLayout = *static_cast<VulkanRenderPipelineLayout*>(pipelineInfo.pipelineLayout.get());
+		createInfo.pipelineInfo.layout = pipelineLayout.GetPipelineLayout();
 
 		return createInfo;
 	}

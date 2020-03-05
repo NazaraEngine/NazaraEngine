@@ -95,6 +95,18 @@ namespace Nz
 		return VK_COMPARE_OP_NEVER;
 	}
 
+	VkDescriptorType ToVulkan(ShaderBindingType bindingType)
+	{
+		switch (bindingType)
+		{
+			case ShaderBindingType::Texture:       return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		}
+
+		NazaraError("Unhandled ShaderBindingType 0x" + String::Number(UnderlyingCast(bindingType), 16));
+		return VK_DESCRIPTOR_TYPE_SAMPLER;
+	}
+
 	VkShaderStageFlagBits ToVulkan(ShaderStageType stageType)
 	{
 		switch (stageType)
@@ -103,8 +115,23 @@ namespace Nz
 			case ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		NazaraError("Unhandled ShaderStageType 0x" + String::Number(static_cast<std::size_t>(stageType), 16));
+		NazaraError("Unhandled ShaderStageType 0x" + String::Number(UnderlyingCast(stageType), 16));
 		return {};
+	}
+
+	VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
+	{
+		VkShaderStageFlags shaderStageBits = 0;
+
+		if (stageType.Test(ShaderStageType::Fragment))
+			shaderStageBits |= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		if (stageType.Test(ShaderStageType::Vertex))
+			shaderStageBits |= VK_SHADER_STAGE_VERTEX_BIT;
+
+		static_assert(UnderlyingCast(ShaderStageType::Max) + 1 == 2);
+
+		return shaderStageBits;
 	}
 
 	VkStencilOp ToVulkan(StencilOperation stencilOp)

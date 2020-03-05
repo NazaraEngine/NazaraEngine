@@ -11,6 +11,8 @@
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
 #include <vector>
 
 namespace Nz
@@ -22,6 +24,8 @@ namespace Nz
 
 			VulkanRenderPipeline(Vk::DeviceHandle device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
+
+			VkPipeline Get(const Vk::RenderPass& renderPass);
 
 			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
@@ -64,9 +68,9 @@ namespace Nz
 			};
 
 		private:
-
-
+			std::unordered_map<VkRenderPass, Vk::Pipeline> m_pipelines;
 			Vk::DeviceHandle m_device;
+			CreateInfo m_pipelineCreateInfo;
 			RenderPipelineInfo m_pipelineInfo;
 	};
 }

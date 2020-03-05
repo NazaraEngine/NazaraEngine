@@ -137,7 +137,7 @@ namespace Nz
 			return false;
 		}
 
-		if (!SetupRenderPass(size))
+		if (!SetupRenderPass())
 		{
 			NazaraError("Failed to create render pass");
 			return false;
@@ -245,8 +245,8 @@ namespace Nz
 		return true;
 	}
 
-	bool VkRenderWindow::SetupRenderPass(const Vector2ui& size)
-	{
+	bool VkRenderWindow::SetupRenderPass()
+{
 		std::array<VkAttachmentDescription, 2> attachments = {
 			{
 				{
