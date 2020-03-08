@@ -14,8 +14,8 @@ namespace Nz
 	{
 		inline Device::Device(Instance& instance) :
 		m_instance(instance),
-		m_device(VK_NULL_HANDLE),
-		m_physicalDevice(VK_NULL_HANDLE)
+		m_physicalDevice(nullptr),
+		m_device(VK_NULL_HANDLE)
 		{
 		}
 
@@ -32,7 +32,7 @@ namespace Nz
 				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 
 				m_device = VK_NULL_HANDLE;
-				m_physicalDevice = VK_NULL_HANDLE;
+				m_physicalDevice = nullptr;
 			}
 		}
 
@@ -65,7 +65,12 @@ namespace Nz
 
 		inline VkPhysicalDevice Device::GetPhysicalDevice() const
 		{
-			return m_physicalDevice;
+			return m_physicalDevice->device;
+		}
+
+		inline const Vk::PhysicalDevice& Device::GetPhysicalDeviceInfo() const
+		{
+			return *m_physicalDevice;
 		}
 
 		inline bool Device::IsExtensionLoaded(const std::string& extensionName)
