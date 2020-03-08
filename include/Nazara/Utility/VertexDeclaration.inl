@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	inline auto Nz::VertexDeclaration::FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
+	inline auto VertexDeclaration::FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
 	{
 		assert(componentIndex == 0 || vertexComponent == VertexComponent_Userdata);
 
