@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <vulkan/vulkan.h>
 #include <memory>
 #include <unordered_set>
@@ -36,7 +37,7 @@ namespace Nz
 				Device(Device&&) = delete;
 				inline ~Device();
 
-				bool Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
@@ -47,6 +48,7 @@ namespace Nz
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
+				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
 
 				inline bool IsExtensionLoaded(const std::string& extensionName);
 				inline bool IsLayerLoaded(const std::string& layerName);

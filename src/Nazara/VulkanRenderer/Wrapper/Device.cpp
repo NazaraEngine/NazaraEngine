@@ -12,23 +12,16 @@ namespace Nz
 {
 	namespace Vk
 	{
-		bool Device::Create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			std::vector<VkQueueFamilyProperties> queuesProperties;
-			if (!m_instance.GetPhysicalDeviceQueueFamilyProperties(device, &queuesProperties))
-			{
-				NazaraError("Failed to query queue family properties");
-				return false;
-			}
-
-			m_lastErrorCode = m_instance.vkCreateDevice(device, &createInfo, allocator, &m_device);
+			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.device, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to create Vulkan device");
 				return false;
 			}
 
-			m_physicalDevice = device;
+			m_physicalDevice = &deviceInfo;
 
 			// Store the allocator to access them when needed
 			if (allocator)
@@ -76,7 +69,7 @@ namespace Nz
 				if (info.familyIndex > maxFamilyIndex)
 					maxFamilyIndex = info.familyIndex;
 
-				const VkQueueFamilyProperties& queueProperties = queuesProperties[info.familyIndex];
+				const VkQueueFamilyProperties& queueProperties = deviceInfo.queues[info.familyIndex];
 				info.flags = queueProperties.queueFlags;
 				info.minImageTransferGranularity = queueProperties.minImageTransferGranularity;
 				info.timestampValidBits = queueProperties.timestampValidBits;

@@ -429,7 +429,7 @@ namespace Nz
 		};
 
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance);
-		if (!device->Create(gpu, createInfo))
+		if (!device->Create(GetPhysicalDeviceInfo(gpu), createInfo))
 		{
 			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));
 			return {};
