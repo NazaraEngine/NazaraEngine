@@ -53,77 +53,15 @@ namespace Nz
 				inline operator VkInstance();
 
 				// Vulkan functions
-				#define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) PFN_##func func
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext)
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_END()
+#define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) PFN_##func func;
 
-				// Vulkan core
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateDevice);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkDestroyInstance);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkEnumeratePhysicalDevices);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetDeviceProcAddr);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceFeatures);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceFormatProperties);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceImageFormatProperties);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceMemoryProperties);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceProperties);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties);
+#include <Nazara/VulkanRenderer/Wrapper/InstanceFunctions.hpp>
 
-				// VK_KHR_display
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateDisplayModeKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateDisplayPlaneSurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetDisplayModePropertiesKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetDisplayPlaneCapabilitiesKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetDisplayPlaneSupportedDisplaysKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceDisplayPropertiesKHR);
-
-				// VK_KHR_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkDestroySurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceFormatsKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfacePresentModesKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR);
-
-				// VK_EXT_debug_report
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateDebugReportCallbackEXT);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkDestroyDebugReportCallbackEXT);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkDebugReportMessageEXT);
-
-				#ifdef VK_USE_PLATFORM_ANDROID_KHR
-				// VK_KHR_android_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateAndroidSurfaceKHR);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_MIR_KHR
-				// VK_KHR_mir_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateMirSurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceMirPresentationSupportKHR);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_XCB_KHR
-				// VK_KHR_xcb_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateXcbSurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceXcbPresentationSupportKHR);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_XLIB_KHR
-				// VK_KHR_xlib_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateXlibSurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceXlibPresentationSupportKHR);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_WAYLAND_KHR
-				// VK_KHR_wayland_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateWaylandSurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceWaylandPresentationSupportKHR);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_WIN32_KHR
-				// VK_KHR_win32_surface
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkCreateWin32SurfaceKHR);
-				NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(vkGetPhysicalDeviceWin32PresentationSupportKHR);
-				#endif
-
-				#undef NAZARA_VULKANRENDERER_INSTANCE_FUNCTION
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_END
+#undef NAZARA_VULKANRENDERER_INSTANCE_FUNCTION
 
 			private:
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
