@@ -17,19 +17,30 @@ namespace Nz
 	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
 	m_inputRate(inputRate)
 	{
+		ErrorFlags errFlags(ErrorFlag_ThrowException);
 		std::size_t offset = 0;
 
 		m_components.reserve(components.size());
 		for (const ComponentEntry& entry : components)
 		{
+			NazaraAssert(IsTypeSupported(entry.type), "Component type 0x" + String::Number(entry.type, 16) + " is not supported by vertex declarations");
+			NazaraAssert(entry.componentIndex == 0 || entry.component == VertexComponent_Userdata, "Only userdata components can have non-zero component indexes");
+
+			if (entry.component != VertexComponent_Unused)
+			{
+				// Check for duplicates
+				for (const Component& component : m_components)
+				{
+					if (component.component == entry.component && component.componentIndex == entry.componentIndex)
+						NazaraError("Duplicate component type found");
+				}
+			}
+
 			auto& component = m_components.emplace_back();
 			component.component = entry.component;
 			component.componentIndex = entry.componentIndex;
 			component.offset = offset;
 			component.type = entry.type;
-
-			NazaraAssert(IsTypeSupported(component.type), "Component type 0x" + String::Number(component.type, 16) + " is not supported by vertex declarations");
-			NazaraAssert(component.componentIndex == 0 || component.component == VertexComponent_Userdata, "Only userdata components can have non-zero component indexes");
 
 			offset += Utility::ComponentStride[component.type];
 		}
