@@ -18,12 +18,10 @@
 
 namespace Nz
 {
-	class Buffer;
-
 	class NAZARA_VULKANRENDERER_API VulkanBuffer : public AbstractBuffer
 	{
 		public:
-			inline VulkanBuffer(Vk::Device& device, Buffer* parent, BufferType type);
+			inline VulkanBuffer(Vk::Device& device, BufferType type);
 			VulkanBuffer(const VulkanBuffer&) = delete;
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
 			virtual ~VulkanBuffer();
@@ -35,18 +33,22 @@ namespace Nz
 
 			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) override;
+			void* Map(BufferAccess access, UInt32 offset, UInt32 size) override;
 			bool Unmap() override;
 
 			VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 			VulkanBuffer& operator=(VulkanBuffer&&) = delete; ///TODO
 
 		private:
-			Buffer* m_parent;
+			Vk::Buffer m_stagingBuffer;
+			Vk::DeviceMemory m_stagingMemory;
 			BufferType m_type;
-			Nz::Vk::Buffer m_buffer;
-			Nz::Vk::DeviceMemory m_memory;
+			BufferUsageFlags m_usage;
+			UInt32 m_size;
+			Vk::Buffer m_buffer;
+			Vk::Fence m_stagingFence;
 			Vk::Device& m_device;
+			Vk::DeviceMemory m_memory;
 	};
 }
 

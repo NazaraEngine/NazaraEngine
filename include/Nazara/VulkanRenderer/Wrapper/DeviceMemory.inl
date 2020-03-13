@@ -57,6 +57,31 @@ namespace Nz
 			return false;
 		}
 
+		inline bool DeviceMemory::FlushMemory()
+		{
+			return FlushMemory(0, VK_WHOLE_SIZE);
+		}
+
+		inline bool DeviceMemory::FlushMemory(UInt64 offset, UInt64 size)
+		{
+			VkMappedMemoryRange memoryRange = {
+				VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+				nullptr,
+				m_handle,
+				offset,
+				size
+			};
+
+			m_lastErrorCode = m_device->vkFlushMappedMemoryRanges(*m_device, 1, &memoryRange);
+			if (m_lastErrorCode != VK_SUCCESS)
+			{
+				NazaraError("Failed to flush memory: " + TranslateVulkanError(m_lastErrorCode));
+				return false;
+			}
+
+			return true;
+		}
+
 		inline void* DeviceMemory::GetMappedPointer()
 		{
 			return m_mappedPtr;

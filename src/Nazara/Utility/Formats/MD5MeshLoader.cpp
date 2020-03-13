@@ -97,7 +97,7 @@ namespace Nz
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
 					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags | BufferUsage_Dynamic);
+					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 					// Index buffer
 					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);

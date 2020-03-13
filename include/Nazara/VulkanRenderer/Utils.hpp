@@ -12,9 +12,11 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <string>
 
 namespace Nz
 {
+	inline VkBufferUsageFlags ToVulkan(BufferType bufferType);
 	inline VkFormat ToVulkan(ComponentType componentType);
 	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide);
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
@@ -26,7 +28,7 @@ namespace Nz
 	inline VkStencilOp ToVulkan(StencilOperation stencilOp);
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate);
 
-	NAZARA_VULKANRENDERER_API String TranslateVulkanError(VkResult code);
+	NAZARA_VULKANRENDERER_API std::string TranslateVulkanError(VkResult code);
 }
 
 #include <Nazara/VulkanRenderer/Utils.inl>

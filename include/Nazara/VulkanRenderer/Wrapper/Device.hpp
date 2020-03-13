@@ -19,6 +19,7 @@ namespace Nz
 {
 	namespace Vk
 	{
+		class CommandBuffer;
 		class Instance;
 		class Queue;
 
@@ -34,6 +35,8 @@ namespace Nz
 				Device(Device&&) = delete;
 				~Device();
 
+				CommandBuffer AllocateTransferCommandBuffer();
+
 				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
@@ -46,6 +49,8 @@ namespace Nz
 				inline VkResult GetLastErrorCode() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
+
+				inline UInt32 GetTransferQueueFamilyIndex() const;
 
 				inline bool IsExtensionLoaded(const std::string& extensionName);
 				inline bool IsLayerLoaded(const std::string& layerName);
@@ -90,11 +95,15 @@ namespace Nz
 
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
+				struct InternalData;
+
+				std::unique_ptr<InternalData> m_internalData;
 				Instance& m_instance;
 				const Vk::PhysicalDevice* m_physicalDevice;
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
 				VkResult m_lastErrorCode;
+				UInt32 m_transferQueueFamilyIndex;
 				std::unordered_set<std::string> m_loadedExtensions;
 				std::unordered_set<std::string> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;

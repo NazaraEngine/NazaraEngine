@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	String TranslateVulkanError(VkResult code)
+	std::string TranslateVulkanError(VkResult code)
 	{
 		// From https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/xhtml/vkspec.html#VkResult
 		switch (code)
@@ -97,7 +97,7 @@ namespace Nz
 				break;
 		}
 
-		return "Unknown Vulkan error (0x" + String::Number(code, 16) + ')';
+		return "Unknown Vulkan error (0x" + String::Number(code, 16).ToStdString() + ')';
 	}
 }
 

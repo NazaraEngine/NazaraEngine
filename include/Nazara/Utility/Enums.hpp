@@ -56,10 +56,10 @@ namespace Nz
 
 	enum BufferUsage
 	{
-		BufferUsage_Dynamic,
-		BufferUsage_FastRead,
+		BufferUsage_DeviceLocal,
+		BufferUsage_DirectMapping,
 
-		BufferUsage_Max = BufferUsage_FastRead
+		BufferUsage_Max = BufferUsage_DirectMapping
 	};
 
 	template<>

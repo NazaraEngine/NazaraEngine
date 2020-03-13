@@ -10,6 +10,19 @@
 
 namespace Nz
 {
+	VkBufferUsageFlags ToVulkan(BufferType bufferType)
+	{
+		switch (bufferType)
+		{
+			case BufferType_Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferType_Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BufferType_Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		}
+
+		NazaraError("Unhandled BufferType 0x" + String::Number(bufferType, 16));
+		return 0;
+	}
+
 	VkFormat ToVulkan(ComponentType componentType)
 	{
 		switch (componentType)

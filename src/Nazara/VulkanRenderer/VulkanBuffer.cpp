@@ -5,6 +5,8 @@
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/String.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -26,37 +28,30 @@ namespace Nz
 
 	bool VulkanBuffer::Initialize(UInt32 size, BufferUsageFlags usage)
 	{
-		VkBufferUsageFlags type;
-		switch (m_type)
+		m_size = size;
+		m_usage = usage;
+
+		VkBufferUsageFlags bufferUsage = ToVulkan(m_type);
+		VkMemoryPropertyFlags memoryProperties = 0;
+		if (usage & BufferUsage_DeviceLocal)
+			memoryProperties |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+		if (usage & BufferUsage_DirectMapping)
+			memoryProperties |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+		else
+			bufferUsage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+		if (!m_buffer.Create(m_device, 0, size, bufferUsage))
 		{
-			case BufferType_Index:
-				type = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-				break;
-
-			case BufferType_Vertex:
-				type = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-				break;
-
-			case BufferType_Uniform:
-				type = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-				break;
-
-			default:
-				NazaraError("Unhandled buffer usage 0x" + String::Number(m_type, 16));
-				return false;
-		}
-
-		if (!m_buffer.Create(m_device, 0, size, type))
-		{
-			NazaraError("Failed to create vertex buffer");
+			NazaraError("Failed to create vulkan buffer");
 			return false;
 		}
 
 		VkMemoryRequirements memRequirement = m_buffer.GetMemoryRequirements();
 
-		if (!m_memory.Create(m_device, memRequirement.size, memRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+		if (!m_memory.Create(m_device, memRequirement.size, memRequirement.memoryTypeBits, memoryProperties))
 		{
-			NazaraError("Failed to allocate vertex buffer memory");
+			NazaraError("Failed to allocate buffer memory");
 			return false;
 		}
 
@@ -76,15 +71,76 @@ namespace Nz
 
 	void* VulkanBuffer::Map(BufferAccess /*access*/, UInt32 offset, UInt32 size)
 	{
-		if (!m_memory.Map(offset, size))
-			return nullptr;
+		if (m_usage & BufferUsage_DirectMapping)
+		{
+			if (!m_memory.Map(offset, size))
+				return nullptr;
 
-		return m_memory.GetMappedPointer();
+			return m_memory.GetMappedPointer();
+		}
+		else
+		{
+			if (!m_stagingFence.Create(m_device))
+			{
+				NazaraError("Failed to create staging fence");
+				return nullptr;
+			}
+
+			if (!m_stagingBuffer.Create(m_device, 0, m_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
+			{
+				NazaraError("Failed to create staging buffer");
+				return nullptr;
+			}
+
+			VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+
+			VkMemoryRequirements memRequirement = m_stagingBuffer.GetMemoryRequirements();
+			if (!m_stagingMemory.Create(m_device, memRequirement.size, memRequirement.memoryTypeBits, memoryProperties))
+			{
+				NazaraError("Failed to allocate vertex buffer memory");
+				return nullptr;
+			}
+
+			if (!m_stagingBuffer.BindBufferMemory(m_stagingMemory))
+			{
+				NazaraError("Failed to bind vertex buffer to its memory");
+				return nullptr;
+			}
+
+			if (!m_stagingMemory.Map(offset, size))
+				return nullptr;
+
+			return m_stagingMemory.GetMappedPointer();
+		}
 	}
 
 	bool VulkanBuffer::Unmap()
 	{
-		m_memory.Unmap();
-		return true;
+		if (m_usage & BufferUsage_DirectMapping)
+		{
+			m_memory.Unmap();
+			return true;
+		}
+		else
+		{
+			m_stagingMemory.FlushMemory();
+			m_stagingMemory.Unmap();
+
+			Vk::CommandBuffer copyCommandBuffer = m_device.AllocateTransferCommandBuffer();
+			copyCommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+			copyCommandBuffer.CopyBuffer(m_stagingBuffer, m_buffer, m_size);
+			copyCommandBuffer.End();
+
+			Vk::Queue transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
+			if (!transferQueue.Submit(copyCommandBuffer, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, m_stagingFence))
+				return false;
+
+			m_stagingFence.Wait();
+
+			m_stagingBuffer.Destroy();
+			m_stagingFence.Destroy();
+			m_stagingMemory.Destroy();
+			return true;
+		}
 	}
 }
