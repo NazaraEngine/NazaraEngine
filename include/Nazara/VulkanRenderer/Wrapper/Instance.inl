@@ -19,7 +19,8 @@ namespace Nz
 
 		inline Instance::~Instance()
 		{
-			DestroyInstance();
+			if (m_instance)
+				DestroyInstance();
 		}
 
 		inline bool Instance::Create(const String& appName, UInt32 appVersion, const String& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
