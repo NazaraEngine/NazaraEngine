@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool DescriptorPool::Create(DeviceHandle device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorPool::Create(Device& device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorPoolCreateInfo createInfo =
 			{
@@ -21,10 +21,10 @@ namespace Nz
 				&poolSize                                      // const VkDescriptorPoolSize*    pPoolSizes;
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
-		inline bool DescriptorPool::Create(DeviceHandle device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorPool::Create(Device& device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorPoolCreateInfo createInfo =
 			{
@@ -36,17 +36,17 @@ namespace Nz
 				poolSize                                       // const VkDescriptorPoolSize*    pPoolSizes;
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
-		inline VkResult DescriptorPool::CreateHelper(const DeviceHandle& device, const VkDescriptorPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorPool* handle)
+		inline VkResult DescriptorPool::CreateHelper(Device& device, const VkDescriptorPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorPool* handle)
 		{
-			return device->vkCreateDescriptorPool(*device, createInfo, allocator, handle);
+			return device.vkCreateDescriptorPool(device, createInfo, allocator, handle);
 		}
 
-		inline void DescriptorPool::DestroyHelper(const DeviceHandle& device, VkDescriptorPool handle, const VkAllocationCallbacks* allocator)
+		inline void DescriptorPool::DestroyHelper(Device& device, VkDescriptorPool handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyDescriptorPool(*device, handle, allocator);
+			return device.vkDestroyDescriptorPool(device, handle, allocator);
 		}
 	}
 }

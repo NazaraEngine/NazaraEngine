@@ -12,6 +12,8 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Fence.hpp>
+#include <memory>
 #include <vector>
 
 namespace Nz
@@ -21,7 +23,7 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanBuffer : public AbstractBuffer
 	{
 		public:
-			inline VulkanBuffer(const Vk::DeviceHandle& device, Buffer* parent, BufferType type);
+			inline VulkanBuffer(Vk::Device& device, Buffer* parent, BufferType type);
 			VulkanBuffer(const VulkanBuffer&) = delete;
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
 			virtual ~VulkanBuffer();
@@ -43,8 +45,8 @@ namespace Nz
 			Buffer* m_parent;
 			BufferType m_type;
 			Nz::Vk::Buffer m_buffer;
-			Nz::Vk::DeviceHandle m_device;
 			Nz::Vk::DeviceMemory m_memory;
+			Vk::Device& m_device;
 	};
 }
 

@@ -25,7 +25,7 @@ namespace Nz
 				~Fence() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, VkFenceCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, VkFenceCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline bool Reset();
 
@@ -36,8 +36,8 @@ namespace Nz
 				Fence& operator=(Fence&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkFence handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle);
+				static inline void DestroyHelper(Device& device, VkFence handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

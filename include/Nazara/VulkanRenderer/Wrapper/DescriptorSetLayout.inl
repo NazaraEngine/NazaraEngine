@@ -9,12 +9,12 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool DescriptorSetLayout::Create(DeviceHandle device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorSetLayout::Create(Device& device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
-			return Create(std::move(device), 1U, &binding, flags, allocator);
+			return Create(device, 1U, &binding, flags, allocator);
 		}
 
-		inline bool DescriptorSetLayout::Create(DeviceHandle device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool DescriptorSetLayout::Create(Device& device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkDescriptorSetLayoutCreateInfo createInfo = 
 			{
@@ -25,17 +25,17 @@ namespace Nz
 				binding                                              // const VkDescriptorSetLayoutBinding*    pBindings;
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
-		inline VkResult DescriptorSetLayout::CreateHelper(const DeviceHandle& device, const VkDescriptorSetLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorSetLayout* handle)
+		inline VkResult DescriptorSetLayout::CreateHelper(Device& device, const VkDescriptorSetLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorSetLayout* handle)
 		{
-			return device->vkCreateDescriptorSetLayout(*device, createInfo, allocator, handle);
+			return device.vkCreateDescriptorSetLayout(device, createInfo, allocator, handle);
 		}
 
-		inline void DescriptorSetLayout::DestroyHelper(const DeviceHandle& device, VkDescriptorSetLayout handle, const VkAllocationCallbacks* allocator)
+		inline void DescriptorSetLayout::DestroyHelper(Device& device, VkDescriptorSetLayout handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyDescriptorSetLayout(*device, handle, allocator);
+			return device.vkDestroyDescriptorSetLayout(device, handle, allocator);
 		}
 	}
 }

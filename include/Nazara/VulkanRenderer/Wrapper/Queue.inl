@@ -12,34 +12,21 @@ namespace Nz
 	namespace Vk
 	{
 		inline Queue::Queue() :
-		Queue(DeviceHandle(), VK_NULL_HANDLE)
+		m_handle(VK_NULL_HANDLE),
+		m_lastErrorCode(VkResult::VK_SUCCESS)
 		{
 		}
 
-		inline Queue::Queue(const DeviceHandle& device, VkQueue queue) :
-		m_device(device),
+		inline Queue::Queue(Device& device, VkQueue queue) :
+		m_device(&device),
 		m_handle(queue),
 		m_lastErrorCode(VkResult::VK_SUCCESS)
 		{
 		}
 
-		inline Queue::Queue(const Queue& queue) :
-		m_device(queue.m_device),
-		m_handle(queue.m_handle),
-		m_lastErrorCode(queue.m_lastErrorCode)
+		inline Device& Queue::GetDevice() const
 		{
-		}
-		
-		inline Queue::Queue(Queue&& queue) :
-		m_device(queue.m_device),
-		m_handle(queue.m_handle),
-		m_lastErrorCode(queue.m_lastErrorCode)
-		{
-		}
-
-		inline const DeviceHandle& Queue::GetDevice() const
-		{
-			return m_device;
+			return *m_device;
 		}
 
 		inline VkResult Queue::GetLastErrorCode() const

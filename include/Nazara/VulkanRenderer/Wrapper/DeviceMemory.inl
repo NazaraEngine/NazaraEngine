@@ -24,7 +24,7 @@ namespace Nz
 			memory.m_mappedPtr = nullptr;
 		}
 
-		inline bool DeviceMemory::Create(DeviceHandle device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator)
+		inline bool DeviceMemory::Create(Device& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator)
 		{
 			VkMemoryAllocateInfo allocInfo =
 			{
@@ -34,12 +34,12 @@ namespace Nz
 				memoryType                              // uint32_t           memoryTypeIndex;
 			};
 
-			return Create(std::move(device), allocInfo, allocator);
+			return Create(device, allocInfo, allocator);
 		}
 
-		inline bool DeviceMemory::Create(DeviceHandle device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator)
+		inline bool DeviceMemory::Create(Device& device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator)
 		{
-			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(device->GetPhysicalDevice());
+			const Vk::PhysicalDevice& deviceInfo = Vulkan::GetPhysicalDeviceInfo(device.GetPhysicalDevice());
 
 			UInt32 typeMask = 1;
 			for (UInt32 i = 0; i < VK_MAX_MEMORY_TYPES; ++i)
@@ -47,7 +47,7 @@ namespace Nz
 				if (typeBits & typeMask)
 				{
 					if ((deviceInfo.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
-						return Create(std::move(device), size, i, allocator);
+						return Create(device, size, i, allocator);
 				}
 
 				typeMask <<= 1;
@@ -82,14 +82,14 @@ namespace Nz
 			m_mappedPtr = nullptr;
 		}
 
-		inline VkResult DeviceMemory::CreateHelper(const DeviceHandle& device, const VkMemoryAllocateInfo* allocInfo, const VkAllocationCallbacks* allocator, VkDeviceMemory* handle)
+		inline VkResult DeviceMemory::CreateHelper(Device& device, const VkMemoryAllocateInfo* allocInfo, const VkAllocationCallbacks* allocator, VkDeviceMemory* handle)
 		{
-			return device->vkAllocateMemory(*device, allocInfo, allocator, handle);
+			return device.vkAllocateMemory(device, allocInfo, allocator, handle);
 		}
 
-		inline void DeviceMemory::DestroyHelper(const DeviceHandle& device, VkDeviceMemory handle, const VkAllocationCallbacks* allocator)
+		inline void DeviceMemory::DestroyHelper(Device& device, VkDeviceMemory handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkFreeMemory(*device, handle, allocator);
+			return device.vkFreeMemory(device, handle, allocator);
 		}
 	}
 }

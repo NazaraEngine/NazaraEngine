@@ -154,7 +154,7 @@ int main()
 	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
 
 	Nz::Vk::DescriptorPool descriptorPool;
-	if (!descriptorPool.Create(vulkanDevice.shared_from_this(), 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+	if (!descriptorPool.Create(vulkanDevice, 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
 	{
 		NazaraError("Failed to create descriptor pool");
 		return __LINE__;
@@ -165,7 +165,7 @@ int main()
 	Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
 	if (!renderBufferUB->Synchronize(&vulkanDevice))
 	{
-		NazaraError("Failed to synchronize render buffer");
+		NazaraError("Failed to create uniform buffer");
 		return __LINE__;
 	}
 	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferUB->GetHardwareBuffer(&vulkanDevice));
@@ -188,7 +188,7 @@ int main()
 	pipelineCreateInfo.pipelineInfo.renderPass = vulkanWindow.GetRenderPass();
 
 	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(vulkanDevice.shared_from_this(), 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+	if (!cmdPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
 	{
 		NazaraError("Failed to create rendering cmd pool");
 		return __LINE__;
@@ -198,7 +198,7 @@ int main()
 	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
-	Nz::Vk::Queue graphicsQueue(vulkanDevice.shared_from_this(), vulkanDevice.GetEnabledQueues()[0].queues[0].queue);
+	Nz::Vk::Queue graphicsQueue(vulkanDevice, vulkanDevice.GetEnabledQueues()[0].queues[0].queue);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -286,10 +286,10 @@ int main()
 	std::vector<ImageSync> frameSync(MaxConcurrentImage);
 	for (ImageSync& syncData : frameSync)
 	{
-		syncData.imageAvailableSemaphore.Create(vulkanDevice.shared_from_this());
-		syncData.renderFinishedSemaphore.Create(vulkanDevice.shared_from_this());
+		syncData.imageAvailableSemaphore.Create(vulkanDevice);
+		syncData.renderFinishedSemaphore.Create(vulkanDevice);
 
-		syncData.inflightFence.Create(vulkanDevice.shared_from_this(), VK_FENCE_CREATE_SIGNALED_BIT);
+		syncData.inflightFence.Create(vulkanDevice, VK_FENCE_CREATE_SIGNALED_BIT);
 	}
 
 	std::vector<Nz::Vk::Fence*> inflightFences(imageCount, nullptr);

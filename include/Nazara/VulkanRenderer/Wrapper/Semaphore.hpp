@@ -25,14 +25,14 @@ namespace Nz
 				~Semaphore() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				Semaphore& operator=(const Semaphore&) = delete;
 				Semaphore& operator=(Semaphore&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
+				static inline void DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

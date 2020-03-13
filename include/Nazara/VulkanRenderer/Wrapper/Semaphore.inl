@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Semaphore::Create(DeviceHandle device, VkSemaphoreCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool Semaphore::Create(Device& device, VkSemaphoreCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkSemaphoreCreateInfo createInfo =
 			{
@@ -18,17 +18,17 @@ namespace Nz
 				flags
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
-		inline VkResult Semaphore::CreateHelper(const DeviceHandle& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)
+		inline VkResult Semaphore::CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle)
 		{
-			return device->vkCreateSemaphore(*device, createInfo, allocator, handle);
+			return device.vkCreateSemaphore(device, createInfo, allocator, handle);
 		}
 
-		inline void Semaphore::DestroyHelper(const DeviceHandle& device, VkSemaphore handle, const VkAllocationCallbacks* allocator)
+		inline void Semaphore::DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroySemaphore(*device, handle, allocator);
+			return device.vkDestroySemaphore(device, handle, allocator);
 		}
 	}
 }

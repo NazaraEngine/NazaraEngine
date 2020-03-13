@@ -29,9 +29,9 @@ namespace Nz
 			}
 		}
 
-		inline bool Swapchain::Create(DeviceHandle device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
+		inline bool Swapchain::Create(Device& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			if (!DeviceObject::Create(std::move(device), createInfo, allocator))
+			if (!DeviceObject::Create(device, createInfo, allocator))
 				return false;
 
 			UInt32 imageCount = 0;
@@ -77,7 +77,7 @@ namespace Nz
 					}
 				};
 
-				if (!m_buffers[i].view.Create(m_device, imageViewCreateInfo))
+				if (!m_buffers[i].view.Create(*m_device, imageViewCreateInfo))
 				{
 					NazaraError("Failed to create image view for image #" + String::Number(i));
 					return false;
@@ -110,14 +110,14 @@ namespace Nz
 			return true;
 		}
 
-		inline VkResult Swapchain::CreateHelper(const DeviceHandle& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
+		inline VkResult Swapchain::CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle)
 		{
-			return device->vkCreateSwapchainKHR(*device, createInfo, allocator, handle);
+			return device.vkCreateSwapchainKHR(device, createInfo, allocator, handle);
 		}
 
-		inline void Swapchain::DestroyHelper(const DeviceHandle& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
+		inline void Swapchain::DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroySwapchainKHR(*device, handle, allocator);
+			return device.vkDestroySwapchainKHR(device, handle, allocator);
 		}
 	}
 }

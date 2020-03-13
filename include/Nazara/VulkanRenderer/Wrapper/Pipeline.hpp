@@ -22,11 +22,11 @@ namespace Nz
 				Pipeline(Pipeline&&);
 				inline ~Pipeline();
 
-				inline bool CreateCompute(const DeviceHandle& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool CreateGraphics(const DeviceHandle& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool CreateCompute(Device& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool CreateGraphics(Device& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
-				inline const DeviceHandle& GetDevice() const;
+				inline Device& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
 
 				Pipeline& operator=(const Pipeline&) = delete;
@@ -35,9 +35,9 @@ namespace Nz
 				inline operator VkPipeline() const;
 
 			protected:
-				inline bool Create(DeviceHandle device, VkResult result, const VkAllocationCallbacks* allocator);
+				inline bool Create(Device& device, VkResult result, const VkAllocationCallbacks* allocator);
 
-				DeviceHandle m_device;
+				MovablePtr<Device> m_device;
 				VkAllocationCallbacks m_allocator;
 				VkPipeline m_handle;
 				mutable VkResult m_lastErrorCode;

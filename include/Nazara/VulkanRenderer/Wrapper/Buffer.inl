@@ -21,7 +21,7 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Buffer::Create(DeviceHandle device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
+		inline bool Buffer::Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
 		{
 			VkBufferCreateInfo createInfo = {
 				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, // VkStructureType        sType;
@@ -34,7 +34,7 @@ namespace Nz
 				nullptr                               // const uint32_t*        pQueueFamilyIndices;
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
 		inline VkMemoryRequirements Buffer::GetMemoryRequirements() const
@@ -47,14 +47,14 @@ namespace Nz
 			return memoryRequirements;
 		}
 
-		inline VkResult Buffer::CreateHelper(const DeviceHandle& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle)
+		inline VkResult Buffer::CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle)
 		{
-			return device->vkCreateBuffer(*device, createInfo, allocator, handle);
+			return device.vkCreateBuffer(device, createInfo, allocator, handle);
 		}
 
-		inline void Buffer::DestroyHelper(const DeviceHandle& device, VkBuffer handle, const VkAllocationCallbacks* allocator)
+		inline void Buffer::DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyBuffer(*device, handle, allocator);
+			return device.vkDestroyBuffer(device, handle, allocator);
 		}
 	}
 }

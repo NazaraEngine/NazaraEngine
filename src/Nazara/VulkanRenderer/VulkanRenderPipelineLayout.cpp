@@ -12,9 +12,9 @@
 
 namespace Nz
 {
-	bool VulkanRenderPipelineLayout::Create(Vk::DeviceHandle device, RenderPipelineLayoutInfo layoutInfo)
+	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)
 	{
-		m_device = std::move(device);
+		m_device = &device;
 		m_layoutInfo = std::move(layoutInfo);
 
 		StackVector<VkDescriptorSetLayoutBinding> layoutBindings = NazaraStackVector(VkDescriptorSetLayoutBinding, m_layoutInfo.bindings.size());
@@ -28,10 +28,10 @@ namespace Nz
 			layoutBinding.stageFlags = ToVulkan(bindingInfo.shaderStageFlags);
 		}
 
-		if (!m_descriptorSetLayout.Create(m_device, layoutBindings.size(), layoutBindings.data()))
+		if (!m_descriptorSetLayout.Create(*m_device, UInt32(layoutBindings.size()), layoutBindings.data()))
 			return false;
 
-		if (!m_pipelineLayout.Create(m_device, m_descriptorSetLayout))
+		if (!m_pipelineLayout.Create(*m_device, m_descriptorSetLayout))
 			return false;
 
 		return true;

@@ -9,14 +9,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline VkResult RenderPass::CreateHelper(const DeviceHandle& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle)
+		inline VkResult RenderPass::CreateHelper(Device& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle)
 		{
-			return device->vkCreateRenderPass(*device, createInfo, allocator, handle);
+			return device.vkCreateRenderPass(device, createInfo, allocator, handle);
 		}
 
-		inline void RenderPass::DestroyHelper(const DeviceHandle& device, VkRenderPass handle, const VkAllocationCallbacks* allocator)
+		inline void RenderPass::DestroyHelper(Device& device, VkRenderPass handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyRenderPass(*device, handle, allocator);
+			return device.vkDestroyRenderPass(device, handle, allocator);
 		}
 	}
 }

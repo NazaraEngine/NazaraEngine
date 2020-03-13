@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool ShaderModule::Create(DeviceHandle device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool ShaderModule::Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkShaderModuleCreateInfo createInfo =
 			{
@@ -20,17 +20,17 @@ namespace Nz
 				code
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
-		inline VkResult ShaderModule::CreateHelper(const DeviceHandle& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle)
+		inline VkResult ShaderModule::CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle)
 		{
-			return device->vkCreateShaderModule(*device, createInfo, allocator, handle);
+			return device.vkCreateShaderModule(device, createInfo, allocator, handle);
 		}
 
-		inline void ShaderModule::DestroyHelper(const DeviceHandle& device, VkShaderModule handle, const VkAllocationCallbacks* allocator)
+		inline void ShaderModule::DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyShaderModule(*device, handle, allocator);
+			return device.vkDestroyShaderModule(device, handle, allocator);
 		}
 	}
 }

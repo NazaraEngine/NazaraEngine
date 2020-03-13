@@ -28,8 +28,8 @@ namespace Nz
 				RenderPass& operator=(RenderPass&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkRenderPass handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle);
+				static inline void DestroyHelper(Device& device, VkRenderPass handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

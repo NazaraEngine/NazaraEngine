@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Fence::Create(DeviceHandle device, VkFenceCreateFlags flags, const VkAllocationCallbacks* allocator)
+		inline bool Fence::Create(Device& device, VkFenceCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
 			VkFenceCreateInfo createInfo =
 			{
@@ -18,7 +18,7 @@ namespace Nz
 				flags
 			};
 
-			return Create(std::move(device), createInfo, allocator);
+			return Create(device, createInfo, allocator);
 		}
 
 		inline bool Fence::Reset()
@@ -53,14 +53,14 @@ namespace Nz
 			return true;
 		}
 
-		inline VkResult Fence::CreateHelper(const DeviceHandle& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle)
+		inline VkResult Fence::CreateHelper(Device& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle)
 		{
-			return device->vkCreateFence(*device, createInfo, allocator, handle);
+			return device.vkCreateFence(device, createInfo, allocator, handle);
 		}
 
-		inline void Fence::DestroyHelper(const DeviceHandle& device, VkFence handle, const VkAllocationCallbacks* allocator)
+		inline void Fence::DestroyHelper(Device& device, VkFence handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyFence(*device, handle, allocator);
+			return device.vkDestroyFence(device, handle, allocator);
 		}
 	}
 }

@@ -23,7 +23,7 @@ namespace Nz
 			VulkanShaderStage(VulkanShaderStage&&) noexcept = default;
 			~VulkanShaderStage() = default;
 
-			bool Create(const Vk::DeviceHandle& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
+			bool Create(Vk::Device& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 
 			inline const Vk::ShaderModule& GetHandle() const;
 			inline ShaderStageType GetStageType() const;

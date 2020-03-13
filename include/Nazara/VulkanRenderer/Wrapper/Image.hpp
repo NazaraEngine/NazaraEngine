@@ -32,8 +32,8 @@ namespace Nz
 				Image& operator=(Image&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkImage handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle);
+				static inline void DestroyHelper(Device& device, VkImage handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

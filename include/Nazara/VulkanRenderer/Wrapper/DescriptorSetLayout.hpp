@@ -25,15 +25,15 @@ namespace Nz
 				~DescriptorSetLayout() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(DeviceHandle device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, const VkDescriptorSetLayoutBinding& binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
 				DescriptorSetLayout& operator=(DescriptorSetLayout&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkDescriptorSetLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorSetLayout* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkDescriptorSetLayout handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkDescriptorSetLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorSetLayout* handle);
+				static inline void DestroyHelper(Device& device, VkDescriptorSetLayout handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

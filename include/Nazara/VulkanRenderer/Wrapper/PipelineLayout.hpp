@@ -25,15 +25,15 @@ namespace Nz
 				~PipelineLayout() = default;
 
 				using DeviceObject::Create;
-				bool Create(DeviceHandle device, VkDescriptorSetLayout layout, VkPipelineLayoutCreateFlags flags = 0);
-				bool Create(DeviceHandle device, UInt32 layoutCount, const VkDescriptorSetLayout* layouts, VkPipelineLayoutCreateFlags flags = 0);
+				bool Create(Device& device, VkDescriptorSetLayout layout, VkPipelineLayoutCreateFlags flags = 0);
+				bool Create(Device& device, UInt32 layoutCount, const VkDescriptorSetLayout* layouts, VkPipelineLayoutCreateFlags flags = 0);
 
 				PipelineLayout& operator=(const PipelineLayout&) = delete;
 				PipelineLayout& operator=(PipelineLayout&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkPipelineLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineLayout* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkPipelineLayout handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkPipelineLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineLayout* handle);
+				static inline void DestroyHelper(Device& device, VkPipelineLayout handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

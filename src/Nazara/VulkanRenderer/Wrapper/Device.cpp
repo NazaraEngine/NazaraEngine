@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
@@ -12,6 +13,28 @@ namespace Nz
 {
 	namespace Vk
 	{
+		Device::Device(Instance& instance) :
+		m_instance(instance),
+		m_physicalDevice(nullptr),
+		m_device(VK_NULL_HANDLE)
+		{
+		}
+
+		Device::~Device()
+		{
+			if (m_device != VK_NULL_HANDLE)
+				WaitAndDestroyDevice();
+		}
+
+		void Device::Destroy()
+		{
+			if (m_device != VK_NULL_HANDLE)
+			{
+				WaitAndDestroyDevice();
+				ResetPointers();
+			}
+		}
+
 		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
 			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.device, &createInfo, allocator, &m_device);
@@ -20,6 +43,8 @@ namespace Nz
 				NazaraError("Failed to create Vulkan device");
 				return false;
 			}
+
+			CallOnExit destroyOnFailure([this] { Destroy(); });
 
 			m_physicalDevice = &deviceInfo;
 
@@ -53,7 +78,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError(String("Failed to query device function: ") + e.what());
+				NazaraError(std::string("Failed to query device function: ") + e.what());
 				return false;
 			}
 
@@ -88,6 +113,8 @@ namespace Nz
 			for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
 				m_queuesByFamily[familyInfo.familyIndex] = &familyInfo.queues;
 
+			destroyOnFailure.Reset();
+
 			return true;
 		}
 
@@ -96,8 +123,37 @@ namespace Nz
 			VkQueue queue;
 			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
 
-			return Queue(shared_from_this(), queue);
+			return Queue(*this, queue);
 		}
 
+		void Device::WaitAndDestroyDevice()
+		{
+			assert(m_device != VK_NULL_HANDLE);
+
+			if (vkDeviceWaitIdle)
+				vkDeviceWaitIdle(m_device);
+
+			m_internalData.reset();
+
+			if (vkDestroyDevice)
+				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+		}
+
+		void Device::ResetPointers()
+		{
+			m_device = VK_NULL_HANDLE;
+			m_physicalDevice = nullptr;
+
+			// Reset functions pointers
+#define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
+#define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
+#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = nullptr;
+
+#include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
+
+#undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
+#undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
+		}
 	}
 }
