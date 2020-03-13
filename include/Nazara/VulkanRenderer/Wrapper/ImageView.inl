@@ -9,14 +9,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline VkResult ImageView::CreateHelper(const DeviceHandle& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle)
+		inline VkResult ImageView::CreateHelper(Device& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle)
 		{
-			return device->vkCreateImageView(*device, createInfo, allocator, handle);
+			return device.vkCreateImageView(device, createInfo, allocator, handle);
 		}
 
-		inline void ImageView::DestroyHelper(const DeviceHandle& device, VkImageView handle, const VkAllocationCallbacks* allocator)
+		inline void ImageView::DestroyHelper(Device& device, VkImageView handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyImageView(*device, handle, allocator);
+			return device.vkDestroyImageView(device, handle, allocator);
 		}
 	}
 }

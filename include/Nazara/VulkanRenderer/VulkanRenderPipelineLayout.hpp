@@ -23,13 +23,13 @@ namespace Nz
 			VulkanRenderPipelineLayout() = default;
 			~VulkanRenderPipelineLayout() = default;
 
-			bool Create(Vk::DeviceHandle device, RenderPipelineLayoutInfo layoutInfo);
+			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
 
 			inline const Vk::DescriptorSetLayout& GetDescriptorSetLayout() const;
 			inline const Vk::PipelineLayout& GetPipelineLayout() const;
 
 		private:
-			Vk::DeviceHandle m_device;
+			MovablePtr<Vk::Device> m_device;
 			Vk::DescriptorSetLayout m_descriptorSetLayout;
 			Vk::PipelineLayout m_pipelineLayout;
 			RenderPipelineLayoutInfo m_layoutInfo;

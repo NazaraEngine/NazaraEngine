@@ -12,8 +12,8 @@
 
 namespace Nz
 {
-	VulkanRenderPipeline::VulkanRenderPipeline(Vk::DeviceHandle device, RenderPipelineInfo pipelineInfo) :
-	m_device(std::move(device)),
+	VulkanRenderPipeline::VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo) :
+	m_device(&device),
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
 		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
@@ -29,7 +29,7 @@ namespace Nz
 		pipelineCreateInfo.renderPass = renderPass;
 
 		Vk::Pipeline newPipeline;
-		if (!newPipeline.CreateGraphics(m_device, pipelineCreateInfo))
+		if (!newPipeline.CreateGraphics(*m_device, pipelineCreateInfo))
 			return VK_NULL_HANDLE;
 
 		auto it = m_pipelines.emplace(renderPass, std::move(newPipeline)).first;

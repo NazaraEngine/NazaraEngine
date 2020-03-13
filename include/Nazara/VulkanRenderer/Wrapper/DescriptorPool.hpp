@@ -30,15 +30,15 @@ namespace Nz
 				std::vector<DescriptorSet> AllocateDescriptorSets(UInt32 descriptorSetCount, const VkDescriptorSetLayout* setLayouts);
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(DeviceHandle device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, UInt32 maxSets, const VkDescriptorPoolSize& poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, UInt32 maxSets, UInt32 poolSizeCount, const VkDescriptorPoolSize* poolSize, VkDescriptorPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				DescriptorPool& operator=(const DescriptorPool&) = delete;
 				DescriptorPool& operator=(DescriptorPool&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkDescriptorPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorPool* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkDescriptorPool handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkDescriptorPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkDescriptorPool* handle);
+				static inline void DestroyHelper(Device& device, VkDescriptorPool handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

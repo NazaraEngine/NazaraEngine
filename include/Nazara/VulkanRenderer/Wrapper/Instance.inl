@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -18,7 +19,7 @@ namespace Nz
 
 		inline Instance::~Instance()
 		{
-			Destroy();
+			DestroyInstance();
 		}
 
 		inline bool Instance::Create(const String& appName, UInt32 appVersion, const String& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
@@ -52,8 +53,8 @@ namespace Nz
 		{
 			if (m_instance)
 			{
-				vkDestroyInstance(m_instance, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
-				m_instance = nullptr;
+				DestroyInstance();
+				ResetPointers();
 			}
 		}
 
@@ -133,6 +134,14 @@ namespace Nz
 			vkGetPhysicalDeviceProperties(device, &properties);
 
 			return properties;
+		}
+
+		inline void Instance::DestroyInstance()
+		{
+			assert(m_instance != VK_NULL_HANDLE);
+
+			if (vkDestroyInstance)
+				vkDestroyInstance(m_instance, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 		}
 
 		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name)

@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	bool VulkanShaderStage::Create(const Vk::DeviceHandle& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	bool VulkanShaderStage::Create(Vk::Device& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		if (lang != ShaderLanguage::SpirV)
 		{

@@ -103,5 +103,20 @@ namespace Nz
 			return true;
 		}
 
+		void Instance::ResetPointers()
+		{
+			assert(m_instance != VK_NULL_HANDLE);
+			m_instance = VK_NULL_HANDLE;
+
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext)
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_END()
+#define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) func = nullptr;
+
+#include <Nazara/VulkanRenderer/Wrapper/InstanceFunctions.hpp>
+
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_END
+#undef NAZARA_VULKANRENDERER_INSTANCE_FUNCTION
+		}
 	}
 }

@@ -29,14 +29,14 @@ namespace Nz
 			Destroy();
 		}
 
-		inline bool Pipeline::CreateCompute(const DeviceHandle& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
+		inline bool Pipeline::CreateCompute(Device& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
 		{
-			return Create(std::move(device), device->vkCreateComputePipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
+			return Create(device, device.vkCreateComputePipelines(device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
 		}
 
-		inline bool Pipeline::CreateGraphics(const DeviceHandle& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
+		inline bool Pipeline::CreateGraphics(Device& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache, const VkAllocationCallbacks* allocator)
 		{
-			return Create(std::move(device), device->vkCreateGraphicsPipelines(*device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
+			return Create(device, device.vkCreateGraphicsPipelines(device, cache, 1U, &createInfo, allocator, &m_handle), allocator);
 		}
 
 		inline void Pipeline::Destroy()
@@ -48,9 +48,9 @@ namespace Nz
 			}
 		}
 
-		inline const DeviceHandle& Pipeline::GetDevice() const
+		inline Device& Pipeline::GetDevice() const
 		{
-			return m_device;
+			return *m_device;
 		}
 
 		inline VkResult Pipeline::GetLastErrorCode() const
@@ -63,9 +63,9 @@ namespace Nz
 			return m_handle;
 		}
 
-		inline bool Pipeline::Create(DeviceHandle device, VkResult result, const VkAllocationCallbacks* allocator)
+		inline bool Pipeline::Create(Device& device, VkResult result, const VkAllocationCallbacks* allocator)
 		{
-			m_device = device;
+			m_device = &device;
 			m_lastErrorCode = result;
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{

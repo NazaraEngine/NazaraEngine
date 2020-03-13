@@ -32,14 +32,14 @@ namespace Nz
 			return memoryRequirements;
 		}
 
-		inline VkResult Image::CreateHelper(const DeviceHandle& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle)
+		inline VkResult Image::CreateHelper(Device& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle)
 		{
-			return device->vkCreateImage(*device, createInfo, allocator, handle);
+			return device.vkCreateImage(device, createInfo, allocator, handle);
 		}
 
-		inline void Image::DestroyHelper(const DeviceHandle& device, VkImage handle, const VkAllocationCallbacks* allocator)
+		inline void Image::DestroyHelper(Device& device, VkImage handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyImage(*device, handle, allocator);
+			return device.vkDestroyImage(device, handle, allocator);
 		}
 	}
 }

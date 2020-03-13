@@ -28,8 +28,8 @@ namespace Nz
 				ImageView& operator=(ImageView&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkImageView handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle);
+				static inline void DestroyHelper(Device& device, VkImageView handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

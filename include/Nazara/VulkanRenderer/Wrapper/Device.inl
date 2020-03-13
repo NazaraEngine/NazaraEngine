@@ -12,30 +12,6 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline Device::Device(Instance& instance) :
-		m_instance(instance),
-		m_physicalDevice(nullptr),
-		m_device(VK_NULL_HANDLE)
-		{
-		}
-
-		inline Device::~Device()
-		{
-			Destroy();
-		}
-
-		inline void Device::Destroy()
-		{
-			if (m_device != VK_NULL_HANDLE)
-			{
-				vkDeviceWaitIdle(m_device);
-				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
-
-				m_device = VK_NULL_HANDLE;
-				m_physicalDevice = nullptr;
-			}
-		}
-
 		inline const std::vector<Device::QueueFamilyInfo>& Device::GetEnabledQueues() const
 		{
 			return m_enabledQueuesInfos;

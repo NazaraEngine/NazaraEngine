@@ -444,13 +444,7 @@ namespace Nz
 	{
 		for (auto it = s_devices.begin(); it != s_devices.end();)
 		{
-			auto devicePtr = it->lock();
-			if (!devicePtr)
-			{
-				it = s_devices.erase(it);
-				continue;
-			}
-
+			const auto& devicePtr = *it;
 			if (devicePtr->GetPhysicalDevice() == gpu)
 				return devicePtr;
 		}
@@ -463,13 +457,7 @@ namespace Nz
 		// First, try to find a device compatible with that surface
 		for (auto it = s_devices.begin(); it != s_devices.end();)
 		{
-			auto devicePtr = it->lock();
-			if (!devicePtr)
-			{
-				it = s_devices.erase(it);
-				continue;
-			}
-
+			const auto& devicePtr = *it;
 			if (devicePtr->GetPhysicalDevice() == gpu)
 			{
 				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
@@ -511,7 +499,7 @@ namespace Nz
 		Vk::Loader::Uninitialize();
 	}
 
-	std::vector<std::weak_ptr<VulkanDevice>> Vulkan::s_devices;
+	std::vector<std::shared_ptr<VulkanDevice>> Vulkan::s_devices;
 	std::vector<Vk::PhysicalDevice> Vulkan::s_physDevices;
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;

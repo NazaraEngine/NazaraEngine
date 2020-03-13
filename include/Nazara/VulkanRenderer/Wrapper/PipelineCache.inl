@@ -9,14 +9,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline VkResult PipelineCache::CreateHelper(const DeviceHandle& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle)
+		inline VkResult PipelineCache::CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle)
 		{
-			return device->vkCreatePipelineCache(*device, createInfo, allocator, handle);
+			return device.vkCreatePipelineCache(device, createInfo, allocator, handle);
 		}
 
-		inline void PipelineCache::DestroyHelper(const DeviceHandle& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator)
+		inline void PipelineCache::DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyPipelineCache(*device, handle, allocator);
+			return device.vkDestroyPipelineCache(device, handle, allocator);
 		}
 	}
 }

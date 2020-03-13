@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
@@ -22,7 +23,7 @@ namespace Nz
 		public:
 			struct CreateInfo;
 
-			VulkanRenderPipeline(Vk::DeviceHandle device, RenderPipelineInfo pipelineInfo);
+			VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
 			VkPipeline Get(const Vk::RenderPass& renderPass);
@@ -69,7 +70,7 @@ namespace Nz
 
 		private:
 			std::unordered_map<VkRenderPass, Vk::Pipeline> m_pipelines;
-			Vk::DeviceHandle m_device;
+			MovablePtr<Vk::Device> m_device;
 			CreateInfo m_pipelineCreateInfo;
 			RenderPipelineInfo m_pipelineInfo;
 	};

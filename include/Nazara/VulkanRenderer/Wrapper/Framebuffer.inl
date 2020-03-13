@@ -9,14 +9,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline VkResult Framebuffer::CreateHelper(const DeviceHandle& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle)
+		inline VkResult Framebuffer::CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle)
 		{
-			return device->vkCreateFramebuffer(*device, createInfo, allocator, handle);
+			return device.vkCreateFramebuffer(device, createInfo, allocator, handle);
 		}
 
-		inline void Framebuffer::DestroyHelper(const DeviceHandle& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator)
+		inline void Framebuffer::DestroyHelper(Device& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator)
 		{
-			return device->vkDestroyFramebuffer(*device, handle, allocator);
+			return device.vkDestroyFramebuffer(device, handle, allocator);
 		}
 	}
 }

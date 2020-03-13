@@ -28,8 +28,8 @@ namespace Nz
 				PipelineCache& operator=(PipelineCache&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle);
+				static inline void DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

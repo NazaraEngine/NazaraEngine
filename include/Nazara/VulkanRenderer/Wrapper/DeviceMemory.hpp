@@ -25,8 +25,8 @@ namespace Nz
 				~DeviceMemory() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(DeviceHandle device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator = nullptr);
 
 				inline void* GetMappedPointer();
 
@@ -38,8 +38,8 @@ namespace Nz
 				DeviceMemory& operator=(DeviceMemory&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkMemoryAllocateInfo* allocInfo, const VkAllocationCallbacks* allocator, VkDeviceMemory* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkDeviceMemory handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkMemoryAllocateInfo* allocInfo, const VkAllocationCallbacks* allocator, VkDeviceMemory* handle);
+				static inline void DestroyHelper(Device& device, VkDeviceMemory handle, const VkAllocationCallbacks* allocator);
 
 				void* m_mappedPtr;
 		};

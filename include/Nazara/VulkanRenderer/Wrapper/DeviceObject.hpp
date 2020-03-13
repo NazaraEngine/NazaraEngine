@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VKDEVICEOBJECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vulkan/vulkan.h>
 
@@ -24,12 +25,12 @@ namespace Nz
 				DeviceObject(DeviceObject&& object);
 				~DeviceObject();
 
-				bool Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				bool Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				void Destroy();
 
 				bool IsValid() const;
 
-				const DeviceHandle& GetDevice() const;
+				Device* GetDevice() const;
 				VkResult GetLastErrorCode() const;
 
 				DeviceObject& operator=(const DeviceObject&) = delete;
@@ -38,7 +39,7 @@ namespace Nz
 				operator VkType() const;
 
 			protected:
-				DeviceHandle m_device;
+				MovablePtr<Device> m_device;
 				VkAllocationCallbacks m_allocator;
 				VkType m_handle;
 				mutable VkResult m_lastErrorCode;

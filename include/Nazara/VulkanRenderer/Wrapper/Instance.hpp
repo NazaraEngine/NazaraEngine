@@ -64,6 +64,9 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_INSTANCE_FUNCTION
 
 			private:
+				inline void DestroyInstance();
+				void ResetPointers();
+
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
 				VkAllocationCallbacks m_allocator;

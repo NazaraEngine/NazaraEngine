@@ -19,11 +19,8 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Device;
 		class Instance;
 		class Queue;
-
-		using DeviceHandle = std::shared_ptr<Device>;
 
 		class NAZARA_VULKANRENDERER_API Device : public std::enable_shared_from_this<Device>
 		{
@@ -32,10 +29,10 @@ namespace Nz
 				struct QueueInfo;
 				using QueueList = std::vector<QueueInfo>;
 
-				inline Device(Instance& instance);
+				Device(Instance& instance);
 				Device(const Device&) = delete;
 				Device(Device&&) = delete;
-				inline ~Device();
+				~Device();
 
 				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
@@ -63,7 +60,7 @@ namespace Nz
 				// Vulkan functions
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
-#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) PFN_##func func;
+#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) PFN_##func func = nullptr;
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
@@ -88,6 +85,9 @@ namespace Nz
 				};
 
 			private:
+				void WaitAndDestroyDevice();
+				void ResetPointers();
+
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
 				Instance& m_instance;

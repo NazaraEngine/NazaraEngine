@@ -27,7 +27,7 @@ namespace Nz
 				bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
 
 				VkMemoryRequirements GetMemoryRequirements() const;
 
@@ -35,8 +35,8 @@ namespace Nz
 				Buffer& operator=(Buffer&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkBuffer handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle);
+				static inline void DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

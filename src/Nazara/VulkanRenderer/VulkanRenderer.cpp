@@ -73,7 +73,7 @@ namespace Nz
 
 		for (const Vk::PhysicalDevice& physDevice : m_physDevices)
 		{
-			RenderDeviceInfo device;
+			RenderDeviceInfo& device = devices.emplace_back();
 			device.name = physDevice.properties.deviceName;
 
 			switch (physDevice.properties.deviceType)
@@ -100,8 +100,6 @@ namespace Nz
 					device.type = RenderDeviceType::Unknown;
 					break;
 			}
-
-			devices.emplace_back(std::move(device));
 		}
 
 		return devices;

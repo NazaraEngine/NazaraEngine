@@ -54,7 +54,7 @@ namespace Nz
 			static void Uninitialize();
 
 		private:
-			static std::vector<std::weak_ptr<VulkanDevice>> s_devices;
+			static std::vector<std::shared_ptr<VulkanDevice>> s_devices;
 			static std::vector<Vk::PhysicalDevice> s_physDevices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;

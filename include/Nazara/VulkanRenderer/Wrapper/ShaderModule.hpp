@@ -25,14 +25,14 @@ namespace Nz
 				~ShaderModule() = default;
 
 				using DeviceObject::Create;
-				inline bool Create(DeviceHandle device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
 				ShaderModule& operator=(const ShaderModule&) = delete;
 				ShaderModule& operator=(ShaderModule&&) = delete;
 
 			private:
-				static inline VkResult CreateHelper(const DeviceHandle& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle);
-				static inline void DestroyHelper(const DeviceHandle& device, VkShaderModule handle, const VkAllocationCallbacks* allocator);
+				static inline VkResult CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle);
+				static inline void DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator);
 		};
 	}
 }

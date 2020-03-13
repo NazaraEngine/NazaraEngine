@@ -12,20 +12,20 @@ namespace Nz
 {
 	VulkanDevice::~VulkanDevice() = default;
 
-	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(Buffer* parent, BufferType type)
+	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
 	{
-		return std::make_unique<VulkanBuffer>(shared_from_this(), parent, type);
+		return std::make_unique<VulkanBuffer>(*this, type);
 	}
 
 	std::unique_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
-		return std::make_unique<VulkanRenderPipeline>(shared_from_this(), std::move(pipelineInfo));
+		return std::make_unique<VulkanRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
 	std::shared_ptr<RenderPipelineLayout> VulkanDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)
 	{
 		auto pipelineLayout = std::make_shared<VulkanRenderPipelineLayout>();
-		if (!pipelineLayout->Create(shared_from_this(), std::move(pipelineLayoutInfo)))
+		if (!pipelineLayout->Create(*this, std::move(pipelineLayoutInfo)))
 			return {};
 
 		return pipelineLayout;
@@ -34,7 +34,7 @@ namespace Nz
 	std::shared_ptr<ShaderStageImpl> VulkanDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		auto stage = std::make_shared<VulkanShaderStage>();
-		if (!stage->Create(shared_from_this(), type, lang, source, sourceSize))
+		if (!stage->Create(*this, type, lang, source, sourceSize))
 			return {};
 
 		return stage;

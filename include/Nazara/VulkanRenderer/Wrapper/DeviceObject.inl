@@ -36,10 +36,10 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		bool DeviceObject<C, VkType, CreateInfo>::Create(DeviceHandle device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		bool DeviceObject<C, VkType, CreateInfo>::Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_device = std::move(device);
-			m_lastErrorCode = C::CreateHelper(m_device, &createInfo, allocator, &m_handle);
+			m_device = &device;
+			m_lastErrorCode = C::CreateHelper(*m_device, &createInfo, allocator, &m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to create Vulkan object: " + TranslateVulkanError(m_lastErrorCode));
@@ -60,7 +60,7 @@ namespace Nz
 		{
 			if (IsValid())
 			{
-				C::DestroyHelper(m_device, m_handle, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+				C::DestroyHelper(*m_device, m_handle, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 				m_handle = VK_NULL_HANDLE;
 			}
 		}
@@ -72,7 +72,7 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		const DeviceHandle& DeviceObject<C, VkType, CreateInfo>::GetDevice() const
+		Device* DeviceObject<C, VkType, CreateInfo>::GetDevice() const
 		{
 			return m_device;
 		}
