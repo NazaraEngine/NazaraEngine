@@ -70,7 +70,7 @@ namespace Nz
 		if (it == m_hardwareBuffers.end())
 		{
 			HardwareBuffer hwBuffer;
-			hwBuffer.buffer = device->InstantiateBuffer(m_parent, m_type);
+			hwBuffer.buffer = device->InstantiateBuffer(m_type);
 			if (!hwBuffer.buffer->Initialize(m_size, m_usage))
 			{
 				NazaraError("Failed to initialize hardware buffer");

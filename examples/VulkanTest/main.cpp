@@ -130,9 +130,6 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::UniformBuffer uniformBuffer(uniformSize, Nz::DataStorage_Hardware, Nz::BufferUsage_Dynamic);
-	uniformBuffer.Fill(&ubo, 0, uniformSize);
-
 	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
 	auto& bindingInfo = pipelineLayoutInfo.bindings.emplace_back();
 	bindingInfo.index = 0;
@@ -162,13 +159,14 @@ int main()
 
 	Nz::Vk::DescriptorSet descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorLayout);
 
-	Nz::RenderBuffer* renderBufferUB = static_cast<Nz::RenderBuffer*>(uniformBuffer.GetBuffer()->GetImpl());
-	if (!renderBufferUB->Synchronize(&vulkanDevice))
+	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
+	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal))
 	{
 		NazaraError("Failed to create uniform buffer");
 		return __LINE__;
 	}
-	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferUB->GetHardwareBuffer(&vulkanDevice));
+
+	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(uniformBuffer.get());
 	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
 
 	Nz::RenderPipelineInfo pipelineInfo;
@@ -353,18 +351,6 @@ int main()
 			}
 		}
 
-		if (updateUniforms)
-		{
-			ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
-
-			uniformBuffer.Fill(&ubo, 0, uniformSize);
-			if (!renderBufferUB->Synchronize(&vulkanDevice))
-			{
-				NazaraError("Failed to synchronize render buffer");
-				return __LINE__;
-			}
-		}
-
 		ImageSync& syncPrimitives = frameSync[currentFrame];
 		syncPrimitives.inflightFence.Wait();
 
@@ -380,6 +366,18 @@ int main()
 
 		inflightFences[imageIndex] = &syncPrimitives.inflightFence;
 		inflightFences[imageIndex]->Reset();
+
+		if (updateUniforms)
+		{
+			ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
+
+			void* mappedPtr = uniformBufferImpl->Map(Nz::BufferAccess_DiscardAndWrite, 0, sizeof(ubo));
+			if (mappedPtr)
+			{
+				std::memcpy(mappedPtr, &ubo, sizeof(ubo));
+				uniformBufferImpl->Unmap();
+			}
+		}
 
 		if (!graphicsQueue.Submit(renderCmds[imageIndex], syncPrimitives.imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, syncPrimitives.renderFinishedSemaphore, syncPrimitives.inflightFence))
 			return false;

@@ -28,6 +28,9 @@ namespace Nz
 				inline bool Create(Device& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator = nullptr);
 				inline bool Create(Device& device, VkDeviceSize size, UInt32 typeBits, VkFlags properties, const VkAllocationCallbacks* allocator = nullptr);
 
+				inline bool FlushMemory();
+				inline bool FlushMemory(UInt64 offset, UInt64 size);
+
 				inline void* GetMappedPointer();
 
 				inline bool Map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags = 0);

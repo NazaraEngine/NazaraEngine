@@ -194,6 +194,16 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdClearDepthStencilImage(m_handle, image, imageLayout, &depthStencil, rangeCount, ranges);
 		}
 
+		inline void CommandBuffer::CopyBuffer(VkBuffer source, VkBuffer target, UInt32 size, UInt32 sourceOffset, UInt32 targetOffset)
+		{
+			VkBufferCopy region;
+			region.dstOffset = targetOffset;
+			region.size = size;
+			region.srcOffset = sourceOffset;
+
+			return m_pool->GetDevice()->vkCmdCopyBuffer(m_handle, source, target, 1, &region);
+		}
+
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 		{
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);

@@ -7,14 +7,13 @@
 
 namespace Nz
 {
-	inline VulkanBuffer::VulkanBuffer(Vk::Device& device, Buffer* /*parent*/, BufferType type) :
+	inline VulkanBuffer::VulkanBuffer(Vk::Device& device, BufferType type) :
 	m_device(device),
-	m_parent(parent),
 	m_type(type)
 	{
 	}
 
-	inline Nz::Vk::Buffer& Nz::VulkanBuffer::GetBufferHandle()
+	inline Vk::Buffer& VulkanBuffer::GetBufferHandle()
 	{
 		return m_buffer;
 	}

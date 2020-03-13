@@ -6,6 +6,8 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -13,6 +15,11 @@ namespace Nz
 {
 	namespace Vk
 	{
+		struct Device::InternalData
+		{
+			Vk::CommandPool transferCommandPool;
+		};
+
 		Device::Device(Instance& instance) :
 		m_instance(instance),
 		m_physicalDevice(nullptr),
@@ -24,6 +31,11 @@ namespace Nz
 		{
 			if (m_device != VK_NULL_HANDLE)
 				WaitAndDestroyDevice();
+		}
+
+		CommandBuffer Device::AllocateTransferCommandBuffer()
+		{
+			return m_internalData->transferCommandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		}
 
 		void Device::Destroy()
@@ -83,6 +95,8 @@ namespace Nz
 			}
 
 			// And retains informations about queues
+			m_transferQueueFamilyIndex = UINT32_MAX;
+
 			UInt32 maxFamilyIndex = 0;
 			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
 			for (UInt32 i = 0; i < createInfo.queueCreateInfoCount; ++i)
@@ -107,11 +121,29 @@ namespace Nz
 					queueInfo.priority = queueCreateInfo.pQueuePriorities[queueIndex];
 					vkGetDeviceQueue(m_device, info.familyIndex, queueIndex, &queueInfo.queue);
 				}
+
+				if (info.flags & (VK_QUEUE_TRANSFER_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT))
+				{
+					if (m_transferQueueFamilyIndex == UINT32_MAX)
+						m_transferQueueFamilyIndex = info.familyIndex;
+					else if ((info.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT)) == 0)
+					{
+						m_transferQueueFamilyIndex = info.familyIndex;
+						break;
+					}
+				}
 			}
 
 			m_queuesByFamily.resize(maxFamilyIndex + 1);
 			for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
 				m_queuesByFamily[familyInfo.familyIndex] = &familyInfo.queues;
+
+			m_internalData = std::make_unique<InternalData>();
+			if (!m_internalData->transferCommandPool.Create(*this, m_transferQueueFamilyIndex, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
+			{
+				NazaraError("Failed to create transfer command pool: " + TranslateVulkanError(m_internalData->transferCommandPool.GetLastErrorCode()));
+				return false;
+			}
 
 			destroyOnFailure.Reset();
 
