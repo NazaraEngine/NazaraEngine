@@ -32,6 +32,8 @@ namespace Nz
 				inline bool Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) const;
 
 				inline bool Submit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(VkCommandBuffer commandBuffer, std::initializer_list<VkSemaphore> waitSemaphores, VkPipelineStageFlags waitStage, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, std::initializer_list<VkSemaphore> waitSemaphores, VkPipelineStageFlags waitStage, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, UInt32 waitSemaphoreCount, const VkSemaphore* waitSemaphores, VkPipelineStageFlags waitStage, UInt32 signalSemaphoreCount, const VkSemaphore* signalSemaphores, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(const VkSubmitInfo& submit, VkFence signalFence = VK_NULL_HANDLE) const;
