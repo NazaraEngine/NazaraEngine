@@ -90,8 +90,8 @@ namespace Nz
 				};
 
 			private:
-				void WaitAndDestroyDevice();
 				void ResetPointers();
+				void WaitAndDestroyDevice();
 
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 

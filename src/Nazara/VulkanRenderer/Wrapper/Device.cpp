@@ -38,15 +38,6 @@ namespace Nz
 			return m_internalData->transferCommandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		}
 
-		void Device::Destroy()
-		{
-			if (m_device != VK_NULL_HANDLE)
-			{
-				WaitAndDestroyDevice();
-				ResetPointers();
-			}
-		}
-
 		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
 			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.device, &createInfo, allocator, &m_device);
@@ -150,23 +141,20 @@ namespace Nz
 			return true;
 		}
 
+		void Device::Destroy()
 		{
+			if (m_device != VK_NULL_HANDLE)
+			{
+				WaitAndDestroyDevice();
+				ResetPointers();
+			}
 		}
 
-		void Device::WaitAndDestroyDevice()
 		QueueHandle Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
-			assert(m_device != VK_NULL_HANDLE);
-
-			if (vkDeviceWaitIdle)
-				vkDeviceWaitIdle(m_device);
 			const auto& queues = GetEnabledQueues(queueFamilyIndex);
 			NazaraAssert(queueIndex < queues.size(), "Invalid queue index");
 
-			m_internalData.reset();
-
-			if (vkDestroyDevice)
-				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 			return QueueHandle(*this, queues[queueIndex].queue);
 		}
 
