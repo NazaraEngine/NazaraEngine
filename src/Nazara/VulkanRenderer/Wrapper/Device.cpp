@@ -8,7 +8,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -150,25 +150,24 @@ namespace Nz
 			return true;
 		}
 
-		Queue Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
-			VkQueue queue;
-			vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &queue);
-
-			return Queue(*this, queue);
 		}
 
 		void Device::WaitAndDestroyDevice()
+		QueueHandle Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
 			assert(m_device != VK_NULL_HANDLE);
 
 			if (vkDeviceWaitIdle)
 				vkDeviceWaitIdle(m_device);
+			const auto& queues = GetEnabledQueues(queueFamilyIndex);
+			NazaraAssert(queueIndex < queues.size(), "Invalid queue index");
 
 			m_internalData.reset();
 
 			if (vkDestroyDevice)
 				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
+			return QueueHandle(*this, queues[queueIndex].queue);
 		}
 
 		void Device::ResetPointers()
@@ -186,6 +185,19 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
 #undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
+		}
+
+		void Device::WaitAndDestroyDevice()
+		{
+			assert(m_device != VK_NULL_HANDLE);
+
+			if (vkDeviceWaitIdle)
+				vkDeviceWaitIdle(m_device);
+
+			m_internalData.reset();
+
+			if (vkDestroyDevice)
+				vkDestroyDevice(m_device, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 		}
 	}
 }

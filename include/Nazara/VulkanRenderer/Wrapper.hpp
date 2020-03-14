@@ -24,7 +24,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineCache.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Semaphore.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>

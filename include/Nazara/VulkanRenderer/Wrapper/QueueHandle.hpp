@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VKQUEUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vulkan/vulkan.h>
 
@@ -15,14 +16,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Queue
+		class QueueHandle
 		{
 			public:
-				inline Queue();
-				inline Queue(Device& device, VkQueue queue);
-				inline Queue(const Queue& queue);
-				inline Queue(Queue&& queue);
-				inline ~Queue() = default;
+				inline QueueHandle();
+				inline QueueHandle(Device& device, VkQueue queue);
+				QueueHandle(const QueueHandle& queue) = delete;
+				QueueHandle(QueueHandle&& queue) noexcept = default;
+				~QueueHandle() = default;
 
 				inline Device& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
@@ -32,24 +33,25 @@ namespace Nz
 
 				inline bool Submit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence = VK_NULL_HANDLE) const;
+				inline bool Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, UInt32 waitSemaphoreCount, const VkSemaphore* waitSemaphores, VkPipelineStageFlags waitStage, UInt32 signalSemaphoreCount, const VkSemaphore* signalSemaphores, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(const VkSubmitInfo& submit, VkFence signalFence = VK_NULL_HANDLE) const;
 				inline bool Submit(UInt32 submitCount, const VkSubmitInfo* submits, VkFence signalFence = VK_NULL_HANDLE) const;
 
 				inline bool WaitIdle() const;
 
-				Queue& operator=(const Queue& queue) = delete;
-				inline Queue& operator=(Queue&&);
+				QueueHandle& operator=(const QueueHandle& queue) = delete;
+				QueueHandle& operator=(QueueHandle&&) noexcept = default;
 
 				inline operator VkQueue();
 
 			protected:
-				Device* m_device;
+				MovablePtr<Device> m_device;
 				VkQueue m_handle;
 				mutable VkResult m_lastErrorCode;
 		};
 	}
 }
 
-#include <Nazara/VulkanRenderer/Wrapper/Queue.inl>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.inl>
 
 #endif // NAZARA_VULKANRENDERER_VKQUEUE_HPP

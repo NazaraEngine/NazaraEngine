@@ -6,7 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/String.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -131,7 +131,7 @@ namespace Nz
 			copyCommandBuffer.CopyBuffer(m_stagingBuffer, m_buffer, m_size);
 			copyCommandBuffer.End();
 
-			Vk::Queue transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
+			Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
 			if (!transferQueue.Submit(copyCommandBuffer, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, m_stagingFence))
 				return false;
 

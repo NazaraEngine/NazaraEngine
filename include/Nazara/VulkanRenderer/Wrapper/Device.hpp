@@ -21,7 +21,7 @@ namespace Nz
 	{
 		class CommandBuffer;
 		class Instance;
-		class Queue;
+		class QueueHandle;
 
 		class NAZARA_VULKANRENDERER_API Device : public std::enable_shared_from_this<Device>
 		{
@@ -43,7 +43,7 @@ namespace Nz
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
 				inline const QueueList& GetEnabledQueues(UInt32 familyQueue) const;
 
-				Queue GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
+				QueueHandle GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
