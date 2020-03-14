@@ -196,7 +196,7 @@ int main()
 	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
-	Nz::Vk::Queue graphicsQueue(vulkanDevice, vulkanDevice.GetEnabledQueues()[0].queues[0].queue);
+	Nz::Vk::QueueHandle graphicsQueue = vulkanDevice.GetQueue(0, 0);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
