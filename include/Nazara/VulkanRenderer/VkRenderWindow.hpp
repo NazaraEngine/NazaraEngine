@@ -22,7 +22,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Framebuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Queue.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Swapchain.hpp>
 #include <vector>
@@ -70,7 +70,7 @@ namespace Nz
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;
-			Vk::Queue m_presentQueue;
+			Vk::QueueHandle m_presentQueue;
 			Vk::Swapchain m_swapchain;
 			UInt32 m_presentableFamilyQueue;
 	};
