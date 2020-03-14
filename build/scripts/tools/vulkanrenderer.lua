@@ -7,7 +7,8 @@ TOOL.TargetDirectory = "../lib"
 
 TOOL.Defines = {
 	"NAZARA_BUILD",
-	"NAZARA_VULKANRENDERER_BUILD"
+	"NAZARA_VULKANRENDERER_BUILD",
+	"VK_NO_PROTOTYPES"
 }
 
 TOOL.Includes = {
