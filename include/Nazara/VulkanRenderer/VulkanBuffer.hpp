@@ -46,7 +46,6 @@ namespace Nz
 			BufferUsageFlags m_usage;
 			UInt32 m_size;
 			Vk::Buffer m_buffer;
-			Vk::Fence m_stagingFence;
 			Vk::Device& m_device;
 			Vk::DeviceMemory m_memory;
 	};
