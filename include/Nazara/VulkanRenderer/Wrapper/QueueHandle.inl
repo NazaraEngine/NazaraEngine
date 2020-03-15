@@ -64,21 +64,29 @@ namespace Nz
 			return Present(presentInfo);
 		}
 
+		inline bool QueueHandle::Submit(VkCommandBuffer commandBuffer, VkFence signalFence) const
+		{
+			return Submit(1U, &commandBuffer, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, signalFence);
+		}
+
 		inline bool QueueHandle::Submit(VkCommandBuffer commandBuffer, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence) const
 		{
 			return Submit(1U, &commandBuffer, waitSemaphore, waitStage, signalSemaphore, signalFence);
 		}
 
-		inline bool QueueHandle::Submit(VkCommandBuffer commandBuffer, std::initializer_list<VkSemaphore> waitSemaphores, VkPipelineStageFlags waitStage, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence) const
+		inline bool QueueHandle::Submit(VkCommandBuffer commandBuffer, std::initializer_list<VkSemaphore> waitSemaphores, std::initializer_list<VkPipelineStageFlags> waitStage, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence) const
 		{
 			return Submit(1U, &commandBuffer, waitSemaphores, waitStage, signalSemaphores, signalFence);
 		}
 
-		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, std::initializer_list<VkSemaphore> waitSemaphores, VkPipelineStageFlags waitStage, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence) const
+		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, std::initializer_list<VkSemaphore> waitSemaphores, std::initializer_list<VkPipelineStageFlags> waitStages, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence) const
 		{
+			NazaraAssert(waitSemaphores.size() == waitStages.size(), "Wait stage count must match wait semaphores count");
+
 			// Make continuous array of semaphores (initializer_list doesn't have that guarantee)
 			StackArray<VkSemaphore> signalSemaphoresCont = NazaraStackArrayNoInit(VkSemaphore, signalSemaphores.size());
 			StackArray<VkSemaphore> waitSemaphoresCont = NazaraStackArrayNoInit(VkSemaphore, waitSemaphores.size());
+			StackArray<VkPipelineStageFlags> waitStageCont = NazaraStackArrayNoInit(VkPipelineStageFlags, waitStages.size());
 			std::size_t i;
 
 			i = 0;
@@ -89,22 +97,26 @@ namespace Nz
 			for (VkSemaphore semaphore : waitSemaphores)
 				waitSemaphoresCont[i++] = semaphore;
 
-			return Submit(commandBufferCount, commandBuffers, UInt32(waitSemaphoresCont.size()), waitSemaphoresCont.data(), waitStage, UInt32(signalSemaphoresCont.size()), signalSemaphoresCont.data(), signalFence);
+			i = 0;
+			for (VkPipelineStageFlags flags : waitStages)
+				waitStageCont[i++] = flags;
+
+			return Submit(commandBufferCount, commandBuffers, UInt32(waitSemaphoresCont.size()), waitSemaphoresCont.data(), waitStageCont.data(), UInt32(signalSemaphoresCont.size()), signalSemaphoresCont.data(), signalFence);
 		}
 
 		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence) const
 		{
-			return Submit(commandBufferCount, commandBuffers, (waitSemaphore) ? 1U : 0U, &waitSemaphore, waitStage, (signalSemaphore) ? 1U : 0U, &signalSemaphore, signalFence);
+			return Submit(commandBufferCount, commandBuffers, (waitSemaphore) ? 1U : 0U, &waitSemaphore, &waitStage, (signalSemaphore) ? 1U : 0U, &signalSemaphore, signalFence);
 		}
 
-		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, UInt32 waitSemaphoreCount, const VkSemaphore* waitSemaphores, VkPipelineStageFlags waitStage, UInt32 signalSemaphoreCount, const VkSemaphore* signalSemaphores, VkFence signalFence) const
+		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, UInt32 waitSemaphoreCount, const VkSemaphore* waitSemaphores, const VkPipelineStageFlags* waitStages, UInt32 signalSemaphoreCount, const VkSemaphore* signalSemaphores, VkFence signalFence) const
 		{
 			VkSubmitInfo submitInfo = {
 				VK_STRUCTURE_TYPE_SUBMIT_INFO,
 				nullptr,
 				waitSemaphoreCount,
 				waitSemaphores,
-				&waitStage,
+				waitStages,
 				commandBufferCount,
 				commandBuffers,
 				signalSemaphoreCount,
