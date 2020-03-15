@@ -80,12 +80,6 @@ namespace Nz
 		}
 		else
 		{
-			if (!m_stagingFence.Create(m_device))
-			{
-				NazaraError("Failed to create staging fence");
-				return nullptr;
-			}
-
 			if (!m_stagingBuffer.Create(m_device, 0, m_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
 			{
 				NazaraError("Failed to create staging buffer");
@@ -127,18 +121,20 @@ namespace Nz
 			m_stagingMemory.Unmap();
 
 			Vk::CommandBuffer copyCommandBuffer = m_device.AllocateTransferCommandBuffer();
-			copyCommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-			copyCommandBuffer.CopyBuffer(m_stagingBuffer, m_buffer, m_size);
-			copyCommandBuffer.End();
-
-			Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
-			if (!transferQueue.Submit(copyCommandBuffer, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, m_stagingFence))
+			if (!copyCommandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 				return false;
 
-			m_stagingFence.Wait();
+			copyCommandBuffer.CopyBuffer(m_stagingBuffer, m_buffer, m_size);
+			if (!copyCommandBuffer.End())
+				return false;
+
+			Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
+			if (!transferQueue.Submit(copyCommandBuffer))
+				return false;
+
+			transferQueue.WaitIdle();
 
 			m_stagingBuffer.Destroy();
-			m_stagingFence.Destroy();
 			m_stagingMemory.Destroy();
 			return true;
 		}
