@@ -188,8 +188,7 @@ namespace Ndk
 				}
 			}
 
-			for (const auto& widgetPtr : m_children)
-				widgetPtr->Show(show);
+			ShowChildren(show);
 		}
 	}
 
@@ -311,6 +310,12 @@ namespace Ndk
 
 	void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
 	{
+	}
+
+	void BaseWidget::ShowChildren(bool show)
+	{
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->Show(show);
 	}
 
 	void BaseWidget::DestroyChild(BaseWidget* widget)

@@ -172,6 +172,11 @@ namespace Ndk
 		return m_children.size();
 	}
 
+	inline void BaseWidget::Hide()
+	{
+		return Show(false);
+	}
+
 	inline bool BaseWidget::IsVisible() const
 	{
 		return m_visible;
