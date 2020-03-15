@@ -75,6 +75,7 @@ namespace Ndk
 
 			bool HasFocus() const;
 
+			inline void Hide();
 			inline bool IsVisible() const;
 
 			void Resize(const Nz::Vector2f& size);
@@ -127,6 +128,8 @@ namespace Ndk
 			virtual void OnTextEntered(char32_t character, bool repeated);
 
 			inline void SetPreferredSize(const Nz::Vector2f& preferredSize);
+
+			virtual void ShowChildren(bool show);
 
 		private:
 			inline BaseWidget();
