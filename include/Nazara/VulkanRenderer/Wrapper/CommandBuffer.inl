@@ -26,7 +26,6 @@ namespace Nz
 
 		inline CommandBuffer::CommandBuffer(CommandBuffer&& commandBuffer) :
 		m_pool(commandBuffer.m_pool),
-		m_allocator(commandBuffer.m_allocator),
 		m_handle(commandBuffer.m_handle),
 		m_lastErrorCode(commandBuffer.m_lastErrorCode)
 		{
@@ -258,8 +257,14 @@ namespace Nz
 		inline void CommandBuffer::SetScissor(const Recti& scissorRegion)
 		{
 			VkRect2D rect = {
-				{scissorRegion.x, scissorRegion.y},                         // VkOffset2D    offset
-				{UInt32(scissorRegion.width), UInt32(scissorRegion.height)} // VkExtent2D    extent
+				{
+					scissorRegion.x,
+					scissorRegion.y
+				},
+				{
+					UInt32(scissorRegion.width),
+					UInt32(scissorRegion.height)
+				}
 			};
 
 			SetScissor(rect);
@@ -288,11 +293,11 @@ namespace Nz
 		inline void CommandBuffer::SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout)
 		{
 			VkImageSubresourceRange imageRange = {
-				VK_IMAGE_ASPECT_COLOR_BIT, // VkImageAspectFlags                     aspectMask
-				0,                         // uint32_t                               baseMipLevel
-				1,                         // uint32_t                               levelCount
-				0,                         // uint32_t                               baseArrayLayer
-				1                          // uint32_t                               layerCount
+				VK_IMAGE_ASPECT_COLOR_BIT,
+				0, //< baseMipLevel
+				1, //< levelCount
+				0, //< baseArrayLayer
+				1  //< layerCount
 			};
 
 			return SetImageLayout(image, srcStageMask, dstStageMask, oldImageLayout, newImageLayout, imageRange);
@@ -384,12 +389,12 @@ namespace Nz
 		inline void CommandBuffer::SetViewport(const Rectf& viewport, float minDepth, float maxDepth)
 		{
 			VkViewport rect = {
-				viewport.x,      // float    x;
-				viewport.y,      // float    y;
-				viewport.width,  // float    width;
-				viewport.height, // float    height;
-				minDepth,        // float    minDepth;
-				maxDepth         // float    maxDepth;
+				viewport.x,
+				viewport.y,
+				viewport.width,
+				viewport.height,
+				minDepth,
+				maxDepth
 			};
 
 			SetViewport(rect);
@@ -410,15 +415,12 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline CommandBuffer& CommandBuffer::operator=(CommandBuffer&& commandBuffer)
+		inline CommandBuffer& CommandBuffer::operator=(CommandBuffer&& commandBuffer) noexcept
 		{
-			m_allocator = commandBuffer.m_allocator;
-			m_handle = commandBuffer.m_handle;
 			m_lastErrorCode = commandBuffer.m_lastErrorCode;
 			m_pool = commandBuffer.m_pool;
-			m_handle = commandBuffer.m_handle;
-			
-			commandBuffer.m_handle = VK_NULL_HANDLE;
+
+			std::swap(m_handle, commandBuffer.m_handle);
 
 			return *this;
 		}

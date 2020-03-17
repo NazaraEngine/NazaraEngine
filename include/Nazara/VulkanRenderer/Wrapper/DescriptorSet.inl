@@ -24,11 +24,9 @@ namespace Nz
 		{
 		}
 
-		inline DescriptorSet::DescriptorSet(DescriptorSet&& descriptorSet) :
+		inline DescriptorSet::DescriptorSet(DescriptorSet&& descriptorSet) noexcept :
 		m_pool(descriptorSet.m_pool),
-		m_allocator(descriptorSet.m_allocator),
-		m_handle(descriptorSet.m_handle),
-		m_lastErrorCode(descriptorSet.m_lastErrorCode)
+		m_handle(descriptorSet.m_handle)
 		{
 			descriptorSet.m_handle = VK_NULL_HANDLE;
 		}
@@ -47,9 +45,9 @@ namespace Nz
 			}
 		}
 
-		inline VkResult DescriptorSet::GetLastErrorCode() const
+		inline bool DescriptorSet::IsValid() const
 		{
-			return m_lastErrorCode;
+			return m_handle != VK_NULL_HANDLE;
 		}
 
 		inline void DescriptorSet::WriteUniformDescriptor(UInt32 binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
@@ -64,11 +62,10 @@ namespace Nz
 
 		inline void DescriptorSet::WriteUniformDescriptor(UInt32 binding, UInt32 arrayElement, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
 		{
-			VkDescriptorBufferInfo bufferInfo =
-			{
-				buffer, // VkBuffer        buffer;
-				offset, // VkDeviceSize    offset;
-				range   // VkDeviceSize    range;
+			VkDescriptorBufferInfo bufferInfo = {
+				buffer,
+				offset,
+				range
 			};
 
 			return WriteUniformDescriptor(binding, arrayElement, bufferInfo);
@@ -86,34 +83,34 @@ namespace Nz
 
 		inline void DescriptorSet::WriteUniformDescriptors(UInt32 binding, UInt32 arrayElement, UInt32 descriptorCount, const VkDescriptorBufferInfo* bufferInfo)
 		{
-			VkWriteDescriptorSet writeDescriptorSet =
-			{
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, // VkStructureType                  sType;
-				nullptr,                                // const void*                      pNext;
-				m_handle,                               // VkDescriptorSet                  dstSet;
-				binding,                                // uint32_t                         dstBinding;
-				arrayElement,                           // uint32_t                         dstArrayElement;
-				descriptorCount,                        // uint32_t                         descriptorCount;
-				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,      // VkDescriptorType                 descriptorType;
-				nullptr,                                // const VkDescriptorImageInfo*     pImageInfo;
-				bufferInfo,                             // const VkDescriptorBufferInfo*    pBufferInfo;
-				nullptr                                 // const VkBufferView*              pTexelBufferView;
+			VkWriteDescriptorSet writeDescriptorSet = {
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				m_handle,
+				binding,
+				arrayElement,
+				descriptorCount,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				nullptr,
+				bufferInfo,
+				nullptr
 			};
 
 			return m_pool->GetDevice()->vkUpdateDescriptorSets(*m_pool->GetDevice(), 1U, &writeDescriptorSet, 0U, nullptr);
 		}
 
-		inline DescriptorSet& DescriptorSet::operator=(DescriptorSet&& descriptorSet)
+		inline DescriptorSet& DescriptorSet::operator=(DescriptorSet&& descriptorSet) noexcept
 		{
-			m_allocator = descriptorSet.m_allocator;
-			m_handle = descriptorSet.m_handle;
-			m_lastErrorCode = descriptorSet.m_lastErrorCode;
 			m_pool = descriptorSet.m_pool;
-			m_handle = descriptorSet.m_handle;
-			
-			descriptorSet.m_handle = VK_NULL_HANDLE;
+
+			std::swap(m_handle, descriptorSet.m_handle);
 
 			return *this;
+		}
+
+		inline DescriptorSet::operator bool() const
+		{
+			return IsValid();
 		}
 
 		inline DescriptorSet::operator VkDescriptorSet() const

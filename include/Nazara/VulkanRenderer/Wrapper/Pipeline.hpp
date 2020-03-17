@@ -19,7 +19,7 @@ namespace Nz
 			public:
 				inline Pipeline();
 				Pipeline(const Pipeline&) = delete;
-				Pipeline(Pipeline&&);
+				Pipeline(Pipeline&&) noexcept;
 				inline ~Pipeline();
 
 				inline bool CreateCompute(Device& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);

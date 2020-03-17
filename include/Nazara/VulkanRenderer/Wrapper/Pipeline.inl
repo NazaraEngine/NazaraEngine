@@ -15,7 +15,7 @@ namespace Nz
 		{
 		}
 
-		inline Pipeline::Pipeline(Pipeline&& object) :
+		inline Pipeline::Pipeline(Pipeline&& object) noexcept :
 		m_device(std::move(object.m_device)),
 		m_allocator(object.m_allocator),
 		m_handle(object.m_handle),
