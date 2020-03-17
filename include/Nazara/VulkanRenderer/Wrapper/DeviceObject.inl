@@ -20,7 +20,7 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo>
-		DeviceObject<C, VkType, CreateInfo>::DeviceObject(DeviceObject&& object) :
+		DeviceObject<C, VkType, CreateInfo>::DeviceObject(DeviceObject&& object) noexcept :
 		m_device(std::move(object.m_device)),
 		m_allocator(object.m_allocator),
 		m_handle(object.m_handle),

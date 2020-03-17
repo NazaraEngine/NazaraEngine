@@ -23,12 +23,12 @@ namespace Nz
 			public:
 				inline DescriptorSet();
 				DescriptorSet(const DescriptorSet&) = delete;
-				inline DescriptorSet(DescriptorSet&& descriptorSet);
+				inline DescriptorSet(DescriptorSet&& descriptorSet) noexcept;
 				inline ~DescriptorSet();
 
 				inline void Free();
 
-				inline VkResult GetLastErrorCode() const;
+				inline bool IsValid() const;
 
 				inline void WriteUniformDescriptor(UInt32 binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);
 				inline void WriteUniformDescriptor(UInt32 binding, const VkDescriptorBufferInfo& bufferInfo);
@@ -38,18 +38,16 @@ namespace Nz
 				inline void WriteUniformDescriptors(UInt32 binding, UInt32 arrayElement, UInt32 descriptorCount, const VkDescriptorBufferInfo* bufferInfo);
 
 				DescriptorSet& operator=(const DescriptorSet&) = delete;
-				DescriptorSet& operator=(DescriptorSet&& descriptorSet);
+				inline DescriptorSet& operator=(DescriptorSet&& descriptorSet) noexcept;
 
+				inline explicit operator bool() const;
 				inline operator VkDescriptorSet() const;
 
 			private:
 				inline DescriptorSet(DescriptorPool& pool, VkDescriptorSet handle);
 
 				DescriptorPool* m_pool;
-				VkAllocationCallbacks m_allocator;
 				VkDescriptorSet m_handle;
-				VkResult m_lastErrorCode;
-
 		};
 	}
 }

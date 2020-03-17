@@ -81,7 +81,7 @@ namespace Nz
 				inline VkResult GetLastErrorCode() const;
 
 				CommandBuffer& operator=(const CommandBuffer&) = delete;
-				CommandBuffer& operator=(CommandBuffer&& commandBuffer);
+				CommandBuffer& operator=(CommandBuffer&& commandBuffer) noexcept;
 
 				inline operator VkCommandBuffer() const;
 

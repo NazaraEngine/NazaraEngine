@@ -23,7 +23,7 @@ namespace Nz
 			public:
 				DescriptorPool() = default;
 				DescriptorPool(const DescriptorPool&) = delete;
-				DescriptorPool(DescriptorPool&&) = default;
+				DescriptorPool(DescriptorPool&&) noexcept = default;
 				~DescriptorPool() = default;
 
 				DescriptorSet AllocateDescriptorSet(const VkDescriptorSetLayout& setLayouts);
