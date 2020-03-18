@@ -29,7 +29,7 @@ namespace Nz
 	{
 		for (const Vk::PhysicalDevice& info : s_physDevices)
 		{
-			if (info.device == physDevice)
+			if (info.physDevice == physDevice)
 				return info;
 		}
 
@@ -190,13 +190,13 @@ namespace Nz
 		for (VkPhysicalDevice physDevice : physDevices)
 		{
 			Vk::PhysicalDevice deviceInfo;
-			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queues))
+			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queueFamilies))
 			{
 				NazaraWarning("Failed to query physical device queue family properties for " + String(deviceInfo.properties.deviceName) + " (0x" + String::Number(deviceInfo.properties.deviceID, 16) + ')');
 				continue;
 			}
 
-			deviceInfo.device = physDevice;
+			deviceInfo.physDevice = physDevice;
 
 			deviceInfo.features         = s_instance.GetPhysicalDeviceFeatures(physDevice);
 			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
@@ -224,29 +224,26 @@ namespace Nz
 		return s_instance.IsValid();
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies;
-		s_instance.GetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilies);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
 		UInt32 transfertQueueNodeFamily = UINT32_MAX;
 
-		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		for (UInt32 i = 0; i < deviceInfo.queueFamilies.size(); i++)
 		{
-			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if (deviceInfo.queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				graphicsQueueNodeIndex = i;
 				break;
 			}
 		}
 
-		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		for (UInt32 i = 0; i < deviceInfo.queueFamilies.size(); i++)
 		{
-			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) //< Compute and graphics queue implicitly support transfer operations
+			if (deviceInfo.queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) //< Compute and graphics queue implicitly support transfer operations
 			{
 				transfertQueueNodeFamily = i;
 				if (transfertQueueNodeFamily != graphicsQueueNodeIndex)
@@ -261,27 +258,24 @@ namespace Nz
 			}
 		};
 
-		return CreateDevice(gpu, queuesFamilies.data(), queuesFamilies.size());
+		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies;
-		s_instance.GetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilies);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
 		UInt32 presentQueueNodeIndex = UINT32_MAX;
 		UInt32 transferQueueNodeFamily = UINT32_MAX;
-		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		for (UInt32 i = 0; i < deviceInfo.queueFamilies.size(); i++)
 		{
 			bool supportPresentation = false;
-			if (!surface.GetSupportPresentation(gpu, i, &supportPresentation))
+			if (!surface.GetSupportPresentation(deviceInfo.physDevice, i, &supportPresentation))
 				NazaraWarning("Failed to get presentation support of queue family #" + String::Number(i));
 
-			if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if (deviceInfo.queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				if (supportPresentation)
 				{
@@ -312,10 +306,10 @@ namespace Nz
 		}
 
 		// Search for a transfer queue (first one being different to the graphics one)
-		for (UInt32 i = 0; i < queueFamilies.size(); i++)
+		for (UInt32 i = 0; i < deviceInfo.queueFamilies.size(); i++)
 		{
 			// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
-			if (queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+			if (deviceInfo.queueFamilies[i].queueFlags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
 			{
 				transferQueueNodeFamily = i;
 				if (transferQueueNodeFamily != graphicsQueueNodeIndex)
@@ -334,10 +328,10 @@ namespace Nz
 
 		*presentableFamilyQueue = presentQueueNodeIndex;
 
-		return CreateDevice(gpu, queuesFamilies.data(), queuesFamilies.size());
+		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(VkPhysicalDevice gpu, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
 	{
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		queueCreateInfos.reserve(queueFamilyCount);
@@ -396,7 +390,11 @@ namespace Nz
 		}
 
 		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
+		{
+			// Swapchain extension is required for rendering
 			enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+		}
 
 		std::vector<String> additionalExtensions; // Just to keep the String alive
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
@@ -429,7 +427,7 @@ namespace Nz
 		};
 
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance);
-		if (!device->Create(GetPhysicalDeviceInfo(gpu), createInfo))
+		if (!device->Create(deviceInfo, createInfo))
 		{
 			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));
 			return {};
@@ -440,32 +438,32 @@ namespace Nz
 		return device;
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(VkPhysicalDevice gpu)
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo)
 	{
 		for (auto it = s_devices.begin(); it != s_devices.end();)
 		{
 			const auto& devicePtr = *it;
-			if (devicePtr->GetPhysicalDevice() == gpu)
+			if (devicePtr->GetPhysicalDevice() == deviceInfo.physDevice)
 				return devicePtr;
 		}
 
-		return CreateDevice(gpu);
+		return CreateDevice(deviceInfo);
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(VkPhysicalDevice gpu, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
 	{
 		// First, try to find a device compatible with that surface
 		for (auto it = s_devices.begin(); it != s_devices.end();)
 		{
 			const auto& devicePtr = *it;
-			if (devicePtr->GetPhysicalDevice() == gpu)
+			if (devicePtr->GetPhysicalDevice() == deviceInfo.physDevice)
 			{
 				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
 				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
 				for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
 				{
 					bool supported = false;
-					if (surface.GetSupportPresentation(gpu, queueInfo.familyIndex, &supported) && supported)
+					if (surface.GetSupportPresentation(deviceInfo.physDevice, queueInfo.familyIndex, &supported) && supported)
 					{
 						if (presentableQueueFamilyIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
 						{
@@ -487,7 +485,7 @@ namespace Nz
 		}
 
 		// No device had support for that surface, create one
-		return CreateDevice(gpu, surface, presentableFamilyQueue);
+		return CreateDevice(deviceInfo, surface, presentableFamilyQueue);
 	}
 
 	void Vulkan::Uninitialize()

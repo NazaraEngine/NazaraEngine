@@ -58,13 +58,12 @@ namespace Nz
 		private:
 			bool SetupDepthBuffer(const Vector2ui& size);
 			bool SetupRenderPass();
-			bool SetupSwapchain(Vk::Surface& surface, const Vector2ui& size);
+			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
 
 			Clock m_clock;
 			VkColorSpaceKHR m_colorSpace;
 			VkFormat m_colorFormat;
 			VkFormat m_depthStencilFormat;
-			VkPhysicalDevice m_physicalDevice;
 			std::shared_ptr<VulkanDevice> m_device;
 			std::vector<Vk::Framebuffer> m_frameBuffers;
 			Vk::DeviceMemory m_depthBufferMemory;

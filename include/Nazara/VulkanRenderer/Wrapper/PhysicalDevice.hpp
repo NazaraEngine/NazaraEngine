@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
 
 #include <vulkan/vulkan.h>
+#include <unordered_set>
 #include <vector>
 
 namespace Nz 
@@ -16,11 +17,11 @@ namespace Nz
 	{
 		struct PhysicalDevice
 		{
-			VkPhysicalDevice device;
+			VkPhysicalDevice physDevice;
 			VkPhysicalDeviceFeatures features;
 			VkPhysicalDeviceMemoryProperties memoryProperties;
 			VkPhysicalDeviceProperties properties;
-			std::vector<VkQueueFamilyProperties> queues;
+			std::vector<VkQueueFamilyProperties> queueFamilies;
 		};
 	}
 }

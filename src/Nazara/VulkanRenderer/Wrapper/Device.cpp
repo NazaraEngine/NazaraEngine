@@ -40,7 +40,7 @@ namespace Nz
 
 		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
-			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.device, &createInfo, allocator, &m_device);
+			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.physDevice, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
 				NazaraError("Failed to create Vulkan device");
@@ -99,7 +99,7 @@ namespace Nz
 				if (info.familyIndex > maxFamilyIndex)
 					maxFamilyIndex = info.familyIndex;
 
-				const VkQueueFamilyProperties& queueProperties = deviceInfo.queues[info.familyIndex];
+				const VkQueueFamilyProperties& queueProperties = deviceInfo.queueFamilies[info.familyIndex];
 				info.flags = queueProperties.queueFlags;
 				info.minImageTransferGranularity = queueProperties.minImageTransferGranularity;
 				info.timestampValidBits = queueProperties.timestampValidBits;
