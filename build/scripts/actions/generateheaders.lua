@@ -43,7 +43,10 @@ ACTION.Function = function ()
 	end
 	
 	table.insert(paths, {
-		Excludes = {},
+		Excludes = {
+			["DeviceFunctions.hpp"] = true,
+			["InstanceFunctions.hpp"] = true,
+		},
 		HeaderGuard = "NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP",
 		Name = "Vulkan wrapper",
 		SearchDir = "../include/Nazara/VulkanRenderer/Wrapper", 

@@ -30,6 +30,13 @@ namespace Nz
 
 				inline bool IsValid() const;
 
+				inline void WriteCombinedImageSamplerDescriptor(UInt32 binding, VkSampler sampler, VkImageView imageView, VkImageLayout imageLayout);
+				inline void WriteCombinedImageSamplerDescriptor(UInt32 binding, const VkDescriptorImageInfo& imageInfo);
+				inline void WriteCombinedImageSamplerDescriptor(UInt32 binding, UInt32 arrayElement, VkSampler sampler, VkImageView imageView, VkImageLayout imageLayout);
+				inline void WriteCombinedImageSamplerDescriptor(UInt32 binding, UInt32 arrayElement, const VkDescriptorImageInfo& imageInfo);
+				inline void WriteCombinedImageSamplerDescriptors(UInt32 binding, UInt32 descriptorCount, const VkDescriptorImageInfo* imageInfo);
+				inline void WriteCombinedImageSamplerDescriptors(UInt32 binding, UInt32 arrayElement, UInt32 descriptorCount, const VkDescriptorImageInfo* imageInfo);
+
 				inline void WriteUniformDescriptor(UInt32 binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);
 				inline void WriteUniformDescriptor(UInt32 binding, const VkDescriptorBufferInfo& bufferInfo);
 				inline void WriteUniformDescriptor(UInt32 binding, UInt32 arrayElement, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range);

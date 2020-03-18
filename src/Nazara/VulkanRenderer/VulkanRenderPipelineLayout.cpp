@@ -12,6 +12,35 @@
 
 namespace Nz
 {
+	Vk::DescriptorSet VulkanRenderPipelineLayout::AllocateDescriptorSet()
+	{
+		// TODO: Watch descriptor set count for each pool
+		for (auto& pool : m_descriptorPools)
+		{
+			Vk::DescriptorSet descriptorSet = pool.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
+			if (descriptorSet)
+				return descriptorSet;
+		}
+
+		// Allocate a new descriptor pool
+		StackVector<VkDescriptorPoolSize> poolSizes = NazaraStackVector(VkDescriptorPoolSize, m_layoutInfo.bindings.size());
+
+		constexpr UInt32 MaxSet = 100;
+
+		for (const auto& bindingInfo : m_layoutInfo.bindings)
+		{
+			VkDescriptorPoolSize& poolSize = poolSizes.emplace_back();
+			poolSize.descriptorCount = MaxSet;
+			poolSize.type = ToVulkan(bindingInfo.type);
+		}
+
+		DescriptorPool pool;
+		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+			return {};
+
+		return m_descriptorPools.emplace_back(std::move(pool)).descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
+	}
+
 	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)
 	{
 		m_device = &device;
