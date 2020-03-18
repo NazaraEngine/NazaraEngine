@@ -41,7 +41,7 @@ namespace Nz
 
 		inline VkPhysicalDevice Device::GetPhysicalDevice() const
 		{
-			return m_physicalDevice->device;
+			return m_physicalDevice->physDevice;
 		}
 
 		inline const Vk::PhysicalDevice& Device::GetPhysicalDeviceInfo() const

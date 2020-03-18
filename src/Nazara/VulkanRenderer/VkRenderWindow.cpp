@@ -16,7 +16,6 @@
 namespace Nz
 {
 	VkRenderWindow::VkRenderWindow() :
-	m_physicalDevice(nullptr),
 	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
 	{
 	}
@@ -46,11 +45,11 @@ namespace Nz
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
 	{
-		m_physicalDevice = Vulkan::GetPhysicalDevices()[0].device;
+		const auto& deviceInfo = Vulkan::GetPhysicalDevices()[0];
 
 		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
 
-		m_device = Vulkan::SelectDevice(m_physicalDevice, vulkanSurface, &m_presentableFamilyQueue);
+		m_device = Vulkan::SelectDevice(deviceInfo, vulkanSurface, &m_presentableFamilyQueue);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
@@ -60,7 +59,7 @@ namespace Nz
 		m_presentQueue = m_device->GetQueue(m_presentableFamilyQueue, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!vulkanSurface.GetFormats(m_physicalDevice, &surfaceFormats))
+		if (!vulkanSurface.GetFormats(deviceInfo.physDevice, &surfaceFormats))
 		{
 			NazaraError("Failed to query supported surface formats");
 			return false;
@@ -115,7 +114,7 @@ namespace Nz
 
 				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 				{
-					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(m_physicalDevice, m_depthStencilFormat);
+					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(deviceInfo.physDevice, m_depthStencilFormat);
 					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 						break; //< Found it
 
@@ -124,7 +123,7 @@ namespace Nz
 			}
 		}
 
-		if (!SetupSwapchain(vulkanSurface, size))
+		if (!SetupSwapchain(deviceInfo, vulkanSurface, size))
 		{
 			NazaraError("Failed to create swapchain");
 			return false;
@@ -332,10 +331,10 @@ namespace Nz
 		return m_renderPass.Create(*m_device, createInfo);
 	}
 
-	bool VkRenderWindow::SetupSwapchain(Vk::Surface& surface, const Vector2ui& size)
+	bool VkRenderWindow::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size)
 	{
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
-		if (!surface.GetCapabilities(m_physicalDevice, &surfaceCapabilities))
+		if (!surface.GetCapabilities(deviceInfo.physDevice, &surfaceCapabilities))
 		{
 			NazaraError("Failed to query surface capabilities");
 			return false;
@@ -355,7 +354,7 @@ namespace Nz
 			extent = surfaceCapabilities.currentExtent;
 
 		std::vector<VkPresentModeKHR> presentModes;
-		if (!surface.GetPresentModes(m_physicalDevice, &presentModes))
+		if (!surface.GetPresentModes(deviceInfo.physDevice, &presentModes))
 		{
 			NazaraError("Failed to query supported present modes");
 			return false;
@@ -391,7 +390,7 @@ namespace Nz
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			swapchainPresentMode,
 			VK_TRUE,
-			0
+			VK_NULL_HANDLE
 		};
 
 		if (!m_swapchain.Create(*m_device, swapchainInfo))

@@ -32,7 +32,7 @@ namespace Nz
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
 	{
 		assert(deviceIndex < m_physDevices.size());
-		return Vulkan::SelectDevice(m_physDevices[deviceIndex].device);
+		return Vulkan::SelectDevice(m_physDevices[deviceIndex]);
 	}
 
 	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
