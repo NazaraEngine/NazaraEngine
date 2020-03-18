@@ -21,6 +21,7 @@ namespace Nz
 			VkPhysicalDeviceFeatures features;
 			VkPhysicalDeviceMemoryProperties memoryProperties;
 			VkPhysicalDeviceProperties properties;
+			std::unordered_set<std::string> extensions;
 			std::vector<VkQueueFamilyProperties> queueFamilies;
 		};
 	}
