@@ -203,6 +203,29 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdCopyBuffer(m_handle, source, target, 1, &region);
 		}
 
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height)
+		{
+			VkBufferImageCopy region = {
+				0,
+				0,
+				0,
+				{ // imageSubresource
+					VK_IMAGE_ASPECT_COLOR_BIT, //< aspectMask
+					0,
+					0,
+					1
+				},
+				{ // imageOffset
+					0, 0, 0
+				},
+				{ // imageExtent
+					width, height, 1U
+				}
+			};
+
+			return m_pool->GetDevice()->vkCmdCopyBufferToImage(m_handle, source, target, targetLayout, 1, &region);
+		}
+
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 		{
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);

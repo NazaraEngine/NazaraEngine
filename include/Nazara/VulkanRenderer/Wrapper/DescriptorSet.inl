@@ -50,6 +50,55 @@ namespace Nz
 			return m_handle != VK_NULL_HANDLE;
 		}
 
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptor(UInt32 binding, VkSampler sampler, VkImageView imageView, VkImageLayout imageLayout)
+		{
+			return WriteCombinedImageSamplerDescriptor(binding, 0, sampler, imageView, imageLayout);
+		}
+
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptor(UInt32 binding, const VkDescriptorImageInfo& imageInfo)
+		{
+			return WriteCombinedImageSamplerDescriptor(binding, 0, imageInfo);
+		}
+
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptor(UInt32 binding, UInt32 arrayElement, VkSampler sampler, VkImageView imageView, VkImageLayout imageLayout)
+		{
+			VkDescriptorImageInfo imageInfo = {
+				sampler,
+				imageView,
+				imageLayout
+			};
+
+			return WriteCombinedImageSamplerDescriptors(binding, arrayElement, 1U, &imageInfo);
+		}
+
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptor(UInt32 binding, UInt32 arrayElement, const VkDescriptorImageInfo& imageInfo)
+		{
+			return WriteCombinedImageSamplerDescriptors(binding, arrayElement, 1U, &imageInfo);
+		}
+
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptors(UInt32 binding, UInt32 descriptorCount, const VkDescriptorImageInfo* imageInfo)
+		{
+			return WriteCombinedImageSamplerDescriptors(binding, 0U, descriptorCount, imageInfo);
+		}
+
+		inline void DescriptorSet::WriteCombinedImageSamplerDescriptors(UInt32 binding, UInt32 arrayElement, UInt32 descriptorCount, const VkDescriptorImageInfo* imageInfo)
+		{
+			VkWriteDescriptorSet writeDescriptorSet = {
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				m_handle,
+				binding,
+				arrayElement,
+				descriptorCount,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				imageInfo,
+				nullptr,
+				nullptr
+			};
+
+			return m_pool->GetDevice()->vkUpdateDescriptorSets(*m_pool->GetDevice(), 1U, &writeDescriptorSet, 0U, nullptr);
+		}
+
 		inline void DescriptorSet::WriteUniformDescriptor(UInt32 binding, VkBuffer buffer, VkDeviceSize offset, VkDeviceSize range)
 		{
 			return WriteUniformDescriptor(binding, 0U, buffer, offset, range);

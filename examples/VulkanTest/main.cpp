@@ -70,8 +70,8 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal);
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
 
 	Nz::String windowTitle = "Vulkan Test";
 	if (!window.Create(Nz::VideoMode(800, 600, 32), windowTitle))
@@ -96,7 +96,7 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/drfreak.md2", meshParams);
+	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
 
 	if (!drfreak)
 	{
@@ -115,6 +115,153 @@ int main()
 	// Vertex buffer
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
+	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
+	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
+
+	Nz::Vk::CommandPool cmdPool;
+	if (!cmdPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+	{
+		NazaraError("Failed to create rendering cmd pool");
+		return __LINE__;
+	}
+
+	Nz::Vk::QueueHandle graphicsQueue = vulkanDevice.GetQueue(0, 0);
+
+	// Texture
+	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
+	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormatType_RGBA8))
+	{
+		NazaraError("Failed to load image");
+		return __LINE__;
+	}
+
+	VkImageCreateInfo imageInfo = {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = static_cast<uint32_t>(drfreakImage->GetWidth());
+	imageInfo.extent.height = static_cast<uint32_t>(drfreakImage->GetHeight());
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	Nz::Vk::Image vkImage;
+	if (!vkImage.Create(vulkanDevice, imageInfo))
+	{
+		NazaraError("Failed to create vulkan image");
+		return __LINE__;
+	}
+
+	VkMemoryRequirements imageMemRequirement = vkImage.GetMemoryRequirements();
+
+	Nz::Vk::DeviceMemory imageMemory;
+	if (!imageMemory.Create(vulkanDevice, imageMemRequirement.size, imageMemRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+	{
+		NazaraError("Failed to create vulkan image memory");
+		return __LINE__;
+	}
+
+	vkImage.BindImageMemory(imageMemory);
+
+	// Update texture
+	{
+		Nz::Vk::Buffer stagingImageBuffer;
+		if (!stagingImageBuffer.Create(vulkanDevice, 0, drfreakImage->GetMemoryUsage(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
+		{
+			NazaraError("Failed to create staging buffer");
+			return __LINE__;
+		}
+
+		VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+
+		Nz::Vk::DeviceMemory stagingImageMemory;
+
+		VkMemoryRequirements memRequirement = stagingImageBuffer.GetMemoryRequirements();
+		if (!stagingImageMemory.Create(vulkanDevice, memRequirement.size, memRequirement.memoryTypeBits, memoryProperties))
+		{
+			NazaraError("Failed to allocate vertex buffer memory");
+			return __LINE__;
+		}
+
+		if (!stagingImageBuffer.BindBufferMemory(stagingImageMemory))
+		{
+			NazaraError("Failed to bind vertex buffer to its memory");
+			return __LINE__;
+		}
+
+		if (!stagingImageMemory.Map(0, memRequirement.size))
+			return __LINE__;
+
+		std::memcpy(stagingImageMemory.GetMappedPointer(), drfreakImage->GetPixels(), drfreakImage->GetMemoryUsage());
+
+		stagingImageMemory.FlushMemory();
+		stagingImageMemory.Unmap();
+
+		Nz::Vk::CommandBuffer copyCommand = cmdPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		copyCommand.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+		copyCommand.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		copyCommand.CopyBufferToImage(stagingImageBuffer, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, drfreakImage->GetWidth(), drfreakImage->GetHeight());
+		copyCommand.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		if (!copyCommand.End())
+			return __LINE__;
+
+		if (!graphicsQueue.Submit(copyCommand))
+			return __LINE__;
+
+		graphicsQueue.WaitIdle();
+	}
+
+	// Create image view
+
+	VkImageViewCreateInfo imageViewInfo = {};
+	imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	imageViewInfo.components = {
+		VK_COMPONENT_SWIZZLE_R,
+		VK_COMPONENT_SWIZZLE_G,
+		VK_COMPONENT_SWIZZLE_B,
+		VK_COMPONENT_SWIZZLE_A
+	};
+	imageViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	imageViewInfo.image = vkImage;
+	imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	imageViewInfo.subresourceRange = {
+		VK_IMAGE_ASPECT_COLOR_BIT,
+		0,
+		1,
+		0,
+		1
+	};
+
+	Nz::Vk::ImageView imageView;
+	if (!imageView.Create(vulkanDevice, imageViewInfo))
+		return __LINE__;
+
+	// Sampler
+
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.anisotropyEnable = VK_FALSE;
+	samplerInfo.maxAnisotropy = 16;
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+	Nz::Vk::Sampler imageSampler;
+	if (!imageSampler.Create(vulkanDevice, samplerInfo))
+		return __LINE__;
+
 	struct
 	{
 		Nz::Matrix4f projectionMatrix;
@@ -131,33 +278,21 @@ int main()
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
-	auto& bindingInfo = pipelineLayoutInfo.bindings.emplace_back();
-	bindingInfo.index = 0;
-	bindingInfo.shaderStageFlags = Nz::ShaderStageType::Vertex;
-	bindingInfo.type = Nz::ShaderBindingType::UniformBuffer;
+	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
+	uboBinding.index = 0;
+	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
+	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
+
+	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
+	textureBinding.index = 1;
+	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
+	textureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 	Nz::VulkanRenderPipelineLayout* vkPipelineLayout = static_cast<Nz::VulkanRenderPipelineLayout*>(renderPipelineLayout.get());
 
-	VkDescriptorSetLayout descriptorLayout = vkPipelineLayout->GetDescriptorSetLayout();
-	VkPipelineLayout pipelineLayout = vkPipelineLayout->GetPipelineLayout();
-
-	VkDescriptorPoolSize poolSize;
-	poolSize.descriptorCount = 1;
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
-	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
-
-	Nz::Vk::DescriptorPool descriptorPool;
-	if (!descriptorPool.Create(vulkanDevice, 1, poolSize, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-	{
-		NazaraError("Failed to create descriptor pool");
-		return __LINE__;
-	}
-
-	Nz::Vk::DescriptorSet descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorLayout);
+	Nz::Vk::DescriptorSet descriptorSet = vkPipelineLayout->AllocateDescriptorSet();
 
 	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal))
@@ -168,6 +303,7 @@ int main()
 
 	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(uniformBuffer.get());
 	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
+	descriptorSet.WriteCombinedImageSamplerDescriptor(1, imageSampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	Nz::RenderPipelineInfo pipelineInfo;
 	pipelineInfo.pipelineLayout = renderPipelineLayout;
@@ -185,18 +321,9 @@ int main()
 	Nz::VulkanRenderPipeline::CreateInfo pipelineCreateInfo = Nz::VulkanRenderPipeline::BuildCreateInfo(pipelineInfo);
 	pipelineCreateInfo.pipelineInfo.renderPass = vulkanWindow.GetRenderPass();
 
-	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
-	{
-		NazaraError("Failed to create rendering cmd pool");
-		return __LINE__;
-	}
-
 	std::array<VkClearValue, 2> clearValues;
-	clearValues[0].color = {1.0f, 0.8f, 0.4f, 0.0f};
+	clearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
-
-	Nz::Vk::QueueHandle graphicsQueue = vulkanDevice.GetQueue(0, 0);
 
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -251,7 +378,7 @@ int main()
 		renderCmd.BeginRenderPass(render_pass_begin_info);
 		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
 		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
-		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet);
+		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout->GetPipelineLayout(), 0, descriptorSet);
 		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass()));
 		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
