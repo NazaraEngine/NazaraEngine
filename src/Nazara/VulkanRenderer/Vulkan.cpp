@@ -202,6 +202,15 @@ namespace Nz
 			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
 			deviceInfo.properties       = s_instance.GetPhysicalDeviceProperties(physDevice);
 
+			std::vector<VkExtensionProperties> extensions;
+			if (s_instance.GetPhysicalDeviceExtensions(physDevice, &extensions))
+			{
+				for (auto& extProperty : extensions)
+					deviceInfo.extensions.emplace(extProperty.extensionName);
+			}
+			else
+				NazaraWarning("Failed to query physical device extensions for " + String(deviceInfo.properties.deviceName) + " (0x" + String::Number(deviceInfo.properties.deviceID, 16) + ')');
+
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
 

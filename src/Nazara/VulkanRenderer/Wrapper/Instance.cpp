@@ -83,9 +83,37 @@ namespace Nz
 			return true;
 		}
 
+		bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties)
+		{
+			NazaraAssert(extensionProperties, "Invalid extension properties vector");
+
+			// First, query physical device count
+			UInt32 extensionPropertyCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
+			m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, nullptr);
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query extension properties count: " + TranslateVulkanError(m_lastErrorCode));
+				return false;
+			}
+
+			if (extensionPropertyCount == 0)
+				return true; //< No extension available
+
+			// Now we can get the list of the available physical device
+			extensionProperties->resize(extensionPropertyCount);
+			m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, extensionProperties->data());
+			if (m_lastErrorCode != VkResult::VK_SUCCESS)
+			{
+				NazaraError("Failed to query extension properties count: " + TranslateVulkanError(m_lastErrorCode));
+				return false;
+			}
+
+			return true;
+		}
+
 		bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties)
 		{
-			NazaraAssert(queueFamilyProperties, "Invalid device vector");
+			NazaraAssert(queueFamilyProperties, "Invalid family properties vector");
 
 			// First, query physical device count
 			UInt32 queueFamiliesCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
