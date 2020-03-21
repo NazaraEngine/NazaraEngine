@@ -79,9 +79,9 @@ namespace Nz
 				OnTextEntered(this, event.text);
 				break;
 
-            case WindowEventType_TextEdited:
-                OnTextEdited(this, event.edit);
-                break;
+			case WindowEventType_TextEdited:
+				OnTextEdited(this, event.edit);
+				break;
 		}
 	}
 }

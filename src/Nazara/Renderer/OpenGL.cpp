@@ -744,10 +744,9 @@ namespace Nz
 
 
 		#if defined(NAZARA_PLATFORM_SDL2)
-        if (SDL_VideoInit(NULL) != 0)
-        {
-            NazaraError(SDL_GetError());
-        }
+		if (SDL_VideoInit(NULL) != 0)
+			NazaraError(SDL_GetError());
+
 		#elif defined(NAZARA_PLATFORM_GLX)
 		Initializer<X11> display;
 		if (!display)

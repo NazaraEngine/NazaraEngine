@@ -82,15 +82,15 @@ namespace Nz
 		{
 			bool repeated;
 			char32_t character;
-        };
+		};
 
-        // Used by:
-        // -WindowEventType_TextEdited
-        struct EditEvent
-        {
-            int length;
-            std::array<char, 32> text;
-        };
+		// Used by:
+		// -WindowEventType_TextEdited
+		struct EditEvent
+		{
+			int length;
+			std::array<char, 32> text;
+		};
 
 		WindowEventType type;
 
@@ -126,9 +126,9 @@ namespace Nz
 			// -WindowEventType_TextEntered
 			TextEvent text;
 
-            // Used by:
-            // -WindowEventType_TextEntered
-            EditEvent edit;
+			// Used by:
+			// -WindowEventType_TextEntered
+			EditEvent edit;
 		};
 	};
 }

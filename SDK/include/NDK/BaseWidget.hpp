@@ -117,8 +117,8 @@ namespace Ndk
 			virtual void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button);
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
-            virtual void OnTextEntered(char32_t character, bool repeated);
-            virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
+			virtual void OnTextEntered(char32_t character, bool repeated);
+			virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
 
 			inline void SetPreferredSize(const Nz::Vector2f& preferredSize);
 

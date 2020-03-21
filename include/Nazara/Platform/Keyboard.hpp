@@ -323,8 +323,8 @@ namespace Nz
 			static String GetKeyName(VKey key);
 			static bool IsKeyPressed(Scancode scancode);
 			static bool IsKeyPressed(VKey key);
-            static void StartTextInput();
-            static void StopTextInput();
+			static void StartTextInput();
+			static void StopTextInput();
 			static Scancode ToScanCode(VKey key);
 			static VKey ToVirtualKey(Scancode key);
 	};
