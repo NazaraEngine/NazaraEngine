@@ -100,15 +100,15 @@ namespace Nz
 			NazaraError("Invalid window handle");
 	}
 
-    void EventImpl::StartTextInput()
-    {
-        SDL_StartTextInput();
-    }
+	void EventImpl::StartTextInput()
+	{
+		SDL_StartTextInput();
+	}
 
-    void EventImpl::StopTextInput()
-    {
-        SDL_StopTextInput();
-    }
+	void EventImpl::StopTextInput()
+	{
+		SDL_StopTextInput();
+	}
 
 	Keyboard::Scancode EventImpl::ToScanCode(Keyboard::VKey key)
 	{

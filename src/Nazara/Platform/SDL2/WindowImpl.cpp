@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
-
 #include <cstdio>
 #include <memory>
 #include <Nazara/Core/ConditionVariable.hpp>
@@ -278,10 +276,10 @@ namespace Nz
 						case SDL_WINDOWEVENT_RESIZED:
 							evt.type = Nz::WindowEventType::WindowEventType_Resized;
 
-                            evt.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
-                            evt.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
+							evt.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
+							evt.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
 
-                            window->m_size.Set(evt.size.width, evt.size.height);
+							window->m_size.Set(evt.size.width, evt.size.height);
 
 							break;
 						case SDL_WINDOWEVENT_MOVED:
@@ -387,38 +385,36 @@ namespace Nz
 					evt.key.shift = (event->key.keysym.mod & KMOD_SHIFT) != 0;
 					evt.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
 
-                    // implements X11/Win32 APIs behavior for Enter and Backspace
-                    switch (evt.key.virtualKey) {
-                        case Nz::Keyboard::VKey::NumpadReturn:
-                        case Nz::Keyboard::VKey::Return:
-                            if (window->m_lastEditEventLength != 0)
-                            {
-                                break;
-                            }
-                            window->m_parent->PushEvent(evt);
+					// implements X11/Win32 APIs behavior for Enter and Backspace
+					switch (evt.key.virtualKey) {
+						case Nz::Keyboard::VKey::NumpadReturn:
+						case Nz::Keyboard::VKey::Return:
+							if (window->m_lastEditEventLength != 0)
+								break;
+							window->m_parent->PushEvent(evt);
 
-                            evt.type = WindowEventType_TextEntered;
+							evt.type = WindowEventType_TextEntered;
 
-                            evt.text.character = U'\n';
-                            evt.text.repeated = event->key.repeat != 0;
+							evt.text.character = U'\n';
+							evt.text.repeated = event->key.repeat != 0;
 
-                            window->m_parent->PushEvent(evt);
+							window->m_parent->PushEvent(evt);
 
-                            break;
-                        case Nz::Keyboard::VKey::Backspace:
-                            window->m_parent->PushEvent(evt);
+							break;
+						case Nz::Keyboard::VKey::Backspace:
+							window->m_parent->PushEvent(evt);
 
-                            evt.type = WindowEventType_TextEntered;
+							evt.type = WindowEventType_TextEntered;
 
-                            evt.text.character = U'\b';
-                            evt.text.repeated = event->key.repeat != 0;
+							evt.text.character = U'\b';
+							evt.text.repeated = event->key.repeat != 0;
 
-                            window->m_parent->PushEvent(evt);
+							window->m_parent->PushEvent(evt);
 
-                            break;
-                        default:
-                            break;
-                    }
+							break;
+						default:
+							break;
+					}
 
 					break;
 
@@ -443,42 +439,42 @@ namespace Nz
 						return 0;
 
 					evt.type = WindowEventType_TextEntered;
-                    evt.text.repeated = false;
+					evt.text.repeated = false;
 
-                    for (decltype(evt.text.character)codepoint : String::Unicode(event->text.text).Simplify().GetUtf32String())
+					for (decltype(evt.text.character) codepoint : String::Unicode(event->text.text).Simplify().GetUtf32String())
 					{
-                        evt.text.character = codepoint;
+						evt.text.character = codepoint;
 
 						window->m_parent->PushEvent(evt);
 					}
 
 					// prevent post switch event
-                    evt.type = WindowEventType::WindowEventType_Max;
+					evt.type = WindowEventType::WindowEventType_Max;
 
-                    break;
+					break;
 
-                case SDL_TEXTEDITING:
-                    if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
-                        return 0;
+				case SDL_TEXTEDITING:
+					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
+						return 0;
 
-                    evt.type = WindowEventType_TextEdited;
-                    evt.edit.length = event->edit.length;
-                    window->m_lastEditEventLength = evt.edit.length;
+					evt.type = WindowEventType_TextEdited;
+					evt.edit.length = event->edit.length;
+					window->m_lastEditEventLength = evt.edit.length;
 
-                    for (std::size_t i = 0; i < 32; i++)
-                    {
-                        evt.edit.text[i] = event->edit.text[i];
-                    }
+					for (std::size_t i = 0; i < 32; i++)
+					{
+						evt.edit.text[i] = event->edit.text[i];
+					}
 
-                    break;
+					break;
 			}
 
 			if (evt.type != WindowEventType::WindowEventType_Max)
 				window->m_parent->PushEvent(evt);
 		}
 		catch (std::exception e)
-        {
-            NazaraError(e.what());
+		{
+			NazaraError(e.what());
 		}
 		catch (...)     // Don't let any exceptions go thru C calls
 		{
@@ -560,11 +556,11 @@ namespace Nz
 	}
 
 	bool WindowImpl::Initialize()
-    {
+	{
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		{
 			NazaraError(SDL_GetError());
-            return false;
+			return false;
 		}
 		if (SDL_GL_LoadLibrary(nullptr) < 0)
 		{
@@ -572,7 +568,7 @@ namespace Nz
 
 			SDL_Quit();
 			return false;
-        }
+		}
 
 		if (SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true) < 0)
 			NazaraError("Couldn't set share OpenGL contexes");

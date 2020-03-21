@@ -87,7 +87,7 @@ namespace Nz
 
 			//static void WindowThread(SDL_Window* handle, /*DWORD styleEx,*/ const String& title, /*DWORD style,*/ bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
 
-            int m_lastEditEventLength = 0;
+			int m_lastEditEventLength = 0;
 			SDL_Cursor* m_cursor;
 			SDL_Window* m_handle;
 			WindowStyleFlags m_style;

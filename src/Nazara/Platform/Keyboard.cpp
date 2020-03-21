@@ -38,15 +38,15 @@ namespace Nz
 		return EventImpl::IsKeyPressed(key);
 	}
 
-    void Keyboard::StartTextInput()
-    {
-        EventImpl::StartTextInput();
-    }
+	void Keyboard::StartTextInput()
+	{
+		EventImpl::StartTextInput();
+	}
 
-    void Keyboard::StopTextInput()
-    {
-        EventImpl::StopTextInput();
-    }
+	void Keyboard::StopTextInput()
+	{
+		EventImpl::StopTextInput();
+	}
 
 	Keyboard::Scancode Keyboard::ToScanCode(VKey key)
 	{

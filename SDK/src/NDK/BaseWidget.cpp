@@ -39,16 +39,16 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Frees the widget, unregistering it from its canvas
-	*/
+	 * \brief Frees the widget, unregistering it from its canvas
+	 */
 	BaseWidget::~BaseWidget()
 	{
 		UnregisterFromCanvas();
 	}
 
 	/*!
-	* \brief Clears keyboard focus if and only if this widget owns it.
-	*/
+	 * \brief Clears keyboard focus if and only if this widget owns it.
+	 */
 	void BaseWidget::ClearFocus()
 	{
 		if (IsRegisteredToCanvas())
@@ -56,10 +56,10 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Destroy the widget, deleting it in the process.
-	*
-	* Calling this function immediately destroys the widget, freeing its memory.
-	*/
+	 * \brief Destroy the widget, deleting it in the process.
+	 *
+	 * Calling this function immediately destroys the widget, freeing its memory.
+	 */
 	void BaseWidget::Destroy()
 	{
 		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
@@ -68,8 +68,8 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Enable or disables the widget background.
-	*/
+	 * \brief Enable or disables the widget background.
+	 */
 	void BaseWidget::EnableBackground(bool enable)
 	{
 		if (m_backgroundEntity.IsValid() == enable)
@@ -95,9 +95,9 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Checks if this widget has keyboard focus
-	* \return true if widget has keyboard focus, false otherwise
-	*/
+	 * \brief Checks if this widget has keyboard focus
+	 * \return true if widget has keyboard focus, false otherwise
+	 */
 	bool BaseWidget::HasFocus() const
 	{
 		if (!IsRegisteredToCanvas())
@@ -242,15 +242,15 @@ namespace Ndk
 
 	void BaseWidget::OnParentResized(const Nz::Vector2f& /*newSize*/)
 	{
-    }
+	}
 
-    void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
+	void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
 	{
 	}
 
-    void BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
-    {
-    }
+	void BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
+	{
+	}
 
 	void BaseWidget::DestroyChild(BaseWidget* widget)
 	{
