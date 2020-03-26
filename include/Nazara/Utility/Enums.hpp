@@ -286,26 +286,25 @@ namespace Nz
 
 	enum SamplerFilter
 	{
-		SamplerFilter_Unknown = -1,
-
-		SamplerFilter_Bilinear,
+		SamplerFilter_Linear,
 		SamplerFilter_Nearest,
-		SamplerFilter_Trilinear,
 
-		SamplerFilter_Default,
+		SamplerFilter_Max = SamplerFilter_Nearest
+	};
 
-		SamplerFilter_Max = SamplerFilter_Default
+	enum SamplerMipmapMode
+	{
+		SamplerMipmapMode_Linear,
+		SamplerMipmapMode_Nearest,
+
+		SamplerMipmapMode_Max = SamplerMipmapMode_Nearest
 	};
 
 	enum SamplerWrap
 	{
-		SamplerWrap_Unknown = -1,
-
 		SamplerWrap_Clamp,
 		SamplerWrap_MirroredRepeat,
 		SamplerWrap_Repeat,
-
-		SamplerWrap_Default,
 
 		SamplerWrap_Max = SamplerWrap_Repeat
 	};

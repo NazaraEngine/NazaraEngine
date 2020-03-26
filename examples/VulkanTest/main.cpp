@@ -135,132 +135,21 @@ int main()
 		return __LINE__;
 	}
 
-	VkImageCreateInfo imageInfo = {};
-	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	imageInfo.imageType = VK_IMAGE_TYPE_2D;
-	imageInfo.extent.width = static_cast<uint32_t>(drfreakImage->GetWidth());
-	imageInfo.extent.height = static_cast<uint32_t>(drfreakImage->GetHeight());
-	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = 1;
-	imageInfo.arrayLayers = 1;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-	imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	Nz::TextureInfo texParams;
+	texParams.pixelFormat = drfreakImage->GetFormat();
+	texParams.type = drfreakImage->GetType();
+	texParams.width = drfreakImage->GetWidth();
+	texParams.height = drfreakImage->GetHeight();
+	texParams.depth = drfreakImage->GetDepth();
 
-	Nz::Vk::Image vkImage;
-	if (!vkImage.Create(vulkanDevice, imageInfo))
+	std::unique_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
+	if (!texture->Update(drfreakImage->GetConstPixels()))
 	{
-		NazaraError("Failed to create vulkan image");
+		NazaraError("Failed to update texture");
 		return __LINE__;
 	}
 
-	VkMemoryRequirements imageMemRequirement = vkImage.GetMemoryRequirements();
-
-	Nz::Vk::DeviceMemory imageMemory;
-	if (!imageMemory.Create(vulkanDevice, imageMemRequirement.size, imageMemRequirement.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
-	{
-		NazaraError("Failed to create vulkan image memory");
-		return __LINE__;
-	}
-
-	vkImage.BindImageMemory(imageMemory);
-
-	// Update texture
-	{
-		Nz::Vk::Buffer stagingImageBuffer;
-		if (!stagingImageBuffer.Create(vulkanDevice, 0, drfreakImage->GetMemoryUsage(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
-		{
-			NazaraError("Failed to create staging buffer");
-			return __LINE__;
-		}
-
-		VkMemoryPropertyFlags memoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-
-		Nz::Vk::DeviceMemory stagingImageMemory;
-
-		VkMemoryRequirements memRequirement = stagingImageBuffer.GetMemoryRequirements();
-		if (!stagingImageMemory.Create(vulkanDevice, memRequirement.size, memRequirement.memoryTypeBits, memoryProperties))
-		{
-			NazaraError("Failed to allocate vertex buffer memory");
-			return __LINE__;
-		}
-
-		if (!stagingImageBuffer.BindBufferMemory(stagingImageMemory))
-		{
-			NazaraError("Failed to bind vertex buffer to its memory");
-			return __LINE__;
-		}
-
-		if (!stagingImageMemory.Map(0, memRequirement.size))
-			return __LINE__;
-
-		std::memcpy(stagingImageMemory.GetMappedPointer(), drfreakImage->GetPixels(), drfreakImage->GetMemoryUsage());
-
-		stagingImageMemory.FlushMemory();
-		stagingImageMemory.Unmap();
-
-		Nz::Vk::CommandBuffer copyCommand = cmdPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-		copyCommand.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-		copyCommand.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyCommand.CopyBufferToImage(stagingImageBuffer, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, drfreakImage->GetWidth(), drfreakImage->GetHeight());
-		copyCommand.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		if (!copyCommand.End())
-			return __LINE__;
-
-		if (!graphicsQueue.Submit(copyCommand))
-			return __LINE__;
-
-		graphicsQueue.WaitIdle();
-	}
-
-	// Create image view
-
-	VkImageViewCreateInfo imageViewInfo = {};
-	imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	imageViewInfo.components = {
-		VK_COMPONENT_SWIZZLE_R,
-		VK_COMPONENT_SWIZZLE_G,
-		VK_COMPONENT_SWIZZLE_B,
-		VK_COMPONENT_SWIZZLE_A
-	};
-	imageViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-	imageViewInfo.image = vkImage;
-	imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	imageViewInfo.subresourceRange = {
-		VK_IMAGE_ASPECT_COLOR_BIT,
-		0,
-		1,
-		0,
-		1
-	};
-
-	Nz::Vk::ImageView imageView;
-	if (!imageView.Create(vulkanDevice, imageViewInfo))
-		return __LINE__;
-
-	// Sampler
-
-	VkSamplerCreateInfo samplerInfo = {};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.maxAnisotropy = 16;
-	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-	samplerInfo.compareEnable = VK_FALSE;
-	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-	Nz::Vk::Sampler imageSampler;
-	if (!imageSampler.Create(vulkanDevice, samplerInfo))
-		return __LINE__;
+	std::unique_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	struct
 	{

@@ -6,6 +6,8 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanTexture.hpp>
+#include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -38,5 +40,15 @@ namespace Nz
 			return {};
 
 		return stage;
+	}
+
+	std::unique_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params)
+	{
+		return std::make_unique<VulkanTexture>(*this, params);
+	}
+
+	std::unique_ptr<TextureSampler> VulkanDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
+	{
+		return std::make_unique<VulkanTextureSampler>(*this, params);
 	}
 }
