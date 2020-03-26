@@ -45,6 +45,7 @@ ACTION.Function = function ()
 	table.insert(paths, {
 		Excludes = {
 			["DeviceFunctions.hpp"] = true,
+			["GlobalFunctions.hpp"] = true,
 			["InstanceFunctions.hpp"] = true,
 		},
 		HeaderGuard = "NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP",
