@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -41,7 +41,7 @@ namespace Nz
 			virtual bool IsBetterThan(const RendererImpl* other) const = 0;
 
 			virtual RenderAPI QueryAPI() const = 0;
-			virtual String QueryAPIString() const = 0;
+			virtual std::string QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
 
 			virtual std::vector<RenderDeviceInfo> QueryRenderDevices() const = 0;
