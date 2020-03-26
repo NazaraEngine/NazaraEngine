@@ -12,14 +12,17 @@
 
 namespace Nz
 {
-	Vk::DescriptorSet VulkanRenderPipelineLayout::AllocateDescriptorSet()
+	VulkanShaderBinding& VulkanRenderPipelineLayout::AllocateShaderBinding()
 	{
 		// TODO: Watch descriptor set count for each pool
 		for (auto& pool : m_descriptorPools)
 		{
+			if (pool.allocatedSets.capacity() <= pool.allocatedSets.size())
+				continue;
+
 			Vk::DescriptorSet descriptorSet = pool.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
 			if (descriptorSet)
-				return descriptorSet;
+				return pool.allocatedSets.emplace_back(*this, std::move(descriptorSet));
 		}
 
 		// Allocate a new descriptor pool
@@ -36,9 +39,16 @@ namespace Nz
 
 		DescriptorPool pool;
 		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-			return {};
+		{
+			//return {};
+		}
 
-		return m_descriptorPools.emplace_back(std::move(pool)).descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
+		pool.allocatedSets.reserve(MaxSet);
+
+		auto& poolData = m_descriptorPools.emplace_back(std::move(pool));
+		Vk::DescriptorSet descriptorSet = poolData.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
+		//if (descriptorSet)
+			return poolData.allocatedSets.emplace_back(*this, std::move(descriptorSet));
 	}
 
 	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)
