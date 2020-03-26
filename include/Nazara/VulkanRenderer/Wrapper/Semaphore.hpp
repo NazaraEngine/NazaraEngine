@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Semaphore : public DeviceObject<Semaphore, VkSemaphore, VkSemaphoreCreateInfo>
+		class Semaphore : public DeviceObject<Semaphore, VkSemaphore, VkSemaphoreCreateInfo, VK_OBJECT_TYPE_SEMAPHORE>
 		{
 			friend DeviceObject;
 

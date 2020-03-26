@@ -166,6 +166,9 @@ namespace Nz
 
 			if (availableExtensions.count(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+			if (availableExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
 
 		std::vector<String> additionalExtensions; // Just to keep the String alive

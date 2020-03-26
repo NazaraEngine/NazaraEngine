@@ -22,7 +22,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class CommandBuffer;
+		class AutoCommandBuffer;
 		class Instance;
 		class QueueHandle;
 
@@ -38,7 +38,7 @@ namespace Nz
 				Device(Device&&) = delete;
 				~Device();
 
-				CommandBuffer AllocateTransferCommandBuffer();
+				AutoCommandBuffer AllocateTransferCommandBuffer();
 
 				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
@@ -71,6 +71,8 @@ namespace Nz
 #define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, ...) NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext)
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_END()
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
@@ -78,6 +80,8 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_END
 
 				struct QueueInfo
 				{

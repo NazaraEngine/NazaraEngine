@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Fence : public DeviceObject<Fence, VkFence, VkFenceCreateInfo>
+		class Fence : public DeviceObject<Fence, VkFence, VkFenceCreateInfo, VK_OBJECT_TYPE_FENCE>
 		{
 			friend DeviceObject;
 

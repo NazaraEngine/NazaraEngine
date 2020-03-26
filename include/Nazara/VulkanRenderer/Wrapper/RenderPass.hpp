@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class RenderPass : public DeviceObject<RenderPass, VkRenderPass, VkRenderPassCreateInfo>
+		class RenderPass : public DeviceObject<RenderPass, VkRenderPass, VkRenderPassCreateInfo, VK_OBJECT_TYPE_RENDER_PASS>
 		{
 			friend DeviceObject;
 

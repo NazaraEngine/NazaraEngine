@@ -15,7 +15,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class DeviceMemory : public DeviceObject<DeviceMemory, VkDeviceMemory, VkMemoryAllocateInfo>
+		class DeviceMemory : public DeviceObject<DeviceMemory, VkDeviceMemory, VkMemoryAllocateInfo, VK_OBJECT_TYPE_DEVICE_MEMORY>
 		{
 			friend DeviceObject;
 

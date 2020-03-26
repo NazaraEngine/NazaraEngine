@@ -118,6 +118,34 @@ namespace Nz
 			return Begin(beginInfo);
 		}
 
+		inline void CommandBuffer::BeginDebugRegion(const char* label)
+		{
+			Vk::Device* device = m_pool->GetDevice();
+			if (device->vkCmdBeginDebugUtilsLabelEXT)
+			{
+				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
+				debugLabel.pLabelName = label;
+
+				device->vkCmdBeginDebugUtilsLabelEXT(m_handle, &debugLabel);
+			}
+		}
+
+		inline void CommandBuffer::BeginDebugRegion(const char* label, Nz::Color color)
+		{
+			Vk::Device* device = m_pool->GetDevice();
+			if (device->vkCmdBeginDebugUtilsLabelEXT)
+			{
+				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
+				debugLabel.pLabelName = label;
+				debugLabel.color[0] = color.r / 255.f;
+				debugLabel.color[1] = color.g / 255.f;
+				debugLabel.color[2] = color.b / 255.f;
+				debugLabel.color[3] = color.a / 255.f;
+
+				device->vkCmdBeginDebugUtilsLabelEXT(m_handle, &debugLabel);
+			}
+		}
+
 		inline void CommandBuffer::BeginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents contents)
 		{
 			return m_pool->GetDevice()->vkCmdBeginRenderPass(m_handle, &beginInfo, contents);
@@ -243,6 +271,13 @@ namespace Nz
 			return true;
 		}
 
+		inline void CommandBuffer::EndDebugRegion()
+		{
+			Vk::Device* device = m_pool->GetDevice();
+			if (device->vkCmdEndDebugUtilsLabelEXT)
+				device->vkCmdEndDebugUtilsLabelEXT(m_handle);
+		}
+
 		inline void CommandBuffer::EndRenderPass()
 		{
 			return m_pool->GetDevice()->vkCmdEndRenderPass(m_handle);
@@ -254,6 +289,34 @@ namespace Nz
 			{
 				assert(m_pool);
 				m_pool->GetDevice()->vkFreeCommandBuffers(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
+			}
+		}
+
+		inline void CommandBuffer::InsertDebugLabel(const char* label)
+		{
+			Vk::Device* device = m_pool->GetDevice();
+			if (device->vkCmdInsertDebugUtilsLabelEXT)
+			{
+				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
+				debugLabel.pLabelName = label;
+
+				device->vkCmdInsertDebugUtilsLabelEXT(m_handle, &debugLabel);
+			}
+		}
+
+		inline void CommandBuffer::InsertDebugLabel(const char* label, Nz::Color color)
+		{
+			Vk::Device* device = m_pool->GetDevice();
+			if (device->vkCmdInsertDebugUtilsLabelEXT)
+			{
+				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
+				debugLabel.pLabelName = label;
+				debugLabel.color[0] = color.r / 255.f;
+				debugLabel.color[1] = color.g / 255.f;
+				debugLabel.color[2] = color.b / 255.f;
+				debugLabel.color[3] = color.a / 255.f;
+
+				device->vkCmdInsertDebugUtilsLabelEXT(m_handle, &debugLabel);
 			}
 		}
 

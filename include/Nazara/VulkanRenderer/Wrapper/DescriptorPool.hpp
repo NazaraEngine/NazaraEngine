@@ -16,7 +16,7 @@ namespace Nz
 	{
 		class DescriptorSet;
 
-		class NAZARA_VULKANRENDERER_API DescriptorPool : public DeviceObject<DescriptorPool, VkDescriptorPool, VkDescriptorPoolCreateInfo>
+		class NAZARA_VULKANRENDERER_API DescriptorPool : public DeviceObject<DescriptorPool, VkDescriptorPool, VkDescriptorPoolCreateInfo, VK_OBJECT_TYPE_DESCRIPTOR_POOL>
 		{
 			friend DeviceObject;
 

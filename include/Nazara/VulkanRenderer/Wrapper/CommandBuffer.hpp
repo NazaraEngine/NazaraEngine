@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VKCOMMANDBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
@@ -33,6 +34,8 @@ namespace Nz
 				inline bool Begin(VkCommandBufferUsageFlags flags, VkRenderPass renderPass, UInt32 subpass, VkFramebuffer framebuffer, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
 				inline bool Begin(VkCommandBufferUsageFlags flags, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
 
+				inline void BeginDebugRegion(const char* label);
+				inline void BeginDebugRegion(const char* label, Nz::Color color);
 				inline void BeginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 				inline void BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSets);
@@ -60,9 +63,13 @@ namespace Nz
 
 				inline bool End();
 
+				inline void EndDebugRegion();
 				inline void EndRenderPass();
 
 				inline void Free();
+
+				inline void InsertDebugLabel(const char* label);
+				inline void InsertDebugLabel(const char* label, Nz::Color color);
 
 				inline void MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
 

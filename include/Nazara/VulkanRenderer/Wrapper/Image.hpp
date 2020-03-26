@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Image : public DeviceObject<Image, VkImage, VkImageCreateInfo>
+		class Image : public DeviceObject<Image, VkImage, VkImageCreateInfo, VK_OBJECT_TYPE_IMAGE>
 		{
 			friend DeviceObject;
 

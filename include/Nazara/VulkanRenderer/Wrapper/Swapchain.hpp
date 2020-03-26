@@ -15,7 +15,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR>
+		class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR, VK_OBJECT_TYPE_SWAPCHAIN_KHR>
 		{
 			friend DeviceObject;
 
