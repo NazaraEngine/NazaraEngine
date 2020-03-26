@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline Vk::Device* VulkanRenderPipelineLayout::GetDevice() const
+	{
+		return m_device.Get();
+	}
+
 	inline const Vk::DescriptorSetLayout& VulkanRenderPipelineLayout::GetDescriptorSetLayout() const
 	{
 		return m_descriptorSetLayout;

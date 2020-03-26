@@ -179,9 +179,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
-	Nz::VulkanRenderPipelineLayout* vkPipelineLayout = static_cast<Nz::VulkanRenderPipelineLayout*>(renderPipelineLayout.get());
-
-	Nz::Vk::DescriptorSet descriptorSet = vkPipelineLayout->AllocateDescriptorSet();
+	Nz::ShaderBinding& shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
 	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal))
@@ -190,9 +188,20 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::VulkanBuffer* uniformBufferImpl = static_cast<Nz::VulkanBuffer*>(uniformBuffer.get());
-	descriptorSet.WriteUniformDescriptor(0, uniformBufferImpl->GetBufferHandle(), 0, uniformSize);
-	descriptorSet.WriteCombinedImageSamplerDescriptor(1, imageSampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	shaderBinding.Update({
+		{
+			0,
+			Nz::ShaderBinding::UniformBufferBinding {
+				uniformBuffer.get(), 0, uniformSize
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::TextureBinding {
+				texture.get(), textureSampler.get()
+			}
+		}
+	});
 
 	Nz::RenderPipelineInfo pipelineInfo;
 	pipelineInfo.pipelineLayout = renderPipelineLayout;
@@ -237,6 +246,10 @@ int main()
 
 	Nz::VulkanRenderPipeline* vkPipeline = static_cast<Nz::VulkanRenderPipeline*>(pipeline.get());
 
+	Nz::VulkanRenderPipelineLayout* vkPipelineLayout = static_cast<Nz::VulkanRenderPipelineLayout*>(renderPipelineLayout.get());
+
+	Nz::VulkanShaderBinding& vkShaderBinding = static_cast<Nz::VulkanShaderBinding&>(shaderBinding);
+
 	for (Nz::UInt32 i = 0; i < imageCount; ++i)
 	{
 		Nz::Vk::CommandBuffer& renderCmd = renderCmds[i];
@@ -265,9 +278,9 @@ int main()
 		renderCmd.Begin();
 
 		renderCmd.BeginRenderPass(render_pass_begin_info);
-		renderCmd.BindIndexBuffer(indexBufferImpl->GetBufferHandle(), 0, VK_INDEX_TYPE_UINT16);
-		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBufferHandle(), 0);
-		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout->GetPipelineLayout(), 0, descriptorSet);
+		renderCmd.BindIndexBuffer(indexBufferImpl->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBuffer(), 0);
+		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout->GetPipelineLayout(), 0, vkShaderBinding.GetDescriptorSet());
 		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass()));
 		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);

@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
@@ -25,9 +26,11 @@ namespace Nz
 			VulkanRenderPipelineLayout() = default;
 			~VulkanRenderPipelineLayout() = default;
 
-			Vk::DescriptorSet AllocateDescriptorSet();
+			VulkanShaderBinding& AllocateShaderBinding() override;
 
 			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
+
+			inline Vk::Device* GetDevice() const;
 
 			inline const Vk::DescriptorSetLayout& GetDescriptorSetLayout() const;
 			inline const Vk::PipelineLayout& GetPipelineLayout() const;
@@ -36,6 +39,7 @@ namespace Nz
 			struct DescriptorPool
 			{
 				Vk::DescriptorPool descriptorPool;
+				std::vector<VulkanShaderBinding> allocatedSets;
 			};
 
 			MovablePtr<Vk::Device> m_device;

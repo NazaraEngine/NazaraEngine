@@ -27,11 +27,15 @@ namespace Nz
 		std::vector<Binding> bindings;
 	};
 
+	class ShaderBinding;
+
 	class NAZARA_RENDERER_API RenderPipelineLayout
 	{
 		public:
 			RenderPipelineLayout() = default;
 			virtual ~RenderPipelineLayout();
+
+			virtual ShaderBinding& AllocateShaderBinding() = 0;
 	};
 }
 

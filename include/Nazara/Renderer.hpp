@@ -45,8 +45,8 @@
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
-#include <Nazara/Renderer/Shader.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <Nazara/Renderer/ShaderStageImpl.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
