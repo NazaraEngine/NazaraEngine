@@ -31,14 +31,15 @@ namespace Nz
 				static void Uninitialize();
 
 				// Vulkan functions
-				#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) static PFN_##func func
+				static PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
 
-				NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(vkCreateInstance);
-				NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(vkEnumerateInstanceExtensionProperties);
-				NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(vkEnumerateInstanceLayerProperties);
-				NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(vkGetInstanceProcAddr);
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) static PFN_##func func;
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
-				#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
+#include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
+
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
 			private:
 				static DynLib s_vulkanLib;

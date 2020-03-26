@@ -44,7 +44,7 @@ namespace Nz
 			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
 			static const Vk::PhysicalDevice& GetPhysicalDeviceInfo(VkPhysicalDevice physDevice);
 			
-			static bool Initialize(UInt32 apiVersion, const ParameterList& parameters);
+			static bool Initialize(UInt32 targetApiVersion, const ParameterList& parameters);
 
 			static bool IsInitialized();
 

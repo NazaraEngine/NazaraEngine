@@ -11,6 +11,7 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <array>
+#include <unordered_set>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -40,7 +41,7 @@ namespace Nz
 		return dummy;
 	}
 
-	bool Vulkan::Initialize(UInt32 apiVersion, const ParameterList& parameters)
+	bool Vulkan::Initialize(UInt32 targetApiVersion, const ParameterList& parameters)
 	{
 		NazaraAssert(!IsInitialized(), "Vulkan is already initialized");
 
@@ -66,13 +67,24 @@ namespace Nz
 		long long iParam;
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
-			apiVersion = static_cast<UInt32>(iParam);
+			targetApiVersion = static_cast<UInt32>(iParam);
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion", &iParam))
 			appVersion = static_cast<UInt32>(iParam);
 
 		if (parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion", &iParam))
 			engineVersion = static_cast<UInt32>(iParam);
+
+		if (Vk::Loader::vkEnumerateInstanceVersion)
+		{
+			UInt32 supportedApiVersion;
+			Vk::Loader::vkEnumerateInstanceVersion(&supportedApiVersion);
+
+			targetApiVersion = std::min(targetApiVersion, supportedApiVersion);
+		}
+		else
+			// vkEnumerateInstanceVersion is available from Vulkan 1.1, fallback to 1.0 if not supported
+			targetApiVersion = VK_API_VERSION_1_0;
 
 		VkApplicationInfo appInfo = {
 			VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -81,7 +93,7 @@ namespace Nz
 			appVersion,
 			engineName.GetConstBuffer(),
 			engineVersion,
-			apiVersion
+			targetApiVersion
 		};
 
 		VkInstanceCreateFlags createFlags = 0;
@@ -113,6 +125,15 @@ namespace Nz
 				else
 					NazaraWarning("Parameter " + parameterName + " expected");
 			}
+		}
+
+		// Get extension list
+		std::unordered_set<std::string> availableExtensions;
+		std::vector<VkExtensionProperties> extensionList;
+		if (Vk::Loader::EnumerateInstanceExtensionProperties(&extensionList))
+		{
+			for (VkExtensionProperties& extProperty : extensionList)
+				availableExtensions.insert(extProperty.extensionName);
 		}
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
@@ -401,7 +422,7 @@ namespace Nz
 		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
 		{
 			// Swapchain extension is required for rendering
-			enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+			enabledExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 		}
 

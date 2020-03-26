@@ -69,12 +69,21 @@ namespace Nz
 			{
 				ErrorFlags flags(ErrorFlag_ThrowException, true);
 
+				UInt32 deviceVersion = deviceInfo.properties.apiVersion;
+
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) {
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END() }
 #define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));
 
+#define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, coreVersion, suffix, extName)   \
+				if (deviceVersion >= coreVersion)                                            \
+					func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));                 \
+				else if (IsExtensionLoaded("VK_" #suffix "_" #extName))                      \
+					func = reinterpret_cast<PFN_##func##suffix>(GetProcAddr(#func #suffix));
+
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
+#undef NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
 #undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
@@ -164,15 +173,17 @@ namespace Nz
 			m_physicalDevice = nullptr;
 
 			// Reset functions pointers
+#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = nullptr;
+#define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, ...) NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
-#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = nullptr;
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
+#undef NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION
+#undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
-#undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 		}
 
 		void Device::WaitAndDestroyDevice()

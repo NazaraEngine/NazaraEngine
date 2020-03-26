@@ -23,15 +23,15 @@ namespace Nz
 				DestroyInstance();
 		}
 
-		inline bool Instance::Create(const String& appName, UInt32 appVersion, const String& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
+		inline bool Instance::Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 		{
 			VkApplicationInfo appInfo = 
 			{
 				VK_STRUCTURE_TYPE_APPLICATION_INFO,
 				nullptr,
-				appName.GetConstBuffer(),
+				appName.data(),
 				appVersion,
-				engineName.GetConstBuffer(),
+				engineName.data(),
 				engineVersion
 			};
 
@@ -63,9 +63,14 @@ namespace Nz
 		{
 			PFN_vkVoidFunction func = vkGetDeviceProcAddr(device, name);
 			if (!func)
-				NazaraError("Failed to get " + String(name) + " address");
+				NazaraError("Failed to get " + std::string(name) + " address");
 
 			return func;
+		}
+
+		inline UInt32 Instance::GetApiVersion() const
+		{
+			return m_apiVersion;
 		}
 
 		inline VkResult Instance::GetLastErrorCode() const
@@ -73,12 +78,12 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline bool Instance::IsExtensionLoaded(const String& extensionName)
+		inline bool Instance::IsExtensionLoaded(const std::string& extensionName)
 		{
 			return m_loadedExtensions.count(extensionName) > 0;
 		}
 
-		inline bool Instance::IsLayerLoaded(const String& layerName)
+		inline bool Instance::IsLayerLoaded(const std::string& layerName)
 		{
 			return m_loadedLayers.count(layerName) > 0;
 		}
@@ -149,7 +154,7 @@ namespace Nz
 		{
 			PFN_vkVoidFunction func = Loader::GetInstanceProcAddr(m_instance, name);
 			if (!func)
-				NazaraError("Failed to get " + String(name) + " address");
+				NazaraError("Failed to get " + std::string(name) + " address");
 			
 			return func;
 		}
