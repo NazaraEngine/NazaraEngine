@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VKDEVICEMEMORY_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
 namespace Nz 
@@ -19,9 +20,9 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
-				DeviceMemory();
+				DeviceMemory() = default;
 				DeviceMemory(const DeviceMemory&) = delete;
-				inline DeviceMemory(DeviceMemory&& memory);
+				DeviceMemory(DeviceMemory&& memory) noexcept = default;
 				~DeviceMemory() = default;
 
 				using DeviceObject::Create;
@@ -33,6 +34,7 @@ namespace Nz
 
 				inline void* GetMappedPointer();
 
+				inline bool Map(VkMemoryMapFlags flags = 0);
 				inline bool Map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags = 0);
 
 				inline void Unmap();
@@ -44,7 +46,7 @@ namespace Nz
 				static inline VkResult CreateHelper(Device& device, const VkMemoryAllocateInfo* allocInfo, const VkAllocationCallbacks* allocator, VkDeviceMemory* handle);
 				static inline void DestroyHelper(Device& device, VkDeviceMemory handle, const VkAllocationCallbacks* allocator);
 
-				void* m_mappedPtr;
+				MovablePtr<void> m_mappedPtr;
 		};
 	}
 }

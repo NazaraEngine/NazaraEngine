@@ -41,6 +41,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
+#include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper.hpp>
 
 #endif // NAZARA_GLOBAL_VULKANRENDERER_HPP

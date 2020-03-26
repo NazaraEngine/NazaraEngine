@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <cassert>
 #include <climits>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -33,6 +34,43 @@ namespace Nz
 		}
 
 		NAZARA_CORE_API extern const UInt8 BitReverseTable256[256];
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Align an offset
+	* \return Aligned offset according to alignment
+	*
+	* \param offset Base offset
+	* \param alignment Non-zero alignment
+	*
+	* \see AlignPow2
+	*/
+	template<typename T>
+	constexpr T Align(T offset, T alignment)
+	{
+		assert(alignment > 0);
+		return ((offset + alignment - 1) / alignment) * alignment;
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Align an offset
+	* \return Aligned offset according to a power of two alignment
+	*
+	* \param offset Base offset
+	* \param alignment Non-zero power of two alignment
+	*
+	* \see Align
+	* \remark This function is quicker than Align but only works with power of two alignment values
+	*/
+	template<typename T>
+	constexpr T AlignPow2(T offset, T alignment)
+	{
+		assert(alignment > 0);
+		assert(IsPowerOfTwo(alignment));
+
+		return (offset + alignment - 1) & ~(alignment - 1);
 	}
 
 	/*!
@@ -176,6 +214,20 @@ namespace Nz
 		b ^= (b >> 47);
 
 		seed = static_cast<std::size_t>(b * kMul);
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Check if a value is a power of two
+	* \return true if value is a power of two
+	*
+	* \param value Non-zero value
+	*/
+	template<typename T>
+	bool IsPowerOfTwo(T value)
+	{
+		assert(value != 0);
+		return (value & (value - 1)) == 0;
 	}
 
 	/*!
