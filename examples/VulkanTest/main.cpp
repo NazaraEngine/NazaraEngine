@@ -399,22 +399,31 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	struct ImageSync
+	struct ImageData
 	{
 		Nz::Vk::Fence inflightFence;
 		Nz::Vk::Semaphore imageAvailableSemaphore;
 		Nz::Vk::Semaphore renderFinishedSemaphore;
+		Nz::Vk::AutoCommandBuffer commandBuffer;
+		std::optional<Nz::VulkanUploadPool> uploadPool;
 	};
 
 	const std::size_t MaxConcurrentImage = imageCount;
 
-	std::vector<ImageSync> frameSync(MaxConcurrentImage);
-	for (ImageSync& syncData : frameSync)
+	Nz::Vk::CommandPool transientPool;
+	transientPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+	std::vector<ImageData> frameSync(MaxConcurrentImage);
+	for (ImageData& syncData : frameSync)
 	{
 		syncData.imageAvailableSemaphore.Create(vulkanDevice);
 		syncData.renderFinishedSemaphore.Create(vulkanDevice);
 
 		syncData.inflightFence.Create(vulkanDevice, VK_FENCE_CREATE_SIGNALED_BIT);
+
+		syncData.uploadPool.emplace(vulkanDevice, 8 * 1024 * 1024);
+
+		syncData.commandBuffer = transientPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 	}
 
 	std::vector<Nz::Vk::Fence*> inflightFences(imageCount, nullptr);
@@ -427,8 +436,6 @@ int main()
 
 	while (window.IsOpen())
 	{
-		bool updateUniforms = false;
-
 		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
@@ -454,7 +461,6 @@ int main()
 					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
 					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
 					Nz::Mouse::SetPosition(windowSize.x / 2, windowSize.y / 2, window);
-					updateUniforms = true;
 					break;
 				}
 			}
@@ -462,27 +468,38 @@ int main()
 
 		if (updateClock.GetMilliseconds() > 1000 / 60)
 		{
-			float elapsedTime = updateClock.GetSeconds();
+			float cameraSpeed = 2.f * updateClock.GetSeconds();
 			updateClock.Restart();
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up))
-			{
-				viewerPos += camQuat * Nz::Vector3f::Forward() * elapsedTime;
-				updateUniforms = true;
-			}
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down))
-			{
-				viewerPos += camQuat * Nz::Vector3f::Backward() * elapsedTime;
-				updateUniforms = true;
-			}
+			// Si la flèche du bas ou la touche S est pressée, on recule
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+				viewerPos += camQuat * Nz::Vector3f::Backward() * cameraSpeed;
+
+			// Etc...
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+				viewerPos += camQuat * Nz::Vector3f::Left() * cameraSpeed;
+
+			// Etc...
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+				viewerPos += camQuat * Nz::Vector3f::Right() * cameraSpeed;
+
+			// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+				viewerPos += Nz::Vector3f::Up() * cameraSpeed;
+
+			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 		}
 
-		ImageSync& syncPrimitives = frameSync[currentFrame];
-		syncPrimitives.inflightFence.Wait();
+		ImageData& frame = frameSync[currentFrame];
+		frame.inflightFence.Wait();
 
 		Nz::UInt32 imageIndex;
-		if (!vulkanWindow.Acquire(&imageIndex, syncPrimitives.imageAvailableSemaphore))
+		if (!vulkanWindow.Acquire(&imageIndex, frame.imageAvailableSemaphore))
 		{
 			std::cout << "Failed to acquire next image" << std::endl;
 			return EXIT_FAILURE;
@@ -491,25 +508,32 @@ int main()
 		if (inflightFences[imageIndex])
 			inflightFences[imageIndex]->Wait();
 
-		inflightFences[imageIndex] = &syncPrimitives.inflightFence;
+		inflightFences[imageIndex] = &frame.inflightFence;
 		inflightFences[imageIndex]->Reset();
 
-		if (updateUniforms)
-		{
-			ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
+		// Update UBO
+		frame.uploadPool->Reset();
 
-			void* mappedPtr = uniformBufferImpl->Map(Nz::BufferAccess_DiscardAndWrite, 0, sizeof(ubo));
-			if (mappedPtr)
-			{
-				std::memcpy(mappedPtr, &ubo, sizeof(ubo));
-				uniformBufferImpl->Unmap();
-			}
-		}
+		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
-		if (!graphicsQueue.Submit(renderCmds[imageIndex], syncPrimitives.imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, syncPrimitives.renderFinishedSemaphore, syncPrimitives.inflightFence))
+		auto allocData = frame.uploadPool->Allocate(uniformSize);
+		assert(allocData);
+
+		std::memcpy(allocData->mappedPtr, &ubo, sizeof(ubo));
+
+		frame.commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT);
+		frame.commandBuffer->CopyBuffer(allocData->buffer, static_cast<Nz::VulkanBuffer*>(uniformBuffer.get())->GetBuffer(), allocData->size, allocData->offset);
+		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT);
+		frame.commandBuffer->End();
+
+		if (!graphicsQueue.Submit(frame.commandBuffer))
 			return false;
 
-		vulkanWindow.Present(imageIndex, syncPrimitives.renderFinishedSemaphore);
+		if (!graphicsQueue.Submit(renderCmds[imageIndex], frame.imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, frame.renderFinishedSemaphore, frame.inflightFence))
+			return false;
+
+		vulkanWindow.Present(imageIndex, frame.renderFinishedSemaphore);
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;

@@ -21,7 +21,7 @@ namespace Nz
 			public:
 				Buffer() = default;
 				Buffer(const Buffer&) = delete;
-				Buffer(Buffer&&) = default;
+				Buffer(Buffer&&) noexcept = default;
 				~Buffer() = default;
 
 				bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);

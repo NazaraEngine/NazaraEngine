@@ -12,18 +12,6 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline DeviceMemory::DeviceMemory() :
-		m_mappedPtr(nullptr)
-		{
-		}
-
-		inline DeviceMemory::DeviceMemory(DeviceMemory&& memory) :
-		DeviceObject(std::move(memory))
-		{
-			m_mappedPtr = memory.m_mappedPtr;
-			memory.m_mappedPtr = nullptr;
-		}
-
 		inline bool DeviceMemory::Create(Device& device, VkDeviceSize size, UInt32 memoryType, const VkAllocationCallbacks* allocator)
 		{
 			VkMemoryAllocateInfo allocInfo =
@@ -87,14 +75,22 @@ namespace Nz
 			return m_mappedPtr;
 		}
 
+		inline bool DeviceMemory::Map(VkMemoryMapFlags flags)
+		{
+			return Map(0, VK_WHOLE_SIZE, flags);
+		}
+
 		inline bool DeviceMemory::Map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags)
 		{
-			m_lastErrorCode = m_device->vkMapMemory(*m_device, m_handle, offset, size, flags, &m_mappedPtr);
+			void* mappedPtr;
+			m_lastErrorCode = m_device->vkMapMemory(*m_device, m_handle, offset, size, flags, &mappedPtr);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
 				NazaraError("Failed to map device memory: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
+
+			m_mappedPtr = mappedPtr;
 
 			return true;
 		}
