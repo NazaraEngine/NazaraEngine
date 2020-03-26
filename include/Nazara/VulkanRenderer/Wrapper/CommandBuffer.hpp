@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <vulkan/vulkan.h>
 
@@ -24,7 +25,7 @@ namespace Nz
 				inline CommandBuffer();
 				CommandBuffer(const CommandBuffer&) = delete;
 				inline CommandBuffer(CommandBuffer&& commandBuffer);
-				inline ~CommandBuffer();
+				~CommandBuffer() = default;
 
 				inline bool Begin(const VkCommandBufferBeginInfo& info);
 				inline bool Begin(VkCommandBufferUsageFlags flags = 0);
@@ -90,10 +91,16 @@ namespace Nz
 				inline CommandBuffer(CommandPool& pool, VkCommandBuffer handle);
 
 				CommandPool* m_pool;
-				VkAllocationCallbacks m_allocator;
 				VkCommandBuffer m_handle;
 				VkResult m_lastErrorCode;
+		};
 
+		class AutoCommandBuffer : public AutoFree<CommandBuffer>
+		{
+			public:
+				using AutoFree::AutoFree;
+
+				operator VkCommandBuffer() const { return Get(); }
 		};
 	}
 }
