@@ -108,6 +108,43 @@ namespace Nz
 		return VK_COMPARE_OP_NEVER;
 	}
 
+	VkFilter ToVulkan(SamplerFilter samplerFilter)
+	{
+		switch (samplerFilter)
+		{
+			case SamplerFilter_Linear:  return VK_FILTER_LINEAR;
+			case SamplerFilter_Nearest: return VK_FILTER_NEAREST;
+		}
+
+		NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(samplerFilter), 16));
+		return VK_FILTER_NEAREST;
+	}
+
+	VkSamplerMipmapMode ToVulkan(SamplerMipmapMode samplerMipmap)
+	{
+		switch (samplerMipmap)
+		{
+			case SamplerMipmapMode_Linear:  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			case SamplerMipmapMode_Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		}
+
+		NazaraError("Unhandled SamplerMipmapMode 0x" + String::Number(UnderlyingCast(samplerMipmap), 16));
+		return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+	}
+
+	VkSamplerAddressMode ToVulkan(SamplerWrap samplerWrap)
+	{
+		switch (samplerWrap)
+		{
+			case SamplerWrap_Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			case SamplerWrap_MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+			case SamplerWrap_Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		}
+
+		NazaraError("Unhandled SamplerWrap 0x" + String::Number(UnderlyingCast(samplerWrap), 16));
+		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	}
+
 	VkDescriptorType ToVulkan(ShaderBindingType bindingType)
 	{
 		switch (bindingType)

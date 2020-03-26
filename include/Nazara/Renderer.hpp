@@ -51,5 +51,6 @@
 #include <Nazara/Renderer/ShaderStageImpl.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP

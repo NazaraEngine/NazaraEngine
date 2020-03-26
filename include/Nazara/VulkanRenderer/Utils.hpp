@@ -22,6 +22,9 @@ namespace Nz
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode);
 	inline VkCompareOp ToVulkan(RendererComparison comparison);
+	inline VkFilter ToVulkan(SamplerFilter samplerFilter);
+	inline VkSamplerMipmapMode ToVulkan(SamplerMipmapMode samplerMipmap);
+	inline VkSamplerAddressMode ToVulkan(SamplerWrap samplerWrap);
 	inline VkDescriptorType ToVulkan(ShaderBindingType bindingType);
 	inline VkShaderStageFlagBits ToVulkan(ShaderStageType stageType);
 	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType);

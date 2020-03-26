@@ -12,6 +12,8 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
 #include <string>
@@ -31,6 +33,8 @@ namespace Nz
 			virtual std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) = 0;
 			virtual std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
 			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath);
+			virtual std::unique_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
+			virtual std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 	};
 }
 
