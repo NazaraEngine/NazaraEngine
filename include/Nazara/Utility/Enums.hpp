@@ -58,6 +58,7 @@ namespace Nz
 	{
 		BufferUsage_DeviceLocal,
 		BufferUsage_DirectMapping,
+		BufferUsage_PersistentMapping,
 
 		BufferUsage_Max = BufferUsage_DirectMapping
 	};

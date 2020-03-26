@@ -27,15 +27,15 @@ namespace Nz
 			RenderBuffer(RenderBuffer&&) = default;
 			~RenderBuffer() = default;
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size) override final;
+			bool Fill(const void* data, UInt32 offset, UInt32 size) final;
 
 			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
 
 			AbstractBuffer* GetHardwareBuffer(RenderDevice* device);
 			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) override final;
-			bool Unmap() override final;
+			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) final;
+			bool Unmap() final;
 
 			RenderBuffer& operator=(const RenderBuffer&) = delete;
 			RenderBuffer& operator=(RenderBuffer&&) = default;
@@ -44,6 +44,10 @@ namespace Nz
 			bool Synchronize(RenderDevice* device);
 
 		private:
+			struct HardwareBuffer;
+
+			HardwareBuffer* GetHardwareBufferData(RenderDevice* device);
+
 			struct HardwareBuffer
 			{
 				std::unique_ptr<AbstractBuffer> buffer;

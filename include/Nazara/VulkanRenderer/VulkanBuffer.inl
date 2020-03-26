@@ -13,7 +13,7 @@ namespace Nz
 	{
 	}
 
-	inline Vk::Buffer& VulkanBuffer::GetBufferHandle()
+	inline VkBuffer VulkanBuffer::GetBuffer()
 	{
 		return m_buffer;
 	}
