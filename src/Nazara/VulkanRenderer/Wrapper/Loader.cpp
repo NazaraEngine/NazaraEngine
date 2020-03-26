@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -77,7 +78,7 @@ namespace Nz
 				return false;
 			}
 
-			// vkGetInstanceProcAddr is the only function that's garantee to be exported
+			// vkGetInstanceProcAddr is the only function that's guarantee to be exported
 			vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(s_vulkanLib.GetSymbol("vkGetInstanceProcAddr"));
 			if (!vkGetInstanceProcAddr)
 			{
@@ -85,28 +86,49 @@ namespace Nz
 				return false;
 			}
 
+			auto GetProcAddr = [&](const char* name, bool opt)
+			{
+				PFN_vkVoidFunction func = vkGetInstanceProcAddr(nullptr, name);
+				if (!func && !opt)
+					NazaraError("Failed to get " + std::string(name) + " address");
+
+				return func;
+			};
+
 			// all other functions should be loaded using vkGetInstanceProcAddr
-			#define NAZARA_VULKANRENDERER_LOAD_GLOBAL(func) func = reinterpret_cast<PFN_##func>(vkGetInstanceProcAddr(nullptr, #func))
+			#define NAZARA_VULKANRENDERER_LOAD_GLOBAL(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
+			try
+			{
+				ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-			NAZARA_VULKANRENDERER_LOAD_GLOBAL(vkCreateInstance);
-			NAZARA_VULKANRENDERER_LOAD_GLOBAL(vkEnumerateInstanceExtensionProperties);
-			NAZARA_VULKANRENDERER_LOAD_GLOBAL(vkEnumerateInstanceLayerProperties);
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, false));
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, true));
 
-			#undef NAZARA_VULKANRENDERER_LOAD_GLOBAL
+#include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
+
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError(std::string("Failed to query device function: ") + e.what());
+				return false;
+			}
 
 			s_lastErrorCode = VkResult::VK_SUCCESS;
 
 			return true;
 		}
 
-		#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL(func) PFN_##func Loader::func = nullptr
+		PFN_vkGetInstanceProcAddr Loader::vkGetInstanceProcAddr = nullptr;
 
-		NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL(vkCreateInstance);
-		NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL(vkEnumerateInstanceExtensionProperties);
-		NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL(vkEnumerateInstanceLayerProperties);
-		NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL(vkGetInstanceProcAddr);
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) PFN_##func Loader::func = nullptr;
+#define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
-		#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_IMPL
+#include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
+
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
+#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
 		DynLib Loader::s_vulkanLib;
 		VkResult Loader::s_lastErrorCode;
