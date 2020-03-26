@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Buffer : public DeviceObject<Buffer, VkBuffer, VkBufferCreateInfo>
+		class Buffer : public DeviceObject<Buffer, VkBuffer, VkBufferCreateInfo, VK_OBJECT_TYPE_BUFFER>
 		{
 			friend DeviceObject;
 

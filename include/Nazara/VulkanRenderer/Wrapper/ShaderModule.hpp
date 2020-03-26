@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class ShaderModule : public DeviceObject<ShaderModule, VkShaderModule, VkShaderModuleCreateInfo>
+		class ShaderModule : public DeviceObject<ShaderModule, VkShaderModule, VkShaderModuleCreateInfo, VK_OBJECT_TYPE_SHADER_MODULE>
 		{
 			friend DeviceObject;
 

@@ -13,14 +13,14 @@ namespace Nz
 {
 	namespace Vk
 	{
-		template<typename C, typename VkType, typename CreateInfo>
-		DeviceObject<C, VkType, CreateInfo>::DeviceObject() :
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		DeviceObject<C, VkType, CreateInfo, ObjectType>::DeviceObject() :
 		m_handle(VK_NULL_HANDLE)
 		{
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		DeviceObject<C, VkType, CreateInfo>::DeviceObject(DeviceObject&& object) noexcept :
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		DeviceObject<C, VkType, CreateInfo, ObjectType>::DeviceObject(DeviceObject&& object) noexcept :
 		m_device(std::move(object.m_device)),
 		m_allocator(object.m_allocator),
 		m_handle(object.m_handle),
@@ -29,14 +29,14 @@ namespace Nz
 			object.m_handle = VK_NULL_HANDLE;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		DeviceObject<C, VkType, CreateInfo>::~DeviceObject()
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		DeviceObject<C, VkType, CreateInfo, ObjectType>::~DeviceObject()
 		{
 			Destroy();
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		bool DeviceObject<C, VkType, CreateInfo>::Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		bool DeviceObject<C, VkType, CreateInfo, ObjectType>::Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
 			m_device = &device;
 			m_lastErrorCode = C::CreateHelper(*m_device, &createInfo, allocator, &m_handle);
@@ -55,8 +55,8 @@ namespace Nz
 			return true;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		void DeviceObject<C, VkType, CreateInfo>::Destroy()
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		void DeviceObject<C, VkType, CreateInfo, ObjectType>::Destroy()
 		{
 			if (IsValid())
 			{
@@ -65,26 +65,46 @@ namespace Nz
 			}
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		bool DeviceObject<C, VkType, CreateInfo>::IsValid() const
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		bool DeviceObject<C, VkType, CreateInfo, ObjectType>::IsValid() const
 		{
 			return m_handle != VK_NULL_HANDLE;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		Device* DeviceObject<C, VkType, CreateInfo>::GetDevice() const
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		Device* DeviceObject<C, VkType, CreateInfo, ObjectType>::GetDevice() const
 		{
 			return m_device;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		VkResult DeviceObject<C, VkType, CreateInfo>::GetLastErrorCode() const
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		VkResult DeviceObject<C, VkType, CreateInfo, ObjectType>::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo>
-		DeviceObject<C, VkType, CreateInfo>::operator VkType() const
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const char* name)
+		{
+			if (m_device->vkSetDebugUtilsObjectNameEXT)
+			{
+				VkDebugUtilsObjectNameInfoEXT debugName = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
+				debugName.objectType = ObjectType;
+				debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
+				debugName.pObjectName = name;
+
+				m_device->vkSetDebugUtilsObjectNameEXT(*m_device, &debugName);
+			}
+		}
+
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const std::string& name)
+		{
+			return SetDebugName(name.data());
+		}
+
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		DeviceObject<C, VkType, CreateInfo, ObjectType>::operator VkType() const
 		{
 			return m_handle;
 		}

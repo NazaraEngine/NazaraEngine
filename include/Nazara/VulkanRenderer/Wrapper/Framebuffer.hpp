@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Framebuffer : public DeviceObject<Framebuffer, VkFramebuffer, VkFramebufferCreateInfo>
+		class Framebuffer : public DeviceObject<Framebuffer, VkFramebuffer, VkFramebufferCreateInfo, VK_OBJECT_TYPE_FRAMEBUFFER>
 		{
 			friend DeviceObject;
 

@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class PipelineCache : public DeviceObject<PipelineCache, VkPipelineCache, VkPipelineCacheCreateInfo>
+		class PipelineCache : public DeviceObject<PipelineCache, VkPipelineCache, VkPipelineCacheCreateInfo, VK_OBJECT_TYPE_PIPELINE_CACHE>
 		{
 			friend DeviceObject;
 

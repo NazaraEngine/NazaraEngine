@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class DescriptorSetLayout : public DeviceObject<DescriptorSetLayout, VkDescriptorSetLayout, VkDescriptorSetLayoutCreateInfo>
+		class DescriptorSetLayout : public DeviceObject<DescriptorSetLayout, VkDescriptorSetLayout, VkDescriptorSetLayoutCreateInfo, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT>
 		{
 			friend DeviceObject;
 

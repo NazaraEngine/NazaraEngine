@@ -40,7 +40,7 @@ namespace Nz
 				WaitAndDestroyDevice();
 		}
 
-		CommandBuffer Device::AllocateTransferCommandBuffer()
+		AutoCommandBuffer Device::AllocateTransferCommandBuffer()
 		{
 			return m_internalData->transferCommandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		}
@@ -82,6 +82,9 @@ namespace Nz
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END() }
 #define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));
 
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (m_instance.IsExtensionLoaded(#ext)) {
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_END() }
+
 #define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, coreVersion, suffix, extName)   \
 				if (deviceVersion >= coreVersion)                                            \
 					func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));                 \
@@ -94,6 +97,8 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
 #undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_END
 			}
 			catch (const std::exception& e)
 			{
@@ -239,6 +244,8 @@ namespace Nz
 #define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, ...) NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext)
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_END()
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
@@ -246,6 +253,8 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN
+#undef NAZARA_VULKANRENDERER_INSTANCE_EXT_END
 		}
 
 		void Device::WaitAndDestroyDevice()

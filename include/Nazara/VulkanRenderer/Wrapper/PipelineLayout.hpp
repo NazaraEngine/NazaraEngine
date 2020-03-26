@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class PipelineLayout : public DeviceObject<PipelineLayout, VkPipelineLayout, VkPipelineLayoutCreateInfo>
+		class PipelineLayout : public DeviceObject<PipelineLayout, VkPipelineLayout, VkPipelineLayoutCreateInfo, VK_OBJECT_TYPE_PIPELINE_LAYOUT>
 		{
 			friend DeviceObject;
 

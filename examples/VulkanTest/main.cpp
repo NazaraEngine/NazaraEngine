@@ -7,16 +7,15 @@
 #include <iostream>
 
 VKAPI_ATTR VkBool32 VKAPI_CALL MyDebugReportCallback(
-	VkDebugReportFlagsEXT       flags,
-	VkDebugReportObjectTypeEXT  objectType,
-	uint64_t                    object,
-	size_t                      location,
-	int32_t                     messageCode,
-	const char*                 pLayerPrefix,
-	const char*                 pMessage,
-	void*                       pUserData)
+	VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData)
 {
-	std::cerr << pMessage << std::endl;
+	if (pCallbackData->messageIdNumber != 0)
+		std::cerr << "#" << pCallbackData->messageIdNumber << " " << pCallbackData->messageIdNumber << ": ";
+
+	std::cerr << pCallbackData->pMessage << std::endl;
 	return VK_FALSE;
 }
 
@@ -44,15 +43,15 @@ int main()
 
 	Nz::Vk::Instance& instance = Nz::Vulkan::GetInstance();
 
-	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
-	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-	callbackCreateInfo.flags = VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT ;
-	callbackCreateInfo.pfnCallback = &MyDebugReportCallback;
+	VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT  };
+	callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+	callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	callbackCreateInfo.pfnUserCallback = &MyDebugReportCallback;
 
 	/* Register the callback */
-	VkDebugReportCallbackEXT callback;
+	VkDebugUtilsMessengerEXT callback;
 
-	instance.vkCreateDebugReportCallbackEXT(instance, &callbackCreateInfo, nullptr, &callback);
+	instance.vkCreateDebugUtilsMessengerEXT(instance, &callbackCreateInfo, nullptr, &callback);
 
 
 	std::vector<VkLayerProperties> layerProperties;
@@ -216,9 +215,6 @@ int main()
 
 	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	Nz::VulkanRenderPipeline::CreateInfo pipelineCreateInfo = Nz::VulkanRenderPipeline::BuildCreateInfo(pipelineInfo);
-	pipelineCreateInfo.pipelineInfo.renderPass = vulkanWindow.GetRenderPass();
-
 	std::array<VkClearValue, 2> clearValues;
 	clearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
@@ -276,7 +272,7 @@ int main()
 		};
 
 		renderCmd.Begin();
-
+		renderCmd.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 		renderCmd.BeginRenderPass(render_pass_begin_info);
 		renderCmd.BindIndexBuffer(indexBufferImpl->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
 		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBuffer(), 0);
@@ -286,6 +282,7 @@ int main()
 		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
 		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());
 		renderCmd.EndRenderPass();
+		renderCmd.EndDebugRegion();
 
 		if (!renderCmd.End())
 		{
@@ -314,6 +311,7 @@ int main()
 
 	Nz::Vk::CommandPool transientPool;
 	transientPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+	transientPool.SetDebugName("Transient command pool");
 
 	std::vector<ImageData> frameSync(MaxConcurrentImage);
 	for (ImageData& syncData : frameSync)
@@ -424,9 +422,11 @@ int main()
 		std::memcpy(allocData->mappedPtr, &ubo, sizeof(ubo));
 
 		frame.commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+		frame.commandBuffer->BeginDebugRegion("UBO Update", Nz::Color::Yellow);
 		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT);
 		frame.commandBuffer->CopyBuffer(allocData->buffer, static_cast<Nz::VulkanBuffer*>(uniformBuffer.get())->GetBuffer(), allocData->size, allocData->offset);
 		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT);
+		frame.commandBuffer->EndDebugRegion();
 		frame.commandBuffer->End();
 
 		if (!graphicsQueue.Submit(frame.commandBuffer))
@@ -462,7 +462,7 @@ int main()
 		currentFrame = (currentFrame + 1) % imageCount;
 	}
 
-	instance.vkDestroyDebugReportCallbackEXT(instance, callback, nullptr);
+	instance.vkDestroyDebugUtilsMessengerEXT(instance, callback, nullptr);
 
 	return EXIT_SUCCESS;
 }

@@ -11,12 +11,13 @@
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vulkan/vulkan.h>
+#include <string>
 
 namespace Nz 
 {
 	namespace Vk
 	{
-		template<typename C, typename VkType, typename CreateInfo>
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
 		class DeviceObject
 		{
 			public:
@@ -32,6 +33,9 @@ namespace Nz
 
 				Device* GetDevice() const;
 				VkResult GetLastErrorCode() const;
+
+				void SetDebugName(const char* name);
+				void SetDebugName(const std::string& name);
 
 				DeviceObject& operator=(const DeviceObject&) = delete;
 				DeviceObject& operator=(DeviceObject&&) = delete;

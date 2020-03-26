@@ -16,7 +16,7 @@ namespace Nz
 	{
 		class CommandBuffer;
 
-		class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo>
+		class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo, VK_OBJECT_TYPE_COMMAND_POOL>
 		{
 			friend DeviceObject;
 

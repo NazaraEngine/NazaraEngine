@@ -14,7 +14,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		class Sampler : public DeviceObject<Sampler, VkSampler, VkSamplerCreateInfo>
+		class Sampler : public DeviceObject<Sampler, VkSampler, VkSamplerCreateInfo, VK_OBJECT_TYPE_SAMPLER>
 		{
 			friend DeviceObject;
 
