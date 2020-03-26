@@ -33,7 +33,7 @@ namespace Nz
 			bool IsBetterThan(const RendererImpl* other) const override;
 
 			RenderAPI QueryAPI() const override;
-			String QueryAPIString() const override;
+			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
 			std::vector<RenderDeviceInfo> QueryRenderDevices() const override;
 

@@ -113,7 +113,7 @@ namespace Nz
 		}
 
 		std::filesystem::path path = pluginPath;
-		if (appendExtension && path.extension() == NAZARA_DYNLIB_EXTENSION)
+		if (appendExtension && path.extension() != NAZARA_DYNLIB_EXTENSION)
 			path += NAZARA_DYNLIB_EXTENSION;
 
 		bool exists = false;
@@ -159,7 +159,7 @@ namespace Nz
 			return false;
 		}
 
-		std::filesystem::path canonicalPath = std::filesystem::canonical(pluginPath);
+		std::filesystem::path canonicalPath = std::filesystem::canonical(path);
 		s_plugins[canonicalPath] = std::move(library);
 
 		return true;

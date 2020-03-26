@@ -10,6 +10,7 @@
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <cassert>
+#include <sstream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -53,12 +54,12 @@ namespace Nz
 		return RenderAPI::Vulkan;
 	}
 
-	String VulkanRenderer::QueryAPIString() const
+	std::string VulkanRenderer::QueryAPIString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
 		ss << "Vulkan renderer " << VK_VERSION_MAJOR(APIVersion) << '.' << VK_VERSION_MINOR(APIVersion) << '.' << VK_VERSION_PATCH(APIVersion);
 
-		return ss;
+		return ss.str();
 	}
 
 	UInt32 VulkanRenderer::QueryAPIVersion() const

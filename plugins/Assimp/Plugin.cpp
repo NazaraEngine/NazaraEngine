@@ -320,7 +320,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			if (normalTangentMatrix.HasScale())
 				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags | BufferUsage_Dynamic);
+			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags);
 			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
 			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 

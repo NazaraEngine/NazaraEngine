@@ -198,7 +198,7 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdCopyBuffer(m_handle, source, target, 1, &region);
 		}
 
-		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height)
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			VkBufferImageCopy region = {
 				0,
@@ -214,7 +214,7 @@ namespace Nz
 					0, 0, 0
 				},
 				{ // imageExtent
-					width, height, 1U
+					width, height, depth
 				}
 			};
 
@@ -257,14 +257,26 @@ namespace Nz
 			}
 		}
 
+		inline void CommandBuffer::MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask)
+		{
+			VkMemoryBarrier memoryBarrier = {
+				VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+				nullptr,
+				srcAccessMask,
+				dstAccessMask
+			};
+
+			return PipelineBarrier(srcStageMask, dstStageMask, 0U, memoryBarrier);
+		}
+
 		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkImageMemoryBarrier& imageMemoryBarrier)
 		{
 			return PipelineBarrier(srcStageMask, dstStageMask, dependencyFlags, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 		}
 
-		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkMemoryBarrier& memoryBarrier, const VkBufferMemoryBarrier& bufferMemoryBarrier, const VkImageMemoryBarrier& imageMemoryBarrier)
+		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkMemoryBarrier& memoryBarrier)
 		{
-			return PipelineBarrier(srcStageMask, dstStageMask, dependencyFlags, 1, &memoryBarrier, 1, &bufferMemoryBarrier, 1, &imageMemoryBarrier);
+			return PipelineBarrier(srcStageMask, dstStageMask, dependencyFlags, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 		}
 
 		inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers)
