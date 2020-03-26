@@ -15,6 +15,9 @@
 #include <memory>
 #include <unordered_set>
 
+VK_DEFINE_HANDLE(VmaAllocator)
+VK_DEFINE_HANDLE(VmaAllocation)
+
 namespace Nz 
 {
 	namespace Vk
@@ -47,6 +50,7 @@ namespace Nz
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
+				inline VmaAllocator GetMemoryAllocator() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
 
@@ -63,15 +67,17 @@ namespace Nz
 				inline operator VkDevice();
 
 				// Vulkan functions
+#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) PFN_##func func = nullptr;
+#define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, ...) NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext)
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END()
-#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) PFN_##func func = nullptr;
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
+#undef NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION
+#undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN
 #undef NAZARA_VULKANRENDERER_DEVICE_EXT_END
-#undef NAZARA_VULKANRENDERER_DEVICE_FUNCTION
 
 				struct QueueInfo
 				{
@@ -103,6 +109,7 @@ namespace Nz
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
 				VkResult m_lastErrorCode;
+				VmaAllocator m_memAllocator;
 				UInt32 m_transferQueueFamilyIndex;
 				std::unordered_set<std::string> m_loadedExtensions;
 				std::unordered_set<std::string> m_loadedLayers;

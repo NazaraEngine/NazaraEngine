@@ -31,11 +31,10 @@ namespace Nz
 
 	AbstractBuffer* RenderBuffer::GetHardwareBuffer(RenderDevice* device)
 	{
-		auto it = m_hardwareBuffers.find(device);
-		if (it == m_hardwareBuffers.end())
-			return nullptr;
+		if (HardwareBuffer* hwBuffer = GetHardwareBufferData(device))
+			return hwBuffer->buffer.get();
 
-		return it->second.buffer.get();
+		return nullptr;
 	}
 
 	DataStorage RenderBuffer::GetStorage() const
@@ -66,6 +65,18 @@ namespace Nz
 
 	bool RenderBuffer::Synchronize(RenderDevice* device)
 	{
+		HardwareBuffer* hwBuffer = GetHardwareBufferData(device);
+		if (!hwBuffer)
+			return false;
+
+		if (hwBuffer->synchronized)
+			return true;
+
+		return hwBuffer->buffer->Fill(m_softwareBuffer.GetData(), 0, m_size);
+	}
+
+	auto RenderBuffer::GetHardwareBufferData(RenderDevice* device) -> HardwareBuffer*
+	{
 		auto it = m_hardwareBuffers.find(device);
 		if (it == m_hardwareBuffers.end())
 		{
@@ -74,16 +85,13 @@ namespace Nz
 			if (!hwBuffer.buffer->Initialize(m_size, m_usage))
 			{
 				NazaraError("Failed to initialize hardware buffer");
-				return false;
+				return nullptr;
 			}
 
 			it = m_hardwareBuffers.emplace(device, std::move(hwBuffer)).first;
 		}
 
-		HardwareBuffer& hwBuffer = it->second;
-		if (hwBuffer.synchronized)
-			return true;
-
-		return hwBuffer.buffer->Fill(m_softwareBuffer.GetData(), 0, m_size);
+		return &it->second;
 	}
+
 }

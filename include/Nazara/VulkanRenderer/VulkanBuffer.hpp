@@ -28,7 +28,7 @@ namespace Nz
 
 			bool Fill(const void* data, UInt32 offset, UInt32 size) override;
 
-			inline Nz::Vk::Buffer& GetBufferHandle();
+			inline VkBuffer GetBuffer();
 			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
 
 			DataStorage GetStorage() const override;
@@ -40,14 +40,14 @@ namespace Nz
 			VulkanBuffer& operator=(VulkanBuffer&&) = delete; ///TODO
 
 		private:
-			Vk::Buffer m_stagingBuffer;
-			Vk::DeviceMemory m_stagingMemory;
 			BufferType m_type;
 			BufferUsageFlags m_usage;
 			UInt32 m_size;
-			Vk::Buffer m_buffer;
+			VkBuffer m_buffer;
+			VkBuffer m_stagingBuffer;
+			VmaAllocation m_allocation;
+			VmaAllocation m_stagingAllocation;
 			Vk::Device& m_device;
-			Vk::DeviceMemory m_memory;
 	};
 }
 

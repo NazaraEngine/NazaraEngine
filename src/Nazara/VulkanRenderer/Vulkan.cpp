@@ -163,6 +163,9 @@ namespace Nz
 			#ifdef VK_USE_PLATFORM_WIN32_KHR
 			enabledExtensions.push_back("VK_KHR_win32_surface");
 			#endif
+
+			if (availableExtensions.count(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 		}
 
 		std::vector<String> additionalExtensions; // Just to keep the String alive
@@ -424,6 +427,16 @@ namespace Nz
 			// Swapchain extension is required for rendering
 			enabledExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
+			auto EnableIfSupported = [&](const char* extName)
+			{
+				if (deviceInfo.extensions.count(extName))
+					enabledExtensions.emplace_back(extName);
+			};
+
+			// VMA extensions
+			EnableIfSupported(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+			EnableIfSupported(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
+			EnableIfSupported(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
 		}
 
 		std::vector<String> additionalExtensions; // Just to keep the String alive

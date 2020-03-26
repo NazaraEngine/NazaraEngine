@@ -39,6 +39,11 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
+		inline VmaAllocator Device::GetMemoryAllocator() const
+		{
+			return m_memAllocator;
+		}
+
 		inline VkPhysicalDevice Device::GetPhysicalDevice() const
 		{
 			return m_physicalDevice->physDevice;

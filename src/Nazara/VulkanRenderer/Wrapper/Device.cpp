@@ -9,6 +9,11 @@
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
+
+#define VMA_IMPLEMENTATION
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#include <vma/vk_mem_alloc.h>
+
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -23,7 +28,9 @@ namespace Nz
 		Device::Device(Instance& instance) :
 		m_instance(instance),
 		m_physicalDevice(nullptr),
-		m_device(VK_NULL_HANDLE)
+		m_device(VK_NULL_HANDLE),
+		m_lastErrorCode(VK_SUCCESS),
+		m_memAllocator(VK_NULL_HANDLE)
 		{
 		}
 
@@ -43,7 +50,7 @@ namespace Nz
 			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.physDevice, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to create Vulkan device");
+				NazaraError("Failed to create Vulkan device: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -145,6 +152,61 @@ namespace Nz
 				return false;
 			}
 
+			// Initialize VMA
+			VmaVulkanFunctions vulkanFunctions = {
+				m_instance.vkGetPhysicalDeviceProperties,
+				m_instance.vkGetPhysicalDeviceMemoryProperties,
+				vkAllocateMemory,
+				vkFreeMemory,
+				vkMapMemory,
+				vkUnmapMemory,
+				vkFlushMappedMemoryRanges,
+				vkInvalidateMappedMemoryRanges,
+				vkBindBufferMemory,
+				vkBindImageMemory,
+				vkGetBufferMemoryRequirements,
+				vkGetImageMemoryRequirements,
+				vkCreateBuffer,
+				vkDestroyBuffer,
+				vkCreateImage,
+				vkDestroyImage,
+				vkCmdCopyBuffer,
+#if VMA_DEDICATED_ALLOCATION || VMA_VULKAN_VERSION >= 1001000
+				vkGetBufferMemoryRequirements2,
+				vkGetImageMemoryRequirements2,
+#endif
+#if VMA_BIND_MEMORY2 || VMA_VULKAN_VERSION >= 1001000
+				vkBindBufferMemory2,
+				vkBindImageMemory2,
+#endif
+#if VMA_MEMORY_BUDGET || VMA_VULKAN_VERSION >= 1001000
+				m_instance.vkGetPhysicalDeviceMemoryProperties2,
+#endif
+			};
+
+			VmaAllocatorCreateInfo allocatorInfo = {};
+			allocatorInfo.physicalDevice = deviceInfo.physDevice;
+			allocatorInfo.device = m_device;
+			allocatorInfo.instance = m_instance;
+			allocatorInfo.vulkanApiVersion = std::min<UInt32>(VK_API_VERSION_1_1, m_instance.GetApiVersion());
+			allocatorInfo.pVulkanFunctions = &vulkanFunctions;
+
+			if (vkGetBufferMemoryRequirements2 && vkGetImageMemoryRequirements2)
+				allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
+
+			if (vkBindBufferMemory2 && vkBindImageMemory2)
+				allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT;
+
+			if (IsExtensionLoaded(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME))
+				allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+
+			m_lastErrorCode = vmaCreateAllocator(&allocatorInfo, &m_memAllocator);
+			if (m_lastErrorCode != VK_SUCCESS)
+			{
+				NazaraError("Failed to initialize Vulkan Memory Allocator (VMA): " + TranslateVulkanError(m_lastErrorCode));
+				return false;
+			}
+
 			destroyOnFailure.Reset();
 
 			return true;
@@ -192,6 +254,9 @@ namespace Nz
 
 			if (vkDeviceWaitIdle)
 				vkDeviceWaitIdle(m_device);
+
+			if (m_memAllocator != VK_NULL_HANDLE)
+				vmaDestroyAllocator(m_memAllocator);
 
 			m_internalData.reset();
 
