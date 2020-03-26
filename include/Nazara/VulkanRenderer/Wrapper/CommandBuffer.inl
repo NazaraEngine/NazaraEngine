@@ -32,11 +32,6 @@ namespace Nz
 			commandBuffer.m_handle = VK_NULL_HANDLE;
 		}
 
-		inline CommandBuffer::~CommandBuffer()
-		{
-			Free();
-		}
-
 		inline bool CommandBuffer::Begin(const VkCommandBufferBeginInfo& info)
 		{
 			m_lastErrorCode = m_pool->GetDevice()->vkBeginCommandBuffer(m_handle, &info);

@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <vulkan/vulkan.h>
 
@@ -24,7 +25,7 @@ namespace Nz
 				inline DescriptorSet();
 				DescriptorSet(const DescriptorSet&) = delete;
 				inline DescriptorSet(DescriptorSet&& descriptorSet) noexcept;
-				inline ~DescriptorSet();
+				~DescriptorSet() = default;
 
 				inline void Free();
 
@@ -55,6 +56,15 @@ namespace Nz
 
 				DescriptorPool* m_pool;
 				VkDescriptorSet m_handle;
+		};
+
+		class AutoDescriptorSet : public AutoFree<DescriptorSet>
+		{
+			public:
+				using AutoFree::AutoFree;
+
+				explicit operator bool() const { return Get(); }
+				operator VkDescriptorSet() const { return Get(); }
 		};
 	}
 }

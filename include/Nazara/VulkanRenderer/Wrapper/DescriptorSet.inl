@@ -31,11 +31,6 @@ namespace Nz
 			descriptorSet.m_handle = VK_NULL_HANDLE;
 		}
 
-		inline DescriptorSet::~DescriptorSet()
-		{
-			Free();
-		}
-
 		inline void DescriptorSet::Free()
 		{
 			if (m_handle)

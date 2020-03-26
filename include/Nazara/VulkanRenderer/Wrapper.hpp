@@ -5,6 +5,7 @@
 #ifndef NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP
 #define NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP
 
+#include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
