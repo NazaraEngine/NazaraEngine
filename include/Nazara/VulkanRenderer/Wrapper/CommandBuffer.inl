@@ -216,7 +216,7 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdClearDepthStencilImage(m_handle, image, imageLayout, &depthStencil, rangeCount, ranges);
 		}
 
-		inline void CommandBuffer::CopyBuffer(VkBuffer source, VkBuffer target, UInt32 size, UInt32 sourceOffset, UInt32 targetOffset)
+		inline void CommandBuffer::CopyBuffer(VkBuffer source, VkBuffer target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 		{
 			VkBufferCopy region;
 			region.dstOffset = targetOffset;
@@ -290,6 +290,11 @@ namespace Nz
 				assert(m_pool);
 				m_pool->GetDevice()->vkFreeCommandBuffers(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
 			}
+		}
+
+		inline CommandPool& CommandBuffer::GetPool()
+		{
+			return *m_pool;
 		}
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label)

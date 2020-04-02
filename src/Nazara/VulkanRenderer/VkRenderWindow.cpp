@@ -7,6 +7,8 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <array>
@@ -16,6 +18,7 @@
 namespace Nz
 {
 	VkRenderWindow::VkRenderWindow() :
+	m_currentFrame(0),
 	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
 	{
 	}
@@ -25,22 +28,52 @@ namespace Nz
 		if (m_device)
 			m_device->WaitForIdle();
 
-		m_frameBuffers.clear();
+		m_concurrentImageData.clear();
+		m_graphicsCommandPool.Destroy();
+		m_imageData.clear();
 		m_renderPass.Destroy();
 		m_swapchain.Destroy();
 
 		VkRenderTarget::Destroy();
 	}
 
-	bool VkRenderWindow::Acquire(UInt32* imageIndex, VkSemaphore signalSemaphore, VkFence signalFence) const
+	VulkanRenderImage& VkRenderWindow::Acquire()
 	{
-		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), signalSemaphore, signalFence, imageIndex))
-		{
-			NazaraError("Failed to acquire next image");
-			return false;
-		}
+		VulkanRenderImage& currentFrame = m_concurrentImageData[m_currentFrame];
+		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
-		return true;
+		// Wait until previous rendering to this image has been done
+		inFlightFence.Wait();
+
+		UInt32 imageIndex;
+		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), currentFrame.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex))
+			throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+
+		if (m_imageData[imageIndex].inFlightFence)
+			m_imageData[imageIndex].inFlightFence->Wait();
+
+		m_imageData[imageIndex].inFlightFence = &inFlightFence;
+		m_imageData[imageIndex].inFlightFence->Reset();
+
+		currentFrame.Reset(imageIndex);
+
+		return currentFrame;
+	}
+
+	std::unique_ptr<CommandBuffer> VkRenderWindow::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
+	{
+		Vk::AutoCommandBuffer commandBuffer = m_graphicsCommandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+		if (!commandBuffer->Begin())
+			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		VulkanCommandBufferBuilder builder(commandBuffer.Get());
+		callback(builder);
+
+		if (!commandBuffer->End())
+			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		return std::make_unique<VulkanCommandBuffer>(std::move(commandBuffer));
 	}
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
@@ -49,14 +82,17 @@ namespace Nz
 
 		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
 
-		m_device = Vulkan::SelectDevice(deviceInfo, vulkanSurface, &m_presentableFamilyQueue);
+		UInt32 graphicsFamilyQueueIndex;
+		UInt32 presentableFamilyQueueIndex;
+		m_device = Vulkan::SelectDevice(deviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
 			return false;
 		}
 
-		m_presentQueue = m_device->GetQueue(m_presentableFamilyQueue, 0);
+		m_graphicsQueue = m_device->GetQueue(graphicsFamilyQueueIndex, 0);
+		m_presentQueue = m_device->GetQueue(presentableFamilyQueueIndex, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
 		if (!vulkanSurface.GetFormats(deviceInfo.physDevice, &surfaceFormats))
@@ -144,10 +180,10 @@ namespace Nz
 		UInt32 imageCount = m_swapchain.GetBufferCount();
 
 		// Framebuffers
-		m_frameBuffers.resize(imageCount);
+		m_imageData.resize(imageCount);
 		for (UInt32 i = 0; i < imageCount; ++i)
 		{
-			std::array<VkImageView, 2> attachments = {m_swapchain.GetBuffer(i).view, m_depthBufferView};
+			std::array<VkImageView, 2> attachments = { m_swapchain.GetBuffer(i).view, m_depthBufferView };
 
 			VkFramebufferCreateInfo frameBufferCreate = {
 				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,    // VkStructureType             sType;
@@ -161,12 +197,24 @@ namespace Nz
 				1U                                            // uint32_t                    layers;
 			};
 
-			if (!m_frameBuffers[i].Create(*m_device, frameBufferCreate))
+			if (!m_imageData[i].framebuffer.Create(*m_device, frameBufferCreate))
 			{
-				NazaraError("Failed to create framebuffer for image #" + String::Number(i));
+				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(m_imageData[i].framebuffer.GetLastErrorCode()));
 				return false;
 			}
 		}
+
+		if (!m_graphicsCommandPool.Create(*m_device, m_graphicsQueue.GetQueueFamilyIndex()))
+		{
+			NazaraError("Failed to create graphics command pool: " + TranslateVulkanError(m_graphicsCommandPool.GetLastErrorCode()));
+			return false;
+		}
+
+		const std::size_t MaxConcurrentImage = imageCount;
+		m_concurrentImageData.reserve(MaxConcurrentImage);
+
+		for (std::size_t i = 0; i < MaxConcurrentImage; ++i)
+			m_concurrentImageData.emplace_back(*this);
 
 		m_clock.Restart();
 
@@ -181,7 +229,7 @@ namespace Nz
 			0U,                                                                            // VkImageCreateFlags       flags;
 			VK_IMAGE_TYPE_2D,                                                              // VkImageType              imageType;
 			m_depthStencilFormat,                                                          // VkFormat                 format;
-			{size.x, size.y, 1U},                                                 // VkExtent3D               extent;
+			{size.x, size.y, 1U},                                                          // VkExtent3D               extent;
 			1U,                                                                            // uint32_t                 mipLevels;
 			1U,                                                                            // uint32_t                 arrayLayers;
 			VK_SAMPLE_COUNT_1_BIT,                                                         // VkSampleCountFlagBits    samples;

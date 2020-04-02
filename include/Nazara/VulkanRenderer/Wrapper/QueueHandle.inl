@@ -18,10 +18,11 @@ namespace Nz
 		{
 		}
 
-		inline QueueHandle::QueueHandle(Device& device, VkQueue queue) :
+		inline QueueHandle::QueueHandle(Device& device, VkQueue queue, UInt32 queueFamilyIndex) :
 		m_device(&device),
 		m_handle(queue),
-		m_lastErrorCode(VkResult::VK_SUCCESS)
+		m_lastErrorCode(VkResult::VK_SUCCESS),
+		m_queueFamilyIndex(queueFamilyIndex)
 		{
 		}
 
@@ -33,6 +34,11 @@ namespace Nz
 		inline VkResult QueueHandle::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
+		}
+
+		inline UInt32 QueueHandle::GetQueueFamilyIndex() const
+		{
+			return m_queueFamilyIndex;
 		}
 
 		inline bool QueueHandle::Present(const VkPresentInfoKHR& presentInfo) const

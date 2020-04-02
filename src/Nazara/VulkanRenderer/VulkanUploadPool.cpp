@@ -4,11 +4,12 @@
 
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <cassert>
+#include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	auto VulkanUploadPool::Allocate(UInt64 size) -> std::optional<AllocationData>
+	auto VulkanUploadPool::Allocate(UInt64 size) -> VulkanAllocation&
 	{
 		const auto& deviceProperties = m_device.GetPhysicalDeviceInfo().properties;
 		UInt64 preferredAlignement = deviceProperties.limits.optimalBufferCopyOffsetAlignment;
@@ -16,7 +17,7 @@ namespace Nz
 		return Allocate(size, preferredAlignement);
 	}
 
-	auto VulkanUploadPool::Allocate(UInt64 size, UInt64 alignment) -> std::optional<AllocationData>
+	auto VulkanUploadPool::Allocate(UInt64 size, UInt64 alignment) -> VulkanAllocation&
 	{
 		assert(size <= m_blockSize);
 
@@ -49,37 +50,25 @@ namespace Nz
 		{
 			Block newBlock;
 			if (!newBlock.buffer.Create(m_device, 0U, m_blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
-			{
-				NazaraError("Failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
-				return {};
-			}
+				throw std::runtime_error("Failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			VkMemoryRequirements requirement = newBlock.buffer.GetMemoryRequirements();
 
 			if (!newBlock.blockMemory.Create(m_device, requirement.size, requirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
-			{
-				NazaraError("Failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
-				return {};
-			}
+				throw std::runtime_error("Failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
 
 			if (!newBlock.buffer.BindBufferMemory(newBlock.blockMemory))
-			{
-				NazaraError("Failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
-				return {};
-			}
+				throw std::runtime_error("Failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			if (!newBlock.blockMemory.Map())
-			{
-				NazaraError("Failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
-				return {};
-			}
+				throw std::runtime_error("Failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			bestBlock.block = &m_blocks.emplace_back(std::move(newBlock));
 			bestBlock.alignedOffset = 0;
 			bestBlock.lostSpace = 0;
 		}
 
-		AllocationData allocationData;
+		VulkanAllocation& allocationData = m_allocations.emplace_back();
 		allocationData.buffer = bestBlock.block->buffer;
 		allocationData.mappedPtr = static_cast<UInt8*>(bestBlock.block->blockMemory.GetMappedPointer()) + bestBlock.alignedOffset;
 		allocationData.offset = bestBlock.alignedOffset;
@@ -92,5 +81,7 @@ namespace Nz
 	{
 		for (Block& block : m_blocks)
 			block.freeOffset = 0;
+
+		m_allocations.clear();
 	}
 }

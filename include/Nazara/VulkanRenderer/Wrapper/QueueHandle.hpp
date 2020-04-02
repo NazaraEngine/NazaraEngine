@@ -20,13 +20,14 @@ namespace Nz
 		{
 			public:
 				inline QueueHandle();
-				inline QueueHandle(Device& device, VkQueue queue);
+				inline QueueHandle(Device& device, VkQueue queue, UInt32 queueFamilyIndex);
 				QueueHandle(const QueueHandle& queue) = delete;
 				QueueHandle(QueueHandle&& queue) noexcept = default;
 				~QueueHandle() = default;
 
 				inline Device& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
+				inline UInt32 GetQueueFamilyIndex() const;
 
 				inline bool Present(const VkPresentInfoKHR& presentInfo) const;
 				inline bool Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) const;
@@ -51,6 +52,7 @@ namespace Nz
 				MovablePtr<Device> m_device;
 				VkQueue m_handle;
 				mutable VkResult m_lastErrorCode;
+				UInt32 m_queueFamilyIndex;
 		};
 	}
 }

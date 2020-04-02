@@ -297,7 +297,7 @@ namespace Nz
 		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -362,7 +362,8 @@ namespace Nz
 			}
 		};
 
-		*presentableFamilyQueue = presentQueueNodeIndex;
+		*graphicsFamilyIndex = graphicsQueueNodeIndex;
+		*presentableFamilyIndex = presentQueueNodeIndex;
 
 		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
@@ -496,7 +497,7 @@ namespace Nz
 		return CreateDevice(deviceInfo);
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue)
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex)
 	{
 		// First, try to find a device compatible with that surface
 		for (auto it = s_devices.begin(); it != s_devices.end();)
@@ -505,6 +506,7 @@ namespace Nz
 			if (devicePtr->GetPhysicalDevice() == deviceInfo.physDevice)
 			{
 				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
+				UInt32 graphicsQueueFamilyIndex = UINT32_MAX;
 				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
 				for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
 				{
@@ -515,14 +517,29 @@ namespace Nz
 						{
 							presentableQueueFamilyIndex = queueInfo.familyIndex;
 							if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+							{
+								*graphicsFamilyIndex = queueInfo.familyIndex;
 								break;
+							}
+						}
+					}
+				}
+
+				if (graphicsQueueFamilyIndex == UINT32_MAX)
+				{
+					for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+					{
+						if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+						{
+							*graphicsFamilyIndex = queueInfo.familyIndex;
+							break;
 						}
 					}
 				}
 
 				if (presentableQueueFamilyIndex != UINT32_MAX)
 				{
-					*presentableFamilyQueue = presentableQueueFamilyIndex;
+					*presentableFamilyIndex = presentableQueueFamilyIndex;
 					return devicePtr;
 				}
 			}
@@ -531,7 +548,7 @@ namespace Nz
 		}
 
 		// No device had support for that surface, create one
-		return CreateDevice(deviceInfo, surface, presentableFamilyQueue);
+		return CreateDevice(deviceInfo, surface, graphicsFamilyIndex, presentableFamilyIndex);
 	}
 
 	void Vulkan::Uninitialize()

@@ -13,11 +13,14 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
-#include <vector>
+#include <functional>
 
 namespace Nz
 {
+	class CommandBuffer;
+	class CommandBufferBuilder;
 	class RendererImpl;
+	class RenderImage;
 	class RenderSurface;
 
 	class NAZARA_RENDERER_API RenderWindowImpl
@@ -25,6 +28,10 @@ namespace Nz
 		public:
 			RenderWindowImpl() = default;
 			virtual ~RenderWindowImpl();
+
+			virtual RenderImage& Acquire() = 0;
+
+			virtual std::unique_ptr<CommandBuffer> BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) = 0;
 
 			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
 

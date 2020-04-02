@@ -29,15 +29,19 @@
 #ifndef NAZARA_GLOBAL_RENDERER_HPP
 #define NAZARA_GLOBAL_RENDERER_HPP
 
+#include <Nazara/Renderer/CommandBuffer.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -52,5 +56,6 @@
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP

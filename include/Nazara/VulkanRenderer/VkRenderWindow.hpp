@@ -15,6 +15,7 @@
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
@@ -37,7 +38,9 @@ namespace Nz
 			VkRenderWindow(VkRenderWindow&&) = delete; ///TODO
 			virtual ~VkRenderWindow();
 
-			bool Acquire(UInt32* index, VkSemaphore signalSemaphore = VK_NULL_HANDLE, VkFence signalFence = VK_NULL_HANDLE) const override;
+			VulkanRenderImage& Acquire() override;
+
+			std::unique_ptr<CommandBuffer> BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
 
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 
@@ -45,12 +48,12 @@ namespace Nz
 			inline UInt32 GetFramebufferCount() const override;
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
-			inline UInt32 GetPresentableFamilyQueue() const;
+			inline Vk::QueueHandle& GetGraphicsQueue();
 			inline const Vk::Swapchain& GetSwapchain() const;
 
 			std::shared_ptr<RenderDevice> GetRenderDevice() override;
 
-			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE) override;
+			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
 			VkRenderWindow& operator=(const VkRenderWindow&) = delete;
 			VkRenderWindow& operator=(VkRenderWindow&&) = delete; ///TODO
@@ -60,18 +63,27 @@ namespace Nz
 			bool SetupRenderPass();
 			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
 
+			struct ImageData
+			{
+				Vk::Framebuffer framebuffer;
+				Vk::Fence* inFlightFence = nullptr;
+			};
+
+			std::size_t m_currentFrame;
 			Clock m_clock;
 			VkColorSpaceKHR m_colorSpace;
 			VkFormat m_colorFormat;
 			VkFormat m_depthStencilFormat;
 			std::shared_ptr<VulkanDevice> m_device;
-			std::vector<Vk::Framebuffer> m_frameBuffers;
+			std::vector<ImageData> m_imageData;
+			std::vector<VulkanRenderImage> m_concurrentImageData;
+			Vk::CommandPool m_graphicsCommandPool;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;
+			Vk::QueueHandle m_graphicsQueue;
 			Vk::QueueHandle m_presentQueue;
 			Vk::Swapchain m_swapchain;
-			UInt32 m_presentableFamilyQueue;
 	};
 }
 

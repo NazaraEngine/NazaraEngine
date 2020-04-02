@@ -55,7 +55,7 @@ namespace Nz
 				inline void ClearDepthStencilImage(VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue& depthStencil, const VkImageSubresourceRange& range);
 				inline void ClearDepthStencilImage(VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue& depthStencil, UInt32 rangeCount, const VkImageSubresourceRange* ranges);
 
-				inline void CopyBuffer(VkBuffer source, VkBuffer target, UInt32 size, UInt32 sourceOffset = 0, UInt32 targetOffset = 0);
+				inline void CopyBuffer(VkBuffer source, VkBuffer target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height, UInt32 depth = 1);
 
 				inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
@@ -67,6 +67,8 @@ namespace Nz
 				inline void EndRenderPass();
 
 				inline void Free();
+
+				inline CommandPool& GetPool();
 
 				inline void InsertDebugLabel(const char* label);
 				inline void InsertDebugLabel(const char* label, Nz::Color color);
