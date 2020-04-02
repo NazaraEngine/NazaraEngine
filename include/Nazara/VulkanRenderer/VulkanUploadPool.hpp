@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
 #include <optional>
@@ -16,28 +17,23 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanUploadPool
+	class NAZARA_VULKANRENDERER_API VulkanUploadPool : public UploadPool
 	{
 		public:
-			struct AllocationData;
+			struct VulkanAllocation : Allocation
+			{
+				VkBuffer buffer;
+			};
 
 			inline VulkanUploadPool(Vk::Device& device, UInt64 blockSize);
 			VulkanUploadPool(const VulkanUploadPool&) = delete;
 			VulkanUploadPool(VulkanUploadPool&&) noexcept = default;
 			~VulkanUploadPool() = default;
 
-			std::optional<AllocationData> Allocate(UInt64 size);
-			std::optional<AllocationData> Allocate(UInt64 size, UInt64 alignment);
+			VulkanAllocation& Allocate(UInt64 size) override;
+			VulkanAllocation& Allocate(UInt64 size, UInt64 alignment) override;
 
-			void Reset();
-
-			struct AllocationData
-			{
-				VkBuffer buffer;
-				void* mappedPtr;
-				UInt64 offset;
-				UInt64 size;
-			};
+			void Reset() override;
 
 			VulkanUploadPool& operator=(const VulkanUploadPool&) = delete;
 			VulkanUploadPool& operator=(VulkanUploadPool&&) = delete;
@@ -53,6 +49,7 @@ namespace Nz
 			UInt64 m_blockSize;
 			Vk::Device& m_device;
 			std::vector<Block> m_blocks;
+			std::vector<VulkanAllocation> m_allocations;
 	};
 }
 

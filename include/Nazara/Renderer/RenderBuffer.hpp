@@ -27,14 +27,15 @@ namespace Nz
 			RenderBuffer(RenderBuffer&&) = default;
 			~RenderBuffer() = default;
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size) final;
+			bool Fill(const void* data, UInt64 offset, UInt64 size) final;
 
-			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
+			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
 			AbstractBuffer* GetHardwareBuffer(RenderDevice* device);
+			UInt64 GetSize() const override;
 			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) final;
+			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) final;
 			bool Unmap() final;
 
 			RenderBuffer& operator=(const RenderBuffer&) = delete;

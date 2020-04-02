@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	bool RenderBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
+	bool RenderBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
 		if (m_softwareBuffer.Fill(data, offset, size))
 		{
@@ -21,7 +21,7 @@ namespace Nz
 			return false;
 	}
 
-	bool RenderBuffer::Initialize(UInt32 size, BufferUsageFlags usage)
+	bool RenderBuffer::Initialize(UInt64 size, BufferUsageFlags usage)
 	{
 		m_size = size;
 		m_softwareBuffer.Initialize(size, usage);
@@ -37,12 +37,17 @@ namespace Nz
 		return nullptr;
 	}
 
+	UInt64 RenderBuffer::GetSize() const
+	{
+		return m_size;
+	}
+
 	DataStorage RenderBuffer::GetStorage() const
 	{
 		return DataStorage::DataStorage_Hardware;
 	}
 
-	void* RenderBuffer::Map(BufferAccess access, UInt32 offset, UInt32 size)
+	void* RenderBuffer::Map(BufferAccess access, UInt64 offset, UInt64 size)
 	{
 		if (void* ptr = m_softwareBuffer.Map(access, offset, size))
 		{

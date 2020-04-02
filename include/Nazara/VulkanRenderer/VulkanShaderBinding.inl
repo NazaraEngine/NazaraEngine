@@ -17,6 +17,11 @@ namespace Nz
 	{
 		return m_descriptorSet;
 	}
+
+	inline VulkanRenderPipelineLayout& VulkanShaderBinding::GetOwner()
+	{
+		return m_owner;
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>

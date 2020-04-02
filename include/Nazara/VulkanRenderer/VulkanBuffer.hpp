@@ -26,14 +26,15 @@ namespace Nz
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
 			virtual ~VulkanBuffer();
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size) override;
+			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
+
+			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
 			inline VkBuffer GetBuffer();
-			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
-
+			UInt64 GetSize() const override;
 			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt32 offset, UInt32 size) override;
+			void* Map(BufferAccess access, UInt64 offset, UInt64 size) override;
 			bool Unmap() override;
 
 			VulkanBuffer& operator=(const VulkanBuffer&) = delete;
@@ -42,7 +43,7 @@ namespace Nz
 		private:
 			BufferType m_type;
 			BufferUsageFlags m_usage;
-			UInt32 m_size;
+			UInt64 m_size;
 			VkBuffer m_buffer;
 			VkBuffer m_stagingBuffer;
 			VmaAllocation m_allocation;

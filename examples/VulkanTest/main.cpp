@@ -114,18 +114,6 @@ int main()
 	// Vertex buffer
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
-	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
-	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
-
-	Nz::Vk::CommandPool cmdPool;
-	if (!cmdPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
-	{
-		NazaraError("Failed to create rendering cmd pool");
-		return __LINE__;
-	}
-
-	Nz::Vk::QueueHandle graphicsQueue = vulkanDevice.GetQueue(0, 0);
-
 	// Texture
 	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
 	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormatType_RGBA8))
@@ -219,8 +207,11 @@ int main()
 	clearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f};
 	clearValues[1].depthStencil = {1.f, 0};
 
+	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
+	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
+
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
-	std::vector<Nz::Vk::CommandBuffer> renderCmds = cmdPool.AllocateCommandBuffers(imageCount, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	std::vector<std::unique_ptr<Nz::CommandBuffer>> renderCmds(imageCount);
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
@@ -237,18 +228,14 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::VulkanBuffer* indexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferIB->GetHardwareBuffer(&vulkanDevice));
-	Nz::VulkanBuffer* vertexBufferImpl = static_cast<Nz::VulkanBuffer*>(renderBufferVB->GetHardwareBuffer(&vulkanDevice));
+	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(&vulkanDevice);
+	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(&vulkanDevice);
 
 	Nz::VulkanRenderPipeline* vkPipeline = static_cast<Nz::VulkanRenderPipeline*>(pipeline.get());
 
-	Nz::VulkanRenderPipelineLayout* vkPipelineLayout = static_cast<Nz::VulkanRenderPipelineLayout*>(renderPipelineLayout.get());
-
-	Nz::VulkanShaderBinding& vkShaderBinding = static_cast<Nz::VulkanShaderBinding&>(shaderBinding);
-
 	for (Nz::UInt32 i = 0; i < imageCount; ++i)
 	{
-		Nz::Vk::CommandBuffer& renderCmd = renderCmds[i];
+		auto& commandBufferPtr = renderCmds[i];
 
 		VkRect2D renderArea = {
 			{                                           // VkOffset2D                     offset
@@ -271,24 +258,29 @@ int main()
 			clearValues.data()                                  // const VkClearValue            *pClearValues
 		};
 
-		renderCmd.Begin();
-		renderCmd.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-		renderCmd.BeginRenderPass(render_pass_begin_info);
-		renderCmd.BindIndexBuffer(indexBufferImpl->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
-		renderCmd.BindVertexBuffer(0, vertexBufferImpl->GetBuffer(), 0);
-		renderCmd.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout->GetPipelineLayout(), 0, vkShaderBinding.GetDescriptorSet());
-		renderCmd.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass()));
-		renderCmd.SetScissor(Nz::Recti{0, 0, int(windowSize.x), int(windowSize.y)});
-		renderCmd.SetViewport({0.f, 0.f, float(windowSize.x), float(windowSize.y)}, 0.f, 1.f);
-		renderCmd.DrawIndexed(drfreakIB->GetIndexCount());
-		renderCmd.EndRenderPass();
-		renderCmd.EndDebugRegion();
-
-		if (!renderCmd.End())
+		commandBufferPtr = vulkanWindow.BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
 		{
-			NazaraError("Failed to specify render cmd");
-			return __LINE__;
-		}
+			Nz::Vk::CommandBuffer& vkCommandBuffer = static_cast<Nz::VulkanCommandBufferBuilder&>(builder).GetCommandBuffer();
+
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			{
+				vkCommandBuffer.BeginRenderPass(render_pass_begin_info);
+				{
+					builder.BindIndexBuffer(indexBufferImpl);
+					builder.BindVertexBuffer(0, vertexBufferImpl);
+					builder.BindShaderBinding(shaderBinding);
+
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+
+					vkCommandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass())); //< TODO
+
+					builder.DrawIndexed(drfreakIB->GetIndexCount());
+				}
+				vkCommandBuffer.EndRenderPass();
+			}
+			builder.EndDebugRegion();
+		});
 	}
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
@@ -297,38 +289,6 @@ int main()
 	Nz::Quaternionf camQuat(camAngles);
 
 	window.EnableEventPolling(true);
-
-	struct ImageData
-	{
-		Nz::Vk::Fence inflightFence;
-		Nz::Vk::Semaphore imageAvailableSemaphore;
-		Nz::Vk::Semaphore renderFinishedSemaphore;
-		Nz::Vk::AutoCommandBuffer commandBuffer;
-		std::optional<Nz::VulkanUploadPool> uploadPool;
-	};
-
-	const std::size_t MaxConcurrentImage = imageCount;
-
-	Nz::Vk::CommandPool transientPool;
-	transientPool.Create(vulkanDevice, 0, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-	transientPool.SetDebugName("Transient command pool");
-
-	std::vector<ImageData> frameSync(MaxConcurrentImage);
-	for (ImageData& syncData : frameSync)
-	{
-		syncData.imageAvailableSemaphore.Create(vulkanDevice);
-		syncData.renderFinishedSemaphore.Create(vulkanDevice);
-
-		syncData.inflightFence.Create(vulkanDevice, VK_FENCE_CREATE_SIGNALED_BIT);
-
-		syncData.uploadPool.emplace(vulkanDevice, 8 * 1024 * 1024);
-
-		syncData.commandBuffer = transientPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-	}
-
-	std::vector<Nz::Vk::Fence*> inflightFences(imageCount, nullptr);
-
-	std::size_t currentFrame = 0;
 
 	Nz::Clock updateClock;
 	Nz::Clock secondClock;
@@ -395,47 +355,30 @@ int main()
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 		}
 
-		ImageData& frame = frameSync[currentFrame];
-		frame.inflightFence.Wait();
-
-		Nz::UInt32 imageIndex;
-		if (!vulkanWindow.Acquire(&imageIndex, frame.imageAvailableSemaphore))
-		{
-			std::cout << "Failed to acquire next image" << std::endl;
-			return EXIT_FAILURE;
-		}
-
-		if (inflightFences[imageIndex])
-			inflightFences[imageIndex]->Wait();
-
-		inflightFences[imageIndex] = &frame.inflightFence;
-		inflightFences[imageIndex]->Reset();
-
-		// Update UBO
-		frame.uploadPool->Reset();
+		Nz::VulkanRenderImage& renderImage = vulkanWindow.Acquire();
 
 		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
-		auto allocData = frame.uploadPool->Allocate(uniformSize);
-		assert(allocData);
+		auto& allocation = renderImage.GetUploadPool().Allocate(uniformSize);
 
-		std::memcpy(allocData->mappedPtr, &ubo, sizeof(ubo));
+		std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
 
-		frame.commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-		frame.commandBuffer->BeginDebugRegion("UBO Update", Nz::Color::Yellow);
-		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT);
-		frame.commandBuffer->CopyBuffer(allocData->buffer, static_cast<Nz::VulkanBuffer*>(uniformBuffer.get())->GetBuffer(), allocData->size, allocData->offset);
-		frame.commandBuffer->MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT);
-		frame.commandBuffer->EndDebugRegion();
-		frame.commandBuffer->End();
+		renderImage.Execute([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+			{
+				builder.PreTransferBarrier();
+				builder.CopyBuffer(allocation, uniformBuffer.get());
+				builder.PostTransferBarrier();
+			}
+			builder.EndDebugRegion();
+		}, false);
 
-		if (!graphicsQueue.Submit(frame.commandBuffer))
-			return false;
+		Nz::UInt32 imageIndex = renderImage.GetImageIndex();
 
-		if (!graphicsQueue.Submit(renderCmds[imageIndex], frame.imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, frame.renderFinishedSemaphore, frame.inflightFence))
-			return false;
+		renderImage.SubmitCommandBuffer(renderCmds[imageIndex].get(), true);
 
-		vulkanWindow.Present(imageIndex, frame.renderFinishedSemaphore);
+		renderImage.Present();
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;
@@ -458,8 +401,6 @@ int main()
 			// Et on relance l'horloge pour refaire ça dans une seconde
 			secondClock.Restart();
 		}
-
-		currentFrame = (currentFrame + 1) % imageCount;
 	}
 
 	instance.vkDestroyDebugUtilsMessengerEXT(instance, callback, nullptr);

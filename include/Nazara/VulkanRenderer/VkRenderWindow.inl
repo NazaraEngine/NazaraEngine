@@ -17,19 +17,19 @@ namespace Nz
 		return *m_device;
 	}
 
+	inline Vk::QueueHandle& VkRenderWindow::GetGraphicsQueue()
+	{
+		return m_graphicsQueue;
+	}
+
 	inline const Vk::Framebuffer& VkRenderWindow::GetFrameBuffer(UInt32 imageIndex) const
 	{
-		return m_frameBuffers[imageIndex];
+		return m_imageData[imageIndex].framebuffer;
 	}
 
 	inline UInt32 VkRenderWindow::GetFramebufferCount() const
 	{
-		return static_cast<UInt32>(m_frameBuffers.size());
-	}
-
-	inline UInt32 VkRenderWindow::GetPresentableFamilyQueue() const
-	{
-		return m_presentableFamilyQueue;
+		return static_cast<UInt32>(m_imageData.size());
 	}
 
 	inline const Vk::Swapchain& VkRenderWindow::GetSwapchain() const
@@ -44,9 +44,11 @@ namespace Nz
 
 	inline void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
-		NazaraAssert(imageIndex < m_frameBuffers.size(), "Invalid image index");
+		NazaraAssert(imageIndex < m_imageData.size(), "Invalid image index");
 
 		m_presentQueue.Present(m_swapchain, imageIndex, waitSemaphore);
+
+		m_currentFrame = (m_currentFrame + 1) % m_imageData.size();
 	}
 }
 

@@ -17,7 +17,7 @@ namespace Nz
 		vmaDestroyBuffer(m_device.GetMemoryAllocator(), m_buffer, m_allocation);
 	}
 
-	bool VulkanBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
+	bool VulkanBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
 		void* ptr = Map(BufferAccess_WriteOnly, offset, size);
 		if (!ptr)
@@ -30,7 +30,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanBuffer::Initialize(UInt32 size, BufferUsageFlags usage)
+	bool VulkanBuffer::Initialize(UInt64 size, BufferUsageFlags usage)
 	{
 		m_size = size;
 		m_usage = usage;
@@ -69,12 +69,17 @@ namespace Nz
 		return true;
 	}
 
+	UInt64 VulkanBuffer::GetSize() const
+	{
+		return m_size;
+	}
+
 	DataStorage VulkanBuffer::GetStorage() const
 	{
 		return DataStorage_Hardware;
 	}
 
-	void* VulkanBuffer::Map(BufferAccess /*access*/, UInt32 offset, UInt32 size)
+	void* VulkanBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 size)
 	{
 		if (m_usage & BufferUsage_DirectMapping)
 		{

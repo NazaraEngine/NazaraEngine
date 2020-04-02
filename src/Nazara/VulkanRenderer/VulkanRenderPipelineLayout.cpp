@@ -39,16 +39,16 @@ namespace Nz
 
 		DescriptorPool pool;
 		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-		{
-			//return {};
-		}
+			throw std::runtime_error("Failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
 
 		pool.allocatedSets.reserve(MaxSet);
 
 		auto& poolData = m_descriptorPools.emplace_back(std::move(pool));
 		Vk::DescriptorSet descriptorSet = poolData.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
-		//if (descriptorSet)
-			return poolData.allocatedSets.emplace_back(*this, std::move(descriptorSet));
+		if (!descriptorSet)
+			throw std::runtime_error("Failed to allocate descriptor set: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
+
+		return poolData.allocatedSets.emplace_back(*this, std::move(descriptorSet));
 	}
 
 	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)

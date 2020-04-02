@@ -36,7 +36,7 @@ namespace Nz
 			~Vulkan() = delete;
 
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo);
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex);
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
 
 			static Vk::Instance& GetInstance();
@@ -49,7 +49,7 @@ namespace Nz
 			static bool IsInitialized();
 
 			static std::shared_ptr<VulkanDevice> SelectDevice(const Vk::PhysicalDevice& deviceInfo);
-			static std::shared_ptr<VulkanDevice> SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* presentableFamilyQueue);
+			static std::shared_ptr<VulkanDevice> SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex);
 
 			static void Uninitialize();
 

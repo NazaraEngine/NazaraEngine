@@ -24,6 +24,7 @@ namespace Nz
 			~VulkanShaderBinding() = default;
 
 			inline Vk::DescriptorSet& GetDescriptorSet();
+			inline VulkanRenderPipelineLayout& GetOwner();
 
 			void Update(std::initializer_list<Binding> bindings) override;
 

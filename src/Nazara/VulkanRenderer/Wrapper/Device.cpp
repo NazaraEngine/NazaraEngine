@@ -231,7 +231,7 @@ namespace Nz
 			const auto& queues = GetEnabledQueues(queueFamilyIndex);
 			NazaraAssert(queueIndex < queues.size(), "Invalid queue index");
 
-			return QueueHandle(*this, queues[queueIndex].queue);
+			return QueueHandle(*this, queues[queueIndex].queue, queueFamilyIndex);
 		}
 
 		void Device::ResetPointers()
