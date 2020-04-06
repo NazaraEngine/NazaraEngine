@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline void ShaderBindingDeleter::operator()(ShaderBinding* binding)
+	{
+		binding->Release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

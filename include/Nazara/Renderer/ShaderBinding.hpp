@@ -9,16 +9,23 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <memory>
 #include <variant>
 
 namespace Nz
 {
 	class AbstractBuffer;
+	class ShaderBinding;
+	class ShaderBindingDeleter;
 	class Texture;
 	class TextureSampler;
 
+	using ShaderBindingPtr = std::unique_ptr<ShaderBinding, ShaderBindingDeleter>;
+
 	class NAZARA_RENDERER_API ShaderBinding
 	{
+		friend ShaderBindingDeleter;
+
 		public:
 			struct Binding;
 
@@ -47,8 +54,16 @@ namespace Nz
 			};
 
 		protected:
+			virtual void Release() = 0;
+
 			ShaderBinding(const ShaderBinding&) = delete;
 			ShaderBinding(ShaderBinding&&) = default;
+	};
+
+	class ShaderBindingDeleter
+	{
+		public:
+			inline void operator()(ShaderBinding* binding);
 	};
 }
 

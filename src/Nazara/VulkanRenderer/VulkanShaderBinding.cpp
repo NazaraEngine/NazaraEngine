@@ -67,4 +67,9 @@ namespace Nz
 
 		m_owner.GetDevice()->vkUpdateDescriptorSets(*m_owner.GetDevice(), UInt32(writeOps.size()), writeOps.data(), 0U, nullptr);
 	}
+
+	void VulkanShaderBinding::Release()
+	{
+		m_owner.Release(*this);
+	}
 }

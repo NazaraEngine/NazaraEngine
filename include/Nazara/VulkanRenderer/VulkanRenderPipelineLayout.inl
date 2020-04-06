@@ -21,6 +21,21 @@ namespace Nz
 	{
 		return m_pipelineLayout;
 	}
+
+	inline void VulkanRenderPipelineLayout::TryToShrink()
+	{
+		std::size_t poolCount = m_descriptorPools.size();
+		if (poolCount >= 2 && m_descriptorPools.back().freeBindings.TestAll())
+		{
+			for (std::size_t i = poolCount - 1; i > 0; ++i)
+			{
+				if (m_descriptorPools[i].freeBindings.TestAll())
+					poolCount--;
+			}
+
+			m_descriptorPools.resize(poolCount);
+		}
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
