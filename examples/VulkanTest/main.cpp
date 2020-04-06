@@ -166,7 +166,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
-	Nz::ShaderBinding& shaderBinding = renderPipelineLayout->AllocateShaderBinding();
+	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
 	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal))
@@ -175,7 +175,7 @@ int main()
 		return __LINE__;
 	}
 
-	shaderBinding.Update({
+	shaderBinding->Update({
 		{
 			0,
 			Nz::ShaderBinding::UniformBufferBinding {
@@ -268,7 +268,7 @@ int main()
 				{
 					builder.BindIndexBuffer(indexBufferImpl);
 					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(shaderBinding);
+					builder.BindShaderBinding(*shaderBinding);
 
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });

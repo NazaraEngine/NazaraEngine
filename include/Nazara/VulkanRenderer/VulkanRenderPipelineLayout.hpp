@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
@@ -16,17 +17,21 @@
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.hpp>
+#include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace Nz
 {
 	class NAZARA_VULKANRENDERER_API VulkanRenderPipelineLayout : public RenderPipelineLayout
 	{
+		friend VulkanShaderBinding;
+
 		public:
 			VulkanRenderPipelineLayout() = default;
-			~VulkanRenderPipelineLayout() = default;
+			~VulkanRenderPipelineLayout();
 
-			VulkanShaderBinding& AllocateShaderBinding() override;
+			ShaderBindingPtr AllocateShaderBinding() override;
 
 			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
 
@@ -36,10 +41,20 @@ namespace Nz
 			inline const Vk::PipelineLayout& GetPipelineLayout() const;
 
 		private:
+			struct DescriptorPool;
+
+			DescriptorPool& AllocatePool();
+			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex);
+			void Release(ShaderBinding& binding);
+			inline void TryToShrink();
+
 			struct DescriptorPool
 			{
+				using BindingStorage = std::aligned_storage_t<sizeof(VulkanShaderBinding), alignof(VulkanShaderBinding)>;
+
+				Bitset<UInt64> freeBindings;
 				Vk::DescriptorPool descriptorPool;
-				std::vector<VulkanShaderBinding> allocatedSets;
+				std::unique_ptr<BindingStorage[]> storage;
 			};
 
 			MovablePtr<Vk::Device> m_device;

@@ -18,12 +18,14 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanShaderBinding : public ShaderBinding
 	{
 		public:
-			inline VulkanShaderBinding(VulkanRenderPipelineLayout& owner, Vk::DescriptorSet descriptorSet);
+			inline VulkanShaderBinding(VulkanRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::DescriptorSet descriptorSet);
 			VulkanShaderBinding(const VulkanShaderBinding&) = default;
 			VulkanShaderBinding(VulkanShaderBinding&&) noexcept = default;
 			~VulkanShaderBinding() = default;
 
+			inline std::size_t GetBindingIndex() const;
 			inline Vk::DescriptorSet& GetDescriptorSet();
+			inline std::size_t GetPoolIndex() const;
 			inline VulkanRenderPipelineLayout& GetOwner();
 
 			void Update(std::initializer_list<Binding> bindings) override;
@@ -32,8 +34,12 @@ namespace Nz
 			VulkanShaderBinding& operator=(VulkanShaderBinding&&) = delete;
 
 		private:
+			void Release() override;
+
 			Vk::AutoDescriptorSet m_descriptorSet;
 			VulkanRenderPipelineLayout& m_owner;
+			std::size_t m_bindingIndex;
+			std::size_t m_poolIndex;
 	};
 }
 

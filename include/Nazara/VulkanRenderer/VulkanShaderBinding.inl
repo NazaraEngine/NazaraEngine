@@ -7,10 +7,22 @@
 
 namespace Nz
 {
-	inline VulkanShaderBinding::VulkanShaderBinding(VulkanRenderPipelineLayout& owner, Vk::DescriptorSet descriptorSet) :
+	inline VulkanShaderBinding::VulkanShaderBinding(VulkanRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::DescriptorSet descriptorSet) :
 	m_descriptorSet(std::move(descriptorSet)),
-	m_owner(owner)
+	m_owner(owner),
+	m_bindingIndex(bindingIndex),
+	m_poolIndex(poolIndex)
 	{
+	}
+
+	inline std::size_t VulkanShaderBinding::GetBindingIndex() const
+	{
+		return m_bindingIndex;
+	}
+
+	inline std::size_t VulkanShaderBinding::GetPoolIndex() const
+	{
+		return m_poolIndex;
 	}
 
 	inline Vk::DescriptorSet& VulkanShaderBinding::GetDescriptorSet()

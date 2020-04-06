@@ -7,8 +7,10 @@
 #ifndef NAZARA_RENDERPIPELINELAYOUT_HPP
 #define NAZARA_RENDERPIPELINELAYOUT_HPP
 
-#include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,15 +29,13 @@ namespace Nz
 		std::vector<Binding> bindings;
 	};
 
-	class ShaderBinding;
-
 	class NAZARA_RENDERER_API RenderPipelineLayout
 	{
 		public:
 			RenderPipelineLayout() = default;
 			virtual ~RenderPipelineLayout();
 
-			virtual ShaderBinding& AllocateShaderBinding() = 0;
+			virtual ShaderBindingPtr AllocateShaderBinding() = 0;
 	};
 }
 
