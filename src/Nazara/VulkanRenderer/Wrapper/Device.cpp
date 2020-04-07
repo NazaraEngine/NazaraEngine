@@ -22,7 +22,7 @@ namespace Nz
 	{
 		struct Device::InternalData
 		{
-			Vk::CommandPool transferCommandPool;
+			std::array<Vk::CommandPool, QueueCount> commandPools;
 		};
 
 		Device::Device(Instance& instance) :
@@ -40,9 +40,9 @@ namespace Nz
 				WaitAndDestroyDevice();
 		}
 
-		AutoCommandBuffer Device::AllocateTransferCommandBuffer()
+		AutoCommandBuffer Device::AllocateCommandBuffer(QueueType queueType)
 		{
-			return m_internalData->transferCommandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			return m_internalData->commandPools[UnderlyingCast(queueType)].AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		}
 
 		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
@@ -107,8 +107,6 @@ namespace Nz
 			}
 
 			// And retains informations about queues
-			m_transferQueueFamilyIndex = UINT32_MAX;
-
 			UInt32 maxFamilyIndex = 0;
 			m_enabledQueuesInfos.resize(createInfo.queueCreateInfoCount);
 			for (UInt32 i = 0; i < createInfo.queueCreateInfoCount; ++i)
@@ -133,17 +131,6 @@ namespace Nz
 					queueInfo.priority = queueCreateInfo.pQueuePriorities[queueIndex];
 					vkGetDeviceQueue(m_device, info.familyIndex, queueIndex, &queueInfo.queue);
 				}
-
-				if (info.flags & (VK_QUEUE_TRANSFER_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT))
-				{
-					if (m_transferQueueFamilyIndex == UINT32_MAX)
-						m_transferQueueFamilyIndex = info.familyIndex;
-					else if ((info.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT)) == 0)
-					{
-						m_transferQueueFamilyIndex = info.familyIndex;
-						break;
-					}
-				}
 			}
 
 			m_queuesByFamily.resize(maxFamilyIndex + 1);
@@ -151,11 +138,47 @@ namespace Nz
 				m_queuesByFamily[familyInfo.familyIndex] = &familyInfo.queues;
 
 			m_internalData = std::make_unique<InternalData>();
-			if (!m_internalData->transferCommandPool.Create(*this, m_transferQueueFamilyIndex, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
+
+			m_defaultQueues.fill(InvalidQueue);
+			for (QueueType queueType : { QueueType::Graphics, QueueType::Compute, QueueType::Transfer })
 			{
-				NazaraError("Failed to create transfer command pool: " + TranslateVulkanError(m_internalData->transferCommandPool.GetLastErrorCode()));
-				return false;
+				auto QueueTypeToFlags = [](QueueType type) -> VkQueueFlags
+				{
+					switch (type)
+					{
+						case QueueType::Compute: return VK_QUEUE_COMPUTE_BIT;
+						case QueueType::Graphics: return VK_QUEUE_GRAPHICS_BIT;
+						case QueueType::Transfer: return VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT; //< Compute/graphics imply transfer
+					}
+
+					return 0U;
+				};
+
+				std::size_t queueIndex = static_cast<std::size_t>(queueType);
+				for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
+				{
+					if (familyInfo.flags & QueueTypeToFlags(queueType) == 0)
+						continue;
+
+					m_defaultQueues[queueIndex] = familyInfo.familyIndex;
+
+					// Break only if queue has not been selected before
+					auto queueBegin = m_defaultQueues.begin();
+					auto queueEnd = queueBegin + queueIndex;
+
+					if (std::find(queueBegin, queueEnd, familyInfo.familyIndex) == queueEnd)
+						break;
+				}
+
+				Vk::CommandPool& commandPool = m_internalData->commandPools[queueIndex];
+				if (!commandPool.Create(*this, m_defaultQueues[queueIndex], VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
+				{
+					NazaraError("Failed to create command pool: " + TranslateVulkanError(commandPool.GetLastErrorCode()));
+					return false;
+				}
 			}
+
+			assert(GetDefaultFamilyIndex(QueueType::Transfer) != InvalidQueue);
 
 			// Initialize VMA
 			VmaVulkanFunctions vulkanFunctions = {

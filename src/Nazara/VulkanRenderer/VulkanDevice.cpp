@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
@@ -17,6 +18,11 @@ namespace Nz
 	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
 	{
 		return std::make_unique<VulkanBuffer>(*this, type);
+	}
+
+	std::unique_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
+	{
+		return std::make_unique<VulkanCommandPool>(*this, queueType);
 	}
 
 	std::unique_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)

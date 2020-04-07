@@ -1208,7 +1208,8 @@ namespace Nz
 	template<typename Block, class Allocator>
 	Block Bitset<Block, Allocator>::GetLastBlockMask() const
 	{
-		return (Block(1U) << GetBitIndex(m_bitCount)) - 1U;
+		std::size_t bitIndex = GetBitIndex(m_bitCount);
+		return (bitIndex) ? (Block(1U) << bitIndex) - 1U : fullBitMask;
 	}
 
 	/*!
@@ -1218,9 +1219,7 @@ namespace Nz
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::ResetExtraBits()
 	{
-		Block mask = GetLastBlockMask();
-		if (mask)
-			m_blocks.back() &= mask;
+		m_blocks.back() &= GetLastBlockMask();
 	}
 
 	/*!

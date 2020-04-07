@@ -11,6 +11,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
@@ -40,9 +41,8 @@ namespace Nz
 
 			VulkanRenderImage& Acquire() override;
 
-			std::unique_ptr<CommandBuffer> BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
-
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
+			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
 			inline UInt32 GetFramebufferCount() const override;
@@ -77,12 +77,12 @@ namespace Nz
 			std::shared_ptr<VulkanDevice> m_device;
 			std::vector<ImageData> m_imageData;
 			std::vector<VulkanRenderImage> m_concurrentImageData;
-			Vk::CommandPool m_graphicsCommandPool;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;
 			Vk::QueueHandle m_graphicsQueue;
 			Vk::QueueHandle m_presentQueue;
+			Vk::QueueHandle m_transferQueue;
 			Vk::Swapchain m_swapchain;
 	};
 }
