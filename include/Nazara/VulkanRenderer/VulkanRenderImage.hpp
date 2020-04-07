@@ -28,7 +28,7 @@ namespace Nz
 			VulkanRenderImage(VulkanRenderImage&&) noexcept = default;
 			~VulkanRenderImage();
 
-			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, bool isGraphical) override;
+			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
 			inline Vk::Fence& GetInFlightFence();
 			inline Vk::Semaphore& GetImageAvailableSemaphore();
@@ -36,8 +36,8 @@ namespace Nz
 			inline Vk::Semaphore& GetRenderFinishedSemaphore();
 			VulkanUploadPool& GetUploadPool() override;
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, bool isGraphical) override;
-			void SubmitCommandBuffer(VkCommandBuffer commandBuffer, bool isGraphical);
+			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
+			void SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags);
 
 			void Present() override;
 

@@ -297,7 +297,7 @@ namespace Nz
 		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
 		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -364,6 +364,7 @@ namespace Nz
 
 		*graphicsFamilyIndex = graphicsQueueNodeIndex;
 		*presentableFamilyIndex = presentQueueNodeIndex;
+		*transferFamilyIndex = transferQueueNodeFamily;
 
 		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
 	}
@@ -497,7 +498,7 @@ namespace Nz
 		return CreateDevice(deviceInfo);
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex)
+	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
 		// First, try to find a device compatible with that surface
 		for (auto it = s_devices.begin(); it != s_devices.end();)
@@ -540,6 +541,23 @@ namespace Nz
 				if (presentableQueueFamilyIndex != UINT32_MAX)
 				{
 					*presentableFamilyIndex = presentableQueueFamilyIndex;
+
+					UInt32 transferQueueNodeFamily = UINT32_MAX;
+					// Search for a transfer queue (first one being different to the graphics one)
+					for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+					{
+						// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
+						if (queueInfo.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+						{
+							transferQueueNodeFamily = queueInfo.familyIndex;
+							if (transferQueueNodeFamily != *graphicsFamilyIndex)
+								break;
+						}
+					}
+					assert(transferQueueNodeFamily != UINT32_MAX);
+
+					*transferFamilyIndex = transferQueueNodeFamily;
+
 					return devicePtr;
 				}
 			}
@@ -548,7 +566,7 @@ namespace Nz
 		}
 
 		// No device had support for that surface, create one
-		return CreateDevice(deviceInfo, surface, graphicsFamilyIndex, presentableFamilyIndex);
+		return CreateDevice(deviceInfo, surface, graphicsFamilyIndex, presentableFamilyIndex, transferFamilyIndex);
 	}
 
 	void Vulkan::Uninitialize()

@@ -8,10 +8,13 @@
 #define NAZARA_VULKANRENDERER_VKDEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <vulkan/vulkan.h>
+#include <array>
 #include <memory>
 #include <unordered_set>
 
@@ -38,7 +41,7 @@ namespace Nz
 				Device(Device&&) = delete;
 				~Device();
 
-				AutoCommandBuffer AllocateTransferCommandBuffer();
+				AutoCommandBuffer AllocateCommandBuffer(QueueType queueType);
 
 				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
@@ -54,7 +57,7 @@ namespace Nz
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
 
-				inline UInt32 GetTransferQueueFamilyIndex() const;
+				inline UInt32 GetDefaultFamilyIndex(QueueType queueType) const;
 
 				inline bool IsExtensionLoaded(const std::string& extensionName);
 				inline bool IsLayerLoaded(const std::string& layerName);
@@ -99,6 +102,8 @@ namespace Nz
 					UInt32 timestampValidBits;
 				};
 
+				static constexpr UInt32 InvalidQueue = std::numeric_limits<UInt32>::max();
+
 			private:
 				void ResetPointers();
 				void WaitAndDestroyDevice();
@@ -107,6 +112,8 @@ namespace Nz
 
 				struct InternalData;
 
+				static constexpr std::size_t QueueCount = static_cast<std::size_t>(QueueType::Max) + 1;
+
 				std::unique_ptr<InternalData> m_internalData;
 				Instance& m_instance;
 				const Vk::PhysicalDevice* m_physicalDevice;
@@ -114,7 +121,7 @@ namespace Nz
 				VkDevice m_device;
 				VkResult m_lastErrorCode;
 				VmaAllocator m_memAllocator;
-				UInt32 m_transferQueueFamilyIndex;
+				std::array<UInt32, QueueCount> m_defaultQueues;
 				std::unordered_set<std::string> m_loadedExtensions;
 				std::unordered_set<std::string> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;

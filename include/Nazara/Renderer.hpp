@@ -31,6 +31,7 @@
 
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>

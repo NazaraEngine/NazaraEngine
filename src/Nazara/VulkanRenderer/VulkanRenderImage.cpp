@@ -34,7 +34,7 @@ namespace Nz
 		m_inFlightCommandBuffers.clear();
 	}
 
-	void VulkanRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, bool isGraphical)
+	void VulkanRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
 		Vk::CommandBuffer* commandBuffer;
 		if (m_currentCommandBuffer >= m_inFlightCommandBuffers.size())
@@ -55,7 +55,7 @@ namespace Nz
 		if (!commandBuffer->End())
 			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
-		SubmitCommandBuffer(*commandBuffer, isGraphical);
+		SubmitCommandBuffer(*commandBuffer, queueTypeFlags);
 	}
 
 	VulkanUploadPool& VulkanRenderImage::GetUploadPool()
@@ -63,16 +63,16 @@ namespace Nz
 		return m_uploadPool;
 	}
 
-	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, bool isGraphical)
+	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
 		VulkanCommandBuffer& vkCommandBuffer = *static_cast<VulkanCommandBuffer*>(commandBuffer);
 
-		return SubmitCommandBuffer(vkCommandBuffer.GetCommandBuffer(), isGraphical);
+		return SubmitCommandBuffer(vkCommandBuffer.GetCommandBuffer(), queueTypeFlags);
 	}
 
-	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, bool isGraphical)
+	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
-		if (isGraphical)
+		if (queueTypeFlags & QueueType::Graphics)
 			m_graphicalCommandsBuffers.push_back(commandBuffer);
 		else
 		{

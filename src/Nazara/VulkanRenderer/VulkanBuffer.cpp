@@ -126,7 +126,7 @@ namespace Nz
 		}
 		else
 		{
-			Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateTransferCommandBuffer();
+			Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Transfer);
 			if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 				return false;
 
@@ -134,7 +134,7 @@ namespace Nz
 			if (!copyCommandBuffer->End())
 				return false;
 
-			Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetTransferQueueFamilyIndex(), 0);
+			Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetDefaultFamilyIndex(QueueType::Transfer), 0);
 			if (!transferQueue.Submit(copyCommandBuffer))
 				return false;
 

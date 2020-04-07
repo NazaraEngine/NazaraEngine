@@ -210,6 +210,8 @@ int main()
 	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
 	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
 
+	std::unique_ptr<Nz::CommandPool> commandPool = vulkanWindow.CreateCommandPool(Nz::QueueType::Graphics);
+
 	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
 	std::vector<std::unique_ptr<Nz::CommandBuffer>> renderCmds(imageCount);
 
@@ -258,7 +260,7 @@ int main()
 			clearValues.data()                                  // const VkClearValue            *pClearValues
 		};
 
-		commandBufferPtr = vulkanWindow.BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
+		commandBufferPtr = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Vk::CommandBuffer& vkCommandBuffer = static_cast<Nz::VulkanCommandBufferBuilder&>(builder).GetCommandBuffer();
 
@@ -372,11 +374,11 @@ int main()
 				builder.PostTransferBarrier();
 			}
 			builder.EndDebugRegion();
-		}, false);
+		}, Nz::QueueType::Transfer);
 
 		Nz::UInt32 imageIndex = renderImage.GetImageIndex();
 
-		renderImage.SubmitCommandBuffer(renderCmds[imageIndex].get(), true);
+		renderImage.SubmitCommandBuffer(renderCmds[imageIndex].get(), Nz::QueueType::Graphics);
 
 		renderImage.Present();
 

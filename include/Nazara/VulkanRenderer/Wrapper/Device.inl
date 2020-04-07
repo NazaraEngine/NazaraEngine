@@ -54,9 +54,9 @@ namespace Nz
 			return *m_physicalDevice;
 		}
 
-		inline UInt32 Device::GetTransferQueueFamilyIndex() const
+		inline UInt32 Device::GetDefaultFamilyIndex(QueueType queueType) const
 		{
-			return m_transferQueueFamilyIndex;
+			return m_defaultQueues[UnderlyingCast(queueType)];
 		}
 
 		inline bool Device::IsExtensionLoaded(const std::string& extensionName)

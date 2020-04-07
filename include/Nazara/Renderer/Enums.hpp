@@ -69,6 +69,23 @@ namespace Nz
 	using ShaderStageTypeFlags = Flags<ShaderStageType>;
 
 	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType::Fragment | ShaderStageType::Vertex;
+
+	enum class QueueType
+	{
+		Compute,
+		Graphics,
+		Transfer,
+
+		Max = Transfer
+	};
+
+	template<>
+	struct EnumAsFlags<QueueType>
+	{
+		static constexpr QueueType max = QueueType::Max;
+	};
+
+	using QueueTypeFlags = Flags<QueueType>;
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

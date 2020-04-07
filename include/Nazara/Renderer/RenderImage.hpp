@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <functional>
 
 namespace Nz
@@ -23,11 +24,11 @@ namespace Nz
 			RenderImage() = default;
 			virtual ~RenderImage();
 
-			virtual void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, bool isGraphical) = 0;
+			virtual void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
 
 			virtual UploadPool& GetUploadPool() = 0;
 
-			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, bool isGraphical) = 0;
+			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
 
 			virtual void Present() = 0;
 
