@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Debug.hpp>
 
@@ -558,4 +559,3 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "ObjectRef.hpp"
