@@ -26,7 +26,7 @@ namespace Nz
 			VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
-			VkPipeline Get(const Vk::RenderPass& renderPass);
+			VkPipeline Get(const Vk::RenderPass& renderPass) const;
 
 			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
@@ -69,7 +69,7 @@ namespace Nz
 			};
 
 		private:
-			std::unordered_map<VkRenderPass, Vk::Pipeline> m_pipelines;
+			mutable std::unordered_map<VkRenderPass, Vk::Pipeline> m_pipelines;
 			MovablePtr<Vk::Device> m_device;
 			CreateInfo m_pipelineCreateInfo;
 			RenderPipelineInfo m_pipelineInfo;

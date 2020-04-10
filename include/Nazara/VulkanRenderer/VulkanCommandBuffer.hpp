@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
+#include <vector>
 
 namespace Nz
 {
@@ -18,17 +19,18 @@ namespace Nz
 	{
 		public:
 			inline VulkanCommandBuffer(Vk::AutoCommandBuffer commandBuffer);
+			inline VulkanCommandBuffer(std::vector<Vk::AutoCommandBuffer> commandBuffers);
 			VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer(VulkanCommandBuffer&&) noexcept = default;
 			~VulkanCommandBuffer() = default;
 
-			inline Vk::CommandBuffer& GetCommandBuffer();
+			inline Vk::CommandBuffer& GetCommandBuffer(std::size_t imageIndex = 0);
 
 			VulkanCommandBuffer& operator=(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer& operator=(VulkanCommandBuffer&&) = delete;
 
 		private:
-			Vk::AutoCommandBuffer m_commandBuffer;
+			std::vector<Vk::AutoCommandBuffer> m_commandBuffers;
 	};
 }
 

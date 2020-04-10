@@ -26,22 +26,12 @@ namespace Nz
 			VkRenderTarget(VkRenderTarget&&) = delete; ///TOOD?
 			virtual ~VkRenderTarget();
 
-			virtual const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const = 0;
-			virtual UInt32 GetFramebufferCount() const = 0;
-
-			inline const Vk::RenderPass& GetRenderPass() const;
-
 			VkRenderTarget& operator=(const VkRenderTarget&) = delete;
 			VkRenderTarget& operator=(VkRenderTarget&&) = delete; ///TOOD?
 
 			// Signals:
 			NazaraSignal(OnRenderTargetRelease,	const VkRenderTarget* /*renderTarget*/);
 			NazaraSignal(OnRenderTargetSizeChange, const VkRenderTarget* /*renderTarget*/);
-
-		protected:
-			void Destroy();
-
-			Vk::RenderPass m_renderPass;
 	};
 }
 

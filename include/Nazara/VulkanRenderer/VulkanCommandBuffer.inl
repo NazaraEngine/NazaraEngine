@@ -7,14 +7,19 @@
 
 namespace Nz
 {
-	inline VulkanCommandBuffer::VulkanCommandBuffer(Vk::AutoCommandBuffer commandBuffer) :
-	m_commandBuffer(std::move(commandBuffer))
+	inline VulkanCommandBuffer::VulkanCommandBuffer(Vk::AutoCommandBuffer commandBuffer)
+	{
+		m_commandBuffers.push_back(std::move(commandBuffer));
+	}
+
+	inline VulkanCommandBuffer::VulkanCommandBuffer(std::vector<Vk::AutoCommandBuffer> commandBuffers) :
+	m_commandBuffers(std::move(commandBuffers))
 	{
 	}
 
-	inline Vk::CommandBuffer& VulkanCommandBuffer::GetCommandBuffer()
+	inline Vk::CommandBuffer& VulkanCommandBuffer::GetCommandBuffer(std::size_t imageIndex)
 	{
-		return m_commandBuffer.Get();
+		return m_commandBuffers[imageIndex].Get();
 	}
 }
 

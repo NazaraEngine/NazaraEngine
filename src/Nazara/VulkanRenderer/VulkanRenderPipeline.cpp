@@ -19,7 +19,7 @@ namespace Nz
 		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
 	}
 
-	VkPipeline VulkanRenderPipeline::Get(const Vk::RenderPass& renderPass)
+	VkPipeline VulkanRenderPipeline::Get(const Vk::RenderPass& renderPass) const
 	{
 		if (auto it = m_pipelines.find(renderPass); it != m_pipelines.end())
 			return it->second;

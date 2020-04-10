@@ -17,8 +17,10 @@
 namespace Nz
 {
 	class CommandPool;
+	class Framebuffer;
 	class RendererImpl;
 	class RenderImage;
+	class RenderPass;
 	class RenderSurface;
 
 	class NAZARA_RENDERER_API RenderWindowImpl
@@ -32,7 +34,9 @@ namespace Nz
 			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
 			virtual std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
+			virtual const Framebuffer& GetFramebuffer() const = 0;
 			virtual std::shared_ptr<RenderDevice> GetRenderDevice() = 0;
+			virtual const RenderPass& GetRenderPass() const = 0;
 	};
 }
 

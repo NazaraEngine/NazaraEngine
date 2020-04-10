@@ -17,20 +17,27 @@
 
 namespace Nz
 {
+	class Framebuffer;
+	class RenderPass;
+	class RenderPipeline;
 	class ShaderBinding;
 
 	class NAZARA_RENDERER_API CommandBufferBuilder
 	{
 		public:
+			struct ClearValues;
+
 			CommandBufferBuilder() = default;
 			CommandBufferBuilder(const CommandBufferBuilder&) = delete;
 			CommandBufferBuilder(CommandBufferBuilder&&) = default;
 			virtual ~CommandBufferBuilder();
 
 			virtual void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) = 0;
+			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues) = 0;
 
 			virtual void BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset = 0) = 0;
-			virtual void BindShaderBinding(ShaderBinding& binding) = 0;
+			virtual void BindPipeline(const RenderPipeline& pipeline) = 0;
+			virtual void BindShaderBinding(const ShaderBinding& binding) = 0;
 			virtual void BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset = 0) = 0;
 
 			inline void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target);
@@ -42,6 +49,7 @@ namespace Nz
 			virtual void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) = 0;
 
 			virtual void EndDebugRegion() = 0;
+			virtual void EndRenderPass() = 0;
 
 			virtual void PreTransferBarrier() = 0;
 			virtual void PostTransferBarrier() = 0;
@@ -51,6 +59,13 @@ namespace Nz
 
 			CommandBufferBuilder& operator=(const CommandBufferBuilder&) = delete;
 			CommandBufferBuilder& operator=(CommandBufferBuilder&&) = default;
+
+			struct ClearValues
+			{
+				Nz::Color color;
+				float depth;
+				UInt32 stencil;
+			};
 	};
 }
 

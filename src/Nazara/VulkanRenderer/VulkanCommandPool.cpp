@@ -12,17 +12,27 @@ namespace Nz
 {
 	std::unique_ptr<CommandBuffer> VulkanCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
 	{
-		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		std::vector<Vk::AutoCommandBuffer> commandBuffers;
+		auto BuildCommandBuffer = [&](std::size_t imageIndex)
+		{
+			Vk::AutoCommandBuffer& commandBuffer = commandBuffers.emplace_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
 
-		if (!commandBuffer->Begin())
-			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+			if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
+				throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
-		VulkanCommandBufferBuilder builder(commandBuffer.Get());
-		callback(builder);
+			VulkanCommandBufferBuilder builder(commandBuffer.Get(), imageIndex);
+			callback(builder);
 
-		if (!commandBuffer->End())
-			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+			if (!commandBuffer->End())
+				throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
-		return std::make_unique<VulkanCommandBuffer>(std::move(commandBuffer));
+			return builder.GetMaxFramebufferCount();
+		};
+
+		std::size_t maxFramebufferCount = BuildCommandBuffer(0);
+		for (std::size_t i = 1; i < maxFramebufferCount; ++i)
+			BuildCommandBuffer(i);
+
+		return std::make_unique<VulkanCommandBuffer>(std::move(commandBuffers));
 	}
 }

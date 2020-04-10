@@ -16,7 +16,9 @@
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanMultipleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
@@ -27,6 +29,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Swapchain.hpp>
+#include <optional>
 #include <vector>
 
 namespace Nz
@@ -44,11 +47,11 @@ namespace Nz
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
-			inline const Vk::Framebuffer& GetFrameBuffer(UInt32 imageIndex) const override;
-			inline UInt32 GetFramebufferCount() const override;
+			inline const VulkanMultipleFramebuffer& GetFramebuffer() const override;
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
+			const VulkanRenderPass& GetRenderPass() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
 			std::shared_ptr<RenderDevice> GetRenderDevice() override;
@@ -63,19 +66,15 @@ namespace Nz
 			bool SetupRenderPass();
 			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
 
-			struct ImageData
-			{
-				Vk::Framebuffer framebuffer;
-				Vk::Fence* inFlightFence = nullptr;
-			};
-
 			std::size_t m_currentFrame;
 			Clock m_clock;
 			VkColorSpaceKHR m_colorSpace;
 			VkFormat m_colorFormat;
 			VkFormat m_depthStencilFormat;
+			std::optional<VulkanMultipleFramebuffer> m_framebuffer;
+			std::optional<VulkanRenderPass> m_renderPass;
 			std::shared_ptr<VulkanDevice> m_device;
-			std::vector<ImageData> m_imageData;
+			std::vector<Vk::Fence*> m_inflightFences;
 			std::vector<VulkanRenderImage> m_concurrentImageData;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
