@@ -5,12 +5,16 @@
 
 layout(binding = 1) uniform sampler2D texSampler;
 
-layout (location = 0) in vec3 inColor;
-layout (location = 1) in vec2 outTexCoords;
+layout (location = 0) in vec3 inNormal;
+layout (location = 1) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragColor;
 
 void main() 
 {
-  outFragColor = texture(texSampler, outTexCoords);
+	vec3 lightDir = vec3(0.0, -0.707, 0.707);
+	float lightFactor = dot(inNormal, lightDir);
+
+    float gamma = 2.2;
+    outFragColor = lightFactor * vec4(pow(texture(texSampler, inUV).xyz, vec3(1.0/gamma)), 1.0);
 }
