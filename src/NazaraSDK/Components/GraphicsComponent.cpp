@@ -137,7 +137,7 @@ namespace Ndk
 			if (!m_reflectionMap)
 			{
 				m_reflectionMap = Nz::Texture::New();
-				if (!m_reflectionMap->Create(Nz::ImageType_Cubemap, Nz::PixelFormatType_RGB8, m_reflectionMapSize, m_reflectionMapSize))
+				if (!m_reflectionMap->Create(Nz::ImageType_Cubemap, Nz::PixelFormat_RGB8, m_reflectionMapSize, m_reflectionMapSize))
 				{
 					NazaraWarning("Failed to create reflection map, reflections will be disabled for this entity");
 					return;

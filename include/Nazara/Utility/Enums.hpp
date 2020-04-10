@@ -165,64 +165,64 @@ namespace Nz
 		PixelFormatContent_Max = PixelFormatContent_Stencil
 	};
 
-	enum PixelFormatType
+	enum PixelFormat
 	{
-		PixelFormatType_Undefined = -1,
+		PixelFormat_Undefined = -1,
 
-		PixelFormatType_A8,              // 1*uint8
-		PixelFormatType_BGR8,            // 3*uint8
-		PixelFormatType_BGRA8,           // 4*uint8
-		PixelFormatType_DXT1,
-		PixelFormatType_DXT3,
-		PixelFormatType_DXT5,
-		PixelFormatType_L8,              // 1*uint8
-		PixelFormatType_LA8,             // 2*uint8
-		PixelFormatType_R8,              // 1*uint8
-		PixelFormatType_R8I,             // 1*int8
-		PixelFormatType_R8UI,            // 1*uint8
-		PixelFormatType_R16,             // 1*uint16
-		PixelFormatType_R16F,            // 1*half
-		PixelFormatType_R16I,            // 1*int16
-		PixelFormatType_R16UI,           // 1*uint16
-		PixelFormatType_R32F,            // 1*float
-		PixelFormatType_R32I,            // 1*uint16
-		PixelFormatType_R32UI,           // 1*uint32
-		PixelFormatType_RG8,             // 2*int8
-		PixelFormatType_RG8I,            // 2*int8
-		PixelFormatType_RG8UI,           // 2*uint8
-		PixelFormatType_RG16,            // 2*uint16
-		PixelFormatType_RG16F,           // 2*half
-		PixelFormatType_RG16I,           // 2*int16
-		PixelFormatType_RG16UI,          // 2*uint16
-		PixelFormatType_RG32F,           // 2*float
-		PixelFormatType_RG32I,           // 2*uint16
-		PixelFormatType_RG32UI,          // 2*uint32
-		PixelFormatType_RGB5A1,          // 3*uint5 + alpha bit
-		PixelFormatType_RGB8,            // 3*uint8
-		PixelFormatType_RGB16F,          // 3*half
-		PixelFormatType_RGB16I,          // 4*int16
-		PixelFormatType_RGB16UI,         // 4*uint16
-		PixelFormatType_RGB32F,          // 3*float
-		PixelFormatType_RGB32I,          // 4*int32
-		PixelFormatType_RGB32UI,         // 4*uint32
-		PixelFormatType_RGBA4,           // 4*uint4
-		PixelFormatType_RGBA8,           // 4*uint8
-		PixelFormatType_RGBA16F,         // 4*half
-		PixelFormatType_RGBA16I,         // 4*int16
-		PixelFormatType_RGBA16UI,        // 4*uint16
-		PixelFormatType_RGBA32F,         // 4*float
-		PixelFormatType_RGBA32I,         // 4*int32
-		PixelFormatType_RGBA32UI,        // 4*uint32
-		PixelFormatType_Depth16,
-		PixelFormatType_Depth24,
-		PixelFormatType_Depth24Stencil8,
-		PixelFormatType_Depth32,
-		PixelFormatType_Stencil1,
-		PixelFormatType_Stencil4,
-		PixelFormatType_Stencil8,
-		PixelFormatType_Stencil16,
+		PixelFormat_A8,              // 1*uint8
+		PixelFormat_BGR8,            // 3*uint8
+		PixelFormat_BGRA8,           // 4*uint8
+		PixelFormat_DXT1,
+		PixelFormat_DXT3,
+		PixelFormat_DXT5,
+		PixelFormat_L8,              // 1*uint8
+		PixelFormat_LA8,             // 2*uint8
+		PixelFormat_R8,              // 1*uint8
+		PixelFormat_R8I,             // 1*int8
+		PixelFormat_R8UI,            // 1*uint8
+		PixelFormat_R16,             // 1*uint16
+		PixelFormat_R16F,            // 1*half
+		PixelFormat_R16I,            // 1*int16
+		PixelFormat_R16UI,           // 1*uint16
+		PixelFormat_R32F,            // 1*float
+		PixelFormat_R32I,            // 1*uint16
+		PixelFormat_R32UI,           // 1*uint32
+		PixelFormat_RG8,             // 2*int8
+		PixelFormat_RG8I,            // 2*int8
+		PixelFormat_RG8UI,           // 2*uint8
+		PixelFormat_RG16,            // 2*uint16
+		PixelFormat_RG16F,           // 2*half
+		PixelFormat_RG16I,           // 2*int16
+		PixelFormat_RG16UI,          // 2*uint16
+		PixelFormat_RG32F,           // 2*float
+		PixelFormat_RG32I,           // 2*uint16
+		PixelFormat_RG32UI,          // 2*uint32
+		PixelFormat_RGB5A1,          // 3*uint5 + alpha bit
+		PixelFormat_RGB8,            // 3*uint8
+		PixelFormat_RGB16F,          // 3*half
+		PixelFormat_RGB16I,          // 4*int16
+		PixelFormat_RGB16UI,         // 4*uint16
+		PixelFormat_RGB32F,          // 3*float
+		PixelFormat_RGB32I,          // 4*int32
+		PixelFormat_RGB32UI,         // 4*uint32
+		PixelFormat_RGBA4,           // 4*uint4
+		PixelFormat_RGBA8,           // 4*uint8
+		PixelFormat_RGBA16F,         // 4*half
+		PixelFormat_RGBA16I,         // 4*int16
+		PixelFormat_RGBA16UI,        // 4*uint16
+		PixelFormat_RGBA32F,         // 4*float
+		PixelFormat_RGBA32I,         // 4*int32
+		PixelFormat_RGBA32UI,        // 4*uint32
+		PixelFormat_Depth16,
+		PixelFormat_Depth24,
+		PixelFormat_Depth24Stencil8,
+		PixelFormat_Depth32,
+		PixelFormat_Stencil1,
+		PixelFormat_Stencil4,
+		PixelFormat_Stencil8,
+		PixelFormat_Stencil16,
 
-		PixelFormatType_Max = PixelFormatType_Stencil16
+		PixelFormat_Max = PixelFormat_Stencil16
 	};
 
 	enum PixelFormatSubType

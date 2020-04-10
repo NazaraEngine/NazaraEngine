@@ -47,7 +47,7 @@ namespace Nz
 			inline float GetOuterAngleTangent() const;
 			inline float GetRadius() const;
 			inline TextureRef GetShadowMap() const;
-			inline PixelFormatType GetShadowMapFormat() const;
+			inline PixelFormat GetShadowMapFormat() const;
 			inline const Vector2ui& GetShadowMapSize() const;
 
 			inline bool IsShadowCastingEnabled() const;
@@ -60,7 +60,7 @@ namespace Nz
 			inline void SetLightType(LightType type);
 			inline void SetOuterAngle(float outerAngle);
 			inline void SetRadius(float radius);
-			inline void SetShadowMapFormat(PixelFormatType shadowFormat);
+			inline void SetShadowMapFormat(PixelFormat shadowFormat);
 			inline void SetShadowMapSize(const Vector2ui& size);
 
 			void UpdateBoundingVolume(const Matrix4f& transformMatrix) override;
@@ -75,7 +75,7 @@ namespace Nz
 
 			Color m_color;
 			LightType m_type;
-			PixelFormatType m_shadowMapFormat;
+			PixelFormat m_shadowMapFormat;
 			Vector2ui m_shadowMapSize;
 			mutable TextureRef m_shadowMap;
 			bool m_shadowCastingEnabled;

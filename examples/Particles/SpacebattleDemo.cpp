@@ -294,7 +294,7 @@ ParticleDemo("Space battle", sharedData)
 	}
 
 	Nz::TextureRef skyboxCubemap = Nz::Texture::New();
-	if (skyboxCubemap->Create(Nz::ImageType_Cubemap, Nz::PixelFormatType_RGBA8, 2048, 2048))
+	if (skyboxCubemap->Create(Nz::ImageType_Cubemap, Nz::PixelFormat_RGBA8, 2048, 2048))
 	{
 		skyboxCubemap->LoadFaceFromFile(Nz::CubemapFace_PositiveX, "resources/purple_nebula_skybox/purple_nebula_skybox_right1.png");
 		skyboxCubemap->LoadFaceFromFile(Nz::CubemapFace_PositiveY, "resources/purple_nebula_skybox/purple_nebula_skybox_top3.png");

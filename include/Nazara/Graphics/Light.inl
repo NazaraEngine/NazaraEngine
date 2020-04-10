@@ -194,7 +194,7 @@ namespace Nz
 	* \return Shadow map format
 	*/
 
-	inline PixelFormatType Light::GetShadowMapFormat() const
+	inline PixelFormat Light::GetShadowMapFormat() const
 	{
 		return m_shadowMapFormat;
 	}
@@ -331,9 +331,9 @@ namespace Nz
 	* \remark Produces a NazaraAssert if format is not a depth type
 	*/
 
-	inline void Light::SetShadowMapFormat(PixelFormatType shadowFormat)
+	inline void Light::SetShadowMapFormat(PixelFormat shadowFormat)
 	{
-		NazaraAssert(PixelFormat::GetContent(shadowFormat) == PixelFormatContent_DepthStencil, "Shadow format type is not a depth format");
+		NazaraAssert(PixelFormatInfo::GetContent(shadowFormat) == PixelFormatContent_DepthStencil, "Shadow format type is not a depth format");
 
 		m_shadowMapFormat = shadowFormat;
 

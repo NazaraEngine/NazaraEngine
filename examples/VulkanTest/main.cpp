@@ -116,7 +116,7 @@ int main()
 
 	// Texture
 	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormatType_RGBA8))
+	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;

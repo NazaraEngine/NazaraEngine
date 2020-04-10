@@ -23,7 +23,7 @@ namespace Nz
 			VulkanTexture(VulkanTexture&&) noexcept = default;
 			~VulkanTexture();
 
-			PixelFormatType GetFormat() const override;
+			PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;
 			UInt8 GetLevelCount() const override;
@@ -36,7 +36,7 @@ namespace Nz
 			VulkanTexture& operator=(VulkanTexture&&) = delete;
 
 		private:
-			static void InitForFormat(PixelFormatType pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView);
+			static void InitForFormat(PixelFormat pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView);
 
 			VkImage m_image;
 			VmaAllocation m_allocation;

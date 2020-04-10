@@ -197,7 +197,7 @@ namespace Nz
 		m_dofRTT.Create(true);
 		for (unsigned int i = 0; i < 2; ++i)
 		{
-			m_dofTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, dimensions.x/4, dimensions.y/4);
+			m_dofTextures[i]->Create(ImageType_2D, PixelFormat_RGBA8, dimensions.x/4, dimensions.y/4);
 			m_dofRTT.AttachTexture(AttachmentPoint_Color, i, m_dofTextures[i]);
 		}
 		m_dofRTT.Unlock();

@@ -94,38 +94,38 @@ namespace Nz
 
 		if (!parameters.depthFormats.empty())
 		{
-			for (PixelFormatType format : parameters.depthFormats)
+			for (PixelFormat format : parameters.depthFormats)
 			{
 				switch (format)
 				{
-					case PixelFormatType_Depth16:
+					case PixelFormat_Depth16:
 						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
 						break;
 
-					case PixelFormatType_Depth24:
-					case PixelFormatType_Depth24Stencil8:
+					case PixelFormat_Depth24:
+					case PixelFormat_Depth24Stencil8:
 						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 						break;
 
-					case PixelFormatType_Depth32:
+					case PixelFormat_Depth32:
 						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
 						break;
 
-					case PixelFormatType_Stencil1:
-					case PixelFormatType_Stencil4:
-					case PixelFormatType_Stencil8:
+					case PixelFormat_Stencil1:
+					case PixelFormat_Stencil4:
+					case PixelFormat_Stencil8:
 						m_depthStencilFormat = VK_FORMAT_S8_UINT;
 						break;
 
-					case PixelFormatType_Stencil16:
+					case PixelFormat_Stencil16:
 						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
 						break;
 
 					default:
 					{
-						PixelFormatContent formatContent = PixelFormat::GetContent(format);
+						PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
 						if (formatContent != PixelFormatContent_DepthStencil && formatContent != PixelFormatContent_Stencil)
-							NazaraWarning("Invalid format " + PixelFormat::GetName(format) + " for depth-stencil attachment");
+							NazaraWarning("Invalid format " + PixelFormatInfo::GetName(format) + " for depth-stencil attachment");
 
 						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
 						break;

@@ -13,7 +13,7 @@ namespace Nz
 	bool CursorImpl::Create(const Image& cursor, int hotSpotX, int hotSpotY)
 	{
 		Image windowsCursor(cursor);
-		if (!windowsCursor.Convert(PixelFormatType_BGRA8))
+		if (!windowsCursor.Convert(PixelFormat_BGRA8))
 		{
 			NazaraError("Failed to convert cursor to BGRA8");
 			return false;

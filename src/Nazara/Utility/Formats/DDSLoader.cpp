@@ -84,7 +84,7 @@ namespace Nz
 					return nullptr;
 
 				// Then the format
-				PixelFormatType format;
+				PixelFormat format;
 				if (!IdentifyPixelFormat(header, headerDX10, &format))
 					return nullptr;
 
@@ -93,7 +93,7 @@ namespace Nz
 				// Read all mipmap levels
 				for (unsigned int i = 0; i < image->GetLevelCount(); i++)
 				{
-					std::size_t byteCount = PixelFormat::ComputeSize(format, width, height, depth);
+					std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
 
 					UInt8* ptr = image->GetPixels(0, 0, 0, i);
 
@@ -114,7 +114,7 @@ namespace Nz
 				}
 
 
-				if (parameters.loadFormat != PixelFormatType_Undefined)
+				if (parameters.loadFormat != PixelFormat_Undefined)
 					image->Convert(parameters.loadFormat);
 
 				return image;
@@ -163,11 +163,11 @@ namespace Nz
 				return true;
 			}
 
-			static bool IdentifyPixelFormat(const DDSHeader& header, const DDSHeaderDX10Ext& headerExt, PixelFormatType* format)
+			static bool IdentifyPixelFormat(const DDSHeader& header, const DDSHeaderDX10Ext& headerExt, PixelFormat* format)
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatInfo info(PixelFormatContent_ColorRGBA, header.format.bpp, PixelFormatSubType_Unsigned);
+					PixelFormatDescription info(PixelFormatContent_ColorRGBA, header.format.bpp, PixelFormatSubType_Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{
@@ -182,8 +182,8 @@ namespace Nz
 					if (header.format.flags & (DDPF_ALPHA | DDPF_ALPHAPIXELS))
 						info.alphaMask = header.format.alphaMask;
 
-					*format = PixelFormat::IdentifyFormat(info);
-					if (!PixelFormat::IsValid(*format))
+					*format = PixelFormatInfo::IdentifyFormat(info);
+					if (!PixelFormatInfo::IsValid(*format))
 						return false;
 				}
 				else if (header.format.flags & DDPF_FOURCC)
@@ -191,15 +191,15 @@ namespace Nz
 					switch (header.format.fourCC)
 					{
 						case D3DFMT_DXT1:
-							*format = PixelFormatType_DXT1;
+							*format = PixelFormat_DXT1;
 							break;
 
 						case D3DFMT_DXT3:
-							*format = PixelFormatType_DXT3;
+							*format = PixelFormat_DXT3;
 							break;
 
 						case D3DFMT_DXT5:
-							*format = PixelFormatType_DXT3;
+							*format = PixelFormat_DXT3;
 							break;
 
 						case D3DFMT_DX10:
@@ -207,30 +207,30 @@ namespace Nz
 							switch (headerExt.dxgiFormat)
 							{
 								case DXGI_FORMAT_R32G32B32A32_FLOAT:
-									*format = PixelFormatType_RGBA32F;
+									*format = PixelFormat_RGBA32F;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_UINT:
-									*format = PixelFormatType_RGBA32UI;
+									*format = PixelFormat_RGBA32UI;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_SINT:
-									*format = PixelFormatType_RGBA32I;
+									*format = PixelFormat_RGBA32I;
 									break;
 								case DXGI_FORMAT_R32G32B32_FLOAT:
-									*format = PixelFormatType_RGB32F;
+									*format = PixelFormat_RGB32F;
 									break;
 								case DXGI_FORMAT_R32G32B32_UINT:
-									//*format = PixelFormatType_RGB32U;
+									//*format = PixelFormat_RGB32U;
 									return false;
 								case DXGI_FORMAT_R32G32B32_SINT:
-									*format = PixelFormatType_RGB32I;
+									*format = PixelFormat_RGB32I;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_SNORM:
 								case DXGI_FORMAT_R16G16B16A16_SINT:
 								case DXGI_FORMAT_R16G16B16A16_UINT:
-									*format = PixelFormatType_RGBA16I;
+									*format = PixelFormat_RGBA16I;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_UNORM:
-									*format = PixelFormatType_RGBA16UI;
+									*format = PixelFormat_RGBA16UI;
 									break;
 							}
 							break;

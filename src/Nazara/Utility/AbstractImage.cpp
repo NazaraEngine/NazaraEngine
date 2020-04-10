@@ -12,12 +12,12 @@ namespace Nz
 
 	UInt8 AbstractImage::GetBytesPerPixel() const
 	{
-		return PixelFormat::GetBytesPerPixel(GetFormat());
+		return PixelFormatInfo::GetBytesPerPixel(GetFormat());
 	}
 
 	bool AbstractImage::IsCompressed() const
 	{
-		return PixelFormat::IsCompressed(GetFormat());
+		return PixelFormatInfo::IsCompressed(GetFormat());
 	}
 
 	bool AbstractImage::IsCubemap() const

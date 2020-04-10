@@ -185,7 +185,7 @@ namespace Nz
 		m_bloomRTT.Create(true);
 		for (unsigned int i = 0; i < 2; ++i)
 		{
-			m_bloomTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, dimensions.x / 8, dimensions.y / 8);
+			m_bloomTextures[i]->Create(ImageType_2D, PixelFormat_RGBA8, dimensions.x / 8, dimensions.y / 8);
 			m_bloomRTT.AttachTexture(AttachmentPoint_Color, i, m_bloomTextures[i]);
 		}
 		m_bloomRTT.Unlock();

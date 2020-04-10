@@ -17,7 +17,7 @@ namespace Nz
 {
 	struct TextureInfo
 	{
-		PixelFormatType pixelFormat;
+		PixelFormat pixelFormat;
 		ImageType type;
 		unsigned int depth = 1;
 		unsigned int height;
@@ -33,7 +33,7 @@ namespace Nz
 			Texture(Texture&&) = delete;
 			virtual ~Texture();
 
-			virtual PixelFormatType GetFormat() const = 0;
+			virtual PixelFormat GetFormat() const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;

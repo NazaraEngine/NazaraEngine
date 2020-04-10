@@ -92,7 +92,7 @@ namespace Nz
 			unsigned int height = header.ymax - header.ymin+1;
 
 			ImageRef image = Image::New();
-			if (!image->Create(ImageType_2D, PixelFormatType_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			if (!image->Create(ImageType_2D, PixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
 				return nullptr;
@@ -333,7 +333,7 @@ namespace Nz
 					return nullptr;
 			}
 
-			if (parameters.loadFormat != PixelFormatType_Undefined)
+			if (parameters.loadFormat != PixelFormat_Undefined)
 				image->Convert(parameters.loadFormat);
 
 			return image;
