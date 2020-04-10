@@ -42,7 +42,7 @@ namespace Nz
 	{
 	}
 
-	Image::Image(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount) :
+	Image::Image(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount) :
 	m_sharedImage(&emptyImage)
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException);
@@ -70,7 +70,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Image::Convert(PixelFormatType newFormat)
+	bool Image::Convert(PixelFormat newFormat)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (m_sharedImage == &emptyImage)
@@ -79,15 +79,15 @@ namespace Nz
 			return false;
 		}
 
-		if (!PixelFormat::IsValid(newFormat))
+		if (!PixelFormatInfo::IsValid(newFormat))
 		{
 			NazaraError("Invalid pixel format");
 			return false;
 		}
 
-		if (!PixelFormat::IsConversionSupported(m_sharedImage->format, newFormat))
+		if (!PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat))
 		{
-			NazaraError("Conversion from " + PixelFormat::GetName(m_sharedImage->format) + " to " + PixelFormat::GetName(newFormat) + " is not supported");
+			NazaraError("Conversion from " + PixelFormatInfo::GetName(m_sharedImage->format) + " to " + PixelFormatInfo::GetName(newFormat) + " is not supported");
 			return false;
 		}
 		#endif
@@ -106,16 +106,16 @@ namespace Nz
 		for (unsigned int i = 0; i < levels.size(); ++i)
 		{
 			unsigned int pixelsPerFace = width * height;
-			levels[i] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormat::GetBytesPerPixel(newFormat));
+			levels[i] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormatInfo::GetBytesPerPixel(newFormat));
 
 			UInt8* dst = levels[i].get();
 			UInt8* src = m_sharedImage->levels[i].get();
-			unsigned int srcStride = pixelsPerFace * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
-			unsigned int dstStride = pixelsPerFace * PixelFormat::GetBytesPerPixel(newFormat);
+			unsigned int srcStride = pixelsPerFace * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+			unsigned int dstStride = pixelsPerFace * PixelFormatInfo::GetBytesPerPixel(newFormat);
 
 			for (unsigned int d = 0; d < depth; ++d)
 			{
-				if (!PixelFormat::Convert(m_sharedImage->format, newFormat, src, &src[srcStride], dst))
+				if (!PixelFormatInfo::Convert(m_sharedImage->format, newFormat, src, &src[srcStride], dst))
 				{
 					NazaraError("Failed to convert image");
 					return false;
@@ -158,18 +158,18 @@ namespace Nz
 		}
 		#endif
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
 		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source->GetWidth(), source->GetHeight());
 	}
 
-	bool Image::Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
+	bool Image::Create(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
 	{
 		Destroy();
 
 		#if NAZARA_UTILITY_SAFE
-		if (!PixelFormat::IsValid(format))
+		if (!PixelFormatInfo::IsValid(format))
 		{
 			NazaraError("Invalid pixel format");
 			return false;
@@ -255,7 +255,7 @@ namespace Nz
 			// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 			try
 			{
-				levels[i] = std::make_unique<UInt8[]>(PixelFormat::ComputeSize(format, w, h, d));
+				levels[i] = std::make_unique<UInt8[]>(PixelFormatInfo::ComputeSize(format, w, h, d));
 
 				if (w > 1)
 					w >>= 1;
@@ -298,18 +298,18 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
 		}
 		#endif
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -323,7 +323,7 @@ namespace Nz
 
 		for (auto & level : levels)
 		{
-			std::size_t size = PixelFormat::ComputeSize(m_sharedImage->format, width, height, depth);
+			std::size_t size = PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth);
 			level = std::make_unique<UInt8[]>(size);
 
 			UInt8* ptr = level.get();
@@ -362,7 +362,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -383,11 +383,11 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -427,7 +427,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -455,11 +455,11 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -501,7 +501,7 @@ namespace Nz
 		for (auto& level : m_sharedImage->levels)
 		{
 			UInt8* ptr = level.get();
-			if (!PixelFormat::Flip(PixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
+			if (!PixelFormatInfo::Flip(PixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
 				return false;
@@ -529,7 +529,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot flip compressed image");
 			return false;
@@ -544,7 +544,7 @@ namespace Nz
 		for (auto& level : m_sharedImage->levels)
 		{
 			UInt8* ptr = level.get();
-			if (!PixelFormat::Flip(PixelFlipping_Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
+			if (!PixelFormatInfo::Flip(PixelFlipping_Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
 				return false;
@@ -604,7 +604,7 @@ namespace Nz
 		}
 		#endif
 
-		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	unsigned int Image::GetDepth(UInt8 level) const
@@ -620,7 +620,7 @@ namespace Nz
 		return GetLevelSize(m_sharedImage->depth, level);
 	}
 
-	PixelFormatType Image::GetFormat() const
+	PixelFormat Image::GetFormat() const
 	{
 		return m_sharedImage->format;
 	}
@@ -672,12 +672,12 @@ namespace Nz
 		if (m_sharedImage->type == ImageType_Cubemap)
 			size *= 6;
 
-		return size * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		return size * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 	}
 
 	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
-		return PixelFormat::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
+		return PixelFormatInfo::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
 	}
 
 	Color Image::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -689,7 +689,7 @@ namespace Nz
 			return Color();
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return Color();
@@ -715,10 +715,10 @@ namespace Nz
 		}
 		#endif
 
-		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 		Color color;
-		if (!PixelFormat::Convert(m_sharedImage->format, PixelFormatType_RGBA8, pixel, &color.r))
+		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat_RGBA8, pixel, &color.r))
 			NazaraError("Failed to convert image's format to RGBA8");
 
 		return color;
@@ -773,7 +773,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	Vector3ui Image::GetSize(UInt8 level) const
@@ -811,12 +811,12 @@ namespace Nz
 	{
 		NazaraAssert(m_sharedImage != &emptyImage, "Image must be valid");
 
-		if (!PixelFormat::HasAlpha(m_sharedImage->format))
+		if (!PixelFormatInfo::HasAlpha(m_sharedImage->format))
 			return false;
 
-		if (!PixelFormat::IsCompressed(m_sharedImage->format))
+		if (!PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
-			const PixelFormatInfo& info = PixelFormat::GetInfo(m_sharedImage->format);
+			const PixelFormatDescription& info = PixelFormatInfo::GetInfo(m_sharedImage->format);
 
 			Bitset<> workingBitset;
 			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth);
@@ -1208,7 +1208,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -1234,9 +1234,9 @@ namespace Nz
 		}
 		#endif
 
-		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, pixel))
+		if (!PixelFormatInfo::Convert(PixelFormat_RGBA8, m_sharedImage->format, &color.r, pixel))
 		{
 			NazaraError("Failed to convert RGBA8 to image's format");
 			return false;
@@ -1322,7 +1322,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[level].get(), bpp, box.x, box.y, box.z, width, height);
 
 		Copy(dstPixels, pixels, m_sharedImage->format,
@@ -1349,7 +1349,7 @@ namespace Nz
 		return *this;
 	}
 
-	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
+	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (width == 0)
@@ -1373,10 +1373,10 @@ namespace Nz
 			srcHeight = height;
 
 		if ((height == 1 || (dstWidth == width && srcWidth == width)) && (depth == 1 || (dstHeight == height && srcHeight == height)))
-			std::memcpy(destination, source, PixelFormat::ComputeSize(format, width, height, depth));
+			std::memcpy(destination, source, PixelFormatInfo::ComputeSize(format, width, height, depth));
 		else
 		{
-			unsigned int bpp = PixelFormat::GetBytesPerPixel(format);
+			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(format);
 			unsigned int lineStride = width * bpp;
 			unsigned int dstLineStride = dstWidth * bpp;
 			unsigned int dstFaceStride = dstLineStride * dstHeight;
@@ -1498,7 +1498,7 @@ namespace Nz
 		ImageLibrary::Uninitialize();
 	}
 
-	Image::SharedImage Image::emptyImage(0, ImageType_2D, PixelFormatType_Undefined, Image::SharedImage::PixelContainer(), 0, 0, 0);
+	Image::SharedImage Image::emptyImage(0, ImageType_2D, PixelFormat_Undefined, Image::SharedImage::PixelContainer(), 0, 0, 0);
 	ImageLibrary::LibraryMap Image::s_library;
 	ImageLoader::LoaderList Image::s_loaders;
 	ImageManager::ManagerMap Image::s_managerMap;

@@ -156,7 +156,7 @@ namespace Nz
 		vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
 	}
 
-	PixelFormatType VulkanTexture::GetFormat() const
+	PixelFormat VulkanTexture::GetFormat() const
 	{
 		return m_params.pixelFormat;
 	}
@@ -178,7 +178,7 @@ namespace Nz
 
 	bool VulkanTexture::Update(const void* ptr)
 	{
-		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormat::GetBytesPerPixel(m_params.pixelFormat);
+		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
 
 		VkBufferCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -229,7 +229,7 @@ namespace Nz
 		return true;
 	}
 
-	void VulkanTexture::InitForFormat(PixelFormatType pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView)
+	void VulkanTexture::InitForFormat(PixelFormat pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView)
 	{
 		createImageView.components = {
 			VK_COMPONENT_SWIZZLE_R,
@@ -240,7 +240,7 @@ namespace Nz
 
 		switch (pixelFormat)
 		{
-			case PixelFormatType_L8:
+			case PixelFormat_L8:
 			{
 				createImage.format = VK_FORMAT_R8_SRGB;
 				createImageView.format = createImage.format;
@@ -253,7 +253,7 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormatType_LA8:
+			case PixelFormat_LA8:
 			{
 				createImage.format = VK_FORMAT_R8G8_SRGB;
 				createImageView.format = createImage.format;
@@ -266,14 +266,14 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormatType_RGB8:
+			case PixelFormat_RGB8:
 			{
 				createImage.format = VK_FORMAT_R8G8B8_SRGB;
 				createImageView.format = createImage.format;
 				break;
 			}
 
-			case PixelFormatType_RGBA8:
+			case PixelFormat_RGBA8:
 			{
 				createImage.format = VK_FORMAT_R8G8B8A8_SRGB;
 				createImageView.format = createImage.format;
@@ -281,7 +281,7 @@ namespace Nz
 			}
 
 			default:
-				throw std::runtime_error(("Unsupported pixel format " + PixelFormat::GetName(pixelFormat)).ToStdString());
+				throw std::runtime_error(("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat)).ToStdString());
 		}
 	}
 }

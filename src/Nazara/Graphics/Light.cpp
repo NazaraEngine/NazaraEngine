@@ -29,7 +29,7 @@ namespace Nz
 
 	Light::Light(LightType type) :
 	m_type(type),
-	m_shadowMapFormat(PixelFormatType_Depth16),
+	m_shadowMapFormat(PixelFormat_Depth16),
 	m_shadowMapSize(512, 512),
 	m_shadowCastingEnabled(false),
 	m_shadowMapUpdated(false)

@@ -93,7 +93,7 @@ namespace Nz
 			return false;
 		}
 
-		if (!PixelFormat::Initialize())
+		if (!PixelFormatInfo::Initialize())
 		{
 			NazaraError("Failed to initialize pixel formats");
 			return false;
@@ -176,7 +176,7 @@ namespace Nz
 
 		VertexDeclaration::Uninitialize();
 		Skeleton::Uninitialize();
-		PixelFormat::Uninitialize();
+		PixelFormatInfo::Uninitialize();
 		Mesh::Uninitialize();
 		Image::Uninitialize();
 		Font::Uninitialize();

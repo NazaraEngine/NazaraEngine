@@ -169,7 +169,7 @@ int main()
 						case Nz::Keyboard::F5:
 						{
 							Nz::Image screenshot;
-							screenshot.Create(Nz::ImageType_2D, Nz::PixelFormatType_RGBA8, 1920, 1080);
+							screenshot.Create(Nz::ImageType_2D, Nz::PixelFormat_RGBA8, 1920, 1080);
 							window.CopyToImage(&screenshot);
 
 							static unsigned int counter = 1;

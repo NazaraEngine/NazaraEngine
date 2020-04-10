@@ -147,11 +147,11 @@ namespace Nz
 			unsigned int width = dimensions.x;
 			unsigned int height = dimensions.y;
 
-			m_depthStencilTexture->Create(ImageType_2D, PixelFormatType_Depth24Stencil8, width, height);
+			m_depthStencilTexture->Create(ImageType_2D, PixelFormat_Depth24Stencil8, width, height);
 
-			m_GBuffer[0]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
-			m_GBuffer[1]->Create(ImageType_2D, PixelFormatType_RG16F, width, height); // Texture 1 : Encoded normal
-			m_GBuffer[2]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height); // Texture 2 : Depth (24bits) + Shininess
+			m_GBuffer[0]->Create(ImageType_2D, PixelFormat_RGBA8, width, height); // Texture 0 : Diffuse Color + Specular
+			m_GBuffer[1]->Create(ImageType_2D, PixelFormat_RG16F, width, height); // Texture 1 : Encoded normal
+			m_GBuffer[2]->Create(ImageType_2D, PixelFormat_RGBA8, width, height); // Texture 2 : Depth (24bits) + Shininess
 
 			m_GBufferRTT->Create(true);
 
@@ -169,7 +169,7 @@ namespace Nz
 
 			for (unsigned int i = 0; i < 2; ++i)
 			{
-				m_workTextures[i]->Create(ImageType_2D, PixelFormatType_RGBA8, width, height);
+				m_workTextures[i]->Create(ImageType_2D, PixelFormat_RGBA8, width, height);
 				m_workRTT->AttachTexture(AttachmentPoint_Color, i, m_workTextures[i]);
 			}
 
