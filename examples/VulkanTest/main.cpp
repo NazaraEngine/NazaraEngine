@@ -39,8 +39,6 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::VulkanRenderer* rendererImpl = static_cast<Nz::VulkanRenderer*>(Nz::Renderer::GetRendererImpl());
-
 	Nz::Vk::Instance& instance = Nz::Vulkan::GetInstance();
 
 	VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT  };
@@ -203,87 +201,56 @@ int main()
 
 	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	std::array<VkClearValue, 2> clearValues;
-	clearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f};
-	clearValues[1].depthStencil = {1.f, 0};
+	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
 
-	Nz::VkRenderWindow& vulkanWindow = *static_cast<Nz::VkRenderWindow*>(window.GetImpl());
-	Nz::VulkanDevice& vulkanDevice = vulkanWindow.GetDevice();
-
-	std::unique_ptr<Nz::CommandPool> commandPool = vulkanWindow.CreateCommandPool(Nz::QueueType::Graphics);
-
-	Nz::UInt32 imageCount = vulkanWindow.GetFramebufferCount();
-	std::vector<std::unique_ptr<Nz::CommandBuffer>> renderCmds(imageCount);
+	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
+	std::unique_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
 
-	if (!renderBufferIB->Synchronize(&vulkanDevice))
+	if (!renderBufferIB->Synchronize(renderDevice))
 	{
 		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	if (!renderBufferVB->Synchronize(&vulkanDevice))
+	if (!renderBufferVB->Synchronize(renderDevice))
 	{
 		NazaraError("Failed to synchronize render buffer");
 		return __LINE__;
 	}
 
-	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(&vulkanDevice);
-	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(&vulkanDevice);
+	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
+	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
 
-	Nz::VulkanRenderPipeline* vkPipeline = static_cast<Nz::VulkanRenderPipeline*>(pipeline.get());
-
-	for (Nz::UInt32 i = 0; i < imageCount; ++i)
+	std::unique_ptr<Nz::CommandBuffer> drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
 	{
-		auto& commandBufferPtr = renderCmds[i];
+		Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
-		VkRect2D renderArea = {
-			{                                           // VkOffset2D                     offset
-				0,                                          // int32_t                        x
-				0                                           // int32_t                        y
-			},
-			{                                           // VkExtent2D                     extent
-				windowSize.x,                                        // int32_t                        width
-				windowSize.y,                                        // int32_t                        height
-			}
-		};
+		Nz::CommandBufferBuilder::ClearValues clearValues[2];
+		clearValues[0].color = Nz::Color::Black;
+		clearValues[1].depth = 1.f;
+		clearValues[1].stencil = 0;
 
-		VkRenderPassBeginInfo render_pass_begin_info = {
-			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,     // VkStructureType                sType
-			nullptr,                                      // const void                    *pNext
-			vulkanWindow.GetRenderPass(),                            // VkRenderPass                   renderPass
-			vulkanWindow.GetFrameBuffer(i),                       // VkFramebuffer                  framebuffer
-			renderArea,
-			2U,                                            // uint32_t                       clearValueCount
-			clearValues.data()                                  // const VkClearValue            *pClearValues
-		};
-
-		commandBufferPtr = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
+		builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 		{
-			Nz::Vk::CommandBuffer& vkCommandBuffer = static_cast<Nz::VulkanCommandBufferBuilder&>(builder).GetCommandBuffer();
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 			{
-				vkCommandBuffer.BeginRenderPass(render_pass_begin_info);
-				{
-					builder.BindIndexBuffer(indexBufferImpl);
-					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(*shaderBinding);
+				builder.BindIndexBuffer(indexBufferImpl);
+				builder.BindPipeline(*pipeline);
+				builder.BindVertexBuffer(0, vertexBufferImpl);
+				builder.BindShaderBinding(*shaderBinding);
 
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+				builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+				builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					vkCommandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Get(vulkanWindow.GetRenderPass())); //< TODO
-
-					builder.DrawIndexed(drfreakIB->GetIndexCount());
-				}
-				vkCommandBuffer.EndRenderPass();
+				builder.DrawIndexed(drfreakIB->GetIndexCount());
 			}
-			builder.EndDebugRegion();
-		});
-	}
+			builder.EndRenderPass();
+		}
+		builder.EndDebugRegion();
+	});
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -357,7 +324,7 @@ int main()
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 		}
 
-		Nz::VulkanRenderImage& renderImage = vulkanWindow.Acquire();
+		Nz::RenderImage& renderImage = windowImpl->Acquire();
 
 		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
@@ -376,9 +343,7 @@ int main()
 			builder.EndDebugRegion();
 		}, Nz::QueueType::Transfer);
 
-		Nz::UInt32 imageIndex = renderImage.GetImageIndex();
-
-		renderImage.SubmitCommandBuffer(renderCmds[imageIndex].get(), Nz::QueueType::Graphics);
+		renderImage.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
 
 		renderImage.Present();
 
