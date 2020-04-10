@@ -25,12 +25,12 @@ namespace Nz
 		return m_poolIndex;
 	}
 
-	inline Vk::DescriptorSet& VulkanShaderBinding::GetDescriptorSet()
+	inline const Vk::DescriptorSet& VulkanShaderBinding::GetDescriptorSet() const
 	{
 		return m_descriptorSet;
 	}
 
-	inline VulkanRenderPipelineLayout& VulkanShaderBinding::GetOwner()
+	inline const VulkanRenderPipelineLayout& VulkanShaderBinding::GetOwner() const
 	{
 		return m_owner;
 	}

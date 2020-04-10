@@ -38,7 +38,7 @@ namespace Nz
 				void SetDebugName(const std::string& name);
 
 				DeviceObject& operator=(const DeviceObject&) = delete;
-				DeviceObject& operator=(DeviceObject&&) = delete;
+				DeviceObject& operator=(DeviceObject&& object) noexcept;
 
 				operator VkType() const;
 

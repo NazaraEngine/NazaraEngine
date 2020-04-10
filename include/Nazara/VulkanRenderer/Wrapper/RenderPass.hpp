@@ -25,7 +25,7 @@ namespace Nz
 				~RenderPass() = default;
 
 				RenderPass& operator=(const RenderPass&) = delete;
-				RenderPass& operator=(RenderPass&&) = delete;
+				RenderPass& operator=(RenderPass&&) = default;
 
 			private:
 				static inline VkResult CreateHelper(Device& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle);

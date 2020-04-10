@@ -14,18 +14,22 @@
 
 namespace Nz
 {
+	class VulkanRenderPass;
+
 	class NAZARA_VULKANRENDERER_API VulkanCommandBufferBuilder final : public CommandBufferBuilder
 	{
 		public:
-			inline VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer);
+			inline VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer, std::size_t imageIndex = 0);
 			VulkanCommandBufferBuilder(const VulkanCommandBufferBuilder&) = delete;
 			VulkanCommandBufferBuilder(VulkanCommandBufferBuilder&&) noexcept = default;
 			~VulkanCommandBufferBuilder() = default;
 
 			void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) override;
+			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues) override;
 
 			void BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset = 0) override;
-			void BindShaderBinding(ShaderBinding& binding) override;
+			void BindPipeline(const RenderPipeline& pipeline) override;
+			void BindShaderBinding(const ShaderBinding& binding) override;
 			void BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset = 0) override;
 
 			void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
@@ -35,8 +39,10 @@ namespace Nz
 			void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) override;
 
 			void EndDebugRegion() override;
+			void EndRenderPass() override;
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
+			inline std::size_t GetMaxFramebufferCount() const;
 
 			void PreTransferBarrier() override;
 			void PostTransferBarrier() override;
@@ -49,6 +55,9 @@ namespace Nz
 
 		private:
 			Vk::CommandBuffer& m_commandBuffer;
+			const VulkanRenderPass* m_currentRenderPass;
+			std::size_t m_framebufferCount;
+			std::size_t m_imageIndex;
 	};
 }
 

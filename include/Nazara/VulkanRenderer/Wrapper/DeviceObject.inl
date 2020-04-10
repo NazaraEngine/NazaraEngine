@@ -104,6 +104,17 @@ namespace Nz
 		}
 
 		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+		auto DeviceObject<C, VkType, CreateInfo, ObjectType>::operator=(DeviceObject&& object) noexcept -> DeviceObject&
+		{
+			std::swap(m_allocator, object.m_allocator);
+			std::swap(m_device, object.m_device);
+			std::swap(m_handle, object.m_handle);
+			std::swap(m_lastErrorCode, object.m_lastErrorCode);
+
+			return *this;
+		}
+
+		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
 		DeviceObject<C, VkType, CreateInfo, ObjectType>::operator VkType() const
 		{
 			return m_handle;

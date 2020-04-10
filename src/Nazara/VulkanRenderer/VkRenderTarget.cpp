@@ -11,9 +11,4 @@ namespace Nz
 	{
 		OnRenderTargetRelease(this);
 	}
-
-	void VkRenderTarget::Destroy()
-	{
-		m_renderPass.Destroy();
-	}
 }

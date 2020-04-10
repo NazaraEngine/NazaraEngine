@@ -5,6 +5,8 @@
 #include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
@@ -28,11 +30,9 @@ namespace Nz
 			m_device->WaitForIdle();
 
 		m_concurrentImageData.clear();
-		m_imageData.clear();
-		m_renderPass.Destroy();
+		m_renderPass.reset();
+		m_framebuffer.reset();
 		m_swapchain.Destroy();
-
-		VkRenderTarget::Destroy();
 	}
 
 	VulkanRenderImage& VkRenderWindow::Acquire()
@@ -47,11 +47,11 @@ namespace Nz
 		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), currentFrame.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex))
 			throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
 
-		if (m_imageData[imageIndex].inFlightFence)
-			m_imageData[imageIndex].inFlightFence->Wait();
+		if (m_inflightFences[imageIndex])
+			m_inflightFences[imageIndex]->Wait();
 
-		m_imageData[imageIndex].inFlightFence = &inFlightFence;
-		m_imageData[imageIndex].inFlightFence->Reset();
+		m_inflightFences[imageIndex] = &inFlightFence;
+		m_inflightFences[imageIndex]->Reset();
 
 		currentFrame.Reset(imageIndex);
 
@@ -164,29 +164,33 @@ namespace Nz
 		UInt32 imageCount = m_swapchain.GetBufferCount();
 
 		// Framebuffers
-		m_imageData.resize(imageCount);
+		m_inflightFences.resize(imageCount);
+
+		Nz::StackArray<Vk::Framebuffer> framebuffers = NazaraStackArray(Vk::Framebuffer, imageCount);
 		for (UInt32 i = 0; i < imageCount; ++i)
 		{
 			std::array<VkImageView, 2> attachments = { m_swapchain.GetBuffer(i).view, m_depthBufferView };
 
 			VkFramebufferCreateInfo frameBufferCreate = {
-				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,    // VkStructureType             sType;
-				nullptr,                                      // const void*                 pNext;
-				0,                                            // VkFramebufferCreateFlags    flags;
-				m_renderPass,                                 // VkRenderPass                renderPass;
-				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U, // uint32_t                    attachmentCount;
-				attachments.data(),                           // const VkImageView*          pAttachments;
-				size.x,                                       // uint32_t                    width;
-				size.y,                                       // uint32_t                    height;
-				1U                                            // uint32_t                    layers;
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				m_renderPass->GetRenderPass(),
+				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U,
+				attachments.data(),
+				size.x,
+				size.y,
+				1U
 			};
 
-			if (!m_imageData[i].framebuffer.Create(*m_device, frameBufferCreate))
+			if (!framebuffers[i].Create(*m_device, frameBufferCreate))
 			{
-				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(m_imageData[i].framebuffer.GetLastErrorCode()));
+				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
 				return false;
 			}
 		}
+
+		m_framebuffer.emplace(framebuffers.data(), framebuffers.size());
 
 		const std::size_t MaxConcurrentImage = imageCount;
 		m_concurrentImageData.reserve(MaxConcurrentImage);
@@ -218,6 +222,11 @@ namespace Nz
 		}
 
 		return std::make_unique<VulkanCommandPool>(*m_device, queueFamilyIndex);
+	}
+
+	const VulkanRenderPass& VkRenderWindow::GetRenderPass() const
+	{
+		return *m_renderPass;
 	}
 
 	bool VkRenderWindow::SetupDepthBuffer(const Vector2ui& size)
@@ -375,7 +384,16 @@ namespace Nz
 			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
 		};
 
-		return m_renderPass.Create(*m_device, createInfo);
+		Vk::RenderPass renderPass;
+		if (!renderPass.Create(*m_device, createInfo))
+		{
+			NazaraError("Failed to create render pass: " + TranslateVulkanError(renderPass.GetLastErrorCode()));
+			return false;
+		}
+
+		std::initializer_list<PixelFormat> fixmeplease = { PixelFormat::PixelFormat_RGB8, PixelFormat::PixelFormat_Depth24Stencil8 };
+		m_renderPass.emplace(std::move(renderPass), fixmeplease);
+		return true;
 	}
 
 	bool VkRenderWindow::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size)
