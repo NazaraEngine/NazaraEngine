@@ -78,12 +78,12 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
-		inline bool Instance::IsExtensionLoaded(const std::string& extensionName)
+		inline bool Instance::IsExtensionLoaded(const std::string& extensionName) const
 		{
 			return m_loadedExtensions.count(extensionName) > 0;
 		}
 
-		inline bool Instance::IsLayerLoaded(const std::string& layerName)
+		inline bool Instance::IsLayerLoaded(const std::string& layerName) const
 		{
 			return m_loadedLayers.count(layerName) > 0;
 		}

@@ -45,8 +45,8 @@ namespace Nz
 				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device);
 				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties);
 
-				inline bool IsExtensionLoaded(const std::string& extensionName);
-				inline bool IsLayerLoaded(const std::string& layerName);
+				inline bool IsExtensionLoaded(const std::string& extensionName) const;
+				inline bool IsLayerLoaded(const std::string& layerName) const;
 				inline bool IsValid() const;
 
 				Instance& operator=(const Instance&) = delete;

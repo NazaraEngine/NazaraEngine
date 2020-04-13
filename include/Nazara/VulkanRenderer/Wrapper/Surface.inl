@@ -5,7 +5,6 @@
 #include <Nazara/VulkanRenderer/Wrapper/Surface.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -47,28 +46,6 @@ namespace Nz
 				nullptr,
 				flags,
 				window
-			};
-
-			return Create(createInfo, allocator);
-		}
-		#endif
-
-		#ifdef VK_USE_PLATFORM_MIR_KHR
-		inline bool Surface::Create(const VkMirSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator)
-		{
-			m_lastErrorCode = m_instance.vkCreateMirSurfaceKHR(m_instance, &createInfo, allocator, &m_surface);
-			return Create(allocator);
-		}
-
-		inline bool Surface::Create(MirConnection* connection, MirSurface* surface, VkMirSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
-		{
-			VkMirSurfaceCreateInfoKHR createInfo =
-			{
-				VK_STRUCTURE_TYPE_MIR_SURFACE_CREATE_INFO_KHR,
-				nullptr,
-				flags,
-				connection,
-				surface
 			};
 
 			return Create(createInfo, allocator);
@@ -250,47 +227,42 @@ namespace Nz
 			return true;
 		}
 
-		inline bool Surface::IsSupported() const
-		{
-			if (!m_instance.IsExtensionLoaded("VK_KHR_surface"))
-				return false;
-
-			#ifdef VK_USE_PLATFORM_ANDROID_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_android_surface"))
-				return true;
-			#endif
-
-			#ifdef VK_USE_PLATFORM_MIR_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_mir_surface"))
-				return true;
-			#endif
-
-			#ifdef VK_USE_PLATFORM_XCB_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_xcb_surface"))
-				return true;
-			#endif
-
-			#ifdef VK_USE_PLATFORM_XLIB_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_xlib_surface"))
-				return true;
-			#endif
-
-			#ifdef VK_USE_PLATFORM_WAYLAND_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_wayland_surface"))
-				return true;
-			#endif
-
-			#ifdef VK_USE_PLATFORM_WIN32_KHR
-			if (m_instance.IsExtensionLoaded("VK_KHR_win32_surface"))
-				return true;
-			#endif
-
-			return false;
-		}
-
 		inline Surface::operator VkSurfaceKHR() const
 		{
 			return m_surface;
+		}
+
+		inline bool Surface::IsSupported(const Instance& instance)
+		{
+			if (!instance.IsExtensionLoaded(VK_KHR_SURFACE_EXTENSION_NAME))
+				return false;
+
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+			if (instance.IsExtensionLoaded(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+			if (instance.IsExtensionLoaded(VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
+
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+			if (instance.IsExtensionLoaded(VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+			if (instance.IsExtensionLoaded(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+			if (instance.IsExtensionLoaded(VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
+
+			return false;
 		}
 
 		inline bool Surface::Create(const VkAllocationCallbacks* allocator)

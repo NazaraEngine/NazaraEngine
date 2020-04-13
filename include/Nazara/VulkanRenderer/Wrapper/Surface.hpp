@@ -10,14 +10,13 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Nz 
 {
 	namespace Vk
 	{
-		class Instance;
-
 		class Surface
 		{
 			public:
@@ -30,12 +29,6 @@ namespace Nz
 				// VK_KHR_android_surface
 				inline bool Create(const VkAndroidSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline bool Create(ANativeWindow* window, VkAndroidSurfaceCreateFlagsKHR flags = 0, const VkAllocationCallbacks* allocator = nullptr);
-				#endif
-
-				#ifdef VK_USE_PLATFORM_MIR_KHR
-				// VK_KHR_mir_surface
-				inline bool Create(const VkMirSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(MirConnection* connection, MirSurface* surface, VkMirSurfaceCreateFlagsKHR flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 				#endif
 
 				#ifdef VK_USE_PLATFORM_XCB_KHR
@@ -69,14 +62,14 @@ namespace Nz
 				bool GetPresentModes(VkPhysicalDevice physicalDevice, std::vector<VkPresentModeKHR>* presentModes) const;
 				bool GetSupportPresentation(VkPhysicalDevice physicalDevice, UInt32 queueFamilyIndex, bool* supported) const;
 
-				inline bool IsSupported() const;
-
 				inline VkResult GetLastErrorCode() const;
 
 				Surface& operator=(const Surface&) = delete;
 				Surface& operator=(Surface&&) = delete;
 
 				inline operator VkSurfaceKHR() const;
+
+				static inline bool IsSupported(const Instance& instance);
 
 			private:
 				inline bool Create(const VkAllocationCallbacks* allocator);
