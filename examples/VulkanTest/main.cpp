@@ -1,8 +1,5 @@
 #include <Nazara/Utility.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
-#include <Nazara/VulkanRenderer.hpp>
+#include <Nazara/Renderer.hpp>
 #include <array>
 #include <iostream>
 

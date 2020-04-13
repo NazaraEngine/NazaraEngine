@@ -9,6 +9,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
@@ -20,6 +21,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ImageView.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/InstanceObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
