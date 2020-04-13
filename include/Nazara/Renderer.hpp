@@ -35,6 +35,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
@@ -43,6 +44,7 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
+#include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
