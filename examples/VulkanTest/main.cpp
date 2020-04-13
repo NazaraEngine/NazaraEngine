@@ -6,62 +6,13 @@
 #include <array>
 #include <iostream>
 
-VKAPI_ATTR VkBool32 VKAPI_CALL MyDebugReportCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData)
-{
-	if (pCallbackData->messageIdNumber != 0)
-		std::cerr << "#" << pCallbackData->messageIdNumber << " " << pCallbackData->messageIdNumber << ": ";
-
-	std::cerr << pCallbackData->pMessage << std::endl;
-	return VK_FALSE;
-}
-
 int main()
 {
-	Nz::ParameterList params;
-	params.SetParameter("VkInstanceInfo_EnabledExtensionCount", 1LL);
-	params.SetParameter("VkInstanceInfo_EnabledExtension0", "VK_EXT_debug_report");
-
-	params.SetParameter("VkDeviceInfo_EnabledLayerCount", 1LL);
-	params.SetParameter("VkDeviceInfo_EnabledLayer0", "VK_LAYER_LUNARG_standard_validation");
-	params.SetParameter("VkInstanceInfo_EnabledLayerCount", 1LL);
-	params.SetParameter("VkInstanceInfo_EnabledLayer0", "VK_LAYER_LUNARG_standard_validation");
-
-	Nz::Renderer::SetParameters(params);
-
 	Nz::Initializer<Nz::Renderer> loader;
 	if (!loader)
 	{
 		std::cout << "Failed to initialize Vulkan" << std::endl;;
 		return __LINE__;
-	}
-
-	Nz::Vk::Instance& instance = Nz::Vulkan::GetInstance();
-
-	VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT  };
-	callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
-	callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	callbackCreateInfo.pfnUserCallback = &MyDebugReportCallback;
-
-	/* Register the callback */
-	VkDebugUtilsMessengerEXT callback;
-
-	instance.vkCreateDebugUtilsMessengerEXT(instance, &callbackCreateInfo, nullptr, &callback);
-
-
-	std::vector<VkLayerProperties> layerProperties;
-	if (!Nz::Vk::Loader::EnumerateInstanceLayerProperties(&layerProperties))
-	{
-		NazaraError("Failed to enumerate instance layer properties");
-		return __LINE__;
-	}
-
-	for (const VkLayerProperties& properties : layerProperties)
-	{
-		std::cout << properties.layerName << ": \t" << properties.description << std::endl;
 	}
 
 	Nz::RenderWindow window;
@@ -369,8 +320,6 @@ int main()
 			secondClock.Restart();
 		}
 	}
-
-	instance.vkDestroyDebugUtilsMessengerEXT(instance, callback, nullptr);
 
 	return EXIT_SUCCESS;
 }

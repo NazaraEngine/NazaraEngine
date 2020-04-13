@@ -102,13 +102,28 @@ namespace Nz
 			createFlags = static_cast<VkInstanceCreateFlags>(iParam);
 
 		std::vector<const char*> enabledLayers;
-		std::vector<const char*> enabledExtensions;
+
+		// Get supported layer list
+		std::unordered_set<std::string> availableLayers;
+		std::vector<VkLayerProperties> layerList;
+		if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
+		{
+			for (VkLayerProperties& extProperty : layerList)
+				availableLayers.insert(extProperty.layerName);
+		}
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
 			//< Nazara default layers goes here
+
+#ifdef NAZARA_DEBUG
+			// Enable Vulkan validation if available in debug mode
+			if (availableLayers.count("VK_LAYER_LUNARG_standard_validation"))
+				enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+#endif
 		}
 
+		std::vector<const char*> enabledExtensions;
 		std::vector<String> additionalLayers; // Just to keep the String alive
 		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
 		{
@@ -127,7 +142,7 @@ namespace Nz
 			}
 		}
 
-		// Get extension list
+		// Get supported extension list
 		std::unordered_set<std::string> availableExtensions;
 		std::vector<VkExtensionProperties> extensionList;
 		if (Vk::Loader::EnumerateInstanceExtensionProperties(&extensionList))
@@ -138,30 +153,26 @@ namespace Nz
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
 		{
-			enabledExtensions.push_back("VK_KHR_surface");
+			enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
 			#ifdef VK_USE_PLATFORM_ANDROID_KHR
-			enabledExtensions.push_back("VK_KHR_android_surface");
-			#endif
-
-			#ifdef VK_USE_PLATFORM_MIR_KHR
-			enabledExtensions.push_back("VK_KHR_mir_surface");
+			enabledExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_XCB_KHR
-			enabledExtensions.push_back("VK_KHR_xcb_surface");
+			enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_XLIB_KHR
-			enabledExtensions.push_back("VK_KHR_xlib_surface");
+			enabledExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_WAYLAND_KHR
-			enabledExtensions.push_back("VK_KHR_wayland_surface");
+			enabledExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_WIN32_KHR
-			enabledExtensions.push_back("VK_KHR_win32_surface");
+			enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 			#endif
 
 			if (availableExtensions.count(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))

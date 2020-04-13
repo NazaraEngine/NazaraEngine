@@ -115,17 +115,17 @@ namespace Nz
 				static constexpr std::size_t QueueCount = static_cast<std::size_t>(QueueType::Max) + 1;
 
 				std::unique_ptr<InternalData> m_internalData;
+				std::array<UInt32, QueueCount> m_defaultQueues;
+				std::unordered_set<std::string> m_loadedExtensions;
+				std::unordered_set<std::string> m_loadedLayers;
+				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
+				std::vector<const QueueList*> m_queuesByFamily;
 				Instance& m_instance;
 				const Vk::PhysicalDevice* m_physicalDevice;
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
 				VkResult m_lastErrorCode;
 				VmaAllocator m_memAllocator;
-				std::array<UInt32, QueueCount> m_defaultQueues;
-				std::unordered_set<std::string> m_loadedExtensions;
-				std::unordered_set<std::string> m_loadedLayers;
-				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
-				std::vector<const QueueList*> m_queuesByFamily;
 		};
 	}
 }

@@ -5,19 +5,85 @@
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Log.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <sstream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
 	namespace Vk
 	{
+		namespace
+		{
+			VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+				VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+				VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+				const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+				void*                                       /*pUserData*/)
+			{
+				std::stringstream ss;
+				ss << "Vulkan log: ";
+
+				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+					ss << "[Verbose]";
+
+				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+					ss << "[Info]";
+
+				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+					ss << "[Warning]";
+
+				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+					ss << "[Error]";
+
+
+				if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT)
+					ss << "[General]";
+
+				if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+					ss << "[Performance]";
+
+				if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
+					ss << "[Validation]";
+
+
+				ss << "[" << pCallbackData->messageIdNumber << ":" << pCallbackData->pMessageIdName << "]: " << pCallbackData->pMessage;
+
+				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+					NazaraError(ss.str());
+				else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+					NazaraWarning(ss.str());
+				else
+					NazaraNotice(ss.str());
+
+				return VK_FALSE; //< Should the Vulkan call be aborted
+			}
+		}
+
+		struct Instance::InternalData
+		{
+			DebugUtilsMessengerEXT debugMessenger;
+		};
+
+		Instance::Instance() :
+		m_instance(nullptr)
+		{
+		}
+
+		Instance::~Instance()
+		{
+			if (m_instance)
+				DestroyInstance();
+		}
+
 		bool Instance::Create(const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
 			m_lastErrorCode = Loader::vkCreateInstance(&createInfo, allocator, &m_instance);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to create Vulkan instance");
+				NazaraError("Failed to create Vulkan instance: " + TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -63,6 +129,9 @@ namespace Nz
 				NazaraError(std::string("Failed to query instance function: ") + e.what());
 				return false;
 			}
+
+			m_internalData = std::make_unique<InternalData>();
+			InstallDebugMessageCallback();
 
 			return true;
 		}
@@ -138,6 +207,38 @@ namespace Nz
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamiliesCount, queueFamilyProperties->data());
 
 			return true;
+		}
+
+		void Instance::InstallDebugMessageCallback()
+		{
+			NazaraAssert(m_internalData, "Instance must be created before callbacks are installed");
+
+			if (!Vk::DebugUtilsMessengerEXT::IsSupported(*this))
+			{
+				NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " is not supported, cannot install debug message callback");
+				return;
+			}
+
+			VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+			callbackCreateInfo.pfnUserCallback = &DebugCallback;
+
+			if (!m_internalData->debugMessenger.Create(*this, callbackCreateInfo))
+			{
+				NazaraWarning("failed to install debug message callback");
+				return;
+			}
+		}
+
+		void Instance::DestroyInstance()
+		{
+			assert(m_instance != VK_NULL_HANDLE);
+
+			m_internalData.reset();
+
+			if (vkDestroyInstance)
+				vkDestroyInstance(m_instance, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 		}
 
 		void Instance::ResetPointers()

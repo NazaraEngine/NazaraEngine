@@ -21,10 +21,10 @@ namespace Nz
 		class NAZARA_VULKANRENDERER_API Instance
 		{
 			public:
-				inline Instance();
+				Instance();
 				Instance(const Instance&) = delete;
 				Instance(Instance&&) = delete;
-				inline ~Instance();
+				~Instance();
 
 				bool Create(const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline bool Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
@@ -44,6 +44,8 @@ namespace Nz
 				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device);
 				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device);
 				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties);
+
+				void InstallDebugMessageCallback();
 
 				inline bool IsExtensionLoaded(const std::string& extensionName) const;
 				inline bool IsLayerLoaded(const std::string& layerName) const;
@@ -68,17 +70,20 @@ namespace Nz
 #undef NAZARA_VULKANRENDERER_INSTANCE_FUNCTION
 
 			private:
-				inline void DestroyInstance();
+				void DestroyInstance();
 				void ResetPointers();
 
 				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
+				struct InternalData;
+
+				std::unique_ptr<InternalData> m_internalData;
+				std::unordered_set<std::string> m_loadedExtensions;
+				std::unordered_set<std::string> m_loadedLayers;
 				VkAllocationCallbacks m_allocator;
 				VkInstance m_instance;
 				VkResult m_lastErrorCode;
 				UInt32 m_apiVersion;
-				std::unordered_set<std::string> m_loadedExtensions;
-				std::unordered_set<std::string> m_loadedLayers;
 		};
 	}
 }
