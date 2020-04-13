@@ -12,17 +12,6 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline Instance::Instance() :
-		m_instance(nullptr)
-		{
-		}
-
-		inline Instance::~Instance()
-		{
-			if (m_instance)
-				DestroyInstance();
-		}
-
 		inline bool Instance::Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 		{
 			VkApplicationInfo appInfo = 
@@ -140,14 +129,6 @@ namespace Nz
 			vkGetPhysicalDeviceProperties(device, &properties);
 
 			return properties;
-		}
-
-		inline void Instance::DestroyInstance()
-		{
-			assert(m_instance != VK_NULL_HANDLE);
-
-			if (vkDestroyInstance)
-				vkDestroyInstance(m_instance, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
 		}
 
 		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name)
