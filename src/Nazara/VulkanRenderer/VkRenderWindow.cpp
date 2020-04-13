@@ -85,12 +85,25 @@ namespace Nz
 			return false;
 		}
 
-		if (surfaceFormats.size() == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
-			m_colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
-		else
-			m_colorFormat = surfaceFormats[0].format;
+		m_surfaceFormat = [&] () -> VkSurfaceFormatKHR
+		{
+			if (surfaceFormats.size() == 1 && surfaceFormats.front().format == VK_FORMAT_UNDEFINED)
+			{
+				// If the list contains one undefined format, it means any format can be used
+				return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+			}
+			else
+			{
+				// Search for RGBA8 and default to first format
+				for (const VkSurfaceFormatKHR& surfaceFormat : surfaceFormats)
+				{
+					if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
+						return surfaceFormat;
+				}
 
-		m_colorSpace = surfaceFormats[0].colorSpace;
+				return surfaceFormats.front();
+			}
+		}();
 
 		if (!parameters.depthFormats.empty())
 		{
@@ -305,7 +318,7 @@ namespace Nz
 			{
 				{
 					0,                                        // VkAttachmentDescriptionFlags    flags;
-					m_colorFormat,                            // VkFormat                        format;
+					m_surfaceFormat.format,                   // VkFormat                        format;
 					VK_SAMPLE_COUNT_1_BIT,                    // VkSampleCountFlagBits           samples;
 					VK_ATTACHMENT_LOAD_OP_CLEAR,              // VkAttachmentLoadOp              loadOp;
 					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
@@ -444,8 +457,8 @@ namespace Nz
 			0,
 			surface,
 			imageCount,
-			m_colorFormat,
-			m_colorSpace,
+			m_surfaceFormat.format,
+			m_surfaceFormat.colorSpace,
 			extent,
 			1,
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,

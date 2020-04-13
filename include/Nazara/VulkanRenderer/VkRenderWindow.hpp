@@ -68,9 +68,8 @@ namespace Nz
 
 			std::size_t m_currentFrame;
 			Clock m_clock;
-			VkColorSpaceKHR m_colorSpace;
-			VkFormat m_colorFormat;
 			VkFormat m_depthStencilFormat;
+			VkSurfaceFormatKHR m_surfaceFormat;
 			std::optional<VulkanMultipleFramebuffer> m_framebuffer;
 			std::optional<VulkanRenderPass> m_renderPass;
 			std::shared_ptr<VulkanDevice> m_device;
