@@ -37,6 +37,9 @@ namespace Nz
 	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent);
 	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent, UnicodeAware);
 
+	template<typename F> bool SplitString(const std::string_view& str, const std::string_view& token, F&& func);
+	template<typename F> bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func);
+
 	inline std::string ToLower(const char* str);
 	NAZARA_CORE_API std::string ToLower(const std::string_view& str);
 
