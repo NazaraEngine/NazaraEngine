@@ -94,8 +94,8 @@ namespace Nz
 				if (chosenImpl)
 					NazaraDebug("Choose " + impl->QueryAPIString() + " over " + chosenImpl->QueryAPIString());
 
+				chosenImpl = std::move(impl); //< Move (and delete previous) implementation before unloading library
 				chosenLib = std::move(implLib);
-				chosenImpl = std::move(impl);
 			}
 		}
 
