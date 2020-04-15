@@ -46,6 +46,40 @@ namespace Nz
 #endif
 	}
 
+	template<typename F>
+	bool SplitString(const std::string_view& str, const std::string_view& token, F&& func)
+	{
+		std::size_t pos = 0;
+		std::size_t previousPos = 0;
+		while ((pos = str.find(token, previousPos)) != std::string::npos)
+		{
+			std::size_t splitPos = previousPos;
+			previousPos = pos + token.size();
+
+			if (!func(str.substr(splitPos, pos - splitPos)))
+				return false;
+		}
+
+		return func(str.substr(previousPos));
+	}
+
+	template<typename F>
+	bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func)
+	{
+		std::size_t pos = 0;
+		std::size_t previousPos = 0;
+		while ((pos = str.find_first_of(token, previousPos)) != std::string::npos)
+		{
+			std::size_t splitPos = previousPos;
+			previousPos = pos + 1;
+
+			if (!func(str.substr(splitPos, pos - splitPos)))
+				return false;
+		}
+
+		return func(str.substr(previousPos));
+	}
+
 	inline std::string ToLower(const char* str)
 	{
 		std::size_t size = std::strlen(str);
