@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const GL::Context& OpenGLDevice::GetReferenceContext() const
+	{
+		return *m_referenceContext;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
