@@ -20,7 +20,7 @@ namespace Nz
 			VulkanSurface();
 			VulkanSurface(const VulkanSurface&) = delete;
 			VulkanSurface(VulkanSurface&&) = delete; ///TODO
-			virtual ~VulkanSurface();
+			~VulkanSurface() = default;
 
 			bool Create(WindowHandle handle) override;
 			void Destroy() override;
