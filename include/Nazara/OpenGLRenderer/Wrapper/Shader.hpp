@@ -4,39 +4,40 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_VKSHADERMODULE_HPP
-#define NAZARA_OPENGLRENDERER_VKSHADERMODULE_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLSHADER_HPP
+#define NAZARA_OPENGLRENDERER_GLSHADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
+#include <Nazara/Core/MovableValue.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 
-namespace Nz 
+namespace Nz::GL
 {
-	namespace Vk
+	class Shader
 	{
-		class ShaderModule : public DeviceObject<ShaderModule, VkShaderModule, VkShaderModuleCreateInfo, VK_OBJECT_TYPE_SHADER_MODULE>
-		{
-			friend DeviceObject;
+		public:
+			Shader() = default;
+			Shader(const Shader&) = delete;
+			Shader(Shader&&) noexcept = default;
+			inline ~Shader();
 
-			public:
-				ShaderModule() = default;
-				ShaderModule(const ShaderModule&) = delete;
-				ShaderModule(ShaderModule&&) = default;
-				~ShaderModule() = default;
+			inline bool Compile(std::string* error = nullptr);
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Create(OpenGLDevice& device, GLenum type);
+			inline void Destroy();
 
-				ShaderModule& operator=(const ShaderModule&) = delete;
-				ShaderModule& operator=(ShaderModule&&) = delete;
+			inline void SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length);
+			inline void SetSource(const char* source, GLint length);
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle);
-				static inline void DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+			Shader& operator=(const Shader&) = delete;
+			Shader& operator=(Shader&&) noexcept = default;
+
+		private:
+			MovablePtr<OpenGLDevice> m_device;
+			MovableValue<GLuint> m_shader;
+	};
 }
 
-#include <Nazara/OpenGLRenderer/Wrapper/ShaderModule.inl>
+#include <Nazara/OpenGLRenderer/Wrapper/Shader.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKSHADERMODULE_HPP
+#endif

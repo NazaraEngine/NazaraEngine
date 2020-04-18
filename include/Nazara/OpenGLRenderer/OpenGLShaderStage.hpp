@@ -10,7 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderStageImpl.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/ShaderModule.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
 #include <vector>
 
 namespace Nz
@@ -23,17 +24,13 @@ namespace Nz
 			OpenGLShaderStage(OpenGLShaderStage&&) noexcept = default;
 			~OpenGLShaderStage() = default;
 
-			bool Create(Vk::Device& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
-
-			inline const Vk::ShaderModule& GetHandle() const;
-			inline ShaderStageType GetStageType() const;
+			bool Create(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 
 			OpenGLShaderStage& operator=(const OpenGLShaderStage&) = delete;
 			OpenGLShaderStage& operator=(OpenGLShaderStage&&) noexcept = default;
 
 		private:
-			Vk::ShaderModule m_shaderModule;
-			ShaderStageType m_stage;
+			GL::Shader m_shader;
 	};
 }
 

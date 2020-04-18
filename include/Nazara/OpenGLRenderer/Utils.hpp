@@ -16,22 +16,9 @@
 
 namespace Nz
 {
-	inline VkBufferUsageFlags ToOpenGL(BufferType bufferType);
-	inline VkFormat ToOpenGL(ComponentType componentType);
-	inline VkCullModeFlagBits ToOpenGL(FaceSide faceSide);
-	inline VkPolygonMode ToOpenGL(FaceFilling faceFilling);
-	inline VkPrimitiveTopology ToOpenGL(PrimitiveMode primitiveMode);
-	inline VkCompareOp ToOpenGL(RendererComparison comparison);
-	inline VkFilter ToOpenGL(SamplerFilter samplerFilter);
-	inline VkSamplerMipmapMode ToOpenGL(SamplerMipmapMode samplerMipmap);
-	inline VkSamplerAddressMode ToOpenGL(SamplerWrap samplerWrap);
-	inline VkDescriptorType ToOpenGL(ShaderBindingType bindingType);
-	inline VkShaderStageFlagBits ToOpenGL(ShaderStageType stageType);
-	inline VkShaderStageFlags ToOpenGL(ShaderStageTypeFlags stageType);
-	inline VkStencilOp ToOpenGL(StencilOperation stencilOp);
-	inline VkVertexInputRate ToOpenGL(VertexInputRate inputRate);
+	inline GLenum ToOpenGL(ShaderStageType stageType);
 
-	NAZARA_OPENGLRENDERER_API std::string TranslateOpenGLError(VkResult code);
+	//NAZARA_OPENGLRENDERER_API std::string TranslateOpenGLError(GLenum code);
 }
 
 #include <Nazara/OpenGLRenderer/Utils.inl>
