@@ -8,10 +8,12 @@
 #define NAZARA_OPENGLRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <list>
-#include <vector>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <memory>
 
 namespace Nz
 {
@@ -34,6 +36,11 @@ namespace Nz
 			std::vector<RenderDeviceInfo> QueryRenderDevices() const override;
 
 			bool Prepare(const ParameterList& parameters) override;
+
+		private:
+			DynLib m_opengl32Lib;
+			std::shared_ptr<OpenGLDevice> m_device;
+			std::unique_ptr<GL::Loader> m_loader;
 	};
 }
 

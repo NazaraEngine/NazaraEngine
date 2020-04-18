@@ -8,20 +8,26 @@
 #define NAZARA_OPENGLRENDERER_OPENGLDEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
+#include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Device.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public RenderDevice, public Vk::Device
+	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public RenderDevice
 	{
 		public:
-			using Device::Device;
+			OpenGLDevice(GL::Loader& loader);
 			OpenGLDevice(const OpenGLDevice&) = delete;
 			OpenGLDevice(OpenGLDevice&&) = delete; ///TODO?
 			~OpenGLDevice();
+
+			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params) const;
+			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params, WindowHandle handle) const;
+
+			inline const GL::Context& GetReferenceContext() const;
 
 			std::unique_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
 			std::unique_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
@@ -33,6 +39,10 @@ namespace Nz
 
 			OpenGLDevice& operator=(const OpenGLDevice&) = delete;
 			OpenGLDevice& operator=(OpenGLDevice&&) = delete; ///TODO?
+
+		private:
+			std::unique_ptr<GL::Context> m_referenceContext;
+			GL::Loader& m_loader;
 	};
 }
 

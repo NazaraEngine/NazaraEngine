@@ -7,33 +7,39 @@
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
-#include <Nazara/OpenGLRenderer/OpenGL.hpp>
+#include <Nazara/OpenGLRenderer/DummySurface.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <cassert>
 #include <sstream>
+
+#ifdef NAZARA_PLATFORM_WINDOWS
+#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLLoader.hpp>
+#endif
+
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
 	OpenGLRenderer::~OpenGLRenderer()
 	{
-		OpenGL::Uninitialize();
+		m_device.reset();
+		m_loader.reset();
 	}
 
 	std::unique_ptr<RenderSurface> OpenGLRenderer::CreateRenderSurfaceImpl()
 	{
-		return {};
+		return std::make_unique<DummySurface>();
 	}
 
 	std::unique_ptr<RenderWindowImpl> OpenGLRenderer::CreateRenderWindowImpl()
 	{
-		return {};
+		return std::make_unique<OpenGLRenderWindow>();
 	}
 
 	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
 	{
-		//assert(deviceIndex < m_physDevices.size());
-		//return OpenGL::SelectDevice(m_physDevices[deviceIndex]);
-		return {};
+		assert(deviceIndex == 0);
+		return m_device;
 	}
 
 	bool OpenGLRenderer::IsBetterThan(const RendererImpl* other) const
@@ -46,7 +52,36 @@ namespace Nz
 
 	bool OpenGLRenderer::Prepare(const ParameterList& parameters)
 	{
-		return OpenGL::Initialize();
+		if (!m_opengl32Lib.Load("opengl32" NAZARA_DYNLIB_EXTENSION))
+		{
+			NazaraError("Failed to load opengl32 library, is OpenGL installed on your system?");
+			return false;
+		}
+
+		std::unique_ptr<GL::Loader> loader;
+
+#ifdef NAZARA_PLATFORM_WINDOWS
+		try
+		{
+			loader = std::make_unique<GL::WGLLoader>(m_opengl32Lib);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning(std::string("Failed to load WGL: ") + e.what());
+		}
+#endif
+
+		if (!loader)
+		{
+			NazaraError("Failed to initialize OpenGL loader");
+			return false;
+		}
+
+		m_loader = std::move(loader);
+
+		m_device = std::make_shared<OpenGLDevice>(*m_loader);
+
+		return true;
 	}
 
 	RenderAPI OpenGLRenderer::QueryAPI() const
