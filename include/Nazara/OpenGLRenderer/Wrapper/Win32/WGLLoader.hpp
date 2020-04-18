@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLContext.hpp>
 #include <string>
 
 #undef WIN32_LEAN_AND_MEAN //< Redefined by OpenGL header (ty Khronos)
@@ -23,9 +24,10 @@ namespace Nz::GL
 			WGLLoader(DynLib& openglLib);
 			~WGLLoader() = default;
 
-			std::unique_ptr<GLContext> CreateContext() override;
+			std::unique_ptr<Context> CreateContext(const ContextParams& params, Context* shareContext) const override;
+			std::unique_ptr<Context> CreateContext(const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
 
-			GLFunction LoadFunction(const char* name) override;
+			GLFunction LoadFunction(const char* name) const override;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
 #define NAZARA_OPENGLRENDERER_EXT_BEGIN(ext)
@@ -41,6 +43,7 @@ namespace Nz::GL
 		private:
 			DynLib m_gdi32Lib;
 			DynLib& m_opengl32Lib;
+			WGLContext m_baseContext;
 	};
 }
 

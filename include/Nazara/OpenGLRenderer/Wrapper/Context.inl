@@ -7,6 +7,15 @@
 
 namespace Nz::GL
 {
+	inline const ContextParams& Context::GetParams() const
+	{
+		return m_params;
+	}
+
+	inline bool Context::IsExtensionSupported(const std::string& extension) const
+	{
+		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
