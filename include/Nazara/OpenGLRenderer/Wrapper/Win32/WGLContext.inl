@@ -5,8 +5,12 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLContext.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz::Vk
+namespace Nz::GL
 {
+	inline bool WGLContext::HasPlatformExtension(const std::string& str) const
+	{
+		return m_supportedPlatformExtensions.find(str) != m_supportedPlatformExtensions.end();
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
