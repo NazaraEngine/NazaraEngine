@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CommandBuffer.hpp>
 
 namespace Nz
 {
@@ -19,7 +18,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBufferBuilder final : public CommandBufferBuilder
 	{
 		public:
-			inline OpenGLCommandBufferBuilder(Vk::CommandBuffer& commandBuffer, std::size_t imageIndex = 0);
+			OpenGLCommandBufferBuilder() = default;
 			OpenGLCommandBufferBuilder(const OpenGLCommandBufferBuilder&) = delete;
 			OpenGLCommandBufferBuilder(OpenGLCommandBufferBuilder&&) noexcept = default;
 			~OpenGLCommandBufferBuilder() = default;
@@ -41,9 +40,6 @@ namespace Nz
 			void EndDebugRegion() override;
 			void EndRenderPass() override;
 
-			inline Vk::CommandBuffer& GetCommandBuffer();
-			inline std::size_t GetMaxFramebufferCount() const;
-
 			void PreTransferBarrier() override;
 			void PostTransferBarrier() override;
 
@@ -52,12 +48,6 @@ namespace Nz
 
 			OpenGLCommandBufferBuilder& operator=(const OpenGLCommandBufferBuilder&) = delete;
 			OpenGLCommandBufferBuilder& operator=(OpenGLCommandBufferBuilder&&) = delete;
-
-		private:
-			Vk::CommandBuffer& m_commandBuffer;
-			const OpenGLRenderPass* m_currentRenderPass;
-			std::size_t m_framebufferCount;
-			std::size_t m_imageIndex;
 	};
 }
 

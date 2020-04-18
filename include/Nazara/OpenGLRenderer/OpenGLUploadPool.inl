@@ -7,9 +7,8 @@
 
 namespace Nz
 {
-	inline OpenGLUploadPool::OpenGLUploadPool(Vk::Device& device, UInt64 blockSize) :
-	m_blockSize(blockSize),
-	m_device(device)
+	inline OpenGLUploadPool::OpenGLUploadPool(UInt64 blockSize) :
+	m_blockSize(blockSize)
 	{
 	}
 }

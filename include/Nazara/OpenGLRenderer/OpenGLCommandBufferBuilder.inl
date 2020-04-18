@@ -7,22 +7,6 @@
 
 namespace Nz
 {
-	inline OpenGLCommandBufferBuilder::OpenGLCommandBufferBuilder(Vk::CommandBuffer& commandBuffer, std::size_t imageIndex) :
-	m_commandBuffer(commandBuffer),
-	m_framebufferCount(0),
-	m_imageIndex(imageIndex)
-	{
-	}
-
-	inline Vk::CommandBuffer& OpenGLCommandBufferBuilder::GetCommandBuffer()
-	{
-		return m_commandBuffer;
-	}
-
-	inline std::size_t OpenGLCommandBufferBuilder::GetMaxFramebufferCount() const
-	{
-		return m_framebufferCount;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

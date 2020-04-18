@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/RenderPass.hpp>
 #include <vector>
 
 namespace Nz
@@ -18,21 +17,13 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderPass final : public RenderPass
 	{
 		public:
-			inline OpenGLRenderPass(Vk::RenderPass renderPass, std::initializer_list<PixelFormat> formats); //< FIXME
+			OpenGLRenderPass() = default;
 			OpenGLRenderPass(const OpenGLRenderPass&) = delete;
 			OpenGLRenderPass(OpenGLRenderPass&&) noexcept = default;
 			~OpenGLRenderPass() = default;
 
-			inline PixelFormat GetAttachmentFormat(std::size_t attachmentIndex) const;
-			inline Vk::RenderPass& GetRenderPass();
-			inline const Vk::RenderPass& GetRenderPass() const;
-
 			OpenGLRenderPass& operator=(const OpenGLRenderPass&) = delete;
 			OpenGLRenderPass& operator=(OpenGLRenderPass&&) noexcept = default;
-
-		private:
-			std::vector<PixelFormat> m_formats;
-			Vk::RenderPass m_renderPass;
 	};
 }
 

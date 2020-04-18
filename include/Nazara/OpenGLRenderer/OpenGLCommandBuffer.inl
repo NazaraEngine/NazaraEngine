@@ -7,20 +7,6 @@
 
 namespace Nz
 {
-	inline OpenGLCommandBuffer::OpenGLCommandBuffer(Vk::AutoCommandBuffer commandBuffer)
-	{
-		m_commandBuffers.push_back(std::move(commandBuffer));
-	}
-
-	inline OpenGLCommandBuffer::OpenGLCommandBuffer(std::vector<Vk::AutoCommandBuffer> commandBuffers) :
-	m_commandBuffers(std::move(commandBuffers))
-	{
-	}
-
-	inline Vk::CommandBuffer& OpenGLCommandBuffer::GetCommandBuffer(std::size_t imageIndex)
-	{
-		return m_commandBuffers[imageIndex].Get();
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

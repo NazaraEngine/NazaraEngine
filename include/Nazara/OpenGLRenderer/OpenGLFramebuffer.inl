@@ -7,15 +7,6 @@
 
 namespace Nz
 {
-	inline OpenGLFramebuffer::OpenGLFramebuffer(Type type) :
-	m_type(type)
-	{
-	}
-
-	inline auto OpenGLFramebuffer::GetType() const -> Type
-	{
-		return m_type;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

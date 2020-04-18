@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CommandBuffer.hpp>
 #include <vector>
 
 namespace Nz
@@ -18,19 +17,13 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public CommandBuffer
 	{
 		public:
-			inline OpenGLCommandBuffer(Vk::AutoCommandBuffer commandBuffer);
-			inline OpenGLCommandBuffer(std::vector<Vk::AutoCommandBuffer> commandBuffers);
+			inline OpenGLCommandBuffer();
 			OpenGLCommandBuffer(const OpenGLCommandBuffer&) = delete;
 			OpenGLCommandBuffer(OpenGLCommandBuffer&&) noexcept = default;
 			~OpenGLCommandBuffer() = default;
 
-			inline Vk::CommandBuffer& GetCommandBuffer(std::size_t imageIndex = 0);
-
 			OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 			OpenGLCommandBuffer& operator=(OpenGLCommandBuffer&&) = delete;
-
-		private:
-			std::vector<Vk::AutoCommandBuffer> m_commandBuffers;
 	};
 }
 
