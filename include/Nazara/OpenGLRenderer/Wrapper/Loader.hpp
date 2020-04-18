@@ -8,12 +8,14 @@
 #define NAZARA_OPENGLRENDERER_LOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <memory>
 
 namespace Nz::GL
 {
-	class GLContext;
+	class Context;
 
 	using GLFunction = int(*)();
 
@@ -23,9 +25,10 @@ namespace Nz::GL
 			Loader() = default;
 			virtual ~Loader();
 
-			virtual std::unique_ptr<GLContext> CreateContext() = 0;
+			virtual std::unique_ptr<Context> CreateContext(const ContextParams& params, Context* shareContext = nullptr) const = 0;
+			virtual std::unique_ptr<Context> CreateContext(const ContextParams& params, WindowHandle handle, Context* shareContext = nullptr) const = 0;
 
-			virtual GLFunction LoadFunction(const char* name) = 0;
+			virtual GLFunction LoadFunction(const char* name) const = 0;
 	};
 }
 

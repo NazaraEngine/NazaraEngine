@@ -14,7 +14,7 @@ namespace Nz::GL
 {
 	thread_local WGLContext* s_currentContext = nullptr;
 
-	GL::WGLContext::WGLContext(WGLLoader& loader) :
+	GL::WGLContext::WGLContext(const WGLLoader& loader) :
 	m_loader(loader)
 	{
 	}
@@ -48,11 +48,9 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool WGLContext::Create(const ContextParams& params)
+	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext)
 	{
-		Destroy();
-
-		// Creating a context requires a Window
+		// Creating a context requires a device context, create window to get one
 		m_window.reset(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
 		if (!m_window)
 		{
@@ -62,71 +60,19 @@ namespace Nz::GL
 
 		::ShowWindow(m_window.get(), FALSE);
 
-		m_deviceContext = ::GetDC(m_window.get());
+		return Create(baseContext, params, m_window.get(), shareContext);
+	}
+
+	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext)
+	{
+		m_deviceContext = ::GetDC(static_cast<HWND>(window));
 		if (!m_deviceContext)
 		{
-			NazaraError("failed to retrieve dummy window device context: " + Error::GetLastSystemError());
+			NazaraError("failed to retrieve window device context: " + Error::GetLastSystemError());
 			return false;
 		}
 
-		if (!SetPixelFormat(params))
-			return false;
-
-		WGLContext* currentContext = s_currentContext; //< Pay TLS cost only once
-		if (currentContext && currentContext->wglCreateContextAttribsARB)
-		{
-			struct OpenGLVersion
-			{
-				int major;
-				int minor;
-			};
-
-			std::array<OpenGLVersion, 8> supportedVersions = {
-				{
-					{ 4, 6 },
-					{ 4, 5 },
-					{ 4, 4 },
-					{ 4, 3 },
-					{ 4, 2 },
-					{ 4, 1 },
-					{ 4, 0 },
-					{ 3, 3 }
-				}
-			};
-
-			for (const OpenGLVersion& version : supportedVersions)
-			{
-				std::array<int, 3 * 2 + 1> attributes = {
-					WGL_CONTEXT_MAJOR_VERSION_ARB, version.major,
-					WGL_CONTEXT_MINOR_VERSION_ARB, version.minor,
-
-					WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
-				};
-
-				m_handle = currentContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
-				if (m_handle)
-					break;
-			}
-
-			if (!m_handle)
-			{
-				NazaraError("failed to create WGL context: " + Error::GetLastSystemError());
-				return false;
-			}
-		}
-		else
-		{
-			m_handle = m_loader.wglCreateContext(m_deviceContext);
-			if (!m_handle)
-			{
-				NazaraError("failed to create WGL context: " + Error::GetLastSystemError());
-				return false;
-			}
-		}
-
-		LoadWGLExt();
-
-		return true;
+		return CreateInternal(baseContext, params, shareContext);
 	}
 
 	void WGLContext::Destroy()
@@ -151,6 +97,157 @@ namespace Nz::GL
 		m_loader.SwapBuffers(m_deviceContext);
 	}
 
+	bool WGLContext::CreateInternal(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext)
+	{
+		Destroy();
+
+		m_params = params;
+
+		if (!SetPixelFormat())
+			return false;
+
+		if (baseContext && baseContext->wglCreateContextAttribsARB)
+		{
+			struct Version
+			{
+				unsigned int major;
+				unsigned int minor;
+			};
+
+			if (params.type == ContextType::OpenGL_ES)
+			{
+				if (baseContext->HasPlatformExtension("WGL_EXT_create_context_es_profile"))
+				{
+					// Create OpenGL ES context
+					std::array<Version, 3> supportedGL_ESVersions = {
+						{
+							{ 3, 2 },
+							{ 3, 1 },
+							{ 3, 0 }
+						}
+					};
+
+					for (const Version& version : supportedGL_ESVersions)
+					{
+						if (params.glMajorVersion != 0)
+						{
+							if (version.major > params.glMajorVersion)
+								continue;
+
+							if (params.glMinorVersion != 0 && version.minor > params.glMinorVersion)
+								continue;
+						}
+
+						std::array<int, 3 * 2 + 1> attributes = {
+							WGL_CONTEXT_MAJOR_VERSION_ARB, version.major,
+							WGL_CONTEXT_MINOR_VERSION_ARB, version.minor,
+
+							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB | WGL_CONTEXT_ES_PROFILE_BIT_EXT
+						};
+
+						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
+						if (m_handle)
+							break;
+					}
+				}
+			}
+
+			if (!m_handle)
+			{
+				// Create OpenGL context
+				std::array<Version, 8> supportedGLVersions = {
+					{
+						{ 4, 6 },
+						{ 4, 5 },
+						{ 4, 4 },
+						{ 4, 3 },
+						{ 4, 2 },
+						{ 4, 1 },
+						{ 4, 0 },
+						{ 3, 3 }
+					}
+				};
+
+				for (const Version& version : supportedGLVersions)
+				{
+					if (params.glMajorVersion != 0)
+					{
+						if (version.major > params.glMajorVersion)
+							continue;
+
+						if (params.glMinorVersion != 0 && version.minor > params.glMinorVersion)
+							continue;
+					}
+
+					std::array<int, 3 * 2 + 1> attributes = {
+						WGL_CONTEXT_MAJOR_VERSION_ARB, version.major,
+						WGL_CONTEXT_MINOR_VERSION_ARB, version.minor,
+
+						WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
+					};
+
+					m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
+					if (m_handle)
+					{
+						m_params.type = ContextType::OpenGL;
+						break;
+					}
+				}
+			}
+
+			if (!m_handle)
+			{
+				NazaraError("failed to create WGL context: " + Error::GetLastSystemError());
+				return false;
+			}
+		}
+		else
+		{
+			m_handle = m_loader.wglCreateContext(m_deviceContext);
+			if (!m_handle)
+			{
+				NazaraError("failed to create WGL context: " + Error::GetLastSystemError());
+				return false;
+			}
+
+			m_params.type = ContextType::OpenGL;
+		}
+
+		if (shareContext)
+		{
+			if (!m_loader.wglShareLists(shareContext->m_handle, m_handle))
+			{
+				NazaraError("failed to share context objects: " + Error::GetLastSystemError());
+				return false;
+			}
+		}
+
+		LoadWGLExt();
+
+		return true;
+	}
+
+	bool WGLContext::ImplementFallback(const std::string_view& function)
+	{
+		if (m_params.type == ContextType::OpenGL_ES)
+			return false; //< Implement fallback only for OpenGL (when emulating OpenGL ES)
+
+		if (function == "glClearDepthf")
+		{
+			fallbacks.glClearDepth = reinterpret_cast<Fallback::glClearDepthProc>(m_loader.LoadFunction("glClearDepth"));
+			if (!fallbacks.glClearDepth)
+				return false;
+
+			glClearDepthf = [](GLfloat depth)
+			{
+				assert(s_currentContext);
+				s_currentContext->fallbacks.glClearDepth(depth);
+			};
+		}
+
+		return true;
+	}
+
 	void WGLContext::Desactivate()
 	{
 		WGLContext*& currentContext = s_currentContext; //< Pay TLS cost only once
@@ -159,6 +256,11 @@ namespace Nz::GL
 			m_loader.wglMakeCurrent(nullptr, nullptr);
 			currentContext = nullptr;
 		}
+	}
+
+	const Loader& WGLContext::GetLoader()
+	{
+		return m_loader;
 	}
 
 	bool WGLContext::LoadWGLExt()
@@ -186,7 +288,7 @@ namespace Nz::GL
 		{
 			SplitString(extensionString, " ", [&](std::string_view extension)
 			{
-				m_supportedExtensions.emplace(extension);
+				m_supportedPlatformExtensions.emplace(extension);
 				return true;
 			});
 		}
@@ -194,14 +296,14 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool WGLContext::SetPixelFormat(const ContextParams& params)
+	bool WGLContext::SetPixelFormat()
 	{
 		PIXELFORMATDESCRIPTOR descriptor = {};
 		descriptor.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 		descriptor.nVersion = 1;
 
 		int pixelFormat = 0;
-		if (params.sampleCount > 1)
+		if (m_params.sampleCount > 1)
 		{
 			WGLContext* currentContext = s_currentContext; //< Pay TLS cost only once
 			if (currentContext)
@@ -215,13 +317,13 @@ namespace Nz::GL
 						WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 						WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 						WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
-						WGL_COLOR_BITS_ARB,     (params.bitsPerPixel == 32) ? 24 : params.bitsPerPixel,
-						WGL_ALPHA_BITS_ARB,     (params.bitsPerPixel == 32) ? 8 : 0,
-						WGL_DEPTH_BITS_ARB,     params.depthBits,
-						WGL_STENCIL_BITS_ARB,   params.stencilBits,
-						WGL_DOUBLE_BUFFER_ARB,  (params.doubleBuffering) ? GL_TRUE : GL_FALSE,
+						WGL_COLOR_BITS_ARB,     (m_params.bitsPerPixel == 32) ? 24 : m_params.bitsPerPixel,
+						WGL_ALPHA_BITS_ARB,     (m_params.bitsPerPixel == 32) ? 8 : 0,
+						WGL_DEPTH_BITS_ARB,     m_params.depthBits,
+						WGL_STENCIL_BITS_ARB,   m_params.stencilBits,
+						WGL_DOUBLE_BUFFER_ARB,  (m_params.doubleBuffering) ? GL_TRUE : GL_FALSE,
 						WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-						WGL_SAMPLES_ARB,        params.sampleCount
+						WGL_SAMPLES_ARB,        m_params.sampleCount
 					};
 
 					int& sampleCount = attributes[attributes.size() - 3];
@@ -239,24 +341,26 @@ namespace Nz::GL
 					}
 					while (sampleCount > 1);
 
-					if (params.sampleCount != sampleCount)
-						NazaraWarning("couldn't find a pixel format matching " + std::to_string(params.sampleCount) + " sample count, using " + std::to_string(sampleCount) + " sample(s) instead");
+					if (m_params.sampleCount != sampleCount)
+						NazaraWarning("couldn't find a pixel format matching " + std::to_string(m_params.sampleCount) + " sample count, using " + std::to_string(sampleCount) + " sample(s) instead");
+
+					m_params.sampleCount = sampleCount;
 				}
 			}
 		}
 
 		if (pixelFormat == 0)
 		{
-			descriptor.cColorBits = BYTE((params.bitsPerPixel == 32) ? 24 : params.bitsPerPixel);
-			descriptor.cDepthBits = BYTE(params.depthBits);
-			descriptor.cStencilBits = BYTE(params.stencilBits);
+			descriptor.cColorBits = BYTE((m_params.bitsPerPixel == 32) ? 24 : m_params.bitsPerPixel);
+			descriptor.cDepthBits = BYTE(m_params.depthBits);
+			descriptor.cStencilBits = BYTE(m_params.stencilBits);
 			descriptor.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
 			descriptor.iPixelType = PFD_TYPE_RGBA;
 
-			if (params.bitsPerPixel == 32)
+			if (m_params.bitsPerPixel == 32)
 				descriptor.cAlphaBits = 8;
 
-			if (params.doubleBuffering)
+			if (m_params.doubleBuffering)
 				descriptor.dwFlags |= PFD_DOUBLEBUFFER;
 
 			pixelFormat = m_loader.ChoosePixelFormat(m_deviceContext, &descriptor);
@@ -271,6 +375,13 @@ namespace Nz::GL
 		{
 			NazaraError("Failed to choose pixel format: " + Error::GetLastSystemError());
 			return false;
+		}
+
+		if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
+		{
+			m_params.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;
+			m_params.depthBits = descriptor.cDepthBits;
+			m_params.stencilBits = descriptor.cStencilBits;
 		}
 
 		return true;
