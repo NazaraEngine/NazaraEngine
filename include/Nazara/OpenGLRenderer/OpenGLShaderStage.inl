@@ -7,15 +7,6 @@
 
 namespace Nz
 {
-	inline const Vk::ShaderModule& OpenGLShaderStage::GetHandle() const
-	{
-		return m_shaderModule;
-	}
-
-	inline ShaderStageType OpenGLShaderStage::GetStageType() const
-	{
-		return m_stage;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

@@ -2,36 +2,80 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/Wrapper/ShaderModule.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
+#include <cassert>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	inline Shader::~Shader()
 	{
-		inline bool ShaderModule::Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags, const VkAllocationCallbacks* allocator)
+		Destroy();
+	}
+
+	inline bool Shader::Compile(std::string* error)
+	{
+		assert(m_shader);
+		const GL::Context& context = m_device->GetReferenceContext();
+		context.glCompileShader(m_shader);
+
+		GLint success;
+		context.glGetShaderiv(m_shader, GL_COMPILE_STATUS, &success);
+		if (!success)
 		{
-			VkShaderModuleCreateInfo createInfo =
+			if (error)
 			{
-				VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-				nullptr,
-				flags,
-				size,
-				code
-			};
+				GLint logLength;
+				context.glGetShaderiv(m_shader, GL_INFO_LOG_LENGTH, &logLength);
 
-			return Create(device, createInfo, allocator);
+				error->resize(logLength);
+
+				if (logLength > 0)
+				{
+					GLsizei dummy;
+					context.glGetShaderInfoLog(m_shader, logLength, &dummy, error->data());
+				}
+			}
+
+			return false;
 		}
 
-		inline VkResult ShaderModule::CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle)
+		return true;
+	}
+
+	inline bool Shader::Create(OpenGLDevice& device, GLenum type)
+	{
+		Destroy();
+
+		m_device = &device;
+		m_shader = device.GetReferenceContext().glCreateShader(type);
+		if (!m_shader)
+			return false; //< TODO: Handle error messages
+
+		return true;
+	}
+
+	inline void Shader::Destroy()
+	{
+		if (m_shader)
 		{
-			return device.vkCreateShaderModule(device, createInfo, allocator, handle);
+			m_device->GetReferenceContext().glDeleteShader(m_shader);
+			m_shader = 0;
 		}
+	}
 
-		inline void ShaderModule::DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyShaderModule(device, handle, allocator);
-		}
+	inline void Shader::SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length)
+	{
+		assert(m_shader);
+
+		m_device->GetReferenceContext().glShaderBinary(1U, &m_shader.Get(), binaryFormat, binary, length);
+	}
+
+	inline void Shader::SetSource(const char* source, GLint length)
+	{
+		assert(m_shader);
+
+		m_device->GetReferenceContext().glShaderSource(m_shader, 1U, &source, &length);
 	}
 }
 
