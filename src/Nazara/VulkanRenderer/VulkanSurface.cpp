@@ -13,8 +13,6 @@ namespace Nz
 	{
 	}
 
-	VulkanSurface::~VulkanSurface() = default;
-
 	bool VulkanSurface::Create(WindowHandle handle)
 	{
 		bool success = false;

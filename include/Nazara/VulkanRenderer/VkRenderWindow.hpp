@@ -40,7 +40,7 @@ namespace Nz
 			VkRenderWindow();
 			VkRenderWindow(const VkRenderWindow&) = delete;
 			VkRenderWindow(VkRenderWindow&&) = delete; ///TODO
-			virtual ~VkRenderWindow();
+			~VkRenderWindow();
 
 			VulkanRenderImage& Acquire() override;
 
