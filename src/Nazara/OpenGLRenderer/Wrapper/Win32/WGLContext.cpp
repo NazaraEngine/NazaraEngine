@@ -12,8 +12,6 @@
 
 namespace Nz::GL
 {
-	thread_local WGLContext* s_currentContext = nullptr;
-
 	GL::WGLContext::WGLContext(const WGLLoader& loader) :
 	m_loader(loader)
 	{
@@ -22,30 +20,6 @@ namespace Nz::GL
 	WGLContext::~WGLContext()
 	{
 		Destroy();
-	}
-
-	bool WGLContext::Activate()
-	{
-		WGLContext*& currentContext = s_currentContext; //< Pay TLS cost only once
-		if (currentContext)
-		{
-			if (currentContext == this)
-				return true;
-
-			// Only one context can be activated per thread
-			currentContext->Desactivate();
-		}
-
-		bool succeeded = m_loader.wglMakeCurrent(m_deviceContext, m_handle);
-		if (!succeeded)
-		{
-			NazaraError("failed to activate context: " + Error::GetLastSystemError());
-			return false;
-		}
-
-		currentContext = this;
-
-		return true;
 	}
 
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext)
@@ -79,9 +53,7 @@ namespace Nz::GL
 	{
 		if (m_handle)
 		{
-			WGLContext*& currentContext = s_currentContext; //< Pay TLS cost only once
-			if (currentContext == this)
-				currentContext = nullptr;
+			NotifyContextDestruction(this);
 
 			m_loader.wglDeleteContext(m_handle);
 			m_handle = nullptr;
@@ -139,8 +111,8 @@ namespace Nz::GL
 						}
 
 						std::array<int, 3 * 2 + 1> attributes = {
-							WGL_CONTEXT_MAJOR_VERSION_ARB, version.major,
-							WGL_CONTEXT_MINOR_VERSION_ARB, version.minor,
+							WGL_CONTEXT_MAJOR_VERSION_ARB, int(version.major),
+							WGL_CONTEXT_MINOR_VERSION_ARB, int(version.minor),
 
 							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB | WGL_CONTEXT_ES_PROFILE_BIT_EXT
 						};
@@ -180,8 +152,8 @@ namespace Nz::GL
 					}
 
 					std::array<int, 3 * 2 + 1> attributes = {
-						WGL_CONTEXT_MAJOR_VERSION_ARB, version.major,
-						WGL_CONTEXT_MINOR_VERSION_ARB, version.minor,
+						WGL_CONTEXT_MAJOR_VERSION_ARB, int(version.major),
+						WGL_CONTEXT_MINOR_VERSION_ARB, int(version.minor),
 
 						WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
 					};
@@ -243,22 +215,31 @@ namespace Nz::GL
 
 			glClearDepthf = [](GLfloat depth)
 			{
-				assert(s_currentContext);
-				s_currentContext->fallbacks.glClearDepth(depth);
+				const WGLContext* context = static_cast<const WGLContext*>(GetCurrentContext());
+				assert(context);
+				context->fallbacks.glClearDepth(depth);
 			};
 		}
 
 		return true;
 	}
 
-	void WGLContext::Desactivate()
+	bool WGLContext::Activate() const
 	{
-		WGLContext*& currentContext = s_currentContext; //< Pay TLS cost only once
-		if (currentContext == this)
+		bool succeeded = m_loader.wglMakeCurrent(m_deviceContext, m_handle);
+		if (!succeeded)
 		{
-			m_loader.wglMakeCurrent(nullptr, nullptr);
-			currentContext = nullptr;
+			NazaraError("failed to activate context: " + Error::GetLastSystemError());
+			return false;
 		}
+
+		return true;
+	}
+
+	void WGLContext::Desactivate() const
+	{
+		assert(GetCurrentContext() == this);
+		m_loader.wglMakeCurrent(nullptr, nullptr);
 	}
 
 	const Loader& WGLContext::GetLoader()
@@ -308,7 +289,7 @@ namespace Nz::GL
 		int pixelFormat = 0;
 		if (m_params.sampleCount > 1)
 		{
-			WGLContext* currentContext = s_currentContext; //< Pay TLS cost only once
+			const WGLContext* currentContext = static_cast<const WGLContext*>(GetCurrentContext()); //< Pay TLS cost only once
 			if (currentContext)
 			{
 				// WGL_ARB_pixel_format and WGL_EXT_pixel_format are the same, except for the symbol
@@ -320,13 +301,13 @@ namespace Nz::GL
 						WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 						WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 						WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
-						WGL_COLOR_BITS_ARB,     (m_params.bitsPerPixel == 32) ? 24 : m_params.bitsPerPixel,
-						WGL_ALPHA_BITS_ARB,     (m_params.bitsPerPixel == 32) ? 8 : 0,
-						WGL_DEPTH_BITS_ARB,     m_params.depthBits,
-						WGL_STENCIL_BITS_ARB,   m_params.stencilBits,
-						WGL_DOUBLE_BUFFER_ARB,  (m_params.doubleBuffering) ? GL_TRUE : GL_FALSE,
+						WGL_COLOR_BITS_ARB,     int((m_params.bitsPerPixel == 32) ? 24 : m_params.bitsPerPixel),
+						WGL_ALPHA_BITS_ARB,     int((m_params.bitsPerPixel == 32) ? 8 : 0),
+						WGL_DEPTH_BITS_ARB,     int(m_params.depthBits),
+						WGL_STENCIL_BITS_ARB,   int(m_params.stencilBits),
+						WGL_DOUBLE_BUFFER_ARB,  int((m_params.doubleBuffering) ? GL_TRUE : GL_FALSE),
 						WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-						WGL_SAMPLES_ARB,        m_params.sampleCount
+						WGL_SAMPLES_ARB,        int(m_params.sampleCount)
 					};
 
 					int& sampleCount = attributes[attributes.size() - 3];
@@ -344,7 +325,7 @@ namespace Nz::GL
 					}
 					while (sampleCount > 1);
 
-					if (m_params.sampleCount != sampleCount)
+					if (int(m_params.sampleCount) != sampleCount)
 						NazaraWarning("couldn't find a pixel format matching " + std::to_string(m_params.sampleCount) + " sample count, using " + std::to_string(sampleCount) + " sample(s) instead");
 
 					m_params.sampleCount = sampleCount;
