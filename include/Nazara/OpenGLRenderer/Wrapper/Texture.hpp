@@ -4,40 +4,41 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_VKPIPELINELAYOUT_HPP
-#define NAZARA_OPENGLRENDERER_VKPIPELINELAYOUT_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLTEXTURE_HPP
+#define NAZARA_OPENGLRENDERER_GLTEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
+#include <Nazara/Core/MovableValue.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 
-namespace Nz 
+namespace Nz::GL
 {
-	namespace Vk
+	class Texture
 	{
-		class PipelineLayout : public DeviceObject<PipelineLayout, VkPipelineLayout, VkPipelineLayoutCreateInfo, VK_OBJECT_TYPE_PIPELINE_LAYOUT>
-		{
-			friend DeviceObject;
+		public:
+			Texture() = default;
+			Texture(const Texture&) = delete;
+			Texture(Texture&&) noexcept = default;
+			inline ~Texture();
 
-			public:
-				PipelineLayout() = default;
-				PipelineLayout(const PipelineLayout&) = delete;
-				PipelineLayout(PipelineLayout&&) = default;
-				~PipelineLayout() = default;
+			inline bool Create(OpenGLDevice& device);
+			inline void Destroy();
 
-				using DeviceObject::Create;
-				bool Create(Device& device, VkDescriptorSetLayout layout, VkPipelineLayoutCreateFlags flags = 0);
-				bool Create(Device& device, UInt32 layoutCount, const VkDescriptorSetLayout* layouts, VkPipelineLayoutCreateFlags flags = 0);
+			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border);
+			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data);
+			inline void TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data);
 
-				PipelineLayout& operator=(const PipelineLayout&) = delete;
-				PipelineLayout& operator=(PipelineLayout&&) = delete;
+			Texture& operator=(const Texture&) = delete;
+			Texture& operator=(Texture&&) noexcept = default;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkPipelineLayoutCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineLayout* handle);
-				static inline void DestroyHelper(Device& device, VkPipelineLayout handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			const Context& EnsureDeviceContext();
+
+			MovablePtr<OpenGLDevice> m_device;
+			MovableValue<GLuint> m_texture;
+	};
 }
 
-#include <Nazara/OpenGLRenderer/Wrapper/PipelineLayout.inl>
+#include <Nazara/OpenGLRenderer/Wrapper/Texture.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKPIPELINELAYOUT_HPP
+#endif

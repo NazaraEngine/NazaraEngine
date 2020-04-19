@@ -36,6 +36,15 @@ namespace Nz::GL
 	{
 		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
 	}
+
+	inline void Context::NotifyTextureDestruction(GLuint texture) const
+	{
+		for (GLuint& boundTexture : m_state.boundTextures)
+		{
+			if (boundTexture == texture)
+				boundTexture = 0;
+		}
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
