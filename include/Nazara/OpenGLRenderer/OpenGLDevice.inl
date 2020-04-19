@@ -11,6 +11,17 @@ namespace Nz
 	{
 		return *m_referenceContext;
 	}
+
+	inline void OpenGLDevice::NotifyTextureDestruction(GLuint texture) const
+	{
+		for (const GL::Context* context : m_contexts)
+			context->NotifyTextureDestruction(texture);
+	}
+
+	inline void OpenGLDevice::NotifyContextDestruction(const GL::Context& context) const
+	{
+		m_contexts.erase(&context);
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

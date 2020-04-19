@@ -7,6 +7,12 @@
 
 namespace Nz::GL
 {
+	inline GL::WGLContext::WGLContext(const OpenGLDevice* device, const WGLLoader& loader) :
+	Context(device),
+	m_loader(loader)
+	{
+	}
+
 	inline bool WGLContext::HasPlatformExtension(const std::string& str) const
 	{
 		return m_supportedPlatformExtensions.find(str) != m_supportedPlatformExtensions.end();

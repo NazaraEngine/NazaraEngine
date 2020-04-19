@@ -11,7 +11,7 @@ namespace Nz::GL
 {
 	WGLLoader::WGLLoader(DynLib& openglLib) :
 	m_opengl32Lib(openglLib),
-	m_baseContext(*this)
+	m_baseContext(nullptr, *this)
 	{
 		if (!m_gdi32Lib.Load("gdi32.dll"))
 			throw std::runtime_error("failed to load gdi32.dll: " + m_gdi32Lib.GetLastError());
@@ -42,7 +42,7 @@ namespace Nz::GL
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 
 		// In order to load OpenGL functions, we have to create a context first
-		WGLContext loadContext(*this);
+		WGLContext loadContext(nullptr, *this);
 
 		if (!loadContext.Create(nullptr, {}))
 			throw std::runtime_error("failed to create load context");
@@ -56,9 +56,9 @@ namespace Nz::GL
 			throw std::runtime_error("failed to load OpenGL functions");
 	}
 
-	std::unique_ptr<Context> WGLLoader::CreateContext(const ContextParams& params, Context* shareContext) const
+	std::unique_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
 	{
-		auto context = std::make_unique<WGLContext>(*this);
+		auto context = std::make_unique<WGLContext>(device, *this);
 		if (!context->Create(&m_baseContext, params, static_cast<WGLContext*>(shareContext)))
 		{
 			NazaraError("failed to create context");
@@ -74,9 +74,9 @@ namespace Nz::GL
 		return context;
 	}
 
-	std::unique_ptr<Context> WGLLoader::CreateContext(const ContextParams& params, WindowHandle handle, Context* shareContext) const
+	std::unique_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
 	{
-		auto context = std::make_unique<WGLContext>(*this);
+		auto context = std::make_unique<WGLContext>(device, *this);
 		if (!context->Create(&m_baseContext, params, handle, static_cast<WGLContext*>(shareContext)))
 		{
 			NazaraError("failed to create context");

@@ -14,6 +14,11 @@
 #include <string>
 #include <unordered_set>
 
+namespace Nz
+{
+	class OpenGLDevice;
+}
+
 namespace Nz::GL
 {
 	enum class ContextType
@@ -55,13 +60,13 @@ namespace Nz::GL
 	class Context
 	{
 		public:
-			Context() = default;
+			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
 
-			virtual bool Activate() = 0;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
+			inline const OpenGLDevice* GetDevice() const;
 			inline ExtensionStatus GetExtensionStatus(Extension extension) const;
 			inline const ContextParams& GetParams() const;
 
@@ -95,6 +100,7 @@ namespace Nz::GL
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
 			std::unordered_set<std::string> m_supportedExtensions;
+			const OpenGLDevice* m_device;
 	};
 }
 

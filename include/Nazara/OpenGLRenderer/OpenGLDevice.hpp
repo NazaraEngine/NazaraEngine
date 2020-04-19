@@ -12,12 +12,15 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <unordered_set>
 #include <vector>
 
 namespace Nz
 {
 	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public RenderDevice
 	{
+		friend GL::Context;
+
 		public:
 			OpenGLDevice(GL::Loader& loader);
 			OpenGLDevice(const OpenGLDevice&) = delete;
@@ -37,11 +40,16 @@ namespace Nz
 			std::unique_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
 			std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
+			inline void NotifyTextureDestruction(GLuint texture) const;
+
 			OpenGLDevice& operator=(const OpenGLDevice&) = delete;
 			OpenGLDevice& operator=(OpenGLDevice&&) = delete; ///TODO?
 
 		private:
+			inline void NotifyContextDestruction(const GL::Context& context) const;
+
 			std::unique_ptr<GL::Context> m_referenceContext;
+			mutable std::unordered_set<const GL::Context*> m_contexts;
 			GL::Loader& m_loader;
 	};
 }
