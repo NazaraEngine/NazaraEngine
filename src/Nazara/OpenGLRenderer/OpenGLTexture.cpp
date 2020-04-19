@@ -2,160 +2,62 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CommandBuffer.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/QueueHandle.hpp>
 #include <stdexcept>
 #include <vma/vk_mem_alloc.h>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	namespace
-	{
-		inline unsigned int GetLevelSize(unsigned int size, UInt8 level)
-		{
-			if (size == 0) // Possible dans le cas d'une image invalide
-				return 0;
-
-			return std::max(size >> level, 1U);
-		}
-	}
-
-	OpenGLTexture::OpenGLTexture(Vk::Device& device, const TextureInfo& params) :
-	m_image(VK_NULL_HANDLE),
-	m_allocation(nullptr),
-	m_device(device),
+	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& params) :
 	m_params(params)
 	{
-		VkImageCreateInfo createInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-		createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		createInfo.mipLevels = params.mipmapLevel;
-		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		createInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		if (!m_texture.Create(device))
+			throw std::runtime_error("failed to create texture object");
 
-		VkImageViewCreateInfo createInfoView = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-		createInfoView.subresourceRange = {
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0,
-			1,
-			0,
-			1
-		};
+		GLint internalFormat;
+		switch (params.pixelFormat)
+		{
+			case PixelFormat_RGB8:
+			{
+				internalFormat = GL_RGB8;
+				break;
+			}
 
-		InitForFormat(params.pixelFormat, createInfo, createInfoView);
+			case PixelFormat_RGBA8:
+			{
+				internalFormat = GL_RGBA8;
+				break;
+			}
+		}
 
 		switch (params.type)
 		{
 			case ImageType_1D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
-
-				createInfo.imageType = VK_IMAGE_TYPE_1D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = 1;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 1;
 				break;
 
 			case ImageType_1D_Array:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-
-				createInfo.imageType = VK_IMAGE_TYPE_1D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = 1;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = params.height;
 				break;
 
 			case ImageType_2D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-
-				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 1;
+				for (unsigned int level = 0; level < m_params.mipmapLevel; ++level)
+					m_texture.TexImage2D(0, internalFormat, GetLevelSize(params.width, level), GetLevelSize(params.height, level), 0);
 				break;
 
 			case ImageType_2D_Array:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth > 0, "Depth must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-
-				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = params.height;
 				break;
 
 			case ImageType_3D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth > 0, "Depth must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
-
-				createInfo.imageType = VK_IMAGE_TYPE_3D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = params.depth;
-				createInfo.arrayLayers = 1;
 				break;
 
 			case ImageType_Cubemap:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-
-				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 6;
-				createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 				break;
 
 			default:
 				break;
 		}
-
-		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-
-		VkResult result = vmaCreateImage(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_image, &m_allocation, nullptr);
-		if (result != VK_SUCCESS)
-			throw std::runtime_error("Failed to allocate image: " + TranslateOpenGLError(result));
-
-		createInfoView.image = m_image;
-
-		if (!m_imageView.Create(device, createInfoView))
-		{
-			// FIXME
-			vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
-			throw std::runtime_error("Failed to create image view: " + TranslateOpenGLError(m_imageView.GetLastErrorCode()));
-		}
-	}
-
-	OpenGLTexture::~OpenGLTexture()
-	{
-		vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
 	}
 
 	PixelFormat OpenGLTexture::GetFormat() const
@@ -180,112 +82,50 @@ namespace Nz
 
 	bool OpenGLTexture::Update(const void* ptr)
 	{
-		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
-
-		VkBufferCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		createInfo.size = textureSize;
-		createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-
-		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
-		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-
-		VmaAllocationInfo allocationInfo;
-
-		VkBuffer stagingBuffer;
-		VmaAllocation stagingAllocation;
-
-		VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &stagingBuffer, &stagingAllocation, &allocationInfo);
-		if (result != VK_SUCCESS)
+		GLint format;
+		GLint type;
+		switch (m_params.pixelFormat)
 		{
-			NazaraError("Failed to allocate staging buffer: " + TranslateOpenGLError(result));
-			return false;
-		}
-
-		CallOnExit freeStaging([&] {
-			vmaDestroyBuffer(m_device.GetMemoryAllocator(), stagingBuffer, stagingAllocation);
-		});
-
-		std::memcpy(allocationInfo.pMappedData, ptr, textureSize);
-
-		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
-		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
-			return false;
-
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_params.width, m_params.height, m_params.depth);
-
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		if (!copyCommandBuffer->End())
-			return false;
-
-		Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetDefaultFamilyIndex(QueueType::Graphics), 0);
-		if (!transferQueue.Submit(copyCommandBuffer))
-			return false;
-
-		transferQueue.WaitIdle();
-
-		return true;
-	}
-
-	void OpenGLTexture::InitForFormat(PixelFormat pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView)
-	{
-		createImageView.components = {
-			VK_COMPONENT_SWIZZLE_R,
-			VK_COMPONENT_SWIZZLE_G,
-			VK_COMPONENT_SWIZZLE_B,
-			VK_COMPONENT_SWIZZLE_A
-		};
-
-		switch (pixelFormat)
-		{
-			case PixelFormat_L8:
-			{
-				createImage.format = VK_FORMAT_R8_SRGB;
-				createImageView.format = createImage.format;
-				createImageView.components = {
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_A
-				};
-				break;
-			}
-
-			case PixelFormat_LA8:
-			{
-				createImage.format = VK_FORMAT_R8G8_SRGB;
-				createImageView.format = createImage.format;
-				createImageView.components = {
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_G
-				};
-				break;
-			}
-
 			case PixelFormat_RGB8:
 			{
-				createImage.format = VK_FORMAT_R8G8B8_SRGB;
-				createImageView.format = createImage.format;
+				format = GL_RGB;
+				type = GL_UNSIGNED_BYTE;
 				break;
 			}
 
 			case PixelFormat_RGBA8:
 			{
-				createImage.format = VK_FORMAT_R8G8B8A8_SRGB;
-				createImageView.format = createImage.format;
+				format = GL_RGBA;
+				type = GL_UNSIGNED_BYTE;
 				break;
 			}
+		}
+		
+		switch (m_params.type)
+		{
+			case ImageType_1D:
+				break;
+
+			case ImageType_1D_Array:
+				break;
+
+			case ImageType_2D:
+				m_texture.TexSubImage2D(0, 0, 0, m_params.width, m_params.height, format, type, ptr);
+				break;
+
+			case ImageType_2D_Array:
+				break;
+
+			case ImageType_3D:
+				break;
+
+			case ImageType_Cubemap:
+				break;
 
 			default:
-				throw std::runtime_error(("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat)).ToStdString());
+				break;
 		}
+
+		return true;
 	}
 }
-
-#endif

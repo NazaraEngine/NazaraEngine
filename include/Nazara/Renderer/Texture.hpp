@@ -40,6 +40,8 @@ namespace Nz
 
 			virtual bool Update(const void* ptr) = 0;
 
+			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
+
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) = delete;
 	};

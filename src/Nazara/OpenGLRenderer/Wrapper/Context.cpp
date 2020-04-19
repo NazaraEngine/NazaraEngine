@@ -22,6 +22,41 @@ namespace Nz::GL
 			m_device->NotifyContextDestruction(*this);
 	}
 
+	void Context::BindTexture(TextureTarget target, GLuint texture) const
+	{
+		if (!SetCurrentContext(this))
+			throw std::runtime_error("failed to activate context");
+
+		if (m_state.boundTextures[UnderlyingCast(target)] != texture)
+		{
+			GLenum glTarget;
+			switch (target)
+			{
+				case TextureTarget::Cubemap:
+					glTarget = GL_TEXTURE_CUBE_MAP;
+					break;
+
+				case TextureTarget::Target2D:
+					glTarget = GL_TEXTURE_2D;
+					break;
+
+				case TextureTarget::Target2D_Array:
+					glTarget = GL_TEXTURE_2D_ARRAY;
+					break;
+
+				case TextureTarget::Target3D:
+					glTarget = GL_TEXTURE_3D;
+					break;
+
+				default:
+					break;
+			}
+
+			glBindTexture(glTarget, texture);
+
+			m_state.boundTextures[UnderlyingCast(target)] = texture;
+		}
+	}
 
 	bool Context::Initialize(const ContextParams& params)
 	{
@@ -30,6 +65,8 @@ namespace Nz::GL
 			NazaraError("failed to activate context");
 			return false;
 		}
+
+		m_state.boundTextures.fill(0);
 
 		const Loader& loader = GetLoader();
 

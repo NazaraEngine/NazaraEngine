@@ -43,6 +43,16 @@ namespace Nz::GL
 		KHR
 	};
 
+	enum class TextureTarget
+	{
+		Cubemap,
+		Target2D,
+		Target2D_Array,
+		Target3D,
+
+		Max = Target3D
+	};
+
 	struct ContextParams
 	{
 		ContextType type = ContextType::OpenGL_ES;
@@ -63,6 +73,7 @@ namespace Nz::GL
 			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
 
+			void BindTexture(TextureTarget target, GLuint texture) const;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
@@ -74,6 +85,8 @@ namespace Nz::GL
 			inline bool IsExtensionSupported(const std::string& extension) const;
 
 			bool Initialize(const ContextParams& params);
+
+			inline void NotifyTextureDestruction(GLuint texture) const;
 
 			virtual void SwapBuffers() = 0;
 
@@ -98,9 +111,15 @@ namespace Nz::GL
 		private:
 			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
 
+			struct State
+			{
+				std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> boundTextures;
+			};
+
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
 			std::unordered_set<std::string> m_supportedExtensions;
 			const OpenGLDevice* m_device;
+			mutable State m_state;
 	};
 }
 

@@ -7,15 +7,6 @@
 
 namespace Nz
 {
-	inline VkImage OpenGLTexture::GetImage() const
-	{
-		return m_image;
-	}
-
-	inline VkImageView OpenGLTexture::GetImageView() const
-	{
-		return m_imageView;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

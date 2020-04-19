@@ -13,17 +13,6 @@
 
 namespace Nz
 {
-	namespace
-	{
-		inline unsigned int GetLevelSize(unsigned int size, UInt8 level)
-		{
-			if (size == 0) // Possible dans le cas d'une image invalide
-				return 0;
-
-			return std::max(size >> level, 1U);
-		}
-	}
-
 	VulkanTexture::VulkanTexture(Vk::Device& device, const TextureInfo& params) :
 	m_image(VK_NULL_HANDLE),
 	m_allocation(nullptr),

@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -66,7 +67,7 @@ namespace Nz
 
 	std::unique_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)
 	{
-		return {};
+		return std::make_unique<OpenGLTexture>(*this, params);
 	}
 
 	std::unique_ptr<TextureSampler> OpenGLDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
