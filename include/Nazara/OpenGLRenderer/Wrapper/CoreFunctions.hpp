@@ -8,10 +8,12 @@
 #define NAZARA_OPENGLRENDERER_COREFUNCTIONS_HPP
 
 #define GL_GLES_PROTOTYPES 0
-#include <GLES3/gl3.h>
+#include <GLES3/gl32.h>
+#include <GLES2/gl2ext.h>
+
 
 // OpenGL core
-#define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb) \
+#define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb, extCb) \
 	cb(glActiveTexture, PFNGLACTIVETEXTUREPROC) \
 	cb(glAttachShader, PFNGLATTACHSHADERPROC) \
 	cb(glBeginQuery, PFNGLBEGINQUERYPROC) \
@@ -139,5 +141,7 @@
 	cb(glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC) \
 	cb(glVertexAttribIPointer, PFNGLVERTEXATTRIBIPOINTERPROC) \
 	cb(glViewport, PFNGLVIEWPORTPROC) \
+	\
+	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
 
 #endif
