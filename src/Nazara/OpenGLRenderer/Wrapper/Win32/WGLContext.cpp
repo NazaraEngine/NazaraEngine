@@ -229,6 +229,9 @@ namespace Nz::GL
 
 	bool WGLContext::ImplementFallback(const std::string_view& function)
 	{
+		if (Context::ImplementFallback(function))
+			return true;
+
 		if (m_params.type == ContextType::OpenGL_ES)
 			return false; //< Implement fallback only for OpenGL (when emulating OpenGL ES)
 

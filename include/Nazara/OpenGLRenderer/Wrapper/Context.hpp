@@ -59,10 +59,14 @@ namespace Nz::GL
 		protected:
 			virtual const Loader& GetLoader() = 0;
 
-			virtual bool ImplementFallback(const std::string_view& function) = 0;
+			virtual bool ImplementFallback(const std::string_view& function);
 
 			std::unordered_set<std::string> m_supportedExtensions;
 			ContextParams m_params;
+
+		private:
+			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
+
 	};
 }
 

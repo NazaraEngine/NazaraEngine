@@ -32,8 +32,10 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) LoadSymbol(name, #name);
-			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC)
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) LoadSymbol(name, #name, true);
+#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
+			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
+#undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
 		}
 		catch (const std::exception& e)
@@ -68,6 +70,12 @@ namespace Nz::GL
 			return true;
 		});
 
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig)
+#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) LoadSymbol(name, #name, false);
+		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
+#undef NAZARA_OPENGLRENDERER_EXT_FUNC
+#undef NAZARA_OPENGLRENDERER_FUNC
+
 		// If we requested an OpenGL ES context but cannot create one, check for some compatibility extensions
 		if (params.type == ContextType::OpenGL_ES && m_params.type != params.type)
 		{
@@ -93,6 +101,136 @@ namespace Nz::GL
 				NazaraWarning("desktop support for OpenGL ES is missing, falling back to OpenGL...");
 		}
 
+		// Set debug callback (if supported)
+		if (glDebugMessageCallback)
+		{
+			glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+			{
+				const Context* context = static_cast<const Context*>(userParam);
+				context->HandleDebugMessage(source, type, id, severity, length, message);
+			}, this);
+		}
+
 		return true;
+	}
+
+	bool Context::ImplementFallback(const std::string_view& function)
+	{
+		const Loader& loader = GetLoader();
+
+		auto LoadSymbol = [&](auto& func, const char* funcName) -> bool
+		{
+			func = reinterpret_cast<std::decay_t<decltype(func)>>(loader.LoadFunction(funcName));
+			return func;
+		};
+
+		if (function == "glDebugMessageCallback")
+		{
+			if (!LoadSymbol(glDebugMessageCallback, "glDebugMessageCallbackARB"))
+				return LoadSymbol(glDebugMessageCallback, "DebugMessageCallbackAMD");
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
+	{
+		std::stringstream ss;
+		ss << "OpenGL debug message (ID: 0x" << std::to_string(id) << "):\n";
+		ss << "Sent by context: " << this;
+		ss << "\n-Source: ";
+		switch (source)
+		{
+			case GL_DEBUG_SOURCE_API:
+				ss << "OpenGL API";
+				break;
+
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+				ss << "Operating system";
+				break;
+
+			case GL_DEBUG_SOURCE_SHADER_COMPILER:
+				ss << "Shader compiler";
+				break;
+
+			case GL_DEBUG_SOURCE_THIRD_PARTY:
+				ss << "Third party";
+				break;
+
+			case GL_DEBUG_SOURCE_APPLICATION:
+				ss << "Application";
+				break;
+
+			case GL_DEBUG_SOURCE_OTHER:
+				ss << "Other";
+				break;
+
+			default:
+				// Peut être rajouté par une extension
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "-Type: ";
+		switch (type)
+		{
+			case GL_DEBUG_TYPE_ERROR:
+				ss << "Error";
+				break;
+
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+				ss << "Deprecated behavior";
+				break;
+
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+				ss << "Undefined behavior";
+				break;
+
+			case GL_DEBUG_TYPE_PORTABILITY:
+				ss << "Portability";
+				break;
+
+			case GL_DEBUG_TYPE_PERFORMANCE:
+				ss << "Performance";
+				break;
+
+			case GL_DEBUG_TYPE_OTHER:
+				ss << "Other";
+				break;
+
+			default:
+				// Peut être rajouté par une extension
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "-Severity: ";
+		switch (severity)
+		{
+			case GL_DEBUG_SEVERITY_HIGH:
+				ss << "High";
+				break;
+
+			case GL_DEBUG_SEVERITY_MEDIUM:
+				ss << "Medium";
+				break;
+
+			case GL_DEBUG_SEVERITY_LOW:
+				ss << "Low";
+				break;
+
+			default:
+				ss << "Unknown";
+				break;
+		}
+		ss << '\n';
+
+		ss << "Message: " << std::string_view(message, length) << '\n';
+
+		NazaraNotice(ss.str());
 	}
 }
