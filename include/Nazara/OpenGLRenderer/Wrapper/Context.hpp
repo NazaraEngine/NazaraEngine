@@ -8,7 +8,9 @@
 #define NAZARA_OPENGLRENDERER_CONTEXTIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <array>
 #include <string>
 #include <unordered_set>
 
@@ -18,6 +20,22 @@ namespace Nz::GL
 	{
 		OpenGL,
 		OpenGL_ES
+	};
+
+	enum class Extension
+	{
+		SpirV,
+
+		Max = SpirV
+	};
+
+	enum class ExtensionStatus
+	{
+		NotSupported,
+
+		ARB,
+		EXT,
+		KHR
 	};
 
 	struct ContextParams
@@ -44,8 +62,10 @@ namespace Nz::GL
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
+			inline ExtensionStatus GetExtensionStatus(Extension extension) const;
 			inline const ContextParams& GetParams() const;
 
+			inline bool IsExtensionSupported(Extension extension) const;
 			inline bool IsExtensionSupported(const std::string& extension) const;
 
 			bool Initialize(const ContextParams& params);
@@ -53,7 +73,7 @@ namespace Nz::GL
 			virtual void SwapBuffers() = 0;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
-			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC)
+			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
 
 			static const Context* GetCurrentContext();
@@ -73,6 +93,7 @@ namespace Nz::GL
 		private:
 			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
 
+			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
 			std::unordered_set<std::string> m_supportedExtensions;
 	};
 }

@@ -7,9 +7,20 @@
 
 namespace Nz::GL
 {
+
+	inline ExtensionStatus Context::GetExtensionStatus(Extension extension) const
+	{
+		return m_extensionStatus[UnderlyingCast(extension)];
+	}
+
 	inline const ContextParams& Context::GetParams() const
 	{
 		return m_params;
+	}
+
+	inline bool Context::IsExtensionSupported(Extension extension) const
+	{
+		return GetExtensionStatus(extension) != ExtensionStatus::NotSupported;
 	}
 
 	inline bool Context::IsExtensionSupported(const std::string& extension) const

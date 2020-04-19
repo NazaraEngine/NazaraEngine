@@ -11,7 +11,8 @@
 
 namespace Nz::GL
 {
-	Context::~Context() = default;
+	thread_local const Context* s_currentContext = nullptr;
+
 
 	bool Context::Initialize(const ContextParams& params)
 	{
@@ -69,6 +70,10 @@ namespace Nz::GL
 			m_supportedExtensions.emplace(extension);
 			return true;
 		});
+
+		m_extensionStatus.fill(ExtensionStatus::NotSupported);
+		if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
+			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) LoadSymbol(name, #name, false);
