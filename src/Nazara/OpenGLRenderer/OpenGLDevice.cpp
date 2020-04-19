@@ -53,11 +53,7 @@ namespace Nz
 
 	std::shared_ptr<ShaderStageImpl> OpenGLDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
-		auto shaderStage = std::make_shared<OpenGLShaderStage>();
-		if (!shaderStage->Create(*this, type, lang, source, sourceSize))
-			return {};
-
-		return shaderStage;
+		return std::make_shared<OpenGLShaderStage>(*this, type, lang, source, sourceSize);
 	}
 
 	std::unique_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)

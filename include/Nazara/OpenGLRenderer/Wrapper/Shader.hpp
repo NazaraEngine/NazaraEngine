@@ -21,13 +21,18 @@ namespace Nz::GL
 			Shader(Shader&&) noexcept = default;
 			inline ~Shader();
 
-			inline bool Compile(std::string* error = nullptr);
+			inline void Compile();
 
 			inline bool Create(OpenGLDevice& device, GLenum type);
 			inline void Destroy();
 
+			inline bool GetCompilationStatus(std::string* error = nullptr);
+
 			inline void SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length);
 			inline void SetSource(const char* source, GLint length);
+
+			// GL_ARB_gl_spirv
+			inline void SpecializeShader(const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 
 			Shader& operator=(const Shader&) = delete;
 			Shader& operator=(Shader&&) noexcept = default;

@@ -19,12 +19,10 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderStage : public ShaderStageImpl
 	{
 		public:
-			OpenGLShaderStage() = default;
+			OpenGLShaderStage(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 			OpenGLShaderStage(const OpenGLShaderStage&) = delete;
 			OpenGLShaderStage(OpenGLShaderStage&&) noexcept = default;
 			~OpenGLShaderStage() = default;
-
-			bool Create(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 
 			OpenGLShaderStage& operator=(const OpenGLShaderStage&) = delete;
 			OpenGLShaderStage& operator=(OpenGLShaderStage&&) noexcept = default;

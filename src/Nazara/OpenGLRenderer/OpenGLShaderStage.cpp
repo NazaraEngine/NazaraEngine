@@ -5,47 +5,39 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
+#include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	bool OpenGLShaderStage::Create(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	OpenGLShaderStage::OpenGLShaderStage(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		if (!m_shader.Create(device, ToOpenGL(type)))
-			return false; //< TODO: Handle error message
+			throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
 
 		switch (lang)
 		{
 			case ShaderLanguage::GLSL:
 				m_shader.SetSource(reinterpret_cast<const char*>(source), GLint(sourceSize));
+				m_shader.Compile();
 				break;
 
 			case ShaderLanguage::SpirV:
 			{
-				if (!device.GetReferenceContext().IsExtensionSupported("GL_ARB_gl_spirv"))
-				{
-					NazaraError("Spir-V is not supported");
-					return false;
-				}
+				if (!device.GetReferenceContext().IsExtensionSupported(GL::Extension::SpirV))
+					throw std::runtime_error("SpirV is not supported by this OpenGL implementation");
 
-				constexpr GLenum SHADER_BINARY_FORMAT_SPIR_V = 0x9551;
-
-				m_shader.SetBinarySource(SHADER_BINARY_FORMAT_SPIR_V, source, GLsizei(sourceSize));
+				m_shader.SetBinarySource(GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, source, GLsizei(sourceSize));
+				m_shader.SpecializeShader("main", 0U, nullptr, nullptr);
 				break;
 			}
 
 			default:
-				NazaraError("Unsupported shader language");
-				return false;
+				throw std::runtime_error("Unsupported shader language");
 		}
 
 		std::string errorLog;
-		if (!m_shader.Compile(&errorLog))
-		{
-			NazaraError("Failed to compile shader: " + errorLog);
-			return false;
-		}
-
-		return true;
+		if (!m_shader.GetCompilationStatus(&errorLog))
+			throw std::runtime_error("Failed to compile shader: " + errorLog);
 	}
 }

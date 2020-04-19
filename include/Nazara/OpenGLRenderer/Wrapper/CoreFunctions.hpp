@@ -11,6 +11,10 @@
 #include <GLES3/gl32.h>
 #include <GLES2/gl2ext.h>
 
+// Define some OpenGL (not ES) extensions
+#define GL_SHADER_BINARY_FORMAT_SPIR_V_ARB 0x9551
+#define GL_SPIR_V_BINARY_ARB               0x9552
+typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 
 // OpenGL core
 #define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb, extCb) \
@@ -143,5 +147,7 @@
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
+	\
+	extCb(glSpecializeShaderARB, PFNGLSPECIALIZESHADERARBPROC) \
 
 #endif
