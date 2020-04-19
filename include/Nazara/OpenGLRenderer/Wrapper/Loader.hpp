@@ -13,6 +13,11 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <memory>
 
+namespace Nz
+{
+	class OpenGLDevice;
+}
+
 namespace Nz::GL
 {
 	class Context;
@@ -25,8 +30,8 @@ namespace Nz::GL
 			Loader() = default;
 			virtual ~Loader();
 
-			virtual std::unique_ptr<Context> CreateContext(const ContextParams& params, Context* shareContext = nullptr) const = 0;
-			virtual std::unique_ptr<Context> CreateContext(const ContextParams& params, WindowHandle handle, Context* shareContext = nullptr) const = 0;
+			virtual std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext = nullptr) const = 0;
+			virtual std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext = nullptr) const = 0;
 
 			virtual GLFunction LoadFunction(const char* name) const = 0;
 	};

@@ -12,11 +12,6 @@
 
 namespace Nz::GL
 {
-	GL::WGLContext::WGLContext(const WGLLoader& loader) :
-	m_loader(loader)
-	{
-	}
-
 	WGLContext::~WGLContext()
 	{
 		Destroy();

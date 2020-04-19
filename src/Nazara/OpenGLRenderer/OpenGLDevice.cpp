@@ -14,21 +14,29 @@ namespace Nz
 	OpenGLDevice::OpenGLDevice(GL::Loader& loader) :
 	m_loader(loader)
 	{
-		m_referenceContext = loader.CreateContext({});
+		m_referenceContext = loader.CreateContext(this, {});
 		if (!m_referenceContext)
 			throw std::runtime_error("failed to create reference context");
+
+		m_contexts.insert(m_referenceContext.get());
 	}
 
 	OpenGLDevice::~OpenGLDevice() = default;
 
 	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(const GL::ContextParams& params) const
 	{
-		return m_loader.CreateContext(params, m_referenceContext.get());
+		auto contextPtr = m_loader.CreateContext(this, params, m_referenceContext.get());
+		m_contexts.insert(contextPtr.get());
+
+		return contextPtr;
 	}
 
 	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(const GL::ContextParams& params, WindowHandle handle) const
 	{
-		return m_loader.CreateContext(params, handle, m_referenceContext.get());
+		auto contextPtr = m_loader.CreateContext(this, params, handle, m_referenceContext.get());
+		m_contexts.insert(contextPtr.get());
+
+		return contextPtr;
 	}
 
 	std::unique_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)

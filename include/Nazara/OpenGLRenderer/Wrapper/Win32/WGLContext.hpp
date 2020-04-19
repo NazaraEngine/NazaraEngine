@@ -26,7 +26,7 @@ namespace Nz::GL
 	class WGLContext : public Context
 	{
 		public:
-			WGLContext(const WGLLoader& loader);
+			inline WGLContext(const OpenGLDevice* device, const WGLLoader& loader);
 			WGLContext(const WGLContext&) = delete;
 			WGLContext(WGLContext&&) = delete;
 			~WGLContext();

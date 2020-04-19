@@ -7,6 +7,15 @@
 
 namespace Nz::GL
 {
+	inline Context::Context(const OpenGLDevice* device) :
+	m_device(device)
+	{
+	}
+
+	inline const OpenGLDevice* Context::GetDevice() const
+	{
+		return m_device;
+	}
 
 	inline ExtensionStatus Context::GetExtensionStatus(Extension extension) const
 	{

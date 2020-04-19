@@ -4,14 +4,23 @@
 
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <sstream>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
 {
 	thread_local const Context* s_currentContext = nullptr;
+
+	Context::~Context()
+	{
+		if (m_device)
+			m_device->NotifyContextDestruction(*this);
+	}
 
 
 	bool Context::Initialize(const ContextParams& params)
