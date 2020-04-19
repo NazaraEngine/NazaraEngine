@@ -31,8 +31,6 @@ namespace Nz::GL
 			WGLContext(WGLContext&&) = delete;
 			~WGLContext();
 
-			bool Activate() override;
-
 			bool Create(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext = nullptr);
 			bool Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext = nullptr);
 			void Destroy();
@@ -50,7 +48,8 @@ namespace Nz::GL
 			bool CreateInternal(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext = nullptr);
 			bool ImplementFallback(const std::string_view& function) override;
 
-			void Desactivate();
+			bool Activate() const override;
+			void Desactivate() const override;
 			const Loader& GetLoader() override;
 			bool LoadWGLExt();
 			bool SetPixelFormat();

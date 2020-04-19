@@ -56,17 +56,24 @@ namespace Nz::GL
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
 
+			static const Context* GetCurrentContext();
+			static bool SetCurrentContext(const Context* context);
+
 		protected:
+			virtual bool Activate() const = 0;
+			virtual void Desactivate() const = 0;
 			virtual const Loader& GetLoader() = 0;
 
 			virtual bool ImplementFallback(const std::string_view& function);
 
-			std::unordered_set<std::string> m_supportedExtensions;
+			static void NotifyContextDestruction(Context* context);
+
 			ContextParams m_params;
 
 		private:
 			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
 
+			std::unordered_set<std::string> m_supportedExtensions;
 	};
 }
 

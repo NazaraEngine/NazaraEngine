@@ -23,10 +23,10 @@ namespace Nz::GL
 
 		const Loader& loader = GetLoader();
 
-		auto LoadSymbol = [&](auto& func, const char* funcName)
+		auto LoadSymbol = [&](auto& func, const char* funcName, bool mandatory)
 		{
 			func = reinterpret_cast<std::decay_t<decltype(func)>>(loader.LoadFunction(funcName));
-			if (!func && !ImplementFallback(funcName) && !func) //< Not a mistake
+			if (!func && !ImplementFallback(funcName) && !func && mandatory) //< Not a mistake
 				throw std::runtime_error("failed to load core function " + std::string(funcName));
 		};
 
@@ -114,6 +114,34 @@ namespace Nz::GL
 		return true;
 	}
 
+	const Context* Context::GetCurrentContext()
+	{
+		return s_currentContext;
+	}
+
+	bool Context::SetCurrentContext(const Context* context)
+	{
+		const Context*& currentContext = s_currentContext; //< Pay TLS cost only once
+		if (currentContext == context)
+			return true;
+
+		if (currentContext)
+		{
+			currentContext->Desactivate();
+			currentContext = nullptr;
+		}
+
+		if (context)
+		{
+			if (!context->Activate())
+				return false;
+
+			currentContext = context;
+		}
+
+		return true;
+	}
+
 	bool Context::ImplementFallback(const std::string_view& function)
 	{
 		const Loader& loader = GetLoader();
@@ -133,6 +161,13 @@ namespace Nz::GL
 		}
 
 		return false;
+	}
+
+	void Context::NotifyContextDestruction(Context* context)
+	{
+		const Context*& currentContext = s_currentContext; //< Pay TLS cost only once
+		if (currentContext == context)
+			currentContext = nullptr;
 	}
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
