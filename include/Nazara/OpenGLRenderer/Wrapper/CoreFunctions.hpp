@@ -148,6 +148,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glVertexAttribIPointer, PFNGLVERTEXATTRIBIPOINTERPROC) \
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	\
+	extCb(glObjectLabel, PFNGLOBJECTLABELPROC) \
+	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
 	\
 	extCb(glSpecializeShaderARB, PFNGLSPECIALIZESHADERARBPROC) \

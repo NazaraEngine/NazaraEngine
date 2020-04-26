@@ -19,7 +19,7 @@ namespace Nz
 		createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 		createInfo.mipmapMode = ToVulkan(samplerInfo.mipmapMode);
 
-		if (samplerInfo.anisotropyLevel > 0.f)
+		if (samplerInfo.anisotropyLevel > 1.f)
 		{
 			createInfo.anisotropyEnable = VK_TRUE;
 			createInfo.maxAnisotropy = samplerInfo.anisotropyLevel;
