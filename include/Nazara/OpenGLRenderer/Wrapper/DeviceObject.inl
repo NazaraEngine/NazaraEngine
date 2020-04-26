@@ -7,116 +7,88 @@
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	DeviceObject<C, ObjectType, CreateArgs...>::~DeviceObject()
 	{
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		DeviceObject<C, VkType, CreateInfo, ObjectType>::DeviceObject() :
-		m_handle(VK_NULL_HANDLE)
+		Destroy();
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	bool DeviceObject<C, ObjectType, CreateArgs...>::Create(OpenGLDevice& device, CreateArgs... args)
+	{
+		Destroy();
+
+		m_device = &device;
+
+		const Context& context = EnsureDeviceContext();
+
+		m_objectId = C::CreateHelper(*m_device, context, args...);
+		if (m_objectId == InvalidObject)
 		{
+			NazaraError("Failed to create OpenGL object"); //< TODO: Handle error message
+			return false;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		DeviceObject<C, VkType, CreateInfo, ObjectType>::DeviceObject(DeviceObject&& object) noexcept :
-		m_device(std::move(object.m_device)),
-		m_allocator(object.m_allocator),
-		m_handle(object.m_handle),
-		m_lastErrorCode(object.m_lastErrorCode)
+		return true;
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	void DeviceObject<C, ObjectType, CreateArgs...>::Destroy()
+	{
+		if (IsValid())
 		{
-			object.m_handle = VK_NULL_HANDLE;
+			const Context& context = EnsureDeviceContext();
+
+			C::DestroyHelper(*m_device, context, m_objectId);
+			m_objectId = InvalidObject;
+		}
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	bool DeviceObject<C, ObjectType, CreateArgs...>::IsValid() const
+	{
+		return m_objectId != InvalidObject;
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	OpenGLDevice* DeviceObject<C, ObjectType, CreateArgs...>::GetDevice() const
+	{
+		return m_device;
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	GLuint DeviceObject<C, ObjectType, CreateArgs...>::GetObjectId() const
+	{
+		return m_objectId;
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	void DeviceObject<C, ObjectType, CreateArgs...>::SetDebugName(const std::string_view& name)
+	{
+		const Context& context = EnsureDeviceContext();
+
+		if (context.glObjectLabel)
+			context.glObjectLabel(ObjectType, m_objectId, name.size(), name.data());
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	const Context& DeviceObject<C, ObjectType, CreateArgs...>::EnsureDeviceContext()
+	{
+		assert(m_device);
+
+		const Context* activeContext = Context::GetCurrentContext();
+		if (!activeContext || activeContext->GetDevice() != m_device)
+		{
+			const Context& referenceContext = m_device->GetReferenceContext();
+			if (!Context::SetCurrentContext(&referenceContext))
+				throw std::runtime_error("failed to activate context");
+
+			return referenceContext;
 		}
 
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		DeviceObject<C, VkType, CreateInfo, ObjectType>::~DeviceObject()
-		{
-			Destroy();
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		bool DeviceObject<C, VkType, CreateInfo, ObjectType>::Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
-		{
-			m_device = &device;
-			m_lastErrorCode = C::CreateHelper(*m_device, &createInfo, allocator, &m_handle);
-			if (m_lastErrorCode != VkResult::VK_SUCCESS)
-			{
-				NazaraError("Failed to create OpenGL object: " + TranslateOpenGLError(m_lastErrorCode));
-				return false;
-			}
-
-			// Store the allocator to access them when needed
-			if (allocator)
-				m_allocator = *allocator;
-			else
-				m_allocator.pfnAllocation = nullptr;
-
-			return true;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		void DeviceObject<C, VkType, CreateInfo, ObjectType>::Destroy()
-		{
-			if (IsValid())
-			{
-				C::DestroyHelper(*m_device, m_handle, (m_allocator.pfnAllocation) ? &m_allocator : nullptr);
-				m_handle = VK_NULL_HANDLE;
-			}
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		bool DeviceObject<C, VkType, CreateInfo, ObjectType>::IsValid() const
-		{
-			return m_handle != VK_NULL_HANDLE;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		Device* DeviceObject<C, VkType, CreateInfo, ObjectType>::GetDevice() const
-		{
-			return m_device;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		VkResult DeviceObject<C, VkType, CreateInfo, ObjectType>::GetLastErrorCode() const
-		{
-			return m_lastErrorCode;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const char* name)
-		{
-			if (m_device->vkSetDebugUtilsObjectNameEXT)
-			{
-				VkDebugUtilsObjectNameInfoEXT debugName = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
-				debugName.objectType = ObjectType;
-				debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
-				debugName.pObjectName = name;
-
-				m_device->vkSetDebugUtilsObjectNameEXT(*m_device, &debugName);
-			}
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const std::string& name)
-		{
-			return SetDebugName(name.data());
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		auto DeviceObject<C, VkType, CreateInfo, ObjectType>::operator=(DeviceObject&& object) noexcept -> DeviceObject&
-		{
-			std::swap(m_allocator, object.m_allocator);
-			std::swap(m_device, object.m_device);
-			std::swap(m_handle, object.m_handle);
-			std::swap(m_lastErrorCode, object.m_lastErrorCode);
-
-			return *this;
-		}
-
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		DeviceObject<C, VkType, CreateInfo, ObjectType>::operator VkType() const
-		{
-			return m_handle;
-		}
+		return *activeContext;
 	}
 }
 
