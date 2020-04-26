@@ -9,41 +9,43 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <string>
 
 namespace Nz::GL
 {
-	template<typename C>
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
 	class DeviceObject
 	{
 		public:
-			DeviceObject();
+			DeviceObject() = default;
 			DeviceObject(const DeviceObject&) = delete;
-			DeviceObject(DeviceObject&& object) noexcept;
+			DeviceObject(DeviceObject&& object) noexcept = default;
 			~DeviceObject();
 
-			bool Create(OpenGLDevice& device);
+			bool Create(OpenGLDevice& device, CreateArgs... args);
 			void Destroy();
 
 			bool IsValid() const;
 
-			Device* GetDevice() const;
-			VkResult GetLastErrorCode() const;
+			OpenGLDevice* GetDevice() const;
+			GLuint GetObjectId() const;
 
-			void SetDebugName(const char* name);
-			void SetDebugName(const std::string& name);
+			void SetDebugName(const std::string_view& name);
 
 			DeviceObject& operator=(const DeviceObject&) = delete;
-			DeviceObject& operator=(DeviceObject&& object) noexcept;
+			DeviceObject& operator=(DeviceObject&& object) noexcept = default;
 
-			operator VkType() const;
+			static constexpr GLuint InvalidObject = 0;
 
 		protected:
+			const Context& EnsureDeviceContext();
+
 			MovablePtr<OpenGLDevice> m_device;
-			GLuint m_handle;
+			MovableValue<GLuint> m_objectId;
 	};
 }
 
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKDEVICEOBJECT_HPP
+#endif

@@ -10,21 +10,21 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 
 namespace Nz::GL
 {
-	class Shader
+	class Shader : public DeviceObject<Shader, GL_SHADER, GLenum>
 	{
+		friend DeviceObject;
+
 		public:
 			Shader() = default;
 			Shader(const Shader&) = delete;
 			Shader(Shader&&) noexcept = default;
-			inline ~Shader();
+			~Shader() = default;
 
 			inline void Compile();
-
-			inline bool Create(OpenGLDevice& device, GLenum type);
-			inline void Destroy();
 
 			inline bool GetCompilationStatus(std::string* error = nullptr);
 
@@ -38,8 +38,8 @@ namespace Nz::GL
 			Shader& operator=(Shader&&) noexcept = default;
 
 		private:
-			MovablePtr<OpenGLDevice> m_device;
-			MovableValue<GLuint> m_shader;
+			static inline GLuint CreateHelper(OpenGLDevice& device, const Context& context, GLenum shaderStage);
+			static inline void DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId);
 	};
 }
 
