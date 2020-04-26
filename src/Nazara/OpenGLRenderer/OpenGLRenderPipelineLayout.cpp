@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
@@ -15,6 +13,29 @@
 
 namespace Nz
 {
+	OpenGLRenderPipelineLayout::OpenGLRenderPipelineLayout(RenderPipelineLayoutInfo layoutInfo) :
+	m_textureDescriptorCount(0),
+	m_uniformBufferDescriptorCount(0),
+	m_layoutInfo(std::move(layoutInfo))
+	{
+		for (const auto& bindingInfo : m_layoutInfo.bindings)
+		{
+			switch (bindingInfo.type)
+			{
+				case ShaderBindingType::Texture:
+					m_textureDescriptorCount++;
+					break;
+
+				case ShaderBindingType::UniformBuffer:
+					m_uniformBufferDescriptorCount++;
+					break;
+
+				default:
+					throw std::runtime_error(("unknown binding type 0x" + String::Number(UnderlyingCast(bindingInfo.type), 16)).ToStdString());
+			}
+		}
+	}
+
 	OpenGLRenderPipelineLayout::~OpenGLRenderPipelineLayout()
 	{
 		for (auto& pool : m_descriptorPools)
@@ -46,50 +67,15 @@ namespace Nz
 		return bindingPtr;
 	}
 
-	bool OpenGLRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)
-	{
-		m_device = &device;
-		m_layoutInfo = std::move(layoutInfo);
-
-		StackVector<VkDescriptorSetLayoutBinding> layoutBindings = NazaraStackVector(VkDescriptorSetLayoutBinding, m_layoutInfo.bindings.size());
-
-		for (const auto& bindingInfo : m_layoutInfo.bindings)
-		{
-			VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
-			layoutBinding.binding = bindingInfo.index;
-			layoutBinding.descriptorCount = 1U;
-			layoutBinding.descriptorType = ToOpenGL(bindingInfo.type);
-			layoutBinding.stageFlags = ToOpenGL(bindingInfo.shaderStageFlags);
-		}
-
-		if (!m_descriptorSetLayout.Create(*m_device, UInt32(layoutBindings.size()), layoutBindings.data()))
-			return false;
-
-		if (!m_pipelineLayout.Create(*m_device, m_descriptorSetLayout))
-			return false;
-
-		return true;
-	}
-
 	auto OpenGLRenderPipelineLayout::AllocatePool() -> DescriptorPool&
 	{
-		StackVector<VkDescriptorPoolSize> poolSizes = NazaraStackVector(VkDescriptorPoolSize, m_layoutInfo.bindings.size());
-
 		constexpr UInt32 MaxSet = 128;
 
-		for (const auto& bindingInfo : m_layoutInfo.bindings)
-		{
-			VkDescriptorPoolSize& poolSize = poolSizes.emplace_back();
-			poolSize.descriptorCount = MaxSet;
-			poolSize.type = ToOpenGL(bindingInfo.type);
-		}
-
 		DescriptorPool pool;
-		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-			throw std::runtime_error("Failed to allocate new descriptor pool: " + TranslateOpenGLError(pool.descriptorPool.GetLastErrorCode()));
-
 		pool.freeBindings.Resize(MaxSet, true);
 		pool.storage = std::make_unique<DescriptorPool::BindingStorage[]>(MaxSet);
+		pool.textureDescriptor.resize(m_textureDescriptorCount * MaxSet);
+		pool.uniformBufferDescriptor.resize(m_uniformBufferDescriptorCount * MaxSet);
 
 		return m_descriptorPools.emplace_back(std::move(pool));
 	}
@@ -102,17 +88,30 @@ namespace Nz
 		if (freeBindingId == pool.freeBindings.npos)
 			return {}; //< No free binding in this pool
 
-		Vk::DescriptorSet descriptorSet = pool.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
-		if (!descriptorSet)
-		{
-			NazaraWarning("Failed to allocate descriptor set: " + TranslateOpenGLError(pool.descriptorPool.GetLastErrorCode()));
-			return {};
-		}
-
 		pool.freeBindings.Reset(freeBindingId);
 
 		OpenGLShaderBinding* freeBindingMemory = reinterpret_cast<OpenGLShaderBinding*>(&pool.storage[freeBindingId]);
-		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId, std::move(descriptorSet)));
+		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
+	}
+
+	auto OpenGLRenderPipelineLayout::GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t textureIndex) -> TextureDescriptor&
+	{
+		assert(poolIndex < m_descriptorPools.size());
+		auto& pool = m_descriptorPools[poolIndex];
+		assert(!pool.freeBindings.Test(bindingIndex));
+		assert(textureIndex < m_textureDescriptorCount);
+
+		return pool.textureDescriptor[bindingIndex * m_textureDescriptorCount + textureIndex];
+	}
+
+	auto OpenGLRenderPipelineLayout::GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t uniformBufferIndex) -> UniformBufferDescriptor&
+	{
+		assert(poolIndex < m_descriptorPools.size());
+		auto& pool = m_descriptorPools[poolIndex];
+		assert(!pool.freeBindings.Test(bindingIndex));
+		assert(uniformBufferIndex < m_uniformBufferDescriptorCount);
+
+		return pool.uniformBufferDescriptor[bindingIndex * m_uniformBufferDescriptorCount + uniformBufferIndex];
 	}
 
 	void OpenGLRenderPipelineLayout::Release(ShaderBinding& binding)
@@ -136,5 +135,3 @@ namespace Nz
 			TryToShrink();
 	}
 }
-
-#endif

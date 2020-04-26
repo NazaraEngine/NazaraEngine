@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const GL::Texture& OpenGLTexture::GetTexture() const
+	{
+		return m_texture;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

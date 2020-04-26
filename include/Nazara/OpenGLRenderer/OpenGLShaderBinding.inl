@@ -7,8 +7,7 @@
 
 namespace Nz
 {
-	inline OpenGLShaderBinding::OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::DescriptorSet descriptorSet) :
-	m_descriptorSet(std::move(descriptorSet)),
+	inline OpenGLShaderBinding::OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex) :
 	m_owner(owner),
 	m_bindingIndex(bindingIndex),
 	m_poolIndex(poolIndex)
@@ -23,11 +22,6 @@ namespace Nz
 	inline std::size_t OpenGLShaderBinding::GetPoolIndex() const
 	{
 		return m_poolIndex;
-	}
-
-	inline const Vk::DescriptorSet& OpenGLShaderBinding::GetDescriptorSet() const
-	{
-		return m_descriptorSet;
 	}
 
 	inline const OpenGLRenderPipelineLayout& OpenGLShaderBinding::GetOwner() const

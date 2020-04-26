@@ -12,11 +12,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Device.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DescriptorPool.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DescriptorSet.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DescriptorSetLayout.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/PipelineLayout.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -28,39 +24,59 @@ namespace Nz
 		friend OpenGLShaderBinding;
 
 		public:
-			OpenGLRenderPipelineLayout() = default;
+			OpenGLRenderPipelineLayout(RenderPipelineLayoutInfo layoutInfo);
+			OpenGLRenderPipelineLayout(const OpenGLRenderPipelineLayout&) = delete;
+			OpenGLRenderPipelineLayout(OpenGLRenderPipelineLayout&&) = delete;
 			~OpenGLRenderPipelineLayout();
 
 			ShaderBindingPtr AllocateShaderBinding() override;
 
-			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
+			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
 
-			inline Vk::Device* GetDevice() const;
+			inline std::size_t GetTextureDescriptorCount() const;
+			inline std::size_t GetUniformBufferDescriptorCount() const;
 
-			inline const Vk::DescriptorSetLayout& GetDescriptorSetLayout() const;
-			inline const Vk::PipelineLayout& GetPipelineLayout() const;
+			OpenGLRenderPipelineLayout& operator=(const OpenGLRenderPipelineLayout&) = delete;
+			OpenGLRenderPipelineLayout& operator=(OpenGLRenderPipelineLayout&&) = delete;
 
 		private:
 			struct DescriptorPool;
+			struct TextureDescriptor;
+			struct UniformBufferDescriptor;
 
 			DescriptorPool& AllocatePool();
 			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex);
+			TextureDescriptor& GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t textureIndex);
+			UniformBufferDescriptor& GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t uniformBufferIndex);
 			void Release(ShaderBinding& binding);
 			inline void TryToShrink();
+
+			struct TextureDescriptor
+			{
+				GLuint texture;
+				GLuint sampler;
+			};
+
+			struct UniformBufferDescriptor
+			{
+				GLuint buffer;
+				GLintptr offset;
+				GLsizeiptr size;
+			};
 
 			struct DescriptorPool
 			{
 				using BindingStorage = std::aligned_storage_t<sizeof(OpenGLShaderBinding), alignof(OpenGLShaderBinding)>;
 
 				Bitset<UInt64> freeBindings;
-				Vk::DescriptorPool descriptorPool;
+				std::vector<TextureDescriptor> textureDescriptor;
+				std::vector<UniformBufferDescriptor> uniformBufferDescriptor;
 				std::unique_ptr<BindingStorage[]> storage;
 			};
 
-			MovablePtr<Vk::Device> m_device;
+			std::size_t m_textureDescriptorCount;
+			std::size_t m_uniformBufferDescriptorCount;
 			std::vector<DescriptorPool> m_descriptorPools;
-			Vk::DescriptorSetLayout m_descriptorSetLayout;
-			Vk::PipelineLayout m_pipelineLayout;
 			RenderPipelineLayoutInfo m_layoutInfo;
 	};
 }
