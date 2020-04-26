@@ -5,19 +5,53 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	inline void Sampler::SetParameterf(GLenum pname, GLfloat param)
 	{
-		inline VkResult Sampler::CreateHelper(Device& device, const VkSamplerCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSampler* handle)
-		{
-			return device.vkCreateSampler(device, createInfo, allocator, handle);
-		}
+		assert(m_objectId);
 
-		inline void Sampler::DestroyHelper(Device& device, VkSampler handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroySampler(device, handle, allocator);
-		}
+		const Context& context = EnsureDeviceContext();
+		context.glSamplerParameterf(m_objectId, pname, param);
+	}
+
+	inline void Sampler::SetParameteri(GLenum pname, GLint param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glSamplerParameteri(m_objectId, pname, param);
+	}
+
+	inline void Sampler::SetParameterfv(GLenum pname, const GLfloat* param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glSamplerParameterfv(m_objectId, pname, param);
+	}
+
+	inline void Sampler::SetParameteriv(GLenum pname, const GLint* param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glSamplerParameteriv(m_objectId, pname, param);
+	}
+
+	inline GLuint Sampler::CreateHelper(OpenGLDevice& device, const Context& context)
+	{
+		GLuint sampler = 0;
+		context.glGenSamplers(1U, &sampler);
+
+		return sampler;
+	}
+
+	inline void Sampler::DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId)
+	{
+		context.glDeleteSamplers(1U, &objectId);
+
+		device.NotifySamplerDestruction(objectId);
 	}
 }
 

@@ -30,8 +30,9 @@ namespace Nz::GL
 	enum class Extension
 	{
 		SpirV,
+		TextureFilterAnisotropic,
 
-		Max = SpirV
+		Max = TextureFilterAnisotropic
 	};
 
 	enum class ExtensionStatus
@@ -73,7 +74,9 @@ namespace Nz::GL
 			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
 
+			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
 			void BindTexture(TextureTarget target, GLuint texture) const;
+			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
@@ -86,7 +89,10 @@ namespace Nz::GL
 
 			bool Initialize(const ContextParams& params);
 
+			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
+
+			inline void SetCurrentTextureUnit(UInt32 textureUnit) const;
 
 			virtual void SwapBuffers() = 0;
 
@@ -113,7 +119,14 @@ namespace Nz::GL
 
 			struct State
 			{
-				std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> boundTextures;
+				struct TextureUnit
+				{
+					GLuint sampler = 0;
+					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
+				};
+
+				std::vector<TextureUnit> textureUnits;
+				UInt32 currentTextureUnit = 0;
 			};
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;

@@ -4,36 +4,40 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_VKSAMPLER_HPP
-#define NAZARA_OPENGLRENDERER_VKSAMPLER_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLSAMPLER_HPP
+#define NAZARA_OPENGLRENDERER_GLSAMPLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovableValue.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	class Sampler : public DeviceObject<Sampler, GL_SAMPLER>
 	{
-		class Sampler : public DeviceObject<Sampler, VkSampler, VkSamplerCreateInfo, VK_OBJECT_TYPE_SAMPLER>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Sampler() = default;
-				Sampler(const Sampler&) = delete;
-				Sampler(Sampler&&) = default;
-				~Sampler() = default;
+		public:
+			Sampler() = default;
+			Sampler(const Sampler&) = delete;
+			Sampler(Sampler&&) noexcept = default;
+			~Sampler() = default;
 
-				Sampler& operator=(const Sampler&) = delete;
-				Sampler& operator=(Sampler&&) = delete;
+			inline void SetParameterf(GLenum pname, GLfloat param);
+			inline void SetParameteri(GLenum pname, GLint param);
+			inline void SetParameterfv(GLenum pname, const GLfloat* param);
+			inline void SetParameteriv(GLenum pname, const GLint* param);
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkSamplerCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSampler* handle);
-				static inline void DestroyHelper(Device& device, VkSampler handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+			Sampler& operator=(const Sampler&) = delete;
+			Sampler& operator=(Sampler&&) noexcept = default;
+
+		private:
+			static inline GLuint CreateHelper(OpenGLDevice& device, const Context& context);
+			static inline void DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId);
+	};
 }
 
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKSAMPLER_HPP
+#endif

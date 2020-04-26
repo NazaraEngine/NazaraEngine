@@ -37,12 +37,33 @@ namespace Nz::GL
 		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
 	}
 
+	inline void Context::NotifySamplerDestruction(GLuint sampler) const
+	{
+		for (auto& unit : m_state.textureUnits)
+		{
+			if (unit.sampler == sampler)
+				unit.sampler = 0;
+		}
+	}
+
 	inline void Context::NotifyTextureDestruction(GLuint texture) const
 	{
-		for (GLuint& boundTexture : m_state.boundTextures)
+		for (auto& unit : m_state.textureUnits)
 		{
-			if (boundTexture == texture)
-				boundTexture = 0;
+			for (GLuint& boundTexture : unit.textureTargets)
+			{
+				if (boundTexture == texture)
+					boundTexture = 0;
+			}
+		}
+	}
+
+	inline void Context::SetCurrentTextureUnit(UInt32 textureUnit) const
+	{
+		if (m_state.currentTextureUnit != textureUnit)
+		{
+			glActiveTexture(GL_TEXTURE0 + textureUnit);
+			m_state.currentTextureUnit = textureUnit;
 		}
 	}
 }

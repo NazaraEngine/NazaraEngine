@@ -22,13 +22,40 @@ namespace Nz::GL
 			m_device->NotifyContextDestruction(*this);
 	}
 
+	void Context::BindSampler(UInt32 textureUnit, GLuint sampler) const
+	{
+		if (textureUnit >= m_state.textureUnits.size())
+			throw std::runtime_error("unsupported texture unit #" + std::to_string(textureUnit));
+
+		auto& unit = m_state.textureUnits[textureUnit];
+		if (unit.sampler != sampler)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindSampler(textureUnit, sampler);
+			unit.sampler = sampler;
+		}
+	}
+
 	void Context::BindTexture(TextureTarget target, GLuint texture) const
 	{
-		if (!SetCurrentContext(this))
-			throw std::runtime_error("failed to activate context");
+		BindTexture(m_state.currentTextureUnit, target, texture);
+	}
 
-		if (m_state.boundTextures[UnderlyingCast(target)] != texture)
+	void Context::BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const
+	{
+		if (textureUnit >= m_state.textureUnits.size())
+			throw std::runtime_error("unsupported texture unit #" + std::to_string(textureUnit));
+
+		auto& unit = m_state.textureUnits[textureUnit];
+		if (unit.textureTargets[UnderlyingCast(target)] != texture)
 		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			SetCurrentTextureUnit(textureUnit);
+
 			GLenum glTarget;
 			switch (target)
 			{
@@ -54,7 +81,7 @@ namespace Nz::GL
 
 			glBindTexture(glTarget, texture);
 
-			m_state.boundTextures[UnderlyingCast(target)] = texture;
+			unit.textureTargets[UnderlyingCast(target)] = texture;
 		}
 	}
 
@@ -65,8 +92,6 @@ namespace Nz::GL
 			NazaraError("failed to activate context");
 			return false;
 		}
-
-		m_state.boundTextures.fill(0);
 
 		const Loader& loader = GetLoader();
 
@@ -118,6 +143,14 @@ namespace Nz::GL
 		});
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
+
+		// TextureFilterAnisotropic
+		if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_EXT_texture_filter_anisotropic"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::EXT;
+
+		// SpirV
 		if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
@@ -161,6 +194,14 @@ namespace Nz::GL
 				context->HandleDebugMessage(source, type, id, severity, length, message);
 			}, this);
 		}
+
+		GLint maxTextureUnits = -1;
+		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+		if (maxTextureUnits < 32) //< OpenGL ES 3.0 requires at least 32 textures units
+			NazaraWarning("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is " + std::to_string(maxTextureUnits) + ", >= 32 expected");
+
+		assert(maxTextureUnits > 0);
+		m_state.textureUnits.resize(maxTextureUnits);
 
 		return true;
 	}

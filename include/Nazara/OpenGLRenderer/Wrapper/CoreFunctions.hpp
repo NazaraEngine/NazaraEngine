@@ -110,7 +110,9 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glReadPixels, PFNGLREADPIXELSPROC) \
 	cb(glRenderbufferStorage, PFNGLRENDERBUFFERSTORAGEPROC) \
 	cb(glSamplerParameterf, PFNGLSAMPLERPARAMETERFPROC) \
+	cb(glSamplerParameterfv, PFNGLSAMPLERPARAMETERFVPROC) \
 	cb(glSamplerParameteri, PFNGLSAMPLERPARAMETERIPROC) \
+	cb(glSamplerParameteriv, PFNGLSAMPLERPARAMETERIVPROC) \
 	cb(glScissor, PFNGLSCISSORPROC) \
 	cb(glShaderBinary, PFNGLSHADERBINARYPROC) \
 	cb(glShaderSource, PFNGLSHADERSOURCEPROC) \
