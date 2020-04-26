@@ -40,7 +40,8 @@ namespace Nz
 			std::unique_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
 			std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
-			inline void NotifySamplerDestruction(GLuint texture) const;
+			inline void NotifyBufferDestruction(GLuint buffer) const;
+			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 
 			OpenGLDevice& operator=(const OpenGLDevice&) = delete;

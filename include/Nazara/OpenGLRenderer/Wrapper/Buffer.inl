@@ -5,57 +5,54 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	inline void* Buffer::MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
 	{
-		inline bool Buffer::BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset)
-		{
-			m_lastErrorCode = m_device->vkBindBufferMemory(*m_device, m_handle, memory, offset);
-			if (m_lastErrorCode != VK_SUCCESS)
-			{
-				NazaraError("Failed to bind buffer memory");
-				return false;
-			}
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
+		return context.glMapBufferRange(ToOpenGL(m_target), offset, length, access);
+	}
 
-			return true;
-		}
+	inline void Buffer::Reset(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage)
+	{
+		m_target = target;
 
-		inline bool Buffer::Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator)
-		{
-			VkBufferCreateInfo createInfo = {
-				VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, // VkStructureType        sType;
-				nullptr,                              // const void*            pNext;
-				flags,                                // VkBufferCreateFlags    flags;
-				size,                                 // VkDeviceSize           size;
-				usage,                                // VkBufferUsageFlags     usage;
-				VK_SHARING_MODE_EXCLUSIVE,            // VkSharingMode          sharingMode;
-				0,                                    // uint32_t               queueFamilyIndexCount;
-				nullptr                               // const uint32_t*        pQueueFamilyIndices;
-			};
+		const Context& context = EnsureDeviceContext();
 
-			return Create(device, createInfo, allocator);
-		}
+		context.BindBuffer(m_target, m_objectId);
 
-		inline VkMemoryRequirements Buffer::GetMemoryRequirements() const
-		{
-			NazaraAssert(IsValid(), "Invalid buffer");
+		context.glBufferData(ToOpenGL(m_target), size, initialData, usage);
+	}
 
-			VkMemoryRequirements memoryRequirements;
-			m_device->vkGetBufferMemoryRequirements(*m_device, m_handle, &memoryRequirements);
+	inline void Buffer::SubData(GLintptr offset, GLsizeiptr size, const void* data)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
 
-			return memoryRequirements;
-		}
+		context.glBufferSubData(ToOpenGL(m_target), offset, size, data);
+	}
 
-		inline VkResult Buffer::CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle)
-		{
-			return device.vkCreateBuffer(device, createInfo, allocator, handle);
-		}
+	inline bool Buffer::Unmap()
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
+		return context.glUnmapBuffer(ToOpenGL(m_target)) == GL_TRUE;
+	}
 
-		inline void Buffer::DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyBuffer(device, handle, allocator);
-		}
+	inline GLuint Buffer::CreateHelper(OpenGLDevice& device, const Context& context)
+	{
+		GLuint sampler = 0;
+		context.glGenBuffers(1U, &sampler);
+
+		return sampler;
+	}
+
+	inline void Buffer::DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId)
+	{
+		context.glDeleteBuffers(1U, &objectId);
+
+		device.NotifyBufferDestruction(objectId);
 	}
 }
 

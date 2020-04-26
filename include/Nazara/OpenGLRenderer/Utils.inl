@@ -79,6 +79,38 @@ namespace Nz
 		NazaraError("Unhandled ShaderStageType 0x" + String::Number(UnderlyingCast(stageType), 16));
 		return {};
 	}
+
+	GLenum ToOpenGL(GL::BufferTarget bufferTarget)
+	{
+		switch (bufferTarget)
+		{
+			case GL::BufferTarget::Array:             return GL_ARRAY_BUFFER;
+			case GL::BufferTarget::CopyRead:          return GL_COPY_READ_BUFFER;
+			case GL::BufferTarget::CopyWrite:         return GL_COPY_WRITE_BUFFER;
+			case GL::BufferTarget::ElementArray:      return GL_ELEMENT_ARRAY_BUFFER;
+			case GL::BufferTarget::PixelPack:         return GL_PIXEL_PACK_BUFFER;
+			case GL::BufferTarget::PixelUnpack:       return GL_PIXEL_UNPACK_BUFFER;
+			case GL::BufferTarget::TransformFeedback: return GL_TRANSFORM_FEEDBACK_BUFFER;
+			case GL::BufferTarget::Uniform:           return GL_UNIFORM_BUFFER;
+		}
+
+		NazaraError("Unhandled GL::BufferTarget 0x" + String::Number(UnderlyingCast(bufferTarget), 16));
+		return {};
+	}
+
+	GLenum ToOpenGL(GL::TextureTarget textureTarget)
+	{
+		switch (textureTarget)
+		{
+			case GL::TextureTarget::Cubemap:        return GL_TEXTURE_CUBE_MAP;
+			case GL::TextureTarget::Target2D:       return GL_TEXTURE_2D;
+			case GL::TextureTarget::Target2D_Array: return GL_TEXTURE_2D_ARRAY;
+			case GL::TextureTarget::Target3D:       return GL_TEXTURE_3D;
+		}
+
+		NazaraError("Unhandled GL::TextureTarget 0x" + String::Number(UnderlyingCast(textureTarget), 16));
+		return {};
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

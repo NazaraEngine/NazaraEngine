@@ -12,10 +12,16 @@ namespace Nz
 		return *m_referenceContext;
 	}
 
-	inline void OpenGLDevice::NotifySamplerDestruction(GLuint texture) const
+	inline void OpenGLDevice::NotifyBufferDestruction(GLuint buffer) const
 	{
 		for (const GL::Context* context : m_contexts)
-			context->NotifySamplerDestruction(texture);
+			context->NotifyBufferDestruction(buffer);
+	}
+
+	inline void OpenGLDevice::NotifySamplerDestruction(GLuint sampler) const
+	{
+		for (const GL::Context* context : m_contexts)
+			context->NotifySamplerDestruction(sampler);
 	}
 
 	inline void OpenGLDevice::NotifyTextureDestruction(GLuint texture) const

@@ -7,6 +7,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <sstream>
 #include <stdexcept>
@@ -20,6 +21,19 @@ namespace Nz::GL
 	{
 		if (m_device)
 			m_device->NotifyContextDestruction(*this);
+	}
+
+	void Context::BindBuffer(BufferTarget target, GLuint buffer) const
+	{
+		if (m_state.bufferTargets[UnderlyingCast(target)] != buffer)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindBuffer(ToOpenGL(target), buffer);
+
+			m_state.bufferTargets[UnderlyingCast(target)] = buffer;
+		}
 	}
 
 	void Context::BindSampler(UInt32 textureUnit, GLuint sampler) const
@@ -56,30 +70,7 @@ namespace Nz::GL
 
 			SetCurrentTextureUnit(textureUnit);
 
-			GLenum glTarget;
-			switch (target)
-			{
-				case TextureTarget::Cubemap:
-					glTarget = GL_TEXTURE_CUBE_MAP;
-					break;
-
-				case TextureTarget::Target2D:
-					glTarget = GL_TEXTURE_2D;
-					break;
-
-				case TextureTarget::Target2D_Array:
-					glTarget = GL_TEXTURE_2D_ARRAY;
-					break;
-
-				case TextureTarget::Target3D:
-					glTarget = GL_TEXTURE_3D;
-					break;
-
-				default:
-					break;
-			}
-
-			glBindTexture(glTarget, texture);
+			glBindTexture(ToOpenGL(target), texture);
 
 			unit.textureTargets[UnderlyingCast(target)] = texture;
 		}

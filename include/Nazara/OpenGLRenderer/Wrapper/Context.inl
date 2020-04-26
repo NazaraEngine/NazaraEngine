@@ -37,6 +37,15 @@ namespace Nz::GL
 		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
 	}
 
+	inline void Context::NotifyBufferDestruction(GLuint buffer) const
+	{
+		for (GLuint& boundBuffer : m_state.bufferTargets)
+		{
+			if (boundBuffer == buffer)
+				boundBuffer = 0;
+		}
+	}
+
 	inline void Context::NotifySamplerDestruction(GLuint sampler) const
 	{
 		for (auto& unit : m_state.textureUnits)
