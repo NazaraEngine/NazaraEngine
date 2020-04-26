@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
 
 namespace Nz
@@ -16,18 +17,18 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLTextureSampler : public TextureSampler
 	{
 		public:
-			OpenGLTextureSampler(Vk::Device& device, TextureSamplerInfo samplerInfo);
+			OpenGLTextureSampler(OpenGLDevice& device, TextureSamplerInfo samplerInfo);
 			OpenGLTextureSampler(const OpenGLTextureSampler&) = default;
 			OpenGLTextureSampler(OpenGLTextureSampler&&) noexcept = default;
 			~OpenGLTextureSampler() = default;
 
-			inline VkSampler GetSampler() const;
+			inline const GL::Sampler& GetSampler() const;
 
 			OpenGLTextureSampler& operator=(const OpenGLTextureSampler&) = delete;
 			OpenGLTextureSampler& operator=(OpenGLTextureSampler&&) = delete;
 
 		private:
-			Vk::Sampler m_sampler;
+			GL::Sampler m_sampler;
 	};
 }
 
