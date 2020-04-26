@@ -18,6 +18,12 @@ namespace Nz
 			context->NotifyBufferDestruction(buffer);
 	}
 
+	inline void OpenGLDevice::NotifyProgramDestruction(GLuint program) const
+	{
+		for (const GL::Context* context : m_contexts)
+			context->NotifyProgramDestruction(program);
+	}
+
 	inline void OpenGLDevice::NotifySamplerDestruction(GLuint sampler) const
 	{
 		for (const GL::Context* context : m_contexts)

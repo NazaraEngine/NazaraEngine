@@ -41,6 +41,7 @@ namespace Nz
 			std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			inline void NotifyBufferDestruction(GLuint buffer) const;
+			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 

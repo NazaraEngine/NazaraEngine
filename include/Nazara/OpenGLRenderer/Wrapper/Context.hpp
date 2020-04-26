@@ -105,6 +105,7 @@ namespace Nz::GL
 			bool Initialize(const ContextParams& params);
 
 			inline void NotifyBufferDestruction(GLuint buffer) const;
+			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 
@@ -143,6 +144,7 @@ namespace Nz::GL
 
 				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
 				std::vector<TextureUnit> textureUnits;
+				GLuint boundProgram = 0;
 				UInt32 currentTextureUnit = 0;
 			};
 
