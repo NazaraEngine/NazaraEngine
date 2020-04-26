@@ -4,43 +4,45 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_VKBUFFER_HPP
-#define NAZARA_OPENGLRENDERER_VKBUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLBUFFER_HPP
+#define NAZARA_OPENGLRENDERER_GLBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovableValue.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz 
+namespace Nz::GL
 {
-	namespace Vk
+	class Buffer : public DeviceObject<Buffer, GL_BUFFER>
 	{
-		class Buffer : public DeviceObject<Buffer, VkBuffer, VkBufferCreateInfo, VK_OBJECT_TYPE_BUFFER>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Buffer() = default;
-				Buffer(const Buffer&) = delete;
-				Buffer(Buffer&&) noexcept = default;
-				~Buffer() = default;
+		public:
+			Buffer() = default;
+			Buffer(const Buffer&) = delete;
+			Buffer(Buffer&&) noexcept = default;
+			~Buffer() = default;
 
-				bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);
+			inline void* MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
+			inline void Reset(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage);
 
-				VkMemoryRequirements GetMemoryRequirements() const;
+			inline void SubData(GLintptr offset, GLsizeiptr size, const void* data);
 
-				Buffer& operator=(const Buffer&) = delete;
-				Buffer& operator=(Buffer&&) = delete;
+			inline bool Unmap();
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle);
-				static inline void DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+			Buffer& operator=(const Buffer&) = delete;
+			Buffer& operator=(Buffer&&) noexcept = default;
+
+		private:
+			static inline GLuint CreateHelper(OpenGLDevice& device, const Context& context);
+			static inline void DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId);
+
+			BufferTarget m_target;
+	};
 }
 
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKBUFFER_HPP
+#endif

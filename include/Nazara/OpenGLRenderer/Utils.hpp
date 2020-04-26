@@ -20,6 +20,8 @@ namespace Nz
 	inline GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter);
 	inline GLenum ToOpenGL(SamplerWrap wrapMode);
 	inline GLenum ToOpenGL(ShaderStageType stageType);
+	inline GLenum ToOpenGL(GL::BufferTarget bufferTarget);
+	inline GLenum ToOpenGL(GL::TextureTarget bufferTarget);
 
 	//NAZARA_OPENGLRENDERER_API std::string TranslateOpenGLError(GLenum code);
 }

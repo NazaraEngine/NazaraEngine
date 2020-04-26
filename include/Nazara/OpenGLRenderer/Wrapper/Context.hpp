@@ -21,6 +21,20 @@ namespace Nz
 
 namespace Nz::GL
 {
+	enum class BufferTarget
+	{
+		Array,
+		CopyRead,
+		CopyWrite,
+		ElementArray,
+		PixelPack,
+		PixelUnpack,
+		TransformFeedback,
+		Uniform,
+
+		Max = Uniform
+	};
+
 	enum class ContextType
 	{
 		OpenGL,
@@ -74,6 +88,7 @@ namespace Nz::GL
 			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
 
+			void BindBuffer(BufferTarget target, GLuint buffer) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
 			void BindTexture(TextureTarget target, GLuint texture) const;
 			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
@@ -89,6 +104,7 @@ namespace Nz::GL
 
 			bool Initialize(const ContextParams& params);
 
+			inline void NotifyBufferDestruction(GLuint buffer) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 
@@ -125,6 +141,7 @@ namespace Nz::GL
 					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
 				};
 
+				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
 				std::vector<TextureUnit> textureUnits;
 				UInt32 currentTextureUnit = 0;
 			};

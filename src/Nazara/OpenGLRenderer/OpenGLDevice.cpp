@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
@@ -42,7 +43,7 @@ namespace Nz
 
 	std::unique_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)
 	{
-		return {};
+		return std::make_unique<OpenGLBuffer>(*this, type);
 	}
 
 	std::unique_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType queueType)

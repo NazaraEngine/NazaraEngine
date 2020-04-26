@@ -7,15 +7,14 @@
 
 namespace Nz
 {
-	inline OpenGLBuffer::OpenGLBuffer(Vk::Device& device, BufferType type) :
-	m_device(device),
-	m_type(type)
-	{
-	}
-
-	inline VkBuffer OpenGLBuffer::GetBuffer()
+	inline const GL::Buffer& OpenGLBuffer::GetBuffer() const
 	{
 		return m_buffer;
+	}
+
+	inline BufferType OpenGLBuffer::GetType() const
+	{
+		return m_type;
 	}
 }
 
