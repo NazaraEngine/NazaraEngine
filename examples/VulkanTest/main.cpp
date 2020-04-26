@@ -110,7 +110,7 @@ int main()
 	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
 	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
