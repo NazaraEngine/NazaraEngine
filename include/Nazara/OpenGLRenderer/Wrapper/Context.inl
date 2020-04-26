@@ -46,6 +46,12 @@ namespace Nz::GL
 		}
 	}
 
+	inline void Context::NotifyProgramDestruction(GLuint program) const
+	{
+		if (m_state.boundProgram == program)
+			m_state.boundProgram = 0;
+	}
+
 	inline void Context::NotifySamplerDestruction(GLuint sampler) const
 	{
 		for (auto& unit : m_state.textureUnits)
