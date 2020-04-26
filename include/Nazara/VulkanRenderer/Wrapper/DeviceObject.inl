@@ -36,6 +36,8 @@ namespace Nz
 		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
 		bool DeviceObject<C, VkType, CreateInfo, ObjectType>::Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
+			Destroy();
+
 			m_device = &device;
 			m_lastErrorCode = C::CreateHelper(*m_device, &createInfo, allocator, &m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
