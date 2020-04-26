@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StackVector.hpp>
@@ -17,57 +15,58 @@ namespace Nz
 {
 	void OpenGLShaderBinding::Update(std::initializer_list<Binding> bindings)
 	{
-		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bindings.size());
-		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, bindings.size());
-		StackVector<VkWriteDescriptorSet> writeOps = NazaraStackVector(VkWriteDescriptorSet, bindings.size());
+		const auto& layoutInfo = m_owner.GetLayoutInfo();
 
 		for (const Binding& binding : bindings)
 		{
-			VkWriteDescriptorSet& writeOp = writeOps.emplace_back();
-			writeOp.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeOp.dstSet = m_descriptorSet;
-			writeOp.dstBinding = UInt32(binding.bindingIndex);
+			assert(binding.bindingIndex < layoutInfo.bindings.size());
+			const auto& bindingDesc = layoutInfo.bindings[binding.bindingIndex];
 
-			std::visit([&](auto&& arg)
+			std::size_t resourceIndex = 0;
+			for (std::size_t i = binding.bindingIndex; i > 0; --i)
 			{
-				using T = std::decay_t<decltype(arg)>;
+				// Use i-1 to prevent underflow in for loop
+				if (layoutInfo.bindings[i - 1].type == bindingDesc.type)
+					resourceIndex++;
+			}
 
-				if constexpr (std::is_same_v<T, TextureBinding>)
+			switch (bindingDesc.type)
+			{
+				case ShaderBindingType::Texture:
 				{
-					OpenGLTexture& vkTexture = *static_cast<OpenGLTexture*>(arg.texture);
-					OpenGLTextureSampler& vkSampler = *static_cast<OpenGLTextureSampler*>(arg.sampler);
+					if (!std::holds_alternative<TextureBinding>(binding.content))
+						throw std::runtime_error("binding #" + std::to_string(binding.bindingIndex) + " is a texture but another binding type has been supplied");
 
-					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
-					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView = vkTexture.GetImageView();
-					imageInfo.sampler = vkSampler.GetSampler();
+					const TextureBinding& texBinding = std::get<TextureBinding>(binding.content);
 
-					writeOp.descriptorCount = 1;
-					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+					OpenGLTexture& glTexture = *static_cast<OpenGLTexture*>(texBinding.texture);
+					OpenGLTextureSampler& glSampler = *static_cast<OpenGLTextureSampler*>(texBinding.sampler);
 
-					writeOp.pImageInfo = &imageInfo;
+					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
+					textureDescriptor.sampler = glSampler.GetSampler().GetObjectId();
+					textureDescriptor.texture = glTexture.GetTexture().GetObjectId();
+					break;
 				}
-				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
+
+				case ShaderBindingType::UniformBuffer:
 				{
-					OpenGLBuffer& vkBuffer = *static_cast<OpenGLBuffer*>(arg.buffer);
+					if (!std::holds_alternative<UniformBufferBinding>(binding.content))
+						throw std::runtime_error("binding #" + std::to_string(binding.bindingIndex) + " is an uniform buffer but another binding type has been supplied");
 
-					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
-					bufferInfo.buffer = vkBuffer.GetBuffer();
-					bufferInfo.offset = arg.offset;
-					bufferInfo.range = arg.range;
+					const UniformBufferBinding& uboBinding = std::get<UniformBufferBinding>(binding.content);
 
-					writeOp.descriptorCount = 1;
-					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					OpenGLBuffer& glBuffer = *static_cast<OpenGLBuffer*>(uboBinding.buffer);
+					if (glBuffer.GetType() != BufferType_Uniform)
+						throw std::runtime_error("expected uniform buffer");
 
-					writeOp.pBufferInfo = &bufferInfo;
+					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
+					uboDescriptor.buffer = glBuffer.GetBuffer().GetObjectId();
+					uboDescriptor.offset = uboBinding.offset;
+					uboDescriptor.size = uboBinding.range;
+					break;
 				}
-				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-
-			}, binding.content);
+			}
 		}
-
-		m_owner.GetDevice()->vkUpdateDescriptorSets(*m_owner.GetDevice(), UInt32(writeOps.size()), writeOps.data(), 0U, nullptr);
 	}
 
 	void OpenGLShaderBinding::Release()
@@ -75,5 +74,3 @@ namespace Nz
 		m_owner.Release(*this);
 	}
 }
-
-#endif

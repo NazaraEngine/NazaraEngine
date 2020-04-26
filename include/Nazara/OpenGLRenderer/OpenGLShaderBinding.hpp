@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLSHADERBINDING_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DescriptorSet.hpp>
 
 namespace Nz
 {
@@ -18,13 +18,12 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderBinding : public ShaderBinding
 	{
 		public:
-			inline OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::DescriptorSet descriptorSet);
+			inline OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex);
 			OpenGLShaderBinding(const OpenGLShaderBinding&) = default;
 			OpenGLShaderBinding(OpenGLShaderBinding&&) noexcept = default;
 			~OpenGLShaderBinding() = default;
 
 			inline std::size_t GetBindingIndex() const;
-			inline const Vk::DescriptorSet& GetDescriptorSet() const;
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLRenderPipelineLayout& GetOwner() const;
 
@@ -36,7 +35,6 @@ namespace Nz
 		private:
 			void Release() override;
 
-			Vk::AutoDescriptorSet m_descriptorSet;
 			OpenGLRenderPipelineLayout& m_owner;
 			std::size_t m_bindingIndex;
 			std::size_t m_poolIndex;

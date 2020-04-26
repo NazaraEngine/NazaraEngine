@@ -7,19 +7,19 @@
 
 namespace Nz
 {
-	inline Vk::Device* OpenGLRenderPipelineLayout::GetDevice() const
+	inline const RenderPipelineLayoutInfo& OpenGLRenderPipelineLayout::GetLayoutInfo() const
 	{
-		return m_device.Get();
+		return m_layoutInfo;
 	}
 
-	inline const Vk::DescriptorSetLayout& OpenGLRenderPipelineLayout::GetDescriptorSetLayout() const
+	inline std::size_t OpenGLRenderPipelineLayout::GetTextureDescriptorCount() const
 	{
-		return m_descriptorSetLayout;
+		return m_textureDescriptorCount;
 	}
 
-	inline const Vk::PipelineLayout& OpenGLRenderPipelineLayout::GetPipelineLayout() const
+	inline std::size_t OpenGLRenderPipelineLayout::GetUniformBufferDescriptorCount() const
 	{
-		return m_pipelineLayout;
+		return m_uniformBufferDescriptorCount;
 	}
 
 	inline void OpenGLRenderPipelineLayout::TryToShrink()

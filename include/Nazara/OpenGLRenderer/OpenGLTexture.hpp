@@ -26,6 +26,7 @@ namespace Nz
 			PixelFormat GetFormat() const override;
 			UInt8 GetLevelCount() const override;
 			Vector3ui GetSize(UInt8 level = 0) const override;
+			inline const GL::Texture& GetTexture() const;
 			ImageType GetType() const override;
 
 			bool Update(const void* ptr) override;
