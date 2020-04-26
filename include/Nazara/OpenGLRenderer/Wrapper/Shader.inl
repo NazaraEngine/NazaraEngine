@@ -11,7 +11,9 @@ namespace Nz::GL
 	inline void Shader::Compile()
 	{
 		assert(m_objectId);
-		m_device->GetReferenceContext().glCompileShader(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glCompileShader(m_objectId);
 	}
 
 	inline bool Shader::GetCompilationStatus(std::string* error)

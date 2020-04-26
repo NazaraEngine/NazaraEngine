@@ -39,7 +39,7 @@ namespace Nz::GL
 		context.glSamplerParameteriv(m_objectId, pname, param);
 	}
 
-	inline GLuint Sampler::CreateHelper(OpenGLDevice& device, const Context& context)
+	inline GLuint Sampler::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
 	{
 		GLuint sampler = 0;
 		context.glGenSamplers(1U, &sampler);

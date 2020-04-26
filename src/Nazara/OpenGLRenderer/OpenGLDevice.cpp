@@ -8,6 +8,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -74,6 +75,7 @@ namespace Nz
 
 	std::unique_ptr<TextureSampler> OpenGLDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
 	{
-		return {};
+		return std::make_unique<OpenGLTextureSampler>(*this, params);
 	}
+	
 }
