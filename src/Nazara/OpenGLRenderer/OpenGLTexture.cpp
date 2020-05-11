@@ -58,6 +58,8 @@ namespace Nz
 			default:
 				break;
 		}
+
+		m_texture.SetParameteri(GL_TEXTURE_MAX_LEVEL, m_params.mipmapLevel);
 	}
 
 	PixelFormat OpenGLTexture::GetFormat() const
