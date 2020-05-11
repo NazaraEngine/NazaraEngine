@@ -3,6 +3,8 @@
 #include <array>
 #include <iostream>
 
+#define SPIRV 0
+
 int main()
 {
 	Nz::Initializer<Nz::Renderer> loader;
@@ -27,6 +29,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
+#if SPIRV
 	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::SpirV, "resources/shaders/triangle.frag.spv");
 	if (!fragmentShader)
 	{
@@ -40,6 +43,21 @@ int main()
 		std::cout << "Failed to instantiate fragment shader" << std::endl;
 		return __LINE__;
 	}
+#else
+	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::GLSL, "resources/shaders/triangle.frag");
+	if (!fragmentShader)
+	{
+		std::cout << "Failed to instantiate fragment shader" << std::endl;
+		return __LINE__;
+	}
+
+	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::GLSL, "resources/shaders/triangle.vert");
+	if (!vertexShader)
+	{
+		std::cout << "Failed to instantiate fragment shader" << std::endl;
+		return __LINE__;
+	}
+#endif
 
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
 
