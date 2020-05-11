@@ -16,13 +16,27 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLFramebuffer : public Framebuffer
 	{
 		public:
+			enum class Type
+			{
+				FBO,
+				Window
+			};
+
+			inline OpenGLFramebuffer(Type type);
 			OpenGLFramebuffer() = default;
 			OpenGLFramebuffer(const OpenGLFramebuffer&) = delete;
 			OpenGLFramebuffer(OpenGLFramebuffer&&) noexcept = default;
 			~OpenGLFramebuffer() = default;
 
+			virtual void Activate() const = 0;
+
+			inline Type GetType() const;
+
 			OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;
 			OpenGLFramebuffer& operator=(OpenGLFramebuffer&&) noexcept = default;
+
+		private:
+			Type m_type;
 	};
 }
 

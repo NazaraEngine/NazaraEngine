@@ -36,6 +36,19 @@ namespace Nz::GL
 		}
 	}
 
+	void Context::BindFramebuffer(GLuint fbo) const
+	{
+		if (m_state.boundDrawFBO != fbo || m_state.boundReadFBO != fbo)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			m_state.boundDrawFBO = fbo;
+			m_state.boundReadFBO = fbo;
+		}
+	}
+
 	void Context::BindSampler(UInt32 textureUnit, GLuint sampler) const
 	{
 		if (textureUnit >= m_state.textureUnits.size())
