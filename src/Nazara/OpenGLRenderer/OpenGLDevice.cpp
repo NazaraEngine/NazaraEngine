@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
@@ -25,7 +26,10 @@ namespace Nz
 		m_contexts.insert(m_referenceContext.get());
 	}
 
-	OpenGLDevice::~OpenGLDevice() = default;
+	OpenGLDevice::~OpenGLDevice()
+	{
+		m_referenceContext.reset();
+	}
 
 	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(const GL::ContextParams& params) const
 	{
@@ -55,7 +59,7 @@ namespace Nz
 
 	std::unique_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
-		return {};
+		return std::make_unique<OpenGLRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
 	std::shared_ptr<RenderPipelineLayout> OpenGLDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)

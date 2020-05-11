@@ -10,7 +10,61 @@
 
 namespace Nz
 {
-	GLenum ToOpenGL(SamplerFilter filter)
+	inline GLenum ToOpenGL(BlendFunc blendFunc)
+	{
+		switch (blendFunc)
+		{
+			case BlendFunc_DestAlpha:    return GL_DST_ALPHA;
+			case BlendFunc_DestColor:    return GL_DST_COLOR;
+			case BlendFunc_SrcAlpha:     return GL_SRC_ALPHA;
+			case BlendFunc_SrcColor:     return GL_SRC_COLOR;
+			case BlendFunc_InvDestAlpha: return GL_ONE_MINUS_DST_ALPHA;
+			case BlendFunc_InvDestColor: return GL_ONE_MINUS_DST_COLOR;
+			case BlendFunc_InvSrcAlpha:  return GL_ONE_MINUS_SRC_ALPHA;
+			case BlendFunc_InvSrcColor:  return GL_ONE_MINUS_SRC_COLOR;
+			case BlendFunc_One:          return GL_ONE;
+			case BlendFunc_Zero:         return GL_ZERO;
+		}
+
+		NazaraError("Unhandled BlendFunc 0x" + String::Number(UnderlyingCast(blendFunc), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(FaceSide filter)
+	{
+		switch (filter)
+		{
+			case FaceSide_None:
+				break;
+
+			case FaceSide_Back:         return GL_BACK;
+			case FaceSide_Front:        return GL_FRONT;
+			case FaceSide_FrontAndBack: return GL_FRONT_AND_BACK;
+		}
+
+		NazaraError("Unhandled FaceSide 0x" + String::Number(UnderlyingCast(filter), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(RendererComparison comparison)
+	{
+		switch (comparison)
+		{
+			case RendererComparison_Always:         return GL_ALWAYS;
+			case RendererComparison_Equal:          return GL_EQUAL;
+			case RendererComparison_Greater:        return GL_GREATER;
+			case RendererComparison_GreaterOrEqual: return GL_GEQUAL;
+			case RendererComparison_Less:           return GL_LESS;
+			case RendererComparison_LessOrEqual:    return GL_LEQUAL;
+			case RendererComparison_Never:          return GL_NEVER;
+			case RendererComparison_NotEqual:       return GL_NOTEQUAL;
+		}
+
+		NazaraError("Unhandled RendererComparison 0x" + String::Number(UnderlyingCast(comparison), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(SamplerFilter filter)
 	{
 		switch (filter)
 		{
@@ -22,7 +76,7 @@ namespace Nz
 		return {};
 	}
 
-	GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter)
+	inline GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter)
 	{
 		switch (minFilter)
 		{
@@ -55,7 +109,7 @@ namespace Nz
 		return {};
 	}
 
-	GLenum ToOpenGL(SamplerWrap wrapMode)
+	inline GLenum ToOpenGL(SamplerWrap wrapMode)
 	{
 		switch (wrapMode)
 		{
@@ -68,7 +122,7 @@ namespace Nz
 		return {};
 	}
 
-	GLenum ToOpenGL(ShaderStageType stageType)
+	inline GLenum ToOpenGL(ShaderStageType stageType)
 	{
 		switch (stageType)
 		{
@@ -80,7 +134,25 @@ namespace Nz
 		return {};
 	}
 
-	GLenum ToOpenGL(GL::BufferTarget bufferTarget)
+	inline GLenum ToOpenGL(StencilOperation stencilOp)
+	{
+		switch (stencilOp)
+		{
+			case StencilOperation_Decrement:        return GL_DECR;
+			case StencilOperation_DecrementNoClamp: return GL_DECR_WRAP;
+			case StencilOperation_Increment:        return GL_INCR;
+			case StencilOperation_IncrementNoClamp: return GL_INCR_WRAP;
+			case StencilOperation_Invert:           return GL_INVERT;
+			case StencilOperation_Keep:             return GL_KEEP;
+			case StencilOperation_Replace:          return GL_REPLACE;
+			case StencilOperation_Zero:             return GL_ZERO;
+		}
+
+		NazaraError("Unhandled StencilOperation 0x" + String::Number(UnderlyingCast(stencilOp), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(GL::BufferTarget bufferTarget)
 	{
 		switch (bufferTarget)
 		{
@@ -98,7 +170,7 @@ namespace Nz
 		return {};
 	}
 
-	GLenum ToOpenGL(GL::TextureTarget textureTarget)
+	inline GLenum ToOpenGL(GL::TextureTarget textureTarget)
 	{
 		switch (textureTarget)
 		{

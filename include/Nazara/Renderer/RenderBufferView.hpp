@@ -18,7 +18,7 @@ namespace Nz
 		public:
 			inline RenderBufferView(AbstractBuffer* buffer);
 			inline RenderBufferView(AbstractBuffer* buffer, UInt64 offset, UInt64 size);
-			RenderBufferView(const RenderBufferView&) = delete;
+			RenderBufferView(const RenderBufferView&) = default;
 			RenderBufferView(RenderBufferView&&) = default;
 			~RenderBufferView() = default;
 
@@ -26,7 +26,7 @@ namespace Nz
 			inline UInt64 GetOffset() const;
 			inline UInt64 GetSize() const;
 
-			RenderBufferView& operator=(const RenderBufferView&) = delete;
+			RenderBufferView& operator=(const RenderBufferView&) = default;
 			RenderBufferView& operator=(RenderBufferView&&) = default;
 
 		private:

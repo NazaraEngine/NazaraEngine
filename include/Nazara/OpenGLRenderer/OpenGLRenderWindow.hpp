@@ -31,6 +31,7 @@ namespace Nz
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
 			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
+			inline GL::Context& GetContext();
 			const OpenGLFramebuffer& GetFramebuffer() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
 

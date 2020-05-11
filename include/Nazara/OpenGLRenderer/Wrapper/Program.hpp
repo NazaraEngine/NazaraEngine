@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLSHADER_HPP
-#define NAZARA_OPENGLRENDERER_GLSHADER_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLPROGRAM_HPP
+#define NAZARA_OPENGLRENDERER_GLPROGRAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
