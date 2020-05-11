@@ -9,7 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 #include <array>
 #include <string>
 #include <unordered_set>
@@ -94,17 +96,21 @@ namespace Nz::GL
 			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
 
-			void BindBuffer(BufferTarget target, GLuint buffer) const;
+			void BindBuffer(BufferTarget target, GLuint buffer, bool force = false) const;
 			void BindFramebuffer(GLuint fbo) const;
 			void BindFramebuffer(FramebufferTarget target, GLuint fbo) const;
+			void BindProgram(GLuint program) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
 			void BindTexture(TextureTarget target, GLuint texture) const;
 			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
+			void BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
+			void BindVertexArray(GLuint vertexArray, bool force = false) const;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
 			inline const OpenGLDevice* GetDevice() const;
 			inline ExtensionStatus GetExtensionStatus(Extension extension) const;
+			inline const OpenGLVaoCache& GetVaoCache() const;
 			inline const ContextParams& GetParams() const;
 
 			inline bool IsExtensionSupported(Extension extension) const;
@@ -116,8 +122,11 @@ namespace Nz::GL
 			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
+			inline void NotifyVertexArrayDestruction(GLuint vao) const;
 
-			inline void SetCurrentTextureUnit(UInt32 textureUnit) const;
+			void SetCurrentTextureUnit(UInt32 textureUnit) const;
+			void SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const;
+			void SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const;
 
 			virtual void SwapBuffers() = 0;
 
@@ -134,6 +143,7 @@ namespace Nz::GL
 			virtual bool Activate() const = 0;
 			virtual void Desactivate() const = 0;
 			virtual const Loader& GetLoader() = 0;
+			void OnContextRelease();
 
 			virtual bool ImplementFallback(const std::string_view& function);
 
@@ -146,23 +156,41 @@ namespace Nz::GL
 
 			struct State
 			{
+				struct Box
+				{
+					GLint x, y;
+					GLsizei width, height;
+				};
+
 				struct TextureUnit
 				{
 					GLuint sampler = 0;
 					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
 				};
 
+				struct UniformBufferUnit
+				{
+					GLuint buffer = 0;
+					GLintptr offset = 0;
+					GLsizeiptr size = 0;
+				};
+
 				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
 				std::vector<TextureUnit> textureUnits;
+				std::vector<UniformBufferUnit> uboUnits;
+				Box scissorBox;
+				Box viewport;
 				GLuint boundProgram = 0;
 				GLuint boundDrawFBO = 0;
 				GLuint boundReadFBO = 0;
+				GLuint boundVertexArray = 0;
 				UInt32 currentTextureUnit = 0;
 				RenderStates renderStates;
 			};
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
 			std::unordered_set<std::string> m_supportedExtensions;
+			OpenGLVaoCache m_vaoCache;
 			const OpenGLDevice* m_device;
 			mutable State m_state;
 	};

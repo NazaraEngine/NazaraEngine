@@ -13,12 +13,12 @@
 
 namespace Nz
 {
-	class OpenGLRenderPass;
+	class OpenGLCommandBuffer;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBufferBuilder final : public CommandBufferBuilder
 	{
 		public:
-			OpenGLCommandBufferBuilder() = default;
+			inline OpenGLCommandBufferBuilder(OpenGLCommandBuffer& commandBuffer);
 			OpenGLCommandBufferBuilder(const OpenGLCommandBufferBuilder&) = delete;
 			OpenGLCommandBufferBuilder(OpenGLCommandBufferBuilder&&) noexcept = default;
 			~OpenGLCommandBufferBuilder() = default;
@@ -48,9 +48,12 @@ namespace Nz
 
 			OpenGLCommandBufferBuilder& operator=(const OpenGLCommandBufferBuilder&) = delete;
 			OpenGLCommandBufferBuilder& operator=(OpenGLCommandBufferBuilder&&) = delete;
+
+		private:
+			OpenGLCommandBuffer& m_commandBuffer;
 	};
 }
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.inl>
 
-#endif // NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFERBUILDER_HPP
+#endif

@@ -23,9 +23,9 @@ namespace Nz::GL
 			m_device->NotifyContextDestruction(*this);
 	}
 
-	void Context::BindBuffer(BufferTarget target, GLuint buffer) const
+	void Context::BindBuffer(BufferTarget target, GLuint buffer, bool force) const
 	{
-		if (m_state.bufferTargets[UnderlyingCast(target)] != buffer)
+		if (m_state.bufferTargets[UnderlyingCast(target)] != buffer || force)
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -59,6 +59,18 @@ namespace Nz::GL
 
 			glBindFramebuffer((target == FramebufferTarget::Draw) ? GL_DRAW_FRAMEBUFFER : GL_READ_FRAMEBUFFER, fbo);
 			currentFbo = fbo;
+		}
+	}
+
+	void Context::BindProgram(GLuint program) const
+	{
+		if (m_state.boundProgram != program)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glUseProgram(program);
+			m_state.boundProgram = program;
 		}
 	}
 
@@ -99,6 +111,37 @@ namespace Nz::GL
 			glBindTexture(ToOpenGL(target), texture);
 
 			unit.textureTargets[UnderlyingCast(target)] = texture;
+		}
+	}
+
+	void Context::BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const
+	{
+		if (uboUnit >= m_state.uboUnits.size())
+			throw std::runtime_error("unsupported uniform buffer unit #" + std::to_string(uboUnit));
+
+		auto& unit = m_state.uboUnits[uboUnit];
+		if (unit.buffer != buffer || unit.offset != offset || unit.size != size)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindBufferRange(GL_UNIFORM_BUFFER, uboUnit, buffer, offset, size);
+
+			unit.buffer = buffer;
+			unit.offset = offset;
+			unit.size = size;
+		}
+	}
+
+	void Context::BindVertexArray(GLuint vertexArray, bool force) const
+	{
+		if (m_state.boundVertexArray != vertexArray || force)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindVertexArray(vertexArray);
+			m_state.boundVertexArray = vertexArray;
 		}
 	}
 
@@ -220,7 +263,73 @@ namespace Nz::GL
 		assert(maxTextureUnits > 0);
 		m_state.textureUnits.resize(maxTextureUnits);
 
+		GLint maxUniformBufferUnits = -1;
+		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferUnits);
+		if (maxUniformBufferUnits < 24) //< OpenGL ES 3.0 requires at least 24 uniform buffers units
+			NazaraWarning("GL_MAX_UNIFORM_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", >= 24 expected");
+
+		assert(maxUniformBufferUnits > 0);
+		m_state.uboUnits.resize(maxUniformBufferUnits);
+
+		std::array<GLint, 4> res;
+
+		glGetIntegerv(GL_SCISSOR_BOX, res.data());
+		m_state.scissorBox = { res[0], res[1], res[2], res[3] };
+
+		glGetIntegerv(GL_VIEWPORT, res.data());
+		m_state.viewport = { res[0], res[1], res[2], res[3] };
+
 		return true;
+	}
+
+	void Context::SetCurrentTextureUnit(UInt32 textureUnit) const
+	{
+		if (m_state.currentTextureUnit != textureUnit)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glActiveTexture(GL_TEXTURE0 + textureUnit);
+			m_state.currentTextureUnit = textureUnit;
+		}
+	}
+
+	void Context::SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const
+	{
+		if (m_state.scissorBox.x != x ||
+			m_state.scissorBox.y != y ||
+			m_state.scissorBox.width != width ||
+			m_state.scissorBox.height != height)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glScissor(x, y, width, height);
+
+			m_state.scissorBox.x = x;
+			m_state.scissorBox.y = y;
+			m_state.scissorBox.width = width;
+			m_state.scissorBox.height = height;
+		}
+	}
+
+	void Context::SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const
+	{
+		if (m_state.viewport.x != x ||
+			m_state.viewport.y != y ||
+			m_state.viewport.width != width ||
+			m_state.viewport.height != height)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glViewport(x, y, width, height);
+
+			m_state.viewport.x = x;
+			m_state.viewport.y = y;
+			m_state.viewport.width = width;
+			m_state.viewport.height = height;
+		}
 	}
 
 	void Context::UpdateStates(const RenderStates& renderStates) const
@@ -400,6 +509,11 @@ namespace Nz::GL
 		}
 
 		return true;
+	}
+
+	void Context::OnContextRelease()
+	{
+		m_vaoCache.Clear();
 	}
 
 	bool Context::ImplementFallback(const std::string_view& function)

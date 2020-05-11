@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline OpenGLCommandBufferBuilder::OpenGLCommandBufferBuilder(OpenGLCommandBuffer& commandBuffer) :
+	m_commandBuffer(commandBuffer)
+	{
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

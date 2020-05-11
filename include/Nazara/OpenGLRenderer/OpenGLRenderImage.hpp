@@ -14,6 +14,7 @@
 
 namespace Nz
 {
+	class OpenGLCommandBuffer;
 	class OpenGLRenderWindow;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderImage : public RenderImage

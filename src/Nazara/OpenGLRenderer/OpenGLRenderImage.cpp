@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderImage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -17,6 +19,11 @@ namespace Nz
 
 	void OpenGLRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
+		OpenGLCommandBuffer commandBuffer;
+		OpenGLCommandBufferBuilder builder(commandBuffer);
+		callback(builder);
+
+		commandBuffer.Execute();
 	}
 
 	OpenGLUploadPool& OpenGLRenderImage::GetUploadPool()
@@ -26,6 +33,8 @@ namespace Nz
 
 	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
+		OpenGLCommandBuffer* oglCommandBuffer = static_cast<OpenGLCommandBuffer*>(commandBuffer);
+		oglCommandBuffer->Execute();
 	}
 
 	void OpenGLRenderImage::Present()

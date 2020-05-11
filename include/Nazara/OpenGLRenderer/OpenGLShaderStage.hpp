@@ -24,6 +24,8 @@ namespace Nz
 			OpenGLShaderStage(OpenGLShaderStage&&) noexcept = default;
 			~OpenGLShaderStage() = default;
 
+			inline const GL::Shader& GetShader() const;
+
 			OpenGLShaderStage& operator=(const OpenGLShaderStage&) = delete;
 			OpenGLShaderStage& operator=(OpenGLShaderStage&&) noexcept = default;
 

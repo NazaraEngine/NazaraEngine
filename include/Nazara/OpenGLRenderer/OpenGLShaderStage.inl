@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const GL::Shader& OpenGLShaderStage::GetShader() const
+	{
+		return m_shader;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

@@ -12,6 +12,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <memory>
 #include <type_traits>
@@ -53,12 +54,15 @@ namespace Nz
 
 			struct TextureDescriptor
 			{
+				UInt32 bindingIndex;
 				GLuint texture;
 				GLuint sampler;
+				GL::TextureTarget textureTarget;
 			};
 
 			struct UniformBufferDescriptor
 			{
+				UInt32 bindingIndex;
 				GLuint buffer;
 				GLintptr offset;
 				GLsizeiptr size;
