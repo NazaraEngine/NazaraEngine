@@ -41,7 +41,6 @@ namespace Nz
 				Allocation& operator=(Allocation&&) = default;
 
 				void* mappedPtr;
-				UInt64 offset;
 				UInt64 size;
 			};
 	};

@@ -23,6 +23,7 @@ namespace Nz
 			struct VulkanAllocation : Allocation
 			{
 				VkBuffer buffer;
+				UInt64 offset;
 			};
 
 			inline VulkanUploadPool(Vk::Device& device, UInt64 blockSize);

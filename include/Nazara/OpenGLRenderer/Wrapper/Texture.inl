@@ -8,6 +8,38 @@
 
 namespace Nz::GL
 {
+	inline void Texture::SetParameterf(GLenum pname, GLfloat param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glTexParameterf(m_objectId, pname, param);
+	}
+
+	inline void Texture::SetParameteri(GLenum pname, GLint param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glTexParameteri(m_objectId, pname, param);
+	}
+
+	inline void Texture::SetParameterfv(GLenum pname, const GLfloat* param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glTexParameterfv(m_objectId, pname, param);
+	}
+
+	inline void Texture::SetParameteriv(GLenum pname, const GLint* param)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glTexParameteriv(m_objectId, pname, param);
+	}
+
 	inline void Texture::TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border)
 	{
 		return TexImage2D(level, internalFormat, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, nullptr);

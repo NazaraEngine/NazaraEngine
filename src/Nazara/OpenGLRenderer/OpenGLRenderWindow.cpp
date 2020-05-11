@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <Nazara/OpenGLRenderer/DummySurface.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -11,7 +12,8 @@
 namespace Nz
 {
 	OpenGLRenderWindow::OpenGLRenderWindow() :
-	m_currentFrame(0)
+	m_currentFrame(0),
+	m_framebuffer(*this)
 	{
 	}
 
@@ -33,12 +35,18 @@ namespace Nz
 		if (!m_context)
 			return false;
 
+		constexpr std::size_t RenderImageCount = 2;
+
+		m_renderImage.reserve(RenderImageCount);
+		for (std::size_t i = 0; i < RenderImageCount; ++i)
+			m_renderImage.emplace_back(*this);
+
 		return true;
 	}
 
 	std::unique_ptr<CommandPool> OpenGLRenderWindow::CreateCommandPool(QueueType queueType)
 	{
-		return {};
+		return std::make_unique<OpenGLCommandPool>();
 	}
 
 	const OpenGLFramebuffer& OpenGLRenderWindow::GetFramebuffer() const

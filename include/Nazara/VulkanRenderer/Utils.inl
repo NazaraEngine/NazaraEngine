@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	VkBufferUsageFlags ToVulkan(BufferType bufferType)
+	inline VkBufferUsageFlags ToVulkan(BufferType bufferType)
 	{
 		switch (bufferType)
 		{
@@ -23,7 +23,7 @@ namespace Nz
 		return 0;
 	}
 
-	VkFormat ToVulkan(ComponentType componentType)
+	inline VkFormat ToVulkan(ComponentType componentType)
 	{
 		switch (componentType)
 		{
@@ -47,7 +47,7 @@ namespace Nz
 		return VK_FORMAT_UNDEFINED;
 	}
 
-	VkCullModeFlagBits ToVulkan(FaceSide faceSide)
+	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide)
 	{
 		switch (faceSide)
 		{
@@ -74,7 +74,7 @@ namespace Nz
 		return VK_POLYGON_MODE_FILL;
 	}
 
-	VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
+	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)
 		{
@@ -108,7 +108,7 @@ namespace Nz
 		return VK_COMPARE_OP_NEVER;
 	}
 
-	VkFilter ToVulkan(SamplerFilter samplerFilter)
+	inline VkFilter ToVulkan(SamplerFilter samplerFilter)
 	{
 		switch (samplerFilter)
 		{
@@ -120,7 +120,7 @@ namespace Nz
 		return VK_FILTER_NEAREST;
 	}
 
-	VkSamplerMipmapMode ToVulkan(SamplerMipmapMode samplerMipmap)
+	inline VkSamplerMipmapMode ToVulkan(SamplerMipmapMode samplerMipmap)
 	{
 		switch (samplerMipmap)
 		{
@@ -132,7 +132,7 @@ namespace Nz
 		return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	}
 
-	VkSamplerAddressMode ToVulkan(SamplerWrap samplerWrap)
+	inline VkSamplerAddressMode ToVulkan(SamplerWrap samplerWrap)
 	{
 		switch (samplerWrap)
 		{
@@ -145,7 +145,7 @@ namespace Nz
 		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	}
 
-	VkDescriptorType ToVulkan(ShaderBindingType bindingType)
+	inline VkDescriptorType ToVulkan(ShaderBindingType bindingType)
 	{
 		switch (bindingType)
 		{
@@ -157,7 +157,7 @@ namespace Nz
 		return VK_DESCRIPTOR_TYPE_SAMPLER;
 	}
 
-	VkShaderStageFlagBits ToVulkan(ShaderStageType stageType)
+	inline VkShaderStageFlagBits ToVulkan(ShaderStageType stageType)
 	{
 		switch (stageType)
 		{
@@ -169,7 +169,7 @@ namespace Nz
 		return {};
 	}
 
-	VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
+	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
 	{
 		VkShaderStageFlags shaderStageBits = 0;
 
@@ -184,7 +184,7 @@ namespace Nz
 		return shaderStageBits;
 	}
 
-	VkStencilOp ToVulkan(StencilOperation stencilOp)
+	inline VkStencilOp ToVulkan(StencilOperation stencilOp)
 	{
 		switch (stencilOp)
 		{
@@ -202,7 +202,7 @@ namespace Nz
 		return VK_STENCIL_OP_KEEP;
 	}
 
-	VkVertexInputRate ToVulkan(VertexInputRate inputRate)
+	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate)
 	{
 		switch (inputRate)
 		{
