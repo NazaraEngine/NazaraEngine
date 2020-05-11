@@ -2,22 +2,39 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/Wrapper/ImageView.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
+#include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::GL
 {
-	namespace Vk
+	template<typename F>
+	static VertexArray VertexArray::Build(const Context& context, F&& callback)
 	{
-		inline VkResult ImageView::CreateHelper(Device& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle)
-		{
-			return device.vkCreateImageView(device, createInfo, allocator, handle);
-		}
+		VertexArray vao;
+		if (!vao.Create(context))
+			throw std::runtime_error("failed to create vao");
 
-		inline void ImageView::DestroyHelper(Device& device, VkImageView handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyImageView(device, handle, allocator);
-		}
+		context.BindVertexArray(vao.GetObjectId(), true);
+		callback();
+		context.BindVertexArray(0, true);
+
+		return vao;
+	}
+
+	inline GLuint VertexArray::CreateHelper(const Context& context)
+	{
+		GLuint vao = 0;
+		context.glGenVertexArrays(1U, &vao);
+
+		return vao;
+	}
+
+	inline void VertexArray::DestroyHelper(const Context& context, GLuint objectId)
+	{
+		context.glDeleteVertexArrays(1U, &objectId);
+
+		context.NotifyVertexArrayDestruction(objectId);
 	}
 }
 

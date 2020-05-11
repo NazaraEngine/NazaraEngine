@@ -48,6 +48,7 @@ namespace Nz::GL
 	{
 		if (m_handle)
 		{
+			OnContextRelease();
 			NotifyContextDestruction(this);
 
 			m_loader.wglDeleteContext(m_handle);
