@@ -113,6 +113,8 @@ namespace Nz::GL
 
 			virtual void SwapBuffers() = 0;
 
+			void UpdateStates(const RenderStates& renderStates) const;
+
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
