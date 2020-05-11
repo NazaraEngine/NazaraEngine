@@ -35,10 +35,12 @@ namespace Nz
 		private:
 			struct Block
 			{
-				//< TODO
-				UInt64 freeOffset;
+				std::vector<UInt8> memory;
+				UInt64 freeOffset = 0;
 			};
 
+			std::vector<Block> m_blocks;
+			std::vector<Allocation> m_allocations;
 			UInt64 m_blockSize;
 	};
 }
