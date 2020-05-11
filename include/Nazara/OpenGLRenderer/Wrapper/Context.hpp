@@ -58,6 +58,12 @@ namespace Nz::GL
 		KHR
 	};
 
+	enum class FramebufferTarget
+	{
+		Draw,
+		Read
+	};
+
 	enum class TextureTarget
 	{
 		Cubemap,
@@ -89,6 +95,8 @@ namespace Nz::GL
 			virtual ~Context();
 
 			void BindBuffer(BufferTarget target, GLuint buffer) const;
+			void BindFramebuffer(GLuint fbo) const;
+			void BindFramebuffer(FramebufferTarget target, GLuint fbo) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
 			void BindTexture(TextureTarget target, GLuint texture) const;
 			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
@@ -147,7 +155,10 @@ namespace Nz::GL
 				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
 				std::vector<TextureUnit> textureUnits;
 				GLuint boundProgram = 0;
+				GLuint boundDrawFBO = 0;
+				GLuint boundReadFBO = 0;
 				UInt32 currentTextureUnit = 0;
+				RenderStates renderStates;
 			};
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;

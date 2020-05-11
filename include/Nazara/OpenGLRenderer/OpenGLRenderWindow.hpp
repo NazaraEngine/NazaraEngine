@@ -10,9 +10,9 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderImage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLWindowFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <optional>
@@ -43,8 +43,8 @@ namespace Nz
 			std::shared_ptr<OpenGLDevice> m_device;
 			std::vector<OpenGLRenderImage> m_renderImage;
 			std::unique_ptr<GL::Context> m_context;
-			OpenGLFramebuffer m_framebuffer;
 			OpenGLRenderPass m_renderPass;
+			OpenGLWindowFramebuffer m_framebuffer;
 	};
 }
 
