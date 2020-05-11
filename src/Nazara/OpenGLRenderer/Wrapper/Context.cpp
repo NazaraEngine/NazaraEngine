@@ -197,6 +197,157 @@ namespace Nz::GL
 		return true;
 	}
 
+	void Context::UpdateStates(const RenderStates& renderStates) const
+	{
+		if (!SetCurrentContext(this))
+			throw std::runtime_error("failed to activate context");
+
+		if (renderStates.blending)
+		{
+			if (m_state.renderStates.dstBlend != renderStates.dstBlend ||
+			    m_state.renderStates.srcBlend != renderStates.srcBlend)
+			{
+				glBlendFunc(ToOpenGL(renderStates.srcBlend), ToOpenGL(renderStates.dstBlend));
+				m_state.renderStates.dstBlend = renderStates.dstBlend;
+				m_state.renderStates.srcBlend = renderStates.srcBlend;
+			}
+		}
+
+		if (renderStates.depthBuffer)
+		{
+			if (m_state.renderStates.depthCompare != renderStates.depthCompare)
+			{
+				glDepthFunc(ToOpenGL(m_state.renderStates.depthCompare));
+				m_state.renderStates.depthCompare = renderStates.depthCompare;
+			}
+
+			if (m_state.renderStates.depthWrite != renderStates.depthWrite)
+			{
+				glDepthMask((renderStates.depthWrite) ? GL_TRUE : GL_FALSE);
+				m_state.renderStates.depthWrite = renderStates.depthWrite;
+			}
+		}
+
+		if (renderStates.faceCulling)
+		{
+			if (m_state.renderStates.cullingSide != renderStates.cullingSide)
+			{
+				glCullFace(ToOpenGL(m_state.renderStates.cullingSide));
+				m_state.renderStates.cullingSide = renderStates.cullingSide;
+			}
+		}
+
+		/*
+		TODO: Use glPolyonMode if available (OpenGL)
+		if (m_state.renderStates.faceFilling != renderStates.faceFilling)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, FaceFilling[states.faceFilling]);
+			m_state.renderStates.faceFilling = renderStates.faceFilling;
+		}*/
+
+		if (renderStates.stencilTest)
+		{
+			auto ApplyStencilStates = [&](bool front)
+			{
+				auto& currentStencilData = (front) ? m_state.renderStates.stencilFront : m_state.renderStates.stencilBack;
+				auto& newStencilData = (front) ? renderStates.stencilFront : renderStates.stencilBack;
+
+				if (currentStencilData.compare != newStencilData.compare ||
+				    currentStencilData.reference != newStencilData.reference ||
+				    currentStencilData.writeMask != newStencilData.writeMask)
+				{
+					glStencilFuncSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.compare), newStencilData.reference, newStencilData.writeMask);
+					currentStencilData.compare = newStencilData.compare;
+					currentStencilData.reference = newStencilData.reference;
+					currentStencilData.writeMask = newStencilData.writeMask;
+				}
+
+				if (currentStencilData.depthFail != newStencilData.depthFail ||
+				    currentStencilData.fail != newStencilData.fail ||
+				    currentStencilData.pass != newStencilData.pass)
+				{
+					glStencilOpSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.fail), ToOpenGL(newStencilData.depthFail), ToOpenGL(newStencilData.pass));
+					currentStencilData.depthFail = newStencilData.depthFail;
+					currentStencilData.fail = newStencilData.fail;
+					currentStencilData.pass = newStencilData.pass;
+				}
+			};
+
+			ApplyStencilStates(true);
+			ApplyStencilStates(false);
+		}
+
+		if (!NumberEquals(m_state.renderStates.lineWidth, renderStates.lineWidth, 0.001f))
+		{
+			glLineWidth(renderStates.lineWidth);
+			m_state.renderStates.lineWidth = renderStates.lineWidth;
+		}
+
+		/*if (!NumberEquals(m_state.renderStates.pointSize, renderStates.pointSize, 0.001f))
+		{
+			glPointSize(renderStates.pointSize);
+			m_state.renderStates.pointSize = renderStates.pointSize;
+		}*/
+
+		if (m_state.renderStates.blending != renderStates.blending)
+		{
+			if (renderStates.blending)
+				glEnable(GL_BLEND);
+			else
+				glDisable(GL_BLEND);
+
+			m_state.renderStates.blending = renderStates.blending;
+		}
+
+		if (m_state.renderStates.colorWrite != renderStates.colorWrite)
+		{
+			GLboolean param = (renderStates.colorWrite) ? GL_TRUE : GL_FALSE;
+			glColorMask(param, param, param, param);
+
+			m_state.renderStates.colorWrite = renderStates.colorWrite;
+		}
+
+		if (m_state.renderStates.depthBuffer != renderStates.depthBuffer)
+		{
+			if (renderStates.depthBuffer)
+				glEnable(GL_DEPTH_TEST);
+			else
+				glDisable(GL_DEPTH_TEST);
+
+			m_state.renderStates.depthBuffer = renderStates.depthBuffer;
+		}
+
+		if (m_state.renderStates.faceCulling != renderStates.faceCulling)
+		{
+			if (renderStates.faceCulling)
+				glEnable(GL_CULL_FACE);
+			else
+				glDisable(GL_CULL_FACE);
+
+			m_state.renderStates.faceCulling = renderStates.faceCulling;
+		}
+
+		if (m_state.renderStates.scissorTest != renderStates.scissorTest)
+		{
+			if (renderStates.scissorTest)
+				glEnable(GL_SCISSOR_TEST);
+			else
+				glDisable(GL_SCISSOR_TEST);
+
+			m_state.renderStates.scissorTest = renderStates.scissorTest;
+		}
+
+		if (m_state.renderStates.stencilTest != renderStates.stencilTest)
+		{
+			if (renderStates.stencilTest)
+				glEnable(GL_STENCIL_TEST);
+			else
+				glDisable(GL_STENCIL_TEST);
+
+			m_state.renderStates.stencilTest = renderStates.stencilTest;
+		}
+	}
+
 	const Context* Context::GetCurrentContext()
 	{
 		return s_currentContext;

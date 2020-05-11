@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const RenderPipelineInfo& OpenGLRenderPipeline::GetPipelineInfo() const
+	{
+		return m_pipelineInfo;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
