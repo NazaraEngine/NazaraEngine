@@ -10,15 +10,13 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CommandPool.hpp>
 
 namespace Nz
 {
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandPool final : public CommandPool
 	{
 		public:
-			inline OpenGLCommandPool(Vk::Device& device, QueueType queueType);
-			inline OpenGLCommandPool(Vk::Device& device, UInt32 queueFamilyIndex);
+			OpenGLCommandPool() = default;
 			OpenGLCommandPool(const OpenGLCommandPool&) = delete;
 			OpenGLCommandPool(OpenGLCommandPool&&) noexcept = default;
 			~OpenGLCommandPool() = default;
@@ -27,9 +25,6 @@ namespace Nz
 
 			OpenGLCommandPool& operator=(const OpenGLCommandPool&) = delete;
 			OpenGLCommandPool& operator=(OpenGLCommandPool&&) = delete;
-
-		private:
-			Vk::CommandPool m_commandPool;
 	};
 }
 

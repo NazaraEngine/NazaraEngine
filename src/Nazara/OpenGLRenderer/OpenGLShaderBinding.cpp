@@ -13,6 +13,29 @@
 
 namespace Nz
 {
+	void OpenGLShaderBinding::Apply(const GL::Context& context) const
+	{
+		std::size_t textureDescriptorCount = m_owner.GetTextureDescriptorCount();
+		std::size_t uniformBufferDescriptorCount = m_owner.GetUniformBufferDescriptorCount();
+
+		for (std::size_t i = 0; i < textureDescriptorCount; ++i)
+		{
+			const auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, i);
+
+			UInt32 textureIndex = textureDescriptor.bindingIndex;
+
+			context.BindSampler(textureIndex, textureDescriptor.sampler);
+			context.BindTexture(textureIndex, textureDescriptor.textureTarget,  textureDescriptor.texture);
+		}
+
+		for (std::size_t i = 0; i < textureDescriptorCount; ++i)
+		{
+			const auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, i);
+
+			context.BindUniformBuffer(uboDescriptor.bindingIndex, uboDescriptor.buffer, uboDescriptor.offset, uboDescriptor.size);
+		}
+	}
+
 	void OpenGLShaderBinding::Update(std::initializer_list<Binding> bindings)
 	{
 		const auto& layoutInfo = m_owner.GetLayoutInfo();
@@ -43,8 +66,34 @@ namespace Nz
 					OpenGLTextureSampler& glSampler = *static_cast<OpenGLTextureSampler*>(texBinding.sampler);
 
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
+					textureDescriptor.bindingIndex = binding.bindingIndex;
+
 					textureDescriptor.texture = glTexture.GetTexture().GetObjectId();
 					textureDescriptor.sampler = glSampler.GetSampler(glTexture.GetLevelCount() > 1).GetObjectId();
+
+					switch (glTexture.GetType())
+					{
+						case ImageType_2D:
+							textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
+							break;
+
+						case ImageType_2D_Array:
+							textureDescriptor.textureTarget = GL::TextureTarget::Target2D_Array;
+							break;
+
+						case ImageType_3D:
+							textureDescriptor.textureTarget = GL::TextureTarget::Target3D;
+							break;
+
+						case ImageType_Cubemap:
+							textureDescriptor.textureTarget = GL::TextureTarget::Cubemap;
+							break;
+
+						case ImageType_1D:
+						case ImageType_1D_Array:
+						default:
+							throw std::runtime_error("unsupported texture type");
+					}
 					break;
 				}
 
@@ -60,6 +109,7 @@ namespace Nz
 						throw std::runtime_error("expected uniform buffer");
 
 					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
+					uboDescriptor.bindingIndex = binding.bindingIndex;
 					uboDescriptor.buffer = glBuffer.GetBuffer().GetObjectId();
 					uboDescriptor.offset = uboBinding.offset;
 					uboDescriptor.size = uboBinding.range;

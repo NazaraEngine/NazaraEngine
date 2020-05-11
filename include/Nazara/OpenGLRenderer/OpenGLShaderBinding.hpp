@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 
 namespace Nz
@@ -22,6 +23,8 @@ namespace Nz
 			OpenGLShaderBinding(const OpenGLShaderBinding&) = default;
 			OpenGLShaderBinding(OpenGLShaderBinding&&) noexcept = default;
 			~OpenGLShaderBinding() = default;
+
+			void Apply(const GL::Context& context) const;
 
 			inline std::size_t GetBindingIndex() const;
 			inline std::size_t GetPoolIndex() const;

@@ -8,6 +8,7 @@
 namespace Nz::GL
 {
 	inline Context::Context(const OpenGLDevice* device) :
+	m_vaoCache(*this),
 	m_device(device)
 	{
 	}
@@ -20,6 +21,11 @@ namespace Nz::GL
 	inline ExtensionStatus Context::GetExtensionStatus(Extension extension) const
 	{
 		return m_extensionStatus[UnderlyingCast(extension)];
+	}
+
+	inline const OpenGLVaoCache& Context::GetVaoCache() const
+	{
+		return m_vaoCache;
 	}
 
 	inline const ContextParams& Context::GetParams() const
@@ -73,13 +79,10 @@ namespace Nz::GL
 		}
 	}
 
-	inline void Context::SetCurrentTextureUnit(UInt32 textureUnit) const
+	inline void Context::NotifyVertexArrayDestruction(GLuint vao) const
 	{
-		if (m_state.currentTextureUnit != textureUnit)
-		{
-			glActiveTexture(GL_TEXTURE0 + textureUnit);
-			m_state.currentTextureUnit = textureUnit;
-		}
+		if (m_state.boundVertexArray == vao)
+			m_state.boundVertexArray = 0;
 	}
 }
 
