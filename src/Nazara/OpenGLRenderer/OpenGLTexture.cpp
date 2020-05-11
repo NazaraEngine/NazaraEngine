@@ -22,13 +22,13 @@ namespace Nz
 		{
 			case PixelFormat_RGB8:
 			{
-				internalFormat = GL_RGB8;
+				internalFormat = GL_SRGB8;
 				break;
 			}
 
 			case PixelFormat_RGBA8:
 			{
-				internalFormat = GL_RGBA8;
+				internalFormat = GL_SRGB8_ALPHA8;
 				break;
 			}
 		}
