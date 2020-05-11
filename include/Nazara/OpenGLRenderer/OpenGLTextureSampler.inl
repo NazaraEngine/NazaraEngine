@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline const GL::Sampler& OpenGLTextureSampler::GetSampler() const
+	inline const GL::Sampler& OpenGLTextureSampler::GetSampler(bool withMipmaps) const
 	{
-		return m_sampler;
+		return (withMipmaps) ? m_samplerWithMipmaps : m_samplerWithoutMipmaps;
 	}
 }
 

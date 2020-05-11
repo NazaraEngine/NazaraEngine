@@ -43,8 +43,8 @@ namespace Nz
 					OpenGLTextureSampler& glSampler = *static_cast<OpenGLTextureSampler*>(texBinding.sampler);
 
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
-					textureDescriptor.sampler = glSampler.GetSampler().GetObjectId();
 					textureDescriptor.texture = glTexture.GetTexture().GetObjectId();
+					textureDescriptor.sampler = glSampler.GetSampler(glTexture.GetLevelCount() > 1).GetObjectId();
 					break;
 				}
 

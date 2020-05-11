@@ -17,18 +17,21 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLTextureSampler : public TextureSampler
 	{
 		public:
-			OpenGLTextureSampler(OpenGLDevice& device, TextureSamplerInfo samplerInfo);
+			OpenGLTextureSampler(OpenGLDevice& device, const TextureSamplerInfo& samplerInfo);
 			OpenGLTextureSampler(const OpenGLTextureSampler&) = default;
 			OpenGLTextureSampler(OpenGLTextureSampler&&) noexcept = default;
 			~OpenGLTextureSampler() = default;
 
-			inline const GL::Sampler& GetSampler() const;
+			inline const GL::Sampler& GetSampler(bool mipmaps) const;
 
 			OpenGLTextureSampler& operator=(const OpenGLTextureSampler&) = delete;
 			OpenGLTextureSampler& operator=(OpenGLTextureSampler&&) = delete;
 
 		private:
-			GL::Sampler m_sampler;
+			static void BuildSampler(OpenGLDevice& device, GL::Sampler& sampler, const TextureSamplerInfo& samplerInfo, bool withMipmaps);
+
+			GL::Sampler m_samplerWithMipmaps;
+			GL::Sampler m_samplerWithoutMipmaps;
 	};
 }
 
