@@ -4,36 +4,36 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_VKIMAGEVIEW_HPP
-#define NAZARA_OPENGLRENDERER_VKIMAGEVIEW_HPP
+#ifndef NAZARA_OPENGLRENDERER_GLVERTEXARRAY_HPP
+#define NAZARA_OPENGLRENDERER_GLVERTEXARRAY_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
 
-namespace Nz 
+namespace Nz::GL
 {
-	namespace Vk
+	class VertexArray : public ContextObject<VertexArray, GL_VERTEX_ARRAY>
 	{
-		class ImageView : public DeviceObject<ImageView, VkImageView, VkImageViewCreateInfo, VK_OBJECT_TYPE_IMAGE_VIEW>
-		{
-			friend DeviceObject;
+		friend ContextObject;
 
-			public:
-				ImageView() = default;
-				ImageView(const ImageView&) = delete;
-				ImageView(ImageView&&) = default;
-				~ImageView() = default;
+		public:
+			VertexArray(const VertexArray&) = delete;
+			VertexArray(VertexArray&&) = default;
+			~VertexArray() = default;
 
-				ImageView& operator=(const ImageView&) = delete;
-				ImageView& operator=(ImageView&&) = delete;
+			VertexArray& operator=(const VertexArray&) = delete;
+			VertexArray& operator=(VertexArray&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkImageViewCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImageView* handle);
-				static inline void DestroyHelper(Device& device, VkImageView handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+			template<typename F> static VertexArray Build(const Context& context, F&& callback);
+
+		private:
+			VertexArray() = default;
+
+			static inline GLuint CreateHelper(const Context& context);
+			static inline void DestroyHelper(const Context& context, GLuint objectId);
+	};
 }
 
-#include <Nazara/OpenGLRenderer/Wrapper/ImageView.inl>
+#include <Nazara/OpenGLRenderer/Wrapper/VertexArray.inl>
 
-#endif // NAZARA_OPENGLRENDERER_VKIMAGEVIEW_HPP
+#endif
