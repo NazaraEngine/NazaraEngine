@@ -989,12 +989,12 @@ namespace Nz
 				PROCESS_PER_MONITOR_DPI_AWARE
 			};
 
-			using SetProcessDpiAwarenessFunc = HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS);
+			using SetProcessDpiAwarenessFunc = HRESULT (WINAPI*)(PROCESS_DPI_AWARENESS);
 			auto SetProcessDpiAwareness = reinterpret_cast<SetProcessDpiAwarenessFunc>(GetProcAddress(shcoreLib, "SetProcessDpiAwareness"));
 
 			if (SetProcessDpiAwareness)
 			{
-				HRESULT result = SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE);
+				HRESULT result = SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
 
 				if (result == S_OK || result == E_ACCESSDENIED) //< E_ACCESSDENIED means it has already been set, probably by the .exe manifest
 					return true;
@@ -1006,10 +1006,10 @@ namespace Nz
 		if (!user32)
 			return false; //< Shouldn't happen as user32 is linked
 
-		using fn_SetProcessDPIAware = BOOL(WINAPI *)();
-		auto SetProcessDPIAwareFunc = reinterpret_cast<fn_SetProcessDPIAware>(GetProcAddress(user32, "SetProcessDPIAware"));
+		using SetProcessDPIAwareFunc = BOOL (WINAPI*)();
+		auto SetProcessDPIAware = reinterpret_cast<SetProcessDPIAwareFunc>(GetProcAddress(user32, "SetProcessDPIAware"));
 
-		if (!SetProcessDPIAwareFunc || !SetProcessDPIAwareFunc())
+		if (!SetProcessDPIAware || !SetProcessDPIAware())
 			return false;
 
 		return true;
