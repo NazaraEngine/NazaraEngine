@@ -84,8 +84,7 @@ namespace Nz
 			bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			void PrepareWindow(bool fullscreen);
 
-			/// Source : SFML
-			static void SetProcessDpiAware();
+			static bool SetProcessDpiAware();
 
 			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);

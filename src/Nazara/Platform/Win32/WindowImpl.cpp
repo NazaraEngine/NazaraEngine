@@ -5,6 +5,7 @@
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
 #include <Nazara/Platform/Win32/WindowImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Mutex.hpp>
@@ -118,8 +119,8 @@ namespace Nz
 			height = rect.bottom-rect.top;
 
 
-			// grab desktop rect in order to center our window on the main display
-			// TODO : find an another method if the end user want nazara on a specific display
+			// Grab desktop rect in order to center our window on the main display
+			// TODO: Handle multiple displays
 			RECT desktopRect;
 			GetClientRect(GetDesktopWindow(), &desktopRect);
 
@@ -945,7 +946,8 @@ namespace Nz
 
 	bool WindowImpl::Initialize()
 	{
-		SetProcessDpiAware();
+		if (!SetProcessDpiAware())
+			NazaraWarning("failed to make process DPI-aware");
 
 		// Nous devons faire un type Unicode pour que la fenêtre le soit également
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
@@ -969,55 +971,48 @@ namespace Nz
 		UnregisterClassW(className, GetModuleHandle(nullptr));
 	}
 
-	void WindowImpl::SetProcessDpiAware()
+	bool WindowImpl::SetProcessDpiAware()
 	{
-		/// MSDN : https://docs.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process
-		/// This will work only for windows Vista & above
+		// MSDN : https://docs.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process
+		// This will work only for windows Vista & above
 
-		HINSTANCE shcore_library = LoadLibraryW(L"Shcore.dll");
-		if (shcore_library)
+		HINSTANCE shcoreLib = LoadLibraryW(L"SHCore.dll");
+		if (shcoreLib)
 		{
+			CallOnExit closeLibOnExit([&] { FreeLibrary(shcoreLib); });
+
 			/// shellscalingapi.h
-			typedef enum PROCESS_DPI_AWARENESS {
+			enum PROCESS_DPI_AWARENESS
+			{
 				PROCESS_DPI_UNAWARE,
 				PROCESS_SYSTEM_DPI_AWARE,
 				PROCESS_PER_MONITOR_DPI_AWARE
 			};
 
-			using fn_PROCESS_DPI_AWARENESS = HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS);
-			auto SetProcessDpiAwareness = reinterpret_cast<fn_PROCESS_DPI_AWARENESS>(GetProcAddress(shcore_library, "SetProcessDpiAwareness"));
+			using SetProcessDpiAwarenessFunc = HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS);
+			auto SetProcessDpiAwareness = reinterpret_cast<SetProcessDpiAwarenessFunc>(GetProcAddress(shcoreLib, "SetProcessDpiAwareness"));
 
 			if (SetProcessDpiAwareness)
 			{
-				auto result = SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE) == E_INVALIDARG;
+				HRESULT result = SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE);
 
-				if (result != E_ACCESSDENIED && result != S_OK)
-					NazaraError("WIN32 : Failed to set process DPI awareness");
-				else
-				{
-					FreeLibrary(shcore_library);
-					return;
-				}
+				if (result == S_OK || result == E_ACCESSDENIED) //< E_ACCESSDENIED means it has already been set, probably by the .exe manifest
+					return true;
 			}
-
-			FreeLibrary(shcore_library);
 		}
 
-		/// If SetProcessDpiAwareness doesn't exist, we call old win32 method
-		HINSTANCE user32_library = LoadLibraryW(L"user32.dll");
-		if (user32_library)
-		{
-			using fn_SetProcessDPIAware = BOOL(WINAPI *)();
-			auto SetProcessDPIAwareFunc = reinterpret_cast<fn_SetProcessDPIAware>(GetProcAddress(user32_library, "SetProcessDPIAware"));
+		// If SetProcessDpiAwareness doesn't exist, we call old user32 function
+		HMODULE user32 = GetModuleHandleW(L"user32.dll");
+		if (!user32)
+			return false; //< Shouldn't happen as user32 is linked
 
-			if (SetProcessDPIAwareFunc)
-			{
-				if (!SetProcessDPIAwareFunc())
-					NazaraError("WIN32 : Can't set process DPI awareness");
-			}
+		using fn_SetProcessDPIAware = BOOL(WINAPI *)();
+		auto SetProcessDPIAwareFunc = reinterpret_cast<fn_SetProcessDPIAware>(GetProcAddress(user32, "SetProcessDPIAware"));
 
-			FreeLibrary(user32_library);
-		}
+		if (SetProcessDPIAwareFunc && SetProcessDPIAwareFunc())
+			return true;
+
+		return false;
 	}
 
 	Keyboard::Key WindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
