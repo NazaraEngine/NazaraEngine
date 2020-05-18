@@ -298,16 +298,19 @@ function NazaraBuild:Execute()
 			debugdir(destPath)
 			includedirs({
 				"../include",
-				"../thirdparty/include"
+				"../thirdparty/include",
+				exampleTable.Includes
 			})
-			libdirs("../lib")
+			libdirs({
+				"../lib",
+				exampleTable.LibDir
+			})
 
 			files(exampleTable.Files)
 			excludes(exampleTable.FilesExcluded)
 
 			defines(exampleTable.Defines)
 			flags(exampleTable.Flags)
-			includedirs(exampleTable.Includes)
 			links(exampleTable.Libraries)
 			targetdir(destPath)
 
