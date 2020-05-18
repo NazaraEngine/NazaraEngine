@@ -945,6 +945,8 @@ namespace Nz
 
 	bool WindowImpl::Initialize()
 	{
+		SetProcessDpiAware();
+
 		// Nous devons faire un type Unicode pour que la fenêtre le soit également
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms633574(v=vs.85).aspx
 		WNDCLASSW windowClass;
@@ -965,6 +967,57 @@ namespace Nz
 	void WindowImpl::Uninitialize()
 	{
 		UnregisterClassW(className, GetModuleHandle(nullptr));
+	}
+
+	void WindowImpl::SetProcessDpiAware()
+	{
+		/// MSDN : https://docs.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process
+		/// This will work only for windows Vista & above
+
+		HINSTANCE shcore_library = LoadLibraryW(L"Shcore.dll");
+		if (shcore_library)
+		{
+			/// shellscalingapi.h
+			typedef enum PROCESS_DPI_AWARENESS {
+				PROCESS_DPI_UNAWARE,
+				PROCESS_SYSTEM_DPI_AWARE,
+				PROCESS_PER_MONITOR_DPI_AWARE
+			};
+
+			using fn_PROCESS_DPI_AWARENESS = HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS);
+			auto SetProcessDpiAwareness = reinterpret_cast<fn_PROCESS_DPI_AWARENESS>(GetProcAddress(shcore_library, "SetProcessDpiAwareness"));
+
+			if (SetProcessDpiAwareness)
+			{
+				auto result = SetProcessDpiAwareness(PROCESS_DPI_AWARENESS::PROCESS_SYSTEM_DPI_AWARE) == E_INVALIDARG;
+
+				if (result != E_ACCESSDENIED && result != S_OK)
+					NazaraError("WIN32 : Failed to set process DPI awareness");
+				else
+				{
+					FreeLibrary(shcore_library);
+					return;
+				}
+			}
+
+			FreeLibrary(shcore_library);
+		}
+
+		/// If SetProcessDpiAwareness doesn't exist, we call old win32 method
+		HINSTANCE user32_library = LoadLibraryW(L"user32.dll");
+		if (user32_library)
+		{
+			using fn_SetProcessDPIAware = BOOL(WINAPI *)();
+			auto SetProcessDPIAwareFunc = reinterpret_cast<fn_SetProcessDPIAware>(GetProcAddress(user32_library, "SetProcessDPIAware"));
+
+			if (SetProcessDPIAwareFunc)
+			{
+				if (!SetProcessDPIAwareFunc())
+					NazaraError("WIN32 : Can't set process DPI awareness");
+			}
+
+			FreeLibrary(user32_library);
+		}
 	}
 
 	Keyboard::Key WindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
