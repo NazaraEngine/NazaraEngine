@@ -245,7 +245,7 @@ namespace Nz
 				break;
 
 			case ShaderAst::ExpressionType::Float4:
-				Append("vec4(" + String::Number(node.values.vec4.x) + ", " + String::Number(node.values.vec4.y) + ", " + String::Number(node.values.vec4.z) + ", " + String::Number(node.values.vec4.z) + ")");
+				Append("vec4(" + String::Number(node.values.vec4.x) + ", " + String::Number(node.values.vec4.y) + ", " + String::Number(node.values.vec4.z) + ", " + String::Number(node.values.vec4.w) + ")");
 				break;
 
 			default:
