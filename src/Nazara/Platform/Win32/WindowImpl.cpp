@@ -1009,10 +1009,10 @@ namespace Nz
 		using fn_SetProcessDPIAware = BOOL(WINAPI *)();
 		auto SetProcessDPIAwareFunc = reinterpret_cast<fn_SetProcessDPIAware>(GetProcAddress(user32, "SetProcessDPIAware"));
 
-		if (SetProcessDPIAwareFunc && SetProcessDPIAwareFunc())
-			return true;
+		if (!SetProcessDPIAwareFunc || !SetProcessDPIAwareFunc())
+			return false;
 
-		return false;
+		return true;
 	}
 
 	Keyboard::Key WindowImpl::ConvertVirtualKey(WPARAM key, LPARAM flags)
