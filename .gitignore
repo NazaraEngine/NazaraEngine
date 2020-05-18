@@ -1,7 +1,8 @@
 # Nazara build
 build/config.lua
 
-# Nazara libraries
+# Nazara binaries
+bin/*
 lib/*
 
 # Self-hosted thirdparty libraries binaries
