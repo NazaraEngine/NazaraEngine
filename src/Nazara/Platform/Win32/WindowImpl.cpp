@@ -61,7 +61,7 @@ namespace Nz
 		bool async = (style & WindowStyle_Threaded) != 0;
 		bool fullscreen = (style & WindowStyle_Fullscreen) != 0;
 		DWORD win32Style, win32StyleEx;
-		unsigned int x, y;
+		int x, y;
 		unsigned int width = mode.width;
 		unsigned int height = mode.height;
 		if (fullscreen)
@@ -117,8 +117,14 @@ namespace Nz
 			width = rect.right-rect.left;
 			height = rect.bottom-rect.top;
 
-			x = (GetSystemMetrics(SM_CXSCREEN) - width)/2;
-			y = (GetSystemMetrics(SM_CYSCREEN) - height)/2;
+
+			// grab desktop rect in order to center our window on the main display
+			// TODO : find an another method if the end user want nazara on a specific display
+			RECT desktopRect;
+			GetClientRect(GetDesktopWindow(), &desktopRect);
+
+			x = (desktopRect.right / 2) - (width / 2);
+			y = (desktopRect.bottom / 2) - (height / 2);
 		}
 
 		m_callback = 0;
