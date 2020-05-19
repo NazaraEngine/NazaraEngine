@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -224,6 +225,17 @@ namespace Nz
 			}
 
 			std::copy(swizzleComponents.begin(), swizzleComponents.end(), components.begin());
+		}
+
+		inline Sample2D::Sample2D(ExpressionPtr samplerPtr, ExpressionPtr coordinatesPtr) :
+		sampler(std::move(samplerPtr)),
+		coordinates(std::move(coordinatesPtr))
+		{
+			if (sampler->GetExpressionType() != ExpressionType::Sampler2D)
+				throw std::runtime_error("Sampler must be a Sampler2D");
+
+			if (coordinates->GetExpressionType() != ExpressionType::Float2)
+				throw std::runtime_error("Coordinates must be a Float2");
 		}
 	}
 }

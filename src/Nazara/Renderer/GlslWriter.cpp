@@ -128,6 +128,15 @@ namespace Nz
 		node->Visit(*this);
 	}
 
+	void GlslWriter::Write(const ShaderAst::Sample2D& node)
+	{
+		Append("texture(");
+		Write(node.sampler);
+		Append(", ");
+		Write(node.coordinates);
+		Append(")");
+	}
+
 	void GlslWriter::Write(const ShaderAst::AssignOp& node)
 	{
 		Write(node.variable);
@@ -337,6 +346,9 @@ namespace Nz
 				break;
 			case ShaderAst::ExpressionType::Mat4x4:
 				Append("mat4");
+				break;
+			case ShaderAst::ExpressionType::Sampler2D:
+				Append("sampler2D");
 				break;
 			case ShaderAst::ExpressionType::Void:
 				Append("void");
