@@ -42,12 +42,13 @@ namespace Nz
 
 		enum class ExpressionType
 		{
-			Boolean, // bool
-			Float1,  // float
-			Float2,  // vec2
-			Float3,  // vec3
-			Float4,  // vec4
-			Mat4x4,  // mat4
+			Boolean,   // bool
+			Float1,    // float
+			Float2,    // vec2
+			Float3,    // vec3
+			Float4,    // vec4
+			Mat4x4,    // mat4
+			Sampler2D, // sampler2D
 
 			Void     // void
 		};
@@ -283,6 +284,21 @@ namespace Nz
 				std::array<SwizzleComponent, 4> components;
 				std::size_t componentCount;
 				ExpressionPtr expression;
+		};
+
+		//////////////////////////////////////////////////////////////////////////
+
+		class NAZARA_RENDERER_API Sample2D : public Expression
+		{
+			public:
+				inline Sample2D(ExpressionPtr samplerPtr, ExpressionPtr coordinatesPtr);
+
+				ExpressionType GetExpressionType() const override;
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				ExpressionPtr sampler;
+				ExpressionPtr coordinates;
 		};
 	}
 }

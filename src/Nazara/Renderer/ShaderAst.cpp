@@ -6,7 +6,7 @@
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-namespace Nz { namespace ShaderAst
+namespace Nz::ShaderAst
 {
 	void ExpressionStatement::Register(ShaderWriter& visitor)
 	{
@@ -192,5 +192,21 @@ namespace Nz { namespace ShaderAst
 	{
 		visitor.Write(*this);
 	}
-}
+
+
+	ExpressionType Sample2D::GetExpressionType() const
+	{
+		return ExpressionType::Float4;
+	}
+
+	void Sample2D::Register(ShaderWriter& visitor)
+	{
+		sampler->Register(visitor);
+		coordinates->Register(visitor);
+	}
+
+	void Sample2D::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
 }
