@@ -10,6 +10,8 @@
 class FragmentOutput : public ShaderNode
 {
 	public:
+		inline FragmentOutput(ShaderGraph& graph);
+
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
 
 		QString caption() const override { return "Fragment shader output"; }
