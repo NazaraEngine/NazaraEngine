@@ -94,7 +94,20 @@ Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::Express
 {
 	assert(count == 1);
 
-	auto sampler = Nz::ShaderBuilder::Uniform("Texture0", Nz::ShaderAst::ExpressionType::Sampler2D);
+	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+
+	Nz::ShaderAst::ExpressionType expression = [&]
+	{
+		switch (textureEntry.type)
+		{
+			case TextureType::Sampler2D: return Nz::ShaderAst::ExpressionType::Sampler2D;
+		}
+
+		assert(false);
+		throw std::runtime_error("Unhandled texture type");
+	}();
+
+	auto sampler = Nz::ShaderBuilder::Uniform(textureEntry.name, expression);
 
 	return Nz::ShaderBuilder::Sample2D(sampler, expressions[0]);
 }

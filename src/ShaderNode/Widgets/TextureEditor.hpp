@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_TEXTUREEDITOR_HPP
 
 #include <ShaderGraph.hpp>
-#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QWidget>
 #include <optional>
 
 class QLabel;
