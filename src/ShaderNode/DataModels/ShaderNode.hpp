@@ -17,7 +17,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 		inline ShaderGraph& GetGraph();
 		inline const ShaderGraph& GetGraph() const;
 
-		void setInData(std::shared_ptr<QtNodes::NodeData>, int) override {};
+		void setInData(std::shared_ptr<QtNodes::NodeData>, int) override;
 
 	private:
 		ShaderGraph& m_graph;

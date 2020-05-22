@@ -4,12 +4,21 @@
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 SampleTexture::SampleTexture(ShaderGraph& graph) :
-ShaderNode(graph)
+ShaderNode(graph),
+m_currentTextureIndex(0)
 {
 	m_layout = new QVBoxLayout;
 
 	m_textureSelection = new QComboBox;
 	m_textureSelection->setStyleSheet("background-color: rgba(255,255,255,255)");
+	connect(m_textureSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
+	{
+		if (index < 0)
+			return;
+
+		m_currentTextureIndex = static_cast<std::size_t>(index);
+		UpdatePreview();
+	});
 
 	m_layout->addWidget(m_textureSelection);
 
@@ -25,8 +34,15 @@ ShaderNode(graph)
 	m_widget->setStyleSheet("background-color: rgba(0,0,0,0)");
 	m_widget->setLayout(m_layout);
 
-	m_onTextureListUpdate.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { UpdateTextureList(); });
+	m_onTextureListUpdateSlot.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { UpdateTextureList(); });
+	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, [&](ShaderGraph*, std::size_t textureIndex)
+	{
+		if (m_currentTextureIndex == textureIndex)
+			UpdatePreview();
+	});
+
 	UpdateTextureList();
+	UpdatePreview();
 }
 
 QWidget* SampleTexture::embeddedWidget()
@@ -47,8 +63,13 @@ unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
 
 void SampleTexture::UpdatePreview()
 {
+	if (m_textureSelection->count() == 0)
+		return;
+
 	ComputePreview(m_pixmap);
 	m_pixmapLabel->setPixmap(m_pixmap);
+
+	Q_EMIT dataUpdated(0);
 }
 
 void SampleTexture::UpdateTextureList()
@@ -64,7 +85,9 @@ void SampleTexture::UpdateTextureList()
 
 void SampleTexture::ComputePreview(QPixmap& pixmap) const
 {
-	pixmap.fill();
+	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+
+	pixmap = QPixmap::fromImage(textureEntry.preview).scaled(128, 128, Qt::KeepAspectRatio);
 }
 
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
@@ -102,5 +125,10 @@ std::shared_ptr<QtNodes::NodeData> SampleTexture::outData(QtNodes::PortIndex por
 {
 	assert(port == 0);
 
-	return std::make_shared<Vec4Data>(Nz::Vector4f::Zero());
+	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+
+	auto vecData = std::make_shared<Vec4Data>();
+	vecData->preview = textureEntry.preview;
+
+	return vecData;
 }

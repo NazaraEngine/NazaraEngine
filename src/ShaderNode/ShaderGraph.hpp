@@ -18,20 +18,25 @@ class ShaderGraph
 		ShaderGraph();
 		~ShaderGraph() = default;
 
-		void AddTexture(std::string name, Nz::ShaderAst::ExpressionType type);
-
-		Nz::ShaderAst::StatementPtr Generate();
+		std::size_t AddTexture(std::string name, Nz::ShaderAst::ExpressionType type);
 
 		inline QtNodes::FlowScene& GetScene();
+		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
 		inline const std::vector<TextureEntry>& GetTextures();
 
-		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
+		Nz::ShaderAst::StatementPtr ToAst();
+
+		void UpdateTexturePreview(std::size_t texture, QImage preview);
 
 		struct TextureEntry
 		{
 			std::string name;
 			Nz::ShaderAst::ExpressionType type;
+			QImage preview;
 		};
+
+		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
+		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
