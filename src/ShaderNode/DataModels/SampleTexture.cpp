@@ -121,6 +121,33 @@ auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex port
 	}
 }
 
+QString SampleTexture::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	switch (portType)
+	{
+		case QtNodes::PortType::In:
+		{
+			assert(portIndex == 0);
+			return tr("UV");
+		}
+
+		case QtNodes::PortType::Out:
+		{
+			assert(portIndex == 0);
+			return tr("Sample");
+		}
+
+		default:
+			assert(false);
+			throw std::runtime_error("Invalid PortType");
+	}
+}
+
+bool SampleTexture::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	return true;
+}
+
 std::shared_ptr<QtNodes::NodeData> SampleTexture::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
