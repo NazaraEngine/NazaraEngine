@@ -9,7 +9,7 @@
 TextureEditor::TextureEditor(ShaderGraph& graph) :
 m_shaderGraph(graph)
 {
-	m_textureList = new QListWidget(this);
+	m_textureList = new QListWidget;
 	connect(m_textureList, &QListWidget::currentRowChanged, this, &TextureEditor::OnTextureSelectionUpdate);
 
 	m_pixmapLabel = new QLabel;

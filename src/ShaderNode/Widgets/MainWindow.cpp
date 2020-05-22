@@ -1,8 +1,10 @@
 #include <Widgets/MainWindow.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <ShaderGraph.hpp>
+#include <Widgets/InputEditor.hpp>
 #include <Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
+#include <QtWidgets/QDockWidget>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QTextEdit>
 #include <iostream>
@@ -16,6 +18,13 @@ m_shaderGraph(graph)
 
 	QtNodes::FlowView* flowView = new QtNodes::FlowView(scene);
 	setCentralWidget(flowView);
+
+	QDockWidget* inputDock = new QDockWidget(tr("&Inputs"));
+
+	InputEditor* inputEditor = new InputEditor(m_shaderGraph);
+	inputDock->setWidget(inputEditor);
+
+	addDockWidget(Qt::LeftDockWidgetArea, inputDock);
 
 	QDockWidget* textureDock = new QDockWidget(tr("&Textures"));
 
