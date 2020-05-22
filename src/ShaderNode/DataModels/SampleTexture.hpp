@@ -28,13 +28,14 @@ class SampleTexture : public ShaderNode
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
 	protected:
+		void ComputePreview(QPixmap& pixmap) const;
 		void UpdatePreview();
 		void UpdateTextureList();
 
-		void ComputePreview(QPixmap& pixmap) const;
+		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdateSlot);
+		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
 
-		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdate);
-
+		std::size_t m_currentTextureIndex;
 		QComboBox* m_textureSelection;
 		QLabel* m_pixmapLabel;
 		QPixmap m_pixmap;

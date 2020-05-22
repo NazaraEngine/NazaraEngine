@@ -25,16 +25,14 @@ class VecBinOp : public ShaderNode
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
 	private:
+		virtual void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) = 0;
 		void UpdatePreview();
-
-		using InternalType = typename Data::InternalType;
-
-		InternalType GetValue() const;
 
 		QLabel* m_pixmapLabel;
 		QPixmap m_preview;
 		std::shared_ptr<Vec4Data> m_lhs;
 		std::shared_ptr<Vec4Data> m_rhs;
+		std::shared_ptr<Vec4Data> m_output;
 };
 
 class Vec4Add : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Add>
@@ -44,6 +42,8 @@ class Vec4Add : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Add>
 
 		QString caption() const override { return "Vec4 addition"; }
 		QString name() const override { return "Vec4Add"; }
+
+		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
 class Vec4Mul : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Multiply>
@@ -53,6 +53,8 @@ class Vec4Mul : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Multiply>
 
 		QString caption() const override { return "Vec4 multiplication"; }
 		QString name() const override { return "Vec4Mul"; }
+
+		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
 #include <DataModels/VecBinOp.inl>

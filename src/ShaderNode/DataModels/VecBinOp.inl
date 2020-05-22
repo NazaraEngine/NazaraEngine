@@ -5,10 +5,11 @@ template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 VecBinOp<Data, BinOp>::VecBinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	m_preview = QPixmap(64, 64);
+	m_output = std::make_shared<Data>();
 
 	m_pixmapLabel = new QLabel;
-	m_pixmapLabel->setPixmap(m_preview);
+	m_pixmapLabel->setStyleSheet("background-color: rgba(0,0,0,0)");
+	UpdatePreview();
 }
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
@@ -39,7 +40,7 @@ unsigned int VecBinOp<Data, BinOp>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
-		case QtNodes::PortType::In: return 2;
+		case QtNodes::PortType::In:  return 2;
 		case QtNodes::PortType::Out: return 1;
 	}
 
@@ -50,17 +51,18 @@ template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 std::shared_ptr<QtNodes::NodeData> VecBinOp<Data, BinOp>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
-	return std::make_shared<Data>(GetValue());
+	return m_output;
 }
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 void VecBinOp<Data, BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
+	assert(index == 0 || index == 1);
+
 	std::shared_ptr<Data> castedValue;
 	if (value)
 	{
 		assert(dynamic_cast<Data*>(value.get()) != nullptr);
-		assert(index == 0 || index == 1);
 
 		castedValue = std::static_pointer_cast<Data>(value);
 	}
@@ -78,16 +80,36 @@ void VecBinOp<Data, BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 void VecBinOp<Data, BinOp>::UpdatePreview()
 {
-	InternalType value = GetValue();
-	m_preview.fill(QColor::fromRgbF(value.x, value.y, value.z, value.w));
+	if (m_lhs && m_rhs)
+	{
+		const QImage& leftPreview = m_lhs->preview;
+		const QImage& rightPreview = m_rhs->preview;
+		int maxWidth = std::max(leftPreview.width(), rightPreview.width());
+		int maxHeight = std::max(leftPreview.height(), rightPreview.height());
+
+		// Exploit COW
+		QImage leftResized = leftPreview;
+		if (leftResized.width() != maxWidth || leftResized.height() != maxHeight)
+			leftResized = leftResized.scaled(maxWidth, maxHeight);
+
+		QImage rightResized = rightPreview;
+		if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
+			rightResized = rightResized.scaled(maxWidth, maxHeight);
+
+		int w = m_output->preview.width();
+		int h = m_output->preview.height();
+
+		m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
+		ApplyOp(leftResized.constBits(), rightResized.constBits(), m_output->preview.bits(), maxWidth * maxHeight * 4);
+		m_output->preview = m_output->preview.scaled(w, h);
+
+		m_preview = QPixmap::fromImage(m_output->preview, Qt::AutoColor | Qt::NoOpaqueDetection);
+	}
+	else
+	{
+		m_preview = QPixmap(64, 64);
+		m_preview.fill(QColor::fromRgb(255, 255, 0, 0));
+	}
+
 	m_pixmapLabel->setPixmap(m_preview);
-}
-
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-auto VecBinOp<Data, BinOp>::GetValue() const -> InternalType
-{
-	if (!m_lhs || !m_rhs)
-		return InternalType::Zero();
-
-	return m_lhs->value * m_rhs->value;
 }

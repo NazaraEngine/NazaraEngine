@@ -16,10 +16,10 @@
 namespace
 {
 	template<typename T>
-	void RegisterShaderNode(ShaderGraph& graph, std::shared_ptr<QtNodes::DataModelRegistry> registry)
+	void RegisterShaderNode(ShaderGraph& graph, std::shared_ptr<QtNodes::DataModelRegistry> registry, QString category = QString())
 	{
 		auto creator = [&] { return std::make_unique<T>(graph); };
-		registry->registerModel<T>(std::move(creator));
+		registry->registerModel<T>(category, std::move(creator));
 	}
 }
 
@@ -35,16 +35,19 @@ m_flowScene(BuildRegistry())
 	m_flowScene.createConnection(node2, 0, node1, 0);
 }
 
-void ShaderGraph::AddTexture(std::string name, Nz::ShaderAst::ExpressionType type)
+std::size_t ShaderGraph::AddTexture(std::string name, Nz::ShaderAst::ExpressionType type)
 {
+	std::size_t index = m_textures.size();
 	auto& textureEntry = m_textures.emplace_back();
 	textureEntry.name = std::move(name);
 	textureEntry.type = type;
 
 	OnTextureListUpdate(this);
+
+	return index;
 }
 
-Nz::ShaderAst::StatementPtr ShaderGraph::Generate()
+Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 {
 	std::vector<Nz::ShaderAst::StatementPtr> statements;
 
@@ -82,14 +85,25 @@ Nz::ShaderAst::StatementPtr ShaderGraph::Generate()
 	return std::make_shared<Nz::ShaderAst::StatementBlock>(std::move(statements));
 }
 
+void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
+{
+	assert(textureIndex < m_textures.size());
+	auto& textureEntry = m_textures[textureIndex];
+	textureEntry.preview = std::move(preview);
+	textureEntry.preview.convertTo(QImage::Format_RGBA8888);
+
+	OnTexturePreviewUpdate(this, textureIndex);
+}
+
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
-	RegisterShaderNode<FragmentOutput>(*this, registry);
-	RegisterShaderNode<SampleTexture>(*this, registry);
-	RegisterShaderNode<Vec4Mul>(*this, registry);
-	RegisterShaderNode<Vec2Value>(*this, registry);
-	RegisterShaderNode<Vec4Value>(*this, registry);
+	RegisterShaderNode<FragmentOutput>(*this, registry, "Output");
+	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
+	RegisterShaderNode<Vec4Add>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec4Mul>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
 
 	return registry;
 }
