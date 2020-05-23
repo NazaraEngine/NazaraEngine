@@ -69,11 +69,11 @@ namespace Nz
 				break;
 
 			case ShaderAst::VariableType::Input:
-				m_currentState->inputs.insert(std::make_pair(type, name));
+				m_currentState->inputs.emplace(type, name);
 				break;
 
 			case ShaderAst::VariableType::Output:
-				m_currentState->outputs.insert(std::make_pair(type, name));
+				m_currentState->outputs.emplace(type, name);
 				break;
 
 			case ShaderAst::VariableType::Parameter:
@@ -105,13 +105,13 @@ namespace Nz
 			}
 
 			case ShaderAst::VariableType::Uniform:
-				m_currentState->uniforms.insert(std::make_pair(type, name));
+				m_currentState->uniforms.emplace(type, name);
 				break;
 
 			case ShaderAst::VariableType::Variable:
 			{
 				if (m_currentFunction)
-					m_currentFunction->variables.insert(std::make_pair(type, name));
+					m_currentFunction->variables.emplace(type, name);
 
 				break;
 			}
