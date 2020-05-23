@@ -38,8 +38,6 @@ namespace Nz
 
 			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
 
-			virtual bool IsBetterThan(const RendererImpl* other) const = 0;
-
 			virtual RenderAPI QueryAPI() const = 0;
 			virtual std::string QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
