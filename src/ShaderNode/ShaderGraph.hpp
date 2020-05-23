@@ -7,6 +7,7 @@
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <nodes/FlowScene>
 #include <Enums.hpp>
+#include <Previews/PreviewModel.hpp>
 #include <string>
 #include <vector>
 
@@ -17,13 +18,14 @@ class ShaderGraph
 		struct TextureEntry;
 
 		ShaderGraph();
-		~ShaderGraph() = default;
+		~ShaderGraph();
 
 		std::size_t AddInput(std::string name, InputType type, InputRole role, std::size_t roleIndex);
 		std::size_t AddTexture(std::string name, TextureType type);
 
 		inline const InputEntry& GetInput(std::size_t inputIndex) const;
 		inline const std::vector<InputEntry>& GetInputs() const;
+		inline const PreviewModel& GetPreviewModel() const;
 		inline QtNodes::FlowScene& GetScene();
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
 		inline const std::vector<TextureEntry>& GetTextures() const;
@@ -59,6 +61,7 @@ class ShaderGraph
 		QtNodes::FlowScene m_flowScene;
 		std::vector<InputEntry> m_inputs;
 		std::vector<TextureEntry> m_textures;
+		std::unique_ptr<PreviewModel> m_previewModel;
 };
 
 #include <ShaderGraph.inl>

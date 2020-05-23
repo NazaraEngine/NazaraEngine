@@ -11,6 +11,11 @@ inline auto ShaderGraph::GetInputs() const -> const std::vector<InputEntry>&
 	return m_inputs;
 }
 
+inline const PreviewModel& ShaderGraph::GetPreviewModel() const
+{
+	return *m_previewModel;
+}
+
 inline QtNodes::FlowScene& ShaderGraph::GetScene()
 {
 	return m_flowScene;

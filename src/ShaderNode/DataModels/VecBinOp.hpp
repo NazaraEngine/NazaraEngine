@@ -30,32 +30,58 @@ class VecBinOp : public ShaderNode
 
 		QLabel* m_pixmapLabel;
 		QPixmap m_preview;
-		std::shared_ptr<Vec4Data> m_lhs;
-		std::shared_ptr<Vec4Data> m_rhs;
-		std::shared_ptr<Vec4Data> m_output;
+		std::shared_ptr<Data> m_lhs;
+		std::shared_ptr<Data> m_rhs;
+		std::shared_ptr<Data> m_output;
 };
 
-class Vec4Add : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Add>
+template<typename Data>
+class VecAdd : public VecBinOp<Data, Nz::ShaderAst::BinaryType::Add>
 {
 	public:
-		using VecBinOp::VecBinOp;
+		using VecBinOp<Data, Nz::ShaderAst::BinaryType::Add>::VecBinOp;
 
-		QString caption() const override { return "Vec4 addition"; }
-		QString name() const override { return "Vec4Add"; }
+		QString caption() const override;
+		QString name() const override;
 
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
-class Vec4Mul : public VecBinOp<Vec4Data, Nz::ShaderAst::BinaryType::Multiply>
+template<typename Data>
+class VecMul : public VecBinOp<Data, Nz::ShaderAst::BinaryType::Multiply>
 {
 	public:
-		using VecBinOp::VecBinOp;
+		using VecBinOp<Data, Nz::ShaderAst::BinaryType::Multiply>::VecBinOp;
 
-		QString caption() const override { return "Vec4 multiplication"; }
-		QString name() const override { return "Vec4Mul"; }
+		QString caption() const override;
+		QString name() const override;
 
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
+
+template<typename Data>
+class VecSub : public VecBinOp<Data, Nz::ShaderAst::BinaryType::Substract>
+{
+	public:
+		using VecBinOp<Data, Nz::ShaderAst::BinaryType::Substract>::VecBinOp;
+
+		QString caption() const override;
+		QString name() const override;
+
+		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+};
+
+using Vec2Add = VecAdd<Vec2Data>;
+using Vec3Add = VecAdd<Vec3Data>;
+using Vec4Add = VecAdd<Vec4Data>;
+
+using Vec2Mul = VecMul<Vec2Data>;
+using Vec3Mul = VecMul<Vec3Data>;
+using Vec4Mul = VecMul<Vec4Data>;
+
+using Vec2Sub = VecSub<Vec2Data>;
+using Vec3Sub = VecSub<Vec3Data>;
+using Vec4Sub = VecSub<Vec4Data>;
 
 #include <DataModels/VecBinOp.inl>
 

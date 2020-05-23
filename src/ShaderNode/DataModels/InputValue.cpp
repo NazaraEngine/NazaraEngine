@@ -62,6 +62,12 @@ void InputValue::UpdatePreview()
 	if (m_inputSelection->count() == 0)
 		return;
 
+	const ShaderGraph& graph = GetGraph();
+	const auto& inputEntry = graph.GetInput(m_currentInputIndex);
+	const auto& preview = graph.GetPreviewModel();
+
+	m_previewLabel->setPixmap(QPixmap::fromImage(preview.GetImage(inputEntry.role, inputEntry.roleIndex)));
+
 	Q_EMIT dataUpdated(0);
 }
 
@@ -76,7 +82,7 @@ void InputValue::UpdateInputList()
 	m_inputSelection->setCurrentText(currentInput);
 }
 
-Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 
@@ -111,7 +117,7 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 		//case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
 		//case InputType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
 		case InputType::Float2: return Vec2Data::Type();
-		//case InputType::Float3: return Nz::ShaderAst::ExpressionType::Float3;
+		case InputType::Float3: return Vec3Data::Type();
 		case InputType::Float4: return Vec4Data::Type();
 	}
 
@@ -123,10 +129,12 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 
-	const auto& inputEntry = GetGraph().GetInput(m_currentInputIndex);
+	const ShaderGraph& graph = GetGraph();
+	const auto& inputEntry = graph.GetInput(m_currentInputIndex);
+	const auto& preview = graph.GetPreviewModel();
 
-	auto vecData = std::make_shared<Vec4Data>();
-	vecData->preview = QImage();
+	auto vecData = std::make_shared<Vec2Data>();
+	vecData->preview = preview.GetImage(inputEntry.role, inputEntry.roleIndex);
 
 	return vecData;
 }
