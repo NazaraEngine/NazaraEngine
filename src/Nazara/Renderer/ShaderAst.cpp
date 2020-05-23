@@ -180,7 +180,7 @@ namespace Nz::ShaderAst
 
 	ExpressionType ShaderAst::SwizzleOp::GetExpressionType() const
 	{
-		return GetComponentType(expression->GetExpressionType());
+		return static_cast<ExpressionType>(UnderlyingCast(GetComponentType(expression->GetExpressionType())) + componentCount - 1);
 	}
 
 	void SwizzleOp::Register(ShaderWriter& visitor)
