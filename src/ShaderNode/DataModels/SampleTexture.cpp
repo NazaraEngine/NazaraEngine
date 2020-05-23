@@ -7,6 +7,8 @@ SampleTexture::SampleTexture(ShaderGraph& graph) :
 ShaderNode(graph),
 m_currentTextureIndex(0)
 {
+	m_output = std::make_shared<Vec4Data>();
+
 	m_layout = new QVBoxLayout;
 
 	m_textureSelection = new QComboBox;
@@ -85,9 +87,45 @@ void SampleTexture::UpdateTextureList()
 
 void SampleTexture::ComputePreview(QPixmap& pixmap) const
 {
+	if (!m_uv)
+		return;
+
 	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
 
-	pixmap = QPixmap::fromImage(textureEntry.preview).scaled(128, 128, Qt::KeepAspectRatio);
+	int textureWidth = textureEntry.preview.width();
+	int textureHeight = textureEntry.preview.height();
+
+	QImage& output = m_output->preview;
+	const QImage& uv = m_uv->preview;
+
+	int uvWidth = uv.width();
+	int uvHeight = uv.height();
+
+	output = QImage(uvWidth, uvHeight, QImage::Format_RGBA8888);
+
+	std::uint8_t* outputPtr = output.bits();
+	const std::uint8_t* uvPtr = uv.constBits();
+	const std::uint8_t* texturePtr = textureEntry.preview.constBits();
+	for (int y = 0; y < uvHeight; ++y)
+	{
+		for (int x = 0; x < uvWidth; ++x)
+		{
+			float u = float(uvPtr[0]) / 255;
+			float v = float(uvPtr[1]) / 255;
+
+			int texX = std::clamp(int(u * textureWidth), 0, textureWidth - 1);
+			int texY = std::clamp(int(v * textureHeight), 0, textureHeight - 1);
+			int texPixel = (texY * textureWidth + texX) * 4;
+
+			*outputPtr++ = texturePtr[texPixel + 0];
+			*outputPtr++ = texturePtr[texPixel + 1];
+			*outputPtr++ = texturePtr[texPixel + 2];
+			*outputPtr++ = texturePtr[texPixel + 3];
+			uvPtr += 4;
+		}
+	}
+
+	pixmap = QPixmap::fromImage(output).scaled(128, 128, Qt::KeepAspectRatio);
 }
 
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
@@ -156,7 +194,7 @@ QString SampleTexture::portCaption(QtNodes::PortType portType, QtNodes::PortInde
 	}
 }
 
-bool SampleTexture::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+bool SampleTexture::portCaptionVisible(QtNodes::PortType /*portType*/, QtNodes::PortIndex /*portIndex*/) const
 {
 	return true;
 }
@@ -165,10 +203,21 @@ std::shared_ptr<QtNodes::NodeData> SampleTexture::outData(QtNodes::PortIndex por
 {
 	assert(port == 0);
 
-	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+	return m_output;
+}
 
-	auto vecData = std::make_shared<Vec4Data>();
-	vecData->preview = textureEntry.preview;
+void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
+{
+	assert(index == 0);
 
-	return vecData;
+	if (value)
+	{
+		assert(dynamic_cast<Vec2Data*>(value.get()) != nullptr);
+
+		m_uv = std::static_pointer_cast<Vec2Data>(value);
+	}
+	else
+		m_uv.reset();
+
+	UpdatePreview();
 }

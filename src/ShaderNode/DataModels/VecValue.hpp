@@ -8,6 +8,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
 #include <DataModels/ShaderNode.hpp>
+#include <DataModels/VecData.hpp>
 #include <array>
 
 template<std::size_t N>
@@ -33,12 +34,15 @@ struct VecTypeHelper<4>
 
 template<std::size_t N> using VecType = typename VecTypeHelper<N>::template Type;
 
-template<std::size_t N, typename Data>
+template<typename Data>
 class VecValue : public ShaderNode
 {
 	public:
 		VecValue(ShaderGraph& graph);
 		~VecValue() = default;
+
+		QString caption() const override;
+		QString name() const override;
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
@@ -50,67 +54,22 @@ class VecValue : public ShaderNode
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
 
 	protected:
+		static constexpr std::size_t ComponentCount = Data::ComponentCount;
+
 		QColor ToColor() const;
-		VecType<N> ToVector() const;
+		VecType<ComponentCount> ToVector() const;
 		void UpdatePreview();
 
 		QLabel* m_pixmapLabel;
 		QPixmap m_pixmap;
 		QWidget* m_widget;
 		QFormLayout* m_layout;
-		std::array<QDoubleSpinBox*, N> m_spinboxes;
+		std::array<QDoubleSpinBox*, ComponentCount> m_spinboxes;
 };
 
-struct VecData : public QtNodes::NodeData
-{
-	inline VecData();
-
-	QImage preview;
-};
-
-struct Vec2Data : public VecData
-{
-	QtNodes::NodeDataType type() const override
-	{
-		return Type();
-	}
-
-	static QtNodes::NodeDataType Type()
-	{
-		return { "vec2", "Vec2" };
-	}
-};
-
-struct Vec4Data : public VecData
-{
-	QtNodes::NodeDataType type() const override
-	{
-		return Type();
-	}
-
-	static QtNodes::NodeDataType Type()
-	{
-		return { "vec4", "Vec4" };
-	}
-};
-
-class Vec2Value : public VecValue<2, Vec2Data>
-{
-	public:
-		using VecValue::VecValue;
-
-		QString caption() const override { return "Vec2 value"; }
-		QString name() const override { return "Vec2Value"; }
-};
-
-class Vec4Value : public VecValue<4, Vec4Data>
-{
-	public:
-		using VecValue::VecValue;
-
-		QString caption() const override { return "Vec4 value"; }
-		QString name() const override { return "Vec4Value"; }
-};
+using Vec2Value = VecValue<Vec2Data>;
+using Vec3Value = VecValue<Vec3Data>;
+using Vec4Value = VecValue<Vec4Data>;
 
 #include <DataModels/VecValue.inl>
 

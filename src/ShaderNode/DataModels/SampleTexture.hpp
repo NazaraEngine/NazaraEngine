@@ -8,6 +8,7 @@
 #include <QtWidgets/QLabel>
 #include <ShaderGraph.hpp>
 #include <DataModels/ShaderNode.hpp>
+#include <DataModels/VecValue.hpp>
 #include <array>
 
 class SampleTexture : public ShaderNode
@@ -32,6 +33,8 @@ class SampleTexture : public ShaderNode
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
+		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
+
 	protected:
 		void ComputePreview(QPixmap& pixmap) const;
 		void UpdatePreview();
@@ -41,6 +44,8 @@ class SampleTexture : public ShaderNode
 		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
 
 		std::size_t m_currentTextureIndex;
+		std::shared_ptr<Vec2Data> m_uv;
+		std::shared_ptr<Vec4Data> m_output;
 		QComboBox* m_textureSelection;
 		QLabel* m_pixmapLabel;
 		QPixmap m_pixmap;

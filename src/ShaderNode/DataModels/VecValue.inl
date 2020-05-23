@@ -2,16 +2,17 @@
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <DataModels/VecValue.hpp>
 #include <array>
+#include <tuple>
 
-template<std::size_t N, typename Data>
-VecValue<N, Data>::VecValue(ShaderGraph& graph) :
+template<typename Data>
+VecValue<Data>::VecValue(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	constexpr std::array<char, 4> componentName = { 'X', 'Y', 'Z', 'W' };
-	static_assert(N <= componentName.size());
+	static_assert(ComponentCount <= componentName.size());
 
 	m_layout = new QFormLayout;
-	for (std::size_t i = 0; i < N; ++i)
+	for (std::size_t i = 0; i < ComponentCount; ++i)
 	{
 		m_spinboxes[i] = new QDoubleSpinBox;
 		m_spinboxes[i]->setDecimals(6);
@@ -42,8 +43,22 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-template<std::size_t N, typename Data>
-QtNodes::NodeDataType VecValue<N, Data>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+template<typename Data>
+QString VecValue<Data>::caption() const
+{
+	static QString caption = Data::Type().name + " constant";
+	return caption;
+}
+
+template<typename Data>
+QString VecValue<Data>::name() const
+{
+	static QString name = Data::Type().id + "Value";
+	return name;
+}
+
+template<typename Data>
+QtNodes::NodeDataType VecValue<Data>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
@@ -51,14 +66,14 @@ QtNodes::NodeDataType VecValue<N, Data>::dataType(QtNodes::PortType portType, Qt
 	return Data::Type();
 }
 
-template<std::size_t N, typename Data>
-QWidget* VecValue<N, Data>::embeddedWidget()
+template<typename Data>
+QWidget* VecValue<Data>::embeddedWidget()
 {
 	return m_widget;
 }
 
-template<std::size_t N, typename Data>
-unsigned int VecValue<N, Data>::nPorts(QtNodes::PortType portType) const
+template<typename Data>
+unsigned int VecValue<Data>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
@@ -69,8 +84,8 @@ unsigned int VecValue<N, Data>::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-template<std::size_t N, typename Data>
-std::shared_ptr<QtNodes::NodeData> VecValue<N, Data>::outData(QtNodes::PortIndex port)
+template<typename Data>
+std::shared_ptr<QtNodes::NodeData> VecValue<Data>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 
@@ -81,52 +96,42 @@ std::shared_ptr<QtNodes::NodeData> VecValue<N, Data>::outData(QtNodes::PortIndex
 	return out;
 }
 
-template<std::size_t N, typename Data>
-Nz::ShaderAst::ExpressionPtr VecValue<N, Data>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
+template<typename Data>
+Nz::ShaderAst::ExpressionPtr VecValue<Data>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 
 	return Nz::ShaderBuilder::Constant(ToVector());
 }
 
-template<std::size_t N, typename Data>
-QColor VecValue<N, Data>::ToColor() const
+template<typename Data>
+QColor VecValue<Data>::ToColor() const
 {
 	std::array<float, 4> values = { 0.f, 0.f, 0.f, 1.f };
 
-	for (std::size_t i = 0; i < N; ++i)
-		values[i] = std::clamp<float>(m_spinboxes[i]->value(), 0.0, 1.0);
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+		values[i] = std::clamp(float(m_spinboxes[i]->value()), 0.f, 1.f);
 
 	return QColor::fromRgbF(values[0], values[1], values[2], values[3]);
 }
 
-template<std::size_t N, typename Data>
-VecType<N> VecValue<N, Data>::ToVector() const
+template<typename Data>
+auto VecValue<Data>::ToVector() const -> VecType<ComponentCount>
 {
-	std::array<float, 4> values = { 0.f, 0.f, 0.f, 1.f };
+	std::array<float, ComponentCount> values;
 
-	for (std::size_t i = 0; i < N; ++i)
-		values[i] = std::clamp<float>(m_spinboxes[i]->value(), 0.0, 1.0);
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+		values[i] = std::clamp(float(m_spinboxes[i]->value()), 0.f, 1.f);
 
-	if constexpr (N == 2)
-		return Nz::Vector2f(values[0], values[1]);
-	else if constexpr (N == 3)
-		return Nz::Vector3f(values[0], values[1], values[2]);
-	else if constexpr (N == 4)
-		return Nz::Vector4f(values[0], values[1], values[2], values[3]);
-	else
-		static_assert(Nz::AlwaysFalse<std::make_integer_sequence<int, N>>(), "Unhandled vector size");
+	return std::apply([](auto... values)
+	{
+		return VecType<ComponentCount>(values...);
+	}, values);
 }
 
-template<std::size_t N, typename Data>
-void VecValue<N, Data>::UpdatePreview()
+template<typename Data>
+void VecValue<Data>::UpdatePreview()
 {
 	m_pixmap.fill(ToColor());
 	m_pixmapLabel->setPixmap(m_pixmap);
-}
-
-inline VecData::VecData() :
-preview(64, 64, QImage::Format_RGBA8888)
-{
-	preview.fill(QColor::fromRgb(255, 255, 255, 0));
 }

@@ -96,14 +96,10 @@ void VecBinOp<Data, BinOp>::UpdatePreview()
 		if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
 			rightResized = rightResized.scaled(maxWidth, maxHeight);
 
-		int w = m_output->preview.width();
-		int h = m_output->preview.height();
-
 		m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
 		ApplyOp(leftResized.constBits(), rightResized.constBits(), m_output->preview.bits(), maxWidth * maxHeight * 4);
-		m_output->preview = m_output->preview.scaled(w, h);
 
-		m_preview = QPixmap::fromImage(m_output->preview, Qt::AutoColor | Qt::NoOpaqueDetection);
+		m_preview = QPixmap::fromImage(m_output->preview).scaled(64, 64);
 	}
 	else
 	{
@@ -112,4 +108,84 @@ void VecBinOp<Data, BinOp>::UpdatePreview()
 	}
 
 	m_pixmapLabel->setPixmap(m_preview);
+}
+
+template<typename Data>
+QString VecAdd<Data>::caption() const
+{
+	static QString caption = Data::Type().name + " addition";
+	return caption;
+}
+
+template<typename Data>
+QString VecAdd<Data>::name() const
+{
+	static QString name = Data::Type().name + "add";
+	return name;
+}
+
+template<typename Data>
+void VecAdd<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+{
+	for (std::size_t i = 0; i < pixelCount; ++i)
+	{
+		unsigned int lValue = left[i];
+		unsigned int rValue = right[i];
+
+		output[i] = static_cast<std::uint8_t>(std::min(lValue + rValue, 255U));
+	}
+}
+
+template<typename Data>
+QString VecMul<Data>::caption() const
+{
+	static QString caption = Data::Type().name + " multiplication";
+	return caption;
+}
+
+template<typename Data>
+QString VecMul<Data>::name() const
+{
+	static QString name = Data::Type().name + "mul";
+	return name;
+}
+
+template<typename Data>
+void VecMul<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+{
+	for (std::size_t i = 0; i < pixelCount; ++i)
+	{
+		unsigned int lValue = left[i];
+		unsigned int rValue = right[i];
+
+		output[i] = static_cast<std::uint8_t>(lValue * rValue / 255);
+	}
+}
+
+template<typename Data>
+QString VecSub<Data>::caption() const
+{
+	static QString caption = Data::Type().name + " subtraction";
+	return caption;
+}
+
+template<typename Data>
+QString VecSub<Data>::name() const
+{
+	static QString name = Data::Type().name + "sub";
+	return name;
+}
+
+template<typename Data>
+void VecSub<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+{
+	for (std::size_t i = 0; i < pixelCount; ++i)
+	{
+		unsigned int lValue = left[i];
+		unsigned int rValue = right[i];
+
+		unsigned int sub = (lValue >= rValue) ? lValue - rValue : 0u;
+
+		output[i] = static_cast<std::uint8_t>(sub);
+	}
 }

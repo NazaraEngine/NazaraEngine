@@ -1,11 +1,13 @@
 #include <ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <DataModels/Cast.hpp>
 #include <DataModels/FragmentOutput.hpp>
 #include <DataModels/InputValue.hpp>
 #include <DataModels/SampleTexture.hpp>
 #include <DataModels/ShaderNode.hpp>
 #include <DataModels/VecBinOp.hpp>
 #include <DataModels/VecValue.hpp>
+#include <Previews/QuadPreview.hpp>
 #include <QtCore/QDebug>
 #include <nodes/Node>
 #include <nodes/NodeData>
@@ -34,6 +36,13 @@ m_flowScene(BuildRegistry())
 	node2.nodeGraphicsObject().setPos(500, 300);
 
 	m_flowScene.createConnection(node2, 0, node1, 0);
+
+	m_previewModel = std::make_unique<QuadPreview>();
+}
+
+ShaderGraph::~ShaderGraph()
+{
+	m_flowScene.clearScene();
 }
 
 std::size_t ShaderGraph::AddInput(std::string name, InputType type, InputRole role, std::size_t roleIndex)
@@ -125,12 +134,26 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
+	RegisterShaderNode<CastVec2ToVec3>(*this, registry, "Casts");
+	RegisterShaderNode<CastVec2ToVec4>(*this, registry, "Casts");
+	RegisterShaderNode<CastVec3ToVec2>(*this, registry, "Casts");
+	RegisterShaderNode<CastVec3ToVec4>(*this, registry, "Casts");
+	RegisterShaderNode<CastVec4ToVec2>(*this, registry, "Casts");
+	RegisterShaderNode<CastVec4ToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<FragmentOutput>(*this, registry, "Outputs");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
+	RegisterShaderNode<Vec2Add>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec2Mul>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec2Sub>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec3Add>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec3Mul>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec3Sub>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec4Add>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec4Mul>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec4Sub>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
 	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
 
 	return registry;
