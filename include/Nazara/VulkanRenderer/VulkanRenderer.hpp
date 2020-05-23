@@ -30,8 +30,6 @@ namespace Nz
 
 			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) override;
 
-			bool IsBetterThan(const RendererImpl* other) const override;
-
 			RenderAPI QueryAPI() const override;
 			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
