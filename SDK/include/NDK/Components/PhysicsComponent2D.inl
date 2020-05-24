@@ -20,7 +20,8 @@ namespace Ndk
 	*
 	* \param physics PhysicsComponent2D to copy
 	*/
-	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics)
+	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics) :
+	m_nodeSynchronizationEnabled(physics.m_nodeSynchronizationEnabled)
 	{
 		CopyPhysicsState(*physics.GetRigidBody());
 	}
