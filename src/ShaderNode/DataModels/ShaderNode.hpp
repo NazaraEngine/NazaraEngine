@@ -23,6 +23,6 @@ class ShaderNode : public QtNodes::NodeDataModel
 		ShaderGraph& m_graph;
 };
 
-#include <DataModels/ShaderNode.inl>
+#include <ShaderNode/DataModels/ShaderNode.inl>
 
 #endif

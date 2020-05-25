@@ -1,2 +1,2 @@
-#include <DataModels/InputValue.hpp>
+#include <ShaderNode/DataModels/InputValue.hpp>
 #include <array>

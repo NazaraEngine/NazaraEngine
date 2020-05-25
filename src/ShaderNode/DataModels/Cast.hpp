@@ -6,9 +6,9 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
-#include <ShaderGraph.hpp>
-#include <DataModels/ShaderNode.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <array>
 
 template<typename From, typename To>
@@ -54,6 +54,6 @@ using CastVec3ToVec4 = CastVec<Vec3Data, Vec4Data>;
 using CastVec4ToVec2 = CastVec<Vec4Data, Vec2Data>;
 using CastVec4ToVec3 = CastVec<Vec4Data, Vec3Data>;
 
-#include <DataModels/Cast.inl>
+#include <ShaderNode/DataModels/Cast.inl>
 
 #endif

@@ -1,6 +1,6 @@
-#include <Widgets/InputEditor.hpp>
-#include <Widgets/InputEditDialog.hpp>
-#include <ShaderGraph.hpp>
+#include <ShaderNode/Widgets/InputEditor.hpp>
+#include <ShaderNode/Widgets/InputEditDialog.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>

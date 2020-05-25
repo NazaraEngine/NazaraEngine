@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_INPUTEDITOR_HPP
 #define NAZARA_SHADERNODES_INPUTEDITOR_HPP
 
-#include <ShaderGraph.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QWidget>
 #include <optional>
 
@@ -34,6 +34,6 @@ class InputEditor : public QWidget
 		QVBoxLayout* m_layout;
 };
 
-#include <Widgets/InputEditor.inl>
+#include <ShaderNode/Widgets/InputEditor.inl>
 
 #endif

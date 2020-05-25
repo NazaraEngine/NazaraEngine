@@ -7,8 +7,8 @@
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
-#include <DataModels/ShaderNode.hpp>
-#include <DataModels/VecData.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/VecData.hpp>
 #include <array>
 
 template<std::size_t N>
@@ -71,6 +71,6 @@ using Vec2Value = VecValue<Vec2Data>;
 using Vec3Value = VecValue<Vec3Data>;
 using Vec4Value = VecValue<Vec4Data>;
 
-#include <DataModels/VecValue.inl>
+#include <ShaderNode/DataModels/VecValue.inl>
 
 #endif

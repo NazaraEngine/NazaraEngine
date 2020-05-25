@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_INPUTEDITDIALOG_HPP
 #define NAZARA_SHADERNODES_INPUTEDITDIALOG_HPP
 
-#include <Enums.hpp>
+#include <ShaderNode/Enums.hpp>
 #include <QtWidgets/QDialog>
 
 class QComboBox;
@@ -36,6 +36,6 @@ class InputEditDialog : public QDialog
 		QSpinBox* m_roleIndex;
 };
 
-#include <Widgets/InputEditor.inl>
+#include <ShaderNode/Widgets/InputEditor.inl>
 
 #endif

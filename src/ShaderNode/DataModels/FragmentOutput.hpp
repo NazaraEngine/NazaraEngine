@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_FRAGMENTOUTPUT_HPP
 #define NAZARA_SHADERNODES_FRAGMENTOUTPUT_HPP
 
-#include <DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 
@@ -28,6 +28,6 @@ class FragmentOutput : public ShaderNode
 
 };
 
-#include <DataModels/FragmentOutput.inl>
+#include <ShaderNode/DataModels/FragmentOutput.inl>
 
 #endif

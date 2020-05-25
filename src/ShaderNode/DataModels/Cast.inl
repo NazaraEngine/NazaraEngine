@@ -1,4 +1,4 @@
-#include <DataModels/Cast.hpp>
+#include <ShaderNode/DataModels/Cast.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <stdexcept>
 

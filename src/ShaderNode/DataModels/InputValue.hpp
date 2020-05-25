@@ -6,8 +6,8 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
-#include <ShaderGraph.hpp>
-#include <DataModels/ShaderNode.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <array>
 
 class InputValue : public ShaderNode
@@ -42,6 +42,6 @@ class InputValue : public ShaderNode
 		QVBoxLayout* m_layout;
 };
 
-#include <DataModels/InputValue.inl>
+#include <ShaderNode/DataModels/InputValue.inl>
 
 #endif
