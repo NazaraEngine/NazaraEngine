@@ -1,2 +1,2 @@
-#include <DataModels/SampleTexture.hpp>
+#include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <array>

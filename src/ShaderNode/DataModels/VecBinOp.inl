@@ -1,4 +1,4 @@
-#include <DataModels/VecBinOp.hpp>
+#include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>

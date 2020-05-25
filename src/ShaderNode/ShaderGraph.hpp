@@ -6,8 +6,8 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <nodes/FlowScene>
-#include <Enums.hpp>
-#include <Previews/PreviewModel.hpp>
+#include <ShaderNode/Enums.hpp>
+#include <ShaderNode/Previews/PreviewModel.hpp>
 #include <string>
 #include <vector>
 
@@ -64,6 +64,6 @@ class ShaderGraph
 		std::unique_ptr<PreviewModel> m_previewModel;
 };
 
-#include <ShaderGraph.inl>
+#include <ShaderNode/ShaderGraph.inl>
 
 #endif

@@ -3,8 +3,8 @@
 #ifndef NAZARA_SHADERNODES_VECBINOP_HPP
 #define NAZARA_SHADERNODES_VECBINOP_HPP
 
-#include <DataModels/ShaderNode.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 class VecBinOp : public ShaderNode
@@ -83,6 +83,6 @@ using Vec2Sub = VecSub<Vec2Data>;
 using Vec3Sub = VecSub<Vec3Data>;
 using Vec4Sub = VecSub<Vec4Data>;
 
-#include <DataModels/VecBinOp.inl>
+#include <ShaderNode/DataModels/VecBinOp.inl>
 
 #endif

@@ -1,8 +1,8 @@
-#include <Widgets/MainWindow.hpp>
+#include <ShaderNode/Widgets/MainWindow.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
-#include <ShaderGraph.hpp>
-#include <Widgets/InputEditor.hpp>
-#include <Widgets/TextureEditor.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/Widgets/InputEditor.hpp>
+#include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QMenuBar>

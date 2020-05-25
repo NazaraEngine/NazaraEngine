@@ -1,6 +1,6 @@
-#include <ShaderGraph.hpp>
-#include <DataModels/InputValue.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 InputValue::InputValue(ShaderGraph& graph) :

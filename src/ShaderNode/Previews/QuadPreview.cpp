@@ -1,4 +1,4 @@
-#include <Previews/QuadPreview.hpp>
+#include <ShaderNode/Previews/QuadPreview.hpp>
 #include <cassert>
 
 QImage QuadPreview::GetImage(InputRole role, std::size_t roleIndex) const

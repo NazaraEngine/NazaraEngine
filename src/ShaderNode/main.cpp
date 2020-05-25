@@ -1,6 +1,6 @@
 #include <QtWidgets/QApplication>
-#include <ShaderGraph.hpp>
-#include <Widgets/MainWindow.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/Widgets/MainWindow.hpp>
 #include <iostream>
 
 int main(int argc, char* argv[])

@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_TEXTUREEDITOR_HPP
 #define NAZARA_SHADERNODES_TEXTUREEDITOR_HPP
 
-#include <ShaderGraph.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QWidget>
 #include <optional>
 
@@ -35,6 +35,6 @@ class TextureEditor : public QWidget
 		QVBoxLayout* m_layout;
 };
 
-#include <Widgets/TextureEditor.inl>
+#include <ShaderNode/Widgets/TextureEditor.inl>
 
 #endif

@@ -1,6 +1,6 @@
-#include <DataModels/FragmentOutput.hpp>
+#include <ShaderNode/DataModels/FragmentOutput.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 
 Nz::ShaderAst::ExpressionPtr FragmentOutput::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {

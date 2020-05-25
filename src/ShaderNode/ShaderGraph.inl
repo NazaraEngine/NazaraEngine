@@ -1,4 +1,4 @@
-#include <ShaderGraph.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 
 inline auto ShaderGraph::GetInput(std::size_t inputIndex) const -> const InputEntry&
 {

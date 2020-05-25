@@ -1,1 +1,1 @@
-#include <Widgets/MainWindow.hpp>
+#include <ShaderNode/Widgets/MainWindow.hpp>

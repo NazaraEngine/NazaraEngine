@@ -43,6 +43,6 @@ const char* EnumToString(InputRole role);
 const char* EnumToString(InputType input);
 const char* EnumToString(TextureType textureType);
 
-#include <Enums.inl>
+#include <ShaderNode/Enums.inl>
 
 #endif

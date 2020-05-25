@@ -1,4 +1,4 @@
-#include <Enums.hpp>
+#include <ShaderNode/Enums.hpp>
 #include <cassert>
 
 const char* EnumToString(InputRole role)

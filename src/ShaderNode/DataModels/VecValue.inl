@@ -1,6 +1,6 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <array>
 #include <tuple>
 

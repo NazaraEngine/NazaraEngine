@@ -1,5 +1,5 @@
-#include <Widgets/TextureEditor.hpp>
-#include <ShaderGraph.hpp>
+#include <ShaderNode/Widgets/TextureEditor.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>

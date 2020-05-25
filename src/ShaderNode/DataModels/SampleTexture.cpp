@@ -1,6 +1,6 @@
-#include <ShaderGraph.hpp>
-#include <DataModels/SampleTexture.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataModels/SampleTexture.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 SampleTexture::SampleTexture(ShaderGraph& graph) :

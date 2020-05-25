@@ -1,4 +1,4 @@
-#include <Widgets/InputEditDialog.hpp>
+#include <ShaderNode/Widgets/InputEditDialog.hpp>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QFormLayout>

@@ -1,1 +1,1 @@
-#include <Widgets/InputEditor.hpp>
+#include <ShaderNode/Widgets/InputEditor.hpp>

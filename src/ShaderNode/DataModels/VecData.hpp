@@ -62,6 +62,6 @@ struct Vec4Data : public VecData
 	}
 };
 
-#include <DataModels/VecData.inl>
+#include <ShaderNode/DataModels/VecData.inl>
 
 #endif

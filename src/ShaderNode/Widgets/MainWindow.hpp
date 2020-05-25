@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_MAINWINDOW_HPP
 
 #include <QtWidgets/QMainWindow>
-#include <DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
 
 class ShaderGraph;
 
@@ -21,6 +21,6 @@ class MainWindow : public QMainWindow
 		ShaderGraph& m_shaderGraph;
 };
 
-#include <Widgets/MainWindow.inl>
+#include <ShaderNode/Widgets/MainWindow.inl>
 
 #endif

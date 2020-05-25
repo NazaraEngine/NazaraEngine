@@ -1,1 +1,1 @@
-#include <Widgets/TextureEditor.hpp>
+#include <ShaderNode/Widgets/TextureEditor.hpp>

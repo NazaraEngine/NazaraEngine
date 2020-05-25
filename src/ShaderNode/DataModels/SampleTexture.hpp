@@ -6,9 +6,9 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
-#include <ShaderGraph.hpp>
-#include <DataModels/ShaderNode.hpp>
-#include <DataModels/VecValue.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <array>
 
 class SampleTexture : public ShaderNode
@@ -53,6 +53,6 @@ class SampleTexture : public ShaderNode
 		QVBoxLayout* m_layout;
 };
 
-#include <DataModels/SampleTexture.inl>
+#include <ShaderNode/DataModels/SampleTexture.inl>
 
 #endif

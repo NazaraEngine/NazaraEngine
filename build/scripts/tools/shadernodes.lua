@@ -12,7 +12,7 @@ TOOL.Defines = {
 TOOL.Includes = {
 	"../include",
 	"../extlibs/include",
-	"../src/ShaderNode",
+	"../src",
 	[[E:\Qt\5.14.1\msvc2017_64\include]],
 	[[E:\Qt\5.14.1\msvc2017_64\include\QtCore]],
 	[[E:\Qt\5.14.1\msvc2017_64\include\QtGui]],

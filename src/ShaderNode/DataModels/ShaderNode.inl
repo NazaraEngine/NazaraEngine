@@ -1,4 +1,4 @@
-#include <DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/ShaderNode.hpp>
 
 inline ShaderNode::ShaderNode(ShaderGraph& graph) :
 m_graph(graph)
