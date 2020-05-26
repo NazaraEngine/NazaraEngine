@@ -26,10 +26,12 @@ class ShaderGraph
 		std::size_t AddTexture(std::string name, TextureType type);
 
 		inline const InputEntry& GetInput(std::size_t inputIndex) const;
+		inline std::size_t GetInputCount() const;
 		inline const std::vector<InputEntry>& GetInputs() const;
 		inline const PreviewModel& GetPreviewModel() const;
 		inline QtNodes::FlowScene& GetScene();
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
+		inline std::size_t GetTextureCount() const;
 		inline const std::vector<TextureEntry>& GetTextures() const;
 
 		Nz::ShaderAst::StatementPtr ToAst();

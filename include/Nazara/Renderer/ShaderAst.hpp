@@ -40,6 +40,12 @@ namespace Nz
 			VertexPosition, // gl_Position
 		};
 
+		enum class ExpressionCategory
+		{
+			LValue,
+			RValue
+		};
+
 		enum class ExpressionType
 		{
 			Boolean,   // bool
@@ -104,6 +110,7 @@ namespace Nz
 		class NAZARA_RENDERER_API Expression : public Node
 		{
 			public:
+				virtual ExpressionCategory GetExpressionCategory() const;
 				virtual ExpressionType GetExpressionType() const = 0;
 		};
 
@@ -152,6 +159,7 @@ namespace Nz
 			public:
 				inline Variable(VariableType varKind, ExpressionType varType);
 
+				ExpressionCategory GetExpressionCategory() const override;
 				ExpressionType GetExpressionType() const override;
 
 				ExpressionType type;
@@ -191,14 +199,14 @@ namespace Nz
 		class NAZARA_RENDERER_API AssignOp : public Expression
 		{
 			public:
-				inline AssignOp(AssignType Op, VariablePtr Var, ExpressionPtr Right);
+				inline AssignOp(AssignType Op, ExpressionPtr Left, ExpressionPtr Right);
 
 				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;
 
 				AssignType    op;
-				VariablePtr   variable;
+				ExpressionPtr left;
 				ExpressionPtr right;
 		};
 
@@ -277,6 +285,7 @@ namespace Nz
 			public:
 				inline SwizzleOp(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents);
 
+				ExpressionCategory GetExpressionCategory() const override;
 				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
 				void Visit(ShaderWriter& visitor) override;

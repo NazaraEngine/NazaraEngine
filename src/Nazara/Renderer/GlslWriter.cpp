@@ -139,7 +139,7 @@ namespace Nz
 
 	void GlslWriter::Write(const ShaderAst::AssignOp& node)
 	{
-		Write(node.variable);
+		Write(node.left);
 
 		switch (node.op)
 		{

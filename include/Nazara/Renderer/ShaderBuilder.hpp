@@ -18,7 +18,7 @@ namespace Nz { namespace ShaderBuilder
 	{
 		constexpr AssignOpBuilder() {}
 
-		std::shared_ptr<ShaderAst::AssignOp> operator()(const ShaderAst::VariablePtr& left, const ShaderAst::ExpressionPtr& right) const;
+		std::shared_ptr<ShaderAst::AssignOp> operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const;
 	};
 
 	template<ShaderAst::BinaryType op>

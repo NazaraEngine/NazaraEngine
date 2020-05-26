@@ -14,6 +14,15 @@ ShaderNode(graph)
 		if (m_currentTextureIndex == textureIndex)
 			UpdatePreview();
 	});
+
+	if (graph.GetTextureCount() > 0)
+	{
+		auto& firstInput = graph.GetTexture(0);
+		m_currentTextureIndex = 0;
+		m_currentTextureText = firstInput.name;
+	}
+
+	UpdateOutput();
 }
 
 unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
