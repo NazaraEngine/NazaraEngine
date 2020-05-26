@@ -450,29 +450,25 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Converts vector to pointer to its own data
-	* \return A pointer to the own data
-	*
-	* \remark Access to index greather than 1 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y depending on index (0, 1)
 	*/
-
 	template<typename T>
-	Vector2<T>::operator T* ()
+	T& Vector2<T>::operator[](std::size_t i)
 	{
-		return &x;
+		NazaraAssert(i < 2, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!
-	* \brief Converts vector to const pointer to its own data
-	* \return A constant pointer to the own data
-	*
-	* \remark Access to index greather than 1 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y depending on index (0, 1)
 	*/
-
 	template<typename T>
-	Vector2<T>::operator const T* () const
+	T Vector2<T>::operator[](std::size_t i) const
 	{
-		return &x;
+		NazaraAssert(i < 2, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!

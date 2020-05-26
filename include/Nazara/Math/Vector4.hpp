@@ -61,8 +61,8 @@ namespace Nz
 
 			String ToString() const;
 
-			operator T* ();
-			operator const T* () const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			const Vector4& operator+() const;
 			Vector4 operator-() const;
