@@ -2,6 +2,7 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
+#include <ShaderNode/Widgets/NodeEditor.hpp>
 #include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
 #include <QtWidgets/QDockWidget>
@@ -19,19 +20,43 @@ m_shaderGraph(graph)
 	QtNodes::FlowView* flowView = new QtNodes::FlowView(scene);
 	setCentralWidget(flowView);
 
-	QDockWidget* inputDock = new QDockWidget(tr("&Inputs"));
-
 	InputEditor* inputEditor = new InputEditor(m_shaderGraph);
+
+	QDockWidget* inputDock = new QDockWidget(tr("Inputs"));
+	inputDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	inputDock->setWidget(inputEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, inputDock);
 
-	QDockWidget* textureDock = new QDockWidget(tr("&Textures"));
-
 	TextureEditor* textureEditor = new TextureEditor(m_shaderGraph);
+
+	QDockWidget* textureDock = new QDockWidget(tr("Textures"));
+	textureDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	textureDock->setWidget(textureEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, textureDock);
+
+	m_nodeEditor = new NodeEditor;
+
+	QDockWidget* nodeEditorDock = new QDockWidget(tr("Node editor"));
+	nodeEditorDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	nodeEditorDock->setWidget(m_nodeEditor);
+
+	addDockWidget(Qt::RightDockWidgetArea, nodeEditorDock);
+
+	m_onSelectedNodeUpdate.Connect(m_shaderGraph.OnSelectedNodeUpdate, [&](ShaderGraph*, ShaderNode* node)
+	{
+		if (node)
+		{
+			m_nodeEditor->UpdateContent(node->caption(), [node](QVBoxLayout* layout)
+			{
+				node->BuildNodeEdition(layout);
+			});
+		}
+		else
+			m_nodeEditor->Clear();
+	});
+
 
 	BuildMenu();
 }

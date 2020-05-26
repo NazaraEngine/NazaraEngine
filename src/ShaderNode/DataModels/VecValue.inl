@@ -8,37 +8,14 @@ template<typename Data>
 VecValue<Data>::VecValue(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	constexpr std::array<char, 4> componentName = { 'X', 'Y', 'Z', 'W' };
-	static_assert(ComponentCount <= componentName.size());
+	static_assert(ComponentCount <= s_vectorComponents.size());
 
-	m_layout = new QFormLayout;
+	std::array<float, ComponentCount> defaultValues;
+
 	for (std::size_t i = 0; i < ComponentCount; ++i)
-	{
-		m_spinboxes[i] = new QDoubleSpinBox;
-		m_spinboxes[i]->setDecimals(6);
-		m_spinboxes[i]->setValue(1.0);
-		m_spinboxes[i]->setStyleSheet("background-color: rgba(255,255,255,255)");
-		connect(m_spinboxes[i], qOverload<double>(&QDoubleSpinBox::valueChanged), [this](double)
-		{
-			UpdatePreview();
+		defaultValues[i] = (i == 3) ? 1.f : 0.f;
 
-			Q_EMIT dataUpdated(0);
-		});
-
-		m_layout->addRow(QString::fromUtf8(&componentName[i], 1), m_spinboxes[i]);
-	}
-
-	m_pixmap = QPixmap(32, 32);
-	m_pixmap.fill();
-
-	m_pixmapLabel = new QLabel;
-	m_pixmapLabel->setPixmap(m_pixmap);
-
-	m_layout->addWidget(m_pixmapLabel);
-
-	m_widget = new QWidget;
-	m_widget->setStyleSheet("background-color: rgba(0,0,0,0)");
-	m_widget->setLayout(m_layout);
+	m_value.Set(defaultValues.data());
 
 	UpdatePreview();
 }
@@ -67,12 +44,6 @@ QtNodes::NodeDataType VecValue<Data>::dataType(QtNodes::PortType portType, QtNod
 }
 
 template<typename Data>
-QWidget* VecValue<Data>::embeddedWidget()
-{
-	return m_widget;
-}
-
-template<typename Data>
 unsigned int VecValue<Data>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -97,11 +68,44 @@ std::shared_ptr<QtNodes::NodeData> VecValue<Data>::outData(QtNodes::PortIndex po
 }
 
 template<typename Data>
+void VecValue<Data>::BuildNodeEdition(QVBoxLayout* layout)
+{
+	ShaderNode::BuildNodeEdition(layout);
+
+	QFormLayout* formLayout = new QFormLayout;
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+	{
+		QDoubleSpinBox* spinbox = new QDoubleSpinBox;
+		spinbox->setDecimals(6);
+		spinbox->setValue(m_value[i]);
+
+		connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
+		{
+			m_value[i] = spinbox->value();
+			Q_EMIT dataUpdated(0);
+
+			UpdatePreview();
+		});
+
+		formLayout->addRow(QString::fromUtf8(&s_vectorComponents[i], 1), spinbox);
+	}
+
+	layout->addLayout(formLayout);
+}
+
+template<typename Data>
 Nz::ShaderAst::ExpressionPtr VecValue<Data>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 
-	return Nz::ShaderBuilder::Constant(ToVector());
+	return Nz::ShaderBuilder::Constant(m_value);
+}
+
+template<typename Data>
+bool VecValue<Data>::ComputePreview(QPixmap& pixmap)
+{
+	pixmap.fill(ToColor());
+	return true;
 }
 
 template<typename Data>
@@ -110,28 +114,7 @@ QColor VecValue<Data>::ToColor() const
 	std::array<float, 4> values = { 0.f, 0.f, 0.f, 1.f };
 
 	for (std::size_t i = 0; i < ComponentCount; ++i)
-		values[i] = std::clamp(float(m_spinboxes[i]->value()), 0.f, 1.f);
+		values[i] = std::clamp(m_value[i], 0.f, 1.f);
 
 	return QColor::fromRgbF(values[0], values[1], values[2], values[3]);
-}
-
-template<typename Data>
-auto VecValue<Data>::ToVector() const -> VecType<ComponentCount>
-{
-	std::array<float, ComponentCount> values;
-
-	for (std::size_t i = 0; i < ComponentCount; ++i)
-		values[i] = std::clamp(float(m_spinboxes[i]->value()), 0.f, 1.f);
-
-	return std::apply([](auto... values)
-	{
-		return VecType<ComponentCount>(values...);
-	}, values);
-}
-
-template<typename Data>
-void VecValue<Data>::UpdatePreview()
-{
-	m_pixmap.fill(ToColor());
-	m_pixmapLabel->setPixmap(m_pixmap);
 }

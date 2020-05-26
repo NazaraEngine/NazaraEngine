@@ -29,6 +29,17 @@ namespace
 ShaderGraph::ShaderGraph() :
 m_flowScene(BuildRegistry())
 {
+	m_previewModel = std::make_unique<QuadPreview>();
+
+	QObject::connect(&m_flowScene, &QGraphicsScene::selectionChanged, [&]
+	{
+		auto selectedNodes = m_flowScene.selectedNodes();
+		if (selectedNodes.size() == 1)
+			OnSelectedNodeUpdate(this, static_cast<ShaderNode*>(selectedNodes.front()->nodeDataModel()));
+		else
+			OnSelectedNodeUpdate(this, nullptr);
+	});
+
 	auto& node1 = m_flowScene.createNode(std::make_unique<Vec4Value>(*this));
 	node1.nodeGraphicsObject().setPos(200, 200);
 
@@ -36,8 +47,6 @@ m_flowScene(BuildRegistry())
 	node2.nodeGraphicsObject().setPos(500, 300);
 
 	m_flowScene.createConnection(node2, 0, node1, 0);
-
-	m_previewModel = std::make_unique<QuadPreview>();
 }
 
 ShaderGraph::~ShaderGraph()

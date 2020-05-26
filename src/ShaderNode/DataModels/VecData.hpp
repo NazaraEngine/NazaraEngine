@@ -62,6 +62,45 @@ struct Vec4Data : public VecData
 	}
 };
 
+struct VecTypeDummy {};
+
+template<std::size_t N>
+struct VecTypeHelper;
+
+template<>
+struct VecTypeHelper<0>
+{
+	using Type = VecTypeDummy;
+};
+
+template<>
+struct VecTypeHelper<1>
+{
+	using Type = std::array<float, 1>;
+};
+
+template<>
+struct VecTypeHelper<2>
+{
+	using Type = Nz::Vector2f;
+};
+
+template<>
+struct VecTypeHelper<3>
+{
+	using Type = Nz::Vector3f;
+};
+
+template<>
+struct VecTypeHelper<4>
+{
+	using Type = Nz::Vector4f;
+};
+
+template<std::size_t N> using VecType = typename VecTypeHelper<N>::template Type;
+
+constexpr std::array<char, 4> s_vectorComponents = { 'X', 'Y', 'Z', 'W' };
+
 #include <ShaderNode/DataModels/VecData.inl>
 
 #endif

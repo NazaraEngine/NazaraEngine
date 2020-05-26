@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+class ShaderNode;
+
 class ShaderGraph
 {
 	public:
@@ -52,6 +54,7 @@ class ShaderGraph
 
 		NazaraSignal(OnInputListUpdate, ShaderGraph*);
 		NazaraSignal(OnInputUpdate, ShaderGraph*, std::size_t /*inputIndex*/);
+		NazaraSignal(OnSelectedNodeUpdate, ShaderGraph*, ShaderNode* /*node*/);
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 

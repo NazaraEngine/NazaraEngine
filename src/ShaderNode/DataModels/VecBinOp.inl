@@ -7,9 +7,7 @@ ShaderNode(graph)
 {
 	m_output = std::make_shared<Data>();
 
-	m_pixmapLabel = new QLabel;
-	m_pixmapLabel->setStyleSheet("background-color: rgba(0,0,0,0)");
-	UpdatePreview();
+	UpdateOutput();
 }
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
@@ -19,12 +17,6 @@ Nz::ShaderAst::ExpressionPtr VecBinOp<Data, BinOp>::GetExpression(Nz::ShaderAst:
 	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<BinOp>;
 	constexpr BuilderType builder;
 	return builder(expressions[0], expressions[1]);
-}
-
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-QWidget* VecBinOp<Data, BinOp>::embeddedWidget()
-{
-	return m_pixmapLabel;
 }
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
@@ -72,42 +64,49 @@ void VecBinOp<Data, BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, 
 	else
 		m_rhs = std::move(castedValue);
 
-	UpdatePreview();
-
-	Q_EMIT dataUpdated(0);
+	UpdateOutput();
 }
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-void VecBinOp<Data, BinOp>::UpdatePreview()
+bool VecBinOp<Data, BinOp>::ComputePreview(QPixmap& pixmap)
 {
-	if (m_lhs && m_rhs)
+	if (!m_lhs || !m_rhs)
+		return false;
+
+	pixmap = QPixmap::fromImage(m_output->preview);
+	return true;
+}
+
+template<typename Data, Nz::ShaderAst::BinaryType BinOp>
+void VecBinOp<Data, BinOp>::UpdateOutput()
+{
+	if (!m_lhs || !m_rhs)
 	{
-		const QImage& leftPreview = m_lhs->preview;
-		const QImage& rightPreview = m_rhs->preview;
-		int maxWidth = std::max(leftPreview.width(), rightPreview.width());
-		int maxHeight = std::max(leftPreview.height(), rightPreview.height());
-
-		// Exploit COW
-		QImage leftResized = leftPreview;
-		if (leftResized.width() != maxWidth || leftResized.height() != maxHeight)
-			leftResized = leftResized.scaled(maxWidth, maxHeight);
-
-		QImage rightResized = rightPreview;
-		if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
-			rightResized = rightResized.scaled(maxWidth, maxHeight);
-
-		m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
-		ApplyOp(leftResized.constBits(), rightResized.constBits(), m_output->preview.bits(), maxWidth * maxHeight * 4);
-
-		m_preview = QPixmap::fromImage(m_output->preview).scaled(64, 64);
-	}
-	else
-	{
-		m_preview = QPixmap(64, 64);
-		m_preview.fill(QColor::fromRgb(255, 255, 0, 0));
+		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
+		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
+		return;
 	}
 
-	m_pixmapLabel->setPixmap(m_preview);
+	const QImage& leftPreview = m_lhs->preview;
+	const QImage& rightPreview = m_rhs->preview;
+	int maxWidth = std::max(leftPreview.width(), rightPreview.width());
+	int maxHeight = std::max(leftPreview.height(), rightPreview.height());
+
+	// Exploit COW
+	QImage leftResized = leftPreview;
+	if (leftResized.width() != maxWidth || leftResized.height() != maxHeight)
+		leftResized = leftResized.scaled(maxWidth, maxHeight);
+
+	QImage rightResized = rightPreview;
+	if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
+		rightResized = rightResized.scaled(maxWidth, maxHeight);
+
+	m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
+	ApplyOp(leftResized.constBits(), rightResized.constBits(), m_output->preview.bits(), maxWidth * maxHeight * 4);
+
+	Q_EMIT dataUpdated(0);
+
+	UpdatePreview();
 }
 
 template<typename Data>

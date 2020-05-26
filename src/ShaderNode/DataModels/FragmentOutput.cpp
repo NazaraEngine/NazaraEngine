@@ -22,11 +22,6 @@ QtNodes::NodeDataType FragmentOutput::dataType(QtNodes::PortType portType, QtNod
 	return Vec4Data::Type();
 }
 
-QWidget* FragmentOutput::embeddedWidget()
-{
-	return nullptr;
-}
-
 unsigned int FragmentOutput::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -41,4 +36,27 @@ unsigned int FragmentOutput::nPorts(QtNodes::PortType portType) const
 std::shared_ptr<QtNodes::NodeData> FragmentOutput::outData(QtNodes::PortIndex /*port*/)
 {
 	return {};
+}
+
+void FragmentOutput::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
+{
+	assert(index == 0);
+	if (value)
+	{
+		assert(dynamic_cast<Vec4Data*>(value.get()) != nullptr);
+		m_input = std::static_pointer_cast<Vec4Data>(value);
+	}
+	else
+		m_input.reset();
+
+	UpdatePreview();
+}
+
+bool FragmentOutput::ComputePreview(QPixmap& pixmap)
+{
+	if (!m_input)
+		return false;
+
+	pixmap = QPixmap::fromImage(m_input->preview);
+	return true;
 }

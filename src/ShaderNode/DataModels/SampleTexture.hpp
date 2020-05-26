@@ -17,12 +17,13 @@ class SampleTexture : public ShaderNode
 		SampleTexture(ShaderGraph& graph);
 		~SampleTexture() = default;
 
+		void BuildNodeEdition(QVBoxLayout* layout) override;
+
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
 		QString caption() const override { return "Sample texture"; }
 		QString name() const override { return "SampleTexture"; }
 
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
@@ -36,21 +37,17 @@ class SampleTexture : public ShaderNode
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
 	protected:
-		void ComputePreview(QPixmap& pixmap) const;
-		void UpdatePreview();
-		void UpdateTextureList();
+		bool ComputePreview(QPixmap& pixmap) override;
+		void OnTextureListUpdate();
+		void UpdateOutput();
 
 		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
 
-		std::size_t m_currentTextureIndex;
+		std::optional<std::size_t> m_currentTextureIndex;
 		std::shared_ptr<Vec2Data> m_uv;
 		std::shared_ptr<Vec4Data> m_output;
-		QComboBox* m_textureSelection;
-		QLabel* m_pixmapLabel;
-		QPixmap m_pixmap;
-		QWidget* m_widget;
-		QVBoxLayout* m_layout;
+		std::string m_currentTextureText;
 };
 
 #include <ShaderNode/DataModels/SampleTexture.inl>

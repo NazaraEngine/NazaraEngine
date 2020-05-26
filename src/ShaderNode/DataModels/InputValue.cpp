@@ -4,46 +4,16 @@
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 InputValue::InputValue(ShaderGraph& graph) :
-ShaderNode(graph),
-m_currentInputIndex(0)
+ShaderNode(graph)
 {
-	m_layout = new QVBoxLayout;
-
-	m_inputSelection = new QComboBox;
-	m_inputSelection->setStyleSheet("background-color: rgba(255,255,255,255)");
-	connect(m_inputSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
-	{
-		if (index < 0)
-			return;
-
-		m_currentInputIndex = static_cast<std::size_t>(index);
-		UpdatePreview();
-	});
-
-	m_layout->addWidget(m_inputSelection);
-
-	m_previewLabel = new QLabel;
-
-	m_layout->addWidget(m_previewLabel);
-
-	m_widget = new QWidget;
-	m_widget->setStyleSheet("background-color: rgba(0,0,0,0)");
-	m_widget->setLayout(m_layout);
-
-	m_onInputListUpdateSlot.Connect(GetGraph().OnInputListUpdate, [&](ShaderGraph*) { UpdateInputList(); });
+	m_onInputListUpdateSlot.Connect(GetGraph().OnInputListUpdate, [&](ShaderGraph*) { OnInputListUpdate(); });
 	m_onInputUpdateSlot.Connect(GetGraph().OnInputUpdate, [&](ShaderGraph*, std::size_t inputIndex)
 	{
 		if (m_currentInputIndex == inputIndex)
 			UpdatePreview();
 	});
 
-	UpdateInputList();
 	UpdatePreview();
-}
-
-QWidget* InputValue::embeddedWidget()
-{
-	return m_widget;
 }
 
 unsigned int InputValue::nPorts(QtNodes::PortType portType) const
@@ -57,36 +27,66 @@ unsigned int InputValue::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-void InputValue::UpdatePreview()
+bool InputValue::ComputePreview(QPixmap& pixmap)
 {
-	if (m_inputSelection->count() == 0)
-		return;
+	if (!m_currentInputIndex)
+		return false;
 
 	const ShaderGraph& graph = GetGraph();
-	const auto& inputEntry = graph.GetInput(m_currentInputIndex);
+	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
-	m_previewLabel->setPixmap(QPixmap::fromImage(preview.GetImage(inputEntry.role, inputEntry.roleIndex)));
-
-	Q_EMIT dataUpdated(0);
+	pixmap = QPixmap::fromImage(preview.GetImage(inputEntry.role, inputEntry.roleIndex));
+	return true;
 }
 
-void InputValue::UpdateInputList()
+void InputValue::OnInputListUpdate()
 {
-	QString currentInput = m_inputSelection->currentText();
-	m_inputSelection->clear();
+	m_currentInputIndex.reset();
+
+	std::size_t inputIndex = 0;
+	for (const auto& inputEntry : GetGraph().GetInputs())
+	{
+		if (inputEntry.name == m_currentInputText)
+		{
+			m_currentInputIndex = inputIndex;
+			break;
+		}
+
+		inputIndex++;
+	}
+}
+
+void InputValue::BuildNodeEdition(QVBoxLayout* layout)
+{
+	ShaderNode::BuildNodeEdition(layout);
+
+	QComboBox* inputSelection = new QComboBox;
+
+	connect(inputSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
+	{
+		if (index >= 0)
+			m_currentInputIndex = static_cast<std::size_t>(index);
+		else
+			m_currentInputIndex.reset();
+
+		UpdatePreview();
+	});
 
 	for (const auto& inputEntry : GetGraph().GetInputs())
-		m_inputSelection->addItem(QString::fromStdString(inputEntry.name));
+		inputSelection->addItem(QString::fromStdString(inputEntry.name));
 
-	m_inputSelection->setCurrentText(currentInput);
+	layout->addWidget(inputSelection);
 }
 
 Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 
-	const auto& inputEntry = GetGraph().GetInput(m_currentInputIndex);
+	if (!m_currentInputIndex)
+		throw std::runtime_error("no input");
+
+	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 
 	Nz::ShaderAst::ExpressionType expression = [&]
 	{
@@ -108,10 +108,13 @@ Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::Expression
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
 {
+	if (!m_currentInputIndex)
+		return Vec4Data::Type();
+
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
 
-	const auto& inputEntry = GetGraph().GetInput(m_currentInputIndex);
+	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 	switch (inputEntry.type)
 	{
 		//case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
@@ -127,10 +130,13 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 
 std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 {
+	if (!m_currentInputIndex)
+		return nullptr;
+
 	assert(port == 0);
 
 	const ShaderGraph& graph = GetGraph();
-	const auto& inputEntry = graph.GetInput(m_currentInputIndex);
+	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
 	auto vecData = std::make_shared<Vec2Data>();

@@ -4,9 +4,10 @@
 #define NAZARA_SHADERNODES_MAINWINDOW_HPP
 
 #include <QtWidgets/QMainWindow>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 
-class ShaderGraph;
+class NodeEditor;
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +19,9 @@ class MainWindow : public QMainWindow
 		void BuildMenu();
 		void OnCompileToGLSL();
 
+		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
+
+		NodeEditor* m_nodeEditor;
 		ShaderGraph& m_shaderGraph;
 };
 

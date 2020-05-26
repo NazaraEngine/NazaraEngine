@@ -18,13 +18,14 @@ class CastVec : public ShaderNode
 		CastVec(ShaderGraph& graph);
 		~CastVec() = default;
 
+		void BuildNodeEdition(QVBoxLayout* layout) override;
+
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
 
 		QString caption() const override;
 		QString name() const override;
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
@@ -36,13 +37,10 @@ class CastVec : public ShaderNode
 		static constexpr std::size_t ToComponents = To::ComponentCount;
 		static constexpr std::size_t ComponentDiff = (ToComponents >= FromComponents) ? ToComponents - FromComponents : 0;
 
-		void ComputePreview(QPixmap& pixmap) const;
-		void UpdatePreview();
+		bool ComputePreview(QPixmap& pixmap) override;
+		void UpdateOutput();
 
-		QLabel* m_pixmapLabel;
-		QPixmap m_pixmap;
-		QWidget* m_widget;
-		std::array<QDoubleSpinBox*, ComponentDiff> m_spinboxes;
+		VecType<ComponentDiff> m_overflowComponents;
 		std::shared_ptr<From> m_input;
 		std::shared_ptr<To> m_output;
 };

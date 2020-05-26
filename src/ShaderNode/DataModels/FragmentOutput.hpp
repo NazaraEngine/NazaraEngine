@@ -4,6 +4,7 @@
 #define NAZARA_SHADERNODES_FRAGMENTOUTPUT_HPP
 
 #include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/VecValue.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 
@@ -19,13 +20,16 @@ class FragmentOutput : public ShaderNode
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
-		void setInData(std::shared_ptr<QtNodes::NodeData>, int) override {};
+		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
+	private:
+		bool ComputePreview(QPixmap& pixmap) override;
+
+		std::shared_ptr<Vec4Data> m_input;
 };
 
 #include <ShaderNode/DataModels/FragmentOutput.inl>

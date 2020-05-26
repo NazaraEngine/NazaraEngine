@@ -11,29 +11,6 @@
 #include <ShaderNode/DataModels/VecData.hpp>
 #include <array>
 
-template<std::size_t N>
-struct VecTypeHelper;
-
-template<>
-struct VecTypeHelper<2>
-{
-	using Type = Nz::Vector2f;
-};
-
-template<>
-struct VecTypeHelper<3>
-{
-	using Type = Nz::Vector3f;
-};
-
-template<>
-struct VecTypeHelper<4>
-{
-	using Type = Nz::Vector4f;
-};
-
-template<std::size_t N> using VecType = typename VecTypeHelper<N>::template Type;
-
 template<typename Data>
 class VecValue : public ShaderNode
 {
@@ -46,25 +23,22 @@ class VecValue : public ShaderNode
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
+		void BuildNodeEdition(QVBoxLayout* layout) override;
+
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
 
-	protected:
+	private:
+		bool ComputePreview(QPixmap& pixmap) override;
+
 		static constexpr std::size_t ComponentCount = Data::ComponentCount;
 
 		QColor ToColor() const;
-		VecType<ComponentCount> ToVector() const;
-		void UpdatePreview();
 
-		QLabel* m_pixmapLabel;
-		QPixmap m_pixmap;
-		QWidget* m_widget;
-		QFormLayout* m_layout;
-		std::array<QDoubleSpinBox*, ComponentCount> m_spinboxes;
+		VecType<ComponentCount> m_value;
 };
 
 using Vec2Value = VecValue<Vec2Data>;

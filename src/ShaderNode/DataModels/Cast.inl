@@ -6,41 +6,35 @@ template<typename From, typename To>
 CastVec<From, To>::CastVec(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	constexpr std::array<char, 4> componentName = { 'X', 'Y', 'Z', 'W' };
-	static_assert(ComponentDiff <= componentName.size());
+	static_assert(ComponentDiff <= s_vectorComponents.size());
+}
 
-	QFormLayout* layout = new QFormLayout;
+template<typename From, typename To>
+void CastVec<From, To>::BuildNodeEdition(QVBoxLayout* layout)
+{
+	ShaderNode::BuildNodeEdition(layout);
 
 	if constexpr (ComponentDiff > 0)
 	{
+		QFormLayout* formLayout = new QFormLayout;
+
 		for (std::size_t i = 0; i < ComponentDiff; ++i)
 		{
-			m_spinboxes[i] = new QDoubleSpinBox;
-			m_spinboxes[i]->setDecimals(6);
-			m_spinboxes[i]->setValue(1.0);
-			m_spinboxes[i]->setStyleSheet("background-color: rgba(255,255,255,255)");
-			connect(m_spinboxes[i], qOverload<double>(&QDoubleSpinBox::valueChanged), [this](double)
+			QDoubleSpinBox* spinbox = new QDoubleSpinBox;
+			spinbox->setDecimals(6);
+			spinbox->setValue(m_overflowComponents[i]);
+
+			connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
 			{
-				UpdatePreview();
+				m_overflowComponents[i] = spinbox->value();
+				UpdateOutput();
 			});
 
-			layout->addRow(QString::fromUtf8(&componentName[FromComponents + i], 1), m_spinboxes[i]);
+			formLayout->addRow(QString::fromUtf8(&s_vectorComponents[FromComponents + i], 1), spinbox);
 		}
+
+		layout->addLayout(formLayout);
 	}
-
-	m_pixmap = QPixmap(64, 64);
-	m_pixmap.fill();
-
-	m_pixmapLabel = new QLabel;
-	m_pixmapLabel->setPixmap(m_pixmap);
-
-	layout->addWidget(m_pixmapLabel);
-
-	m_widget = new QWidget;
-	m_widget->setStyleSheet("background-color: rgba(0,0,0,0)");
-	m_widget->setLayout(layout);
-
-	m_output = std::make_shared<To>();
 }
 
 template<typename From, typename To>
@@ -52,7 +46,7 @@ Nz::ShaderAst::ExpressionPtr CastVec<From, To>::GetExpression(Nz::ShaderAst::Exp
 	{
 		std::array<Nz::ShaderAst::ExpressionPtr, ComponentDiff> constants;
 		for (std::size_t i = 0; i < ComponentDiff; ++i)
-			constants[i] = Nz::ShaderBuilder::Constant(float(m_spinboxes[i]->value()));
+			constants[i] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
 
 		return std::apply([&](auto&&... values)
 		{
@@ -103,12 +97,6 @@ QtNodes::NodeDataType CastVec<From, To>::dataType(QtNodes::PortType portType, Qt
 }
 
 template<typename From, typename To>
-QWidget* CastVec<From, To>::embeddedWidget()
-{
-	return m_widget;
-}
-
-template<typename From, typename To>
 unsigned int CastVec<From, To>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -124,6 +112,10 @@ template<typename From, typename To>
 std::shared_ptr<QtNodes::NodeData> CastVec<From, To>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
+
+	if (!m_input)
+		return nullptr;
+
 	return m_output;
 }
 
@@ -139,13 +131,28 @@ void CastVec<From, To>::setInData(std::shared_ptr<QtNodes::NodeData> value, int 
 	else
 		m_input.reset();
 
-	UpdatePreview();
+	UpdateOutput();
 }
 
 template<typename From, typename To>
-void CastVec<From, To>::ComputePreview(QPixmap& pixmap) const
+bool CastVec<From, To>::ComputePreview(QPixmap& pixmap)
 {
-	assert(m_input);
+	if (!m_input)
+		return false;
+
+	pixmap = QPixmap::fromImage(m_output->preview);
+	return true;
+}
+
+template<typename From, typename To>
+void CastVec<From, To>::UpdateOutput()
+{
+	if (!m_input)
+	{
+		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
+		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
+		return;
+	}
 
 	const QImage& input = m_input->preview;
 
@@ -156,8 +163,11 @@ void CastVec<From, To>::ComputePreview(QPixmap& pixmap) const
 	output = QImage(inputWidth, inputHeight, QImage::Format_RGBA8888);
 
 	std::array<std::uint8_t, ComponentDiff> constants;
-	for (std::size_t i = 0; i < ComponentDiff; ++i)
-		constants[i] = static_cast<std::uint8_t>(std::clamp(int(m_spinboxes[i]->value() * 255), 0, 255));
+	if constexpr (ComponentDiff > 0)
+	{
+		for (std::size_t i = 0; i < ComponentDiff; ++i)
+			constants[i] = static_cast<std::uint8_t>(std::clamp(int(m_overflowComponents[i] * 255), 0, 255));
+	}
 
 	std::uint8_t* outputPtr = output.bits();
 	const std::uint8_t* inputPtr = input.constBits();
@@ -181,21 +191,7 @@ void CastVec<From, To>::ComputePreview(QPixmap& pixmap) const
 		}
 	}
 
-	pixmap = QPixmap::fromImage(output).scaled(64, 64);
-}
-
-template<typename From, typename To>
-void CastVec<From, To>::UpdatePreview()
-{
-	if (!m_input)
-	{
-		m_pixmap = QPixmap(64, 64);
-		m_pixmap.fill(QColor::fromRgb(255, 255, 255, 0));
-	}
-	else
-		ComputePreview(m_pixmap);
-
-	m_pixmapLabel->setPixmap(m_pixmap);
-
 	Q_EMIT dataUpdated(0);
+
+	UpdatePreview();
 }
