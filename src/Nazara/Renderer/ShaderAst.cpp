@@ -8,6 +8,11 @@
 
 namespace Nz::ShaderAst
 {
+	ExpressionCategory Expression::GetExpressionCategory() const
+	{
+		return ExpressionCategory::RValue;
+	}
+
 	void ExpressionStatement::Register(ShaderWriter& visitor)
 	{
 		expression->Register(visitor);
@@ -43,6 +48,10 @@ namespace Nz::ShaderAst
 		visitor.Write(*this);
 	}
 
+	ExpressionCategory Variable::GetExpressionCategory() const
+	{
+		return ExpressionCategory::LValue;
+	}
 
 	ExpressionType Variable::GetExpressionType() const
 	{
@@ -60,7 +69,7 @@ namespace Nz::ShaderAst
 	}
 
 
-	void BuiltinVariable::Register(ShaderWriter& visitor)
+	void BuiltinVariable::Register(ShaderWriter& /*visitor*/)
 	{
 	}
 
@@ -72,12 +81,12 @@ namespace Nz::ShaderAst
 
 	ExpressionType AssignOp::GetExpressionType() const
 	{
-		return variable->GetExpressionType();
+		return left->GetExpressionType();
 	}
 
 	void AssignOp::Register(ShaderWriter& visitor)
 	{
-		variable->Register(visitor);
+		left->Register(visitor);
 		right->Register(visitor);
 	}
 
@@ -102,6 +111,7 @@ namespace Nz::ShaderAst
 
 			case ShaderAst::BinaryType::Equality:
 				exprType = ExpressionType::Boolean;
+				break;
 		}
 
 		NazaraAssert(exprType != ShaderAst::ExpressionType::Void, "Unhandled builtin");
@@ -178,7 +188,12 @@ namespace Nz::ShaderAst
 	}
 
 
-	ExpressionType ShaderAst::SwizzleOp::GetExpressionType() const
+	ExpressionCategory SwizzleOp::GetExpressionCategory() const
+	{
+		return ExpressionCategory::LValue;
+	}
+
+	ExpressionType SwizzleOp::GetExpressionType() const
 	{
 		return static_cast<ExpressionType>(UnderlyingCast(GetComponentType(expression->GetExpressionType())) + componentCount - 1);
 	}

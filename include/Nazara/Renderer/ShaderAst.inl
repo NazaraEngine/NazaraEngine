@@ -82,11 +82,14 @@ namespace Nz
 		{
 		}
 
-		inline AssignOp::AssignOp(AssignType Op, VariablePtr Var, ExpressionPtr Right) :
+		inline AssignOp::AssignOp(AssignType Op, ExpressionPtr Left, ExpressionPtr Right) :
 		op(Op),
-		variable(std::move(Var)),
+		left(std::move(Left)),
 		right(std::move(Right))
 		{
+			if (left->GetExpressionCategory() != ExpressionCategory::LValue)
+				//TODO: AstParseError
+				throw std::runtime_error("Assignation is only possible with lvalues");
 		}
 
 		inline BinaryOp::BinaryOp(BinaryType Op, ExpressionPtr Left, ExpressionPtr Right) :

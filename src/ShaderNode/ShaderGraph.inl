@@ -6,6 +6,11 @@ inline auto ShaderGraph::GetInput(std::size_t inputIndex) const -> const InputEn
 	return m_inputs[inputIndex];
 }
 
+inline std::size_t ShaderGraph::GetInputCount() const
+{
+	return m_inputs.size();
+}
+
 inline auto ShaderGraph::GetInputs() const -> const std::vector<InputEntry>&
 {
 	return m_inputs;
@@ -25,6 +30,11 @@ inline auto ShaderGraph::GetTexture(std::size_t textureIndex) const -> const Tex
 {
 	assert(textureIndex < m_textures.size());
 	return m_textures[textureIndex];
+}
+
+inline std::size_t ShaderGraph::GetTextureCount() const
+{
+	return m_textures.size();
 }
 
 inline auto ShaderGraph::GetTextures() const -> const std::vector<TextureEntry>&

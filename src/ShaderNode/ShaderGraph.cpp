@@ -40,13 +40,28 @@ m_flowScene(BuildRegistry())
 			OnSelectedNodeUpdate(this, nullptr);
 	});
 
-	auto& node1 = m_flowScene.createNode(std::make_unique<Vec4Value>(*this));
-	node1.nodeGraphicsObject().setPos(200, 200);
+	// Test
+	AddInput("UV", InputType::Float2, InputRole::TexCoord, 0);
+	AddTexture("Potato", TextureType::Sampler2D);
 
-	auto& node2 = m_flowScene.createNode(std::make_unique<FragmentOutput>(*this));
-	node2.nodeGraphicsObject().setPos(500, 300);
+	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
+
+	auto& node1 = m_flowScene.createNode(std::make_unique<InputValue>(*this));
+	node1.nodeGraphicsObject().setPos(0, 200);
+
+	auto& node2 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
+	node2.nodeGraphicsObject().setPos(200, 200);
+
+	auto& node3 = m_flowScene.createNode(std::make_unique<Vec4Mul>(*this));
+	node3.nodeGraphicsObject().setPos(400, 200);
+
+	auto& node4 = m_flowScene.createNode(std::make_unique<FragmentOutput>(*this));
+	node4.nodeGraphicsObject().setPos(600, 300);
 
 	m_flowScene.createConnection(node2, 0, node1, 0);
+	m_flowScene.createConnection(node3, 0, node2, 0);
+	m_flowScene.createConnection(node3, 1, node2, 0);
+	m_flowScene.createConnection(node4, 0, node3, 0);
 }
 
 ShaderGraph::~ShaderGraph()
@@ -83,13 +98,51 @@ std::size_t ShaderGraph::AddTexture(std::string name, TextureType type)
 Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 {
 	std::vector<Nz::ShaderAst::StatementPtr> statements;
+	QHash<QUuid, unsigned int> usageCount;
+
+	unsigned int varCount = 0;
+
+	std::function<void(QtNodes::Node*)> DetectVariables;
+	DetectVariables = [&](QtNodes::Node* node)
+	{
+		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
+
+		qDebug() << shaderNode->name() << node->id();
+		auto it = usageCount.find(node->id());
+		if (it == usageCount.end())
+			it = usageCount.insert(node->id(), 0);
+
+		(*it)++;
+
+		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+		{
+			for (const auto& [uuid, conn] : connectionSet)
+			{
+				DetectVariables(conn->getNode(QtNodes::PortType::Out));
+			}
+		}
+	};
+
+	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	{
+		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+			DetectVariables(node);
+	});
+
+	QHash<QUuid, Nz::ShaderAst::ExpressionPtr> variableExpressions;
 
 	std::function<Nz::ShaderAst::ExpressionPtr(QtNodes::Node*)> HandleNode;
 	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderAst::ExpressionPtr
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 
-		qDebug() << shaderNode->name();
+		qDebug() << shaderNode->name() << node->id();
+		if (auto it = variableExpressions.find(node->id()); it != variableExpressions.end())
+			return *it;
+
+		auto it = usageCount.find(node->id());
+		assert(it != usageCount.end());
+
 		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
 		Nz::StackArray<Nz::ShaderAst::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderAst::ExpressionPtr, inputCount);
 		std::size_t i = 0;
@@ -104,7 +157,25 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 			}
 		}
 
-		return shaderNode->GetExpression(expressions.data(), expressions.size());
+		auto expression = shaderNode->GetExpression(expressions.data(), expressions.size());
+
+		if (*it > 1)
+		{
+			Nz::ShaderAst::ExpressionPtr varExpression;
+			if (expression->GetExpressionCategory() == Nz::ShaderAst::ExpressionCategory::RValue)
+			{
+				varExpression = Nz::ShaderBuilder::Variable("var" + std::to_string(varCount++), expression->GetExpressionType());
+				statements.emplace_back(Nz::ShaderBuilder::ExprStatement(Nz::ShaderBuilder::Assign(varExpression, expression)));
+			}
+			else
+				varExpression = expression;
+
+			variableExpressions.insert(node->id(), varExpression);
+
+			return varExpression;
+		}
+		else
+			return expression;
 	};
 
 	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)

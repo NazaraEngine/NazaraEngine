@@ -15,7 +15,7 @@ namespace Nz { namespace ShaderBuilder
 	}
 
 	template<ShaderAst::AssignType op>
-	std::shared_ptr<ShaderAst::AssignOp> AssignOpBuilder<op>::operator()(const ShaderAst::VariablePtr& left, const ShaderAst::ExpressionPtr& right) const
+	std::shared_ptr<ShaderAst::AssignOp> AssignOpBuilder<op>::operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const
 	{
 		return std::make_shared<ShaderAst::AssignOp>(op, left, right);
 	}

@@ -13,6 +13,13 @@ ShaderNode(graph)
 			UpdatePreview();
 	});
 
+	if (graph.GetInputCount() > 0)
+	{
+		auto& firstInput = graph.GetInput(0);
+		m_currentInputIndex = 0;
+		m_currentInputText = firstInput.name;
+	}
+
 	UpdatePreview();
 }
 
