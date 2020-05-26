@@ -413,9 +413,8 @@ namespace Nz
 	*
 	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const T vec[4])
+	Vector4<T>& Vector4<T>::Set(const T* vec)
 	{
 		x = vec[0];
 		y = vec[1];
