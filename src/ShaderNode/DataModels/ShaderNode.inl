@@ -1,9 +1,5 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 
-inline ShaderNode::ShaderNode(ShaderGraph& graph) :
-m_graph(graph)
-{
-}
 
 inline ShaderGraph& ShaderNode::GetGraph()
 {
@@ -13,4 +9,11 @@ inline ShaderGraph& ShaderNode::GetGraph()
 inline const ShaderGraph& ShaderNode::GetGraph() const
 {
 	return m_graph;
+}
+
+inline void ShaderNode::SetPreviewSize(const Nz::Vector2i& size)
+{
+	m_previewSize = size;
+	if (m_isPreviewEnabled)
+		UpdatePreview();
 }

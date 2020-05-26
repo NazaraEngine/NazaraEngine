@@ -9,6 +9,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <array>
+#include <optional>
 
 class InputValue : public ShaderNode
 {
@@ -16,30 +17,28 @@ class InputValue : public ShaderNode
 		InputValue(ShaderGraph& graph);
 		~InputValue() = default;
 
+		void BuildNodeEdition(QVBoxLayout* layout) override;
+
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
 		QString caption() const override { return "Input"; }
 		QString name() const override { return "Input"; }
 
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
-	protected:
-		void UpdatePreview();
-		void UpdateInputList();
+	private:
+		bool ComputePreview(QPixmap& pixmap) override;
+		void OnInputListUpdate();
 
 		NazaraSlot(ShaderGraph, OnInputListUpdate, m_onInputListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnInputUpdate, m_onInputUpdateSlot);
 
-		std::size_t m_currentInputIndex;
-		QComboBox* m_inputSelection;
-		QLabel* m_previewLabel;
-		QWidget* m_widget;
-		QVBoxLayout* m_layout;
+		std::optional<std::size_t> m_currentInputIndex;
+		std::string m_currentInputText;
 };
 
 #include <ShaderNode/DataModels/InputValue.inl>

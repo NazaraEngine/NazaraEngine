@@ -15,7 +15,6 @@ class VecBinOp : public ShaderNode
 
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
 
-		QWidget* embeddedWidget() override;
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
@@ -26,10 +25,10 @@ class VecBinOp : public ShaderNode
 
 	private:
 		virtual void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) = 0;
-		void UpdatePreview();
 
-		QLabel* m_pixmapLabel;
-		QPixmap m_preview;
+		bool ComputePreview(QPixmap& pixmap) override;
+		void UpdateOutput();
+
 		std::shared_ptr<Data> m_lhs;
 		std::shared_ptr<Data> m_rhs;
 		std::shared_ptr<Data> m_output;

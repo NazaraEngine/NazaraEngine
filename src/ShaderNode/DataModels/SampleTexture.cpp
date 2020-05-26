@@ -4,52 +4,16 @@
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
 SampleTexture::SampleTexture(ShaderGraph& graph) :
-ShaderNode(graph),
-m_currentTextureIndex(0)
+ShaderNode(graph)
 {
 	m_output = std::make_shared<Vec4Data>();
 
-	m_layout = new QVBoxLayout;
-
-	m_textureSelection = new QComboBox;
-	m_textureSelection->setStyleSheet("background-color: rgba(255,255,255,255)");
-	connect(m_textureSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
-	{
-		if (index < 0)
-			return;
-
-		m_currentTextureIndex = static_cast<std::size_t>(index);
-		UpdatePreview();
-	});
-
-	m_layout->addWidget(m_textureSelection);
-
-	m_pixmap = QPixmap(64, 64);
-	m_pixmap.fill();
-
-	m_pixmapLabel = new QLabel;
-	m_pixmapLabel->setPixmap(m_pixmap);
-
-	m_layout->addWidget(m_pixmapLabel);
-
-	m_widget = new QWidget;
-	m_widget->setStyleSheet("background-color: rgba(0,0,0,0)");
-	m_widget->setLayout(m_layout);
-
-	m_onTextureListUpdateSlot.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { UpdateTextureList(); });
+	m_onTextureListUpdateSlot.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { OnTextureListUpdate(); });
 	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, [&](ShaderGraph*, std::size_t textureIndex)
 	{
 		if (m_currentTextureIndex == textureIndex)
 			UpdatePreview();
 	});
-
-	UpdateTextureList();
-	UpdatePreview();
-}
-
-QWidget* SampleTexture::embeddedWidget()
-{
-	return m_widget;
 }
 
 unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
@@ -63,39 +27,39 @@ unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-void SampleTexture::UpdatePreview()
+void SampleTexture::OnTextureListUpdate()
 {
-	if (m_textureSelection->count() == 0)
-		return;
+	m_currentTextureIndex.reset();
 
-	ComputePreview(m_pixmap);
-	m_pixmapLabel->setPixmap(m_pixmap);
-
-	Q_EMIT dataUpdated(0);
-}
-
-void SampleTexture::UpdateTextureList()
-{
-	QString currentTexture = m_textureSelection->currentText();
-	m_textureSelection->clear();
-
+	std::size_t inputIndex = 0;
 	for (const auto& textureEntry : GetGraph().GetTextures())
-		m_textureSelection->addItem(QString::fromStdString(textureEntry.name));
+	{
+		if (textureEntry.name == m_currentTextureText)
+		{
+			m_currentTextureIndex = inputIndex;
+			break;
+		}
 
-	m_textureSelection->setCurrentText(currentTexture);
+		inputIndex++;
+	}
 }
 
-void SampleTexture::ComputePreview(QPixmap& pixmap) const
+void SampleTexture::UpdateOutput()
 {
-	if (!m_uv)
-		return;
+	QImage& output = m_output->preview;
 
-	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+	if (!m_currentTextureIndex || !m_uv)
+	{
+		output = QImage(1, 1, QImage::Format_RGBA8888);
+		output.fill(QColor::fromRgb(0, 0, 0, 0));
+		return;
+	}
+
+	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
 
 	int textureWidth = textureEntry.preview.width();
 	int textureHeight = textureEntry.preview.height();
 
-	QImage& output = m_output->preview;
 	const QImage& uv = m_uv->preview;
 
 	int uvWidth = uv.width();
@@ -125,14 +89,49 @@ void SampleTexture::ComputePreview(QPixmap& pixmap) const
 		}
 	}
 
-	pixmap = QPixmap::fromImage(output).scaled(128, 128, Qt::KeepAspectRatio);
+	Q_EMIT dataUpdated(0);
+
+	UpdatePreview();
+}
+
+bool SampleTexture::ComputePreview(QPixmap& pixmap)
+{
+	if (!m_currentTextureIndex || !m_uv)
+		return false;
+
+	pixmap = QPixmap::fromImage(m_output->preview);
+	return true;
+}
+
+void SampleTexture::BuildNodeEdition(QVBoxLayout* layout)
+{
+	ShaderNode::BuildNodeEdition(layout);
+
+	QComboBox* textureSelection = new QComboBox;
+	connect(textureSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
+	{
+		if (index >= 0)
+			m_currentTextureIndex = static_cast<std::size_t>(index);
+		else
+			m_currentTextureIndex.reset();
+
+		UpdateOutput();
+	});
+
+	for (const auto& textureEntry : GetGraph().GetTextures())
+		textureSelection->addItem(QString::fromStdString(textureEntry.name));
+
+	layout->addWidget(textureSelection);
 }
 
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {
+	if (!m_currentTextureIndex || !m_uv)
+		throw std::runtime_error("invalid inputs");
+
 	assert(count == 1);
 
-	const auto& textureEntry = GetGraph().GetTexture(m_currentTextureIndex);
+	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
 
 	Nz::ShaderAst::ExpressionType expression = [&]
 	{
@@ -203,6 +202,9 @@ std::shared_ptr<QtNodes::NodeData> SampleTexture::outData(QtNodes::PortIndex por
 {
 	assert(port == 0);
 
+	if (!m_currentTextureIndex)
+		return nullptr;
+
 	return m_output;
 }
 
@@ -219,5 +221,5 @@ void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 	else
 		m_uv.reset();
 
-	UpdatePreview();
+	UpdateOutput();
 }
