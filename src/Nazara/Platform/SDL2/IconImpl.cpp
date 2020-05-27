@@ -12,7 +12,7 @@ namespace Nz
 	bool IconImpl::Create(const Image& icon)
 	{
 		m_iconImage = icon;
-		if (!m_iconImage.Convert(PixelFormatType_BGRA8))
+		if (!m_iconImage.Convert(PixelFormat_BGRA8))
 		{
 			NazaraError("Failed to convert icon to BGRA8");
 			return false;

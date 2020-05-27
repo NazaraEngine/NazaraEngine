@@ -18,7 +18,9 @@ namespace Nz
 		bool success = false;
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		{
-			HWND winHandle = reinterpret_cast<HWND>(handle);
+			NazaraAssert(handle.type == WindowManager::Windows, "expected Windows window");
+
+			HWND winHandle = reinterpret_cast<HWND>(handle.windows.window);
 			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
 
 			success = m_surface.Create(instance, winHandle);
