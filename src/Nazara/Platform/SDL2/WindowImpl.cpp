@@ -48,17 +48,17 @@ namespace Nz
 	}
 
 	WindowImpl::WindowImpl(Window* parent) :
-		m_cursor(nullptr),
-		m_handle(nullptr),
-		//m_callback(0),
-		m_style(0),
-		m_maxSize(-1),
-		m_minSize(-1),
-		m_parent(parent),
-		m_keyRepeat(true),
-		m_mouseInside(false),
-		m_smoothScrolling(false),
-		m_scrolling(0)
+	m_cursor(nullptr),
+	m_handle(nullptr),
+	//m_callback(0),
+	m_style(0),
+	m_maxSize(-1),
+	m_minSize(-1),
+	m_parent(parent),
+	m_keyRepeat(true),
+	m_mouseInside(false),
+	m_smoothScrolling(false),
+	m_scrolling(0)
 	{
 		m_cursor = SDL_GetDefaultCursor();
 	}
@@ -76,7 +76,7 @@ namespace Nz
 
 		bool fullscreen = (style & WindowStyle_Fullscreen) != 0;
 
-		Uint32 winStyle = SDL_WINDOW_OPENGL;
+		Uint32 winStyle = 0;
 
 		unsigned int x, y;
 		unsigned int width = mode.width;
@@ -147,19 +147,18 @@ namespace Nz
 
 		m_size.Set(width, height);
 
-		SDL_AddEventWatch(HandleEvent, this);
-
 		return true;
 	}
 
 	void WindowImpl::Destroy()
 	{
 		if (m_ownsWindow && m_handle)
+		{
+			SDL_DelEventWatch(HandleEvent, this);
 			SDL_DestroyWindow(m_handle);
+		}
 		else
 			SetEventListener(false);
-
-		SDL_DelEventWatch(HandleEvent, this);
 	}
 
 	void WindowImpl::EnableKeyRepeat(bool enable)
@@ -195,6 +194,8 @@ namespace Nz
 	WindowHandle WindowImpl::GetSystemHandle() const
 	{
 		SDL_SysWMinfo wmInfo;
+		SDL_VERSION(&wmInfo.version);
+
 		if (SDL_GetWindowWMInfo(m_handle, &wmInfo) != SDL_TRUE)
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -545,7 +546,13 @@ namespace Nz
 
 	void WindowImpl::SetEventListener(bool listener)
 	{
+		if (m_ownsWindow)
+			return;
 
+		if (listener)
+			SDL_AddEventWatch(HandleEvent, this);
+		else
+			SDL_DelEventWatch(HandleEvent, this);
 	}
 
 	void WindowImpl::SetFocus()
@@ -613,16 +620,6 @@ namespace Nz
 			NazaraError(SDL_GetError());
 			return false;
 		}
-		if (SDL_GL_LoadLibrary(nullptr) < 0)
-		{
-			NazaraError(SDL_GetError());
-
-			SDL_Quit();
-			return false;
-		}
-
-		if (SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true) < 0)
-			NazaraError("Couldn't set share OpenGL contexes");
 
 		return true;
 	}

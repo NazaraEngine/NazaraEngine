@@ -12,10 +12,13 @@
 #include <memory>
 #include <vector>
 
-#include <Nazara/Renderer/SDL2/ContextImpl.hpp>
-
-#if defined(NAZARA_PLATFORM_LINUX)
+#if defined(NAZARA_PLATFORM_WINDOWS)
+	#include <Nazara/Renderer/Win32/ContextImpl.hpp>
+#elif defined(NAZARA_PLATFORM_GLX)
+	#include <Nazara/Renderer/GLX/ContextImpl.hpp>
 	#define CALLBACK
+#else
+	#error Lack of implementation: Context
 #endif
 
 #include <Nazara/Renderer/Debug.hpp>

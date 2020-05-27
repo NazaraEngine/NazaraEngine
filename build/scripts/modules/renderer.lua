@@ -9,11 +9,27 @@ MODULE.Defines = {
 MODULE.Libraries = {
 	"NazaraCore",
 	"NazaraUtility",
-	"NazaraPlatform",
-    "SDL2"
+	"NazaraPlatform"
 }
 
-MODULE.Files = {
-    "../src/Nazara/Renderer/SDL2/**.hpp",
-    "../src/Nazara/Renderer/SDL2/**.cpp"
+MODULE.OsFiles.Windows = {
+    "../src/Nazara/Renderer/Win32/**.hpp",
+    "../src/Nazara/Renderer/Win32/**.cpp"
 }
+
+MODULE.OsFiles.Posix = {
+    "../src/Nazara/Renderer/GLX/**.hpp",
+    "../src/Nazara/Renderer/GLX/**.cpp"
+}
+
+MODULE.OsLibraries.Windows = {
+    "gdi32",
+    "opengl32",
+    "winmm"
+}
+
+MODULE.OsLibraries.Posix = {
+    "GL",
+    "X11"
+}
+
