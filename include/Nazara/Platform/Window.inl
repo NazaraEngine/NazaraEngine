@@ -20,7 +20,7 @@ namespace Nz
 		Create(mode, title, style);
 	}
 
-	inline Window::Window(WindowHandle handle) :
+	inline Window::Window(void* handle) :
 	Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -110,6 +110,16 @@ namespace Nz
 				m_eventConditionMutex.Unlock();
 			}
 		}
+	}
+
+	inline WindowImpl* Window::GetImpl()
+	{
+		return m_impl;
+	}
+
+	inline const WindowImpl* Window::GetImpl() const
+	{
+		return m_impl;
 	}
 }
 

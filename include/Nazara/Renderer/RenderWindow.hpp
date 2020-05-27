@@ -29,7 +29,7 @@ namespace Nz
 		public:
 			RenderWindow() = default;
 			RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			explicit RenderWindow(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			explicit RenderWindow(void* handle, const ContextParameters& parameters = ContextParameters());
 			RenderWindow(const RenderWindow&) = delete;
 			RenderWindow(RenderWindow&&) = delete; ///TODO
 			virtual ~RenderWindow();
@@ -38,7 +38,7 @@ namespace Nz
 			bool CopyToImage(AbstractImage* image, const Rectui& rect, const Vector3ui& dstPos = Vector3ui(0U)) const;
 
 			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			bool Create(WindowHandle handle, const ContextParameters& parameters = ContextParameters());
+			bool Create(void* handle, const ContextParameters& parameters = ContextParameters());
 
 			void Display();
 
