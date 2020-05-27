@@ -10,14 +10,12 @@ ShaderNode(graph)
 }
 
 template<typename From, typename To>
-void CastVec<From, To>::BuildNodeEdition(QVBoxLayout* layout)
+void CastVec<From, To>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
 	if constexpr (ComponentDiff > 0)
 	{
-		QFormLayout* formLayout = new QFormLayout;
-
 		for (std::size_t i = 0; i < ComponentDiff; ++i)
 		{
 			QDoubleSpinBox* spinbox = new QDoubleSpinBox;
@@ -30,10 +28,8 @@ void CastVec<From, To>::BuildNodeEdition(QVBoxLayout* layout)
 				UpdateOutput();
 			});
 
-			formLayout->addRow(QString::fromUtf8(&s_vectorComponents[FromComponents + i], 1), spinbox);
+			layout->addRow(QString::fromUtf8(&s_vectorComponents[FromComponents + i], 1), spinbox);
 		}
-
-		layout->addLayout(formLayout);
 	}
 }
 

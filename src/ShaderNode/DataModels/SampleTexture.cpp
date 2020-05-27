@@ -112,7 +112,7 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-void SampleTexture::BuildNodeEdition(QVBoxLayout* layout)
+void SampleTexture::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
@@ -130,7 +130,7 @@ void SampleTexture::BuildNodeEdition(QVBoxLayout* layout)
 	for (const auto& textureEntry : GetGraph().GetTextures())
 		textureSelection->addItem(QString::fromStdString(textureEntry.name));
 
-	layout->addWidget(textureSelection);
+	layout->addRow(tr("Texture"), textureSelection);
 }
 
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const

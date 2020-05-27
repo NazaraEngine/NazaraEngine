@@ -6,7 +6,7 @@ void NodeEditor::UpdateContent(QString nodeName, F&& callback)
 {
 	Clear();
 
-	m_layout = new QVBoxLayout;
+	m_layout = new QFormLayout;
 	setLayout(m_layout);
 
 	QLabel* label = new QLabel(nodeName);

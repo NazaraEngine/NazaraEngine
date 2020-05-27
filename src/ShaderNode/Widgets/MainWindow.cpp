@@ -48,7 +48,7 @@ m_shaderGraph(graph)
 	{
 		if (node)
 		{
-			m_nodeEditor->UpdateContent(node->caption(), [node](QVBoxLayout* layout)
+			m_nodeEditor->UpdateContent(node->caption(), [node](QFormLayout* layout)
 			{
 				node->BuildNodeEdition(layout);
 			});

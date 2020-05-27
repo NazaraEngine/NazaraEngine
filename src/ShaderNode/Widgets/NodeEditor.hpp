@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_NODEEDITOR_HPP
 
 #include <ShaderNode/ShaderGraph.hpp>
-#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QWidget>
 #include <optional>
 
@@ -19,7 +19,7 @@ class NodeEditor : public QWidget
 		template<typename F> void UpdateContent(QString nodeName, F&& callback);
 
 	private:
-		QVBoxLayout* m_layout;
+		QFormLayout* m_layout;
 };
 
 #include <ShaderNode/Widgets/NodeEditor.inl>
