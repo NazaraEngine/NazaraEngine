@@ -64,7 +64,7 @@ void InputValue::OnInputListUpdate()
 	}
 }
 
-void InputValue::BuildNodeEdition(QVBoxLayout* layout)
+void InputValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
@@ -83,7 +83,7 @@ void InputValue::BuildNodeEdition(QVBoxLayout* layout)
 	for (const auto& inputEntry : GetGraph().GetInputs())
 		inputSelection->addItem(QString::fromStdString(inputEntry.name));
 
-	layout->addWidget(inputSelection);
+	layout->addRow(tr("Input"), inputSelection);
 }
 
 Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const

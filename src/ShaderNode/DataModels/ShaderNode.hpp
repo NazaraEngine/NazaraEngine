@@ -10,7 +10,7 @@
 #include <optional>
 
 class QLabel;
-class QVBoxLayout;
+class QFormLayout;
 class ShaderGraph;
 
 class ShaderNode : public QtNodes::NodeDataModel
@@ -18,13 +18,14 @@ class ShaderNode : public QtNodes::NodeDataModel
 	public:
 		ShaderNode(ShaderGraph& graph);
 
-		virtual void BuildNodeEdition(QVBoxLayout* layout);
+		virtual void BuildNodeEdition(QFormLayout* layout);
 
 		void EnablePreview(bool enable);
 
 		virtual Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const = 0;
 		inline ShaderGraph& GetGraph();
 		inline const ShaderGraph& GetGraph() const;
+		inline const std::string& GetVariableName() const;
 
 		void SetPreviewSize(const Nz::Vector2i& size);
 
@@ -41,7 +42,9 @@ class ShaderNode : public QtNodes::NodeDataModel
 		Nz::Vector2i m_previewSize;
 		QLabel* m_pixmapLabel;
 		std::optional<QPixmap> m_pixmap;
+		std::string m_variableName;
 		ShaderGraph& m_graph;
+		bool m_forceVariable;
 		bool m_isPreviewEnabled;
 };
 

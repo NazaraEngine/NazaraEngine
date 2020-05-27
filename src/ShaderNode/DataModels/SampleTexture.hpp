@@ -17,7 +17,7 @@ class SampleTexture : public ShaderNode
 		SampleTexture(ShaderGraph& graph);
 		~SampleTexture() = default;
 
-		void BuildNodeEdition(QVBoxLayout* layout) override;
+		void BuildNodeEdition(QFormLayout* layout) override;
 
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 

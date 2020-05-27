@@ -1,21 +1,23 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
 
 ShaderNode::ShaderNode(ShaderGraph& graph) :
 m_previewSize(64, 64),
 m_pixmapLabel(nullptr),
 m_graph(graph),
+m_forceVariable(false),
 m_isPreviewEnabled(false)
 {
 	m_pixmapLabel = new QLabel;
 	m_pixmapLabel->setStyleSheet("background-color: rgba(0,0,0,0)");
 }
 
-void ShaderNode::BuildNodeEdition(QVBoxLayout* layout)
+void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 {
-	QCheckBox* checkbox = new QCheckBox(tr("Enable preview"));
+	QCheckBox* checkbox = new QCheckBox;
 	checkbox->setCheckState((m_isPreviewEnabled) ? Qt::Checked : Qt::Unchecked);
 
 	connect(checkbox, &QCheckBox::stateChanged, [&](int state)
@@ -23,7 +25,7 @@ void ShaderNode::BuildNodeEdition(QVBoxLayout* layout)
 		EnablePreview(state == Qt::Checked);
 	});
 
-	layout->addWidget(checkbox);
+	layout->addRow(tr("Enable preview"), checkbox);
 }
 
 void ShaderNode::EnablePreview(bool enable)

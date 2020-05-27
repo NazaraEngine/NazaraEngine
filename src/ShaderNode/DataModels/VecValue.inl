@@ -68,11 +68,10 @@ std::shared_ptr<QtNodes::NodeData> VecValue<Data>::outData(QtNodes::PortIndex po
 }
 
 template<typename Data>
-void VecValue<Data>::BuildNodeEdition(QVBoxLayout* layout)
+void VecValue<Data>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QFormLayout* formLayout = new QFormLayout;
 	for (std::size_t i = 0; i < ComponentCount; ++i)
 	{
 		QDoubleSpinBox* spinbox = new QDoubleSpinBox;
@@ -87,10 +86,8 @@ void VecValue<Data>::BuildNodeEdition(QVBoxLayout* layout)
 			UpdatePreview();
 		});
 
-		formLayout->addRow(QString::fromUtf8(&s_vectorComponents[i], 1), spinbox);
+		layout->addRow(QString::fromUtf8(&s_vectorComponents[i], 1), spinbox);
 	}
-
-	layout->addLayout(formLayout);
 }
 
 template<typename Data>
