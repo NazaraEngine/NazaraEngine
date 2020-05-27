@@ -10,7 +10,7 @@
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #if defined(NAZARA_PLATFORM_GLX)
-#include <Nazara/Platform/X11/Display.hpp>
+#include <Nazara/Platform/GLX/Display.hpp>
 #endif // NAZARA_PLATFORM_GLX
 #include <set>
 #include <sstream>
