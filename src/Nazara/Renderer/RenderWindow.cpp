@@ -15,7 +15,7 @@ namespace Nz
 	{
 		if (m_framerateLimit > 0)
 		{
-			int remainingTime = 1000/static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
+			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
 			if (remainingTime > 0)
 				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
 
@@ -38,9 +38,9 @@ namespace Nz
 
 	bool RenderWindow::OnWindowCreated()
 	{
-		RendererImpl* rendererImpl = Renderer::GetRendererImpl();
+		RendererImpl *rendererImpl = Renderer::GetRendererImpl();
 		auto surface = rendererImpl->CreateRenderSurfaceImpl();
-		if (!surface->Create(GetHandle()))
+		if (!surface->Create(GetSystemHandle()))
 		{
 			NazaraError("Failed to create render surface: " + Error::GetLastError());
 			return false;

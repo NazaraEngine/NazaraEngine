@@ -42,14 +42,6 @@ namespace Nz
 		return m_device;
 	}
 
-	bool OpenGLRenderer::IsBetterThan(const RendererImpl* other) const
-	{
-		if (other->QueryAPI() == RenderAPI::OpenGL && QueryAPIVersion() > other->QueryAPIVersion())
-			return true;
-
-		return false; //< OpenGL is mostly a fallback to other renderers
-	}
-
 	bool OpenGLRenderer::Prepare(const ParameterList& parameters)
 	{
 		if (!m_opengl32Lib.Load("opengl32" NAZARA_DYNLIB_EXTENSION))

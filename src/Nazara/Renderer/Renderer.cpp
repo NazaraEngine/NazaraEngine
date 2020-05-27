@@ -16,9 +16,9 @@
 #include <Nazara/Renderer/Debug.hpp>
 
 #ifdef NAZARA_DEBUG
-	#define NazaraRendererPattern "Nazara?*Renderer-d" NAZARA_DYNLIB_EXTENSION
+	#define NazaraRendererDebugSuffix "-d"
 #else
-	#define NazaraRendererPattern "Nazara?*Renderer" NAZARA_DYNLIB_EXTENSION
+	#define NazaraRendererDebugSuffix ""
 #endif
 
 namespace Nz
@@ -48,26 +48,45 @@ namespace Nz
 
 		CallOnExit onExit(Renderer::Uninitialize);
 
+		struct RendererImplementations
+		{
+			std::filesystem::path fileName;
+			int score;
+		};
+		std::vector<RendererImplementations> implementations;
+
+		auto RegisterImpl = [&](std::filesystem::path fileName, auto ComputeScore)
+		{
+			fileName.replace_extension(NAZARA_DYNLIB_EXTENSION);
+
+			int score = ComputeScore();
+			if (score >= 0)
+			{
+				auto& impl = implementations.emplace_back();
+				impl.fileName = std::move(fileName);
+				impl.score = score;
+			}
+		};
+
+		RegisterImpl("NazaraOpenGLRenderer" NazaraRendererDebugSuffix, [] { return 50; });
+		RegisterImpl("NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
+
+		std::sort(implementations.begin(), implementations.end(), [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
+
 		NazaraDebug("Searching for renderer implementation");
 
 		DynLib chosenLib;
 		std::unique_ptr<RendererImpl> chosenImpl;
 
-		for (auto&& entry : std::filesystem::directory_iterator("."))
+		for (auto&& rendererImpl : implementations)
 		{
-			if (!entry.is_regular_file())
+			if (!std::filesystem::exists(rendererImpl.fileName))
 				continue;
 
-			const std::filesystem::path& entryPath = entry.path();
-			std::filesystem::path fileName = entryPath.filename();
-			std::string fileNameStr = fileName.generic_u8string();
-			if (!MatchPattern(fileNameStr, NazaraRendererPattern))
-				continue;
-
-			NazaraDebug("Trying to load " + fileNameStr);
+			std::string fileNameStr = rendererImpl.fileName.generic_u8string();
 
 			DynLib implLib;
-			if (!implLib.Load(entryPath))
+			if (!implLib.Load(rendererImpl.fileName))
 			{
 				NazaraWarning("Failed to load " + fileNameStr + ": " + implLib.GetLastError());
 				continue;
@@ -87,16 +106,11 @@ namespace Nz
 				continue;
 			}
 
-			NazaraDebug("Loaded " + impl->QueryAPIString());
+			NazaraDebug("Loaded " + fileNameStr);
 
-			if (!chosenImpl || impl->IsBetterThan(chosenImpl.get()))
-			{
-				if (chosenImpl)
-					NazaraDebug("Choose " + impl->QueryAPIString() + " over " + chosenImpl->QueryAPIString());
-
-				chosenImpl = std::move(impl); //< Move (and delete previous) implementation before unloading library
-				chosenLib = std::move(implLib);
-			}
+			chosenImpl = std::move(impl); //< Move (and delete previous) implementation before unloading library
+			chosenLib = std::move(implLib);
+			break;
 		}
 
 		if (!chosenImpl)

@@ -18,7 +18,7 @@ void TextEnterState::Enter(Ndk::StateMachine& fsm)
 	Nz::EventHandler& eventHandler = m_context.window.GetEventHandler();
 	m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& key)
 	{
-		if (key.code == Nz::Keyboard::Key::M && key.shift)
+		if (key.virtualKey == Nz::Keyboard::VKey::M && key.shift)
 		{
 			fsm.ChangeState(StateFactory::Get(EventStatus::Menu));
 		}

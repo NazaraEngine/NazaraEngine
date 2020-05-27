@@ -3,6 +3,12 @@ build/config.lua
 
 # Nazara binaries
 bin/*
+
+# Build files
+build/gmake*/
+build/vs*/
+
+# Nazara libraries
 lib/*
 
 # Self-hosted thirdparty libraries binaries
@@ -166,9 +172,3 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
-
-
-
-
-
-

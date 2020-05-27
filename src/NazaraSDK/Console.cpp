@@ -145,7 +145,7 @@ namespace Ndk
 	void Console::ClearFocus()
 	{
 		m_input->ClearFocus();
-	}
+  }
 
 	/*!
 	* \brief Sets the character size
