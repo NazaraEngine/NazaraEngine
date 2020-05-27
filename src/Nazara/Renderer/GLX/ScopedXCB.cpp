@@ -5,7 +5,6 @@
 #include <Nazara/Renderer/GLX/ScopedXCB.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/GLX/Display.hpp>
-#include <xcb/xcb_image.h>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -108,92 +107,5 @@ namespace Nz
 	XCBGContext::operator xcb_gcontext_t() const
 	{
 		return m_gcontext;
-	}
-
-	/***********************************************
-	                    XCBPixmap
-	***********************************************/
-
-	XCBPixmap::XCBPixmap() :
-	m_connection(nullptr),
-	m_pixmap(XCB_NONE)
-	{
-	}
-
-	XCBPixmap::XCBPixmap(xcb_connection_t* connection) :
-	m_connection(connection),
-	m_pixmap(XCB_NONE)
-	{
-	}
-
-	XCBPixmap::~XCBPixmap()
-	{
-		Destroy();
-	}
-
-	void XCBPixmap::Connect(xcb_connection_t* connection)
-	{
-		NazaraAssert(connection && !m_connection, "Connection must be established");
-
-		m_connection = connection;
-	}
-
-	bool XCBPixmap::Create(uint8_t depth, xcb_drawable_t drawable, uint16_t width, uint16_t height)
-	{
-		NazaraAssert(m_pixmap == XCB_NONE, "Pixmap must have been destroyed before or just created");
-
-		m_pixmap = xcb_generate_id(m_connection);
-
-		return X11::CheckCookie(
-			m_connection,
-			xcb_create_pixmap(
-				m_connection,
-				depth,
-				m_pixmap,
-				drawable,
-				width,
-				height
-			));
-	}
-
-	bool XCBPixmap::CreatePixmapFromBitmapData(xcb_drawable_t drawable, uint8_t* data, uint32_t width, uint32_t height, uint32_t depth, uint32_t fg, uint32_t bg, xcb_gcontext_t* gcp)
-	{
-		NazaraAssert(m_pixmap == XCB_NONE, "Pixmap must have been destroyed before or just created");
-
-		m_pixmap = xcb_create_pixmap_from_bitmap_data(
-			m_connection,
-			drawable,
-			data,
-			width,
-			height,
-			depth,
-			fg,
-			bg,
-			gcp
-		);
-
-		return m_pixmap != XCB_NONE;
-	}
-
-	void XCBPixmap::Destroy()
-	{
-		if (m_pixmap == XCB_NONE)
-			return;
-
-		if (!X11::CheckCookie(
-			m_connection,
-			xcb_free_pixmap(
-				m_connection,
-				m_pixmap
-			))
-		)
-			NazaraError("Failed to free pixmap");
-
-		m_pixmap = XCB_NONE;
-	}
-
-	XCBPixmap::operator xcb_pixmap_t() const
-	{
-		return m_pixmap;
 	}
 }

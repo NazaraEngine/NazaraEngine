@@ -74,26 +74,6 @@ namespace Nz
 			xcb_connection_t* m_connection;
 			xcb_gcontext_t m_gcontext;
 	};
-
-	class XCBPixmap
-	{
-		public:
-			XCBPixmap();
-			XCBPixmap(xcb_connection_t* connection);
-			~XCBPixmap();
-
-			void Connect(xcb_connection_t* connection);
-			bool Create(uint8_t depth, xcb_drawable_t drawable, uint16_t width, uint16_t height);
-			bool CreatePixmapFromBitmapData(xcb_drawable_t drawable, uint8_t* data, uint32_t width, uint32_t height, uint32_t depth, uint32_t fg, uint32_t bg, xcb_gcontext_t* gcp);
-
-			void Destroy();
-
-			operator xcb_pixmap_t() const;
-
-		private:
-			xcb_connection_t* m_connection;
-			xcb_pixmap_t m_pixmap;
-	};
 }
 
 #include <Nazara/Renderer/GLX/ScopedXCB.inl>
