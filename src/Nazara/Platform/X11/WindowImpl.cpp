@@ -4,10 +4,10 @@
 
 // Un grand merci à Laurent Gomila pour la SFML qui m'aura bien aidé à réaliser cette implémentation
 
-#include <Nazara/Platform/X11/WindowImpl.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Cursor.hpp>
+#include <Nazara/Platform/Debug.hpp>
 #include <Nazara/Platform/Event.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
@@ -15,14 +15,14 @@
 #include <Nazara/Platform/X11/CursorImpl.hpp>
 #include <Nazara/Platform/X11/Display.hpp>
 #include <Nazara/Platform/X11/IconImpl.hpp>
+#include <Nazara/Platform/X11/WindowImpl.hpp>
+#include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 #include <X11/Xutil.h>
-#include <xcb/xcb_keysyms.h>
-#include <Nazara/Platform/Debug.hpp>
 
 /*
-	Things to do left:
+    Things to do left:
 
     Icon working sometimes (No idea)
     EnableKeyRepeat (Working but is it the right behaviour ?)
@@ -35,7 +35,7 @@
     SetStayOnTop (Equivalent for X11 ?)
     Opengl Context (glXCreateContextAttribs should be loaded like in window and the version for the context should be the one of NzContextParameters)
 
-*/
+ */
 
 namespace Nz
 {
@@ -44,21 +44,21 @@ namespace Nz
 		Nz::WindowImpl* fullscreenWindow = nullptr;
 
 		const uint32_t eventMask = XCB_EVENT_MASK_FOCUS_CHANGE   | XCB_EVENT_MASK_BUTTON_PRESS     |
-								   XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_BUTTON_MOTION    |
-								   XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_KEY_PRESS        |
-								   XCB_EVENT_MASK_KEY_RELEASE    | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-								   XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW;
+		                           XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_BUTTON_MOTION    |
+		                           XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_KEY_PRESS        |
+		                           XCB_EVENT_MASK_KEY_RELEASE    | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+		                           XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW;
 
 		xcb_connection_t* connection = nullptr;
 	}
 
 	WindowImpl::WindowImpl(Window* parent) :
-	m_window(0),
-	m_style(0),
-	m_parent(parent),
-	m_smoothScrolling(false),
-	m_mousePos(0, 0),
-	m_keyRepeat(true)
+		m_window(0),
+		m_style(0),
+		m_parent(parent),
+		m_smoothScrolling(false),
+		m_mousePos(0, 0),
+		m_keyRepeat(true)
 	{
 		std::memset(&m_size_hints, 0, sizeof(m_size_hints));
 	}
@@ -96,34 +96,34 @@ namespace Nz
 		const uint32_t value_list[] = { fullscreen, eventMask, colormap };
 
 		CallOnExit onExit([&](){
-			if (!X11::CheckCookie(
-				connection,
-				xcb_free_colormap(
-					connection,
-					colormap
-				))
-			)
-				NazaraError("Failed to free colormap");
-		});
+		                  if (!X11::CheckCookie(
+								  connection,
+								  xcb_free_colormap(
+									  connection,
+									  colormap
+									  ))
+		                      )
+							  NazaraError("Failed to free colormap");
+			});
 
 		// Create the window
 		m_window = xcb_generate_id(connection);
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_create_window_checked(
 				connection,
-				XCB_COPY_FROM_PARENT,
-				m_window,
-				m_screen->root,
-				left, top,
-				width, height,
-				0,
-				XCB_WINDOW_CLASS_INPUT_OUTPUT,
-				m_screen->root_visual,
-				XCB_CW_EVENT_MASK | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_COLORMAP,
-				value_list
-			)))
+				xcb_create_window_checked(
+					connection,
+					XCB_COPY_FROM_PARENT,
+					m_window,
+					m_screen->root,
+					left, top,
+					width, height,
+					0,
+					XCB_WINDOW_CLASS_INPUT_OUTPUT,
+					m_screen->root_visual,
+					XCB_CW_EVENT_MASK | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_COLORMAP,
+					value_list
+					)))
 		{
 			NazaraError("Failed to create window");
 			return false;
@@ -141,7 +141,7 @@ namespace Nz
 				m_window),
 			&m_size_hints,
 			&error
-		);
+			);
 		if (error)
 			NazaraError("Failed to get size hints");
 
@@ -215,7 +215,7 @@ namespace Nz
 				m_window),
 			&m_size_hints,
 			&error
-		);
+			);
 
 		if (error)
 		{
@@ -237,13 +237,11 @@ namespace Nz
 		if (m_ownsWindow)
 		{
 			if (m_style & WindowStyle_Threaded)
-			{
 				if (m_thread.IsJoinable())
 				{
 					m_threadActive = false;
 					m_thread.Join();
 				}
-			}
 
 			// Destroy the window
 			if (m_window && m_ownsWindow)
@@ -252,11 +250,11 @@ namespace Nz
 				SetCursor(*Cursor::Get(SystemCursor_Default));
 
 				if (!X11::CheckCookie(
-					connection,
-					xcb_destroy_window(
 						connection,
-						m_window
-					)))
+						xcb_destroy_window(
+							connection,
+							m_window
+							)))
 					NazaraError("Failed to destroy window");
 
 				xcb_flush(connection);
@@ -309,7 +307,7 @@ namespace Nz
 
 		xcb_ewmh_get_utf8_strings_reply_t data;
 		xcb_ewmh_get_wm_name_reply(ewmhConnection,
-			xcb_ewmh_get_wm_name(ewmhConnection, m_window), &data, &error);
+		                           xcb_ewmh_get_wm_name(ewmhConnection, m_window), &data, &error);
 
 		if (error)
 			NazaraError("Failed to get window's title");
@@ -331,17 +329,17 @@ namespace Nz
 		ScopedXCB<xcb_generic_error_t> error(nullptr);
 
 		ScopedXCB<xcb_get_input_focus_reply_t> reply(xcb_get_input_focus_reply(
-			connection,
-			xcb_get_input_focus_unchecked(
-				connection
-			),
-			&error
-		));
+														 connection,
+														 xcb_get_input_focus_unchecked(
+															 connection
+															 ),
+														 &error
+														 ));
 
 		if (error)
 			NazaraError("Failed to check if window has focus");
 
-		return (reply->focus == m_window);
+		return reply->focus == m_window;
 	}
 
 	void WindowImpl::IgnoreNextMouseEvent(int mouseX, int mouseY)
@@ -360,7 +358,7 @@ namespace Nz
 
 		xcb_ewmh_get_atoms_reply_t atomReply;
 		if (xcb_ewmh_get_wm_state_reply(ewmhConnection,
-				xcb_ewmh_get_wm_state(ewmhConnection, m_window), &atomReply, &error) == 1)
+		                                xcb_ewmh_get_wm_state(ewmhConnection, m_window), &atomReply, &error) == 1)
 		{
 			for (unsigned int i = 0; i < atomReply.atoms_len; i++)
 				if (atomReply.atoms[i] == ewmhConnection->_NET_WM_STATE_HIDDEN)
@@ -436,14 +434,14 @@ namespace Nz
 				const uint32_t value_list[] = { eventMask };
 
 				if (!X11::CheckCookie(
-					connection,
-					xcb_change_window_attributes(
 						connection,
-						m_window,
-						XCB_CW_EVENT_MASK,
-						value_list
-					))
-				)
+						xcb_change_window_attributes(
+							connection,
+							m_window,
+							XCB_CW_EVENT_MASK,
+							value_list
+							))
+				    )
 					NazaraError("Failed to change event for listener");
 
 				m_eventListener = true;
@@ -453,14 +451,14 @@ namespace Nz
 				const uint32_t value_list[] = { XCB_EVENT_MASK_NO_EVENT };
 
 				if (!X11::CheckCookie(
-					connection,
-					xcb_change_window_attributes(
 						connection,
-						m_window,
-						XCB_CW_EVENT_MASK,
-						value_list
-					))
-				)
+						xcb_change_window_attributes(
+							connection,
+							m_window,
+							XCB_CW_EVENT_MASK,
+							value_list
+							))
+				    )
 					NazaraError("Failed to change event for listener");
 
 				m_eventListener = false;
@@ -471,27 +469,27 @@ namespace Nz
 	void WindowImpl::SetFocus()
 	{
 		if (!X11::CheckCookie(
-			connection,
-			xcb_set_input_focus(
 				connection,
-				XCB_INPUT_FOCUS_POINTER_ROOT,
-				m_window,
-				XCB_CURRENT_TIME
-			))
-		)
+				xcb_set_input_focus(
+					connection,
+					XCB_INPUT_FOCUS_POINTER_ROOT,
+					m_window,
+					XCB_CURRENT_TIME
+					))
+		    )
 			NazaraError("Failed to set input focus");
 
 		const uint32_t values[] = { XCB_STACK_MODE_ABOVE };
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_configure_window(
 				connection,
-				m_window,
-				XCB_CONFIG_WINDOW_STACK_MODE,
-				values
-			))
-		)
+				xcb_configure_window(
+					connection,
+					m_window,
+					XCB_CONFIG_WINDOW_STACK_MODE,
+					values
+					))
+		    )
 			NazaraError("Failed to set focus");
 	}
 
@@ -518,7 +516,7 @@ namespace Nz
 				m_window),
 			&hints,
 			&error
-		);
+			);
 
 		if (error)
 			NazaraError("Failed to get wm hints");
@@ -527,13 +525,13 @@ namespace Nz
 		xcb_icccm_wm_hints_set_icon_mask(&hints, mask_pixmap);
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_icccm_set_wm_hints(
 				connection,
-				m_window,
-				&hints
-			))
-		)
+				xcb_icccm_set_wm_hints(
+					connection,
+					m_window,
+					&hints
+					))
+		    )
 			NazaraError("Failed to set wm hints");
 
 		xcb_flush(connection);
@@ -570,14 +568,14 @@ namespace Nz
 
 		const uint32_t values[] = { static_cast<uint32_t>(x), static_cast<uint32_t>(y) };
 		if (!X11::CheckCookie(
-			connection,
-			xcb_configure_window(
 				connection,
-				m_window,
-				XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
-				values
-			))
-		)
+				xcb_configure_window(
+					connection,
+					m_window,
+					XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+					values
+					))
+		    )
 			NazaraError("Failed to set position");
 
 		xcb_flush(connection);
@@ -591,14 +589,14 @@ namespace Nz
 
 		const uint32_t values[] = { width, height };
 		if (!X11::CheckCookie(
-			connection,
-			xcb_configure_window(
 				connection,
-				m_window,
-				XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
-				values
-			))
-		)
+				xcb_configure_window(
+					connection,
+					m_window,
+					XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+					values
+					))
+		    )
 			NazaraError("Failed to set sizes");
 
 		xcb_flush(connection);
@@ -615,14 +613,14 @@ namespace Nz
 			onTop = ewmhConnection->_NET_WM_STATE_BELOW;
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_ewmh_set_wm_state(
-				ewmhConnection,
-				m_window,
-				1,
-				&onTop
-			))
-		)
+				connection,
+				xcb_ewmh_set_wm_state(
+					ewmhConnection,
+					m_window,
+					1,
+					&onTop
+					))
+		    )
 			NazaraError("Failed to set stay on top");
 
 		xcb_flush(connection);
@@ -633,14 +631,14 @@ namespace Nz
 		ScopedXCBEWMHConnection ewmhConnection(connection);
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_ewmh_set_wm_name(
-				ewmhConnection,
-				m_window,
-				title.GetSize(),
-				title.GetConstBuffer()
-			))
-		)
+				connection,
+				xcb_ewmh_set_wm_name(
+					ewmhConnection,
+					m_window,
+					title.GetSize(),
+					title.GetConstBuffer()
+					))
+		    )
 			NazaraError("Failed to set title");
 
 		xcb_flush(connection);
@@ -651,25 +649,22 @@ namespace Nz
 		if (visible)
 		{
 			if (!X11::CheckCookie(
-				connection,
-				xcb_map_window(
 					connection,
-					m_window
-				))
-			)
+					xcb_map_window(
+						connection,
+						m_window
+						))
+			    )
 				NazaraError("Failed to change window visibility to visible");
 		}
-		else
-		{
-			if (!X11::CheckCookie(
-				connection,
-				xcb_unmap_window(
-					connection,
-					m_window
-				))
-			)
-				NazaraError("Failed to change window visibility to invisible");
-		}
+		else if (!X11::CheckCookie(
+					 connection,
+					 xcb_unmap_window(
+						 connection,
+						 m_window
+						 ))
+		         )
+			NazaraError("Failed to change window visibility to invisible");
 
 		xcb_flush(connection);
 	}
@@ -708,8 +703,8 @@ namespace Nz
 		xcb_keysym_t k0, k1;
 
 		CallOnExit onExit([&](){
-			X11::XCBKeySymbolsFree(keysyms);
-		});
+		                  X11::XCBKeySymbolsFree(keysyms);
+			});
 
 		// Based on documentation in https://cgit.freedesktop.org/xcb/util-keysyms/tree/keysyms/keysyms.c
 		// Mode switch = ctlr and alt gr = XCB_MOD_MASK_5
@@ -736,41 +731,41 @@ namespace Nz
 			k1 = k0;
 
 		/* The numlock modifier is on and the second KeySym is a keypad KeySym
-		The numlock modifier is on and the second KeySym is a keypad KeySym. In
-		this case, if the Shift modifier is on, or if the Lock modifier is on
-		and is interpreted as ShiftLock, then the first KeySym is used,
-		otherwise the second KeySym is used.
-		*/
+		   The numlock modifier is on and the second KeySym is a keypad KeySym. In
+		   this case, if the Shift modifier is on, or if the Lock modifier is on
+		   and is interpreted as ShiftLock, then the first KeySym is used,
+		   otherwise the second KeySym is used.
+		 */
 		if ((state & XCB_MOD_MASK_2) && xcb_is_keypad_key(k1))
 		{
-			if ((state & XCB_MOD_MASK_SHIFT) ||	(state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
+			if ((state & XCB_MOD_MASK_SHIFT) || (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 				return k0;
 			else
 				return k1;
 		}
 
 		/* The Shift and Lock modifiers are both off. In this case, the first
-		KeySym is used.*/
+		   KeySym is used.*/
 		else if (!(state & XCB_MOD_MASK_SHIFT) && !(state & XCB_MOD_MASK_LOCK))
 			return k0;
 
 		/* The Shift modifier is off, and the Lock modifier is on and is
-		interpreted as CapsLock. In this case, the first KeySym is used, but
-		if that KeySym is lowercase alphabetic, then the corresponding
-		uppercase KeySym is used instead. */
+		   interpreted as CapsLock. In this case, the first KeySym is used, but
+		   if that KeySym is lowercase alphabetic, then the corresponding
+		   uppercase KeySym is used instead. */
 		else if (!(state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 			return k0;
 
 		/* The Shift modifier is on, and the Lock modifier is on and is
-		interpreted as CapsLock. In this case, the second KeySym is used, but
-		if that KeySym is lowercase alphabetic, then the corresponding
-		uppercase KeySym is used instead.*/
+		   interpreted as CapsLock. In this case, the second KeySym is used, but
+		   if that KeySym is lowercase alphabetic, then the corresponding
+		   uppercase KeySym is used instead.*/
 		else if ((state & XCB_MOD_MASK_SHIFT) && (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 			return k1;
 
 		/* The Shift modifier is on, or the Lock modifier is on and is
-		interpreted as ShiftLock, or both. In this case, the second KeySym is
-		used. */
+		   interpreted as ShiftLock, or both. In this case, the second KeySym is
+		   used. */
 		else if ((state & XCB_MOD_MASK_SHIFT) || (state & XCB_MOD_MASK_LOCK && (state & XCB_MOD_MASK_SHIFT)))
 			return k1;
 
@@ -785,149 +780,151 @@ namespace Nz
 
 		switch (key)
 		{
-			// Lettres
-			case XK_A: return Keyboard::A;
-			case XK_B: return Keyboard::B;
-			case XK_C: return Keyboard::C;
-			case XK_D: return Keyboard::D;
-			case XK_E: return Keyboard::E;
-			case XK_F: return Keyboard::F;
-			case XK_G: return Keyboard::G;
-			case XK_H: return Keyboard::H;
-			case XK_I: return Keyboard::I;
-			case XK_J: return Keyboard::J;
-			case XK_K: return Keyboard::K;
-			case XK_L: return Keyboard::L;
-			case XK_M: return Keyboard::M;
-			case XK_N: return Keyboard::N;
-			case XK_O: return Keyboard::O;
-			case XK_P: return Keyboard::P;
-			case XK_Q: return Keyboard::Q;
-			case XK_R: return Keyboard::R;
-			case XK_S: return Keyboard::S;
-			case XK_T: return Keyboard::T;
-			case XK_U: return Keyboard::U;
-			case XK_V: return Keyboard::V;
-			case XK_W: return Keyboard::W;
-			case XK_X: return Keyboard::X;
-			case XK_Y: return Keyboard::Y;
-			case XK_Z: return Keyboard::Z;
+		// Lettres
+		case XK_A: return Keyboard::A;
+		case XK_B: return Keyboard::B;
+		case XK_C: return Keyboard::C;
+		case XK_D: return Keyboard::D;
+		case XK_E: return Keyboard::E;
+		case XK_F: return Keyboard::F;
+		case XK_G: return Keyboard::G;
+		case XK_H: return Keyboard::H;
+		case XK_I: return Keyboard::I;
+		case XK_J: return Keyboard::J;
+		case XK_K: return Keyboard::K;
+		case XK_L: return Keyboard::L;
+		case XK_M: return Keyboard::M;
+		case XK_N: return Keyboard::N;
+		case XK_O: return Keyboard::O;
+		case XK_P: return Keyboard::P;
+		case XK_Q: return Keyboard::Q;
+		case XK_R: return Keyboard::R;
+		case XK_S: return Keyboard::S;
+		case XK_T: return Keyboard::T;
+		case XK_U: return Keyboard::U;
+		case XK_V: return Keyboard::V;
+		case XK_W: return Keyboard::W;
+		case XK_X: return Keyboard::X;
+		case XK_Y: return Keyboard::Y;
+		case XK_Z: return Keyboard::Z;
 
-			// Touches de fonction
-			case XK_F1: return Keyboard::F1;
-			case XK_F2: return Keyboard::F2;
-			case XK_F3: return Keyboard::F3;
-			case XK_F4: return Keyboard::F4;
-			case XK_F5: return Keyboard::F5;
-			case XK_F6: return Keyboard::F6;
-			case XK_F7: return Keyboard::F7;
-			case XK_F8: return Keyboard::F8;
-			case XK_F9: return Keyboard::F9;
-			case XK_F10: return Keyboard::F10;
-			case XK_F11: return Keyboard::F11;
-			case XK_F12: return Keyboard::F12;
-			case XK_F13: return Keyboard::F13;
-			case XK_F14: return Keyboard::F14;
-			case XK_F15: return Keyboard::F15;
+		// Touches de fonction
+		case XK_F1: return Keyboard::F1;
+		case XK_F2: return Keyboard::F2;
+		case XK_F3: return Keyboard::F3;
+		case XK_F4: return Keyboard::F4;
+		case XK_F5: return Keyboard::F5;
+		case XK_F6: return Keyboard::F6;
+		case XK_F7: return Keyboard::F7;
+		case XK_F8: return Keyboard::F8;
+		case XK_F9: return Keyboard::F9;
+		case XK_F10: return Keyboard::F10;
+		case XK_F11: return Keyboard::F11;
+		case XK_F12: return Keyboard::F12;
+		case XK_F13: return Keyboard::F13;
+		case XK_F14: return Keyboard::F14;
+		case XK_F15: return Keyboard::F15;
 
-			// Flèches directionnelles
-			case XK_Down: return Keyboard::Down;
-			case XK_Left: return Keyboard::Left;
-			case XK_Right: return Keyboard::Right;
-			case XK_Up: return Keyboard::Up;
+		// Flèches directionnelles
+		case XK_Down: return Keyboard::Down;
+		case XK_Left: return Keyboard::Left;
+		case XK_Right: return Keyboard::Right;
+		case XK_Up: return Keyboard::Up;
 
-			// Pavé numérique
-			case XK_KP_Add: return Keyboard::Add;
-			case XK_KP_Decimal: return Keyboard::Decimal;
-			case XK_KP_Delete: return Keyboard::Decimal;
-			case XK_KP_Divide: return Keyboard::Divide;
-			case XK_KP_Multiply: return Keyboard::Multiply;
-			case XK_KP_Insert: return Keyboard::Numpad0;
-			case XK_KP_End: return Keyboard::Numpad1;
-			case XK_KP_Down: return Keyboard::Numpad2;
-			case XK_KP_Page_Down: return Keyboard::Numpad3;
-			case XK_KP_Left: return Keyboard::Numpad4;
-			case XK_KP_Begin: return Keyboard::Numpad5;
-			case XK_KP_Right: return Keyboard::Numpad6;
-			case XK_KP_Home: return Keyboard::Numpad7;
-			case XK_KP_Up: return Keyboard::Numpad8;
-			case XK_KP_Page_Up: return Keyboard::Numpad9;
-			case XK_KP_Enter: return Keyboard::Return;
-			case XK_KP_Subtract: return Keyboard::Subtract;
+		// Pavé numérique
+		case XK_KP_Add: return Keyboard::Add;
+		case XK_KP_Decimal: return Keyboard::Decimal;
+		case XK_KP_Delete: return Keyboard::Decimal;
+		case XK_KP_Divide: return Keyboard::Divide;
+		case XK_KP_Multiply: return Keyboard::Multiply;
+		case XK_KP_Insert: return Keyboard::Numpad0;
+		case XK_KP_End: return Keyboard::Numpad1;
+		case XK_KP_Down: return Keyboard::Numpad2;
+		case XK_KP_Page_Down: return Keyboard::Numpad3;
+		case XK_KP_Left: return Keyboard::Numpad4;
+		case XK_KP_Begin: return Keyboard::Numpad5;
+		case XK_KP_Right: return Keyboard::Numpad6;
+		case XK_KP_Home: return Keyboard::Numpad7;
+		case XK_KP_Up: return Keyboard::Numpad8;
+		case XK_KP_Page_Up: return Keyboard::Numpad9;
+		case XK_KP_Enter: return Keyboard::NumpadReturn;
+		case XK_KP_Subtract: return Keyboard::Subtract;
 
-			// Divers
-			case XK_backslash: return Keyboard::Backslash;
-			case XK_BackSpace: return Keyboard::Backspace;
-			case XK_Clear: return Keyboard::Clear;
-			case XK_comma: return Keyboard::Comma;
-			case XK_minus: return Keyboard::Dash;
-			case XK_Delete: return Keyboard::Delete;
-			case XK_End: return Keyboard::End;
-			case XK_equal: return Keyboard::Equal;
-			case XK_Escape: return Keyboard::Escape;
-			case XK_Home: return Keyboard::Home;
-			case XK_Insert: return Keyboard::Insert;
-			case XK_Alt_L: return Keyboard::LAlt;
-			case XK_bracketleft: return Keyboard::LBracket;
-			case XK_Control_L: return Keyboard::LControl;
-			case XK_Shift_L: return Keyboard::LShift;
-			case XK_Super_L: return Keyboard::LSystem;
-			case XK_0: return Keyboard::Num0;
-			case XK_1: return Keyboard::Num1;
-			case XK_2: return Keyboard::Num2;
-			case XK_3: return Keyboard::Num3;
-			case XK_4: return Keyboard::Num4;
-			case XK_5: return Keyboard::Num5;
-			case XK_6: return Keyboard::Num6;
-			case XK_7: return Keyboard::Num7;
-			case XK_8: return Keyboard::Num8;
-			case XK_9: return Keyboard::Num9;
-			case XK_Page_Down: return Keyboard::PageDown;
-			case XK_Page_Up: return Keyboard::PageUp;
-			case XK_Pause: return Keyboard::Pause;
-			case XK_period: return Keyboard::Period;
-			case XK_Print: return Keyboard::Print;
-			case XK_Sys_Req: return Keyboard::PrintScreen;
-			case XK_quotedbl: return Keyboard::Quote;
-			case XK_Alt_R: return Keyboard::RAlt;
-			case XK_bracketright: return Keyboard::RBracket;
-			case XK_Control_R: return Keyboard::RControl;
-			case XK_Return: return Keyboard::Return;
-			case XK_Shift_R: return Keyboard::RShift;
-			case XK_Super_R: return Keyboard::RSystem;
-			case XK_semicolon: return Keyboard::Semicolon;
-			case XK_slash: return Keyboard::Slash;
-			case XK_space: return Keyboard::Space;
-			case XK_Tab: return Keyboard::Tab;
-			case XK_grave: return Keyboard::Tilde;
+		// Divers
+		case XK_backslash: return Keyboard::Backslash;
+		case XK_BackSpace: return Keyboard::Backspace;
+		case XK_Clear: return Keyboard::Clear;
+		case XK_comma: return Keyboard::Comma;
+		case XK_minus: return Keyboard::Dash;
+		case XK_Delete: return Keyboard::Delete;
+		case XK_End: return Keyboard::End;
+		case XK_equal: return Keyboard::Equal;
+		case XK_Escape: return Keyboard::Escape;
+		case XK_Home: return Keyboard::Home;
+		case XK_Insert: return Keyboard::Insert;
+		case XK_Alt_L: return Keyboard::LAlt;
+		case XK_bracketleft: return Keyboard::LBracket;
+		case XK_Control_L: return Keyboard::LControl;
+		case XK_Shift_L: return Keyboard::LShift;
+		case XK_Super_L: return Keyboard::LSystem;
+		case XK_0: return Keyboard::Num0;
+		case XK_1: return Keyboard::Num1;
+		case XK_2: return Keyboard::Num2;
+		case XK_3: return Keyboard::Num3;
+		case XK_4: return Keyboard::Num4;
+		case XK_5: return Keyboard::Num5;
+		case XK_6: return Keyboard::Num6;
+		case XK_7: return Keyboard::Num7;
+		case XK_8: return Keyboard::Num8;
+		case XK_9: return Keyboard::Num9;
+		case XK_Page_Down: return Keyboard::PageDown;
+		case XK_Page_Up: return Keyboard::PageUp;
+		case XK_Pause: return Keyboard::Pause;
+		case XK_period: return Keyboard::Period;
+		case XK_Print: return Keyboard::Print;
+		case XK_Sys_Req: return Keyboard::PrintScreen;
+		case XK_quotedbl: return Keyboard::Quote;
+		case XK_Alt_R: return Keyboard::RAlt;
+		case XK_bracketright: return Keyboard::RBracket;
+		case XK_Control_R: return Keyboard::RControl;
+		case XK_Return: return Keyboard::Return;
+		case XK_Shift_R: return Keyboard::RShift;
+		case XK_Super_R: return Keyboard::RSystem;
+		case XK_semicolon: return Keyboard::Semicolon;
+		case XK_slash: return Keyboard::Slash;
+		case XK_space: return Keyboard::Space;
+		case XK_Tab: return Keyboard::Tab;
+		case XK_grave: return Keyboard::Tilde;
+		case XK_Menu: return Keyboard::Menu;
+		case XK_less: return Keyboard::ISOBackslash102;
 
-			// Touches navigateur
-			case XF86XK_Back: return Keyboard::Browser_Back;
-			case XF86XK_Favorites: return Keyboard::Browser_Favorites;
-			case XF86XK_Forward: return Keyboard::Browser_Forward;
-			case XF86XK_HomePage: return Keyboard::Browser_Home;
-			case XF86XK_Refresh: return Keyboard::Browser_Refresh;
-			case XF86XK_Search: return Keyboard::Browser_Search;
-			case XF86XK_Stop: return Keyboard::Browser_Stop;
+		// Touches navigateur
+		case XF86XK_Back: return Keyboard::Browser_Back;
+		case XF86XK_Favorites: return Keyboard::Browser_Favorites;
+		case XF86XK_Forward: return Keyboard::Browser_Forward;
+		case XF86XK_HomePage: return Keyboard::Browser_Home;
+		case XF86XK_Refresh: return Keyboard::Browser_Refresh;
+		case XF86XK_Search: return Keyboard::Browser_Search;
+		case XF86XK_Stop: return Keyboard::Browser_Stop;
 
-			// Touches de contrôle
-			case XF86XK_AudioNext: return Keyboard::Media_Next;
-			case XF86XK_AudioPlay: return Keyboard::Media_Play;
-			case XF86XK_AudioPrev: return Keyboard::Media_Previous;
-			case XF86XK_AudioStop: return Keyboard::Media_Stop;
+		// Touches de contrôle
+		case XF86XK_AudioNext: return Keyboard::Media_Next;
+		case XF86XK_AudioPlay: return Keyboard::Media_Play;
+		case XF86XK_AudioPrev: return Keyboard::Media_Previous;
+		case XF86XK_AudioStop: return Keyboard::Media_Stop;
 
-			// Touches de contrôle du volume
-			case XF86XK_AudioLowerVolume: return Keyboard::Volume_Down;
-			case XF86XK_AudioMute: return Keyboard::Volume_Mute;
-			case XF86XK_AudioRaiseVolume: return Keyboard::Volume_Up;
+		// Touches de contrôle du volume
+		case XF86XK_AudioLowerVolume: return Keyboard::Volume_Down;
+		case XF86XK_AudioMute: return Keyboard::Volume_Mute;
+		case XF86XK_AudioRaiseVolume: return Keyboard::Volume_Up;
 
-			// Touches à verrouillage
-			case XK_Caps_Lock: return Keyboard::CapsLock;
-			case XK_Num_Lock: return Keyboard::NumLock;
-			case XK_Scroll_Lock: return Keyboard::ScrollLock;
+		// Touches à verrouillage
+		case XK_Caps_Lock: return Keyboard::CapsLock;
+		case XK_Num_Lock: return Keyboard::NumLock;
+		case XK_Scroll_Lock: return Keyboard::ScrollLock;
 
-			default:
-				return Keyboard::Undefined;
+		default:
+			return Keyboard::Undefined;
 		}
 	}
 
@@ -945,15 +942,15 @@ namespace Nz
 		};
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_icccm_set_wm_protocols(
 				connection,
-				m_window,
-				X11::GetAtom("WM_PROTOCOLS"),
-				sizeof(protocols),
-				protocols
-			))
-		)
+				xcb_icccm_set_wm_protocols(
+					connection,
+					m_window,
+					X11::GetAtom("WM_PROTOCOLS"),
+					sizeof(protocols),
+					protocols
+					))
+		    )
 			NazaraError("Failed to get atom for deleting a window");
 
 		// Flush the commands queue
@@ -964,57 +961,57 @@ namespace Nz
 	{
 		switch (keysym)
 		{
-			case XK_KP_Space:
-				return ' ';
-			case XK_BackSpace:
-				return '\b';
-			case XK_Tab:
-			case XK_KP_Tab:
-				return '\t';
-			case XK_Linefeed:
-				return '\n';
-			case XK_Return:
-				return '\r';
-			// Numpad
-			case XK_KP_Multiply:
-				return '*';
-			case XK_KP_Add:
-				return '+';
-			case XK_KP_Separator:
-				return ','; // In french, it's '.'
-			case XK_KP_Subtract:
-				return '-';
-			case XK_KP_Decimal:
-				return '.'; // In french, it's ','
-			case XK_KP_Divide:
-				return '/';
-			case XK_KP_0:
-				return '0';
-			case XK_KP_1:
-				return '1';
-			case XK_KP_2:
-				return '2';
-			case XK_KP_3:
-				return '3';
-			case XK_KP_4:
-				return '4';
-			case XK_KP_5:
-				return '5';
-			case XK_KP_6:
-				return '6';
-			case XK_KP_7:
-				return '7';
-			case XK_KP_8:
-				return '8';
-			case XK_KP_9:
-				return '9';
-			case XK_KP_Enter:
-				return '\r';
-			default:
-				if (xcb_is_modifier_key(keysym) == true)
-					return '\0';
-				else
-					return keysym;
+		case XK_KP_Space:
+			return ' ';
+		case XK_BackSpace:
+			return '\b';
+		case XK_Tab:
+		case XK_KP_Tab:
+			return '\t';
+		case XK_Linefeed:
+			return '\n';
+		case XK_Return:
+			return '\r';
+		// Numpad
+		case XK_KP_Multiply:
+			return '*';
+		case XK_KP_Add:
+			return '+';
+		case XK_KP_Separator:
+			return ',';     // In french, it's '.'
+		case XK_KP_Subtract:
+			return '-';
+		case XK_KP_Decimal:
+			return '.';     // In french, it's ','
+		case XK_KP_Divide:
+			return '/';
+		case XK_KP_0:
+			return '0';
+		case XK_KP_1:
+			return '1';
+		case XK_KP_2:
+			return '2';
+		case XK_KP_3:
+			return '3';
+		case XK_KP_4:
+			return '4';
+		case XK_KP_5:
+			return '5';
+		case XK_KP_6:
+			return '6';
+		case XK_KP_7:
+			return '7';
+		case XK_KP_8:
+			return '8';
+		case XK_KP_9:
+			return '9';
+		case XK_KP_Enter:
+			return '\r';
+		default:
+			if (xcb_is_modifier_key(keysym) == true)
+				return '\0';
+			else
+				return keysym;
 		}
 	}
 
@@ -1026,298 +1023,296 @@ namespace Nz
 		// Convert the xcb event to a Event
 		switch (windowEvent->response_type & ~0x80)
 		{
-			// Destroy event
-			case XCB_DESTROY_NOTIFY:
-			{
-				// The window is about to be destroyed: we must cleanup resources
-				CleanUp();
-				break;
-			}
+		// Destroy event
+		case XCB_DESTROY_NOTIFY:
+		{
+			// The window is about to be destroyed: we must cleanup resources
+			CleanUp();
+			break;
+		}
 
-			// Gain focus event
-			case XCB_FOCUS_IN:
-			{
-				const uint32_t value_list[] = { eventMask };
-				if (!X11::CheckCookie(
+		// Gain focus event
+		case XCB_FOCUS_IN:
+		{
+			const uint32_t value_list[] = { eventMask };
+			if (!X11::CheckCookie(
 					connection,
 					xcb_change_window_attributes(
 						connection,
 						m_window,
 						XCB_CW_EVENT_MASK,
 						value_list
-					))
-				)
-					NazaraError("Failed to change event mask");
+						))
+			    )
+				NazaraError("Failed to change event mask");
 
-				WindowEvent event;
-				event.type = Nz::WindowEventType_GainedFocus;
-				m_parent->PushEvent(event);
+			WindowEvent event;
+			event.type = Nz::WindowEventType_GainedFocus;
+			m_parent->PushEvent(event);
 
-				break;
-			}
+			break;
+		}
 
-			// Lost focus event
-			case XCB_FOCUS_OUT:
-			{
-				WindowEvent event;
-				event.type = Nz::WindowEventType_LostFocus;
-				m_parent->PushEvent(event);
+		// Lost focus event
+		case XCB_FOCUS_OUT:
+		{
+			WindowEvent event;
+			event.type = Nz::WindowEventType_LostFocus;
+			m_parent->PushEvent(event);
 
-				const uint32_t values[] = { XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
-				if (!X11::CheckCookie(
+			const uint32_t values[] = { XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE };
+			if (!X11::CheckCookie(
 					connection,
 					xcb_change_window_attributes(
 						connection,
 						m_window,
 						XCB_CW_EVENT_MASK,
 						values
-					))
-				)
-					NazaraError("Failed to change event mask");
-				
+						))
+			    )
+				NazaraError("Failed to change event mask");
+
+			break;
+		}
+
+		// Resize event
+		case XCB_CONFIGURE_NOTIFY:
+		{
+			xcb_configure_notify_event_t* configureNotifyEvent = (xcb_configure_notify_event_t*)windowEvent;
+			// ConfigureNotify can be triggered for other reasons, check if the size has actually changed
+			if ((configureNotifyEvent->width != m_size_hints.width) || (configureNotifyEvent->height != m_size_hints.width))
+			{
+				WindowEvent event;
+				event.type        = Nz::WindowEventType_Resized;
+				event.size.width  = configureNotifyEvent->width;
+				event.size.height = configureNotifyEvent->height;
+				m_parent->PushEvent(event);
+
+				m_size_hints.width = configureNotifyEvent->width;
+				m_size_hints.height = configureNotifyEvent->height;
+			}
+			if ((configureNotifyEvent->x != m_size_hints.x) || (configureNotifyEvent->y != m_size_hints.y))
+			{
+				WindowEvent event;
+				event.type        = Nz::WindowEventType_Moved;
+				event.size.width  = configureNotifyEvent->x;
+				event.size.height = configureNotifyEvent->y;
+				m_parent->PushEvent(event);
+
+				m_size_hints.x = configureNotifyEvent->x;
+				m_size_hints.y = configureNotifyEvent->y;
+			}
+			break;
+		}
+
+		// Close event
+		case XCB_CLIENT_MESSAGE:
+		{
+			xcb_client_message_event_t* clientMessageEvent = (xcb_client_message_event_t*)windowEvent;
+
+			if (clientMessageEvent->type != X11::GetAtom("WM_PROTOCOLS"))
 				break;
+			if (clientMessageEvent->data.data32[0] == X11::GetAtom("WM_DELETE_WINDOW"))
+			{
+				WindowEvent event;
+				event.type = Nz::WindowEventType_Quit;
+				m_parent->PushEvent(event);
 			}
 
-			// Resize event
-			case XCB_CONFIGURE_NOTIFY:
+			break;
+		}
+
+		// Key down event
+		case XCB_KEY_PRESS:
+		{
+			xcb_key_press_event_t* keyPressEvent = (xcb_key_press_event_t*)windowEvent;
+
+			if (!m_keyRepeat && m_eventQueue.curr && m_eventQueue.next)
 			{
-				xcb_configure_notify_event_t* configureNotifyEvent = (xcb_configure_notify_event_t*)windowEvent;
-				// ConfigureNotify can be triggered for other reasons, check if the size has actually changed
-				if ((configureNotifyEvent->width != m_size_hints.width) || (configureNotifyEvent->height != m_size_hints.width))
-				{
-					WindowEvent event;
-					event.type        = Nz::WindowEventType_Resized;
-					event.size.width  = configureNotifyEvent->width;
-					event.size.height = configureNotifyEvent->height;
-					m_parent->PushEvent(event);
+				xcb_key_press_event_t* current = (xcb_key_release_event_t*)m_eventQueue.curr;
+				// keyPressEvent == next
 
-					m_size_hints.width = configureNotifyEvent->width;
-					m_size_hints.height = configureNotifyEvent->height;
-				}
-				if ((configureNotifyEvent->x != m_size_hints.x) || (configureNotifyEvent->y != m_size_hints.y))
-				{
-					WindowEvent event;
-					event.type        = Nz::WindowEventType_Moved;
-					event.size.width  = configureNotifyEvent->x;
-					event.size.height = configureNotifyEvent->y;
-					m_parent->PushEvent(event);
-
-					m_size_hints.x = configureNotifyEvent->x;
-					m_size_hints.y = configureNotifyEvent->y;
-				}
-				break;
-			}
-
-			// Close event
-			case XCB_CLIENT_MESSAGE:
-			{
-				xcb_client_message_event_t* clientMessageEvent = (xcb_client_message_event_t*)windowEvent;
-
-				if (clientMessageEvent->type != X11::GetAtom("WM_PROTOCOLS"))
+				if ((current->time == keyPressEvent->time) && (current->detail == keyPressEvent->detail))
 					break;
-				if (clientMessageEvent->data.data32[0] == X11::GetAtom("WM_DELETE_WINDOW"))
-				{
-					WindowEvent event;
-					event.type = Nz::WindowEventType_Quit;
-					m_parent->PushEvent(event);
-				}
-
-				break;
 			}
 
-			// Key down event
-			case XCB_KEY_PRESS:
+			auto keysym = ConvertKeyCodeToKeySym(keyPressEvent->detail, keyPressEvent->state);
+
+			WindowEvent event;
+			event.type        = Nz::WindowEventType_KeyPressed;
+			event.key.code    = ConvertVirtualKey(keysym);
+			event.key.alt     = keyPressEvent->state & XCB_MOD_MASK_1;
+			event.key.control = keyPressEvent->state & XCB_MOD_MASK_CONTROL;
+			event.key.shift   = keyPressEvent->state & XCB_MOD_MASK_SHIFT;
+			event.key.system  = keyPressEvent->state & XCB_MOD_MASK_4;
+			m_parent->PushEvent(event);
+
+			char32_t codePoint = GetRepresentation(keysym);
+
+			// if (std::isprint(codePoint)) Is not working ? + handle combining ?
 			{
-				xcb_key_press_event_t* keyPressEvent = (xcb_key_press_event_t*)windowEvent;
-
-				if (!m_keyRepeat && m_eventQueue.curr && m_eventQueue.next)
-				{
-					xcb_key_press_event_t* current = (xcb_key_release_event_t*)m_eventQueue.curr;
-					// keyPressEvent == next
-
-					if ((current->time == keyPressEvent->time) && (current->detail == keyPressEvent->detail))
-						break;
-				}
-
-				auto keysym = ConvertKeyCodeToKeySym(keyPressEvent->detail, keyPressEvent->state);
-
-				WindowEvent event;
-				event.type        = Nz::WindowEventType_KeyPressed;
-				event.key.code    = ConvertVirtualKey(keysym);
-				event.key.alt     = keyPressEvent->state & XCB_MOD_MASK_1;
-				event.key.control = keyPressEvent->state & XCB_MOD_MASK_CONTROL;
-				event.key.shift   = keyPressEvent->state & XCB_MOD_MASK_SHIFT;
-				event.key.system  = keyPressEvent->state & XCB_MOD_MASK_4;
+				event.type           = Nz::WindowEventType_TextEntered;
+				event.text.character = codePoint;
+				event.text.repeated  = false;
 				m_parent->PushEvent(event);
-
-				char32_t codePoint = GetRepresentation(keysym);
-
-				// if (std::isprint(codePoint)) Is not working ? + handle combining ?
-				{
-					event.type           = Nz::WindowEventType_TextEntered;
-					event.text.character = codePoint;
-					event.text.repeated  = false;
-					m_parent->PushEvent(event);
-				}
-
-				break;
 			}
 
-			// Key up event
-			case XCB_KEY_RELEASE:
+			break;
+		}
+
+		// Key up event
+		case XCB_KEY_RELEASE:
+		{
+			xcb_key_release_event_t* keyReleaseEvent = (xcb_key_release_event_t*)windowEvent;
+
+			if (!m_keyRepeat && m_eventQueue.curr && m_eventQueue.next)
 			{
-				xcb_key_release_event_t* keyReleaseEvent = (xcb_key_release_event_t*)windowEvent;
+				// keyReleaseEvent == current
+				xcb_key_press_event_t* next = (xcb_key_press_event_t*)m_eventQueue.next;
 
-				if (!m_keyRepeat && m_eventQueue.curr && m_eventQueue.next)
-				{
-					// keyReleaseEvent == current
-					xcb_key_press_event_t* next = (xcb_key_press_event_t*)m_eventQueue.next;
-
-					if ((keyReleaseEvent->time == next->time) && (keyReleaseEvent->detail == next->detail))
-						break;
-				}
-
-				auto keysym = ConvertKeyCodeToKeySym(keyReleaseEvent->detail, keyReleaseEvent->state);
-
-				WindowEvent event;
-				event.type        = Nz::WindowEventType_KeyReleased;
-				event.key.code    = ConvertVirtualKey(keysym);
-				event.key.alt     = keyReleaseEvent->state & XCB_MOD_MASK_1;
-				event.key.control = keyReleaseEvent->state & XCB_MOD_MASK_CONTROL;
-				event.key.shift   = keyReleaseEvent->state & XCB_MOD_MASK_SHIFT;
-				event.key.system  = keyReleaseEvent->state & XCB_MOD_MASK_4;
-				m_parent->PushEvent(event);
-
-				break;
+				if ((keyReleaseEvent->time == next->time) && (keyReleaseEvent->detail == next->detail))
+					break;
 			}
 
-			// Mouse button pressed
-			case XCB_BUTTON_PRESS:
+			auto keysym = ConvertKeyCodeToKeySym(keyReleaseEvent->detail, keyReleaseEvent->state);
+
+			WindowEvent event;
+			event.type        = Nz::WindowEventType_KeyReleased;
+			event.key.code    = ConvertVirtualKey(keysym);
+			event.key.alt     = keyReleaseEvent->state & XCB_MOD_MASK_1;
+			event.key.control = keyReleaseEvent->state & XCB_MOD_MASK_CONTROL;
+			event.key.shift   = keyReleaseEvent->state & XCB_MOD_MASK_SHIFT;
+			event.key.system  = keyReleaseEvent->state & XCB_MOD_MASK_4;
+			m_parent->PushEvent(event);
+
+			break;
+		}
+
+		// Mouse button pressed
+		case XCB_BUTTON_PRESS:
+		{
+			xcb_button_press_event_t* buttonPressEvent = (xcb_button_press_event_t*)windowEvent;
+
+			WindowEvent event;
+			event.type          = Nz::WindowEventType_MouseButtonPressed;
+			event.mouseButton.x = buttonPressEvent->event_x;
+			event.mouseButton.y = buttonPressEvent->event_y;
+
+			if (buttonPressEvent->detail == XCB_BUTTON_INDEX_1)
+				event.mouseButton.button = Mouse::Left;
+			else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_2)
+				event.mouseButton.button = Mouse::Middle;
+			else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_3)
+				event.mouseButton.button = Mouse::Right;
+			else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_4)
+				event.mouseButton.button = Mouse::XButton1;
+			else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_5)
+				event.mouseButton.button = Mouse::XButton2;
+			else
+				NazaraWarning("Mouse button not handled");
+
+			m_parent->PushEvent(event);
+
+			break;
+		}
+
+		// Mouse button released
+		case XCB_BUTTON_RELEASE:
+		{
+			xcb_button_release_event_t* buttonReleaseEvent = (xcb_button_release_event_t*)windowEvent;
+
+			WindowEvent event;
+
+			switch (buttonReleaseEvent->detail)
 			{
-				xcb_button_press_event_t* buttonPressEvent = (xcb_button_press_event_t*)windowEvent;
+			case XCB_BUTTON_INDEX_4:
+			case XCB_BUTTON_INDEX_5:
+			{
+				event.type             = Nz::WindowEventType_MouseWheelMoved;
+				event.mouseWheel.delta = (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4) ? 1 : -1;
+				break;
+			}
+			default:
+			{
+				event.type          = Nz::WindowEventType_MouseButtonReleased;
+				event.mouseButton.x = buttonReleaseEvent->event_x;
+				event.mouseButton.y = buttonReleaseEvent->event_y;
 
-				WindowEvent event;
-				event.type          = Nz::WindowEventType_MouseButtonPressed;
-				event.mouseButton.x = buttonPressEvent->event_x;
-				event.mouseButton.y = buttonPressEvent->event_y;
-
-				if (buttonPressEvent->detail == XCB_BUTTON_INDEX_1)
+				if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_1)
 					event.mouseButton.button = Mouse::Left;
-				else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_2)
+				else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_2)
 					event.mouseButton.button = Mouse::Middle;
-				else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_3)
+				else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_3)
 					event.mouseButton.button = Mouse::Right;
-				else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_4)
+				else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4)
 					event.mouseButton.button = Mouse::XButton1;
-				else if (buttonPressEvent->detail == XCB_BUTTON_INDEX_5)
+				else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_5)
 					event.mouseButton.button = Mouse::XButton2;
 				else
 					NazaraWarning("Mouse button not handled");
-
-				m_parent->PushEvent(event);
-
-				break;
+			}
 			}
 
-			// Mouse button released
-			case XCB_BUTTON_RELEASE:
-			{
-				xcb_button_release_event_t* buttonReleaseEvent = (xcb_button_release_event_t*)windowEvent;
+			m_parent->PushEvent(event);
 
-				WindowEvent event;
+			break;
+		}
 
-				switch (buttonReleaseEvent->detail)
-				{
-					case XCB_BUTTON_INDEX_4:
-					case XCB_BUTTON_INDEX_5:
-					{
-						event.type             = Nz::WindowEventType_MouseWheelMoved;
-						event.mouseWheel.delta = (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4) ? 1 : -1;
-						event.mouseWheel.x = buttonReleaseEvent->event_x;
-						event.mouseWheel.y = buttonReleaseEvent->event_y;
-						break;
-					}
-					default:
-					{
-						event.type          = Nz::WindowEventType_MouseButtonReleased;
-						event.mouseButton.x = buttonReleaseEvent->event_x;
-						event.mouseButton.y = buttonReleaseEvent->event_y;
+		// Mouse moved
+		case XCB_MOTION_NOTIFY:
+		{
+			xcb_motion_notify_event_t* motionNotifyEvent = (xcb_motion_notify_event_t*)windowEvent;
 
-						if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_1)
-							event.mouseButton.button = Mouse::Left;
-						else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_2)
-							event.mouseButton.button = Mouse::Middle;
-						else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_3)
-							event.mouseButton.button = Mouse::Right;
-						else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_4)
-							event.mouseButton.button = Mouse::XButton1;
-						else if (buttonReleaseEvent->detail == XCB_BUTTON_INDEX_5)
-							event.mouseButton.button = Mouse::XButton2;
-						else
-							NazaraWarning("Mouse button not handled");
-					}
-				}
-
-				m_parent->PushEvent(event);
-
+			// We use the sequence to determine whether the motion is linked to a Mouse::SetPosition
+			if (m_mousePos.x == motionNotifyEvent->event_x && m_mousePos.y == motionNotifyEvent->event_y)
 				break;
-			}
 
-			// Mouse moved
-			case XCB_MOTION_NOTIFY:
-			{
-				xcb_motion_notify_event_t* motionNotifyEvent = (xcb_motion_notify_event_t*)windowEvent;
+			WindowEvent event;
+			event.type        = Nz::WindowEventType_MouseMoved;
+			event.mouseMove.deltaX = motionNotifyEvent->event_x - m_mousePos.x;
+			event.mouseMove.deltaY = motionNotifyEvent->event_y - m_mousePos.y;
+			event.mouseMove.x = motionNotifyEvent->event_x;
+			event.mouseMove.y = motionNotifyEvent->event_y;
 
-				// We use the sequence to determine whether the motion is linked to a Mouse::SetPosition
-				if (m_mousePos.x == motionNotifyEvent->event_x && m_mousePos.y == motionNotifyEvent->event_y)
-					break;
+			m_mousePos.x = motionNotifyEvent->event_x;
+			m_mousePos.y = motionNotifyEvent->event_y;
 
-				WindowEvent event;
-				event.type        = Nz::WindowEventType_MouseMoved;
-				event.mouseMove.deltaX = motionNotifyEvent->event_x - m_mousePos.x;
-				event.mouseMove.deltaY = motionNotifyEvent->event_y - m_mousePos.y;
-				event.mouseMove.x = motionNotifyEvent->event_x;
-				event.mouseMove.y = motionNotifyEvent->event_y;
+			m_parent->PushEvent(event);
 
-				m_mousePos.x = motionNotifyEvent->event_x;
-				m_mousePos.y = motionNotifyEvent->event_y;
+			break;
+		}
 
-				m_parent->PushEvent(event);
+		// Mouse entered
+		case XCB_ENTER_NOTIFY:
+		{
+			WindowEvent event;
+			event.type = Nz::WindowEventType_MouseEntered;
+			m_parent->PushEvent(event);
 
-				break;
-			}
+			break;
+		}
 
-			// Mouse entered
-			case XCB_ENTER_NOTIFY:
-			{
-				WindowEvent event;
-				event.type = Nz::WindowEventType_MouseEntered;
-				m_parent->PushEvent(event);
+		// Mouse left
+		case XCB_LEAVE_NOTIFY:
+		{
+			WindowEvent event;
+			event.type = Nz::WindowEventType_MouseLeft;
+			m_parent->PushEvent(event);
 
-				break;
-			}
+			break;
+		}
 
-			// Mouse left
-			case XCB_LEAVE_NOTIFY:
-			{
-				WindowEvent event;
-				event.type = Nz::WindowEventType_MouseLeft;
-				m_parent->PushEvent(event);
+		// Parent window changed
+		case XCB_REPARENT_NOTIFY:
+		{
+			// Catch reparent events to properly apply fullscreen on
+			// some "strange" window managers (like Awesome) which
+			// seem to make use of temporary parents during mapping
+			if (m_style & WindowStyle_Fullscreen)
+				SwitchToFullscreen();
 
-				break;
-			}
-
-			// Parent window changed
-			case XCB_REPARENT_NOTIFY:
-			{
-				// Catch reparent events to properly apply fullscreen on
-				// some "strange" window managers (like Awesome) which
-				// seem to make use of temporary parents during mapping
-				if (m_style & WindowStyle_Fullscreen)
-					SwitchToFullscreen();
-
-				break;
-			}
+			break;
+		}
 		}
 	}
 
@@ -1330,18 +1325,18 @@ namespace Nz
 
 			// Reset the video mode
 			ScopedXCB<xcb_randr_set_screen_config_reply_t> setScreenConfig(xcb_randr_set_screen_config_reply(
-				connection,
-				xcb_randr_set_screen_config(
-					connection,
-					m_oldVideoMode.root,
-					XCB_CURRENT_TIME,
-					m_oldVideoMode.config_timestamp,
-					m_oldVideoMode.sizeID,
-					m_oldVideoMode.rotation,
-					m_oldVideoMode.rate
-				),
-				&error
-			));
+																			   connection,
+																			   xcb_randr_set_screen_config(
+																				   connection,
+																				   m_oldVideoMode.root,
+																				   XCB_CURRENT_TIME,
+																				   m_oldVideoMode.config_timestamp,
+																				   m_oldVideoMode.sizeID,
+																				   m_oldVideoMode.rotation,
+																				   m_oldVideoMode.rate
+																				   ),
+																			   &error
+																			   ));
 
 			if (error)
 				NazaraError("Failed to reset old screen configuration");
@@ -1357,15 +1352,15 @@ namespace Nz
 
 		const char MOTIF_WM_HINTS[] = "_MOTIF_WM_HINTS";
 		ScopedXCB<xcb_intern_atom_reply_t> hintsAtomReply(xcb_intern_atom_reply(
-			connection,
-			xcb_intern_atom(
-				connection,
-				0,
-				sizeof(MOTIF_WM_HINTS) - 1,
-				MOTIF_WM_HINTS
-			),
-			&error
-		));
+															  connection,
+															  xcb_intern_atom(
+																  connection,
+																  0,
+																  sizeof(MOTIF_WM_HINTS) - 1,
+																  MOTIF_WM_HINTS
+																  ),
+															  &error
+															  ));
 
 		if (!error && hintsAtomReply)
 		{
@@ -1392,7 +1387,7 @@ namespace Nz
 				uint32_t flags;
 				uint32_t functions;
 				uint32_t decorations;
-				int32_t  inputMode;
+				int32_t inputMode;
 				uint32_t state;
 			};
 
@@ -1420,18 +1415,18 @@ namespace Nz
 			}
 
 			ScopedXCB<xcb_generic_error_t> propertyError(xcb_request_check(
-				connection,
-				xcb_change_property_checked(
-					connection,
-					XCB_PROP_MODE_REPLACE,
-					m_window,
-					hintsAtomReply->atom,
-					hintsAtomReply->atom,
-					32,
-					5,
-					&hints
-				)
-			));
+															 connection,
+															 xcb_change_property_checked(
+																 connection,
+																 XCB_PROP_MODE_REPLACE,
+																 m_window,
+																 hintsAtomReply->atom,
+																 hintsAtomReply->atom,
+																 32,
+																 5,
+																 &hints
+																 )
+															 ));
 
 			if (propertyError)
 				NazaraError("xcb_change_property failed, could not set window hints");
@@ -1460,14 +1455,14 @@ namespace Nz
 
 		// Load RandR and check its version
 		ScopedXCB<xcb_randr_query_version_reply_t> randrVersion(xcb_randr_query_version_reply(
-			connection,
-			xcb_randr_query_version(
-				connection,
-				1,
-				1
-			),
-			&error
-		));
+																	connection,
+																	xcb_randr_query_version(
+																		connection,
+																		1,
+																		1
+																		),
+																	&error
+																	));
 
 		if (error)
 		{
@@ -1477,13 +1472,13 @@ namespace Nz
 
 		// Get the current configuration
 		ScopedXCB<xcb_randr_get_screen_info_reply_t> config(xcb_randr_get_screen_info_reply(
-			connection,
-			xcb_randr_get_screen_info(
-				connection,
-				m_screen->root
-			),
-			&error
-		));
+																connection,
+																xcb_randr_get_screen_info(
+																	connection,
+																	m_screen->root
+																	),
+																&error
+																));
 
 		if (error || !config)
 		{
@@ -1508,26 +1503,26 @@ namespace Nz
 		for (int i = 0; i < config->nSizes; ++i)
 		{
 			if (config->rotation == XCB_RANDR_ROTATION_ROTATE_90 ||
-				config->rotation == XCB_RANDR_ROTATION_ROTATE_270)
+			    config->rotation == XCB_RANDR_ROTATION_ROTATE_270)
 				std::swap(sizes[i].height, sizes[i].width);
 
 			if ((sizes[i].width  == static_cast<int>(mode.width)) &&
-				(sizes[i].height == static_cast<int>(mode.height)))
+			    (sizes[i].height == static_cast<int>(mode.height)))
 			{
 				// Switch to fullscreen mode
 				ScopedXCB<xcb_randr_set_screen_config_reply_t> setScreenConfig(xcb_randr_set_screen_config_reply(
-					connection,
-					xcb_randr_set_screen_config(
-						connection,
-						config->root,
-						XCB_CURRENT_TIME,
-						config->config_timestamp,
-						i,
-						config->rotation,
-						config->rate
-					),
-					&error
-				));
+																				   connection,
+																				   xcb_randr_set_screen_config(
+																					   connection,
+																					   config->root,
+																					   XCB_CURRENT_TIME,
+																					   config->config_timestamp,
+																					   i,
+																					   config->rotation,
+																					   config->rate
+																					   ),
+																				   &error
+																				   ));
 
 				if (error)
 					NazaraError("Failed to set new screen configuration");
@@ -1548,14 +1543,14 @@ namespace Nz
 		ScopedXCBEWMHConnection ewmhConnection(connection);
 
 		if (!X11::CheckCookie(
-			connection,
-			xcb_ewmh_set_wm_state(
-				ewmhConnection,
-				m_window,
-				1,
-				&ewmhConnection->_NET_WM_STATE_FULLSCREEN
-			))
-		)
+				connection,
+				xcb_ewmh_set_wm_state(
+					ewmhConnection,
+					m_window,
+					1,
+					&ewmhConnection->_NET_WM_STATE_FULLSCREEN
+					))
+		    )
 			NazaraError("Failed to switch to fullscreen");
 	}
 
@@ -1574,7 +1569,7 @@ namespace Nz
 				connection,
 				m_window,
 				&m_size_hints
-			));
+				));
 	}
 
 	void WindowImpl::WindowThread(WindowImpl* window, Mutex* mutex, ConditionVariable* condition)

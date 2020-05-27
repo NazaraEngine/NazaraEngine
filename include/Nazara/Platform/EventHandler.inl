@@ -78,6 +78,10 @@ namespace Nz
 			case WindowEventType_TextEntered:
 				OnTextEntered(this, event.text);
 				break;
+
+			case WindowEventType_TextEdited:
+				OnTextEdited(this, event.edit);
+				break;
 		}
 	}
 }
