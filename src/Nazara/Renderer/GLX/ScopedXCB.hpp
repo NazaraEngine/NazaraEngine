@@ -96,6 +96,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/X11/ScopedXCB.inl>
+#include <Nazara/Renderer/GLX/ScopedXCB.inl>
 
 #endif // NAZARA_SCOPEDXCB_HPP

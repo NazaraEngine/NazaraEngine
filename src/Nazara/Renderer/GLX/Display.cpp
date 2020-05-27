@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/X11/Display.hpp>
+#include <Nazara/Renderer/GLX/Display.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/X11/ScopedXCB.hpp>
+#include <Nazara/Renderer/GLX/ScopedXCB.hpp>
 #include <xcb/xcb_keysyms.h>
 #include <unordered_map>
 #include <Nazara/Renderer/Debug.hpp>
