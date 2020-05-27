@@ -86,14 +86,30 @@ namespace Ndk
 	bool PhysicsSystem2D::NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
 	{
 		Nz::PhysWorld2D::NearestQueryResult queryResult;
-		bool res = GetPhysWorld().NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult);
+		if (GetPhysWorld().NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &queryResult))
+		{
+			result->nearestBody = GetEntityFromBody(*queryResult.nearestBody);
+			result->closestPoint = std::move(queryResult.closestPoint);
+			result->fraction = std::move(queryResult.fraction);
+			result->distance = queryResult.distance;
 
-		result->nearestBody = GetEntityFromBody(*queryResult.nearestBody);
-		result->closestPoint = std::move(queryResult.closestPoint);
-		result->fraction = std::move(queryResult.fraction);
-		result->distance = queryResult.distance;
+			return true;
+		}
+		else
+			return false;
+	}
 
-		return res;
+	void PhysicsSystem2D::RaycastQuery(const Nz::Vector2f & from, const Nz::Vector2f & to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback)
+	{
+		return GetPhysWorld().RaycastQuery(from, to, radius, collisionGroup, categoryMask, collisionMask, [this, &callback](const Nz::PhysWorld2D::RaycastHit& hitInfo)
+		{
+			callback({
+				GetEntityFromBody(*hitInfo.nearestBody),
+				hitInfo.hitPos,
+				hitInfo.hitNormal,
+				hitInfo.fraction
+			});
+		});
 	}
 
 	bool PhysicsSystem2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
@@ -108,7 +124,7 @@ namespace Ndk
 				std::move(hitResult.hitPos),
 				std::move(hitResult.hitNormal),
 				hitResult.fraction
-				});
+			});
 		}
 
 		return res;
@@ -117,14 +133,25 @@ namespace Ndk
 	bool PhysicsSystem2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
 	{
 		Nz::PhysWorld2D::RaycastHit queryResult;
-		bool res = GetPhysWorld().RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult);
+		if (GetPhysWorld().RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, &queryResult))
+		{
+			hitInfo->body = GetEntityFromBody(*queryResult.nearestBody);
+			hitInfo->hitPos = std::move(queryResult.hitPos);
+			hitInfo->hitNormal = std::move(queryResult.hitNormal);
+			hitInfo->fraction = queryResult.fraction;
 
-		hitInfo->body = GetEntityFromBody(*queryResult.nearestBody);
-		hitInfo->hitPos = std::move(queryResult.hitPos);
-		hitInfo->hitNormal = std::move(queryResult.hitNormal);
-		hitInfo->fraction = queryResult.fraction;
+			return true;
+		}
+		else
+			return false;
+	}
 
-		return res;
+	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const EntityHandle&)>& callback)
+	{
+		return GetPhysWorld().RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, [this, &callback](Nz::RigidBody2D* body)
+		{
+			callback(GetEntityFromBody(*body));
+		});
 	}
 
 	void PhysicsSystem2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies)
@@ -169,7 +196,7 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody2D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(Nz::Vector2f(node.GetPosition()));
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global)));
 				//physObj->SetRotation(node.GetRotation());
 			}
 		}
@@ -213,7 +240,7 @@ namespace Ndk
 			Nz::Vector2f newPosition = Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global));
 
 			// To move static objects and ensure their collisions, we have to specify them a velocity
-			// (/!\: the physical motor does not apply the speed on static objects)
+			// (/!\: the physical engine does not apply the speed on static objects)
 			if (newPosition != oldPosition)
 			{
 				body->SetPosition(newPosition);
@@ -222,8 +249,7 @@ namespace Ndk
 			else
 				body->SetVelocity(Nz::Vector2f::Zero());
 
-/*
-			if (newRotation != oldRotation)
+			/*if (newRotation != oldRotation)
 			{
 				Nz::Quaternionf transition = newRotation * oldRotation.GetConjugate();
 				Nz::EulerAnglesf angles = transition.ToEulerAngles();
@@ -235,8 +261,7 @@ namespace Ndk
 				physObj->SetAngularVelocity(angularVelocity);
 			}
 			else
-				physObj->SetAngularVelocity(Nz::Vector3f::Zero());
-*/
+				physObj->SetAngularVelocity(Nz::Vector3f::Zero());*/
 		}
 	}
 
@@ -283,7 +308,7 @@ namespace Ndk
 
 	void PhysicsSystem2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
 	{
-		Nz::PhysWorld2D::Callback worldCallbacks{};
+		Nz::PhysWorld2D::Callback worldCallbacks;
 
 		if (callbacks.endCallback)
 		{

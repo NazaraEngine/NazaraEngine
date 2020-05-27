@@ -306,6 +306,8 @@ namespace Nz
 						if (vertexIndices.texCoord > 0)
 						{
 							Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
+							uv.y = 1.f - uv.y; //< OBJ model texcoords seems to majority start from bottom left
+
 							uvPtr[index] = Vector2f(parameters.texCoordOffset + uv * parameters.texCoordScale);
 						}
 						else

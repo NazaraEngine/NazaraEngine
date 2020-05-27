@@ -163,6 +163,9 @@ namespace Nz
 		m_incomingUnsequencedGroup = 0;
 		m_outgoingUnsequencedGroup = 0;
 		m_eventData = 0;
+		m_totalByteReceived = 0;
+		m_totalByteSent = 0;
+		m_totalPacketReceived = 0;
 		m_totalPacketLost = 0;
 		m_totalPacketSent = 0;
 		m_totalWaitingData = 0;
@@ -1085,6 +1088,7 @@ namespace Nz
 		acknowledgment.sentTime = sentTime;
 
 		m_outgoingDataTotal += sizeof(Acknowledgement);
+		m_totalByteSent += sizeof(Acknowledgement);
 
 		m_acknowledgements.emplace_back(acknowledgment);
 
@@ -1265,7 +1269,10 @@ namespace Nz
 
 	void ENetPeer::SetupOutgoingCommand(OutgoingCommand& outgoingCommand)
 	{
-		m_outgoingDataTotal += static_cast<UInt32>(ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength);
+		UInt32 commandSize = static_cast<UInt32>(ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength);
+
+		m_outgoingDataTotal += commandSize;
+		m_totalByteSent += commandSize;
 
 		if (outgoingCommand.command.header.channelID == 0xFF)
 		{

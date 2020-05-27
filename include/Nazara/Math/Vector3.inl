@@ -524,20 +524,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the vector from another vector
-	* \return A reference to this vector
-	*
-	* \param vec The other vector
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(const Vector3& vec)
-	{
-		std::memcpy(this, &vec, sizeof(Vector3));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the vector from another type of Vector3
 	* \return A reference to this vector
 	*

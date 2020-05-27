@@ -54,7 +54,6 @@ namespace Nz
 			Ray& Set(const Vector3<T>& origin, const Vector3<T>& direction);
 			Ray& Set(const T origin[3], const T direction[3]);
 			Ray& Set(const Plane<T>& planeOne, const Plane<T>& planeTwo);
-			Ray& Set(const Ray& ray);
 			template<typename U> Ray& Set(const Ray<U>& ray);
 			template<typename U> Ray& Set(const Vector3<U>& origin, const Vector3<U>& direction);
 

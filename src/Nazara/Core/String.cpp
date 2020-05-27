@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#include <locale>
 #include <sstream>
 #include <Utfcpp/utf8.h>
 #include <Nazara/Core/Debug.hpp>
@@ -5121,6 +5122,7 @@ namespace Nz
 	String String::Number(float number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 
@@ -5137,6 +5139,7 @@ namespace Nz
 	String String::Number(double number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 
@@ -5153,6 +5156,7 @@ namespace Nz
 	String String::Number(long double number)
 	{
 		std::ostringstream oss;
+		oss.imbue(std::locale::classic());
 		oss.precision(NAZARA_CORE_DECIMAL_DIGITS);
 		oss << number;
 

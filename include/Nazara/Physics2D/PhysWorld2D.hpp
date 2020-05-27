@@ -64,18 +64,21 @@ namespace Nz
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
+			void RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback);
 			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
 			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
+			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback);
 			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies);
 
-			void RegisterCallbacks(unsigned int collisionId, const Callback& callbacks);
-			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, const Callback& callbacks);
+			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
+			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
 
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
 			void SetIterationCount(std::size_t iterationCount);
 			void SetMaxStepCount(std::size_t maxStepCount);
+			void SetSleepTime(float sleepTime);
 			void SetStepSize(float stepSize);
 
 			void Step(float timestep);
@@ -91,7 +94,7 @@ namespace Nz
 				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactPostSolveCallback postSolveCallback = nullptr;
 				ContactStartCallback startCallback = nullptr;
-				void* userdata;
+				void* userdata = nullptr;
 			};
 
 			struct DebugDrawOptions
@@ -130,7 +133,7 @@ namespace Nz
 			NazaraSignal(OnPhysWorld2DPostStep, const PhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
-			void InitCallbacks(cpCollisionHandler* handler, const Callback& callbacks);
+			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
 
 			using PostStep = std::function<void(Nz::RigidBody2D* body)>;
 

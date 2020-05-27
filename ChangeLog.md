@@ -20,6 +20,8 @@ Miscellaneous:
 - Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 - ⚠ Appveyor nightlies are now compiled with VS2017
 - Set libraries' rpath to current folder (.)
+- Add ReleaseWithDebug target
+- ⚠ **Default font has been changed from Cabin to OpenSans**
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -55,7 +57,7 @@ Nazara Engine:
 - Fix RigidBody3D copy constructor not copying all physics states (angular/linear damping/velocity, mass center, position and rotation)
 - Add RigidBody3D simulation control (via EnableSimulation and IsSimulationEnabled), which allows to disable physics and collisions at will.
 - Fix some uninitialized values (found by Valgrind) in Network module
-- Fix possible infinite recursion when outputting a Thread::Id object 
+- Fix possible infinite recursion when outputting a Thread::Id object
 - ⚠️ Replaced implicit conversion from a Nz::String to a std::string by an explicit method ToStdString()
 - Fix LuaInstance movement constructor/assignment operator which was corrupting Lua memory
 - Fix potential bug on SocketImpl::Connect (used by TcpClient::Connect) on POSIX platforms
@@ -112,7 +114,7 @@ Nazara Engine:
 - Fixed SocketPoller not be able to recover from some errors (like invalid sockets and such)
 - Add LuaImplQuery implementation for std::vector
 - Fixed LuaState::PushGlobal & LuaState::PushField to copy the object before moving it
-- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing. 
+- ⚠️ Replaced currentBitPos and currentByte fields by [read|write][BitPos][Byte] to handle properly bit reading/writing.
 - InstancedRenderable::SetMaterial methods are now public.
 - Fixed Model copy constructor not copying materials
 - ⚠️ Added InstancedRenderable::Clone() method
@@ -148,8 +150,8 @@ Nazara Engine:
 - ⚠️ CullingList now handles full and partial visibility testing
 - Added math class Angle, capable of handling both degrees and radians angles and converting them to euler angles/quaternions to improve 2D interface.
 - ⚠️ AbstractSocket::OnStateChange has been replaced by OnStateChanged, which is now called after state has been changed (with oldState and newState as parameters).
-- ⚠️ TcpClient::WaitForconnected now returns the new socket state. 
-- Added TcpClient::PollForConnected 
+- ⚠️ TcpClient::WaitForconnected now returns the new socket state.
+- Added TcpClient::PollForConnected
 - ⚠️ Use of the new Angle class instead of floating point angle
 - It is now possible to set elasticity/friction/surface bodies of 2D colliders and change it at runtime on RigidBody2D
 - ObjectHandle were remade and should be way more optimized now
@@ -169,11 +171,57 @@ Nazara Engine:
 - Fixed TileMap not rendering the right materials if it had no tile using some materials in-between
 - Added Vector[2|3|4](u)i64 typedefs
 - Fixed missing static Vector4::DotProduct implementation
-- ⚠ **By default, Nazara computes the mass center of all 2D physics object when calling SetGeom**
+- ⚠ **By default, Nazara now computes the mass center of all 2D physics object when calling SetGeom**
 - ⚠ Added Collider2D::ComputeCenterOfMass
 - Signal now implement a copy constructor and copy assignation operator for convenience
 - Fixed ENet UnreliableFragment packets sent as Unreliable (and such being incomplete upon reception)
 - ENet DisconnectLater now reflects libenet behavior (and is waiting for unreliable commands to be sent before disconnecting for good)
+- ⚠ Collider3D::ForEachPolygon now takes a void(Vector3f\*, std::size_t) callback (instead of void(float\*, std::size_t))
+- Added Collider2D::ForEachPolygon method
+- Added RigidBody::[Get|Set]PositionOffset allowing set an offset between body logic position and body physics position (center of mass position)
+- ⚠ Default TextureSampler WrapMode is now Clamp (instead of Repeat)
+- Fixed StateMachine ignoring transitions made in Enter/Leave events of states
+- Fixed Material::Configure resetting textures
+- ⚠ Renamed TextStyleFlags enum to TextStyle, introduced Flags specialization of TextStyle as TextStyleFlags
+- ⚠ Font, FontData and SimpleTextDrawer now use a proper TextStyleFlags instead of a UInt32
+- Almost all Math algorithms are now constexpr
+- PhysWorld2D: Fixed callbacks not properly replacing each others when registering twice with the same collisionId (pair)
+- ⚠ **Font, FontData and SimpleTextDrawer now supports text outlining.**
+- Fixed TextSprite not handling multiple textures well
+- ⚠ TextSprite will now use multiple render layers by itself (the current one and the one right before, ex: [-1, 0] if base layer is 0) if you use text outlines.
+- ⚠ SimpleTextDrawer no longer supports faux bold rendering
+- Added PhysWorld2D::[RaycastQuery, RegionQuery] overloads taking a callback
+- Added x and y mouse position to MouseWheelEvent
+- Added SimpleTextDrawer::[Get|Set]MaxLineWidth (which does line wrap)
+- TypeTag helper struct now includes a Type using
+- GuillotineBinPack::Insert overload taking multiple rectangles no longer does a heap allocation
+- StackArray and StackVector now have a default constructor initializing them with no size/capacity
+- StackArray and StackVector are now movable
+- Fixed RigidBody2D::Copy not copying kinematic/dynamic/static status
+- Fixed out-of-bounds access in LuaInstance::LoadLibraries
+- Add Flags<E>::Clear(Flags) helper method, to clear one or more flags.
+- Add Flags<E>::Clear() helper method, to reset flags
+- Add Flags<E>::Set(Flags) helper method, to enable flags
+- ⚠ Constraint2D are no longer managed by references and are now handled objects
+- ⚠ Removed all Set methods from math classes taking their own type (e.g. Box::Set(Box))
+- Added Matrix4::Decompose
+- ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
+- Fixed Node rotation when using a negative scale
+- Added HandledObject::OnHandledObjectDestruction signal
+- Added physics function to control sleeping behavior
+- String::Number is now locale-independent
+- Added ENetPeer::GetTotalByte[Received|Sent]
+- Added ENetPeer::GetTotalPacketSent
+- ⚠ ENetHost::GetTotalReceivedPackets now returns the number of commands received (instead of the number of UDP packets received)
+- Added EmptyStream class, useful to measure how many bytes some writing operations will take
+- SegmentCollider2D: Add support for neighbors (aka "ghost vertices"), allowing to prevent seams collisions
+- ⚠ OBJLoader flips UV by default, fixing a lot of models UV
+- On Windows, Thread::Set(Current)Name now uses `SetThreadDescription` Win32 function if possible instead of triggering a debugger exception. MinGW builds will use this if available too.
+- ⚠ Removed Texture(const Image\*) constructor, use Texture::LoadFromImage instead
+- ⚠ TextDrawers now use floating-point internally and to exposes their Bounds (AbstractTextDrawer::GetBounds() now returns a Rectf)
+- Added [SimpleTextDrawer|RichTextDrawer] character and line spacing offset properties
+- Added ENetHost::AllowsIncomingConnections(bool) to disable/re-enable server peers connection
+- Added ByteArrayPool and PoolByteStream classes
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -217,7 +265,7 @@ Nazara Development Kit:
 - Fix GraphicsComponent bounding volume not taking local matrix in account
 - ⚠️ Rewrote all render queue system, which should be more efficient, take scissor box into account
 - ⚠️ All widgets are now bound to a scissor box when rendering
-- Add DebugComponent (a component able to show aabb/obb/collision mesh)
+- Add DebugComponent (a component able to show aabb/obb/collision mesh 2D and 3D)
 - ⚠️ TextAreaWidget now support text selection (WIP)
 - ⚠️ TextAreaWidget::GetHoveredGlyph now returns a two-dimensional position instead of a single glyph position
 - Fixed Entity::OnEntityDestruction signal not being properly moved and thus not being called.
@@ -246,6 +294,36 @@ Nazara Development Kit:
 - Add missing `recomputeMoment` parameter to PhysicsComponent2D::SetMass
 - Added possibility of disabling synchronization between PhysicsComponent2D and NodeComponent
 - Fixed GraphicsComponent not invalidating render queue on material change (causing crashes or visual errors)
+- Added CollisionComponent2D::SetGeomOffset and CollisionComponent2D::Recenter
+- Added LifetimeComponent and LifetimeSystem
+- Fixed a subtle bug regarding entities invalidation and kill (ex: if an entity #2 kills entity #1 during Entity::Destroy callbacks, entity #1 will survive destruction).
+- Added PhysicsSystem2D::[RaycastQuery, RegionQuery] overloads taking a callback
+- Added TextAreaWidget support for outline
+- Fixed possible crash when disabling BaseWidget background
+- Added BaseWidget::OnMouseWheelMoved
+- Added Entity::OnEntity[Disabled|Enabled] signals
+- Added BaseWidget::SetParent
+- BaseWidget::Show will no longer show entities disabled by the widget
+- BaseWidget now has a rendering rect property (allowing to tell a widget what part of it will be rendered)
+- Added ScrollAreaWidget
+- Console has been remade with widgets (allowing to scroll back history, select text, etc.)
+- Added TextAreaWidget line wrap option
+- TextAreaWidget will now shift the text to the left/right in order to keep the cursor visible
+- Added TextAreaWidget::[Get|Set]TextFont
+- ⚠️ TextAreaWidget::OnTextAreaCursorMove signal now uses a Vector2ui* position as its second argument (instead of a std::size_t*)
+- Added TextAreaWidget::OnTextAreaSelection
+- ⚠️ Console class is no longer bound to a LuaState and now has a OnCommand signal
+- ⚠️ Made AbstractTextAreaWidget which is inherited by TextAreaWidget
+- ⚠️ Added RichTextAreaWidget
+- ⚠️ Console now supports text color in history
+- Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
+- Fixed PhysicsComponent2D copy not copying physics attributes
+- Added Entity::DropComponent which detaches a component without necessarily destroying it
+- ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
+- Fixed crash when pressing up/down key with no history in the console
+- (Rich)TextAreaWidget text style is now alterable
+- Added CameraComponent::SetProjectionScale
+- Added (Rich)TextAreaWidget character and line spacing offset properties
 
 # 0.4:
 
@@ -333,8 +411,8 @@ Nazara Engine:
 - Added [Nz::TcpClient::SendMultiple](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_tcp_client.html#a495c32beb46ed9192699a3b82d358035) method, allowing to send multiple buffers at once.
 - Added [Nz::PlacementDestroy](https://nazara.digitalpulsesoftware.net/doc/namespace_nz.html#a27c8667def991fc896c5beff3e62668a). (ea985fa76586762f008e4054938db3234eeaf0cb)
 - Added [Nz::String::Format](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_string.html#a4b699982e7f9ea38f6d44b43ac1e2040) and [Nz::String::FormatVA](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_string.html#abe0fcbce11224b157ac756b60e8dee92) static methods. (cc6e4127dc6c61799a64404770992cef0804ad34).
-- Added [Nz::ParticleGroup::GetBuffer](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_particle_mapper.html#aefe1b251efc8c9b8668842275561be0c) method. (4dc85789b59e50d964c83321dbd4b6485c04bef6)  
-- Added Nz::ParticleMapper::GetPointer method. (1f4e6c2d1594b7bb9dd6f4ea5480fdd16cf5f208)  
+- Added [Nz::ParticleGroup::GetBuffer](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_particle_mapper.html#aefe1b251efc8c9b8668842275561be0c) method. (4dc85789b59e50d964c83321dbd4b6485c04bef6)
+- Added Nz::ParticleMapper::GetPointer method. (1f4e6c2d1594b7bb9dd6f4ea5480fdd16cf5f208)
 - ⚠️ Structures provied by ParticleStruct header now have a float life. (472d964d587d906764ad1e05bfcc9ab1bf979483)
 - Fixed scale property of Nz::TextSprite not affecting its bounding volume. (52b29bac775823294c4ad7de70f4dc3f4adfa743)
 - ⚠️ Nz:MeshParams::flipUVs has been replaced by texCoordOffset and texCoordScale. (a1a7d908adc060fd7a43491c903dfe3b501d98e5)
@@ -361,7 +439,7 @@ Nazara Engine:
 - All noises classes now uses std::mt19937 as a random number generator, to ensure the same results on every machine. (1f5ea9839016964c173d919263827dee69ecb65d)
 
 Nazara Development Kit:
-- **Added basic widgets**. (c8a12083b3133e946bf60dd060331a4b4631f8d8)  
+- **Added basic widgets**. (c8a12083b3133e946bf60dd060331a4b4631f8d8)
 - VelocitySystem will no longer affect entities with PhysicsComponent2D. (a6853234412c744cdcb28344f02f7b0c92704d77)
 - Fixed EulerAngles constructor in Lua. (d55149a0a70f6230b6f1c3fb50e37dc82a2feb9f)
 - Fixed Component::OnDetached not being called on entity destruction. (5b777eb4853639d7aeb232ca46d17f0d432f47ca)
@@ -372,7 +450,7 @@ Nazara Engine:
 
 Nazara Engine:
 - Nazara binaries are now compiled with Run-Time Type-Information. (a70acdc8f44010627a65282fd3099202116d3e13)
-- Nazara demos are now compiled with relative dependencies on Linux. 
+- Nazara demos are now compiled with relative dependencies on Linux.
   (d6fbb4c408d48c4a768fad7b43460c76a0df1777)
 - Added [**Nz::BitCount**](https://nazara.digitalpulsesoftware.net/doc/group__core.html#ga6bfbcff78eb6cfbe3ddaedcfc8c04196) function. (82e31a3ec8449da6618f41690164c2e1d883edb4)
 - Added [**Nz::Bitset::AppendBits**](https://nazara.digitalpulsesoftware.net/doc/class_nz_1_1_bitset.html#a5ca8f365006c86d6d699d02471904f7e) method. (b018a400499a2356c4455a40d9f6a6c12b3cb36b)

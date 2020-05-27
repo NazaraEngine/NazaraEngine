@@ -24,6 +24,14 @@ namespace Nz
 	* \class Nz::StackArray
 	* \brief Core class that represents a stack-allocated (if alloca is present) array
 	*/
+
+	template<typename T>
+	StackArray<T>::StackArray() :
+	m_size(0),
+	m_ptr(nullptr)
+	{
+	}
+
 	template<typename T>
 	StackArray<T>::StackArray(T* stackMemory, std::size_t size) :
 	m_size(size),

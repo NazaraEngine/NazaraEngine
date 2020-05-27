@@ -8,6 +8,7 @@
 
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <algorithm>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>
@@ -302,7 +303,8 @@ namespace Nz
 
 	bool GuillotineBinPack::Insert(Rectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 	{
-		std::vector<Rectui*> remainingRects(count); // Position of the rectangle
+		Nz::StackVector<Rectui*> remainingRects = NazaraStackVector(Rectui*, count); // Position of the rectangle
+		remainingRects.resize(count);
 		for (unsigned int i = 0; i < count; ++i)
 			remainingRects[i] = &rects[i];
 

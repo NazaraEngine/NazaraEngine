@@ -54,12 +54,6 @@ namespace Nz
 		Create(type, format, width, height, depth, levelCount);
 	}
 
-	Texture::Texture(const Image* image)
-	{
-		ErrorFlags flags(ErrorFlag_ThrowException);
-		LoadFromImage(image);
-	}
-
 	Texture::~Texture()
 	{
 		OnTextureRelease(this);

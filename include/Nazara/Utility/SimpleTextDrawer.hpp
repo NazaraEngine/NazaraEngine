@@ -19,70 +19,108 @@ namespace Nz
 	class NAZARA_UTILITY_API SimpleTextDrawer : public AbstractTextDrawer
 	{
 		public:
-			SimpleTextDrawer();
-			SimpleTextDrawer(const SimpleTextDrawer& drawer);
-			SimpleTextDrawer(SimpleTextDrawer&& drawer);
-			virtual ~SimpleTextDrawer();
+			inline SimpleTextDrawer();
+			inline SimpleTextDrawer(const SimpleTextDrawer& drawer);
+			inline SimpleTextDrawer(SimpleTextDrawer&& drawer);
+			~SimpleTextDrawer() = default;
 
-			void AppendText(const String& str);
+			inline void AppendText(const String& str);
 
-			void Clear();
+			void Clear() override;
 
-			const Recti& GetBounds() const override;
-			unsigned int GetCharacterSize() const;
-			const Color& GetColor() const;
-			Font* GetFont() const;
+			const Rectf& GetBounds() const override;
+			inline float GetCharacterSpacingOffset() const;
+			inline unsigned int GetCharacterSize() const;
+			inline const Color& GetColor() const;
+			inline Font* GetFont() const;
 			Font* GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
 			std::size_t GetGlyphCount() const override;
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
-			UInt32 GetStyle() const;
-			const String& GetText() const;
+			inline float GetLineHeight() const;
+			inline float GetLineSpacingOffset() const;
+			float GetMaxLineWidth() const override;
+			inline const Color& GetOutlineColor() const;
+			inline float GetOutlineThickness() const;
+			inline TextStyleFlags GetStyle() const;
+			inline const String& GetText() const;
 
-			void SetCharacterSize(unsigned int characterSize);
-			void SetColor(const Color& color);
-			void SetFont(Font* font);
-			void SetStyle(UInt32 style);
-			void SetText(const String& str);
+			inline void SetCharacterSpacingOffset(float offset);
+			inline void SetCharacterSize(unsigned int characterSize);
+			inline void SetColor(const Color& color);
+			inline void SetFont(Font* font);
+			inline void SetLineSpacingOffset(float offset);
+			inline void SetMaxLineWidth(float lineWidth) override;
+			inline void SetOutlineColor(const Color& color);
+			inline void SetOutlineThickness(float thickness);
+			inline void SetStyle(TextStyleFlags style);
+			inline void SetText(const String& str);
 
-			SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
-			SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
+			inline SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
+			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
 
-			static SimpleTextDrawer Draw(const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
-			static SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, UInt32 style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
 
 		private:
+			inline void AppendNewLine() const;
+			void AppendNewLine(std::size_t glyphIndex, float glyphPosition) const;
+
 			void ClearGlyphs() const;
-			void ConnectFontSlots();
-			void DisconnectFontSlots();
+
+			inline void ConnectFontSlots();
+			inline void DisconnectFontSlots();
+
+			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const;
 			void GenerateGlyphs(const String& text) const;
+
+			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
+
+			inline void InvalidateColor();
+			inline void InvalidateGlyphs();
+
 			void OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer);
 			void OnFontInvalidated(const Font* font);
 			void OnFontRelease(const Font* object);
-			void UpdateGlyphColor() const;
-			void UpdateGlyphs() const;
+
+			inline bool ShouldLineWrap(float size) const;
+
+			inline void UpdateGlyphColor() const;
+			inline void UpdateGlyphs() const;
+
+			static constexpr std::size_t InvalidGlyph = std::numeric_limits<std::size_t>::max();
 
 			NazaraSlot(Font, OnFontAtlasChanged, m_atlasChangedSlot);
 			NazaraSlot(Font, OnFontAtlasLayerChanged, m_atlasLayerChangedSlot);
 			NazaraSlot(Font, OnFontGlyphCacheCleared, m_glyphCacheClearedSlot);
 			NazaraSlot(Font, OnFontRelease, m_fontReleaseSlot);
 
+			mutable std::size_t m_lastSeparatorGlyph;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable std::vector<Line> m_lines;
 			Color m_color;
+			Color m_outlineColor;
 			FontRef m_font;
-			mutable Rectf m_workingBounds;
-			mutable Recti m_bounds;
+			mutable Rectf m_bounds;
 			String m_text;
+			TextStyleFlags m_style;
 			mutable UInt32 m_previousCharacter;
-			UInt32 m_style;
-			mutable Vector2ui m_drawPos;
+			mutable Vector2f m_drawPos;
 			mutable bool m_colorUpdated;
 			mutable bool m_glyphUpdated;
+			mutable float m_lastSeparatorPosition;
+			float m_characterSpacingOffset;
+			float m_lineSpacingOffset;
+			float m_maxLineWidth;
+			float m_outlineThickness;
 			unsigned int m_characterSize;
 	};
 }
+
+#include <Nazara/Utility/SimpleTextDrawer.inl>
 
 #endif // NAZARA_SIMPLETEXTDRAWER_HPP

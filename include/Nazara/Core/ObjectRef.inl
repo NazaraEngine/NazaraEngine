@@ -335,7 +335,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const ObjectRef<T>& rhs)
 	{
-		return lhs.m_object < rhs.m_object;
+		return lhs.Get() < rhs.Get();
 	}
 
 	/*!
@@ -348,7 +348,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const T& lhs, const ObjectRef<T>& rhs)
 	{
-		return &lhs < rhs.m_object;
+		return &lhs < rhs.Get();
 	}
 
 	/*!
@@ -361,7 +361,7 @@ namespace Nz
 	template<typename T>
 	bool operator<(const ObjectRef<T>& lhs, const T& rhs)
 	{
-		return lhs.m_object < &rhs;
+		return lhs.Get() < &rhs;
 	}
 
 	/*!

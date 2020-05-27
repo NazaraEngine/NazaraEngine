@@ -1,1 +1,1 @@
-.\premake5.exe vs2017
+.\premake5.exe --premakeproject vs2017

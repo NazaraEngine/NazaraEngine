@@ -38,7 +38,6 @@ namespace Nz
 		public:
 			Texture() = default;
 			Texture(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
-			explicit Texture(const Image* image);
 			Texture(const Texture&) = delete;
 			Texture(Texture&&) = delete;
 			~Texture();

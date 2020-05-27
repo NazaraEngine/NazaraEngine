@@ -41,7 +41,7 @@ namespace Nz
 
 	inline void String::ReleaseString()
 	{
-		m_sharedString = std::move(GetEmptyString());
+		m_sharedString = GetEmptyString();
 	}
 
 	/*!

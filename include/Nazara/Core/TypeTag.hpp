@@ -10,7 +10,10 @@
 namespace Nz
 {
 	template<typename T>
-	struct TypeTag {};
+	struct TypeTag
+	{
+		using Type = T;
+	};
 }
 
 #endif // NAZARA_TYPETAG_HPP

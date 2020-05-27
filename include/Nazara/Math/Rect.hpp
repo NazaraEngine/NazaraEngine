@@ -55,7 +55,6 @@ namespace Nz
 			Rect& Set(T Width, T Height);
 			Rect& Set(T X, T Y, T Width, T Height);
 			Rect& Set(const T rect[4]);
-			Rect& Set(const Rect<T>& rect);
 			Rect& Set(const Vector2<T>& lengths);
 			Rect& Set(const Vector2<T>& vec1, const Vector2<T>& vec2);
 			template<typename U> Rect& Set(const Rect<U>& rect);
@@ -92,7 +91,9 @@ namespace Nz
 	using Recti = Rect<int>;
 	using Rectui = Rect<unsigned int>;
 	using Recti32 = Rect<Int32>;
+	using Recti64 = Rect<Int64>;
 	using Rectui32 = Rect<UInt32>;
+	using Rectui64 = Rect<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);

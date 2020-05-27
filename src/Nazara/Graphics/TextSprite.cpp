@@ -30,13 +30,13 @@ namespace Nz
 	{
 		for (auto& pair : m_renderInfos)
 		{
-			Texture* overlay = pair.first;
+			const RenderKey& key = pair.first;
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
 			{
 				const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(instanceData.data.data());
-				renderQueue->AddSprites(instanceData.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, scissorRect, overlay);
+				renderQueue->AddSprites(instanceData.renderOrder + key.renderOrder, GetMaterial(), &vertices[indices.first * 4], indices.count, scissorRect, key.texture);
 			}
 		}
 	}
@@ -101,15 +101,16 @@ namespace Nz
 		}
 
 		std::size_t glyphCount = drawer.GetGlyphCount();
-		m_localVertices.resize(glyphCount * 4);
 
 		// Reset glyph count for every texture to zero
 		for (auto& pair : m_renderInfos)
 			pair.second.count = 0;
 
 		// Count glyph count for each texture
-		Texture* lastTexture = nullptr;
+		RenderKey lastRenderKey { nullptr, 0 };
 		unsigned int* count = nullptr;
+
+		std::size_t visibleGlyphCount = 0;
 		for (std::size_t i = 0; i < glyphCount; ++i)
 		{
 			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
@@ -117,18 +118,22 @@ namespace Nz
 				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
-			if (lastTexture != texture)
+			RenderKey renderKey{ texture, glyph.renderOrder };
+			if (lastRenderKey != renderKey)
 			{
-				auto it = m_renderInfos.find(texture);
+				auto it = m_renderInfos.find(renderKey);
 				if (it == m_renderInfos.end())
-					it = m_renderInfos.insert(std::make_pair(texture, RenderIndices{0U, 0U})).first;
+					it = m_renderInfos.insert(std::make_pair(renderKey, RenderIndices{0U, 0U})).first;
 
 				count = &it->second.count;
-				lastTexture = texture;
+				lastRenderKey = renderKey;
 			}
 
 			(*count)++;
+			visibleGlyphCount++;
 		}
+
+		m_localVertices.resize(visibleGlyphCount * 4);
 
 		// Attributes indices and reinitialize glyph count to zero to use it as a counter in the next loop
 		// This is because the 1st glyph can use texture A, the 2nd glyph can use texture B and the 3th glyph C can use texture A again
@@ -140,7 +145,7 @@ namespace Nz
 		{
 			RenderIndices& indices = infoIt->second;
 			if (indices.count == 0)
-				m_renderInfos.erase(infoIt++); //< No glyph uses this texture, remove from indices
+				infoIt = m_renderInfos.erase(infoIt); //< No glyph uses this texture, remove from indices
 			else
 			{
 				indices.first = index;
@@ -151,7 +156,7 @@ namespace Nz
 			}
 		}
 
-		lastTexture = nullptr;
+		lastRenderKey = { nullptr, 0 };
 		RenderIndices* indices = nullptr;
 		for (unsigned int i = 0; i < glyphCount; ++i)
 		{
@@ -160,10 +165,11 @@ namespace Nz
 				continue;
 
 			Texture* texture = static_cast<Texture*>(glyph.atlas);
-			if (lastTexture != texture)
+			RenderKey renderKey{ texture, glyph.renderOrder };
+			if (lastRenderKey != renderKey)
 			{
-				indices = &m_renderInfos[texture]; //< We changed texture, adjust the pointer
-				lastTexture = texture;
+				indices = &m_renderInfos[renderKey]; //< We changed texture, adjust the pointer
+				lastRenderKey = renderKey;
 			}
 
 			// First, compute the uv coordinates from our atlas rect
@@ -185,9 +191,10 @@ namespace Nz
 			for (unsigned int j = 0; j < 4; ++j)
 			{
 				// Remember that indices->count is a counter here, not a count value
-				m_localVertices[indices->count * 4 + j].color = glyph.color;
-				m_localVertices[indices->count * 4 + j].position.Set(glyph.corners[j]);
-				m_localVertices[indices->count * 4 + j].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
+				std::size_t offset = (indices->first + indices->count) * 4 + j;
+				m_localVertices[offset].color = glyph.color;
+				m_localVertices[offset].position.Set(glyph.corners[j]);
+				m_localVertices[offset].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
 			}
 
 			// Increment the counter, go to next glyph
@@ -208,9 +215,8 @@ namespace Nz
 
 	void TextSprite::MakeBoundingVolume() const
 	{
-		Rectf bounds(m_localBounds);
-		Vector2f max = m_scale * bounds.GetMaximum();
-		Vector2f min = m_scale * bounds.GetMinimum();
+		Vector2f max = m_scale * m_localBounds.GetMaximum();
+		Vector2f min = m_scale * m_localBounds.GetMinimum();
 
 		m_boundingVolume.Set(min.x * Vector3f::Right() + min.y * Vector3f::Down(), max.x * Vector3f::Right() + max.y * Vector3f::Down());
 	}
@@ -236,13 +242,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Handle the invalidation of an atlas layer
+	* \brief Handle the size change of an atlas layer
 	*
 	* \param atlas Atlas being invalidated
 	* \param oldLayer Pointer to the previous layer
 	* \param newLayer Pointer to the new layer
 	*/
-
 	void TextSprite::OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer)
 	{
 		NazaraUnused(atlas);
@@ -255,33 +260,38 @@ namespace Nz
 		}
 		#endif
 
+		if (!oldLayer)
+			return;
+
+		assert(newLayer);
+
 		// The texture of an atlas have just been recreated (size change)
 		// we have to adjust the coordinates of the texture and the rendering texture
 		Texture* oldTexture = static_cast<Texture*>(oldLayer);
 		Texture* newTexture = static_cast<Texture*>(newLayer);
 
-		// It is possible that we don't use the texture (the atlas warning us for each of its layers)
-		auto it = m_renderInfos.find(oldTexture);
-		if (it != m_renderInfos.end())
+		Vector2ui oldSize(oldTexture->GetSize());
+		Vector2ui newSize(newTexture->GetSize());
+		Vector2f scale = Vector2f(oldSize) / Vector2f(newSize); // ratio of the old one to the new one
+
+		// It is possible we actually use that texture multiple times, check them all
+		for (auto it = m_renderInfos.begin(); it != m_renderInfos.end(); ++it)
 		{
-			// We indeed use this texture, we have to update its coordinates
-			RenderIndices indices = std::move(it->second);
+			const RenderKey& renderKey = it->first;
+			const RenderIndices& indices = it->second;
 
-			Vector2ui oldSize(oldTexture->GetSize());
-			Vector2ui newSize(newTexture->GetSize());
-			Vector2f scale = Vector2f(oldSize) / Vector2f(newSize); // ratio of the old one to the new one
-
-			// Now we will iterate through each coordinates of the concerned texture to multiply them by the ratio
-			SparsePtr<Vector2f> texCoordPtr(&m_localVertices[indices.first].uv, sizeof(VertexStruct_XYZ_Color_UV));
+			// Adjust texture coordinates by size ratio
+			SparsePtr<Vector2f> texCoordPtr(&m_localVertices[indices.first].uv, sizeof(VertexStruct_XY_Color_UV));
 			for (unsigned int i = 0; i < indices.count; ++i)
 			{
 				for (unsigned int j = 0; j < 4; ++j)
-					m_localVertices[i*4 + j].uv *= scale;
+					m_localVertices[i * 4 + j].uv *= scale;
 			}
 
-			// We get rid off the old texture and we set the new one at the place (same for indices)
+			// Erase and re-insert with the new texture handle
 			m_renderInfos.erase(it);
-			m_renderInfos.insert(std::make_pair(newTexture, std::move(indices)));
+			m_renderInfos.insert(std::make_pair(RenderKey{ newTexture, renderKey.renderOrder }, indices));
+			it = m_renderInfos.begin(); //< std::unordered_map::insert may invalidate all iterators, start from the beginning...
 		}
 	}
 

@@ -32,8 +32,8 @@ namespace Nz
 			Vector2f uv;
 		};
 
-		UInt32 s_maxQuads = std::numeric_limits<UInt16>::max() / 6;
-		UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		constexpr UInt32 s_vertexBufferSize = 4 * 1024 * 1024; // 4 MiB
+		constexpr UInt32 s_maxQuadPerDraw = s_vertexBufferSize / sizeof(VertexLayout_XYZ_Color_UV);
 	}
 
 	/*!
@@ -175,12 +175,12 @@ namespace Nz
 		{
 			ErrorFlags flags(ErrorFlag_ThrowException, true);
 
-			s_quadIndexBuffer.Reset(false, s_maxQuads * 6, DataStorage_Hardware, 0);
+			s_quadIndexBuffer.Reset(true, s_maxQuadPerDraw * 6, DataStorage_Hardware, 0);
 
 			BufferMapper<IndexBuffer> mapper(s_quadIndexBuffer, BufferAccess_WriteOnly);
-			UInt16* indices = static_cast<UInt16*>(mapper.GetPointer());
+			UInt32* indices = static_cast<UInt32*>(mapper.GetPointer());
 
-			for (unsigned int i = 0; i < s_maxQuads; ++i)
+			for (UInt32 i = 0; i < s_maxQuadPerDraw; ++i)
 			{
 				*indices++ = i * 4 + 0;
 				*indices++ = i * 4 + 2;
@@ -618,52 +618,9 @@ namespace Nz
 		const RenderTarget* renderTarget = sceneData.viewer->GetTarget();
 		Recti fullscreenScissorRect = Recti(Vector2i(renderTarget->GetSize()));
 
+		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuadPerDraw, m_spriteBuffer.GetVertexCount() / 4);
+
 		const unsigned int overlayTextureUnit = Material::GetTextureUnit(TextureMap_Overlay);
-		const std::size_t maxSpriteCount = std::min<std::size_t>(s_maxQuads, m_spriteBuffer.GetVertexCount() / 4);
-
-		m_spriteBatches.clear();
-		{
-			BufferMapper<VertexBuffer> vertexMapper(m_spriteBuffer, BufferAccess_DiscardAndWrite);
-			VertexStruct_XYZ_Color_UV* vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
-
-			std::size_t remainingSprite = maxSpriteCount;
-
-			const Material* lastMaterial = nullptr;
-			const Texture* lastOverlay = nullptr;
-			Recti lastScissorRect = Recti(-1, -1);
-
-			for (const BasicRenderQueue::SpriteChain& basicSprites : spriteList)
-			{
-				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
-				const Nz::Recti& scissorRect = (basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect;
-				if (basicSprites.material != lastMaterial || overlayTexture != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
-				{
-					m_spriteBatches.emplace_back();
-					SpriteBatch& newBatch = m_spriteBatches.back();
-					newBatch.material = basicSprites.material;
-					newBatch.overlayTexture = overlayTexture;
-					newBatch.scissorRect = scissorRect;
-					newBatch.spriteCount = 0;
-
-					lastMaterial = basicSprites.material;
-					lastOverlay = overlayTexture;
-					lastScissorRect = scissorRect;
-				}
-
-				SpriteBatch& currentBatch = m_spriteBatches.back();
-
-				std::size_t spriteCount = std::min(remainingSprite, basicSprites.spriteCount);
-				std::memcpy(vertices, basicSprites.vertices, spriteCount * 4 * sizeof(VertexStruct_XYZ_Color_UV));
-				vertices += spriteCount * 4;
-
-				currentBatch.spriteCount += spriteCount;
-
-				remainingSprite -= spriteCount;
-				if (remainingSprite == 0)
-					break;
-			}
-		}
-
 		const Material* lastMaterial = nullptr;
 		const MaterialPipeline* lastPipeline = nullptr;
 		const Shader* lastShader = nullptr;
@@ -677,59 +634,135 @@ namespace Nz
 		Renderer::SetMatrix(MatrixType_World, Matrix4f::Identity());
 		Renderer::SetVertexBuffer(&m_spriteBuffer);
 
-		unsigned int firstIndex = 0;
-		for (const auto& batch : m_spriteBatches)
+		auto Draw = [&]()
 		{
-			const MaterialPipeline* pipeline = batch.material->GetPipeline();
-			if (pipeline != lastPipeline)
+			unsigned int firstIndex = 0;
+			for (const auto& batch : m_spriteBatches)
 			{
-				pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
-
-				const Shader* shader = pipelineInstance->uberInstance->GetShader();
-				if (shader != lastShader)
+				const MaterialPipeline* pipeline = batch.material->GetPipeline();
+				if (pipeline != lastPipeline)
 				{
-					// Index of uniforms in the shader
-					shaderUniforms = GetShaderUniforms(shader);
+					pipelineInstance = &batch.material->GetPipeline()->Apply(ShaderFlags_TextureOverlay | ShaderFlags_VertexColor);
 
-					// Ambient color of the scene
-					shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
-					// Position of the camera
-					shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
+					const Shader* shader = pipelineInstance->uberInstance->GetShader();
+					if (shader != lastShader)
+					{
+						// Index of uniforms in the shader
+						shaderUniforms = GetShaderUniforms(shader);
 
-					// Overlay texture unit
-					shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+						// Ambient color of the scene
+						shader->SendColor(shaderUniforms->sceneAmbient, sceneData.ambientColor);
+						// Position of the camera
+						shader->SendVector(shaderUniforms->eyePosition, sceneData.viewer->GetEyePosition());
 
-					lastShader = shader;
+						// Overlay texture unit
+						shader->SendInteger(shaderUniforms->textureOverlay, overlayTextureUnit);
+
+						lastShader = shader;
+					}
+
+					lastPipeline = pipeline;
 				}
 
-				lastPipeline = pipeline;
-			}
+				if (batch.material != lastMaterial)
+				{
+					batch.material->Apply(*pipelineInstance);
 
-			if (batch.material != lastMaterial)
+					Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
+
+					lastMaterial = batch.material;
+				}
+
+				if (batch.overlayTexture != lastOverlay)
+				{
+					Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
+					lastOverlay = batch.overlayTexture;
+				}
+
+				if (batch.material->IsScissorTestEnabled() && batch.scissorRect != lastScissorRect)
+				{
+					Renderer::SetScissorRect(batch.scissorRect);
+					lastScissorRect = batch.scissorRect;
+				}
+
+				unsigned int indexCount = batch.spriteCount * 6;
+				Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, firstIndex, indexCount);
+				firstIndex += indexCount;
+			}
+		};
+
+		m_spriteBatches.clear();
+		{
+			BufferMapper<VertexBuffer> vertexMapper;
+			VertexStruct_XYZ_Color_UV* vertices = nullptr;
+
+			std::size_t remainingSprite = maxSpriteCount;
+
+			const Material* lastMaterial = nullptr;
+			const Texture* lastOverlay = nullptr;
+			Recti lastScissorRect = Recti(-1, -1);
+
+			for (const BasicRenderQueue::SpriteChain& basicSprites : spriteList)
 			{
-				batch.material->Apply(*pipelineInstance);
+				const Nz::Texture* overlayTexture = (basicSprites.overlay) ? basicSprites.overlay.Get() : m_whiteTexture.Get();
+				const Nz::Recti& scissorRect = (basicSprites.scissorRect.width > 0) ? basicSprites.scissorRect : fullscreenScissorRect;
 
-				Renderer::SetTextureSampler(overlayTextureUnit, batch.material->GetDiffuseSampler());
+				const VertexStruct_XYZ_Color_UV* spriteVertices = basicSprites.vertices;
+				std::size_t spriteCount = basicSprites.spriteCount;
+				
+				for (;;)
+				{
+					if (m_spriteBatches.empty() || basicSprites.material != lastMaterial || overlayTexture != lastOverlay || (basicSprites.material->IsScissorTestEnabled() && scissorRect != lastScissorRect))
+					{
+						m_spriteBatches.emplace_back();
+						SpriteBatch& newBatch = m_spriteBatches.back();
+						newBatch.material = basicSprites.material;
+						newBatch.overlayTexture = overlayTexture;
+						newBatch.scissorRect = scissorRect;
+						newBatch.spriteCount = 0;
 
-				lastMaterial = batch.material;
+						lastMaterial = basicSprites.material;
+						lastOverlay = overlayTexture;
+						lastScissorRect = scissorRect;
+					}
+
+					SpriteBatch& currentBatch = m_spriteBatches.back();
+
+					if (!vertices)
+					{
+						vertexMapper.Map(m_spriteBuffer, BufferAccess_DiscardAndWrite);
+						vertices = static_cast<VertexStruct_XYZ_Color_UV*>(vertexMapper.GetPointer());
+					}
+
+					std::size_t processedSpriteCount = std::min(remainingSprite, spriteCount);
+					std::size_t processedVertices = processedSpriteCount * 4;
+
+					std::memcpy(vertices, spriteVertices, processedVertices * sizeof(VertexStruct_XYZ_Color_UV));
+					vertices += processedVertices;
+					spriteVertices += processedVertices;
+
+					currentBatch.spriteCount += processedSpriteCount;
+					spriteCount -= processedSpriteCount;
+
+					remainingSprite -= processedSpriteCount;
+					if (remainingSprite == 0)
+					{
+						vertexMapper.Unmap();
+						vertices = nullptr;
+
+						Draw();
+
+						remainingSprite = maxSpriteCount;
+						m_spriteBatches.clear();
+					}
+
+					if (spriteCount == 0)
+						break;
+				}
 			}
-
-			if (batch.overlayTexture != lastOverlay)
-			{
-				Renderer::SetTexture(overlayTextureUnit, batch.overlayTexture);
-				lastOverlay = batch.overlayTexture;
-			}
-
-			if (batch.material->IsScissorTestEnabled() && batch.scissorRect != lastScissorRect)
-			{
-				Renderer::SetScissorRect(batch.scissorRect);
-				lastScissorRect = batch.scissorRect;
-			}
-
-			unsigned int indexCount = batch.spriteCount * 6;
-			Renderer::DrawIndexedPrimitives(PrimitiveMode_TriangleList, firstIndex, indexCount);
-			firstIndex += indexCount;
 		}
+
+		Draw();
 	}
 
 	const ForwardRenderTechnique::ShaderUniforms* ForwardRenderTechnique::GetShaderUniforms(const Shader* shader) const

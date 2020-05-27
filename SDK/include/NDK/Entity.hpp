@@ -43,6 +43,10 @@ namespace Ndk
 			const EntityHandle& Clone() const;
 
 			inline void Disable();
+
+			std::unique_ptr<BaseComponent> DropComponent(ComponentIndex index);
+			template<typename ComponentType> std::unique_ptr<BaseComponent> DropComponent();
+
 			void Enable(bool enable = true);
 
 			inline BaseComponent& GetComponent(ComponentIndex index);
@@ -74,14 +78,14 @@ namespace Ndk
 			Entity& operator=(Entity&&) = delete;
 
 			NazaraSignal(OnEntityDestruction, Entity* /*entity*/);
+			NazaraSignal(OnEntityDisabled, Entity* /*entity*/);
+			NazaraSignal(OnEntityEnabled, Entity* /*entity*/);
 
 		private:
 			Entity(World* world, EntityId id);
 
 			void Create();
 			void Destroy();
-
-			void DestroyComponent(ComponentIndex index);
 
 			inline Nz::Bitset<>& GetRemovedComponentBits();
 
