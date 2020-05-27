@@ -69,8 +69,8 @@ namespace Nz
 			xcb_intern_atom(
 				connection,
 				onlyIfExists,
-				name.GetSize(),
-				name.GetConstBuffer()
+				name.size(),
+				name.data()
 			),
 			&error
 		));
